@@ -6,7 +6,7 @@ const angular = require("angular-eslint");
 module.exports = tseslint.config(
   {
     files: ["**/*.ts"],
-    ignores: ["**/to-promise.service.ts", "**/*.spec.ts", "**/dynamic-fields/**/*"],
+    ignores: ["**/to-promise.service.ts", "**/*.spec.ts", "**/dynamic-fields/**/*", "**/tests/**/*"],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,

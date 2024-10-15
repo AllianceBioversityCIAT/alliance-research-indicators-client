@@ -16,6 +16,9 @@ const config: Config = {
       lines: 30,
       functions: 10
     }
+  },
+  moduleNameMapper: {
+    '@openreplay/tracker': '<rootDir>/tests/mocks/openReplayMock.ts'
   }
 };
 

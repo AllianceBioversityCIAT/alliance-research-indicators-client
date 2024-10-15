@@ -6,6 +6,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { of } from 'rxjs';
+import { OpenReplayService } from './shared/services/open-replay.service';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -29,13 +30,18 @@ describe('AppComponent', () => {
       isLoggedIn: { set: jest.fn() }
     };
 
+    const mockOpenReplayService = {
+      start: jest.fn().mockResolvedValue(undefined)
+    };
+
     await TestBed.configureTestingModule({
       imports: [RouterTestingModule, AppComponent],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         { provide: WebsocketService, useValue: mockWebsocketService },
         { provide: CacheService, useValue: mockCacheService },
-        { provide: Socket, useValue: mockSocket }
+        { provide: Socket, useValue: mockSocket },
+        { provide: OpenReplayService, useValue: mockOpenReplayService }
       ]
     }).compileComponents();
   });
