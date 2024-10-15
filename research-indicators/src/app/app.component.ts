@@ -5,6 +5,7 @@ import { CacheService } from './shared/services/cache.service';
 import { MetadataPanelComponent } from './shared/components/metadata-panel/metadata-panel.component';
 import { WebsocketService } from './shared/sockets/websocket.service';
 import { DynamicToastComponent } from './shared/components/dynamic-toast/dynamic-toast.component';
+import { OpenReplayService } from './shared/services/open-replay.service';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,7 @@ import { DynamicToastComponent } from './shared/components/dynamic-toast/dynamic
 export class AppComponent implements OnInit {
   cache = inject(CacheService);
   sockets = inject(WebsocketService);
+  openReplay = inject(OpenReplayService);
   title = 'research-indicators';
   name = environment.name;
   ngOnInit(): void {
