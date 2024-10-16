@@ -6,6 +6,7 @@ import { MetadataPanelComponent } from './shared/components/metadata-panel/metad
 import { WebsocketService } from './shared/sockets/websocket.service';
 import { DynamicToastComponent } from './shared/components/dynamic-toast/dynamic-toast.component';
 import { OpenReplayService } from './shared/services/open-replay.service';
+import { GoogleAnalyticsService } from './shared/services/google-analytics.service';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ export class AppComponent implements OnInit {
   cache = inject(CacheService);
   sockets = inject(WebsocketService);
   openReplay = inject(OpenReplayService);
+  googleAnalytics = inject(GoogleAnalyticsService);
   title = 'research-indicators';
   name = environment.name;
   ngOnInit(): void {
