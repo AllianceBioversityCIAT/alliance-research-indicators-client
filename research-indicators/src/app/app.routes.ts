@@ -16,6 +16,10 @@ export const routes: Routes = [
         pathMatch: 'full'
       },
       {
+        path: 'about-indicators',
+        loadComponent: () => import('./pages/platform/pages/about-indicators/about-indicators.component')
+      },
+      {
         path: 'home',
         loadComponent: () => import('./pages/platform/pages/home/home.component')
       },
