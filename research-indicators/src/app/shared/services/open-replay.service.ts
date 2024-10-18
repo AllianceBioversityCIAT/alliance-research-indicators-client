@@ -6,15 +6,18 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class OpenReplayService {
-  tracker = new Tracker({
-    projectKey: environment.openReplayProjectKey
-  });
+  tracker: Tracker | null = null;
 
   constructor() {
     this.start();
   }
 
   async start() {
-    await this.tracker.start();
+    if (environment.production) {
+      this.tracker = new Tracker({
+        projectKey: environment.openReplayProjectKey
+      });
+      await this.tracker.start();
+    }
   }
 }
