@@ -7,7 +7,7 @@
   }
 
   .dropdown-content {
-    display: none;
+    // display: none;
     position: absolute;
     background-color: #fff;
     min-width: 160px;
@@ -15,11 +15,13 @@
     z-index: 1;
     padding: 20px;
     border-radius: 4px;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.1s ease-in-out;
+    transform: scale(0);
+  }
 
-    &.show {
-      display: block;
-    }
+  &:focus-within .dropdown-content {
+    // display: block;
+    transform: scale(1);
   }
 
   &.top-left .dropdown-content {
