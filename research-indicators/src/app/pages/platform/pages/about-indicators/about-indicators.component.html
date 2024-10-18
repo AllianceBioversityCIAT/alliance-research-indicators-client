@@ -1,1 +1,37 @@
-<p>about-indicators works!</p>
+<div class="container">
+  <h2>{{ aboutIndicatorData.title }}</h2>
+  <p>{{ aboutIndicatorData.description }}</p>
+
+  <h3>{{ aboutIndicatorData.output.title }}</h3>
+  <p>{{ aboutIndicatorData.output.description }}</p>
+  <div class="options">
+    @for (item of aboutIndicatorData.output.list; track $index) {
+      <p-card class="card-container">
+        <div class="card-content">
+          <i class="material-symbols-rounded">{{ item.icon }}</i>
+          <div class="card-header">
+            <h6>{{ item.type }}</h6>
+            <h4>{{ item.title }}</h4>
+          </div>
+        </div>
+        <p>{{ item.description }}</p>
+      </p-card>
+    }
+  </div>
+  <h3>{{ aboutIndicatorData.outcome.title }}</h3>
+  <p>{{ aboutIndicatorData.outcome.description }}</p>
+  <div class="options">
+    @for (item of aboutIndicatorData.outcome.list; track $index) {
+      <p-card class="card-container">
+        <div class="card-content">
+          <i class="material-symbols-rounded">{{ item.icon }}</i>
+          <div class="card-header">
+            <h6>{{ item.type }}</h6>
+            <h4>{{ item.title }}</h4>
+          </div>
+        </div>
+        <p>{{ item.description }}</p>
+      </p-card>
+    }
+  </div>
+</div>
