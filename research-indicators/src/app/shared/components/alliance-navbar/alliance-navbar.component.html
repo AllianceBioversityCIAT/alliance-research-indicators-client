@@ -18,7 +18,7 @@
         <div dropdown-button>
           <div class="search-box">
             <i class="material-symbols-rounded">search</i>
-            <input type="text" placeholder="Search a result" (input)="dropdown.toggleDropdown()" />
+            <input type="text" placeholder="Search a result" (focus)="dropdown.toggleDropdown()" />
           </div>
         </div>
         <div dropdown-content>

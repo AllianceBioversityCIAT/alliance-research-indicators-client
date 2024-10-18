@@ -1,5 +1,5 @@
-<div class="dropdown {{ position }}" (mouseleave)="closeDropdown()">
-  <div (click)="toggleDropdown()" class="dropdown-button">
+<div tabindex="0" class="dropdown {{ position }}" (focus)="onFocus()" (focusout)="onFocusOut()">
+  <div class="dropdown-button">
     <ng-content select="[dropdown-button]"></ng-content>
   </div>
   <div class="dropdown-content" [class]="{ show: isOpen }">

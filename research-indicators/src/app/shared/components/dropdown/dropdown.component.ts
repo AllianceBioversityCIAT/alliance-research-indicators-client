@@ -19,4 +19,12 @@ export class DropdownComponent {
   closeDropdown() {
     this.isOpen = false;
   }
+  onFocus() {
+    console.log('onFocus');
+    this.isOpen = true;
+  }
+  onFocusOut() {
+    console.log('onFocusOut');
+    this.isOpen = false;
+  }
 }
