@@ -18,12 +18,15 @@
     text-align: left;
     margin-bottom: 30px;
 
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 7;
-    line-clamp: 7;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    // display: -webkit-box;
+
+    // -webkit-box-orient: vertical;
+    // -webkit-line-clamp: 7;
+    // line-clamp: 7;
+
+    // overflow: hidden;
+
+    // text-overflow: ellipsis;
   }
 
   .options {
@@ -31,7 +34,6 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 20px;
-    align-items: stretch;
     margin-bottom: 35px;
     align-items: stretch;
 
@@ -41,6 +43,19 @@
       padding: 0;
       height: 320px;
       display: flex;
+      overflow: hidden;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 70px;
+        background: rgb(255 255 255);
+        background: linear-gradient(0deg, rgb(255 255 255 / 100%) 0%, rgb(255 255 255 / 74.2%) 65%, rgb(255 255 255 / 0%) 100%);
+      }
 
       .card-content {
         display: flex;
@@ -51,7 +66,7 @@
         .icon-background {
           background-color: #d3e7d5;
           border-radius: 50%;
-          width: 40px !important;
+          min-width: 40px !important;
           height: 40px !important;
           display: flex;
           justify-content: center;
@@ -91,7 +106,7 @@
 
         .title-text {
           color: #153c71;
-          font-family: Space Grotesk;
+          font-family: 'Space Grotesk';
           font-size: 20px;
           font-weight: 600;
           margin-top: 3px;
