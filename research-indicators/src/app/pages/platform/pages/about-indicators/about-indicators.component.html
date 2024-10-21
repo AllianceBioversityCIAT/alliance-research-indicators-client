@@ -1,8 +1,8 @@
 <div class="container">
-  <h3 class="title-text">{{ aboutIndicatorData.output.title }}</h3>
-  <p class="description-text">{{ aboutIndicatorData.output.description }}</p>
+  <h3 class="title-text">{{ indicatorSE.aboutIndicatorData.output.title }}</h3>
+  <p class="description-text">{{ indicatorSE.aboutIndicatorData.output.description }}</p>
   <div class="options">
-    @for (item of aboutIndicatorData.output.list; track $index) {
+    @for (item of indicatorSE.aboutIndicatorData.output.list; track $index) {
       <p-card class="card-container">
         <div class="card-content">
           <div class="icon-background">
@@ -17,10 +17,10 @@
       </p-card>
     }
   </div>
-  <h3 class="title-text">{{ aboutIndicatorData.outcome.title }}</h3>
-  <p class="description-text">{{ aboutIndicatorData.outcome.description }}</p>
+  <h3 class="title-text">{{ indicatorSE.aboutIndicatorData.outcome.title }}</h3>
+  <p class="description-text">{{ indicatorSE.aboutIndicatorData.outcome.description }}</p>
   <div class="options">
-    @for (item of aboutIndicatorData.outcome.list; track $index) {
+    @for (item of indicatorSE.aboutIndicatorData.outcome.list; track $index) {
       <p-card class="card-container">
         <div class="card-content">
           <div class="icon-background-2">
