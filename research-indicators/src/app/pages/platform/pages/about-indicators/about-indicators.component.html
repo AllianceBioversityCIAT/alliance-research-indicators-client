@@ -3,7 +3,7 @@
   <p class="description-text">{{ indicatorSE.aboutIndicatorData.output.description }}</p>
   <div class="options">
     @for (item of indicatorSE.aboutIndicatorData.output.list; track $index) {
-      <p-card class="card-container">
+      <p-card class="card-container" routerLink="/indicator/{{ item.id }}">
         <div class="card-content">
           <div class="icon-background">
             <i class="material-symbols-rounded output-icon">{{ item.icon }}</i>
