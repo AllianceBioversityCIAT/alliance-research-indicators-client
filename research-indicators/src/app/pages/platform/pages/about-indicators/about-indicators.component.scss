@@ -1,19 +1,29 @@
 .container {
   margin: 30px;
 
-  h2 {
-    color: #112f5c;
+  .title-text {
+    font-family: Barlow;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 18.15px;
+    color: #173f6f;
   }
 
-  h3 {
-    color: #2c3e50;
-    margin: 0;
-  }
+  .description-text {
+    color: #4c5158;
+    font-family: Barlow;
+    font-size: 17px;
+    font-weight: 300;
+    line-height: 16.8px;
+    text-align: left;
+    margin-bottom: 30px;
 
-  p {
-    color: #555;
-    margin-top: 10px;
-    margin-bottom: 35px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 7;
+    line-clamp: 7;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .options {
@@ -26,25 +36,65 @@
     align-items: stretch;
 
     .card-container {
-      border-radius: 8px;
+      border-radius: 10px;
       flex: 1;
       padding: 0;
-      height: 100%;
-      border: 0.8px solid rgb(217, 217, 217);
+      height: 320px;
+      display: flex;
 
       .card-content {
         display: flex;
         align-items: center;
         flex-grow: 1;
         margin-bottom: 15px;
+
+        .icon-background {
+          background-color: #d3e7d5;
+          border-radius: 50%;
+          width: 40px !important;
+          height: 40px !important;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .icon-background-2 {
+          background-color: #b0c4dd;
+          border-radius: 50%;
+          width: 40px !important;
+          height: 40px !important;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .output-icon {
+          color: #235b2d;
+        }
+
+        .outcome-icon {
+          color: #112f5c;
+        }
       }
 
       .card-header {
-        margin-left: 30px;
+        margin-left: 15px;
 
-        h4,
-        h6 {
+        .type-text {
+          color: #8d9299;
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 13px;
+          font-weight: 300;
+          letter-spacing: 5px;
           margin: 0;
+        }
+
+        .title-text {
+          color: #153c71;
+          font-family: Space Grotesk;
+          font-size: 20px;
+          font-weight: 600;
+          margin-top: 3px;
         }
       }
     }

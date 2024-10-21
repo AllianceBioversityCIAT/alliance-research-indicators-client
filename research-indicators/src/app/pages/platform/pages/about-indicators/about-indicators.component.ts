@@ -10,13 +10,11 @@ import { CardModule } from 'primeng/card';
 })
 export default class AboutIndicatorsComponent {
   aboutIndicatorData = {
-    title: 'About Indicators',
-    description: 'Learn about the key output and outcome indicators used by the Alliance of Bioversity and CIAT to track progress and measure impact.',
     output: {
       title: 'OUTPUTS',
       description: 'Knowledge, technical or institutional advancement produced by Alliance research, engagement and/or capacity development activities.',
       list: [
-        { type: 'OUTPUT', title: 'Innovation Development', description: 'A new, improved, or adapted output or groups of outputs such as technologies, products and services, policies, and other organizational and institutional arrangements with high potential to contribute to positive impacts when used at scale.', icon: 'group' },
+        { type: 'OUTPUT', title: 'Innovation Development', description: 'A new, improved, or adapted output or groups of outputs such as technologies, products and services, policies, and other organizational and institutional arrangements with high potential to contribute to positive impacts when used at scale.', icon: 'flag' },
         { type: 'OUTPUT', title: 'Capacity Sharing for Development', description: 'Number of individuals trained or engaged by Alliance staff, aiming to lead to behavioral changes in knowledge, attitude, skills, and practice among CGIAR and non-CGIAR personnel.', icon: 'group' },
         { type: 'OUTPUT', title: 'Knowledge Product', description: 'Defined by the CGIAR Open and FAIR Data Assets Policy using the term data asset. For reporting, users should only consider knowledge products that are integral to the Initiative/Project’s Theory of Change (ToC). To be eligible for reporting, a knowledge product should be a finalized product. Other data assets illustrating an output or outcome should not be reported under this indicator and should instead be used as evidence for the relevant output or outcome. ', icon: 'lightbulb' }
       ]

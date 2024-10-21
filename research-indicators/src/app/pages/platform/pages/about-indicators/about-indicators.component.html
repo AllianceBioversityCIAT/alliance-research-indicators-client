@@ -1,36 +1,37 @@
 <div class="container">
-  <h2>{{ aboutIndicatorData.title }}</h2>
-  <p>{{ aboutIndicatorData.description }}</p>
-
-  <h3>{{ aboutIndicatorData.output.title }}</h3>
-  <p>{{ aboutIndicatorData.output.description }}</p>
+  <h3 class="title-text">{{ aboutIndicatorData.output.title }}</h3>
+  <p class="description-text">{{ aboutIndicatorData.output.description }}</p>
   <div class="options">
     @for (item of aboutIndicatorData.output.list; track $index) {
       <p-card class="card-container">
         <div class="card-content">
-          <i class="material-symbols-rounded">{{ item.icon }}</i>
+          <div class="icon-background">
+            <i class="material-symbols-rounded output-icon">{{ item.icon }}</i>
+          </div>
           <div class="card-header">
-            <h6>{{ item.type }}</h6>
-            <h4>{{ item.title }}</h4>
+            <h6 class="type-text">{{ item.type }}</h6>
+            <h3 class="title-text">{{ item.title }}</h3>
           </div>
         </div>
-        <p>{{ item.description }}</p>
+        <p class="description-text">{{ item.description }}</p>
       </p-card>
     }
   </div>
-  <h3>{{ aboutIndicatorData.outcome.title }}</h3>
-  <p>{{ aboutIndicatorData.outcome.description }}</p>
+  <h3 class="title-text">{{ aboutIndicatorData.outcome.title }}</h3>
+  <p class="description-text">{{ aboutIndicatorData.outcome.description }}</p>
   <div class="options">
     @for (item of aboutIndicatorData.outcome.list; track $index) {
       <p-card class="card-container">
         <div class="card-content">
-          <i class="material-symbols-rounded">{{ item.icon }}</i>
+          <div class="icon-background-2">
+            <i class="material-symbols-rounded outcome-icon">{{ item.icon }}</i>
+          </div>
           <div class="card-header">
-            <h6>{{ item.type }}</h6>
-            <h4>{{ item.title }}</h4>
+            <h6 class="type-text">{{ item.type }}</h6>
+            <h3 class="title-text">{{ item.title }}</h3>
           </div>
         </div>
-        <p>{{ item.description }}</p>
+        <p class="description-text">{{ item.description }}</p>
       </p-card>
     }
   </div>
