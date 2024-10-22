@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import IndicatorComponent from './indicator.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { IndicatorsService } from '@services/indicators.service';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('IndicatorComponent', () => {
   let component: IndicatorComponent;
@@ -9,11 +11,17 @@ describe('IndicatorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        IndicatorComponent,
-        HttpClientTestingModule // Importa el módulo de pruebas de HttpClient
-      ],
-      providers: [IndicatorsService]
+      imports: [IndicatorComponent, HttpClientTestingModule],
+      providers: [
+        IndicatorsService,
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { paramMap: new Map() },
+            params: of({}) // Mock de parámetros de ruta
+          }
+        }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(IndicatorComponent);
