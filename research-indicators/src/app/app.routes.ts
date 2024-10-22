@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { rolesGuard } from './shared/guards/roles.guard';
+import { rolesGuard } from '@guards/roles.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./pages/platform/platform.component'),
+    loadComponent: () => import('@platform/platform.component'),
     canMatch: [rolesGuard],
     data: {
       isLoggedIn: true
@@ -12,34 +12,42 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'home',
+        redirectTo: 'about-indicators',
         pathMatch: 'full'
       },
       {
+        path: 'indicator/:id',
+        loadComponent: () => import('@platform/pages/indicator/indicator.component')
+      },
+      {
+        path: 'about-indicators',
+        loadComponent: () => import('@platform/pages/about-indicators/about-indicators.component')
+      },
+      {
         path: 'home',
-        loadComponent: () => import('./pages/platform/pages/home/home.component')
+        loadComponent: () => import('@platform/pages/home/home.component')
       },
       {
         path: 'about',
-        loadComponent: () => import('./pages/platform/pages/about/about.component')
+        loadComponent: () => import('@platform/pages/about/about.component')
       },
       {
         path: 'notifications',
-        loadComponent: () => import('./pages/platform/pages/notifications/notifications.component')
+        loadComponent: () => import('@platform/pages/notifications/notifications.component')
       },
       {
         path: 'settings',
-        loadComponent: () => import('./pages/platform/pages/settings/settings.component')
+        loadComponent: () => import('@platform/pages/settings/settings.component')
       },
       {
         path: 'profile',
-        loadComponent: () => import('./pages/platform/pages/profile/profile.component')
+        loadComponent: () => import('@platform/pages/profile/profile.component')
       }
     ]
   },
   {
     path: '',
-    loadComponent: () => import('./pages/landing/landing.component'),
+    loadComponent: () => import('@landing/landing.component'),
     canMatch: [rolesGuard],
     data: {
       isLoggedIn: false
@@ -58,7 +66,7 @@ export const routes: Routes = [
   },
   {
     path: 'auth',
-    loadComponent: () => import('./pages/platform/platform.component')
+    loadComponent: () => import('@platform/platform.component')
   },
   {
     path: 'fields',

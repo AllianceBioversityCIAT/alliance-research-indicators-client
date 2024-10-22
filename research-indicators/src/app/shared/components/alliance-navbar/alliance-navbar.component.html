@@ -4,21 +4,21 @@
   </div>
   <div class="options">
     @for (option of this.options; track $index) {
-      <a [routerLink]="option.path" class="option atc-white-1" routerLinkActive="active atc-light-blue-200-i">
-        {{ option.label }}
-        <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
-          {{ option.icon }}
-        </a>
+    <a [routerLink]="option.path" class="option atc-white-1" routerLinkActive="active atc-light-blue-200-i">
+      {{ option.label }}
+      <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
+        {{ option.icon }}
       </a>
+    </a>
     }
 
     <p-button label="New result" size="small" />
     <div class="icons-container">
-      <app-dropdown position="top-left" class="search-dropdown" #dropdown>
+      <app-dropdown position="top-left" class="search-dropdown">
         <div dropdown-button>
           <div class="search-box">
             <i class="material-symbols-rounded">search</i>
-            <input type="text" placeholder="Search a result" (input)="dropdown.toggleDropdown()" />
+            <input type="text" placeholder="Search a result" />
           </div>
         </div>
         <div dropdown-content>
@@ -31,7 +31,7 @@
       <i class="material-symbols-rounded atc-white-1" (click)="this.darkModeService.toggleDarkMode()">
         {{ this.darkModeService.isDarkModeEnabled() ? 'light_mode' : 'dark_mode' }}
       </i>
-      <app-dropdown position="top-right">
+      <app-dropdown position="top-right" positionX="right" positionY="top">
         <div dropdown-button>
           <i class="material-symbols-rounded atc-white-1" pBadge severity="danger" value="2">notifications</i>
         </div>
@@ -42,7 +42,7 @@
         </div>
       </app-dropdown>
 
-      <app-dropdown position="top-right">
+      <app-dropdown position="top-right" positionX="right" positionY="top">
         <div dropdown-button>
           <p-avatar label="P" styleClass="mr-2"></p-avatar>
         </div>

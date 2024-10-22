@@ -1,14 +1,42 @@
 import { Injectable, WritableSignal, inject } from '@angular/core';
 import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
-import { GetViewComponents } from '../interfaces/api.interface';
-import { Result } from '../interfaces/result.interface';
+import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   TP = inject(ToPromiseService);
+
+  //? >>>>>>>>>>>> Endpoints <<<<<<<<<<<<<<<<<
+
+  login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
+    const url = () => `authorization/login`;
+    return this.TP.post(url(), {}, { token: awsToken, isAuth: true });
+  };
+
+  GET_IndicatorTypes = (): Promise<MainResponse<IndicatorTypes[]>> => {
+    const url = () => `indicator-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IndicatorTypeById = (id: number): Promise<MainResponse<Indicator>> => {
+    const url = () => `indicator-types/${id}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IndicatorById = (id: number): Promise<MainResponse<Indicator>> => {
+    const url = () => `indicators/${id}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ViewComponents = (): Promise<MainResponse<GetViewComponents[]>> => {
+    const url = () => `authorization/view/scomponents`;
+    return this.TP.get(url(), {});
+  };
+
+  //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {
     for (const key in body) {
@@ -31,25 +59,4 @@ export class ApiService {
       }
     }
   }
-
-  login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
-    const url = () => `authorization/login`;
-    return this.TP.post(url(), {}, awsToken);
-  };
-
-  GET_ViewComponents = (): Promise<MainResponse<GetViewComponents[]>> => {
-    const url = () => `authorization/view/scomponents`;
-    return this.TP.get(url(), {});
-  };
-
-  GET_results = (): Promise<MainResponse<Result[]>> => {
-    return new Promise(resolve => {
-      const url = () => `http://localhost:4200/data/results.json`;
-      fetch(url())
-        .then(response => response.json())
-        .then(data => {
-          resolve(data);
-        });
-    });
-  };
 }

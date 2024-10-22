@@ -1,5 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { OpenReplayService } from './open-replay.service';
+import TrackerMock from '../../../../tests/mocks/openReplayMock';
+
+jest.mock('@openreplay/tracker', () => {
+  return jest.fn().mockImplementation(() => new TrackerMock());
+});
 
 describe('OpenReplayService', () => {
   let service: OpenReplayService;
@@ -26,7 +31,7 @@ describe('OpenReplayService', () => {
   });
 
   it('should call tracker.start when start method is called', async () => {
-    const trackerStartSpy = jest.spyOn(service.tracker, 'start');
+    const trackerStartSpy = jest.spyOn(service.tracker!, 'start');
     await service.start();
     expect(trackerStartSpy).toHaveBeenCalled();
   });

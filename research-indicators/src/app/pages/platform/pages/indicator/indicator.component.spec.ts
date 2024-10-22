@@ -1,16 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AllianceSidebarComponent } from './alliance-sidebar.component';
+import IndicatorComponent from './indicator.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { IndicatorsService } from '@services/indicators.service';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
-describe('AllianceSidebarComponent', () => {
-  let component: AllianceSidebarComponent;
-  let fixture: ComponentFixture<AllianceSidebarComponent>;
+describe('IndicatorComponent', () => {
+  let component: IndicatorComponent;
+  let fixture: ComponentFixture<IndicatorComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AllianceSidebarComponent],
+      imports: [IndicatorComponent, HttpClientTestingModule],
       providers: [
+        IndicatorsService,
         {
           provide: ActivatedRoute,
           useValue: {
@@ -21,7 +24,7 @@ describe('AllianceSidebarComponent', () => {
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AllianceSidebarComponent);
+    fixture = TestBed.createComponent(IndicatorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

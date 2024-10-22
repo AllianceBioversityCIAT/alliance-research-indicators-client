@@ -42,10 +42,7 @@ export class ResultsTableComponent implements OnInit {
     { attr: 'creation_date', header: 'Creation Date' }
   ];
 
-  GET_results = async () => this.results.set((await this.api.GET_results()).data);
-
   ngOnInit() {
-    this.GET_results();
     setTimeout(() => {
       this.loading.set(false);
     }, 1000);

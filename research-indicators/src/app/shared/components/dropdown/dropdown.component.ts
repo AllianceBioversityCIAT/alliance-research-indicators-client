@@ -9,14 +9,6 @@ import { Component, Input } from '@angular/core';
 })
 export class DropdownComponent {
   @Input() position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' = 'bottom-right';
-
-  isOpen = false;
-
-  toggleDropdown() {
-    this.isOpen = !this.isOpen;
-  }
-
-  closeDropdown() {
-    this.isOpen = false;
-  }
+  @Input() positionX: 'left' | 'right' | '' = '';
+  @Input() positionY: 'top' | 'bottom' | '' = '';
 }

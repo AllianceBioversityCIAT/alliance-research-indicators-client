@@ -1,0 +1,13 @@
+.section-header {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 20px;
+  border: 1px solid rgb(222, 222, 222);
+
+  .back-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}

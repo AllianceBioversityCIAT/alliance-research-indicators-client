@@ -1,15 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AllianceSidebarComponent } from './alliance-sidebar.component';
+import { SectionHeaderComponent } from './section-header.component';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
-describe('AllianceSidebarComponent', () => {
-  let component: AllianceSidebarComponent;
-  let fixture: ComponentFixture<AllianceSidebarComponent>;
+describe('SectionHeaderComponent', () => {
+  let component: SectionHeaderComponent;
+  let fixture: ComponentFixture<SectionHeaderComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AllianceSidebarComponent],
+      imports: [SectionHeaderComponent],
       providers: [
         {
           provide: ActivatedRoute,
@@ -21,7 +21,7 @@ describe('AllianceSidebarComponent', () => {
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AllianceSidebarComponent);
+    fixture = TestBed.createComponent(SectionHeaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
