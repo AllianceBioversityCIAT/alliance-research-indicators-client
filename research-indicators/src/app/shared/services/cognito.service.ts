@@ -58,6 +58,7 @@ export class CognitoService {
     localStorage.setItem('token', token);
     localStorage.setItem('decoded', JSON.stringify(decoded));
     localStorage.setItem('access_token', response.data.access_token);
+    response.data.user.roleName = response.data.user?.user_role_list[0]?.role?.name ?? '';
     localStorage.setItem('user', JSON.stringify(response.data.user));
 
     const { first_name, id } = decoded;

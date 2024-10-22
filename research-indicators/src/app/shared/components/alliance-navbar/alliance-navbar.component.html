@@ -51,11 +51,10 @@
             <div class="account-header">Account</div>
             <div class="account-content">
               <p-avatar label="P" size="large"></p-avatar>
-              @let user = this.cache.user();
               <div class="account-details">
-                <span class="account-name">{{ user?.first_name }} {{ user?.last_name }}</span>
-                <span class="account-email">{{ user?.email }}</span>
-                <!-- <span class="account-role">{{ user?.user_role_list?.length && user?.user_role_list[0]?.role?.name }}</span> -->
+                <span class="account-name">{{ this.cache.user().first_name }} {{ this.cache.user().last_name }}</span>
+                <span class="account-email">{{ this.cache.user().email }}</span>
+                <span class="account-role">{{ this.cache.user().roleName }}</span>
               </div>
             </div>
           </div>

@@ -35,6 +35,7 @@ export class User {
   last_name: string | null = '';
   email: string | null = '';
   status_id: number | null = 0;
+  roleName: string | null = '';
   user_role_list: Userrolelist[] = [];
 }
 
