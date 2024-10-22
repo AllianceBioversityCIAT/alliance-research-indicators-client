@@ -27,7 +27,7 @@ export interface DecodedUserData {
   letter?: string;
   isLogged: boolean;
 }
-interface User {
+export interface User {
   is_active: boolean;
   sec_user_id: number;
   first_name: string;

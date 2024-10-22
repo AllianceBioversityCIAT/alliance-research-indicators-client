@@ -47,7 +47,18 @@
           <p-avatar label="P" styleClass="mr-2"></p-avatar>
         </div>
         <div dropdown-content>
-          <p>Profile</p>
+          <div class="account-container">
+            <div class="account-header">Account</div>
+            <div class="account-content">
+              <img src="tu-avatar-url.png" alt="Avatar" class="account-avatar" />
+              <div class="account-details">
+                <span class="account-name">{{ this.cache.user()?.first_name }} {{ this.cache.user()?.last_name }}</span>
+                <span class="account-email">{{ this.cache.user()?.email }}</span>
+                <span class="account-role">{{ this.cache.user().user_role_list[0]?.role?.name }}</span>
+              </div>
+            </div>
+          </div>
+
           <p-button size="small" label="Log out" icon="pi pi-sign-in" [loading]="this.cache.isValidatingToken()" (onClick)="logOut()"></p-button>
         </div>
       </app-dropdown>
