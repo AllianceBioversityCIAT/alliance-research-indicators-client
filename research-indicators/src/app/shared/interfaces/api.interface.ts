@@ -12,7 +12,7 @@ export interface IndicatorTypes {
   indicators: Indicator[];
 }
 
-interface Indicator {
+export interface Indicator {
   is_active: boolean;
   indicator_id: number;
   name: string;

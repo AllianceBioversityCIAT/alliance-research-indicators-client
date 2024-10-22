@@ -11,4 +11,9 @@ export class CacheService {
   userInfo: WritableSignal<UserInfo> = signal(localStorage.getItem('decoded') ? JSON.parse(localStorage.getItem('decoded') ?? '') : {});
   token = signal(localStorage.getItem('token') ?? '');
   showMetadataPanel = signal(localStorage.getItem('showMetadataPanel') === 'true');
+  currentSectionHeaderName = signal('');
+
+  setCurrentSectionHeaderName(name: string) {
+    this.currentSectionHeaderName.set(name);
+  }
 }

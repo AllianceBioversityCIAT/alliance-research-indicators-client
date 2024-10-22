@@ -1,7 +1,7 @@
 import { Injectable, WritableSignal, inject } from '@angular/core';
 import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
-import { GetViewComponents, IndicatorTypes } from '../interfaces/api.interface';
+import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +18,16 @@ export class ApiService {
 
   GET_IndicatorTypes = (): Promise<MainResponse<IndicatorTypes[]>> => {
     const url = () => `indicator-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IndicatorTypeById = (id: number): Promise<MainResponse<Indicator>> => {
+    const url = () => `indicator-types/${id}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IndicatorById = (id: number): Promise<MainResponse<Indicator>> => {
+    const url = () => `indicators/${id}`;
     return this.TP.get(url(), {});
   };
 

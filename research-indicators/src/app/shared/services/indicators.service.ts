@@ -16,6 +16,5 @@ export class IndicatorsService {
   async main() {
     const response = await this.api.GET_IndicatorTypes();
     this.indicators.set(response.data);
-    console.log(this.indicators());
   }
 }
