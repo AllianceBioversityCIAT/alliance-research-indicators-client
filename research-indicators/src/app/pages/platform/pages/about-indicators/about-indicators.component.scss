@@ -72,6 +72,12 @@
       &:hover {
         transform: scale(1.06);
         box-shadow: 0 10px 10px 0 rgb(0 0 0 / 10%);
+
+        .icon-background {
+          i {
+            animation: wiggle 0.5s ease-in-out 1;
+          }
+        }
       }
 
       .card-content {
@@ -118,5 +124,27 @@
       margin: 0;
       margin-top: 10px;
     }
+  }
+}
+
+@keyframes wiggle {
+  0% {
+    transform: rotate(-10deg);
+  }
+
+  25% {
+    transform: rotate(10deg);
+  }
+
+  50% {
+    transform: rotate(-10deg);
+  }
+
+  75% {
+    transform: rotate(10deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
   }
 }
