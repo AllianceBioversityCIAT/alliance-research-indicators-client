@@ -44,7 +44,7 @@
           height: 7px;
           background-color: #00b6ff;
           position: absolute;
-          bottom: 0px;
+          bottom: 0;
           left: 0;
           border-radius: 3px;
         }
@@ -60,7 +60,7 @@
     }
 
     .search-box {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgb(255 255 255 / 10%);
       border-radius: 12px;
       width: 300px;
       display: flex;
@@ -107,7 +107,7 @@
   .account-container {
     width: 250px;
     color: #3e3e3e;
-    margin: 20px 0 40px 0;
+    margin: 20px 0 40px;
 
     .account-header {
       font-size: 1rem;
@@ -139,7 +139,17 @@
 
         .account-email {
           font-size: 0.85rem;
-          color: #000000;
+          color: #000;
+        }
+
+        .account-role {
+          font-size: 12px;
+          color: white;
+          background-color: rgb(37 37 37);
+          border-radius: 4px;
+          padding: 5px;
+          width: max-content;
+          margin-top: 10px;
         }
       }
     }
