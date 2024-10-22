@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import AboutIndicatorsComponent from './about-indicators.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { IndicatorsService } from '@services/indicators.service';
 
 describe('AboutIndicatorsComponent', () => {
   let component: AboutIndicatorsComponent;
@@ -8,7 +9,11 @@ describe('AboutIndicatorsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AboutIndicatorsComponent]
+      imports: [
+        AboutIndicatorsComponent,
+        HttpClientTestingModule // Importa el módulo de pruebas de HttpClient
+      ],
+      providers: [IndicatorsService]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AboutIndicatorsComponent);

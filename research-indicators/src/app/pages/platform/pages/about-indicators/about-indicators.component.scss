@@ -54,31 +54,12 @@
         margin-bottom: 15px;
 
         .icon-background {
-          background-color: #d3e7d5;
           border-radius: 50%;
           min-width: 40px !important;
           height: 40px !important;
           display: flex;
           justify-content: center;
           align-items: center;
-        }
-
-        .icon-background-2 {
-          background-color: #b0c4dd;
-          border-radius: 50%;
-          width: 40px !important;
-          height: 40px !important;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        .output-icon {
-          color: #235b2d;
-        }
-
-        .outcome-icon {
-          color: #112f5c;
         }
       }
 
@@ -109,6 +90,26 @@
       line-height: 1.5;
       color: #2c3e50;
       margin: 0;
+    }
+
+    &:nth-of-type(1) {
+      .output-icon {
+        color: #235b2d;
+      }
+
+      .icon-background {
+        background-color: #d3e7d5;
+      }
+    }
+
+    &:nth-of-type(2) {
+      .icon-background {
+        background-color: #b0c4dd !important;
+      }
+
+      .outcome-icon {
+        color: #112f5c;
+      }
     }
   }
 }

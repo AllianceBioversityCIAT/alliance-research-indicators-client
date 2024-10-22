@@ -8,6 +8,7 @@ export interface IndicatorTypes {
   indicator_type_id: number;
   name: string;
   long_description: string;
+  description: string;
   indicators: Indicator[];
 }
 
@@ -18,4 +19,5 @@ interface Indicator {
   description: string;
   long_description: string;
   indicator_type_id: number;
+  icon_src: string;
 }

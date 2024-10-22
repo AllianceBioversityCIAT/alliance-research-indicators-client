@@ -10,7 +10,7 @@ import { environment } from '../../../environments/environment';
 export class ToPromiseService {
   constructor(public http: HttpClient) {}
 
-  private TP = (subscription: Observable<any>, dataConfig?: DataConfig): Promise<MainResponse<any>> => {
+  private TP = (subscription: Observable<any>): Promise<MainResponse<any>> => {
     return new Promise(async resolve => {
       try {
         resolve(await firstValueFrom(subscription.pipe(map(data => ({ ...data, successfulRequest: true })))));
@@ -21,27 +21,32 @@ export class ToPromiseService {
     });
   };
 
-  post = (url: string, body: any, token?: string) => {
+  post = <T, B>(url: string, body: B, config?: Config) => {
     let headers = new HttpHeaders();
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
+    if (config?.token) {
+      headers = headers.set('Authorization', `Bearer ${config.token}`);
     }
-    return this.TP(this.http.post<any>(environment.apiBaseUrl + url, body, { headers }));
+    return this.TP(this.http.post<T>(this.getEnv(config?.isAuth) + url, body, { headers }));
   };
 
-  put = (url: string, body: any) => {
-    return this.TP(this.http.put<any>(environment.apiBaseUrl + url, body));
+  put = <T, B>(url: string, body: B, config?: Config) => {
+    return this.TP(this.http.put<T>(this.getEnv(config?.isAuth) + url, body));
   };
 
-  get = (url: string, dataConfig?: DataConfig) => {
-    return this.TP(this.http.get<any>(environment.apiBaseUrl + url), dataConfig);
+  get = <T>(url: string, config?: Config) => {
+    return this.TP(this.http.get<T>(this.getEnv(config?.isAuth) + url));
   };
 
-  patch = (url: string, body: any) => {
-    return this.TP(this.http.patch<any>(environment.apiBaseUrl + url, body));
+  patch = <T, B>(url: string, body: B, config?: Config) => {
+    return this.TP(this.http.patch<T>(this.getEnv(config?.isAuth) + url, body));
+  };
+
+  getEnv = (isAuth: boolean | undefined) => {
+    return isAuth ? environment.managementApiUrl : environment.mainApiUrl;
   };
 }
 
-interface DataConfig {
-  flatten?: boolean;
+interface Config {
+  token?: string;
+  isAuth?: boolean;
 }

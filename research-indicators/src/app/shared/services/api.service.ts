@@ -1,8 +1,7 @@
 import { Injectable, WritableSignal, inject } from '@angular/core';
 import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
-import { GetViewComponents } from '../interfaces/api.interface';
-import { Result } from '../interfaces/result.interface';
+import { GetViewComponents, IndicatorTypes } from '../interfaces/api.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -14,39 +13,17 @@ export class ApiService {
 
   login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
     const url = () => `authorization/login`;
-    return this.TP.post(url(), {}, awsToken);
+    return this.TP.post(url(), {}, { token: awsToken, isAuth: true });
   };
 
-  // GET_IndicatorTypes = (): Promise<MainResponse<any[]>> => {
-  //   const url = () => `indicator-types`;
-  //   return this.TP.get(url(), {});
-  // };
-
-  GET_IndicatorTypes = (): Promise<MainResponse<any[]>> => {
-    return new Promise(resolve => {
-      const url = () => `http://localhost:4200/data/indicators.json`;
-      fetch(url())
-        .then(response => response.json())
-        .then(data => {
-          resolve(data);
-        });
-    });
+  GET_IndicatorTypes = (): Promise<MainResponse<IndicatorTypes[]>> => {
+    const url = () => `indicator-types`;
+    return this.TP.get(url(), {});
   };
 
   GET_ViewComponents = (): Promise<MainResponse<GetViewComponents[]>> => {
     const url = () => `authorization/view/scomponents`;
     return this.TP.get(url(), {});
-  };
-
-  GET_results = (): Promise<MainResponse<Result[]>> => {
-    return new Promise(resolve => {
-      const url = () => `http://localhost:4200/data/results.json`;
-      fetch(url())
-        .then(response => response.json())
-        .then(data => {
-          resolve(data);
-        });
-    });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
