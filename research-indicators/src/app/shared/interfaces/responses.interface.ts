@@ -27,14 +27,15 @@ export interface DecodedUserData {
   letter?: string;
   isLogged: boolean;
 }
-export interface User {
-  is_active: boolean;
-  sec_user_id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  status_id: number;
-  user_role_list: Userrolelist[];
+
+export class User {
+  is_active: boolean | null = false;
+  sec_user_id: number | null = 0;
+  first_name: string | null = '';
+  last_name: string | null = '';
+  email: string | null = '';
+  status_id: number | null = 0;
+  user_role_list: Userrolelist[] = [];
 }
 
 interface Userrolelist {

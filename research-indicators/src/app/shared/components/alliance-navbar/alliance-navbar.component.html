@@ -4,12 +4,12 @@
   </div>
   <div class="options">
     @for (option of this.options; track $index) {
-      <a [routerLink]="option.path" class="option atc-white-1" routerLinkActive="active atc-light-blue-200-i">
-        {{ option.label }}
-        <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
-          {{ option.icon }}
-        </a>
+    <a [routerLink]="option.path" class="option atc-white-1" routerLinkActive="active atc-light-blue-200-i">
+      {{ option.label }}
+      <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
+        {{ option.icon }}
       </a>
+    </a>
     }
 
     <p-button label="New result" size="small" />
@@ -51,10 +51,11 @@
             <div class="account-header">Account</div>
             <div class="account-content">
               <p-avatar label="P" size="large"></p-avatar>
+              @let user = this.cache.user();
               <div class="account-details">
-                <span class="account-name">{{ this.cache.user()?.first_name }} {{ this.cache.user()?.last_name }}</span>
-                <span class="account-email">{{ this.cache.user()?.email }}</span>
-                <span class="account-role">{{ this.cache.user().user_role_list[0]?.role?.name }}</span>
+                <span class="account-name">{{ user?.first_name }} {{ user?.last_name }}</span>
+                <span class="account-email">{{ user?.email }}</span>
+                <!-- <span class="account-role">{{ user?.user_role_list?.length && user?.user_role_list[0]?.role?.name }}</span> -->
               </div>
             </div>
           </div>
