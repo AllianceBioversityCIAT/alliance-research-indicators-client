@@ -55,6 +55,8 @@
       display: flex;
       overflow: hidden;
       position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
 
       &::after {
         content: '';
@@ -65,6 +67,11 @@
         height: 70px;
         background: rgb(255 255 255);
         background: linear-gradient(0deg, rgb(255 255 255 / 100%) 0%, rgb(255 255 255 / 74.2%) 65%, rgb(255 255 255 / 0%) 100%);
+      }
+
+      &:hover {
+        transform: scale(1.06);
+        box-shadow: 0 10px 10px 0 rgb(0 0 0 / 10%);
       }
 
       .card-content {
