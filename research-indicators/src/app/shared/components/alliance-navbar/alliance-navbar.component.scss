@@ -17,7 +17,6 @@
   .options {
     display: flex;
     gap: 35px;
-
     align-items: center;
     flex-grow: 1;
     justify-content: flex-start;
@@ -81,6 +80,7 @@
         flex-grow: 1;
         padding: 7px 0;
       }
+
       input::placeholder {
         color: var(--ac-grey-500);
       }
@@ -101,6 +101,47 @@
   search-dropdown {
     dropdown-content {
       width: 500px !important;
+    }
+  }
+
+  .account-container {
+    width: 250px;
+    color: #3e3e3e;
+    margin: 20px 0 40px 0;
+
+    .account-header {
+      font-size: 1rem;
+      margin-bottom: 30px;
+    }
+
+    .account-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 15px;
+
+      .account-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+      }
+
+      .account-details {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .account-name {
+          font-size: 1rem;
+          margin-bottom: 10px;
+          color: #909090;
+        }
+
+        .account-email {
+          font-size: 0.85rem;
+          color: #000000;
+        }
+      }
     }
   }
 }
