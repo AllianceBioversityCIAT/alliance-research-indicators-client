@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CardModule } from 'primeng/card';
-import { IndicatorsService } from '../../../../shared/services/indicators.service';
+import { IndicatorsService } from '@services/indicators.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -11,5 +11,5 @@ import { RouterLink } from '@angular/router';
   styleUrl: './about-indicators.component.scss'
 })
 export default class AboutIndicatorsComponent {
-  indicatorSE = inject(IndicatorsService);
+  indicatorsSE = inject(IndicatorsService);
 }

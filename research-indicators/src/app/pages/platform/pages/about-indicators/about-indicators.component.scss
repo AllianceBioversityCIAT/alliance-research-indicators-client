@@ -2,7 +2,7 @@
   margin: 30px;
 
   .title-text {
-    font-family: Barlow;
+    font-family: Barlow, sans-serif;
     font-size: 20px;
     font-weight: 700;
     line-height: 18.15px;
@@ -11,22 +11,12 @@
 
   .description-text {
     color: #4c5158;
-    font-family: Barlow;
+    font-family: Barlow, sans-serif;
     font-size: 17px;
     font-weight: 300;
     line-height: 16.8px;
     text-align: left;
     margin-bottom: 30px;
-
-    // display: -webkit-box;
-
-    // -webkit-box-orient: vertical;
-    // -webkit-line-clamp: 7;
-    // line-clamp: 7;
-
-    // overflow: hidden;
-
-    // text-overflow: ellipsis;
   }
 
   .options {
@@ -106,7 +96,7 @@
 
         .title-text {
           color: #153c71;
-          font-family: 'Space Grotesk';
+          font-family: 'Space Grotesk', sans-serif;
           font-size: 20px;
           font-weight: 600;
           margin-top: 3px;

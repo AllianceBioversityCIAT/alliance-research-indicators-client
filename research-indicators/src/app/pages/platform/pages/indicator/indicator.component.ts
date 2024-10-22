@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { IndicatorsService } from '../../../../shared/services/indicators.service';
+import { IndicatorsService } from '@services/indicators.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -20,8 +20,9 @@ export default class IndicatorComponent implements OnInit {
   }
 
   getIndicatorById(id: number) {
-    const allIndicators = [...this.indicatorsSE.aboutIndicatorData.output.list, ...this.indicatorsSE.aboutIndicatorData.outcome.list];
-    const indicator = allIndicators.find(indicator => indicator.id === id);
+    const allIndicators = [...this.indicatorsSE.indicators().flatMap(item => item.indicators)];
+    const indicator = allIndicators.find(indicator => indicator.indicator_id === id);
+    console.log(allIndicators);
     console.log(indicator);
   }
 }

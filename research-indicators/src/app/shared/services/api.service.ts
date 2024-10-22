@@ -10,6 +10,47 @@ import { Result } from '../interfaces/result.interface';
 export class ApiService {
   TP = inject(ToPromiseService);
 
+  //? >>>>>>>>>>>> Endpoints <<<<<<<<<<<<<<<<<
+
+  login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
+    const url = () => `authorization/login`;
+    return this.TP.post(url(), {}, awsToken);
+  };
+
+  // GET_IndicatorTypes = (): Promise<MainResponse<any[]>> => {
+  //   const url = () => `indicator-types`;
+  //   return this.TP.get(url(), {});
+  // };
+
+  GET_IndicatorTypes = (): Promise<MainResponse<any[]>> => {
+    return new Promise(resolve => {
+      const url = () => `http://localhost:4200/data/indicators.json`;
+      fetch(url())
+        .then(response => response.json())
+        .then(data => {
+          resolve(data);
+        });
+    });
+  };
+
+  GET_ViewComponents = (): Promise<MainResponse<GetViewComponents[]>> => {
+    const url = () => `authorization/view/scomponents`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_results = (): Promise<MainResponse<Result[]>> => {
+    return new Promise(resolve => {
+      const url = () => `http://localhost:4200/data/results.json`;
+      fetch(url())
+        .then(response => response.json())
+        .then(data => {
+          resolve(data);
+        });
+    });
+  };
+
+  //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
+
   cleanBody(body: Record<string, unknown>) {
     for (const key in body) {
       if (typeof body[key] === 'string') {
@@ -31,25 +72,4 @@ export class ApiService {
       }
     }
   }
-
-  login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
-    const url = () => `authorization/login`;
-    return this.TP.post(url(), {}, awsToken);
-  };
-
-  GET_ViewComponents = (): Promise<MainResponse<GetViewComponents[]>> => {
-    const url = () => `authorization/view/scomponents`;
-    return this.TP.get(url(), {});
-  };
-
-  GET_results = (): Promise<MainResponse<Result[]>> => {
-    return new Promise(resolve => {
-      const url = () => `http://localhost:4200/data/results.json`;
-      fetch(url())
-        .then(response => response.json())
-        .then(data => {
-          resolve(data);
-        });
-    });
-  };
 }
