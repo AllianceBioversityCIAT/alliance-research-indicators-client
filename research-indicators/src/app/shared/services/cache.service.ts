@@ -6,7 +6,7 @@ import { UserInfo } from '../interfaces/cache.interface';
 })
 export class CacheService {
   //user
-  isLoggedIn = signal(true);
+  isLoggedIn = signal(false);
   isValidatingToken = signal(false);
   userInfo: WritableSignal<UserInfo> = signal(localStorage.getItem('decoded') ? JSON.parse(localStorage.getItem('decoded') ?? '') : {});
   token = signal(localStorage.getItem('token') ?? '');
