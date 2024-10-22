@@ -57,6 +57,8 @@ export class CognitoService {
     this.cache.token.set(token);
     localStorage.setItem('token', token);
     localStorage.setItem('decoded', JSON.stringify(decoded));
+    localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
 
     const { first_name, id } = decoded;
 
