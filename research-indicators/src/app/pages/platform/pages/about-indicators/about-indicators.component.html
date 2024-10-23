@@ -5,16 +5,18 @@
     <div class="options">
       @for (indicator of item.indicators; track $index) {
         <p-card class="card-container" (click)="onSelectIndicator(indicator)" routerLink="/indicator/{{ indicator.indicator_id }}">
-          <div class="card-content">
-            <div class="icon-background">
-              <i class="material-symbols-rounded output-icon">{{ indicator.icon_src }}</i>
+          <div class="card-panel">
+            <div class="card-content">
+              <div class="icon-background">
+                <i class="material-symbols-rounded output-icon">{{ indicator.icon_src }}</i>
+              </div>
+              <div class="card-header">
+                <h6 class="type-text">{{ item.name }}</h6>
+                <h3 class="title-text">{{ indicator.name }}</h3>
+              </div>
             </div>
-            <div class="card-header">
-              <h6 class="type-text">{{ item.name }}</h6>
-              <h3 class="title-text">{{ indicator.name }}</h3>
-            </div>
+            <p class="description-text">{{ indicator.description }}</p>
           </div>
-          <p class="description-text">{{ indicator.description }}</p>
         </p-card>
       }
     </div>
