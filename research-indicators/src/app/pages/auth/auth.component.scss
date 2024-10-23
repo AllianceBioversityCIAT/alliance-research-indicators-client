@@ -1,0 +1,28 @@
+.container {
+  background-color: rgb(31 31 31);
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+
+  .content {
+    color: white;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+
+    .title {
+      font-size: 30px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      font-weight: 400;
+    }
+  }
+}
