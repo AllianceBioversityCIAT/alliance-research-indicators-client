@@ -1,6 +1,5 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
-import { UserInfo } from '../interfaces/cache.interface';
-import { User } from '../interfaces/responses.interface';
+import { DataCache } from '../interfaces/cache.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -9,11 +8,9 @@ export class CacheService {
   //user
   isLoggedIn = signal(false);
   isValidatingToken = signal(false);
-  userInfo: WritableSignal<UserInfo> = signal(localStorage.getItem('decoded') ? JSON.parse(localStorage.getItem('decoded') ?? '') : {});
-  token = signal(localStorage.getItem('token') ?? '');
+  dataCache: WritableSignal<DataCache> = signal(localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data') ?? '') : {});
   showMetadataPanel = signal(localStorage.getItem('showMetadataPanel') === 'true');
   currentSectionHeaderName = signal('');
-  user: WritableSignal<User> = signal(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') ?? '') : new User());
 
   setCurrentSectionHeaderName(name: string) {
     this.currentSectionHeaderName.set(name);

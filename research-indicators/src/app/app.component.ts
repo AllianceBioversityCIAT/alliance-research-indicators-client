@@ -7,6 +7,7 @@ import { WebsocketService } from './shared/sockets/websocket.service';
 import { DynamicToastComponent } from './shared/components/dynamic-toast/dynamic-toast.component';
 import { OpenReplayService } from './shared/services/open-replay.service';
 import { GoogleAnalyticsService } from './shared/services/google-analytics.service';
+import { ActionsService } from './shared/services/actions.service';
 
 @Component({
   selector: 'app-root',
@@ -22,10 +23,6 @@ export class AppComponent implements OnInit {
   title = 'research-indicators';
   name = environment.name;
   ngOnInit(): void {
-    this.validateToken();
-  }
-
-  validateToken() {
-    if (localStorage.getItem('token')) this.cache.isLoggedIn.set(true);
+    inject(ActionsService).isTokenExpired();
   }
 }

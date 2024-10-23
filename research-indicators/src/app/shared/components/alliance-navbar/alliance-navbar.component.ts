@@ -10,6 +10,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AllianceNavOptions } from '../../interfaces/nav.interface';
 import { DropdownComponent } from '../dropdown/dropdown.component';
+import { ActionsService } from '../../services/actions.service';
 @Component({
   selector: 'alliance-navbar',
   standalone: true,
@@ -23,16 +24,10 @@ export class AllianceNavbarComponent {
   cache = inject(CacheService);
   darkModeService = inject(DarkModeService);
   router = inject(Router);
+  actions = inject(ActionsService);
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home' },
     { label: 'My Results', path: '/settings', icon: 'keyboard_arrow_down' },
     { label: 'My Contracts', path: '/profile', icon: 'keyboard_arrow_down' }
   ];
-
-  logOut() {
-    localStorage.removeItem('decoded');
-    localStorage.removeItem('token');
-    this.cache.isLoggedIn.set(false);
-    this.router.navigate(['/auth']);
-  }
 }
