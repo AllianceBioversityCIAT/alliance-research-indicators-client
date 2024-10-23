@@ -26,7 +26,7 @@ export class ActionsService {
 
   isTokenExpired() {
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
-    if (this.cache.dataCache().exp < currentTimeInSeconds) {
+    if (!this.cache.dataCache().access_token || this.cache.dataCache().exp < currentTimeInSeconds) {
       this.cache.isLoggedIn.set(false);
       this.cache.dataCache.set(new DataCache());
       localStorage.removeItem('data');
