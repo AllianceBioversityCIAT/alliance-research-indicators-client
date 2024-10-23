@@ -29,7 +29,7 @@ export class WebsocketService {
     this.getConnectedUsers();
     this.getAlerts();
 
-    const { first_name, sec_user_id } = this.cache.dataCache().user;
+    const { first_name, sec_user_id } = this.cache.dataCache().user || {};
     this.configUser(first_name, sec_user_id);
   }
 
