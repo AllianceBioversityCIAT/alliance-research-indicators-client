@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { environment } from '../environments/environment';
 import { CacheService } from './shared/services/cache.service';
@@ -15,7 +15,7 @@ import { ActionsService } from './shared/services/actions.service';
   imports: [RouterOutlet, DynamicToastComponent, MetadataPanelComponent],
   templateUrl: './app.component.html'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   cache = inject(CacheService);
   sockets = inject(WebsocketService);
   openReplay = inject(OpenReplayService);
@@ -23,7 +23,7 @@ export class AppComponent {
   actions = inject(ActionsService);
   title = 'research-indicators';
   name = environment.name;
-  constructor() {
-    this.actions.isCacheEmpty();
+  ngOnInit(): void {
+    this.actions.isTokenExpired();
   }
 }
