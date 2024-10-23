@@ -5,6 +5,7 @@ import { CacheService } from '../../services/cache.service';
 import { DarkModeService } from '../../services/dark-mode.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { signal } from '@angular/core';
 
 describe('AllianceNavbarComponent', () => {
   let component: AllianceNavbarComponent;
@@ -24,6 +25,7 @@ describe('AllianceNavbarComponent', () => {
         {
           provide: CacheService,
           useValue: {
+            dataCache: signal({}),
             isLoggedIn: { set: jest.fn() }
           }
         },

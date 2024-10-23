@@ -7,8 +7,11 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { of } from 'rxjs';
 import { OpenReplayService } from './shared/services/open-replay.service';
+import { ActionsService } from './shared/services/actions.service';
 
 describe('AppComponent', () => {
+  let mockActionsService: Partial<ActionsService>;
+
   beforeEach(async () => {
     const mockSocket = {
       fromEvent: jest.fn().mockReturnValue(of({})),
@@ -17,21 +20,19 @@ describe('AppComponent', () => {
 
     const mockWebsocketService = {
       runsockets: jest.fn(),
-      socketStatus: false,
-      user: null,
-      userList: { set: jest.fn() },
-      currentRoom: { set: jest.fn() },
-      emit: jest.fn(),
       listen: jest.fn().mockReturnValue(of({}))
     };
 
     const mockCacheService = {
-      userInfo: jest.fn().mockReturnValue({}),
       isLoggedIn: { set: jest.fn() }
     };
 
     const mockOpenReplayService = {
       start: jest.fn().mockResolvedValue(undefined)
+    };
+
+    mockActionsService = {
+      isTokenExpired: jest.fn()
     };
 
     await TestBed.configureTestingModule({
@@ -41,7 +42,8 @@ describe('AppComponent', () => {
         { provide: WebsocketService, useValue: mockWebsocketService },
         { provide: CacheService, useValue: mockCacheService },
         { provide: Socket, useValue: mockSocket },
-        { provide: OpenReplayService, useValue: mockOpenReplayService }
+        { provide: OpenReplayService, useValue: mockOpenReplayService },
+        { provide: ActionsService, useValue: mockActionsService }
       ]
     }).compileComponents();
   });
@@ -61,7 +63,7 @@ describe('AppComponent', () => {
   it('should validate token on init', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    const spy = jest.spyOn(app, 'validateToken');
+    const spy = jest.spyOn(mockActionsService, 'isTokenExpired');
 
     app.ngOnInit();
 
@@ -76,7 +78,7 @@ describe('AppComponent', () => {
     };
     Object.defineProperty(window, 'localStorage', { value: mockLocalStorage });
 
-    app.validateToken();
+    app.ngOnInit();
 
     expect(app.cache.isLoggedIn.set).toHaveBeenCalledWith(true);
   });
