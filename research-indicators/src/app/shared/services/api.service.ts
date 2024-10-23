@@ -16,6 +16,11 @@ export class ApiService {
     return this.TP.post(url(), {}, { token: awsToken, isAuth: true });
   };
 
+  refreshToken = (refreshToken: string): Promise<MainResponse<LoginRes>> => {
+    const url = () => `authorization/refresh-token`;
+    return this.TP.post(url(), {}, { token: refreshToken, isAuth: true });
+  };
+
   GET_IndicatorTypes = (): Promise<MainResponse<IndicatorTypes[]>> => {
     const url = () => `indicator-types`;
     return this.TP.get(url(), {});

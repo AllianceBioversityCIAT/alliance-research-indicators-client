@@ -52,14 +52,14 @@
             <div class="account-content">
               <p-avatar label="P" size="large"></p-avatar>
               <div class="account-details">
-                <span class="account-name">{{ this.cache.user().first_name }} {{ this.cache.user().last_name }}</span>
-                <span class="account-email">{{ this.cache.user().email }}</span>
-                <span class="account-role">{{ this.cache.user().roleName }}</span>
+                <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{ this.cache.dataCache().user.last_name }}</span>
+                <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
+                <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
               </div>
             </div>
           </div>
 
-          <p-button size="small" label="Log out" icon="pi pi-sign-in" [loading]="this.cache.isValidatingToken()" (onClick)="logOut()"></p-button>
+          <p-button size="small" label="Log out" icon="pi pi-sign-in" [loading]="this.cache.isValidatingToken()" (onClick)="this.actions.logOut()"></p-button>
         </div>
       </app-dropdown>
     </div>
