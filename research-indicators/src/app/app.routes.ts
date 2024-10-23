@@ -3,6 +3,10 @@ import { rolesGuard } from '@guards/roles.guard';
 
 export const routes: Routes = [
   {
+    path: 'auth',
+    loadComponent: () => import('./pages/auth/auth.component')
+  },
+  {
     path: '',
     loadComponent: () => import('@platform/platform.component'),
     canMatch: [rolesGuard],
@@ -60,13 +64,10 @@ export const routes: Routes = [
       }
     ]
   },
+
   {
     path: 'room/:id',
     loadComponent: () => import('./pages/room/room.component')
-  },
-  {
-    path: 'auth',
-    loadComponent: () => import('@platform/platform.component')
   },
   {
     path: 'fields',
