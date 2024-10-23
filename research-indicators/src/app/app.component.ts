@@ -20,9 +20,10 @@ export class AppComponent implements OnInit {
   sockets = inject(WebsocketService);
   openReplay = inject(OpenReplayService);
   googleAnalytics = inject(GoogleAnalyticsService);
+  actions = inject(ActionsService);
   title = 'research-indicators';
   name = environment.name;
   ngOnInit(): void {
-    inject(ActionsService).isTokenExpired();
+    this.actions.isTokenExpired();
   }
 }
