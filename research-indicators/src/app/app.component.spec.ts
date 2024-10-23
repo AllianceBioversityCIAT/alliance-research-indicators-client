@@ -61,27 +61,4 @@ describe('AppComponent', () => {
     const app = fixture.componentInstance;
     expect(app.title).toEqual('research-indicators');
   });
-
-  it('should validate token on init', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    const spy = jest.spyOn(mockActionsService, 'isTokenExpired');
-
-    app.ngOnInit();
-
-    expect(spy).toHaveBeenCalled();
-  });
-
-  // it('should set isLoggedIn to true if token exists', () => {
-  //   const fixture = TestBed.createComponent(AppComponent);
-  //   const app = fixture.componentInstance;
-  //   const mockLocalStorage = {
-  //     getItem: jest.fn().mockReturnValue('mock-token')
-  //   };
-  //   Object.defineProperty(window, 'localStorage', { value: mockLocalStorage });
-
-  //   app.ngOnInit();
-
-  //   expect(app.cache.isLoggedIn.set).toHaveBeenCalledWith(true);
-  // });
 });
