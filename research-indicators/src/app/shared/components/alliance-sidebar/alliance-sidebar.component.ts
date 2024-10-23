@@ -14,9 +14,9 @@ export class AllianceSidebarComponent {
   cache = inject(CacheService);
   options = [
     { icon: 'finance', label: 'About indicators', link: '/about-indicators' },
-    { icon: 'info', label: 'About the tool', link: '' },
-    { icon: 'table_rows', label: 'Power BI dashboard', link: '' },
-    { icon: 'open_in_new', label: 'Other reporting tools', link: '' }
+    { icon: 'info', label: 'About the tool', link: '1' },
+    { icon: 'table_rows', label: 'Power BI dashboard', link: '23' },
+    { icon: 'open_in_new', label: 'Other reporting tools', link: '45' }
   ];
 
   isCollapsed = signal(false);
