@@ -34,6 +34,7 @@ export class CognitoService {
 
     loginResponse.data.user.roleName = loginResponse.data.user?.user_role_list[0]?.role?.name ?? '';
     localStorage.setItem('data', JSON.stringify({ ...loginResponse.data, exp }));
+    this.updateCacheService();
     if (loginResponse.data.user.first_name && loginResponse.data.user.sec_user_id) await this.websocket.configUser(loginResponse.data.user.first_name, loginResponse.data.user.sec_user_id);
 
     this.dynamicToastSE.toastMessage.set({ severity: 'success', summary: 'Success', detail: 'You are now logged in' });
