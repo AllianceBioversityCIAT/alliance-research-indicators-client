@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
+import { Socket } from 'ngx-socket-io';
 import AuthComponent from './auth.component';
 
 describe('AuthComponent', () => {
@@ -20,6 +21,14 @@ describe('AuthComponent', () => {
           useValue: {
             snapshot: { paramMap: new Map() },
             params: of({}) // Mock route parameters if needed
+          }
+        },
+        {
+          provide: Socket,
+          useValue: {
+            emit: jest.fn(),
+            fromEvent: jest.fn().mockReturnValue(of({})),
+            on: jest.fn()
           }
         }
       ]
