@@ -20,7 +20,7 @@ export class CognitoService {
   actions = inject(ActionsService);
 
   redirectToCognito() {
-    window.open(environment.cognitoUrl);
+    window.location.href = environment.cognitoUrl;
   }
 
   async validateCognitoCode() {
