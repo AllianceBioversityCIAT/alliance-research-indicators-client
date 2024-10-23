@@ -55,6 +55,27 @@
       gap: 15px;
       cursor: pointer;
       padding: 10px 0;
+      padding-left: 10px;
+      border-radius: 3px;
+
+      &.active {
+        background-color: var(--ac-grey-100);
+        color: var(--ac-light-blue-300);
+        position: relative;
+
+        &::after {
+          content: '';
+          position: absolute;
+          left: -30px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 6px;
+          height: 22px;
+          background-color: var(--ac-light-blue-200);
+          border-top-right-radius: 10px;
+          border-bottom-right-radius: 10px;
+        }
+      }
 
       i {
         font-size: 20px;
