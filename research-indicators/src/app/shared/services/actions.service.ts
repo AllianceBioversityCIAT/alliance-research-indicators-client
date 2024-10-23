@@ -26,12 +26,17 @@ export class ActionsService {
 
   isTokenExpired() {
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
-    if (!this.cache.dataCache().access_token || this.cache.dataCache().exp < currentTimeInSeconds) {
+    if (this.isCacheEmpty() || this.cache.dataCache().exp < currentTimeInSeconds) {
       this.cache.isLoggedIn.set(false);
       this.cache.dataCache.set(new DataCache());
       localStorage.removeItem('data');
       this.router.navigate(['/']);
     }
+  }
+
+  isCacheEmpty() {
+    const { access_token, exp, user } = this.cache.dataCache();
+    return !access_token || !exp || !user;
   }
 
   decodeToken(token: string) {
