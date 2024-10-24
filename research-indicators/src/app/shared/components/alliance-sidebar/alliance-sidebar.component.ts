@@ -16,7 +16,8 @@ export class AllianceSidebarComponent {
     { icon: 'finance', label: 'About indicators', link: '/about-indicators' },
     { icon: 'info', label: 'About the tool', link: '1' },
     { icon: 'table_rows', label: 'Power BI dashboard', link: '23' },
-    { icon: 'open_in_new', label: 'Other reporting tools', link: '45' }
+    { icon: 'open_in_new', label: 'Other reporting tools', link: '45' },
+    { icon: 'forum', label: 'Give feedback' }
   ];
 
   isCollapsed = signal(false);
