@@ -47,7 +47,7 @@
   .options {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 
     .option {
       display: flex;
@@ -81,5 +81,11 @@
         font-size: 20px;
       }
     }
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--ac-grey-300);
+    margin: 10px 0;
   }
 }

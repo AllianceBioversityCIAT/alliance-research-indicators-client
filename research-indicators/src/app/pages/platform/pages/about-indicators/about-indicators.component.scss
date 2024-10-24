@@ -19,25 +19,26 @@
 }
 
 .container {
-  margin: 30px;
+  margin: 30px 40px;
 
   .title-text {
     font-family: Inter, sans-serif;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
     line-height: 18.15px;
     color: #173f6f;
     text-transform: uppercase;
+    margin-bottom: 0;
   }
 
   .description-text {
     color: #4c5158;
     font-family: Barlow, sans-serif;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 300;
     line-height: 16.8px;
     text-align: left;
-    margin-bottom: 30px;
+    margin: 8px 0 30px 0;
   }
 
   .options {
@@ -52,7 +53,7 @@
       border-radius: 10px;
       flex: 1;
       padding: 0;
-      height: 320px;
+      height: 250px;
       display: flex;
       overflow: hidden;
       position: relative;
@@ -67,9 +68,9 @@
         bottom: 0;
         left: 0;
         right: 0;
-        height: 70px;
+        height: 35px;
         background: rgb(255 255 255);
-        background: linear-gradient(0deg, rgb(255 255 255 / 100%) 0%, rgb(255 255 255 / 74.2%) 65%, rgb(255 255 255 / 0%) 100%);
+        background: linear-gradient(0deg, rgb(255 255 255 / 100%) 0%, rgb(255 255 255 / 74.2%) 85%, rgb(255 255 255 / 0%) 100%);
       }
 
       &:hover {
@@ -112,14 +113,14 @@
           .type-text {
             color: #8d9299;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 300;
             letter-spacing: 3px;
             margin: 0;
             text-transform: uppercase;
           }
 
-          .title-text {
+          .title-text-indicator {
             color: #153c71;
             font-family: 'Space Grotesk', sans-serif;
             line-height: 1.2;
