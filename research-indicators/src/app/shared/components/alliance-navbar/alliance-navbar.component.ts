@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, ViewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
@@ -11,10 +11,11 @@ import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AllianceNavOptions } from '../../interfaces/nav.interface';
 import { DropdownComponent } from '../dropdown/dropdown.component';
 import { ActionsService } from '../../services/actions.service';
+import { CreateResultModalComponent } from '../create-result-modal/create-result-modal.component';
 @Component({
   selector: 'alliance-navbar',
   standalone: true,
-  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, DropdownComponent],
+  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, DropdownComponent, CreateResultModalComponent],
   templateUrl: './alliance-navbar.component.html',
   styleUrl: './alliance-navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -30,4 +31,10 @@ export class AllianceNavbarComponent {
     { label: 'My Results', path: '/settings', icon: 'keyboard_arrow_down' },
     { label: 'My Contracts', path: '/profile', icon: 'keyboard_arrow_down' }
   ];
+
+  @ViewChild('modal') modal!: CreateResultModalComponent; // Referencia al modal
+
+  openModal() {
+    this.modal.showDialog();
+  }
 }
