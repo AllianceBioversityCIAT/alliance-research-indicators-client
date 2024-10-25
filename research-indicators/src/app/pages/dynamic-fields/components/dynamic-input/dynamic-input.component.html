@@ -1,5 +1,10 @@
-<br />
-<p-floatLabel [formGroup]="this.dynamicFieldsSE.formGroup">
-  <input id="username" type="text" [formControlName]="attr" pInputText />
-  <label for="username">Username</label>
-</p-floatLabel>
+<div [formGroup]="formGroup">
+  <div>{{ field.label }}</div>
+  <input [formControlName]="field.name" [type]="field.inputType || 'text'" />
+  <div *ngIf="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.dirty || formGroup.get(field.name)?.touched)">
+    <!-- Mostrar mensajes de error -->
+    <span *ngIf="formGroup.get(field.name)?.errors?.['required']">Este campo es requerido.</span>
+    <span *ngIf="formGroup.get(field.name)?.errors?.['min']">El valor mínimo es {{ field.validators }}</span>
+    <!-- Agrega más validaciones según sea necesario -->
+  </div>
+</div>

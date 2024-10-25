@@ -11,6 +11,7 @@ import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AllianceNavOptions } from '../../interfaces/nav.interface';
 import { DropdownComponent } from '../dropdown/dropdown.component';
 import { ActionsService } from '../../services/actions.service';
+import { AllModalsService } from '../../services/all-modals.service';
 @Component({
   selector: 'alliance-navbar',
   standalone: true,
@@ -20,6 +21,7 @@ import { ActionsService } from '../../services/actions.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AllianceNavbarComponent {
+  allModalsService = inject(AllModalsService);
   dynamicToast = inject(DynamicToastService);
   cache = inject(CacheService);
   darkModeService = inject(DarkModeService);

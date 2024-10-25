@@ -1,6 +1,6 @@
 <div class="container">
   @for (item of indicatorsSE.indicators(); track $index) {
-    <h3 class="title-text">{{ item.name }}</h3>
+    <h3 class="title-text">{{ item.other_names }}</h3>
     <p class="description-text" [innerHTML]="item.description"></p>
     <div class="options">
       @for (indicator of item.indicators; track $index) {
@@ -12,7 +12,7 @@
               </div>
               <div class="card-header">
                 <h6 class="type-text">{{ item.name }}</h6>
-                <h3 class="title-text">{{ indicator.name }}</h3>
+                <h3 class="title-text-indicator">{{ indicator.name }}</h3>
               </div>
             </div>
             <p class="description-text">{{ indicator.description }}</p>

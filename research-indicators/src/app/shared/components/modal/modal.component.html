@@ -1,0 +1,12 @@
+@if (showModal()) {
+  <div class="container" [@fadeIn]>
+    <div class="modal" [@scaleIn]>
+      <div class="close-button" (click)="allModalsService.toggleModal(modalName)">
+        <i class="material-symbols-rounded">close</i>
+      </div>
+      <div class="content">
+        <ng-content></ng-content>
+      </div>
+    </div>
+  </div>
+}

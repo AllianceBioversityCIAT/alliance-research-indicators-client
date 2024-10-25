@@ -3,6 +3,19 @@ import { rolesGuard } from '@guards/roles.guard';
 
 export const routes: Routes = [
   {
+    path: 'room/:id',
+    loadComponent: () => import('./pages/room/room.component')
+  },
+  {
+    path: 'fields',
+    loadComponent: () => import('./pages/dynamic-fields/dynamic-fields.component')
+  },
+  {
+    path: '**',
+    redirectTo: 'not-found',
+    pathMatch: 'full'
+  },
+  {
     path: 'auth',
     loadComponent: () => import('./pages/auth/auth.component')
   },
@@ -26,6 +39,10 @@ export const routes: Routes = [
       {
         path: 'about-indicators',
         loadComponent: () => import('@platform/pages/about-indicators/about-indicators.component')
+      },
+      {
+        path: 'general-information/:id',
+        loadComponent: () => import('@platform/pages/general-information/general-information.component')
       },
       {
         path: 'home',
@@ -63,19 +80,5 @@ export const routes: Routes = [
         pathMatch: 'full'
       }
     ]
-  },
-
-  {
-    path: 'room/:id',
-    loadComponent: () => import('./pages/room/room.component')
-  },
-  {
-    path: 'fields',
-    loadComponent: () => import('./pages/dynamic-fields/dynamic-fields.component')
-  },
-  {
-    path: '**',
-    redirectTo: 'not-found',
-    pathMatch: 'full'
   }
 ];

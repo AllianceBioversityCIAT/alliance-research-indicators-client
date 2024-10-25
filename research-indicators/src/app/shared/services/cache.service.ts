@@ -15,4 +15,18 @@ export class CacheService {
   setCurrentSectionHeaderName(name: string) {
     this.currentSectionHeaderName.set(name);
   }
+
+  isModalVisible = signal<boolean>(false);
+
+  showModal() {
+    this.isModalVisible.set(true);
+  }
+
+  hideModal() {
+    this.isModalVisible.set(false);
+  }
+
+  toggleModal() {
+    this.isModalVisible.update(visible => !visible);
+  }
 }
