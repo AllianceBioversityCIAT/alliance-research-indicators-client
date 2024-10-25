@@ -1,29 +1,31 @@
 <div>
   @for (field of this.fields; track $index) {
-  <div>
-    @switch (field.type) { @case ('section') {
-
-    <div [attr.i]="$index" [attr.j]="this.index" class="section" draggable="true" (drop)="drop($event)" (dragover)="dragover($event, field.type)">
-      <div app-dynamic-component-selector [parent]="field" [index]="this.index + 1" [fields]="field.fields"></div>
+    <div>
+      @switch (field.type) {
+        @case ('section') {
+          <div [attr.i]="$index" [attr.j]="this.index" class="section">
+            <div app-dynamic-component-selector [parent]="field" [index]="this.index + 1" [fields]="field.fields"></div>
+          </div>
+        }
+        @case ('block') {
+          <div [attr.i]="$index" [attr.j]="this.index" class="block">
+            <div app-dynamic-component-selector [parent]="field" [index]="this.index + 1" [fields]="field.fields"></div>
+          </div>
+        }
+        @case ('title') {
+          <div [attr.i]="$index" [attr.j]="this.index" class="title">
+            <app-dynamic-title></app-dynamic-title>
+          </div>
+        }
+        @case ('input') {
+          <div [attr.i]="$index" [attr.j]="this.index" class="input">
+            <div app-dynamic-input [attr]="field.attr"></div>
+          </div>
+        }
+        @default {
+          Default case.
+        }
+      }
     </div>
-
-    } @case ('block') {
-    <div [attr.i]="$index" [attr.j]="this.index" class="block" draggable="true" (drop)="drop($event)" (dragover)="dragover($event, field.type)">
-      <div app-dynamic-component-selector [parent]="field" [index]="this.index + 1" [fields]="field.fields"></div>
-    </div>
-
-    } @case ('title') {
-    <div [attr.i]="$index" [attr.j]="this.index" class="title {{ this.dynamicSelectorSE.orderMode ? 'order-mode' : '' }}" (dragstart)="dragstart($event, field, $index)" (dragend)="dragend($event)" (dragenter)="dragenter($event, field, $index)" draggable="true">
-      <div class="dropper"></div>
-      <app-dynamic-title></app-dynamic-title>
-    </div>
-    } @case ('input') {
-    <div [attr.i]="$index" [attr.j]="this.index" class="input {{ this.dynamicSelectorSE.orderMode ? 'order-mode' : '' }}" (dragstart)="dragstart($event, field, $index)" (dragend)="dragend($event)" (dragenter)="dragenter($event, field, $index)" draggable="true">
-      <div class="dropper" draggable="false" style="pointer-events: none"></div>
-      <div app-dynamic-input [attr]="field.attr"></div>
-    </div>
-
-    } @default { Default case. } }
-  </div>
   }
 </div>
