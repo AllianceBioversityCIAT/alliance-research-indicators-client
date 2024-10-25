@@ -10,15 +10,12 @@ export const routes: Routes = [
     path: 'fields',
     loadComponent: () => import('./pages/dynamic-fields/dynamic-fields.component')
   },
-  {
-    path: '**',
-    redirectTo: 'not-found',
-    pathMatch: 'full'
-  },
+
   {
     path: 'auth',
     loadComponent: () => import('./pages/auth/auth.component')
   },
+
   {
     path: '',
     loadComponent: () => import('@platform/platform.component'),
@@ -80,5 +77,10 @@ export const routes: Routes = [
         pathMatch: 'full'
       }
     ]
+  },
+  {
+    path: '**',
+    redirectTo: 'not-found',
+    pathMatch: 'full'
   }
 ];
