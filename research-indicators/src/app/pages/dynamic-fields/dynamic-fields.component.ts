@@ -86,10 +86,8 @@ export default class DynamicFieldsComponent implements OnInit {
         validators: [Validators.required, Validators.min(18)]
       }
     ];
-    console.log(this.data);
     // Construir el formulario reactivo con datos iniciales
     this.form = this.buildFormGroup(this.fields, this.data);
-    console.log(this.form.value);
   }
 
   buildFormGroup(fields: any[], data: any): FormGroup {
@@ -122,7 +120,7 @@ export default class DynamicFieldsComponent implements OnInit {
 
   save() {
     if (this.form.valid) {
-      console.log(this.form.value);
+      // console.log(this.form.value);
     }
   }
 }
