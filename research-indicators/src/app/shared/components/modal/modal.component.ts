@@ -1,5 +1,6 @@
 import { Component, computed, inject, Input } from '@angular/core';
 import { AllModalsService } from '../../services/all-modals.service';
+import { ModalName } from '../../types/modal.types';
 
 @Component({
   selector: 'app-modal',
@@ -10,14 +11,6 @@ import { AllModalsService } from '../../services/all-modals.service';
 })
 export class ModalComponent {
   allModalsService = inject(AllModalsService);
-  @Input() modalName!: 'createResult' | 'createTest';
-
+  @Input() modalName!: ModalName;
   showModal = computed(() => this.allModalsService.showModal()[this.modalName]);
-
-  toggleModal() {
-    this.allModalsService.showModal.update(modals => ({
-      ...modals,
-      [this.modalName]: !modals[this.modalName]
-    }));
-  }
 }

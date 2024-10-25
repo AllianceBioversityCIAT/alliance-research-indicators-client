@@ -1,28 +1,23 @@
-<div class="card flex justify-content-center">
-  <p-button (onClick)="showDialog()" label="New result" size="small" />
-  <p-dialog header="Create a Result" [modal]="true" [(visible)]="isModalVisible" (onHide)="hideDialog()" [style]="{ width: '50rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
-    <div class="card flex flex-column gap-2 justify-content-left">
-      <div class="flex flex-column gap-1">
-        <h1 class="title">Title*</h1>
-        <label for="description"> Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon. </label>
-        <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
-        <small id="username-help">Max. # words</small>
-      </div>
+<div class="flex flex-column gap-2 justify-content-left">
+  <div class="flex flex-column gap-1">
+    <h1 class="title">Title*</h1>
+    <label for="description"> Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon. </label>
+    <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
+    <small id="username-help">Max. # words</small>
+  </div>
 
-      <div class="flex flex-column gap-1">
-        <h1 class="title">Indicator*</h1>
-        <p-dropdown [options]="indicators" [(ngModel)]="selectedIndicator" optionLabel="name" placeholder="Select Indicator" />
-      </div>
+  <div class="flex flex-column gap-1">
+    <h1 class="title">Indicator*</h1>
+    <p-dropdown [options]="indicators" [(ngModel)]="selectedIndicator" optionLabel="name" placeholder="Select Indicator" />
+  </div>
 
-      <div class="flex flex-column gap-1">
-        <h1 class="title">Primary Contract</h1>
-        <p-dropdown [options]="indicators" [(ngModel)]="selectedIndicator" optionLabel="name" placeholder="Select a Primary Contract" />
-      </div>
+  <div class="flex flex-column gap-1">
+    <h1 class="title">Primary Contract</h1>
+    <p-dropdown [options]="indicators" [(ngModel)]="selectedIndicator" optionLabel="name" placeholder="Select a Primary Contract" />
+  </div>
 
-      <div class="flex gap-2">
-        <p-button label="Save for later" [outlined]="true" icon="pi pi-check" iconPos="right" />
-        <p-button label="Continue form" icon="pi pi-arrow-right" iconPos="right" />
-      </div>
-    </div>
-  </p-dialog>
+  <div class="flex gap-2">
+    <p-button label="Save for later" [outlined]="true" icon="pi pi-check" iconPos="right" />
+    <p-button label="Continue form" icon="pi pi-arrow-right" iconPos="right" />
+  </div>
 </div>

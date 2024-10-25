@@ -1,7 +1,7 @@
 @if (showModal()) {
   <div class="container">
     <div class="modal">
-      <div class="close-button" (click)="toggleModal()">
+      <div class="close-button" (click)="allModalsService.toggleModal(modalName)">
         <i class="material-symbols-rounded">close</i>
       </div>
       <div class="content">

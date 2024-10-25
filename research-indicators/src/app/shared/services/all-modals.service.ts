@@ -1,36 +1,37 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
+import { ModalName } from '../types/modal.types';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AllModalsService {
-  showModal = signal({
+  showModal: WritableSignal<Record<ModalName, boolean>> = signal({
     createResult: true,
     createTest: false
   });
 
-  toggleModal(modalName: 'createResult' | 'createTest') {
+  toggleModal(modalName: ModalName) {
     this.showModal.update(modals => ({
       ...modals,
       [modalName]: !modals[modalName]
     }));
   }
 
-  closeModal(modalName: 'createResult' | 'createTest') {
+  closeModal(modalName: ModalName) {
     this.showModal.update(modals => ({
       ...modals,
       [modalName]: false
     }));
   }
 
-  openModal(modalName: 'createResult' | 'createTest') {
+  openModal(modalName: ModalName) {
     this.showModal.update(modals => ({
       ...modals,
       [modalName]: true
     }));
   }
 
-  isModalOpen(modalName: 'createResult' | 'createTest') {
+  isModalOpen(modalName: ModalName) {
     return this.showModal()[modalName];
   }
 

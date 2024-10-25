@@ -12,7 +12,7 @@
       </a>
     }
 
-    <p-button label="New result" size="small" />
+    <p-button label="New result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
     <div class="icons-container">
       <app-dropdown position="top-left" class="search-dropdown">
         <div dropdown-button>
