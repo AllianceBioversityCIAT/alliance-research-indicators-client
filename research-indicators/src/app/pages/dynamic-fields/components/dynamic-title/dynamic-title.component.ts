@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-dynamic-title',
@@ -8,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrl: './dynamic-title.component.scss'
 })
 export class DynamicTitleComponent {
-
+  @Input() text!: string;
 }

@@ -1,31 +1,41 @@
-<div>
-  @for (field of this.fields; track $index) {
-    <div>
-      @switch (field.type) {
-        @case ('section') {
-          <div [attr.i]="$index" [attr.j]="this.index" class="section">
-            <div app-dynamic-component-selector [parent]="field" [index]="this.index + 1" [fields]="field.fields"></div>
-          </div>
-        }
-        @case ('block') {
-          <div [attr.i]="$index" [attr.j]="this.index" class="block">
-            <div app-dynamic-component-selector [parent]="field" [index]="this.index + 1" [fields]="field.fields"></div>
-          </div>
-        }
-        @case ('title') {
-          <div [attr.i]="$index" [attr.j]="this.index" class="title">
-            <app-dynamic-title></app-dynamic-title>
-          </div>
-        }
-        @case ('input') {
-          <div [attr.i]="$index" [attr.j]="this.index" class="input">
-            <div app-dynamic-input [attr]="field.attr"></div>
-          </div>
-        }
-        @default {
-          Default case.
-        }
-      }
-    </div>
-  }
+<!-- dynamic-component-selector.component.html -->
+<div [formGroup]="formGroup">
+  <ng-container [ngSwitch]="field.type">
+    <!-- Section -->
+    <ng-container *ngSwitchCase="'section'">
+      <div class="section">
+        <ng-container *ngFor="let subField of field.fields">
+          <app-dynamic-component-selector [field]="subField" [formGroup]="getNestedFormGroup(field)"> </app-dynamic-component-selector>
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <!-- Block -->
+    <ng-container *ngSwitchCase="'block'">
+      <div class="block">
+        <ng-container *ngFor="let subField of field.fields">
+          <app-dynamic-component-selector [field]="subField" [formGroup]="getNestedFormGroup(field)"> </app-dynamic-component-selector>
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <!-- Title -->
+    <ng-container *ngSwitchCase="'title'">
+      <div class="title">
+        <app-dynamic-title [text]="field.text"></app-dynamic-title>
+      </div>
+    </ng-container>
+
+    <!-- Input -->
+    <ng-container *ngSwitchCase="'input'">
+      <div class="input">
+        <app-dynamic-input [field]="field" [formGroup]="formGroup"> </app-dynamic-input>
+      </div>
+    </ng-container>
+
+    <!-- Default -->
+    <ng-container *ngSwitchDefault>
+      <p>Tipo no soportado: {{ field.type }}</p>
+    </ng-container>
+  </ng-container>
 </div>
