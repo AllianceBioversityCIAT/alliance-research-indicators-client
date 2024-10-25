@@ -7,6 +7,7 @@ export interface IndicatorTypes {
   is_active: boolean;
   indicator_type_id: number;
   name: string;
+  other_names: string;
   long_description: string;
   description: string;
   indicators: Indicator[];
