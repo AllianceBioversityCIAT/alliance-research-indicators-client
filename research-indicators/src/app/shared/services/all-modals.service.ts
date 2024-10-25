@@ -6,7 +6,7 @@ import { ModalName } from '../types/modal.types';
 })
 export class AllModalsService {
   showModal: WritableSignal<Record<ModalName, boolean>> = signal({
-    createResult: true,
+    createResult: false,
     createTest: false
   });
 

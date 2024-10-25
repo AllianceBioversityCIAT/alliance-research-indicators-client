@@ -41,6 +41,10 @@ export const routes: Routes = [
         loadComponent: () => import('@platform/pages/about-indicators/about-indicators.component')
       },
       {
+        path: 'general-information/:id',
+        loadComponent: () => import('@platform/pages/general-information/general-information.component')
+      },
+      {
         path: 'home',
         loadComponent: () => import('@platform/pages/home/home.component')
       },
