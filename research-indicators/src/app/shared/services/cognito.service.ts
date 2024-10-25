@@ -38,9 +38,9 @@ export class CognitoService {
 
     this.dynamicToastSE.toastMessage.set({ severity: 'success', summary: 'Success', detail: 'You are now logged in' });
     this.updateCacheService();
-    setTimeout(() => {
-      this.router.navigate(['/']);
-    }, 3000);
+    // setTimeout(() => {
+    this.router.navigate(['/']);
+    // }, 3000);
   }
 
   updateCacheService() {
