@@ -1,0 +1,17 @@
+.card-content {
+  .options {
+    .option {
+      cursor: pointer;
+
+      &.active {
+        color: red;
+        font-weight: 700;
+      }
+
+      &.disabled {
+        color: #ccc;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

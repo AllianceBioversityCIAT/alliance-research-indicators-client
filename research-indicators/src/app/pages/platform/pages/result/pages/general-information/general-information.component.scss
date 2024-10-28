@@ -18,12 +18,10 @@
     font-weight: 300;
     line-height: 16.8px;
     text-align: left;
-    margin: 8px 0 20px 0;
+    margin: 8px 0 20px;
   }
 
   .card-container {
-    display: grid;
-    grid-template-columns: 75% 25%;
     gap: 20px;
 
     .first-column {

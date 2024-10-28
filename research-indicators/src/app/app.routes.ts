@@ -38,9 +38,29 @@ export const routes: Routes = [
         loadComponent: () => import('@platform/pages/about-indicators/about-indicators.component')
       },
       {
-        path: 'general-information/:id',
-        loadComponent: () => import('@platform/pages/general-information/general-information.component')
+        path: 'result/:id',
+        loadComponent: () => import('@platform/pages/result/result.component'),
+        children: [
+          {
+            path: '',
+            redirectTo: 'general-information',
+            pathMatch: 'full'
+          },
+          {
+            path: 'general-information',
+            loadComponent: () => import('@platform/pages/result/pages/general-information/general-information.component')
+          },
+          {
+            path: 'partners',
+            loadComponent: () => import('@platform/pages/result/pages/partners/partners.component')
+          },
+          {
+            path: 'evidence',
+            loadComponent: () => import('@platform/pages/result/pages/evidence/evidence.component')
+          }
+        ]
       },
+
       {
         path: 'home',
         loadComponent: () => import('@platform/pages/home/home.component')
