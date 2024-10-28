@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CacheService } from '../../services/cache.service';
+import { CacheService } from '@services/cache/cache.service';
 
 @Component({
   selector: 'app-section-header',

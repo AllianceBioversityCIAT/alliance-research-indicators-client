@@ -10,7 +10,6 @@ export class ApiService {
   TP = inject(ToPromiseService);
 
   //? >>>>>>>>>>>> Endpoints <<<<<<<<<<<<<<<<<
-
   login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
     const url = () => `authorization/login`;
     return this.TP.post(url(), {}, { token: awsToken, isAuth: true });
@@ -39,6 +38,16 @@ export class ApiService {
   GET_ViewComponents = (): Promise<MainResponse<GetViewComponents[]>> => {
     const url = () => `authorization/view/scomponents`;
     return this.TP.get(url(), {});
+  };
+
+  GET_Results = (): Promise<MainResponse<any[]>> => {
+    const url = () => `results`;
+    return this.TP.get(url(), {});
+  };
+
+  POST_Result = (body: any): Promise<MainResponse<any>> => {
+    const url = () => `results`;
+    return this.TP.post(url(), body, {});
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

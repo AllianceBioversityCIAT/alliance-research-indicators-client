@@ -1,15 +1,10 @@
 export interface Result {
-  id: number;
+  is_active: boolean;
+  result_id: number;
+  result_official_code: number;
+  version_id: null;
   title: string;
-  indicator: string;
-  status: string;
-  project: string;
-  lever: string;
-  year: number;
-  result_owner: string;
-}
-
-export interface ResultTable {
-  attr: string;
-  header: string;
+  description: null | string;
+  indicator_id: number;
+  geo_scope_id: null;
 }

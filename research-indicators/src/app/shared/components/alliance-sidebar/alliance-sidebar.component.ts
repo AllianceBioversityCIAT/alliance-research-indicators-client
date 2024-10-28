@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CacheService } from '../../services/cache.service';
+import { CacheService } from '@services/cache/cache.service';
 import { RouterModule } from '@angular/router';
 
 @Component({

@@ -1,7 +1,7 @@
 import { Component, inject, Input } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { AllModalsService } from '../../services/all-modals.service';
-import { ModalName } from '../../types/modal.types';
+import { AllModalsService } from '@services/cache/all-modals.service';
+import { ModalName } from '@ts-types/modal.types';
 
 @Component({
   selector: 'app-modal',

@@ -1,9 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { IndicatorsService } from '@services/indicators.service';
+import { IndicatorsService } from '@services/control-list/indicators.service';
 import { ActivatedRoute } from '@angular/router';
-import { Indicator } from '../../../../shared/interfaces/api.interface';
-import { ApiService } from '../../../../shared/services/api.service';
-import { CacheService } from '../../../../shared/services/cache.service';
+import { Indicator } from '@interfaces/api.interface';
+import { ApiService } from '@services/api.service';
+import { CacheService } from '@services/cache/cache.service';
 
 @Component({
   selector: 'app-indicator',

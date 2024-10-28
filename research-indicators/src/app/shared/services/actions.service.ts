@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { CacheService } from './cache.service';
+import { CacheService } from '@services/cache/cache.service';
 import { Router } from '@angular/router';
-import { DataCache } from '../interfaces/cache.interface';
+import { DataCache } from '@interfaces/cache.interface';
 
 @Injectable({
   providedIn: 'root'

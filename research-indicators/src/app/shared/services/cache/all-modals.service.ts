@@ -1,5 +1,5 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
-import { ModalName } from '../types/modal.types';
+import { ModalName } from '@ts-types/modal.types';
 
 @Injectable({
   providedIn: 'root'

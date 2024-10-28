@@ -1,11 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { DynamicComponentSelectorComponent } from './components/dynamic-component-selector/dynamic-component-selector.component';
-import { ApiService } from '../../shared/services/api.service';
-import { GetViewComponents } from '../../shared/interfaces/api.interface';
-import { CacheService } from '../../shared/services/cache.service';
-import { DynamicComponentSelectorService } from './components/dynamic-component-selector/dynamic-component-selector.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicFieldsService } from './dynamic-fields.service';
 import { DynamicBlockComponent } from './components/dynamic-block/dynamic-block.component';
 import { CommonModule } from '@angular/common';
 

@@ -1,7 +1,7 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { Router } from '@angular/router';
-import { CacheService } from '../services/cache.service';
+import { CacheService } from '@services/cache/cache.service';
 import { User } from './classes/User';
 import { environment } from '../../../environments/environment';
 import { SocketUser } from '../interfaces/sockets.interface';

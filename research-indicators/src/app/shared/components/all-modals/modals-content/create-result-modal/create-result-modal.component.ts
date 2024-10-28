@@ -6,7 +6,8 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { AllModalsService } from '../../../../services/all-modals.service';
+import { AllModalsService } from '@services/cache/all-modals.service';
+import { ApiService } from '@services/api.service';
 
 interface Option {
   name: string;
@@ -21,8 +22,8 @@ interface Option {
 })
 export class CreateResultModalComponent implements OnInit {
   allModalsService = inject(AllModalsService);
-
-  value: undefined;
+  api = inject(ApiService);
+  title: any;
   isModalVisible = false; // Variable booleana para el estado del modal
 
   options: Option[] | undefined;
@@ -39,5 +40,10 @@ export class CreateResultModalComponent implements OnInit {
 
   hideDialog() {
     this.isModalVisible = false;
+  }
+
+  async createResult() {
+    const result = await this.api.POST_Result({ title: this.title, indicator_id: 1 });
+    console.log(result);
   }
 }

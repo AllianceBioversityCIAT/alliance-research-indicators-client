@@ -1,5 +1,5 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
-import { DataCache } from '../interfaces/cache.interface';
+import { DataCache } from '@interfaces/cache.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -14,19 +14,5 @@ export class CacheService {
 
   setCurrentSectionHeaderName(name: string) {
     this.currentSectionHeaderName.set(name);
-  }
-
-  isModalVisible = signal<boolean>(false);
-
-  showModal() {
-    this.isModalVisible.set(true);
-  }
-
-  hideModal() {
-    this.isModalVisible.set(false);
-  }
-
-  toggleModal() {
-    this.isModalVisible.update(visible => !visible);
   }
 }

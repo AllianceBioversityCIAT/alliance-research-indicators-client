@@ -2,7 +2,7 @@
   <div class="flex flex-column gap-1">
     <h1 class="title">Title*</h1>
     <label class="description" for="description"> Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon. </label>
-    <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
+    <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="title" />
     <small class="subtitle" id="username-help">Max. # words</small>
   </div>
 
@@ -18,6 +18,6 @@
 
   <div class="flex gap-1">
     <p-button label="Save for later" [outlined]="true" icon="pi pi-check" iconPos="right" />
-    <p-button label="Continue form" icon="pi pi-arrow-right" iconPos="right" (click)="this.allModalsService.closeModal('createResult')" routerLink="result/1/general-information" />
+    <p-button label="Continue form" icon="pi pi-arrow-right" iconPos="right" (click)="this.allModalsService.closeModal('createResult'); this.createResult()" routerLink="result/1/general-information" />
   </div>
 </div>
