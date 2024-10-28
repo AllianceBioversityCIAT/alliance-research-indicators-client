@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
-import { ApiService } from '../api.service';
-import { Result } from '../../interfaces/result.interface';
+import { ApiService } from '@services/api.service';
+import { Result } from '@interfaces/result/result.interface';
 
 @Injectable({
   providedIn: 'root'

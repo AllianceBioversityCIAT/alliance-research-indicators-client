@@ -9,7 +9,7 @@
           <div class="flex flex-column gap-1">
             <h1 class="title">Title*</h1>
             <label class="card-description" for="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</label>
-            <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
+            <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" />
             <small class="card-description" id="username-help">Max. # words</small>
           </div>
 
@@ -31,7 +31,7 @@
           </div>
         </div>
       </div>
-      <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" />
+      <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="saveData()" />
     </div>
   </div>
 </div>

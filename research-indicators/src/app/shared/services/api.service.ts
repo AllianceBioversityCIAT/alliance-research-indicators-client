@@ -2,6 +2,7 @@ import { Injectable, WritableSignal, inject } from '@angular/core';
 import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
+import { GeneralInformation } from '@interfaces/result/general-information.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -48,6 +49,16 @@ export class ApiService {
   POST_Result = (body: any): Promise<MainResponse<any>> => {
     const url = () => `results`;
     return this.TP.post(url(), body, {});
+  };
+
+  GET_GeneralInformation = (id: number): Promise<MainResponse<GeneralInformation>> => {
+    const url = () => `results/${id}/general-information`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_GeneralInformation = (id: number, body: any): Promise<MainResponse<any>> => {
+    const url = () => `results/${id}/general-information`;
+    return this.TP.patch(url(), body);
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
