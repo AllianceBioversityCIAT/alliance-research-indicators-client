@@ -22,36 +22,45 @@
   }
 
   .card-container {
-    background-color: #fcfcfc;
-    width: 60%;
-    border-radius: 10px;
-    padding: 30px;
-    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 75% 25%;
+    gap: 20px;
 
-    .card-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      color: #8d9299;
-      text-transform: uppercase;
+    .first-column {
       margin-bottom: 20px;
     }
 
-    .card-description {
-      color: #777c83;
-      font-family: Barlow, sans-serif;
-      font-size: 15px;
-      font-weight: 300;
-      line-height: 16.8px;
-      text-align: left;
-      margin-bottom: 5px;
-    }
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      background-color: #fcfcfc;
+      border-radius: 10px;
+      padding: 30px;
 
-    .title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-      color: #153c71;
+      .card-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 15px;
+        font-weight: 500;
+        color: #8d9299;
+        text-transform: uppercase;
+      }
+
+      .card-description {
+        color: #777c83;
+        font-family: Barlow, sans-serif;
+        font-size: 15px;
+        font-weight: 300;
+        line-height: 16.8px;
+        text-align: left;
+        margin-bottom: 5px;
+      }
+
+      .title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #153c71;
+      }
     }
   }
 }

@@ -2,32 +2,39 @@
   <h3 class="title-text">GENERAL INFORMATION</h3>
   <p class="description-text">Description</p>
   <div class="card-container">
-    <div class="card-title">GENERAL INFORMATION</div>
-    <div class="flex flex-column gap-3 justify-content-left">
-      <div class="flex flex-column gap-1">
-        <h1 class="title">Title*</h1>
-        <label class="card-description" for="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</label>
-        <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
-        <small id="username-help">Max. # words</small>
-      </div>
+    <div class="content-section">
+      <div class="card-content first-column">
+        <div class="card-title">GENERAL INFORMATION</div>
+        <div class="flex flex-column gap-3 justify-content-left">
+          <div class="flex flex-column gap-1">
+            <h1 class="title">Title*</h1>
+            <label class="card-description" for="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</label>
+            <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
+            <small class="card-description" id="username-help">Max. # words</small>
+          </div>
 
-      <div class="card flex flex-column gap-1">
-        <h1 class="title">Description</h1>
-        <label class="card-description" for="description">Offer a detailed, understandable explanation, without repeating the title.</label>
-        <textarea rows="5" pInputTextarea [autoResize]="true"> </textarea>
-        <small id="username-help">Max. # words</small>
-      </div>
+          <div class="card flex flex-column gap-1">
+            <h1 class="title">Description</h1>
+            <label class="card-description" for="description">Offer a detailed, understandable explanation, without repeating the title.</label>
+            <textarea rows="5" pInputTextarea [autoResize]="true"> </textarea>
+            <small class="card-description" id="username-help">Max. # words</small>
+          </div>
 
-      <div class="flex flex-column gap-1">
-        <h1 class="title">Keywords</h1>
-        <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
-      </div>
+          <div class="flex flex-column gap-1">
+            <h1 class="title">Keywords</h1>
+            <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
+          </div>
 
-      <div class="card flex flex-column gap-1">
-        <h1 class="title">Main contact person*</h1>
-        <p-dropdown [options]="options" [(ngModel)]="selectedOption" optionLabel="name" placeholder="Select option" />
+          <div class="card flex flex-column gap-1">
+            <h1 class="title">Main contact person*</h1>
+            <p-dropdown [options]="options" [(ngModel)]="selectedOption" optionLabel="name" placeholder="Select option" />
+          </div>
+        </div>
       </div>
+      <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" />
+    </div>
+    <div class="card-content">
+      <p>Hello world</p>
     </div>
   </div>
-  <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" />
 </div>

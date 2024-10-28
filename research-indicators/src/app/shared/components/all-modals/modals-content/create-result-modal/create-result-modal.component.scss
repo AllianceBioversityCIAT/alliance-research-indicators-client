@@ -1,6 +1,30 @@
-.title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #153c71;
+.container {
+  margin: 30px 40px;
+
+  .title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #153c71;
+  }
+
+  .description {
+    color: #777c83;
+    font-family: Barlow, sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 16.8px;
+    text-align: left;
+    margin-bottom: 5px;
+  }
+
+  .subtitle {
+    color: #777c83;
+    font-family: Barlow, sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 16.8px;
+    text-align: left;
+    margin-bottom: 5px;
+  }
 }

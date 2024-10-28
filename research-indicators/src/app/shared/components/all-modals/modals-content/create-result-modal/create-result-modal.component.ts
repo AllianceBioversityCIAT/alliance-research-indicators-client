@@ -8,7 +8,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { AllModalsService } from '../../../../services/all-modals.service';
 
-interface Indicator {
+interface Option {
   name: string;
 }
 
@@ -25,12 +25,12 @@ export class CreateResultModalComponent implements OnInit {
   value: undefined;
   isModalVisible = false; // Variable booleana para el estado del modal
 
-  indicators: Indicator[] | undefined;
+  options: Option[] | undefined;
 
-  selectedIndicator: Indicator | undefined;
+  selectedOption: Option | undefined;
 
   ngOnInit() {
-    this.indicators = [{ name: 'Indicator1' }, { name: 'Indicator 2' }];
+    this.options = [{ name: 'Option 1' }, { name: 'Option 2' }, { name: 'Option 3' }, { name: 'Option 4' }];
   }
 
   showDialog() {
