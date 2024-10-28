@@ -1,11 +1,78 @@
 .card-content {
-  .options {
-    .option {
+  margin: 90px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #fcfcfc;
+  border-radius: 10px;
+  padding: 30px;
+  height: 85vh;
+
+  .indicator-header {
+    display: flex;
+    justify-content: space-between;
+
+    .indicator-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 300;
+      color: #777c83;
+      margin: 0;
+    }
+
+    .indicator-description,
+    .code-description,
+    .status-description {
+      font-family: 'Barlow', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #173f6f;
+    }
+
+    .status-description {
+      color: #1689ca;
+    }
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid #dee2e6;
+    margin: 20px 0;
+  }
+
+  p {
+    margin: 5px;
+  }
+
+  .title {
+    font-family: 'Barlow', sans-serif;
+    font-size: 21px;
+    font-weight: 500;
+    color: #777c83;
+    margin-bottom: 15px;
+  }
+
+  .options-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .options {
       cursor: pointer;
 
       &.active {
-        color: red;
-        font-weight: 700;
+        background-color: #e8ebed;
+        margin-left: 5px;
+        font-weight: 500;
+        border-radius: 10px;
+        padding: 5px;
       }
 
       &.disabled {
