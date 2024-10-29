@@ -1,11 +1,12 @@
 .card-content {
-  margin: 90px 20px 0 0;
+  position: fixed;
+  margin: 90px 0 0 0;
   display: flex;
   flex-direction: column;
   background-color: #fcfcfc;
   border-radius: 10px;
   padding: 30px;
-  height: 85vh;
+  width: max-content;
 
   .indicator-header {
     display: flex;
