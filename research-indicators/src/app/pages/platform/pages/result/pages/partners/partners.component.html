@@ -10,7 +10,9 @@
     <div class="card flex flex-column gap-1">
       <h1 class="title">Partners to be acknowledge</h1>
       <label class="card-description" for="description">Partner organizations you collaborated with or are currently collaborating with to generate this result.</label>
-      <p-dropdown [options]="options" [(ngModel)]="selectedOption" optionLabel="name" placeholder="Select option" />
+      <div class="card flex">
+        <p-multiSelect [options]="organizations" [(ngModel)]="selectedOrganizations" [filter]="false" optionLabel="name" placeholder="Select organizations" />
+      </div>
     </div>
   </div>
   <div class="button-container">

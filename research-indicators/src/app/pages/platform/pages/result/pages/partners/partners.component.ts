@@ -1,25 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
+import { MultiSelectModule } from 'primeng/multiselect';
 
-interface Option {
+interface Organizations {
   name: string;
 }
 
 @Component({
   selector: 'app-partners',
   standalone: true,
-  imports: [ButtonModule, DropdownModule, FormsModule],
+  imports: [ButtonModule, FormsModule, MultiSelectModule],
   templateUrl: './partners.component.html',
   styleUrl: './partners.component.scss'
 })
 export default class PartnersComponent implements OnInit {
-  options: Option[] | undefined;
+  organizations!: Organizations[];
 
-  selectedOption: Option | undefined;
+  selectedOrganizations!: Organizations[];
 
   ngOnInit() {
-    this.options = [{ name: 'Option 1' }, { name: 'Option 2' }, { name: 'Option 3' }, { name: 'Option 4' }];
+    this.organizations = [{ name: 'WUR - Netherlands' }, { name: 'MARI - Tanzania, United Republic' }, { name: 'INRAB - Benin' }, { name: 'NARO - Uganda' }, { name: 'MARTI - Tanzania' }];
   }
 }
