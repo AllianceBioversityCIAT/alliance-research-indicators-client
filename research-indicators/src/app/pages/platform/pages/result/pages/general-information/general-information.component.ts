@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
+import { ChipsModule } from 'primeng/chips';
 
 interface Option {
   name: string;
@@ -15,7 +16,7 @@ interface Option {
 @Component({
   selector: 'app-general-information',
   standalone: true,
-  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, InputTextareaModule],
+  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, InputTextareaModule, ReactiveFormsModule, ChipsModule],
   templateUrl: './general-information.component.html',
   styleUrl: './general-information.component.scss'
 })
@@ -27,6 +28,7 @@ export default class GeneralInformationComponent implements OnInit {
   body = signal({ title: '' });
 
   selectedOption: Option | undefined;
+  formGroup: FormGroup | undefined;
 
   constructor() {
     this.getData();
@@ -34,6 +36,9 @@ export default class GeneralInformationComponent implements OnInit {
 
   ngOnInit() {
     this.options = [{ name: 'Option 1' }, { name: 'Option 2' }, { name: 'Option 3' }, { name: 'Option 4' }];
+    this.formGroup = new FormGroup({
+      values: new FormControl<string[] | null>(null)
+    });
   }
 
   async getData() {

@@ -22,7 +22,11 @@
 
           <div class="flex flex-column gap-1">
             <h1 class="title">Keywords</h1>
-            <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
+            <div class="card p-fluid">
+              <form [formGroup]="formGroup!">
+                <p-chips formControlName="values" />
+              </form>
+            </div>
           </div>
 
           <div class="card flex flex-column gap-1">
