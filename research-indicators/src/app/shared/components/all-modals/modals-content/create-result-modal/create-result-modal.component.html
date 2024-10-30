@@ -9,21 +9,27 @@
   </div>
   <div class="columns">
     <div class="primary-column">
-      <div class="section">
+      <!-- <div class="section">
         <h2 class="title">Primary Project</h2>
         <p-dropdown [options]="" [(ngModel)]="selectedOption" optionLabel="name" placeholder="Select a Primary Contract"></p-dropdown>
-      </div>
+      </div> -->
 
       <div class="section">
         <h2 class="title">Indicator*</h2>
         <h4 class="description">If you're unsure which indicator to select, visit About Indicators for more details.</h4>
-        <p-dropdown [options]="options" [(ngModel)]="selectedOption" optionLabel="name" placeholder="Select Indicator"></p-dropdown>
+        <p-dropdown [style]="{ width: '100%' }" [options]="indicatorsService.indicatorsGrouped()" [(ngModel)]="body().indicator_id" placeholder="Select Indicator" [group]="true">
+          <ng-template let-group pTemplate="group">
+            <div class="flex align-items-center">
+              <span>{{ group.label }}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
       </div>
 
       <div class="section">
         <h2 class="title">Title*</h2>
         <h4 class="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</h4>
-        <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="title" />
+        <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" />
         <small class="subtitle" id="username-help">Max. # words</small>
       </div>
 
