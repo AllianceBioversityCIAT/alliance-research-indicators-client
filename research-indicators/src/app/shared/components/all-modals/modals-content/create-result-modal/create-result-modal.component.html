@@ -9,7 +9,7 @@
   <div class="flex flex-column gap-1">
     <h1 class="title">Indicator*</h1>
     <!-- <p-dropdown [options]="indicatorsService.indicators()" [(ngModel)]="body().indicator_id" optionLabel="name" optionValue="indicator_type_id" placeholder="Select Indicator" /> -->
-    <p-dropdown [options]="indicatorsService.indicatorsGrouped()" [(ngModel)]="body().indicator_id" placeholder="Select Indicator" [group]="true">
+    <p-dropdown [style]="{ width: '100%' }" [options]="indicatorsService.indicatorsGrouped()" [(ngModel)]="body().indicator_id" placeholder="Select Indicator" [group]="true">
       <ng-template let-group pTemplate="group">
         <div class="flex align-items-center">
           <span>{{ group.label }}</span>

@@ -26,8 +26,8 @@ export class CreateResultModalComponent {
   body = signal<any>({ indicator_id: null, title: null, description: null });
 
   async createResult() {
-    // const result = await this.api.POST_Result({ title: this.title, indicator_id: 1 });
-    console.log(this.body());
-    // this.allModalsService.closeModal('createResult');
+    const result = await this.api.POST_Result(this.body());
+    console.log(result);
+    this.allModalsService.closeModal('createResult');
   }
 }

@@ -16,7 +16,7 @@
           <div class="card flex flex-column gap-1">
             <h1 class="title">Description</h1>
             <label class="card-description" for="description">Offer a detailed, understandable explanation, without repeating the title.</label>
-            <textarea rows="5" pInputTextarea [autoResize]="true"> </textarea>
+            <textarea rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="body().description"> </textarea>
             <small class="card-description" id="username-help">Max. # words</small>
           </div>
 
