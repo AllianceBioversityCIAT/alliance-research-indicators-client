@@ -1,5 +1,30 @@
 .container {
+  display: flex;
   margin: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  justify-content: flex-start;
+
+  .title-text {
+    font-family: Inter, sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 27px;
+    color: #173f6f;
+    text-transform: uppercase;
+  }
+
+  .description {
+    color: #777c83;
+    font-family: Barlow, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 17px;
+    text-align: left;
+    margin-top: 0px;
+    margin-bottom: 5px;
+  }
 
   .title {
     font-size: 17px;
@@ -8,23 +33,79 @@
     color: #153c71;
   }
 
-  .description {
-    color: #777c83;
-    font-family: Barlow, sans-serif;
-    font-size: 15px;
-    font-weight: 300;
-    line-height: 16.8px;
-    text-align: left;
-    margin-bottom: 5px;
+  .alert-container {
+    display: flex;
+    align-items: center;
+    background-color: #e8ebed;
+    padding: 5px;
+    border-left: 5px solid #074b86;
+    gap: 20px;
+    padding: 15px 20px;
+    margin-bottom: 30px;
+
+    .icon {
+      color: #074b86;
+    }
   }
 
-  .subtitle {
-    color: #777c83;
-    font-family: Barlow, sans-serif;
-    font-size: 15px;
-    font-weight: 300;
-    line-height: 16.8px;
-    text-align: left;
-    margin-bottom: 5px;
+  .columns {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+
+    .primary-column {
+      flex: 2;
+      flex-direction: column;
+
+      .section {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .subtitle {
+        color: #777c83;
+        font-family: Barlow, sans-serif;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 17px;
+        text-align: left;
+        margin-bottom: 0;
+      }
+
+      .button-group {
+        margin-top: 20px;
+        display: flex;
+        gap: 8px;
+      }
+    }
+
+    .second-column {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      background-color: #e8ebed;
+      border-radius: 10px;
+      padding: 50px;
+      gap: 20px;
+
+      .title {
+        margin: 0;
+      }
+
+      .description {
+        margin-top: 8px;
+      }
+
+      .first-title {
+        text-transform: uppercase;
+      }
+
+      .card {
+        background-color: #f4f7f9;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 4px 4px rgba(0, 182, 255, 0.1);
+      }
+    }
   }
 }
