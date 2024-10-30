@@ -26,6 +26,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_Contracts = (): Promise<MainResponse<any[]>> => {
+    const url = () => `agresso-contract/contracts`;
+    return this.TP.get(url(), {});
+  };
+
   GET_IndicatorTypeById = (id: number): Promise<MainResponse<Indicator>> => {
     const url = () => `indicator-types/${id}`;
     return this.TP.get(url(), {});

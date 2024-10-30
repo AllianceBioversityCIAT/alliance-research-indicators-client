@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -8,10 +8,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { ApiService } from '@services/api.service';
-
-interface Option {
-  name: string;
-}
+import { IndicatorsService } from '../../../../services/control-list/indicators.service';
+import { GetContractsService } from '../../../../services/control-list/get-contracts.service';
 
 @Component({
   selector: 'app-create-result-modal',
@@ -20,30 +18,16 @@ interface Option {
   templateUrl: './create-result-modal.component.html',
   styleUrl: './create-result-modal.component.scss'
 })
-export class CreateResultModalComponent implements OnInit {
+export class CreateResultModalComponent {
   allModalsService = inject(AllModalsService);
+  indicatorsService = inject(IndicatorsService);
+  getContractsService = inject(GetContractsService);
   api = inject(ApiService);
-  title: any;
-  isModalVisible = false; // Variable booleana para el estado del modal
-
-  options: Option[] | undefined;
-
-  selectedOption: Option | undefined;
-
-  ngOnInit() {
-    this.options = [{ name: 'Option 1' }, { name: 'Option 2' }, { name: 'Option 3' }, { name: 'Option 4' }];
-  }
-
-  showDialog() {
-    this.isModalVisible = true;
-  }
-
-  hideDialog() {
-    this.isModalVisible = false;
-  }
+  body = signal<any>({ indicator_id: null, title: null, description: null });
 
   async createResult() {
-    const result = await this.api.POST_Result({ title: this.title, indicator_id: 1 });
-    console.log(result);
+    // const result = await this.api.POST_Result({ title: this.title, indicator_id: 1 });
+    console.log(this.body());
+    // this.allModalsService.closeModal('createResult');
   }
 }
