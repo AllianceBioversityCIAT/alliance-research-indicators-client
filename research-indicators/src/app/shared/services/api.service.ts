@@ -2,6 +2,9 @@ import { Injectable, WritableSignal, inject } from '@angular/core';
 import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
+import { GeneralInformation } from '@interfaces/result/general-information.interface';
+import { GetContracts } from '../interfaces/get-contracts.interface';
+import { Result } from '../interfaces/result/result.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +13,6 @@ export class ApiService {
   TP = inject(ToPromiseService);
 
   //? >>>>>>>>>>>> Endpoints <<<<<<<<<<<<<<<<<
-
   login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
     const url = () => `authorization/login`;
     return this.TP.post(url(), {}, { token: awsToken, isAuth: true });
@@ -23,6 +25,11 @@ export class ApiService {
 
   GET_IndicatorTypes = (): Promise<MainResponse<IndicatorTypes[]>> => {
     const url = () => `indicator-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Contracts = (): Promise<MainResponse<GetContracts[]>> => {
+    const url = () => `agresso-contract/contracts`;
     return this.TP.get(url(), {});
   };
 
@@ -39,6 +46,26 @@ export class ApiService {
   GET_ViewComponents = (): Promise<MainResponse<GetViewComponents[]>> => {
     const url = () => `authorization/view/scomponents`;
     return this.TP.get(url(), {});
+  };
+
+  GET_Results = (): Promise<MainResponse<Result[]>> => {
+    const url = () => `results`;
+    return this.TP.get(url(), {});
+  };
+
+  POST_Result = <T>(body: T): Promise<MainResponse<Result>> => {
+    const url = () => `results`;
+    return this.TP.post(url(), body, {});
+  };
+
+  GET_GeneralInformation = (id: number): Promise<MainResponse<GeneralInformation>> => {
+    const url = () => `results/${id}/general-information`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_GeneralInformation = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
+    const url = () => `results/${id}/general-information`;
+    return this.TP.patch(url(), body);
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

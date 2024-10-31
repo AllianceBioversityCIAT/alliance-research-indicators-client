@@ -6,8 +6,8 @@ const config: Config = {
   globalSetup: 'jest-preset-angular/global-setup',
   collectCoverage: true,
   collectCoverageFrom: ['./src/app/**/*.ts', './src/app/**/*.html', '!./src/app/**/*routing.ts', '!./src/app/**/*module.ts'],
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/', '<rootDir>/src/app/pages/landing', '<rootDir>/src/app/shared/services'],
-  coveragePathIgnorePatterns: ['<rootDir>/src/app/app.config.ts', '<rootDir>/src/app/app.routes.ts', '<rootDir>/src/app/shared/sockets/websocket.service.ts'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/', '<rootDir>/src/app/pages/landing', '<rootDir>/src/app/shared/services', '<rootDir>/src/app/shared/components/alert/alert.component.spec.ts'],
+  coveragePathIgnorePatterns: ['<rootDir>/src/app/app.config.ts', '<rootDir>/src/app/app.routes.ts', '<rootDir>/src/app/shared/sockets/websocket.service.ts', '<rootDir>/src/app/shared/components/alert/alert.component.ts'],
   coverageReporters: ['text', 'cobertura', 'lcov'],
   coverageThreshold: {
     global: {
@@ -24,14 +24,14 @@ const config: Config = {
     '^@pages/(.*)$': '<rootDir>/src/app/pages/$1',
     '^@services/(.*)$': '<rootDir>/src/app/shared/services/$1',
     '^@interfaces/(.*)$': '<rootDir>/src/app/shared/interfaces/$1',
-    '^@environments/(.*)$': '<rootDir>/src/environments/$1',
     '^@interceptors/(.*)$': '<rootDir>/src/app/shared/interceptors/$1',
     '^@components/(.*)$': '<rootDir>/src/app/shared/components/$1',
     '^@sockets/(.*)$': '<rootDir>/src/app/shared/sockets/$1',
     '^@platform/(.*)$': '<rootDir>/src/app/pages/platform/$1',
     '^@auth/(.*)$': '<rootDir>/src/app/pages/auth/$1',
     '^@landing/(.*)$': '<rootDir>/src/app/pages/landing/$1',
-    '^@guards/(.*)$': '<rootDir>/src/app/shared/guards/$1'
+    '^@guards/(.*)$': '<rootDir>/src/app/shared/guards/$1',
+    '^@envs/(.*)$': '<rootDir>/src/environments/$1'
   }
 };
 

@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
-import { CacheService } from './cache.service';
+import { inject, Injectable, signal } from '@angular/core';
+import { CacheService } from '@services/cache/cache.service';
 import { Router } from '@angular/router';
-import { DataCache } from '../interfaces/cache.interface';
+import { DataCache } from '@interfaces/cache.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -9,9 +9,23 @@ import { DataCache } from '../interfaces/cache.interface';
 export class ActionsService {
   cache = inject(CacheService);
   router = inject(Router);
+  toastMessage = signal<{ severity: 'success' | 'info' | 'warning' | 'error'; summary: string; detail: string } | null>(null);
+  saveCurrentSectionValue = signal(false);
 
   constructor() {
     this.validateToken();
+  }
+
+  saveCurrentSection() {
+    this.saveCurrentSectionValue.set(true);
+
+    setTimeout(() => {
+      this.saveCurrentSectionValue.set(false);
+    }, 500);
+  }
+
+  showToast(severity: 'success' | 'info' | 'warning' | 'error', summary: string, detail: string) {
+    this.toastMessage.set({ severity, summary, detail });
   }
 
   validateToken() {

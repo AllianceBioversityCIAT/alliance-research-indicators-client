@@ -3,24 +3,27 @@ import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { DynamicToastService } from '../../services/dynamic-toast.service';
-import { CacheService } from '../../services/cache.service';
-import { DarkModeService } from '../../services/dark-mode.service';
+import { DynamicToastService } from '@services/dynamic-toast.service';
+import { CacheService } from '@services/cache/cache.service';
+import { DarkModeService } from '@services/dark-mode.service';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
-import { AllianceNavOptions } from '../../interfaces/nav.interface';
-import { DropdownComponent } from '../dropdown/dropdown.component';
-import { ActionsService } from '../../services/actions.service';
-import { AllModalsService } from '../../services/all-modals.service';
+import { AllianceNavOptions } from '@interfaces/nav.interface';
+import { DropdownComponent } from '@components/dropdown/dropdown.component';
+import { ActionsService } from '@services/actions.service';
+import { AllModalsService } from '@services/cache/all-modals.service';
+import { ResultsListDropdownComponent } from '@components/dropdowns/results-list-dropdown/results-list-dropdown.component';
+import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.service';
 @Component({
   selector: 'alliance-navbar',
   standalone: true,
-  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, DropdownComponent],
+  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, DropdownComponent, ResultsListDropdownComponent],
   templateUrl: './alliance-navbar.component.html',
   styleUrl: './alliance-navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AllianceNavbarComponent {
+  dropdownsCache = inject(DropdownsCacheService);
   allModalsService = inject(AllModalsService);
   dynamicToast = inject(DynamicToastService);
   cache = inject(CacheService);

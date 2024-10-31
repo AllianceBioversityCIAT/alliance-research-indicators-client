@@ -1,23 +1,61 @@
-<div class="flex flex-column gap-2 justify-content-left">
-  <div class="flex flex-column gap-1">
-    <h1 class="title">Title*</h1>
-    <label for="description"> Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon. </label>
-    <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
-    <small id="username-help">Max. # words</small>
+<div class="container">
+  <h1 class="title-text">CREATE A RESULT</h1>
+  <div class="alert-container">
+    <span class="icon material-symbols-rounded">info</span>
+    <div class="alerts">
+      <h3 class="description">For results from Pooled Projects, please report in PRMS. <a href="https://prtest.ciat.cgiar.org/result/results-outlet/results-list">https://prtest.ciat.cgiar.org/result/results-outlet/results-list</a></h3>
+      <h3 class="description">For Knowledge Product results from non-pooled projects, please report in TIP. <a href="https://tiptst.ciat.cgiar.org/login">https://tiptst.ciat.cgiar.org/login</a></h3>
+    </div>
   </div>
+  <div class="columns">
+    <div class="primary-column">
+      <div class="section">
+        <h2 class="title">Primary Project</h2>
+        <p-dropdown [style]="{ width: '100%' }" [loading]="this.getContractsService.loading()" [options]="this.getContractsService.list()" [filter]="true" filterBy="description" [(ngModel)]="body().contract_id" [virtualScroll]="true" [virtualScrollItemSize]="41" optionValue="agreement_id" optionLabel="description" placeholder="Select a Primary Contract">
+          <ng-template pTemplate="selectedItem">
+            @if (body().contract_id) {
+              <div class="flex align-items-center gap-2">
+                <div>One selected</div>
+              </div>
+            }
+          </ng-template>
+        </p-dropdown>
+      </div>
 
-  <div class="flex flex-column gap-1">
-    <h1 class="title">Indicator*</h1>
-    <p-dropdown [options]="indicators" [(ngModel)]="selectedIndicator" optionLabel="name" placeholder="Select Indicator" />
-  </div>
+      <div class="section">
+        <h2 class="title">Indicator*</h2>
+        <h4 class="description">If you're unsure which indicator to select, visit About Indicators for more details.</h4>
+        <p-dropdown [style]="{ width: '100%' }" [options]="indicatorsService.indicatorsGrouped()" [(ngModel)]="body().indicator_id" placeholder="Select Indicator" [group]="true">
+          <ng-template let-group pTemplate="group">
+            <div class="flex align-items-center">
+              <span>{{ group.label }}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+      </div>
 
-  <div class="flex flex-column gap-1">
-    <h1 class="title">Primary Contract</h1>
-    <p-dropdown [options]="indicators" [(ngModel)]="selectedIndicator" optionLabel="name" placeholder="Select a Primary Contract" />
-  </div>
+      <div class="section">
+        <h2 class="title">Title*</h2>
+        <h4 class="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</h4>
+        <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" />
+        <small class="subtitle" id="username-help">Max. # words</small>
+      </div>
 
-  <div class="flex gap-2">
-    <p-button label="Save for later" [outlined]="true" icon="pi pi-check" iconPos="right" />
-    <p-button label="Continue form" icon="pi pi-arrow-right" iconPos="right" (click)="this.allModalsService.closeModal('createResult')" routerLink="/general-information/1" />
+      <div class="button-group">
+        <p-button label="Save for later" [outlined]="true" icon="pi pi-check" iconPos="right"></p-button>
+        <p-button label="Continue form" icon="pi pi-arrow-right" iconPos="right" (click)="this.createResult()" routerLink="result/1/general-information"></p-button>
+      </div>
+    </div>
+    <div class="second-column">
+      <h2 class="first-title title">Need assistance with AI for your result creation?</h2>
+      <div class="card">
+        <h2 class="title">Description Based AI</h2>
+        <h4 class="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</h4>
+      </div>
+      <div class="card">
+        <h2 class="title">File Upload AI</h2>
+        <h4 class="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</h4>
+      </div>
+    </div>
   </div>
 </div>

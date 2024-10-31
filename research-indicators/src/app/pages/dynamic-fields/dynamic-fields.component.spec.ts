@@ -5,7 +5,7 @@ import { DynamicFieldsService } from './dynamic-fields.service';
 import { ApiService } from '../../shared/services/api.service';
 import { of } from 'rxjs';
 import { DynamicComponentSelectorService } from './components/dynamic-component-selector/dynamic-component-selector.service';
-import { CacheService } from '../../shared/services/cache.service';
+import { CacheService } from '@services/cache/cache.service';
 
 describe('DynamicFieldsComponent', () => {
   let component: DynamicFieldsComponent;

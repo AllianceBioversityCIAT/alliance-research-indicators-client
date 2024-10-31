@@ -1,0 +1,22 @@
+<div class="container">
+  <h3 class="title-text">PARTNERS</h3>
+  <p class="description-text">Description</p>
+  <div class="card-container">
+    <div class="card-title">PARTNERS</div>
+    <div class="alert-container">
+      <span class="icon material-symbols-rounded">info</span>
+      <h3 class="card-description">If you do not find the partner in the dropdown menu, you can request to have it added to the list. Once approved, it may take up to an hour for the partner to appear in the CLARISA institutions list.</h3>
+    </div>
+    <div class="card flex flex-column gap-1">
+      <h1 class="title">Partners to be acknowledge</h1>
+      <label class="card-description" for="description">Partner organizations you collaborated with or are currently collaborating with to generate this result.</label>
+      <div class="card flex">
+        <p-multiSelect [options]="organizations" [(ngModel)]="selectedOrganizations" [filter]="false" optionLabel="name" placeholder="Select organizations" />
+      </div>
+    </div>
+  </div>
+  <div class="button-container">
+    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" />
+    <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')" />
+  </div>
+</div>

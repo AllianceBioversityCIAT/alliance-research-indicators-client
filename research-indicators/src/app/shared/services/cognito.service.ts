@@ -1,11 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CacheService } from './cache.service';
-import { DynamicToastService } from './dynamic-toast.service';
-import { ApiService } from './api.service';
+import { CacheService } from '@services/cache/cache.service';
+import { DynamicToastService } from '@services/dynamic-toast.service';
+import { ApiService } from '@services/api.service';
 import { WebsocketService } from '../sockets/websocket.service';
-import { environment } from '../../../environments/environment';
-import { ActionsService } from './actions.service';
+import { environment } from '@envs/environment';
+import { ActionsService } from '@services/actions.service';
 
 @Injectable({
   providedIn: 'root'

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CacheService } from '@services/cache.service';
+import { CacheService } from '@services/cache/cache.service';
 import { RouterOutlet } from '@angular/router';
 import { AllianceNavbarComponent } from '@components/alliance-navbar/alliance-navbar.component';
 import { AllianceSidebarComponent } from '@components/alliance-sidebar/alliance-sidebar.component';

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import AboutIndicatorsComponent from './about-indicators.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { IndicatorsService } from '@services/indicators.service';
+import { IndicatorsService } from '@services/control-list/indicators.service';
 
 describe('AboutIndicatorsComponent', () => {
   let component: AboutIndicatorsComponent;

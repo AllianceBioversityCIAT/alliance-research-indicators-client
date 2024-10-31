@@ -1,0 +1,10 @@
+<div class="alert-overlay" role="dialog" aria-modal="true">
+  <div [class]="status" class="alert" [@alertAnimation]="status">
+    <div class="alert-title">
+      <ng-content select="[alert-title]"></ng-content>
+    </div>
+    <div class="alert-content">
+      <ng-content select="[alert-content]"></ng-content>
+    </div>
+  </div>
+</div>

@@ -1,8 +1,8 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { CacheService } from '../services/cache.service';
+import { CacheService } from '@services/cache/cache.service';
 import { inject } from '@angular/core';
-import { ActionsService } from '../services/actions.service';
-import { environment } from '../../../environments/environment';
+import { ActionsService } from '@services/actions.service';
+import { environment } from '@envs/environment';
 // import { ActionsService } from '../services/actions.service';
 
 export const jWtInterceptor: HttpInterceptorFn = (req, next) => {

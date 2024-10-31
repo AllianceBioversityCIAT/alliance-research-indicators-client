@@ -14,17 +14,17 @@
 
     <p-button label="New result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
     <div class="icons-container">
-      <app-dropdown position="top-left" class="search-dropdown">
-        <div dropdown-button>
+      <app-dropdown dropdownName="result" position="top-left" class="search-dropdown">
+        <div dropdown-button (click)="this.dropdownsCache.showDropdown('result')">
           <div class="search-box">
             <i class="material-symbols-rounded">search</i>
             <input type="text" placeholder="Search a result" />
           </div>
         </div>
         <div dropdown-content>
-          <p>This is an example of a search result...</p>
-          <p>This is another example of a search result...</p>
-          <p>This is another example of a search result...</p>
+          @if (this.dropdownsCache.dropdown().result) {
+            <app-results-list-dropdown />
+          }
         </div>
       </app-dropdown>
 

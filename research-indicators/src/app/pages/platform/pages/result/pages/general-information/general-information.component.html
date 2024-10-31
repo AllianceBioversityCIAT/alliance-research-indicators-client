@@ -1,0 +1,47 @@
+<div class="container">
+  <h3 class="title-text">GENERAL INFORMATION</h3>
+  <p class="description-text">Description</p>
+  <div class="card-container">
+    <div class="content-section">
+      <div class="card-content first-column">
+        <div class="card-title">GENERAL INFORMATION</div>
+        <div class="flex flex-column gap-3 justify-content-left">
+          <div class="flex flex-column gap-1">
+            <h1 class="title">Title*</h1>
+            <label class="card-description" for="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</label>
+            <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" />
+            <small class="card-description" id="username-help">Max. # words</small>
+          </div>
+
+          <div class="card flex flex-column gap-1">
+            <h1 class="title">Description</h1>
+            <label class="card-description" for="description">Offer a detailed, understandable explanation, without repeating the title.</label>
+            <textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="body().description"> </textarea>
+            <small class="card-description" id="username-help">Max. # words</small>
+          </div>
+
+          <div class="flex flex-column gap-1">
+            <h1 class="title">Keywords</h1>
+            <div class="card p-fluid">
+              <p-chips [(ngModel)]="body().keywords" (ngModelChange)="this.actions.saveCurrentSection()" />
+            </div>
+          </div>
+
+          <div class="card flex flex-column gap-1">
+            <h1 class="title">Main contact person*</h1>
+            <p-dropdown [style]="{ width: '100%' }" [options]="this.getContractsService.list()" [loading]="this.getContractsService.loading()" [filter]="true" filterBy="description" [(ngModel)]="body().main_contract_person" [virtualScroll]="true" [virtualScrollItemSize]="41" optionValue="agreement_id" optionLabel="description" placeholder="Select option">
+              <ng-template pTemplate="selectedItem">
+                @if (body().main_contract_person) {
+                  <div class="flex align-items-center gap-2">
+                    <div>One selected</div>
+                  </div>
+                }
+              </ng-template>
+            </p-dropdown>
+          </div>
+        </div>
+      </div>
+      <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="saveData()" />
+    </div>
+  </div>
+</div>

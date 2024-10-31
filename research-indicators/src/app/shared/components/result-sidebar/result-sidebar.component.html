@@ -1,0 +1,45 @@
+<div class="card-content">
+  <div class="indicator-header">
+    <div class="indicator-title">
+      <p>Indicator</p>
+      <p class="indicator-description">CapDev</p>
+    </div>
+    <div class="indicator-title">
+      <p>Code</p>
+      <p class="code-description">234</p>
+    </div>
+    <div class="indicator-title">
+      <p>Status</p>
+      <p class="status-description">Editing</p>
+    </div>
+  </div>
+  <hr />
+  <div class="title">Your progress</div>
+  <div class="options-container">
+    <div class="options" routerLink="general-information" routerLinkActive="active">
+      <span class="material-symbols-rounded">circle</span>
+      <div class="option">General information</div>
+    </div>
+    <div class="options">
+      <span class="material-symbols-rounded">circle</span>
+      <div class="option disabled">Alliance Alignment</div>
+    </div>
+    <div class="options">
+      <span class="material-symbols-rounded">circle</span>
+      <div class="option disabled">CapSharing details</div>
+    </div>
+    <div class="options" routerLink="partners" routerLinkActive="active">
+      <span class="material-symbols-rounded">circle</span>
+      <div class="option">Partners</div>
+    </div>
+    <div class="options">
+      <span class="material-symbols-rounded">circle</span>
+      <div class="option disabled">Geographic scope</div>
+    </div>
+    <div class="options" routerLink="evidence" routerLinkActive="active">
+      <span class="material-symbols-rounded">circle</span>
+      <div class="option">Evidence</div>
+    </div>
+  </div>
+  <p-button label="Submit form" [outlined]="true" severity="secondary" size="small" icon="pi pi-check" iconPos="right" />
+</div>
