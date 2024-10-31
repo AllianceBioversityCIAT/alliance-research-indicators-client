@@ -29,6 +29,12 @@
       font-weight: 500;
       cursor: pointer;
 
+      &.disabled {
+        // pointer-events: none;
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
       &:hover {
         background-color: #1b1b1b56;
       }

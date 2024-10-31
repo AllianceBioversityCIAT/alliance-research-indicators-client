@@ -58,6 +58,11 @@
       padding-left: 10px;
       border-radius: 3px;
 
+      &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
       &.active {
         background-color: var(--ac-grey-100);
         color: var(--ac-light-blue-300);
