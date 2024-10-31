@@ -6,6 +6,7 @@ import { WebsocketService } from '@sockets/websocket.service';
 import { DarkModeService } from '@services/dark-mode.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { signal } from '@angular/core';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('PlatformComponent', () => {
   let component: PlatformComponent;
@@ -13,7 +14,7 @@ describe('PlatformComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, PlatformComponent],
+      imports: [RouterTestingModule, PlatformComponent, HttpClientTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         { provide: CacheService, useValue: { dataCache: signal({}), isLoggedIn: { set: jest.fn() } } },
