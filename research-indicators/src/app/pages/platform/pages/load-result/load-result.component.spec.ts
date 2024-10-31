@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LoadResultComponent } from './load-result.component';
+import LoadResultComponent from './load-result.component';
 
 describe('LoadResultComponent', () => {
   let component: LoadResultComponent;
@@ -9,8 +9,7 @@ describe('LoadResultComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LoadResultComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(LoadResultComponent);
     component = fixture.componentInstance;

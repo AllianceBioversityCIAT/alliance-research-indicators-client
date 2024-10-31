@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import AllianceAlignmentComponent from './alliance-alignment.component';
 
@@ -8,7 +9,7 @@ describe('AllianceAlignmentComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AllianceAlignmentComponent]
+      imports: [AllianceAlignmentComponent, HttpClientTestingModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AllianceAlignmentComponent);
