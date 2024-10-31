@@ -8,3 +8,8 @@ export interface Result {
   indicator_id: number;
   geo_scope_id: null;
 }
+
+export interface ResultTable {
+  attr: string;
+  header: string;
+}

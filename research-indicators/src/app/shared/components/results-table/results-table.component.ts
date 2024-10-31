@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { CardModule } from 'primeng/card';
 import { TabViewModule } from 'primeng/tabview';
-import { Result, ResultTable } from '../../interfaces/result.interface';
+import { Result, ResultTable } from '@interfaces/result/result.interface';
 
 @Component({
   selector: 'app-results-table',

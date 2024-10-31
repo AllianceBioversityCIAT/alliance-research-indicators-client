@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CapacitySharingComponent } from './capacity-sharing.component';
+import CapacitySharingComponent from './capacity-sharing.component';
 
 describe('CapacitySharingComponent', () => {
   let component: CapacitySharingComponent;
@@ -9,8 +9,7 @@ describe('CapacitySharingComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CapacitySharingComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CapacitySharingComponent);
     component = fixture.componentInstance;

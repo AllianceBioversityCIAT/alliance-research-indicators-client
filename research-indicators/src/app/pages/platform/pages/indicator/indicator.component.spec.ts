@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import IndicatorComponent from './indicator.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { IndicatorsService } from '@services/indicators.service';
+import { IndicatorsService } from '@services/control-list/indicators.service';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 

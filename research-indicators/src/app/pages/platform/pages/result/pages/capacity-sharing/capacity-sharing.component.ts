@@ -7,6 +7,4 @@ import { Component } from '@angular/core';
   templateUrl: './capacity-sharing.component.html',
   styleUrl: './capacity-sharing.component.scss'
 })
-export class CapacitySharingComponent {
-
-}
+export default class CapacitySharingComponent {}
