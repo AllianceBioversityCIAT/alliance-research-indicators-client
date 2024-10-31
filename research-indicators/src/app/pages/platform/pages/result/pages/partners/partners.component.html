@@ -10,7 +10,7 @@
     <div class="card flex flex-column gap-1">
       <h1 class="title">Partners to be acknowledge</h1>
       <label class="card-description" for="description">Partner organizations you collaborated with or are currently collaborating with to generate this result.</label>
-      <p-multiSelect [style]="{ width: '100%' }" [loading]="this.getInstitutionsService.loading()" [options]="this.getInstitutionsService.list()" [(ngModel)]="body().institutions" [filter]="true" filterBy="name" optionLabel="name" optionValue="institution_id" placeholder="Select organizations" [virtualScroll]="true" [virtualScrollItemSize]="41" />
+      <p-multiSelect (ngModelChange)="this.actions.saveCurrentSection()" [style]="{ width: '100%' }" [loading]="this.getInstitutionsService.loading()" [options]="this.getInstitutionsService.list()" [(ngModel)]="body().institutions" [filter]="true" filterBy="name" optionLabel="name" optionValue="institution_id" placeholder="Select organizations" [virtualScroll]="true" [virtualScrollItemSize]="41" />
     </div>
   </div>
   <div class="button-container">

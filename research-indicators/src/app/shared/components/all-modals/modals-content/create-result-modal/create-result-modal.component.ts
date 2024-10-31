@@ -30,7 +30,6 @@ export class CreateResultModalComponent {
 
   async createResult() {
     const result = await this.api.POST_Result(this.body());
-    console.log(result);
     this.router.navigate([`/result/${result.data.result_id}/general-information`]);
     this.allModalsService.closeModal('createResult');
   }

@@ -18,6 +18,5 @@ export class GetLeversService {
     const response = await this.apiService.GET_Levers();
     this.list.set(response.data);
     this.loading.set(false);
-    console.log(response.data);
   }
 }

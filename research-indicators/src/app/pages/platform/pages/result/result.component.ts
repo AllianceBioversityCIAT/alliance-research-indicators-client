@@ -16,6 +16,5 @@ export default class ResultComponent {
 
   constructor() {
     this.cache.currentResultId.set(this.resultId);
-    console.log(this.resultId);
   }
 }

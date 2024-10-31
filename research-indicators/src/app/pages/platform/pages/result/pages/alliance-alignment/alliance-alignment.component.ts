@@ -7,6 +7,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
+import { PatchAllianceAlignment } from '../../../../../../shared/interfaces/alliance-aligment.interface';
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -18,7 +19,7 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 export default class AllianceAlignmentComponent {
   getContractsService = inject(GetContractsService);
   getLeversService = inject(GetLeversService);
-  body = signal({ contracts: [], levers: [] });
+  body = signal<PatchAllianceAlignment>({ contracts: [], levers: [] });
   apiService = inject(ApiService);
   cache = inject(CacheService);
   actions = inject(ActionsService);
@@ -34,8 +35,8 @@ export default class AllianceAlignmentComponent {
   }
 
   async saveData() {
-    const response = await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
-    console.log(response);
+    await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
+    this.actions.showToast('success', 'Alliance Alignment', 'Data saved successfully');
   }
 
   onSaveSection = effect(() => {

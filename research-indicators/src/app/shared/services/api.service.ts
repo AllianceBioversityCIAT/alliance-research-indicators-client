@@ -8,6 +8,7 @@ import { Result } from '../interfaces/result/result.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
 import { GetLevers } from '../interfaces/get-levers.interface';
+import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -101,12 +102,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Alignments = (id: number): Promise<MainResponse<any>> => {
+  GET_Alignments = (id: number): Promise<MainResponse<PatchAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
     return this.TP.get(url(), {});
   };
 
-  PATCH_Alignments = <T>(id: number, body: T): Promise<MainResponse<any>> => {
+  PATCH_Alignments = <T>(id: number, body: T): Promise<MainResponse<PatchAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
     return this.TP.patch(url(), body);
   };

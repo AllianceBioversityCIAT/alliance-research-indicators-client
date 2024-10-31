@@ -41,12 +41,10 @@ export default class GeneralInformationComponent {
   async getData() {
     const response = await this.api.GET_GeneralInformation(this.cache.currentResultId());
     this.body.set(response.data);
-    console.log(response.data);
   }
 
   async saveData(page?: 'next') {
     await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
-    // console.log(data);
     this.actions.showToast('success', 'General Information', 'Data saved successfully');
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
   }

@@ -41,6 +41,11 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'load-results',
+        loadComponent: () => import('@platform/pages/load-result/load-result.component')
+      },
+
+      {
         path: 'result/:id',
         loadComponent: () => import('@platform/pages/result/result.component'),
         children: [

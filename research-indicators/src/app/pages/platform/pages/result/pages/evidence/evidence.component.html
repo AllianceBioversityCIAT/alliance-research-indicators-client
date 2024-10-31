@@ -9,11 +9,11 @@
         <div class="evidence-container">
           <div class="flex flex-column first-column gap-1">
             <h1 class="title">Evidence link</h1>
-            <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
+            <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="evidence.evidence_url" />
           </div>
           <div class="flex flex-column gap-1">
             <h1 class="title">Evidence description</h1>
-            <textarea rows="5" pInputTextarea [autoResize]="true"> </textarea>
+            <textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="evidence.evidence_description"> </textarea>
           </div>
           <div class="delete-button">
             <i class="material-symbols-rounded atc-primary-blue-500" (click)="deleteEvidence($index)">delete</i>

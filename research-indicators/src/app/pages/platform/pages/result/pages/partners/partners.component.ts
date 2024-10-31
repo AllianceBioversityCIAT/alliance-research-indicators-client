@@ -31,14 +31,13 @@ export default class PartnersComponent {
   async getData() {
     const response: any = await this.api.GET_Partners(this.cache.currentResultId());
     this.body.set(response.data);
-    console.log(response.data);
   }
 
   async saveData(page?: 'next' | 'back') {
-    console.log(this.body());
     await this.api.PATCH_Partners(this.cache.currentResultId(), this.body());
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
+    this.actions.showToast('success', 'Partners', 'Data saved successfully');
   }
 
   onSaveSection = effect(() => {

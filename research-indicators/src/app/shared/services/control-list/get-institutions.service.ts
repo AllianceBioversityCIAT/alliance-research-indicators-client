@@ -16,7 +16,7 @@ export class GetInstitutionsService {
   async main() {
     this.loading.set(true);
     const response = await this.api.GET_Institutions();
-    response.data.map((institution: any) => {
+    response.data.map((institution: GetInstitution) => {
       institution.institution_id = institution.code;
     });
     this.list.set(response.data);
