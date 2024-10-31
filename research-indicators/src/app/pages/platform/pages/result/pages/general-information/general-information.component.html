@@ -9,21 +9,21 @@
           <div class="flex flex-column gap-1">
             <h1 class="title">Title*</h1>
             <label class="card-description" for="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</label>
-            <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" />
+            <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" />
             <small class="card-description" id="username-help">Max. # words</small>
           </div>
 
           <div class="card flex flex-column gap-1">
             <h1 class="title">Description</h1>
             <label class="card-description" for="description">Offer a detailed, understandable explanation, without repeating the title.</label>
-            <textarea rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="body().description"> </textarea>
+            <textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="body().description"> </textarea>
             <small class="card-description" id="username-help">Max. # words</small>
           </div>
 
           <div class="flex flex-column gap-1">
             <h1 class="title">Keywords</h1>
             <div class="card p-fluid">
-              <p-chips [(ngModel)]="body().keywords" />
+              <p-chips [(ngModel)]="body().keywords" (ngModelChange)="this.actions.saveCurrentSection()" />
             </div>
           </div>
 

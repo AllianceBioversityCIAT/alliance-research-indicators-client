@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -11,6 +11,7 @@ import { ChipsModule } from 'primeng/chips';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { GetContractsService } from '../../../../../../shared/services/control-list/get-contracts.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
+import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
 
 interface Option {
   name: string;
@@ -19,7 +20,7 @@ interface Option {
 @Component({
   selector: 'app-general-information',
   standalone: true,
-  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, InputTextareaModule, ReactiveFormsModule, ChipsModule],
+  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, InputTextareaModule, ReactiveFormsModule, ChipsModule, SaveOnWritingDirective],
   templateUrl: './general-information.component.html',
   styleUrl: './general-information.component.scss'
 })
@@ -45,4 +46,7 @@ export default class GeneralInformationComponent {
     console.log(data);
     this.actions.showToast('success', 'General Information', 'Data saved successfully');
   }
+  onSaveSection = effect(() => {
+    if (this.actions.saveCurrentSectionValue()) this.saveData();
+  });
 }

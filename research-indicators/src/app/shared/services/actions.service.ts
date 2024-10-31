@@ -10,9 +10,18 @@ export class ActionsService {
   cache = inject(CacheService);
   router = inject(Router);
   toastMessage = signal<{ severity: 'success' | 'info' | 'warning' | 'error'; summary: string; detail: string } | null>(null);
+  saveCurrentSectionValue = signal(false);
 
   constructor() {
     this.validateToken();
+  }
+
+  saveCurrentSection() {
+    this.saveCurrentSectionValue.set(true);
+
+    setTimeout(() => {
+      this.saveCurrentSectionValue.set(false);
+    }, 500);
   }
 
   showToast(severity: 'success' | 'info' | 'warning' | 'error', summary: string, detail: string) {
