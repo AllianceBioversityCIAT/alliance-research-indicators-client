@@ -8,11 +8,13 @@ import { DynamicToastComponent } from './shared/components/dynamic-toast/dynamic
 import { OpenReplayService } from './shared/services/open-replay.service';
 import { GoogleAnalyticsService } from './shared/services/google-analytics.service';
 import { ActionsService } from './shared/services/actions.service';
+import { AlertComponent } from './shared/components/alert/alert.component';
+import { GlobalToastComponent } from './shared/components/global-toast/global-toast.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, DynamicToastComponent, MetadataPanelComponent],
+  imports: [RouterOutlet, DynamicToastComponent, MetadataPanelComponent, AlertComponent, GlobalToastComponent],
   templateUrl: './app.component.html'
 })
 export class AppComponent {

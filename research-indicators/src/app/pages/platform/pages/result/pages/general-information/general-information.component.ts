@@ -10,6 +10,7 @@ import { CacheService } from '@services/cache/cache.service';
 import { ChipsModule } from 'primeng/chips';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { GetContractsService } from '../../../../../../shared/services/control-list/get-contracts.service';
+import { ActionsService } from '../../../../../../shared/services/actions.service';
 
 interface Option {
   name: string;
@@ -23,6 +24,7 @@ interface Option {
   styleUrl: './general-information.component.scss'
 })
 export default class GeneralInformationComponent {
+  actions = inject(ActionsService);
   api = inject(ApiService);
   cache = inject(CacheService);
   getContractsService = inject(GetContractsService);
@@ -41,5 +43,6 @@ export default class GeneralInformationComponent {
   async saveData() {
     const data = await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
     console.log(data);
+    this.actions.showToast('success', 'General Information', 'Data saved successfully');
   }
 }
