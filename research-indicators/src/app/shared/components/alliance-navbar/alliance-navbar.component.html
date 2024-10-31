@@ -4,12 +4,12 @@
   </div>
   <div class="options">
     @for (option of this.options; track $index) {
-    <a [routerLink]="option.path" class="option atc-white-1" routerLinkActive="active atc-light-blue-200-i">
-      {{ option.label }}
-      <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
-        {{ option.icon }}
+      <a class="option atc-white-1 disabled" routerLinkActive="active atc-light-blue-200-i">
+        {{ option.label }}
+        <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
+          {{ option.icon }}
+        </a>
       </a>
-    </a>
     }
 
     <p-button label="New result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />

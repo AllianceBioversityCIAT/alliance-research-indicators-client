@@ -9,7 +9,7 @@
       @if ($index === this.options.length - 1) {
         <hr class="divider" />
       }
-      <div class="option atc-primary-blue-400" [routerLink]="option.link" [routerLinkActive]="'active'">
+      <div class="option atc-primary-blue-400" [class]="{ disabled: option.disabled }" [routerLink]="option.link" [routerLinkActive]="'active'">
         <i class="material-symbols-rounded">{{ option.icon }}</i>
         <div class="body-2 text">{{ option.label }}</div>
       </div>

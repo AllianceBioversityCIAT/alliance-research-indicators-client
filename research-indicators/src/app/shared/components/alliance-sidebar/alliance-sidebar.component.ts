@@ -13,11 +13,11 @@ import { RouterModule } from '@angular/router';
 export class AllianceSidebarComponent {
   cache = inject(CacheService);
   options = [
-    { icon: 'finance', label: 'About indicators', link: '/about-indicators' },
-    { icon: 'info', label: 'About the tool', link: '1' },
-    { icon: 'table_rows', label: 'Power BI dashboard', link: '23' },
-    { icon: 'open_in_new', label: 'Other reporting tools', link: '45' },
-    { icon: 'forum', label: 'Give feedback' }
+    { icon: 'finance', label: 'About indicators', link: '/about-indicators', disabled: false },
+    { icon: 'info', label: 'About the tool', link: '1', disabled: true },
+    { icon: 'table_rows', label: 'Power BI dashboard', link: '23', disabled: true },
+    { icon: 'open_in_new', label: 'Other reporting tools', link: '45', disabled: true },
+    { icon: 'forum', label: 'Give feedback', disabled: true }
   ];
 
   isCollapsed = signal(false);
