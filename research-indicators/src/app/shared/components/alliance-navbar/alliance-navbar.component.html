@@ -47,19 +47,21 @@
           <p-avatar label="P" styleClass="mr-2"></p-avatar>
         </div>
         <div dropdown-content>
-          <div class="account-container">
-            <div class="account-header">Account</div>
-            <div class="account-content">
-              <p-avatar label="P" size="large"></p-avatar>
-              <div class="account-details">
-                <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{ this.cache.dataCache().user.last_name }}</span>
-                <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
-                <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
+          <div class="profile">
+            <div class="account-container">
+              <div class="account-header">Account</div>
+              <div class="account-content">
+                <p-avatar label="P" size="large"></p-avatar>
+                <div class="account-details">
+                  <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{ this.cache.dataCache().user.last_name }}</span>
+                  <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
+                  <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <p-button size="small" label="Log out" icon="pi pi-sign-in" [loading]="this.cache.isValidatingToken()" (onClick)="this.actions.logOut()"></p-button>
+            <p-button size="small" label="Log out" icon="pi pi-sign-in" [loading]="this.cache.isValidatingToken()" (onClick)="this.actions.logOut()"></p-button>
+          </div>
         </div>
       </app-dropdown>
     </div>
