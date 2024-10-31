@@ -1,17 +1,13 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { CacheService } from '../../../../../../shared/services/cache/cache.service';
+import { ActionsService } from '@services/actions.service';
+import { CacheService } from '@services/cache/cache.service';
 import { Router } from '@angular/router';
-import { GetInstitutionsService } from '../../../../../../shared/services/control-list/get-institutions.service';
-import { PatchPartners } from '../../../../../../shared/interfaces/patch-partners.interface';
-import { ApiService } from '../../../../../../shared/services/api.service';
-
-interface Organizations {
-  name: string;
-}
+import { GetInstitutionsService } from '@services/control-list/get-institutions.service';
+import { PatchPartners } from '@interfaces/patch-partners.interface';
+import { ApiService } from '@services/api.service';
 
 @Component({
   selector: 'app-partners',

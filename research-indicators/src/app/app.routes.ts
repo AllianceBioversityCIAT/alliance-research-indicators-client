@@ -57,6 +57,13 @@ export const routes: Routes = [
             }
           },
           {
+            path: 'alliance-alignment',
+            loadComponent: () => import('@platform/pages/result/pages/alliance-alignment/alliance-alignment.component'),
+            data: {
+              title: 'Alliance Alignment'
+            }
+          },
+          {
             path: 'partners',
             loadComponent: () => import('@platform/pages/result/pages/partners/partners.component'),
             data: {
