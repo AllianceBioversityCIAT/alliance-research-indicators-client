@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { CreateResultModalComponent } from './create-result-modal.component';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
@@ -9,7 +11,7 @@ describe('CreateResultModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CreateResultModalComponent],
+      imports: [HttpClientTestingModule, RouterTestingModule, CreateResultModalComponent],
       providers: [
         {
           provide: ActivatedRoute,

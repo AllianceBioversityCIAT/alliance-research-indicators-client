@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 import ResultComponent from './result.component';
 
 describe('ResultComponent', () => {
@@ -8,7 +10,21 @@ describe('ResultComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ResultComponent]
+      imports: [RouterTestingModule, ResultComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: { id: '123' },
+              paramMap: {
+                get: (key: string) => (key === 'id' ? '123' : null)
+              }
+            },
+            params: of({ id: '123' })
+          }
+        }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ResultComponent);
