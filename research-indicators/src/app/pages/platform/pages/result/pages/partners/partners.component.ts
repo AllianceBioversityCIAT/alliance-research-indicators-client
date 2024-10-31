@@ -29,7 +29,7 @@ export default class PartnersComponent {
   }
 
   async getData() {
-    const response: any = await this.api.GET_Partners(this.cache.currentResultId());
+    const response = await this.api.GET_Partners(this.cache.currentResultId());
     this.body.set(response.data);
   }
 

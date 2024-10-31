@@ -9,7 +9,6 @@ import { ApiService } from '@services/api.service';
 import { CacheService } from '@services/cache/cache.service';
 import { ChipsModule } from 'primeng/chips';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
-import { GetContractsService } from '../../../../../../shared/services/control-list/get-contracts.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
 import { ActivatedRoute, Router } from '@angular/router';

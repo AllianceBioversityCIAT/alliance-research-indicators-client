@@ -39,7 +39,7 @@ export default class EvidenceComponent {
   }
 
   async getData() {
-    const response: any = await this.api.GET_ResultEvidences(this.cache.currentResultId());
+    const response = await this.api.GET_ResultEvidences(this.cache.currentResultId());
     this.body.set(response.data || new PatchResultEvidences());
   }
 

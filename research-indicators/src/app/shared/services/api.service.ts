@@ -9,6 +9,7 @@ import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
 import { GetLevers } from '../interfaces/get-levers.interface';
 import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
+import { PatchPartners } from '../interfaces/patch-partners.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -77,7 +78,7 @@ export class ApiService {
     return this.TP.patch(url(), body);
   };
 
-  GET_Partners = (id: number): Promise<MainResponse<GetInstitution[]>> => {
+  GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
     const url = () => `results/institutions/by-result-id/${id}?role=partners`;
     return this.TP.get(url(), {});
   };

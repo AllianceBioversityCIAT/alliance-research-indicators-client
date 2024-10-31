@@ -8,7 +8,7 @@ import { Component, Input } from '@angular/core';
   styleUrl: './multiselected.component.scss'
 })
 export class MultiselectedComponent {
-  @Input() options: any[] = [];
+  @Input() options: [] = [];
   @Input() title = '';
   @Input() typeLabel = '';
   @Input() typeLabelValue = '';
