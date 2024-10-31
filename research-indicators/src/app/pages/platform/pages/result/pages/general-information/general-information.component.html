@@ -29,7 +29,7 @@
 
           <div class="card flex flex-column gap-1">
             <h1 class="title">Main contact person*</h1>
-            <p-dropdown [style]="{ width: '100%' }" [options]="this.getContractsService.list()" [loading]="this.getContractsService.loading()" [filter]="true" filterBy="description" [(ngModel)]="body().main_contract_person" [virtualScroll]="true" [virtualScrollItemSize]="41" optionValue="agreement_id" optionLabel="description" placeholder="Select option">
+            <p-dropdown [style]="{ width: '100%' }" [options]="[]" [disabled]="true" [loading]="false" [filter]="true" filterBy="description" [(ngModel)]="body().main_contract_person" [virtualScroll]="true" [virtualScrollItemSize]="41" optionValue="agreement_id" optionLabel="description" placeholder="Select option">
               <ng-template pTemplate="selectedItem">
                 @if (body().main_contract_person) {
                   <div class="flex align-items-center gap-2">

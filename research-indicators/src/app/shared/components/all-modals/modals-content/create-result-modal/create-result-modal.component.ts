@@ -10,6 +10,7 @@ import { AllModalsService } from '@services/cache/all-modals.service';
 import { ApiService } from '@services/api.service';
 import { IndicatorsService } from '../../../../services/control-list/indicators.service';
 import { GetContractsService } from '../../../../services/control-list/get-contracts.service';
+import { CacheService } from '../../../../services/cache/cache.service';
 
 @Component({
   selector: 'app-create-result-modal',
@@ -22,15 +23,15 @@ export class CreateResultModalComponent {
   allModalsService = inject(AllModalsService);
   indicatorsService = inject(IndicatorsService);
   getContractsService = inject(GetContractsService);
+  cache = inject(CacheService);
   router = inject(Router);
   api = inject(ApiService);
   body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null }>({ indicator_id: null, title: null, contract_id: null });
 
   async createResult() {
     const result = await this.api.POST_Result(this.body());
-    // console.log(result);
-    // console.log(this.body());
-    this.allModalsService.closeModal('createResult');
+    console.log(result);
     this.router.navigate([`/result/${result.data.result_id}/general-information`]);
+    this.allModalsService.closeModal('createResult');
   }
 }

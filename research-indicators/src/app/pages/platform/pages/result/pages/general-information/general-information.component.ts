@@ -29,7 +29,6 @@ export default class GeneralInformationComponent {
   actions = inject(ActionsService);
   api = inject(ApiService);
   cache = inject(CacheService);
-  getContractsService = inject(GetContractsService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   options: Option[] | undefined;
@@ -42,6 +41,7 @@ export default class GeneralInformationComponent {
   async getData() {
     const response = await this.api.GET_GeneralInformation(this.cache.currentResultId());
     this.body.set(response.data);
+    console.log(response.data);
   }
 
   async saveData(page?: 'next') {
