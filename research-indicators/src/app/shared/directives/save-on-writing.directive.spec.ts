@@ -22,7 +22,7 @@ describe('SaveOnWritingDirective', () => {
   });
 
   it('should create an instance', () => {
-    const directive = new SaveOnWritingDirective(mockElementRef);
+    const directive = TestBed.runInInjectionContext(() => new SaveOnWritingDirective(mockElementRef));
     expect(directive).toBeTruthy();
   });
 });
