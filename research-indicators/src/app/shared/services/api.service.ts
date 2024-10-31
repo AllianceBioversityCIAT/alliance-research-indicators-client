@@ -87,7 +87,7 @@ export class ApiService {
   };
 
   GET_ResultEvidences = (resultId: number): Promise<MainResponse<PatchResultEvidences>> => {
-    const url = () => `results/evidences/principal-evidence/${resultId}`;
+    const url = () => `results/evidences/principal/${resultId}`;
     return this.TP.get(url(), {});
   };
 

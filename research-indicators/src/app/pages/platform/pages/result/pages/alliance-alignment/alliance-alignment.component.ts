@@ -6,11 +6,12 @@ import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
+import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 
 @Component({
   selector: 'app-alliance-alignment',
   standalone: true,
-  imports: [MultiSelectModule, FormsModule],
+  imports: [MultiSelectModule, FormsModule, MultiselectComponent],
   templateUrl: './alliance-alignment.component.html',
   styleUrl: './alliance-alignment.component.scss'
 })

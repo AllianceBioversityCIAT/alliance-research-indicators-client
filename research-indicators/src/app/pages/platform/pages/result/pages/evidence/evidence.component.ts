@@ -43,6 +43,7 @@ export default class EvidenceComponent {
   }
 
   async saveData(page?: 'next' | 'back') {
+    console.log('saveData');
     const response: any = await this.api.PATCH_ResultEvidences(this.cache.currentResultId(), this.body());
     console.log(response);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);

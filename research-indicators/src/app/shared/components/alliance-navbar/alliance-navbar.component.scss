@@ -8,7 +8,7 @@
     img {
       height: 45px;
       cursor: pointer;
-      margin-right: 70px;
+      margin-right: 50px;
     }
 
     transition: all ease-in-out 0.3s;
@@ -16,7 +16,6 @@
 
   .options {
     display: flex;
-    gap: 35px;
     align-items: center;
     flex-grow: 1;
     justify-content: flex-start;
@@ -26,7 +25,7 @@
       display: flex;
       align-items: center;
       text-decoration: none;
-      padding: 25px;
+      padding: 25px 15px;
       font-weight: 500;
       cursor: pointer;
 

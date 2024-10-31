@@ -1,4 +1,5 @@
 <div class="card">
   <h2 class="title">Primary Project</h2>
-  <p-multiSelect [style]="{ width: '100%' }" [loading]="this.getLeversService.loading()" [options]="this.getLeversService.list()" [(ngModel)]="body().levers" [filter]="true" filterBy="name" optionLabel="full_name" optionValue="id" placeholder="Select organizations" [virtualScroll]="true" [virtualScrollItemSize]="41" />
+  <!-- <p-multiSelect [style]="{ width: '100%' }" [loading]="this.getLeversService.loading()" [options]="this.getLeversService.list()" [(ngModel)]="body().levers" [filter]="true" filterBy="name" optionLabel="full_name" optionValue="id" placeholder="Select organizations" [virtualScroll]="true" [virtualScrollItemSize]="41" /> -->
+  <app-multiselect [options]="this.getLeversService.list()" [service]="this.getLeversService" />
 </div>
