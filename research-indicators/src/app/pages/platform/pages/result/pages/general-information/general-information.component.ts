@@ -21,38 +21,23 @@ interface Option {
   templateUrl: './general-information.component.html',
   styleUrl: './general-information.component.scss'
 })
-export default class GeneralInformationComponent implements OnInit {
+export default class GeneralInformationComponent {
   api = inject(ApiService);
   cache = inject(CacheService);
   value: undefined;
   options: Option[] | undefined;
   body: WritableSignal<GeneralInformation> = signal({ title: '', description: '', keywords: [], main_contract_person: { result_user_id: 0, result_id: 0, user_id: 0, user_role_id: 0 } });
 
-  selectedOption: Option | undefined;
-  formGroup: FormGroup | undefined;
-
   constructor() {
     this.getData();
   }
 
-  ngOnInit() {
-    this.options = [{ name: 'Option 1' }, { name: 'Option 2' }, { name: 'Option 3' }, { name: 'Option 4' }];
-    this.formGroup = new FormGroup({
-      values: new FormControl<string[] | null>(null)
-    });
-  }
-
   async getData() {
-    console.log(this.cache.currentResultId());
     const response = await this.api.GET_GeneralInformation(this.cache.currentResultId());
-    console.log(response);
     this.body.set(response.data);
-    console.log(this.body());
   }
 
   async saveData() {
-    console.log(this.body());
-
     const data = await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
     console.log(data);
   }

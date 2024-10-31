@@ -23,15 +23,13 @@
           <div class="flex flex-column gap-1">
             <h1 class="title">Keywords</h1>
             <div class="card p-fluid">
-              <form [formGroup]="formGroup!">
-                <p-chips formControlName="values" />
-              </form>
+              <p-chips [(ngModel)]="body().keywords" />
             </div>
           </div>
 
           <div class="card flex flex-column gap-1">
             <h1 class="title">Main contact person*</h1>
-            <p-dropdown [options]="options" [(ngModel)]="selectedOption" optionLabel="name" placeholder="Select option" />
+            <!-- <p-dropdown [options]="options" [(ngModel)]="selectedOption" optionLabel="name" placeholder="Select option" /> -->
           </div>
         </div>
       </div>

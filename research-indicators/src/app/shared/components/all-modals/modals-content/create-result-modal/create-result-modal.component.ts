@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -22,12 +22,15 @@ export class CreateResultModalComponent {
   allModalsService = inject(AllModalsService);
   indicatorsService = inject(IndicatorsService);
   getContractsService = inject(GetContractsService);
+  router = inject(Router);
   api = inject(ApiService);
-  body = signal<any>({ indicator_id: null, title: null, description: null });
+  body = signal<any>({ indicator_id: null, title: null, contract_id: null });
 
   async createResult() {
     const result = await this.api.POST_Result(this.body());
     console.log(result);
+    console.log(this.body());
     this.allModalsService.closeModal('createResult');
+    this.router.navigate([`/result/${result.data.result_id}/general-information`]);
   }
 }
