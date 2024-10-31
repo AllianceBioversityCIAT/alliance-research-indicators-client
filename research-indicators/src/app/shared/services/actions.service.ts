@@ -24,6 +24,12 @@ export class ActionsService {
     }, 500);
   }
 
+  changeResultRoute(resultId: number) {
+    this.router.navigate(['load-results'], { skipLocationChange: true }).then(() => {
+      this.router.navigate(['result', resultId]);
+    });
+  }
+
   showToast(severity: 'success' | 'info' | 'warning' | 'error', summary: string, detail: string) {
     this.toastMessage.set({ severity, summary, detail });
   }

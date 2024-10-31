@@ -42,6 +42,25 @@
     .card-content {
       gap: 20px;
 
+      .evidence-container {
+        position: relative;
+
+        .delete-button {
+          position: absolute;
+          top: -15px;
+          right: 0;
+          cursor: pointer;
+          padding: 7px;
+          box-shadow: 0 0 10px 0 rgb(0 0 0 / 10%);
+          border-radius: 20px;
+
+          i {
+            display: block;
+            color: rgb(255 62 62);
+          }
+        }
+      }
+
       .first-column {
         margin-bottom: 20px;
       }
@@ -60,4 +79,13 @@
       }
     }
   }
+}
+
+.divider {
+  height: 2px;
+  width: 100%;
+  margin-top: 40px;
+  margin-bottom: 30px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
 }

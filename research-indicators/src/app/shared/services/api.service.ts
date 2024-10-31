@@ -5,6 +5,11 @@ import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { GetContracts } from '../interfaces/get-contracts.interface';
 import { Result } from '../interfaces/result/result.interface';
+import { GetInstitution } from '../interfaces/get-institutions.interface';
+import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
+import { GetLevers } from '../interfaces/get-levers.interface';
+import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
+import { PatchPartners } from '../interfaces/patch-partners.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +35,11 @@ export class ApiService {
 
   GET_Contracts = (): Promise<MainResponse<GetContracts[]>> => {
     const url = () => `agresso-contract/contracts`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Institutions = (): Promise<MainResponse<GetInstitution[]>> => {
+    const url = () => `clarisa/institutions`;
     return this.TP.get(url(), {});
   };
 
@@ -65,6 +75,41 @@ export class ApiService {
 
   PATCH_GeneralInformation = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/${id}/general-information`;
+    return this.TP.patch(url(), body);
+  };
+
+  GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
+    const url = () => `results/institutions/by-result-id/${id}?role=partners`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_Partners = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
+    const url = () => `results/institutions/partners/by-result-id/${id}`;
+    return this.TP.patch(url(), body);
+  };
+
+  GET_ResultEvidences = (resultId: number): Promise<MainResponse<PatchResultEvidences>> => {
+    const url = () => `results/evidences/principal/${resultId}`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_ResultEvidences = <T>(resultId: number, body: T): Promise<MainResponse<PatchResultEvidences>> => {
+    const url = () => `results/evidences/by-result-id/${resultId}`;
+    return this.TP.patch(url(), body);
+  };
+
+  GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
+    const url = () => `clarisa/levers`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Alignments = (id: number): Promise<MainResponse<PatchAllianceAlignment>> => {
+    const url = () => `results/${id}/alignments`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_Alignments = <T>(id: number, body: T): Promise<MainResponse<PatchAllianceAlignment>> => {
+    const url = () => `results/${id}/alignments`;
     return this.TP.patch(url(), body);
   };
 

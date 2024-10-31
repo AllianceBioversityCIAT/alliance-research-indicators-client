@@ -2,7 +2,7 @@
   <div class="title">STARRED RESULTS</div>
   <div class="options">
     @for (result of this.getResultsSE.results(); track $index) {
-      <div class="option atc-primary-blue-300" routerLink="/result/{{ result.result_id }}">
+      <div class="option atc-primary-blue-300" (click)="this.actions.changeResultRoute(result.result_id)">
         <strong>{{ result.result_id }}</strong> - {{ result.title }}
       </div>
       <div class="line"></div>

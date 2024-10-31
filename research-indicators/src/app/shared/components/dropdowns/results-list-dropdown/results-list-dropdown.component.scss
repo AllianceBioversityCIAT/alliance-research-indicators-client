@@ -7,6 +7,12 @@
   }
 
   .options {
+    max-height: 300px;
+    overflow-y: auto;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+
     .option {
       padding: 10px 20px;
       cursor: pointer;

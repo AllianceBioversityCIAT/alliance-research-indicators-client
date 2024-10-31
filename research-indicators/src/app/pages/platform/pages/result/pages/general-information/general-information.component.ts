@@ -9,7 +9,6 @@ import { ApiService } from '@services/api.service';
 import { CacheService } from '@services/cache/cache.service';
 import { ChipsModule } from 'primeng/chips';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
-import { GetContractsService } from '../../../../../../shared/services/control-list/get-contracts.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -29,7 +28,6 @@ export default class GeneralInformationComponent {
   actions = inject(ActionsService);
   api = inject(ApiService);
   cache = inject(CacheService);
-  getContractsService = inject(GetContractsService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   options: Option[] | undefined;
@@ -46,7 +44,6 @@ export default class GeneralInformationComponent {
 
   async saveData(page?: 'next') {
     await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
-    // console.log(data);
     this.actions.showToast('success', 'General Information', 'Data saved successfully');
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
   }

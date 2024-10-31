@@ -41,6 +41,11 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'load-results',
+        loadComponent: () => import('@platform/pages/load-result/load-result.component')
+      },
+
+      {
         path: 'result/:id',
         loadComponent: () => import('@platform/pages/result/result.component'),
         children: [
@@ -57,6 +62,13 @@ export const routes: Routes = [
             }
           },
           {
+            path: 'alliance-alignment',
+            loadComponent: () => import('@platform/pages/result/pages/alliance-alignment/alliance-alignment.component'),
+            data: {
+              title: 'Alliance Alignment'
+            }
+          },
+          {
             path: 'partners',
             loadComponent: () => import('@platform/pages/result/pages/partners/partners.component'),
             data: {
@@ -68,6 +80,13 @@ export const routes: Routes = [
             loadComponent: () => import('@platform/pages/result/pages/evidence/evidence.component'),
             data: {
               title: 'Evidence'
+            }
+          },
+          {
+            path: 'capacity-sharing',
+            loadComponent: () => import('@platform/pages/result/pages/capacity-sharing/capacity-sharing.component'),
+            data: {
+              title: 'Capacity Sharing'
             }
           }
         ]

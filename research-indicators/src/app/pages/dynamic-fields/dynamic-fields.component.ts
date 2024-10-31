@@ -115,7 +115,6 @@ export default class DynamicFieldsComponent implements OnInit {
 
   save() {
     if (this.form.valid) {
-      // console.log(this.form.value);
     }
   }
 }

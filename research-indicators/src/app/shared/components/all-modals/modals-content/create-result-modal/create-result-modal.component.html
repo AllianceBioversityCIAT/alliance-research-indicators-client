@@ -42,8 +42,8 @@
       </div>
 
       <div class="button-group">
-        <p-button label="Save for later" [outlined]="true" icon="pi pi-check" iconPos="right"></p-button>
-        <p-button label="Continue form" icon="pi pi-arrow-right" iconPos="right" (click)="this.createResult()" routerLink="result/1/general-information"></p-button>
+        <p-button [disabled]="!body().title?.length || !body().indicator_id || !body().contract_id" label="Save for later" [outlined]="true" icon="pi pi-check" iconPos="right"></p-button>
+        <p-button [disabled]="!body().title?.length || !body().indicator_id || !body().contract_id" label="Continue form" icon="pi pi-arrow-right" iconPos="right" (click)="this.createResult()"></p-button>
       </div>
     </div>
     <div class="second-column">

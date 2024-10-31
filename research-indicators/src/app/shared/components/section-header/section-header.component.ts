@@ -18,12 +18,10 @@ export class SectionHeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.routeData.set(this.getRouteData(this.route));
-    // console.log(this.routeData()); // Muestra los datos de la primera carga
 
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
       this.routeData.set(this.getRouteData(this.route));
       this.cache.setCurrentSectionHeaderName('');
-      // console.log(this.routeData()); // Muestra los datos de la ruta actual
     });
   }
 

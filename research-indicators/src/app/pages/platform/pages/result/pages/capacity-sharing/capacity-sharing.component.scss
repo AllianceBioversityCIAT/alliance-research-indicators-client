@@ -1,0 +1,83 @@
+.container {
+  margin: 30px 40px;
+
+  .title-text {
+    font-family: Inter, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 18px;
+    color: #173f6f;
+    text-transform: uppercase;
+    margin-bottom: 0;
+  }
+
+  .description-text {
+    color: #4c5158;
+    font-family: Barlow, sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 17px;
+    text-align: left;
+    margin: 8px 0 20px;
+  }
+
+  .button-container {
+    display: flex;
+    gap: 20px;
+  }
+
+  .card-container {
+    background-color: #fcfcfc;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 20px;
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #8d9299;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+      margin-top: 0;
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #153c71;
+    }
+
+    .card-description {
+      color: #4c5158;
+      font-family: Barlow, sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 17px;
+      text-align: left;
+      margin-bottom: 5px;
+    }
+
+    .training-type-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .individual-training-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .trainee-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .modality-container {
+      margin-top: 20px;
+    }
+  }
+}

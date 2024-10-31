@@ -1,6 +1,6 @@
 .card-content {
   position: fixed;
-  margin: 90px 0 0 0;
+  margin: 90px 0 0;
   display: flex;
   flex-direction: column;
   background-color: #fcfcfc;
@@ -23,7 +23,7 @@
     .indicator-description,
     .code-description,
     .status-description {
-      font-family: 'Barlow', sans-serif;
+      font-family: Barlow, sans-serif;
       font-size: 17px;
       font-weight: 600;
       color: #173f6f;
@@ -45,7 +45,7 @@
   }
 
   .title {
-    font-family: 'Barlow', sans-serif;
+    font-family: Barlow, sans-serif;
     font-size: 17px;
     font-weight: 500;
     color: #777c83;
@@ -94,8 +94,14 @@
       }
 
       &.disabled {
-        color: #ccc;
-        cursor: not-allowed;
+        .option {
+          color: #c6c6c6 !important;
+          cursor: not-allowed;
+        }
+
+        .material-symbols-rounded {
+          color: #c6c6c6 !important;
+        }
       }
     }
   }
