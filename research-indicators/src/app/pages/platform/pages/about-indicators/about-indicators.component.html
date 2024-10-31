@@ -4,7 +4,7 @@
     <p class="description-text" [innerHTML]="item.description"></p>
     <div class="options">
       @for (indicator of item.indicators; track $index) {
-        <p-card class="card-container" (click)="onSelectIndicator(indicator)" routerLink="/indicator/{{ indicator.indicator_id }}">
+        <p-card class="card-container" routerLink="/indicator/{{ indicator.indicator_id }}">
           <div class="card-panel">
             <div class="card-content">
               <div class="icon-background">

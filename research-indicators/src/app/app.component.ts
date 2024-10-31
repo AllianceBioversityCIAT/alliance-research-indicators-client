@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { environment } from '@envs/environment';
 import { CacheService } from '@services/cache/cache.service';
 import { MetadataPanelComponent } from '@components/metadata-panel/metadata-panel.component';
@@ -25,4 +25,5 @@ export class AppComponent {
   actions = inject(ActionsService);
   title = 'research-indicators';
   name = environment.name;
+  route = inject(ActivatedRoute);
 }

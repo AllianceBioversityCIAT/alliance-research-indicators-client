@@ -35,7 +35,10 @@ export const routes: Routes = [
       },
       {
         path: 'about-indicators',
-        loadComponent: () => import('@platform/pages/about-indicators/about-indicators.component')
+        loadComponent: () => import('@platform/pages/about-indicators/about-indicators.component'),
+        data: {
+          title: 'About indicators'
+        }
       },
       {
         path: 'result/:id',
@@ -48,15 +51,24 @@ export const routes: Routes = [
           },
           {
             path: 'general-information',
-            loadComponent: () => import('@platform/pages/result/pages/general-information/general-information.component')
+            loadComponent: () => import('@platform/pages/result/pages/general-information/general-information.component'),
+            data: {
+              title: 'General Information'
+            }
           },
           {
             path: 'partners',
-            loadComponent: () => import('@platform/pages/result/pages/partners/partners.component')
+            loadComponent: () => import('@platform/pages/result/pages/partners/partners.component'),
+            data: {
+              title: 'Partners'
+            }
           },
           {
             path: 'evidence',
-            loadComponent: () => import('@platform/pages/result/pages/evidence/evidence.component')
+            loadComponent: () => import('@platform/pages/result/pages/evidence/evidence.component'),
+            data: {
+              title: 'Evidence'
+            }
           }
         ]
       },

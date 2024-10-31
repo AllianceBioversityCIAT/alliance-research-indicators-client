@@ -12,15 +12,7 @@ import { Indicator } from '@interfaces/api.interface';
   templateUrl: './about-indicators.component.html',
   styleUrl: './about-indicators.component.scss'
 })
-export default class AboutIndicatorsComponent implements OnInit {
+export default class AboutIndicatorsComponent {
   indicatorsSE = inject(IndicatorsService);
   cache = inject(CacheService);
-
-  ngOnInit() {
-    this.cache.setCurrentSectionHeaderName('About indicators');
-  }
-
-  onSelectIndicator(indicator: Indicator) {
-    this.cache.setCurrentSectionHeaderName(indicator.name);
-  }
 }

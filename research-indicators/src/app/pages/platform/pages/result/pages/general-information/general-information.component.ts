@@ -1,5 +1,5 @@
-import { Component, effect, inject, OnInit, signal, WritableSignal } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, effect, inject, signal, WritableSignal, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
@@ -12,7 +12,7 @@ import { GeneralInformation } from '@interfaces/result/general-information.inter
 import { GetContractsService } from '../../../../../../shared/services/control-list/get-contracts.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface Option {
   name: string;
@@ -31,6 +31,7 @@ export default class GeneralInformationComponent {
   cache = inject(CacheService);
   getContractsService = inject(GetContractsService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
   options: Option[] | undefined;
   body: WritableSignal<GeneralInformation> = signal({ title: '', description: '', keywords: [], main_contract_person: null });
 
