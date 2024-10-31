@@ -21,7 +21,7 @@ export class IndicatorsService {
     this.loading.set(false);
   }
 
-  generateGroupedIndicators(data: IndicatorTypes[], parentLabelKey: keyof IndicatorTypes, parentValueKey: keyof IndicatorTypes, itemLabelKey: keyof Indicator, itemValueKey: keyof Indicator): any[] {
+  generateGroupedIndicators(data: IndicatorTypes[], parentLabelKey: keyof IndicatorTypes, parentValueKey: keyof IndicatorTypes, itemLabelKey: keyof Indicator, itemValueKey: keyof Indicator) {
     return data.map(parent => ({
       label: parent[parentLabelKey] as string,
       value: parent[parentValueKey] as string,

@@ -30,7 +30,7 @@ export default class PartnersComponent implements OnInit {
   }
 
   async saveData(page?: 'next' | 'back') {
-    console.log(this.selectedOrganizations);
+    // console.log(this.selectedOrganizations);
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
   }

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { environment } from '@envs/environment';
 import { CacheService } from '@services/cache/cache.service';

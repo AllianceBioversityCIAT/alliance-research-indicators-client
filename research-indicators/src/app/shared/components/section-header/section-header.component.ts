@@ -14,31 +14,27 @@ export class SectionHeaderComponent implements OnInit {
   cache = inject(CacheService);
   router = inject(Router);
   route = inject(ActivatedRoute);
-  routeData: WritableSignal<any> = signal({});
+  routeData: WritableSignal<{ title: string | null }> = signal({ title: null });
 
   ngOnInit(): void {
-    // Cargar la data de la ruta en la primera carga
     this.routeData.set(this.getRouteData(this.route));
-    console.log(this.routeData()); // Muestra los datos de la primera carga
+    // console.log(this.routeData()); // Muestra los datos de la primera carga
 
-    // Escucha los cambios de navegación para actualizar los datos de la ruta
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
       this.routeData.set(this.getRouteData(this.route));
       this.cache.setCurrentSectionHeaderName('');
-      console.log(this.routeData()); // Muestra los datos de la ruta actual
+      // console.log(this.routeData()); // Muestra los datos de la ruta actual
     });
   }
 
-  // Función para obtener todos los datos de la ruta activa
-  private getRouteData(route: ActivatedRoute): any {
+  private getRouteData(route: ActivatedRoute): { title: string | null } {
     let data = {};
 
-    // Recorre la jerarquía de rutas activas y recoge los datos
     while (route.firstChild) {
       route = route.firstChild;
       data = { ...data, ...route.snapshot.data };
     }
 
-    return data;
+    return data as { title: string | null };
   }
 }

@@ -3,6 +3,8 @@ import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
+import { GetContracts } from '../interfaces/get-contracts.interface';
+import { Result } from '../interfaces/result/result.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +28,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Contracts = (): Promise<MainResponse<any[]>> => {
+  GET_Contracts = (): Promise<MainResponse<GetContracts[]>> => {
     const url = () => `agresso-contract/contracts`;
     return this.TP.get(url(), {});
   };
@@ -46,12 +48,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Results = (): Promise<MainResponse<any[]>> => {
+  GET_Results = (): Promise<MainResponse<Result[]>> => {
     const url = () => `results`;
     return this.TP.get(url(), {});
   };
 
-  POST_Result = (body: any): Promise<MainResponse<any>> => {
+  POST_Result = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `results`;
     return this.TP.post(url(), body, {});
   };
@@ -61,7 +63,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  PATCH_GeneralInformation = (id: number, body: any): Promise<MainResponse<any>> => {
+  PATCH_GeneralInformation = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/${id}/general-information`;
     return this.TP.patch(url(), body);
   };

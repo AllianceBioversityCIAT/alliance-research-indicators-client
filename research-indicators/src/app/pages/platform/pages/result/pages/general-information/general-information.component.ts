@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal, WritableSignal, OnInit } from '@angular/core';
+import { Component, effect, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -44,11 +44,11 @@ export default class GeneralInformationComponent {
     this.body.set(response.data);
   }
 
-  async saveData() {
-    const data = await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
-    console.log(data);
+  async saveData(page?: 'next') {
+    await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
+    // console.log(data);
     this.actions.showToast('success', 'General Information', 'Data saved successfully');
-    this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
   }
   onSaveSection = effect(() => {
     if (this.actions.saveCurrentSectionValue()) this.saveData();

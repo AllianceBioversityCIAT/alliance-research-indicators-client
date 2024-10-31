@@ -1,12 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
+import { GetContracts } from '../../interfaces/get-contracts.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GetContractsService {
   api = inject(ApiService);
-  list = signal<any[]>([]);
+  list = signal<GetContracts[]>([]);
   loading = signal(false);
   constructor() {
     this.main();

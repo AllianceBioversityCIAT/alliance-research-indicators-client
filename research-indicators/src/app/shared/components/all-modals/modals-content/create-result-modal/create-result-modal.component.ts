@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -24,12 +24,12 @@ export class CreateResultModalComponent {
   getContractsService = inject(GetContractsService);
   router = inject(Router);
   api = inject(ApiService);
-  body = signal<any>({ indicator_id: null, title: null, contract_id: null });
+  body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null }>({ indicator_id: null, title: null, contract_id: null });
 
   async createResult() {
     const result = await this.api.POST_Result(this.body());
-    console.log(result);
-    console.log(this.body());
+    // console.log(result);
+    // console.log(this.body());
     this.allModalsService.closeModal('createResult');
     this.router.navigate([`/result/${result.data.result_id}/general-information`]);
   }
