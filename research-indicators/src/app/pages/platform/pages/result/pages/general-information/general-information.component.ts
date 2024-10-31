@@ -9,6 +9,7 @@ import { ApiService } from '@services/api.service';
 import { CacheService } from '@services/cache/cache.service';
 import { ChipsModule } from 'primeng/chips';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
+import { GetContractsService } from '../../../../../../shared/services/control-list/get-contracts.service';
 
 interface Option {
   name: string;
@@ -24,9 +25,9 @@ interface Option {
 export default class GeneralInformationComponent {
   api = inject(ApiService);
   cache = inject(CacheService);
-  value: undefined;
+  getContractsService = inject(GetContractsService);
   options: Option[] | undefined;
-  body: WritableSignal<GeneralInformation> = signal({ title: '', description: '', keywords: [], main_contract_person: { result_user_id: 0, result_id: 0, user_id: 0, user_role_id: 0 } });
+  body: WritableSignal<GeneralInformation> = signal({ title: '', description: '', keywords: [], main_contract_person: null });
 
   constructor() {
     this.getData();
