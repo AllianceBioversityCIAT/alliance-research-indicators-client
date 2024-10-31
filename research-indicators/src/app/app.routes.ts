@@ -69,6 +69,13 @@ export const routes: Routes = [
             data: {
               title: 'Evidence'
             }
+          },
+          {
+            path: 'capacity-sharing',
+            loadComponent: () => import('@platform/pages/result/pages/capacity-sharing/capacity-sharing.component'),
+            data: {
+              title: 'Capacity Sharing'
+            }
           }
         ]
       },
