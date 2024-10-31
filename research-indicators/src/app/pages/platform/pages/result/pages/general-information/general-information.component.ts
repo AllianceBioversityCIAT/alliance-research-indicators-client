@@ -12,6 +12,7 @@ import { GeneralInformation } from '@interfaces/result/general-information.inter
 import { GetContractsService } from '../../../../../../shared/services/control-list/get-contracts.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
+import { Router } from '@angular/router';
 
 interface Option {
   name: string;
@@ -29,6 +30,7 @@ export default class GeneralInformationComponent {
   api = inject(ApiService);
   cache = inject(CacheService);
   getContractsService = inject(GetContractsService);
+  router = inject(Router);
   options: Option[] | undefined;
   body: WritableSignal<GeneralInformation> = signal({ title: '', description: '', keywords: [], main_contract_person: null });
 
@@ -45,6 +47,7 @@ export default class GeneralInformationComponent {
     const data = await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
     console.log(data);
     this.actions.showToast('success', 'General Information', 'Data saved successfully');
+    this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
   }
   onSaveSection = effect(() => {
     if (this.actions.saveCurrentSectionValue()) this.saveData();
