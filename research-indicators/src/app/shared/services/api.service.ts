@@ -6,6 +6,7 @@ import { GeneralInformation } from '@interfaces/result/general-information.inter
 import { GetContracts } from '../interfaces/get-contracts.interface';
 import { Result } from '../interfaces/result/result.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
+import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -81,6 +82,16 @@ export class ApiService {
 
   PATCH_Partners = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/institutions/partners/by-result-id/${id}`;
+    return this.TP.patch(url(), body);
+  };
+
+  GET_ResultEvidences = (resultId: number): Promise<MainResponse<PatchResultEvidences>> => {
+    const url = () => `results/evidences/principal-evidence/${resultId}`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_ResultEvidences = <T>(resultId: number, body: T): Promise<MainResponse<PatchResultEvidences>> => {
+    const url = () => `results/evidences/by-result-id/${resultId}`;
     return this.TP.patch(url(), body);
   };
 

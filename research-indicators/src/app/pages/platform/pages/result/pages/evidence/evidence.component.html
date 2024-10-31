@@ -3,18 +3,27 @@
   <p class="description-text">Description</p>
   <div class="card-container">
     <h3 class="card-title">EVIDENCE</h3>
+
     <div class="card-content">
-      <div class="flex flex-column first-column gap-1">
-        <h1 class="title">Evidence link</h1>
-        <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
-      </div>
-      <div class="flex flex-column gap-1">
-        <h1 class="title">Evidence description</h1>
-        <textarea rows="5" pInputTextarea [autoResize]="true"> </textarea>
-      </div>
+      @for (evidence of body().evidence; track $index) {
+        <div class="evidence-container">
+          <div class="flex flex-column first-column gap-1">
+            <h1 class="title">Evidence link</h1>
+            <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="value" />
+          </div>
+          <div class="flex flex-column gap-1">
+            <h1 class="title">Evidence description</h1>
+            <textarea rows="5" pInputTextarea [autoResize]="true"> </textarea>
+          </div>
+          <div class="delete-button">
+            <i class="material-symbols-rounded atc-primary-blue-500" (click)="deleteEvidence($index)">delete</i>
+          </div>
+          <div class="divider"></div>
+        </div>
+      }
       <div class="button-container">
         <div class="flex justify-content-center">
-          <p-button label="Add other evidence" severity="info" icon="pi pi-plus" iconPos="right" />
+          <p-button label="Add other evidence" severity="info" icon="pi pi-plus" iconPos="right" (onClick)="addEvidence()" />
         </div>
       </div>
     </div>
