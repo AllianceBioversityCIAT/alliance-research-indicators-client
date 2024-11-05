@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { ActionsService } from '../../services/actions.service';
 import { ButtonModule } from 'primeng/button';
@@ -13,13 +13,8 @@ import { ButtonModule } from 'primeng/button';
 })
 export class GlobalAlertComponent {
   actions = inject(ActionsService);
-  globalAlert = effect(() => {
-    this.actions.globalAlertsStatus();
-    console.log(this.actions.globalAlertsStatus());
-  });
 
   closeAlert(index: number) {
-    console.log(index);
     this.actions.hideGlobalAlert(index);
   }
 

@@ -16,7 +16,7 @@ export class ToPromiseService {
         resolve(await firstValueFrom(subscription.pipe(map(data => ({ ...data, successfulRequest: true })))));
       } catch (error: any) {
         console.error(error);
-        resolve({ ...error, successfulRequest: false, errorDetail: error.error.description });
+        resolve({ ...error, successfulRequest: false, errorDetail: error?.error?.description });
       }
     });
   };

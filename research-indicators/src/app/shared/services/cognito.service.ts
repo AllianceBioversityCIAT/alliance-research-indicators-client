@@ -26,6 +26,10 @@ export class CognitoService {
     if (!code) return;
     this.cache.isValidatingToken.set(true);
     const loginResponse = await this.api.login(code);
+    if (!loginResponse.successfulRequest) {
+      this.actions.showGlobalAlert({ severity: 'danger', summary: 'Error', detail: 'Error logging in', callback: { onClose: () => this.router.navigate(['/']) } });
+      return;
+    }
     const {
       decoded: { exp }
     } = this.actions.decodeToken(loginResponse.data.access_token);

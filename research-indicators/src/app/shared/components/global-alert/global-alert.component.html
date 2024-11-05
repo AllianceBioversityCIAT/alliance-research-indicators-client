@@ -2,9 +2,9 @@
   <div class="alert-overlay">
     <div class="alert">
       <i class="material-symbols-rounded" [class]="'text-' + alert.severity">{{ this.getIcon(alert.severity) }}</i>
-      <div class="summary" [class]="'text-' + alert.severity">Title Already Exists</div>
-      <div class="detail">Please enter a unique title. Review the existing result by selecting this link: <a href="">Innovation Use - Landscape targeted fertilzer advisory services to improve nutrient use efficiency, cost reduction and enhance productivity is...</a></div>
-      <p-button label="Close" (onClick)="closeAlert($index); alert?.callback()" />
+      <div class="summary" [class]="'text-' + alert.severity">{{ alert.summary }}</div>
+      <div class="detail" [innerHTML]="alert.detail"></div>
+      <p-button label="Close" (onClick)="closeAlert($index); alert?.callback?.onClose()" />
     </div>
   </div>
 }
