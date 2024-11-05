@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AllianceNavbarComponent } from './alliance-navbar.component';
-import { DynamicToastService } from '@services/dynamic-toast.service';
 import { CacheService } from '@services/cache/cache.service';
 import { DarkModeService } from '@services/dark-mode.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -16,12 +15,6 @@ describe('AllianceNavbarComponent', () => {
       imports: [AllianceNavbarComponent, RouterTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
-        {
-          provide: DynamicToastService,
-          useValue: {
-            // Add any methods you use from DynamicToastService
-          }
-        },
         {
           provide: CacheService,
           useValue: {
