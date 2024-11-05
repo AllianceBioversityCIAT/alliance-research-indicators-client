@@ -2,6 +2,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import { CacheService } from '@services/cache/cache.service';
 import { Router } from '@angular/router';
 import { DataCache } from '@interfaces/cache.interface';
+import { GlobalAlert } from '../interfaces/global-alert.interface';
+import { ToastMessage } from '../interfaces/toast-message.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -9,9 +11,9 @@ import { DataCache } from '@interfaces/cache.interface';
 export class ActionsService {
   cache = inject(CacheService);
   router = inject(Router);
-  toastMessage = signal<{ severity: 'success' | 'info' | 'warning' | 'error'; summary: string; detail: string } | null>(null);
+  toastMessage = signal<ToastMessage>({ severity: 'info', summary: '', detail: '' });
   saveCurrentSectionValue = signal(false);
-
+  globalAlertsStatus = signal<GlobalAlert[]>([]);
   constructor() {
     this.validateToken();
   }
@@ -30,8 +32,16 @@ export class ActionsService {
     });
   }
 
-  showToast(severity: 'success' | 'info' | 'warning' | 'error', summary: string, detail: string) {
-    this.toastMessage.set({ severity, summary, detail });
+  showToast(toastMessage: ToastMessage) {
+    this.toastMessage.set(toastMessage);
+  }
+
+  showGlobalAlert(globalAlert: GlobalAlert) {
+    this.globalAlertsStatus.update(prev => [...prev, globalAlert]);
+  }
+
+  hideGlobalAlert(index: number) {
+    this.globalAlertsStatus.update(prev => prev.filter((_, i) => i !== index));
   }
 
   validateToken() {

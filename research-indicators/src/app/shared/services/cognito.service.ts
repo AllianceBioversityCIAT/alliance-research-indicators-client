@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
-import { DynamicToastService } from '@services/dynamic-toast.service';
 import { ApiService } from '@services/api.service';
 import { WebsocketService } from '../sockets/websocket.service';
 import { environment } from '@envs/environment';
@@ -14,7 +13,6 @@ export class CognitoService {
   activatedRoute = inject(ActivatedRoute);
   router = inject(Router);
   cache = inject(CacheService);
-  dynamicToastSE = inject(DynamicToastService);
   api = inject(ApiService);
   websocket = inject(WebsocketService);
   actions = inject(ActionsService);
@@ -28,6 +26,10 @@ export class CognitoService {
     if (!code) return;
     this.cache.isValidatingToken.set(true);
     const loginResponse = await this.api.login(code);
+    if (!loginResponse.successfulRequest) {
+      this.actions.showGlobalAlert({ severity: 'danger', summary: 'Error authenticating', detail: 'Error authenticating with Cognito', callback: { onClose: () => this.router.navigate(['/']) } });
+      return;
+    }
     const {
       decoded: { exp }
     } = this.actions.decodeToken(loginResponse.data.access_token);
@@ -36,7 +38,7 @@ export class CognitoService {
     localStorage.setItem('data', JSON.stringify({ ...loginResponse.data, exp }));
     if (loginResponse.data.user.first_name && loginResponse.data.user.sec_user_id) await this.websocket.configUser(loginResponse.data.user.first_name, loginResponse.data.user.sec_user_id);
 
-    this.dynamicToastSE.toastMessage.set({ severity: 'success', summary: 'Success', detail: 'You are now logged in' });
+    this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'You are now logged in' });
     this.updateCacheService();
     setTimeout(() => {
       this.router.navigate(['/']);

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AlertComponent } from './alert.component';
+import { GlobalAlertComponent } from './global-alert.component';
 
-describe('AlertComponent', () => {
-  let component: AlertComponent;
-  let fixture: ComponentFixture<AlertComponent>;
+describe('GlobalAlertComponent', () => {
+  let component: GlobalAlertComponent;
+  let fixture: ComponentFixture<GlobalAlertComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BrowserAnimationsModule, AlertComponent]
+      imports: [BrowserAnimationsModule, GlobalAlertComponent]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AlertComponent);
+    fixture = TestBed.createComponent(GlobalAlertComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

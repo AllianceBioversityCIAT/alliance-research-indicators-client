@@ -35,7 +35,7 @@ export default class AllianceAlignmentComponent {
 
   async saveData() {
     await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
-    this.actions.showToast('success', 'Alliance Alignment', 'Data saved successfully');
+    this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
   }
 
   onSaveSection = effect(() => {
