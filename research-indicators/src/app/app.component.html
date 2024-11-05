@@ -1,12 +1,6 @@
 <router-outlet></router-outlet>
-<organism-dynamic-toast></organism-dynamic-toast>
+<app-global-alert> </app-global-alert>
+<app-global-toast></app-global-toast>
 @defer (when this.cache.showMetadataPanel()) {
   <app-metadata-panel></app-metadata-panel>
 }
-
-<!-- <app-alert status="information">
-  <div alert-title>Information</div>
-  <div alert-content>This is an information alert</div>
-</app-alert> -->
-
-<app-global-toast></app-global-toast>

@@ -44,7 +44,7 @@ export default class GeneralInformationComponent {
 
   async saveData(page?: 'next') {
     await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
-    this.actions.showToast('success', 'General Information', 'Data saved successfully');
+    this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
   }
   onSaveSection = effect(() => {

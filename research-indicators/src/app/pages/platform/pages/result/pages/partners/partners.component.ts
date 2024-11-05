@@ -37,7 +37,7 @@ export default class PartnersComponent {
     await this.api.PATCH_Partners(this.cache.currentResultId(), this.body());
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
-    this.actions.showToast('success', 'Partners', 'Data saved successfully');
+    this.actions.showToast({ severity: 'success', summary: 'Partners', detail: 'Data saved successfully' });
   }
 
   onSaveSection = effect(() => {

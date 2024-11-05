@@ -3,7 +3,6 @@ import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { DynamicToastService } from '@services/dynamic-toast.service';
 import { CacheService } from '@services/cache/cache.service';
 import { DarkModeService } from '@services/dark-mode.service';
 import { AvatarModule } from 'primeng/avatar';
@@ -25,7 +24,6 @@ import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.serv
 export class AllianceNavbarComponent {
   dropdownsCache = inject(DropdownsCacheService);
   allModalsService = inject(AllModalsService);
-  dynamicToast = inject(DynamicToastService);
   cache = inject(CacheService);
   darkModeService = inject(DarkModeService);
   router = inject(Router);

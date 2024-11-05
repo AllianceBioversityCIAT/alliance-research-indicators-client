@@ -13,5 +13,5 @@ import { ActionsService } from '../../services/actions.service';
 export class GlobalToastComponent {
   actions = inject(ActionsService);
   constructor(private messageService: MessageService) {}
-  show = effect(() => this.messageService.add(this.actions.toastMessage()!));
+  show = effect(() => this.actions.toastMessage().summary ?? this.messageService.add(this.actions.toastMessage()!));
 }
