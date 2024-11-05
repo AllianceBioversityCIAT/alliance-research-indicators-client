@@ -5,10 +5,11 @@ export interface MainResponse<T> {
   timestamp: string;
   path: string;
   successfulRequest: boolean;
+  errorDetail: ErrorResponse;
 }
 
 export interface ErrorResponse {
-  error: boolean;
+  errors: string;
   detail: string;
 }
 
