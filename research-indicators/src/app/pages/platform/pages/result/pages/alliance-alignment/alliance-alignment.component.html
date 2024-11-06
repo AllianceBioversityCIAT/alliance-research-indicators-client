@@ -1,5 +1,14 @@
 <div class="card">
   <h2 class="title">Primary Project</h2>
   <!-- <p-multiSelect [style]="{ width: '100%' }" [loading]="this.getLeversService.loading()" [options]="this.getLeversService.list()" [(ngModel)]="body().levers" [filter]="true" filterBy="name" optionLabel="full_name" optionValue="id" placeholder="Select organizations" [virtualScroll]="true" [virtualScrollItemSize]="41" /> -->
-  <app-multiselect [options]="this.getLeversService.list()" [service]="this.getLeversService" />
+  <app-multiselect [signal]="body" optionLabel="full_name" optionValue="lever_id" signalOptionValue="levers" [options]="this.getLeversService.list" [service]="this.getLeversService">
+    <!-- <ng-template #rows let-lever>
+      <h1>Lever Id: {{ lever.lever_id }}</h1>
+      <div>
+        <p>{{ lever.name }}</p>
+        <button>Marcar como Primario</button>
+        <button>Marcar como Secundario</button>
+      </div>
+    </ng-template> -->
+  </app-multiselect>
 </div>
