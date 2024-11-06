@@ -34,15 +34,25 @@ export default class AllianceAlignmentComponent {
   async getData() {
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
     this.body.set(response.data);
-    console.log(this.body());
   }
 
   async saveData() {
-    await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
-    this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
+    console.log(this.body());
+    // await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
+    // this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
   }
 
   onSaveSection = effect(() => {
     if (this.actions.saveCurrentSectionValue()) this.saveData();
   });
+
+  markAsPrimary(lever: any) {
+    console.log(lever);
+    // this.body.update((current: any) => {
+    //   return { ...current, levers: current.levers.map((item: any) => (item.lever_id === lever.lever_id ? { ...item, primary: true } : item)) };
+    // });
+    // console.log(this.body());
+    lever.is_primary = true;
+    console.log(this.body());
+  }
 }

@@ -1,12 +1,13 @@
 <p-multiSelect [style]="{ width: '100%' }" [loading]="this.service.loading()" [options]="this.options()" [filter]="true" filterBy="name" optionLabel="full_name" optionValue="id" placeholder="Select organizations" [(ngModel)]="this.selectedOptions().data" (ngModelChange)="this.onClickItem($event)" [virtualScroll]="true" [virtualScrollItemSize]="41" />
 
 @let list = this.signal()[this.signalOptionValue];
-@for (row of list; track $index) {
-  <div>
-    <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
-  </div>
-}
+<div class="items">
+  @for (row of list; track $index) {
+    <div class="item abc-grey-100">
+      <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
+      <i class="material-symbols-rounded" (click)="removeOption(row)">cancel</i>
+    </div>
+  }
+</div>
 
-<ng-template #defaultTemplate let-list>
-  <p>length: {{ list[this.optionLabel] }}</p>
-</ng-template>
+<ng-template #defaultTemplate let-list> {{ list[this.optionLabel] }} </ng-template>

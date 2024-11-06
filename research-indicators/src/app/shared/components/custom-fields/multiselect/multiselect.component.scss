@@ -1,0 +1,17 @@
+.items {
+  display: flex;
+  flex-direction: column;
+
+  .item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    i {
+      cursor: pointer;
+      color: rgb(187 0 50);
+    }
+  }
+}

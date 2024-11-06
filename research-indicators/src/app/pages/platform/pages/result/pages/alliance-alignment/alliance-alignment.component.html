@@ -2,13 +2,14 @@
   <h2 class="title">Primary Project</h2>
   <!-- <p-multiSelect [style]="{ width: '100%' }" [loading]="this.getLeversService.loading()" [options]="this.getLeversService.list()" [(ngModel)]="body().levers" [filter]="true" filterBy="name" optionLabel="full_name" optionValue="id" placeholder="Select organizations" [virtualScroll]="true" [virtualScrollItemSize]="41" /> -->
   <app-multiselect [signal]="body" optionLabel="full_name" optionValue="lever_id" signalOptionValue="levers" [options]="this.getLeversService.list" [service]="this.getLeversService">
-    <!-- <ng-template #rows let-lever>
-      <h1>Lever Id: {{ lever.lever_id }}</h1>
+    <ng-template #rows let-lever>
       <div>
-        <p>{{ lever.name }}</p>
-        <button>Marcar como Primario</button>
+        <p>Lever Id: {{ lever.lever_id }} - {{ lever.full_name }} - {{ lever.is_primary ? 'Primario' : 'Secundario' }}</p>
+        <button (click)="markAsPrimary(lever)">Marcar como Primario</button>
         <button>Marcar como Secundario</button>
       </div>
-    </ng-template> -->
+    </ng-template>
   </app-multiselect>
 </div>
+
+<button (click)="saveData()">Save</button>
