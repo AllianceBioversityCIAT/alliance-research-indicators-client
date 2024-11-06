@@ -1,1 +1,20 @@
-<p>notifications works!</p>
+<div class="container">
+  <div class="card tabView">
+    <p-tabView>
+      <p-tabPanel header="Updates" headerClass="updates-tab">
+        <div class="filters">
+          <button class="filter-button" [class.active]="selectedFilter === 'unread'" (click)="selectFilter('unread')">UNREAD</button>
+          <button class="filter-button" [class.active]="selectedFilter === 'read'" (click)="selectFilter('read')">READ</button>
+          <button class="filter-button" [class.active]="selectedFilter === 'all'" (click)="selectFilter('all')">ALL</button>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="Request">
+        <div class="filters">
+          <button class="filter-button" [class.active]="selectedFilter === 'unread'" (click)="selectFilter('unread')">UNREAD</button>
+          <button class="filter-button" [class.active]="selectedFilter === 'read'" (click)="selectFilter('read')">READ</button>
+          <button class="filter-button" [class.active]="selectedFilter === 'all'" (click)="selectFilter('all')">ALL</button>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</div>
