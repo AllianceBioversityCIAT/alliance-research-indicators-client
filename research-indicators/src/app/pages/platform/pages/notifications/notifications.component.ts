@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { OrderListModule } from 'primeng/orderlist';
+
 import { TabViewModule } from 'primeng/tabview';
 
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [TabViewModule, OrderListModule],
+  imports: [TabViewModule],
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.scss'
 })
