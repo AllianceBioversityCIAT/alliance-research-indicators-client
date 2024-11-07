@@ -44,14 +44,14 @@
 
       <app-dropdown position="top-right" positionX="right" positionY="top">
         <div dropdown-button>
-          <p-avatar label="P" styleClass="mr-2"></p-avatar>
+          <p-avatar [label]="this.actions.getInitials()" styleClass="mr-2"></p-avatar>
         </div>
         <div dropdown-content>
           <div class="profile">
             <div class="account-container">
               <div class="account-header">Account</div>
               <div class="account-content">
-                <p-avatar label="P" size="large"></p-avatar>
+                <p-avatar [label]="this.actions.getInitials()" size="large"></p-avatar>
                 <div class="account-details">
                   <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{ this.cache.dataCache().user.last_name }}</span>
                   <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
