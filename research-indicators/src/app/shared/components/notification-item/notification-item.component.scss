@@ -1,0 +1,60 @@
+.container {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  background-color: #f4f7f9;
+  padding: 20px;
+  gap: 20px;
+  cursor: pointer;
+  border-bottom: 0.4px solid #b9c0c5;
+
+  .elipse {
+    width: 8px;
+    height: 8px;
+    background-color: #00b6ff;
+    border-radius: 50%;
+    align-self: center;
+  }
+
+  .avatar {
+    display: grid;
+    align-items: center;
+  }
+
+  .notification-info {
+    display: grid;
+    grid-template-rows: auto auto;
+    text-align: left;
+    align-items: center;
+
+    .notification-title {
+      font-family: 'Barlow', sans-serif;
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 20px;
+      color: #345b8f;
+    }
+
+    .notification-time {
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 18px;
+      text-align: left;
+      color: #777c83;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 17px;
+      margin-top: 20px;
+    }
+  }
+  .more-content {
+    display: grid;
+    align-items: center;
+
+    .material-symbols-rounded {
+      color: #8d9299;
+    }
+  }
+}

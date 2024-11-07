@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-
+import { NotificationItemComponent } from '@shared/components/notification-item/notification-item.component';
 import { TabViewModule } from 'primeng/tabview';
 
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [TabViewModule],
+  imports: [TabViewModule, NotificationItemComponent],
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.scss'
 })
