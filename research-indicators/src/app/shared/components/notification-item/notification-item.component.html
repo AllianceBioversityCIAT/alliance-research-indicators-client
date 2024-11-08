@@ -17,14 +17,14 @@
         }
       </div>
       <div class="notification-time">{{ notification.time }}</div>
-      @if (type === 'request') {
-        <div class="buttons">
-          <p-button label="Review" [rounded]="true" size="small" />
-          <p-button label="Decline" [rounded]="true" size="small" [outlined]="true" severity="danger" />
-        </div>
-      }
     </div>
-    <div class="more">
+    @if (type === 'request') {
+      <div class="buttons">
+        <p-button label="Review" [rounded]="true" size="small" />
+        <p-button label="Decline" [rounded]="true" size="small" [outlined]="true" severity="danger" />
+      </div>
+    }
+    <div class="more-content">
       <span class="material-symbols-rounded">more_vert</span>
     </div>
   </div>
