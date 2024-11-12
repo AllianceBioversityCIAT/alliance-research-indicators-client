@@ -135,6 +135,16 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_Degrees = (): Promise<MainResponse<any>> => {
+    const url = () => `degree`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SessionLength = (): Promise<MainResponse<any>> => {
+    const url = () => `session/length`;
+    return this.TP.get(url(), {});
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {
