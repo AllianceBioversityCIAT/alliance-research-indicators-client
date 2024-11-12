@@ -4,3 +4,54 @@
   padding: 30px;
   margin: 20px;
 }
+
+.item-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  .informarion {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    strong {
+      margin-right: 5px;
+    }
+  }
+
+  .primary-button {
+    background-color: transparent;
+    color: var(--ac-primary-blue-300);
+    outline: none;
+    border: 1px solid var(--ac-primary-blue-300);
+    padding: 3px 12px;
+    border-radius: 100px;
+    text-wrap: nowrap;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    i {
+      width: 0;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      padding-left: 0;
+      opacity: 0;
+    }
+
+    &.active {
+      background-color: var(--ac-primary-blue-300);
+      color: #fff;
+
+      i {
+        width: 30px;
+        padding-left: 10px;
+        opacity: 1;
+      }
+    }
+  }
+}

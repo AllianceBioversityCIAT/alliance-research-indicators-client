@@ -1,12 +1,26 @@
 <div class="card">
   <h2 class="title">Primary Project</h2>
-  <!-- <p-multiSelect [style]="{ width: '100%' }" [loading]="this.getLeversService.loading()" [options]="this.getLeversService.list()" [(ngModel)]="body().levers" [filter]="true" filterBy="name" optionLabel="full_name" optionValue="id" placeholder="Select organizations" [virtualScroll]="true" [virtualScrollItemSize]="41" /> -->
-  <app-multiselect [signal]="body" optionLabel="full_name" optionValue="lever_id" signalOptionValue="levers" [options]="this.getLeversService.list" [service]="this.getLeversService">
+
+  <app-multiselect [signal]="body" optionLabel="select_label" optionValue="contract_id" signalOptionValue="contracts" serviceName="contracts">
+    <ng-template #rows let-contract>
+      <div class="item-content">
+        <div class="informarion">
+          <div>{{ contract.agreement_id }} - {{ contract.description }}</div>
+        </div>
+        <button class="primary-button" (click)="markAsPrimary(contract)">Marcar como Primario</button>
+      </div>
+    </ng-template>
+  </app-multiselect>
+
+  <br /><br /><br /><br />
+
+  <app-multiselect [signal]="body" optionLabel="full_name" optionValue="lever_id" signalOptionValue="levers" [serviceName]="'levers'">
     <ng-template #rows let-lever>
-      <div>
-        <p>Lever Id: {{ lever.lever_id }} - {{ lever.full_name }} - {{ lever.is_primary ? 'Primario' : 'Secundario' }}</p>
-        <button (click)="markAsPrimary(lever)">Marcar como Primario</button>
-        <button>Marcar como Secundario</button>
+      <div class="item-content">
+        <div class="informarion">
+          <strong>{{ lever.short_name }} </strong> - {{ lever.full_name }}
+        </div>
+        <button class="primary-button" [class]="{ active: lever.is_primary }" (click)="markAsPrimary(lever)">Marcar como Primario <i class="material-symbols-rounded">star</i></button>
       </div>
     </ng-template>
   </app-multiselect>

@@ -34,12 +34,17 @@ export default class AllianceAlignmentComponent {
   async getData() {
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
     this.body.set(response.data);
+    console.log(this.body());
+
+    // setTimeout(() => {
+    //   console.log(this.body());
+    // }, 2000);
   }
 
   async saveData() {
     console.log(this.body());
-    // await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
-    // this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
+    await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
+    this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
   }
 
   onSaveSection = effect(() => {
@@ -52,7 +57,7 @@ export default class AllianceAlignmentComponent {
     //   return { ...current, levers: current.levers.map((item: any) => (item.lever_id === lever.lever_id ? { ...item, primary: true } : item)) };
     // });
     // console.log(this.body());
-    lever.is_primary = true;
+    lever.is_primary = !lever.is_primary;
     console.log(this.body());
   }
 }

@@ -1,12 +1,4 @@
 export interface GetContracts {
-  data: Datum[];
-  status: number;
-  description: string;
-  timestamp: string;
-  path: string;
-}
-
-interface Datum {
   is_active: boolean;
   agreement_id: string;
   center_amount: string;

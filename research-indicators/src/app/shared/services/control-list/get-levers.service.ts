@@ -7,7 +7,7 @@ import { GetLevers } from '../../interfaces/get-levers.interface';
 })
 export class GetLeversService {
   apiService = inject(ApiService);
-  loading = signal(false);
+  loading = signal(true);
   list = signal<GetLevers[]>([]);
   constructor() {
     this.main();
@@ -17,9 +17,7 @@ export class GetLeversService {
     this.loading.set(true);
     const response = await this.apiService.GET_Levers();
     this.list.set(response.data);
-    this.list.update(current => {
-      return current.map(item => ({ ...item, lever_id: item.id }));
-    });
+    this.list.update(current => current.map(item => ({ ...item, lever_id: item.id })));
     this.loading.set(false);
   }
 }

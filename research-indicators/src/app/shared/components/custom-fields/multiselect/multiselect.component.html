@@ -1,4 +1,4 @@
-<p-multiSelect [style]="{ width: '100%' }" [loading]="this.service.loading()" [options]="this.options()" [filter]="true" filterBy="name" optionLabel="full_name" optionValue="id" placeholder="Select organizations" [(ngModel)]="this.selectedOptions().data" (ngModelChange)="this.onClickItem($event)" [virtualScroll]="true" [virtualScrollItemSize]="41" />
+<p-multiSelect [style]="{ width: '100%' }" [loading]="this.service?.loading()" [options]="this.service?.list()" [filter]="true" [filterBy]="this.optionLabel" [optionLabel]="this.optionLabel" [optionValue]="this.optionValue" placeholder="Select items" [(ngModel)]="this.selectedOptions().data" (ngModelChange)="this.onClickItem($event)" [virtualScroll]="true" [virtualScrollItemSize]="41" />
 
 @let list = this.signal()[this.signalOptionValue];
 <div class="items">
@@ -10,4 +10,4 @@
   }
 </div>
 
-<ng-template #defaultTemplate let-list> {{ list[this.optionLabel] }} </ng-template>
+<ng-template #defaultTemplate let-list> {{ list[this.optionLabel] }} {{ this.optionLabel }} </ng-template>

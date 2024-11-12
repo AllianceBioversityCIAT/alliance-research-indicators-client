@@ -8,7 +8,7 @@ import { GetContracts } from '../../interfaces/get-contracts.interface';
 export class GetContractsService {
   api = inject(ApiService);
   list = signal<GetContracts[]>([]);
-  loading = signal(false);
+  loading = signal(true);
   constructor() {
     this.main();
   }
@@ -17,6 +17,7 @@ export class GetContractsService {
     this.loading.set(true);
     const response = await this.api.GET_Contracts();
     this.list.set(response.data);
+    this.list.update(current => current.map(item => ({ ...item, select_label: item.agreement_id + ' - ' + item.description, contract_id: item.agreement_id })));
     this.loading.set(false);
   }
 }
