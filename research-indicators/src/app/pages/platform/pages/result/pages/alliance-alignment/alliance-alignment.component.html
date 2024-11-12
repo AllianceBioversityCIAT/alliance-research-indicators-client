@@ -1,29 +1,56 @@
-<div class="card">
-  <h2 class="title">Primary Project</h2>
+<div class="container">
+  <h3 class="title-text">ALLIANCE ALIGNMENT</h3>
+  <p class="description-text">Description</p>
+  <div class="card-container">
+    <div class="content-section">
+      <div class="card-content first-column">
+        <div class="card-title">ALLIANCE ALIGNMENT</div>
+        <div class="flex flex-column gap-3 justify-content-left">
+          <div class="flex flex-column gap-1">
+            <h1 class="title">Projects*</h1>
 
-  <app-multiselect [signal]="body" optionLabel="select_label" optionValue="contract_id" signalOptionValue="contracts" serviceName="contracts">
-    <ng-template #rows let-contract>
-      <div class="item-content">
-        <div class="informarion">
-          <div>{{ contract.agreement_id }} - {{ contract.description }}</div>
+            <app-multiselect [signal]="body" optionLabel="select_label" optionValue="contract_id" signalOptionValue="contracts" serviceName="contracts">
+              <ng-template #rows let-contract>
+                <div class="item-content">
+                  <div class="information">
+                    <div class="row">
+                      <div>
+                        <strong>{{ contract.agreement_id }}</strong> - {{ contract.description }}
+                      </div>
+                      <div class="project-lead">
+                        <h4>Project lead</h4>
+                        &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
+                        <span class="project-lead-description">{{ contract.project_lead_description }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button class="primary-button row" (click)="markAsPrimary(contract)">Marcar como Primario</button>
+                </div>
+              </ng-template>
+            </app-multiselect>
+          </div>
+
+          <div class="card flex flex-column gap-1">
+            <h1 class="title">Levers*</h1>
+
+            <app-multiselect [signal]="body" optionLabel="full_name" optionValue="lever_id" signalOptionValue="levers" [serviceName]="'levers'">
+              <ng-template #rows let-lever>
+                <div class="item-content">
+                  <div class="information">
+                    <strong>{{ lever.short_name }}&nbsp;</strong> - {{ lever.full_name }}
+                  </div>
+                  <button class="primary-button" [class]="{ active: lever.is_primary }" (click)="markAsPrimary(lever)">Marcar como Primario <i class="material-symbols-rounded">star</i></button>
+                </div>
+              </ng-template>
+            </app-multiselect>
+          </div>
         </div>
-        <button class="primary-button" (click)="markAsPrimary(contract)">Marcar como Primario</button>
       </div>
-    </ng-template>
-  </app-multiselect>
+    </div>
+  </div>
 
-  <br /><br /><br /><br />
-
-  <app-multiselect [signal]="body" optionLabel="full_name" optionValue="lever_id" signalOptionValue="levers" [serviceName]="'levers'">
-    <ng-template #rows let-lever>
-      <div class="item-content">
-        <div class="informarion">
-          <strong>{{ lever.short_name }} </strong> - {{ lever.full_name }}
-        </div>
-        <button class="primary-button" [class]="{ active: lever.is_primary }" (click)="markAsPrimary(lever)">Marcar como Primario <i class="material-symbols-rounded">star</i></button>
-      </div>
-    </ng-template>
-  </app-multiselect>
+  <div class="button-container">
+    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left"></p-button>
+    <p-button label="Next" icon="pi pi-arrow-right" iconPos="left"></p-button>
+  </div>
 </div>
-
-<button (click)="saveData()">Save</button>

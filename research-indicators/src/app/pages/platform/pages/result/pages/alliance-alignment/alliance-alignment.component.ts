@@ -8,11 +8,12 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { JsonPipe } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-alliance-alignment',
   standalone: true,
-  imports: [MultiSelectModule, FormsModule, MultiselectComponent, JsonPipe],
+  imports: [MultiSelectModule, FormsModule, MultiselectComponent, JsonPipe, ButtonModule],
   templateUrl: './alliance-alignment.component.html',
   styleUrl: './alliance-alignment.component.scss'
 })
