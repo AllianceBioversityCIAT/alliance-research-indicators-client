@@ -3,12 +3,13 @@
   flex-direction: column;
 
   .item {
-    border: 1px solid #ccc;
-    padding: 10px;
+    border: 0.7px solid #e8ebed;
+    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    background-color: #f4f7f9;
+    gap: 20px;
 
     i {
       cursor: pointer;
