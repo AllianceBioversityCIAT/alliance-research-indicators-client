@@ -9,32 +9,32 @@
     <div class="training-type-columns">
       <div class="column gap-1">
         <h1 class="title">What training or engagement do you want to report?*</h1>
-        <div class="field-checkbox card-description">
-          <input type="checkbox" id="option1" />
-          <label for="option1">Individual training</label>
-        </div>
-        <div class="field-checkbox card-description">
-          <input type="checkbox" id="option2" />
-          <label for="option2">Group training</label>
-        </div>
+        <!-- @for (item of getCapSharingService.formats().list; track item.session_format_id) {
+          <div class="field-checkbox card-description">
+            <input type="checkbox" id="training-{{ item.session_format_id }}" />
+            <label for="training-{{ item.session_format_id }}">{{ item.name }}</label>
+          </div>
+        } -->
+        <app-radio-button [signal]="body" [options]="getCapSharingService.formats" [optionLabel]="'name'" [optionValue]="'session_format_id'"></app-radio-button>
       </div>
 
       <div class="column">
         <h1 class="title">Is this a training or a engagement?*</h1>
-        <div class="field-checkbox card-description">
-          <input type="checkbox" id="option1" />
-          <label for="option1">Training</label>
-        </div>
-        <div class="field-checkbox card-description">
-          <input type="checkbox" id="option2" />
-          <label for="option2">Engagement</label>
-        </div>
+        <!-- @for (item of getCapSharingService.types().list; track item.session_type_id) {
+          <div class="field-checkbox card-description">
+            <input type="checkbox" id="training-{{ item.session_type_id }}" />
+            <label for="training-{{ item.session_type_id }}">{{ item.name }}</label>
+          </div>
+        } -->
+        <app-radio-button [signal]="body" [options]="getCapSharingService.types" [optionLabel]="'name'" [optionValue]="'session_type_id'"></app-radio-button>
       </div>
     </div>
   </div>
 
-  <!-- INDIVIDUAL TRAINING -->
+  <button (click)="saveData()">Save</button>
 
+  <!-- INDIVIDUAL TRAINING -->
+  <!--
   <div class="card-container">
     <div class="card-title">INDIVIDUAL TRAINING</div>
     <h1 class="title">Trainee name*</h1>
@@ -127,10 +127,10 @@
         </p-dropdown>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <!-- TRAINING DETAILS -->
-
+  <!--
   <div class="card-container">
     <div class="card-title">TRAINING DETAILS</div>
 
@@ -205,4 +205,5 @@
     <p-button label="Back" icon="pi pi-arrow-left" iconPos="left"></p-button>
     <p-button label="Next" icon="pi pi-arrow-right" iconPos="left"></p-button>
   </div>
+</div> -->
 </div>

@@ -1,0 +1,8 @@
+<div class="options">
+  @for (item of options().list; track $index) {
+    <div class="option">
+      <p-radioButton [name]="item[optionValue]" value="{{ item[optionValue] }}" [(ngModel)]="this.signal()[optionValue]" [inputId]="item[optionLabel] + 'id' + item[optionValue]" />
+      <label for="ingredient1" class="ml-2">{{ item[optionValue] }} - {{ item[optionLabel] }} </label>
+    </div>
+  }
+</div>

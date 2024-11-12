@@ -10,13 +10,15 @@ import { PatchResultEvidences } from '../interfaces/patch-result-evidences.inter
 import { GetLevers } from '../interfaces/get-levers.interface';
 import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
 import { PatchPartners } from '../interfaces/patch-partners.interface';
+import { SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
+import { CacheService } from './cache/cache.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   TP = inject(ToPromiseService);
-
+  cache = inject(CacheService);
   //? >>>>>>>>>>>> Endpoints <<<<<<<<<<<<<<<<<
   login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
     const url = () => `authorization/login`;
@@ -103,6 +105,16 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_CapacitySharing = (): Promise<MainResponse<any>> => {
+    const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_CapacitySharing = <T>(body: T): Promise<MainResponse<any>> => {
+    const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
+    return this.TP.patch(url(), body);
+  };
+
   GET_Alignments = (id: number): Promise<MainResponse<PatchAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
     return this.TP.get(url(), {});
@@ -111,6 +123,16 @@ export class ApiService {
   PATCH_Alignments = <T>(id: number, body: T): Promise<MainResponse<PatchAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
     return this.TP.patch(url(), body);
+  };
+
+  GET_SessionFormat = (): Promise<MainResponse<SessionFormat[]>> => {
+    const url = () => `session/format`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SessionType = (): Promise<MainResponse<SessionType[]>> => {
+    const url = () => `session/type`;
+    return this.TP.get(url(), {});
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
