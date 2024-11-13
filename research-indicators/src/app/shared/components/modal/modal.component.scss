@@ -16,7 +16,8 @@
     height: 85vh;
     border-radius: 15px;
     position: relative;
-    overflow-y: scroll;
+
+    // overflow-y: scroll;
 
     .close-button {
       position: absolute;
@@ -39,7 +40,7 @@
 @media screen and (height <= 800px) {
   .container {
     .modal {
-      height: 95vh;
+      height: 98vh;
     }
   }
 }

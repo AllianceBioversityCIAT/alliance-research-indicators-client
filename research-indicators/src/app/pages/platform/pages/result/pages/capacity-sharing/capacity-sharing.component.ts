@@ -10,11 +10,12 @@ import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { GetInstitutionsService } from '../../../../../../shared/services/control-list/get-institutions.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
+import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 
 @Component({
   selector: 'app-capacity-sharing',
   standalone: true,
-  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent],
+  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent],
   templateUrl: './capacity-sharing.component.html',
   styleUrl: './capacity-sharing.component.scss'
 })
