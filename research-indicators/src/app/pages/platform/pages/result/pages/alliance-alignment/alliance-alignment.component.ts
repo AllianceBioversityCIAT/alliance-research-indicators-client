@@ -7,20 +7,19 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
-import { JsonPipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-alliance-alignment',
   standalone: true,
-  imports: [MultiSelectModule, FormsModule, MultiselectComponent, JsonPipe, ButtonModule],
+  imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule],
   templateUrl: './alliance-alignment.component.html',
   styleUrl: './alliance-alignment.component.scss'
 })
 export default class AllianceAlignmentComponent {
   getContractsService = inject(GetContractsService);
   getLeversService = inject(GetLeversService);
-  body: WritableSignal<any> = signal({
+  body: WritableSignal<{ contracts: []; levers: [] }> = signal({
     contracts: [],
     levers: []
   });
@@ -34,16 +33,10 @@ export default class AllianceAlignmentComponent {
 
   async getData() {
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
-    this.body.set(response.data);
-    console.log(this.body());
-
-    // setTimeout(() => {
-    //   console.log(this.body());
-    // }, 2000);
+    this.body.set(response.data as { contracts: []; levers: [] });
   }
 
   async saveData() {
-    console.log(this.body());
     await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
     this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
   }
@@ -52,13 +45,7 @@ export default class AllianceAlignmentComponent {
     if (this.actions.saveCurrentSectionValue()) this.saveData();
   });
 
-  markAsPrimary(lever: any) {
-    console.log(lever);
-    // this.body.update((current: any) => {
-    //   return { ...current, levers: current.levers.map((item: any) => (item.lever_id === lever.lever_id ? { ...item, primary: true } : item)) };
-    // });
-    // console.log(this.body());
+  markAsPrimary(lever: { is_primary: boolean }) {
     lever.is_primary = !lever.is_primary;
-    console.log(this.body());
   }
 }

@@ -23,12 +23,12 @@
 
   <!-- INDIVIDUAL TRAINING -->
 
-  @if (body().session_format_id == 1) {
+  @if (body().session_format_id === 1) {
     <div class="card-container">
       <div class="card-title">INDIVIDUAL TRAINING</div>
       <h1 class="title">Trainee name*</h1>
       <div class="field">
-        <input [(ngModel)]="this.body().individual.trainee_name" id="firstname1" type="text" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" />
+        <input [(ngModel)]="this.body().individual!.trainee_name" id="firstname1" type="text" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" />
       </div>
 
       <div class="individual-training-columns">

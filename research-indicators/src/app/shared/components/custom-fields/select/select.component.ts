@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, Input, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
@@ -12,6 +13,7 @@ import { ServiceLocatorService } from '../../../services/service-locator.service
 })
 export class SelectComponent implements OnInit {
   @Input() signal: WritableSignal<any> = signal({});
+
   @Input() options: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
   @Input() optionValue = { body: '', option: '' };

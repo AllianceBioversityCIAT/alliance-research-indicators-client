@@ -27,9 +27,19 @@ export interface Gender {
 }
 
 export interface GetCapSharing {
-  session_format_id: number;
-  session_type_id: number;
-  degree_id: number;
-  length_id: number;
-  gender_id: number;
+  delivery_modality_id?: null;
+  end_date?: null;
+  session_format_id?: number;
+  session_type_id?: number;
+  start_date?: null;
+  individual?: Individual;
+  loaded?: boolean;
+}
+
+interface Individual {
+  degree_id?: number;
+  gender_id?: number;
+  trainee_name?: string;
+  session_length_id?: number;
+  affiliation?: null;
 }

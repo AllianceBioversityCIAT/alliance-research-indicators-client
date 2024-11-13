@@ -10,6 +10,7 @@ import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
+import { GetCapSharing } from '../../../../../../shared/interfaces/get-cap-sharing.interface';
 
 @Component({
   selector: 'app-capacity-sharing',
@@ -23,7 +24,7 @@ export default class CapacitySharingComponent {
   api = inject(ApiService);
   actions = inject(ActionsService);
   cache = inject(CacheService);
-  body: WritableSignal<any> = signal({});
+  body: WritableSignal<GetCapSharing> = signal({});
 
   constructor() {
     this.getData();
@@ -38,13 +39,10 @@ export default class CapacitySharingComponent {
       current.loaded = true;
       return { ...current };
     });
-    console.log(this.body());
   }
 
   async saveData() {
-    console.log(this.body());
-    const response = await this.api.PATCH_CapacitySharing(this.body());
-    console.log(response);
+    await this.api.PATCH_CapacitySharing(this.body());
     this.actions.showToast({ severity: 'success', summary: 'Capacity Sharing', detail: 'Data saved successfully' });
     this.getData();
   }

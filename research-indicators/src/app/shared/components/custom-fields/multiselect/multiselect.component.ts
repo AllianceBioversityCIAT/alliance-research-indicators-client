@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { ChangeDetectionStrategy, Component, computed, ContentChild, effect, inject, Input, signal, TemplateRef, WritableSignal, OnInit } from '@angular/core';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { GetLeversService } from '../../../services/control-list/get-levers.service';
@@ -18,7 +20,9 @@ export class MultiselectComponent implements OnInit {
   getLeversService = inject(GetLeversService);
   getContractsService = inject(GetContractsService);
   actions = inject(ActionsService);
+
   @ContentChild('rows') rows!: TemplateRef<any>;
+
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
   @Input() optionValue = '';
