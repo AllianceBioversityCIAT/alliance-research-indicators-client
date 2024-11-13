@@ -1,1 +1,7 @@
-<input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="this.signal()[this.optionValue]" />
+<div class="flex flex-column gap-2">
+  <!-- <label for="username">Username</label> -->
+  <input appSaveOnWriting pInputText id="username" [class]="this.inputValid().class" aria-describedby="username-help" [(ngModel)]="this.signal()[this.optionValue]" (ngModelChange)="setValue($event)" />
+  @if (!this.inputValid().valid) {
+    <small class="p-error" id="username-help"> {{ this.inputValid().message }} </small>
+  }
+</div>
