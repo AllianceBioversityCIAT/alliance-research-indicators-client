@@ -8,6 +8,7 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { ButtonModule } from 'primeng/button';
+import { GetAllianceAlignment } from '../../../../../../shared/interfaces/get-alliance-alignment.interface';
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -19,7 +20,7 @@ import { ButtonModule } from 'primeng/button';
 export default class AllianceAlignmentComponent {
   getContractsService = inject(GetContractsService);
   getLeversService = inject(GetLeversService);
-  body: WritableSignal<{ contracts: []; levers: [] }> = signal({
+  body: WritableSignal<GetAllianceAlignment> = signal({
     contracts: [],
     levers: []
   });
@@ -33,7 +34,7 @@ export default class AllianceAlignmentComponent {
 
   async getData() {
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
-    this.body.set(response.data as { contracts: []; levers: [] });
+    this.body.set(response.data);
   }
 
   async saveData() {
@@ -45,7 +46,16 @@ export default class AllianceAlignmentComponent {
     if (this.actions.saveCurrentSectionValue()) this.saveData();
   });
 
-  markAsPrimary(lever: { is_primary: boolean }) {
-    lever.is_primary = !lever.is_primary;
+  markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever') {
+    this.body.update(current => {
+      if (type === 'contract') {
+        current.contracts.map(contract => (contract.is_primary = false));
+      } else if (type === 'lever') {
+        current.levers.map(lever => (lever.is_primary = false));
+      }
+      return { ...current };
+    });
+    item.is_primary = !item.is_primary;
+    this.actions.saveCurrentSection();
   }
 }

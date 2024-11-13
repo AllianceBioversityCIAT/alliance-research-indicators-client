@@ -24,7 +24,7 @@
                       </div>
                     </div>
                   </div>
-                  <button class="primary-button row" (click)="markAsPrimary(contract)">Marcar como Primario</button>
+                  <button class="primary-button row" [class]="{ active: contract.is_primary }" (click)="markAsPrimary(contract, 'contract')">Marcar como Primario <i class="material-symbols-rounded">star</i></button>
                 </div>
               </ng-template>
             </app-multiselect>
@@ -39,7 +39,7 @@
                   <div class="information">
                     <strong>{{ lever.short_name }}&nbsp;</strong> - {{ lever.full_name }}
                   </div>
-                  <button class="primary-button" [class]="{ active: lever.is_primary }" (click)="markAsPrimary(lever)">Marcar como Primario <i class="material-symbols-rounded">star</i></button>
+                  <button class="primary-button" [class]="{ active: lever.is_primary }" (click)="markAsPrimary(lever, 'lever')">Marcar como Primario <i class="material-symbols-rounded">star</i></button>
                 </div>
               </ng-template>
             </app-multiselect>

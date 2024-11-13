@@ -72,6 +72,7 @@ export class MultiselectComponent implements OnInit {
     this.signal.update((current: any) => {
       return { ...current, [this.signalOptionValue]: this.service?.list().filter((option: any) => event.includes(option[this.optionValue])) };
     });
+    this.actions.saveCurrentSection();
   }
 
   objectArrayToIdArray(array: any[], attribute: string) {
@@ -82,5 +83,6 @@ export class MultiselectComponent implements OnInit {
     this.signal.update((current: any) => {
       return { ...current, [this.signalOptionValue]: current[this.signalOptionValue].filter((item: any) => item[this.optionValue] !== option[this.optionValue]) };
     });
+    this.actions.saveCurrentSection();
   }
 }
