@@ -12,6 +12,7 @@ import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interfac
 import { PatchPartners } from '../interfaces/patch-partners.interface';
 import { Degree, Gender, GetCapSharing, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
 import { CacheService } from './cache/cache.service';
+import { GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -115,7 +116,7 @@ export class ApiService {
     return this.TP.patch(url(), body);
   };
 
-  GET_Alignments = (id: number): Promise<MainResponse<PatchAllianceAlignment>> => {
+  GET_Alignments = (id: number): Promise<MainResponse<GetAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
     return this.TP.get(url(), {});
   };
