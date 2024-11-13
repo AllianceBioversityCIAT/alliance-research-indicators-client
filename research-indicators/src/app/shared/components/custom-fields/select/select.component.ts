@@ -2,6 +2,7 @@
 import { Component, Input, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
+import { ControlListServices } from '../../../interfaces/services.interface';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 
 @Component({
@@ -17,7 +18,7 @@ export class SelectComponent implements OnInit {
   @Input() options: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
   @Input() optionValue = { body: '', option: '' };
-  @Input() serviceName = '';
+  @Input() serviceName: ControlListServices = '';
   service: any;
   body = signal({ value: '' });
 

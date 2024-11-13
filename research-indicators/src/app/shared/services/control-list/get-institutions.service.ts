@@ -21,5 +21,6 @@ export class GetInstitutionsService {
     });
     this.list.set(response.data);
     this.loading.set(false);
+    console.log(this.list());
   }
 }
