@@ -9,11 +9,13 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { Evidence, PatchResultEvidences } from '../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
+import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
+import { EvidenceItemComponent } from './components/evidence-item/evidence-item.component';
 
 @Component({
   selector: 'app-evidence',
   standalone: true,
-  imports: [ButtonModule, InputTextareaModule, FormsModule, InputTextModule, SaveOnWritingDirective],
+  imports: [ButtonModule, InputTextareaModule, FormsModule, InputTextModule, SaveOnWritingDirective, InputComponent, EvidenceItemComponent],
   templateUrl: './evidence.component.html',
   styleUrl: './evidence.component.scss'
 })
@@ -24,6 +26,7 @@ export default class EvidenceComponent {
   router = inject(Router);
   api = inject(ApiService);
   body = signal<PatchResultEvidences>(new PatchResultEvidences());
+  example = signal({ evidence_url: signal('test') });
 
   constructor() {
     this.getData();

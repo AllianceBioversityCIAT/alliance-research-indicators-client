@@ -11,6 +11,7 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { GetCapSharing } from '../../../../../../shared/interfaces/get-cap-sharing.interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-capacity-sharing',
@@ -24,6 +25,7 @@ export default class CapacitySharingComponent {
   api = inject(ApiService);
   actions = inject(ActionsService);
   cache = inject(CacheService);
+  router = inject(Router);
   body: WritableSignal<GetCapSharing> = signal({});
 
   constructor() {
@@ -41,8 +43,10 @@ export default class CapacitySharingComponent {
     });
   }
 
-  async saveData() {
+  async saveData(page?: 'next' | 'back') {
     await this.api.PATCH_CapacitySharing(this.body());
+    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     this.actions.showToast({ severity: 'success', summary: 'Capacity Sharing', detail: 'Data saved successfully' });
     this.getData();
   }

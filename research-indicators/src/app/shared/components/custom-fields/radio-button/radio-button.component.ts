@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Component, effect, inject, Input, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RadioButtonModule } from 'primeng/radiobutton';
@@ -15,9 +17,7 @@ import { ActionsService } from '../../../services/actions.service';
 export class RadioButtonComponent {
   cache = inject(CacheService);
   actions = inject(ActionsService);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() signal: WritableSignal<any> = signal({});
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() options: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
   @Input() optionValue = { body: '', option: '' };
@@ -36,14 +36,12 @@ export class RadioButtonComponent {
     { allowSignalWrites: true }
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeValue(value: any) {
     this.body.set({ value: value });
     this.setNestedPropertyWithReduce(this.signal(), this.optionValue.body, value);
     this.actions.saveCurrentSection();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setNestedPropertyWithReduce(obj: any, path: string, value: any): void {
     const keys = path.split('.');
 
@@ -56,7 +54,6 @@ export class RadioButtonComponent {
     }, obj)[keys[keys.length - 1]] = value;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getNestedProperty(obj: any, path: string): any {
     return path.split('.').reduce((acc, key) => acc && acc[key], obj);
   }
