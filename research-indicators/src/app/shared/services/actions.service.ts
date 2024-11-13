@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, computed } from '@angular/core';
 import { CacheService } from '@services/cache/cache.service';
 import { Router } from '@angular/router';
 import { DataCache } from '@interfaces/cache.interface';
@@ -43,6 +43,14 @@ export class ActionsService {
   hideGlobalAlert(index: number) {
     this.globalAlertsStatus.update(prev => prev.filter((_, i) => i !== index));
   }
+
+  getInitials = computed(() => {
+    const name = `${this.cache.dataCache().user.first_name} ${this.cache.dataCache().user.last_name}`;
+    const words = name.split(' ');
+    if (words.length === 1) return words[0][0];
+    if (words.length === 2) return words[0][0] + words[1][0];
+    return words[0][0] + words[2][0];
+  });
 
   validateToken() {
     if (this.cache.dataCache().access_token) this.cache.isLoggedIn.set(true);

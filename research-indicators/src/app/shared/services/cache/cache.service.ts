@@ -12,6 +12,7 @@ export class CacheService {
   showMetadataPanel = signal(localStorage.getItem('showMetadataPanel') === 'true');
   currentSectionHeaderName = signal('');
   currentResultId: WritableSignal<number> = signal(0);
+  loadingCurrentResult = signal(false);
 
   setCurrentSectionHeaderName(name: string) {
     this.currentSectionHeaderName.set(name);

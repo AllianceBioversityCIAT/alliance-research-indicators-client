@@ -1,0 +1,12 @@
+<div class="options">
+  <!-- <strong>{{ this.signal() }}</strong> -->
+  <!-- @if (this) {
+
+} -->
+  @for (item of options().list; track $index) {
+    <div class="option">
+      <p-radioButton [name]="item[optionValue.option]" value="{{ item[optionValue.option] }}" (ngModelChange)="changeValue(item[optionValue.option])" [(ngModel)]="this.body().value" [inputId]="item[optionLabel] + 'id' + item[optionValue.option]" />
+      <label [for]="item[optionLabel] + 'id' + item[optionValue.option]" class="ml-2"> {{ item[optionLabel] }} </label>
+    </div>
+  }
+</div>

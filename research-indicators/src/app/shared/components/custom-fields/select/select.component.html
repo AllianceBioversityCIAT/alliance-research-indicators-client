@@ -1,0 +1,9 @@
+<p-dropdown [style]="{ width: '100%' }" [loading]="this.service.loading()" [options]="this.service.list()" [filter]="true" filterBy="description" [(ngModel)]="body().value" [virtualScroll]="true" [virtualScrollItemSize]="41" optionValue="institution_id" [optionLabel]="this.optionLabel" placeholder="Select a Primary Contract">
+  <ng-template pTemplate="selectedItem">
+    @if (body().value) {
+      <div class="flex align-items-center gap-2">
+        <div>One selected</div>
+      </div>
+    }
+  </ng-template>
+</p-dropdown>

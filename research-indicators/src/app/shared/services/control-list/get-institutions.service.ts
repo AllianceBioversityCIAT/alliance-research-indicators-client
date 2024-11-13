@@ -20,7 +20,6 @@ export class GetInstitutionsService {
       institution.institution_id = institution.code;
     });
     this.list.set(response.data);
-
     this.loading.set(false);
   }
 }

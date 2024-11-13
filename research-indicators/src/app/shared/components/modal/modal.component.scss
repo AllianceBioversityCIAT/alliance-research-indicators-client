@@ -17,6 +17,8 @@
     border-radius: 15px;
     position: relative;
 
+    // overflow-y: scroll;
+
     .close-button {
       position: absolute;
       top: -5px;
@@ -31,6 +33,14 @@
         color: rgb(50 50 50);
         font-size: 22px;
       }
+    }
+  }
+}
+
+@media screen and (height <= 800px) {
+  .container {
+    .modal {
+      height: 98vh;
     }
   }
 }

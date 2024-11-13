@@ -1,0 +1,19 @@
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .option {
+    display: flex;
+    align-items: center;
+    font-family: 'Barlow', sans-serif;
+
+    label {
+      color: #4c5158;
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 17px;
+    }
+  }
+}
