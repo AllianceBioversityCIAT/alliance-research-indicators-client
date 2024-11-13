@@ -10,7 +10,24 @@
     <div class="card flex flex-column gap-1">
       <h1 class="title">Partners to be acknowledge</h1>
       <label class="card-description" for="description">Partner organizations you collaborated with or are currently collaborating with to generate this result.</label>
-      <app-multiselect [signal]="body" optionLabel="name" optionValue="institution_id" signalOptionValue="institutions" serviceName="institutions" />
+      <app-multiselect [signal]="body" optionLabel="name" optionValue="institution_id" signalOptionValue="institutions" serviceName="institutions">
+        <ng-template #rows let-institution>
+          <div class="item-content">
+            <div class="information">
+              <div class="row">
+                <div>
+                  <strong>{{ institution.acronym }}</strong> - {{ institution.name }}
+                </div>
+                <div class="institution-type">
+                  <h4>Institution Type</h4>
+                  &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
+                  <!-- <span class="institution-type-description">{{ institution.institution_type.name }}</span> -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </app-multiselect>
     </div>
   </div>
   <div class="button-container">
