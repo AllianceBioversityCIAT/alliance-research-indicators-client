@@ -9,24 +9,12 @@
     <div class="training-type-columns">
       <div class="column gap-1">
         <h1 class="title">What training or engagement do you want to report?*</h1>
-        <!-- @for (item of getCapSharingService.formats().list; track item.session_format_id) {
-          <div class="field-checkbox card-description">
-            <input type="checkbox" id="training-{{ item.session_format_id }}" />
-            <label for="training-{{ item.session_format_id }}">{{ item.name }}</label>
-          </div>
-        } -->
-        <app-radio-button [signal]="body" [options]="getCapSharingService.formats" [optionLabel]="'name'" [optionValue]="'session_format_id'"></app-radio-button>
+        <app-radio-button [signal]="body" [options]="getCapSharingService.formats" [optionLabel]="'name'" [optionValue]="{ body: 'session_format_id', option: 'session_format_id' }"></app-radio-button>
       </div>
 
       <div class="column">
         <h1 class="title">Is this a training or a engagement?*</h1>
-        <!-- @for (item of getCapSharingService.types().list; track item.session_type_id) {
-          <div class="field-checkbox card-description">
-            <input type="checkbox" id="training-{{ item.session_type_id }}" />
-            <label for="training-{{ item.session_type_id }}">{{ item.name }}</label>
-          </div>
-        } -->
-        <app-radio-button [signal]="body" [options]="getCapSharingService.types" [optionLabel]="'name'" [optionValue]="'session_type_id'"></app-radio-button>
+        <app-radio-button [signal]="body" [options]="getCapSharingService.types" [optionLabel]="'name'" [optionValue]="{ body: 'session_type_id', option: 'session_type_id' }"></app-radio-button>
       </div>
     </div>
   </div>
@@ -46,36 +34,25 @@
       <div class="individual-training-columns">
         <div class="column gap-1">
           <h1 class="title">Degree*</h1>
-          <app-radio-button [signal]="body" [options]="getCapSharingService.degrees" [optionLabel]="'name'" [optionValue]="'individual.degree_id'"></app-radio-button>
+          <app-radio-button [signal]="body" [options]="getCapSharingService.degrees" [optionLabel]="'name'" [optionValue]="{ body: 'individual.degree_id', option: 'degree_id' }"></app-radio-button>
         </div>
 
         <div class="column">
           <h1 class="title">Gender*</h1>
-          <div class="field-checkbox card-description">
-            <input type="checkbox" id="option1" />
-            <label for="option1">Male</label>
-          </div>
-          <div class="field-checkbox card-description">
-            <input type="checkbox" id="option2" />
-            <label for="option2">Female</label>
-          </div>
-          <div class="field-checkbox card-description">
-            <input type="checkbox" id="option3" />
-            <label for="option3">Non-binary</label>
-          </div>
+          <app-radio-button [signal]="body" [options]="getCapSharingService.genders" [optionLabel]="'name'" [optionValue]="{ body: 'individual.gender_id', option: 'gender_id' }"></app-radio-button>
         </div>
 
         <div class="column">
           <h1 class="title">Lenght of training*</h1>
-          <app-radio-button [signal]="body" [options]="getCapSharingService.lengths" [optionLabel]="'name'" [optionValue]="'session_length_id'"></app-radio-button>
+          <app-radio-button [signal]="body" [options]="getCapSharingService.lengths" [optionLabel]="'name'" [optionValue]="{ body: 'individual.session_length_id', option: 'session_length_id' }"></app-radio-button>
         </div>
       </div>
 
-      <!-- <div class="trainee-columns">
+      <div class="trainee-columns">
         <div class="column">
           <h1 class="title">Trainee affiliation</h1>
 
-          <p-dropdown [style]="{ width: '100%' }" [options]="trainees" [(ngModel)]="selectedTrainee" optionLabel="name" [filter]="true" filterBy="name" [showClear]="true" placeholder="Select a Trainee affiliation">
+          <p-dropdown [style]="{ width: '100%' }" [options]="getInstitutionsService.list()" [(ngModel)]="this.body().individual.institution_id" optionLabel="name" [filter]="true" filterBy="name" [showClear]="true" placeholder="Select a Trainee affiliation">
             <ng-template pTemplate="selectedItem" let-selectedOption>
               <div class="flex align-items-center gap-2">
                 <div>{{ selectedOption.name }}</div>
@@ -89,7 +66,7 @@
           </p-dropdown>
         </div>
 
-        <div class="column">
+        <!-- <div class="column">
           <h1 class="title">Trainee nationality</h1>
 
           <p-dropdown [style]="{ width: '100%' }" [options]="countries" [(ngModel)]="selectedCountry" optionLabel="name" [filter]="true" filterBy="name" [showClear]="true" placeholder="Select a Country">
@@ -104,8 +81,8 @@
               </div>
             </ng-template>
           </p-dropdown>
-        </div>
-      </div> -->
+        </div> -->
+      </div>
     </div>
   }
   <!-- TRAINING DETAILS -->

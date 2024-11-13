@@ -145,6 +145,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_Gender = (): Promise<MainResponse<any>> => {
+    const url = () => `gender`;
+    return this.TP.get(url(), {});
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {
