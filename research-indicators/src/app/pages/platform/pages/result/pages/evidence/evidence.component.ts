@@ -10,11 +10,12 @@ import { ApiService } from '../../../../../../shared/services/api.service';
 import { Evidence, PatchResultEvidences } from '../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
+import { EvidenceItemComponent } from './components/evidence-item/evidence-item.component';
 
 @Component({
   selector: 'app-evidence',
   standalone: true,
-  imports: [ButtonModule, InputTextareaModule, FormsModule, InputTextModule, SaveOnWritingDirective, InputComponent],
+  imports: [ButtonModule, InputTextareaModule, FormsModule, InputTextModule, SaveOnWritingDirective, InputComponent, EvidenceItemComponent],
   templateUrl: './evidence.component.html',
   styleUrl: './evidence.component.scss'
 })
