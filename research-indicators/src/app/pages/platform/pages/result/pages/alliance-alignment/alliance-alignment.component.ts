@@ -9,6 +9,7 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { ButtonModule } from 'primeng/button';
 import { GetAllianceAlignment } from '../../../../../../shared/interfaces/get-alliance-alignment.interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -27,7 +28,7 @@ export default class AllianceAlignmentComponent {
   apiService = inject(ApiService);
   cache = inject(CacheService);
   actions = inject(ActionsService);
-
+  router = inject(Router);
   constructor() {
     this.getData();
   }
@@ -37,8 +38,10 @@ export default class AllianceAlignmentComponent {
     this.body.set(response.data);
   }
 
-  async saveData() {
+  async saveData(page?: 'next' | 'back') {
     await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
+    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'capacity-sharing']);
+    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
     this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
   }
 
