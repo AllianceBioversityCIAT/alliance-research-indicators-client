@@ -8,7 +8,6 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { GetInstitutionsService } from '../../../../../../shared/services/control-list/get-institutions.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 
@@ -21,7 +20,6 @@ import { SelectComponent } from '../../../../../../shared/components/custom-fiel
 })
 export default class CapacitySharingComponent {
   getCapSharingService = inject(GetCapSharingService);
-  getInstitutionsService = inject(GetInstitutionsService);
   api = inject(ApiService);
   actions = inject(ActionsService);
   cache = inject(CacheService);
@@ -29,34 +27,18 @@ export default class CapacitySharingComponent {
 
   constructor() {
     this.getData();
-    const example: any = {
-      level1: {
-        a: 'Hello from level 1',
-        level2: {
-          a: 'Hello from level 2',
-          level3: {
-            a: 'Hello from level 3'
-          }
-        }
-      }
-    };
-    console.log(example);
-    const array = ['level1', 'level2', 'level3', 'a'];
-    console.log(example['level1']['level2']['level3']['a']);
-    console.log(array.reduce((acc, key) => acc && acc[key], example));
   }
 
   async getData() {
     this.cache.loadingCurrentResult.set(true);
     const response = await this.api.GET_CapacitySharing();
-    console.log(response);
     this.body.set(response.data);
-    console.log(this.body());
     this.cache.loadingCurrentResult.set(false);
     this.body.update(current => {
       current.loaded = true;
       return { ...current };
     });
+    console.log(this.body());
   }
 
   async saveData() {

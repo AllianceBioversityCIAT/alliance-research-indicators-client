@@ -52,18 +52,7 @@
         <div class="column">
           <h1 class="title">Trainee affiliation</h1>
 
-          <p-dropdown [style]="{ width: '100%' }" [options]="getInstitutionsService.list()" [(ngModel)]="this.body().individual.institution_id" optionLabel="name" [filter]="true" filterBy="name" [showClear]="true" placeholder="Select a Trainee affiliation">
-            <ng-template pTemplate="selectedItem" let-selectedOption>
-              <div class="flex align-items-center gap-2">
-                <div>{{ selectedOption.name }}</div>
-              </div>
-            </ng-template>
-            <ng-template let-trainee pTemplate="item">
-              <div class="flex align-items-center gap-2">
-                <div>{{ trainee.name }}</div>
-              </div>
-            </ng-template>
-          </p-dropdown>
+          <app-select [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"></app-select>
         </div>
 
         <!-- <div class="column">

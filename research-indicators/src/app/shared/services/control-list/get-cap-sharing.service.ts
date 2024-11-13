@@ -23,12 +23,10 @@ export class GetCapSharingService {
     const response2 = await this.apiService.GET_SessionType();
     this.types.set({ list: response2.data, loading: false });
     const response3 = await this.apiService.GET_Degrees();
-    console.log(response3.data);
     this.degrees.set({ list: response3.data, loading: false });
     const response4 = await this.apiService.GET_SessionLength();
     this.lengths.set({ list: response4.data, loading: false });
     const response5 = await this.apiService.GET_Gender();
     this.genders.set({ list: response5.data, loading: false });
-    console.log(this.genders());
   }
 }
