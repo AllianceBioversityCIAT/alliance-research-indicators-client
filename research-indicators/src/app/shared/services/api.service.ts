@@ -10,7 +10,7 @@ import { PatchResultEvidences } from '../interfaces/patch-result-evidences.inter
 import { GetLevers } from '../interfaces/get-levers.interface';
 import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
 import { PatchPartners } from '../interfaces/patch-partners.interface';
-import { SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
+import { Degree, Gender, GetCapSharing, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
 import { CacheService } from './cache/cache.service';
 
 @Injectable({
@@ -105,12 +105,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_CapacitySharing = (): Promise<MainResponse<any>> => {
+  GET_CapacitySharing = (): Promise<MainResponse<GetCapSharing>> => {
     const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
     return this.TP.get(url(), {});
   };
 
-  PATCH_CapacitySharing = <T>(body: T): Promise<MainResponse<any>> => {
+  PATCH_CapacitySharing = <T>(body: T): Promise<MainResponse<GetCapSharing>> => {
     const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
     return this.TP.patch(url(), body);
   };
@@ -135,17 +135,17 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Degrees = (): Promise<MainResponse<any>> => {
+  GET_Degrees = (): Promise<MainResponse<Degree[]>> => {
     const url = () => `degree`;
     return this.TP.get(url(), {});
   };
 
-  GET_SessionLength = (): Promise<MainResponse<any>> => {
+  GET_SessionLength = (): Promise<MainResponse<Length[]>> => {
     const url = () => `session/length`;
     return this.TP.get(url(), {});
   };
 
-  GET_Gender = (): Promise<MainResponse<any>> => {
+  GET_Gender = (): Promise<MainResponse<Gender[]>> => {
     const url = () => `gender`;
     return this.TP.get(url(), {});
   };
