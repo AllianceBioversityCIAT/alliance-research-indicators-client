@@ -9,14 +9,16 @@
           <div class="flex flex-column gap-1">
             <h1 class="title">Title*</h1>
             <label class="card-description" for="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</label>
-            <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" />
+            <!-- <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" /> -->
+            <app-input [signal]="this.body" [optionValue]="'title'"></app-input>
             <small class="card-description" id="username-help">Max. # words</small>
           </div>
 
           <div class="card flex flex-column gap-1">
             <h1 class="title">Description</h1>
             <label class="card-description" for="description">Offer a detailed, understandable explanation, without repeating the title.</label>
-            <textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="body().description"> </textarea>
+            <!-- <textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="body().description"> </textarea> -->
+            <app-textarea [signal]="this.body" [optionValue]="'description'"></app-textarea>
             <small class="card-description" id="username-help">Max. # words</small>
           </div>
 

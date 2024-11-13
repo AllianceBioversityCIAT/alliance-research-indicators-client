@@ -9,11 +9,12 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { Evidence, PatchResultEvidences } from '../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
+import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 
 @Component({
   selector: 'app-evidence',
   standalone: true,
-  imports: [ButtonModule, InputTextareaModule, FormsModule, InputTextModule, SaveOnWritingDirective],
+  imports: [ButtonModule, InputTextareaModule, FormsModule, InputTextModule, SaveOnWritingDirective, InputComponent],
   templateUrl: './evidence.component.html',
   styleUrl: './evidence.component.scss'
 })
@@ -24,6 +25,7 @@ export default class EvidenceComponent {
   router = inject(Router);
   api = inject(ApiService);
   body = signal<PatchResultEvidences>(new PatchResultEvidences());
+  example = signal({ evidence_url: signal('test') });
 
   constructor() {
     this.getData();
@@ -41,6 +43,7 @@ export default class EvidenceComponent {
   async getData() {
     const response = await this.api.GET_ResultEvidences(this.cache.currentResultId());
     this.body.set(response.data || new PatchResultEvidences());
+    console.log(this.body());
   }
 
   async saveData(page?: 'next' | 'back') {

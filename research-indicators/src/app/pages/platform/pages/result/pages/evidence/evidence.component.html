@@ -9,7 +9,8 @@
         <div class="evidence-container">
           <div class="flex flex-column first-column gap-1">
             <h1 class="title">Evidence link</h1>
-            <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="evidence.evidence_url" />
+            <!-- <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="evidence.evidence_url" /> -->
+            <app-input [signal]="this.body" [optionValue]="'evidence_url'"></app-input>
           </div>
           <div class="flex flex-column gap-1">
             <h1 class="title">Evidence description</h1>

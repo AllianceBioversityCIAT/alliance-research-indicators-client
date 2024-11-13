@@ -12,6 +12,8 @@ import { GeneralInformation } from '@interfaces/result/general-information.inter
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
 import { ActivatedRoute, Router } from '@angular/router';
+import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
+import { TextareaComponent } from '../../../../../../shared/components/custom-fields/textarea/textarea.component';
 
 interface Option {
   name: string;
@@ -20,7 +22,7 @@ interface Option {
 @Component({
   selector: 'app-general-information',
   standalone: true,
-  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, InputTextareaModule, ReactiveFormsModule, ChipsModule, SaveOnWritingDirective],
+  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, InputTextareaModule, ReactiveFormsModule, ChipsModule, SaveOnWritingDirective, InputComponent, TextareaComponent],
   templateUrl: './general-information.component.html',
   styleUrl: './general-information.component.scss'
 })

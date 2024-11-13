@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Component, Input, signal, WritableSignal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { SaveOnWritingDirective } from '../../../directives/save-on-writing.directive';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-input',
+  selector: 'app-textarea',
   standalone: true,
-  imports: [FormsModule, InputTextModule, SaveOnWritingDirective],
-  templateUrl: './input.component.html',
-  styleUrl: './input.component.scss'
+  imports: [FormsModule, InputTextareaModule, SaveOnWritingDirective],
+  templateUrl: './textarea.component.html',
+  styleUrl: './textarea.component.scss'
 })
-export class InputComponent {
+export class TextareaComponent {
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionValue = '';
 }
