@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ActionsService } from '../../../services/actions.service';
 
 @Component({
   selector: 'app-radio-button',
@@ -13,6 +14,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 })
 export class RadioButtonComponent {
   cache = inject(CacheService);
+  actions = inject(ActionsService);
   @Input() signal: WritableSignal<any> = signal({});
   @Input() options: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
@@ -23,7 +25,7 @@ export class RadioButtonComponent {
     () => {
       if (this.signal().loaded && this.firstTime) {
         this.body.update(current => {
-          current.value = this.signal()[this.optionValue.body];
+          this.setNestedPropertyWithReduce(current, 'value', this.getNestedProperty(this.signal(), this.optionValue.body));
           return { ...current };
         });
         this.firstTime.set(true);
@@ -31,13 +33,11 @@ export class RadioButtonComponent {
     },
     { allowSignalWrites: true }
   );
-  showBody() {
-    console.log(this.body());
-  }
 
   changeValue(value: any) {
     this.body.set({ value: value });
     this.setNestedPropertyWithReduce(this.signal(), this.optionValue.body, value);
+    this.actions.saveCurrentSection();
   }
   setNestedPropertyWithReduce(obj: any, path: string, value: any): void {
     const keys = path.split('.');
@@ -49,5 +49,9 @@ export class RadioButtonComponent {
       }
       return acc[key];
     }, obj)[keys[keys.length - 1]] = value;
+  }
+
+  getNestedProperty(obj: any, path: string): any {
+    return path.split('.').reduce((acc, key) => acc && acc[key], obj);
   }
 }

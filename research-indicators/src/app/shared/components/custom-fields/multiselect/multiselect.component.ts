@@ -4,6 +4,7 @@ import { GetLeversService } from '../../../services/control-list/get-levers.serv
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { GetContractsService } from '../../../services/control-list/get-contracts.service';
+import { ActionsService } from '../../../services/actions.service';
 
 @Component({
   selector: 'app-multiselect',
@@ -16,6 +17,7 @@ import { GetContractsService } from '../../../services/control-list/get-contract
 export class MultiselectComponent implements OnInit {
   getLeversService = inject(GetLeversService);
   getContractsService = inject(GetContractsService);
+  actions = inject(ActionsService);
   @ContentChild('rows') rows!: TemplateRef<any>;
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
