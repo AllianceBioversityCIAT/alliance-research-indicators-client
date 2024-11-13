@@ -44,7 +44,6 @@ export default class EvidenceComponent {
   async getData() {
     const response = await this.api.GET_ResultEvidences(this.cache.currentResultId());
     this.body.set(response.data || new PatchResultEvidences());
-    console.log(this.body());
   }
 
   async saveData(page?: 'next' | 'back') {

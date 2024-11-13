@@ -18,10 +18,6 @@ export class InputComponent {
   @Input() pattern: 'email' | 'url' | '' = '';
 
   inputValid = computed(() => {
-    console.log('valdiate');
-    console.log(this.signal()[this.optionValue]);
-    console.log(this.getPattern());
-    console.log(new RegExp(this.getPattern().pattern).test(this.signal()[this.optionValue]));
     if (this.pattern) {
       const valid = new RegExp(this.getPattern().pattern).test(this.signal()[this.optionValue]);
 
