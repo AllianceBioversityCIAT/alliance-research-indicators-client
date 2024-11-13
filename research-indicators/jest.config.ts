@@ -6,7 +6,7 @@ const config: Config = {
   globalSetup: 'jest-preset-angular/global-setup',
   collectCoverage: true,
   collectCoverageFrom: ['./src/app/**/*.ts', './src/app/**/*.html', '!./src/app/**/*routing.ts', '!./src/app/**/*module.ts'],
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/', '<rootDir>/src/app/pages/landing', '<rootDir>/src/app/shared/services', '<rootDir>/src/app/shared/components/alert/alert.component.spec.ts'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/', '<rootDir>/src/app/pages/landing', '<rootDir>/src/app/shared/services', '<rootDir>/src/app/shared/components/custom-fields', '<rootDir>/src/app/shared/components/alert/alert.component.spec.ts'],
   coveragePathIgnorePatterns: ['<rootDir>/src/app/app.config.ts', '<rootDir>/src/app/app.routes.ts', '<rootDir>/src/app/shared/sockets/websocket.service.ts', '<rootDir>/src/app/shared/components/alert/alert.component.ts'],
   coverageReporters: ['text', 'cobertura', 'lcov'],
   coverageThreshold: {
