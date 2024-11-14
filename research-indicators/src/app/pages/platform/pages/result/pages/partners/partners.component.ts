@@ -33,8 +33,6 @@ export default class PartnersComponent {
 
   async saveData(page?: 'next' | 'back') {
     const response = await this.api.PATCH_Partners(this.cache.currentResultId(), this.body());
-    console.log(this.body());
-    console.log(response);
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'capacity-sharing']);
     if (response.successfulRequest) this.actions.showToast({ severity: 'success', summary: 'Partners', detail: 'Data saved successfully' });

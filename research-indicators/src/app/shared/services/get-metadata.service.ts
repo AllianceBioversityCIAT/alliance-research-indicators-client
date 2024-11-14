@@ -12,6 +12,5 @@ export class GetMetadataService {
   async GET_Metadata(id: number) {
     const response = await this.api.GET_Metadata(id);
     this.cache.currentMetadata.set(response?.data);
-    console.log(this.cache.currentMetadata());
   }
 }

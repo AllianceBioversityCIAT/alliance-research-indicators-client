@@ -32,7 +32,6 @@ export class CreateResultModalComponent {
 
   async createResult(openresult?: boolean) {
     const result = await this.api.POST_Result(this.body());
-    console.log(result);
     if (result.successfulRequest) {
       this.actions.showToast({
         severity: 'success',
@@ -44,7 +43,6 @@ export class CreateResultModalComponent {
       if (openresult) this.actions.changeResultRoute(result.data.result_id);
     } else {
       const isWarning = result.status == 409;
-      console.log(result.errorDetail.errors);
       this.actions.showGlobalAlert({
         severity: isWarning ? 'warning' : 'error',
         summary: isWarning ? 'Warning' : 'Error',
