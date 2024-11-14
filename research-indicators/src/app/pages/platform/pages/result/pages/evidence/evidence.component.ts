@@ -27,6 +27,7 @@ export default class EvidenceComponent {
   api = inject(ApiService);
   body = signal<PatchResultEvidences>(new PatchResultEvidences());
   example = signal({ evidence_url: signal('test') });
+  loading = signal(false);
 
   constructor() {
     this.getData();
@@ -42,8 +43,10 @@ export default class EvidenceComponent {
   }
 
   async getData() {
+    this.loading.set(true);
     const response = await this.api.GET_ResultEvidences(this.cache.currentResultId());
-    this.body.set(response.data || new PatchResultEvidences());
+    this.body.set(response.data);
+    this.loading.set(false);
   }
 
   async saveData(page?: 'next' | 'back') {

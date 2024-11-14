@@ -4,16 +4,18 @@
   <div class="card-container">
     <h3 class="card-title">EVIDENCE</h3>
 
-    <div class="card-content">
-      @for (evidence of body().evidence; track $index) {
-        <app-evidence-item [evidence]="evidence" (deleteEvidenceEvent)="deleteEvidence($index)"></app-evidence-item>
-      }
-      <div class="button-container">
-        <div class="flex justify-content-center">
-          <p-button label="Add other evidence" severity="info" icon="pi pi-plus" iconPos="right" (onClick)="addEvidence()" />
+    @if (!this.loading()) {
+      <div class="card-content">
+        @for (evidence of body().evidence; track $index) {
+          <app-evidence-item [evidence]="evidence" (deleteEvidenceEvent)="deleteEvidence($index)"></app-evidence-item>
+        }
+        <div class="button-container">
+          <div class="flex justify-content-center">
+            <p-button label="Add other evidence" severity="info" icon="pi pi-plus" iconPos="right" (onClick)="addEvidence()" />
+          </div>
         </div>
       </div>
-    </div>
+    }
   </div>
   <div class="actions">
     <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" />
