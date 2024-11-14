@@ -10,7 +10,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (cache.isLoggedIn()) {
+      if (cache.isLoggedIn() && error.status !== 409) {
         actions.showToast({ detail: error.error.errors, severity: 'error', summary: 'Error', sticky: true });
       }
 

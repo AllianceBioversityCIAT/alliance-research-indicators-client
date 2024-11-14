@@ -32,8 +32,24 @@ export class CreateResultModalComponent {
 
   async createResult(openresult?: boolean) {
     const result = await this.api.POST_Result(this.body());
-    if (openresult) this.actions.changeResultRoute(result.data.result_id);
-    this.allModalsService.closeModal('createResult');
-    this.body.set({ indicator_id: null, title: null, contract_id: null });
+    console.log(result);
+    if (result.successfulRequest) {
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Success',
+        detail: `Result "${this.body().title}" created successfully`
+      });
+      this.allModalsService.closeModal('createResult');
+      this.body.set({ indicator_id: null, title: null, contract_id: null });
+      if (openresult) this.actions.changeResultRoute(result.data.result_id);
+    } else {
+      const isWarning = result.status == 409;
+      console.log(result.errorDetail.errors);
+      this.actions.showGlobalAlert({
+        severity: isWarning ? 'warning' : 'error',
+        summary: isWarning ? 'Warning' : 'Error',
+        detail: isWarning ? `${result.errorDetail.errors} "${this.body().title}"` : result.errorDetail.errors
+      });
+    }
   }
 }
