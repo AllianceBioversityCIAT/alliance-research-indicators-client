@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import ResultComponent from './result.component';
@@ -10,7 +11,7 @@ describe('ResultComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, ResultComponent],
+      imports: [RouterTestingModule, HttpClientTestingModule, ResultComponent],
       providers: [
         {
           provide: ActivatedRoute,
