@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { GetLeversService } from '@services/control-list/get-levers.service';
@@ -40,14 +40,15 @@ export default class AllianceAlignmentComponent {
 
   async saveData(page?: 'next' | 'back') {
     await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'capacity-sharing']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
+    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
     this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
+    this.getData();
   }
 
-  onSaveSection = effect(() => {
-    if (this.actions.saveCurrentSectionValue()) this.saveData();
-  });
+  // onSaveSection = effect(() => {
+  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
+  // });
 
   markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever') {
     this.body.update(current => {

@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -50,9 +50,10 @@ export default class EvidenceComponent {
     await this.api.PATCH_ResultEvidences(this.cache.currentResultId(), this.body());
     this.actions.showToast({ severity: 'success', summary: 'Evidence', detail: 'Data saved successfully' });
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+    this.getData();
   }
 
-  onSaveSection = effect(() => {
-    if (this.actions.saveCurrentSectionValue()) this.saveData();
-  });
+  // onSaveSection = effect(() => {
+  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
+  // });
 }

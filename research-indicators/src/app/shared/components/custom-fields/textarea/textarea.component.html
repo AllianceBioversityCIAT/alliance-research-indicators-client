@@ -1,1 +1,1 @@
-<textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="this.signal()[this.optionValue]"> </textarea>
+<textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="this.signal()[this.optionValue]" (ngModelChange)="setValue($event)"> </textarea>
