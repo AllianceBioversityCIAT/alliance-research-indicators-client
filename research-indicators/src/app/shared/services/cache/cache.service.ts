@@ -1,5 +1,6 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { DataCache } from '@interfaces/cache.interface';
+import { GetMetadata } from '../../interfaces/get-metadata.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,7 @@ export class CacheService {
   showMetadataPanel = signal(localStorage.getItem('showMetadataPanel') === 'true');
   currentSectionHeaderName = signal('');
   currentResultId: WritableSignal<number> = signal(0);
+  currentMetadata: WritableSignal<GetMetadata> = signal({});
   loadingCurrentResult = signal(false);
 
   setCurrentSectionHeaderName(name: string) {

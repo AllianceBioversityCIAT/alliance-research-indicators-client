@@ -2,11 +2,11 @@
 
 import { ChangeDetectionStrategy, Component, computed, ContentChild, effect, inject, Input, signal, TemplateRef, WritableSignal, OnInit } from '@angular/core';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { GetLeversService } from '../../../services/control-list/get-levers.service';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
-import { GetContractsService } from '../../../services/control-list/get-contracts.service';
 import { ActionsService } from '../../../services/actions.service';
+import { ServiceLocatorService } from '../../../services/service-locator.service';
+import { ControlListServices } from '../../../interfaces/services.interface';
 
 @Component({
   selector: 'app-multiselect',
@@ -17,19 +17,17 @@ import { ActionsService } from '../../../services/actions.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MultiselectComponent implements OnInit {
-  getLeversService = inject(GetLeversService);
-  getContractsService = inject(GetContractsService);
   actions = inject(ActionsService);
-
+  serviceLocator = inject(ServiceLocatorService);
   @ContentChild('rows') rows!: TemplateRef<any>;
 
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
   @Input() optionValue = '';
   @Input() signalOptionValue = '';
-  @Input() serviceName: 'levers' | 'contracts' | '' = '';
+  @Input() serviceName: ControlListServices = '';
 
-  service: GetLeversService | GetContractsService | null = null;
+  service: any;
 
   selectedOptions = computed(() => {
     return { data: this.objectArrayToIdArray(this.signal()[this.signalOptionValue], this.optionValue) || [] };
@@ -56,16 +54,7 @@ export class MultiselectComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    switch (this.serviceName) {
-      case 'levers':
-        this.service = this.getLeversService;
-        break;
-      case 'contracts':
-        this.service = this.getContractsService;
-        break;
-      default:
-        this.service = null;
-    }
+    this.service = this.serviceLocator.getService(this.serviceName);
   }
 
   onClickItem(event: any) {

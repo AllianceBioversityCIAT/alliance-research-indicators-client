@@ -2,6 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { GetContractsService } from './control-list/get-contracts.service';
 import { GetLeversService } from './control-list/get-levers.service';
 import { GetInstitutionsService } from './control-list/get-institutions.service';
+import { ControlListServices } from '../interfaces/services.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { GetInstitutionsService } from './control-list/get-institutions.service'
 export class ServiceLocatorService {
   constructor(private injector: Injector) {}
 
-  getService(serviceName: string) {
+  getService(serviceName: ControlListServices) {
     switch (serviceName) {
       case 'contracts':
         return this.injector.get(GetContractsService);

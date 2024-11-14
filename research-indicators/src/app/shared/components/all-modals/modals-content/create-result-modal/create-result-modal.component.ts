@@ -30,10 +30,24 @@ export class CreateResultModalComponent {
   actions = inject(ActionsService);
   body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null }>({ indicator_id: null, title: null, contract_id: null });
 
-  async createResult() {
+  async createResult(openresult?: boolean) {
     const result = await this.api.POST_Result(this.body());
-    this.actions.changeResultRoute(result.data.result_id);
-    this.allModalsService.closeModal('createResult');
-    this.body.set({ indicator_id: null, title: null, contract_id: null });
+    if (result.successfulRequest) {
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Success',
+        detail: `Result "${this.body().title}" created successfully`
+      });
+      this.allModalsService.closeModal('createResult');
+      this.body.set({ indicator_id: null, title: null, contract_id: null });
+      if (openresult) this.actions.changeResultRoute(result.data.result_id);
+    } else {
+      const isWarning = result.status == 409;
+      this.actions.showGlobalAlert({
+        severity: isWarning ? 'warning' : 'error',
+        summary: isWarning ? 'Warning' : 'Error',
+        detail: isWarning ? `${result.errorDetail.errors} "${this.body().title}"` : result.errorDetail.errors
+      });
+    }
   }
 }

@@ -18,13 +18,13 @@ export class GlobalAlertComponent {
     this.actions.hideGlobalAlert(index);
   }
 
-  getIcon(severity: 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast') {
+  getIcon(severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast') {
     switch (severity) {
       case 'info':
         return 'info';
       case 'warning':
         return 'warning';
-      case 'danger':
+      case 'error':
         return 'cancel';
       default:
         return 'info';

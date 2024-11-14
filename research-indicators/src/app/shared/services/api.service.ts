@@ -13,6 +13,7 @@ import { PatchPartners } from '../interfaces/patch-partners.interface';
 import { Degree, Gender, GetCapSharing, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
 import { CacheService } from './cache/cache.service';
 import { GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
+import { GetMetadata } from '../interfaces/get-metadata.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -148,6 +149,11 @@ export class ApiService {
 
   GET_Gender = (): Promise<MainResponse<Gender[]>> => {
     const url = () => `gender`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Metadata = (id: number): Promise<MainResponse<GetMetadata>> => {
+    const url = () => `results/${id}/metadata`;
     return this.TP.get(url(), {});
   };
 
