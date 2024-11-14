@@ -18,12 +18,12 @@
         <div dropdown-button (click)="this.dropdownsCache.showDropdown('result')">
           <div class="search-box">
             <i class="material-symbols-rounded">search</i>
-            <input type="text" placeholder="Search a result" />
+            <input type="text" placeholder="Search a result" (input)="this.onSearchTextChange($event)" />
           </div>
         </div>
         <div dropdown-content>
           @if (this.dropdownsCache.dropdown().result) {
-            <app-results-list-dropdown />
+            <app-results-list-dropdown [searchText]="this.searchText" />
           }
         </div>
       </app-dropdown>
