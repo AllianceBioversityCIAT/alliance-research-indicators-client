@@ -8,7 +8,7 @@ import { ActionsService } from '../services/actions.service';
 export class SaveOnWritingDirective {
   actions = inject(ActionsService);
   private timeout: ReturnType<typeof setTimeout> = setTimeout(() => null, 0);
-  @Input() delay = 3000;
+  @Input() delay = 2000;
 
   constructor(private el: ElementRef) {}
 

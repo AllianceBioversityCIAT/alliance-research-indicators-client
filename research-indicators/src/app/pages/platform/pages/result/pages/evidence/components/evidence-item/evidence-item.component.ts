@@ -17,7 +17,8 @@ export class EvidenceItemComponent implements OnInit {
   body = signal<Evidence>(new Evidence());
 
   onChange = effect(() => {
-    this.evidence = this.body();
+    this.evidence.evidence_url = this.body().evidence_url;
+    this.evidence.evidence_description = this.body().evidence_description;
   });
 
   ngOnInit() {
