@@ -9,11 +9,7 @@ export class GetResultsService {
   api = inject(ApiService);
   results: WritableSignal<Result[]> = signal([]);
   constructor() {
-    this.getData();
+    this.updateList();
   }
-
-  async getData() {
-    const results = await this.api.GET_Results();
-    this.results.set(results.data);
-  }
+  updateList = async () => this.results.set((await this.api.GET_Results()).data);
 }

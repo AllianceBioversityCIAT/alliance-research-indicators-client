@@ -67,6 +67,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  // create result
   POST_Result = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `results`;
     return this.TP.post(url(), body, {});

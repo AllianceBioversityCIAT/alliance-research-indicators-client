@@ -14,6 +14,7 @@ import { SaveOnWritingDirective } from '../../../../../../shared/directives/save
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { TextareaComponent } from '../../../../../../shared/components/custom-fields/textarea/textarea.component';
+import { GetResultsService } from '../../../../../../shared/services/control-list/get-results.service';
 
 interface Option {
   name: string;
@@ -32,6 +33,7 @@ export default class GeneralInformationComponent {
   cache = inject(CacheService);
   router = inject(Router);
   route = inject(ActivatedRoute);
+  getResultsService = inject(GetResultsService);
   options: Option[] | undefined;
   body: WritableSignal<GeneralInformation> = signal({ title: '', description: '', keywords: [], main_contract_person: null });
 
@@ -48,6 +50,7 @@ export default class GeneralInformationComponent {
     await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
     this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
+    this.getResultsService.updateList();
   }
   onSaveSection = effect(() => {
     if (this.actions.saveCurrentSectionValue()) this.saveData();
