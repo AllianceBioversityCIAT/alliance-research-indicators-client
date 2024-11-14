@@ -30,9 +30,9 @@ export class CreateResultModalComponent {
   actions = inject(ActionsService);
   body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null }>({ indicator_id: null, title: null, contract_id: null });
 
-  async createResult() {
+  async createResult(openresult?: boolean) {
     const result = await this.api.POST_Result(this.body());
-    this.actions.changeResultRoute(result.data.result_id);
+    if (openresult) this.actions.changeResultRoute(result.data.result_id);
     this.allModalsService.closeModal('createResult');
     this.body.set({ indicator_id: null, title: null, contract_id: null });
   }
