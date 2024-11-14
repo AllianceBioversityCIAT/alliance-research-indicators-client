@@ -11,6 +11,16 @@ export class GetMetadataService {
 
   async GET_Metadata(id: number) {
     const response = await this.api.GET_Metadata(id);
+    response.data.indicator_short_name = this.formatText(response.data?.indicator_name || '');
     this.cache.currentMetadata.set(response?.data);
+  }
+
+  formatText(input: string): string {
+    const words = input.split(' ');
+    if (words.length < 2) return '';
+    const firstPart = words[0].slice(0, 3).charAt(0).toUpperCase() + words[0].slice(1, 3).toLowerCase();
+    const lastWord = words[words.length - 1];
+    const lastPart = lastWord.slice(0, 3).charAt(0).toUpperCase() + lastWord.slice(1, 3).toLowerCase();
+    return firstPart + lastPart;
   }
 }
