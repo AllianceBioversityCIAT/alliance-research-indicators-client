@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ActionsService } from '@services/actions.service';
@@ -33,12 +33,13 @@ export default class PartnersComponent {
 
   async saveData(page?: 'next' | 'back') {
     const response = await this.api.PATCH_Partners(this.cache.currentResultId(), this.body());
+    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'capacity-sharing']);
     if (response.successfulRequest) this.actions.showToast({ severity: 'success', summary: 'Partners', detail: 'Data saved successfully' });
+    this.getData();
   }
 
-  onSaveSection = effect(() => {
-    if (this.actions.saveCurrentSectionValue()) this.saveData();
-  });
+  // onSaveSection = effect(() => {
+  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
+  // });
 }

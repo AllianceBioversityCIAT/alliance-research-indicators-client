@@ -21,6 +21,6 @@ export class SaveOnWritingDirective {
   }
 
   private autosave() {
-    this.actions.saveCurrentSection();
+    // this.actions.saveCurrentSection();
   }
 }

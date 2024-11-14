@@ -21,7 +21,7 @@
                 <div class="institution-type">
                   <h4>Institution Type</h4>
                   &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
-                  <span class="institution-type-description">{{ institution.institution_type.name }}</span>
+                  <span class="institution-type-description">{{ institution?.institution_type?.name }}</span>
                 </div>
               </div>
             </div>
@@ -33,5 +33,6 @@
   <div class="button-container">
     <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" />
     <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')" />
+    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" />
   </div>
 </div>

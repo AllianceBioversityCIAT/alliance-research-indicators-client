@@ -43,7 +43,10 @@
           </div>
         </div>
       </div>
-      <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="saveData('next')" />
+      <div class="actions">
+        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="saveData('next')" />
+        <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" />
+      </div>
     </div>
   </div>
 </div>

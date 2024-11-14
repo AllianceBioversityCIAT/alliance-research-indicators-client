@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -51,8 +51,9 @@ export default class GeneralInformationComponent {
     this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     this.getResultsService.updateList();
+    this.getData();
   }
-  onSaveSection = effect(() => {
-    if (this.actions.saveCurrentSectionValue()) this.saveData();
-  });
+  // onSaveSection = effect(() => {
+  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
+  // });
 }
