@@ -29,13 +29,16 @@ export default class AllianceAlignmentComponent {
   cache = inject(CacheService);
   actions = inject(ActionsService);
   router = inject(Router);
+  loading = signal(false);
   constructor() {
     this.getData();
   }
 
   async getData() {
+    this.loading.set(true);
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
     this.body.set(response.data);
+    this.loading.set(false);
   }
 
   async saveData(page?: 'next' | 'back') {
