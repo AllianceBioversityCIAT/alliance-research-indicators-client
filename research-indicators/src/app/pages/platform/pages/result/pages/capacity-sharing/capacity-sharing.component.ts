@@ -51,7 +51,7 @@ export default class CapacitySharingComponent {
     this.getData();
   }
 
-  onSaveSection = effect(() => {
-    if (this.actions.saveCurrentSectionValue()) this.saveData();
-  });
+  // onSaveSection = effect(() => {
+  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
+  // });
 }
