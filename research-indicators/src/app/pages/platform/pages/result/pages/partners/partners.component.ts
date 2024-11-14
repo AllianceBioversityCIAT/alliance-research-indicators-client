@@ -21,14 +21,17 @@ export default class PartnersComponent {
   router = inject(Router);
   api = inject(ApiService);
   body = signal<PatchPartners>(new PatchPartners());
+  loading = signal(false);
 
   constructor() {
     this.getData();
   }
 
   async getData() {
+    this.loading.set(true);
     const response = await this.api.GET_Partners(this.cache.currentResultId());
     this.body.set(response.data);
+    this.loading.set(false);
   }
 
   async saveData(page?: 'next' | 'back') {
