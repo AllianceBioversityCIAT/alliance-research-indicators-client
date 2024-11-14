@@ -12,11 +12,12 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { GetCapSharing } from '../../../../../../shared/interfaces/get-cap-sharing.interface';
 import { Router } from '@angular/router';
+import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 
 @Component({
   selector: 'app-capacity-sharing',
   standalone: true,
-  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent],
+  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent, InputComponent],
   templateUrl: './capacity-sharing.component.html',
   styleUrl: './capacity-sharing.component.scss'
 })
