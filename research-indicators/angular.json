@@ -35,6 +35,7 @@
               "src/styles/styles.scss",
               "src/styles/colors.scss",
               "src/styles/font.scss",
+              "src/styles/custom-fields.scss",
               "node_modules/primeflex/primeflex.css"
             ],
             "scripts": []

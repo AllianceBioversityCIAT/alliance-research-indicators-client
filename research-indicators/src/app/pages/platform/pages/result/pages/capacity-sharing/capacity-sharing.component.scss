@@ -30,7 +30,7 @@
     background-color: #fcfcfc;
     border-radius: 10px;
     padding: 30px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 
     .card-title {
       font-family: 'Space Grotesk', sans-serif;
@@ -62,18 +62,93 @@
     .training-type-columns {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .trainee-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .trainee-details-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 25px;
+
+      &:not(:last-child) {
+        margin-bottom: 25px;
+      }
     }
 
     .individual-training-columns {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
+      margin-bottom: 25px;
+
+      &:not(:last-child) {
+        margin-bottom: 25px;
+      }
     }
 
-    .trainee-columns {
+    .columns {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
-      margin-top: 15px;
+      margin-bottom: 25px;
+
+      &:not(:last-child) {
+        margin-bottom: 25px;
+      }
+
+      .column {
+        .item-content {
+          display: grid;
+          justify-content: space-between;
+          grid-template-columns: auto auto;
+          align-items: center;
+          width: 100%;
+          gap: 20px;
+
+          .information {
+            display: flex;
+            flex-wrap: wrap;
+            color: #4c5158;
+            font-family: 'Barlow', sans-serif;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 16px;
+
+            .row {
+              display: grid;
+              grid-column: 1;
+
+              .institution-type {
+                display: flex;
+                align-items: center;
+                color: #777c83;
+                font-family: 'Space Grotesk', sans-serif;
+                font-size: 13px;
+                font-weight: 400;
+                line-height: 14px;
+
+                h4,
+                span {
+                  margin-top: 10px;
+                  margin-bottom: 0;
+                  font-weight: normal;
+                  font-size: 13px;
+                  align-items: center;
+                }
+                .institution-type-description {
+                  color: #345b8f;
+                  text-transform: uppercase;
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
     .modality-container {
