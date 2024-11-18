@@ -5,24 +5,20 @@
     <div class="content-section">
       <div class="card-content first-column">
         <div class="card-title">GENERAL INFORMATION</div>
-        <div class="flex flex-column gap-3 justify-content-left">
-          <div class="flex flex-column gap-1">
-            <h1 class="title">Title*</h1>
-            <label class="card-description" for="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</label>
+        <div class="form-container">
+          <div class="flex flex-column">
             <!-- <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" /> -->
-            <app-input [signal]="this.body" [optionValue]="'title'"></app-input>
+            <app-input label="Title*" description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon." [signal]="this.body" [optionValue]="'title'"></app-input>
             <small class="card-description" id="username-help">Max. # words</small>
           </div>
 
-          <div class="card flex flex-column gap-1">
-            <h1 class="title">Description</h1>
-            <label class="card-description" for="description">Offer a detailed, understandable explanation, without repeating the title.</label>
+          <div class="card flex flex-column">
             <!-- <textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="body().description"> </textarea> -->
-            <app-textarea [signal]="this.body" [optionValue]="'description'"></app-textarea>
+            <app-textarea label="Description" description="Offer a detailed, understandable explanation, without repeating the title." [signal]="this.body" [optionValue]="'description'"></app-textarea>
             <small class="card-description" id="username-help">Max. # words</small>
           </div>
 
-          <div class="flex flex-column gap-1">
+          <div class="flex flex-column">
             <h1 class="title">Keywords</h1>
             <div class="card p-fluid">
               <p-chips [(ngModel)]="body().keywords" (ngModelChange)="this.actions.saveCurrentSection()" />
