@@ -19,6 +19,9 @@ export class SelectComponent implements OnInit {
   @Input() optionLabel = '';
   @Input() optionValue = { body: '', option: '' };
   @Input() serviceName: ControlListServices = '';
+  @Input() label = '';
+  @Input() description = '';
+
   service: any;
   body = signal({ value: '' });
 
