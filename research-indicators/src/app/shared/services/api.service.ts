@@ -14,6 +14,7 @@ import { Degree, Gender, GetCapSharing, Length, SessionFormat, SessionType } fro
 import { CacheService } from './cache/cache.service';
 import { GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
 import { GetMetadata } from '../interfaces/get-metadata.interface';
+import { UserStaff } from '../interfaces/get-user-staff.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -71,6 +72,11 @@ export class ApiService {
   POST_Result = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `results`;
     return this.TP.post(url(), body, {});
+  };
+
+  GET_UserStaff = (): Promise<MainResponse<UserStaff[]>> => {
+    const url = () => `results/alliance-user-staff`;
+    return this.TP.get(url(), {});
   };
 
   GET_GeneralInformation = (id: number): Promise<MainResponse<GeneralInformation>> => {
