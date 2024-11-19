@@ -1,1 +1,10 @@
-<textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="this.signal()[this.optionValue]" (ngModelChange)="setValue($event)"> </textarea>
+<div class="input-container">
+  @if (label) {
+    <label class="label" for="username">{{ label }}</label>
+  }
+  @if (description) {
+    <small class="description" for="username">{{ description }}</small>
+  }
+
+  <textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="this.signal()[this.optionValue]" (ngModelChange)="setValue($event)"> </textarea>
+</div>

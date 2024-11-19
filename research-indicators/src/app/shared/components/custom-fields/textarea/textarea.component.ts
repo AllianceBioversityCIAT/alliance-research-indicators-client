@@ -15,6 +15,9 @@ import { FormsModule } from '@angular/forms';
 export class TextareaComponent {
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionValue = '';
+  @Input() label = '';
+  @Input() description = '';
+
   setValue(value: string) {
     this.signal.set({ ...this.signal(), [this.optionValue]: value });
   }

@@ -13,11 +13,12 @@ import { SelectComponent } from '../../../../../../shared/components/custom-fiel
 import { GetCapSharing } from '../../../../../../shared/interfaces/get-cap-sharing.interface';
 import { Router } from '@angular/router';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
+import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 
 @Component({
   selector: 'app-capacity-sharing',
   standalone: true,
-  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent, InputComponent],
+  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent, InputComponent, MultiselectComponent],
   templateUrl: './capacity-sharing.component.html',
   styleUrl: './capacity-sharing.component.scss'
 })
@@ -28,6 +29,7 @@ export default class CapacitySharingComponent {
   cache = inject(CacheService);
   router = inject(Router);
   body: WritableSignal<GetCapSharing> = signal({});
+  loading = signal(false);
 
   constructor() {
     this.getData();
@@ -42,6 +44,7 @@ export default class CapacitySharingComponent {
       current.loaded = true;
       return { ...current };
     });
+    this.loading.set(false);
   }
 
   async saveData(page?: 'next' | 'back') {

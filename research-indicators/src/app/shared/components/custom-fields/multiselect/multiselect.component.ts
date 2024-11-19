@@ -26,6 +26,8 @@ export class MultiselectComponent implements OnInit {
   @Input() optionValue = '';
   @Input() signalOptionValue = '';
   @Input() serviceName: ControlListServices = '';
+  @Input() label = '';
+  @Input() description = '';
 
   service: any;
 

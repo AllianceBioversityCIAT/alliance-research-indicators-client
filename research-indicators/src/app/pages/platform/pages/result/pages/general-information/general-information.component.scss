@@ -45,26 +45,29 @@
         margin-top: 0;
       }
 
-      .card-description {
-        color: #777c83;
-        font-family: Barlow, sans-serif;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 17px;
-        text-align: left;
-        margin-bottom: 5px;
-      }
+      .form-container {
+        display: grid;
+        gap: 25px;
 
-      .title {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 10px;
-        color: #153c71;
+        .card-description {
+          color: #777c83;
+          font-family: 'Barlow', sans-serif;
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 17px;
+          text-align: left;
+        }
+
+        .title {
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 10px;
+          color: #153c71;
+        }
       }
     }
   }
 }
-
 .actions {
   display: flex;
   gap: 10px;
