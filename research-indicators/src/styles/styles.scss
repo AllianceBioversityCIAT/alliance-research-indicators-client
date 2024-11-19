@@ -16,6 +16,12 @@ body {
   margin: 0;
 }
 
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .center-flex {
   display: flex;
   align-items: center;
@@ -24,7 +30,7 @@ body {
 
 .indicator-title {
   color: var(--primary-blue-500);
-  font-family: 'Inter', sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 15px;
   font-weight: 700;
   line-height: 18.15px;
@@ -33,7 +39,7 @@ body {
 
 .indicator-description {
   color: var(--grey-800);
-  font-family: 'Barlow', sans-serif;
+  font-family: Barlow, sans-serif;
   font-size: 15px;
   font-weight: 400;
   line-height: 18px;

@@ -1,18 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, computed, Input, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, Input, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SaveOnWritingDirective } from '../../../directives/save-on-writing.directive';
+import { SkeletonModule } from 'primeng/skeleton';
+import { CacheService } from '../../../services/cache/cache.service';
 
 @Component({
   selector: 'app-input',
   standalone: true,
-  imports: [FormsModule, InputTextModule, SaveOnWritingDirective],
+  imports: [FormsModule, InputTextModule, SaveOnWritingDirective, SkeletonModule],
   templateUrl: './input.component.html',
   styleUrl: './input.component.scss'
 })
 export class InputComponent {
+  currentResultIsLoading = inject(CacheService).currentResultIsLoading;
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionValue = '';
   @Input() pattern: 'email' | 'url' | '' = '';

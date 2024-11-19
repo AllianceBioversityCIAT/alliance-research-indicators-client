@@ -75,7 +75,7 @@ export class ApiService {
 
   GET_GeneralInformation = (id: number): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/${id}/general-information`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), { loadingTrigger: true });
   };
 
   PATCH_GeneralInformation = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {

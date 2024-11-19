@@ -5,7 +5,11 @@
   @if (description) {
     <small class="description" for="username">{{ description }}</small>
   }
-  <input appSaveOnWriting pInputText id="username" [class]="this.inputValid().class" aria-describedby="username-help" [(ngModel)]="this.signal()[this.optionValue]" (ngModelChange)="setValue($event)" />
+  @if (currentResultIsLoading()) {
+    <p-skeleton width="100%" height="2.8rem" styleClass="mb-2" />
+  } @else {
+    <input appSaveOnWriting pInputText id="username" [class]="this.inputValid().class" aria-describedby="username-help" [(ngModel)]="this.signal()[this.optionValue]" (ngModelChange)="setValue($event)" />
+  }
   @if (!this.inputValid().valid) {
     <small class="p-error" id="username-help"> {{ this.inputValid().message }} </small>
   }
