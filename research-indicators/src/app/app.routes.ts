@@ -44,7 +44,6 @@ export const routes: Routes = [
         path: 'load-results',
         loadComponent: () => import('@platform/pages/load-result/load-result.component')
       },
-
       {
         path: 'result/:id',
         loadComponent: () => import('@platform/pages/result/result.component'),
@@ -95,6 +94,13 @@ export const routes: Routes = [
       {
         path: 'home',
         loadComponent: () => import('@platform/pages/home/home.component')
+      },
+      {
+        path: 'my-projects',
+        loadComponent: () => import('@platform/pages/my-projects/my-projects.component'),
+        data: {
+          title: 'My Projects'
+        }
       },
       {
         path: 'about',
