@@ -7,16 +7,19 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ActionsService } from '../../../services/actions.service';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { ControlListServices } from '../../../interfaces/services.interface';
+import { CacheService } from '../../../services/cache/cache.service';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-multiselect',
   standalone: true,
-  imports: [MultiSelectModule, FormsModule, NgTemplateOutlet],
+  imports: [MultiSelectModule, FormsModule, NgTemplateOutlet, SkeletonModule],
   templateUrl: './multiselect.component.html',
   styleUrl: './multiselect.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MultiselectComponent implements OnInit {
+  currentResultIsLoading = inject(CacheService).currentResultIsLoading;
   actions = inject(ActionsService);
   serviceLocator = inject(ServiceLocatorService);
   @ContentChild('rows') rows!: TemplateRef<any>;
@@ -50,6 +53,15 @@ export class MultiselectComponent implements OnInit {
           };
         });
         this.firstLoad.set(false);
+      }
+    },
+    { allowSignalWrites: true }
+  );
+
+  onGlobalLoadingChange = effect(
+    () => {
+      if (this.currentResultIsLoading()) {
+        this.firstLoad.set(true);
       }
     },
     { allowSignalWrites: true }

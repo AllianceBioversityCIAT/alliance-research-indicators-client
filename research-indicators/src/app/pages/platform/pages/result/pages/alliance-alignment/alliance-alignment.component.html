@@ -5,44 +5,42 @@
     <div class="content-section">
       <div class="card-content first-column">
         <div class="card-title">ALLIANCE ALIGNMENT</div>
-        @if (!this.loading()) {
-          <div class="form-container">
-            <div>
-              <app-multiselect label="Projects*" [signal]="body" optionLabel="select_label" optionValue="contract_id" signalOptionValue="contracts" serviceName="contracts">
-                <ng-template #rows let-contract>
-                  <div class="item-content">
-                    <div class="information">
-                      <div class="row">
-                        <div>
-                          <strong>{{ contract.agreement_id }}</strong> - {{ contract.description }}
-                        </div>
-                        <div class="project-lead">
-                          <h4>Project lead</h4>
-                          &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
-                          <span class="project-lead-description">{{ contract.project_lead_description }}</span>
-                        </div>
+        <div class="form-container">
+          <div>
+            <app-multiselect label="Projects*" [signal]="body" optionLabel="select_label" optionValue="contract_id" signalOptionValue="contracts" serviceName="contracts">
+              <ng-template #rows let-contract>
+                <div class="item-content">
+                  <div class="information">
+                    <div class="row">
+                      <div>
+                        <strong>{{ contract.agreement_id }}</strong> - {{ contract.description }}
+                      </div>
+                      <div class="project-lead">
+                        <h4>Project lead</h4>
+                        &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
+                        <span class="project-lead-description">{{ contract.project_lead_description }}</span>
                       </div>
                     </div>
-                    <button class="primary-button row" [class]="{ active: contract.is_primary }" (click)="markAsPrimary(contract, 'contract')">Marcar como Primario <i class="material-symbols-rounded">star</i></button>
                   </div>
-                </ng-template>
-              </app-multiselect>
-            </div>
-
-            <div>
-              <app-multiselect label="Levers*" [signal]="body" optionLabel="full_name" optionValue="lever_id" signalOptionValue="levers" [serviceName]="'levers'">
-                <ng-template #rows let-lever>
-                  <div class="item-content">
-                    <div class="information">
-                      <strong>{{ lever.short_name }}&nbsp;</strong> - {{ lever.full_name }}
-                    </div>
-                    <button class="primary-button" [class]="{ active: lever.is_primary }" (click)="markAsPrimary(lever, 'lever')">Marcar como Primario <i class="material-symbols-rounded">star</i></button>
-                  </div>
-                </ng-template>
-              </app-multiselect>
-            </div>
+                  <button class="primary-button row" [class]="{ active: contract.is_primary }" (click)="markAsPrimary(contract, 'contract')">Marcar como Primario <i class="material-symbols-rounded">star</i></button>
+                </div>
+              </ng-template>
+            </app-multiselect>
           </div>
-        }
+
+          <div>
+            <app-multiselect label="Levers*" [signal]="body" optionLabel="full_name" optionValue="lever_id" signalOptionValue="levers" [serviceName]="'levers'">
+              <ng-template #rows let-lever>
+                <div class="item-content">
+                  <div class="information">
+                    <strong>{{ lever.short_name }}&nbsp;</strong> - {{ lever.full_name }}
+                  </div>
+                  <button class="primary-button" [class]="{ active: lever.is_primary }" (click)="markAsPrimary(lever, 'lever')">Marcar como Primario <i class="material-symbols-rounded">star</i></button>
+                </div>
+              </ng-template>
+            </app-multiselect>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -55,8 +55,4 @@ export default class EvidenceComponent {
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
     this.getData();
   }
-
-  // onSaveSection = effect(() => {
-  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
-  // });
 }

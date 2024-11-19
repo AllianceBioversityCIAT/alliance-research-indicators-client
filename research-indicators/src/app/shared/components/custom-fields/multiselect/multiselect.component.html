@@ -9,12 +9,22 @@
 </div>
 <div class="items">
   <ng-template #defaultTemplate let-list> {{ list[this.optionLabel] }} {{ this.optionLabel }} </ng-template>
-  <p-multiSelect [style]="{ width: '100%' }" [loading]="this.service?.loading()" [options]="this.service?.list()" [filter]="true" [filterBy]="this.optionLabel" [optionLabel]="this.optionLabel" [optionValue]="this.optionValue" placeholder="Select items" [(ngModel)]="this.selectedOptions().data" (ngModelChange)="this.onClickItem($event)" [virtualScroll]="true" [virtualScrollItemSize]="41" />
+  @if (currentResultIsLoading()) {
+    <p-skeleton width="100%" height="41px" styleClass="mb-2" />
+  } @else {
+    <p-multiSelect [style]="{ width: '100%' }" [loading]="this.service?.loading()" [options]="this.service?.list()" [filter]="true" [filterBy]="this.optionLabel" [optionLabel]="this.optionLabel" [optionValue]="this.optionValue" placeholder="Select items" [(ngModel)]="this.selectedOptions().data" (ngModelChange)="this.onClickItem($event)" [virtualScroll]="true" [virtualScrollItemSize]="41" />
+  }
 
-  @for (row of list; track $index) {
-    <div class="item abc-grey-100">
-      <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
-      <i class="material-symbols-rounded" (click)="removeOption(row)">cancel</i>
-    </div>
+  @if (this.currentResultIsLoading() || !this.service?.list().length) {
+    @for (row of list; track $index) {
+      <p-skeleton width="100%" height="41px" styleClass="mb-2" />
+    }
+  } @else {
+    @for (row of list; track $index) {
+      <div class="item abc-grey-100">
+        <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
+        <i class="material-symbols-rounded" (click)="removeOption(row)">cancel</i>
+      </div>
+    }
   }
 </div>
