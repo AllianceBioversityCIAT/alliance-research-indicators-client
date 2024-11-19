@@ -57,11 +57,20 @@ export class MultiselectComponent implements OnInit {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
-  onClickItem(event: any) {
+  onClickItem(event: number[]) {
+    console.log(event);
+    console.log(this.signal());
     this.signal.update((current: any) => {
-      return { ...current, [this.signalOptionValue]: this.service?.list().filter((option: any) => event.includes(option[this.optionValue])) };
+      const existingValues = this.objectArrayToIdArray(current[this.signalOptionValue], this.optionValue);
+      const newOption = this.service?.list().find((option: any) => event.includes(option[this.optionValue]) && !existingValues.includes(option[this.optionValue]));
+
+      if (newOption) {
+        current[this.signalOptionValue].push(newOption);
+      }
+
+      return { ...current };
     });
-    this.actions.saveCurrentSection();
+    console.log(this.signal());
   }
 
   objectArrayToIdArray(array: any[], attribute: string) {
@@ -72,6 +81,5 @@ export class MultiselectComponent implements OnInit {
     this.signal.update((current: any) => {
       return { ...current, [this.signalOptionValue]: current[this.signalOptionValue].filter((item: any) => item[this.optionValue] !== option[this.optionValue]) };
     });
-    this.actions.saveCurrentSection();
   }
 }
