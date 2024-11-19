@@ -6,11 +6,9 @@
       <div class="card-content first-column">
         <div class="card-title">ALLIANCE ALIGNMENT</div>
         @if (!this.loading()) {
-          <div class="flex flex-column gap-3 justify-content-left">
-            <div class="flex flex-column gap-1">
-              <h1 class="title">Projects*</h1>
-
-              <app-multiselect [signal]="body" optionLabel="select_label" optionValue="contract_id" signalOptionValue="contracts" serviceName="contracts">
+          <div class="form-container">
+            <div>
+              <app-multiselect label="Projects*" [signal]="body" optionLabel="select_label" optionValue="contract_id" signalOptionValue="contracts" serviceName="contracts">
                 <ng-template #rows let-contract>
                   <div class="item-content">
                     <div class="information">
@@ -31,10 +29,8 @@
               </app-multiselect>
             </div>
 
-            <div class="card flex flex-column gap-1">
-              <h1 class="title">Levers*</h1>
-
-              <app-multiselect [signal]="body" optionLabel="full_name" optionValue="lever_id" signalOptionValue="levers" [serviceName]="'levers'">
+            <div>
+              <app-multiselect label="Levers*" [signal]="body" optionLabel="full_name" optionValue="lever_id" signalOptionValue="levers" [serviceName]="'levers'">
                 <ng-template #rows let-lever>
                   <div class="item-content">
                     <div class="information">

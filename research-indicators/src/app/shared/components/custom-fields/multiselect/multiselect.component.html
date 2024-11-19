@@ -1,13 +1,15 @@
-<p-multiSelect [style]="{ width: '100%' }" [loading]="this.service?.loading()" [options]="this.service?.list()" [filter]="true" [filterBy]="this.optionLabel" [optionLabel]="this.optionLabel" [optionValue]="this.optionValue" placeholder="Select items" [(ngModel)]="this.selectedOptions().data" (ngModelChange)="this.onClickItem($event)" [virtualScroll]="true" [virtualScrollItemSize]="41" />
-
 @let list = this.signal()[this.signalOptionValue];
-<div class="items input-container">
+<div class="input-container">
   @if (label) {
     <label class="label" for="username">{{ label }}</label>
   }
   @if (description) {
     <small class="description" for="username">{{ description }}</small>
   }
+</div>
+<div class="items">
+  <ng-template #defaultTemplate let-list> {{ list[this.optionLabel] }} {{ this.optionLabel }} </ng-template>
+  <p-multiSelect [style]="{ width: '100%' }" [loading]="this.service?.loading()" [options]="this.service?.list()" [filter]="true" [filterBy]="this.optionLabel" [optionLabel]="this.optionLabel" [optionValue]="this.optionValue" placeholder="Select items" [(ngModel)]="this.selectedOptions().data" (ngModelChange)="this.onClickItem($event)" [virtualScroll]="true" [virtualScrollItemSize]="41" />
 
   @for (row of list; track $index) {
     <div class="item abc-grey-100">
@@ -16,5 +18,3 @@
     </div>
   }
 </div>
-
-<ng-template #defaultTemplate let-list> {{ list[this.optionLabel] }} {{ this.optionLabel }} </ng-template>
