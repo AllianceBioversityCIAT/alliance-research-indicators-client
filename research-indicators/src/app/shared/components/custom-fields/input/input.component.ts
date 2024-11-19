@@ -16,6 +16,8 @@ export class InputComponent {
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionValue = '';
   @Input() pattern: 'email' | 'url' | '' = '';
+  @Input() label = '';
+  @Input() description = '';
 
   inputValid = computed(() => {
     if (this.pattern) {

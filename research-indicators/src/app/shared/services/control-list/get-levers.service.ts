@@ -17,7 +17,7 @@ export class GetLeversService {
     this.loading.set(true);
     const response = await this.apiService.GET_Levers();
     this.list.set(response.data);
-    this.list.update(current => current.map(item => ({ ...item, lever_id: item.id })));
+    this.list.update(current => current.map(item => ({ ...item, lever_id: item.id, full_name: item.other_names })));
     this.loading.set(false);
   }
 }

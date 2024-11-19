@@ -1,7 +1,14 @@
 <p-multiSelect [style]="{ width: '100%' }" [loading]="this.service?.loading()" [options]="this.service?.list()" [filter]="true" [filterBy]="this.optionLabel" [optionLabel]="this.optionLabel" [optionValue]="this.optionValue" placeholder="Select items" [(ngModel)]="this.selectedOptions().data" (ngModelChange)="this.onClickItem($event)" [virtualScroll]="true" [virtualScrollItemSize]="41" />
 
 @let list = this.signal()[this.signalOptionValue];
-<div class="items">
+<div class="items input-container">
+  @if (label) {
+    <label class="label" for="username">{{ label }}</label>
+  }
+  @if (description) {
+    <small class="description" for="username">{{ description }}</small>
+  }
+
   @for (row of list; track $index) {
     <div class="item abc-grey-100">
       <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>

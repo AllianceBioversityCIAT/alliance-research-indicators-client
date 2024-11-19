@@ -8,147 +8,132 @@
     <div class="card-title">TRAINING TYPE</div>
     <div class="training-type-columns">
       <div class="column gap-1">
-        <h1 class="title">What training or engagement do you want to report?*</h1>
-        <app-radio-button [signal]="body" [options]="getCapSharingService.formats" [optionLabel]="'name'" [optionValue]="{ body: 'session_format_id', option: 'session_format_id' }"></app-radio-button>
+        <app-radio-button label="What training or engagement do you want to report?*" [signal]="body" [options]="getCapSharingService.formats" [optionLabel]="'name'" [optionValue]="{ body: 'session_format_id', option: 'session_format_id' }"></app-radio-button>
       </div>
 
       <div class="column">
-        <h1 class="title">Is this a training or a engagement?*</h1>
-        <app-radio-button [signal]="body" [options]="getCapSharingService.types" [optionLabel]="'name'" [optionValue]="{ body: 'session_type_id', option: 'session_type_id' }"></app-radio-button>
+        <app-radio-button label="Is this a training or a engagement?*" [signal]="body" [options]="getCapSharingService.types" [optionLabel]="'name'" [optionValue]="{ body: 'session_type_id', option: 'session_type_id' }"></app-radio-button>
       </div>
     </div>
   </div>
-
-  <!-- <button (click)="saveData()">Save</button> -->
 
   <!-- INDIVIDUAL TRAINING -->
 
   @if (body().session_format_id === 1) {
     <div class="card-container">
       <div class="card-title">INDIVIDUAL TRAINING</div>
-      <h1 class="title">Trainee name*</h1>
-      <div class="field">
-        <input [(ngModel)]="this.body().individual!.trainee_name" id="firstname1" type="text" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" />
+      <div class="field mg-0">
+        <app-input label="Trainee name*" [signal]="body" [optionValue]="'test'"></app-input>
       </div>
 
       <div class="individual-training-columns">
         <div class="column gap-1">
-          <h1 class="title">Degree*</h1>
-          <app-radio-button [signal]="body" [options]="getCapSharingService.degrees" [optionLabel]="'name'" [optionValue]="{ body: 'individual.degree_id', option: 'degree_id' }"></app-radio-button>
+          <app-radio-button label="Degree*" [signal]="body" [options]="getCapSharingService.degrees" [optionLabel]="'name'" [optionValue]="{ body: 'individual.degree_id', option: 'degree_id' }"></app-radio-button>
         </div>
 
         <div class="column">
-          <h1 class="title">Gender*</h1>
-          <app-radio-button [signal]="body" [options]="getCapSharingService.genders" [optionLabel]="'name'" [optionValue]="{ body: 'individual.gender_id', option: 'gender_id' }"></app-radio-button>
+          <app-radio-button label="Gender*" [signal]="body" [options]="getCapSharingService.genders" [optionLabel]="'name'" [optionValue]="{ body: 'individual.gender_id', option: 'gender_id' }"></app-radio-button>
         </div>
 
         <div class="column">
-          <h1 class="title">Lenght of training*</h1>
-          <app-radio-button [signal]="body" [options]="getCapSharingService.lengths" [optionLabel]="'name'" [optionValue]="{ body: 'individual.session_length_id', option: 'session_length_id' }"></app-radio-button>
+          <app-radio-button label="Lenght of training*" [signal]="body" [options]="getCapSharingService.lengths" [optionLabel]="'name'" [optionValue]="{ body: 'individual.session_length_id', option: 'session_length_id' }"></app-radio-button>
         </div>
       </div>
 
       <div class="trainee-columns">
         <div class="column">
-          <h1 class="title">Trainee affiliation</h1>
-
-          <app-select [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"></app-select>
+          <app-select label="Trainee affiliation" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"></app-select>
         </div>
 
-        <!-- <div class="column">
-          <h1 class="title">Trainee nationality</h1>
-
-          <p-dropdown [style]="{ width: '100%' }" [options]="countries" [(ngModel)]="selectedCountry" optionLabel="name" [filter]="true" filterBy="name" [showClear]="true" placeholder="Select a Country">
-            <ng-template pTemplate="selectedItem" let-selectedOption>
-              <div class="flex align-items-center gap-2">
-                <div>{{ selectedOption.name }}</div>
-              </div>
-            </ng-template>
-            <ng-template let-country pTemplate="item">
-              <div class="flex align-items-center gap-2">
-                <div>{{ country.name }}</div>
-              </div>
-            </ng-template>
-          </p-dropdown>
-        </div> -->
+        <div class="column">
+          <app-select label="Trainee nationality" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"></app-select>
+        </div>
       </div>
     </div>
   }
+
+  <!-- GROUP TRAINING -->
+
+  @if (body().session_format_id === 2) {
+    <div class="card-container">
+      <div class="card-title">GROUP TRAINING</div>
+
+      <div class="columns">
+        <div class="column">
+          <app-input label="What was the total number of participants?" [signal]="body" [optionValue]="'test'"></app-input>
+        </div>
+
+        <div class="column">
+          <app-input label="Male participants?" [signal]="body" [optionValue]="'test'"></app-input>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <app-input label="Female participants?" [signal]="body" [optionValue]="'test'"></app-input>
+        </div>
+
+        <div class="column">
+          <app-input label="Non-binary participants?" [signal]="body" [optionValue]="'test'"></app-input>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <app-radio-button label="What was the purpose of this training/engagement?*" [signal]="body" [optionLabel]="'name'"></app-radio-button>
+        </div>
+
+        <div class="column">
+          <app-radio-button label="Were the trainees attending on behalf of an organization?*" [signal]="body" [optionLabel]="'name'"></app-radio-button>
+        </div>
+      </div>
+
+      <!-- Other -->
+
+      <div class="columns">
+        <div class="column">
+          <app-input [signal]="body" [optionValue]="'test'"></app-input>
+        </div>
+      </div>
+
+      <div class="column">
+        <app-select label="Select the organizations*" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"></app-select>
+      </div>
+    </div>
+  }
+
   <!-- TRAINING DETAILS -->
-  <!--
+
   <div class="card-container">
     <div class="card-title">TRAINING DETAILS</div>
 
-    <div class="trainee-columns">
+    <div class="trainee-details-columns">
       <div class="column">
-        <h1 class="title">Training / Engagement supervisor*</h1>
-
-        <p-dropdown [style]="{ width: '100%' }" [options]="supervisors" [(ngModel)]="selectedSupervisor" optionLabel="name" [filter]="true" filterBy="name" [showClear]="true" placeholder="Select a Training / Engagement supervisor">
-          <ng-template pTemplate="selectedItem" let-selectedOption>
-            <div class="flex align-items-center gap-2">
-              <div>{{ selectedOption.name }}</div>
-            </div>
-          </ng-template>
-          <ng-template let-supervisor pTemplate="item">
-            <div class="flex align-items-center gap-2">
-              <div>{{ supervisor.name }}</div>
-            </div>
-          </ng-template>
-        </p-dropdown>
+        <app-select label="Training / Engagement supervisor*" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"> </app-select>
       </div>
 
       <div class="column">
-        <h1 class="title">Trainee nationality</h1>
-
-        <p-dropdown [style]="{ width: '100%' }" [options]="lenguages" [(ngModel)]="selectedLanguage" optionLabel="name" [filter]="true" filterBy="name" [showClear]="true" placeholder="Select a Lenguage">
-          <ng-template pTemplate="selectedItem" let-selectedOption>
-            <div class="flex align-items-center gap-2">
-              <div>{{ selectedOption.name }}</div>
-            </div>
-          </ng-template>
-          <ng-template let-lenguage pTemplate="item">
-            <div class="flex align-items-center gap-2">
-              <div>{{ lenguage.name }}</div>
-            </div>
-          </ng-template>
-        </p-dropdown>
+        <app-select label="Trainee nationality" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"> </app-select>
       </div>
     </div>
 
-    <div class="trainee-columns">
+    <div class="trainee-details-columns">
       <div class="column">
-        <h1 class="title">Start date</h1>
-
-        <p-calendar [(ngModel)]="startDate" [style]="{ width: '100%' }" />
+        <app-input label="Start date" [signal]="body" [optionValue]="'test'"></app-input>
       </div>
 
       <div class="column">
-        <h1 class="title">End date</h1>
-
-        <p-calendar [(ngModel)]="endDate" [style]="{ width: '100%' }" />
+        <app-input label="End date" [signal]="body" [optionValue]="'test'"></app-input>
       </div>
     </div>
 
     <div class="modality-container">
       <h1 class="title">Delivery modality*</h1>
-      <div class="field-checkbox card-description">
-        <input type="checkbox" id="option1" />
-        <label for="option1">Virtual</label>
-      </div>
-      <div class="field-checkbox card-description">
-        <input type="checkbox" id="option2" />
-        <label for="option2">Hybrid</label>
-      </div>
-      <div class="field-checkbox card-description">
-        <input type="checkbox" id="option3" />
-        <label for="option3">In-person</label>
-      </div>
     </div>
   </div>
- -->
+
   <div class="button-container">
     <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')"></p-button>
     <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')"></p-button>
   </div>
-  <!-- </div> -->
 </div>

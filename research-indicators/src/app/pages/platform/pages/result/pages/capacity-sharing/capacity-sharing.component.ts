@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -12,11 +12,13 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { GetCapSharing } from '../../../../../../shared/interfaces/get-cap-sharing.interface';
 import { Router } from '@angular/router';
+import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
+import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 
 @Component({
   selector: 'app-capacity-sharing',
   standalone: true,
-  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent],
+  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent, InputComponent, MultiselectComponent],
   templateUrl: './capacity-sharing.component.html',
   styleUrl: './capacity-sharing.component.scss'
 })
@@ -27,6 +29,7 @@ export default class CapacitySharingComponent {
   cache = inject(CacheService);
   router = inject(Router);
   body: WritableSignal<GetCapSharing> = signal({});
+  loading = signal(false);
 
   constructor() {
     this.getData();
@@ -41,6 +44,7 @@ export default class CapacitySharingComponent {
       current.loaded = true;
       return { ...current };
     });
+    this.loading.set(false);
   }
 
   async saveData(page?: 'next' | 'back') {
@@ -51,7 +55,7 @@ export default class CapacitySharingComponent {
     this.getData();
   }
 
-  onSaveSection = effect(() => {
-    if (this.actions.saveCurrentSectionValue()) this.saveData();
-  });
+  // onSaveSection = effect(() => {
+  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
+  // });
 }

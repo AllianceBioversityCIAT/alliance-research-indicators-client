@@ -21,6 +21,9 @@ export class RadioButtonComponent {
   @Input() options: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
   @Input() optionValue = { body: '', option: '' };
+  @Input() label = '';
+  @Input() description = '';
+
   body = signal({ value: null });
   firstTime = signal(false);
   onChange = effect(
