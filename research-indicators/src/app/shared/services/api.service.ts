@@ -75,7 +75,7 @@ export class ApiService {
 
   GET_GeneralInformation = (id: number): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/${id}/general-information`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), { loadingTrigger: true });
   };
 
   PATCH_GeneralInformation = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
@@ -95,7 +95,7 @@ export class ApiService {
 
   GET_ResultEvidences = (resultId: number): Promise<MainResponse<PatchResultEvidences>> => {
     const url = () => `results/evidences/principal/${resultId}`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), { loadingTrigger: true });
   };
 
   PATCH_ResultEvidences = <T>(resultId: number, body: T): Promise<MainResponse<PatchResultEvidences>> => {
@@ -120,7 +120,7 @@ export class ApiService {
 
   GET_Alignments = (id: number): Promise<MainResponse<GetAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), { loadingTrigger: true });
   };
 
   PATCH_Alignments = <T>(id: number, body: T): Promise<MainResponse<PatchAllianceAlignment>> => {

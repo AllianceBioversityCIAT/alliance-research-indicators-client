@@ -1,24 +1,31 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable, firstValueFrom, map } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, firstValueFrom, map, catchError, finalize } from 'rxjs';
 import { MainResponse } from '../interfaces/responses.interface';
 import { environment } from '../../../environments/environment';
+import { CacheService } from './cache/cache.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ToPromiseService {
-  constructor(public http: HttpClient) {}
+  http = inject(HttpClient);
+  cacheService = inject(CacheService);
 
-  private TP = (subscription: Observable<any>): Promise<MainResponse<any>> => {
-    return new Promise(async resolve => {
-      try {
-        resolve(await firstValueFrom(subscription.pipe(map(data => ({ ...data, successfulRequest: true })))));
-      } catch (error: any) {
-        console.error(error);
-        resolve({ ...error, successfulRequest: false, errorDetail: error?.error });
-      }
-    });
+  private TP = (subscription: Observable<any>, loadingTrigger?: boolean): Promise<MainResponse<any>> => {
+    if (loadingTrigger) this.cacheService.currentResultIsLoading.set(true);
+    return firstValueFrom(
+      subscription.pipe(
+        map(data => ({ ...data, successfulRequest: true })),
+        catchError(error => {
+          console.error(error);
+          return [{ ...error, successfulRequest: false, errorDetail: error?.error }];
+        }),
+        finalize(() => {
+          if (loadingTrigger) this.cacheService.currentResultIsLoading.set(false);
+        })
+      )
+    );
   };
 
   post = <T, B>(url: string, body: B, config?: Config) => {
@@ -34,7 +41,7 @@ export class ToPromiseService {
   };
 
   get = <T>(url: string, config?: Config) => {
-    return this.TP(this.http.get<T>(this.getEnv(config?.isAuth) + url));
+    return this.TP(this.http.get<T>(this.getEnv(config?.isAuth) + url), config?.loadingTrigger);
   };
 
   patch = <T, B>(url: string, body: B, config?: Config) => {
@@ -49,4 +56,5 @@ export class ToPromiseService {
 interface Config {
   token?: string;
   isAuth?: boolean;
+  loadingTrigger?: boolean;
 }

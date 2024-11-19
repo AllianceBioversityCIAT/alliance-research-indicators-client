@@ -1,6 +1,14 @@
 .container {
   margin: 30px 40px;
 
+  .items {
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0 !important;
+    }
+  }
+
   .title-text {
     font-family: Inter, sans-serif;
     font-size: 15px;
@@ -43,6 +51,12 @@
         text-transform: uppercase;
         margin-bottom: 30px;
         margin-top: 0;
+      }
+
+      .form-container {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
       }
 
       .title {

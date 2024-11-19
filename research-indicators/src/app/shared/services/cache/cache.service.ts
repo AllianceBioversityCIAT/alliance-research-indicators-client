@@ -13,6 +13,7 @@ export class CacheService {
   showMetadataPanel = signal(localStorage.getItem('showMetadataPanel') === 'true');
   currentSectionHeaderName = signal('');
   currentResultId: WritableSignal<number> = signal(0);
+  currentResultIsLoading = signal(false);
   currentMetadata: WritableSignal<GetMetadata> = signal({});
   loadingCurrentResult = signal(false);
 
