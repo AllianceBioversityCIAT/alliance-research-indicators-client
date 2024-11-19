@@ -60,8 +60,6 @@ export class MultiselectComponent implements OnInit {
   }
 
   onClickItem(event: number[]) {
-    console.log(event);
-    console.log(this.signal());
     this.signal.update((current: any) => {
       const existingValues = this.objectArrayToIdArray(current[this.signalOptionValue], this.optionValue);
       const newOption = this.service?.list().find((option: any) => event.includes(option[this.optionValue]) && !existingValues.includes(option[this.optionValue]));
@@ -72,7 +70,6 @@ export class MultiselectComponent implements OnInit {
 
       return { ...current };
     });
-    console.log(this.signal());
   }
 
   objectArrayToIdArray(array: any[], attribute: string) {
