@@ -34,6 +34,7 @@ export interface GetCapSharing {
   start_date?: null;
   individual?: Individual;
   loaded?: boolean;
+  aux_trainee_name?: string;
 }
 
 interface Individual {

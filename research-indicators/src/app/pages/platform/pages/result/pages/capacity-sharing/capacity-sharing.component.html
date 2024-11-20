@@ -23,7 +23,7 @@
     <div class="card-container">
       <div class="card-title">INDIVIDUAL TRAINING</div>
       <div class="field mg-0">
-        <app-input label="Trainee name*" [signal]="body" [optionValue]="'test'"></app-input>
+        <app-input label="Trainee name*" [signal]="body" optionValue="aux_trainee_name"></app-input>
       </div>
 
       <div class="individual-training-columns">
@@ -135,5 +135,6 @@
   <div class="button-container">
     <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')"></p-button>
     <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')"></p-button>
+    <p-button label="Save" icon="pi pi-save" iconPos="left" (click)="saveData()"></p-button>
   </div>
 </div>

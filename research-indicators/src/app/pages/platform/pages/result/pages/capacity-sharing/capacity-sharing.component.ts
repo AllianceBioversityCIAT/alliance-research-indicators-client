@@ -41,13 +41,24 @@ export default class CapacitySharingComponent {
     this.body.set(response.data);
     this.cache.loadingCurrentResult.set(false);
     this.body.update(current => {
-      current.loaded = true;
+      this.mapAuxValues(current);
       return { ...current };
     });
     this.loading.set(false);
+    console.log(this.body());
+  }
+
+  mapAuxValues(current: GetCapSharing) {
+    current.loaded = true;
+    current.aux_trainee_name = current.individual?.trainee_name;
+  }
+
+  deMapAuxValues(current: GetCapSharing) {
+    if (current.individual) current.individual.trainee_name = current.aux_trainee_name;
   }
 
   async saveData(page?: 'next' | 'back') {
+    this.deMapAuxValues(this.body());
     await this.api.PATCH_CapacitySharing(this.body());
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
