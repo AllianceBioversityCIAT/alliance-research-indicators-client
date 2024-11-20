@@ -46,6 +46,7 @@ export class CopyTokenComponent {
     const searchInput = document.getElementById('search-result-input');
     if (searchInput) {
       searchInput.focus();
+      searchInput.click();
     } else {
       console.warn('Search input not found');
     }
