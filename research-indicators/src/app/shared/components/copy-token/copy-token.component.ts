@@ -7,12 +7,18 @@ import { Component, HostListener } from '@angular/core';
   templateUrl: './copy-token.component.html'
 })
 export class CopyTokenComponent {
+  private isMacOS: boolean = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     if (event.ctrlKey && event.key === 't') {
       this.copyDataToClipboard();
     } else if (event.ctrlKey && event.key === 'p') {
       this.pasteDataFromClipboard();
+    } else if (this.isMacOS && event.metaKey && event.key === 'k') {
+      this.focusSearchInput();
+    } else if (this.isMacOS && event.ctrlKey && event.altKey && event.key === 'c') {
+      // this.clearLocalStorageAndReload();
     }
   }
 
@@ -34,5 +40,19 @@ export class CopyTokenComponent {
       .catch(err => {
         console.error('Could not read text from clipboard: ', err);
       });
+  }
+
+  focusSearchInput() {
+    const searchInput = document.getElementById('search-result-input');
+    if (searchInput) {
+      searchInput.focus();
+    } else {
+      console.warn('Search input not found');
+    }
+  }
+
+  clearLocalStorageAndReload() {
+    localStorage.clear();
+    window.location.reload();
   }
 }

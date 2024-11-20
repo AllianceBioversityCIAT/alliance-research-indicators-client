@@ -18,7 +18,7 @@
         <div dropdown-button (click)="this.dropdownsCache.showDropdown('result')">
           <div class="search-box">
             <i class="material-symbols-rounded">search</i>
-            <input type="text" placeholder="Search a result" (input)="this.onSearchTextChange($event)" />
+            <input id="search-result-input" type="text" placeholder="Search a result" (input)="this.onSearchTextChange($event)" />
           </div>
         </div>
         <div dropdown-content>
