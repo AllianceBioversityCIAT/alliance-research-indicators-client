@@ -89,9 +89,10 @@
       flex-direction: column;
       flex: 1;
       background-color: #e8ebed;
+      z-index: -2;
       border-radius: 10px;
       padding: 50px;
-      gap: 20px;
+      gap: 25px;
 
       .row {
         display: flex;
@@ -123,7 +124,7 @@
         background-color: #f4f7f9;
         border-radius: 10px;
         padding: 20px;
-        box-shadow: 0 4px 4px rgb(0 182 255 / 10%);
+        position: relative;
 
         .card-title {
           display: flex;
@@ -142,4 +143,47 @@
 
 p-dropdown {
   width: 100%;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.card::after,
+.card::before {
+  content: '';
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-image: conic-gradient(from var(--angle), #ff4545, #0f9, #006aff, #ff0095, #ff4545);
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  z-index: -1;
+  padding: 3px;
+  border-radius: 10px;
+  animation: 3s spin linear infinite;
+}
+
+.card::before {
+  filter: blur(1.5rem);
+  opacity: 0.5;
+}
+
+@keyframes spin {
+  from {
+    --angle: 0deg;
+  }
+
+  to {
+    --angle: 360deg;
+  }
 }
