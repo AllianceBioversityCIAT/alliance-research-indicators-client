@@ -26,7 +26,7 @@ export interface Gender {
   name: string;
 }
 
-export interface GetCapSharing {
+export interface GetCapSharing extends Aux {
   delivery_modality_id?: null;
   end_date?: null;
   session_format_id?: number;
@@ -34,7 +34,6 @@ export interface GetCapSharing {
   start_date?: null;
   individual?: Individual;
   loaded?: boolean;
-  aux_trainee_name?: string;
 }
 
 interface Individual {
@@ -42,5 +41,12 @@ interface Individual {
   gender_id?: number;
   trainee_name?: string;
   session_length_id?: number;
-  affiliation?: null;
+  affiliation?: { institution_id?: string | number | null | undefined };
+  nationality?: { isoAlpha2?: string | number | null | undefined };
+}
+
+interface Aux {
+  aux_trainee_name?: string;
+  aux_institution_id?: number | string | null | undefined;
+  aux_isoAlpha2?: string | number | null | undefined;
 }

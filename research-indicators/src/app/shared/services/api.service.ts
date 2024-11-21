@@ -15,6 +15,7 @@ import { CacheService } from './cache/cache.service';
 import { GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
 import { GetMetadata } from '../interfaces/get-metadata.interface';
 import { UserStaff } from '../interfaces/get-user-staff.interface';
+import { GetCountries } from '../interfaces/get-countries.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -161,6 +162,11 @@ export class ApiService {
 
   GET_Metadata = (id: number): Promise<MainResponse<GetMetadata>> => {
     const url = () => `results/${id}/metadata`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Countries = (): Promise<MainResponse<GetCountries[]>> => {
+    const url = () => `clarisa/countries`;
     return this.TP.get(url(), {});
   };
 
