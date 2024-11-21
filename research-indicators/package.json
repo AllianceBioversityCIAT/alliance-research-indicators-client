@@ -46,6 +46,7 @@
     "@angular/compiler-cli": "^18.2.5",
     "@types/jest": "^29.5.12",
     "angular-eslint": "18.0.1",
+    "cypress": "^13.16.0",
     "eslint": "^9.3.0",
     "jest-preset-angular": "^14.1.0",
     "prettier": "^3.3.3",
