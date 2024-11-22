@@ -1,45 +1,46 @@
 <div class="container">
   <div class="content">
-    <div class="card" routerLink="/project-detail">
-      <div class="card-content">
-        <div class="organization-identifier">
-          <div class="project">
-            <app-project-item [projectId]="'A1032'" [projectName]="'EMBRAPA - Establishment of the international coconut gene bank for south america and the caribbean'"></app-project-item>
-          </div>
-          <div class="more-vert">
-            <span class="material-symbols-rounded"> more_vert </span>
-          </div>
-        </div>
-        <div class="project-info">
-          <div class="principal-investigator">
-            <app-project-item [projectTitle]="'Principal Investigator'"></app-project-item>
-            <span class="material-symbols-rounded"> arrow_forward </span>
-            <app-project-item [projectData]="'NGO-EYOK, SUZANNE'"></app-project-item>
-          </div>
-          <div class="start-date">
-            <app-project-item [projectTitle]="'Start Date'"></app-project-item>
-            <span class="material-symbols-rounded"> arrow_forward </span>
-            <app-project-item [projectData]="'04/05/2024'"></app-project-item>
-          </div>
-          <div class="end-date">
-            <app-project-item [projectTitle]="'End Date'"></app-project-item>
-            <span class="material-symbols-rounded"> arrow_forward </span>
-            <app-project-item [projectData]="'20/12/2024'"></app-project-item>
-          </div>
-        </div>
-
-        <div class="project-indicators">
-          @for (indicator of indicatorList; track $index) {
-            <div class="indicator">
-              <div class="indicator-number-container">
-                <i class="material-symbols-rounded output-icon">{{ indicator.icon }}</i>
-                <app-project-item [indicatorNumber]="indicator.number"></app-project-item>
-              </div>
-              <app-project-item [indicatorType]="indicator.type"></app-project-item>
+    @for (project of projectList; track $index) {
+      <div class="card" routerLink="/project-detail">
+        <div class="card-content">
+          <div class="organization-identifier">
+            <div class="project">
+              <app-project-item [projectId]="project.projectId" [projectName]="project.projectName"></app-project-item>
             </div>
-          }
+            <div class="more-vert">
+              <span class="material-symbols-rounded"> more_vert </span>
+            </div>
+          </div>
+          <div class="project-info">
+            <div class="principal-investigator">
+              <app-project-item [projectTitle]="'Principal Investigator'"></app-project-item>
+              <span class="material-symbols-rounded"> arrow_forward </span>
+              <app-project-item [projectData]="project.principalInvestigator"></app-project-item>
+            </div>
+            <div class="start-date">
+              <app-project-item [projectTitle]="'Start Date'"></app-project-item>
+              <span class="material-symbols-rounded"> arrow_forward </span>
+              <app-project-item [projectData]="project.startDate"></app-project-item>
+            </div>
+            <div class="end-date">
+              <app-project-item [projectTitle]="'End Date'"></app-project-item>
+              <span class="material-symbols-rounded"> arrow_forward </span>
+              <app-project-item [projectData]="project.endDate"></app-project-item>
+            </div>
+          </div>
+          <div class="project-indicators">
+            @for (indicator of project.indicatorList; track $index) {
+              <div class="indicator">
+                <div class="indicator-number-container">
+                  <i class="material-symbols-rounded output-icon">{{ indicator.icon }}</i>
+                  <app-project-item [indicatorNumber]="indicator.number"></app-project-item>
+                </div>
+                <app-project-item [indicatorType]="indicator.type"></app-project-item>
+              </div>
+            }
+          </div>
         </div>
       </div>
-    </div>
+    }
   </div>
 </div>

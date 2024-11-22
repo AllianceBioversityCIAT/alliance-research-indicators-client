@@ -2,6 +2,12 @@
   margin: 30px 40px;
 
   .content {
+    .header {
+      background-color: black;
+      border-radius: none;
+      box-shadow: none;
+    }
+
     .card {
       height: auto;
       width: 100%;

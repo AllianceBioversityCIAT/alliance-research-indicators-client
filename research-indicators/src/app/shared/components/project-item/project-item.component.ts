@@ -14,4 +14,5 @@ export class ProjectItemComponent {
   @Input() projectData = '';
   @Input() indicatorNumber = '';
   @Input() indicatorType = '';
+  @Input() isHeader = false;
 }
