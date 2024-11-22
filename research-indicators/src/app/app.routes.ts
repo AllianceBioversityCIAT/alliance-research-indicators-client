@@ -1,3 +1,4 @@
+import { Title } from '@angular/platform-browser';
 import { Routes } from '@angular/router';
 import { rolesGuard } from '@guards/roles.guard';
 
@@ -100,6 +101,13 @@ export const routes: Routes = [
         loadComponent: () => import('@platform/pages/my-projects/my-projects.component'),
         data: {
           title: 'My Projects'
+        }
+      },
+      {
+        path: 'project-detail',
+        loadComponent: () => import('@platform/pages/project-detail/project-detail.component'),
+        data: {
+          title: 'Project Detail'
         }
       },
       {
