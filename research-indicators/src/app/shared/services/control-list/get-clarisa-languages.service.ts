@@ -1,13 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { GetCountries } from '../../interfaces/get-countries.interface';
+import { GetLanguages } from '../../interfaces/get-get-languages.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GetCountriesService {
+export class GetClarisaLanguagesService {
   api = inject(ApiService);
-  list = signal<GetCountries[]>([]);
+  list = signal<GetLanguages[]>([]);
   loading = signal(false);
   constructor() {
     this.main();
@@ -15,8 +15,9 @@ export class GetCountriesService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_Countries();
+    const response = await this.api.GET_Languages();
     this.list.set(response.data);
+    console.log(response.data);
     this.loading.set(false);
   }
 }

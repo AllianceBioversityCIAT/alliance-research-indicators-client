@@ -16,6 +16,8 @@ import { GetAllianceAlignment } from '../interfaces/get-alliance-alignment.inter
 import { GetMetadata } from '../interfaces/get-metadata.interface';
 import { UserStaff } from '../interfaces/get-user-staff.interface';
 import { GetCountries } from '../interfaces/get-countries.interface';
+import { GetDeliveryModality } from '../interfaces/get-delivery-modality.interface';
+import { GetLanguages } from '../interfaces/get-get-languages.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -167,6 +169,16 @@ export class ApiService {
 
   GET_Countries = (): Promise<MainResponse<GetCountries[]>> => {
     const url = () => `clarisa/countries`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_DeliveryModalities = (): Promise<MainResponse<GetDeliveryModality[]>> => {
+    const url = () => `delivery-modalities`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Languages = (): Promise<MainResponse<GetLanguages[]>> => {
+    const url = () => `clarisa/languages`;
     return this.TP.get(url(), {});
   };
 

@@ -97,7 +97,7 @@
       </div>
 
       <div class="column">
-        <app-select label="Select the organizations*" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"></app-select>
+        <app-select label="Select the organizations*" [signal]="this.body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"></app-select>
       </div>
     </div>
   }
@@ -109,17 +109,19 @@
 
     <div class="trainee-details-columns">
       <div class="column">
-        <app-select label="Training / Engagement supervisor*" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"> </app-select>
+        <app-select label="Training / Engagement supervisor*" [signal]="body" [optionValue]="{ body: 'aux_user_id', option: 'user_id' }" optionLabel="full_name" serviceName="userStaff"> </app-select>
       </div>
 
       <div class="column">
-        <app-select label="Language" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"> </app-select>
+        <app-select label="Language" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'aux_language_id', option: 'id' }" [serviceName]="'languages'"> </app-select>
       </div>
     </div>
 
     <div class="trainee-details-columns">
       <div class="column">
-        <app-input label="Start date" [signal]="body" [optionValue]="'test'"></app-input>
+        <!-- <app-input label="Start date" [signal]="body" [optionValue]="'test'"></app-input>
+          -->
+        <app-calendar-input label="Start date" [signal]="body" [optionValue]="'test'"></app-calendar-input>
       </div>
 
       <div class="column">
@@ -128,7 +130,7 @@
     </div>
 
     <div class="modality-container">
-      <h1 class="title">Delivery modality*</h1>
+      <app-radio-button label="Delivery modality*" [signal]="body" [options]="getCapSharingService.deliveryModalities" [optionLabel]="'name'" [optionLabel]="'name'" [optionValue]="{ body: 'delivery_modality_id', option: 'delivery_modality_id' }"></app-radio-button>
     </div>
   </div>
 

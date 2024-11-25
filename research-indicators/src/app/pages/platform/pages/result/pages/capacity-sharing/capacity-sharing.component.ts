@@ -14,11 +14,12 @@ import { GetCapSharing } from '../../../../../../shared/interfaces/get-cap-shari
 import { Router } from '@angular/router';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
+import { CalendarInputComponent } from '../../../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
 
 @Component({
   selector: 'app-capacity-sharing',
   standalone: true,
-  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent, InputComponent, MultiselectComponent],
+  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent, InputComponent, MultiselectComponent, CalendarInputComponent],
   templateUrl: './capacity-sharing.component.html',
   styleUrl: './capacity-sharing.component.scss'
 })
@@ -53,6 +54,8 @@ export default class CapacitySharingComponent {
     current.aux_trainee_name = current.individual?.trainee_name;
     current.aux_institution_id = current?.individual?.affiliation?.institution_id;
     current.aux_isoAlpha2 = current?.individual?.nationality?.isoAlpha2;
+    current.aux_language_id = current?.training_supervisor_languages?.language_id;
+    current.aux_user_id = current?.training_supervisor?.user_id;
   }
 
   deMapAuxValues(current: GetCapSharing) {
@@ -61,9 +64,12 @@ export default class CapacitySharingComponent {
     current.individual.trainee_name = current.aux_trainee_name;
     current.individual.affiliation = { institution_id: current.aux_institution_id };
     current.individual.nationality = { isoAlpha2: current.aux_isoAlpha2 };
+    current.training_supervisor_languages = { language_id: current.aux_language_id };
+    current.training_supervisor = { user_id: current.aux_user_id };
   }
 
   async saveData(page?: 'next' | 'back') {
+    console.log(this.body());
     this.body.update(current => {
       this.deMapAuxValues(current);
       return { ...current };

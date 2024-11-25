@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Degree, Gender, Length, SessionFormat, SessionType } from '../../interfaces/get-cap-sharing.interface';
 import { multiControlListResponse } from '../../interfaces/responses.interface';
+import { GetDeliveryModality } from '../../interfaces/get-delivery-modality.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class GetCapSharingService {
   degrees = signal<multiControlListResponse<Degree>>(new multiControlListResponse<Degree>());
   lengths = signal<multiControlListResponse<Length>>(new multiControlListResponse<Length>());
   genders = signal<multiControlListResponse<Gender>>(new multiControlListResponse<Gender>());
+  deliveryModalities = signal<multiControlListResponse<GetDeliveryModality>>(new multiControlListResponse<GetDeliveryModality>());
   constructor() {
     this.main();
   }
@@ -28,5 +30,7 @@ export class GetCapSharingService {
     this.lengths.set({ list: response4.data, loading: false });
     const response5 = await this.apiService.GET_Gender();
     this.genders.set({ list: response5.data, loading: false });
+    const response6 = await this.apiService.GET_DeliveryModalities();
+    this.deliveryModalities.set({ list: response6.data, loading: false });
   }
 }

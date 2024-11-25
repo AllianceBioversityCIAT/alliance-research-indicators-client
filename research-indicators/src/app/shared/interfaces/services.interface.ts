@@ -1,1 +1,1 @@
-export type ControlListServices = 'levers' | 'contracts' | 'institutions' | 'userStaff' | 'countries' | '';
+export type ControlListServices = 'levers' | 'contracts' | 'institutions' | 'userStaff' | 'countries' | 'languages' | '';
