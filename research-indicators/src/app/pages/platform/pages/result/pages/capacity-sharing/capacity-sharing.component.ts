@@ -42,6 +42,9 @@ export default class CapacitySharingComponent {
     this.body.set(response.data);
     this.cache.loadingCurrentResult.set(false);
     this.body.update(current => {
+      current.start_date = new Date(current.start_date || '');
+      current.end_date = new Date(current.end_date || '');
+      console.log(current.start_date?.toLocaleString());
       this.mapAuxValues(current);
       return { ...current };
     });
@@ -69,11 +72,15 @@ export default class CapacitySharingComponent {
   }
 
   async saveData(page?: 'next' | 'back') {
-    console.log(this.body());
     this.body.update(current => {
+      current.start_date = new Date(current.start_date || '').toISOString();
+      current.end_date = new Date(current.end_date || '').toISOString();
+
       this.deMapAuxValues(current);
       return { ...current };
     });
+
+    console.log(this.body());
 
     await this.api.PATCH_CapacitySharing(this.body());
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);

@@ -28,10 +28,10 @@ export interface Gender {
 
 export interface GetCapSharing extends Aux {
   delivery_modality_id?: number;
-  end_date?: string;
+  end_date?: string | Date;
   session_format_id?: number;
   session_type_id?: number;
-  start_date?: string;
+  start_date?: string | Date;
   individual?: Individual;
   training_supervisor?: Trainingsupervisor;
   training_supervisor_languages?: Trainingsupervisorlanguages;
