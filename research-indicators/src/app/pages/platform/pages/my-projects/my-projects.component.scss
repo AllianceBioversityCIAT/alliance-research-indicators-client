@@ -2,19 +2,13 @@
   margin: 30px 40px;
 
   .content {
-    .header {
-      background-color: black;
-      border-radius: none;
-      box-shadow: none;
-    }
-
     .card {
       height: auto;
       width: 100%;
       border-radius: 12px;
       border: 0.8px solid #e8ebed;
       background-color: #ffffff;
-      padding: 20px 30px;
+      padding: 25px 40px;
       box-shadow: 0px 1.49px 8.18px 0px rgba(0, 182, 255, 0.1);
       margin-bottom: 25px;
       cursor: pointer;
@@ -29,7 +23,18 @@
           grid-template-rows: auto auto;
 
           .project {
+            display: grid;
             grid-column: 1;
+
+            .project-id {
+              display: flex;
+              grid-row: 1;
+              font-family: 'Space Grotesk', sans-serif;
+              font-size: 13px;
+              font-weight: 400;
+              line-height: 17px;
+              color: #8d9299;
+            }
           }
 
           .more-vert {
@@ -93,5 +98,18 @@
         }
       }
     }
+  }
+}
+
+.header-project-details {
+  background-color: #f4f7f9 !important;
+  border: 0.4px solid #e8ebed !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  cursor: default !important;
+
+  .project {
+    gap: 20px !important;
   }
 }
