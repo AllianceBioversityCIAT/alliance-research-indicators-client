@@ -99,7 +99,26 @@
       }
 
       <div class="column">
-        <app-select label="Select the organizations*" [signal]="this.body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"></app-select>
+        <app-multiselect label="Select the organizations*" description="Partner organizations you collaborated with or are currently collaborating with to generate this result." [signal]="body" optionLabel="name" optionValue="institution_id" signalOptionValue="aux_trainee_organization_representative" serviceName="institutions">
+          @if (!this.loading()) {
+            <ng-template #rows let-institution>
+              <div class="item-content">
+                <div class="information">
+                  <div class="row">
+                    <div>
+                      <strong>{{ institution.acronym }}</strong> - {{ institution.name }}
+                    </div>
+                    <div class="institution-type">
+                      <h4>Institution Type</h4>
+                      &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
+                      <span class="institution-type-description">{{ institution?.institution_type?.name }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          }
+        </app-multiselect>
       </div>
     </div>
   }

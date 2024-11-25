@@ -19,7 +19,7 @@ import { CalendarInputComponent } from '../../../../../../shared/components/cust
 @Component({
   selector: 'app-capacity-sharing',
   standalone: true,
-  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent, InputComponent, MultiselectComponent, CalendarInputComponent],
+  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent, InputComponent, CalendarInputComponent, MultiselectComponent],
   templateUrl: './capacity-sharing.component.html',
   styleUrl: './capacity-sharing.component.scss'
 })
@@ -31,10 +31,10 @@ export default class CapacitySharingComponent {
   router = inject(Router);
   body: WritableSignal<GetCapSharing> = signal({});
   loading = signal(false);
-  yesOrNoOptions: WritableSignal<{ list: { name: string; value: boolean }[]; loading: boolean }> = signal({
+  yesOrNoOptions: WritableSignal<{ list: { name: string; value: boolean | number }[]; loading: boolean }> = signal({
     list: [
-      { name: 'Yes', value: true },
-      { name: 'No', value: false }
+      { name: 'Yes', value: 0 },
+      { name: 'No', value: 1 }
     ],
     loading: false
   });
@@ -73,6 +73,8 @@ export default class CapacitySharingComponent {
     current.aux_session_purpose_id = current.group?.session_purpose_id;
     current.aux_session_purpose_description = current.group?.session_purpose_description;
     current.aux_is_attending_organization = current.group?.is_attending_organization;
+    console.log(current.aux_is_attending_organization);
+    current.aux_trainee_organization_representative = current.group?.trainee_organization_representative;
   }
 
   deMapAuxValues(current: GetCapSharing) {
@@ -91,6 +93,7 @@ export default class CapacitySharingComponent {
       current.group.session_purpose_id = current.aux_session_purpose_id;
       current.group.session_purpose_description = current.aux_session_purpose_description;
       current.group.is_attending_organization = current.aux_is_attending_organization;
+      current.group.trainee_organization_representative = current.aux_trainee_organization_representative;
     }
   }
 

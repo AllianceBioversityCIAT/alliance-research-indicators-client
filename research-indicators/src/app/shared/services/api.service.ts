@@ -120,7 +120,7 @@ export class ApiService {
 
   GET_CapacitySharing = (): Promise<MainResponse<GetCapSharing>> => {
     const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), { loadingTrigger: true });
   };
 
   PATCH_CapacitySharing = <T>(body: T): Promise<MainResponse<GetCapSharing>> => {
