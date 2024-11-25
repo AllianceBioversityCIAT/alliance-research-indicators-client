@@ -11,8 +11,6 @@ import { ProjectItemComponent } from '../../../../shared/components/project-item
 })
 export default class MyProjectsComponent {
   @Input() isHeader = false;
-  @Input() project_id = '';
-  @Input() project_name = '';
 
   projectList = [
     {
