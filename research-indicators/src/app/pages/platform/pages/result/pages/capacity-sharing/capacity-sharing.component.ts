@@ -31,6 +31,13 @@ export default class CapacitySharingComponent {
   router = inject(Router);
   body: WritableSignal<GetCapSharing> = signal({});
   loading = signal(false);
+  yesOrNoOptions: WritableSignal<{ list: { name: string; value: boolean }[]; loading: boolean }> = signal({
+    list: [
+      { name: 'Yes', value: true },
+      { name: 'No', value: false }
+    ],
+    loading: false
+  });
 
   constructor() {
     this.getData();
@@ -44,7 +51,6 @@ export default class CapacitySharingComponent {
     this.body.update(current => {
       current.start_date = new Date(current.start_date || '');
       current.end_date = new Date(current.end_date || '');
-      console.log(current.start_date?.toLocaleString());
       this.mapAuxValues(current);
       return { ...current };
     });
@@ -59,6 +65,14 @@ export default class CapacitySharingComponent {
     current.aux_isoAlpha2 = current?.individual?.nationality?.isoAlpha2;
     current.aux_language_id = current?.training_supervisor_languages?.language_id;
     current.aux_user_id = current?.training_supervisor?.user_id;
+    // group training
+    current.aux_session_participants_total = current.group?.session_participants_total;
+    current.aux_session_participants_male = current.group?.session_participants_male;
+    current.aux_session_participants_female = current.group?.session_participants_female;
+    current.aux_session_participants_non_binary = current.group?.session_participants_non_binary;
+    current.aux_session_purpose_id = current.group?.session_purpose_id;
+    current.aux_session_purpose_description = current.group?.session_purpose_description;
+    current.aux_is_attending_organization = current.group?.is_attending_organization;
   }
 
   deMapAuxValues(current: GetCapSharing) {
@@ -69,6 +83,15 @@ export default class CapacitySharingComponent {
     current.individual.nationality = { isoAlpha2: current.aux_isoAlpha2 };
     current.training_supervisor_languages = { language_id: current.aux_language_id };
     current.training_supervisor = { user_id: current.aux_user_id };
+    if (current.group) {
+      current.group.session_participants_total = current.aux_session_participants_total;
+      current.group.session_participants_male = current.aux_session_participants_male;
+      current.group.session_participants_female = current.aux_session_participants_female;
+      current.group.session_participants_non_binary = current.aux_session_participants_non_binary;
+      current.group.session_purpose_id = current.aux_session_purpose_id;
+      current.group.session_purpose_description = current.aux_session_purpose_description;
+      current.group.is_attending_organization = current.aux_is_attending_organization;
+    }
   }
 
   async saveData(page?: 'next' | 'back') {

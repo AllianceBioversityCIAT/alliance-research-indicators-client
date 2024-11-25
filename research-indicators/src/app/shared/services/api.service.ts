@@ -18,6 +18,7 @@ import { UserStaff } from '../interfaces/get-user-staff.interface';
 import { GetCountries } from '../interfaces/get-countries.interface';
 import { GetDeliveryModality } from '../interfaces/get-delivery-modality.interface';
 import { GetLanguages } from '../interfaces/get-get-languages.interface';
+import { SessionPurpose } from '../interfaces/get-session-purpose.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -179,6 +180,11 @@ export class ApiService {
 
   GET_Languages = (): Promise<MainResponse<GetLanguages[]>> => {
     const url = () => `clarisa/languages`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SessionPurpose = (): Promise<MainResponse<SessionPurpose[]>> => {
+    const url = () => `session/purpose`;
     return this.TP.get(url(), {});
   };
 

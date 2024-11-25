@@ -6,11 +6,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SaveOnWritingDirective } from '../../../directives/save-on-writing.directive';
 import { SkeletonModule } from 'primeng/skeleton';
 import { CacheService } from '../../../services/cache/cache.service';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'app-input',
   standalone: true,
-  imports: [FormsModule, InputTextModule, SaveOnWritingDirective, SkeletonModule],
+  imports: [FormsModule, InputTextModule, SaveOnWritingDirective, SkeletonModule, InputNumberModule],
   templateUrl: './input.component.html',
   styleUrl: './input.component.scss'
 })
@@ -21,6 +22,7 @@ export class InputComponent {
   @Input() pattern: 'email' | 'url' | '' = '';
   @Input() label = '';
   @Input() description = '';
+  @Input() type: 'text' | 'number' = 'text';
 
   inputValid = computed(() => {
     if (this.pattern) {

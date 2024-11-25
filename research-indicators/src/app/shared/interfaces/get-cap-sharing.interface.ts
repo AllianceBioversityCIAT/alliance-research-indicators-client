@@ -35,11 +35,23 @@ export interface GetCapSharing extends Aux {
   individual?: Individual;
   training_supervisor?: Trainingsupervisor;
   training_supervisor_languages?: Trainingsupervisorlanguages;
+  group?: GroupTraining;
   test?: string;
   loaded?: boolean;
   aux_trainee_name?: string;
   aux_institution_id?: number;
   aux_isoAlpha2?: string;
+}
+
+interface GroupTraining {
+  is_attending_organization?: number | boolean | null | undefined;
+  session_participants_female?: number | null | undefined;
+  session_participants_male?: number | null | undefined;
+  session_participants_non_binary?: number | null | undefined;
+  session_participants_total?: number | null | undefined;
+  session_purpose_description?: string | null | undefined;
+  session_purpose_id?: number | null | undefined;
+  trainee_organization_representative?: any[];
 }
 
 interface Aux {
@@ -48,6 +60,13 @@ interface Aux {
   aux_isoAlpha2?: string | number | null | undefined;
   aux_language_id?: number | string | null | undefined;
   aux_user_id?: number | string | null | undefined;
+  aux_session_participants_total?: number | null | undefined;
+  aux_session_participants_male?: number | null | undefined;
+  aux_session_participants_female?: number | null | undefined;
+  aux_session_participants_non_binary?: number | null | undefined;
+  aux_session_purpose_id?: number | null | undefined;
+  aux_session_purpose_description?: string | null | undefined;
+  aux_is_attending_organization?: boolean | number | null | undefined;
 }
 
 interface Trainingsupervisorlanguages {

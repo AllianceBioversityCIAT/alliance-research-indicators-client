@@ -60,41 +60,43 @@
 
       <div class="columns">
         <div class="column">
-          <app-input label="What was the total number of participants?" [signal]="body" [optionValue]="'test'"></app-input>
+          <app-input label="What was the total number of participants?" type="number" [signal]="body" [optionValue]="'aux_session_participants_total'"></app-input>
         </div>
 
         <div class="column">
-          <app-input label="Male participants?" [signal]="body" [optionValue]="'test'"></app-input>
-        </div>
-      </div>
-
-      <div class="columns">
-        <div class="column">
-          <app-input label="Female participants?" [signal]="body" [optionValue]="'test'"></app-input>
-        </div>
-
-        <div class="column">
-          <app-input label="Non-binary participants?" [signal]="body" [optionValue]="'test'"></app-input>
+          <app-input label="Male participants?" [signal]="body" optionValue="aux_session_participants_male" type="number"></app-input>
         </div>
       </div>
 
       <div class="columns">
         <div class="column">
-          <app-radio-button label="What was the purpose of this training/engagement?*" [signal]="body" [optionLabel]="'name'"></app-radio-button>
+          <app-input label="Female participants?" [signal]="body" optionValue="aux_session_participants_female" type="number"></app-input>
         </div>
 
         <div class="column">
-          <app-radio-button label="Were the trainees attending on behalf of an organization?*" [signal]="body" [optionLabel]="'name'"></app-radio-button>
+          <app-input label="Non-binary participants?" [signal]="body" optionValue="aux_session_participants_non_binary" type="number"></app-input>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <app-radio-button label="What was the purpose of this training/engagement?*" [signal]="body" [optionLabel]="'name'" [options]="getCapSharingService.sessionPurpose" [optionValue]="{ body: 'aux_session_purpose_id', option: 'session_purpose_id' }"></app-radio-button>
+        </div>
+
+        <div class="column">
+          <app-radio-button label="Were the trainees attending on behalf of an organization?*" [signal]="body" [optionLabel]="'name'" [options]="yesOrNoOptions" [optionValue]="{ body: 'aux_is_attending_organization', option: 'value' }"></app-radio-button>
         </div>
       </div>
 
       <!-- Other -->
 
-      <div class="columns">
-        <div class="column">
-          <app-input [signal]="body" [optionValue]="'test'"></app-input>
+      @if (body().aux_session_purpose_id === 4) {
+        <div class="columns">
+          <div class="column">
+            <app-input [signal]="body" optionValue="aux_session_purpose_description"></app-input>
+          </div>
         </div>
-      </div>
+      }
 
       <div class="column">
         <app-select label="Select the organizations*" [signal]="this.body" [optionLabel]="'name'" [optionValue]="{ body: 'individual.institution_id', option: 'institution_id' }" [serviceName]="'institutions'"></app-select>
