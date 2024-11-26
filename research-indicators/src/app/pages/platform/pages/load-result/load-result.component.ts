@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./load-result.component.scss']
 })
 export default class LoadResultComponent implements OnInit, OnDestroy {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   private redirectTimeout: any = null;
 
   constructor(private router: Router) {}

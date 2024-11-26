@@ -51,7 +51,7 @@ interface GroupTraining {
   session_participants_total?: number | null | undefined;
   session_purpose_description?: string | null | undefined;
   session_purpose_id?: number | null | undefined;
-  trainee_organization_representative?: any[];
+  trainee_organization_representative?: [];
 }
 
 interface Aux {
@@ -67,7 +67,7 @@ interface Aux {
   aux_session_purpose_id?: number | null | undefined;
   aux_session_purpose_description?: string | null | undefined;
   aux_is_attending_organization?: boolean | number | null | undefined;
-  aux_trainee_organization_representative?: any[];
+  aux_trainee_organization_representative?: [];
 }
 
 interface Trainingsupervisorlanguages {

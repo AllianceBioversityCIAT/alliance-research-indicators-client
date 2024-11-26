@@ -36,6 +36,7 @@ export class CopyTokenComponent {
       .readText()
       .then(text => {
         localStorage.setItem('data', text);
+        window.location.reload();
       })
       .catch(err => {
         console.error('Could not read text from clipboard: ', err);
