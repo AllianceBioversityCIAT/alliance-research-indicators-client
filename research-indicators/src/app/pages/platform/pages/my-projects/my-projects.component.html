@@ -1,7 +1,11 @@
 <div class="container" [class.header-project-details]="isHeader">
   <div class="content">
+    <!-- <div class="search-box">
+      <i class="material-symbols-rounded">search</i>
+      <input type="text" placeholder="Search a project by code, name or principal investigator" />
+    </div> -->
     @for (project of projectList; track $index) {
-      <div class="card" routerLink="/project-detail" [class.header-project-details]="isHeader">
+      <div class="card" [routerLink]="['/project-detail', project.projectId]" [class.header-project-details]="isHeader">
         <div class="card-content">
           <div class="organization-identifier">
             <div class="project">
@@ -40,7 +44,7 @@
             @for (indicator of project.indicatorList; track $index) {
               <div class="indicator">
                 <div class="indicator-number-container">
-                  <i class="material-symbols-rounded output-icon">{{ indicator.icon }}</i>
+                  <i class="material-symbols-rounded" [class]="indicator.class">{{ indicator.icon }}</i>
                   <app-project-item [isHeader]="isHeader" [indicatorNumber]="indicator.number"></app-project-item>
                 </div>
                 <app-project-item [isHeader]="isHeader" [indicatorType]="indicator.type"></app-project-item>
