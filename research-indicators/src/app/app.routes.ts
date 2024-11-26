@@ -87,6 +87,13 @@ export const routes: Routes = [
             data: {
               title: 'Capacity Sharing'
             }
+          },
+          {
+            path: 'policy-change',
+            loadComponent: () => import('@platform/pages/result/pages/policy-change/policy-change.component'),
+            data: {
+              title: 'Policy Change'
+            }
           }
         ]
       },

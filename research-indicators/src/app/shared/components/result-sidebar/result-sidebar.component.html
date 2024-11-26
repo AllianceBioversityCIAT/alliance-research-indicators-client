@@ -16,13 +16,23 @@
   <hr />
   <div class="title">Your progress</div>
   <div class="options-container">
-    <div class="options" routerLink="general-information" routerLinkActive="active">
+    @for (option of options(); track option.path) {
+      <div class="options" [routerLink]="option.path" routerLinkActive="active">
+        <span class="material-symbols-rounded">circle</span>
+        <div class="option">{{ option.label }}</div>
+      </div>
+    }
+    <!-- <div class="options" routerLink="general-information" routerLinkActive="active">
       <span class="material-symbols-rounded">circle</span>
       <div class="option">General information</div>
     </div>
     <div class="options" routerLink="alliance-alignment" routerLinkActive="active">
       <span class="material-symbols-rounded">circle</span>
       <div class="option">Alliance Alignment</div>
+    </div>
+    <div class="options" routerLink="policy-change" routerLinkActive="active">
+      <span class="material-symbols-rounded">circle</span>
+      <div class="option">Policy Change details</div>
     </div>
     <div class="options" routerLink="capacity-sharing" routerLinkActive="active">
       <span class="material-symbols-rounded">circle</span>
@@ -39,7 +49,7 @@
     <div class="options" routerLink="evidence" routerLinkActive="active">
       <span class="material-symbols-rounded">circle</span>
       <div class="option">Evidence</div>
-    </div>
+    </div> -->
   </div>
   <p-button label="Submit form" [outlined]="true" severity="secondary" size="small" icon="pi pi-check" iconPos="right" />
 </div>
