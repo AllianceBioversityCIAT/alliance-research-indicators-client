@@ -21,11 +21,11 @@ export default class MyProjectsComponent {
       endDate: '20/12/2024',
       indicatorList: [
         { icon: 'group', number: '123', type: 'Capacity Sharing', class: 'output-icon' },
-        { icon: 'flag', number: '123', type: 'Innovation Development', class: 'outcome-icon' },
-        { icon: 'lightbulb', number: '123', type: 'Knowledge Product', class: 'output-icon' },
-        { icon: 'wb_sunny', number: '123', type: 'Innovation Use', class: 'outcome-icon' },
-        { icon: 'pie_chart', number: '123', type: 'Research Output', class: 'output-icon' },
-        { icon: 'folder_open', number: '123', type: 'Policy Change', class: 'outcome-icon' }
+        { icon: 'flag', number: '190', type: 'Innovation Development', class: 'output-icon' },
+        { icon: 'lightbulb', number: '154', type: 'Knowledge Product', class: 'output-icon' },
+        { icon: 'wb_sunny', number: '110', type: 'Innovation Use', class: 'outcome-icon' },
+        { icon: 'pie_chart', number: '146', type: 'Research Output', class: 'outcome-icon' },
+        { icon: 'folder_open', number: '146', type: 'Policy Change', class: 'outcome-icon' }
       ]
     }
   ];

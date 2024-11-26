@@ -31,9 +31,9 @@ export class AllianceNavbarComponent {
   actions = inject(ActionsService);
   searchText = signal('');
   options: AllianceNavOptions[] = [
-    { label: 'Home', path: '/home' },
-    { label: 'My Results', path: '/settings', icon: 'keyboard_arrow_down' },
-    { label: 'My Projects', path: '/profile', icon: 'keyboard_arrow_down' }
+    { label: 'Home', path: '/home', disabled: true },
+    { label: 'My Results', path: '/settings', icon: 'keyboard_arrow_down', disabled: true },
+    { label: 'My Projects', path: '/my-projects', icon: 'keyboard_arrow_down', disabled: false }
   ];
 
   onSearchTextChange(event: Event) {

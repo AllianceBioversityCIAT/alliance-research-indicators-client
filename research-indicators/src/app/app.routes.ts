@@ -103,7 +103,7 @@ export const routes: Routes = [
         }
       },
       {
-        path: 'project-detail',
+        path: 'project-detail/:id',
         loadComponent: () => import('@platform/pages/project-detail/project-detail.component'),
         data: {
           title: 'Project Detail'

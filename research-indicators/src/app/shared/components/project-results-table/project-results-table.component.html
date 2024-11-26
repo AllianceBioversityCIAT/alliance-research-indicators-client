@@ -1,0 +1,40 @@
+<p-table #dt1 [value]="results()" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="this.loading()" [paginator]="true" [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']" styleClass="custom-table">
+  <ng-template pTemplate="caption">
+    <div class="header">
+      <div class="search-box">
+        <i class="material-symbols-rounded">search</i>
+        <input type="text" placeholder="Search by code, title or creator" />
+      </div>
+      <div class="options">
+        <p-button label="Export Results" icon="pi pi-file-export" iconPos="right" size="small" />
+        <p-button label="Clear" [text]="true" icon="pi pi-filter-slash" (onClick)="clear(dt1)" size="small" />
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="header" let-customer>
+    <tr>
+      @for (col of this.columns; track $index) {
+        <th>
+          <div class="flex align-items-center" style="justify-content: flex-start">
+            {{ col.header }}
+            <p-columnFilter type="text" [field]="col.attr" display="menu" />
+          </div>
+        </th>
+      }
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-customer>
+    <tr>
+      @for (col of this.columns; track $index) {
+        <td>
+          {{ customer[col.attr] }}
+        </td>
+      }
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="4">No customers found.</td>
+    </tr>
+  </ng-template>
+</p-table>
