@@ -103,6 +103,13 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'project-detail',
+        loadComponent: () => import('@platform/pages/project-detail/project-detail.component'),
+        data: {
+          title: 'Project Detail'
+        }
+      },
+      {
         path: 'about',
         loadComponent: () => import('@platform/pages/about/about.component')
       },

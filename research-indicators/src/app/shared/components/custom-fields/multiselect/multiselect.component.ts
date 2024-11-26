@@ -41,8 +41,8 @@ export class MultiselectComponent implements OnInit {
 
   onChange = effect(
     () => {
-      const hasNoLabelList = this.signal()[this.signalOptionValue].filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
-      if (hasNoLabelList.length && this.firstLoad() && this.service?.list().length) {
+      const hasNoLabelList = this.signal()[this.signalOptionValue]?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
+      if (hasNoLabelList?.length && this.firstLoad() && this.service?.list().length) {
         this.signal.update((current: any) => {
           return {
             ...current,
@@ -85,7 +85,7 @@ export class MultiselectComponent implements OnInit {
   }
 
   objectArrayToIdArray(array: any[], attribute: string) {
-    return array.map((item: any) => item[attribute]);
+    return array?.map((item: any) => item[attribute]);
   }
 
   removeOption(option: any) {

@@ -15,6 +15,10 @@ import { CacheService } from './cache/cache.service';
 import { GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
 import { GetMetadata } from '../interfaces/get-metadata.interface';
 import { UserStaff } from '../interfaces/get-user-staff.interface';
+import { GetCountries } from '../interfaces/get-countries.interface';
+import { GetDeliveryModality } from '../interfaces/get-delivery-modality.interface';
+import { GetLanguages } from '../interfaces/get-get-languages.interface';
+import { SessionPurpose } from '../interfaces/get-session-purpose.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -116,7 +120,7 @@ export class ApiService {
 
   GET_CapacitySharing = (): Promise<MainResponse<GetCapSharing>> => {
     const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), { loadingTrigger: true });
   };
 
   PATCH_CapacitySharing = <T>(body: T): Promise<MainResponse<GetCapSharing>> => {
@@ -161,6 +165,26 @@ export class ApiService {
 
   GET_Metadata = (id: number): Promise<MainResponse<GetMetadata>> => {
     const url = () => `results/${id}/metadata`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Countries = (): Promise<MainResponse<GetCountries[]>> => {
+    const url = () => `clarisa/countries`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_DeliveryModalities = (): Promise<MainResponse<GetDeliveryModality[]>> => {
+    const url = () => `delivery-modalities`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Languages = (): Promise<MainResponse<GetLanguages[]>> => {
+    const url = () => `clarisa/languages`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SessionPurpose = (): Promise<MainResponse<SessionPurpose[]>> => {
+    const url = () => `session/purpose`;
     return this.TP.get(url(), {});
   };
 

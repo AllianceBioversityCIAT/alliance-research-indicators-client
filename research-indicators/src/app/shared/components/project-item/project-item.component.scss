@@ -1,0 +1,61 @@
+.project {
+  display: grid;
+  margin: 0;
+  gap: 0;
+
+  .project-id {
+    grid-row: 1;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 17px;
+    color: #8d9299;
+  }
+
+  .project-name {
+    grid-row: 2;
+    font-family: 'Barlow', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24px;
+    color: #112f5c;
+  }
+}
+
+.principal-investigator {
+  .project-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    color: #8d9299;
+  }
+
+  .project-data {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
+    color: #345b8f;
+  }
+}
+
+.indicator {
+  .indicator-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 20px;
+    color: #112f5c;
+  }
+
+  .indicator-type {
+    display: grid;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14px;
+    color: #8d9299;
+    text-transform: uppercase;
+  }
+}

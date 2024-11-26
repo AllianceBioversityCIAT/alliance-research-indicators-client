@@ -1,1 +1,54 @@
-<p>my-projects works!</p>
+<div class="container" [class.header-project-details]="isHeader">
+  <div class="content">
+    @for (project of projectList; track $index) {
+      <div class="card" routerLink="/project-detail" [class.header-project-details]="isHeader">
+        <div class="card-content">
+          <div class="organization-identifier">
+            <div class="project">
+              <div class="project-id">
+                @if (isHeader) {
+                  <span class="project-id">PROJECT CODE:&nbsp;</span>
+                }
+                <app-project-item [isHeader]="isHeader" [projectId]="project.projectId"></app-project-item>
+              </div>
+              <app-project-item [isHeader]="isHeader" [projectName]="project.projectName"></app-project-item>
+            </div>
+            @if (isHeader === false) {
+              <div class="more-vert">
+                <span class="material-symbols-rounded"> more_vert </span>
+              </div>
+            }
+          </div>
+          <div class="project-info">
+            <div class="principal-investigator">
+              <app-project-item [isHeader]="isHeader" [projectTitle]="'Principal Investigator'"></app-project-item>
+              <span class="material-symbols-rounded"> arrow_forward </span>
+              <app-project-item [isHeader]="isHeader" [projectData]="project.principalInvestigator"></app-project-item>
+            </div>
+            <div class="start-date">
+              <app-project-item [isHeader]="isHeader" [projectTitle]="'Start Date'"></app-project-item>
+              <span class="material-symbols-rounded"> arrow_forward </span>
+              <app-project-item [isHeader]="isHeader" [projectData]="project.startDate"></app-project-item>
+            </div>
+            <div class="end-date">
+              <app-project-item [isHeader]="isHeader" [projectTitle]="'End Date'"></app-project-item>
+              <span class="material-symbols-rounded"> arrow_forward </span>
+              <app-project-item [isHeader]="isHeader" [projectData]="project.endDate"></app-project-item>
+            </div>
+          </div>
+          <div class="project-indicators">
+            @for (indicator of project.indicatorList; track $index) {
+              <div class="indicator">
+                <div class="indicator-number-container">
+                  <i class="material-symbols-rounded output-icon">{{ indicator.icon }}</i>
+                  <app-project-item [isHeader]="isHeader" [indicatorNumber]="indicator.number"></app-project-item>
+                </div>
+                <app-project-item [isHeader]="isHeader" [indicatorType]="indicator.type"></app-project-item>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
