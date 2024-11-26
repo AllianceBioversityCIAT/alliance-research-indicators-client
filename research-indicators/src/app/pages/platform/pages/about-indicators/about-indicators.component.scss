@@ -18,12 +18,17 @@
   }
 }
 
+.red {
+  background-color: red !important;
+  padding: 0 !important;
+}
+
 .container {
   margin: 30px 40px;
 
   .title-text {
     font-family: Inter, sans-serif;
-    font-size: 18px;
+    font-size: 1.13em;
     font-weight: 700;
     line-height: 18.15px;
     color: #173f6f;
@@ -34,11 +39,11 @@
   .description-text {
     color: #4c5158;
     font-family: Barlow, sans-serif;
-    font-size: 16px;
+    font-size: 1em;
     font-weight: 300;
     line-height: 16.8px;
     text-align: left;
-    margin: 8px 0 30px 0;
+    margin: 8px 0 30px;
   }
 
   .options {
@@ -53,14 +58,14 @@
       border-radius: 10px;
       flex: 1;
       padding: 0;
-      height: 250px;
+      height: 15.5em;
       display: flex;
       overflow: hidden;
       position: relative;
       cursor: pointer;
       transition: all 0.3s ease-in-out;
       border: 1.5px solid #e5e5e5;
-      box-shadow: 0 2px 6px rgba(21, 60, 113, 0.1);
+      box-shadow: 0 2px 6px rgb(21 60 113 / 10%);
 
       &::after {
         content: '';
@@ -113,7 +118,7 @@
           .type-text {
             color: #8d9299;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 12px;
+            font-size: 0.75em;
             font-weight: 300;
             letter-spacing: 3px;
             margin: 0;
@@ -124,7 +129,7 @@
             color: #153c71;
             font-family: 'Space Grotesk', sans-serif;
             line-height: 1.2;
-            font-size: 20px;
+            font-size: 1.25em;
             font-weight: 600;
             margin-top: 3px;
             margin: 0;

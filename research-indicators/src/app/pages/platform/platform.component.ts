@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CacheService } from '@services/cache/cache.service';
 import { RouterOutlet } from '@angular/router';
 import { AllianceNavbarComponent } from '@components/alliance-navbar/alliance-navbar.component';
@@ -14,6 +14,23 @@ import { AllModalsComponent } from '../../shared/components/all-modals/all-modal
   styleUrl: './platform.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export default class PlatformComponent {
+export default class PlatformComponent implements OnInit {
   cache = inject(CacheService);
+  isLoading = signal(document.readyState !== 'complete');
+  ngOnInit(): void {
+    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
+    window.onload = () => {
+      console.log('loaded');
+      this.isLoading.set(false);
+    };
+
+    document.fonts.ready.then(() => {
+      console.log('fonts loaded');
+    });
+  }
+  onImageLoad() {
+    const images = document.querySelectorAll('img');
+    // all loaded
+    Array.from(images).every(img => img.complete);
+  }
 }
