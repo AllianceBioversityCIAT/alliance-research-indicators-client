@@ -20,13 +20,11 @@ export default class PlatformComponent implements OnInit {
   ngOnInit(): void {
     //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
     window.onload = () => {
-      console.log('loaded');
       this.isLoading.set(false);
     };
 
-    document.fonts.ready.then(() => {
-      console.log('fonts loaded');
-    });
+    // document.fonts.ready.then(() => {
+    // });
   }
   onImageLoad() {
     const images = document.querySelectorAll('img');

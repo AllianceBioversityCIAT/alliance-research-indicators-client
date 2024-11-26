@@ -36,6 +36,5 @@ export class GetCapSharingService {
     this.deliveryModalities.set({ list: response6.data, loading: false });
     const response7 = await this.apiService.GET_SessionPurpose();
     this.sessionPurpose.set({ list: response7.data, loading: false });
-    console.log(this.sessionPurpose().list);
   }
 }

@@ -55,7 +55,6 @@ export default class CapacitySharingComponent {
       return { ...current };
     });
     this.loading.set(false);
-    console.log(this.body());
   }
 
   mapAuxValues(current: GetCapSharing) {
@@ -73,7 +72,6 @@ export default class CapacitySharingComponent {
     current.aux_session_purpose_id = current.group?.session_purpose_id;
     current.aux_session_purpose_description = current.group?.session_purpose_description;
     current.aux_is_attending_organization = current.group?.is_attending_organization;
-    console.log(current.aux_is_attending_organization);
     current.aux_trainee_organization_representative = current.group?.trainee_organization_representative;
   }
 
@@ -105,8 +103,6 @@ export default class CapacitySharingComponent {
       this.deMapAuxValues(current);
       return { ...current };
     });
-
-    console.log(this.body());
 
     await this.api.PATCH_CapacitySharing(this.body());
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
