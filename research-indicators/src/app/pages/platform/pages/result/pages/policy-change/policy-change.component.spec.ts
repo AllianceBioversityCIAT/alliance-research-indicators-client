@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PolicyChangeComponent } from './policy-change.component';
+import PolicyChangeComponent from './policy-change.component';
 
 describe('PolicyChangeComponent', () => {
   let component: PolicyChangeComponent;
@@ -9,8 +9,7 @@ describe('PolicyChangeComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PolicyChangeComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PolicyChangeComponent);
     component = fixture.componentInstance;
