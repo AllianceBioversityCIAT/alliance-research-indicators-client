@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { DataCache } from '@interfaces/cache.interface';
 import { GetMetadata } from '../../interfaces/get-metadata.interface';
 
@@ -16,6 +16,16 @@ export class CacheService {
   currentResultIsLoading = signal(false);
   currentMetadata: WritableSignal<GetMetadata> = signal({});
   loadingCurrentResult = signal(false);
+  currentResultIndicatorSectionPath = computed(() => {
+    switch (this.currentMetadata().indicator_id) {
+      case 1:
+        return 'capacity-sharing';
+      case 4:
+        return 'policy-change';
+      default:
+        return '';
+    }
+  });
 
   setCurrentSectionHeaderName(name: string) {
     this.currentSectionHeaderName.set(name);

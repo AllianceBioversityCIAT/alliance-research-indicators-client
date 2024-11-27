@@ -23,6 +23,7 @@ export class SelectComponent implements OnInit {
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
   @Input() description = '';
+  @Input() disabled = false;
 
   service: any;
   value = '';

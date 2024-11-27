@@ -39,10 +39,13 @@ export default class AllianceAlignmentComponent {
   }
 
   async saveData(page?: 'next' | 'back') {
-    await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-    this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
+    const response = await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
+    if (response.successfulRequest) {
+      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
+      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
+      this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
+    }
+
     this.getData();
   }
 

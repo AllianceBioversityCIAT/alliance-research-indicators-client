@@ -1,6 +1,6 @@
 <div class="navbar abc-primary-blue-500">
   <div class="logo">
-    <img routerLink="home" src="alliance-white.png" alt="" />
+    <img src="alliance-white.png" alt="" />
   </div>
   <div class="options">
     @for (option of this.options; track $index) {
@@ -11,7 +11,7 @@
         </a>
       </a>
     }
-
+    <div style="margin-left: 20px"></div>
     <p-button label="New result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
     <div class="icons-container">
       <app-dropdown dropdownName="result" position="top-left" class="search-dropdown">

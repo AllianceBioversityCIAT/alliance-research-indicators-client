@@ -15,6 +15,7 @@ import { ActionsService } from '../../../../services/actions.service';
 import { Result } from '../../../../interfaces/result/result.interface';
 import { MainResponse } from '../../../../interfaces/responses.interface';
 import { GetResultsService } from '../../../../services/control-list/get-results.service';
+import { SoundService } from '../../../../services/sound.service';
 
 @Component({
   selector: 'app-create-result-modal',
@@ -33,6 +34,7 @@ export class CreateResultModalComponent {
   api = inject(ApiService);
   actions = inject(ActionsService);
   body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null }>({ indicator_id: null, title: null, contract_id: null });
+  soundService = inject(SoundService);
 
   async createResult(openresult?: boolean) {
     const result = await this.api.POST_Result(this.body());
@@ -49,6 +51,7 @@ export class CreateResultModalComponent {
       summary: 'Success',
       detail: `Result "${this.body().title}" created successfully`
     });
+    this.soundService.playCreationAudio();
     this.allModalsService.closeModal('createResult');
     this.body.set({ indicator_id: null, title: null, contract_id: null });
     if (openresult) this.actions.changeResultRoute(result.data.result_id);

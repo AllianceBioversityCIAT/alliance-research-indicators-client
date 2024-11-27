@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import PolicyChangeComponent from './policy-change.component';
 
@@ -8,7 +9,7 @@ describe('PolicyChangeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PolicyChangeComponent]
+      imports: [PolicyChangeComponent, HttpClientTestingModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PolicyChangeComponent);
