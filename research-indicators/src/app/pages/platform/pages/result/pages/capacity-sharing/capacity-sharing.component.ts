@@ -49,8 +49,8 @@ export default class CapacitySharingComponent {
     this.body.set(response.data);
     this.cache.loadingCurrentResult.set(false);
     this.body.update(current => {
-      current.start_date = new Date(current.start_date || '');
-      current.end_date = new Date(current.end_date || '');
+      if (current.start_date) current.start_date = new Date(current.start_date || '');
+      if (current.end_date) current.end_date = new Date(current.end_date || '');
       this.mapAuxValues(current);
       return { ...current };
     });
@@ -97,8 +97,8 @@ export default class CapacitySharingComponent {
 
   async saveData(page?: 'next' | 'back') {
     this.body.update(current => {
-      current.start_date = new Date(current.start_date || '').toISOString();
-      current.end_date = new Date(current.end_date || '').toISOString();
+      if (current.start_date) current.start_date = new Date(current.start_date || '').toISOString();
+      if (current.end_date) current.end_date = new Date(current.end_date || '').toISOString();
 
       this.deMapAuxValues(current);
       return { ...current };

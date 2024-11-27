@@ -8,7 +8,8 @@
 
 * {
   font-family: Barlow, sans-serif;
-  font-size: 16px; // Base font size
+
+  // Base font size
 }
 
 // html {
@@ -16,7 +17,7 @@
 // }
 
 body {
-  // font-size: 1px; // Base font size
+  font-size: 16px;
   padding: 0;
   margin: 0;
 }
@@ -59,12 +60,12 @@ body {
   }
 }
 
-// @media (orientation: landscape) and (height <= 768px) {
-//   * {
-//     font-size: 12px !important;
+@media (orientation: landscape) and (height <= 768px) {
+  body {
+    font-size: 12px !important;
 
-//     .p-card-body {
-//       padding: 0 !important;
-//     }
-//   }
-// }
+    .p-card-body {
+      padding: 0 !important;
+    }
+  }
+}

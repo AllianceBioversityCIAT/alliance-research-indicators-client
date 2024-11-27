@@ -22,14 +22,14 @@ export class IndicatorsService {
   }
 
   generateGroupedIndicators(data: IndicatorTypes[], parentLabelKey: keyof IndicatorTypes, parentValueKey: keyof IndicatorTypes, itemLabelKey: keyof Indicator, itemValueKey: keyof Indicator) {
-    const targetIndicatorId = 1;
-    const filteredData = data.filter(parent => parent.indicators.some(item => item.indicator_id === targetIndicatorId));
+    const targetIndicatorIds = [1, 4];
+    const filteredData = data.filter(parent => parent.indicators.some(item => targetIndicatorIds.includes(item.indicator_id)));
 
     return filteredData.map(parent => ({
       label: parent[parentLabelKey] as string,
       value: parent[parentValueKey] as string,
       items: parent.indicators
-        .filter(item => item.indicator_id === targetIndicatorId)
+        .filter(item => targetIndicatorIds.includes(item.indicator_id))
         .map(item => ({
           label: item[itemLabelKey] as string,
           value: item[itemValueKey] as string

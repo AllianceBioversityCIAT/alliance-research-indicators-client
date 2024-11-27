@@ -46,7 +46,7 @@ export default class GeneralInformationComponent {
 
   async getData() {
     const response = await this.api.GET_GeneralInformation(this.cache.currentResultId());
-    response.data.user_id = response.data.main_contact_person.user_id;
+    if (response.data?.main_contact_person?.user_id) response.data.user_id = response.data.main_contact_person.user_id;
     this.body.set(response.data);
   }
 
