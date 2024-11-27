@@ -1,14 +1,14 @@
-.options:nth-of-type(1) {
+.options[data-index='0'] {
   .output-icon {
     color: #235b2d;
   }
 
   .icon-background {
-    background-color: #d3e7d5;
+    background-color: #d3e7d5 !important;
   }
 }
 
-.options:nth-of-type(2) {
+.options[data-index='1'] {
   .icon-background {
     background-color: #b0c4dd !important;
   }
@@ -16,11 +16,6 @@
   .outcome-icon {
     color: #112f5c;
   }
-}
-
-.red {
-  background-color: red !important;
-  padding: 0 !important;
 }
 
 .container {
@@ -51,7 +46,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 20px;
-    margin-bottom: 80px;
+    margin-bottom: 5em;
     align-items: stretch;
 
     .card-container {
@@ -166,5 +161,11 @@
 
   100% {
     transform: rotate(0deg);
+  }
+}
+
+@media (orientation: landscape) and (height <= 768px) {
+  .options {
+    margin-bottom: 2em !important;
   }
 }
