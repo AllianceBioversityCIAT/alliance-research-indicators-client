@@ -19,6 +19,7 @@ import { GetCountries } from '../interfaces/get-countries.interface';
 import { GetDeliveryModality } from '../interfaces/get-delivery-modality.interface';
 import { GetLanguages } from '../interfaces/get-get-languages.interface';
 import { SessionPurpose } from '../interfaces/get-session-purpose.interface';
+import { GetPolicyChange } from '../interfaces/get-get-policy-change.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -67,8 +68,10 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Results = (): Promise<MainResponse<Result[]>> => {
-    const url = () => `results`;
+  GET_Results = (type?: 'innovation-use' | 'innovation-dev' | 'policy-change' | ''): Promise<MainResponse<Result[]>> => {
+    let typeText = '';
+    if (type) typeText = `?type=${type}`;
+    const url = () => `results${typeText}`;
     return this.TP.get(url(), {});
   };
 
@@ -125,6 +128,16 @@ export class ApiService {
 
   PATCH_CapacitySharing = <T>(body: T): Promise<MainResponse<GetCapSharing>> => {
     const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
+    return this.TP.patch(url(), body);
+  };
+
+  GET_PolicyChange = (id: number): Promise<MainResponse<GetPolicyChange>> => {
+    const url = () => `results/policy-change/by-result-id/${id}`;
+    return this.TP.get(url(), { loadingTrigger: true });
+  };
+
+  PATCH_PolicyChange = <T>(id: number, body: T): Promise<MainResponse<GetPolicyChange>> => {
+    const url = () => `results/policy-change/by-result-id/${id}`;
     return this.TP.patch(url(), body);
   };
 

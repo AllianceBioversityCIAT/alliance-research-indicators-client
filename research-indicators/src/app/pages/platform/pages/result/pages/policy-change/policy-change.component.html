@@ -1,1 +1,44 @@
-<p>policy-change works!</p>
+<div class="p-5">
+  <div class="title-text pb-3">Climate-Smart agricultural practices</div>
+  <div class="p-5 bg-white border-round-xl pb-8">
+    <div class="card-title">POLICY CHANGE DETAILS</div>
+    <div class="grid">
+      <div class="col-6">
+        <app-radio-button label="Policy Type*" [signal]="body" [options]="policyTypes" [optionLabel]="'name'" [optionValue]="{ body: 'policy_type_id', option: 'id' }"></app-radio-button>
+      </div>
+      <div class="col-6">
+        <app-radio-button label="Stage in Policy Process*" [signal]="body" [options]="policyStages" [optionLabel]="'name'" [optionValue]="{ body: 'policy_stage_id', option: 'id' }"></app-radio-button>
+      </div>
+      <div class="col-12">
+        <app-textarea label="Description." [signal]="this.body" [optionValue]="'evidence_stage'"></app-textarea>
+      </div>
+      <div class="col-12">
+        <app-multiselect label="Whose policy is this? (implementing organizations)*" [signal]="body" optionLabel="name" optionValue="institution_id" signalOptionValue="implementing_organization" serviceName="institutions">
+          <ng-template #rows let-institution>
+            <div class="item-content">
+              <div class="information">
+                <div class="row">
+                  <div>
+                    <strong>{{ institution.acronym }}</strong> - {{ institution.name }}
+                  </div>
+                  <div class="institution-type">
+                    <h4>Institution Type</h4>
+                    &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
+                    <span class="institution-type-description">{{ institution?.institution_type?.name }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </app-multiselect>
+      </div>
+      <div class="col-6"><app-select [disabled]="true" label="Link to a reported Innovation Development output*" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'aux_isoAlpha2', option: 'isoAlpha2' }" [serviceName]="'institutions'"></app-select></div>
+      <div class="col-6"><app-select [disabled]="true" label="Link to a reported Innovation Use" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'aux_isoAlpha2', option: 'isoAlpha2' }" [serviceName]="'institutions'"></app-select></div>
+    </div>
+  </div>
+  <div class="p-5 flex gap-2">
+    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" />
+    <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="saveData('next')" />
+    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" />
+  </div>
+</div>

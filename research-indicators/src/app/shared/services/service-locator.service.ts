@@ -29,7 +29,7 @@ export class ServiceLocatorService {
         return this.injector.get(GetClarisaLanguagesService);
       default:
         console.warn(`Service ${serviceName} not found`);
-        return [];
+        return null;
     }
   }
 }
