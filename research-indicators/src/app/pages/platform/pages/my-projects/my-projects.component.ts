@@ -41,7 +41,7 @@ export default class MyProjectsComponent {
       startDate: '04/05/2024',
       endDate: '20/12/2024',
       indicatorList: [
-        { icon: 'group', number: '123', type: 'Capacity Sharing\nfor Development', class: 'output-icon' },
+        { icon: 'group', number: '123', type: 'Capacity Sharing for Development', class: 'output-icon' },
         { icon: 'flag', number: '190', type: 'Innovation Development', class: 'output-icon' },
         { icon: 'lightbulb', number: '154', type: 'Knowledge Product', class: 'output-icon' },
         { icon: 'wb_sunny', number: '110', type: 'Innovation Use', class: 'outcome-icon' },
