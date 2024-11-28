@@ -1,21 +1,24 @@
 <div class="container">
   @for (item of indicatorsSE.indicators(); track $index) {
-    <div class="title-text">{{ item.other_names }}</div>
+    <h3 class="title-text">{{ item.other_names }}</h3>
     <p class="description-text" [innerHTML]="item.description"></p>
-    <div class="options" [attr.data-index]="$index">
+    <div class="options">
       @for (indicator of item.indicators; track $index) {
-        <p-card class="card-container" routerLink="/indicator/{{ indicator.indicator_id }}">
+        <p-card class="card-container" styleClass="card-container">
           <div class="card-panel">
             <div class="card-content">
               <div class="icon-background">
-                <i class="material-symbols-rounded output-icon">{{ indicator.icon_src }}</i>
+                <i class="material-symbols-rounded output-icon outcome-icon">{{ indicator.icon_src }}</i>
               </div>
               <div class="card-header">
                 <h6 class="type-text">{{ item.name }}</h6>
                 <h3 class="title-text-indicator">{{ indicator.name }}</h3>
               </div>
             </div>
-            <p class="description-text">{{ indicator.description }}</p>
+            <h4 class="card-description-text">{{ indicator.description }}</h4>
+            <div class="learn-more-content">
+              <a class="learn-more-text" routerLink="/indicator/{{ indicator.indicator_id }}">Learn more <span class="material-symbols-rounded"> arrow_forward </span></a>
+            </div>
           </div>
         </p-card>
       }
