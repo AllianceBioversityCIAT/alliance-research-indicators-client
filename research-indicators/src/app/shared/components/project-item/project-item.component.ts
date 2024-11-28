@@ -1,18 +1,30 @@
 import { Component, Input } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+interface Indicator {
+  icon: string;
+  number: string;
+  type: string;
+  class: string;
+}
+
+interface Project {
+  projectId?: string;
+  projectName?: string;
+  principalInvestigator?: string;
+  startDate?: string;
+  endDate?: string;
+  indicatorList?: Indicator[];
+}
 
 @Component({
   selector: 'app-project-item',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './project-item.component.html',
   styleUrl: './project-item.component.scss'
 })
 export class ProjectItemComponent {
-  @Input() projectId = '';
-  @Input() projectName = '';
-  @Input() projectTitle = '';
-  @Input() projectData = '';
-  @Input() indicatorNumber = '';
-  @Input() indicatorType = '';
   @Input() isHeader = false;
+  @Input() project: Project = {};
 }
