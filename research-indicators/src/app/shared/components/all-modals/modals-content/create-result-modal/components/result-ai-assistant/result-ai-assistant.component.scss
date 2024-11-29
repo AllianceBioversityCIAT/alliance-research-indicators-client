@@ -1,0 +1,130 @@
+h1,
+p {
+  margin: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 30px 40px;
+  gap: 12px;
+  color: var(--primary-blue-500);
+  background-color: #fff;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+
+    .title {
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
+}
+
+.container {
+  display: flex;
+  margin: 40px;
+  flex-direction: column;
+  gap: 24px;
+  justify-content: flex-start;
+
+  .container-header {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 20px;
+
+    .title-group {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      flex-direction: column;
+      gap: 5px;
+
+      .subtitle {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--light-blue-200);
+      }
+
+      .title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--primary-blue-500);
+      }
+
+      .description {
+        font-size: 14px;
+        color: var(--grey-800);
+        font-weight: 400;
+      }
+    }
+  }
+}
+
+// @property --angle {
+//   syntax: '<angle>';
+//   initial-value: 0deg;
+//   inherits: false;
+// }
+
+// .analyze_button {
+//   background: linear-gradient(90deg, #0066ff 0%, #338dff 100%) !important;
+//   position: relative;
+//   z-index: 1;
+//   border-radius: 10px;
+//   transition: all 0.2s ease-in-out;
+// }
+
+// .analyze_button::after,
+// .analyze_button::before {
+//   content: '';
+//   position: absolute;
+//   height: 100%;
+//   width: 100%;
+//   background-image: conic-gradient(from var(--angle), #ff4545, #0f9, #006aff, #ff0095, #ff4545);
+//   top: 50%;
+//   left: 50%;
+//   translate: -50% -50%;
+//   z-index: -1;
+//   padding: 3px;
+//   border-radius: 10px;
+//   animation: spin 2s linear infinite;
+//   animation-play-state: paused;
+//   opacity: 0.2;
+//   transition: all 0.2s ease-in-out;
+// }
+
+// .analyze_button::before {
+//   filter: blur(0.7rem);
+// }
+
+// .analyze_button:hover::before {
+//   filter: blur(1.5rem);
+//   opacity: 0.5;
+// }
+
+// .analyze_button:hover::after {
+//   opacity: 1;
+// }
+
+// .analyze_button:hover::after,
+// .analyze_button:hover::before {
+//   animation-play-state: running;
+//   border-radius: 10px;
+// }
+
+// @keyframes spin {
+//   from {
+//     --angle: 0deg;
+//   }
+
+//   to {
+//     --angle: 360deg;
+//   }
+// }
