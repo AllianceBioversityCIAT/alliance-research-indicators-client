@@ -31,7 +31,8 @@ body {
 .indicator-title {
   color: var(--primary-blue-500);
   font-family: Inter, sans-serif;
-  font-size: 15px;
+
+  // font-size: 15px;
   font-weight: 700;
   line-height: 18.15px;
   text-transform: uppercase;
@@ -40,7 +41,8 @@ body {
 .indicator-description {
   color: var(--grey-800);
   font-family: Barlow, sans-serif;
-  font-size: 15px;
+
+  // font-size: 15px;
   font-weight: 400;
   line-height: 18px;
 
@@ -57,6 +59,7 @@ body {
 @media (orientation: landscape) and (height <= 768px) {
   body {
     font-size: 13px !important;
+    color: red !important;
 
     .p-card-body {
       padding: 0.8rem !important;
