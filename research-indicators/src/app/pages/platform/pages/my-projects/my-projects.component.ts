@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
 import { ApiService } from '@shared/services/api.service';
 import { GetProjectDetail } from '@shared/interfaces/get-project-detail.interface';
@@ -12,13 +12,6 @@ import { GetProjectDetail } from '@shared/interfaces/get-project-detail.interfac
 })
 export default class MyProjectsComponent {
   api = inject(ApiService);
-  @Input() isHeader = false;
-  @Input() projectId = '';
-  @Input() projectName = '';
-  @Input() projectTitle = '';
-  @Input() projectData = '';
-  @Input() indicatorNumber = '';
-  @Input() indicatorType = '';
 
   projectList: WritableSignal<GetProjectDetail[]> = signal([]);
 
