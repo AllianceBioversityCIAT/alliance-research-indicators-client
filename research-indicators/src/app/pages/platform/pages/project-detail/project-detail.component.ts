@@ -26,6 +26,9 @@ export default class ProjectDetailComponent implements OnInit {
   async getProjectDetail() {
     const response = await this.api.GET_ResultsCount(this.contractId());
     console.log(response.data);
+    response.data.indicators.map((indicator: any) => {
+      indicator.full_name = indicator.indicator.name;
+    });
     this.currentProject.set(response.data);
   }
 }

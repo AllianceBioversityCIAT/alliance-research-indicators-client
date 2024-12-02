@@ -7,11 +7,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ResultTable } from '@shared/interfaces/result/result.interface';
 import { Button } from 'primeng/button';
 import { ApiService } from '../../services/api.service';
+import { FilterByTextWithAttrPipe } from '../../pipes/filter-by-text-with-attr.pipe';
 
 @Component({
   selector: 'app-project-results-table',
   standalone: true,
-  imports: [TableModule, InputTextModule, Button],
+  imports: [TableModule, InputTextModule, Button, FilterByTextWithAttrPipe],
   templateUrl: './project-results-table.component.html',
   styleUrl: './project-results-table.component.scss'
 })
@@ -22,7 +23,7 @@ export class ProjectResultsTableComponent implements OnInit {
 
   activityValues: number[] = [0, 100];
 
-  searchValue: string | undefined;
+  searchValue = signal('');
 
   columns: ResultTable[] = [
     { attr: 'code', header: 'Code' },
@@ -91,13 +92,13 @@ export class ProjectResultsTableComponent implements OnInit {
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_ResultsByContractId(this.contractId);
-    // console.log(response.data);
+    console.log(response.data);
     this.loading.set(false);
   }
 
   clear(table: Table) {
     table.clear();
-    this.searchValue = '';
+    this.searchValue.set('');
   }
 
   getSeverity(status: string) {

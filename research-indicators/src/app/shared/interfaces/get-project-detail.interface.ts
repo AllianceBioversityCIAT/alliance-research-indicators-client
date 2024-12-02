@@ -5,12 +5,14 @@ export interface GetProjectDetail {
   project_lead_description?: string;
   start_date?: string;
   end_date?: string;
+  full_name?: string;
   indicators?: Indicator[];
 }
 
 interface Indicator {
   indicator: IndicatorMetadata;
   count_results: number;
+  full_name?: string;
 }
 
 interface IndicatorMetadata {
