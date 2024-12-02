@@ -201,6 +201,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_ContractsByUser = (): Promise<MainResponse<any>> => {
+    const url = () => 'agresso-contract/contracts/results/current-user';
+    return this.TP.get(url(), {});
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {

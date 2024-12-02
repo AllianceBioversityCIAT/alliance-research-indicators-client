@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
+import { ApiService } from '@shared/services/api.service';
 
 interface Indicator {
   icon: string;
@@ -25,6 +26,7 @@ interface Project {
   styleUrl: './my-projects.component.scss'
 })
 export default class MyProjectsComponent {
+  api = inject(ApiService);
   @Input() isHeader = false;
   @Input() projectId = '';
   @Input() projectName = '';
@@ -65,4 +67,13 @@ export default class MyProjectsComponent {
       ]
     }
   ];
+
+  constructor() {
+    this.getData();
+    // console.log(this.getData());
+  }
+
+  async getData() {
+    console.log(await this.api.GET_ContractsByUser());
+  }
 }
