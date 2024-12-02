@@ -5,29 +5,107 @@
   </div>
 </header>
 
-<section class="container">
-  <div class="container-header">
-    <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
-
-    <div class="title-group">
-      <p class="subtitle">AI ASSISTANCE</p>
-      <h1 class="title">UPLOAD YOUR DOCUMENTS</h1>
-      <p class="description">Upload your research documents, and let the AI-powered system analyze them to generate actionable insights and populate key fields automatically.</p>
-    </div>
+@if (documentAnalyzed() && selectedFile) {
+  <div class="document-analyzed-container">
+    <i class="pi pi-file upload-icon" style="font-size: 32px; margin: 0"></i>
+    <p class="upload-text" style="font-weight: 500; margin: 0">{{ selectedFile.name }}</p>
   </div>
+}
 
-  <div class="container-content"></div>
+<section class="container">
+  @if (!analyzeDocument() && !documentAnalyzed()) {
+    <div class="container-header">
+      <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
 
-  <!-- <div style="display: flex; justify-content: flex-start; align-items: center; width: 100%; height: 100%">
-    <p-button type="button" label="Analyze Document" icon="pi pi-sparkles" iconPos="right" class="analyze_button"></p-button>
-  </div> -->
-  <p-button type="button" label="Analyze Document" icon="pi pi-sparkles" iconPos="right" class="analyze_button"></p-button>
-  <!-- <div class="card">
-    <div class="card-content">
-      <div class="card-title">
-        <span class="material-symbols-rounded"> upload </span>
-        <h2 class="title">File Upload AI</h2>
+      <div class="title-group">
+        <p class="subtitle">AI ASSISTANCE</p>
+        <h1 class="title">UPLOAD YOUR DOCUMENTS</h1>
+        <p class="description">Upload your research documents, and let the AI-powered system analyze them to generate actionable insights and populate key fields automatically.</p>
       </div>
     </div>
-  </div> -->
+
+    <div class="file-upload-container">
+      @if (!selectedFile) {
+        <div class="upload-area" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.dragging]="isDragging" (click)="fileInput.click()">
+          <input #fileInput type="file" [accept]="acceptedFormats.join(',')" (change)="onFileSelected($event)" style="display: none" />
+          <i class="material-symbols-rounded upload-icon">add_circle</i>
+          <p class="upload-text">Drag and drop your file here or click to upload.</p>
+          <p class="file-formats">Accepted file formats: {{ acceptedFormats.join(', ') }}</p>
+        </div>
+      } @else {
+        <div class="upload-area" style="cursor: default">
+          <i class="pi pi-file upload-icon" style="font-size: 50px; margin-bottom: 15px"></i>
+          <div class="upload-area-content">
+            <i class="pi pi-file pi-times-circle" style="font-size: 16px; cursor: pointer; color: #cf0808" (click)="selectedFile = null"></i>
+            <p class="upload-text" style="font-weight: 500; margin: 0">{{ selectedFile.name }}</p>
+          </div>
+        </div>
+      }
+      <p class="file-size-limit">Each file can be up to {{ maxSizeMB }} MB. Ensure uploads comply with this limit.</p>
+    </div>
+
+    <!-- <p-button type="button" label="Analyze Document" icon="pi pi-sparkles" iconPos="right" [disabled]="!selectedFile" [severity]="!selectedFile ? 'secondary' : 'primary'" (onClick)="handleAnalyzeDocument()"></p-button> -->
+    <button type="button" class="analyze_button" [disabled]="!selectedFile" [ngClass]="{ disabled: !selectedFile }" (click)="handleAnalyzeDocument()">
+      Analyze Document
+      <i class="pi pi-sparkles" style="font-size: 16px"></i>
+    </button>
+  }
+
+  @if (analyzeDocument() && !documentAnalyzed()) {
+    <div class="loading-container">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    </div>
+  }
+
+  @if (documentAnalyzed()) {
+    <section class="analyze-result-container">
+      <div class="analyze-result-header">
+        <h1 class="analyze-result-title">
+          THE AI IDENTIFIED
+          <span class="analyze-result-title-number">20</span>
+          RESULTS
+        </h1>
+
+        <p class="analyze-result-description">Select the ones you want to create.</p>
+      </div>
+
+      <div>
+        <div class="analyze-result-content">
+          @for (item of items() | slice: first() : first() + rows(); track $index) {
+            <div class="result-item">
+              <div class="result-item-expand-icon">
+                <i class="pi pi-chevron-down" style="font-size: 10px"></i>
+              </div>
+
+              <div class="result-item-content">
+                <div class="result-item-header">
+                  <i class="pi pi-flag" style="font-size: 16px"></i>
+                  <p class="result-item-category">{{ item.type }}</p>
+                </div>
+
+                <p class="result-item-title">{{ item.title }}</p>
+                <p class="result-item-description">{{ item.description }}</p>
+
+                <div class="result-item-keywords">
+                  <p class="result-item-keywords-title">Keywords</p>
+                  <p class="result-item-keywords-arrow">&rarr;</p>
+                  @for (keyword of item.keywords; track $index) {
+                    <span class="keyword">{{ keyword }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="result-item-actions">
+                <p-button type="button" label="Discard" class="discard-button" size="small" [outlined]="true" severity="danger" (click)="discardResult(item)"></p-button>
+                <p-button type="button" label="Create" iconPos="right" icon="pi pi-plus" class="create-button" size="small" (click)="createResult(item)"></p-button>
+              </div>
+            </div>
+          }
+        </div>
+        <div style="display: flex; justify-content: flex-end; align-items: center; background-color: #fff">
+          <p-paginator (onPageChange)="onPageChange($event)" [first]="first()" [rows]="rows()" [totalRecords]="items().length" [showCurrentPageReport]="true" [showJumpToPageDropdown]="false" currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" />
+        </div>
+      </div>
+    </section>
+  }
 </section>
