@@ -5,6 +5,4 @@ import { Injectable, signal } from '@angular/core';
 })
 export class CreateResultManagementService {
   resultPageStep = signal<number>(0);
-
-  // constructor() {}
 }

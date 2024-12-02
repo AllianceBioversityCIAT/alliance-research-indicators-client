@@ -62,7 +62,7 @@
       <div class="analyze-result-header">
         <h1 class="analyze-result-title">
           THE AI IDENTIFIED
-          <span class="analyze-result-title-number">20</span>
+          <span class="analyze-result-title-number">{{ items().length }}</span>
           RESULTS
         </h1>
 
@@ -80,7 +80,7 @@
               <div class="result-item-content">
                 <div class="result-item-header">
                   <i class="pi pi-flag" style="font-size: 16px"></i>
-                  <p class="result-item-category">{{ item.type }}</p>
+                  <p class="result-item-category">{{ item.indicator }}</p>
                 </div>
 
                 <p class="result-item-title">{{ item.title }}</p>
