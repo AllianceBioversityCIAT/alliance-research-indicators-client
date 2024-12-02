@@ -1,10 +1,10 @@
-<div class="container" [class.header-project-details]="isHeader">
+<div class="container">
   <div class="content">
     <div class="search-box">
       <i class="material-symbols-rounded">search</i>
-      <input type="text" placeholder="Search a project by code, name or principal investigator" />
+      <input type="text" [(ngModel)]="searchValue" placeholder="Search a project by code, name or principal investigator" />
     </div>
-    @for (project of projectList; track $index) {
+    @for (project of projectList() | filterByTextWithAttr: 'full_name' : this.searchValue; track $index) {
       <app-project-item [project]="project"></app-project-item>
     }
   </div>

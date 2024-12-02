@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import MyProjectsComponent from './my-projects.component';
 
@@ -9,7 +10,7 @@ describe('MyProjectsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MyProjectsComponent],
+      imports: [MyProjectsComponent, HttpClientTestingModule],
       providers: [
         {
           provide: ActivatedRoute,

@@ -12,4 +12,5 @@ export interface Result {
 export interface ResultTable {
   attr: string;
   header: string;
+  pipe?: boolean;
 }
