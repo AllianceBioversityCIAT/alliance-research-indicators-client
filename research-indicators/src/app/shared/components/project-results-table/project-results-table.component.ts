@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 
 import { Table, TableModule } from 'primeng/table';
 
@@ -6,6 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 
 import { ResultTable } from '@shared/interfaces/result/result.interface';
 import { Button } from 'primeng/button';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-project-results-table',
@@ -15,6 +16,8 @@ import { Button } from 'primeng/button';
   styleUrl: './project-results-table.component.scss'
 })
 export class ProjectResultsTableComponent implements OnInit {
+  api = inject(ApiService);
+  @Input() contractId = '';
   loading = signal(true);
 
   activityValues: number[] = [0, 100];
@@ -82,9 +85,14 @@ export class ProjectResultsTableComponent implements OnInit {
   }
 
   ngOnInit() {
-    setTimeout(() => {
-      this.loading.set(false);
-    }, 1000);
+    this.getData();
+  }
+
+  async getData() {
+    this.loading.set(true);
+    const response = await this.api.GET_ResultsByContractId(this.contractId);
+    // console.log(response.data);
+    this.loading.set(false);
   }
 
   clear(table: Table) {

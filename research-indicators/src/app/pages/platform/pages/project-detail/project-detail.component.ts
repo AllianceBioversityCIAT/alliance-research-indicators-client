@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ProjectResultsTableComponent } from '@shared/components/project-results-table/project-results-table.component';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
+import { ApiService } from '../../../../shared/services/api.service';
+import { ActivatedRoute } from '@angular/router';
+import { GetProjectDetail } from '../../../../shared/interfaces/get-project-detail.interface';
 
 @Component({
   selector: 'app-project-detail',
@@ -9,20 +12,20 @@ import { ProjectItemComponent } from '@shared/components/project-item/project-it
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
-export default class ProjectDetailComponent {
-  currentProject = {
-    projectId: 'A1032',
-    projectName: 'EMBRAPA - Establishment of the international coconut gene bank for south america and the caribbean',
-    principalInvestigator: 'NGO-EYOK, SUZANNE',
-    startDate: '04/05/2024',
-    endDate: '20/12/2024',
-    indicatorList: [
-      { icon: 'group', number: '123', type: 'Capacity Sharing\nfor Development', class: 'output-icon' },
-      { icon: 'flag', number: '190', type: 'Innovation Development', class: 'output-icon' },
-      { icon: 'lightbulb', number: '154', type: 'Knowledge Product', class: 'output-icon' },
-      { icon: 'wb_sunny', number: '110', type: 'Innovation Use', class: 'outcome-icon' },
-      { icon: 'pie_chart', number: '146', type: 'Research Output', class: 'outcome-icon' },
-      { icon: 'folder_open', number: '146', type: 'Policy Change', class: 'outcome-icon' }
-    ]
-  };
+export default class ProjectDetailComponent implements OnInit {
+  activatedRoute = inject(ActivatedRoute);
+  api = inject(ApiService);
+  contractId = signal('');
+  currentProject = signal<GetProjectDetail>({});
+
+  ngOnInit(): void {
+    this.contractId.set(this.activatedRoute.snapshot.params['id']);
+    this.getProjectDetail();
+  }
+
+  async getProjectDetail() {
+    const response = await this.api.GET_ResultsCount(this.contractId());
+    console.log(response.data);
+    this.currentProject.set(response.data);
+  }
 }

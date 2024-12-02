@@ -206,6 +206,16 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_ResultsCount = (agreementId: string): Promise<MainResponse<any>> => {
+    const url = () => `agresso-contract/${agreementId}/results/count`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ResultsByContractId = (contractId: string): Promise<MainResponse<any>> => {
+    const url = () => `results/contracts/${contractId}`;
+    return this.TP.get(url(), {});
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {
