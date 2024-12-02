@@ -1,9 +1,9 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ProjectResultsTableComponent } from '@shared/components/project-results-table/project-results-table.component';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
 import { ApiService } from '../../../../shared/services/api.service';
 import { ActivatedRoute } from '@angular/router';
-import { GetProjectDetail } from '../../../../shared/interfaces/get-project-detail.interface';
+import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 
 @Component({
   selector: 'app-project-detail',
@@ -25,8 +25,7 @@ export default class ProjectDetailComponent implements OnInit {
 
   async getProjectDetail() {
     const response = await this.api.GET_ResultsCount(this.contractId());
-    console.log(response.data);
-    response.data.indicators.map((indicator: any) => {
+    response?.data?.indicators?.map((indicator: GetProjectDetailIndicator) => {
       indicator.full_name = indicator.indicator.name;
     });
     this.currentProject.set(response.data);

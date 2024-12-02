@@ -6,10 +6,10 @@ export interface GetProjectDetail {
   start_date?: string;
   end_date?: string;
   full_name?: string;
-  indicators?: Indicator[];
+  indicators?: GetProjectDetailIndicator[];
 }
 
-interface Indicator {
+export interface GetProjectDetailIndicator {
   indicator: IndicatorMetadata;
   count_results: number;
   full_name?: string;

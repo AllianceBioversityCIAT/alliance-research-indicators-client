@@ -1,9 +1,9 @@
-<p-table #dt1 [value]="results()" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="this.loading()" [paginator]="true" [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']" styleClass="custom-table">
+<p-table #dt1 [value]="resultList() | filterByTextWithAttr: 'full_name' : searchValue" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="this.loading()" [paginator]="true" [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']" styleClass="custom-table">
   <ng-template pTemplate="caption">
     <div class="header">
       <div class="search-box">
         <i class="material-symbols-rounded">search</i>
-        <input type="text" placeholder="Search by code, title or creator" />
+        <input [(ngModel)]="searchValue" type="text" placeholder="Search by code, title or creator" />
       </div>
       <div class="options">
         <p-button label="Export Results" icon="pi pi-file-export" iconPos="right" size="small" />
@@ -27,7 +27,7 @@
     <tr>
       @for (col of this.columns; track $index) {
         <td>
-          {{ customer[col.attr] }}
+          {{ col.pipe ? (customer[col.attr] | date: 'dd/MM/yyyy') : customer[col.attr] }}
         </td>
       }
     </tr>
