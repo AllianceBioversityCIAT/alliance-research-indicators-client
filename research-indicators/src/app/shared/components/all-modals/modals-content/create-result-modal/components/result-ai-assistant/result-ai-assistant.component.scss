@@ -130,7 +130,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 20px 40px;
+  padding: 30px 40px;
   background-color: var(--grey-100);
   gap: 15px;
 }
@@ -175,6 +175,7 @@ p {
   justify-content: flex-start;
   flex-direction: column;
   max-height: 680px;
+  max-height: calc(85vh - 351.5px);
   overflow-y: auto;
   height: 100%;
 }
@@ -187,6 +188,7 @@ p {
   gap: 10px;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+  width: 100%;
 }
 
 .result-item-expand-icon {

@@ -4,7 +4,7 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root'
 })
 export class CreateResultManagementService {
-  resultPageStep = signal<number>(1);
+  resultPageStep = signal<number>(0);
 
   // constructor() {}
 }
