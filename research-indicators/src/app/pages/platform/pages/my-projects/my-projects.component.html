@@ -4,7 +4,7 @@
       <i class="material-symbols-rounded">search</i>
       <input type="text" placeholder="Search a project by code, name or principal investigator" />
     </div>
-    @for (project of projectList; track $index) {
+    @for (project of projectList(); track $index) {
       <app-project-item [project]="project"></app-project-item>
     }
   </div>
