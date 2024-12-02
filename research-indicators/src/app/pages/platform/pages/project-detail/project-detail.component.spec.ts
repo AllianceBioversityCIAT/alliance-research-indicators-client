@@ -26,8 +26,11 @@ describe('ProjectComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { paramMap: new Map() },
-            params: of({}) // Mock route parameters if needed
+            snapshot: {
+              paramMap: new Map(),
+              params: { id: 'mock-id' }
+            },
+            params: of({ id: 'mock-id' })
           }
         }
       ]
