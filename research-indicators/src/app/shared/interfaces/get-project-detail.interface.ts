@@ -1,6 +1,7 @@
 export interface GetProjectDetail {
   agreement_id?: string;
   projectDescription?: string;
+  description?: string;
   project_lead_description?: string;
   start_date?: string;
   end_date?: string;
