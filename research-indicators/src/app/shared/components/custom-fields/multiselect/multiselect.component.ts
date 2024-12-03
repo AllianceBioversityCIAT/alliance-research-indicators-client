@@ -38,25 +38,32 @@ export class MultiselectComponent implements OnInit {
 
   body: WritableSignal<any> = signal({ value: null });
 
-  // selectedOptions = computed(() => {
-  //   return { data: this.objectArrayToIdArray(this.signal()[this.signalOptionValue], this.optionValue) || [] };
-  // });
+  selectedOptions = computed(() => {
+    return getNestedProperty(this.signal(), this.signalOptionValue);
+  });
   firstLoad = signal(true);
 
   onChange = effect(
     () => {
-      const hasNoLabelList = this.signal()[this.signalOptionValue]?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
+      const hasNoLabelList = getNestedProperty(this.signal(), this.signalOptionValue)?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
+      console.log(hasNoLabelList);
       if (!this.currentResultIsLoading() && this.service?.list().length && this.firstLoad() && hasNoLabelList?.length) {
+        console.log('entra');
         this.signal.update((current: any) => {
-          return {
-            ...current,
-            [this.signalOptionValue]: current[this.signalOptionValue].map((item: any) => {
+          setNestedPropertyWithReduce(
+            current,
+            this.signalOptionValue,
+            getNestedProperty(current, this.signalOptionValue)?.map((item: any) => {
               const itemFound = this.service?.list().find((option: any) => option[this.optionValue] === item[this.optionValue]);
               return { ...item, ...itemFound };
             })
+          );
+          return {
+            ...current
           };
         });
-        this.body.set({ value: this.signal()[this.signalOptionValue].map((item: any) => item[this.optionValue]) });
+        console.log('map only ids');
+        this.body.set({ value: getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
         this.firstLoad.set(false);
       }
     },
@@ -77,20 +84,21 @@ export class MultiselectComponent implements OnInit {
   }
 
   setValue(event: number[]) {
-    console.log(event);
     this.body.set({ value: event });
     this.signal.update((current: any) => {
-      const existingValues = this.objectArrayToIdArray(current[this.signalOptionValue], this.optionValue);
+      const existingValues = this.objectArrayToIdArray(getNestedProperty(current, this.signalOptionValue), this.optionValue);
 
       // Find new options to add
       const newOption = this.service?.list().find((option: any) => event.includes(option[this.optionValue]) && !existingValues.includes(option[this.optionValue]));
 
       if (newOption) {
-        current[this.signalOptionValue].push(newOption);
+        const currentValues = getNestedProperty(current, this.signalOptionValue);
+        setNestedPropertyWithReduce(current, this.signalOptionValue, [...currentValues, newOption]);
       }
 
       // Remove options that are no longer selected
-      current[this.signalOptionValue] = current[this.signalOptionValue].filter((item: any) => event.includes(item[this.optionValue]));
+      const filteredOptions = getNestedProperty(current, this.signalOptionValue).filter((item: any) => event.includes(item[this.optionValue]));
+      setNestedPropertyWithReduce(current, this.signalOptionValue, filteredOptions);
 
       return { ...current };
     });
@@ -102,12 +110,13 @@ export class MultiselectComponent implements OnInit {
 
   removeOption(option: any) {
     this.signal.update((current: any) => {
-      const updatedOptions = current[this.signalOptionValue].filter((item: any) => item[this.optionValue] !== option[this.optionValue]);
+      const updatedOptions = getNestedProperty(current, this.signalOptionValue).filter((item: any) => item[this.optionValue] !== option[this.optionValue]);
 
       // Update the body signal with the new list of option values
       this.body.set({ value: this.objectArrayToIdArray(updatedOptions, this.optionValue) });
 
-      return { ...current, [this.signalOptionValue]: updatedOptions };
+      setNestedPropertyWithReduce(current, this.signalOptionValue, updatedOptions);
+      return { ...current };
     });
   }
 }

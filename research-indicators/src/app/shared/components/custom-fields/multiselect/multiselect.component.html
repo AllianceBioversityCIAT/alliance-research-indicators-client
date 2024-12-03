@@ -20,7 +20,7 @@
       <p-skeleton width="100%" height="41px" styleClass="mb-2" />
     }
   } @else {
-    @for (row of list; track $index) {
+    @for (row of selectedOptions(); track $index) {
       <div class="item abc-grey-100">
         <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
         <i class="material-symbols-rounded" (click)="removeOption(row)">cancel</i>
