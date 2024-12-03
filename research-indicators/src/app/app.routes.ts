@@ -94,6 +94,13 @@ export const routes: Routes = [
             data: {
               title: 'Policy Change'
             }
+          },
+          {
+            path: 'geographic-scope',
+            loadComponent: () => import('@platform/pages/result/pages/geographic-scope/geographic-scope.component'),
+            data: {
+              title: 'Geographic Scope'
+            }
           }
         ]
       },
