@@ -51,7 +51,6 @@ export default class CapacitySharingComponent {
 
   mapAuxValues(current: GetCapSharing) {
     current.loaded = true;
-    current.aux_institution_id = current?.individual?.affiliation?.institution_id;
     current.aux_isoAlpha2 = current?.individual?.nationality?.isoAlpha2;
     current.aux_language_id = current?.training_supervisor_languages?.language_id;
     current.aux_user_id = current?.training_supervisor?.user_id;
@@ -67,7 +66,6 @@ export default class CapacitySharingComponent {
   deMapAuxValues(current: GetCapSharing) {
     if (!current.individual) current.individual = {};
 
-    current.individual.affiliation = { institution_id: current.aux_institution_id };
     current.individual.nationality = { isoAlpha2: current.aux_isoAlpha2 };
     current.training_supervisor_languages = { language_id: current.aux_language_id };
     current.training_supervisor = { user_id: current.aux_user_id };

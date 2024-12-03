@@ -6,6 +6,7 @@ import { ControlListServices } from '../../../interfaces/services.interface';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
+import { getNestedProperty, setNestedPropertyWithReduce } from '../../../utils/setNestedPropertyWithReduce';
 
 @Component({
   selector: 'app-select',
@@ -25,22 +26,27 @@ export class SelectComponent implements OnInit {
   @Input() disabled = false;
 
   service: any;
-  value = '';
+  body = signal({ value: null });
 
   constructor(private serviceLocator: ServiceLocatorService) {}
 
-  onSectionLoad = effect(() => {
-    if (!this.currentResultIsLoading()) this.value = this.signal()[this.optionValue.body];
-  });
+  onSectionLoad = effect(
+    () => {
+      if (!this.currentResultIsLoading())
+        this.body.update(current => {
+          setNestedPropertyWithReduce(current, 'value', getNestedProperty(this.signal(), this.optionValue.body));
+          return { ...current };
+        });
+    },
+    { allowSignalWrites: true }
+  );
 
   ngOnInit(): void {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
-  onClickItem(event: any) {
-    this.signal.update((current: any) => {
-      current[this.optionValue.body] = event;
-      return { ...current };
-    });
+  setValue(value: any) {
+    this.body.set({ value: value });
+    setNestedPropertyWithReduce(this.signal(), this.optionValue.body, value);
   }
 }
