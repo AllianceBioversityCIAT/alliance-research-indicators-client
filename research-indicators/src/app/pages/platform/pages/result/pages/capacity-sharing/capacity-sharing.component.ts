@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
-import { GetCapSharingService } from '../../../../../../shared/services/control-list/get-cap-sharing.service';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
@@ -24,20 +23,12 @@ import { CalendarInputComponent } from '../../../../../../shared/components/cust
   styleUrl: './capacity-sharing.component.scss'
 })
 export default class CapacitySharingComponent {
-  getCapSharingService = inject(GetCapSharingService);
   api = inject(ApiService);
   actions = inject(ActionsService);
   cache = inject(CacheService);
   router = inject(Router);
   body: WritableSignal<GetCapSharing> = signal({});
   loading = signal(false);
-  yesOrNoOptions: WritableSignal<{ list: { name: string; value: boolean | number }[]; loading: boolean }> = signal({
-    list: [
-      { name: 'Yes', value: 0 },
-      { name: 'No', value: 1 }
-    ],
-    loading: false
-  });
 
   constructor() {
     this.getData();

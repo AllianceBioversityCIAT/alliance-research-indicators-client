@@ -17,7 +17,6 @@ import { SkeletonModule } from 'primeng/skeleton';
 export class SelectComponent implements OnInit {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;
   @Input() signal: WritableSignal<any> = signal({});
-  @Input() options: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
   @Input() optionValue = { body: '', option: '' };
   @Input() serviceName: ControlListServices = '';

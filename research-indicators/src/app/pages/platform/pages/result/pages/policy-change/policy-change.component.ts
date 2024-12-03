@@ -24,15 +24,6 @@ export default class PolicyChangeComponent {
   router = inject(Router);
   body = signal<GetPolicyChange>({});
 
-  policyTypes = signal<{ list: { id: number; name: string }[]; loading: boolean }>({
-    list: [
-      { id: 1, name: 'Policy or Strategy' },
-      { id: 2, name: 'Legal instrument' },
-      { id: 3, name: 'Program, Budget, or Investment' }
-    ],
-    loading: false
-  });
-
   policyStages = signal<{ list: { id: number; name: string }[]; loading: boolean }>({
     list: [
       { id: 1, name: 'Stage 1: Research taken up by next user, policy change not yet enacted' },
