@@ -26,7 +26,7 @@ export interface Gender {
   name: string;
 }
 
-export interface GetCapSharing extends Aux {
+export interface GetCapSharing {
   delivery_modality_id?: number;
   end_date?: string | Date;
   session_format_id?: number;
@@ -49,11 +49,6 @@ interface GroupTraining {
   session_purpose_description?: string | null | undefined;
   session_purpose_id?: number | null | undefined;
   trainee_organization_representative?: [];
-}
-
-interface Aux {
-  aux_language_id?: number | string | null | undefined;
-  aux_user_id?: number | string | null | undefined;
 }
 
 interface Trainingsupervisorlanguages {

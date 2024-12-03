@@ -42,23 +42,10 @@ export default class CapacitySharingComponent {
     this.body.update(current => {
       if (current.start_date) current.start_date = new Date(current.start_date || '');
       if (current.end_date) current.end_date = new Date(current.end_date || '');
-      this.mapAuxValues(current);
       return { ...current };
     });
     console.log(this.body());
     this.loading.set(false);
-  }
-
-  mapAuxValues(current: GetCapSharing) {
-    current.loaded = true;
-    current.aux_language_id = current?.training_supervisor_languages?.language_id;
-    current.aux_user_id = current?.training_supervisor?.user_id;
-  }
-
-  deMapAuxValues(current: GetCapSharing) {
-    if (!current.individual) current.individual = {};
-    current.training_supervisor_languages = { language_id: current.aux_language_id };
-    current.training_supervisor = { user_id: current.aux_user_id };
   }
 
   async saveData(page?: 'next' | 'back') {
@@ -66,7 +53,6 @@ export default class CapacitySharingComponent {
       if (current.start_date) current.start_date = new Date(current.start_date || '').toISOString();
       if (current.end_date) current.end_date = new Date(current.end_date || '').toISOString();
 
-      this.deMapAuxValues(current);
       return { ...current };
     });
 
