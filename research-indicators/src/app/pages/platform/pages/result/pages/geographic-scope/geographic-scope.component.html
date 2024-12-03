@@ -13,6 +13,8 @@
       <div class="information"></div>
     </div>
 
+    <app-radio-button label="What is the main geographic focus of the Impact?*" [signal]="body" [optionLabel]="'label'" [options]="geographicFocus" [optionValue]="{ body: 'aux_is_attending_organization', option: 'value' }"></app-radio-button>
+
     <div class="button-container">
       <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" />
       <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" />
