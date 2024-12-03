@@ -1,5 +1,5 @@
 <header class="header">
-  <div class="header-content" (click)="this.createResultManagementService.resultPageStep.set(0)">
+  <div class="header-content" (click)="goBack()">
     <i class="material-symbols-rounded" style="font-size: 22px">arrow_back</i>
     <p class="title">File Upload AI</p>
   </div>
@@ -12,8 +12,8 @@
   </div>
 }
 
-<section class="container" [ngStyle]="{ 'margin-top': documentAnalyzed() ? '0' : '40px' }">
-  @if (!analyzeDocument() && !documentAnalyzed()) {
+<section class="container" [ngStyle]="{ 'margin-top': documentAnalyzed() ? '0' : '40px' }" [ngClass]="{ 'analyzing-container': analyzingDocument() }">
+  @if (!analyzingDocument() && !documentAnalyzed()) {
     <div class="container-header">
       <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
 
@@ -44,13 +44,13 @@
       <p class="file-size-limit">Each file can be up to {{ maxSizeMB }} MB. Ensure uploads comply with this limit.</p>
     </div>
 
-    <button type="button" class="analyze_button" [disabled]="!selectedFile" [ngClass]="{ disabled: !selectedFile }" (click)="handleAnalyzeDocument()">
+    <button type="button" class="analyze_button" [disabled]="!selectedFile" [ngClass]="{ disabled: !selectedFile }" (click)="handleAnalyzingDocument()">
       Analyze Document
       <i class="pi pi-sparkles" style="font-size: 16px"></i>
     </button>
   }
 
-  @if (analyzeDocument() && !documentAnalyzed()) {
+  @if (analyzingDocument() && !documentAnalyzed()) {
     <div class="loading-container">
       <h1 class="loading-title">
         ANALYZING DOCUMENT
@@ -76,40 +76,70 @@
 
       <div style="width: 100%">
         <div class="analyze-result-content">
-          @for (item of items() | slice: first() : first() + rows(); track $index) {
-            <div class="result-item">
-              <div class="result-item-expand-icon">
-                <i class="pi pi-chevron-down" style="font-size: 10px"></i>
-              </div>
+          @if (items().length === 0) {
+            <p class="no-results">No results to show.</p>
+          } @else {
+            @for (item of items() | slice: first() : first() + rows(); track $index) {
+              <div class="result-item" [class.expanded]="expandedItem() === item">
+                @if (item.training_type !== undefined) {
+                  <div class="result-item-expand-icon" (click)="toggleExpand(item)">
+                    <i class="pi" [ngClass]="expandedItem() === item ? 'pi-angle-down' : 'pi-angle-right'" style="font-size: 10px"></i>
+                  </div>
+                } @else {
+                  <div></div>
+                }
 
-              <div class="result-item-content">
-                <div class="result-item-header">
-                  <i class="pi pi-flag" style="font-size: 16px"></i>
-                  <p class="result-item-category">{{ item.indicator }}</p>
-                </div>
+                <div class="result-item-content">
+                  <div class="result-item-header">
+                    <i class="material-symbols-rounded" [class]="getIndicatorTypeIcon(item.indicator).class" style="font-size: 22px">{{ getIndicatorTypeIcon(item.indicator).icon }}</i>
+                    <p class="result-item-category">{{ item.indicator | uppercase }}</p>
+                  </div>
 
-                <p class="result-item-title">{{ item.title }}</p>
-                <p class="result-item-description">{{ item.description }}</p>
+                  <p class="result-item-title">{{ item.title | uppercase }}</p>
+                  <p class="result-item-description">{{ item.description }}</p>
 
-                <div class="result-item-keywords">
-                  <p class="result-item-keywords-title">Keywords</p>
-                  <p class="result-item-keywords-arrow">&rarr;</p>
-                  @for (keyword of item.keywords; track $index) {
-                    <span class="keyword">{{ keyword }}</span>
+                  <div class="result-item-keywords">
+                    <p class="result-item-keywords-title">Keywords</p>
+                    <p class="result-item-keywords-arrow">&rarr;</p>
+                    @for (keyword of item.keywords; track $index) {
+                      <span class="keyword">{{ keyword }}</span>
+                    }
+                  </div>
+
+                  @if (expandedItem() === item) {
+                    <div class="result-item-keywords">
+                      <p class="result-item-keywords-title">Training type</p>
+                      <p class="result-item-keywords-arrow">&rarr;</p>
+                      <p class="result-item-details-value">{{ item.training_type }}</p>
+                    </div>
+
+                    @if (item.total_participants !== undefined) {
+                      <div class="result-item-details">
+                        @for (detail of expandedItemDetails; track $index) {
+                          <div class="result-item-details-item">
+                            <p class="result-item-details-value">{{ item[detail.value] }}</p>
+                            <p class="result-item-keywords-title">{{ detail.title }}</p>
+                          </div>
+                        }
+                      </div>
+                    }
                   }
                 </div>
-              </div>
 
-              <div class="result-item-actions">
-                <p-button type="button" label="Discard" class="discard-button" size="small" [outlined]="true" severity="danger" (click)="discardResult(item)"></p-button>
-                <p-button type="button" label="Create" iconPos="right" icon="pi pi-plus" class="create-button" size="small" (click)="createResult(item)"></p-button>
+                <div class="result-item-actions">
+                  <p-button type="button" label="Discard" class="discard-button" size="small" [outlined]="true" severity="danger" (click)="discardResult(item)"></p-button>
+                  <p-button type="button" label="Create" iconPos="right" icon="pi pi-plus" class="create-button" size="small" (click)="createResult(item)"></p-button>
+                </div>
               </div>
-            </div>
+            }
           }
         </div>
-        <div style="display: flex; justify-content: flex-end; align-items: center; background-color: #fff">
-          <p-paginator (onPageChange)="onPageChange($event)" [first]="first()" [rows]="rows()" [totalRecords]="items().length" [showCurrentPageReport]="true" [showJumpToPageDropdown]="false" currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" />
-        </div>
+
+        @if (items().length > 0) {
+          <div style="display: flex; justify-content: flex-end; align-items: center; background-color: #fff">
+            <p-paginator (onPageChange)="onPageChange($event)" [first]="first()" [rows]="rows()" [totalRecords]="items().length" [showCurrentPageReport]="true" [showJumpToPageDropdown]="false" currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" />
+          </div>
+        }
       </div>
     </section>
   }
