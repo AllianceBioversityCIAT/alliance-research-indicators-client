@@ -80,7 +80,7 @@
 
       <div class="columns">
         <div class="column">
-          <app-radio-button label="What was the purpose of this training/engagement?*" [signal]="body" [serviceName]="'capSharingSessionPurpose'" [optionLabel]="'name'" [optionValue]="{ body: 'aux_session_purpose_id', option: 'session_purpose_id' }"></app-radio-button>
+          <app-radio-button label="What was the purpose of this training/engagement?*" [signal]="body" [serviceName]="'capSharingSessionPurpose'" [optionLabel]="'name'" [optionValue]="{ body: 'group.session_purpose_id', option: 'session_purpose_id' }"></app-radio-button>
         </div>
 
         <div class="column">
@@ -90,7 +90,7 @@
 
       <!-- Other -->
 
-      @if (body().aux_session_purpose_id === 4) {
+      @if (body().group?.session_purpose_id === 4) {
         <div class="columns">
           <div class="column">
             <app-input [signal]="body" optionValue="aux_session_purpose_description"></app-input>
