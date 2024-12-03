@@ -38,7 +38,6 @@ export interface GetCapSharing extends Aux {
   group?: GroupTraining;
   test?: string;
   loaded?: boolean;
-  aux_isoAlpha2?: string;
 }
 
 interface GroupTraining {
@@ -53,15 +52,8 @@ interface GroupTraining {
 }
 
 interface Aux {
-  aux_isoAlpha2?: string | number | null | undefined;
   aux_language_id?: number | string | null | undefined;
   aux_user_id?: number | string | null | undefined;
-  aux_session_participants_total?: number | null | undefined;
-  aux_session_participants_male?: number | null | undefined;
-  aux_session_participants_female?: number | null | undefined;
-  aux_session_participants_non_binary?: number | null | undefined;
-  aux_session_purpose_description?: string | null | undefined;
-  aux_trainee_organization_representative?: [];
 }
 
 interface Trainingsupervisorlanguages {

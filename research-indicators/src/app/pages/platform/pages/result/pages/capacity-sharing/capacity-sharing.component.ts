@@ -51,32 +51,14 @@ export default class CapacitySharingComponent {
 
   mapAuxValues(current: GetCapSharing) {
     current.loaded = true;
-    current.aux_isoAlpha2 = current?.individual?.nationality?.isoAlpha2;
     current.aux_language_id = current?.training_supervisor_languages?.language_id;
     current.aux_user_id = current?.training_supervisor?.user_id;
-    // group training
-    current.aux_session_participants_total = current.group?.session_participants_total;
-    current.aux_session_participants_male = current.group?.session_participants_male;
-    current.aux_session_participants_female = current.group?.session_participants_female;
-    current.aux_session_participants_non_binary = current.group?.session_participants_non_binary;
-    current.aux_session_purpose_description = current.group?.session_purpose_description;
-    current.aux_trainee_organization_representative = current.group?.trainee_organization_representative;
   }
 
   deMapAuxValues(current: GetCapSharing) {
     if (!current.individual) current.individual = {};
-
-    current.individual.nationality = { isoAlpha2: current.aux_isoAlpha2 };
     current.training_supervisor_languages = { language_id: current.aux_language_id };
     current.training_supervisor = { user_id: current.aux_user_id };
-    if (current.group) {
-      current.group.session_participants_total = current.aux_session_participants_total;
-      current.group.session_participants_male = current.aux_session_participants_male;
-      current.group.session_participants_female = current.aux_session_participants_female;
-      current.group.session_participants_non_binary = current.aux_session_participants_non_binary;
-      current.group.session_purpose_description = current.aux_session_purpose_description;
-      current.group.trainee_organization_representative = current.aux_trainee_organization_representative;
-    }
   }
 
   async saveData(page?: 'next' | 'back') {
