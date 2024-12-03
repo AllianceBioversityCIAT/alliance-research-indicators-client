@@ -44,7 +44,6 @@ export default class CapacitySharingComponent {
       if (current.end_date) current.end_date = new Date(current.end_date || '');
       return { ...current };
     });
-    console.log(this.body());
     this.loading.set(false);
   }
 

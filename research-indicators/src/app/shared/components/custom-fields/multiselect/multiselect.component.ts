@@ -46,9 +46,7 @@ export class MultiselectComponent implements OnInit {
   onChange = effect(
     () => {
       const hasNoLabelList = getNestedProperty(this.signal(), this.signalOptionValue)?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
-      console.log(hasNoLabelList);
       if (!this.currentResultIsLoading() && this.service?.list().length && this.firstLoad() && hasNoLabelList?.length) {
-        console.log('entra');
         this.signal.update((current: any) => {
           setNestedPropertyWithReduce(
             current,
@@ -62,7 +60,6 @@ export class MultiselectComponent implements OnInit {
             ...current
           };
         });
-        console.log('map only ids');
         this.body.set({ value: getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
         this.firstLoad.set(false);
       }
