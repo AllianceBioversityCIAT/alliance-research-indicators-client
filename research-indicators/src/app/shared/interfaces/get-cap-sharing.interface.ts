@@ -38,7 +38,6 @@ export interface GetCapSharing extends Aux {
   group?: GroupTraining;
   test?: string;
   loaded?: boolean;
-  aux_trainee_name?: string;
   aux_institution_id?: number;
   aux_isoAlpha2?: string;
 }
@@ -55,7 +54,6 @@ interface GroupTraining {
 }
 
 interface Aux {
-  aux_trainee_name?: string;
   aux_institution_id?: number | string | null | undefined;
   aux_isoAlpha2?: string | number | null | undefined;
   aux_language_id?: number | string | null | undefined;

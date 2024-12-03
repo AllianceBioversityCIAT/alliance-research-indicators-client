@@ -7,7 +7,7 @@ import { ApiService } from '../api.service';
 export class CapSharingFormatsService {
   api = inject(ApiService);
   list = signal<any[]>([]);
-  loading = signal(false);
+  loading = signal(true);
   constructor() {
     this.main();
   }

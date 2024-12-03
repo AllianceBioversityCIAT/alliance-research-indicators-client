@@ -18,6 +18,7 @@ import { getNestedProperty, setNestedPropertyWithReduce } from '@utils/setNested
   styleUrl: './radio-button.component.scss'
 })
 export class RadioButtonComponent implements OnInit {
+  currentResultIsLoading = inject(CacheService).currentResultIsLoading;
   cache = inject(CacheService);
   actions = inject(ActionsService);
   @Input() signal: WritableSignal<any> = signal({});
@@ -28,15 +29,15 @@ export class RadioButtonComponent implements OnInit {
   @Input() description = '';
 
   body = signal({ value: null });
-  firstTime = signal(false);
+  firstTime = signal(true);
   onChange = effect(
     () => {
-      if (!this.signal().loading && this.firstTime) {
+      if (!this.currentResultIsLoading() && this.firstTime()) {
         this.body.update(current => {
           setNestedPropertyWithReduce(current, 'value', getNestedProperty(this.signal(), this.optionValue.body));
           return { ...current };
         });
-        this.firstTime.set(true);
+        this.firstTime.set(false);
       }
     },
     { allowSignalWrites: true }
@@ -51,6 +52,5 @@ export class RadioButtonComponent implements OnInit {
   setValue(value: any) {
     this.body.set({ value: value });
     setNestedPropertyWithReduce(this.signal(), this.optionValue.body, value);
-    this.actions.saveCurrentSection();
   }
 }
