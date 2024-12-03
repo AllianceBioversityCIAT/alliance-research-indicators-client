@@ -65,7 +65,6 @@ interface Aux {
   aux_session_participants_female?: number | null | undefined;
   aux_session_participants_non_binary?: number | null | undefined;
   aux_session_purpose_description?: string | null | undefined;
-  aux_is_attending_organization?: boolean | number | null | undefined;
   aux_trainee_organization_representative?: [];
 }
 

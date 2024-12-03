@@ -62,7 +62,6 @@ export default class CapacitySharingComponent {
     current.aux_session_participants_female = current.group?.session_participants_female;
     current.aux_session_participants_non_binary = current.group?.session_participants_non_binary;
     current.aux_session_purpose_description = current.group?.session_purpose_description;
-    current.aux_is_attending_organization = current.group?.is_attending_organization;
     current.aux_trainee_organization_representative = current.group?.trainee_organization_representative;
   }
 
@@ -80,7 +79,6 @@ export default class CapacitySharingComponent {
       current.group.session_participants_female = current.aux_session_participants_female;
       current.group.session_participants_non_binary = current.aux_session_participants_non_binary;
       current.group.session_purpose_description = current.aux_session_purpose_description;
-      current.group.is_attending_organization = current.aux_is_attending_organization;
       current.group.trainee_organization_representative = current.aux_trainee_organization_representative;
     }
   }
