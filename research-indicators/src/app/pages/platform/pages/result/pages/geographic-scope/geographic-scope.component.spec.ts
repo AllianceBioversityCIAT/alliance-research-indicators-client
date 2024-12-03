@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-import { GeographicScopeComponent } from './geographic-scope.component';
+import GeographicScopeComponent from './geographic-scope.component';
 
 describe('GeographicScopeComponent', () => {
   let component: GeographicScopeComponent;
@@ -8,9 +9,8 @@ describe('GeographicScopeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GeographicScopeComponent]
-    })
-    .compileComponents();
+      imports: [GeographicScopeComponent, HttpClientTestingModule]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(GeographicScopeComponent);
     component = fixture.componentInstance;

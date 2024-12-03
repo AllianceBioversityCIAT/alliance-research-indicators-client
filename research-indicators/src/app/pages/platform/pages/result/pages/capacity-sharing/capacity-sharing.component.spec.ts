@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import CapacitySharingComponent from './capacity-sharing.component';
-import { GetCapSharingService } from '../../../../../../shared/services/control-list/get-cap-sharing.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
@@ -13,7 +12,7 @@ describe('CapacitySharingComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CapacitySharingComponent, HttpClientTestingModule],
-      providers: [GetCapSharingService, ApiService, ActionsService, CacheService]
+      providers: [ApiService, ActionsService, CacheService]
     }).compileComponents();
 
     fixture = TestBed.createComponent(CapacitySharingComponent);
