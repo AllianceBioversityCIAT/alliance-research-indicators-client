@@ -8,7 +8,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ActionsService } from '../../../services/actions.service';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { ControlListServices } from '../../../interfaces/services.interface';
-import { setNestedPropertyWithReduce } from '@utils/setNestedPropertyWithReduce';
+import { getNestedProperty, setNestedPropertyWithReduce } from '@utils/setNestedPropertyWithReduce';
 
 @Component({
   selector: 'app-radio-button',
@@ -33,7 +33,7 @@ export class RadioButtonComponent implements OnInit {
     () => {
       if (!this.signal().loading && this.firstTime) {
         this.body.update(current => {
-          setNestedPropertyWithReduce(current, 'value', this.getNestedProperty(this.signal(), this.optionValue.body));
+          setNestedPropertyWithReduce(current, 'value', getNestedProperty(this.signal(), this.optionValue.body));
           return { ...current };
         });
         this.firstTime.set(true);
@@ -48,13 +48,9 @@ export class RadioButtonComponent implements OnInit {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
-  changeValue(value: any) {
+  setValue(value: any) {
     this.body.set({ value: value });
     setNestedPropertyWithReduce(this.signal(), this.optionValue.body, value);
     this.actions.saveCurrentSection();
-  }
-
-  getNestedProperty(obj: any, path: string): any {
-    return path.split('.').reduce((acc, key) => acc && acc[key], obj);
   }
 }

@@ -9,3 +9,7 @@ export function setNestedPropertyWithReduce(obj: any, path: string, value: any):
     return acc[key];
   }, obj)[keys[keys.length - 1]] = value;
 }
+
+export function getNestedProperty(obj: any, path: string): any {
+  return path.split('.').reduce((acc, key) => acc && acc[key], obj);
+}
