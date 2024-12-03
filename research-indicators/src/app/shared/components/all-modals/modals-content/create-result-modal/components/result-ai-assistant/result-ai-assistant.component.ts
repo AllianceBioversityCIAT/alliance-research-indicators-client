@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { ToPromiseService } from '../../../../../../services/to-promise.service';
+import { ActionsService } from '../../../../../../services/actions.service';
 
 interface Item {
   indicator: string;
@@ -37,6 +38,7 @@ export class ResultAiAssistantComponent {
   first = signal(0);
   rows = signal(5);
   TP = inject(ToPromiseService);
+  actions = inject(ActionsService);
 
   onPageChange(event: PaginatorState) {
     this.first.set(event.first ?? 0);
@@ -78,6 +80,7 @@ export class ResultAiAssistantComponent {
       this.fileSelected(file);
     } else {
       console.error('Invalid file type or size');
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Invalid file type or size' });
     }
   }
 
@@ -101,8 +104,15 @@ export class ResultAiAssistantComponent {
     form.append('file', this.selectedFile);
     const result = await this.TP.post(`results/ai/create`, form);
 
+    if (!result?.data?.data) {
+      this.analyzeDocument.set(false);
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
+      return;
+    }
+
     if (result?.data?.data?.results?.length === 0) {
       this.analyzeDocument.set(false);
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'No results found. Please try again.' });
       return;
     }
 

@@ -122,8 +122,16 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  color: var(--primary-blue-500);
+  gap: 50px;
   height: 100%;
   width: 100%;
+}
+
+.loading-title {
+  font-size: 30px;
+  font-weight: 700;
 }
 
 .document-analyzed-container {
@@ -178,6 +186,7 @@ p {
   max-height: calc(85vh - 351.5px);
   overflow-y: auto;
   height: 100%;
+  width: 100%;
 }
 
 .result-item {

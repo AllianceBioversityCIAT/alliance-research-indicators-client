@@ -44,7 +44,6 @@
       <p class="file-size-limit">Each file can be up to {{ maxSizeMB }} MB. Ensure uploads comply with this limit.</p>
     </div>
 
-    <!-- <p-button type="button" label="Analyze Document" icon="pi pi-sparkles" iconPos="right" [disabled]="!selectedFile" [severity]="!selectedFile ? 'secondary' : 'primary'" (onClick)="handleAnalyzeDocument()"></p-button> -->
     <button type="button" class="analyze_button" [disabled]="!selectedFile" [ngClass]="{ disabled: !selectedFile }" (click)="handleAnalyzeDocument()">
       Analyze Document
       <i class="pi pi-sparkles" style="font-size: 16px"></i>
@@ -53,7 +52,13 @@
 
   @if (analyzeDocument() && !documentAnalyzed()) {
     <div class="loading-container">
-      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+      <h1 class="loading-title">
+        ANALYZING DOCUMENT
+        <span>
+          <i class="pi pi-sparkles" style="font-size: 30px"></i>
+        </span>
+      </h1>
+      <i class="pi pi-spin pi-spinner" style="font-size: 90px"></i>
     </div>
   }
 
@@ -69,7 +74,7 @@
         <p class="analyze-result-description">Select the ones you want to create.</p>
       </div>
 
-      <div>
+      <div style="width: 100%">
         <div class="analyze-result-content">
           @for (item of items() | slice: first() : first() + rows(); track $index) {
             <div class="result-item">
