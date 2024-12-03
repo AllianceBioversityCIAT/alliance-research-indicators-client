@@ -9,6 +9,8 @@ import { ServiceLocatorService } from '../../../services/service-locator.service
 import { ControlListServices } from '../../../interfaces/services.interface';
 import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
+import { getNestedProperty } from '../../../utils/setNestedPropertyWithReduce';
+import { setNestedPropertyWithReduce } from '../../../utils/setNestedPropertyWithReduce';
 
 @Component({
   selector: 'app-multiselect',
@@ -34,15 +36,17 @@ export class MultiselectComponent implements OnInit {
 
   service: any;
 
-  selectedOptions = computed(() => {
-    return { data: this.objectArrayToIdArray(this.signal()[this.signalOptionValue], this.optionValue) || [] };
-  });
+  body: WritableSignal<any> = signal({ value: null });
+
+  // selectedOptions = computed(() => {
+  //   return { data: this.objectArrayToIdArray(this.signal()[this.signalOptionValue], this.optionValue) || [] };
+  // });
   firstLoad = signal(true);
 
   onChange = effect(
     () => {
       const hasNoLabelList = this.signal()[this.signalOptionValue]?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
-      if (hasNoLabelList?.length && this.firstLoad() && this.service?.list().length) {
+      if (!this.currentResultIsLoading() && this.service?.list().length && this.firstLoad() && hasNoLabelList?.length) {
         this.signal.update((current: any) => {
           return {
             ...current,
@@ -52,6 +56,7 @@ export class MultiselectComponent implements OnInit {
             })
           };
         });
+        this.body.set({ value: this.signal()[this.signalOptionValue].map((item: any) => item[this.optionValue]) });
         this.firstLoad.set(false);
       }
     },
@@ -71,14 +76,21 @@ export class MultiselectComponent implements OnInit {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
-  onClickItem(event: number[]) {
+  setValue(event: number[]) {
+    console.log(event);
+    this.body.set({ value: event });
     this.signal.update((current: any) => {
       const existingValues = this.objectArrayToIdArray(current[this.signalOptionValue], this.optionValue);
+
+      // Find new options to add
       const newOption = this.service?.list().find((option: any) => event.includes(option[this.optionValue]) && !existingValues.includes(option[this.optionValue]));
 
       if (newOption) {
         current[this.signalOptionValue].push(newOption);
       }
+
+      // Remove options that are no longer selected
+      current[this.signalOptionValue] = current[this.signalOptionValue].filter((item: any) => event.includes(item[this.optionValue]));
 
       return { ...current };
     });
@@ -90,7 +102,12 @@ export class MultiselectComponent implements OnInit {
 
   removeOption(option: any) {
     this.signal.update((current: any) => {
-      return { ...current, [this.signalOptionValue]: current[this.signalOptionValue].filter((item: any) => item[this.optionValue] !== option[this.optionValue]) };
+      const updatedOptions = current[this.signalOptionValue].filter((item: any) => item[this.optionValue] !== option[this.optionValue]);
+
+      // Update the body signal with the new list of option values
+      this.body.set({ value: this.objectArrayToIdArray(updatedOptions, this.optionValue) });
+
+      return { ...current, [this.signalOptionValue]: updatedOptions };
     });
   }
 }
