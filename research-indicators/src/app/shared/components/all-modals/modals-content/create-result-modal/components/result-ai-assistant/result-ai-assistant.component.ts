@@ -142,7 +142,6 @@ export class ResultAiAssistantComponent {
     const form = new FormData();
     form.append('file', this.selectedFile);
     const result = await this.TP.post(`results/ai/create`, form);
-    console.log(result);
 
     if (!result?.data?.data) {
       this.analyzingDocument.set(false);
