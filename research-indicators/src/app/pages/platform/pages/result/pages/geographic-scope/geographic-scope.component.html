@@ -13,7 +13,27 @@
       <div class="information"></div>
     </div>
 
-    <!-- <app-radio-button label="What is the main geographic focus of the Impact?*" [signal]="body" [optionLabel]="'label'" [options]="geographicFocus" [optionValue]="{ body: 'aux_is_attending_organization', option: 'value' }"></app-radio-button> -->
+    <div class="fields">
+      <app-radio-button label="What is the main geographic focus of the Impact?*" [signal]="body" [optionLabel]="'label'" serviceName="geoFocus" [optionValue]="{ body: 'geographic_focus', option: 'value' }"></app-radio-button>
+
+      <!-- ? option 1 -->
+      @if (body().geographic_focus === '1') {
+        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Are there any regions that you wish to specify for this Impact?" description="The list of regions below follows the UN (M.49) standard"></app-multiselect>
+        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Are there any countries that you wish to specify for this Impact?" description="The list of countries below follows the ISO 3166 standard"></app-multiselect>
+      }
+      <!-- ? option 2 -->
+      @if (body().geographic_focus === '2') {
+        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Select the regions" description="The list of regions below follows the UN (M.49) standard"> </app-multiselect>
+      }
+      <!-- ? option 3 -->
+      @if (body().geographic_focus === '3') {
+        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Select the countries" description="The list of countries below follows the ISO 3166 standard"> </app-multiselect>
+      }
+      <!-- ? option 4 -->
+      @if (body().geographic_focus === '4') {
+        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Select the countries" description="The list of countries below follows the ISO 3166 standard"> </app-multiselect>
+      }
+    </div>
 
     <div class="button-container">
       <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" />

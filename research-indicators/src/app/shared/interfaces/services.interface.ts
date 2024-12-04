@@ -16,4 +16,5 @@ export type ControlListServices =
   | 'yesOrNo'
   | 'policyTypes'
   | 'policyStages'
+  | 'geoFocus'
   | '';

@@ -16,6 +16,7 @@ import { CapSharingLengthsService } from './short-control-list/cap-sharing-lengt
 import { CapSharingDeliveryModalitiesService } from './short-control-list/cap-sharing-delivery-modalities.service';
 import { CapSharingSessionPurposeService } from './short-control-list/cap-sharing-session-purpose.service';
 import { YesOrNotService } from './short-control-list/yes-or-not.service';
+import { GetGeoFocusService } from './control-list/get-geo-focus.service';
 
 @Injectable({
   providedIn: 'root'
@@ -57,6 +58,8 @@ export class ServiceLocatorService {
         return this.injector.get(PolicyTypesService);
       case 'policyStages':
         return this.injector.get(PolicyStagesService);
+      case 'geoFocus':
+        return this.injector.get(GetGeoFocusService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;
