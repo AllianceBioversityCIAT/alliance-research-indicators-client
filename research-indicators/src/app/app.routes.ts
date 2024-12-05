@@ -116,7 +116,8 @@ export const routes: Routes = [
         path: 'my-projects',
         loadComponent: () => import('@platform/pages/my-projects/my-projects.component'),
         data: {
-          title: 'My Projects'
+          title: 'My Projects',
+          hideBackButton: true
         }
       },
       {
