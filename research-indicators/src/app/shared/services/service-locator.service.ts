@@ -6,6 +6,17 @@ import { ControlListServices } from '../interfaces/services.interface';
 import { GetUserStaffService } from './control-list/get-user-staff.service';
 import { GetCountriesService } from './control-list/get-countries.service';
 import { GetClarisaLanguagesService } from './control-list/get-clarisa-languages.service';
+import { PolicyTypesService } from './short-control-list/policy-types.service';
+import { PolicyStagesService } from './short-control-list/policy-stages.service';
+import { CapSharingGendersService } from './short-control-list/cap-sharing-genders.service';
+import { CapSharingFormatsService } from './short-control-list/cap-sharing-formats.service';
+import { CapSharingTypesService } from './short-control-list/cap-sharing-types.service';
+import { CapSharingDegreesService } from './short-control-list/cap-sharing-degrees.service';
+import { CapSharingLengthsService } from './short-control-list/cap-sharing-lengths.service';
+import { CapSharingDeliveryModalitiesService } from './short-control-list/cap-sharing-delivery-modalities.service';
+import { CapSharingSessionPurposeService } from './short-control-list/cap-sharing-session-purpose.service';
+import { YesOrNotService } from './short-control-list/yes-or-not.service';
+import { GetGeoFocusService } from './control-list/get-geo-focus.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +38,28 @@ export class ServiceLocatorService {
         return this.injector.get(GetCountriesService);
       case 'languages':
         return this.injector.get(GetClarisaLanguagesService);
+      case 'capSharingGenders':
+        return this.injector.get(CapSharingGendersService);
+      case 'capSharingFormats':
+        return this.injector.get(CapSharingFormatsService);
+      case 'capSharingTypes':
+        return this.injector.get(CapSharingTypesService);
+      case 'capSharingDegrees':
+        return this.injector.get(CapSharingDegreesService);
+      case 'capSharingLengths':
+        return this.injector.get(CapSharingLengthsService);
+      case 'capSharingDeliveryModalities':
+        return this.injector.get(CapSharingDeliveryModalitiesService);
+      case 'capSharingSessionPurpose':
+        return this.injector.get(CapSharingSessionPurposeService);
+      case 'yesOrNo':
+        return this.injector.get(YesOrNotService);
+      case 'policyTypes':
+        return this.injector.get(PolicyTypesService);
+      case 'policyStages':
+        return this.injector.get(PolicyStagesService);
+      case 'geoFocus':
+        return this.injector.get(GetGeoFocusService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;

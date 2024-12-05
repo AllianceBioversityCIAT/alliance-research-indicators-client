@@ -12,7 +12,7 @@
   @if (currentResultIsLoading()) {
     <p-skeleton width="100%" height="41px" styleClass="mb-2" />
   } @else {
-    <p-multiSelect [style]="{ width: '100%' }" [loading]="this.service?.loading()" [options]="this.service?.list()" [filter]="true" [filterBy]="this.optionLabel" [optionLabel]="this.optionLabel" [optionValue]="this.optionValue" placeholder="Select items" [(ngModel)]="this.selectedOptions().data" (ngModelChange)="this.onClickItem($event)" [virtualScroll]="true" [virtualScrollItemSize]="41" />
+    <p-multiSelect [style]="{ width: '100%' }" [loading]="this.service?.loading()" [options]="this.service?.list()" [filter]="true" [filterBy]="this.optionLabel" [optionLabel]="this.optionLabel" [optionValue]="this.optionValue" placeholder="Select items" [(ngModel)]="this.body().value" (ngModelChange)="this.setValue($event)" [virtualScroll]="true" [virtualScrollItemSize]="41" />
   }
 
   @if (this.currentResultIsLoading() || !this.service?.list().length) {
@@ -20,7 +20,7 @@
       <p-skeleton width="100%" height="41px" styleClass="mb-2" />
     }
   } @else {
-    @for (row of list; track $index) {
+    @for (row of selectedOptions(); track $index) {
       <div class="item abc-grey-100">
         <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
         <i class="material-symbols-rounded" (click)="removeOption(row)">cancel</i>

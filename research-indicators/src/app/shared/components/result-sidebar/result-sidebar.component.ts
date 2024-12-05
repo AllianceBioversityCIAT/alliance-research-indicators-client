@@ -1,8 +1,13 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
-
+interface SidebarOption {
+  label: string;
+  path: string;
+  indicator_id?: number;
+  disabled?: boolean;
+}
 @Component({
   selector: 'app-result-sidebar',
   standalone: true,
@@ -12,7 +17,7 @@ import { CacheService } from '../../services/cache/cache.service';
 })
 export class ResultSidebarComponent {
   cache = inject(CacheService);
-  allOptions = signal([
+  allOptions: WritableSignal<SidebarOption[]> = signal([
     {
       label: 'General information',
       path: 'general-information'
@@ -37,8 +42,7 @@ export class ResultSidebarComponent {
     },
     {
       label: 'Geographic scope',
-      path: 'geographic-scope',
-      disabled: true
+      path: 'geographic-scope'
     },
     {
       label: 'Evidence',

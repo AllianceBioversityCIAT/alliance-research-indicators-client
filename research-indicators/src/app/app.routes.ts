@@ -26,7 +26,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'about-indicators',
+        redirectTo: 'my-projects',
         pathMatch: 'full'
       },
       {
@@ -93,6 +93,13 @@ export const routes: Routes = [
             loadComponent: () => import('@platform/pages/result/pages/policy-change/policy-change.component'),
             data: {
               title: 'Policy Change'
+            }
+          },
+          {
+            path: 'geographic-scope',
+            loadComponent: () => import('@platform/pages/result/pages/geographic-scope/geographic-scope.component'),
+            data: {
+              title: 'Geographic Scope'
             }
           }
         ]

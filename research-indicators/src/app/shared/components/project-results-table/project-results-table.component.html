@@ -26,7 +26,7 @@
   <ng-template pTemplate="body" let-customer>
     <tr>
       @for (col of this.columns; track $index) {
-        <td>
+        <td [routerLink]="['/result', customer.result_id]">
           {{ col.pipe ? (customer[col.attr] | date: 'dd/MM/yyyy') : customer[col.attr] }}
         </td>
       }

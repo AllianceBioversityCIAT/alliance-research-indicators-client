@@ -17,7 +17,8 @@
       "@auth/*": ["src/app/pages/auth/*"],
       "@landing/*": ["src/app/pages/landing/*"],
       "@guards/*": ["src/app/shared/guards/*"],
-      "@ts-types/*": ["src/app/shared/types/*"]
+      "@ts-types/*": ["src/app/shared/types/*"],
+      "@utils/*": ["src/app/shared/utils/*"]
     },
     "outDir": "./dist/out-tsc",
     "strict": true,

@@ -11,9 +11,9 @@
     <small class="description" for="username">{{ description }}</small>
   }
 
-  @for (item of options().list; track $index) {
+  @for (item of this.service.list(); track $index) {
     <div class="option">
-      <p-radioButton [name]="item[optionValue.option]" value="{{ item[optionValue.option] }}" (ngModelChange)="changeValue(item[optionValue.option])" [(ngModel)]="this.body().value" [inputId]="item[optionLabel] + 'id' + item[optionValue.option]" />
+      <p-radioButton [name]="item[optionValue.option]" value="{{ item[optionValue.option] }}" (ngModelChange)="setValue(item[optionValue.option])" [(ngModel)]="this.body().value" [inputId]="item[optionLabel] + 'id' + item[optionValue.option]" />
       <label [for]="item[optionLabel] + 'id' + item[optionValue.option]" class="ml-2"> {{ item[optionLabel] }} </label>
     </div>
   }
