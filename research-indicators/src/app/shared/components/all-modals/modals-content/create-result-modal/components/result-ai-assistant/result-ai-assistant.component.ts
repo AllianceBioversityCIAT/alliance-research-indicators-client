@@ -5,72 +5,38 @@ import { CommonModule } from '@angular/common';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { ToPromiseService } from '../../../../../../services/to-promise.service';
 import { ActionsService } from '../../../../../../services/actions.service';
-
-interface Item {
-  indicator: string;
-  title: string;
-  description: string;
-  keywords: string[];
-  geoscope: {
-    level: string;
-    sub_list: string[];
-  };
-  training_type: string;
-  total_participants: number;
-  non_binary_participants: number;
-  female_participants: number;
-  male_participants: number;
-}
-
-type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_participants' | 'male_participants';
+import { AIAssistantResult } from '../../models/AIAssistantResult';
+import { ResultAiItemComponent } from './components/result-ai-item/result-ai-item.component';
 
 @Component({
   selector: 'app-result-ai-assistant',
   standalone: true,
-  imports: [CommonModule, ButtonModule, PaginatorModule],
+  imports: [CommonModule, ButtonModule, PaginatorModule, ResultAiItemComponent],
   templateUrl: './result-ai-assistant.component.html',
   styleUrl: './result-ai-assistant.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiAssistantComponent {
-  createResultManagementService = inject(CreateResultManagementService);
-
-  indicatorTypeIcon = [
-    { icon: 'group', type: 'Capacity Sharing for Development', class: 'output-icon' },
-    { icon: 'flag', type: 'Innovation Development', class: 'output-icon' },
-    { icon: 'lightbulb', type: 'Knowledge Product', class: 'output-icon' },
-    { icon: 'wb_sunny', type: 'Innovation Use', class: 'outcome-icon' },
-    { icon: 'pie_chart', type: 'Research Output', class: 'outcome-icon' },
-    { icon: 'folder_open', type: 'Policy Change', class: 'outcome-icon' }
-  ];
-
   acceptedFormats: string[] = ['.pdf', '.docx', '.txt'];
   maxSizeMB = 300;
   isDragging = false;
   selectedFile: File | null = null;
   analyzingDocument = signal(false);
   documentAnalyzed = signal(false);
-  items = signal<Item[]>([]);
   first = signal(0);
   rows = signal(5);
-  expandedItem = signal<Item | null>(null);
-
-  expandedItemDetails = [
-    { title: 'Total participants', value: 'total_participants' as DetailValue },
-    { title: 'Non-binary', value: 'non_binary_participants' as DetailValue },
-    { title: 'Female', value: 'female_participants' as DetailValue },
-    { title: 'Male', value: 'male_participants' as DetailValue }
-  ];
+  expandedItem = signal<AIAssistantResult | null>(null);
 
   TP = inject(ToPromiseService);
   actions = inject(ActionsService);
+  createResultManagementService = inject(CreateResultManagementService);
 
   goBack() {
     if (this.analyzingDocument()) return;
 
     if (this.documentAnalyzed()) {
       this.selectedFile = null;
-      this.items.set([]);
+      this.createResultManagementService.items.set([]);
       this.documentAnalyzed.set(false);
       this.analyzingDocument.set(false);
       return;
@@ -156,28 +122,9 @@ export class ResultAiAssistantComponent {
     }
 
     if (result.successfulRequest) {
-      this.items.set(result.data.data.results);
+      this.createResultManagementService.items.set(result.data.data.results);
       this.analyzingDocument.set(false);
       this.documentAnalyzed.set(true);
     }
-  }
-
-  discardResult(item: Item) {
-    this.items.update(items => items.filter(i => i !== item));
-  }
-
-  createResult(item: Item) {
-    console.error('Creating result:', item);
-  }
-
-  getIndicatorTypeIcon(type: string) {
-    return {
-      class: this.indicatorTypeIcon.find(icon => icon.type === type)?.class,
-      icon: this.indicatorTypeIcon.find(icon => icon.type === type)?.icon
-    };
-  }
-
-  toggleExpand(item: Item) {
-    this.expandedItem.set(this.expandedItem() === item ? null : item);
   }
 }

@@ -1,0 +1,125 @@
+h1,
+p {
+  margin: 0;
+}
+
+.result-item {
+  padding: 25px;
+  background-color: #fcfcfc;
+  display: grid;
+  grid-template-columns: 40px 1fr 200px;
+  gap: 10px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  width: 100%;
+}
+
+.result-item-expand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: var(--grey-200);
+  border-radius: 50%;
+  height: 25px;
+  width: 25px;
+}
+
+.result-item-content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.result-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+}
+
+.result-item-category {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--grey-600);
+}
+
+.result-item-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--primary-blue-600);
+}
+
+.result-item-description {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--grey-700);
+}
+
+.result-item-keywords {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.result-item-keywords-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--grey-600);
+}
+
+.result-item-keywords-arrow {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--grey-600);
+}
+
+.keyword {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--grey-700);
+  padding: 5px 10px;
+  border-radius: 10px;
+  background-color: var(--grey-200);
+  text-transform: capitalize;
+}
+
+.result-item-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.output-icon {
+  color: #358540;
+}
+
+.outcome-icon {
+  color: #f58220;
+}
+
+.result-item-details {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.result-item-details-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.result-item-details-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary-blue-600);
+}
