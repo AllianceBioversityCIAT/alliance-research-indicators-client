@@ -21,6 +21,9 @@ import { ModalName } from '@ts-types/modal.types';
 export class ModalComponent {
   allModalsService = inject(AllModalsService);
   @Input() modalName!: ModalName;
+  @Input() clearModal: () => void = () => {
+    /* no-op */
+  };
 
   showModal() {
     return this.allModalsService.isModalOpen(this.modalName);

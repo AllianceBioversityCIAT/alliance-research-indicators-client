@@ -1,12 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
+import { SessionFormat } from '../../interfaces/get-cap-sharing.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CapSharingFormatsService {
   api = inject(ApiService);
-  list = signal<any[]>([]);
+  list = signal<SessionFormat[]>([]);
   loading = signal(true);
   constructor() {
     this.main();

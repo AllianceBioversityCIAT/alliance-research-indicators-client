@@ -11,11 +11,12 @@ import { FilterByTextWithAttrPipe } from '../../pipes/filter-by-text-with-attr.p
 import { GetResultsByContract } from '../../interfaces/get-results-by-contract.interface';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-project-results-table',
   standalone: true,
-  imports: [TableModule, InputTextModule, Button, FilterByTextWithAttrPipe, DatePipe, FilterByTextWithAttrPipe, FormsModule],
+  imports: [TableModule, InputTextModule, Button, FilterByTextWithAttrPipe, DatePipe, FilterByTextWithAttrPipe, FormsModule, RouterLink],
   templateUrl: './project-results-table.component.html',
   styleUrl: './project-results-table.component.scss'
 })

@@ -1,12 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
+import { Length } from '../../interfaces/get-cap-sharing.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CapSharingLengthsService {
   api = inject(ApiService);
-  list = signal<any[]>([]);
+  list = signal<Length[]>([]);
   loading = signal(false);
   constructor() {
     this.main();

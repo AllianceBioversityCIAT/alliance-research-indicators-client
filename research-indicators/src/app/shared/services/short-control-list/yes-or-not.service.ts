@@ -4,7 +4,7 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root'
 })
 export class YesOrNotService {
-  list = signal<any[]>([
+  list = signal<{ name: string; value: number }[]>([
     { name: 'Yes', value: 0 },
     { name: 'No', value: 1 }
   ]);

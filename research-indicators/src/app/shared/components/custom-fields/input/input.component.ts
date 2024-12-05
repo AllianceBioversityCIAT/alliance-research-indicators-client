@@ -29,7 +29,7 @@ export class InputComponent {
 
   onChange = effect(
     () => {
-      if (this.firstTime()) {
+      if (this.firstTime() && !this.currentResultIsLoading()) {
         this.body.set({ value: getNestedProperty(this.signal(), this.optionValue) });
         this.firstTime.set(false);
       }

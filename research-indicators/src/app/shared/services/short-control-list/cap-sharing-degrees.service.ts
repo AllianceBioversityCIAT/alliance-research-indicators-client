@@ -1,12 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
+import { Degree } from '../../interfaces/get-cap-sharing.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CapSharingDegreesService {
   api = inject(ApiService);
-  list = signal<any[]>([]);
+  list = signal<Degree[]>([]);
   loading = signal(false);
   constructor() {
     this.main();
