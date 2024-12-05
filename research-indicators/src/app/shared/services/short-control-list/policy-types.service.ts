@@ -6,7 +6,7 @@ import { ApiService } from '../api.service';
 })
 export class PolicyTypesService {
   api = inject(ApiService);
-  list = signal<any[]>([]);
+  list = signal<{ name: string; id: number }[]>([]);
   loading = signal(false);
   constructor() {
     this.main();

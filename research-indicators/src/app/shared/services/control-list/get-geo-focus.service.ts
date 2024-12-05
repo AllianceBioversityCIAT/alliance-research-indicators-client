@@ -6,7 +6,7 @@ import { ApiService } from '../api.service';
 })
 export class GetGeoFocusService {
   api = inject(ApiService);
-  list = signal<any[]>([]);
+  list = signal<{ value: string; label: string }[]>([]);
   loading = signal(false);
   constructor() {
     this.main();

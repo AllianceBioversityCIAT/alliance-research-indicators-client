@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function setNestedPropertyWithReduce(obj: any, path: string, value: any): void {
   const keys = path.split('.');
 

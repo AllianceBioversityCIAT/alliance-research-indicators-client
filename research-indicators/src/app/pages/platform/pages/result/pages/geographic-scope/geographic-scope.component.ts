@@ -14,5 +14,5 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 })
 export default class GeographicScopeComponent {
   api = inject(ApiService);
-  body: WritableSignal<PatchGeographicScope> = signal({ geographic_focus: '' });
+  body: WritableSignal<PatchGeographicScope> = signal({ geographic_focus: '', institutions: [] });
 }
