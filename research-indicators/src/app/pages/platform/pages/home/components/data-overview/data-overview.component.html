@@ -7,49 +7,74 @@
     <div class="results-content">
       <div class="results-updates">
         <span class="card-title">Results Updates</span>
-        <div class="results-accepted">
-          <span class="material-symbols-rounded check"> task_alt </span>
-          <div class="text-content">
-            <span class="title">RESULT ACCEPTED</span>
-            <span class="description">Your result #128 has been accepted.</span>
+        @if (results === false) {
+          <div class="results-accepted">
+            <span class="material-symbols-rounded check"> task_alt </span>
+            <div class="text-content">
+              <span class="title">RESULT ACCEPTED</span>
+              <span class="description">Your result #128 has been accepted.</span>
+            </div>
           </div>
-        </div>
-        <div class="results-accepted">
-          <span class="material-symbols-rounded info"> info </span>
-          <div class="text-content">
-            <span class="title">PENDING RESULT</span>
-            <span class="description">Your result #153 is pending to submit.</span>
+          <div class="results-accepted">
+            <span class="material-symbols-rounded info"> info </span>
+            <div class="text-content">
+              <span class="title">PENDING RESULT</span>
+              <span class="description">Your result #153 is pending to submit.</span>
+            </div>
           </div>
-        </div>
-        <div class="results-accepted">
-          <span class="material-symbols-rounded cancel"> cancel </span>
-          <div class="text-content">
-            <span class="title">RESULT DENEGATED</span>
-            <span class="description">Your result #155 has been denegated.</span>
+          <div class="results-accepted">
+            <span class="material-symbols-rounded cancel"> cancel </span>
+            <div class="text-content">
+              <span class="title">RESULT DENEGATED</span>
+              <span class="description">Your result #155 has been denegated.</span>
+            </div>
           </div>
-        </div>
+        } @else {
+          <div class="no-updates-yet">
+            <img src="images/home/no-updates-yet.png" alt="" />
+            <span class="title">No updates yet</span>
+            <span class="description">It looks like you haven’t created any results yet. Start now and unlock the potential of your research.</span>
+          </div>
+        }
       </div>
       <div class="results-status">
         <span class="card-title">Results by Status</span>
-        <!-- <p-chart type="doughnut" [data]="data" [options]="options"></p-chart> -->
+        @if (results === false) {
+          <!-- <p-chart type="doughnut" [data]="data" [options]="options"></p-chart> -->
+        } @else {
+          <div class="no-results-yet">
+            <img src="images/home/no-results-yet.png" alt="" />
+            <span class="title">No results yet</span>
+            <span class="description">It looks like you haven’t created any results yet. Start now and unlock the potential of your research.</span>
+          </div>
+        }
       </div>
     </div>
     <div class="indicators-content">
       <div class="text-content">
         <span class="card-title">My total numbers of results by indicator type</span>
       </div>
-
-      <div class="indicators">
-        @for (indicator of indicators; track $index) {
-          <div class="indicator">
-            <div class="indicator-number-container">
-              <i class="material-symbols-rounded" [class]="indicator.type">{{ indicator.icon }}</i>
-              <label class="indicator-number" for="username">{{ indicator.number }}</label>
+      @if (results === false) {
+        <div class="indicators">
+          @for (indicator of indicators; track $index) {
+            <div class="indicator">
+              <div class="indicator-number-container">
+                <i class="material-symbols-rounded" [class]="indicator.type">{{ indicator.icon }}</i>
+                <label class="indicator-number" for="username">{{ indicator.number }}</label>
+              </div>
+              <label class="indicator-type" for="username">{{ indicator.name }}</label>
             </div>
-            <label class="indicator-type" for="username">{{ indicator.name }}</label>
+          }
+        </div>
+      } @else {
+        <div class="no-results-yet-2">
+          <img src="images/home/no-results-yet.png" alt="" />
+          <div class="column">
+            <span class="title">No results yet</span>
+            <span class="description">It looks like you haven’t created any results yet. Start now and unlock the potential of your research.</span>
           </div>
-        }
-      </div>
+        </div>
+      }
     </div>
   </div>
 </div>
