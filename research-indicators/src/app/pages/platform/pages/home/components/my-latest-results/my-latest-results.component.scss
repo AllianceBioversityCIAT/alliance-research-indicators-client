@@ -103,6 +103,7 @@
               font-weight: 600;
               line-height: 20px;
               color: #112f5c;
+              text-transform: uppercase;
             }
           }
         }
@@ -119,12 +120,13 @@
             color: #8d9299;
           }
 
-          .project-data {
+          .project {
             font-family: 'Space Grotesk', sans-serif;
             font-size: 13px;
             font-weight: 500;
             line-height: 13px;
             color: #345b8f;
+            text-transform: uppercase;
           }
 
           .project-name {

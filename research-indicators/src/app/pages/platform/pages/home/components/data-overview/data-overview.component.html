@@ -7,7 +7,7 @@
     <div class="results-content">
       <div class="results-updates">
         <span class="card-title">Results Updates</span>
-        @if (results === false) {
+        @if (results === true) {
           <div class="results-accepted">
             <span class="material-symbols-rounded check"> task_alt </span>
             <div class="text-content">
@@ -39,7 +39,7 @@
       </div>
       <div class="results-status">
         <span class="card-title">Results by Status</span>
-        @if (results === false) {
+        @if (results === true) {
           <!-- <p-chart type="doughnut" [data]="data" [options]="options"></p-chart> -->
         } @else {
           <div class="no-results-yet">
@@ -54,7 +54,7 @@
       <div class="text-content">
         <span class="card-title">My total numbers of results by indicator type</span>
       </div>
-      @if (results === false) {
+      @if (results === true) {
         <div class="indicators">
           @for (indicator of indicators; track $index) {
             <div class="indicator">
