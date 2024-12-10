@@ -1,20 +1,22 @@
 <div class="card-content">
   <div class="indicator-header">
     <div class="indicator-title">
-      <p>Indicator</p>
-      <p class="indicator-description">{{ cache.currentMetadata().indicator_short_name }}</p>
+      <span class="indicator-title">Indicator</span>
+      <span class="indicator-description">{{ cache.currentMetadata().indicator_short_name }}</span>
     </div>
-    <div class="indicator-title">
-      <p>Code</p>
-      <p class="code-description">{{ cache.currentMetadata().result_official_code }}</p>
-    </div>
-    <div class="indicator-title">
-      <p>Status</p>
-      <p class="status-description">{{ cache.currentMetadata().status_name }}</p>
+    <div class="status-code">
+      <div class="indicator-title">
+        <span class="header-title">Status</span>
+        <span class="status-description">{{ cache.currentMetadata().status_name }}</span>
+      </div>
+      <div class="indicator-title">
+        <span class="header-title">Code</span>
+        <span class="code-description">{{ cache.currentMetadata().result_official_code }}</span>
+      </div>
     </div>
   </div>
   <hr />
-  <div class="title">Your progress</div>
+  <div class="title">FORM PROGRESS</div>
   <div class="options-container">
     @for (option of options(); track option.path) {
       <div class="options" [class.disabled]="option.disabled" [routerLink]="option.disabled ? null : option.path" routerLinkActive="active">

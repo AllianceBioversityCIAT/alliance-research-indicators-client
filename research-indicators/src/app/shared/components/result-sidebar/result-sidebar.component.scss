@@ -5,19 +5,22 @@
   flex-direction: column;
   background-color: #fcfcfc;
   border-radius: 10px;
-  padding: 30px;
-  width: max-content;
+  padding: 25px;
+  margin-right: 20px;
+  width: 280px;
+  max-width: 280px;
 
   .indicator-header {
-    display: flex;
+    display: grid;
     justify-content: space-between;
+    gap: 7px;
 
     .indicator-title {
+      display: grid;
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 300;
       color: #777c83;
-      margin: 0;
     }
 
     .indicator-description,
@@ -30,7 +33,17 @@
     }
 
     .status-description {
+      font-size: 13px;
       color: #1689ca;
+      border: 0.47px solid #1689ca;
+      border-radius: 5px;
+      padding: 5px;
+      text-transform: uppercase;
+    }
+
+    .status-code {
+      display: flex;
+      gap: 15px;
     }
   }
 
@@ -40,13 +53,9 @@
     margin: 20px 0;
   }
 
-  p {
-    margin: 5px;
-  }
-
   .title {
     font-family: Barlow, sans-serif;
-    font-size: 17px;
+    font-size: 12px;
     font-weight: 500;
     color: #777c83;
     margin-bottom: 15px;
