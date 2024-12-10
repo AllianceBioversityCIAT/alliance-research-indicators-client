@@ -1,0 +1,53 @@
+@let expandedItem = createResultManagementService.expandedItem();
+
+<div class="result-item" [class.expanded]="expandedItem === item">
+  @if (item.training_type !== undefined) {
+    <div class="result-item-expand-icon" (click)="toggleExpand(item)">
+      <i class="pi" [ngClass]="expandedItem === item ? 'pi-angle-down' : 'pi-angle-right'" style="font-size: 10px"></i>
+    </div>
+  } @else {
+    <div></div>
+  }
+
+  <div class="result-item-content">
+    <div class="result-item-header">
+      <i class="material-symbols-rounded" [class]="getIndicatorTypeIcon(item.indicator).class" style="font-size: 22px">{{ getIndicatorTypeIcon(item.indicator).icon }}</i>
+      <p class="result-item-category">{{ item.indicator | uppercase }}</p>
+    </div>
+
+    <p class="result-item-title">{{ item.title | uppercase }}</p>
+    <p class="result-item-description">{{ item.description }}</p>
+
+    <div class="result-item-keywords">
+      <p class="result-item-keywords-title">Keywords</p>
+      <p class="result-item-keywords-arrow">&rarr;</p>
+      @for (keyword of item.keywords; track $index) {
+        <span class="keyword">{{ keyword }}</span>
+      }
+    </div>
+
+    @if (expandedItem === item) {
+      <div class="result-item-keywords">
+        <p class="result-item-keywords-title">Training type</p>
+        <p class="result-item-keywords-arrow">&rarr;</p>
+        <p class="result-item-details-value">{{ item.training_type }}</p>
+      </div>
+
+      @if (item.total_participants !== undefined) {
+        <div class="result-item-details">
+          @for (detail of expandedItemDetails; track $index) {
+            <div class="result-item-details-item">
+              <p class="result-item-details-value">{{ item[detail.value] }}</p>
+              <p class="result-item-keywords-title">{{ detail.title }}</p>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <div class="result-item-actions">
+    <p-button type="button" label="Discard" class="discard-button" size="small" [outlined]="true" severity="danger" (click)="discardResult(item)"></p-button>
+    <p-button type="button" label="Create" iconPos="right" icon="pi pi-plus" class="create-button" size="small" (click)="createResult(item)"></p-button>
+  </div>
+</div>

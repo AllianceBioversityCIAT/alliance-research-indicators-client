@@ -15,6 +15,8 @@ interface Indicator {
   styleUrl: './data-overview.component.scss'
 })
 export class DataOverviewComponent {
+  results = true;
+
   indicators: Indicator[] = [
     {
       icon: 'group',

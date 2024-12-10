@@ -1,6 +1,4 @@
 .container {
-  width: 100%;
-
   .header {
     display: grid;
 
@@ -46,6 +44,7 @@
       .results-updates,
       .results-status {
         display: flex;
+        flex-direction: column;
         background-color: white;
         border: 0.4px solid #e8ebed;
         border-radius: 10px;
@@ -122,11 +121,20 @@
 
         .indicator {
           display: grid;
-          justify-content: center; // Centra horizontalmente el contenido
-          padding: 5px;
+          justify-content: center;
+          padding: 0 15px;
+          position: relative;
 
           &:not(:last-child) {
-            border-right: 0.4px solid #b9c0c5;
+            &::after {
+              content: '';
+              position: absolute;
+              top: 50%;
+              right: 0;
+              transform: translateY(-50%);
+              height: 50%;
+              border-right: 0.4px solid #b9c0c5;
+            }
           }
 
           .indicator-number-container {
@@ -161,6 +169,62 @@
           }
         }
       }
+    }
+  }
+  .no-updates-yet,
+  .no-results-yet {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 30px;
+    gap: 15px;
+
+    .title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 12px;
+      text-transform: uppercase;
+      color: #112f5c;
+    }
+
+    .description {
+      font-family: Barlow, sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 10px;
+      text-align: center;
+    }
+  }
+
+  .no-results-yet-2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    gap: 15px;
+
+    .column {
+      display: grid;
+      gap: 15px;
+    }
+
+    .title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 12px;
+      text-transform: uppercase;
+      color: #112f5c;
+    }
+
+    .description {
+      font-family: Barlow, sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 10px;
     }
   }
 }
