@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
 
 import { Table, TableModule } from 'primeng/table';
 
@@ -6,85 +6,56 @@ import { InputTextModule } from 'primeng/inputtext';
 
 import { ResultTable } from '@shared/interfaces/result/result.interface';
 import { Button } from 'primeng/button';
+import { ApiService } from '../../services/api.service';
+import { FilterByTextWithAttrPipe } from '../../pipes/filter-by-text-with-attr.pipe';
+import { GetResultsByContract } from '../../interfaces/get-results-by-contract.interface';
+import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-project-results-table',
   standalone: true,
-  imports: [TableModule, InputTextModule, Button],
+  imports: [TableModule, InputTextModule, Button, FilterByTextWithAttrPipe, DatePipe, FilterByTextWithAttrPipe, FormsModule, RouterLink],
   templateUrl: './project-results-table.component.html',
   styleUrl: './project-results-table.component.scss'
 })
 export class ProjectResultsTableComponent implements OnInit {
+  api = inject(ApiService);
+  @Input() contractId = '';
   loading = signal(true);
 
   activityValues: number[] = [0, 100];
 
-  searchValue: string | undefined;
+  searchValue = '';
+
+  resultList: WritableSignal<GetResultsByContract[]> = signal([]);
 
   columns: ResultTable[] = [
-    { attr: 'code', header: 'Code' },
+    { attr: 'result_official_code', header: 'Code' },
     { attr: 'title', header: 'Title' },
-    { attr: 'indicator', header: 'Indicator' },
-    { attr: 'status', header: 'Status' },
-    { attr: 'year', header: 'Year' },
-    { attr: 'creator', header: 'Creator' },
-    { attr: 'creation_date', header: 'Creation Date' }
+    { attr: 'indicatorName', header: 'Indicator' },
+    { attr: 'statusName', header: 'Status' },
+    { attr: 'report_year_id', header: 'Year' },
+    { attr: 'creatorName', header: 'Creator' },
+    { attr: 'created_at', header: 'Creation Date', pipe: true }
   ];
 
-  results() {
-    return [
-      {
-        code: 100,
-        title: 'Implementing precision agriculture techniques to optimize water usage in arid climates',
-        indicator: 'Innovation use',
-        status: 'EDITING',
-        year: 2024,
-        creator: 'Kofi Mensah',
-        creation_date: '10/08/2024'
-      },
-      {
-        code: 99,
-        title: 'Strategies for enhancing soil fertility and crop yield in lands',
-        indicator: 'Policy change',
-        status: 'EDITING',
-        year: 2024,
-        creator: 'Isabelle Dubois',
-        creation_date: '04/08/2024'
-      },
-      {
-        code: 98,
-        title: 'The impact of climate change on migration patterns and agricultural livelihoods',
-        indicator: 'OICR',
-        status: 'SUBMITTED',
-        year: 2024,
-        creator: 'Gabriela Santos',
-        creation_date: '29/07/2024'
-      },
-      {
-        code: 97,
-        title: 'Exploring the economic and environmental benefits of agroecology in farming',
-        indicator: 'Innovation use',
-        status: 'ACCEPTED',
-        year: 2024,
-        creator: 'Juan Carlos López',
-        creation_date: '24/07/2024'
-      },
-      {
-        code: 96,
-        title: 'Innovations in climate-resilient crops for food security in vulnerable areas',
-        indicator: 'Innovation use',
-        status: 'SUBMITTED',
-        year: 2024,
-        creator: 'Zainab Abubakar',
-        creation_date: '18/07/2024'
-      }
-    ];
+  ngOnInit() {
+    this.getData();
   }
 
-  ngOnInit() {
-    setTimeout(() => {
-      this.loading.set(false);
-    }, 1000);
+  async getData() {
+    this.loading.set(true);
+    const response = await this.api.GET_ResultsByContractId(this.contractId);
+    response.data.map((result: GetResultsByContract) => {
+      result.full_name = `${result.result_official_code} - ${result.title} - ${result.indicator.name}`;
+      result.indicatorName = result.indicator.name;
+      result.statusName = result.result_status.name;
+      result.creatorName = `${result.created_user.first_name} ${result.created_user.last_name}`;
+    });
+    this.resultList.set(response.data);
+    this.loading.set(false);
   }
 
   clear(table: Table) {

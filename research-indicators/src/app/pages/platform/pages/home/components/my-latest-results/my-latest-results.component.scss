@@ -1,0 +1,170 @@
+.container {
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .header-text {
+      display: grid;
+
+      .title-text {
+        font-family: Inter, sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 18px;
+        color: #173f6f;
+        text-transform: uppercase;
+        margin-bottom: 0;
+      }
+
+      .description-text {
+        color: #4c5158;
+        font-family: Barlow, sans-serif;
+        font-size: 15px;
+        font-weight: 300;
+        line-height: 17px;
+        text-align: left;
+        margin: 8px 0 20px;
+      }
+    }
+
+    .submmit-button {
+      text-align: right;
+      align-self: center;
+      margin-bottom: 10px;
+    }
+  }
+  .card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      border: 0.8px solid #e8ebed;
+      background-color: #ffffff;
+      padding: 20px;
+      box-shadow: 0px 1.49px 8.18px 0px rgba(0, 182, 255, 0.1);
+      cursor: pointer;
+
+      .card-content {
+        gap: 20px;
+
+        .indicator {
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+          gap: 10px;
+
+          .indicator-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+            .output-icon {
+              color: #358540;
+            }
+
+            .outcome-icon {
+              color: #f58220;
+            }
+          }
+
+          .more-vert {
+            text-align: right;
+            align-content: center;
+            color: #8d9299;
+          }
+
+          .indicator-type {
+            display: grid;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 14px;
+            color: #8d9299;
+            text-transform: uppercase;
+          }
+        }
+
+        .organization-identifier {
+          margin: 10px 0;
+
+          .project {
+            display: grid;
+            margin: 0;
+            gap: 0;
+
+            .project-name {
+              font-family: 'Barlow', sans-serif;
+              font-size: 16px;
+              font-weight: 600;
+              line-height: 20px;
+              color: #112f5c;
+              text-transform: uppercase;
+            }
+          }
+        }
+
+        .project-info {
+          display: flex;
+          margin-bottom: 10px;
+
+          .project-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 13px;
+            color: #8d9299;
+          }
+
+          .project {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 13px;
+            color: #345b8f;
+            text-transform: uppercase;
+          }
+
+          .project-name {
+            display: flex;
+            align-items: center;
+          }
+
+          .material-symbols-rounded {
+            font-size: 18px;
+            color: #8d9299;
+            margin: 0 4px;
+          }
+        }
+
+        .progress-bar {
+          margin-bottom: 10px;
+        }
+        .last-update {
+          font-family: Barlow, sans-serif;
+          font-size: 12px;
+          font-weight: 300;
+          line-height: 14px;
+          color: #a2a9af;
+        }
+      }
+    }
+  }
+
+  .header-project-details {
+    background-color: #f4f7f9 !important;
+    border: 0.4px solid #e8ebed !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    cursor: default !important;
+
+    .project {
+      gap: 20px !important;
+    }
+  }
+}

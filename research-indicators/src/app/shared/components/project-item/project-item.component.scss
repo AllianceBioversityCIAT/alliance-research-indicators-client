@@ -1,61 +1,150 @@
-.project {
-  display: grid;
-  margin: 0;
-  gap: 0;
+.card {
+  height: auto;
+  width: 100%;
+  border-radius: 12px;
+  border: 0.8px solid #e8ebed;
+  background-color: #ffffff;
+  padding: 25px 40px;
+  box-shadow: 0px 1.49px 8.18px 0px rgba(0, 182, 255, 0.1);
+  margin-bottom: 25px;
+  cursor: pointer;
 
-  .project-id {
-    grid-row: 1;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 17px;
-    color: #8d9299;
-  }
-
-  .project-name {
-    grid-row: 2;
-    font-family: 'Barlow', sans-serif;
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 24px;
-    color: #112f5c;
-  }
-}
-
-.principal-investigator {
-  .project-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 18px;
-    color: #8d9299;
-  }
-
-  .project-data {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 18px;
-    color: #345b8f;
-  }
-}
-
-.indicator {
-  .indicator-number {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 17px;
-    font-weight: 600;
-    line-height: 20px;
-    color: #112f5c;
-  }
-
-  .indicator-type {
+  .card-content {
     display: grid;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 14px;
-    color: #8d9299;
-    text-transform: uppercase;
+    gap: 20px;
+
+    .organization-identifier {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+
+      .project {
+        display: grid;
+        margin: 0;
+        gap: 0;
+
+        .project-id {
+          grid-row: 1;
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 13px;
+          font-weight: 400;
+          line-height: 17px;
+          color: #8d9299;
+        }
+
+        .project-name {
+          grid-row: 2;
+          font-family: 'Barlow', sans-serif;
+          font-size: 20px;
+          font-weight: 600;
+          line-height: 24px;
+          color: #112f5c;
+        }
+      }
+
+      .more-vert {
+        grid-column: 2;
+        text-align: right;
+        align-content: center;
+        color: #8d9299;
+      }
+    }
+
+    .project-info {
+      display: flex;
+
+      .project-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 18px;
+        color: #8d9299;
+      }
+
+      .project-data {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 18px;
+        color: #345b8f;
+      }
+
+      .principal-investigator {
+        display: flex;
+        align-items: center;
+        padding-right: 40px;
+      }
+
+      .material-symbols-rounded {
+        font-size: 18px;
+        color: #8d9299;
+        margin: 0 4px;
+      }
+
+      .start-date {
+        display: flex;
+        align-items: center;
+        padding: 0px 40px;
+        border-left: 0.4px solid #b9c0c5;
+        border-right: 0.4px solid #b9c0c5;
+      }
+
+      .end-date {
+        display: flex;
+        align-items: center;
+        padding: 0px 40px;
+      }
+    }
+
+    .project-indicators {
+      display: grid;
+      grid-template-columns: repeat(6, auto);
+      grid-template-rows: auto(6, auto);
+
+      .indicator {
+        .indicator-number-container {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+
+          .output-icon {
+            color: #358540;
+          }
+
+          .outcome-icon {
+            color: #f58220;
+          }
+          .indicator-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 20px;
+            color: #112f5c;
+          }
+        }
+        .indicator-type {
+          display: grid;
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 12px;
+          font-weight: 400;
+          line-height: 14px;
+          color: #8d9299;
+          text-transform: uppercase;
+        }
+      }
+    }
+  }
+}
+
+.header-project-details {
+  background-color: #f4f7f9 !important;
+  border: 0.4px solid #e8ebed !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  cursor: default !important;
+
+  .project {
+    gap: 20px !important;
   }
 }

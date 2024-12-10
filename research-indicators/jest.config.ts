@@ -31,7 +31,8 @@ const config: Config = {
     '^@auth/(.*)$': '<rootDir>/src/app/pages/auth/$1',
     '^@landing/(.*)$': '<rootDir>/src/app/pages/landing/$1',
     '^@guards/(.*)$': '<rootDir>/src/app/shared/guards/$1',
-    '^@envs/(.*)$': '<rootDir>/src/environments/$1'
+    '^@envs/(.*)$': '<rootDir>/src/environments/$1',
+    '^@utils/(.*)$': '<rootDir>/src/app/shared/utils/$1'
   }
 };
 

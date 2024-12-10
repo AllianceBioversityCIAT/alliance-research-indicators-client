@@ -20,6 +20,8 @@ import { GetDeliveryModality } from '../interfaces/get-delivery-modality.interfa
 import { GetLanguages } from '../interfaces/get-get-languages.interface';
 import { SessionPurpose } from '../interfaces/get-session-purpose.interface';
 import { GetPolicyChange } from '../interfaces/get-get-policy-change.interface';
+import { GetResultsByContract } from '../interfaces/get-results-by-contract.interface';
+import { GetProjectDetail } from '../interfaces/get-project-detail.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -198,6 +200,21 @@ export class ApiService {
 
   GET_SessionPurpose = (): Promise<MainResponse<SessionPurpose[]>> => {
     const url = () => `session/purpose`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ContractsByUser = (): Promise<MainResponse<GetProjectDetail[]>> => {
+    const url = () => 'agresso-contract/contracts/results/current-user';
+    return this.TP.get(url(), {});
+  };
+
+  GET_ResultsCount = (agreementId: string): Promise<MainResponse<GetProjectDetail>> => {
+    const url = () => `agresso-contract/${agreementId}/results/count`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ResultsByContractId = (contractId: string): Promise<MainResponse<GetResultsByContract[]>> => {
+    const url = () => `results/contracts/${contractId}`;
     return this.TP.get(url(), {});
   };
 

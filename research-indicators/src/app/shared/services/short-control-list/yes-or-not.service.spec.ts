@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { GetCapSharingService } from './get-cap-sharing.service';
+import { YesOrNotService } from './yes-or-not.service';
 
-describe('GetCapSharingService', () => {
-  let service: GetCapSharingService;
+describe('YesOrNotService', () => {
+  let service: YesOrNotService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(GetCapSharingService);
+    service = TestBed.inject(YesOrNotService);
   });
 
   it('should be created', () => {

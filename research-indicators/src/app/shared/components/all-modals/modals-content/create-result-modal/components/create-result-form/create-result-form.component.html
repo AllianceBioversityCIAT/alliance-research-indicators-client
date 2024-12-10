@@ -1,16 +1,44 @@
+<header class="header">
+  <p class="header-title">Create a result</p>
+</header>
+
 <div class="container">
-  <h1 class="title-text">CREATE A RESULT</h1>
-  <div class="alert-container">
-    <span class="icon material-symbols-rounded">info</span>
-    <div class="alerts">
-      <h3 class="description">For results from Pooled Projects, please report in PRMS. <a href="https://prtest.ciat.cgiar.org/result/results-outlet/results-list">https://prtest.ciat.cgiar.org/result/results-outlet/results-list</a></h3>
-      <h3 class="description">For Knowledge Product results from non-pooled projects, please report in TIP. <a href="https://tiptst.ciat.cgiar.org/login">https://tiptst.ciat.cgiar.org/login</a></h3>
+  <div class="container-left">
+    <h1 class="title-text">WANT ASSISTANCE WITH AI FOR YOUR RESULT CREATION?</h1>
+
+    <div class="cards-container">
+      <div class="card">
+        <div class="card-content">
+          <div style="width: 100px">
+            <img src="/images/description_based_ai.svg" alt="description-based-ai" style="width: 100%" />
+          </div>
+
+          <div class="card-title">
+            <p class="title">Description Based AI</p>
+            <p class="description">Describe your result, and our AI will auto-fill the relevant fields.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" (click)="this.createResultManagementService.resultPageStep.set(1)">
+        <div class="card-content">
+          <div style="width: 90px">
+            <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
+          </div>
+
+          <div class="card-title">
+            <p class="title">File Upload AI</p>
+            <p class="description">Upload a file and our AI system will extract the basic information.</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="columns">
-    <div class="primary-column">
+
+    <div class="divider"></div>
+
+    <div class="columns">
       <div class="section">
-        <h2 class="title">Primary Project</h2>
+        <h2 class="title" style="margin-top: 0">Primary Project</h2>
         <p-dropdown [style]="{ width: '100%' }" [loading]="this.getContractsService.loading()" [options]="this.getContractsService.list()" [filter]="true" filterBy="description" [(ngModel)]="body().contract_id" [virtualScroll]="true" [virtualScrollItemSize]="41" optionValue="agreement_id" optionLabel="description" placeholder="Select a Primary Contract">
           <ng-template pTemplate="selectedItem" let-item>
             @if (body().contract_id) {
@@ -24,7 +52,11 @@
 
       <div class="section">
         <h2 class="title">Indicator*</h2>
-        <h4 class="description">If you're unsure which indicator to select, visit About Indicators for more details.</h4>
+        <h4 class="description">
+          If you're unsure which indicator to select, visit
+          <span class="about-indicators"> About Indicators </span>
+          for more details.
+        </h4>
         <p-dropdown [style]="{ width: '100%' }" [options]="indicatorsService.indicatorsGrouped()" [(ngModel)]="body().indicator_id" placeholder="Select Indicator" [group]="true">
           <ng-template let-group pTemplate="group">
             <div class="flex align-items-center">
@@ -42,33 +74,39 @@
       </div>
 
       <div class="button-group">
-        <p-button [disabled]="!body().title?.length || !body().indicator_id || !body().contract_id" label="Save for later" [outlined]="true" icon="pi pi-check" iconPos="right" (click)="this.createResult()"></p-button>
-        <p-button [disabled]="!body().title?.length || !body().indicator_id || !body().contract_id" label="Continue form" icon="pi pi-arrow-right" iconPos="right" (click)="this.createResult(true)"></p-button>
+        <p-button [disabled]="!body().title?.length || !body().indicator_id || !body().contract_id" label="Create and Continue" icon="pi pi-arrow-right" iconPos="right" (click)="this.createResult(true)"></p-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-right">
+    <h1 class="container-right-title">OTHER TOOLS</h1>
+
+    <div class="sidebar-card">
+      <div style="max-width: 190px">
+        <img src="/images/tracking.png" alt="TIP" style="width: 100%" />
+      </div>
+
+      <p class="sidebar-card-title">Submit Knowledge Products</p>
+
+      <p class="sidebar-card-description">For Knowledge Products use TIP to ensure proper alignment with guidelines.</p>
+
+      <div class="sidebar-button">
+        <p class="sidebar-button-text">Report in TIP <span class="material-symbols-rounded"> arrow_forward </span></p>
       </div>
     </div>
 
-    <div class="second-column">
-      <div class="row">
-        <img src="/images/artificial-intelligence.png" alt="" />
-        <h2 class="first-title title">Need assistance with AI for your result creation?</h2>
+    <div class="sidebar-card">
+      <div style="max-width: 250px">
+        <img src="/images/prms-reporting-tool.svg" alt="PRMS Reporting Tool" style="width: 100%; height: 92px" />
       </div>
-      <div class="card">
-        <div class="card-content">
-          <div class="card-title">
-            <span class="material-symbols-rounded">magic_button</span>
-            <h2 class="title">Description Based AI</h2>
-          </div>
-          <h4 class="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</h4>
-        </div>
-      </div>
-      <div class="card" (click)="this.createResultManagementService.resultPageStep.set(1)">
-        <div class="card-content">
-          <div class="card-title">
-            <span class="material-symbols-rounded"> upload </span>
-            <h2 class="title">File Upload AI</h2>
-          </div>
-          <h4 class="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</h4>
-        </div>
+
+      <p class="sidebar-card-title">Submit Pooled Projects Results</p>
+
+      <p class="sidebar-card-description">For Pooled Project Results report directly in PRMS for accurate management.</p>
+
+      <div class="sidebar-button">
+        <p class="sidebar-button-text">Report in PRMS <span class="material-symbols-rounded"> arrow_forward </span></p>
       </div>
     </div>
   </div>

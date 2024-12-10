@@ -1,32 +1,31 @@
-import { Component, Input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
+import { ApiService } from '@shared/services/api.service';
+import { GetProjectDetail } from '@shared/interfaces/get-project-detail.interface';
+import { FilterByTextWithAttrPipe } from '../../../../shared/pipes/filter-by-text-with-attr.pipe';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-my-projects',
   standalone: true,
-  imports: [RouterLink, ProjectItemComponent],
+  imports: [ProjectItemComponent, FilterByTextWithAttrPipe, FormsModule],
   templateUrl: './my-projects.component.html',
   styleUrl: './my-projects.component.scss'
 })
 export default class MyProjectsComponent {
-  @Input() isHeader = false;
+  api = inject(ApiService);
+  searchValue = '';
 
-  projectList = [
-    {
-      projectId: 'A1032',
-      projectName: 'EMBRAPA - Establishment of the international coconut gene bank for south america and the caribbean',
-      principalInvestigator: 'NGO-EYOK, SUZANNE',
-      startDate: '04/05/2024',
-      endDate: '20/12/2024',
-      indicatorList: [
-        { icon: 'group', number: '123', type: 'Capacity Sharing', class: 'output-icon' },
-        { icon: 'flag', number: '190', type: 'Innovation Development', class: 'output-icon' },
-        { icon: 'lightbulb', number: '154', type: 'Knowledge Product', class: 'output-icon' },
-        { icon: 'wb_sunny', number: '110', type: 'Innovation Use', class: 'outcome-icon' },
-        { icon: 'pie_chart', number: '146', type: 'Research Output', class: 'outcome-icon' },
-        { icon: 'folder_open', number: '146', type: 'Policy Change', class: 'outcome-icon' }
-      ]
-    }
-  ];
+  projectList: WritableSignal<GetProjectDetail[]> = signal([]);
+
+  constructor() {
+    this.getData();
+  }
+
+  async getData() {
+    const response = await this.api.GET_ContractsByUser();
+    response.data.map((project: GetProjectDetail) => (project.full_name = `${project.agreement_id} ${project.projectDescription} ${project.description} ${project.project_lead_description}`));
+
+    this.projectList.set(response.data);
+  }
 }

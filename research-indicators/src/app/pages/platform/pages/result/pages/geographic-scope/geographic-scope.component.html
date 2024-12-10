@@ -1,0 +1,61 @@
+<div class="container">
+  <h3 class="title-text">GEOGRAPHIC SCOPE</h3>
+  <p class="description-text">Description</p>
+
+  <div class="card-container">
+    <div class="card-title">GEOGRAPHIC SCOPE</div>
+    <div class="alert-container">
+      <span class="icon material-symbols-rounded">info</span>
+      <h3 class="card-description">If you do not find the partner in the dropdown menu, you can request to have it added to the list. Once approved, it may take up to an hour for the partner to appear in the CLARISA institutions list.</h3>
+    </div>
+
+    <div class="item-content">
+      <div class="information"></div>
+    </div>
+
+    <div class="fields">
+      <app-radio-button label="What is the main geographic focus of the Impact?*" [signal]="body" [optionLabel]="'label'" serviceName="geoFocus" [optionValue]="{ body: 'geographic_focus', option: 'value' }"></app-radio-button>
+
+      <!-- ? option 1 -->
+      @if (body().geographic_focus === '1') {
+        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Are there any regions that you wish to specify for this Impact?" description="The list of regions below follows the UN (M.49) standard"></app-multiselect>
+        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Are there any countries that you wish to specify for this Impact?" description="The list of countries below follows the ISO 3166 standard"></app-multiselect>
+      }
+      <!-- ? option 2 -->
+      @if (body().geographic_focus === '2') {
+        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Select the regions" description="The list of regions below follows the UN (M.49) standard"> </app-multiselect>
+      }
+      <!-- ? option 3 -->
+      @if (body().geographic_focus === '3') {
+        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Select the countries" description="The list of countries below follows the ISO 3166 standard"> </app-multiselect>
+      }
+      <!-- ? option 4 -->
+      @if (body().geographic_focus === '4') {
+        <app-multiselect [signal]="body" [optionLabel]="'name'" [optionValue]="'institution_id'" [signalOptionValue]="'institutions'" serviceName="institutions" label="Select the countries" description="The list of countries below follows the ISO 3166 standard">
+          <ng-template #rows let-institution>
+            <div class="item-content">
+              <div class="information">
+                <div class="row">
+                  <div>
+                    <strong>{{ institution.acronym }}</strong> - {{ institution.name }}
+                  </div>
+                  <div class="institution-type">
+                    <h4>Institution Type</h4>
+                    &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
+                    <span class="institution-type-description">{{ institution?.institution_type?.name }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </app-multiselect>
+      }
+    </div>
+
+    <div class="button-container">
+      <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" />
+      <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" />
+      <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" />
+    </div>
+  </div>
+</div>

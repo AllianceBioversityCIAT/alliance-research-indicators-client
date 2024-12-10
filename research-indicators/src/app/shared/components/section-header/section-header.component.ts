@@ -14,11 +14,10 @@ export class SectionHeaderComponent implements OnInit {
   cache = inject(CacheService);
   router = inject(Router);
   route = inject(ActivatedRoute);
-  routeData: WritableSignal<{ title: string | null }> = signal({ title: null });
+  routeData: WritableSignal<{ title: string | null; hideBackButton?: boolean }> = signal({ title: null, hideBackButton: false });
 
   ngOnInit(): void {
     this.routeData.set(this.getRouteData(this.route));
-
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
       this.routeData.set(this.getRouteData(this.route));
       this.cache.setCurrentSectionHeaderName('');
