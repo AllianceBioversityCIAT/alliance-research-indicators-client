@@ -1,4 +1,5 @@
 .container {
+  min-width: 100%;
   .header {
     display: grid;
 
@@ -36,10 +37,10 @@
       .text-content {
         display: grid;
         position: absolute;
-        top: 70%;
+        top: 78%;
         padding: 0 30px;
         gap: 10px;
-        width: 100%;
+        max-width: 100%;
 
         .title-content {
           display: flex;
@@ -47,6 +48,7 @@
 
           img {
             width: 25px;
+            height: auto;
           }
 
           .title {
@@ -56,6 +58,7 @@
             line-height: 21px;
             color: #ffffff;
             margin-left: 10px;
+            max-width: 100%;
           }
         }
 
@@ -65,6 +68,7 @@
           font-weight: 400;
           line-height: 17px;
           color: #ffffff;
+          max-width: 100%;
         }
       }
     }
@@ -82,7 +86,7 @@
       .text-content {
         display: grid;
         position: absolute;
-        top: 67%;
+        top: 63%;
         padding: 0 30px;
         gap: 10px;
         width: 100%;
@@ -93,6 +97,7 @@
 
           img {
             width: 25px;
+            height: auto;
           }
 
           .title {
@@ -118,7 +123,40 @@
     img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+  }
+}
+
+@media (orientation: landscape) and (height <= 768px) {
+  .first-column {
+    .text-content {
+      top: 68% !important;
+      color: red !important;
+
+      .title {
+        font-size: 16px !important;
+      }
+
+      .description {
+        font-size: 13px !important;
+      }
+    }
+  }
+
+  .second-column {
+    .text-content {
+      top: 43% !important;
+      color: red !important;
+
+      .title {
+        font-size: 16px !important;
+      }
+
+      .description {
+        font-size: 13px !important;
+      }
     }
   }
 }

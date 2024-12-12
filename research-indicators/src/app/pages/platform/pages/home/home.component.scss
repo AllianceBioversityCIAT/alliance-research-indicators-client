@@ -6,7 +6,16 @@
   .items {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    justify-content: space-between;
+    align-items: stretch;
     width: 100%;
     gap: 60px;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    .item {
+      flex: 1;
+      overflow: hidden;
+    }
   }
 }
