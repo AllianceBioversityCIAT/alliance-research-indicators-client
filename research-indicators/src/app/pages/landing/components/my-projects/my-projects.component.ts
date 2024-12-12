@@ -2,12 +2,12 @@ import { Component, inject } from '@angular/core';
 import { LandingTextsService } from '../../services/landing-texts.service';
 
 @Component({
-  selector: 'app-indicators-info',
+  selector: 'app-my-projects',
   standalone: true,
   imports: [],
-  templateUrl: './indicators-info.component.html',
-  styleUrl: './indicators-info.component.scss'
+  templateUrl: './my-projects.component.html',
+  styleUrl: './my-projects.component.scss'
 })
-export class IndicatorsInfoComponent {
+export class MyProjectsComponent {
   cardList = inject(LandingTextsService).cardList;
 }

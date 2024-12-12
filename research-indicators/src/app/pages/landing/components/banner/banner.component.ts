@@ -1,13 +1,15 @@
 import { Component, inject } from '@angular/core';
+
+import { ButtonModule } from 'primeng/button';
 import { CognitoService } from '../../../../shared/services/cognito.service';
 
 @Component({
-  selector: 'app-hero',
+  selector: 'app-banner',
   standalone: true,
-  imports: [],
-  templateUrl: './hero.component.html',
-  styleUrl: './hero.component.scss'
+  imports: [ButtonModule],
+  templateUrl: './banner.component.html',
+  styleUrl: './banner.component.scss'
 })
-export class HeroComponent {
+export class BannerComponent {
   redirectToCognito = inject(CognitoService).redirectToCognito;
 }
