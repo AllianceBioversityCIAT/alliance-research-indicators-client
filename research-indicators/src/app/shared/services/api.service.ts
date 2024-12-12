@@ -46,7 +46,7 @@ export class ApiService {
   };
 
   GET_Contracts = (): Promise<MainResponse<GetContracts[]>> => {
-    const url = () => `agresso-contract/contracts`;
+    const url = () => `agresso/contracts`;
     return this.TP.get(url(), {});
   };
 
@@ -84,7 +84,7 @@ export class ApiService {
   };
 
   GET_UserStaff = (): Promise<MainResponse<UserStaff[]>> => {
-    const url = () => `results/alliance-user-staff`;
+    const url = () => `agresso/staff`;
     return this.TP.get(url(), {});
   };
 
@@ -204,7 +204,7 @@ export class ApiService {
   };
 
   GET_ContractsByUser = (): Promise<MainResponse<GetProjectDetail[]>> => {
-    const url = () => 'agresso-contract/contracts/results/current-user';
+    const url = () => 'agresso/contracts/results/current-user';
     return this.TP.get(url(), {});
   };
 
