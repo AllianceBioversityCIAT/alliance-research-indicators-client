@@ -51,7 +51,7 @@ export class ApiService {
   };
 
   GET_Institutions = (): Promise<MainResponse<GetInstitution[]>> => {
-    const url = () => `clarisa/institutions`;
+    const url = () => `tools/clarisa/institutions`;
     return this.TP.get(url(), {});
   };
 
@@ -119,7 +119,7 @@ export class ApiService {
   };
 
   GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
-    const url = () => `clarisa/levers`;
+    const url = () => `tools/clarisa/levers`;
     return this.TP.get(url(), {});
   };
 
@@ -184,7 +184,7 @@ export class ApiService {
   };
 
   GET_Countries = (): Promise<MainResponse<GetCountries[]>> => {
-    const url = () => `clarisa/countries`;
+    const url = () => `tools/clarisa/countries`;
     return this.TP.get(url(), {});
   };
 
@@ -194,7 +194,7 @@ export class ApiService {
   };
 
   GET_Languages = (): Promise<MainResponse<GetLanguages[]>> => {
-    const url = () => `clarisa/languages`;
+    const url = () => `tools/clarisa/languages`;
     return this.TP.get(url(), {});
   };
 
@@ -209,7 +209,7 @@ export class ApiService {
   };
 
   GET_ResultsCount = (agreementId: string): Promise<MainResponse<GetProjectDetail>> => {
-    const url = () => `agresso-contract/${agreementId}/results/count`;
+    const url = () => `agresso/contracts/${agreementId}/results/count`;
     return this.TP.get(url(), {});
   };
 
