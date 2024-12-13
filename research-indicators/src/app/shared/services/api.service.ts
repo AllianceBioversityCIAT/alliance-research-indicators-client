@@ -22,6 +22,7 @@ import { SessionPurpose } from '../interfaces/get-session-purpose.interface';
 import { GetPolicyChange } from '../interfaces/get-get-policy-change.interface';
 import { GetResultsByContract } from '../interfaces/get-results-by-contract.interface';
 import { GetProjectDetail } from '../interfaces/get-project-detail.interface';
+import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -216,6 +217,16 @@ export class ApiService {
   GET_ResultsByContractId = (contractId: string): Promise<MainResponse<GetResultsByContract[]>> => {
     const url = () => `results/contracts/${contractId}`;
     return this.TP.get(url(), {});
+  };
+
+  GET_GeoLocation = (id: number): Promise<MainResponse<GetGeoLocation>> => {
+    const url = () => `results/${id}/geo-location`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_GeoLocation = <T>(id: number, body: T): Promise<MainResponse<GetGeoLocation>> => {
+    const url = () => `results/${id}/geo-location`;
+    return this.TP.patch(url(), body);
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

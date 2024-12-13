@@ -14,23 +14,28 @@
     </div>
 
     <div class="fields">
-      <app-radio-button label="What is the main geographic focus of the Impact?*" [signal]="body" [optionLabel]="'label'" serviceName="geoFocus" [optionValue]="{ body: 'geographic_focus', option: 'value' }"></app-radio-button>
+      @if (body().geo_scope_id) {
+        <app-radio-button label="What is the main geographic focus of the Impact?*" [signal]="body" [optionLabel]="'label'" serviceName="geoFocus" [optionValue]="{ body: 'geo_scope_id', option: 'value' }"></app-radio-button>
+      }
+
+      <h1>{{ body().geo_scope_id }}</h1>
 
       <!-- ? option 1 -->
-      @if (body().geographic_focus === '1') {
+      @if (body().geo_scope_id === 1 || body().geo_scope_id === '1') {
         <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Are there any regions that you wish to specify for this Impact?" description="The list of regions below follows the UN (M.49) standard"></app-multiselect>
+
         <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Are there any countries that you wish to specify for this Impact?" description="The list of countries below follows the ISO 3166 standard"></app-multiselect>
       }
       <!-- ? option 2 -->
-      @if (body().geographic_focus === '2') {
+      @if (body().geo_scope_id === 2 || body().geo_scope_id === '2') {
         <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Select the regions" description="The list of regions below follows the UN (M.49) standard"> </app-multiselect>
       }
       <!-- ? option 3 -->
-      @if (body().geographic_focus === '3') {
+      @if (body().geo_scope_id === 3 || body().geo_scope_id === '3') {
         <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="Select the countries" description="The list of countries below follows the ISO 3166 standard"> </app-multiselect>
       }
       <!-- ? option 4 -->
-      @if (body().geographic_focus === '4') {
+      @if (body().geo_scope_id === 4 || body().geo_scope_id === '4') {
         <app-multiselect [signal]="body" [optionLabel]="'name'" [optionValue]="'institution_id'" [signalOptionValue]="'institutions'" serviceName="institutions" label="Select the countries" description="The list of countries below follows the ISO 3166 standard">
           <ng-template #rows let-institution>
             <div class="item-content">
@@ -55,7 +60,7 @@
     <div class="button-container">
       <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" />
       <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" />
-      <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" />
+      <p-button (click)="saveData()" label="Save" severity="success" icon="pi pi-save" iconPos="left" />
     </div>
   </div>
 </div>
