@@ -20,7 +20,13 @@ export class AllianceSidebarComponent {
     { icon: 'forum', label: 'Give feedback', disabled: true }
   ];
 
-  isCollapsed = signal(false);
+  isCollapsed = signal(window.innerHeight <= 768);
+
+  // ngOnInit() {
+  //   console.log(window.innerWidth);
+  //   console.log(window.innerHeight <= 768);
+  //   this.isCollapsed.set(window.innerHeight <= 768);
+  // }
 
   collapse() {
     this.isCollapsed.update(isCollapsed => !isCollapsed);
