@@ -37,7 +37,7 @@
       .text-content {
         display: grid;
         position: absolute;
-        top: 78%;
+        top: 79%;
         padding: 0 30px;
         gap: 10px;
         max-width: 100%;
@@ -129,7 +129,7 @@
   }
 }
 
-@media (orientation: landscape) and (height <= 768px) {
+@media (orientation: landscape) and (height <= 833px) {
   .first-column {
     .text-content {
       top: 68% !important;
