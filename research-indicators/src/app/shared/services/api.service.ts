@@ -221,12 +221,27 @@ export class ApiService {
 
   GET_GeoLocation = (id: number): Promise<MainResponse<GetGeoLocation>> => {
     const url = () => `results/${id}/geo-location`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), { loadingTrigger: true });
   };
 
   PATCH_GeoLocation = <T>(id: number, body: T): Promise<MainResponse<GetGeoLocation>> => {
     const url = () => `results/${id}/geo-location`;
     return this.TP.patch(url(), body);
+  };
+
+  GET_Regions = (): Promise<MainResponse<any[]>> => {
+    const url = () => `tools/clarisa/regions`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_GeoScope = (): Promise<MainResponse<any[]>> => {
+    const url = () => `tools/clarisa/geo-scope`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_GeoSearch = (scope: string, search: string): Promise<MainResponse<any[]>> => {
+    const url = () => `tools/clarisa/manager/opensearch/${scope}/search?query=col`;
+    return this.TP.get(url(), {});
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
