@@ -35,7 +35,7 @@ export class SelectComponent implements OnInit {
     () => {
       if (!this.currentResultIsLoading())
         this.body.update(current => {
-          this.utils.setNestedPropertyWithReduce(current, 'value', this.utils.getNestedProperty(this.signal, this.optionValue.body));
+          this.utils.setNestedPropertyWithReduce(current, 'value', this.utils.getNestedProperty(this.signal(), this.optionValue.body));
           return { ...current };
         });
     },
