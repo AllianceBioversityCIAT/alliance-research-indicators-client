@@ -30,7 +30,7 @@ export class InputComponent {
   onChange = effect(
     () => {
       if (this.firstTime() && !this.currentResultIsLoading()) {
-        this.body.set({ value: this.utils.getNestedProperty(this.signal, this.optionValue) });
+        this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.optionValue) });
         this.firstTime.set(false);
       }
     },
