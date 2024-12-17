@@ -75,7 +75,7 @@ export class DataOverviewComponent implements OnInit {
       datasets: [
         {
           data: amounts,
-          backgroundColor: [documentStyle.getPropertyValue('--blue-500'), documentStyle.getPropertyValue('--yellow-500'), documentStyle.getPropertyValue('--green-500')],
+          backgroundColor: ['#173F6F', '#1689CA', '#7CB580'],
           hoverBackgroundColor: [documentStyle.getPropertyValue('--blue-400'), documentStyle.getPropertyValue('--yellow-400'), documentStyle.getPropertyValue('--green-400')]
         }
       ]
