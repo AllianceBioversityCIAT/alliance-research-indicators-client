@@ -44,7 +44,7 @@ export class RadioButtonComponent implements OnInit {
 
         // this.utils.setNestedPropertyWithReduceSignal(this.body, 'value', this.utils.getNestedProperty(this.signal, this.optionValue.body));
 
-        this.setValue(this.utils.getNestedProperty(this.signal, this.optionValue.body));
+        this.setValue(this.utils.getNestedPropertySignal(this.signal, this.optionValue.body));
         this.firstTime.set(false);
       }
     },

@@ -6,20 +6,17 @@ import { Injectable, WritableSignal } from '@angular/core';
 export class UtilsService {
   /* eslint-disable @typescript-eslint/no-explicit-any */
   setNestedPropertyWithReduceSignal(signal: WritableSignal<any>, path: string, value: any): void {
-    console.log('setNestedPropertyWithReduceSignal');
     const keys = path.split('.');
 
     if (keys.length >= 2) {
       signal.update(obj => {
-        console.log(obj);
-        const res = (keys.slice(0, -1).reduce((acc, key) => {
+        keys.slice(0, -1).reduce((acc, key) => {
           // Crea el subobjeto si no existe
           if (!acc[key]) {
             acc[key] = {};
           }
           return acc[key];
-        }, obj)[keys[keys.length - 1]] = value);
-        console.log(res);
+        }, obj)[keys[keys.length - 1]] = value;
         return { ...obj };
       });
     } else {
@@ -45,7 +42,13 @@ export class UtilsService {
     }
   }
 
-  getNestedProperty(signal: WritableSignal<any>, path: string): any {
+  getNestedProperty(obj: any, path: string): any {
+    const splitted = path.split('.');
+    if (splitted.length >= 2) return splitted.reduce((acc, key) => acc && acc[key], obj);
+    return obj[splitted[0]];
+  }
+
+  getNestedPropertySignal(signal: WritableSignal<any>, path: string): any {
     const splitted = path.split('.');
     if (splitted.length >= 2) return splitted.reduce((acc, key) => acc && acc[key], signal());
     return signal()[splitted[0]];

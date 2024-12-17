@@ -39,14 +39,15 @@ export class MultiselectComponent implements OnInit {
   body: WritableSignal<any> = signal({ value: null });
 
   selectedOptions = computed(() => {
-    return this.utils.getNestedProperty(this.signal, this.signalOptionValue);
+    return this.utils.getNestedProperty(this.signal(), this.signalOptionValue);
   });
   firstLoad = signal(true);
 
   onChange = effect(
     () => {
-      const hasNoLabelList = this.utils.getNestedProperty(this.signal, this.signalOptionValue)?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
+      const hasNoLabelList = this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
       if (!this.currentResultIsLoading() && this.service?.list().length && this.firstLoad() && hasNoLabelList?.length) {
+        console.log(this.signal());
         this.signal.update((current: any) => {
           this.utils.setNestedPropertyWithReduce(
             current,
@@ -60,7 +61,7 @@ export class MultiselectComponent implements OnInit {
             ...current
           };
         });
-        this.body.set({ value: this.utils.getNestedProperty(this.signal, this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
+        this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
         this.firstLoad.set(false);
       }
     },
