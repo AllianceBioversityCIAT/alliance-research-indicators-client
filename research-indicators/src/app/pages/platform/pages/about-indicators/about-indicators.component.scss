@@ -42,7 +42,7 @@
     align-items: stretch;
 
     .card-container {
-      border-radius: 10px;
+      border-radius: 12px;
       flex: 1;
       padding: 0;
       height: auto;
@@ -52,6 +52,8 @@
       transition: all 0.3s ease-in-out;
       border: 0.8px solid #e5e5e5;
       box-shadow: 0px 1.5px 8.24px 0px rgba(0, 182, 255, 0.1);
+      background-color: #ffffff;
+      height: 100%;
 
       &:hover {
         transform: scale(1.06);
@@ -64,16 +66,16 @@
         }
       }
 
-      ::ng-deep .p-card-content {
-        padding: 0;
-      }
-
       .card-panel {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        margin: 30px 20px;
+        height: 140px;
+
         .card-content {
           display: flex;
           align-items: center;
           flex-grow: 1;
-          margin-bottom: 15px;
 
           .icon-background {
             border-radius: 50%;
@@ -89,44 +91,52 @@
           }
         }
 
-        .learn-more-content {
-          cursor: pointer !important;
+        .card-description {
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end !important;
+          margin-top: auto;
 
-          .learn-more-text {
-            display: inline-flex;
-            align-items: center;
-            text-decoration: none;
-            position: relative;
-            color: #035ba9;
-          }
-          .material-symbols-rounded {
-            font-size: 16px;
-            color: #035ba9;
-          }
+          .learn-more-content {
+            cursor: pointer !important;
 
-          .learn-more-text::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            height: 1px;
-            background-color: #035ba9;
+            .learn-more-text {
+              display: inline-flex;
+              align-items: center;
+              text-decoration: none;
+              position: relative;
+              color: #035ba9;
+            }
+            .material-symbols-rounded {
+              font-size: 16px;
+              color: #035ba9;
+            }
+
+            .learn-more-text::after {
+              content: '';
+              position: absolute;
+              left: 0;
+              bottom: 0;
+              width: 100%;
+              height: 1px;
+              background-color: #035ba9;
+              text-decoration: none;
+            }
           }
-        }
-        .card-description-text {
-          color: #777c83 !important;
-          font-family: Barlow, sans-serif;
-          font-size: 1em;
-          font-weight: 300;
-          text-align: left;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          line-clamp: 2;
-          margin: 10px 0;
+          .card-description-text {
+            color: #777c83 !important;
+            font-family: Barlow, sans-serif;
+            font-size: 1em;
+            font-weight: 300;
+            text-align: left;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-clamp: 2;
+            margin-bottom: 10px;
+          }
         }
 
         .card-header {
@@ -134,7 +144,6 @@
           display: flex;
           flex-direction: column;
           justify-content: center;
-          height: 100%;
 
           .type-text {
             color: #8d9299;
@@ -190,5 +199,10 @@
 @media (orientation: landscape) and (height <= 768px) {
   .options {
     margin-bottom: 2em !important;
+  }
+
+  .card-panel {
+    margin: 20px !important;
+    height: 120px !important;
   }
 }
