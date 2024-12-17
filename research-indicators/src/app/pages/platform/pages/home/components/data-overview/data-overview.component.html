@@ -58,11 +58,11 @@
       </div>
       @if (results === true) {
         <div class="indicators">
-          @for (indicator of indicators; track $index) {
+          @for (indicator of indicatorList(); track $index) {
             <div class="indicator">
               <div class="indicator-number-container">
-                <i class="material-symbols-rounded" [class]="indicator.type">{{ indicator.icon }}</i>
-                <label class="indicator-number" for="username">{{ indicator.number }}</label>
+                <!-- <i class="material-symbols-rounded" [class]="indicator.type">{{ indicator.icon }}</i> -->
+                <!-- <label class="indicator-number" for="username">{{ indicator.number }}</label> -->
               </div>
               <label class="indicator-type" for="username">{{ indicator.name }}</label>
             </div>

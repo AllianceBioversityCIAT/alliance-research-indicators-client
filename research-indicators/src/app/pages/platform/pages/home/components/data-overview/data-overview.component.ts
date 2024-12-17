@@ -1,12 +1,16 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
 import { ChartModule } from 'primeng/chart';
 
 interface Indicator {
-  icon: string;
-  number: number;
+  indicator_id: number;
   name: string;
-  type: string;
+  indicator_type_id: number;
+  description: string;
+  long_description: string;
+  icon_src: string;
+  other_names: null;
+  amount_results: number;
 }
 
 @Component({
@@ -22,47 +26,16 @@ export class DataOverviewComponent implements OnInit {
   data: any;
   options: any;
 
-  indicators: Indicator[] = [
-    {
-      icon: 'group',
-      number: 128,
-      name: 'CAPACITY SHARING FOR DEVELOPMENT',
-      type: 'output-icon'
-    },
-    {
-      icon: 'flag',
-      number: 153,
-      name: 'INNOVATION DEVELOPMENT',
-      type: 'output-icon'
-    },
-    {
-      icon: 'lightbulb',
-      number: 155,
-      name: 'Knowledge PRODUCT',
-      type: 'output-icon'
-    },
-    {
-      icon: 'sunny',
-      number: 155,
-      name: 'INNOVATION USE',
-      type: 'outcome-icon'
-    },
-    {
-      icon: 'pie_chart',
-      number: 155,
-      name: 'OICRS',
-      type: 'outcome-icon'
-    },
-    {
-      icon: 'folder_open',
-      number: 155,
-      name: 'POLICY CHANGE',
-      type: 'outcome-icon'
-    }
-  ];
+  indicatorList: WritableSignal<Indicator[]> = signal([]);
 
   ngOnInit() {
     this.getData();
+    this.getIndicatorData();
+  }
+
+  async getIndicatorData() {
+    const response = await this.api.GET_IndicatorsResultsAmount();
+    console.log(response);
   }
 
   chartData(data: any) {
