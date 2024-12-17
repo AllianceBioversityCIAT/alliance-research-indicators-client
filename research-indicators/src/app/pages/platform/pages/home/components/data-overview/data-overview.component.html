@@ -40,7 +40,9 @@
       <div class="results-status">
         <span class="card-title">Results by Status</span>
         @if (results === true) {
-          <!-- <p-chart type="doughnut" [data]="data" [options]="options"></p-chart> -->
+          <div class="chart-container">
+            <p-chart type="doughnut" [data]="data" [options]="options"></p-chart>
+          </div>
         } @else {
           <div class="no-results-yet">
             <img src="images/home/no-results-yet.png" alt="" />

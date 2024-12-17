@@ -33,7 +33,7 @@
       font-weight: 400;
       line-height: 16px;
       color: #112f5c;
-      margin: 20px 20px 0 20px;
+      margin: 20px 20px 0;
     }
 
     .results-content {
@@ -48,7 +48,11 @@
         background-color: white;
         border: 0.4px solid #e8ebed;
         border-radius: 10px;
-        box-shadow: 0px 1.02px 5.63px 0px #6bb8ff1a;
+        box-shadow: 0 1.02px 5.63px 0 #6bb8ff1a;
+
+        .chart-container {
+          width: 300px;
+        }
       }
 
       .results-updates {
@@ -62,7 +66,7 @@
 
           &:not(:last-child) {
             border-bottom: 0.4px solid #e8ebed;
-            margin: 0px;
+            margin: 0;
           }
 
           .check {
@@ -89,6 +93,7 @@
               text-transform: uppercase;
               color: #153c71;
             }
+
             .description {
               font-family: Barlow;
               font-size: 13px;
@@ -105,8 +110,8 @@
       background-color: white;
       border: 0.5px solid #e8ebed;
       border-radius: 10px;
-      box-shadow: 0px 1.02px 5.63px 0px #6bb8ff1a;
-      padding: 20px 20px;
+      box-shadow: 0 1.02px 5.63px 0 #6bb8ff1a;
+      padding: 20px;
       gap: 5px;
 
       .card-title {
@@ -149,6 +154,7 @@
             .outcome-icon {
               color: #f58220;
             }
+
             .indicator-number {
               font-family: 'Space Grotesk', sans-serif;
               font-size: 17px;
@@ -171,6 +177,7 @@
       }
     }
   }
+
   .no-updates-yet,
   .no-results-yet {
     display: flex;

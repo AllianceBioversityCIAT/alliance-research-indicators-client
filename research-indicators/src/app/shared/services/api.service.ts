@@ -218,6 +218,16 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_ResultsStatus = (): Promise<MainResponse<any[]>> => {
+    const url = () => `results/status/result-amount/current-user`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IndicatorsResultsAmount = (): Promise<MainResponse<any[]>> => {
+    const url = () => `indicators/results-amount/current-user`;
+    return this.TP.get(url(), {});
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {

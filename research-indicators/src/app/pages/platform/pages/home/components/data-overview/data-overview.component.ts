@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { ApiService } from '@shared/services/api.service';
+import { ChartModule } from 'primeng/chart';
 
 interface Indicator {
   icon: string;
@@ -10,12 +12,15 @@ interface Indicator {
 @Component({
   selector: 'app-data-overview',
   standalone: true,
-  imports: [],
+  imports: [ChartModule],
   templateUrl: './data-overview.component.html',
   styleUrl: './data-overview.component.scss'
 })
-export class DataOverviewComponent {
+export class DataOverviewComponent implements OnInit {
+  api = inject(ApiService);
   results = true;
+  data: any;
+  options: any;
 
   indicators: Indicator[] = [
     {
@@ -55,4 +60,40 @@ export class DataOverviewComponent {
       type: 'outcome-icon'
     }
   ];
+
+  ngOnInit() {
+    this.getData();
+  }
+
+  chartData(data: any) {
+    const labels = data.map((item: any) => item?.name);
+    const amounts = data.map((item: any) => item?.amount_results);
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+    this.data = {
+      labels,
+      datasets: [
+        {
+          data: amounts,
+          backgroundColor: [documentStyle.getPropertyValue('--blue-500'), documentStyle.getPropertyValue('--yellow-500'), documentStyle.getPropertyValue('--green-500')],
+          hoverBackgroundColor: [documentStyle.getPropertyValue('--blue-400'), documentStyle.getPropertyValue('--yellow-400'), documentStyle.getPropertyValue('--green-400')]
+        }
+      ]
+    };
+    this.options = {
+      cutout: '60%',
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor
+          }
+        }
+      }
+    };
+  }
+
+  async getData() {
+    const response = await this.api.GET_ResultsStatus();
+    this.chartData(response.data);
+  }
 }
