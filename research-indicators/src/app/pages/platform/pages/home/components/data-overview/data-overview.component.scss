@@ -44,11 +44,14 @@
       .results-updates,
       .results-status {
         display: flex;
+        justify-content: center;
+        align-items: center;
         flex-direction: column;
         background-color: white;
         border: 0.4px solid #e8ebed;
         border-radius: 10px;
         box-shadow: 0 1.02px 5.63px 0 #6bb8ff1a;
+        padding-bottom: 20px;
 
         .chart-container {
           width: 300px;
