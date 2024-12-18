@@ -20,6 +20,5 @@ export class GetRegionsService {
     });
     this.list.set(response.data);
     this.loading.set(false);
-    console.log(response.data);
   }
 }
