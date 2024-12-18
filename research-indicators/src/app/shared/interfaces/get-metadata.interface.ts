@@ -6,4 +6,5 @@ export interface GetMetadata {
   result_official_code?: number;
   status_id?: number;
   status_name?: string;
+  result_title?: string;
 }
