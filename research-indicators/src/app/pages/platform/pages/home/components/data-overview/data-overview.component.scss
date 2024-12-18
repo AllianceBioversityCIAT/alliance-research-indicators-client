@@ -1,3 +1,15 @@
+.indicator-number-container[data-index='0'] {
+  .output-icon {
+    color: #7cb580;
+  }
+}
+
+.indicator-number-container[data-index='2'] {
+  .outcome-icon {
+    color: #f58220;
+  }
+}
+
 .container {
   .header {
     display: grid;
@@ -149,14 +161,6 @@
             display: flex;
             align-items: center;
             gap: 5px;
-
-            .output-icon {
-              color: #358540;
-            }
-
-            .outcome-icon {
-              color: #f58220;
-            }
 
             .indicator-number {
               font-family: 'Space Grotesk', sans-serif;
