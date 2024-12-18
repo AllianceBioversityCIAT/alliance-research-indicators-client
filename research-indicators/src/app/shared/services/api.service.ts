@@ -25,6 +25,7 @@ import { GetProjectDetail } from '../interfaces/get-project-detail.interface';
 import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
 import { GetIndicatorsResultsAmount } from '../interfaces/get-indicators-results-amount.interface';
 import { GetResultsStatus } from '../interfaces/get-results-status.interface';
+import { GetRegion } from '../interfaces/get-region.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -241,10 +242,10 @@ export class ApiService {
     return this.TP.patch(url(), body);
   };
 
-  // GET_Regions = (): Promise<MainResponse<any[]>> => {
-  //   const url = () => `tools/clarisa/regions`;
-  //   return this.TP.get(url(), {});
-  // };
+  GET_Regions = (): Promise<MainResponse<GetRegion[]>> => {
+    const url = () => `tools/clarisa/regions`;
+    return this.TP.get(url(), {});
+  };
 
   // GET_GeoScope = (): Promise<MainResponse<any[]>> => {
   //   const url = () => `tools/clarisa/geo-scope`;
