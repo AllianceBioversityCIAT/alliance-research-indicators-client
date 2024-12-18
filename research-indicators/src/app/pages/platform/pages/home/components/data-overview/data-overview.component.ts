@@ -36,7 +36,9 @@ export class DataOverviewComponent implements OnInit {
   }
 
   async getIndicatorData() {
-    await this.api.GET_IndicatorsResultsAmount();
+    const response = await this.api.GET_IndicatorsResultsAmount();
+    this.indicatorList.set(response.data);
+    console.log(response);
   }
 
   chartData(data: any) {
