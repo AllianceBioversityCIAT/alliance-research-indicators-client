@@ -53,10 +53,11 @@ export default class GeographicScopeComponent {
   async getData() {
     const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
     this.body.set(response.data);
-    const response2 = await this.api.GET_GeoSearch('countries', 'col');
+    console.log(this.body());
   }
 
   async saveData() {
+    console.log(this.body());
     const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
     if (!response.successfulRequest) return;
     this.getData();

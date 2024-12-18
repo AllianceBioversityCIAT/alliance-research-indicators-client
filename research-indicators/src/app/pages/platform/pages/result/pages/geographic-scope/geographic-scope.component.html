@@ -18,8 +18,8 @@
 
       <!-- ? option 1 -->
       @if (body().geo_scope_id === 1 || body().geo_scope_id === '1') {
-        <app-multiselect [signal]="body" [optionLabel]="'name'" [optionValue]="'institution_id'" [signalOptionValue]="'regions'" serviceName="institutions" label="{{ getMultiselectLabel().region }}" description="The list of regions below follows the UN (M.49) standard"></app-multiselect>
-        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'countries'" serviceName="geoFocus" label="{{ getMultiselectLabel().country }}" description="The list of countries below follows the ISO 3166 standard"></app-multiselect>
+        <app-multiselect [signal]="body" [optionLabel]="'name'" [optionValue]="'isoAlpha2'" [signalOptionValue]="'countries'" serviceName="countries" label="{{ getMultiselectLabel().country }}" description="The list of regions below follows the UN (M.49) standard"></app-multiselect>
+        <app-multiselect [signal]="body" [optionLabel]="'name'" [optionValue]="'region_id'" [signalOptionValue]="'regions'" serviceName="institutions" label="{{ getMultiselectLabel().region }}" description="The list of countries below follows the ISO 3166 standard"></app-multiselect>
       }
       <!-- ? option 2 -->
       @if (body().geo_scope_id === 2 || body().geo_scope_id === '2') {
