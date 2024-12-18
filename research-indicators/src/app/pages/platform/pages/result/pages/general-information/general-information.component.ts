@@ -17,6 +17,7 @@ import { TextareaComponent } from '../../../../../../shared/components/custom-fi
 import { GetResultsService } from '../../../../../../shared/services/control-list/get-results.service';
 import { GetUserStaffService } from '../../../../../../shared/services/control-list/get-user-staff.service';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
+import { GetMetadataService } from '../../../../../../shared/services/get-metadata.service';
 
 interface Option {
   name: string;
@@ -35,6 +36,7 @@ export default class GeneralInformationComponent {
   cache = inject(CacheService);
   router = inject(Router);
   route = inject(ActivatedRoute);
+  metadata = inject(GetMetadataService);
   getResultsService = inject(GetResultsService);
   getUserStaffService = inject(GetUserStaffService);
   options: Option[] | undefined;
@@ -60,6 +62,7 @@ export default class GeneralInformationComponent {
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     this.getResultsService.updateList();
     this.getData();
+    this.metadata.GET_Metadata(this.cache.currentResultId());
   }
   // onSaveSection = effect(() => {
   //   if (this.actions.saveCurrentSectionValue()) this.saveData();
