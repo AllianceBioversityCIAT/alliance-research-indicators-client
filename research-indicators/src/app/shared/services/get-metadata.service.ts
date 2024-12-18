@@ -11,9 +11,7 @@ export class GetMetadataService {
 
   async GET_Metadata(id: number) {
     const response = await this.api.GET_Metadata(id);
-    response.data.indicator_short_name = this.formatText(response.data?.indicator_name || '');
     this.cache.currentMetadata.set(response?.data);
-    console.log(response?.data);
   }
 
   formatText(input: string): string {
