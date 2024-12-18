@@ -6,7 +6,7 @@ import { ControlListServices } from '../../../interfaces/services.interface';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
-import { getNestedProperty, setNestedPropertyWithReduce } from '../../../utils/setNestedPropertyWithReduce';
+import { UtilsService } from '../../../services/utils.service';
 
 @Component({
   selector: 'app-select',
@@ -17,6 +17,7 @@ import { getNestedProperty, setNestedPropertyWithReduce } from '../../../utils/s
 })
 export class SelectComponent implements OnInit {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;
+  utils = inject(UtilsService);
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
   @Input() optionValue = { body: '', option: '' };
@@ -34,7 +35,7 @@ export class SelectComponent implements OnInit {
     () => {
       if (!this.currentResultIsLoading())
         this.body.update(current => {
-          setNestedPropertyWithReduce(current, 'value', getNestedProperty(this.signal(), this.optionValue.body));
+          this.utils.setNestedPropertyWithReduce(current, 'value', this.utils.getNestedProperty(this.signal(), this.optionValue.body));
           return { ...current };
         });
     },
@@ -47,6 +48,6 @@ export class SelectComponent implements OnInit {
 
   setValue(value: any) {
     this.body.set({ value: value });
-    setNestedPropertyWithReduce(this.signal(), this.optionValue.body, value);
+    this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue.body, value);
   }
 }
