@@ -1,6 +1,6 @@
 <div class="container">
-  <h3 class="title-text">CAPSHARING DETAILS</h3>
-  <p class="description-text">Description</p>
+  <h3 class="title-text">{{ this.cache.currentMetadata().result_title }}</h3>
+  <br />
 
   <!-- TRAINING TYPE-->
 
@@ -93,7 +93,7 @@
       @if (body().group?.session_purpose_id === 4) {
         <div class="columns">
           <div class="column">
-            <app-input [signal]="body" optionValue="group.session_purpose_description"></app-input>
+            <app-input [signal]="body" placeholder="Write the other purpose" optionValue="group.session_purpose_description"></app-input>
           </div>
         </div>
       }
@@ -158,6 +158,6 @@
   <div class="button-container">
     <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')"></p-button>
     <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')"></p-button>
-    <p-button label="Save" icon="pi pi-save" iconPos="left" (click)="saveData()"></p-button>
+    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()"></p-button>
   </div>
 </div>

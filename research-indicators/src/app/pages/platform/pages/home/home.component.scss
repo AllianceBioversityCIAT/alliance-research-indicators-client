@@ -19,3 +19,10 @@
     }
   }
 }
+
+@media (orientation: landscape) and (height <= 833px) {
+  .items {
+    grid-template-columns: 0.7fr 1fr !important;
+    gap: 30px !important;
+  }
+}

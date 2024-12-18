@@ -33,3 +33,9 @@
     }
   }
 }
+
+@media (orientation: landscape) and (height <= 768px) {
+  .search-box {
+    width: 60vh !important;
+  }
+}

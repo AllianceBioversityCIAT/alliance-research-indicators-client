@@ -1,5 +1,7 @@
 export interface GetInstitution {
-  institution_id: number;
   description: string;
   code: number;
+  // aux
+  institution_id: number;
+  region_id: number;
 }

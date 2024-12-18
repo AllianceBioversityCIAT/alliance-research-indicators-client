@@ -9,9 +9,9 @@
     <p-skeleton width="100%" height="2.8rem" styleClass="mb-2" />
   } @else {
     @if (type === 'text') {
-      <input appSaveOnWriting pInputText id="username" [class]="this.inputValid().class" aria-describedby="username-help" [(ngModel)]="this.body().value" (ngModelChange)="setValue($event)" />
+      <input appSaveOnWriting pInputText id="username" [placeholder]="placeholder" [class]="this.inputValid().class" aria-describedby="username-help" [(ngModel)]="this.body().value" (ngModelChange)="setValue($event)" />
     } @else if (type === 'number') {
-      <p-inputNumber styleClass="w-full" [(ngModel)]="this.body().value" (ngModelChange)="setValue($event)" [showButtons]="true" inputId="minmax-buttons" />
+      <p-inputNumber styleClass="w-full" [placeholder]="placeholder" [(ngModel)]="this.body().value" (ngModelChange)="setValue($event)" [showButtons]="true" inputId="minmax-buttons" />
     }
   }
   @if (!this.inputValid().valid) {

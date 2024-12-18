@@ -22,6 +22,9 @@ import { SessionPurpose } from '../interfaces/get-session-purpose.interface';
 import { GetPolicyChange } from '../interfaces/get-get-policy-change.interface';
 import { GetResultsByContract } from '../interfaces/get-results-by-contract.interface';
 import { GetProjectDetail } from '../interfaces/get-project-detail.interface';
+import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
+import { GetIndicatorsResultsAmount } from '../interfaces/get-indicators-results-amount.interface';
+import { GetResultsStatus } from '../interfaces/get-results-status.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -217,6 +220,41 @@ export class ApiService {
     const url = () => `results/contracts/${contractId}`;
     return this.TP.get(url(), {});
   };
+
+  GET_ResultsStatus = (): Promise<MainResponse<GetResultsStatus[]>> => {
+    const url = () => `results/status/result-amount/current-user`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IndicatorsResultsAmount = (): Promise<MainResponse<GetIndicatorsResultsAmount[]>> => {
+    const url = () => `indicators/results-amount/current-user`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_GeoLocation = (id: number): Promise<MainResponse<GetGeoLocation>> => {
+    const url = () => `results/${id}/geo-location`;
+    return this.TP.get(url(), { loadingTrigger: true });
+  };
+
+  PATCH_GeoLocation = <T>(id: number, body: T): Promise<MainResponse<GetGeoLocation>> => {
+    const url = () => `results/${id}/geo-location`;
+    return this.TP.patch(url(), body);
+  };
+
+  // GET_Regions = (): Promise<MainResponse<any[]>> => {
+  //   const url = () => `tools/clarisa/regions`;
+  //   return this.TP.get(url(), {});
+  // };
+
+  // GET_GeoScope = (): Promise<MainResponse<any[]>> => {
+  //   const url = () => `tools/clarisa/geo-scope`;
+  //   return this.TP.get(url(), {});
+  // };
+
+  // GET_GeoSearch = (scope: string, search: string): Promise<MainResponse<any[]>> => {
+  //   const url = () => `tools/clarisa/manager/opensearch/${scope}/search?query=${search}`;
+  //   return this.TP.get(url(), {});
+  // };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 

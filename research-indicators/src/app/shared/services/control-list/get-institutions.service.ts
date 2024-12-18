@@ -18,6 +18,7 @@ export class GetInstitutionsService {
     const response = await this.api.GET_Institutions();
     response.data.map((institution: GetInstitution) => {
       institution.institution_id = institution.code;
+      institution.region_id = institution.code;
     });
     this.list.set(response.data);
     this.loading.set(false);

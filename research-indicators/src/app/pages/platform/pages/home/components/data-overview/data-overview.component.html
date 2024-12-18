@@ -40,7 +40,9 @@
       <div class="results-status">
         <span class="card-title">Results by Status</span>
         @if (results === true) {
-          <!-- <p-chart type="doughnut" [data]="data" [options]="options"></p-chart> -->
+          <div class="chart-container">
+            <p-chart type="doughnut" [data]="data" [options]="options"></p-chart>
+          </div>
         } @else {
           <div class="no-results-yet">
             <img src="images/home/no-results-yet.png" alt="" />
@@ -56,11 +58,11 @@
       </div>
       @if (results === true) {
         <div class="indicators">
-          @for (indicator of indicators; track $index) {
+          @for (indicator of indicatorList(); track $index) {
             <div class="indicator">
               <div class="indicator-number-container">
-                <i class="material-symbols-rounded" [class]="indicator.type">{{ indicator.icon }}</i>
-                <label class="indicator-number" for="username">{{ indicator.number }}</label>
+                <!-- <i class="material-symbols-rounded" [class]="indicator.type">{{ indicator.icon }}</i> -->
+                <!-- <label class="indicator-number" for="username">{{ indicator.number }}</label> -->
               </div>
               <label class="indicator-type" for="username">{{ indicator.name }}</label>
             </div>

@@ -7,8 +7,7 @@ import { SaveOnWritingDirective } from '../../../directives/save-on-writing.dire
 import { SkeletonModule } from 'primeng/skeleton';
 import { CacheService } from '../../../services/cache/cache.service';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { getNestedProperty, setNestedPropertyWithReduce } from '../../../utils/setNestedPropertyWithReduce';
-
+import { UtilsService } from '../../../services/utils.service';
 @Component({
   selector: 'app-input',
   standalone: true,
@@ -18,19 +17,21 @@ import { getNestedProperty, setNestedPropertyWithReduce } from '../../../utils/s
 })
 export class InputComponent {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;
+  utils = inject(UtilsService);
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionValue = '';
   @Input() pattern: 'email' | 'url' | '' = '';
   @Input() label = '';
   @Input() description = '';
   @Input() type: 'text' | 'number' = 'text';
+  @Input() placeholder = '';
   body = signal({ value: null });
   firstTime = signal(true);
 
   onChange = effect(
     () => {
       if (this.firstTime() && !this.currentResultIsLoading()) {
-        this.body.set({ value: getNestedProperty(this.signal(), this.optionValue) });
+        this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.optionValue) });
         this.firstTime.set(false);
       }
     },
@@ -49,7 +50,7 @@ export class InputComponent {
   setValue(value: any) {
     // this.signal.set({ ...this.signal(), [this.optionValue]: value });
     this.body.set({ value: value });
-    setNestedPropertyWithReduce(this.signal(), this.optionValue, value);
+    this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, value);
   }
 
   getPattern() {
