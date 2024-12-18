@@ -17,4 +17,5 @@ export type ControlListServices =
   | 'policyTypes'
   | 'policyStages'
   | 'geoFocus'
+  | 'regions'
   | '';
