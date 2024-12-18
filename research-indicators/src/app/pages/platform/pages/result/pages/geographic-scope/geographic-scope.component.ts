@@ -70,9 +70,9 @@ export default class GeographicScopeComponent {
   async saveData(page?: 'next' | 'back') {
     const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
     if (!response.successfulRequest) return;
+    await this.getData();
+    this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
-    this.getData();
-    this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
   }
 }
