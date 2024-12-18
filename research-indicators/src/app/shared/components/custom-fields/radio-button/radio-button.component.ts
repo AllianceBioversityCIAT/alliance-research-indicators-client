@@ -36,7 +36,7 @@ export class RadioButtonComponent implements OnInit {
       if (!this.currentResultIsLoading() && this.firstTime() && !this.service.loading()) {
         // this.body.update(current => {
 
-        console.log(this.utils.getNestedProperty(this.signal, this.optionValue.body));
+        // console.log(this.utils.getNestedProperty(this.signal, this.optionValue.body));
 
         //   console.log(current);
         //   return { ...current };
@@ -57,7 +57,6 @@ export class RadioButtonComponent implements OnInit {
   }
 
   setValue(value: any) {
-    console.log('Set value');
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue.body, value);
   }

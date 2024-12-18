@@ -22,7 +22,11 @@ describe('EvidenceComponent', () => {
     };
 
     const mockCacheService = {
-      currentResultId: jest.fn().mockReturnValue('mock-id')
+      currentResultId: jest.fn().mockReturnValue('mock-id'),
+      currentMetadata: jest.fn().mockReturnValue({
+        result_type: 'mock-type',
+        title: 'mock-title'
+      })
     };
 
     const mockRouter = {

@@ -23,6 +23,8 @@ import { GetPolicyChange } from '../interfaces/get-get-policy-change.interface';
 import { GetResultsByContract } from '../interfaces/get-results-by-contract.interface';
 import { GetProjectDetail } from '../interfaces/get-project-detail.interface';
 import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
+import { GetIndicatorsResultsAmount } from '../interfaces/get-indicators-results-amount.interface';
+import { GetResultsStatus } from '../interfaces/get-results-status.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -219,12 +221,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_ResultsStatus = (): Promise<MainResponse<any[]>> => {
+  GET_ResultsStatus = (): Promise<MainResponse<GetResultsStatus[]>> => {
     const url = () => `results/status/result-amount/current-user`;
     return this.TP.get(url(), {});
   };
 
-  GET_IndicatorsResultsAmount = (): Promise<MainResponse<any[]>> => {
+  GET_IndicatorsResultsAmount = (): Promise<MainResponse<GetIndicatorsResultsAmount[]>> => {
     const url = () => `indicators/results-amount/current-user`;
     return this.TP.get(url(), {});
   };
@@ -239,20 +241,20 @@ export class ApiService {
     return this.TP.patch(url(), body);
   };
 
-  GET_Regions = (): Promise<MainResponse<any[]>> => {
-    const url = () => `tools/clarisa/regions`;
-    return this.TP.get(url(), {});
-  };
+  // GET_Regions = (): Promise<MainResponse<any[]>> => {
+  //   const url = () => `tools/clarisa/regions`;
+  //   return this.TP.get(url(), {});
+  // };
 
-  GET_GeoScope = (): Promise<MainResponse<any[]>> => {
-    const url = () => `tools/clarisa/geo-scope`;
-    return this.TP.get(url(), {});
-  };
+  // GET_GeoScope = (): Promise<MainResponse<any[]>> => {
+  //   const url = () => `tools/clarisa/geo-scope`;
+  //   return this.TP.get(url(), {});
+  // };
 
-  GET_GeoSearch = (scope: string, search: string): Promise<MainResponse<any[]>> => {
-    const url = () => `tools/clarisa/manager/opensearch/${scope}/search?query=col`;
-    return this.TP.get(url(), {});
-  };
+  // GET_GeoSearch = (scope: string, search: string): Promise<MainResponse<any[]>> => {
+  //   const url = () => `tools/clarisa/manager/opensearch/${scope}/search?query=${search}`;
+  //   return this.TP.get(url(), {});
+  // };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 

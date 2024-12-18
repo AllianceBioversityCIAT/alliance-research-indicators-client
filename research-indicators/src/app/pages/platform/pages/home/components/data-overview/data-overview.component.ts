@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
 import { ChartModule } from 'primeng/chart';
@@ -34,8 +36,7 @@ export class DataOverviewComponent implements OnInit {
   }
 
   async getIndicatorData() {
-    const response = await this.api.GET_IndicatorsResultsAmount();
-    console.log(response);
+    await this.api.GET_IndicatorsResultsAmount();
   }
 
   chartData(data: any) {
