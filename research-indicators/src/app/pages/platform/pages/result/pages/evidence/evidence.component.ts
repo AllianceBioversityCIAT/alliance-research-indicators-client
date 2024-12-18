@@ -52,7 +52,7 @@ export default class EvidenceComponent {
   async saveData(page?: 'next' | 'back') {
     await this.api.PATCH_ResultEvidences(this.cache.currentResultId(), this.body());
     this.actions.showToast({ severity: 'success', summary: 'Evidence', detail: 'Data saved successfully' });
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
     this.getData();
+    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'geographic-scope']);
   }
 }

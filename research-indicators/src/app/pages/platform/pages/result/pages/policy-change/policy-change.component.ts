@@ -46,10 +46,10 @@ export default class PolicyChangeComponent {
   async saveData(page?: 'next' | 'back') {
     const response = await this.api.PATCH_PolicyChange(this.cache.currentResultId(), this.body());
     if (response.successfulRequest) {
-      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
       this.actions.showToast({ severity: 'success', summary: 'Policy Change', detail: 'Data saved successfully' });
       await this.getData();
+      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     }
   }
 }

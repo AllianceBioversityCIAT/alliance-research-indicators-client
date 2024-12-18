@@ -56,10 +56,10 @@ export default class CapacitySharingComponent {
     });
 
     await this.api.PATCH_CapacitySharing(this.body());
+    this.actions.showToast({ severity: 'success', summary: 'Capacity Sharing', detail: 'Data saved successfully' });
+    await this.getData();
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
-    this.actions.showToast({ severity: 'success', summary: 'Capacity Sharing', detail: 'Data saved successfully' });
-    this.getData();
   }
 
   // onSaveSection = effect(() => {
