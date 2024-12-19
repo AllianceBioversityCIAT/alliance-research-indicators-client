@@ -1,4 +1,4 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -33,6 +33,12 @@ export default class CapacitySharingComponent {
   constructor() {
     this.getData();
   }
+
+  isStartDateGreaterThanEndDate = computed(() => {
+    const { start_date, end_date } = this.body() || {};
+    if (!start_date || !end_date) return false;
+    return new Date(start_date).getTime() > new Date(end_date).getTime();
+  });
 
   async getData() {
     this.cache.loadingCurrentResult.set(true);
