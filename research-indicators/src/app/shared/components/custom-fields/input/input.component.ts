@@ -25,6 +25,7 @@ export class InputComponent {
   @Input() description = '';
   @Input() type: 'text' | 'number' = 'text';
   @Input() placeholder = '';
+  @Input() min = 0;
   body = signal({ value: null });
   firstTime = signal(true);
 
