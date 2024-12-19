@@ -19,6 +19,7 @@ export class GetInstitutionsService {
     response.data.map((institution: GetInstitution) => {
       institution.institution_id = institution.code;
       institution.region_id = institution.code;
+      institution.html_full_name = `<strong>${institution.acronym}</strong> - ${institution.name}`;
     });
     this.list.set(response.data);
     this.loading.set(false);

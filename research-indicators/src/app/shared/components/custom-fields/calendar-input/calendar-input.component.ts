@@ -19,6 +19,8 @@ export class CalendarInputComponent {
   @Input() optionValue = '';
   @Input() label = '';
   @Input() description = '';
+  @Input() minDate: any = null;
+  @Input() maxDate: any = null;
   setValue(value: string) {
     this.signal.set({ ...this.signal(), [this.optionValue]: value });
   }

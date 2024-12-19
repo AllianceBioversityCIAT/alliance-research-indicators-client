@@ -9,35 +9,35 @@
     </div>
   </div>
   <div class="card-container">
-    @for (result of results; track $index) {
+    @for (result of latestResultList(); track $index) {
       <div class="card">
         <div class="card-content">
           <div class="project-indicators">
             <div class="indicator">
               <div class="indicator-container">
-                <i class="material-symbols-rounded" [class]="result.type">{{ result.icon }} </i>
+                <i class="material-symbols-rounded">{{ result.indicator.icon_src }} </i>
               </div>
-              <label class="indicator-type" for="username">{{ result.indicator }}</label>
+              <label class="indicator-type" for="username">{{ result.indicator.name }}</label>
               <div class="more-vert">
                 <span class="material-symbols-rounded"> more_vert </span>
               </div>
             </div>
             <div class="organization-identifier">
               <div class="project">
-                <label class="project-name" for="username">{{ result.name }}</label>
+                <label class="project-name" for="username">{{ result.title }}</label>
               </div>
             </div>
             <div class="project-info">
               <div class="project-name">
                 <span class="project-title">Project</span>
                 <span class="material-symbols-rounded"> arrow_forward </span>
-                <label class="project" for="username">{{ result.project }}</label>
+                <label class="project" for="username">{{ result.result_contracts.agresso_contract.agreement_id }} - {{ result.result_contracts.agresso_contract.description }}</label>
               </div>
             </div>
             <div class="progress-bar">
               <p-button label="EDITING" badgeSeverity="contrast" styleClass="m-0" [outlined]="true" size="small" />
             </div>
-            <span class="last-update">Last update on 10/11/2024 - 8:10 P.M</span>
+            <label class="last-update" for="username">Last update on {{ result.updated_at }}</label>
           </div>
         </div>
       </div>

@@ -137,16 +137,15 @@
         <app-select label="Language" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }" [serviceName]="'languages'"> </app-select>
       </div>
     </div>
-
     <div class="trainee-details-columns">
       <div class="column">
         <!-- <app-input label="Start date" [signal]="body" [optionValue]="'test'"></app-input>
           -->
-        <app-calendar-input label="Start date" [signal]="body" [optionValue]="'start_date'"></app-calendar-input>
+        <app-calendar-input label="Start date" [signal]="body" [optionValue]="'start_date'" [maxDate]="body().end_date"></app-calendar-input>
       </div>
 
       <div class="column">
-        <app-calendar-input label="End date" [signal]="body" [optionValue]="'end_date'"></app-calendar-input>
+        <app-calendar-input label="End date" [signal]="body" [optionValue]="'end_date'" [minDate]="body().start_date"></app-calendar-input>
       </div>
     </div>
 
