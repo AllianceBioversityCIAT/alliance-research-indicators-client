@@ -130,7 +130,7 @@
 
     <div class="trainee-details-columns">
       <div class="column">
-        <app-select label="Training / Engagement supervisor*" [signal]="body" [optionValue]="{ body: 'training_supervisor.user_id', option: 'user_id' }" optionLabel="full_name" serviceName="userStaff"> </app-select>
+        <app-select label="Training / Engagement supervisor*" optionLabel="first_name" optionLabel2="email" [signal]="body" [optionValue]="{ body: 'training_supervisor.user_id', option: 'user_id' }" serviceName="userStaff"> </app-select>
       </div>
 
       <div class="column">
