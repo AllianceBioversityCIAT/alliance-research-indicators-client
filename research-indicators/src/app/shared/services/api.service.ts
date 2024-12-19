@@ -26,6 +26,7 @@ import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
 import { GetIndicatorsResultsAmount } from '../interfaces/get-indicators-results-amount.interface';
 import { GetResultsStatus } from '../interfaces/get-results-status.interface';
 import { GetRegion } from '../interfaces/get-region.interface';
+import { LatestResult } from '@pages/platform/pages/home/components/my-latest-results/my-latest-results.component';
 
 @Injectable({
   providedIn: 'root'
@@ -229,6 +230,11 @@ export class ApiService {
 
   GET_IndicatorsResultsAmount = (): Promise<MainResponse<GetIndicatorsResultsAmount[]>> => {
     const url = () => `indicators/results-amount/current-user`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_LatestResults = (): Promise<MainResponse<LatestResult[]>> => {
+    const url = () => `results/last-updated/current-user?limit=3`;
     return this.TP.get(url(), {});
   };
 

@@ -1,4 +1,5 @@
 .container {
+  width: 100%;
   .header {
     display: flex;
     justify-content: space-between;
@@ -36,7 +37,7 @@
   }
   .card-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 20px;
 
     .card {
@@ -127,11 +128,18 @@
             line-height: 13px;
             color: #345b8f;
             text-transform: uppercase;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-clamp: 1;
           }
 
           .project-name {
             display: flex;
             align-items: center;
+            text-overflow: ellipsis;
           }
 
           .material-symbols-rounded {

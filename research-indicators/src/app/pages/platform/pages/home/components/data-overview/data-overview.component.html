@@ -61,7 +61,7 @@
           @for (indicator of indicatorList(); track $index) {
             <div class="indicator">
               <div class="indicator-number-container" [attr.data-index]="$index">
-                <i class="material-symbols-rounded">{{ indicator.icon_src }}</i>
+                <i class="material-symbols-rounded {{ (indicator.indicator_type_id === 1 ? 'output' : 'outcome') + '-icon' }}">{{ indicator.icon_src }}</i>
                 <label class="indicator-number" for="username">{{ indicator.amount_results }}</label>
               </div>
               <label class="indicator-type" for="username">{{ indicator.name }}</label>
