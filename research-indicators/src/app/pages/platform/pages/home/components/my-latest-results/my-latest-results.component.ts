@@ -1,12 +1,62 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { ApiService } from '@shared/services/api.service';
 import { ButtonModule } from 'primeng/button';
 
-interface Result {
-  icon: string;
-  indicator: string;
+export interface LatestResult {
+  updated_at: Date;
+  is_active: boolean;
+  result_id: number;
+  result_official_code: number;
+  title: string;
+  description: null;
+  indicator_id: number;
+  result_contracts: ResultContract;
+  indicator: Indicator;
+}
+
+export interface Indicator {
+  is_active: boolean;
+  indicator_id: number;
   name: string;
+  other_names: null;
+  description: string;
+  long_description: string;
+  indicator_type_id: number;
+  icon_src: string;
+}
+
+export interface ResultContract {
+  is_active: boolean;
+  result_contract_id: number;
+  result_id: number;
+  contract_id: string;
+  contract_role_id: number;
+  is_primary: boolean;
+  agresso_contract: AgressoContract;
+}
+
+export interface AgressoContract {
+  is_active: boolean;
+  agreement_id: string;
+  contract_status: string;
+  description: string;
+  division: null;
+  donor: string;
+  donor_reference: string;
+  endDateGlobal: Date;
+  endDatefinance: Date;
+  end_date: Date;
+  entity: string;
+  extension_date: Date;
+  funding_type: string;
   project: string;
-  type: string;
+  projectDescription: string;
+  project_lead_description: string;
+  short_title: string;
+  start_date: Date;
+  ubwClientDescription: string;
+  unit: null;
+  office: null;
 }
 
 @Component({
@@ -16,28 +66,18 @@ interface Result {
   templateUrl: './my-latest-results.component.html',
   styleUrl: './my-latest-results.component.scss'
 })
-export class MyLatestResultsComponent {
-  results: Result[] = [
-    {
-      icon: 'group',
-      indicator: 'CAPACITY SHARING FOR DEVELOPMENT',
-      name: 'Implementing precision agriculture techniques to optimize water',
-      project: 'A1569 - Research for Low-Emission Food Systems',
-      type: 'output-icon'
-    },
-    {
-      icon: 'folder_open',
-      indicator: 'POLICY CHANGE',
-      name: 'THE IMPACT OF CLIMATE CHANGE ON MIGRATION PATTERNS',
-      project: 'P100 - AMAZON BIODIVERSITY FUND BRAZIL FUNDO DE INV..',
-      type: 'outcome-icon'
-    },
-    {
-      icon: 'flag',
-      indicator: 'INNOVATION DEVELOPMENT',
-      name: 'Strategies for enhancing soil fertility and crop yield in lands',
-      project: 'A1659 - FOOD SYSTEMS TRANSFORMATION TO ADAPT AND..',
-      type: 'output-icon'
-    }
-  ];
+export class MyLatestResultsComponent implements OnInit {
+  api = inject(ApiService);
+
+  latestResultList: WritableSignal<LatestResult[]> = signal([]);
+
+  ngOnInit() {
+    this.getLatestResults();
+  }
+
+  async getLatestResults() {
+    const response = await this.api.GET_LatestResults();
+    this.latestResultList.set(response.data);
+    console.log(response);
+  }
 }
