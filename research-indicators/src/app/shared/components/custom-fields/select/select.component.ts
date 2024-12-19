@@ -20,6 +20,7 @@ export class SelectComponent implements OnInit {
   utils = inject(UtilsService);
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
+  @Input() optionLabel2 = '';
   @Input() optionValue = { body: '', option: '' };
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
