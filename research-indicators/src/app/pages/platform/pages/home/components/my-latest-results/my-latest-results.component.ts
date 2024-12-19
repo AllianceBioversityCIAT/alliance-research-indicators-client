@@ -78,6 +78,5 @@ export class MyLatestResultsComponent implements OnInit {
   async getLatestResults() {
     const response = await this.api.GET_LatestResults();
     this.latestResultList.set(response.data);
-    console.log(response);
   }
 }
