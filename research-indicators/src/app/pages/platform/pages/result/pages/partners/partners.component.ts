@@ -38,7 +38,7 @@ export default class PartnersComponent {
     const response = await this.api.PATCH_Partners(this.cache.currentResultId(), this.body());
     if (response.successfulRequest) {
       this.actions.showToast({ severity: 'success', summary: 'Partners', detail: 'Data saved successfully' });
-      this.getData();
+      await this.getData();
       if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
       if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'geographic-scope']);
     }

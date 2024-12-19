@@ -60,8 +60,8 @@ export default class GeneralInformationComponent {
     await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
     this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
     this.getResultsService.updateList();
-    this.getData();
-    this.metadata.GET_Metadata(this.cache.currentResultId());
+    await this.getData();
+    await this.metadata.GET_Metadata(this.cache.currentResultId());
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
   }
   // onSaveSection = effect(() => {
