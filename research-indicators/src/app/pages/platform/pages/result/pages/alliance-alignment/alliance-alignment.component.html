@@ -13,13 +13,25 @@
                 <div class="item-content">
                   <div class="information">
                     <div class="row">
-                      <div>
+                      <div class="project">
                         <strong>{{ contract.agreement_id }}</strong> - {{ contract.description }}
                       </div>
-                      <div class="project-lead">
-                        <h4>Project lead</h4>
-                        &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
-                        <span class="project-lead-description">{{ contract.project_lead_description }}</span>
+                      <div class="project-info">
+                        <div class="project-lead">
+                          <h4>Project lead</h4>
+                          &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
+                          <span class="project-data">{{ contract.project_lead_description }}</span>
+                        </div>
+                        <div class="start-date">
+                          <span class="project-title">Start Date</span>
+                          <span class="material-symbols-rounded"> arrow_forward </span>
+                          <label class="project-data" for="username">{{ contract.start_date | date: 'dd/MM/yyyy' }}</label>
+                        </div>
+                        <div class="end-date">
+                          <span class="project-title">End Date</span>
+                          <span class="material-symbols-rounded"> arrow_forward </span>
+                          <label class="project-data" for="username">{{ contract.end_date | date: 'dd/MM/yyyy' }}</label>
+                        </div>
                       </div>
                     </div>
                   </div>

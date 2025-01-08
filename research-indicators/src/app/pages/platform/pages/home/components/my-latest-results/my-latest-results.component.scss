@@ -1,3 +1,15 @@
+.options[data-index='0'] {
+  .output-icon {
+    color: #7cb580;
+  }
+}
+
+.options[data-index='1'] {
+  .outcome-icon {
+    color: #f58220;
+  }
+}
+
 .container {
   width: 100%;
   .header {
@@ -63,14 +75,6 @@
             display: flex;
             align-items: center;
             gap: 5px;
-
-            .output-icon {
-              color: #358540;
-            }
-
-            .outcome-icon {
-              color: #f58220;
-            }
           }
 
           .more-vert {
@@ -140,6 +144,7 @@
             display: flex;
             align-items: center;
             text-overflow: ellipsis;
+            color: #112f5c;
           }
 
           .material-symbols-rounded {
