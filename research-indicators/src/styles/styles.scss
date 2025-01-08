@@ -60,6 +60,18 @@ body {
   font-weight: 500 !important;
 }
 
+.icon-color-flag,
+.icon-color-lightbulb,
+.icon-color-group {
+  color: var(--ac-green-300);
+}
+
+.icon-color-folder_open,
+.icon-color-pie_chart,
+.icon-color-wb_sunny {
+  color: var(--ac-orange-1);
+}
+
 @media (orientation: landscape) and (height <= 768px) {
   body {
     font-size: 13px !important;
