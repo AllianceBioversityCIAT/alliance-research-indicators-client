@@ -14,8 +14,8 @@
         <div class="card-content">
           <div class="project-indicators">
             <div class="indicator">
-              <div class="indicator-container">
-                <i class="material-symbols-rounded">{{ result.indicator.icon_src }} </i>
+              <div class="indicator-container" [attr.data-index]="$index">
+                <i class="material-symbols-rounded output-icon outcome-icon">{{ result.indicator.icon_src }} </i>
               </div>
               <label class="indicator-type" for="username">{{ result.indicator.name }}</label>
               <div class="more-vert">

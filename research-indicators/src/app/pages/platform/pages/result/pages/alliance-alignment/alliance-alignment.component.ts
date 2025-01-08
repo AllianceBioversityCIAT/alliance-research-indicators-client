@@ -10,11 +10,12 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 import { ButtonModule } from 'primeng/button';
 import { GetAllianceAlignment } from '../../../../../../shared/interfaces/get-alliance-alignment.interface';
 import { Router } from '@angular/router';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-alliance-alignment',
   standalone: true,
-  imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule],
+  imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
   templateUrl: './alliance-alignment.component.html',
   styleUrl: './alliance-alignment.component.scss'
 })
@@ -36,6 +37,7 @@ export default class AllianceAlignmentComponent {
   async getData() {
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
     this.body.set(response.data);
+    console.log(response.data);
   }
 
   async saveData(page?: 'next' | 'back') {
