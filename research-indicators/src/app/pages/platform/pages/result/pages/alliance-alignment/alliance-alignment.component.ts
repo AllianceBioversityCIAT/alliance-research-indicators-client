@@ -37,7 +37,6 @@ export default class AllianceAlignmentComponent {
   async getData() {
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
     this.body.set(response.data);
-    console.log(response.data);
   }
 
   async saveData(page?: 'next' | 'back') {
