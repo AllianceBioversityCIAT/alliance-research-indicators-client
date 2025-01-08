@@ -28,7 +28,15 @@ export class CognitoService {
     this.cache.isValidatingToken.set(true);
     const loginResponse = await this.api.login(code);
     if (!loginResponse.successfulRequest) {
-      this.actions.showGlobalAlert({ severity: 'error', summary: 'Error authenticating', detail: loginResponse.errorDetail.errors, callback: { onClose: () => this.router.navigate(['/']) } });
+      this.actions.showGlobalAlert({
+        severity: 'error',
+        summary: 'Error authenticating',
+        detail: loginResponse.errorDetail.errors,
+        callbacks: [
+          { label: 'Close', event: () => this.router.navigate(['/']) },
+          { label: 'Retry Login', event: () => this.redirectToCognito() }
+        ]
+      });
       return;
     }
     const {

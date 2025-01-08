@@ -4,7 +4,11 @@
       <i class="material-symbols-rounded" [class]="'text-' + alert.severity">{{ this.getIcon(alert.severity) }}</i>
       <div class="summary" [class]="'text-' + alert.severity">{{ alert.summary }}</div>
       <div class="detail" [innerHTML]="alert.detail"></div>
-      <p-button label="Close" (onClick)="closeAlert($index); alert?.callback?.onClose()" />
+      <div class="actions">
+        @for (callback of alert.callbacks; track $index) {
+          <p-button label="{{ callback.label }}" (onClick)="callback.event(); closeAlert($index)" />
+        }
+      </div>
     </div>
   </div>
 }
