@@ -46,7 +46,7 @@
               <ng-template #rows let-lever>
                 <div class="item-content">
                   <div class="information">
-                    <strong>{{ lever.short_name }}&nbsp;</strong> - {{ lever.full_name }}
+                    <strong>{{ lever.short_name }}&nbsp;</strong> - {{ lever.other_names }}
                   </div>
                   <button class="primary-button" [class]="{ active: lever.is_primary }" (click)="markAsPrimary(lever, 'lever')">{{ lever.is_primary ? 'Primary' : 'Select as Primary' }} <i class="material-symbols-rounded">star</i></button>
                 </div>
