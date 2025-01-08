@@ -58,22 +58,20 @@
     <div class="card-container">
       <div class="card-title">GROUP TRAINING</div>
 
-      <div class="columns">
-        <div class="column">
+      <div class="grid">
+        <div class="lg:col-12 xl:col-6">
           <app-input label="What was the total number of participants?" type="number" [signal]="body" [optionValue]="'group.session_participants_total'"></app-input>
         </div>
 
-        <div class="column">
-          <app-input label="Male participants?" [signal]="body" optionValue="group.session_participants_male" type="number"></app-input>
+        <div class="lg:col-12 xl:col-6">
+          <app-input label="Male participants?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" [signal]="body" optionValue="group.session_participants_male" type="number"></app-input>
         </div>
-      </div>
 
-      <div class="columns">
-        <div class="column">
+        <div class="lg:col-12 xl:col-6">
           <app-input label="Female participants?" [signal]="body" optionValue="group.session_participants_female" type="number"></app-input>
         </div>
 
-        <div class="column">
+        <div class="lg:col-12 xl:col-6">
           <app-input label="Non-binary participants?" [signal]="body" optionValue="group.session_participants_non_binary" type="number"></app-input>
         </div>
       </div>

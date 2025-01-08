@@ -34,7 +34,7 @@ export class CognitoService {
         detail: loginResponse.errorDetail.errors,
         callbacks: [
           { label: 'Close', event: () => this.router.navigate(['/']) },
-          { label: 'Retry Login', event: () => this.redirectToCognito() }
+          { label: 'Retry Log in', event: () => this.redirectToCognito() }
         ]
       });
       return;
