@@ -6,12 +6,12 @@
 
   <div class="card-container">
     <div class="card-title">TRAINING TYPE</div>
-    <div class="training-type-columns">
-      <div class="column gap-1">
+    <div class="grid">
+      <div class="lg:col-12 xl:col-6">
         <app-radio-button label="What training or engagement do you want to report?*" [signal]="body" [serviceName]="'capSharingFormats'" [optionLabel]="'name'" [optionValue]="{ body: 'session_format_id', option: 'session_format_id' }"></app-radio-button>
       </div>
 
-      <div class="column">
+      <div class="lg:col-12 xl:col-6">
         <app-radio-button label="Is this a training or a engagement?*" [signal]="body" [serviceName]="'capSharingTypes'" [optionLabel]="'name'" [optionValue]="{ body: 'session_type_id', option: 'session_type_id' }"></app-radio-button>
       </div>
     </div>
@@ -76,25 +76,25 @@
         </div>
       </div>
 
-      <div class="columns">
-        <div class="column">
+      <div class="grid">
+        <div class="lg:col-12 xl:col-6">
           <app-radio-button label="What was the purpose of this training/engagement?*" [signal]="body" [serviceName]="'capSharingSessionPurpose'" [optionLabel]="'name'" [optionValue]="{ body: 'group.session_purpose_id', option: 'session_purpose_id' }"></app-radio-button>
         </div>
 
-        <div class="column">
+        <!-- Other -->
+
+        <div class="lg:col-12 xl:col-6">
           <app-radio-button label="Were the trainees attending on behalf of an organization?*" [signal]="body" [optionLabel]="'name'" [serviceName]="'yesOrNo'" [optionValue]="{ body: 'group.is_attending_organization', option: 'value' }"></app-radio-button>
         </div>
-      </div>
 
-      <!-- Other -->
-
-      @if (body().group?.session_purpose_id === 4) {
-        <div class="columns">
-          <div class="column">
-            <app-input [signal]="body" placeholder="Write the other purpose" optionValue="group.session_purpose_description"></app-input>
+        @if (body().group?.session_purpose_id === 4) {
+          <div class="columns">
+            <div class="column">
+              <app-input [signal]="body" placeholder="Write the other purpose" optionValue="group.session_purpose_description"></app-input>
+            </div>
           </div>
-        </div>
-      }
+        }
+      </div>
 
       <div class="column">
         <app-multiselect label="Select the organizations*" description="Partner organizations you collaborated with or are currently collaborating with to generate this result." [signal]="body" optionLabel="name" optionValue="institution_id" signalOptionValue="group.trainee_organization_representative" serviceName="institutions">
@@ -126,23 +126,23 @@
   <div class="card-container">
     <div class="card-title">TRAINING DETAILS</div>
 
-    <div class="trainee-details-columns">
-      <div class="column">
+    <div class="grid">
+      <div class="lg:col-12 xl:col-6">
         <app-select label="Training / Engagement supervisor*" optionLabel="first_name" optionLabel2="email" [signal]="body" [optionValue]="{ body: 'training_supervisor.user_id', option: 'user_id' }" serviceName="userStaff"> </app-select>
       </div>
 
-      <div class="column">
+      <div class="lg:col-12 xl:col-6">
         <app-select label="Language" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }" [serviceName]="'languages'"> </app-select>
       </div>
     </div>
-    <div class="trainee-details-columns">
-      <div class="column">
+    <div class="grid">
+      <div class="lg:col-12 xl:col-6">
         <!-- <app-input label="Start date" [signal]="body" [optionValue]="'test'"></app-input>
           -->
         <app-calendar-input label="Start date" [signal]="body" [optionValue]="'start_date'" [maxDate]="body().end_date"></app-calendar-input>
       </div>
 
-      <div class="column">
+      <div class="lg:col-12 xl:col-6">
         <app-calendar-input label="End date" [signal]="body" [optionValue]="'end_date'" [minDate]="body().start_date"></app-calendar-input>
       </div>
     </div>
