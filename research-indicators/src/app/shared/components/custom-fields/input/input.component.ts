@@ -26,6 +26,7 @@ export class InputComponent {
   @Input() type: 'text' | 'number' = 'text';
   @Input() placeholder = '';
   @Input() min = 0;
+  @Input() validateEmpty = false;
   body = signal({ value: null });
   firstTime = signal(true);
 
@@ -40,9 +41,12 @@ export class InputComponent {
   );
 
   inputValid = computed(() => {
+    const value = this.signal()[this.optionValue];
+    if (this.validateEmpty && !value) {
+      return { valid: false, class: 'ng-invalid ng-dirty', message: 'Field cannot be empty' };
+    }
     if (this.pattern) {
-      const valid = new RegExp(this.getPattern().pattern).test(this.signal()[this.optionValue]);
-
+      const valid = new RegExp(this.getPattern().pattern).test(value);
       return { valid: valid, class: valid ? '' : 'ng-invalid ng-dirty', message: this.getPattern().message };
     }
     return { valid: true, class: '', message: '' };
