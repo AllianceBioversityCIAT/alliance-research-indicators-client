@@ -30,4 +30,5 @@ export interface GetContracts {
   unitId: null | string;
   office: null | string;
   officeId: null | string;
+  display_label: string;
 }
