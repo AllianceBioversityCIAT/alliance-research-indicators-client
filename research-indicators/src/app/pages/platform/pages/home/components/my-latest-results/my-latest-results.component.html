@@ -1,46 +1,61 @@
 <div class="container">
-  <div class="header">
-    <div class="header-text">
-      <span class="title-text">MY LATEST RESULTS</span>
-      <span class="description-text">View and track your most recent results.</span>
+  @if (results === true) {
+    <div class="header">
+      <div class="header-text">
+        <span class="title-text">MY LATEST RESULTS</span>
+        <span class="description-text">View and track your most recent results.</span>
+      </div>
+      <div class="submmit-button">
+        <p-button label="Submit Result" size="small" />
+      </div>
     </div>
-    <div class="submmit-button">
-      <p-button label="Submit Result" size="small" />
-    </div>
-  </div>
-  <div class="card-container">
-    @for (result of latestResultList(); track $index) {
-      <div class="card">
-        <div class="card-content">
-          <div class="project-indicators">
-            <div class="indicator">
-              <div class="indicator-container">
-                <i class="material-symbols-rounded  icon-color-{{ result.indicator.icon_src }}">{{ result.indicator.icon_src }} </i>
+    <div class="card-container">
+      @for (result of latestResultList(); track $index) {
+        <div class="card">
+          <div class="card-content">
+            <div class="project-indicators">
+              <div class="indicator">
+                <div class="indicator-container">
+                  <i class="material-symbols-rounded  icon-color-{{ result.indicator.icon_src }}">{{ result.indicator.icon_src }} </i>
+                </div>
+                <label class="indicator-type" for="username">{{ result.indicator.name }}</label>
+                <div class="more-vert">
+                  <span class="material-symbols-rounded"> more_vert </span>
+                </div>
               </div>
-              <label class="indicator-type" for="username">{{ result.indicator.name }}</label>
-              <div class="more-vert">
-                <span class="material-symbols-rounded"> more_vert </span>
+              <div class="organization-identifier">
+                <div class="project">
+                  <label class="project-name" for="username">{{ result.title }}</label>
+                </div>
               </div>
-            </div>
-            <div class="organization-identifier">
-              <div class="project">
-                <label class="project-name" for="username">{{ result.title }}</label>
+              <div class="project-info">
+                <div class="project-name">
+                  <span class="project-title">Project</span>
+                  <span class="material-symbols-rounded"> arrow_forward </span>
+                  <label class="project" for="username">{{ result.result_contracts.agresso_contract.agreement_id }} - {{ result.result_contracts.agresso_contract.description }}</label>
+                </div>
               </div>
-            </div>
-            <div class="project-info">
-              <div class="project-name">
-                <span class="project-title">Project</span>
-                <span class="material-symbols-rounded"> arrow_forward </span>
-                <label class="project" for="username">{{ result.result_contracts.agresso_contract.agreement_id }} - {{ result.result_contracts.agresso_contract.description }}</label>
+              <div class="progress-bar">
+                <p-button label="EDITING" badgeSeverity="contrast" styleClass="m-0" [outlined]="true" size="small" />
               </div>
+              <label class="last-update" for="username">Last update on {{ result.updated_at }}</label>
             </div>
-            <div class="progress-bar">
-              <p-button label="EDITING" badgeSeverity="contrast" styleClass="m-0" [outlined]="true" size="small" />
-            </div>
-            <label class="last-update" for="username">Last update on {{ result.updated_at }}</label>
           </div>
         </div>
+      }
+    </div>
+  } @else {
+    <div class="header">
+      <div class="header-text">
+        <span class="title-text">LEARN ABOUT INDICATORS</span>
+        <span class="description-text">Since you don't have any created results, explore About Indicators to learn more and start building your own.</span>
       </div>
-    }
-  </div>
+      <div class="submmit-button">
+        <p-button label="Submit Result" size="small" />
+      </div>
+    </div>
+    <div>
+      <app-about-indicators [summaryMode]="true"></app-about-indicators>
+    </div>
+  }
 </div>
