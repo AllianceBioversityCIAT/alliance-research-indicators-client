@@ -7,4 +7,6 @@ export interface GetInstitution {
   html_full_name: string;
   institution_id: number;
   region_id: number;
+  isoAlpha2?: string;
+  institution_locations: { isoAlpha2: string }[];
 }

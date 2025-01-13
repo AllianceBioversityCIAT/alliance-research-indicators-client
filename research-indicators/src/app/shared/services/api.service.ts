@@ -56,7 +56,7 @@ export class ApiService {
   };
 
   GET_Institutions = (): Promise<MainResponse<GetInstitution[]>> => {
-    const url = () => `tools/clarisa/institutions`;
+    const url = () => `tools/clarisa/institutions?location=true&type=true&only-hq=true`;
     return this.TP.get(url(), {});
   };
 
