@@ -10,14 +10,26 @@ export class GetContractsService {
   list = signal<GetContracts[]>([]);
   loading = signal(true);
   constructor() {
+    this.initialize();
+  }
+
+  initialize() {
     this.main();
   }
 
   async main() {
     this.loading.set(true);
     const response = await this.api.GET_Contracts();
-    this.list.set(response.data);
-    this.list.update(current => current.map(item => ({ ...item, select_label: item.agreement_id + ' - ' + item.description, contract_id: item.agreement_id })));
+
+    if (response?.data) {
+      response.data.forEach((item: GetContracts) => {
+        item.display_label = item.agreement_id + ' - ' + item.description;
+      });
+      this.list.set(response.data);
+    } else {
+      this.list.set([]);
+    }
+
     this.loading.set(false);
   }
 }

@@ -39,25 +39,46 @@
     <div class="columns">
       <div class="section">
         <h2 class="title" style="margin-top: 0">Primary Project</h2>
-        <p-dropdown [style]="{ width: '100%' }" [loading]="this.getContractsService.loading()" [options]="this.getContractsService.list()" [filter]="true" filterBy="description" [(ngModel)]="body().contract_id" [virtualScroll]="true" [virtualScrollItemSize]="41" optionValue="agreement_id" optionLabel="description" placeholder="Select a Primary Contract">
-          <ng-template pTemplate="selectedItem" let-item>
-            @if (body().contract_id) {
-              <div class="flex align-items-center gap-2">
-                <div class="ellipsis-text">{{ item?.description }}</div>
-              </div>
-            }
+
+        <p-autoComplete
+          [style]="{ width: '100%' }"
+          inputStyleClass="primary-contract-input"
+          [(ngModel)]="body().contract_id"
+          [suggestions]="this.filteredPrimaryContracts()"
+          (completeMethod)="filterPrimaryContract($event)"
+          optionLabel="display_label"
+          optionValue="agreement_id"
+          [virtualScroll]="true"
+          [forceSelection]="true"
+          placeholder="Select a Primary Contract">
+          <ng-template let-item pTemplate="item">
+            <div class="primary-item">
+              <p>
+                <b>{{ item?.agreement_id }} -</b> {{ item?.description }}
+              </p>
+              <p class="primary-item-investigator">
+                Principal investigator &rarr; <span class="primary-item-investigator-name">{{ item?.project_lead_description }}</span>
+              </p>
+            </div>
           </ng-template>
-        </p-dropdown>
+        </p-autoComplete>
       </div>
 
       <div class="section">
         <h2 class="title">Indicator*</h2>
         <h4 class="description">
           If you're unsure which indicator to select, visit
-          <span class="about-indicators"> About Indicators </span>
+          <span class="about-indicators" (click)="this.router.navigate(['/about-indicators']); this.allModalsService.closeModal('createResult')">
+            About Indicators
+          </span>
           for more details.
         </h4>
-        <p-dropdown [style]="{ width: '100%' }" [options]="indicatorsService.indicatorsGrouped()" [(ngModel)]="body().indicator_id" placeholder="Select Indicator" [group]="true">
+        <p-dropdown
+          [style]="{ width: '100%' }"
+          [options]="indicatorsService.indicatorsGrouped()"
+          [(ngModel)]="body().indicator_id"
+          placeholder="Select Indicator"
+          [group]="true">
           <ng-template let-group pTemplate="group">
             <div class="flex align-items-center">
               <span>{{ group.label }}</span>
@@ -74,7 +95,12 @@
       </div>
 
       <div class="button-group">
-        <p-button [disabled]="!body().title?.length || !body().indicator_id || !body().contract_id" label="Create and Continue" icon="pi pi-arrow-right" iconPos="right" (click)="this.createResult(true)"></p-button>
+        <p-button
+          [disabled]="!body().title?.length || !body().indicator_id || !body().contract_id"
+          label="Create and Continue"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          (click)="this.createResult(true)"></p-button>
       </div>
     </div>
   </div>
@@ -92,7 +118,9 @@
       <p class="sidebar-card-description">For Knowledge Products use TIP to ensure proper alignment with guidelines.</p>
 
       <div class="sidebar-button">
-        <p class="sidebar-button-text">Report in TIP <span class="material-symbols-rounded"> arrow_forward </span></p>
+        <a class="sidebar-button-text" href="https://tip.alliance.cgiar.org/" target="_blank" rel="noopener noreferrer">
+          Report in TIP <span class="material-symbols-rounded"> arrow_forward </span>
+        </a>
       </div>
     </div>
 
@@ -106,7 +134,9 @@
       <p class="sidebar-card-description">For Pooled Project Results report directly in PRMS for accurate management.</p>
 
       <div class="sidebar-button">
-        <p class="sidebar-button-text">Report in PRMS <span class="material-symbols-rounded"> arrow_forward </span></p>
+        <a class="sidebar-button-text" href="https://reporting.cgiar.org/" target="_blank" rel="noopener noreferrer">
+          Report in PRMS <span class="material-symbols-rounded"> arrow_forward </span>
+        </a>
       </div>
     </div>
   </div>

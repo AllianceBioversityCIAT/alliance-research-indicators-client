@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
@@ -17,11 +17,13 @@ import { SoundService } from '../../../../../../services/sound.service';
 import { MainResponse } from '../../../../../../interfaces/responses.interface';
 import { Result } from '../../../../../../interfaces/result/result.interface';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
+import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocomplete';
+import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
 
 @Component({
   selector: 'app-create-result-form',
   standalone: true,
-  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule],
+  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, RouterModule, AutoCompleteModule],
   templateUrl: './create-result-form.component.html',
   styleUrl: './create-result-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -36,8 +38,13 @@ export class CreateResultFormComponent {
   router = inject(Router);
   api = inject(ApiService);
   actions = inject(ActionsService);
-  body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null }>({ indicator_id: null, title: null, contract_id: null });
+  body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null }>({
+    indicator_id: null,
+    title: null,
+    contract_id: null
+  });
   soundService = inject(SoundService);
+  filteredPrimaryContracts = signal<GetContracts[]>([]);
 
   async createResult(openresult?: boolean) {
     const result = await this.api.POST_Result(this.body());
@@ -46,6 +53,19 @@ export class CreateResultFormComponent {
     } else {
       this.badRequest(result);
     }
+  }
+
+  filterPrimaryContract(event: AutoCompleteCompleteEvent) {
+    const filtered: GetContracts[] = [];
+    const query = event.query.toLowerCase();
+
+    for (const item of this.getContractsService.list()) {
+      if (item.description.toLowerCase().startsWith(query) || item.agreement_id.toString().toLowerCase().startsWith(query)) {
+        filtered.push(item);
+      }
+    }
+
+    this.filteredPrimaryContracts.set(filtered);
   }
 
   successRequest = (result: MainResponse<Result>, openresult?: boolean) => {
@@ -66,7 +86,15 @@ export class CreateResultFormComponent {
     this.actions.showGlobalAlert({
       severity: isWarning ? 'warning' : 'error',
       summary: isWarning ? 'Warning' : 'Error',
-      detail: isWarning ? `${result.errorDetail.errors} "${this.body().title}"` : result.errorDetail.errors
+      detail: isWarning ? `${result.errorDetail.errors} "${this.body().title}"` : result.errorDetail.errors,
+      callbacks: [
+        {
+          label: 'Close',
+          event: () => {
+            return;
+          }
+        }
+      ]
     });
   };
 }

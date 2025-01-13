@@ -9,6 +9,8 @@
   height: 100vh;
   background-color: rgb(2 0 23 / 63.7%);
   backdrop-filter: blur(10px);
+  z-index: 1000;
+  animation: fade-in 0.2s ease-out;
 
   .alert {
     text-align: center;
@@ -77,4 +79,13 @@
 
 .text-error {
   color: #f44336;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
