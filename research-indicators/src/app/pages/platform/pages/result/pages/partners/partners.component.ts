@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { PatchPartners } from '@interfaces/patch-partners.interface';
 import { ApiService } from '@services/api.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
+import { environment } from '../../../../../../../environments/environment.dev';
 
 @Component({
   selector: 'app-partners',
@@ -22,6 +23,7 @@ export default class PartnersComponent {
   api = inject(ApiService);
   body = signal<PatchPartners>(new PatchPartners());
   loading = signal(false);
+  environment = environment;
 
   constructor() {
     this.getData();
