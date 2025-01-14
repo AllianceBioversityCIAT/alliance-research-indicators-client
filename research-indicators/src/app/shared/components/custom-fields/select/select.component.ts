@@ -47,6 +47,10 @@ export class SelectComponent implements OnInit {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
+  onFilter(event: any) {
+    console.log('onFilter', event);
+  }
+
   setValue(value: any) {
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue.body, value);

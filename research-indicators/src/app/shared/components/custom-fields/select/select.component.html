@@ -9,7 +9,7 @@
   @if (this.currentResultIsLoading()) {
     <p-skeleton width="100%" height="41px" styleClass="mb-2" />
   } @else {
-    <p-dropdown [disabled]="disabled" [style]="{ width: '100%' }" (ngModelChange)="this.setValue($event)" [loading]="this.service.loading()" [options]="this.service.list()" [filter]="true" [filterBy]="this.optionLabel" [(ngModel)]="this.body().value" [virtualScroll]="true" [virtualScrollItemSize]="optionLabel2 ? 60 : 41" [optionValue]="this.optionValue.option" [optionLabel]="this.optionLabel" placeholder="Select a Primary Contract">
+    <p-dropdown [disabled]="disabled" [style]="{ width: '100%' }" (ngModelChange)="this.setValue($event)" [loading]="this.service.loading()" [options]="this.service.list()" [filter]="true" [filterBy]="this.optionLabel" [(ngModel)]="this.body().value" [virtualScroll]="true" [virtualScrollItemSize]="optionLabel2 ? 60 : 41" [optionValue]="this.optionValue.option" [optionLabel]="this.optionLabel" [placeholder]="'Search...'" (onFilter)="onFilter($event)">
       @if (optionLabel2) {
         <ng-template let-item pTemplate="item">
           {{ item[this.optionLabel] }} <br />
