@@ -8,6 +8,7 @@ import { Result } from '@interfaces/result/result.interface';
 export class GetResultsService {
   api = inject(ApiService);
   results: WritableSignal<Result[]> = signal([]);
+  isOpenSearch = signal(false);
   constructor() {
     this.updateList();
   }

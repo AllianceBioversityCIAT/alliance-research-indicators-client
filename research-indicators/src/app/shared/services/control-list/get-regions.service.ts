@@ -9,6 +9,7 @@ export class GetRegionsService {
   api = inject(ApiService);
   list = signal<GetRegion[]>([]);
   loading = signal(true);
+  isOpenSearch = signal(false);
   constructor() {
     this.main();
   }

@@ -258,10 +258,15 @@ export class ApiService {
   //   return this.TP.get(url(), {});
   // };
 
-  // GET_GeoSearch = (scope: string, search: string): Promise<MainResponse<any[]>> => {
-  //   const url = () => `tools/clarisa/manager/opensearch/${scope}/search?query=${search}`;
-  //   return this.TP.get(url(), {});
-  // };
+  GET_GeoSearch = (scope: string, search: string): Promise<MainResponse<any[]>> => {
+    const url = () => `tools/clarisa/manager/opensearch/${scope}/search?query=${search}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_OpenSearchCountries = (search: string): Promise<MainResponse<any[]>> => {
+    const url = () => `tools/clarisa/manager/opensearch/countries/search?query=${search}`;
+    return this.TP.get(url(), {});
+  };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 

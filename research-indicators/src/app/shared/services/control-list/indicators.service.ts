@@ -10,6 +10,7 @@ export class IndicatorsService {
   indicators = signal<IndicatorTypes[]>([]);
   indicatorsGrouped = computed(() => this.generateGroupedIndicators(this.indicators(), 'name', 'indicator_type_id', 'name', 'indicator_id'));
   loading = signal(false);
+  isOpenSearch = signal(false);
   constructor() {
     this.main();
   }

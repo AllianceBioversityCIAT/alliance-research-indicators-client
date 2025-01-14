@@ -8,6 +8,7 @@ export class GetGeoFocusService {
   api = inject(ApiService);
   list = signal<{ value: string; label: string }[]>([]);
   loading = signal(true);
+  isOpenSearch = signal(false);
   constructor() {
     this.main();
   }

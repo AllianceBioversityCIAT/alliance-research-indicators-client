@@ -48,7 +48,7 @@ export class SelectComponent implements OnInit {
   }
 
   onFilter(event: any) {
-    console.log('onFilter', event);
+    if (this.service?.isOpenSearch()) this.service.update(event.filter);
   }
 
   setValue(value: any) {

@@ -9,6 +9,7 @@ export class GetClarisaLanguagesService {
   api = inject(ApiService);
   list = signal<GetLanguages[]>([]);
   loading = signal(false);
+  isOpenSearch = signal(false);
   constructor() {
     this.main();
   }

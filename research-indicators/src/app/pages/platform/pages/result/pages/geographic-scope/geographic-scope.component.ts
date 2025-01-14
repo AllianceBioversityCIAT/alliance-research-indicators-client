@@ -7,15 +7,17 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { GetGeoLocation } from '../../../../../../shared/interfaces/get-geo-location.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { Router } from '@angular/router';
+import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 
 @Component({
   selector: 'app-geographic-scope',
   standalone: true,
-  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent],
+  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, SelectComponent],
   templateUrl: './geographic-scope.component.html',
   styleUrl: './geographic-scope.component.scss'
 })
 export default class GeographicScopeComponent {
+  bodyTest = signal({ value: null });
   api = inject(ApiService);
   router = inject(Router);
   body: WritableSignal<GetGeoLocation> = signal({});
