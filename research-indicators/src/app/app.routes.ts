@@ -121,8 +121,12 @@ export const routes: Routes = [
         }
       },
       {
-        path: 'results-explorer',
-        loadComponent: () => import('./pages/platform/pages/results-explorer/results-explorer.component')
+        path: 'results',
+        loadComponent: () => import('./pages/platform/pages/results/results.component')
+      },
+      {
+        path: 'search-a-result',
+        loadComponent: () => import('./pages/platform/pages/search-a-result/search-a-result.component')
       },
       {
         path: 'project-detail/:id',

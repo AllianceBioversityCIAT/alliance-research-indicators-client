@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import ResultsExplorerComponent from './results-explorer.component';
+import ResultsExplorerComponent from './search-a-result.component';
 
 describe('ResultsExplorerComponent', () => {
   let component: ResultsExplorerComponent;

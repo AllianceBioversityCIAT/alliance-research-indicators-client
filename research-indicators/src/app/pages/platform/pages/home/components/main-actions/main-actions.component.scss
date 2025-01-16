@@ -33,6 +33,11 @@
       align-items: center;
       justify-content: center;
       position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      &:hover {
+        opacity: 0.8;
+      }
 
       .text-content {
         display: grid;
@@ -78,9 +83,22 @@
       grid-template-rows: 1fr 1fr;
       gap: 20px;
 
-      .main-action-2,
+      .main-action-2 {
+        position: relative;
+        cursor: not-allowed;
+        transition: all 0.3s ease;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
       .main-action-3 {
         position: relative;
+        cursor: not-allowed;
+        transition: all 0.3s ease;
+        &:hover {
+          opacity: 0.8;
+        }
       }
 
       .text-content {

@@ -1,65 +1,77 @@
-.title-text {
-  font-family: Inter, sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 18px;
-  color: #173f6f;
-  text-transform: uppercase;
-  margin-bottom: 0;
-}
+.container {
+  margin: 30px 40px;
 
-.card-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: #8d9299;
-  text-transform: uppercase;
-  margin-bottom: 30px;
-  margin-top: 0;
-}
-
-.item-content {
-  display: grid;
-  justify-content: space-between;
-  grid-template-columns: auto auto;
-  align-items: center;
-  width: 100%;
-  gap: 20px;
-
-  .information {
+  .card-content {
     display: flex;
-    flex-wrap: wrap;
-    color: #4c5158;
-    font-family: Barlow, sans-serif;
+    flex-direction: column;
+    background-color: #fcfcfc;
+    border-radius: 10px;
+    padding: 30px;
+  }
+
+  .title-text {
+    font-family: Inter, sans-serif;
     font-size: 15px;
-    font-weight: 400;
-    line-height: 16px;
+    font-weight: 700;
+    line-height: 18px;
+    color: #173f6f;
+    text-transform: uppercase;
+    margin-bottom: 0;
+  }
 
-    .row {
-      display: grid;
-      grid-column: 1;
+  .card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #8d9299;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    margin-top: 0;
+  }
 
-      .institution-type {
-        display: flex;
-        align-items: center;
-        color: #777c83;
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 13px;
-        font-weight: 400;
-        line-height: 14px;
+  .item-content {
+    display: grid;
+    justify-content: space-between;
+    grid-template-columns: auto auto;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
 
-        h4,
-        span {
-          margin-top: 10px;
-          margin-bottom: 0;
-          font-weight: normal;
-          font-size: 13px;
+    .information {
+      display: flex;
+      flex-wrap: wrap;
+      color: #4c5158;
+      font-family: Barlow, sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 16px;
+
+      .row {
+        display: grid;
+        grid-column: 1;
+
+        .institution-type {
+          display: flex;
           align-items: center;
-        }
+          color: #777c83;
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 13px;
+          font-weight: 400;
+          line-height: 14px;
 
-        .institution-type-description {
-          color: #345b8f;
-          text-transform: uppercase;
+          h4,
+          span {
+            margin-top: 10px;
+            margin-bottom: 0;
+            font-weight: normal;
+            font-size: 13px;
+            align-items: center;
+          }
+
+          .institution-type-description {
+            color: #345b8f;
+            text-transform: uppercase;
+          }
         }
       }
     }
