@@ -1,7 +1,12 @@
 <div class="container">
-  <div class="header">
-    <span class="title-text">THERE ARE <span class="number-results">02</span> RESULTS FOR YOUR SEARCH</span>
-    <span class="description-text">You searched “Systems Resources’’</span>
+  <div class="header-container">
+    <div class="header">
+      <span class="title-text">THERE ARE <span class="number-results">02</span> RESULTS FOR YOUR SEARCH</span>
+      <span class="description-text">You searched “Systems Resources’’</span>
+    </div>
+    <div class="button">
+      <p-button label="Explore other results" size="small" />
+    </div>
   </div>
   @for (result of results(); track $index) {
     <div class="card-container">
