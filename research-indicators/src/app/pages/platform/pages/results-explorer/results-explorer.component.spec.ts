@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ResultsExplorerComponent } from './results-explorer.component';
+import ResultsExplorerComponent from './results-explorer.component';
 
 describe('ResultsExplorerComponent', () => {
   let component: ResultsExplorerComponent;
@@ -9,8 +9,7 @@ describe('ResultsExplorerComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ResultsExplorerComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ResultsExplorerComponent);
     component = fixture.componentInstance;
