@@ -122,7 +122,7 @@ export const routes: Routes = [
       },
       {
         path: 'results-explorer',
-        loadComponent: () => import('./shared/components/results-explorer/results-explorer.component')
+        loadComponent: () => import('./pages/platform/pages/results-explorer/results-explorer.component')
       },
       {
         path: 'project-detail/:id',
