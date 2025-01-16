@@ -1,12 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
+import { GetGeoSearch } from '../../interfaces/get-geo-search.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GetOsGeoScopeService {
   api = inject(ApiService);
-  list = signal<any[]>([]);
+  list = signal<GetGeoSearch[]>([]);
   loading = signal(false);
   isOpenSearch = signal(true);
 

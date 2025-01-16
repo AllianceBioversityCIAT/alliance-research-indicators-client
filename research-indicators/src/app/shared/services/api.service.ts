@@ -27,6 +27,8 @@ import { GetIndicatorsResultsAmount } from '../interfaces/get-indicators-results
 import { GetResultsStatus } from '../interfaces/get-results-status.interface';
 import { GetRegion } from '../interfaces/get-region.interface';
 import { LatestResult } from '@pages/platform/pages/home/components/my-latest-results/my-latest-results.component';
+import { GetGeoSearch } from '../interfaces/get-geo-search.interface';
+import { GetOsCountries } from '../interfaces/get-os-countries.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -258,12 +260,12 @@ export class ApiService {
   //   return this.TP.get(url(), {});
   // };
 
-  GET_GeoSearch = (scope: string, search: string): Promise<MainResponse<any[]>> => {
+  GET_GeoSearch = (scope: string, search: string): Promise<MainResponse<GetGeoSearch[]>> => {
     const url = () => `tools/clarisa/manager/opensearch/${scope}/search?query=${search}`;
     return this.TP.get(url(), {});
   };
 
-  GET_OpenSearchCountries = (search: string): Promise<MainResponse<any[]>> => {
+  GET_OpenSearchCountries = (search: string): Promise<MainResponse<GetOsCountries[]>> => {
     const url = () => `tools/clarisa/manager/opensearch/countries/search?query=${search}`;
     return this.TP.get(url(), {});
   };
