@@ -31,10 +31,10 @@ export class AllianceNavbarComponent {
   actions = inject(ActionsService);
   searchText = signal('');
   options: AllianceNavOptions[] = [
-    { label: 'Home', path: '/home', disabled: false },
-    { label: 'My Dashboard', path: '/settings', disabled: true },
-    { label: 'My Projects', path: '/my-projects', icon: 'keyboard_arrow_down', disabled: false },
-    { label: 'Results Explorer', path: '/results-explorer', disabled: true }
+    { label: 'Home', path: '/home', underConstruction: false },
+    { label: 'My Dashboard', path: '/settings', underConstruction: true },
+    { label: 'My Projects', path: '/my-projects', icon: 'keyboard_arrow_down', underConstruction: false },
+    { label: 'Results', path: '/results', underConstruction: true }
   ];
 
   onSearchTextChange(event: Event) {

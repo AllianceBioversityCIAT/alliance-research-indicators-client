@@ -11,13 +11,13 @@ interface Result {
 }
 
 @Component({
-  selector: 'app-results-explorer',
+  selector: 'app-search-a-result',
   standalone: true,
   imports: [ButtonModule],
-  templateUrl: './results-explorer.component.html',
-  styleUrl: './results-explorer.component.scss'
+  templateUrl: './search-a-result.component.html',
+  styleUrl: './search-a-result.component.scss'
 })
-export default class ResultsExplorerComponent {
+export default class SearchAResultComponent {
   results = signal<Result[]>([
     {
       icon: 'flag',

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import ResultsExplorerComponent from './results-explorer.component';
+import ResultsComponent from './results.component';
 
-describe('ResultsExplorerComponent', () => {
-  let component: ResultsExplorerComponent;
-  let fixture: ComponentFixture<ResultsExplorerComponent>;
+describe('ResultsComponent', () => {
+  let component: ResultsComponent;
+  let fixture: ComponentFixture<ResultsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ResultsExplorerComponent]
+      imports: [ResultsComponent]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ResultsExplorerComponent);
+    fixture = TestBed.createComponent(ResultsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
