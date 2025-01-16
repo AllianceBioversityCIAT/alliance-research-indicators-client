@@ -46,7 +46,7 @@
           [(ngModel)]="body().contract_id"
           [suggestions]="this.filteredPrimaryContracts()"
           (completeMethod)="filterPrimaryContract($event)"
-          optionLabel="display_label"
+          optionLabel="select_label"
           optionValue="agreement_id"
           [virtualScroll]="true"
           [forceSelection]="true"
