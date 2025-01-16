@@ -69,7 +69,6 @@ export interface AgressoContract {
 })
 export class MyLatestResultsComponent implements OnInit {
   api = inject(ApiService);
-  results = true;
 
   latestResultList: WritableSignal<LatestResult[]> = signal([]);
 
