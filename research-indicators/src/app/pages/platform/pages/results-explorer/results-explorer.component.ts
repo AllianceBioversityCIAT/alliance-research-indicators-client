@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 
 interface Result {
   icon: string;
@@ -12,7 +13,7 @@ interface Result {
 @Component({
   selector: 'app-results-explorer',
   standalone: true,
-  imports: [],
+  imports: [ButtonModule],
   templateUrl: './results-explorer.component.html',
   styleUrl: './results-explorer.component.scss'
 })

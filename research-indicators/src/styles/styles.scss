@@ -72,6 +72,11 @@ body {
   color: var(--ac-orange-1);
 }
 
+.construction-icon-x1 {
+  width: 20px;
+  margin-left: 5px;
+}
+
 @media (orientation: landscape) and (height <= 768px) {
   body {
     font-size: 13px !important;
