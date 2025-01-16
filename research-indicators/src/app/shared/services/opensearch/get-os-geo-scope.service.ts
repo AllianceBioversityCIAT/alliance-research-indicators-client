@@ -1,22 +1,19 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { GetCountries } from '../../interfaces/get-countries.interface';
+import { GetGeoSearch } from '../../interfaces/get-geo-search.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GetCountriesService {
+export class GetOsGeoScopeService {
   api = inject(ApiService);
-  list = signal<GetCountries[]>([]);
+  list = signal<GetGeoSearch[]>([]);
   loading = signal(false);
-  isOpenSearch = signal(false);
-  constructor() {
-    this.main();
-  }
+  isOpenSearch = signal(true);
 
-  async main() {
+  async update(search: string) {
     this.loading.set(true);
-    const response = await this.api.GET_Countries();
+    const response = await this.api.GET_GeoSearch('geo-scope', search);
     this.list.set(response.data);
     this.loading.set(false);
   }

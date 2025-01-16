@@ -9,6 +9,7 @@ export class GetUserStaffService {
   api = inject(ApiService);
   list = signal<UserStaff[]>([]);
   loading = signal(false);
+  isOpenSearch = signal(false);
   constructor() {
     this.main();
   }

@@ -9,6 +9,7 @@ export class GetLeversService {
   apiService = inject(ApiService);
   loading = signal(true);
   list = signal<GetLevers[]>([]);
+  isOpenSearch = signal(false);
   constructor() {
     this.main();
   }

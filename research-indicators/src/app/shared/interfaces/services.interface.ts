@@ -18,4 +18,6 @@ export type ControlListServices =
   | 'policyStages'
   | 'geoFocus'
   | 'regions'
+  | 'geoScopeOpenSearch'
+  | 'openSearchCountries'
   | '';

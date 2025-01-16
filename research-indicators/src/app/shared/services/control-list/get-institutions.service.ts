@@ -9,6 +9,7 @@ export class GetInstitutionsService {
   api = inject(ApiService);
   list = signal<GetInstitution[]>([]);
   loading = signal(false);
+  isOpenSearch = signal(false);
   constructor() {
     this.main();
   }

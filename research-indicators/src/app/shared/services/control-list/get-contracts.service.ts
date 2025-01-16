@@ -9,6 +9,7 @@ export class GetContractsService {
   api = inject(ApiService);
   list = signal<GetContracts[]>([]);
   loading = signal(true);
+  isOpenSearch = signal(false);
   constructor() {
     this.initialize();
   }

@@ -1,22 +1,18 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { GetCountries } from '../../interfaces/get-countries.interface';
+import { GetOsCountries } from '../../interfaces/get-os-countries.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GetCountriesService {
+export class GetOsCountriesService {
   api = inject(ApiService);
-  list = signal<GetCountries[]>([]);
+  list = signal<GetOsCountries[]>([]);
   loading = signal(false);
-  isOpenSearch = signal(false);
-  constructor() {
-    this.main();
-  }
-
-  async main() {
+  isOpenSearch = signal(true);
+  async update(search: string) {
     this.loading.set(true);
-    const response = await this.api.GET_Countries();
+    const response = await this.api.GET_OpenSearchCountries(search);
     this.list.set(response.data);
     this.loading.set(false);
   }
