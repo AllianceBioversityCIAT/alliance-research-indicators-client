@@ -6,7 +6,10 @@
     <div class="card-title">GEOGRAPHIC SCOPE</div>
     <div class="alert-container">
       <span class="icon material-symbols-rounded">info</span>
-      <h3 class="card-description">If you do not find the partner in the dropdown menu, you can request to have it added to the list. Once approved, it may take up to an hour for the partner to appear in the CLARISA institutions list.</h3>
+      <h3 class="card-description">
+        If you do not find the partner in the dropdown menu, you can request to have it added to the list. Once approved, it may take up to an hour
+        for the partner to appear in the CLARISA institutions list.
+      </h3>
     </div>
 
     <div class="item-content">
@@ -14,17 +17,93 @@
     </div>
 
     <div class="fields">
-      <app-select [signal]="bodyTest" [optionLabel]="'name'" serviceName="openSearchCountries" [optionValue]="{ body: 'value', option: 'name' }"></app-select>
+      <!-- <app-select
+        [signal]="bodyTest"
+        [optionLabel]="'name'"
+        serviceName="openSearchCountries"
+        [optionValue]="{ body: 'value', option: 'name' }"></app-select>
+      <app-multiselect
+        [signal]="bodyTest"
+        [optionLabel]="'name'"
+        [optionValue]="'valueMulti'"
+        [signalOptionValue]="'countries'"
+        serviceName="openSearchCountries"
+        label="{{ getMultiselectLabel().country.label }}"
+        description="{{ getMultiselectLabel().country.description }}"></app-multiselect> -->
 
-      <app-radio-button label="What is the main geographic focus of the Impact?*" [signal]="body" [optionLabel]="'label'" serviceName="geoFocus" [optionValue]="{ body: 'geo_scope_id', option: 'value' }"></app-radio-button>
+      <app-radio-button
+        label="What is the main geographic focus of the Impact?*"
+        [signal]="body"
+        [optionLabel]="'label'"
+        serviceName="geoFocus"
+        [optionValue]="{ body: 'geo_scope_id', option: 'value' }"></app-radio-button>
 
       <!-- ? option 1 -->
       <!-- @if (body().geo_scope_id === 1 || body().geo_scope_id === '1') { -->
       @if (getMultiselectLabel().region.label) {
-        <app-multiselect [signal]="body" [optionLabel]="'name'" [optionValue]="'region_id'" [signalOptionValue]="'regions'" serviceName="regions" label="{{ getMultiselectLabel().region.label }}" description="{{ getMultiselectLabel().region.description }}"></app-multiselect>
+        <app-multiselect
+          [signal]="body"
+          [optionLabel]="'name'"
+          [optionValue]="'region_id'"
+          [signalOptionValue]="'regions'"
+          serviceName="regions"
+          label="{{ getMultiselectLabel().region.label }}"
+          description="{{ getMultiselectLabel().region.description }}"></app-multiselect>
       }
       @if (getMultiselectLabel().country.label) {
-        <app-multiselect [signal]="body" [optionLabel]="'name'" [optionValue]="'isoAlpha2'" [signalOptionValue]="'countries'" serviceName="countries" label="{{ getMultiselectLabel().country.label }}" description="{{ getMultiselectLabel().country.description }}"></app-multiselect>
+        <app-multiselect
+          [signal]="body"
+          [optionLabel]="'name'"
+          [optionValue]="'isoAlpha2'"
+          [signalOptionValue]="'countries'"
+          serviceName="countries"
+          label="{{ getMultiselectLabel().country.label }}"
+          description="{{ getMultiselectLabel().country.description }}">
+          <ng-template #rows let-institution>
+            <div class="item-content">
+              <div class="information">
+                <div class="row">
+                  <div>
+                    <strong>{{ institution.acronym }}</strong> - {{ institution.name }}
+                  </div>
+                  <div class="metadata-container">
+                    <div class="metadata-text">
+                      <div class="metadata-title">Institution Type</div>
+                      &nbsp; <i class="material-symbols-rounded"> arrow_forward </i>&nbsp;
+                      <i class="institution-type-description">{{ institution?.institution_type?.name }}</i>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="metadata-text">
+                      <div class="metadata-title">Headquarter</div>
+                      &nbsp; <i class="material-symbols-rounded"> arrow_forward </i>&nbsp;
+                      <img
+                        width="20"
+                        height="20"
+                        [src]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'"
+                        [alt]="institution?.institution_type?.name"
+                        [srcset]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'" />
+                    </div>
+                    <br />
+                    <br />
+                    <strong>Index: {{ institution.result_countries_sub_nationals_signal().length }}</strong>
+                    <br />
+                    <br />
+                    <app-multiselect
+                      [signal]="institution.result_countries_sub_nationals_signal"
+                      [optionLabel]="'name'"
+                      [optionValue]="'region_id'"
+                      [signalOptionValue]="'regions'"
+                      serviceName="regions"
+                      label="{{ getMultiselectLabel().region.label }} R5"
+                      description="{{ getMultiselectLabel().region.description }}"></app-multiselect>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </app-multiselect>
       }
       <!-- } -->
       <!-- ? option 2 -->

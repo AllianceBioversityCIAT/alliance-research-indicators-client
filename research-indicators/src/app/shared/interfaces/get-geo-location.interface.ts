@@ -1,3 +1,5 @@
+import { Signal } from '@angular/core';
+
 export interface GetGeoLocation {
   geo_scope_id?: number | string;
   countries?: Country[];
@@ -8,9 +10,10 @@ interface Region {
   region_id: number;
 }
 
-interface Country {
+export interface Country {
   isoAlpha2: string;
   result_countries_sub_nationals: Resultcountriessubnational[];
+  result_countries_sub_nationals_signal: Signal<Resultcountriessubnational[]>;
 }
 
 interface Resultcountriessubnational {

@@ -1,6 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ChangeDetectionStrategy, Component, computed, ContentChild, effect, inject, Input, signal, TemplateRef, WritableSignal, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ContentChild,
+  effect,
+  inject,
+  Input,
+  signal,
+  TemplateRef,
+  WritableSignal,
+  OnInit
+} from '@angular/core';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
@@ -45,7 +57,9 @@ export class MultiselectComponent implements OnInit {
 
   onChange = effect(
     () => {
-      const hasNoLabelList = this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
+      const hasNoLabelList = this.utils
+        .getNestedProperty(this.signal(), this.signalOptionValue)
+        ?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
       if (!this.currentResultIsLoading() && this.service?.list().length && this.firstLoad() && hasNoLabelList?.length) {
         this.signal.update((current: any) => {
           this.utils.setNestedPropertyWithReduce(
@@ -80,21 +94,34 @@ export class MultiselectComponent implements OnInit {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
+  onFilter(event: any) {
+    if (this.service?.isOpenSearch()) this.service.update(event.filter);
+  }
+
   setValue(event: number[]) {
     this.body.set({ value: event });
+
     this.signal.update((current: any) => {
       const existingValues = this.objectArrayToIdArray(this.utils.getNestedProperty(current, this.signalOptionValue), this.optionValue);
 
       // Find new options to add
-      const newOption = this.service?.list().find((option: any) => event.includes(option[this.optionValue]) && !existingValues.includes(option[this.optionValue]));
+      console.log(this.label);
+      console.log(event);
+      console.log(event?.includes(1));
+      const newOption = this.service
+        ?.list()
+        .find((option: any) => event?.includes(option[this.optionValue]) && !existingValues?.includes(option[this.optionValue]));
 
       if (newOption) {
-        const currentValues = this.utils.getNestedProperty(current, this.signalOptionValue);
+        const currentValues = this.utils.getNestedProperty(current, this.signalOptionValue) || [];
+        console.log(currentValues);
         this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, [...currentValues, newOption]);
       }
 
       // Remove options that are no longer selected
-      const filteredOptions = this.utils.getNestedProperty(current, this.signalOptionValue).filter((item: any) => event.includes(item[this.optionValue]));
+      const filteredOptions = this.utils
+        .getNestedProperty(current, this.signalOptionValue)
+        .filter((item: any) => event?.includes(item[this.optionValue]));
       this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, filteredOptions);
 
       return { ...current };
@@ -107,7 +134,9 @@ export class MultiselectComponent implements OnInit {
 
   removeOption(option: any) {
     this.signal.update((current: any) => {
-      const updatedOptions = this.utils.getNestedProperty(current, this.signalOptionValue).filter((item: any) => item[this.optionValue] !== option[this.optionValue]);
+      const updatedOptions = this.utils
+        .getNestedProperty(current, this.signalOptionValue)
+        .filter((item: any) => item[this.optionValue] !== option[this.optionValue]);
 
       // Update the body signal with the new list of option values
       this.body.set({ value: this.objectArrayToIdArray(updatedOptions, this.optionValue) });
