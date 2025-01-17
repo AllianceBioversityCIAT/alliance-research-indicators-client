@@ -17,7 +17,7 @@ import { SelectComponent } from '../../../../../../shared/components/custom-fiel
   styleUrl: './geographic-scope.component.scss'
 })
 export default class GeographicScopeComponent {
-  bodyTest = signal({ value: null });
+  bodyTest = signal({ value: null, valueMulti: null });
   api = inject(ApiService);
   router = inject(Router);
   body: WritableSignal<GetGeoLocation> = signal({});
