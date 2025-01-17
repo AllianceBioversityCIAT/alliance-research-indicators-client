@@ -26,7 +26,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'my-projects',
+        redirectTo: 'home',
         pathMatch: 'full'
       },
       {
