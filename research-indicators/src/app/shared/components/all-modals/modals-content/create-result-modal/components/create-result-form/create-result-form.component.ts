@@ -60,7 +60,11 @@ export class CreateResultFormComponent {
     const query = event.query.toLowerCase();
 
     for (const item of this.getContractsService.list()) {
-      if (item.description.toLowerCase().startsWith(query) || item.agreement_id.toString().toLowerCase().startsWith(query)) {
+      if (
+        item.description.toLowerCase().includes(query) ||
+        item.agreement_id.toString().toLowerCase().includes(query) ||
+        item.project_lead_description.toLowerCase().includes(query)
+      ) {
         filtered.push(item);
       }
     }
