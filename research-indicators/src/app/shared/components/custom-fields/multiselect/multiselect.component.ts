@@ -105,16 +105,12 @@ export class MultiselectComponent implements OnInit {
       const existingValues = this.objectArrayToIdArray(this.utils.getNestedProperty(current, this.signalOptionValue), this.optionValue);
 
       // Find new options to add
-      console.log(this.label);
-      console.log(event);
-      console.log(event?.includes(1));
       const newOption = this.service
         ?.list()
         .find((option: any) => event?.includes(option[this.optionValue]) && !existingValues?.includes(option[this.optionValue]));
 
       if (newOption) {
         const currentValues = this.utils.getNestedProperty(current, this.signalOptionValue) || [];
-        console.log(currentValues);
         this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, [...currentValues, newOption]);
       }
 

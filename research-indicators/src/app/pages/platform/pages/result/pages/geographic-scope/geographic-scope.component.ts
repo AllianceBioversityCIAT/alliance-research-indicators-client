@@ -69,14 +69,10 @@ export default class GeographicScopeComponent {
   async getData() {
     const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
     response.data.countries?.forEach((country: Country) => {
-      console.log(country.result_countries_sub_nationals);
-      country.result_countries_sub_nationals_signal = signal<any>(country.result_countries_sub_nationals);
-      // country.result_countries_sub_nationals_signal.set([1]);
-      console.log(country.result_countries_sub_nationals_signal());
+      country.result_countries_sub_nationals_signal = signal(country.result_countries_sub_nationals);
     });
 
     this.body.set(response.data);
-    console.log(this.body());
   }
 
   async saveData(page?: 'next' | 'back') {
@@ -84,13 +80,11 @@ export default class GeographicScopeComponent {
       country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal();
     });
 
-    console.log(this.body());
-
-    // const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
-    // if (!response.successfulRequest) return;
-    // await this.getData();
-    // this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
-    // if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
-    // if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
+    if (!response.successfulRequest) return;
+    await this.getData();
+    this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
+    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
+    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
   }
 }
