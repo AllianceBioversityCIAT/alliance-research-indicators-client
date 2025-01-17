@@ -14,10 +14,10 @@ export class AllianceSidebarComponent {
   cache = inject(CacheService);
   options = [
     { icon: 'finance', label: 'About indicators', link: '/about-indicators', disabled: false },
-    { icon: 'info', label: 'About the tool', link: '1', disabled: true },
-    { icon: 'table_rows', label: 'Power BI dashboard', link: '23', disabled: true },
-    { icon: 'open_in_new', label: 'Other reporting tools', link: '45', disabled: true },
-    { icon: 'forum', label: 'Give feedback', disabled: true }
+    { icon: 'info', label: 'About the tool', link: '1', underConstruction: true },
+    { icon: 'table_rows', label: 'Power BI dashboard', link: '23', underConstruction: true },
+    { icon: 'open_in_new', label: 'Other reporting tools', link: '45', underConstruction: true },
+    { icon: 'forum', label: 'Give feedback', underConstruction: true }
   ];
 
   isCollapsed = signal(window.innerHeight <= 768);
