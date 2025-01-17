@@ -11,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { GetAllianceAlignment } from '../../../../../../shared/interfaces/get-alliance-alignment.interface';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { environment } from '../../../../../../../environments/environment';
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -20,6 +21,7 @@ import { DatePipe } from '@angular/common';
   styleUrl: './alliance-alignment.component.scss'
 })
 export default class AllianceAlignmentComponent {
+  environment = environment;
   getContractsService = inject(GetContractsService);
   getLeversService = inject(GetLeversService);
   body: WritableSignal<GetAllianceAlignment> = signal({
