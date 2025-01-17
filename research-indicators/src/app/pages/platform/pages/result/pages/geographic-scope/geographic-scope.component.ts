@@ -4,10 +4,11 @@ import { RadioButtonComponent } from '../../../../../../shared/components/custom
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
-import { GetGeoLocation } from '../../../../../../shared/interfaces/get-geo-location.interface';
+import { Country, GetGeoLocation } from '../../../../../../shared/interfaces/get-geo-location.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { Router } from '@angular/router';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
+import { environment } from '../../../../../../../environments/environment';
 
 @Component({
   selector: 'app-geographic-scope',
@@ -17,6 +18,7 @@ import { SelectComponent } from '../../../../../../shared/components/custom-fiel
   styleUrl: './geographic-scope.component.scss'
 })
 export default class GeographicScopeComponent {
+  environment = environment;
   bodyTest = signal({ value: null, valueMulti: null });
   api = inject(ApiService);
   router = inject(Router);
@@ -66,15 +68,29 @@ export default class GeographicScopeComponent {
 
   async getData() {
     const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
+    response.data.countries?.forEach((country: Country) => {
+      console.log(country.result_countries_sub_nationals);
+      country.result_countries_sub_nationals_signal = signal<any>(country.result_countries_sub_nationals);
+      // country.result_countries_sub_nationals_signal.set([1]);
+      console.log(country.result_countries_sub_nationals_signal());
+    });
+
     this.body.set(response.data);
+    console.log(this.body());
   }
 
   async saveData(page?: 'next' | 'back') {
-    const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
-    if (!response.successfulRequest) return;
-    await this.getData();
-    this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    this.body().countries?.forEach((country: Country) => {
+      country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal();
+    });
+
+    console.log(this.body());
+
+    // const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
+    // if (!response.successfulRequest) return;
+    // await this.getData();
+    // this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
+    // if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
+    // if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
   }
 }
