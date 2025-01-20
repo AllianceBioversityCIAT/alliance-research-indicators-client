@@ -4,16 +4,32 @@
     <div class="card-title">POLICY CHANGE DETAILS</div>
     <div class="grid">
       <div class="col-6">
-        <app-radio-button label="Policy Type*" [signal]="body" [serviceName]="'policyTypes'" [optionLabel]="'name'" [optionValue]="{ body: 'policy_type_id', option: 'id' }"></app-radio-button>
+        <app-radio-button
+          label="Policy Type*"
+          [signal]="body"
+          [serviceName]="'policyTypes'"
+          [optionLabel]="'name'"
+          [optionValue]="{ body: 'policy_type_id', option: 'id' }"></app-radio-button>
       </div>
       <div class="col-6">
-        <app-radio-button label="Stage in Policy Process*" [signal]="body" [serviceName]="'policyStages'" [optionLabel]="'name'" [optionValue]="{ body: 'policy_stage_id', option: 'id' }"></app-radio-button>
+        <app-radio-button
+          label="Stage in Policy Process*"
+          [signal]="body"
+          [serviceName]="'policyStages'"
+          [optionLabel]="'name'"
+          [optionValue]="{ body: 'policy_stage_id', option: 'id' }"></app-radio-button>
       </div>
       <div class="col-12">
         <app-textarea label="Evidence for stage" description="Description." [signal]="this.body" [optionValue]="'evidence_stage'"></app-textarea>
       </div>
       <div class="col-12">
-        <app-multiselect label="Whose policy is this? (implementing organizations)*" [signal]="body" optionLabel="name" optionValue="institution_id" signalOptionValue="implementing_organization" serviceName="institutions">
+        <app-multiselect
+          label="Whose policy is this? (implementing organizations)*"
+          [signal]="body"
+          optionLabel="name"
+          optionValue="institution_id"
+          signalOptionValue="implementing_organization"
+          serviceName="institutions">
           <ng-template #rows let-institution>
             <div class="item-content">
               <div class="information">
@@ -34,10 +50,24 @@
       </div>
 
       <div class="col-6">
-        <app-select [disabled]="true" label="Link to a reported Innovation Development output*" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'aux_isoAlpha2', option: 'isoAlpha2' }" [serviceName]="'institutions'"></app-select>
+        <img src="construction.png" alt="" class="construction-icon-x1" />
+        <app-select
+          [disabled]="true"
+          label="Link to a reported Innovation Development output*"
+          [signal]="body"
+          [optionLabel]="'name'"
+          [optionValue]="{ body: 'aux_isoAlpha2', option: 'isoAlpha2' }"
+          [serviceName]="'institutions'"></app-select>
       </div>
       <div class="col-6">
-        <app-select [disabled]="true" description="" label="Link to a reported Innovation Use &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" [signal]="body" [optionLabel]="'name'" [optionValue]="{ body: 'aux_isoAlpha2', option: 'isoAlpha2' }" [serviceName]="'institutions'"></app-select>
+        <img src="construction.png" alt="" class="construction-icon-x1" />
+        <app-select
+          [disabled]="true"
+          label="Link to a reported Innovation Use &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+          [signal]="body"
+          [optionLabel]="'name'"
+          [optionValue]="{ body: 'aux_isoAlpha2', option: 'isoAlpha2' }"
+          [serviceName]="'institutions'"></app-select>
       </div>
     </div>
   </div>

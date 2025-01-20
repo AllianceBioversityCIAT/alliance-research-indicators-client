@@ -48,12 +48,14 @@
           [style]="{ width: '100%' }"
           inputStyleClass="primary-contract-input"
           [(ngModel)]="body().contract_id"
+          [virtualScroll]="true"
           [suggestions]="this.filteredPrimaryContracts()"
+          [virtualScrollItemSize]="65"
           (completeMethod)="filterPrimaryContract($event)"
           optionLabel="select_label"
           optionValue="agreement_id"
-          [virtualScroll]="true"
           [forceSelection]="true"
+          [showClear]="true"
           placeholder="Select a Primary Contract">
           <ng-template let-item pTemplate="item">
             <div class="primary-item">
