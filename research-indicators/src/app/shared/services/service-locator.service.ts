@@ -20,6 +20,8 @@ import { GetGeoFocusService } from './control-list/get-geo-focus.service';
 import { GetRegionsService } from './control-list/get-regions.service';
 import { GetOsGeoScopeService } from './opensearch/get-os-geo-scope.service';
 import { GetOsCountriesService } from './opensearch/get-os-countries.service';
+import { GetInnoDevOutputService } from './control-list/get-innovation-dev-output.service';
+import { GetInnoUseOutputService } from './control-list/get-innovation-use-output.service';
 
 @Injectable({
   providedIn: 'root'
@@ -69,6 +71,10 @@ export class ServiceLocatorService {
         return this.injector.get(GetOsGeoScopeService);
       case 'openSearchCountries':
         return this.injector.get(GetOsCountriesService);
+      case 'innoDevOutput':
+        return this.injector.get(GetInnoDevOutputService);
+      case 'innoUseOutput':
+        return this.injector.get(GetInnoUseOutputService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;
