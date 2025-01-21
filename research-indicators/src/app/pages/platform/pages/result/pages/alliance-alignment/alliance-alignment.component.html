@@ -15,35 +15,35 @@
               optionValue="contract_id"
               signalOptionValue="contracts"
               serviceName="contracts">
-              <ng-template #rows let-institution>
+              <ng-template #rows let-contract>
                 <div class="item-content">
                   <div class="information">
                     <div class="row">
-                      <div>
-                        <strong>{{ institution.acronym }}</strong> - {{ institution.name }}
+                      <div class="project">
+                        <strong>{{ contract.agreement_id }}</strong> - {{ contract.description }}
                       </div>
-                      <div class="metadata-container">
-                        <div class="metadata-text">
-                          <div class="metadata-title">Institution Type</div>
-                          &nbsp; <i class="material-symbols-rounded"> arrow_forward </i>&nbsp;
-                          <i class="institution-type-description">{{ institution?.institution_type?.name }}</i>
+                      <div class="project-info">
+                        <div class="project-lead">
+                          <h4>Project lead</h4>
+                          &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
+                          <span class="project-data">{{ contract.project_lead_description }}</span>
                         </div>
-
-                        <div class="divider"></div>
-
-                        <div class="metadata-text">
-                          <div class="metadata-title">Headquarter</div>
-                          &nbsp; <i class="material-symbols-rounded"> arrow_forward </i>&nbsp;
-                          <img
-                            width="20"
-                            height="20"
-                            [src]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'"
-                            [alt]="institution?.institution_type?.name"
-                            [srcset]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'" />
+                        <div class="start-date">
+                          <span class="project-title">Start Date</span>
+                          <span class="material-symbols-rounded"> arrow_forward </span>
+                          <label class="project-data" for="username">{{ contract.start_date | date: 'dd/MM/yyyy' }}</label>
+                        </div>
+                        <div class="end-date">
+                          <span class="project-title">End Date</span>
+                          <span class="material-symbols-rounded"> arrow_forward </span>
+                          <label class="project-data" for="username">{{ contract.end_date | date: 'dd/MM/yyyy' }}</label>
                         </div>
                       </div>
                     </div>
                   </div>
+                  <button class="primary-button row" [class]="{ active: contract.is_primary }" (click)="markAsPrimary(contract, 'contract')">
+                    {{ contract.is_primary ? 'Primary' : 'Select as Primary' }} <i class="material-symbols-rounded">star</i>
+                  </button>
                 </div>
               </ng-template>
             </app-multiselect>
