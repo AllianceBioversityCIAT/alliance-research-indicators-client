@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
@@ -14,21 +16,37 @@ import { AllModalsService } from '@services/cache/all-modals.service';
 import { ResultsListDropdownComponent } from '@components/dropdowns/results-list-dropdown/results-list-dropdown.component';
 import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.service';
 import { FilterByTextWithAttrPipe } from '../../pipes/filter-by-text-with-attr.pipe';
+import { ServiceLocatorService } from '@shared/services/service-locator.service';
 @Component({
   selector: 'alliance-navbar',
   standalone: true,
-  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, DropdownComponent, ResultsListDropdownComponent, FilterByTextWithAttrPipe],
+  imports: [
+    ButtonModule,
+    BadgeModule,
+    ChipModule,
+    RouterLink,
+    RouterLinkActive,
+    AvatarModule,
+    AvatarGroupModule,
+    DropdownComponent,
+    ResultsListDropdownComponent,
+    FilterByTextWithAttrPipe
+  ],
   templateUrl: './alliance-navbar.component.html',
   styleUrl: './alliance-navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AllianceNavbarComponent {
+export class AllianceNavbarComponent implements OnInit {
   dropdownsCache = inject(DropdownsCacheService);
   allModalsService = inject(AllModalsService);
   cache = inject(CacheService);
   darkModeService = inject(DarkModeService);
   router = inject(Router);
   actions = inject(ActionsService);
+  serviceLocator = inject(ServiceLocatorService);
+  service: any;
+  private searchDebounceTimeout: any;
+
   searchText = signal('');
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home', underConstruction: false },
@@ -37,7 +55,15 @@ export class AllianceNavbarComponent {
     { label: 'Results', path: '/results', underConstruction: true }
   ];
 
+  ngOnInit() {
+    this.service = this.serviceLocator.getService('openSearchResult');
+  }
+
   onSearchTextChange(event: Event) {
     this.searchText.set((event.target as HTMLInputElement).value);
+    clearTimeout(this.searchDebounceTimeout);
+    this.searchDebounceTimeout = setTimeout(async () => {
+      await this.service.update(this.searchText(), 10);
+    }, 500);
   }
 }

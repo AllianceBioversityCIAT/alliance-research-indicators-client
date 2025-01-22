@@ -29,6 +29,7 @@ import { GetRegion } from '../interfaces/get-region.interface';
 import { LatestResult } from '@pages/platform/pages/home/components/my-latest-results/my-latest-results.component';
 import { GetGeoSearch } from '../interfaces/get-geo-search.interface';
 import { GetOsCountries } from '../interfaces/get-os-countries.interface';
+import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -267,6 +268,11 @@ export class ApiService {
 
   GET_OpenSearchCountries = (search: string): Promise<MainResponse<GetOsCountries[]>> => {
     const url = () => `tools/clarisa/manager/opensearch/countries/search?query=${search}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_OpenSearchResult = (search: string, sampleSize: number): Promise<MainResponse<GetOsResult[]>> => {
+    const url = () => `opensearch/result/search?query=${search}&sample-size=${sampleSize}`;
     return this.TP.get(url(), {});
   };
 

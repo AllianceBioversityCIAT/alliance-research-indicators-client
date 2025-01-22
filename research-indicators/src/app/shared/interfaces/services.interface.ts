@@ -20,4 +20,5 @@ export type ControlListServices =
   | 'regions'
   | 'geoScopeOpenSearch'
   | 'openSearchCountries'
+  | 'openSearchResult'
   | '';
