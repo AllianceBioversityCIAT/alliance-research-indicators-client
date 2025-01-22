@@ -63,7 +63,7 @@ export class AllianceNavbarComponent implements OnInit {
     this.searchText.set((event.target as HTMLInputElement).value);
     clearTimeout(this.searchDebounceTimeout);
     this.searchDebounceTimeout = setTimeout(async () => {
-      await this.service.update(this.searchText(), 10);
+      await this.service.update(this.searchText(), 100);
     }, 500);
   }
 }
