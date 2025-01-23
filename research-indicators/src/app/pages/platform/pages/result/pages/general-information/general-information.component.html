@@ -9,14 +9,23 @@
         <div class="form-container">
           <div class="flex flex-column">
             <!-- <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" /> -->
-            <app-input label="Title*" [validateEmpty]="true" description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon." [signal]="this.body" optionValue="title"></app-input>
-            <small class="card-description" id="username-help">Max. # words</small>
+            <app-input
+              label="Title*"
+              [validateEmpty]="true"
+              description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon."
+              [signal]="this.body"
+              optionValue="title"></app-input>
+            <!-- <small class="card-description" id="username-help">Max. # words</small> -->
           </div>
 
           <div class="card flex flex-column">
             <!-- <textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="body().description"> </textarea> -->
-            <app-textarea label="Description" description="Offer a detailed, understandable explanation, without repeating the title." [signal]="this.body" [optionValue]="'description'"></app-textarea>
-            <small class="card-description" id="username-help">Max. # words</small>
+            <app-textarea
+              label="Description"
+              description="Offer a detailed, understandable explanation, without repeating the title."
+              [signal]="this.body"
+              [optionValue]="'description'"></app-textarea>
+            <!-- <small class="card-description" id="username-help">Max. # words</small> -->
           </div>
 
           <div class="flex flex-column">
@@ -27,7 +36,12 @@
           </div>
 
           <div class="card flex flex-column gap-1">
-            <app-select label="Main contact person*" [signal]="this.body" [optionValue]="{ body: 'user_id', option: 'user_id' }" optionLabel="full_name" serviceName="userStaff"></app-select>
+            <app-select
+              label="Main contact person*"
+              [signal]="this.body"
+              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              optionLabel="full_name"
+              serviceName="userStaff"></app-select>
           </div>
         </div>
       </div>
