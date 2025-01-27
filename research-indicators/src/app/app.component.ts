@@ -10,11 +10,12 @@ import { ActionsService } from './shared/services/actions.service';
 import { GlobalAlertComponent } from './shared/components/global-alert/global-alert.component';
 import { GlobalToastComponent } from './shared/components/global-toast/global-toast.component';
 import { CopyTokenComponent } from './shared/components/copy-token/copy-token.component';
+import { ConnectionStatusComponent } from './shared/components/connection-status/connection-status.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, MetadataPanelComponent, GlobalAlertComponent, GlobalToastComponent, CopyTokenComponent],
+  imports: [RouterOutlet, MetadataPanelComponent, GlobalAlertComponent, GlobalToastComponent, CopyTokenComponent, ConnectionStatusComponent],
   templateUrl: './app.component.html'
 })
 export class AppComponent {

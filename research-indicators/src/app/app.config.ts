@@ -11,6 +11,7 @@ import { environment } from '../environments/environment';
 import { jWtInterceptor } from './shared/interceptors/jwt.interceptor';
 import { httpErrorInterceptor } from './shared/interceptors/http-error.interceptor';
 import { ClarityService } from './shared/services/clarity.service';
+import { connectionMonitorInterceptor } from './shared/interceptors/connection-monitor.interceptor';
 
 const config: SocketIoConfig = { url: environment.webSocketServerUrl, options: {} };
 
@@ -22,7 +23,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
-    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor])),
+    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor, connectionMonitorInterceptor])),
     importProvidersFrom(BrowserModule, BrowserAnimationsModule, SocketIoModule.forRoot(config)),
     ClarityService,
     {
