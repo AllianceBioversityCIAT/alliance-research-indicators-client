@@ -18,6 +18,7 @@ export class GetRegionsService {
     const response = await this.api.GET_Regions();
     response.data.map((region: GetRegion) => {
       region.region_id = region.um49Code;
+      region.sub_national_id = region.um49Code;
     });
     this.list.set(response.data);
     this.loading.set(false);
