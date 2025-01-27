@@ -99,7 +99,7 @@ export class ConnectionStatusComponent {
     const status = this.connectionMonitor.connectionStatus();
     if (!status.isOnline) return 'wifi_off';
     if (status.speed === 'very-slow') return 'signal_wifi_statusbar_not_connected';
-    if (status.speed === 'slow') return 'signal_cellular_alt_2_bar';
+    if (status.speed === 'slow') return 'wifi';
     return 'wifi';
   }
 

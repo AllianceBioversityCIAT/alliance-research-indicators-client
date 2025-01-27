@@ -6,14 +6,28 @@ import { ConnectionMonitorService } from '../services/connection-monitor.service
 export function connectionMonitorInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
   const connectionMonitor = inject(ConnectionMonitorService);
   const startTime = Date.now();
+  const progressInterval = setInterval(() => {
+    const currentTime = Date.now();
+    const currentDuration = currentTime - startTime;
+    connectionMonitor.updateResponseTime(currentDuration);
+  }, 1000); // Check every second
 
   return next(req).pipe(
-    tap(event => {
-      if (event.type === 4) {
-        // HttpEventType.Response
-        const endTime = Date.now();
-        const responseTime = endTime - startTime;
-        connectionMonitor.updateResponseTime(responseTime);
+    tap({
+      next: event => {
+        if (event.type === 4) {
+          // HttpEventType.Response
+          clearInterval(progressInterval);
+          const endTime = Date.now();
+          const responseTime = endTime - startTime;
+          connectionMonitor.updateResponseTime(responseTime);
+        }
+      },
+      error: () => {
+        clearInterval(progressInterval);
+      },
+      complete: () => {
+        clearInterval(progressInterval);
       }
     })
   );
