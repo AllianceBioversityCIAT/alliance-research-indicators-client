@@ -1,0 +1,9 @@
+.container {
+  position: fixed; /* Fijo para que permanezca visible en el lado derecho al hacer scroll */
+  right: 0; /* Alineado con el borde derecho */
+  height: 100%; /* Ocupará el 100% de la altura de la pantalla */
+  width: 430px; /* Ancho fijo */
+  padding: 30px; /* Espaciado interno */
+  background-color: white; /* Fondo blanco */
+  box-shadow: 0px 0 8px rgba(0, 0, 0, 0.2); /* Sombra para darle profundidad */
+}

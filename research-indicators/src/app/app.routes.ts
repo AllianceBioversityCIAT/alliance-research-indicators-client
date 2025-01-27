@@ -122,7 +122,7 @@ export const routes: Routes = [
       },
       {
         path: 'results',
-        loadComponent: () => import('./pages/platform/pages/results/results.component')
+        loadComponent: () => import('@platform/pages/results/results.component')
       },
       {
         path: 'search-a-result',
