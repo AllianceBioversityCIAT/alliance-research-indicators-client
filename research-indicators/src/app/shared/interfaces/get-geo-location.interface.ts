@@ -18,4 +18,5 @@ export interface Country {
 
 interface Resultcountriessubnational {
   sub_national_id: number;
+  regions?: Region[];
 }
