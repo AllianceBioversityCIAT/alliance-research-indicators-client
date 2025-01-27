@@ -59,46 +59,47 @@
           serviceName="countries"
           label="{{ getMultiselectLabel().country.label }}"
           description="{{ getMultiselectLabel().country.description }}">
-          <ng-template #rows let-institution>
+          <ng-template #rows let-country>
             <div class="item-content">
               <div class="information">
                 <div class="row">
-                  <div>
-                    <strong>{{ institution.acronym }}</strong> - {{ institution.name }}
+                  <div class="country-header">
+                    <div class="country-info">
+                      <img [src]="environment.flagsUrl + country.isoAlpha2 + '.svg'" [alt]="country.name" class="country-flag" />
+                      <span class="country-name">{{ country.name }}</span>
+                    </div>
+                    <div class="selected-count">
+                      {{ country.result_countries_sub_nationals_signal().regions?.length || 0 }} items selected
+                      <i class="pi pi-chevron-down"></i>
+                    </div>
                   </div>
-                  <div class="metadata-container">
-                    <div class="metadata-text">
-                      <div class="metadata-title">Institution Type</div>
-                      &nbsp; <i class="material-symbols-rounded"> arrow_forward </i>&nbsp;
-                      <i class="institution-type-description">{{ institution?.institution_type?.name }}</i>
+
+                  <div class="sub-national-section">
+                    <div class="sub-national-header">
+                      <span>Sub-national levels</span>
+                      <i class="pi pi-arrow-right"></i>
                     </div>
 
-                    <div class="divider"></div>
-
-                    <div class="metadata-text">
-                      <div class="metadata-title">Headquarter</div>
-                      &nbsp; <i class="material-symbols-rounded"> arrow_forward </i>&nbsp;
-                      <img
-                        width="20"
-                        height="20"
-                        [src]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'"
-                        [alt]="institution?.institution_type?.name"
-                        [srcset]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'" />
+                    <div class="chips-container">
+                      @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
+                        <div class="p-chip">
+                          {{ region.name }}
+                          <i class="pi pi-times remove-chip"></i>
+                        </div>
+                      }
                     </div>
 
                     <app-multiselect
                       #try
-                      [signal]="institution.result_countries_sub_nationals_signal"
+                      [signal]="country.result_countries_sub_nationals_signal"
                       [optionLabel]="'name'"
                       [optionValue]="'sub_national_id'"
                       [signalOptionValue]="'regions'"
                       serviceName="regions"
                       label="{{ getMultiselectLabel().region.label }}"
-                      description="{{ getMultiselectLabel().region.description }}"></app-multiselect>
-
-                    @for (region of institution.result_countries_sub_nationals_signal().regions; track $index) {
-                      <h1>{{ region?.name }}</h1>
-                    }
+                      description="{{ getMultiselectLabel().region.description }}"
+                      [hideSelected]="true">
+                    </app-multiselect>
                   </div>
                 </div>
               </div>
