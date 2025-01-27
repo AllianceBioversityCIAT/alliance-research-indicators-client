@@ -30,6 +30,7 @@
     "@angular/platform-browser": "^18.2.5",
     "@angular/platform-browser-dynamic": "^18.2.5",
     "@angular/router": "^18.2.5",
+    "@microsoft/clarity": "^1.0.0",
     "@openreplay/tracker": "^14.0.9",
     "chart.js": "^4.4.7",
     "ibdevkit": "^0.2.1",

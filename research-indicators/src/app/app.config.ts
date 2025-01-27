@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -10,8 +10,26 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from '../environments/environment';
 import { jWtInterceptor } from './shared/interceptors/jwt.interceptor';
 import { httpErrorInterceptor } from './shared/interceptors/http-error.interceptor';
+import { ClarityService } from './shared/services/clarity.service';
+
 const config: SocketIoConfig = { url: environment.webSocketServerUrl, options: {} };
 
+function initializeClarityService(clarityService: ClarityService) {
+  return () => clarityService.init();
+}
+
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes, withViewTransitions()), provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor])), importProvidersFrom(BrowserModule, BrowserAnimationsModule, SocketIoModule.forRoot(config))]
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes, withViewTransitions()),
+    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor])),
+    importProvidersFrom(BrowserModule, BrowserAnimationsModule, SocketIoModule.forRoot(config)),
+    ClarityService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeClarityService,
+      deps: [ClarityService],
+      multi: true
+    }
+  ]
 };

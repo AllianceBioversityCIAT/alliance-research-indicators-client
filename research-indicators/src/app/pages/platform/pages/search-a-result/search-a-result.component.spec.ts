@@ -1,17 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import ResultsExplorerComponent from './search-a-result.component';
+import SearchAResultComponent from './search-a-result.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('ResultsExplorerComponent', () => {
-  let component: ResultsExplorerComponent;
-  let fixture: ComponentFixture<ResultsExplorerComponent>;
+  let component: SearchAResultComponent;
+  let fixture: ComponentFixture<SearchAResultComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ResultsExplorerComponent]
+      imports: [SearchAResultComponent, HttpClientTestingModule, RouterTestingModule]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ResultsExplorerComponent);
+    fixture = TestBed.createComponent(SearchAResultComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
