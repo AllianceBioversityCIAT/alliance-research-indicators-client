@@ -2,20 +2,28 @@
   @if (this.service.loading()) {
     <p>LOADING</p>
   } @else {
-    <div class="header-container">
-      <div class="header">
-        <span class="title-text"
-          >THERE ARE <span class="number-results">{{ this.service.list().length }}</span> RESULTS FOR YOUR SEARCH</span
-        >
-        <span class="description-text">You searched “Systems Resources’’</span>
+    @if (this.service.list().length > 0) {
+      <div class="header-container">
+        <div class="header">
+          <span class="title-text"
+            >THERE ARE <span class="number-results">{{ this.service.list().length }}</span> RESULTS FOR YOUR SEARCH</span
+          >
+          <span class="description-text">You searched “Systems Resources’’</span>
+        </div>
+        <div class="button">
+          <p-button label="Explore other results" size="small" />
+        </div>
       </div>
-      <div class="button">
-        <p-button label="Explore other results" size="small" />
-      </div>
-    </div>
+    }
     @if (this.service.list().length === 0) {
-      <div class="no-results-container">
-        <span class="no-results-text">No results found</span>
+      <div class="header-container">
+        <div class="header">
+          <span class="title-text-no-results">NO RESULTS FOUND FOR YOUR SEARCH</span>
+          <span class="description-text">You searched “Systems Resources’’. Please check the entered term or try using different keywords.</span>
+        </div>
+        <div class="button">
+          <p-button label="Explore other results" size="small" />
+        </div>
       </div>
     } @else {
       @for (result of this.service.list(); track $index) {
