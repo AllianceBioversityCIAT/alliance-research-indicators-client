@@ -88,66 +88,74 @@
   }
 
   .country-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
+    display: flex;
+    justify-content: space-between;
     align-items: flex-start;
-    gap: 2rem;
     padding: 0.75rem 0;
 
-    .country-info {
+    // background-color: red;
+    width: 100%;
+
+    .left-column {
       display: flex;
-      align-items: center;
+      flex-direction: column;
       gap: 0.75rem;
-      min-width: 150px;
+      max-width: 70%;
 
-      .country-flag {
-        width: 24px;
-        height: 16px;
-        object-fit: cover;
-      }
-
-      .country-name {
-        font-weight: 500;
-        color: var(--text-color);
-      }
-    }
-
-    .sub-national-section {
-      .sub-national-header {
+      .country-info {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        color: var(--text-color-secondary);
-        font-size: 0.875rem;
-        margin-bottom: 0.75rem;
+        gap: 0.75rem;
 
-        i {
-          font-size: 0.75rem;
+        .country-flag {
+          width: 24px;
+          height: 16px;
+          object-fit: cover;
+        }
+
+        .country-name {
+          font-weight: 500;
+          color: var(--text-color);
         }
       }
 
-      .chips-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-
-        .p-chip {
-          background: var(--surface-200);
-          border-radius: 16px;
-          padding: 0.25rem 0.75rem;
+      .sub-national-section {
+        .sub-national-header {
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          color: var(--text-color-secondary);
           font-size: 0.875rem;
-          color: var(--text-color);
+          margin-bottom: 0.75rem;
 
-          .remove-chip {
-            color: var(--text-color-secondary);
-            cursor: pointer;
+          i {
             font-size: 0.75rem;
+          }
+        }
 
-            &:hover {
-              color: var(--text-color);
+        .chips-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+
+          .p-chip {
+            background: var(--surface-200);
+            border-radius: 16px;
+            padding: 0.25rem 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-color);
+
+            .remove-chip {
+              color: var(--text-color-secondary);
+              cursor: pointer;
+              font-size: 0.75rem;
+
+              &:hover {
+                color: var(--text-color);
+              }
             }
           }
         }
@@ -155,7 +163,7 @@
     }
 
     app-multiselect {
-      min-width: 200px;
+      width: 200px;
     }
   }
 }
