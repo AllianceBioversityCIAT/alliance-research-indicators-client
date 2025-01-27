@@ -87,6 +87,7 @@
                     </div>
 
                     <app-multiselect
+                      #try
                       [signal]="institution.result_countries_sub_nationals_signal"
                       [optionLabel]="'name'"
                       [optionValue]="'sub_national_id'"
@@ -94,6 +95,10 @@
                       serviceName="regions"
                       label="{{ getMultiselectLabel().region.label }}"
                       description="{{ getMultiselectLabel().region.description }}"></app-multiselect>
+
+                    @for (region of institution.result_countries_sub_nationals_signal().regions; track $index) {
+                      <h1>{{ region?.name }}</h1>
+                    }
                   </div>
                 </div>
               </div>
