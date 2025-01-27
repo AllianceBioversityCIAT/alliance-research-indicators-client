@@ -68,7 +68,7 @@ export default class GeographicScopeComponent {
 
   async getData() {
     const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
-    console.log(response.data);
+    // console.log(response.data);
     response.data.countries?.forEach((country: Country) => {
       country.result_countries_sub_nationals_signal = signal(country.result_countries_sub_nationals);
     });
@@ -79,13 +79,13 @@ export default class GeographicScopeComponent {
   async saveData(page?: 'next' | 'back') {
     this.body.update(body => ({
       ...body,
-      countries: body.countries?.map((country: any) => ({
+      countries: body.countries?.map((country: Country) => ({
         ...country,
-        result_countries_sub_nationals: country.result_countries_sub_nationals_signal().regions
+        result_countries_sub_nationals: country.result_countries_sub_nationals_signal()
       }))
     }));
 
-    console.log(this.body());
+    // console.log(this.body());
     const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
 
     if (!response.successfulRequest) return;
