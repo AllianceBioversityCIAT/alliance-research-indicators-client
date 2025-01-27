@@ -85,18 +85,14 @@
                         [alt]="institution?.institution_type?.name"
                         [srcset]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'" />
                     </div>
-                    <br />
-                    <br />
-                    <strong>Index: {{ institution.result_countries_sub_nationals_signal().length }}</strong>
-                    <br />
-                    <br />
+
                     <app-multiselect
                       [signal]="institution.result_countries_sub_nationals_signal"
                       [optionLabel]="'name'"
-                      [optionValue]="'region_id'"
+                      [optionValue]="'sub_national_id'"
                       [signalOptionValue]="'regions'"
                       serviceName="regions"
-                      label="{{ getMultiselectLabel().region.label }} R5"
+                      label="{{ getMultiselectLabel().region.label }}"
                       description="{{ getMultiselectLabel().region.description }}"></app-multiselect>
                   </div>
                 </div>

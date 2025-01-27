@@ -8,15 +8,15 @@ export interface GetGeoLocation {
 
 interface Region {
   region_id: number;
+  sub_national_id?: number;
 }
 
 export interface Country {
   isoAlpha2: string;
-  result_countries_sub_nationals: Resultcountriessubnational[];
-  result_countries_sub_nationals_signal: Signal<Resultcountriessubnational[]>;
+  result_countries_sub_nationals: Region[];
+  result_countries_sub_nationals_signal: Signal<ResultcountriessubnationalRegions>;
 }
 
-interface Resultcountriessubnational {
-  sub_national_id: number;
+interface ResultcountriessubnationalRegions {
   regions?: Region[];
 }
