@@ -21,4 +21,6 @@ export type ControlListServices =
   | 'geoScopeOpenSearch'
   | 'openSearchCountries'
   | 'openSearchResult'
+  | 'innoDevOutput'
+  | 'innoUseOutput'
   | '';

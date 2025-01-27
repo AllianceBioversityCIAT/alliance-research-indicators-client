@@ -52,22 +52,20 @@
       <div class="col-6">
         <img src="construction.png" alt="" class="construction-icon-x1" />
         <app-select
-          [disabled]="true"
           label="Link to a reported Innovation Development output*"
           [signal]="body"
-          [optionLabel]="'name'"
-          [optionValue]="{ body: 'aux_isoAlpha2', option: 'isoAlpha2' }"
-          [serviceName]="'institutions'"></app-select>
+          [optionLabel]="'title'"
+          [optionValue]="{ body: 'innovation_development', option: 'result_id' }"
+          [serviceName]="'innoDevOutput'"></app-select>
       </div>
       <div class="col-6">
         <img src="construction.png" alt="" class="construction-icon-x1" />
         <app-select
-          [disabled]="true"
           label="Link to a reported Innovation Use &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
           [signal]="body"
-          [optionLabel]="'name'"
-          [optionValue]="{ body: 'aux_isoAlpha2', option: 'isoAlpha2' }"
-          [serviceName]="'institutions'"></app-select>
+          [optionLabel]="'title'"
+          [optionValue]="{ body: 'innovation_use', option: 'result_id' }"
+          [serviceName]="'innoUseOutput'"></app-select>
       </div>
     </div>
   </div>

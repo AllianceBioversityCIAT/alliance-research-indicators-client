@@ -30,6 +30,7 @@ import { LatestResult } from '@pages/platform/pages/home/components/my-latest-re
 import { GetGeoSearch } from '../interfaces/get-geo-search.interface';
 import { GetOsCountries } from '../interfaces/get-os-countries.interface';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
+import { GetInnoDevOutput, GetInnoUseOutput } from '../interfaces/get-innovation-outputs.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -55,6 +56,16 @@ export class ApiService {
 
   GET_Contracts = (): Promise<MainResponse<GetContracts[]>> => {
     const url = () => `agresso/contracts`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InnoDevOutput = (): Promise<MainResponse<GetInnoDevOutput[]>> => {
+    const url = () => `results?type=innovation-dev`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InnoUseOutput = (): Promise<MainResponse<GetInnoUseOutput[]>> => {
+    const url = () => `results?type=innovation-use`;
     return this.TP.get(url(), {});
   };
 
