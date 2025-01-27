@@ -60,49 +60,39 @@
           label="{{ getMultiselectLabel().country.label }}"
           description="{{ getMultiselectLabel().country.description }}">
           <ng-template #rows let-country>
-            <div class="item-content">
-              <div class="information">
-                <div class="row">
-                  <div class="country-header">
-                    <div class="country-info">
-                      <img [src]="environment.flagsUrl + country.isoAlpha2 + '.svg'" [alt]="country.name" class="country-flag" />
-                      <span class="country-name">{{ country.name }}</span>
-                    </div>
-                    <div class="selected-count">
-                      {{ country.result_countries_sub_nationals_signal().regions?.length || 0 }} items selected
-                      <i class="pi pi-chevron-down"></i>
-                    </div>
-                  </div>
+            <div class="country-row">
+              <!-- Country info -->
+              <div class="country-info">
+                <img [src]="environment.flagsUrl + country.isoAlpha2 + '.svg'" [alt]="country.name" class="country-flag" />
+                <span class="country-name">{{ country.name }}</span>
+              </div>
 
-                  <div class="sub-national-section">
-                    <div class="sub-national-header">
-                      <span>Sub-national levels</span>
-                      <i class="pi pi-arrow-right"></i>
+              <!-- Sub-national section -->
+              <div class="sub-national-section">
+                <div class="sub-national-header">
+                  <span>Sub-national levels</span>
+                  <i class="pi pi-arrow-right"></i>
+                </div>
+                <div class="chips-container">
+                  @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
+                    <div class="p-chip">
+                      {{ region.name }}
+                      <i class="pi pi-times remove-chip"></i>
                     </div>
-
-                    <div class="chips-container">
-                      @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
-                        <div class="p-chip">
-                          {{ region.name }}
-                          <i class="pi pi-times remove-chip"></i>
-                        </div>
-                      }
-                    </div>
-
-                    <app-multiselect
-                      #try
-                      [signal]="country.result_countries_sub_nationals_signal"
-                      [optionLabel]="'name'"
-                      [optionValue]="'sub_national_id'"
-                      [signalOptionValue]="'regions'"
-                      serviceName="regions"
-                      label="{{ getMultiselectLabel().region.label }}"
-                      description="{{ getMultiselectLabel().region.description }}"
-                      [hideSelected]="true">
-                    </app-multiselect>
-                  </div>
+                  }
                 </div>
               </div>
+
+              <!-- Multiselect -->
+              <app-multiselect
+                #try
+                [signal]="country.result_countries_sub_nationals_signal"
+                [optionLabel]="'name'"
+                [optionValue]="'sub_national_id'"
+                [signalOptionValue]="'regions'"
+                serviceName="regions"
+                [hideSelected]="true">
+              </app-multiselect>
             </div>
           </ng-template>
         </app-multiselect>
