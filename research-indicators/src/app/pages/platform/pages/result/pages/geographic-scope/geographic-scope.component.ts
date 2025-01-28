@@ -39,25 +39,30 @@ export default class GeographicScopeComponent {
       case 1:
         countryLabel = 'Are there any countries that you wish to specify for this Impact?';
         regionLabel = 'Are there any regions that you wish to specify for this Impact?';
-        countryDescription = 'The list of countries below follows the ISO 3166 standard';
-        regionDescription = 'The list of regions below follows the UN (M.49) standard';
+        countryDescription =
+          'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard';
+        regionDescription =
+          'The list of regions below follows the <a href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
         break;
       case 2:
         countryLabel = '';
         regionLabel = 'Select the regions';
         countryDescription = '';
-        regionDescription = 'The list of regions below follows the UN (M.49) standard';
+        regionDescription =
+          'The list of regions below follows the <a href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
         break;
       case 4:
         countryLabel = 'Select the countries';
         regionLabel = '';
-        countryDescription = 'The list of countries below follows the ISO 3166 standard';
+        countryDescription =
+          'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard';
         regionDescription = '';
         break;
       case 5:
         countryLabel = 'Select the countries';
         regionLabel = '';
-        countryDescription = 'The list of countries below follows the ISO 3166 standard';
+        countryDescription =
+          'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard';
         regionDescription = '';
         break;
       default:

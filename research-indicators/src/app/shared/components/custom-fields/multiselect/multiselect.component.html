@@ -4,7 +4,7 @@
     <label class="label" for="username">{{ label }}</label>
   }
   @if (description) {
-    <small class="description" for="username">{{ description }}</small>
+    <small class="description" for="username" [innerHTML]="description"></small>
   }
 </div>
 <div class="items">
