@@ -77,6 +77,14 @@ export class MultiselectComponent implements OnInit {
         });
         this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
         this.firstLoad.set(false);
+      } else {
+        if (
+          this.utils.getNestedProperty(this.signal(), this.signalOptionValue).length &&
+          !this.currentResultIsLoading() &&
+          this.service?.list().length &&
+          this.firstLoad()
+        )
+          this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
       }
     },
     { allowSignalWrites: true }
