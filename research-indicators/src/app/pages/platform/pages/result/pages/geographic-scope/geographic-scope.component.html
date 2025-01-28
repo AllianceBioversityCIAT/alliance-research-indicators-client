@@ -17,20 +17,6 @@
     </div>
 
     <div class="fields">
-      <!-- <app-select
-        [signal]="bodyTest"
-        [optionLabel]="'name'"
-        serviceName="openSearchCountries"
-        [optionValue]="{ body: 'value', option: 'name' }"></app-select>
-      <app-multiselect
-        [signal]="bodyTest"
-        [optionLabel]="'name'"
-        [optionValue]="'valueMulti'"
-        [signalOptionValue]="'countries'"
-        serviceName="openSearchCountries"
-        label="{{ getMultiselectLabel().country.label }}"
-        description="{{ getMultiselectLabel().country.description }}"></app-multiselect> -->
-
       <app-radio-button
         label="What is the main geographic focus of the Impact?*"
         [signal]="body"
@@ -38,8 +24,6 @@
         serviceName="geoFocus"
         [optionValue]="{ body: 'geo_scope_id', option: 'value' }"></app-radio-button>
 
-      <!-- ? option 1 -->
-      <!-- @if (body().geo_scope_id === 1 || body().geo_scope_id === '1') { -->
       @if (getMultiselectLabel().region.label) {
         <app-multiselect
           [signal]="body"
@@ -59,75 +43,47 @@
           serviceName="countries"
           label="{{ getMultiselectLabel().country.label }}"
           description="{{ getMultiselectLabel().country.description }}">
-          <ng-template #rows let-country>
-            <div class="country-row">
-              <!-- Left column: Country info and sub-national -->
-              <div class="left-column">
-                <div class="country-info">
-                  <img [src]="environment.flagsUrl + country.isoAlpha2 + '.svg'" [alt]="country.name" class="country-flag" />
-                  <span class="country-name">{{ country.name }}</span>
-                </div>
-                <div class="sub-national-section">
-                  <div class="sub-national-header"></div>
-                  <div class="chips-container">
-                    <span>Sub-national levels</span>
-                    <i class="pi pi-arrow-right"></i>
-                    @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
-                      <div class="p-chip">
-                        {{ region.name }}
-                        <i class="pi pi-times remove-chip"></i>
-                      </div>
-                    }
+          @if (body().geo_scope_id === 5 || body().geo_scope_id === '5') {
+            <ng-template #rows let-country>
+              <div class="country-row">
+                <!-- Left column: Country info and sub-national -->
+                <div class="left-column">
+                  <div class="country-info">
+                    <img [src]="environment.flagsUrl + country.isoAlpha2 + '.svg'" [alt]="country.name" class="country-flag" />
+                    <span class="country-name">{{ country.name }}</span>
+                  </div>
+                  <div class="sub-national-section">
+                    <div class="sub-national-header"></div>
+                    <div class="chips-container">
+                      <span>Sub-national levels</span>
+                      <i class="pi pi-arrow-right"></i>
+                      @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
+                        <div class="p-chip">
+                          {{ region.name }}
+                          <i class="pi pi-times remove-chip"></i>
+                        </div>
+                      }
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Right column: Multiselect -->
-              <div class="right-column">
-                <app-multiselect
-                  #try
-                  [signal]="country.result_countries_sub_nationals_signal"
-                  [optionLabel]="'name'"
-                  [optionValue]="'sub_national_id'"
-                  [signalOptionValue]="'regions'"
-                  serviceName="regions"
-                  [hideSelected]="true">
-                </app-multiselect>
+                <!-- Right column: Multiselect -->
+                <div class="right-column">
+                  <app-multiselect
+                    #try
+                    [signal]="country.result_countries_sub_nationals_signal"
+                    [optionLabel]="'name'"
+                    [optionValue]="'sub_national_id'"
+                    [signalOptionValue]="'regions'"
+                    serviceName="regions"
+                    [hideSelected]="true">
+                  </app-multiselect>
+                </div>
               </div>
-            </div>
-          </ng-template>
+            </ng-template>
+          }
         </app-multiselect>
       }
-      <!-- } -->
-      <!-- ? option 2 -->
-      <!-- @if (body().geo_scope_id === 2 || body().geo_scope_id === '2') {
-        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="{{ getMultiselectLabel().region }}" description="The list of regions below follows the UN (M.49) standard"> </app-multiselect>
-      } -->
-      <!-- ? option 3 -->
-      <!-- @if (body().geo_scope_id === 3 || body().geo_scope_id === '4') {
-        <app-multiselect [signal]="body" [optionLabel]="'label'" [optionValue]="'value'" [signalOptionValue]="'selectedOptions'" serviceName="geoFocus" label="{{ getMultiselectLabel().country }}" description="The list of countries below follows the ISO 3166 standard"> </app-multiselect>
-      } -->
-      <!-- ? option 4 -->
-      <!-- @if (body().geo_scope_id === 4 || body().geo_scope_id === '5') {
-        <app-multiselect [signal]="body" [optionLabel]="'name'" [optionValue]="'institution_id'" [signalOptionValue]="'institutions'" serviceName="institutions" label="{{ getMultiselectLabel().country }}" description="The list of countries below follows the ISO 3166 standard">
-          <ng-template #rows let-institution>
-            <div class="item-content">
-              <div class="information">
-                <div class="row">
-                  <div>
-                    <strong>{{ institution.acronym }}</strong> - {{ institution.name }}
-                  </div>
-                  <div class="institution-type">
-                    <h4>Institution Type</h4>
-                    &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
-                    <span class="institution-type-description">{{ institution?.institution_type?.name }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ng-template>
-        </app-multiselect>
-      } -->
     </div>
   </div>
   <div class="button-container">
