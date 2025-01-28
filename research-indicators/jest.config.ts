@@ -45,7 +45,23 @@ const config: Config = {
     '^@landing/(.*)$': '<rootDir>/src/app/pages/landing/$1',
     '^@guards/(.*)$': '<rootDir>/src/app/shared/guards/$1',
     '^@envs/(.*)$': '<rootDir>/src/environments/$1',
-    '^@utils/(.*)$': '<rootDir>/src/app/shared/utils/$1'
+    '^@utils/(.*)$': '<rootDir>/src/app/shared/utils/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
+  },
+  transform: {
+    '^.+\\.(ts|js|html|svg)$': [
+      'jest-preset-angular',
+      {
+        tsconfig: '<rootDir>/tsconfig.spec.json',
+        stringifyContentPathRegex: '\\.html$',
+        isolatedModules: true
+      }
+    ]
+  },
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
+  testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons']
   }
 };
 
