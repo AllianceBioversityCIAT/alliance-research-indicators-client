@@ -7,6 +7,7 @@ import { environment } from '@envs/environment';
 import { ActionsService } from '@services/actions.service';
 import { SoundService } from './sound.service';
 import { OpenReplayService } from './open-replay.service';
+import { ClarityService } from './clarity.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,7 @@ export class CognitoService {
   actions = inject(ActionsService);
   soundService = inject(SoundService);
   openReplay = inject(OpenReplayService);
+  clarity = inject(ClarityService);
 
   redirectToCognito() {
     window.location.href = environment.cognitoUrl;
@@ -65,5 +67,6 @@ export class CognitoService {
     this.cache.isValidatingToken.set(false);
     // Update user information in OpenReplay after login
     this.openReplay.updateUserInfo();
+    this.clarity.updateUserInfo();
   }
 }

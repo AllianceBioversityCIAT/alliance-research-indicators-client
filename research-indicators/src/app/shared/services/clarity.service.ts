@@ -3,23 +3,24 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import clarity from '@microsoft/clarity';
 import { environment } from '../../../environments/environment';
+import { CacheService } from './cache/cache.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClarityService {
   private router = inject(Router);
+  private cache = inject(CacheService);
   private readonly CLARITY_PROJECT_ID = environment.clarityProjectId;
   private initialized = false;
 
   public init(): void {
-    if (this.initialized) {
-      return;
-    }
+    if (this.initialized) return;
 
     try {
       this.initClarity();
       this.setupRouteTracking();
+      this.setUserInfo();
       this.initialized = true;
     } catch (error) {
       console.error('Failed to initialize Clarity:', error);
@@ -40,7 +41,6 @@ export class ClarityService {
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe({
       next: (event: NavigationEnd) => {
         try {
-          // Track page views by setting a custom tag for the page
           clarity.setTag('page', event.urlAfterRedirects);
         } catch (error) {
           console.error('Error tracking page view:', error);
@@ -48,6 +48,24 @@ export class ClarityService {
       },
       error: error => console.error('Error in route tracking subscription:', error)
     });
+  }
+
+  private setUserInfo(): void {
+    try {
+      if (this.cache.dataCache()?.user) {
+        const user = this.cache.dataCache().user;
+        clarity.setTag('user_id', `${user.first_name} ${user.last_name}`);
+        clarity.setTag('user_email', user.email || '');
+        clarity.setTag('user_role', user.roleName || '');
+      }
+    } catch (error) {
+      console.error('Error setting user info:', error);
+    }
+  }
+
+  // Método público para actualizar la información del usuario
+  public updateUserInfo(): void {
+    this.setUserInfo();
   }
 
   /**
