@@ -70,7 +70,7 @@ export default class GeographicScopeComponent {
     const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
     // console.log(response.data);
     response.data.countries?.forEach((country: Country) => {
-      console.log(country.result_countries_sub_nationals);
+      // console.log(country.result_countries_sub_nationals);
       country.result_countries_sub_nationals_signal = signal({ regions: country.result_countries_sub_nationals });
     });
 
@@ -86,7 +86,7 @@ export default class GeographicScopeComponent {
       return { ...body };
     });
 
-    console.log(this.body());
+    // console.log(this.body());
     const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
 
     if (!response.successfulRequest) return;
