@@ -6,10 +6,7 @@
     <div class="card-title">GEOGRAPHIC SCOPE</div>
     <div class="alert-container">
       <span class="icon material-symbols-rounded">info</span>
-      <h3 class="card-description">
-        If you do not find the partner in the dropdown menu, you can request to have it added to the list. Once approved, it may take up to an hour
-        for the partner to appear in the CLARISA institutions list.
-      </h3>
+      <h3 class="card-description">Select the geographic location/s where this result is taking place.</h3>
     </div>
 
     <div class="item-content">
@@ -60,7 +57,7 @@
                       @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
                         <div class="p-chip">
                           {{ region.name }}
-                          <i class="pi pi-times remove-chip"></i>
+                          <i class="pi pi-times remove-chip" (click)="try.removeOption(region)"></i>
                         </div>
                       }
                     </div>

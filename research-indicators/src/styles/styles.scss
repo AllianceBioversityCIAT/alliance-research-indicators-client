@@ -77,6 +77,14 @@ body {
   margin-left: 5px;
 }
 
+.description {
+  a {
+    color: #2e2e2e;
+    font-weight: 400;
+    text-decoration: underline;
+  }
+}
+
 @media (orientation: landscape) and (height <= 768px) {
   body {
     font-size: 13px !important;
