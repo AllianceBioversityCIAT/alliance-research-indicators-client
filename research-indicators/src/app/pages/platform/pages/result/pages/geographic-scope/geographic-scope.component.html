@@ -68,11 +68,10 @@
                   <span class="country-name">{{ country.name }}</span>
                 </div>
                 <div class="sub-national-section">
-                  <div class="sub-national-header">
+                  <div class="sub-national-header"></div>
+                  <div class="chips-container">
                     <span>Sub-national levels</span>
                     <i class="pi pi-arrow-right"></i>
-                  </div>
-                  <div class="chips-container">
                     @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
                       <div class="p-chip">
                         {{ region.name }}

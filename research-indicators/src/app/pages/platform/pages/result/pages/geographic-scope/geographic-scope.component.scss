@@ -92,8 +92,6 @@
     justify-content: space-between;
     align-items: flex-start;
     padding: 0.75rem 0;
-
-    // background-color: red;
     width: 100%;
 
     .left-column {
@@ -120,23 +118,21 @@
       }
 
       .sub-national-section {
-        .sub-national-header {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: var(--text-color-secondary);
-          font-size: 0.875rem;
-          margin-bottom: 0.75rem;
-
-          i {
-            font-size: 0.75rem;
-          }
-        }
-
         .chips-container {
           display: flex;
           flex-wrap: wrap;
           gap: 0.5rem;
+          align-items: center;
+
+          span {
+            color: var(--text-color-secondary);
+            font-size: 0.875rem;
+          }
+
+          i.pi-arrow-right {
+            font-size: 0.75rem;
+            color: var(--text-color-secondary);
+          }
 
           .p-chip {
             background: var(--surface-200);
