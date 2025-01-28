@@ -45,6 +45,7 @@ export class MultiselectComponent implements OnInit {
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
   @Input() description = '';
+  @Input() hideSelected = false;
 
   service: any;
 

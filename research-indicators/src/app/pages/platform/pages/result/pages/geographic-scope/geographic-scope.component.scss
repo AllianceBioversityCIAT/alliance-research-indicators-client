@@ -87,71 +87,79 @@
     gap: 20px;
   }
 
-  .item-content {
-    display: grid;
+  .country-row {
+    display: flex;
     justify-content: space-between;
-    grid-template-columns: auto auto;
-    align-items: center;
+    align-items: flex-start;
+    padding: 0.75rem 0;
     width: 100%;
-    gap: 20px;
 
-    .information {
+    .left-column {
       display: flex;
-      flex-wrap: wrap;
-      color: #4c5158;
-      font-family: Barlow, sans-serif;
-      font-size: 15px;
-      font-weight: 400;
-      line-height: 16px;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-width: 70%;
 
-      .row {
-        display: grid;
-        grid-column: 1;
+      .country-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
 
-        .metadata-container {
-          display: flex;
-
-          // flex-direction: column;
-          gap: 10px;
-        }
-
-        .divider {
-          margin: 10px 0;
+        .country-flag {
+          width: 24px;
           height: 16px;
-          width: 2px;
-          background-color: #e5e5e5;
+          object-fit: cover;
         }
 
-        .metadata-text {
+        .country-name {
+          font-weight: 500;
+          color: var(--text-color);
+        }
+      }
+
+      .sub-national-section {
+        .chips-container {
           display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
           align-items: center;
-          color: #777c83;
-          font-family: 'Space Grotesk', sans-serif;
-          font-size: 13px;
-          font-weight: 400;
-          line-height: 14px;
 
-          i {
-            color: #777c83;
-            font-size: 13px;
-            font-weight: 400;
-            line-height: 14px;
+          span {
+            color: var(--text-color-secondary);
+            font-size: 0.875rem;
           }
 
-          .metadata-title {
-            // margin-top: 10px;
-            margin-bottom: 0 !important;
-            font-weight: normal;
-            font-size: 13px;
+          i.pi-arrow-right {
+            font-size: 0.75rem;
+            color: var(--text-color-secondary);
+          }
+
+          .p-chip {
+            background: var(--surface-200);
+            border-radius: 16px;
+            padding: 0.25rem 0.75rem;
+            display: flex;
             align-items: center;
-          }
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-color);
 
-          .institution-type-description {
-            color: #345b8f;
-            text-transform: uppercase;
+            .remove-chip {
+              color: var(--text-color-secondary);
+              cursor: pointer;
+              font-size: 0.75rem;
+
+              &:hover {
+                color: var(--text-color);
+              }
+            }
           }
         }
       }
+    }
+
+    app-multiselect {
+      width: 200px;
     }
   }
 }

@@ -12,7 +12,7 @@
 
       .title-text,
       .number-results {
-        font-family: Barlow;
+        font-family: Barlow, sans-serif;
         font-size: 16px;
         font-weight: 700;
         line-height: 19px;
@@ -26,9 +26,20 @@
         }
       }
 
+      .title-text-no-results {
+        font-family: Barlow, sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 19px;
+        text-align: left;
+        color: #f58220;
+        text-transform: uppercase;
+        margin-bottom: 0;
+      }
+
       .description-text {
         color: #4c5158;
-        font-family: Barlow;
+        font-family: Barlow, sans-serif;
         font-size: 14px;
         font-weight: 400;
         line-height: 17px;
@@ -62,7 +73,9 @@
       }
 
       .indicator-text {
-        font-family: Space Grotesk;
+        font-family:
+          Space Grotesk,
+          sans-serif;
         font-size: 13px;
         font-weight: 400;
         line-height: 15px;
@@ -72,7 +85,7 @@
     }
 
     .card-title {
-      font-family: Barlow;
+      font-family: Barlow, sans-serif;
       font-size: 19px;
       font-weight: 500;
       line-height: 23px;
@@ -82,7 +95,7 @@
     }
 
     .card-description {
-      font-family: Barlow;
+      font-family: Barlow, sans-serif;
       font-size: 14px;
       font-weight: 300;
       line-height: 17px;
@@ -109,7 +122,9 @@
         }
 
         .subtitle-card {
-          font-family: Space Grotesk;
+          font-family:
+            Space Grotesk,
+            sans-serif;
           font-size: 11px;
           font-weight: 500;
           line-height: 14px;
@@ -117,7 +132,9 @@
         }
 
         .code {
-          font-family: Space Grotesk;
+          font-family:
+            Space Grotesk,
+            sans-serif;
           font-size: 11px;
           font-weight: 500;
           line-height: 14px;
@@ -125,7 +142,7 @@
         }
 
         .keyword {
-          font-family: Barlow;
+          font-family: Barlow, sans-serif;
           font-size: 11px;
           font-weight: 300;
           line-height: 13px;

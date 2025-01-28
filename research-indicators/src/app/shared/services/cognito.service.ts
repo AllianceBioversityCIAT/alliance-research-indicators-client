@@ -6,6 +6,7 @@ import { WebsocketService } from '../sockets/websocket.service';
 import { environment } from '@envs/environment';
 import { ActionsService } from '@services/actions.service';
 import { SoundService } from './sound.service';
+import { OpenReplayService } from './open-replay.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,8 @@ export class CognitoService {
   websocket = inject(WebsocketService);
   actions = inject(ActionsService);
   soundService = inject(SoundService);
+  openReplay = inject(OpenReplayService);
+
   redirectToCognito() {
     window.location.href = environment.cognitoUrl;
   }
@@ -45,7 +48,8 @@ export class CognitoService {
 
     loginResponse.data.user.roleName = loginResponse.data.user?.user_role_list[0]?.role?.name ?? '';
     localStorage.setItem('data', JSON.stringify({ ...loginResponse.data, exp }));
-    if (loginResponse.data.user.first_name && loginResponse.data.user.sec_user_id) await this.websocket.configUser(loginResponse.data.user.first_name, loginResponse.data.user.sec_user_id);
+    if (loginResponse.data.user.first_name && loginResponse.data.user.sec_user_id)
+      await this.websocket.configUser(loginResponse.data.user.first_name, loginResponse.data.user.sec_user_id);
 
     this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'You are now logged in' });
     this.soundService.playLoginAudio();
@@ -59,5 +63,7 @@ export class CognitoService {
     this.cache.dataCache.set(localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data') ?? '') : {});
     this.cache.isLoggedIn.set(true);
     this.cache.isValidatingToken.set(false);
+    // Update user information in OpenReplay after login
+    this.openReplay.updateUserInfo();
   }
 }
