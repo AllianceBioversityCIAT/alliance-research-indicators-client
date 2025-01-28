@@ -20,9 +20,24 @@ export class EvidenceItemComponent implements OnInit {
 
   onChange = effect(
     () => {
+      if (this.index === null) return;
+
       this.bodySignal.update((body: PatchResultEvidences) => {
-        body.evidence[this.index!].evidence_url = this.body()?.evidence_url;
-        body.evidence[this.index!].evidence_description = this.body()?.evidence_description;
+        if (!body.evidence) {
+          body.evidence = [];
+        }
+
+        // Ensure array has enough elements
+        while (body.evidence.length <= this.index!) {
+          body.evidence.push(new Evidence());
+        }
+
+        const currentEvidence = this.body();
+        if (currentEvidence) {
+          body.evidence[this.index!].evidence_url = currentEvidence.evidence_url;
+          body.evidence[this.index!].evidence_description = currentEvidence.evidence_description;
+        }
+
         return { ...body };
       });
     },
