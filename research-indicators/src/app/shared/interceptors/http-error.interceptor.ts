@@ -4,6 +4,7 @@ import { inject } from '@angular/core';
 import { ActionsService } from '@services/actions.service';
 import { CacheService } from '../services/cache/cache.service';
 import { ApiService } from '../services/api.service';
+import { PostError } from '../interfaces/post-error.interface';
 
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const actions = inject(ActionsService);
@@ -15,17 +16,27 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
+  const createErrorObj = (status: 'error' | 'pending', message: string, originalError?: HttpErrorResponse): PostError => {
+    const now = new Date();
+    const user = cache.dataCache()?.user;
+    // const userId = user?.email?.split('@')[0] || '';
+    return {
+      path: req.url,
+      status,
+      timestamp: now.toLocaleString(),
+      message,
+      original_error: originalError,
+      user_id: user?.sec_user_id.toString(),
+      user_name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+      user_email: user?.email
+    };
+  };
+
   // Create a timer for 5 seconds
   const timeoutCheck = timer(5000).pipe(
     switchMap(() => {
-      const now = new Date();
-      const timeoutObj = {
-        path: req.url,
-        status: 'pending',
-        timestamp: now.toLocaleString(),
-        message: 'Request is taking longer than 5 seconds to respond',
-        original_error: undefined
-      };
+      const timeoutObj = createErrorObj('pending', 'Request is taking longer than 5 seconds to respond');
+      console.log('tiempo');
       return from(api.saveErrors(timeoutObj));
     }),
     ignoreElements() // Ignore the timer values
@@ -36,16 +47,10 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
     timeoutCheck,
     next(req).pipe(
       catchError((error: HttpErrorResponse) => {
-        const now = new Date();
-        const errorObj = {
-          path: req.url,
-          status: 'error',
-          timestamp: now.toLocaleString(),
-          message: error.message,
-          original_error: error
-        };
+        const errorObj = createErrorObj('error', error.message, error);
 
         // Send error to tracking endpoint
+        console.log('error');
         from(api.saveErrors(errorObj)).subscribe();
 
         if (cache.isLoggedIn() && error.status !== 409) {

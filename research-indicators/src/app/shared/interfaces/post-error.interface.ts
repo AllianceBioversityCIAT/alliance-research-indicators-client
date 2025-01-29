@@ -6,4 +6,7 @@ export interface PostError {
   path?: string;
   status?: string;
   timestamp?: string;
+  user_id?: string;
+  user_name?: string;
+  user_email?: string;
 }
