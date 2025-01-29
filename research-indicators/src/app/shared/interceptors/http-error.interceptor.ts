@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
-import { catchError, timeout, throwError } from 'rxjs';
+import { catchError, timer, merge, throwError, ignoreElements, from, switchMap } from 'rxjs';
 import { inject } from '@angular/core';
 import { ActionsService } from '@services/actions.service';
 import { CacheService } from '../services/cache/cache.service';
@@ -10,31 +10,50 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const cache = inject(CacheService);
   const api = inject(ApiService);
 
-  // Skip timeout for error endpoint to avoid infinite loop
+  // Skip timeout check for error endpoint to avoid infinite loop
   if (req.url.includes('ciat-errors.yecksin.workers.dev')) {
     return next(req);
   }
 
-  return next(req).pipe(
-    timeout(5000), // 5 seconds timeout
-    catchError((error: HttpErrorResponse | Error) => {
+  // Create a timer for 5 seconds
+  const timeoutCheck = timer(5000).pipe(
+    switchMap(() => {
       const now = new Date();
-      const errorObj = {
+      const timeoutObj = {
         path: req.url,
-        status: error instanceof HttpErrorResponse ? 'error' : 'pending',
+        status: 'pending',
         timestamp: now.toLocaleString(),
-        message: error instanceof HttpErrorResponse ? error.message : 'Request is taking longer than 5 seconds to respond',
-        original_error: error
+        message: 'Request is taking longer than 5 seconds to respond',
+        original_error: undefined
       };
+      return from(api.saveErrors(timeoutObj));
+    }),
+    ignoreElements() // Ignore the timer values
+  );
 
-      // Send error to tracking endpoint
-      api.saveErrors(errorObj).catch(console.error);
+  // Use merge instead of race to run both observables
+  return merge(
+    timeoutCheck,
+    next(req).pipe(
+      catchError((error: HttpErrorResponse) => {
+        const now = new Date();
+        const errorObj = {
+          path: req.url,
+          status: 'error',
+          timestamp: now.toLocaleString(),
+          message: error.message,
+          original_error: error
+        };
 
-      if (cache.isLoggedIn() && error instanceof HttpErrorResponse && error.status !== 409) {
-        actions.showToast({ detail: error.error.errors, severity: 'error', summary: 'Error', sticky: true });
-      }
+        // Send error to tracking endpoint
+        from(api.saveErrors(errorObj)).subscribe();
 
-      return throwError(() => error);
-    })
+        if (cache.isLoggedIn() && error.status !== 409) {
+          actions.showToast({ detail: error.error.errors, severity: 'error', summary: 'Error', sticky: true });
+        }
+
+        return throwError(() => error);
+      })
+    )
   );
 };

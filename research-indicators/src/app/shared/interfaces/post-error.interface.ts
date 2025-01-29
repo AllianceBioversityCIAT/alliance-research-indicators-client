@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
 export interface PostError {
-  original_error?: HttpErrorResponse | Error | undefined;
+  original_error?: HttpErrorResponse | Error | undefined | null;
   message?: string;
   path?: string;
   status?: string;

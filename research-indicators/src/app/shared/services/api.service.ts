@@ -291,8 +291,8 @@ export class ApiService {
 
   // Add the saveErrors endpoint
   saveErrors = (error: PostError): Promise<MainResponse<PostError>> => {
-    const url = () => environment.saveErrorsUrl;
-    return this.TP.post(url(), { error }, {});
+    const url = () => '';
+    return this.TP.post(url(), { error }, { isAuth: environment.saveErrorsUrl });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
