@@ -10,4 +10,5 @@ export interface PostError {
   user_name?: string;
   user_email?: string;
   current_route?: string;
+  domain?: string;
 }
