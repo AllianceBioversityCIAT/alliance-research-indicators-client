@@ -121,8 +121,8 @@ export const routes: Routes = [
         }
       },
       {
-        path: 'results',
-        loadComponent: () => import('@platform/pages/results/results.component')
+        path: 'results-center',
+        loadComponent: () => import('@pages/platform/pages/results-center/results-center.component')
       },
       {
         path: 'search-a-result',
