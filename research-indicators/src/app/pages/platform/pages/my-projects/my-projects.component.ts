@@ -24,7 +24,7 @@ export default class MyProjectsComponent {
 
   async getData() {
     const response = await this.api.GET_ContractsByUser();
-    response.data.map(
+    response?.data?.map(
       (project: GetProjectDetail) =>
         (project.full_name = `${project.agreement_id} ${project.projectDescription} ${project.description} ${project.project_lead_description}`)
     );

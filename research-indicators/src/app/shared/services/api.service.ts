@@ -31,6 +31,8 @@ import { GetGeoSearch } from '../interfaces/get-geo-search.interface';
 import { GetOsCountries } from '../interfaces/get-os-countries.interface';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 import { GetInnoDevOutput, GetInnoUseOutput } from '../interfaces/get-innovation-outputs.interface';
+import { environment } from '../../../environments/environment';
+import { PostError } from '../interfaces/post-error.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -285,6 +287,12 @@ export class ApiService {
   GET_OpenSearchResult = (search: string, sampleSize: number): Promise<MainResponse<GetOsResult[]>> => {
     const url = () => `opensearch/result/search?query=${search}&sample-size=${sampleSize}`;
     return this.TP.get(url(), {});
+  };
+
+  // Add the saveErrors endpoint
+  saveErrors = (error: PostError): Promise<MainResponse<PostError>> => {
+    const url = () => '';
+    return this.TP.post(url(), { error }, { isAuth: environment.saveErrorsUrl });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

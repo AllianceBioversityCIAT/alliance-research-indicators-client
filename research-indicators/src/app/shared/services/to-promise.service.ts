@@ -48,13 +48,14 @@ export class ToPromiseService {
     return this.TP(this.http.patch<T>(this.getEnv(config?.isAuth) + url, body));
   };
 
-  getEnv = (isAuth: boolean | undefined) => {
+  getEnv = (isAuth: boolean | string | undefined) => {
+    if (typeof isAuth === 'string') return isAuth;
     return isAuth ? environment.managementApiUrl : environment.mainApiUrl;
   };
 }
 
 interface Config {
   token?: string;
-  isAuth?: boolean;
+  isAuth?: boolean | string;
   loadingTrigger?: boolean;
 }
