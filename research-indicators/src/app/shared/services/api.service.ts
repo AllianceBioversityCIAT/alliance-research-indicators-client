@@ -57,7 +57,7 @@ export class ApiService {
   };
 
   GET_Contracts = (): Promise<MainResponse<GetContracts[]>> => {
-    const url = () => `agresso/contracts1`;
+    const url = () => `agresso/contracts`;
     return this.TP.get(url(), {});
   };
 
