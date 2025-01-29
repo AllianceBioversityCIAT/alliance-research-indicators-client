@@ -25,6 +25,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
     return {
       path: req.url,
       current_route: router.url,
+      domain: window.location.hostname,
       status,
       timestamp: now.toLocaleString(),
       message,
