@@ -5,11 +5,13 @@ import { ActionsService } from '@services/actions.service';
 import { CacheService } from '../services/cache/cache.service';
 import { ApiService } from '../services/api.service';
 import { PostError } from '../interfaces/post-error.interface';
+import { Router } from '@angular/router';
 
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const actions = inject(ActionsService);
   const cache = inject(CacheService);
   const api = inject(ApiService);
+  const router = inject(Router);
 
   // Skip timeout check for error endpoint to avoid infinite loop
   if (req.url.includes('ciat-errors.yecksin.workers.dev')) {
@@ -22,6 +24,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
     // const userId = user?.email?.split('@')[0] || '';
     return {
       path: req.url,
+      current_route: router.url,
       status,
       timestamp: now.toLocaleString(),
       message,
@@ -36,7 +39,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const timeoutCheck = timer(5000).pipe(
     switchMap(() => {
       const timeoutObj = createErrorObj('pending', 'Request is taking longer than 5 seconds to respond');
-      console.log('tiempo');
       return from(api.saveErrors(timeoutObj));
     }),
     ignoreElements() // Ignore the timer values
@@ -50,7 +52,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         const errorObj = createErrorObj('error', error.message, error);
 
         // Send error to tracking endpoint
-        console.log('error');
         from(api.saveErrors(errorObj)).subscribe();
 
         if (cache.isLoggedIn() && error.status !== 409) {
