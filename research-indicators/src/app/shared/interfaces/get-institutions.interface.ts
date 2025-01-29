@@ -8,5 +8,26 @@ export interface GetInstitution {
   institution_id: number;
   region_id: number;
   isoAlpha2?: string;
-  institution_locations: { isoAlpha2: string }[];
+  is_active: boolean;
+  websiteLink: string;
+  added: string;
+  institution_type_id: number;
+  institution_locations: Institutionlocation[];
+  institution_type: Institutiontype;
+}
+
+interface Institutiontype {
+  is_active: boolean;
+  code: number;
+  name: string;
+  description: string;
+  parent_code: null;
+}
+
+interface Institutionlocation {
+  code: number;
+  name: string;
+  institution_id: number;
+  isoAlpha2: string;
+  isHeadquarter: boolean;
 }
