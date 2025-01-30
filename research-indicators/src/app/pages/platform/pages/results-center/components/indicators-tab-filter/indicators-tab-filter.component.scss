@@ -1,0 +1,33 @@
+.container {
+  background-color: #e8ebed;
+  height: 50px;
+  padding: 7px 12px;
+  gap: 10px;
+  border-radius: 10px;
+  border: 0.42px solid #b0c4dd;
+  align-content: center;
+
+  .filters-content {
+    display: flex;
+
+    .filters {
+      font-family:
+        Space Grotesk,
+        sans-serif;
+      color: #345b8f;
+
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      padding: 10px 20px;
+
+      &.active {
+        background-color: #345b8f;
+        border-radius: 10px;
+        color: #ffffff;
+      }
+    }
+  }
+}

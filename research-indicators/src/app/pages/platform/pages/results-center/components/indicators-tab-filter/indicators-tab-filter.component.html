@@ -1,0 +1,7 @@
+<div class="container">
+  <div class="filters-content">
+    @for (filter of filters(); track $index) {
+      <div class="filters">{{ filter.filter }}</div>
+    }
+  </div>
+</div>
