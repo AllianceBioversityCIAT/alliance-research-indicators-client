@@ -1,8 +1,8 @@
 <div class="section-header">
-  <div class="back-button" [routerLink]="true ? null : '/about-indicators'">
-    @if (!true) {
+  <div class="back-button" [routerLink]="isHomePage() ? null : '/about-indicators'">
+    @if (!isHomePage()) {
       <i class="material-symbols-rounded back-icon">arrow_back</i>
     }
-    <div class="label">Result information</div>
+    <div class="label">{{ welcomeMessage() }}</div>
   </div>
 </div>

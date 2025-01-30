@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { filter } from 'rxjs';
 
@@ -11,27 +11,29 @@ import { filter } from 'rxjs';
   styleUrl: './section-header.component.scss'
 })
 export class SectionHeaderComponent implements OnInit {
-  cache = inject(CacheService);
-  router = inject(Router);
-  route = inject(ActivatedRoute);
-  routeData: WritableSignal<{ title: string | null; hideBackButton?: boolean }> = signal({ title: null, hideBackButton: false });
+  private cache = inject(CacheService);
+  private router = inject(Router);
+
+  isHomePage = signal(false);
+  welcomeMessage = computed(() => {
+    if (!this.isHomePage()) return 'Result information';
+    const user = this.cache.dataCache()?.user;
+    return `Welcome, ${user?.first_name || ''} ${user?.last_name || ''}`.trim();
+  });
 
   ngOnInit(): void {
-    this.routeData.set(this.getRouteData(this.route));
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
-      this.routeData.set(this.getRouteData(this.route));
-      this.cache.setCurrentSectionHeaderName('');
-    });
+    this.setupRouteTracking();
   }
 
-  private getRouteData(route: ActivatedRoute): { title: string | null } {
-    let data = {};
+  private setupRouteTracking(): void {
+    // Check initial route
+    this.isHomePage.set(this.router.url === '/home');
 
-    while (route.firstChild) {
-      route = route.firstChild;
-      data = { ...data, ...route.snapshot.data };
-    }
-
-    return data as { title: string | null };
+    // Track route changes
+    this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe({
+      next: (event: NavigationEnd) => {
+        this.isHomePage.set(event.urlAfterRedirects === '/home');
+      }
+    });
   }
 }
