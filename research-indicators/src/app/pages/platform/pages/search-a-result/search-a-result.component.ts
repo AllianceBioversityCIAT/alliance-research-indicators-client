@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { ButtonModule } from 'primeng/button';
 import { PaginatorModule } from 'primeng/paginator';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-search-a-result',
   standalone: true,
-  imports: [CommonModule, ButtonModule, PaginatorModule],
+  imports: [CommonModule, ButtonModule, PaginatorModule, RouterLink],
   templateUrl: './search-a-result.component.html',
   styleUrl: './search-a-result.component.scss'
 })
