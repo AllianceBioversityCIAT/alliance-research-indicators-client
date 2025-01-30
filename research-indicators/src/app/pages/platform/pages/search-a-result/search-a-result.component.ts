@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { ButtonModule } from 'primeng/button';
