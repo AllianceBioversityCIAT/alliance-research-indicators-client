@@ -33,7 +33,8 @@
                   <span class="project-title">Project</span>
                   <span class="material-symbols-rounded"> arrow_forward </span>
                   <label class="project" for="username"
-                    >{{ result.result_contracts.agresso_contract.agreement_id }} - {{ result.result_contracts.agresso_contract.description }}</label
+                    >{{ result.result_contracts.agresso_contract && result.result_contracts.agresso_contract.agreement_id }} -
+                    {{ result.result_contracts.agresso_contract && result.result_contracts.agresso_contract.description }}</label
                   >
                 </div>
               </div>
