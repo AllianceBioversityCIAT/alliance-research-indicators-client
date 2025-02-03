@@ -25,21 +25,22 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
 
   private currentUrl = signal('');
   private routeTitle = signal('');
+  private routeId = signal<string | null>(null);
   private subscription = new Subscription();
-  navigationHistory = signal<{ url: string; title: string }[]>([]);
+  navigationHistory = signal<{ url: string; title: string; id: string | null }[]>([]);
 
   ngOnInit() {
     // Set initial values
     this.currentUrl.set(this.router.url);
-    this.updateRouteTitle();
-    this.addToHistory(this.router.url, this.routeTitle());
+    this.updateRouteInfo();
+    this.addToHistory(this.router.url, this.routeTitle(), this.routeId());
 
     // Subscribe to route changes
     this.subscription.add(
       this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe(() => {
         this.currentUrl.set(this.router.url);
-        this.updateRouteTitle();
-        this.addToHistory(this.router.url, this.routeTitle());
+        this.updateRouteInfo();
+        this.addToHistory(this.router.url, this.routeTitle(), this.routeId());
         // Close panel when navigating
         if (this.historyPanel) {
           this.historyPanel.hide();
@@ -52,30 +53,41 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  private updateRouteTitle() {
+  private updateRouteInfo() {
     let currentRoute = this.route;
+
+    // Navigate to the deepest route
     while (currentRoute.firstChild) {
       currentRoute = currentRoute.firstChild;
     }
-    const baseTitle = currentRoute.snapshot.data['title'] || '';
-    const params = currentRoute.snapshot.params;
 
-    // Add ID to title if present in route params
-    if (params['id']) {
-      this.routeTitle.set(`${baseTitle} #${params['id']}`);
-    } else {
-      this.routeTitle.set(baseTitle);
+    const baseTitle = currentRoute.snapshot.data['title'] || '';
+    this.routeTitle.set(baseTitle);
+
+    // Find the result route segment that contains the ID
+    let resultRoute = currentRoute;
+    while (resultRoute.parent) {
+      if (resultRoute.snapshot.url.some(segment => segment.path === 'result') && resultRoute.snapshot.params['id']) {
+        this.routeId.set(resultRoute.snapshot.params['id']);
+        return;
+      }
+      resultRoute = resultRoute.parent;
     }
+    this.routeId.set(null);
   }
 
-  private addToHistory(url: string, title: string) {
+  private addToHistory(url: string, title: string, id: string | null) {
     const history = this.navigationHistory();
     // Don't add duplicates consecutively
     if (history.length === 0 || history[history.length - 1].url !== url) {
       // Limit history to last 10 entries
-      const newHistory = [...history, { url, title }].slice(-10);
+      const newHistory = [...history, { url, title, id }].slice(-10);
       this.navigationHistory.set(newHistory);
     }
+  }
+
+  getHistoryItemTitle(item: { title: string; id: string | null }): string {
+    return item.id ? `${item.title} (id: ${item.id})` : item.title;
   }
 
   canGoBack = computed(() => this.navigationHistory().length > 1);
