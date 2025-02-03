@@ -1,6 +1,11 @@
 <div class="container">
+<<<<<<< Updated upstream
   @if (this.getOsResultService.loading()) {
     <p>LOADING</p>
+=======
+  @if (this.service.loading()) {
+    <app-custom-progress-bar></app-custom-progress-bar>
+>>>>>>> Stashed changes
   } @else {
     @if (this.getOsResultService.list().length > 0) {
       <div class="header-container">
