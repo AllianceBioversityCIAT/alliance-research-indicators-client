@@ -10,7 +10,7 @@ import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 export class HeaderComponent {
   @ViewChild('tiltBox') tiltBox!: ElementRef;
 
-  private readonly maxTilt = 3; // Reduced from 10 to 3 degrees for subtler effect
+  private readonly maxTilt = 4; // Reduced from 10 to 3 degrees for subtler effect
 
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
