@@ -48,7 +48,7 @@ export class ApiService {
 
   refreshToken = (refreshToken: string): Promise<MainResponse<LoginRes>> => {
     const url = () => `authorization/refresh-token`;
-    return this.TP.post(url(), {}, { token: refreshToken, isAuth: true });
+    return this.TP.post(url(), {}, { token: refreshToken, isRefreshToken: true, isAuth: true });
   };
 
   GET_IndicatorTypes = (): Promise<MainResponse<IndicatorTypes[]>> => {

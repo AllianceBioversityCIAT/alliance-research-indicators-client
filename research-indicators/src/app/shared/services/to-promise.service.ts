@@ -33,6 +33,9 @@ export class ToPromiseService {
     if (config?.token) {
       headers = headers.set('Authorization', `Bearer ${config.token}`);
     }
+    if (config?.isRefreshToken) {
+      headers = headers.set('refresh-token', `${config.token}`);
+    }
     return this.TP(this.http.post<T>(this.getEnv(config?.isAuth) + url, body, { headers }));
   };
 
@@ -57,5 +60,6 @@ export class ToPromiseService {
 interface Config {
   token?: string;
   isAuth?: boolean | string;
+  isRefreshToken?: boolean;
   loadingTrigger?: boolean;
 }

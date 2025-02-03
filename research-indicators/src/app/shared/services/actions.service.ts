@@ -1,16 +1,19 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
 import { CacheService } from '@services/cache/cache.service';
 import { Router } from '@angular/router';
-import { DataCache } from '@interfaces/cache.interface';
 import { GlobalAlert } from '../interfaces/global-alert.interface';
 import { ToastMessage } from '../interfaces/toast-message.interface';
-
+import { ApiService } from './api.service';
+import { LoginRes } from '../interfaces/responses.interface';
+import { MainResponse } from '../interfaces/responses.interface';
+import { DataCache } from '../interfaces/cache.interface';
 @Injectable({
   providedIn: 'root'
 })
 export class ActionsService {
   cache = inject(CacheService);
   router = inject(Router);
+  api = inject(ApiService);
   toastMessage = signal<ToastMessage>({ severity: 'info', summary: '', detail: '' });
   saveCurrentSectionValue = signal(false);
   globalAlertsStatus = signal<GlobalAlert[]>([]);
@@ -62,13 +65,37 @@ export class ActionsService {
     this.router.navigate(['/']);
   }
 
-  isTokenExpired() {
+  async isTokenExpired() {
+    // console.log('isTokenExpired');
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
     if (this.isCacheEmpty() || this.cache.dataCache().exp < currentTimeInSeconds) {
-      this.cache.isLoggedIn.set(false);
-      this.cache.dataCache.set(new DataCache());
-      localStorage.removeItem('data');
-      this.router.navigate(['/']);
+      const response = await this.api.refreshToken(this.cache.dataCache().refresh_token);
+      if (response.successfulRequest) {
+        this.updateLocalStorage(response, true);
+      } else {
+        this.cache.isLoggedIn.set(false);
+        this.cache.dataCache.set(new DataCache());
+        localStorage.removeItem('data');
+        this.router.navigate(['/']);
+      }
+    }
+  }
+
+  updateLocalStorage(loginResponse: MainResponse<LoginRes>, isRefreshToken = false) {
+    const {
+      decoded: { exp }
+    } = this.decodeToken(loginResponse.data.access_token);
+    if (isRefreshToken) {
+      this.cache.dataCache.update(prev => {
+        prev.access_token = loginResponse.data.access_token;
+        prev.exp = exp;
+
+        return { ...prev };
+      });
+      localStorage.setItem('data', JSON.stringify(this.cache.dataCache()));
+    } else {
+      loginResponse.data.user.roleName = loginResponse.data.user?.user_role_list[0]?.role?.name ?? '';
+      localStorage.setItem('data', JSON.stringify({ ...loginResponse.data, exp }));
     }
   }
 
