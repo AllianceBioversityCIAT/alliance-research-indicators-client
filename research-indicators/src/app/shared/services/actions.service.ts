@@ -7,6 +7,7 @@ import { ApiService } from './api.service';
 import { LoginRes } from '../interfaces/responses.interface';
 import { MainResponse } from '../interfaces/responses.interface';
 import { DataCache } from '../interfaces/cache.interface';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,6 +18,8 @@ export class ActionsService {
   toastMessage = signal<ToastMessage>({ severity: 'info', summary: '', detail: '' });
   saveCurrentSectionValue = signal(false);
   globalAlertsStatus = signal<GlobalAlert[]>([]);
+  private lastTokenCheck = signal<number>(0);
+
   constructor() {
     this.validateToken();
   }
@@ -66,8 +69,16 @@ export class ActionsService {
   }
 
   async isTokenExpired() {
-    // console.log('isTokenExpired');
-    const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+    const now = Date.now();
+    const timeSinceLastCheck = now - this.lastTokenCheck();
+
+    // If less than 2 seconds have passed since the last check, do nothing
+    if (timeSinceLastCheck < 1000) return;
+
+    // Update timestamp of last check
+    this.lastTokenCheck.set(now);
+
+    const currentTimeInSeconds = Math.floor(now / 1000);
     if (this.isCacheEmpty() || this.cache.dataCache().exp < currentTimeInSeconds) {
       const response = await this.api.refreshToken(this.cache.dataCache().refresh_token);
       if (response.successfulRequest) {
