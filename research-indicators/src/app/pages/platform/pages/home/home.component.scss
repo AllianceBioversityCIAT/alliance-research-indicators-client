@@ -1,22 +1,24 @@
 .content {
-  display: grid;
-  margin: 30px 40px;
-  gap: 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
 
   .items {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    justify-content: space-between;
-    align-items: stretch;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 2rem;
     width: 100%;
-    gap: 60px;
-    overflow: hidden;
-    box-sizing: border-box;
 
-    // .item {
-    //   flex: 1;
-    //   overflow: hidden;
-    // }
+    .item {
+      width: 100%;
+    }
+  }
+
+  @media screen and (width <= 768px) {
+    .items {
+      grid-template-columns: 1fr;
+    }
   }
 }
 
