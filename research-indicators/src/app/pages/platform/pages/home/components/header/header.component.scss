@@ -1,44 +1,89 @@
 .container {
   position: relative;
-  display: inline-block;
+  width: 100%;
+  perspective: 1000px;
+}
 
-  .header-image {
-    width: 100%;
-    display: block;
+.tilt-container {
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+}
+
+.tilt-box {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+
+  &:hover {
+    transition: transform 0.1s ease-out;
+  }
+}
+
+.header-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  transform: translateZ(0);
+}
+
+.character-image {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateZ(80px);
+  width: auto;
+  height: 90%;
+  max-height: 400px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 15px rgb(0 0 0 / 30%));
+}
+
+.logo {
+  display: grid;
+  position: absolute;
+  top: 25%;
+  left: 7%;
+  z-index: 2;
+  transform: translateZ(10px);
+
+  .roar-logo {
+    width: 70px;
+  }
+}
+
+.text-content {
+  display: grid;
+  position: absolute;
+  top: 45%;
+  left: 7%;
+  gap: 10px;
+  z-index: 2;
+  transform: translateZ(10px);
+
+  .title {
+    font-family: Barlow, sans-serif;
+    font-size: 31px;
+    font-weight: 800;
+    line-height: 37px;
+    color: #fff;
+    text-transform: uppercase;
   }
 
-  .logo {
-    display: grid;
-    position: absolute;
-    top: 25%;
-    left: 7%;
-
-    .roar-logo {
-      width: 70px;
-    }
+  .description {
+    font-family: Barlow, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 17px;
+    color: #fff;
   }
-  .text-content {
-    display: grid;
-    position: absolute;
-    top: 45%;
-    left: 7%;
-    gap: 10px;
+}
 
-    .title {
-      font-family: Barlow, sans-serif;
-      font-size: 31px;
-      font-weight: 800;
-      line-height: 37px;
-      color: #ffffff;
-      text-transform: uppercase;
-    }
-
-    .description {
-      font-family: Barlow, sans-serif;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 17px;
-      color: #ffffff;
-    }
+@media (width <= 768px) {
+  .character-image {
+    height: 60%;
+    max-height: 280px;
   }
 }
