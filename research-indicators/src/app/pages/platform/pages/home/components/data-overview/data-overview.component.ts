@@ -75,7 +75,6 @@ export class DataOverviewComponent implements OnInit {
     );
 
     const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue('--text-color');
     this.data = {
       labels,
       datasets: [
