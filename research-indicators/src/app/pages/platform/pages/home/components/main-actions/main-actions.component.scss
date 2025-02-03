@@ -33,6 +33,8 @@
     height: 100%;
 
     .first-column {
+      height: 100%;
+      min-height: 320px;
       position: relative;
       border-radius: 10px;
       overflow: hidden;
@@ -83,11 +85,6 @@
           color: #fff;
         }
       }
-    }
-
-    .first-column {
-      height: 100%;
-      min-height: 320px;
     }
 
     .second-column {
@@ -152,19 +149,175 @@
   }
 }
 
-@media screen and (width <= 768px) {
+// Pantallas grandes
+@media screen and (width >= 1440px) {
+  .container {
+    .actions {
+      .first-column {
+        min-height: 360px;
+      }
+
+      .second-column {
+        .main-action-2,
+        .main-action-3 {
+          min-height: 175px;
+        }
+      }
+    }
+  }
+}
+
+// Pantallas medianas (laptops pequeñas)
+@media screen and (width <= 1280px) {
+  .container {
+    gap: 1rem;
+
+    .actions {
+      gap: 1rem;
+
+      .first-column {
+        min-height: 300px;
+      }
+
+      .second-column {
+        .main-action-2,
+        .main-action-3 {
+          min-height: 145px;
+        }
+      }
+
+      .text-content {
+        padding: 1.25rem !important;
+
+        .title-content {
+          .title {
+            font-size: 16px;
+          }
+        }
+
+        .description {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}
+
+// Pantallas pequeñas (tablets landscape y laptops muy pequeñas)
+@media screen and (width <= 1024px) {
   .container {
     .actions {
       grid-template-columns: 1fr;
+      height: auto;
 
       .first-column {
         min-height: 200px;
       }
 
       .second-column {
+        display: grid;
+        gap: 1rem;
+
         .main-action-2,
         .main-action-3 {
-          min-height: 120px;
+          min-height: 200px;
+        }
+      }
+
+      .text-content {
+        padding: 1.25rem !important;
+
+        .title-content {
+          margin-bottom: 0.25rem;
+
+          img {
+            width: 24px;
+            height: 24px;
+          }
+
+          .title {
+            font-size: 16px;
+          }
+        }
+
+        .description {
+          font-size: 14px;
+          line-height: 1.3;
+        }
+      }
+    }
+  }
+}
+
+// Altura pequeña
+@media screen and (height <= 800px) {
+  .container {
+    gap: 1rem;
+
+    .actions {
+      .first-column {
+        min-height: 180px;
+      }
+
+      .second-column {
+        .main-action-2,
+        .main-action-3 {
+          min-height: 180px;
+        }
+      }
+    }
+  }
+}
+
+// Tablets portrait
+@media screen and (width <= 768px) {
+  .container {
+    .actions {
+      .first-column {
+        min-height: 180px;
+      }
+
+      .second-column {
+        .main-action-2,
+        .main-action-3 {
+          min-height: 180px;
+        }
+      }
+    }
+  }
+}
+
+// Móviles
+@media screen and (width <= 480px) {
+  .container {
+    .actions {
+      .first-column {
+        min-height: 160px;
+      }
+
+      .second-column {
+        .main-action-2,
+        .main-action-3 {
+          min-height: 160px;
+        }
+      }
+
+      .text-content {
+        padding: 1rem !important;
+
+        .title-content {
+          img {
+            width: 20px;
+            height: 20px;
+          }
+
+          .title {
+            font-size: 15px;
+          }
+        }
+
+        .description {
+          font-size: 13px;
         }
       }
     }
