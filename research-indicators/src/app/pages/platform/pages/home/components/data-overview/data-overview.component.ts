@@ -17,6 +17,12 @@ interface Indicator {
   amount_results: number;
 }
 
+interface ChartLegendItem {
+  color: string;
+  label: string;
+  value: number;
+}
+
 Chart.register(ChartDataLabels);
 Chart.defaults.set('plugins.datalabels', {
   color: '#ffffff',
@@ -37,6 +43,7 @@ export class DataOverviewComponent implements OnInit {
   results = true;
   data: any;
   options: any;
+  chartLegend = signal<ChartLegendItem[]>([]);
 
   indicatorList: WritableSignal<Indicator[]> = signal([]);
 
@@ -56,6 +63,17 @@ export class DataOverviewComponent implements OnInit {
 
     const labels = filteredData.map((item: any) => item?.name);
     const amounts = filteredData.map((item: any) => item?.amount_results);
+    const colors = ['#173F6F', '#1689CA', '#7CB580'];
+
+    // Update chart legend
+    this.chartLegend.set(
+      filteredData.map((item: any, index: number) => ({
+        color: colors[index],
+        label: item.name,
+        value: item.amount_results
+      }))
+    );
+
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color');
     this.data = {
@@ -63,7 +81,7 @@ export class DataOverviewComponent implements OnInit {
       datasets: [
         {
           data: amounts,
-          backgroundColor: ['#173F6F', '#1689CA', '#7CB580'],
+          backgroundColor: colors,
           hoverBackgroundColor: [
             documentStyle.getPropertyValue('--blue-400'),
             documentStyle.getPropertyValue('--yellow-400'),

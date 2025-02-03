@@ -33,7 +33,7 @@
           <div class="no-updates-yet">
             <img src="images/home/no-updates-yet.png" alt="" />
             <span class="title">No updates yet</span>
-            <span class="description">It looks like you haven’t created any results yet. Start now and unlock the potential of your research.</span>
+            <span class="description">It looks like you haven't created any results yet. Start now and unlock the potential of your research.</span>
           </div>
         }
       </div>
@@ -42,12 +42,23 @@
         @if (results === true) {
           <div class="chart-container">
             <p-chart type="doughnut" [data]="data" [options]="options"></p-chart>
+            <div class="chart-legend">
+              @for (item of chartLegend(); track $index) {
+                <div class="legend-item">
+                  <div class="color-indicator" [style.background-color]="item.color"></div>
+                  <div class="legend-text">
+                    <span class="legend-count">{{ item.value }}</span>
+                    <span class="legend-label">{{ item.label }}</span>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         } @else {
           <div class="no-results-yet">
             <img src="images/home/no-results-yet.png" alt="" />
             <span class="title">No results yet</span>
-            <span class="description">It looks like you haven’t created any results yet. Start now and unlock the potential of your research.</span>
+            <span class="description">It looks like you haven't created any results yet. Start now and unlock the potential of your research.</span>
           </div>
         }
       </div>
@@ -73,7 +84,7 @@
           <img src="images/home/no-results-yet.png" alt="" />
           <div class="column">
             <span class="title">No results yet</span>
-            <span class="description">It looks like you haven’t created any results yet. Start now and unlock the potential of your research.</span>
+            <span class="description">It looks like you haven't created any results yet. Start now and unlock the potential of your research.</span>
           </div>
         </div>
       }
