@@ -32,10 +32,12 @@
                 <div class="project-name">
                   <span class="project-title">Project</span>
                   <span class="material-symbols-rounded"> arrow_forward </span>
-                  <label class="project" for="username"
-                    >{{ result.result_contracts.agresso_contract && result.result_contracts.agresso_contract.agreement_id }} -
-                    {{ result.result_contracts.agresso_contract && result.result_contracts.agresso_contract.description }}</label
-                  >
+                  @if (result.result_contracts) {
+                    @let agresso_contract = result.result_contracts.agresso_contract;
+                    @if (agresso_contract) {
+                      <label class="project" for="username"> {{ agresso_contract.agreement_id }} - {{ agresso_contract.description }}</label>
+                    }
+                  }
                 </div>
               </div>
               <div class="progress-bar">
