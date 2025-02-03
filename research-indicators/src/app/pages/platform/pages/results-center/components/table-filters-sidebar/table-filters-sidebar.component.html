@@ -1,4 +1,4 @@
-<p-button label="Apply Filters" (click)="toggleSidebar()" icon="pi pi-filter" size="small"></p-button>
+<p-button label="Apply Filter" (click)="toggleSidebar()" icon="pi pi-filter" size="small"></p-button>
 <div class="container" [class.hide-sidebar]="hideSidebar">
   <div class="content">
     <div class="header">
@@ -8,15 +8,6 @@
     <div class="body">
       <app-multiselect
         label="Indicator"
-        [signal]="body"
-        optionLabel="html_full_name"
-        optionValue="institution_id"
-        signalOptionValue="institutions"
-        serviceName="institutions">
-      </app-multiselect>
-
-      <app-multiselect
-        label="Partners"
         [signal]="body"
         optionLabel="html_full_name"
         optionValue="institution_id"

@@ -1,0 +1,25 @@
+<p-button (click)="toggleSidebar()" icon="pi pi-cog" size="small" [outlined]="true"></p-button>
+<div class="container" [class.hide-sidebar]="hideSidebar">
+  <div class="content">
+    <div class="header">
+      <div class="title">Table Configuration</div>
+      <div class="description">Customize your table by enabling, disabling, or reordering columns.</div>
+    </div>
+    <!-- <div class="body">
+      <p-orderList [value]="products" [listStyle]="{ 'max-height': '30rem' }" header="List of Products">
+        <ng-template let-product pTemplate="item">
+          <div class="flex flex-wrap p-2 align-items-center gap-3">
+            <img [alt]="product.name" class="w-4rem shadow-2 flex-shrink-0 border-round" />
+            <div class="flex-1 flex flex-column gap-2">
+              <span class="font-bold">{{ product.name }}</span>
+            </div>
+          </div>
+        </ng-template>
+      </p-orderList>
+    </div> -->
+    <div class="buttons">
+      <p-button label="Cancel" [outlined]="true" (click)="hideSidebarMethod()" />
+      <p-button label="Apply filters" (click)="hideSidebarMethod()" />
+    </div>
+  </div>
+</div>

@@ -1,9 +1,9 @@
 import { Component, Input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
 import { PatchPartners } from '@shared/interfaces/patch-partners.interface';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 
 @Component({
   selector: 'app-table-filters-sidebar',
