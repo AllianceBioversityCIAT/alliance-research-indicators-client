@@ -1,8 +1,27 @@
 <div class="section-header">
-  <div class="back-button" [routerLink]="isHomePage() ? null : '/about-indicators'">
-    <!-- @if (!isHomePage()) {
-      <i class="material-symbols-rounded back-icon">arrow_back</i>
-    } -->
-    <div class="label">{{ welcomeMessage() }}</div>
+  <div class="navigation-controls">
+    @if (canGoBack()) {
+      <button class="nav-button" (click)="historyPanel.toggle($event)" pTooltip="Navigation History" tooltipPosition="bottom">
+        <span class="material-symbols-rounded">history</span>
+      </button>
+      <button class="nav-button" (click)="goBack()" pTooltip="Go Back" tooltipPosition="bottom">
+        <span class="material-symbols-rounded">arrow_back</span>
+      </button>
+    }
+  </div>
+
+  <p-overlayPanel #historyPanel>
+    <div class="history-list">
+      @for (item of navigationHistory(); track $index; let i = $index) {
+        <div class="history-item" (click)="navigateToHistoryItem(i)">
+          <span class="material-symbols-rounded">history</span>
+          <span>{{ getHistoryItemTitle(item) }}</span>
+        </div>
+      }
+    </div>
+  </p-overlayPanel>
+
+  <div class="title">
+    <h1>{{ welcomeMessage() }}</h1>
   </div>
 </div>
