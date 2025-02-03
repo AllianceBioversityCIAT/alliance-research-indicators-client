@@ -3,6 +3,8 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
 import { ChartModule } from 'primeng/chart';
+import { Chart } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 interface Indicator {
   indicator_id: number;
@@ -14,6 +16,14 @@ interface Indicator {
   other_names: null;
   amount_results: number;
 }
+
+Chart.register(ChartDataLabels);
+Chart.defaults.set('plugins.datalabels', {
+  color: '#ffffff',
+  font: {
+    size: 15
+  }
+});
 
 @Component({
   selector: 'app-data-overview',
@@ -41,8 +51,11 @@ export class DataOverviewComponent implements OnInit {
   }
 
   chartData(data: any) {
-    const labels = data.map((item: any) => item?.name);
-    const amounts = data.map((item: any) => item?.amount_results);
+    // Filter out items with zero amount_results
+    const filteredData = data.filter((item: any) => item.amount_results > 0);
+
+    const labels = filteredData.map((item: any) => item?.name);
+    const amounts = filteredData.map((item: any) => item?.amount_results);
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color');
     this.data = {
@@ -63,8 +76,14 @@ export class DataOverviewComponent implements OnInit {
       cutout: '60%',
       plugins: {
         legend: {
+          display: false,
           labels: {
             color: textColor
+          }
+        },
+        datalabels: {
+          formatter: (value: number) => {
+            return value > 0 ? value : '';
           }
         }
       }

@@ -33,6 +33,7 @@
     "@microsoft/clarity": "^1.0.0",
     "@openreplay/tracker": "^14.0.9",
     "chart.js": "^4.4.7",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "ibdevkit": "^0.2.1",
     "ngx-socket-io": "^4.7.0",
     "primeflex": "^3.3.1",
