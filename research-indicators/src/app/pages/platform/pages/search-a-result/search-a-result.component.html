@@ -1,6 +1,6 @@
 <div class="container">
   @if (this.getOsResultService.loading()) {
-    <p>LOADING</p>
+    <app-custom-progress-bar></app-custom-progress-bar>
   } @else {
     @if (this.getOsResultService.list().length > 0) {
       <div class="header-container">
