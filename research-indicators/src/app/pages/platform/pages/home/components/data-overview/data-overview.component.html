@@ -41,14 +41,15 @@
         <span class="card-title">Results by Status</span>
         @if (results === true) {
           <div class="chart-container">
-            <p-chart type="doughnut" [data]="data" [options]="options"></p-chart>
+            <div class="chart-wrapper">
+              <p-chart type="doughnut" [data]="data" [options]="options"></p-chart>
+            </div>
             <div class="chart-legend">
               @for (item of chartLegend(); track $index) {
                 <div class="legend-item">
                   <div class="color-indicator" [style.background-color]="item.color"></div>
                   <div class="legend-text">
-                    <span class="legend-count">{{ item.value }}</span>
-                    <span class="legend-label">{{ item.label }}</span>
+                    <span class="legend-count" [attr.data-label]="item.label">{{ item.value }}</span>
                   </div>
                 </div>
               }

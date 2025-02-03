@@ -92,16 +92,21 @@ export class DataOverviewComponent implements OnInit {
     };
     this.options = {
       cutout: '60%',
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 1,
       plugins: {
         legend: {
-          display: false,
-          labels: {
-            color: textColor
-          }
+          display: false
         },
         datalabels: {
           formatter: (value: number) => {
             return value > 0 ? value : '';
+          },
+          color: '#ffffff',
+          font: {
+            size: 14,
+            weight: 600
           }
         }
       }
