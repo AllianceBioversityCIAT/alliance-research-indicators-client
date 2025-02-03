@@ -3,6 +3,8 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
 import { ChartModule } from 'primeng/chart';
+import { Chart } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 interface Indicator {
   indicator_id: number;
@@ -14,6 +16,20 @@ interface Indicator {
   other_names: null;
   amount_results: number;
 }
+
+interface ChartLegendItem {
+  color: string;
+  label: string;
+  value: number;
+}
+
+Chart.register(ChartDataLabels);
+Chart.defaults.set('plugins.datalabels', {
+  color: '#ffffff',
+  font: {
+    size: 15
+  }
+});
 
 @Component({
   selector: 'app-data-overview',
@@ -27,6 +43,7 @@ export class DataOverviewComponent implements OnInit {
   results = true;
   data: any;
   options: any;
+  chartLegend = signal<ChartLegendItem[]>([]);
 
   indicatorList: WritableSignal<Indicator[]> = signal([]);
 
@@ -41,8 +58,22 @@ export class DataOverviewComponent implements OnInit {
   }
 
   chartData(data: any) {
-    const labels = data.map((item: any) => item?.name);
-    const amounts = data.map((item: any) => item?.amount_results);
+    // Filter out items with zero amount_results
+    const filteredData = data.filter((item: any) => item.amount_results > 0);
+
+    const labels = filteredData.map((item: any) => item?.name);
+    const amounts = filteredData.map((item: any) => item?.amount_results);
+    const colors = ['#173F6F', '#1689CA', '#7CB580'];
+
+    // Update chart legend
+    this.chartLegend.set(
+      filteredData.map((item: any, index: number) => ({
+        color: colors[index],
+        label: item.name,
+        value: item.amount_results
+      }))
+    );
+
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color');
     this.data = {
@@ -50,7 +81,7 @@ export class DataOverviewComponent implements OnInit {
       datasets: [
         {
           data: amounts,
-          backgroundColor: ['#173F6F', '#1689CA', '#7CB580'],
+          backgroundColor: colors,
           hoverBackgroundColor: [
             documentStyle.getPropertyValue('--blue-400'),
             documentStyle.getPropertyValue('--yellow-400'),
@@ -61,10 +92,21 @@ export class DataOverviewComponent implements OnInit {
     };
     this.options = {
       cutout: '60%',
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 1,
       plugins: {
         legend: {
-          labels: {
-            color: textColor
+          display: false
+        },
+        datalabels: {
+          formatter: (value: number) => {
+            return value > 0 ? value : '';
+          },
+          color: '#ffffff',
+          font: {
+            size: 14,
+            weight: 600
           }
         }
       }
