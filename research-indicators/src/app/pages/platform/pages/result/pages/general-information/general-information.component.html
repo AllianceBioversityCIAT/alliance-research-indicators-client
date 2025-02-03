@@ -30,6 +30,10 @@
 
           <div class="flex flex-column">
             <h1 class="title">Keywords</h1>
+            <small class="description" for="username" style="margin-bottom: 7px">
+              Press <strong>"Enter"</strong> to generate the keyword before saving it. Use relevant terms that describe the content of your result.
+            </small>
+
             <div class="card p-fluid">
               <p-chips [(ngModel)]="body().keywords" (ngModelChange)="this.actions.saveCurrentSection()" />
             </div>
