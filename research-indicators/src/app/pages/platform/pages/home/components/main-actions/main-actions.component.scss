@@ -1,7 +1,12 @@
 .container {
-  min-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+
   .header {
     display: grid;
+    gap: 0.5rem;
 
     .title-text {
       font-family: Inter, sans-serif;
@@ -10,7 +15,6 @@
       line-height: 18px;
       color: #173f6f;
       text-transform: uppercase;
-      margin-bottom: 0;
     }
 
     .description-text {
@@ -19,51 +23,58 @@
       font-size: 15px;
       font-weight: 300;
       line-height: 17px;
-      text-align: left;
-      margin: 8px 0 20px;
     }
   }
 
   .actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 1rem;
+    height: 100%;
 
     .first-column {
-      align-items: center;
-      justify-content: center;
+      height: 100%;
+      min-height: 320px;
       position: relative;
+      border-radius: 10px;
+      overflow: hidden;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: transform 0.2s ease;
+
       &:hover {
-        opacity: 0.8;
+        transform: translateY(-2px);
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
 
       .text-content {
-        display: grid;
         position: absolute;
-        top: 79%;
-        padding: 0 30px;
-        gap: 10px;
-        max-width: 100%;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem;
+        background: linear-gradient(180deg, rgb(0 0 0 / 0%) 0%, rgb(0 0 0 / 70%) 100%);
 
         .title-content {
           display: flex;
           align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
 
           img {
-            width: 25px;
-            height: auto;
+            width: 24px;
+            height: 24px;
           }
 
           .title {
-            font-family: Barlow, sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 18px;
-            font-weight: 600;
-            line-height: 21px;
-            color: #ffffff;
-            margin-left: 10px;
-            max-width: 100%;
+            font-weight: 500;
+            color: #fff;
           }
         }
 
@@ -71,109 +82,243 @@
           font-family: Barlow, sans-serif;
           font-size: 14px;
           font-weight: 400;
-          line-height: 17px;
-          color: #ffffff;
-          max-width: 100%;
+          color: #fff;
         }
       }
     }
 
     .second-column {
       display: grid;
-      grid-template-rows: 1fr 1fr;
-      gap: 20px;
+      gap: 1rem;
 
-      .main-action-2 {
-        position: relative;
-        cursor: not-allowed;
-        transition: all 0.3s ease;
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-
+      .main-action-2,
       .main-action-3 {
         position: relative;
+        border-radius: 10px;
+        overflow: hidden;
         cursor: not-allowed;
-        transition: all 0.3s ease;
+        transition: transform 0.2s ease;
+        min-height: 155px;
+
         &:hover {
-          opacity: 0.8;
+          transform: translateY(-2px);
         }
-      }
 
-      .text-content {
-        display: grid;
-        position: absolute;
-        top: 63%;
-        padding: 0 30px;
-        gap: 10px;
-        width: 100%;
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
 
-        .title-content {
-          display: flex;
-          align-items: center;
+        .text-content {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          padding: 1.5rem;
+          background: linear-gradient(180deg, rgb(0 0 0 / 0%) 0%, rgb(0 0 0 / 70%) 100%);
 
-          img {
-            width: 25px;
-            height: auto;
+          .title-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+
+            img {
+              width: 24px;
+              height: 24px;
+            }
+
+            .title {
+              font-family: 'Space Grotesk', sans-serif;
+              font-size: 18px;
+              font-weight: 500;
+              color: #fff;
+            }
           }
 
-          .title {
+          .description {
             font-family: Barlow, sans-serif;
-            font-size: 18px;
-            font-weight: 600;
-            line-height: 21px;
-            color: #ffffff;
-            margin-left: 10px;
+            font-size: 14px;
+            font-weight: 400;
+            color: #fff;
           }
         }
-
-        .description {
-          font-family: Barlow, sans-serif;
-          font-size: 14px;
-          font-weight: 400;
-          line-height: 17px;
-          color: #ffffff;
-        }
       }
-    }
-
-    img {
-      width: 100%;
-      height: 100%;
-      border-radius: 10px;
-      object-fit: cover;
     }
   }
 }
 
-@media (orientation: landscape) and (height <= 833px) {
-  .first-column {
-    .text-content {
-      top: 68% !important;
-      color: red !important;
-
-      .title {
-        font-size: 16px !important;
+// Pantallas grandes
+@media screen and (width >= 1440px) {
+  .container {
+    .actions {
+      .first-column {
+        min-height: 360px;
       }
 
-      .description {
-        font-size: 13px !important;
+      .second-column {
+        .main-action-2,
+        .main-action-3 {
+          min-height: 175px;
+        }
       }
     }
   }
+}
 
-  .second-column {
-    .text-content {
-      top: 43% !important;
-      color: red !important;
+// Pantallas medianas (laptops pequeñas)
+@media screen and (width <= 1280px) {
+  .container {
+    gap: 1rem;
 
-      .title {
-        font-size: 16px !important;
+    .actions {
+      gap: 1rem;
+
+      .first-column {
+        min-height: 300px;
       }
 
-      .description {
-        font-size: 13px !important;
+      .second-column {
+        .main-action-2,
+        .main-action-3 {
+          min-height: 145px;
+        }
+      }
+
+      .text-content {
+        padding: 1.25rem !important;
+
+        .title-content {
+          .title {
+            font-size: 16px;
+          }
+        }
+
+        .description {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}
+
+// Pantallas pequeñas (tablets landscape y laptops muy pequeñas)
+@media screen and (width <= 1024px) {
+  .container {
+    .actions {
+      grid-template-columns: 1fr;
+      height: auto;
+
+      .first-column {
+        min-height: 200px;
+      }
+
+      .second-column {
+        display: grid;
+        gap: 1rem;
+
+        .main-action-2,
+        .main-action-3 {
+          min-height: 200px;
+        }
+      }
+
+      .text-content {
+        padding: 1.25rem !important;
+
+        .title-content {
+          margin-bottom: 0.25rem;
+
+          img {
+            width: 24px;
+            height: 24px;
+          }
+
+          .title {
+            font-size: 16px;
+          }
+        }
+
+        .description {
+          font-size: 14px;
+          line-height: 1.3;
+        }
+      }
+    }
+  }
+}
+
+// Altura pequeña
+@media screen and (height <= 800px) {
+  .container {
+    gap: 1rem;
+
+    .actions {
+      .first-column {
+        min-height: 180px;
+      }
+
+      .second-column {
+        .main-action-2,
+        .main-action-3 {
+          min-height: 180px;
+        }
+      }
+    }
+  }
+}
+
+// Tablets portrait
+@media screen and (width <= 768px) {
+  .container {
+    .actions {
+      .first-column {
+        min-height: 180px;
+      }
+
+      .second-column {
+        .main-action-2,
+        .main-action-3 {
+          min-height: 180px;
+        }
+      }
+    }
+  }
+}
+
+// Móviles
+@media screen and (width <= 480px) {
+  .container {
+    .actions {
+      .first-column {
+        min-height: 160px;
+      }
+
+      .second-column {
+        .main-action-2,
+        .main-action-3 {
+          min-height: 160px;
+        }
+      }
+
+      .text-content {
+        padding: 1rem !important;
+
+        .title-content {
+          img {
+            width: 20px;
+            height: 20px;
+          }
+
+          .title {
+            font-size: 15px;
+          }
+        }
+
+        .description {
+          font-size: 13px;
+        }
       }
     }
   }
