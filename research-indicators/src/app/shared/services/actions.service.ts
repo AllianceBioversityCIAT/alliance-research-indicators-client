@@ -61,10 +61,46 @@ export class ActionsService {
     if (this.cache.dataCache().access_token) this.cache.isLoggedIn.set(true);
   }
 
-  logOut() {
+  async logOut() {
+    // Clear localStorage
     localStorage.removeItem('data');
     this.cache.isLoggedIn.set(false);
-    this.router.navigate(['/']);
+    // Navigate to home first
+    try {
+      await this.router.navigate(['/']);
+    } catch (navError) {
+      console.error('Navigation error:', navError);
+    }
+
+    // Then clear caches in the background
+    if ('serviceWorker' in navigator) {
+      try {
+        const cacheNames = await caches.keys();
+
+        const deletions = cacheNames.map(async cacheName => {
+          if (cacheName.includes('ngsw:/:dynamic-data') || cacheName.includes('ngsw:/:semi-dynamic-data')) {
+            return caches.delete(cacheName);
+          }
+          return Promise.resolve();
+        });
+
+        await Promise.all(deletions);
+
+        // Check if service worker is available and registered
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          try {
+            const registration = await navigator.serviceWorker.ready;
+            if (registration) {
+              await registration.update();
+            }
+          } catch (swError) {
+            console.error('Service worker update error:', swError);
+          }
+        }
+      } catch (error) {
+        console.error('Cache clearing error:', error);
+      }
+    }
   }
 
   isTokenExpired(): Promise<TokenValidation> {
