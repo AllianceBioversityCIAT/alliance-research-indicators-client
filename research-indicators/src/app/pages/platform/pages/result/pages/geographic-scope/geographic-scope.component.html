@@ -84,8 +84,8 @@
     </div>
   </div>
   <div class="button-container">
-    <p-button (click)="saveData('back')" label="Back" icon="pi pi-arrow-left" iconPos="left" />
-    <p-button (click)="saveData('next')" label="Next" icon="pi pi-arrow-right" iconPos="left" />
-    <p-button (click)="saveData()" label="Save" severity="success" icon="pi pi-save" iconPos="left" />
+    <p-button (click)="saveData('back')" label="Back" icon="pi pi-arrow-left" iconPos="left" [loading]="this.loading()" />
+    <p-button (click)="saveData('next')" label="Next" icon="pi pi-arrow-right" iconPos="left" [loading]="this.loading()" />
+    <p-button (click)="saveData()" label="Save" severity="success" icon="pi pi-save" iconPos="left" [loading]="this.loading()" />
   </div>
 </div>

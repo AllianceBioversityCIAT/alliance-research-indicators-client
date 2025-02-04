@@ -18,7 +18,18 @@ import { CalendarInputComponent } from '../../../../../../shared/components/cust
 @Component({
   selector: 'app-capacity-sharing',
   standalone: true,
-  imports: [ButtonModule, FormsModule, DropdownModule, CalendarModule, RadioButtonModule, RadioButtonComponent, SelectComponent, InputComponent, CalendarInputComponent, MultiselectComponent],
+  imports: [
+    ButtonModule,
+    FormsModule,
+    DropdownModule,
+    CalendarModule,
+    RadioButtonModule,
+    RadioButtonComponent,
+    SelectComponent,
+    InputComponent,
+    CalendarInputComponent,
+    MultiselectComponent
+  ],
   templateUrl: './capacity-sharing.component.html',
   styleUrl: './capacity-sharing.component.scss'
 })
@@ -54,6 +65,7 @@ export default class CapacitySharingComponent {
   }
 
   async saveData(page?: 'next' | 'back') {
+    this.loading.set(true);
     this.body.update(current => {
       if (current.start_date) current.start_date = new Date(current.start_date || '').toISOString();
       if (current.end_date) current.end_date = new Date(current.end_date || '').toISOString();
@@ -66,6 +78,7 @@ export default class CapacitySharingComponent {
     await this.getData();
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
+    this.loading.set(false);
   }
 
   // onSaveSection = effect(() => {

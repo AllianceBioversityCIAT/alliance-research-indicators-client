@@ -23,6 +23,7 @@ export default class PolicyChangeComponent {
   actions = inject(ActionsService);
   router = inject(Router);
   body = signal<GetPolicyChange>({});
+  loading = signal(false);
 
   policyStages = signal<{ list: { id: number; name: string }[]; loading: boolean }>({
     list: [
@@ -38,12 +39,15 @@ export default class PolicyChangeComponent {
   }
 
   async getData() {
+    this.loading.set(true);
     const response = await this.api.GET_PolicyChange(this.cache.currentResultId());
     response.data.loaded = true;
     this.body.set(response.data);
+    this.loading.set(false);
   }
 
   async saveData(page?: 'next' | 'back') {
+    this.loading.set(true);
     const response = await this.api.PATCH_PolicyChange(this.cache.currentResultId(), this.body());
     if (response.successfulRequest) {
       this.actions.showToast({ severity: 'success', summary: 'Policy Change', detail: 'Data saved successfully' });
@@ -51,5 +55,6 @@ export default class PolicyChangeComponent {
       if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
       if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     }
+    this.loading.set(false);
   }
 }
