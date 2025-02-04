@@ -23,9 +23,6 @@ export class GetInnoDevOutputService {
   async main() {
     this.loading.set(true);
     const response = await this.api.GET_Results(IndicatorsEnum.INNOVATION_DEV);
-
-    console.log(response);
-
     if (response?.data) {
       this.list.set(response.data as GetInnoDevOutput[]);
     } else {
