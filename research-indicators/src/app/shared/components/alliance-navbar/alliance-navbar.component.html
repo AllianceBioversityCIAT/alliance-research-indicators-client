@@ -24,9 +24,9 @@
     <div class="icons-container">
       <!-- <app-dropdown dropdownName="result" position="top-left" class="search-dropdown">
         <div dropdown-button (click)="this.dropdownsCache.showDropdown('result')"> -->
-      <div class="search-box" routerLink="/search-a-result">
+      <div class="search-box">
         <i class="material-symbols-rounded">search</i>
-        <input id="search-result-input" type="text" placeholder="Search a result" (input)="this.onSearchTextChange($event)" />
+        <input id="search-result-input" type="text" placeholder="Search a result" (keyup.enter)="this.onSearchTextChange($event)" />
       </div>
       <!-- </div>
         <div dropdown-content>

@@ -60,6 +60,7 @@ export class AllianceNavbarComponent implements OnInit {
   }
 
   onSearchTextChange(event: Event) {
+    this.router.navigate(['/search-a-result']);
     this.searchText.set((event.target as HTMLInputElement).value);
     clearTimeout(this.searchDebounceTimeout);
     this.searchDebounceTimeout = setTimeout(async () => {

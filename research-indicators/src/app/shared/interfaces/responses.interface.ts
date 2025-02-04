@@ -59,3 +59,10 @@ interface Role {
   name: string;
   focus_id: number;
 }
+
+//? Extra
+
+export interface TokenValidation {
+  isTokenExpired: boolean;
+  token_data?: LoginRes;
+}
