@@ -75,8 +75,8 @@
   </div>
 
   <div class="button-container">
-    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')"></p-button>
-    <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')"></p-button>
-    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" />
+    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" [loading]="this.loading()" />
+    <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')" [loading]="this.loading()" />
+    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
   </div>
 </div>

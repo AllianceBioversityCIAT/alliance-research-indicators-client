@@ -32,6 +32,7 @@ export default class AllianceAlignmentComponent {
   cache = inject(CacheService);
   actions = inject(ActionsService);
   router = inject(Router);
+  loading = signal(false);
   constructor() {
     this.getData();
   }
@@ -42,6 +43,7 @@ export default class AllianceAlignmentComponent {
   }
 
   async saveData(page?: 'next' | 'back') {
+    this.loading.set(true);
     const response = await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
     if (response.successfulRequest) {
       this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
@@ -49,6 +51,7 @@ export default class AllianceAlignmentComponent {
       if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
       if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
     }
+    this.loading.set(false);
   }
 
   // onSaveSection = effect(() => {

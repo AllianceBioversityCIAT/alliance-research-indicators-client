@@ -68,8 +68,8 @@
     </div>
   </div>
   <div class="p-5 flex gap-2">
-    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" />
-    <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="saveData('next')" />
-    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" />
+    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" [loading]="this.loading()" />
+    <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="saveData('next')" [loading]="this.loading()" />
+    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
   </div>
 </div>

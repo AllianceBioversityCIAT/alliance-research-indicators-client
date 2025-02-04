@@ -50,8 +50,21 @@
         </div>
       </div>
       <div class="actions">
-        <p-button [disabled]="!this.body().title" label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="saveData('next')" />
-        <p-button [disabled]="!this.body().title" label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" />
+        <p-button
+          [disabled]="!this.body().title"
+          [loading]="this.loading()"
+          label="Next"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          (click)="saveData('next')" />
+        <p-button
+          [disabled]="!this.body().title"
+          [loading]="this.loading()"
+          label="Save"
+          severity="success"
+          icon="pi pi-save"
+          iconPos="left"
+          (click)="saveData()" />
       </div>
     </div>
   </div>
