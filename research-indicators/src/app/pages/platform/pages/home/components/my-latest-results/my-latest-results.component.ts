@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import AboutIndicatorsComponent from '../../../about-indicators/about-indicators.component';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 
 export interface LatestResult {
   updated_at: Date;
@@ -71,6 +72,7 @@ export interface AgressoContract {
 })
 export class MyLatestResultsComponent implements OnInit {
   api = inject(ApiService);
+  allModalsService = inject(AllModalsService);
 
   latestResultList: WritableSignal<LatestResult[]> = signal([]);
 
