@@ -83,13 +83,15 @@ export default class GeographicScopeComponent {
   }
 
   async saveData(page?: 'next' | 'back') {
-    this.body.update(body => {
-      body.countries?.forEach((country: Country) => {
-        country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal().regions || [];
-      });
+    if (this.body().geo_scope_id === 5) {
+      this.body.update(body => {
+        body.countries?.forEach((country: Country) => {
+          country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal().regions || [];
+        });
 
-      return { ...body };
-    });
+        return { ...body };
+      });
+    }
 
     // console.log(this.body());
     const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
