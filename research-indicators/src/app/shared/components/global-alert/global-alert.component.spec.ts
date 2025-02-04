@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GlobalAlertComponent } from './global-alert.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('GlobalAlertComponent', () => {
   let component: GlobalAlertComponent;
@@ -8,7 +9,7 @@ describe('GlobalAlertComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BrowserAnimationsModule, GlobalAlertComponent]
+      imports: [BrowserAnimationsModule, GlobalAlertComponent, HttpClientTestingModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(GlobalAlertComponent);

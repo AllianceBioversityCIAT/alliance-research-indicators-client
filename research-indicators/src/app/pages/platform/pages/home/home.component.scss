@@ -1,22 +1,78 @@
 .content {
-  display: grid;
-  margin: 30px 40px;
-  gap: 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
 
   .items {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    justify-content: space-between;
-    align-items: stretch;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 2rem;
     width: 100%;
-    gap: 60px;
-    overflow: hidden;
-    box-sizing: border-box;
 
-    // .item {
-    //   flex: 1;
-    //   overflow: hidden;
-    // }
+    .item {
+      width: 100%;
+    }
+  }
+}
+
+// Pantallas grandes (laptops y desktops)
+@media screen and (width >= 1440px) {
+  .content {
+    padding: 2.5rem;
+
+    .items {
+      gap: 2.5rem;
+    }
+  }
+}
+
+// Pantallas medianas (laptops pequeñas)
+@media screen and (width <= 1280px) {
+  .content {
+    padding: 1.5rem;
+    gap: 1.5rem;
+
+    .items {
+      gap: 1.5rem;
+      grid-template-columns: 0.7fr 1.3fr;
+    }
+  }
+}
+
+// Pantallas pequeñas (tablets landscape y laptops muy pequeñas)
+@media screen and (width <= 1024px) {
+  .content {
+    padding: 1rem;
+    gap: 1rem;
+
+    .items {
+      gap: 1rem;
+      grid-template-columns: 0.6fr 1.4fr;
+    }
+  }
+}
+
+// Tablets portrait
+@media screen and (width <= 768px) {
+  .content {
+    .items {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Ajuste específico para alturas pequeñas
+@media screen and (height <= 800px) {
+  .content {
+    gap: 1rem;
+
+    .items {
+      gap: 1rem;
+    }
   }
 }
 

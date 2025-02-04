@@ -44,12 +44,9 @@ export class CognitoService {
       });
       return;
     }
-    const {
-      decoded: { exp }
-    } = this.actions.decodeToken(loginResponse.data.access_token);
 
-    loginResponse.data.user.roleName = loginResponse.data.user?.user_role_list[0]?.role?.name ?? '';
-    localStorage.setItem('data', JSON.stringify({ ...loginResponse.data, exp }));
+    this.actions.updateLocalStorage(loginResponse);
+
     if (loginResponse.data.user.first_name && loginResponse.data.user.sec_user_id)
       await this.websocket.configUser(loginResponse.data.user.first_name, loginResponse.data.user.sec_user_id);
 

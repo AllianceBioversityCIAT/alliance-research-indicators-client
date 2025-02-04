@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core
 import { ApiService } from '@shared/services/api.service';
 import { ButtonModule } from 'primeng/button';
 import AboutIndicatorsComponent from '../../../about-indicators/about-indicators.component';
+import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 export interface LatestResult {
   updated_at: Date;
@@ -63,7 +65,7 @@ export interface AgressoContract {
 @Component({
   selector: 'app-my-latest-results',
   standalone: true,
-  imports: [ButtonModule, AboutIndicatorsComponent],
+  imports: [ButtonModule, AboutIndicatorsComponent, DatePipe, RouterLink],
   templateUrl: './my-latest-results.component.html',
   styleUrl: './my-latest-results.component.scss'
 })
