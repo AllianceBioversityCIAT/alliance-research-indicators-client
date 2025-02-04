@@ -227,22 +227,6 @@
   }
 }
 
-@media (orientation: landscape) and (height <= 768px) {
-  .results-content {
-    grid-template-columns: 0.3fr 1.7fr !important;
-  }
-
-  .indicators-content {
-    overflow-x: auto !important;
-  }
-}
-
-@media screen and (width <= 768px) {
-  .results-content {
-    grid-template-columns: 1fr !important;
-  }
-}
-
 .results-status {
   display: flex;
   flex-direction: column;
@@ -250,11 +234,11 @@
   width: 100%;
 
   .chart-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    place-items: center center;
     justify-content: center;
-    gap: 2rem;
+    justify-self: center;
     padding: 1.5rem;
     width: 100%;
 
@@ -267,9 +251,11 @@
     .chart-legend {
       display: flex;
       flex-direction: column;
+      justify-content: center;
       gap: 1rem;
       flex: 1;
-      min-width: 0;
+
+      // min-width: 0;
       padding-left: 1rem;
 
       .legend-item {
@@ -305,39 +291,6 @@
               text-transform: uppercase;
             }
           }
-        }
-      }
-    }
-
-    @media screen and (width <= 768px) {
-      flex-direction: column;
-      padding: 1rem;
-      gap: 1.5rem;
-
-      .chart-wrapper {
-        width: 160px;
-        height: 160px;
-      }
-
-      .chart-legend {
-        width: 100%;
-        padding-left: 0;
-        align-items: flex-start;
-      }
-    }
-
-    @media screen and (width <= 480px) {
-      .chart-wrapper {
-        width: 140px;
-        height: 140px;
-      }
-
-      .chart-legend {
-        align-items: center;
-
-        .legend-item {
-          width: 100%;
-          justify-content: center;
         }
       }
     }
