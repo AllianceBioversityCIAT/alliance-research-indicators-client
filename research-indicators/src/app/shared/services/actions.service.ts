@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { GlobalAlert } from '../interfaces/global-alert.interface';
 import { ToastMessage } from '../interfaces/toast-message.interface';
 import { ApiService } from './api.service';
-import { LoginRes } from '../interfaces/responses.interface';
+import { LoginRes, TokenValidation } from '../interfaces/responses.interface';
 import { MainResponse } from '../interfaces/responses.interface';
 import { DataCache } from '../interfaces/cache.interface';
 
@@ -18,7 +18,6 @@ export class ActionsService {
   toastMessage = signal<ToastMessage>({ severity: 'info', summary: '', detail: '' });
   saveCurrentSectionValue = signal(false);
   globalAlertsStatus = signal<GlobalAlert[]>([]);
-  private lastTokenCheck = signal<number>(0);
 
   constructor() {
     this.validateToken();
@@ -68,41 +67,47 @@ export class ActionsService {
     this.router.navigate(['/']);
   }
 
-  async isTokenExpired() {
-    const now = Date.now();
-    const timeSinceLastCheck = now - this.lastTokenCheck();
+  isTokenExpired(): Promise<TokenValidation> {
+    return new Promise(resolve => {
+      // Obtener timestamp UTC actual en milisegundos y convertir a segundos
+      const utcNow = new Date().getTime();
+      const currentTimeInSeconds = Math.floor(utcNow / 1000);
 
-    // If less than 2 seconds have passed since the last check, do nothing
-    if (timeSinceLastCheck < 1000) return;
+      // El campo exp del JWT es un timestamp UTC en segundos
+      const tokenExp = this.cache.dataCache().exp;
 
-    // Update timestamp of last check
-    this.lastTokenCheck.set(now);
-
-    const currentTimeInSeconds = Math.floor(now / 1000);
-    if (this.isCacheEmpty() || this.cache.dataCache().exp < currentTimeInSeconds) {
-      const response = await this.api.refreshToken(this.cache.dataCache().refresh_token);
-      if (response.successfulRequest) {
-        this.updateLocalStorage(response, true);
+      // Comparamos directamente ya que ambos están en UTC
+      if (this.isCacheEmpty() || tokenExp < currentTimeInSeconds) {
+        this.api.refreshToken(this.cache.dataCache().refresh_token).then(response => {
+          if (response.successfulRequest) {
+            this.updateLocalStorage(response, true);
+            resolve({ token_data: response.data, isTokenExpired: true });
+          } else {
+            this.cache.isLoggedIn.set(false);
+            this.cache.dataCache.set(new DataCache());
+            localStorage.removeItem('data');
+            this.router.navigate(['/']);
+            resolve({ token_data: response.data, isTokenExpired: true });
+          }
+        });
       } else {
-        this.cache.isLoggedIn.set(false);
-        this.cache.dataCache.set(new DataCache());
-        localStorage.removeItem('data');
-        this.router.navigate(['/']);
+        // El token aún es válido (la comparación fue en UTC)
+        resolve({ isTokenExpired: false });
       }
-    }
+    });
   }
 
   updateLocalStorage(loginResponse: MainResponse<LoginRes>, isRefreshToken = false) {
     const {
       decoded: { exp }
     } = this.decodeToken(loginResponse.data.access_token);
-    if (isRefreshToken) {
-      this.cache.dataCache.update(prev => {
-        prev.access_token = loginResponse.data.access_token;
-        prev.exp = exp;
 
-        return { ...prev };
-      });
+    if (isRefreshToken) {
+      this.cache.dataCache.update(prev => ({
+        ...prev,
+        access_token: loginResponse.data.access_token,
+        exp: exp // exp ya está en UTC
+      }));
       localStorage.setItem('data', JSON.stringify(this.cache.dataCache()));
     } else {
       loginResponse.data.user.roleName = loginResponse.data.user?.user_role_list[0]?.role?.name ?? '';
