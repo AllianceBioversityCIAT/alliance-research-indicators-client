@@ -31,7 +31,10 @@ export const routes: Routes = [
       },
       {
         path: 'indicator/:id',
-        loadComponent: () => import('@platform/pages/indicator/indicator.component')
+        loadComponent: () => import('@platform/pages/indicator/indicator.component'),
+        data: {
+          title: 'Indicator'
+        }
       },
       {
         path: 'about-indicators',
@@ -122,11 +125,17 @@ export const routes: Routes = [
       },
       {
         path: 'results-center',
-        loadComponent: () => import('@pages/platform/pages/results-center/results-center.component')
+        loadComponent: () => import('@pages/platform/pages/results-center/results-center.component'),
+        data: {
+          title: 'Results Center'
+        }
       },
       {
         path: 'search-a-result',
-        loadComponent: () => import('./pages/platform/pages/search-a-result/search-a-result.component')
+        loadComponent: () => import('./pages/platform/pages/search-a-result/search-a-result.component'),
+        data: {
+          title: 'Search a Result'
+        }
       },
       {
         path: 'project-detail/:id',
@@ -137,19 +146,31 @@ export const routes: Routes = [
       },
       {
         path: 'about',
-        loadComponent: () => import('@platform/pages/about/about.component')
+        loadComponent: () => import('@platform/pages/about/about.component'),
+        data: {
+          title: 'About'
+        }
       },
       {
         path: 'notifications',
-        loadComponent: () => import('@platform/pages/notifications/notifications.component')
+        loadComponent: () => import('@platform/pages/notifications/notifications.component'),
+        data: {
+          title: 'Notifications'
+        }
       },
       {
         path: 'settings',
-        loadComponent: () => import('@platform/pages/settings/settings.component')
+        loadComponent: () => import('@platform/pages/settings/settings.component'),
+        data: {
+          title: 'Settings'
+        }
       },
       {
         path: 'profile',
-        loadComponent: () => import('@platform/pages/profile/profile.component')
+        loadComponent: () => import('@platform/pages/profile/profile.component'),
+        data: {
+          title: 'Profile'
+        }
       }
     ]
   },
