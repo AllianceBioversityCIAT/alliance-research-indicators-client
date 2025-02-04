@@ -10,7 +10,7 @@ interface Product {
 @Component({
   selector: 'app-table-configuration',
   standalone: true,
-  imports: [ButtonModule],
+  imports: [ButtonModule, OrderListModule],
   templateUrl: './table-configuration.component.html',
   styleUrl: './table-configuration.component.scss'
 })
