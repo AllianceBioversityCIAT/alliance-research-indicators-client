@@ -28,6 +28,7 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
   private routeId = signal<string | null>(null);
   private subscription = new Subscription();
   navigationHistory = signal<{ url: string; title: string; id: string | null }[]>([]);
+  isNavigatingBack = false;
 
   ngOnInit() {
     // Set initial values
@@ -38,9 +39,14 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
     // Subscribe to route changes
     this.subscription.add(
       this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe(() => {
-        this.currentUrl.set(this.router.url);
-        this.updateRouteInfo();
-        this.addToHistory(this.router.url, this.routeTitle(), this.routeId());
+        // Only add to history if not navigating back
+        if (!this.isNavigatingBack) {
+          this.currentUrl.set(this.router.url);
+          this.updateRouteInfo();
+          this.addToHistory(this.router.url, this.routeTitle(), this.routeId());
+        }
+        this.isNavigatingBack = false;
+
         // Close panel when navigating
         if (this.historyPanel) {
           this.historyPanel.hide();
@@ -77,14 +83,32 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
   }
 
   private addToHistory(url: string, title: string, id: string | null) {
-    const history = this.navigationHistory();
-    // Don't add duplicates consecutively
-    if (history.length === 0 || history[history.length - 1].url !== url) {
-      // Limit history to last 10 entries
-      const newHistory = [...history, { url, title, id }].slice(-10);
-      this.navigationHistory.set(newHistory);
+    // Don't add login or empty URLs to history
+    if (url.includes('login') || !url) {
+      return;
     }
+
+    const history = this.navigationHistory();
+    // Add to history without checking for duplicates
+    const newHistory = [...history, { url, title, id }].slice(-10);
+    this.navigationHistory.set(newHistory);
   }
+
+  // Computed signal for filtered history display
+  filteredHistory = computed(() => {
+    const history = this.navigationHistory();
+    const seen = new Set();
+    return history
+      .filter(item => {
+        const key = `${item.url}-${item.id}`;
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      })
+      .reverse();
+  });
 
   getHistoryItemTitle(item: { title: string; id: string | null }): string {
     return item.id ? `${item.title} (id: ${item.id})` : item.title;
@@ -94,16 +118,34 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
 
   goBack() {
     if (this.canGoBack()) {
-      window.history.back();
+      this.isNavigatingBack = true;
+      // Remove the current page from history
+      const history = this.navigationHistory();
+      this.navigationHistory.set(history.slice(0, -1));
+
+      // Navigate to the previous page
+      const previousPage = history[history.length - 2];
+      if (previousPage && previousPage.url) {
+        this.router.navigate([previousPage.url]);
+      }
     }
   }
 
   navigateToHistoryItem(index: number) {
-    const history = this.navigationHistory();
+    const history = this.filteredHistory();
     if (index >= 0 && index < history.length) {
       this.router.navigate([history[index].url]);
       if (this.historyPanel) {
         this.historyPanel.hide();
+      }
+
+      // Update the main history to remove entries after the selected item
+      const mainHistory = this.navigationHistory();
+      const selectedUrl = history[index].url;
+      const selectedId = history[index].id;
+      const mainIndex = mainHistory.findIndex(item => item.url === selectedUrl && item.id === selectedId);
+      if (mainIndex !== -1) {
+        this.navigationHistory.set(mainHistory.slice(0, mainIndex + 1));
       }
     }
   }
