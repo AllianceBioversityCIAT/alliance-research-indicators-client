@@ -39,7 +39,7 @@
       </div>
       <div class="results-status">
         <span class="card-title">Results by Status</span>
-        @if (results === true) {
+        @if (this.showChart()) {
           <div class="chart-container">
             <div class="chart-wrapper">
               <p-chart type="doughnut" [data]="data" [options]="options"></p-chart>
@@ -68,7 +68,7 @@
       <div class="text-content">
         <span class="card-title">My total numbers of results by indicator type</span>
       </div>
-      @if (results === true) {
+      @if (showIndicatorList()) {
         <div class="indicators">
           @for (indicator of indicatorList(); track $index) {
             <div class="indicator">

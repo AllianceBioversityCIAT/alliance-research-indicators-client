@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -12,6 +12,7 @@ import { jWtInterceptor } from './shared/interceptors/jwt.interceptor';
 import { httpErrorInterceptor } from './shared/interceptors/http-error.interceptor';
 import { ClarityService } from './shared/services/clarity.service';
 import { connectionMonitorInterceptor } from './shared/interceptors/connection-monitor.interceptor';
+import { provideServiceWorker } from '@angular/service-worker';
 
 const config: SocketIoConfig = { url: environment.webSocketServerUrl, options: {} };
 
@@ -31,6 +32,9 @@ export const appConfig: ApplicationConfig = {
       useFactory: initializeClarityService,
       deps: [ClarityService],
       multi: true
-    }
+    }, provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          })
   ]
 };

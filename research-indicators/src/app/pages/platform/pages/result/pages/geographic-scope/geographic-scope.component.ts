@@ -25,6 +25,7 @@ export default class GeographicScopeComponent {
   body: WritableSignal<GetGeoLocation> = signal({});
   cache = inject(CacheService);
   actions = inject(ActionsService);
+  loading = signal(false);
 
   constructor() {
     this.getData();
@@ -72,6 +73,7 @@ export default class GeographicScopeComponent {
   });
 
   async getData() {
+    this.loading.set(true);
     const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
     // console.log(response.data);
     response.data.countries?.forEach((country: Country) => {
@@ -80,16 +82,20 @@ export default class GeographicScopeComponent {
     });
 
     this.body.set(response.data);
+    this.loading.set(false);
   }
 
   async saveData(page?: 'next' | 'back') {
-    this.body.update(body => {
-      body.countries?.forEach((country: Country) => {
-        country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal().regions || [];
-      });
+    this.loading.set(true);
+    if (this.body().geo_scope_id === 5) {
+      this.body.update(body => {
+        body.countries?.forEach((country: Country) => {
+          country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal().regions || [];
+        });
 
-      return { ...body };
-    });
+        return { ...body };
+      });
+    }
 
     // console.log(this.body());
     const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
@@ -99,5 +105,6 @@ export default class GeographicScopeComponent {
     this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    this.loading.set(false);
   }
 }

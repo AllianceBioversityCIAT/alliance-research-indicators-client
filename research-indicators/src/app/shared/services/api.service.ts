@@ -30,9 +30,9 @@ import { LatestResult } from '@pages/platform/pages/home/components/my-latest-re
 import { GetGeoSearch } from '../interfaces/get-geo-search.interface';
 import { GetOsCountries } from '../interfaces/get-os-countries.interface';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
-import { GetInnoDevOutput, GetInnoUseOutput } from '../interfaces/get-innovation-outputs.interface';
 import { environment } from '../../../environments/environment';
 import { PostError } from '../interfaces/post-error.interface';
+import { IndicatorsEnum } from '../enums/indicators-enum';
 
 @Injectable({
   providedIn: 'root'
@@ -61,15 +61,15 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_InnoDevOutput = (): Promise<MainResponse<GetInnoDevOutput[]>> => {
-    const url = () => `results?type=innovation-dev`;
-    return this.TP.get(url(), {});
-  };
+  // GET_InnoDevOutput = (): Promise<MainResponse<GetInnoDevOutput[]>> => {
+  //   const url = () => `results?indicator-codes=2`;
+  //   return this.TP.get(url(), {});
+  // };
 
-  GET_InnoUseOutput = (): Promise<MainResponse<GetInnoUseOutput[]>> => {
-    const url = () => `results?type=innovation-use`;
-    return this.TP.get(url(), {});
-  };
+  // GET_InnoUseOutput = (): Promise<MainResponse<GetInnoUseOutput[]>> => {
+  //   const url = () => `results?indicator-codes=6`;
+  //   return this.TP.get(url(), {});
+  // };
 
   GET_Institutions = (): Promise<MainResponse<GetInstitution[]>> => {
     const url = () => `tools/clarisa/institutions?location=true&type=true&only-hq=true`;
@@ -91,9 +91,9 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Results = (type?: 'innovation-use' | 'innovation-dev' | 'policy-change' | ''): Promise<MainResponse<Result[]>> => {
+  GET_Results = (type?: IndicatorsEnum): Promise<MainResponse<Result[]>> => {
     let typeText = '';
-    if (type) typeText = `?type=${type}`;
+    if (type) typeText = `?indicator-codes=${type}`;
     const url = () => `results${typeText}`;
     return this.TP.get(url(), {});
   };

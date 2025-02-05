@@ -7,6 +7,7 @@ interface SidebarOption {
   path: string;
   indicator_id?: number;
   disabled?: boolean;
+  underConstruction?: boolean;
 }
 @Component({
   selector: 'app-result-sidebar',
@@ -42,7 +43,8 @@ export class ResultSidebarComponent {
     },
     {
       label: 'Geographic scope',
-      path: 'geographic-scope'
+      path: 'geographic-scope',
+      underConstruction: true
     },
     {
       label: 'Evidence',

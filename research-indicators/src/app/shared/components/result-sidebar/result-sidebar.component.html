@@ -22,6 +22,9 @@
       <div class="options" [class.disabled]="option.disabled" [routerLink]="option.disabled ? null : option.path" routerLinkActive="active">
         <span class="material-symbols-rounded">circle</span>
         <div class="option">{{ option.label }}</div>
+        @if (option.underConstruction) {
+          <img src="construction.png" alt="" class="construction-icon-x1" />
+        }
       </div>
     }
   </div>

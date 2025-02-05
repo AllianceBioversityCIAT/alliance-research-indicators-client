@@ -7,7 +7,11 @@
 
     <div class="card-content">
       @for (evidence of body().evidence; track $index) {
-        <app-evidence-item [evidence]="evidence" [bodySignal]="body" [index]="$index" (deleteEvidenceEvent)="deleteEvidence($index)"></app-evidence-item>
+        <app-evidence-item
+          [evidence]="evidence"
+          [bodySignal]="body"
+          [index]="$index"
+          (deleteEvidenceEvent)="deleteEvidence($index)"></app-evidence-item>
       }
       <div class="button-container">
         <div class="flex justify-content-center">
@@ -17,7 +21,7 @@
     </div>
   </div>
   <div class="actions">
-    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" />
-    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" />
+    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" [loading]="this.loading()" />
+    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
   </div>
 </div>

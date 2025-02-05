@@ -26,8 +26,14 @@ export class CacheService {
         return '';
     }
   });
+  isSidebarCollapsed = signal(localStorage.getItem('isSidebarCollapsed') === 'true');
 
   setCurrentSectionHeaderName(name: string) {
     this.currentSectionHeaderName.set(name);
+  }
+
+  toggleSidebar() {
+    this.isSidebarCollapsed.update(isCollapsed => !isCollapsed);
+    localStorage.setItem('isSidebarCollapsed', this.isSidebarCollapsed().toString());
   }
 }
