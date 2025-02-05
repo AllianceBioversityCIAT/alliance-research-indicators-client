@@ -113,7 +113,7 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
   welcomeMessage = computed(() => {
     if (this.isHomePage()) {
       const userName = this.cache.dataCache().user?.first_name || '';
-      return `Welcome back, ${userName}!`;
+      return `Welcome, ${userName}!`;
     }
     return this.routeTitle();
   });
