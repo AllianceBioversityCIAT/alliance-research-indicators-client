@@ -44,7 +44,8 @@ export class DataOverviewComponent implements OnInit {
   data: any;
   options: any;
   chartLegend = signal<ChartLegendItem[]>([]);
-
+  showChart = signal(false);
+  showIndicatorList = signal(false);
   indicatorList: WritableSignal<Indicator[]> = signal([]);
 
   ngOnInit() {
@@ -54,6 +55,9 @@ export class DataOverviewComponent implements OnInit {
 
   async getIndicatorData() {
     const response = await this.api.GET_IndicatorsResultsAmount();
+    // Check if any item has amount_results greater than 0
+    const hasResults = response.data.some((item: any) => item.amount_results > 0);
+    this.showIndicatorList.set(hasResults);
     this.indicatorList.set(response.data);
   }
 
@@ -114,6 +118,9 @@ export class DataOverviewComponent implements OnInit {
 
   async getData() {
     const response = await this.api.GET_ResultsStatus();
+    // Check if any item has amount_results greater than 0
+    const hasResults = response.data.some((item: any) => item.amount_results > 0);
+    this.showChart.set(hasResults);
     this.chartData(response.data);
   }
 }

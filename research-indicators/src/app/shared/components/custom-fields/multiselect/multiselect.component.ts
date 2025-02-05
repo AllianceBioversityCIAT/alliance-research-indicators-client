@@ -61,6 +61,7 @@ export class MultiselectComponent implements OnInit {
       const hasNoLabelList = this.utils
         .getNestedProperty(this.signal(), this.signalOptionValue)
         ?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
+      // console.log(this.utils.getNestedProperty(this.signal(), this.signalOptionValue));
       if (!this.currentResultIsLoading() && this.service?.list().length && this.firstLoad() && hasNoLabelList?.length) {
         this.signal.update((current: any) => {
           this.utils.setNestedPropertyWithReduce(
