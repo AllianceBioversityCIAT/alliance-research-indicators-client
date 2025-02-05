@@ -104,6 +104,7 @@ export class ActionsService {
   }
 
   isTokenExpired(): Promise<TokenValidation> {
+    console.log('%c isTokenExpired: **Validando**', 'background: #008000; color: white; padding: 2px 5px; border-radius: 3px;');
     return new Promise(resolve => {
       // Obtener timestamp UTC actual en milisegundos y convertir a segundos
       const utcNow = new Date().getTime();
@@ -114,11 +115,14 @@ export class ActionsService {
 
       // Comparamos directamente ya que ambos están en UTC
       if (this.isCacheEmpty() || tokenExp < currentTimeInSeconds) {
+        console.log('%c Token vencido', 'background: #ff0000; color: white; padding: 2px 5px; border-radius: 3px;');
         this.api.refreshToken(this.cache.dataCache().refresh_token).then(response => {
           if (response.successfulRequest) {
+            console.log('%c Token actualizado', 'background:rgb(171, 164, 23); color: white; padding: 2px 5px; border-radius: 3px;');
             this.updateLocalStorage(response, true);
             resolve({ token_data: response.data, isTokenExpired: true });
           } else {
+            console.log('%c Token no actualizado', 'background:rgb(255, 77, 0); color: white; padding: 2px 5px; border-radius: 3px;');
             this.cache.isLoggedIn.set(false);
             this.cache.dataCache.set(new DataCache());
             localStorage.removeItem('data');
@@ -127,6 +131,8 @@ export class ActionsService {
           }
         });
       } else {
+        console.log('%c Token válido', 'background:rgb(23, 154, 171); color: white; padding: 2px 5px; border-radius: 3px;');
+
         // El token aún es válido (la comparación fue en UTC)
         resolve({ isTokenExpired: false });
       }
