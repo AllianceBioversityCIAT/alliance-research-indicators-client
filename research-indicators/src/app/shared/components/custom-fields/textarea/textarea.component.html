@@ -9,6 +9,13 @@
   @if (currentResultIsLoading()) {
     <p-skeleton width="100%" height="7rem" styleClass="mb-2" />
   } @else {
-    <textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="this.signal()[this.optionValue]" (ngModelChange)="setValue($event)"> </textarea>
+    <textarea
+      appSaveOnWriting
+      rows="5"
+      pInputTextarea
+      [autoResize]="true"
+      [(ngModel)]="this.signal()[this.optionValue]"
+      (ngModelChange)="setValue($event)">
+    </textarea>
   }
 </div>
