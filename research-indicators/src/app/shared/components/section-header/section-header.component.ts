@@ -89,13 +89,26 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
     }
 
     const history = this.navigationHistory();
-    // Don't add duplicates consecutively
-    if (history.length === 0 || history[history.length - 1].url !== url) {
-      // Limit history to last 10 entries
-      const newHistory = [...history, { url, title, id }].slice(-10);
-      this.navigationHistory.set(newHistory);
-    }
+    // Add to history without checking for duplicates
+    const newHistory = [...history, { url, title, id }].slice(-10);
+    this.navigationHistory.set(newHistory);
   }
+
+  // Computed signal for filtered history display
+  filteredHistory = computed(() => {
+    const history = this.navigationHistory();
+    const seen = new Set();
+    return history
+      .filter(item => {
+        const key = `${item.url}-${item.id}`;
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      })
+      .reverse();
+  });
 
   getHistoryItemTitle(item: { title: string; id: string | null }): string {
     return item.id ? `${item.title} (id: ${item.id})` : item.title;
@@ -119,13 +132,20 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
   }
 
   navigateToHistoryItem(index: number) {
-    const history = this.navigationHistory();
+    const history = this.filteredHistory();
     if (index >= 0 && index < history.length) {
-      // Remove all items after the selected index
-      this.navigationHistory.set(history.slice(0, index + 1));
       this.router.navigate([history[index].url]);
       if (this.historyPanel) {
         this.historyPanel.hide();
+      }
+
+      // Update the main history to remove entries after the selected item
+      const mainHistory = this.navigationHistory();
+      const selectedUrl = history[index].url;
+      const selectedId = history[index].id;
+      const mainIndex = mainHistory.findIndex(item => item.url === selectedUrl && item.id === selectedId);
+      if (mainIndex !== -1) {
+        this.navigationHistory.set(mainHistory.slice(0, mainIndex + 1));
       }
     }
   }
