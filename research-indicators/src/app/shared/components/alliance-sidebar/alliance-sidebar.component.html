@@ -1,4 +1,4 @@
-<div class="sidebar abc-white-1" [class.collapsed]="isCollapsed()" [style.width]="this.getSidebarWidth()">
+<div class="sidebar abc-white-1" [class.collapsed]="cache.isSidebarCollapsed()" [style.width]="this.getSidebarWidth()">
   <div class="sidebar-header">
     <h2 class="h3 sidebar-title atc-primary-blue-600">Resources</h2>
     <i class="material-symbols-rounded sidebar-icon atc-primary-blue-600" (click)="collapse()" (keydown.enter)="collapse()" tabindex="0" role="button"
@@ -14,12 +14,21 @@
       <div
         class="option atc-primary-blue-400"
         [class]="{ disabled: option.underConstruction }"
+        [ngStyle]="{ 'padding-left': !cache.isSidebarCollapsed() ? '10px' : '0' }"
         [routerLink]="option.link"
         [routerLinkActive]="'active'">
-        <i class="material-symbols-rounded">{{ option.icon }}</i>
+        @if (cache.isSidebarCollapsed() && option.underConstruction) {
+          <div class="icon-construction-container">
+            <i class="material-symbols-rounded">{{ option.icon }}</i>
+            <img src="construction.png" class="construction-icon-x1 icon-construction-container-img" alt="" />
+          </div>
+        } @else {
+          <i class="material-symbols-rounded">{{ option.icon }}</i>
+        }
+
         <div class="body-2 text">{{ option.label }}</div>
 
-        @if (option.underConstruction) {
+        @if (option.underConstruction && !cache.isSidebarCollapsed()) {
           <img src="construction.png" class="construction-icon-x1" alt="" />
         }
       </div>

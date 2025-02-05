@@ -55,12 +55,20 @@
       gap: 15px;
       cursor: pointer;
       padding: 10px 0;
-      padding-left: 10px;
       border-radius: 3px;
+
+      &:hover {
+        background-color: var(--ac-grey-100);
+        transition: background-color 0.2s ease-out;
+      }
 
       &.disabled {
         opacity: 0.5;
         cursor: not-allowed;
+
+        &:hover {
+          background-color: transparent;
+        }
       }
 
       &.active {
@@ -93,6 +101,22 @@
     border-top: 1px solid var(--ac-grey-300);
     margin: 10px 0;
   }
+}
+
+.icon-construction-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid orange;
+  padding: 8px;
+  border-radius: 5px;
+  position: relative;
+}
+
+.icon-construction-container-img {
+  position: absolute;
+  top: -12px;
+  right: -12px;
 }
 
 @media (orientation: landscape) and (height <= 768px) {
