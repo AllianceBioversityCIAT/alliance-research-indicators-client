@@ -28,6 +28,7 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
   private routeId = signal<string | null>(null);
   private subscription = new Subscription();
   navigationHistory = signal<{ url: string; title: string; id: string | null }[]>([]);
+  isNavigatingBack = false;
 
   ngOnInit() {
     // Set initial values
@@ -38,9 +39,14 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
     // Subscribe to route changes
     this.subscription.add(
       this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe(() => {
-        this.currentUrl.set(this.router.url);
-        this.updateRouteInfo();
-        this.addToHistory(this.router.url, this.routeTitle(), this.routeId());
+        // Only add to history if not navigating back
+        if (!this.isNavigatingBack) {
+          this.currentUrl.set(this.router.url);
+          this.updateRouteInfo();
+          this.addToHistory(this.router.url, this.routeTitle(), this.routeId());
+        }
+        this.isNavigatingBack = false;
+
         // Close panel when navigating
         if (this.historyPanel) {
           this.historyPanel.hide();
@@ -77,6 +83,11 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
   }
 
   private addToHistory(url: string, title: string, id: string | null) {
+    // Don't add login or empty URLs to history
+    if (url.includes('login') || !url) {
+      return;
+    }
+
     const history = this.navigationHistory();
     // Don't add duplicates consecutively
     if (history.length === 0 || history[history.length - 1].url !== url) {
@@ -94,13 +105,24 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
 
   goBack() {
     if (this.canGoBack()) {
-      window.history.back();
+      this.isNavigatingBack = true;
+      // Remove the current page from history
+      const history = this.navigationHistory();
+      this.navigationHistory.set(history.slice(0, -1));
+
+      // Navigate to the previous page
+      const previousPage = history[history.length - 2];
+      if (previousPage && previousPage.url) {
+        this.router.navigate([previousPage.url]);
+      }
     }
   }
 
   navigateToHistoryItem(index: number) {
     const history = this.navigationHistory();
     if (index >= 0 && index < history.length) {
+      // Remove all items after the selected index
+      this.navigationHistory.set(history.slice(0, index + 1));
       this.router.navigate([history[index].url]);
       if (this.historyPanel) {
         this.historyPanel.hide();
