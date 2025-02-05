@@ -15,7 +15,8 @@
       pInputTextarea
       [autoResize]="false"
       [(ngModel)]="this.signal()[this.optionValue]"
-      (ngModelChange)="setValue($event)">
+      (ngModelChange)="setValue($event)"
+      style="resize: none">
     </textarea>
   }
 </div>
