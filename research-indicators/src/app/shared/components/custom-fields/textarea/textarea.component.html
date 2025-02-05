@@ -11,9 +11,9 @@
   } @else {
     <textarea
       appSaveOnWriting
-      rows="5"
+      rows="8"
       pInputTextarea
-      [autoResize]="true"
+      [autoResize]="false"
       [(ngModel)]="this.signal()[this.optionValue]"
       (ngModelChange)="setValue($event)">
     </textarea>
