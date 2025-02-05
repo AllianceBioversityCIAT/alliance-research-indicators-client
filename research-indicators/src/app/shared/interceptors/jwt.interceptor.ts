@@ -19,42 +19,47 @@ export const jWtInterceptor: HttpInterceptorFn = (req, next) => {
       return next(req);
     }
 
-    const clonedRequest = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${jwtToken}`
-      }
-    });
+    // Proactive token validation
+    return from(actionsService.isTokenExpired()).pipe(
+      switchMap(tokenValidation => {
+        const currentToken = tokenValidation.isTokenExpired ? tokenValidation?.token_data?.access_token : jwtToken;
 
-    return next(clonedRequest).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          // Try to refresh token and retry the original request once
-          return from(actionsService.api.refreshToken(cacheService.dataCache().refresh_token)).pipe(
-            switchMap(response => {
-              if (response.successfulRequest) {
-                // Update token in storage
-                console.log('%c Token actualizado', 'background:rgb(171, 164, 23); color: white; padding: 2px 5px; border-radius: 3px;');
+        const clonedRequest = req.clone({
+          setHeaders: {
+            Authorization: `Bearer ${currentToken}`
+          }
+        });
 
-                actionsService.updateLocalStorage(response, true);
+        // Reactive error handling
+        return next(clonedRequest).pipe(
+          catchError((error: HttpErrorResponse) => {
+            if (error.status === 401) {
+              // Try to refresh token and retry the original request once
+              return from(actionsService.api.refreshToken(cacheService.dataCache().refresh_token)).pipe(
+                switchMap(response => {
+                  if (response.successfulRequest) {
+                    actionsService.updateLocalStorage(response, true);
 
-                // Retry original request with new token
-                const retryRequest = req.clone({
-                  setHeaders: {
-                    Authorization: `Bearer ${response.data.access_token}`
+                    // Retry original request with new token
+                    const retryRequest = req.clone({
+                      setHeaders: {
+                        Authorization: `Bearer ${response.data.access_token}`
+                      }
+                    });
+                    return next(retryRequest);
                   }
-                });
-                return next(retryRequest);
-              }
-              return throwError(() => error);
-            }),
-            catchError(() => {
-              // If refresh fails, logout and redirect
-              actionsService.logOut();
-              return throwError(() => error);
-            })
-          );
-        }
-        return throwError(() => error);
+                  return throwError(() => error);
+                }),
+                catchError(() => {
+                  // If refresh fails, logout and redirect
+                  actionsService.logOut();
+                  return throwError(() => error);
+                })
+              );
+            }
+            return throwError(() => error);
+          })
+        );
       })
     );
   }
