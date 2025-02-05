@@ -1,8 +1,8 @@
 {
   "name": "research-indicators",
   "short_name": "research-indicators",
-  "theme_color": "#1976d2",
-  "background_color": "#fafafa",
+  "theme_color": "#292929",
+  "background_color": "#292929",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
