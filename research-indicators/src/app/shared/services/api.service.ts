@@ -32,7 +32,7 @@ import { GetOsCountries } from '../interfaces/get-os-countries.interface';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 import { environment } from '../../../environments/environment';
 import { PostError } from '../interfaces/post-error.interface';
-import { IndicatorsEnum } from '../enums/indicators-enum';
+import { IndicatorsIds, IndicatorsIdsObject } from '../enums/indicators-enum';
 import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
 
 @Injectable({
@@ -92,9 +92,9 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Results = (type?: IndicatorsEnum): Promise<MainResponse<Result[]>> => {
+  GET_Results = (type?: IndicatorsIds): Promise<MainResponse<Result[]>> => {
     let typeText = '';
-    if (type) typeText = `?indicator-codes=${type}`;
+    if (type) typeText = `?indicator-codes=${IndicatorsIdsObject[type]}`;
     const url = () => `results${typeText}`;
     return this.TP.get(url(), {});
   };

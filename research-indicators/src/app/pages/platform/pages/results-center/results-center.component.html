@@ -3,4 +3,6 @@
   <app-table-filters-sidebar></app-table-filters-sidebar>
   <app-table-configuration></app-table-configuration>
   <p>results works!</p>
+  <h1>length {{ resultsCenterService.list().length }}</h1>
+  <button (click)="resultsCenterService.updateList('POLICY_CHANGE')">update</button>
 </div>

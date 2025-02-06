@@ -13,5 +13,6 @@ export interface AllianceNavOptions {
   path?: string;
   icon?: string;
   underConstruction?: boolean;
+  disabled?: boolean;
   hide?: boolean;
 }
