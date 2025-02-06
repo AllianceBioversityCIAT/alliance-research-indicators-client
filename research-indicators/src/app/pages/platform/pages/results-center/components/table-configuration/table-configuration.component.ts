@@ -3,10 +3,6 @@ import { PatchPartners } from '@shared/interfaces/patch-partners.interface';
 import { ButtonModule } from 'primeng/button';
 import { OrderListModule } from 'primeng/orderlist';
 
-interface Product {
-  name: string;
-}
-
 @Component({
   selector: 'app-table-configuration',
   standalone: true,
@@ -15,9 +11,7 @@ interface Product {
   styleUrl: './table-configuration.component.scss'
 })
 export class TableConfigurationComponent {
-  products!: Product[];
-
-  product = signal<Product[]>([
+  filters = signal([
     { name: 'Code' },
     { name: 'Title' },
     { name: 'Indicator' },
