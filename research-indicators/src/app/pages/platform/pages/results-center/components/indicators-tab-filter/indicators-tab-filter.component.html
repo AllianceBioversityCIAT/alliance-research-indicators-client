@@ -4,7 +4,9 @@
   </div>
   <div class="filters-content" #filtersContainer>
     @for (filter of filters(); track $index) {
-      <div class="filters">{{ filter.filter }}</div>
+      <div class="filters" [class.active]="selectedFilter() === filter.id" (click)="onFilterClick(filter)">
+        {{ filter.filter }}
+      </div>
     }
   </div>
   <div class="scroll-button right" (click)="scrollRight()">

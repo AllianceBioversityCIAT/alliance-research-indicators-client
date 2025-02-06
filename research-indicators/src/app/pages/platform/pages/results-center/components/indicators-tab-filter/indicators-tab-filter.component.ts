@@ -1,36 +1,52 @@
-import { Component, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IndicatorsIds } from '@shared/enums/indicators-enum';
+import { ResultsCenterService } from '../../results-center.service';
+
+interface FilterItem {
+  filter: string;
+  id: IndicatorsIds | null;
+}
 
 @Component({
   selector: 'app-indicators-tab-filter',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './indicators-tab-filter.component.html',
   styleUrl: './indicators-tab-filter.component.scss'
 })
 export class IndicatorsTabFilterComponent {
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;
+  private resultsCenterService = inject(ResultsCenterService);
 
-  filters = signal([
-    { filter: 'All indicators' },
-    { filter: 'Capacity Sharing for Development' },
-    { filter: 'Innovation Development' },
-    { filter: 'Innovation Use' },
-    { filter: 'Knowledge Product' },
-    { filter: 'OICR' },
-    { filter: 'Policy Change' }
+  selectedFilter = signal<IndicatorsIds | null>(null);
+
+  filters = signal<FilterItem[]>([
+    { filter: 'All indicators', id: null },
+    { filter: 'Capacity Sharing for Development', id: 'CAPACITY_SHARING_FOR_DEVELOPMENT' },
+    { filter: 'Innovation Development', id: 'INNOVATION_DEV' },
+    { filter: 'Innovation Use', id: 'INNOVATION_USE' },
+    { filter: 'Knowledge Product', id: 'KNOWLEDGE_PRODUCT' },
+    { filter: 'OICR', id: 'OICR' },
+    { filter: 'Policy Change', id: 'POLICY_CHANGE' }
   ]);
+
+  onFilterClick(filter: FilterItem) {
+    this.selectedFilter.set(filter.id as IndicatorsIds);
+    this.resultsCenterService.updateList(filter.id as IndicatorsIds);
+  }
 
   scrollLeft() {
     if (this.filtersContainer) {
       const container = this.filtersContainer.nativeElement;
-      container.scrollLeft -= 200; // Adjust this value to control scroll distance
+      container.scrollLeft -= 200;
     }
   }
 
   scrollRight() {
     if (this.filtersContainer) {
       const container = this.filtersContainer.nativeElement;
-      container.scrollLeft += 200; // Adjust this value to control scroll distance
+      container.scrollLeft += 200;
     }
   }
 }
