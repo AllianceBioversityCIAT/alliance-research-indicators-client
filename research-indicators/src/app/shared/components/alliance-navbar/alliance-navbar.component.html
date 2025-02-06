@@ -4,21 +4,24 @@
   </div>
   <div class="options">
     @for (option of this.options; track $index) {
-      <a
-        class="option atc-white-1"
-        [routerLink]="option.path"
-        routerLinkActive="active atc-light-blue-200-i"
-        [class.disabled]="option.underConstruction"
-        [attr.aria-disabled]="option.underConstruction ? true : null">
-        {{ option.label }}
-        <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
-          {{ option.icon }}
+      @if (!option.hide) {
+        <a
+          class="option atc-white-1"
+          [routerLink]="option.path"
+          routerLinkActive="active atc-light-blue-200-i"
+          [class.disabled]="option.underConstruction"
+          [attr.aria-disabled]="option.underConstruction ? true : null">
+          {{ option.label }}
+          <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
+            {{ option.icon }}
+          </a>
+          @if (option.underConstruction) {
+            <img src="construction.png" class="construction-icon-x1" alt="" />
+          }
         </a>
-        @if (option.underConstruction) {
-          <img src="construction.png" class="construction-icon-x1" alt="" />
-        }
-      </a>
+      }
     }
+
     <div style="margin-left: 20px"></div>
     <p-button label="Submit result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
     <div class="icons-container">
