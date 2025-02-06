@@ -24,7 +24,10 @@
         </div>
       </div>
 
-      <div class="card under-construction-card" style="position: relative; transform: scale(1)">
+      <div
+        class="card under-construction-card"
+        style="position: relative; transform: scale(1)"
+        (click)="this.createResultManagementService.resultPageStep.set(1)">
         <div class="under-construction-image">
           <img src="/construction.png" alt="construction" class="construction-icon" />
         </div>
