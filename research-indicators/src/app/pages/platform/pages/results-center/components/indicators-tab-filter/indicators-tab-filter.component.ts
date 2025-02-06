@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-indicators-tab-filter',
@@ -8,6 +8,8 @@ import { Component, signal } from '@angular/core';
   styleUrl: './indicators-tab-filter.component.scss'
 })
 export class IndicatorsTabFilterComponent {
+  @ViewChild('filtersContainer') filtersContainer!: ElementRef;
+
   filters = signal([
     { filter: 'All indicators' },
     { filter: 'Capacity Sharing for Development' },
@@ -17,4 +19,18 @@ export class IndicatorsTabFilterComponent {
     { filter: 'OICR' },
     { filter: 'Policy Change' }
   ]);
+
+  scrollLeft() {
+    if (this.filtersContainer) {
+      const container = this.filtersContainer.nativeElement;
+      container.scrollLeft -= 200; // Adjust this value to control scroll distance
+    }
+  }
+
+  scrollRight() {
+    if (this.filtersContainer) {
+      const container = this.filtersContainer.nativeElement;
+      container.scrollLeft += 200; // Adjust this value to control scroll distance
+    }
+  }
 }
