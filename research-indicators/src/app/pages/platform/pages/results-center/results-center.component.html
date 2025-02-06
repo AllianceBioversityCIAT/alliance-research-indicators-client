@@ -1,6 +1,17 @@
-<div class="container">
+<div class="flex flex-column gap-3 p-3">
+  <!-- Indicators Filter Tabs -->
   <app-indicators-tab-filter></app-indicators-tab-filter>
-  <app-results-center-table></app-results-center-table>
+  <!-- Sidebars -->
   <app-table-filters-sidebar></app-table-filters-sidebar>
   <app-table-configuration></app-table-configuration>
+  <!-- Tabs as Filters -->
+  <div class="flex w-full">
+    <p-tabView styleClass="w-full" (activeIndexChange)="onTabChange($event)">
+      <p-tabPanel header="All Results" [selected]="true"></p-tabPanel>
+      <p-tabPanel header="My Results"></p-tabPanel>
+    </p-tabView>
+  </div>
+
+  <!-- Results Table -->
+  <app-results-center-table></app-results-center-table>
 </div>

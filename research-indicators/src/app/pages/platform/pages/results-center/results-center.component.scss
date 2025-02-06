@@ -4,24 +4,41 @@
   padding: 1.5rem;
 
   :host ::ng-deep {
-    .p-tabview .p-tabview-nav {
-      border: none;
-    }
+    .p-tabview {
+      .p-tabview-nav {
+        border: none;
+        padding: 0;
+        background: transparent;
+        width: 100%;
 
-    .p-tabview .p-tabview-nav li .p-tabview-nav-link {
-      background: transparent;
-      border: none;
-      color: #345b8f;
+        li {
+          margin-right: 0.5rem;
 
-      &:not(.p-highlight):hover {
-        background: rgb(52 91 143 / 10%);
-        border-color: transparent;
+          .p-tabview-nav-link {
+            background: transparent;
+            border: none;
+            color: #345b8f;
+            padding: 0.75rem 1.25rem;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s;
+
+            &:not(.p-highlight):hover {
+              background: rgb(52 91 143 / 10%);
+              color: #345b8f;
+            }
+          }
+
+          &.p-highlight .p-tabview-nav-link {
+            background: #345b8f;
+            color: #fff;
+          }
+        }
       }
-    }
 
-    .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
-      background: #345b8f;
-      color: #fff;
+      .p-tabview-panels {
+        display: none; // Ocultar el contenido ya que solo usamos los tabs como filtros
+      }
     }
 
     .p-datatable {

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -18,6 +18,7 @@ import { ResultsCenterService } from '../../results-center.service';
 })
 export class ResultsCenterTableComponent {
   resultsCenterService = inject(ResultsCenterService);
+  searchQuery = signal('');
 
   menuItems: MenuItem[] = [
     { label: 'Edit', icon: 'pi pi-pencil' },
