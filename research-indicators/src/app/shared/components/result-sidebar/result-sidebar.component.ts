@@ -8,6 +8,7 @@ interface SidebarOption {
   indicator_id?: number;
   disabled?: boolean;
   underConstruction?: boolean;
+  hide?: boolean;
 }
 @Component({
   selector: 'app-result-sidebar',
@@ -44,7 +45,8 @@ export class ResultSidebarComponent {
     {
       label: 'Geographic scope',
       path: 'geographic-scope',
-      underConstruction: true
+      underConstruction: true,
+      hide: false
     },
     {
       label: 'Evidence',

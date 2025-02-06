@@ -35,17 +35,17 @@
       "cacheConfig": {
         "strategy": "freshness",
         "maxSize": 50,
-        "maxAge": "1d",
+        "maxAge": "1h",
         "timeout": "5s"
       }
     },
     {
       "name": "static-data",
-      "urls": ["/api/countries/**", "/api/languages/**", "/api/regions/**", "/api/clarisa/**"],
+      "urls": ["/api/countries/**", "/api/languages/**", "/api/regions/**"],
       "cacheConfig": {
         "strategy": "performance",
         "maxSize": 100,
-        "maxAge": "30d"
+        "maxAge": "1d"
       }
     }
   ]

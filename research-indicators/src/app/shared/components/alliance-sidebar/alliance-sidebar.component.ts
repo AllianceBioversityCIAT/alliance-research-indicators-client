@@ -15,10 +15,10 @@ export class AllianceSidebarComponent implements OnInit {
   cache = inject(CacheService);
   options = [
     { icon: 'finance', label: 'About indicators', link: '/about-indicators', disabled: false },
-    { icon: 'info', label: 'About the tool', link: '1', underConstruction: true },
-    { icon: 'table_rows', label: 'Power BI dashboard', link: '23', underConstruction: true },
-    { icon: 'open_in_new', label: 'Other reporting tools', link: '45', underConstruction: true },
-    { icon: 'forum', label: 'Give feedback', underConstruction: true }
+    { icon: 'info', label: 'About the tool', link: '1', underConstruction: true, hide: false },
+    { icon: 'table_rows', label: 'Power BI dashboard', link: '23', underConstruction: true, hide: false },
+    { icon: 'open_in_new', label: 'Other reporting tools', link: '45', underConstruction: true, hide: false },
+    { icon: 'forum', label: 'Give feedback', underConstruction: true, hide: false }
   ];
 
   innerWidth = 0;
