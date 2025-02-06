@@ -1,0 +1,65 @@
+<!-- Results Table -->
+<div class="flex flex-column gap-3">
+  <div class="flex justify-content-between align-items-center">
+    <div class="flex gap-2 align-items-center">
+      <button pButton icon="pi pi-download" label="Export Results" class="p-button-outlined">Export Results</button>
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" [(ngModel)]="searchQuery" placeholder="Find a result by code, title or creator" class="w-25rem" />
+      </span>
+    </div>
+  </div>
+
+  <p-table
+    [value]="resultsCenterService.list()"
+    [paginator]="true"
+    [rows]="5"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '100%' }"
+    [rowsPerPageOptions]="[5, 10, 25, 50]"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"
+    [sortField]="'result_id'"
+    [sortOrder]="-1"
+    styleClass="p-datatable-gridlines">
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="result_official_code">Code <p-sortIcon field="result_official_code"></p-sortIcon></th>
+        <th pSortableColumn="title" class="w-25rem">Title <p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="indicator_id">Indicator <p-sortIcon field="indicator_id"></p-sortIcon></th>
+        <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+        <th pSortableColumn="project">Project <p-sortIcon field="project"></p-sortIcon></th>
+        <th pSortableColumn="lever">Lever <p-sortIcon field="lever"></p-sortIcon></th>
+        <th pSortableColumn="year">Year <p-sortIcon field="year"></p-sortIcon></th>
+        <th pSortableColumn="creator">Creator <p-sortIcon field="creator"></p-sortIcon></th>
+        <th pSortableColumn="creation_date">Creation date <p-sortIcon field="creation_date"></p-sortIcon></th>
+        <th style="width: 3rem">
+          <button pButton pRipple icon="pi pi-ellipsis-v" class="p-button-text p-button-rounded p-button-plain" (click)="menu.toggle($event)">
+            Actions
+          </button>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-result>
+      <tr>
+        <td>{{ result.result_official_code }}</td>
+        <td class="w-25rem">{{ result.title }}</td>
+        <td>{{ getIndicatorName(result.indicator_id) }}</td>
+        <td>
+          <p-tag [value]="result.status" [severity]="getStatusSeverity(result.status)"></p-tag>
+        </td>
+        <td>{{ result.project || '-' }}</td>
+        <td>{{ result.lever || '-' }}</td>
+        <td>{{ result.year || '-' }}</td>
+        <td>{{ result.creator || '-' }}</td>
+        <td>{{ result.creation_date | date: 'dd/MM/yyyy' }}</td>
+        <td>
+          <button pButton pRipple icon="pi pi-ellipsis-v" class="p-button-text p-button-rounded p-button-plain" (click)="menu.toggle($event)">
+            Actions
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-menu #menu [popup]="true" [model]="menuItems"></p-menu>

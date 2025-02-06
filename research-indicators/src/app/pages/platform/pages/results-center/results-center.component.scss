@@ -1,4 +1,50 @@
 .container {
   margin: 30px 40px;
   position: relative;
+  padding: 1.5rem;
+
+  :host ::ng-deep {
+    .p-tabview .p-tabview-nav {
+      border: none;
+    }
+
+    .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+      background: transparent;
+      border: none;
+      color: #345b8f;
+
+      &:not(.p-highlight):hover {
+        background: rgb(52 91 143 / 10%);
+        border-color: transparent;
+      }
+    }
+
+    .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+      background: #345b8f;
+      color: #fff;
+    }
+
+    .p-datatable {
+      .p-datatable-header {
+        background: transparent;
+        border: none;
+      }
+
+      .p-datatable-thead > tr > th {
+        background: #f8f9fa;
+        color: #345b8f;
+        font-weight: 600;
+        padding: 1rem;
+      }
+
+      .p-datatable-tbody > tr > td {
+        padding: 1rem;
+      }
+
+      .p-paginator {
+        background: transparent;
+        border: none;
+      }
+    }
+  }
 }
