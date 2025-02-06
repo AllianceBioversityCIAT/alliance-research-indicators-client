@@ -50,9 +50,9 @@ export class AllianceNavbarComponent implements OnInit {
   searchText = signal('');
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home', underConstruction: false },
-    { label: 'My Dashboard', path: '/settings', underConstruction: true },
+    { label: 'My Dashboard', path: '/settings', underConstruction: true, hide: true },
     { label: 'My Projects', path: '/my-projects', icon: 'keyboard_arrow_down', underConstruction: false },
-    { label: 'Results', path: '/results', underConstruction: true }
+    { label: 'Results', path: '/results', underConstruction: true, hide: true }
   ];
 
   ngOnInit() {

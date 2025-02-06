@@ -8,30 +8,32 @@
   <h4 class="h4 atc-grey-600">LEARNING</h4>
   <div class="options">
     @for (option of this.options; track $index) {
-      @if ($index === this.options.length - 1) {
-        <hr class="divider" />
-      }
-      <div
-        class="option atc-primary-blue-400"
-        [class]="{ disabled: option.underConstruction }"
-        [ngStyle]="{ 'padding-left': !cache.isSidebarCollapsed() ? '10px' : '0' }"
-        [routerLink]="option.link"
-        [routerLinkActive]="'active'">
-        @if (cache.isSidebarCollapsed() && option.underConstruction) {
-          <div class="icon-construction-container">
+      @if (!option.hide) {
+        @if ($index === this.options.length - 1) {
+          <hr class="divider" />
+        }
+        <div
+          class="option atc-primary-blue-400"
+          [class]="{ disabled: option.underConstruction }"
+          [ngStyle]="{ 'padding-left': !cache.isSidebarCollapsed() ? '10px' : '0' }"
+          [routerLink]="option.link"
+          [routerLinkActive]="'active'">
+          @if (cache.isSidebarCollapsed() && option.underConstruction) {
+            <div class="icon-construction-container">
+              <i class="material-symbols-rounded">{{ option.icon }}</i>
+              <img src="construction.png" class="construction-icon-x1 icon-construction-container-img" alt="" />
+            </div>
+          } @else {
             <i class="material-symbols-rounded">{{ option.icon }}</i>
-            <img src="construction.png" class="construction-icon-x1 icon-construction-container-img" alt="" />
-          </div>
-        } @else {
-          <i class="material-symbols-rounded">{{ option.icon }}</i>
-        }
+          }
 
-        <div class="body-2 text">{{ option.label }}</div>
+          <div class="body-2 text">{{ option.label }}</div>
 
-        @if (option.underConstruction && !cache.isSidebarCollapsed()) {
-          <img src="construction.png" class="construction-icon-x1" alt="" />
-        }
-      </div>
+          @if (option.underConstruction && !cache.isSidebarCollapsed()) {
+            <img src="construction.png" class="construction-icon-x1" alt="" />
+          }
+        </div>
+      }
     }
   </div>
 </div>
