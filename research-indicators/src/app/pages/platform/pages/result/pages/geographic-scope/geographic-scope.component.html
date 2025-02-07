@@ -55,12 +55,12 @@
                     <div class="chips-container">
                       <span>Sub-national levels</span>
                       <i class="pi pi-arrow-right"></i>
-                      <!-- @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
+                      @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
                         <div class="p-chip">
                           {{ region.name }}
-                          <i class="pi pi-times remove-chip" (click)="try.removeOption(region)"></i>
+                          <i class="pi pi-times remove-chip" (click)="subnationalmultiselect.removeOption(region)"></i>
                         </div>
-                      } -->
+                      }
                     </div>
                   </div>
                 </div>
@@ -68,7 +68,7 @@
                 <!-- Right column: Multiselect -->
                 <div class="right-column">
                   <app-multiselect
-                    #try
+                    #subnationalmultiselect
                     [signal]="country.result_countries_sub_nationals_signal"
                     [optionLabel]="'name'"
                     [optionValue]="'sub_national_id'"
