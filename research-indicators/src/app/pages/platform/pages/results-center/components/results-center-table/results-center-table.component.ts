@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
@@ -19,6 +19,7 @@ import { ResultsCenterService } from '../../results-center.service';
 export class ResultsCenterTableComponent {
   resultsCenterService = inject(ResultsCenterService);
   searchQuery = signal('');
+  @ViewChild('dt2') dt2!: Table;
 
   menuItems: MenuItem[] = [
     { label: 'Edit', icon: 'pi pi-pencil' },
@@ -29,6 +30,10 @@ export class ResultsCenterTableComponent {
   getIndicatorName(id: number): string {
     // TODO: Implement indicator name mapping
     return `Indicator ${id}`;
+  }
+
+  applyFilterGlobal($event: Event, stringVal: string) {
+    this.dt2.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {

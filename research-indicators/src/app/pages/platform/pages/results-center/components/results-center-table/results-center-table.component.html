@@ -3,10 +3,17 @@
   <div class="flex justify-content-between align-items-center">
     <div class="flex align-items-center justify-content-between w-full p-3">
       <div class="flex gap-3 align-items-center">
-        <button pButton icon="pi pi-download" label="Export Results" class="p-button-outlined"></button>
+        <p-button icon="pi pi-download" label="Export Results" class="p-button-outlined" [outlined]="true"></p-button>
+
         <span class="p-input-icon-left">
           <i class="pi pi-search"></i>
-          <input pInputText type="text" [(ngModel)]="searchQuery" placeholder="Find a result by code, title or creator" class="w-25rem" />
+          <input
+            pInputText
+            type="text"
+            (input)="applyFilterGlobal($event, 'contains')"
+            [(ngModel)]="searchQuery"
+            placeholder="Find a result by code, title or creator"
+            class="w-25rem" />
         </span>
       </div>
 
@@ -18,6 +25,7 @@
   </div>
 
   <p-table
+    #dt2
     [value]="resultsCenterService.list()"
     [paginator]="true"
     [rows]="5"
@@ -27,6 +35,7 @@
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"
     [sortField]="'result_id'"
     [sortOrder]="-1"
+    [globalFilterFields]="['result_official_code', 'title', 'indicator_id', 'status', 'project', 'lever', 'year', 'creator', 'creation_date']"
     styleClass="p-datatable-gridlines">
     <ng-template pTemplate="header">
       <tr>
