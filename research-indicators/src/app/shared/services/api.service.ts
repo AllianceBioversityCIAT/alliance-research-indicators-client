@@ -92,10 +92,20 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Results = (type?: IndicatorsIds): Promise<MainResponse<Result[]>> => {
-    let typeText = '';
-    if (type) typeText = `?indicator-codes=${IndicatorsIdsObject[type]}`;
-    const url = () => `results${typeText}`;
+  GET_Results = ({ type, userCodes }: { type?: IndicatorsIds; userCodes?: string[] }): Promise<MainResponse<Result[]>> => {
+    const queryParams: string[] = [];
+
+    if (type) {
+      queryParams.push(`indicator-codes=${IndicatorsIdsObject[type]}`);
+    }
+
+    if (userCodes?.length) {
+      queryParams.push(`create-user-codes=${userCodes.join(',')}`);
+    }
+
+    const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
+
+    const url = () => `results${queryString}`;
     return this.TP.get(url(), {});
   };
 

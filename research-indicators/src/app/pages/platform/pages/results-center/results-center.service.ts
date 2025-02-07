@@ -11,14 +11,16 @@ export class ResultsCenterService {
   hasFilters = signal(false);
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
+  selectedFilter = signal<IndicatorsIds | null>(null);
 
   private getResultsService = inject(GetResultsService);
 
   constructor() {
-    this.updateList();
+    this.updateList({});
   }
 
-  updateList = async (type?: IndicatorsIds) => this.list.set((await this.getResultsService.getInstance(type))());
+  updateList = async ({ type, userCodes }: { type?: IndicatorsIds; userCodes?: string[] }) =>
+    this.list.set((await this.getResultsService.getInstance(type, userCodes))());
 
   getIndicatorName(id: number): string {
     // TODO: Implement indicator name mapping

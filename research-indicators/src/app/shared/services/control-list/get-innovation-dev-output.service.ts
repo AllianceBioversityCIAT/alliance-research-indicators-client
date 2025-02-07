@@ -21,7 +21,9 @@ export class GetInnoDevOutputService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_Results('INNOVATION_DEV');
+    const response = await this.api.GET_Results({
+      type: 'INNOVATION_DEV'
+    });
     if (response?.data) {
       this.list.set(response.data as GetInnoDevOutput[]);
     } else {

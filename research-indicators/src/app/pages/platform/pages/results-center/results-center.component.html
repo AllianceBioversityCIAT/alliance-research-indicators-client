@@ -1,11 +1,11 @@
 <div class="flex flex-column gap-3 p-3">
   <!-- Indicators Filter Tabs -->
-  <app-indicators-tab-filter></app-indicators-tab-filter>
+  <app-indicators-tab-filter [activeItem]="activeItem()?.id || 'all'" [userCodes]="userCodes()"></app-indicators-tab-filter>
 
   <!-- Results Section -->
   <div class="flex flex-column bg-white">
     <!-- Tab Menu -->
-    <p-tabMenu [model]="items" [activeItem]="activeItem()"></p-tabMenu>
+    <p-tabMenu [model]="items" [activeItem]="activeItem()" (activeItemChange)="onActiveItemChange($event)"></p-tabMenu>
     <!-- Results Table -->
     <app-results-center-table></app-results-center-table>
   </div>

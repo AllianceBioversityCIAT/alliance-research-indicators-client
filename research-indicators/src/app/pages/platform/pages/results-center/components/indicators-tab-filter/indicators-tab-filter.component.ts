@@ -1,7 +1,8 @@
-import { Component, signal, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IndicatorsIds } from '@shared/enums/indicators-enum';
 import { ResultsCenterService } from '../../results-center.service';
+import { MenuItem } from 'primeng/api';
 
 interface FilterItem {
   filter: string;
@@ -16,10 +17,11 @@ interface FilterItem {
   styleUrl: './indicators-tab-filter.component.scss'
 })
 export class IndicatorsTabFilterComponent {
-  @ViewChild('filtersContainer') filtersContainer!: ElementRef;
-  private resultsCenterService = inject(ResultsCenterService);
+  @Input() activeItem = 'all';
+  @Input() userCodes?: string[];
 
-  selectedFilter = signal<IndicatorsIds | null>(null);
+  @ViewChild('filtersContainer') filtersContainer!: ElementRef;
+  resultsCenterService = inject(ResultsCenterService);
 
   filters = signal<FilterItem[]>([
     { filter: 'All indicators', id: null },
@@ -32,8 +34,11 @@ export class IndicatorsTabFilterComponent {
   ]);
 
   onFilterClick(filter: FilterItem) {
-    this.selectedFilter.set(filter.id as IndicatorsIds);
-    this.resultsCenterService.updateList(filter.id as IndicatorsIds);
+    this.resultsCenterService.selectedFilter.set(filter.id as IndicatorsIds);
+    this.resultsCenterService.updateList({
+      type: filter.id as IndicatorsIds,
+      userCodes: this.activeItem === 'my' ? this.userCodes : undefined
+    });
   }
 
   scrollLeft() {

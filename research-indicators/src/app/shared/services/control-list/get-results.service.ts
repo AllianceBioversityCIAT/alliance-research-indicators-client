@@ -12,10 +12,13 @@ export class GetResultsService {
   constructor() {
     this.updateList();
   }
-  updateList = async () => this.results.set((await this.api.GET_Results()).data);
-  getInstance = async (type?: IndicatorsIds): Promise<WritableSignal<Result[]>> => {
+  updateList = async () => this.results.set((await this.api.GET_Results({})).data);
+  getInstance = async (type?: IndicatorsIds, userCodes?: string[]): Promise<WritableSignal<Result[]>> => {
     const newSignal = signal<Result[]>([]);
-    const response = await this.api.GET_Results(type);
+    const response = await this.api.GET_Results({
+      type,
+      userCodes
+    });
     newSignal.set(response.data);
     return newSignal;
   };

@@ -20,7 +20,9 @@ export class GetInnoUseOutputService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_Results('INNOVATION_USE');
+    const response = await this.api.GET_Results({
+      type: 'INNOVATION_USE'
+    });
 
     if (response?.data) {
       this.list.set(response.data as GetInnoUseOutput[]);
