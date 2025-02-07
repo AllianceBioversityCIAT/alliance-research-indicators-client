@@ -13,15 +13,11 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
   styleUrl: './table-filters-sidebar.component.scss'
 })
 export class TableFiltersSidebarComponent {
-  @Input() hideSidebar = true;
+  @Input() showSignal = signal(false);
 
   body = signal<PatchPartners>(new PatchPartners());
 
   toggleSidebar() {
-    this.hideSidebar = !this.hideSidebar;
-  }
-
-  hideSidebarMethod() {
-    this.hideSidebar = true;
+    this.showSignal.update(prev => !prev);
   }
 }

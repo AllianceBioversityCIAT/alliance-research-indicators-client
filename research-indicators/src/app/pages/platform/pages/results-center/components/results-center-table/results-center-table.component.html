@@ -11,8 +11,8 @@
       </div>
 
       <div class="flex gap-3 align-items-center">
-        <p-button label="Apply Filter" icon="pi pi-filter" size="small"></p-button>
-        <p-button icon="pi pi-cog" size="small" [outlined]="true"></p-button>
+        <p-button label="Apply Filter" icon="pi pi-filter" size="small" (click)="showFiltersSidebar()"></p-button>
+        <p-button icon="pi pi-cog" size="small" [outlined]="true" (click)="showConfiguratiosnSidebar()"></p-button>
       </div>
     </div>
   </div>

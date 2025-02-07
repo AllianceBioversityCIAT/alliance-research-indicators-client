@@ -26,6 +26,14 @@ export class ResultsCenterTableComponent {
     { label: 'Export', icon: 'pi pi-download' }
   ];
 
+  showFiltersSidebar() {
+    this.resultsCenterService.showFiltersSidebar.set(true);
+  }
+
+  showConfiguratiosnSidebar() {
+    this.resultsCenterService.showConfigurationsSidebar.set(true);
+  }
+
   getIndicatorName(id: number): string {
     // TODO: Implement indicator name mapping
     return `Indicator ${id}`;

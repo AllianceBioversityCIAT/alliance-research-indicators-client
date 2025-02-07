@@ -10,7 +10,7 @@ export class ResultsCenterService {
   list = signal<Result[]>([]);
   hasFilters = signal(false);
   showFiltersSidebar = signal(false);
-  showConfigurationSidebar = signal(false);
+  showConfigurationsSidebar = signal(false);
 
   private getResultsService = inject(GetResultsService);
 
@@ -44,6 +44,6 @@ export class ResultsCenterService {
   }
 
   showConfigSidebar(): void {
-    this.showConfigurationSidebar.set(true);
+    this.showConfigurationsSidebar.set(true);
   }
 }
