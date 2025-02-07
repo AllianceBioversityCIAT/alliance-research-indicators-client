@@ -26,24 +26,23 @@
       (ngModelChange)="this.setValue($event)"
       [virtualScroll]="true"
       [virtualScrollItemSize]="41">
-      @if (!this.hideSelected) {
-        @if (this.service?.isOpenSearch()) {
-          <ng-template pTemplate="header">
-            <div class="p-dropdown-header" style="width: 100%">
-              <div class="p-input-icon-left p-fluid" style="width: calc(100% - 30px)">
-                <i class="pi pi-search"></i>
-                <input
-                  #filter
-                  type="text"
-                  class="p-inputtext p-component"
-                  (input)="onFilter({ filter: filter.value })"
-                  (click)="$event.stopPropagation()"
-                  placeholder="Search..." />
-              </div>
+      @if (this.service?.isOpenSearch()) {
+        <ng-template pTemplate="header">
+          <div class="p-dropdown-header">
+            <div class="p-input-icon-left p-fluid">
+              <i class="pi pi-search"></i>
+              <input
+                #filter
+                type="text"
+                class="p-inputtext p-component"
+                (input)="onFilter({ filter: filter.value })"
+                (click)="$event.stopPropagation()"
+                placeholder="Search..." />
             </div>
-          </ng-template>
-        }
-
+          </div>
+        </ng-template>
+      }
+      @if (!this.hideSelected) {
         <ng-template let-value pTemplate="selectedItems"> {{ selectedOptions()?.length }} items selected </ng-template>
         <ng-template let-item pTemplate="item"><span [innerHTML]="item[this.optionLabel]"></span></ng-template>
       }

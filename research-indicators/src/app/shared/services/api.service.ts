@@ -287,7 +287,7 @@ export class ApiService {
   };
 
   GET_OpenSearchSubNationals = (search: string): Promise<MainResponse<GetOsSubNationals[]>> => {
-    const url = () => `tools/clarisa/manager/opensearch/subnational/search?query=${search}`;
+    const url = () => `tools/clarisa/manager/opensearch/subnational/search?query=${search}&country=CO`;
     return this.TP.get(url(), {});
   };
 
