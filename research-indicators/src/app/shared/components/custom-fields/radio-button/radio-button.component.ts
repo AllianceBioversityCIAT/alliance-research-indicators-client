@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, effect, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, effect, inject, Input, OnInit, output, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CacheService } from '../../../services/cache/cache.service';
@@ -28,6 +28,7 @@ export class RadioButtonComponent implements OnInit {
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
   @Input() description = '';
+  selectEvent = output<any>();
   service: any;
   body = signal({ value: null });
   firstTime = signal(true);
@@ -59,5 +60,6 @@ export class RadioButtonComponent implements OnInit {
   setValue(value: any) {
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue.body, value);
+    this.selectEvent.emit(value);
   }
 }
