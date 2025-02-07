@@ -1,14 +1,19 @@
 <!-- Results Table -->
-<div class="flex flex-column gap-3">
+<div class="flex flex-column">
   <div class="flex justify-content-between align-items-center">
-    <div class="flex gap-2 align-items-center">
-      <button pButton icon="pi pi-download" label="Export Results" class="p-button-outlined">Export Results</button>
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <input pInputText type="text" [(ngModel)]="searchQuery" placeholder="Find a result by code, title or creator" class="w-25rem" />
-      </span>
-      <p-button label="Apply Filter" icon="pi pi-filter" size="small"></p-button>
-      <p-button icon="pi pi-cog" size="small" [outlined]="true"></p-button>
+    <div class="flex align-items-center justify-content-between w-full p-3">
+      <div class="flex gap-3 align-items-center">
+        <button pButton icon="pi pi-download" label="Export Results" class="p-button-outlined"></button>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" [(ngModel)]="searchQuery" placeholder="Find a result by code, title or creator" class="w-25rem" />
+        </span>
+      </div>
+
+      <div class="flex gap-3 align-items-center">
+        <p-button label="Apply Filter" icon="pi pi-filter" size="small"></p-button>
+        <p-button icon="pi pi-cog" size="small" [outlined]="true"></p-button>
+      </div>
     </div>
   </div>
 
