@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
-import { TabViewModule } from 'primeng/tabview';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { MenuItem } from 'primeng/api';
 import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
 import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
@@ -9,16 +10,24 @@ import { ResultsCenterService } from './results-center.service';
 @Component({
   selector: 'app-results-center',
   standalone: true,
-  imports: [TabViewModule, IndicatorsTabFilterComponent, ResultsCenterTableComponent, TableFiltersSidebarComponent, TableConfigurationComponent],
+  imports: [TabMenuModule, IndicatorsTabFilterComponent, ResultsCenterTableComponent, TableFiltersSidebarComponent, TableConfigurationComponent],
   templateUrl: './results-center.component.html',
   styleUrls: ['./results-center.component.scss']
 })
 export default class ResultsCenterComponent {
   private resultsCenterService = inject(ResultsCenterService);
-  activeTab = signal(0);
 
-  onTabChange(index: number): void {
-    this.activeTab.set(index);
-    // TODO: Implementar filtro por My Results cuando index === 1
+  activeItem = signal<MenuItem | undefined>(undefined);
+  items: MenuItem[] = [
+    { label: 'All Results', command: () => this.onTabChange('all') },
+    { label: 'My Results', command: () => this.onTabChange('my') }
+  ];
+
+  constructor() {
+    this.activeItem.set(this.items[0]);
+  }
+
+  onTabChange(type: 'all' | 'my'): void {
+    // TODO: Implementar filtro por My Results
   }
 }
