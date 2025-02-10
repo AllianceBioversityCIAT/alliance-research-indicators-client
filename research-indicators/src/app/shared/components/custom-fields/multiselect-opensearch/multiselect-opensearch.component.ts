@@ -38,6 +38,7 @@ export class MultiselectOpensearchComponent implements OnInit {
   actions = inject(ActionsService);
   serviceLocator = inject(ServiceLocatorService);
   listInstance = signal<any[]>([]);
+  loadingList = signal(false);
   @ContentChild('rows') rows!: TemplateRef<any>;
 
   @Input() signal: WritableSignal<any> = signal({});
@@ -76,8 +77,10 @@ export class MultiselectOpensearchComponent implements OnInit {
 
   async onFilter(event: any) {
     if (!event?.filter) return;
+    this.loadingList.set(true);
     const signal = await this.service.getInstance(event.filter, this.openSearchFilters);
     this.listInstance.set(signal());
+    this.loadingList.set(false);
   }
 
   objectArrayToIdArray(array: any[], attribute: string) {

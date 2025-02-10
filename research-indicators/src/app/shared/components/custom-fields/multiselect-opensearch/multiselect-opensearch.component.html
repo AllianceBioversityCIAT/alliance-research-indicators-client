@@ -13,7 +13,7 @@
   } @else {
     <p-multiSelect
       [style]="{ width: '100%' }"
-      [loading]="this.service?.loading()"
+      [loading]="this.loadingList()"
       [options]="this.listInstance()"
       [filter]="!this.service?.isOpenSearch()"
       [filterBy]="this.optionLabel"
@@ -24,7 +24,8 @@
       [(ngModel)]="this.body().value"
       (onChange)="this.setValue($event)"
       [virtualScroll]="true"
-      [virtualScrollItemSize]="41">
+      [virtualScrollItemSize]="41"
+      [emptyMessage]="'No results found. Try different keywords.'">
       <ng-template pTemplate="header">
         <div class="p-dropdown-header">
           <div class="p-input-icon-left p-fluid">
@@ -38,8 +39,13 @@
               placeholder="Search..." />
           </div>
         </div>
+
+        @if (this.loadingList()) {
+          <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem; margin-left: 10px; color: #007bff"></i>
+        }
       </ng-template>
       <ng-template let-value pTemplate="selectedItems"> {{ this.body().value?.length }} items selected </ng-template>
+
       @if (!this.hideSelected) {
         <ng-template let-item pTemplate="item"><span [innerHTML]="item[this.optionLabel]"></span></ng-template>
       }
