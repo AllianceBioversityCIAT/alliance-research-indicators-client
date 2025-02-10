@@ -9,6 +9,7 @@
   padding: 40px 30px;
   background-color: #f4f7f9;
   border-left: 0.8px solid #e8ebed;
+  transition: right 0.3s ease-in-out;
 
   .content {
     flex-grow: 1;
@@ -19,9 +20,7 @@
       margin-bottom: 30px;
 
       .title {
-        font-family:
-          Space Grotesk,
-          sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
         font-size: 19px;
         font-weight: 500;
         line-height: 20px;
