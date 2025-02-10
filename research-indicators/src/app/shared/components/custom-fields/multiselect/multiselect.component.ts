@@ -37,7 +37,6 @@ export class MultiselectComponent implements OnInit {
   utils = inject(UtilsService);
   actions = inject(ActionsService);
   serviceLocator = inject(ServiceLocatorService);
-  listInstance = signal<any[]>([]);
   @ContentChild('rows') rows!: TemplateRef<any>;
 
   @Input() signal: WritableSignal<any> = signal({});
@@ -107,18 +106,11 @@ export class MultiselectComponent implements OnInit {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
-  async onFilter(event: any) {
-    if (this.service?.isOpenSearch())
-      if (this.service?.useInstance()) {
-        const signal = await this.service.getInstance(event.filter);
-        this.listInstance.set(signal());
-      } else {
-        this.service.update(event.filter);
-      }
+  onFilter(event: any) {
+    if (this.service?.isOpenSearch()) this.service.update(event.filter);
   }
 
   setValue(event: number[]) {
-    console.log('set value');
     this.body.set({ value: event });
 
     this.signal.update((current: any) => {

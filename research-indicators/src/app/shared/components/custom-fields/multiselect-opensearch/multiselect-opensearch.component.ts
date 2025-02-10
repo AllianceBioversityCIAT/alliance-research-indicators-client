@@ -23,7 +23,6 @@ import { ControlListServices } from '../../../interfaces/services.interface';
 import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
 import { UtilsService } from '../../../services/utils.service';
-import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-multiselect-opensearch',
