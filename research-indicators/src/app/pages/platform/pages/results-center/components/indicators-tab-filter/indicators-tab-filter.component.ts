@@ -41,12 +41,19 @@ export class IndicatorsTabFilterComponent implements OnInit {
   }
 
   onFilterClick(indicatorId: number) {
-    console.log(indicatorId);
-    // this.resultsCenterService.selectedFilter.set(indicatorId);
-    // this.resultsCenterService.updateList({
-    //   type: indicatorId,
-    //   userCodes: this.activeItem === 'my' ? this.userCodes : undefined
-    // });
+    this.indicators.update(prev => {
+      if (indicatorId === 0) {
+        return prev.map(item => ({
+          ...item,
+          active: item.indicator_id === 0
+        }));
+      }
+
+      return prev.map(item => ({
+        ...item,
+        active: item.indicator_id === 0 ? false : item.indicator_id === indicatorId ? !item.active : item.active
+      }));
+    });
   }
 
   scrollLeft() {

@@ -8,6 +8,7 @@ export interface GetAllIndicators {
   indicator_type_id?: number;
   icon_src?: string;
   indicatorType?: IndicatorType;
+  active?: boolean;
 }
 
 interface IndicatorType {
