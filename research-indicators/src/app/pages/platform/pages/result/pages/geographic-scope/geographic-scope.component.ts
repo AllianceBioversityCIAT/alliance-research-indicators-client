@@ -95,7 +95,15 @@ export default class GeographicScopeComponent {
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
-    // console.log(response.data);
+    console.log(response.data.countries);
+    response.data.countries?.forEach((country, index) => {
+      // country.name = 'test ' + index;
+      country.result_countries_sub_nationals.forEach((subNational, index) => {
+        // subNational.name = 'test ' + index;
+        console.log(subNational);
+      });
+      console.log(country);
+    });
 
     this.body.set(response.data);
     this.mapSignal();
