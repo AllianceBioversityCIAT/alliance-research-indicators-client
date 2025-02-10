@@ -11,7 +11,8 @@ import {
   signal,
   TemplateRef,
   WritableSignal,
-  OnInit
+  OnInit,
+  output
 } from '@angular/core';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
@@ -46,6 +47,7 @@ export class MultiselectComponent implements OnInit {
   @Input() label = '';
   @Input() description = '';
   @Input() hideSelected = false;
+  selectEvent = output<any>();
 
   service: any;
 
@@ -130,6 +132,7 @@ export class MultiselectComponent implements OnInit {
         .filter((item: any) => event?.includes(item[this.optionValue]));
       this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, filteredOptions);
 
+      this.selectEvent.emit(current);
       return { ...current };
     });
   }

@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { GetProjectDetail } from '../../interfaces/get-project-detail.interface';
 import { DatePipe } from '@angular/common';
+import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
+import { GetProjectDetail } from '@shared/interfaces/get-project-detail.interface';
 
 @Component({
   selector: 'app-project-item',
@@ -12,5 +13,5 @@ import { DatePipe } from '@angular/common';
 })
 export class ProjectItemComponent {
   @Input() isHeader = false;
-  @Input() project: GetProjectDetail = {};
+  @Input() project: GetContractsByUser | GetProjectDetail = {};
 }

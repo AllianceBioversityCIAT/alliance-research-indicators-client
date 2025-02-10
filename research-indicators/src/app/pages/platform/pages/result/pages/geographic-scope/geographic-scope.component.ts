@@ -31,6 +31,8 @@ export default class GeographicScopeComponent {
     this.getData();
   }
 
+  onSelect = () => this.mapSignal();
+
   getMultiselectLabel = computed(() => {
     let countryLabel = '';
     let regionLabel = '';
@@ -72,32 +74,37 @@ export default class GeographicScopeComponent {
     return { country: { label: countryLabel, description: countryDescription }, region: { label: regionLabel, description: regionDescription } };
   });
 
+  mapSignal = () => {
+    this.body.update(currentBody => {
+      currentBody.countries?.forEach((country: Country) => {
+        country.result_countries_sub_nationals_signal = signal({ regions: country.result_countries_sub_nationals || [] });
+      });
+      return currentBody;
+    });
+  };
+
+  mapArray = () => {
+    this.body.update(currentBody => {
+      currentBody.countries?.forEach((country: Country) => {
+        country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal().regions || [];
+      });
+      return currentBody;
+    });
+  };
+
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
     // console.log(response.data);
-    response.data.countries?.forEach((country: Country) => {
-      // console.log(country.result_countries_sub_nationals);
-      country.result_countries_sub_nationals_signal = signal({ regions: country.result_countries_sub_nationals });
-    });
 
     this.body.set(response.data);
+    this.mapSignal();
     this.loading.set(false);
   }
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    if (this.body().geo_scope_id === 5) {
-      this.body.update(body => {
-        body.countries?.forEach((country: Country) => {
-          country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal().regions || [];
-        });
-
-        return { ...body };
-      });
-    }
-
-    // console.log(this.body());
+    this.mapArray();
     const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
 
     if (!response.successfulRequest) return;

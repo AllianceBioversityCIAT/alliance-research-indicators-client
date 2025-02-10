@@ -33,6 +33,9 @@ import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 import { environment } from '../../../environments/environment';
 import { PostError } from '../interfaces/post-error.interface';
 import { IndicatorsEnum } from '../enums/indicators-enum';
+import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
+import { GetOsSubNationals } from '../interfaces/get-os-subnational.interface';
+import { GetAnnouncementSettingAvailable } from '../interfaces/get-announcement-setting-available.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -224,7 +227,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_ContractsByUser = (): Promise<MainResponse<GetProjectDetail[]>> => {
+  GET_ContractsByUser = (): Promise<MainResponse<GetContractsByUser[]>> => {
     const url = () => 'agresso/contracts/results/current-user';
     return this.TP.get(url(), {});
   };
@@ -284,8 +287,18 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_OpenSearchSubNationals = (search: string): Promise<MainResponse<GetOsSubNationals[]>> => {
+    const url = () => `tools/clarisa/manager/opensearch/subnational/search?query=${search}&country=CO`;
+    return this.TP.get(url(), {});
+  };
+
   GET_OpenSearchResult = (search: string, sampleSize: number): Promise<MainResponse<GetOsResult[]>> => {
     const url = () => `opensearch/result/search?query=${search}&sample-size=${sampleSize}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_AnnouncementSettingAvailable = (): Promise<MainResponse<GetAnnouncementSettingAvailable[]>> => {
+    const url = () => `announcement-setting/available`;
     return this.TP.get(url(), {});
   };
 

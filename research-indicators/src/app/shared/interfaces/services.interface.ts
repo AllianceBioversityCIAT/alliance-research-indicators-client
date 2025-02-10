@@ -23,4 +23,5 @@ export type ControlListServices =
   | 'openSearchResult'
   | 'innoDevOutput'
   | 'innoUseOutput'
+  | 'openSearchSubNationals'
   | '';

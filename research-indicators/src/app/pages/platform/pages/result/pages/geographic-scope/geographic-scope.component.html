@@ -19,6 +19,7 @@
         [signal]="body"
         [optionLabel]="'label'"
         serviceName="geoFocus"
+        (selectEvent)="onSelect()"
         [optionValue]="{ body: 'geo_scope_id', option: 'value' }"></app-radio-button>
 
       @if (getMultiselectLabel().region.label) {
@@ -33,6 +34,7 @@
       }
       @if (getMultiselectLabel().country.label) {
         <app-multiselect
+          (selectEvent)="onSelect()"
           [signal]="body"
           [optionLabel]="'name'"
           [optionValue]="'isoAlpha2'"
@@ -43,7 +45,6 @@
           @if (body().geo_scope_id === 5 || body().geo_scope_id === '5') {
             <ng-template #rows let-country>
               <div class="country-row">
-                <!-- Left column: Country info and sub-national -->
                 <div class="left-column">
                   <div class="country-info">
                     <img [src]="environment.flagsUrl + country.isoAlpha2 + '.svg'" [alt]="country.name" class="country-flag" />
@@ -57,7 +58,7 @@
                       @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
                         <div class="p-chip">
                           {{ region.name }}
-                          <i class="pi pi-times remove-chip" (click)="try.removeOption(region)"></i>
+                          <i class="pi pi-times remove-chip" (click)="subnationalmultiselect.removeOption(region)"></i>
                         </div>
                       }
                     </div>
@@ -67,12 +68,12 @@
                 <!-- Right column: Multiselect -->
                 <div class="right-column">
                   <app-multiselect
-                    #try
+                    #subnationalmultiselect
                     [signal]="country.result_countries_sub_nationals_signal"
                     [optionLabel]="'name'"
                     [optionValue]="'sub_national_id'"
                     [signalOptionValue]="'regions'"
-                    serviceName="regions"
+                    serviceName="openSearchSubNationals"
                     [hideSelected]="true">
                   </app-multiselect>
                 </div>
