@@ -9,7 +9,6 @@ export class GetOsSubnationalService {
   list = signal<GetOsSubNationals[]>([]);
   loading = signal(false);
   isOpenSearch = signal(true);
-  useInstance = signal(true);
 
   async update(search: string) {
     this.loading.set(true);

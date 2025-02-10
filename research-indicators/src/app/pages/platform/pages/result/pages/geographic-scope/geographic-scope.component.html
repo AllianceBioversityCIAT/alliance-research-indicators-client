@@ -66,16 +66,25 @@
                 </div>
 
                 <!-- Right column: Multiselect -->
-                <div class="right-column">
-                  <app-multiselect
+                <div class="right-column" style="width: 300px">
+                  <app-multiselect-opensearch
                     #subnationalmultiselect
                     [signal]="country.result_countries_sub_nationals_signal"
                     [optionLabel]="'name'"
                     [optionValue]="'sub_national_id'"
                     [signalOptionValue]="'regions'"
                     serviceName="openSearchSubNationals"
-                    [hideSelected]="true">
-                  </app-multiselect>
+                    [hideSelected]="true"></app-multiselect-opensearch>
+                  <!-- <app-multiselect
+                    #subnationalmultiselect
+                    [signal]="country.result_countries_sub_nationals_signal"
+                    [optionLabel]="'name'"
+                    [optionValue]="'sub_national_id'"
+                    [signalOptionValue]="'regions'"
+                    serviceName="openSearchSubNationals"
+                    [hideSelected]="true"
+                    [mapLabel]="false">
+                  </app-multiselect> -->
                 </div>
               </div>
             </ng-template>

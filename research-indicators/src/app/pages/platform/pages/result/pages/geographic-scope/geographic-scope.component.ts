@@ -9,11 +9,12 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 import { Router } from '@angular/router';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { environment } from '../../../../../../../environments/environment';
+import { MultiselectOpensearchComponent } from '../../../../../../shared/components/custom-fields/multiselect-opensearch/multiselect-opensearch.component';
 
 @Component({
   selector: 'app-geographic-scope',
   standalone: true,
-  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, SelectComponent],
+  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, SelectComponent, MultiselectOpensearchComponent],
   templateUrl: './geographic-scope.component.html',
   styleUrl: './geographic-scope.component.scss'
 })
@@ -99,8 +100,8 @@ export default class GeographicScopeComponent {
     response.data.countries?.forEach((country, index) => {
       // country.name = 'test ' + index;
       country.result_countries_sub_nationals.forEach((subNational, index) => {
-        // subNational.name = 'test ' + index;
-        console.log(subNational);
+        subNational.name = subNational.sub_national?.name || '';
+        // console.log(subNational);
       });
       console.log(country);
     });
