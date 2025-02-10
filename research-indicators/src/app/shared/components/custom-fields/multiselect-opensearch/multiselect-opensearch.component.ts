@@ -76,7 +76,7 @@ export class MultiselectOpensearchComponent implements OnInit {
   }
 
   async onFilter(event: any) {
-    if (!event?.filter) return;
+    if (!event?.filter) return this.listInstance.set([]);
     this.loadingList.set(true);
     const signal = await this.service.getInstance(event.filter, this.openSearchFilters);
     this.listInstance.set(signal());
