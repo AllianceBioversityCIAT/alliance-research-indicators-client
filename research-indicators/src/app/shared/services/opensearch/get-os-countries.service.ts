@@ -10,6 +10,7 @@ export class GetOsCountriesService {
   list = signal<GetOsCountries[]>([]);
   loading = signal(false);
   isOpenSearch = signal(true);
+  useInstance = signal(false);
   async update(search: string) {
     this.loading.set(true);
     const response = await this.api.GET_OpenSearchCountries(search);

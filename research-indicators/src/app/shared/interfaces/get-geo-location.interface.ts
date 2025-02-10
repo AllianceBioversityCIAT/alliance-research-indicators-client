@@ -9,6 +9,18 @@ export interface GetGeoLocation {
 interface Region {
   region_id: number;
   sub_national_id?: number;
+  name?: string;
+  sub_national?: SubNational;
+}
+
+interface SubNational {
+  is_active: boolean;
+  id: number;
+  code: string;
+  name: string;
+  other_names: null;
+  country_iso_alpha_2: string;
+  language_iso_2: string;
 }
 
 export interface Country {

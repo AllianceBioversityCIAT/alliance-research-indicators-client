@@ -66,16 +66,16 @@
                 </div>
 
                 <!-- Right column: Multiselect -->
-                <div class="right-column">
-                  <app-multiselect
+                <div class="right-column" style="width: 300px">
+                  <app-multiselect-opensearch
                     #subnationalmultiselect
                     [signal]="country.result_countries_sub_nationals_signal"
                     [optionLabel]="'name'"
                     [optionValue]="'sub_national_id'"
                     [signalOptionValue]="'regions'"
                     serviceName="openSearchSubNationals"
-                    [hideSelected]="true">
-                  </app-multiselect>
+                    [hideSelected]="true"
+                    [openSearchFilters]="{ country: country.isoAlpha2 }"></app-multiselect-opensearch>
                 </div>
               </div>
             </ng-template>
