@@ -12,7 +12,8 @@ import {
   TemplateRef,
   WritableSignal,
   OnInit,
-  output
+  output,
+  DestroyRef
 } from '@angular/core';
 import { MultiSelectChangeEvent, MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
@@ -23,6 +24,9 @@ import { ControlListServices } from '../../../interfaces/services.interface';
 import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
 import { UtilsService } from '../../../services/utils.service';
+import { Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-multiselect-opensearch',
@@ -70,17 +74,28 @@ export class MultiselectOpensearchComponent implements OnInit {
     { allowSignalWrites: true }
   );
 
+  private searchSubject = new Subject<string>();
+  private destroyRef = inject(DestroyRef);
+
   ngOnInit(): void {
     this.service = this.serviceLocator.getService(this.serviceName);
     this.body.set({ value: this.objectArrayToIdArray(this.utils.getNestedProperty(this.signal(), this.signalOptionValue), this.optionValue) });
+
+    // Setup debounced search
+    this.searchSubject.pipe(debounceTime(500), takeUntilDestroyed(this.destroyRef)).subscribe(async (searchTerm: string) => {
+      if (!searchTerm) {
+        this.listInstance.set([]);
+        return;
+      }
+      this.loadingList.set(true);
+      const signal = await this.service.getInstance(searchTerm, this.openSearchFilters);
+      this.listInstance.set(signal());
+      this.loadingList.set(false);
+    });
   }
 
-  async onFilter(event: any) {
-    if (!event?.filter) return this.listInstance.set([]);
-    this.loadingList.set(true);
-    const signal = await this.service.getInstance(event.filter, this.openSearchFilters);
-    this.listInstance.set(signal());
-    this.loadingList.set(false);
+  onFilter(event: any) {
+    this.searchSubject.next(event.filter);
   }
 
   objectArrayToIdArray(array: any[], attribute: string) {
