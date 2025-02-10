@@ -48,6 +48,7 @@ export class MultiselectOpensearchComponent implements OnInit {
   @Input() label = '';
   @Input() description = '';
   @Input() hideSelected = false;
+  @Input() openSearchFilters: any = {};
   selectEvent = output<any>();
 
   service: any;
@@ -58,41 +59,6 @@ export class MultiselectOpensearchComponent implements OnInit {
     return this.utils.getNestedProperty(this.signal(), this.signalOptionValue);
   });
   firstLoad = signal(true);
-
-  // onChange = effect(
-  //   () => {
-  //     const hasNoLabelList = this.utils
-  //       .getNestedProperty(this.signal(), this.signalOptionValue)
-  //       ?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
-  //     // console.log(this.utils.getNestedProperty(this.signal(), this.signalOptionValue));
-  //     if (!this.currentResultIsLoading() && this.service?.list().length && this.firstLoad() && hasNoLabelList?.length) {
-  //       this.signal.update((current: any) => {
-  //         this.utils.setNestedPropertyWithReduce(
-  //           current,
-  //           this.signalOptionValue,
-  //           this.utils.getNestedProperty(current, this.signalOptionValue)?.map((item: any) => {
-  //             const itemFound = this.service?.list().find((option: any) => option[this.optionValue] === item[this.optionValue]);
-  //             return { ...item, ...itemFound };
-  //           })
-  //         );
-  //         return {
-  //           ...current
-  //         };
-  //       });
-  //       this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
-  //       this.firstLoad.set(false);
-  //     } else {
-  //       if (
-  //         this.utils.getNestedProperty(this.signal(), this.signalOptionValue).length &&
-  //         !this.currentResultIsLoading() &&
-  //         this.service?.list().length &&
-  //         this.firstLoad()
-  //       )
-  //         this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
-  //     }
-  //   },
-  //   { allowSignalWrites: true }
-  // );
 
   onGlobalLoadingChange = effect(
     () => {
@@ -110,7 +76,7 @@ export class MultiselectOpensearchComponent implements OnInit {
 
   async onFilter(event: any) {
     if (!event?.filter) return;
-    const signal = await this.service.getInstance(event.filter);
+    const signal = await this.service.getInstance(event.filter, this.openSearchFilters);
     this.listInstance.set(signal());
   }
 

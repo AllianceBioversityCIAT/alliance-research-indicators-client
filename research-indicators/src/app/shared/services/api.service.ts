@@ -34,7 +34,7 @@ import { environment } from '../../../environments/environment';
 import { PostError } from '../interfaces/post-error.interface';
 import { IndicatorsEnum } from '../enums/indicators-enum';
 import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
-import { GetOsSubNationals } from '../interfaces/get-os-subnational.interface';
+import { GetOsSubNationals, OpenSearchFilters } from '../interfaces/get-os-subnational.interface';
 import { GetAnnouncementSettingAvailable } from '../interfaces/get-announcement-setting-available.interface';
 
 @Injectable({
@@ -287,8 +287,10 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_OpenSearchSubNationals = (search: string): Promise<MainResponse<GetOsSubNationals[]>> => {
-    const url = () => `tools/clarisa/manager/opensearch/subnational/search?query=${search}&country=CO`;
+  GET_OpenSearchSubNationals = (search: string, openSearchFilters?: OpenSearchFilters): Promise<MainResponse<GetOsSubNationals[]>> => {
+    const { country } = openSearchFilters || {};
+    const countryQuery = country ? `&country=${country}` : '';
+    const url = () => `tools/clarisa/manager/opensearch/subnational/search?query=${search}${countryQuery}`;
     return this.TP.get(url(), {});
   };
 

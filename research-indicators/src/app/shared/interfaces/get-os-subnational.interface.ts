@@ -3,3 +3,7 @@ export interface GetOsSubNationals {
   name: string;
   sub_national_id: number;
 }
+
+export interface OpenSearchFilters {
+  country: string;
+}

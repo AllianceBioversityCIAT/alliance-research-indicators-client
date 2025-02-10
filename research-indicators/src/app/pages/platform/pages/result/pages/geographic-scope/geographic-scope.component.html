@@ -74,17 +74,8 @@
                     [optionValue]="'sub_national_id'"
                     [signalOptionValue]="'regions'"
                     serviceName="openSearchSubNationals"
-                    [hideSelected]="true"></app-multiselect-opensearch>
-                  <!-- <app-multiselect
-                    #subnationalmultiselect
-                    [signal]="country.result_countries_sub_nationals_signal"
-                    [optionLabel]="'name'"
-                    [optionValue]="'sub_national_id'"
-                    [signalOptionValue]="'regions'"
-                    serviceName="openSearchSubNationals"
                     [hideSelected]="true"
-                    [mapLabel]="false">
-                  </app-multiselect> -->
+                    [openSearchFilters]="{ country: country.isoAlpha2 }"></app-multiselect-opensearch>
                 </div>
               </div>
             </ng-template>
