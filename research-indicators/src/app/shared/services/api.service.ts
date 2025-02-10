@@ -35,6 +35,7 @@ import { PostError } from '../interfaces/post-error.interface';
 import { IndicatorsEnum } from '../enums/indicators-enum';
 import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
 import { GetOsSubNationals } from '../interfaces/get-os-subnational.interface';
+import { GetAnnouncementSettingAvailable } from '../interfaces/get-announcement-setting-available.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -293,6 +294,11 @@ export class ApiService {
 
   GET_OpenSearchResult = (search: string, sampleSize: number): Promise<MainResponse<GetOsResult[]>> => {
     const url = () => `opensearch/result/search?query=${search}&sample-size=${sampleSize}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_AnnouncementSettingAvailable = (): Promise<MainResponse<GetAnnouncementSettingAvailable[]>> => {
+    const url = () => `announcement-setting/available`;
     return this.TP.get(url(), {});
   };
 
