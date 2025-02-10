@@ -32,9 +32,9 @@ export default class ResultsCenterComponent {
   }
 
   onTabChange(): void {
-    this.resultsCenterService.updateList({
-      userCodes: this.activeItem()?.id === 'my' ? this.userCodes() : undefined
-    });
+    // this.resultsCenterService.updateList({
+    //   userCodes: this.activeItem()?.id === 'my' ? this.userCodes() : undefined
+    // });
   }
 
   onActiveItemChange(event: MenuItem) {

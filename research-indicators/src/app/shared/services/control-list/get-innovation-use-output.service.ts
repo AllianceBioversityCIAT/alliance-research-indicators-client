@@ -21,7 +21,7 @@ export class GetInnoUseOutputService {
   async main() {
     this.loading.set(true);
     const response = await this.api.GET_Results({
-      type: 'INNOVATION_USE'
+      indicatorsCodes: [6]
     });
 
     if (response?.data) {

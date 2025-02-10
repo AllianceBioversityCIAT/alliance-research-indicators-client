@@ -1,12 +1,11 @@
-import { Component, signal, ViewChild, ElementRef, inject, Input } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IndicatorsIds } from '@shared/enums/indicators-enum';
 import { ResultsCenterService } from '../../results-center.service';
-import { MenuItem } from 'primeng/api';
-
+import { GetAllIndicatorsService } from '../../../../../../shared/services/control-list/get-all-indicators.service';
+import { GetAllIndicators } from '../../../../../../shared/interfaces/get-all-indicators.interface';
 interface FilterItem {
   filter: string;
-  id: IndicatorsIds | null;
+  id: number | null;
 }
 
 @Component({
@@ -16,29 +15,38 @@ interface FilterItem {
   templateUrl: './indicators-tab-filter.component.html',
   styleUrl: './indicators-tab-filter.component.scss'
 })
-export class IndicatorsTabFilterComponent {
+export class IndicatorsTabFilterComponent implements OnInit {
+  getAllIndicatorsServiceInstance = inject(GetAllIndicatorsService).getInstance;
   @Input() activeItem = 'all';
   @Input() userCodes?: string[];
+  indicators = signal<GetAllIndicators[]>([]);
 
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;
   resultsCenterService = inject(ResultsCenterService);
 
-  filters = signal<FilterItem[]>([
-    { filter: 'All indicators', id: null },
-    { filter: 'Capacity Sharing for Development', id: 'CAPACITY_SHARING_FOR_DEVELOPMENT' },
-    { filter: 'Innovation Development', id: 'INNOVATION_DEV' },
-    { filter: 'Innovation Use', id: 'INNOVATION_USE' },
-    { filter: 'Knowledge Product', id: 'KNOWLEDGE_PRODUCT' },
-    { filter: 'OICR', id: 'OICR' },
-    { filter: 'Policy Change', id: 'POLICY_CHANGE' }
-  ]);
+  ngOnInit(): void {
+    this.getIndicators();
+  }
 
-  onFilterClick(filter: FilterItem) {
-    this.resultsCenterService.selectedFilter.set(filter.id as IndicatorsIds);
-    this.resultsCenterService.updateList({
-      type: filter.id as IndicatorsIds,
-      userCodes: this.activeItem === 'my' ? this.userCodes : undefined
-    });
+  async getIndicators() {
+    const response = await this.getAllIndicatorsServiceInstance();
+    this.indicators.set(response());
+    this.indicators.update(prev => [
+      {
+        name: 'All Indicators',
+        indicator_id: 0
+      },
+      ...prev
+    ]);
+  }
+
+  onFilterClick(indicatorId: number) {
+    console.log(indicatorId);
+    // this.resultsCenterService.selectedFilter.set(indicatorId);
+    // this.resultsCenterService.updateList({
+    //   type: indicatorId,
+    //   userCodes: this.activeItem === 'my' ? this.userCodes : undefined
+    // });
   }
 
   scrollLeft() {

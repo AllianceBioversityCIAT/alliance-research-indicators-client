@@ -22,7 +22,7 @@ export class GetInnoDevOutputService {
   async main() {
     this.loading.set(true);
     const response = await this.api.GET_Results({
-      type: 'INNOVATION_DEV'
+      indicatorsCodes: [2]
     });
     if (response?.data) {
       this.list.set(response.data as GetInnoDevOutput[]);

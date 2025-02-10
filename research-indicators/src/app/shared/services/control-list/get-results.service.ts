@@ -1,24 +1,26 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@services/api.service';
-import { Result } from '@interfaces/result/result.interface';
-import { IndicatorsIds } from '../../enums/indicators-enum';
+import { Result, ResultFilter } from '@interfaces/result/result.interface';
 @Injectable({
   providedIn: 'root'
 })
 export class GetResultsService {
   api = inject(ApiService);
   results: WritableSignal<Result[]> = signal([]);
+  loading = signal(false);
   isOpenSearch = signal(false);
   constructor() {
     this.updateList();
   }
-  updateList = async () => this.results.set((await this.api.GET_Results({})).data);
-  getInstance = async (type?: IndicatorsIds, userCodes?: string[]): Promise<WritableSignal<Result[]>> => {
+  updateList = async () => {
+    this.loading.set(true);
+    this.results.set((await this.api.GET_Results({})).data);
+    this.loading.set(false);
+  };
+
+  getInstance = async (resultFilter: ResultFilter): Promise<WritableSignal<Result[]>> => {
     const newSignal = signal<Result[]>([]);
-    const response = await this.api.GET_Results({
-      type,
-      userCodes
-    });
+    const response = await this.api.GET_Results(resultFilter);
     newSignal.set(response.data);
     return newSignal;
   };

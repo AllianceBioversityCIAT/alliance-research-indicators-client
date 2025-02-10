@@ -14,3 +14,8 @@ export interface ResultTable {
   header: string;
   pipe?: boolean;
 }
+
+export interface ResultFilter {
+  indicatorsCodes?: number[];
+  userCodes?: string[];
+}

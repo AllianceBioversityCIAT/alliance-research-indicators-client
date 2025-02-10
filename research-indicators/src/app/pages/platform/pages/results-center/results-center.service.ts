@@ -1,26 +1,25 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, effect } from '@angular/core';
 import { GetResultsService } from '../../../../shared/services/control-list/get-results.service';
-import { Result } from '@interfaces/result/result.interface';
-import { IndicatorsIds } from '../../../../shared/enums/indicators-enum';
+import { Result, ResultFilter } from '../../../../shared/interfaces/result/result.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ResultsCenterService {
-  list = signal<Result[]>([]);
   hasFilters = signal(false);
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
-  selectedFilter = signal<IndicatorsIds | null>(null);
+  selectedFilter = signal<number | null>(null);
+  list = signal<Result[]>([]);
+  resultsFilter = signal<ResultFilter>({});
 
   private getResultsService = inject(GetResultsService);
 
-  constructor() {
-    this.updateList({});
-  }
-
-  updateList = async ({ type, userCodes }: { type?: IndicatorsIds; userCodes?: string[] }) =>
-    this.list.set((await this.getResultsService.getInstance(type, userCodes))());
+  onChangeFilters = effect(async () => {
+    console.log('onChangeFilters');
+    const response = await this.getResultsService.getInstance(this.resultsFilter());
+    this.list.set(response());
+  });
 
   getIndicatorName(id: number): string {
     // TODO: Implement indicator name mapping

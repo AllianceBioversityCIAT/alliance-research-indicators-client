@@ -4,7 +4,7 @@ import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { GetContracts } from '../interfaces/get-contracts.interface';
-import { Result } from '../interfaces/result/result.interface';
+import { Result, ResultFilter } from '../interfaces/result/result.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
 import { GetLevers } from '../interfaces/get-levers.interface';
@@ -32,8 +32,8 @@ import { GetOsCountries } from '../interfaces/get-os-countries.interface';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 import { environment } from '../../../environments/environment';
 import { PostError } from '../interfaces/post-error.interface';
-import { IndicatorsIds, IndicatorsIdsObject } from '../enums/indicators-enum';
 import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
+import { GetAllIndicators } from '../interfaces/get-all-indicators.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -54,6 +54,11 @@ export class ApiService {
 
   GET_IndicatorTypes = (): Promise<MainResponse<IndicatorTypes[]>> => {
     const url = () => `indicator-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_AllIndicators = (): Promise<MainResponse<GetAllIndicators[]>> => {
+    const url = () => `indicators`;
     return this.TP.get(url(), {});
   };
 
@@ -92,11 +97,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Results = ({ type, userCodes }: { type?: IndicatorsIds; userCodes?: string[] }): Promise<MainResponse<Result[]>> => {
+  GET_Results = (resultFilter: ResultFilter): Promise<MainResponse<Result[]>> => {
+    const { indicatorsCodes, userCodes } = resultFilter;
     const queryParams: string[] = [];
 
-    if (type) {
-      queryParams.push(`indicator-codes=${IndicatorsIdsObject[type]}`);
+    if (indicatorsCodes?.length) {
+      queryParams.push(`indicator-codes=${indicatorsCodes.join(',')}`);
     }
 
     if (userCodes?.length) {
