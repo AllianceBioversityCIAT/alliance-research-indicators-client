@@ -11,7 +11,7 @@ export class ResultsCenterService {
   showConfigurationSidebar = signal(false);
   list = signal<Result[]>([]);
   resultsFilter = signal<ResultFilter>({ indicatorsCodes: [] });
-  resultsConfig = signal<ResultConfig>({ indicators: true });
+  resultsConfig = signal<ResultConfig>({ indicators: true, 'result-status': true });
 
   private getResultsService = inject(GetResultsService);
 

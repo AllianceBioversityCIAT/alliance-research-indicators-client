@@ -22,4 +22,5 @@ export interface ResultFilter {
 
 export interface ResultConfig {
   indicators?: boolean;
+  'result-status'?: boolean;
 }

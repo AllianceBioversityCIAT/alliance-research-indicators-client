@@ -105,6 +105,10 @@ export class ApiService {
       queryParams.push(`indicators=true`);
     }
 
+    if (resultConfig?.['result-status']) {
+      queryParams.push(`result-status=true`);
+    }
+
     if (indicatorsCodes?.length) {
       queryParams.push(`indicator-codes=${indicatorsCodes.join(',')}`);
     }

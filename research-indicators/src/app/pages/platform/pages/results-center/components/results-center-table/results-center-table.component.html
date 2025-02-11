@@ -61,7 +61,7 @@
         <td class="w-25rem">{{ result.title }}</td>
         <td>{{ result.indicators.name || '-' }}</td>
         <td>
-          <p-tag [value]="result.status" [severity]="getStatusSeverity(result.status)"></p-tag>
+          <p-tag [value]="result.result_status.name" [severity]="getStatusSeverity(result.result_status.name)"></p-tag>
         </td>
         <td>{{ result.project || '-' }}</td>
         <td>{{ result.lever || '-' }}</td>
