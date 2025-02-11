@@ -28,7 +28,7 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
   private routeId = signal<string | null>(null);
   private subscription = new Subscription();
   navigationHistory = signal<{ url: string; title: string; id: string | null }[]>([]);
-  isNavigatingBack = false;
+  private isNavigatingBack = false;
 
   ngOnInit() {
     // Set initial values
@@ -39,10 +39,10 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
     // Subscribe to route changes
     this.subscription.add(
       this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe(() => {
-        // Only add to history if not navigating back
+        this.currentUrl.set(this.router.url);
+        this.updateRouteInfo();
+
         if (!this.isNavigatingBack) {
-          this.currentUrl.set(this.router.url);
-          this.updateRouteInfo();
           this.addToHistory(this.router.url, this.routeTitle(), this.routeId());
         }
         this.isNavigatingBack = false;
@@ -89,7 +89,6 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
     }
 
     const history = this.navigationHistory();
-    // Add to history without checking for duplicates
     const newHistory = [...history, { url, title, id }].slice(-10);
     this.navigationHistory.set(newHistory);
   }
@@ -119,13 +118,19 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
   goBack() {
     if (this.canGoBack()) {
       this.isNavigatingBack = true;
-      // Remove the current page from history
       const history = this.navigationHistory();
+      const previousPage = history[history.length - 2];
+
+      // Remove the current page from history before navigation
       this.navigationHistory.set(history.slice(0, -1));
 
-      // Navigate to the previous page
-      const previousPage = history[history.length - 2];
       if (previousPage && previousPage.url) {
+        // Update title and URL immediately
+        this.currentUrl.set(previousPage.url);
+        this.routeTitle.set(previousPage.title);
+        this.routeId.set(previousPage.id);
+
+        // Navigate to the previous page
         this.router.navigate([previousPage.url]);
       }
     }
@@ -134,23 +139,34 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
   navigateToHistoryItem(index: number) {
     const history = this.filteredHistory();
     if (index >= 0 && index < history.length) {
-      this.router.navigate([history[index].url]);
+      this.isNavigatingBack = true;
+      const selectedItem = history[index];
+
+      // Update title and URL immediately
+      this.currentUrl.set(selectedItem.url);
+      this.routeTitle.set(selectedItem.title);
+      this.routeId.set(selectedItem.id);
+
+      // Navigate to the selected page
+      this.router.navigate([selectedItem.url]);
+
       if (this.historyPanel) {
         this.historyPanel.hide();
       }
 
-      // Update the main history to remove entries after the selected item
+      // Update the main history
       const mainHistory = this.navigationHistory();
-      const selectedUrl = history[index].url;
-      const selectedId = history[index].id;
-      const mainIndex = mainHistory.findIndex(item => item.url === selectedUrl && item.id === selectedId);
+      const mainIndex = mainHistory.findIndex(item => item.url === selectedItem.url && item.id === selectedItem.id);
       if (mainIndex !== -1) {
         this.navigationHistory.set(mainHistory.slice(0, mainIndex + 1));
       }
     }
   }
 
-  isHomePage = computed(() => this.currentUrl() === '/home');
+  isHomePage = computed(() => {
+    const url = this.currentUrl();
+    return url === '/home' || url === '/' || url.startsWith('/?');
+  });
 
   welcomeMessage = computed(() => {
     if (this.isHomePage()) {
