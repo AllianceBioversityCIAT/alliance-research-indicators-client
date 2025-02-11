@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@services/api.service';
-import { Result, ResultFilter } from '@interfaces/result/result.interface';
+import { Result, ResultConfig, ResultFilter } from '@interfaces/result/result.interface';
 @Injectable({
   providedIn: 'root'
 })
@@ -18,9 +18,9 @@ export class GetResultsService {
     this.loading.set(false);
   };
 
-  getInstance = async (resultFilter: ResultFilter): Promise<WritableSignal<Result[]>> => {
+  getInstance = async (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<WritableSignal<Result[]>> => {
     const newSignal = signal<Result[]>([]);
-    const response = await this.api.GET_Results(resultFilter);
+    const response = await this.api.GET_Results(resultFilter, resultConfig);
     newSignal.set(response.data);
     return newSignal;
   };

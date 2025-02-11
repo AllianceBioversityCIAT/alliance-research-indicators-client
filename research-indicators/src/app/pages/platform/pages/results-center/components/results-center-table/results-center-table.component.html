@@ -59,7 +59,7 @@
       <tr>
         <td>{{ result.result_official_code }}</td>
         <td class="w-25rem">{{ result.title }}</td>
-        <td>{{ getIndicatorName(result.indicator_id) }}</td>
+        <td>{{ result.indicators.name || '-' }}</td>
         <td>
           <p-tag [value]="result.status" [severity]="getStatusSeverity(result.status)"></p-tag>
         </td>

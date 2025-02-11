@@ -19,3 +19,7 @@ export interface ResultFilter {
   indicatorsCodes?: number[];
   userCodes?: string[];
 }
+
+export interface ResultConfig {
+  indicators?: boolean;
+}

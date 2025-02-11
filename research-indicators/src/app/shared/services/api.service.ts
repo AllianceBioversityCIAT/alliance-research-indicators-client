@@ -4,7 +4,7 @@ import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { GetContracts } from '../interfaces/get-contracts.interface';
-import { Result, ResultFilter } from '../interfaces/result/result.interface';
+import { Result, ResultConfig, ResultFilter } from '../interfaces/result/result.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
 import { GetLevers } from '../interfaces/get-levers.interface';
@@ -97,9 +97,13 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Results = (resultFilter: ResultFilter): Promise<MainResponse<Result[]>> => {
+  GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<Result[]>> => {
     const { indicatorsCodes, userCodes } = resultFilter;
     const queryParams: string[] = [];
+
+    if (resultConfig?.indicators) {
+      queryParams.push(`indicators=true`);
+    }
 
     if (indicatorsCodes?.length) {
       queryParams.push(`indicator-codes=${indicatorsCodes.join(',')}`);
@@ -111,7 +115,10 @@ export class ApiService {
 
     const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
 
+    console.log(queryString);
+
     const url = () => `results${queryString}`;
+    console.log(url());
     return this.TP.get(url(), {});
   };
 

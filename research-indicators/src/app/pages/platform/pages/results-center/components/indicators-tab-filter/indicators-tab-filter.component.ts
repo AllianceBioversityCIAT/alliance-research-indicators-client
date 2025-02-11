@@ -34,7 +34,8 @@ export class IndicatorsTabFilterComponent implements OnInit {
     this.indicators.update(prev => [
       {
         name: 'All Indicators',
-        indicator_id: 0
+        indicator_id: 0,
+        active: true
       },
       ...prev
     ]);

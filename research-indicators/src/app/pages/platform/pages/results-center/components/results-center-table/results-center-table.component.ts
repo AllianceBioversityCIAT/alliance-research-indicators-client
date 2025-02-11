@@ -27,11 +27,6 @@ export class ResultsCenterTableComponent {
     { label: 'Export', icon: 'pi pi-download' }
   ];
 
-  getIndicatorName(id: number): string {
-    // TODO: Implement indicator name mapping
-    return `Indicator ${id}`;
-  }
-
   applyFilterGlobal($event: Event, stringVal: string) {
     this.dt2.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
