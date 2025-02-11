@@ -11,7 +11,16 @@ export class ResultsCenterService {
   showConfigurationSidebar = signal(false);
   list = signal<Result[]>([]);
   resultsFilter = signal<ResultFilter>({ indicatorsCodes: [] });
-  resultsConfig = signal<ResultConfig>({ indicators: true, 'result-status': true });
+  resultsConfig = signal<ResultConfig>({
+    indicators: true,
+    'result-status': true,
+    contracts: true,
+    'primary-contract': true,
+    'primary-lever': true,
+    levers: true,
+    'audit-data': true,
+    'audit-data-object': true
+  });
 
   private getResultsService = inject(GetResultsService);
 

@@ -101,12 +101,13 @@ export class ApiService {
     const { indicatorsCodes, userCodes } = resultFilter;
     const queryParams: string[] = [];
 
-    if (resultConfig?.indicators) {
-      queryParams.push(`indicators=true`);
-    }
-
-    if (resultConfig?.['result-status']) {
-      queryParams.push(`result-status=true`);
+    // Dynamic handling of boolean config parameters
+    if (resultConfig) {
+      Object.entries(resultConfig).forEach(([key, value]) => {
+        if (value) {
+          queryParams.push(`${key}=true`);
+        }
+      });
     }
 
     if (indicatorsCodes?.length) {
