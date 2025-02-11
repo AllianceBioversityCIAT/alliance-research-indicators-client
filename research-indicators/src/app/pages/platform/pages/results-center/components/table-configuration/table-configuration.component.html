@@ -1,0 +1,14 @@
+<div class="body">
+  <p-orderList [value]="filters()" [dragdrop]="true">
+    <ng-template let-filter pTemplate="item">
+      <div class="flex flex-wrap p-2 align-items-center gap-3">
+        <div class="flex-1 flex flex-column gap-2">
+          <span class="font-bold">{{ filter.name }}</span>
+        </div>
+      </div>
+    </ng-template>
+  </p-orderList>
+</div>
+<div class="buttons">
+  <!-- <p-button label="Save table settings" /> -->
+</div>

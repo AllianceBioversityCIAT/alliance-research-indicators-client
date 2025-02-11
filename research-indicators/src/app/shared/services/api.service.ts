@@ -4,7 +4,7 @@ import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { GetContracts } from '../interfaces/get-contracts.interface';
-import { Result } from '../interfaces/result/result.interface';
+import { Result, ResultConfig, ResultFilter } from '../interfaces/result/result.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
 import { GetLevers } from '../interfaces/get-levers.interface';
@@ -32,10 +32,10 @@ import { GetOsCountries } from '../interfaces/get-os-countries.interface';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 import { environment } from '../../../environments/environment';
 import { PostError } from '../interfaces/post-error.interface';
-import { IndicatorsEnum } from '../enums/indicators-enum';
 import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
 import { GetOsSubNationals, OpenSearchFilters } from '../interfaces/get-os-subnational.interface';
 import { GetAnnouncementSettingAvailable } from '../interfaces/get-announcement-setting-available.interface';
+import { GetAllIndicators } from '../interfaces/get-all-indicators.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -56,6 +56,11 @@ export class ApiService {
 
   GET_IndicatorTypes = (): Promise<MainResponse<IndicatorTypes[]>> => {
     const url = () => `indicator-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_AllIndicators = (): Promise<MainResponse<GetAllIndicators[]>> => {
+    const url = () => `indicators`;
     return this.TP.get(url(), {});
   };
 
@@ -94,10 +99,30 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Results = (type?: IndicatorsEnum): Promise<MainResponse<Result[]>> => {
-    let typeText = '';
-    if (type) typeText = `?indicator-codes=${type}`;
-    const url = () => `results${typeText}`;
+  GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<Result[]>> => {
+    const { indicatorsCodes, userCodes } = resultFilter;
+    const queryParams: string[] = [];
+
+    // Dynamic handling of boolean config parameters
+    if (resultConfig) {
+      Object.entries(resultConfig).forEach(([key, value]) => {
+        if (value) {
+          queryParams.push(`${key}=true`);
+        }
+      });
+    }
+
+    if (indicatorsCodes?.length) {
+      queryParams.push(`indicator-codes=${indicatorsCodes.join(',')}`);
+    }
+
+    if (userCodes?.length) {
+      queryParams.push(`create-user-codes=${userCodes.join(',')}`);
+    }
+
+    const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
+
+    const url = () => `results${queryString}`;
     return this.TP.get(url(), {});
   };
 

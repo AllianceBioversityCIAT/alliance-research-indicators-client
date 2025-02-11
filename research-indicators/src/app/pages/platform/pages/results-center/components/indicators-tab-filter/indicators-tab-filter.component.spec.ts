@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { IndicatorsTabFilterComponent } from './indicators-tab-filter.component';
 
 describe('IndicatorsTabFilterComponent', () => {
@@ -8,9 +8,8 @@ describe('IndicatorsTabFilterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IndicatorsTabFilterComponent]
-    })
-    .compileComponents();
+      imports: [IndicatorsTabFilterComponent, HttpClientTestingModule]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(IndicatorsTabFilterComponent);
     component = fixture.componentInstance;

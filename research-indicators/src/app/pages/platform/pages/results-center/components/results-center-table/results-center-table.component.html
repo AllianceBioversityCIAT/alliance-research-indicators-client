@@ -1,0 +1,75 @@
+<!-- Results Table -->
+<div class="flex flex-column">
+  <div class="flex justify-content-between align-items-center">
+    <div class="flex align-items-center justify-content-between w-full p-3">
+      <div class="flex gap-3 align-items-center">
+        <p-button icon="pi pi-download" label="Export Results" class="p-button-outlined" [outlined]="true"></p-button>
+
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            pInputText
+            type="text"
+            (input)="applyFilterGlobal($event, 'contains')"
+            [(ngModel)]="searchQuery"
+            placeholder="Find a result by code, title or creator"
+            class="w-25rem" />
+        </span>
+      </div>
+
+      <!-- <div class="flex gap-3 align-items-center">
+        <p-button label="Apply Filter" icon="pi pi-filter" size="small" (click)="showFiltersSidebar()"></p-button>
+        <p-button icon="pi pi-cog" size="small" [outlined]="true" (click)="showConfiguratiosnSidebar()"></p-button>
+      </div> -->
+    </div>
+  </div>
+
+  <p-table
+    #dt2
+    [value]="resultsCenterService.list()"
+    [paginator]="true"
+    [rows]="5"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '100%' }"
+    [rowsPerPageOptions]="[5, 10, 25, 50]"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"
+    [sortField]="'result_id'"
+    [sortOrder]="-1"
+    [globalFilterFields]="['result_official_code', 'title', 'indicator_id', 'status', 'project', 'lever', 'year', 'creator', 'creation_date']"
+    styleClass="p-datatable-gridlines">
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="result_official_code">Code <p-sortIcon field="result_official_code"></p-sortIcon></th>
+        <th pSortableColumn="title" class="w-25rem">Title <p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="indicator_id">Indicator <p-sortIcon field="indicator_id"></p-sortIcon></th>
+        <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+        <th pSortableColumn="project">Project <p-sortIcon field="project"></p-sortIcon></th>
+        <th pSortableColumn="lever">Lever <p-sortIcon field="lever"></p-sortIcon></th>
+        <th pSortableColumn="year">Year <p-sortIcon field="year"></p-sortIcon></th>
+        <th pSortableColumn="creator">Creator <p-sortIcon field="creator"></p-sortIcon></th>
+        <th pSortableColumn="creation_date">Creation date <p-sortIcon field="creation_date"></p-sortIcon></th>
+        <!-- <th style="width: 3rem">Actions</th> -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-result>
+      <tr>
+        <td>{{ result.result_official_code }}</td>
+        <td class="w-25rem">{{ result.title }}</td>
+        <td>{{ result.indicators.name || '-' }}</td>
+        <td>
+          <p-tag [value]="result.result_status.name" [severity]="getStatusSeverity(result.result_status.name)"></p-tag>
+        </td>
+        <td>{{ result.result_contracts.contract_id || '-' }}</td>
+        <td>{{ result.result_levers?.lever?.short_name || '-' }}</td>
+        <td>{{ result.report_year_id || '-' }}</td>
+        <td>{{ result.created_by_user.first_name + ' ' + result.created_by_user.last_name || '-' }}</td>
+        <td>{{ result.created_at | date: 'dd/MM/yyyy' }}</td>
+        <!-- <td>
+          <p-button pRipple icon="pi pi-ellipsis-v" class="p-button-text p-button-rounded p-button-plain" (click)="menu.toggle($event)"></p-button>
+        </td> -->
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-menu #menu [popup]="true" [model]="menuItems"></p-menu>

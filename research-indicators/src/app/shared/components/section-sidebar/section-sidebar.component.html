@@ -1,0 +1,16 @@
+<div class="container" [class.hide-sidebar]="!this.showSignal()">
+  <div class="content">
+    <div class="header">
+      <div class="title">{{ title }}</div>
+      <div class="description">{{ description }}</div>
+    </div>
+    <div>
+      <ng-content></ng-content>
+    </div>
+
+    <div class="flex justify-content-end gap-2 pt-5">
+      <p-button label="Cancel" (onClick)="hideSidebar()" [outlined]="true" />
+      <p-button label="Confirm" (onClick)="confirmSidebar()" [severity]="'primary'" />
+    </div>
+  </div>
+</div>
