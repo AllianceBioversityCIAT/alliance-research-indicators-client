@@ -7,24 +7,48 @@
   <div class="content">
     <p-accordion expandIcon="pi pi-plus" collapseIcon="pi pi-minus">
       <div class="accordions">
-        @for (faqItem of this.faqList(); track $index) {
-          <p-accordionTab
-            [header]="faqItem.question"
-            iconPos="end"
-            [disabled]="true"
-            [tabStyle]="{ margin: '0px' }"
-            [headerStyle]="{
-              borderRadius: '0px',
-              border: 'none',
-              borderBottom: '1px solid #b9c0c5',
-              backgroundColor: '#FFFFFF',
-              padding: '32px 24px',
-              color: 'var(--primary-blue-500)',
-              fontWeight: '500'
-            }"
-            [contentStyle]="{ borderRadius: '0px', border: 'none', padding: '24px' }">
-          </p-accordionTab>
-        }
+        <div>
+          @for (faqItem of this.faqList().slice(0, 3); track $index) {
+            <p-accordionTab
+              [header]="faqItem.question"
+              iconPos="end"
+              [disabled]="true"
+              [tabStyle]="{ margin: '0px' }"
+              [headerStyle]="{
+                borderRadius: '0px',
+                border: 'none',
+                borderBottom: '1px solid #b9c0c5',
+                backgroundColor: '#FFFFFF',
+                padding: '32px 24px',
+                color: 'var(--primary-blue-500)',
+                fontWeight: '500'
+              }"
+              [contentStyle]="{ borderRadius: '0px', border: 'none', padding: '24px' }">
+              <p>{{ faqItem.answer }}</p>
+            </p-accordionTab>
+          }
+        </div>
+        <div>
+          @for (faqItem of this.faqList().slice(3, 6); track $index) {
+            <p-accordionTab
+              [header]="faqItem.question"
+              iconPos="end"
+              [disabled]="true"
+              [tabStyle]="{ margin: '0px' }"
+              [headerStyle]="{
+                borderRadius: '0px',
+                border: 'none',
+                borderBottom: '1px solid #b9c0c5',
+                backgroundColor: '#FFFFFF',
+                padding: '32px 24px',
+                color: 'var(--primary-blue-500)',
+                fontWeight: '500'
+              }"
+              [contentStyle]="{ borderRadius: '0px', border: 'none', padding: '24px' }">
+              <p>{{ faqItem.answer }}</p>
+            </p-accordionTab>
+          }
+        </div>
       </div>
     </p-accordion>
   </div>
