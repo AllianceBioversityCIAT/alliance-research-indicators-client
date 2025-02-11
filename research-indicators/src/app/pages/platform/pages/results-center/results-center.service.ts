@@ -1,7 +1,8 @@
 import { inject, Injectable, signal, effect } from '@angular/core';
 import { GetResultsService } from '../../../../shared/services/control-list/get-results.service';
 import { Result, ResultConfig, ResultFilter } from '../../../../shared/interfaces/result/result.interface';
-
+import { MenuItem } from 'primeng/api';
+import { CacheService } from '../../../../shared/services/cache/cache.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -24,7 +25,8 @@ export class ResultsCenterService {
   showConfigurationsSidebar = signal(false);
   confirmFiltersSignal = signal(false);
 
-  private getResultsService = inject(GetResultsService);
+  getResultsService = inject(GetResultsService);
+  cache = inject(CacheService);
 
   onChangeFilters = effect(async () => {
     const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
@@ -43,6 +45,19 @@ export class ResultsCenterService {
       EDITING: 'warning'
     };
     return severityMap[status];
+  }
+
+  onActiveItemChange = (event: MenuItem): void =>
+    this.resultsFilter.update(prev => ({ ...prev, userCodes: event.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : [] }));
+
+  applySidebarFilters(): void {
+    // this.applyFilters();
+    console.log('applySidebarFilters');
+  }
+
+  applySidebarConfigurations(): void {
+    // this.applyConfigurations();
+    console.log('applySidebarConfigurations');
   }
 
   clearFilters(): void {

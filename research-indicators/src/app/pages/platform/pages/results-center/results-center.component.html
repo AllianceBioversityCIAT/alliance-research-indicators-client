@@ -5,7 +5,7 @@
   <!-- Results Section -->
   <div class="flex flex-column bg-white">
     <!-- Tab Menu -->
-    <p-tabMenu [model]="items" [activeItem]="activeItem()" (activeItemChange)="onActiveItemChange($event)"></p-tabMenu>
+    <p-tabMenu [model]="items" [activeItem]="activeItem()" (activeItemChange)="this.resultsCenterService.onActiveItemChange($event)"></p-tabMenu>
     <!-- Results Table -->
     <app-results-center-table></app-results-center-table>
   </div>
@@ -15,14 +15,15 @@
     [title]="'Table Filters'"
     [description]="'Filter your table data by applying custom criteria.'"
     [showSignal]="this.resultsCenterService.showFiltersSidebar"
-    (confirm)="applyFilters()">
+    (confirm)="this.resultsCenterService.applySidebarFilters()">
     <app-table-filters-sidebar></app-table-filters-sidebar>
   </app-section-sidebar>
 
   <app-section-sidebar
     [title]="'Table Configuration'"
     [description]="'Customize your table by enabling, disabling, or reordering columns.'"
-    [showSignal]="this.resultsCenterService.showConfigurationsSidebar">
+    [showSignal]="this.resultsCenterService.showConfigurationsSidebar"
+    (confirm)="this.resultsCenterService.applySidebarConfigurations()">
     <app-table-configuration></app-table-configuration>
   </app-section-sidebar>
 </div>

@@ -40,17 +40,6 @@ export default class ResultsCenterComponent {
     this.userCodes.set([this.cache.dataCache().user.sec_user_id.toString()]);
   }
 
-  onTabChange(): void {
-    // this.resultsCenterService.updateList({
-    //   userCodes: this.activeItem()?.id === 'my' ? this.userCodes() : undefined
-    // });
-  }
-
-  onActiveItemChange(event: MenuItem) {
-    this.activeItem.set(event);
-    this.onTabChange();
-  }
-
   toggleSidebar() {
     this.showSignal.update(prev => !prev);
   }
