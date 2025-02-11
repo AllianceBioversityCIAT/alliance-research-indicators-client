@@ -7,27 +7,27 @@ import { Card, Faq } from '../interfaces/landing.interface';
 export class LandingTextsService {
   faqList = signal<Faq[]>([
     {
-      question: 'What is the Alliance Reporting Tool?',
+      question: 'WHAT IS THE ALLIANCE REPORTING TOOL?',
       answer: 'Answer...'
     },
     {
-      question: 'What is the difference between Bilateral Projects and Initiatives?',
+      question: 'WHAT IS THE DIFFERENCE BETWEEN BILATERAL PROJECTS AND INITIATIVES?',
       answer: 'Answer...'
     },
     {
-      question: 'What type of help can I expect from the AI feature?',
+      question: 'WHAT TYPE OF HELP CAN I EXPECT FROM THE AI FEATURE?',
       answer: 'Answer...'
     },
     {
-      question: 'What are indicators, and how should I select them?',
+      question: 'WHAT ARE INDICATORS, AND HOW SHOULD I SELECT THEM?',
       answer: 'Answer...'
     },
     {
-      question: 'How do I get started with creating a new result?',
+      question: 'HOW DO I GET STARTED WITH CREATING A NEW RESULT?',
       answer: 'Answer...'
     },
     {
-      question: 'Can I save my progress while filling out the result form?',
+      question: 'CAN I SAVE MY PROGRESS WHILE FILLING OUT THE RESULT FORM?',
       answer: 'Answer...'
     }
   ]);

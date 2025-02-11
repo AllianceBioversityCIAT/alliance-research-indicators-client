@@ -35,6 +35,10 @@ p {
   background-repeat: no-repeat;
   height: 1500px;
   margin-top: 500px;
+
+  @media (max-width: 768px) {
+    height: calc(100% - 200px);
+  }
 }
 
 .discover-hero-content {
@@ -47,7 +51,7 @@ p {
   transform: translateY(-430px);
 
   @media (max-width: 768px) {
-    padding: 50px;
+    padding: 40px;
   }
 }
 
@@ -112,6 +116,10 @@ p {
   grid-template-columns: repeat(2, 1fr);
   gap: 25px;
   margin-top: 30px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .discover-hero-learn-content-item-header {

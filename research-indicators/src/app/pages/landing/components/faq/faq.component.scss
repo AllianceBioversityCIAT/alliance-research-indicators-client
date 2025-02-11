@@ -14,7 +14,7 @@ p {
   gap: 50px;
 
   @media (max-width: 768px) {
-    padding: 50px;
+    padding: 40px;
   }
 
   .content {
@@ -23,12 +23,12 @@ p {
     .accordions {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      column-gap: 25px;
+      column-gap: 40px;
       width: 100%;
-    }
 
-    p-accordion {
-      width: 100%;
+      @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+      }
     }
   }
 }
@@ -56,4 +56,8 @@ p {
   text-align: left;
   margin-top: -5px;
   color: var(--light-blue-400);
+}
+
+::ng-deep .p-disabled {
+  opacity: 1;
 }

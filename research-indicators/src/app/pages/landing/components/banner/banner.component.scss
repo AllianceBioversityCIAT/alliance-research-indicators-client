@@ -45,7 +45,7 @@ p {
   height: 100%;
 
   @media (max-width: 768px) {
-    padding: 50px;
+    padding: 40px;
   }
 }
 
@@ -55,6 +55,12 @@ p {
   justify-content: flex-start;
   gap: 40px;
   z-index: 2;
+}
+
+.banner-logo-1 {
+  @media (max-width: 425px) {
+    display: none;
+  }
 }
 
 .banner-content {
