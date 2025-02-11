@@ -14,3 +14,19 @@ export interface ResultTable {
   header: string;
   pipe?: boolean;
 }
+
+export interface ResultFilter {
+  indicatorsCodes?: number[];
+  userCodes?: string[];
+}
+
+export interface ResultConfig {
+  indicators?: boolean;
+  'result-status'?: boolean;
+  contracts?: boolean;
+  'primary-contract'?: boolean;
+  levers?: boolean;
+  'primary-lever'?: boolean;
+  'audit-data'?: boolean;
+  'audit-data-object'?: boolean;
+}

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { TableFiltersSidebarComponent } from './table-filters-sidebar.component';
+import { SectionSidebarComponent } from './section-sidebar.component';
 
-describe('TableFiltersSidebarComponent', () => {
-  let component: TableFiltersSidebarComponent;
-  let fixture: ComponentFixture<TableFiltersSidebarComponent>;
+describe('SectionSidebarComponent', () => {
+  let component: SectionSidebarComponent;
+  let fixture: ComponentFixture<SectionSidebarComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TableFiltersSidebarComponent, HttpClientTestingModule]
+      imports: [SectionSidebarComponent, HttpClientTestingModule]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TableFiltersSidebarComponent);
+    fixture = TestBed.createComponent(SectionSidebarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

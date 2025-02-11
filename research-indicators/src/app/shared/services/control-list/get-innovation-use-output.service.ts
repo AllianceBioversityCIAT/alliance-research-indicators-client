@@ -1,7 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
 import { GetInnoUseOutput } from '../../interfaces/get-innovation-outputs.interface';
-import { IndicatorsEnum } from '../../enums/indicators-enum';
 @Injectable({
   providedIn: 'root'
 })
@@ -21,7 +20,9 @@ export class GetInnoUseOutputService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_Results(IndicatorsEnum.INNOVATION_USE);
+    const response = await this.api.GET_Results({
+      indicatorsCodes: [6]
+    });
 
     if (response?.data) {
       this.list.set(response.data as GetInnoUseOutput[]);
