@@ -33,7 +33,6 @@ export class ResultsCenterTableComponent {
   }
 
   async exportTable() {
-    console.log('export');
     // Test data
     const exportData = this.resultsCenterService.list().map(result => ({
       Code: result.result_official_code,
@@ -70,8 +69,14 @@ export class ResultsCenterTableComponent {
     });
 
     // Basic header style
-    worksheet.getRow(1).font = { bold: true };
-    worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE6F3FF' } // Light blue color
+    };
 
     try {
       // Generate Excel file
