@@ -1,5 +1,4 @@
 import { Component, Input, signal } from '@angular/core';
-import { PatchPartners } from '@shared/interfaces/patch-partners.interface';
 import { ButtonModule } from 'primeng/button';
 import { OrderListModule } from 'primeng/orderlist';
 
@@ -11,6 +10,8 @@ import { OrderListModule } from 'primeng/orderlist';
   styleUrl: './table-configuration.component.scss'
 })
 export class TableConfigurationComponent {
+  @Input() showSignal = signal(false);
+
   filters = signal([
     { name: 'Code' },
     { name: 'Title' },
@@ -23,15 +24,7 @@ export class TableConfigurationComponent {
     { name: 'Creation date' }
   ]);
 
-  @Input() hideSidebar = true;
-
-  body = signal<PatchPartners>(new PatchPartners());
-
   toggleSidebar() {
-    this.hideSidebar = !this.hideSidebar;
-  }
-
-  hideSidebarMethod() {
-    this.hideSidebar = true;
+    this.showSignal.update(prev => !prev);
   }
 }

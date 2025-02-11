@@ -21,6 +21,8 @@ export class ResultsCenterService {
     'audit-data': true,
     'audit-data-object': true
   });
+  showConfigurationsSidebar = signal(false);
+  confirmFiltersSignal = signal(false);
 
   private getResultsService = inject(GetResultsService);
 
@@ -55,6 +57,12 @@ export class ResultsCenterService {
   }
 
   showConfigSidebar(): void {
-    this.showConfigurationSidebar.set(true);
+    this.showConfigurationsSidebar.set(true);
+  }
+
+  applyFilters(): void {
+    console.log('Filtros aplicados');
+    this.hasFilters.set(true);
+    this.confirmFiltersSignal.set(true); // Se activa la señal cuando se confirman los filtros
   }
 }

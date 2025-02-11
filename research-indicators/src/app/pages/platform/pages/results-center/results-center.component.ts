@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { MenuItem } from 'primeng/api';
 import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
@@ -7,17 +7,26 @@ import { TableConfigurationComponent } from './components/table-configuration/ta
 import { ResultsCenterTableComponent } from './components/results-center-table/results-center-table.component';
 import { ResultsCenterService } from './results-center.service';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
+import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 
 @Component({
   selector: 'app-results-center',
   standalone: true,
-  imports: [TabMenuModule, IndicatorsTabFilterComponent, ResultsCenterTableComponent, TableFiltersSidebarComponent, TableConfigurationComponent],
+  imports: [
+    TabMenuModule,
+    IndicatorsTabFilterComponent,
+    ResultsCenterTableComponent,
+    TableFiltersSidebarComponent,
+    TableConfigurationComponent,
+    SectionSidebarComponent
+  ],
   templateUrl: './results-center.component.html',
   styleUrls: ['./results-center.component.scss']
 })
 export default class ResultsCenterComponent {
-  private resultsCenterService = inject(ResultsCenterService);
-  private cache = inject(CacheService);
+  resultsCenterService = inject(ResultsCenterService);
+  cache = inject(CacheService);
+  @Input() showSignal = signal(false);
 
   userCodes = signal<string[]>([]);
   activeItem = signal<MenuItem | undefined>(undefined);
@@ -40,5 +49,13 @@ export default class ResultsCenterComponent {
   onActiveItemChange(event: MenuItem) {
     this.activeItem.set(event);
     this.onTabChange();
+  }
+
+  toggleSidebar() {
+    this.showSignal.update(prev => !prev);
+  }
+
+  applyFilters() {
+    this.resultsCenterService.applyFilters();
   }
 }

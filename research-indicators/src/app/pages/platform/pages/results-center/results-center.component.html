@@ -11,6 +11,18 @@
   </div>
 
   <!-- Sidebars -->
-  <app-table-filters-sidebar></app-table-filters-sidebar>
-  <app-table-configuration></app-table-configuration>
+  <app-section-sidebar
+    [title]="'Table Filters'"
+    [description]="'Filter your table data by applying custom criteria.'"
+    [showSignal]="this.resultsCenterService.showFiltersSidebar"
+    (confirm)="applyFilters()">
+    <app-table-filters-sidebar></app-table-filters-sidebar>
+  </app-section-sidebar>
+
+  <app-section-sidebar
+    [title]="'Table Configuration'"
+    [description]="'Customize your table by enabling, disabling, or reordering columns.'"
+    [showSignal]="this.resultsCenterService.showConfigurationsSidebar">
+    <app-table-configuration></app-table-configuration>
+  </app-section-sidebar>
 </div>

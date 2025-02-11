@@ -31,6 +31,19 @@ export class ResultsCenterTableComponent {
     this.dt2.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
+  showFiltersSidebar() {
+    this.resultsCenterService.showFiltersSidebar.set(true);
+  }
+
+  showConfiguratiosnSidebar() {
+    this.resultsCenterService.showConfigurationsSidebar.set(true);
+  }
+
+  getIndicatorName(id: number): string {
+    // TODO: Implement indicator name mapping
+    return `Indicator ${id}`;
+  }
+
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
     const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
       SUBMITTED: 'info',
