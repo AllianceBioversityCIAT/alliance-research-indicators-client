@@ -44,4 +44,8 @@ export default class ResultsCenterComponent {
   toggleSidebar() {
     this.showSignal.update(prev => !prev);
   }
+
+  applyFilters() {
+    this.resultsCenterService.applyFilters();
+  }
 }
