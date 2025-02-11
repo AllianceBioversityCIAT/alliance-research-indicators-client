@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { TableModule } from 'primeng/table';
@@ -60,13 +60,43 @@ describe('ResultsComponent', () => {
               user: {
                 sec_user_id: '123'
               }
-            })
+            }),
+            currentResultIsLoading: () => signal(false)
           }
         },
         {
           provide: RouterModule,
           useValue: {
             navigate: jest.fn()
+          }
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: {
+                get: jest.fn()
+              }
+            }
+          }
+        },
+        {
+          provide: ResultsCenterService,
+          useValue: {
+            resultsFilter: signal({
+              indicatorsCodes: []
+            }),
+            showFiltersSidebar: signal(false),
+            showConfigurationsSidebar: signal(false),
+            applyFilters: jest.fn(),
+            list: jest.fn(),
+            onActiveItemChange: jest.fn()
+          }
+        },
+        {
+          provide: SectionSidebarComponent,
+          useValue: {
+            showSignal: () => true
           }
         }
       ]
