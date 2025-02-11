@@ -52,12 +52,10 @@ export class ResultsCenterService {
 
   applySidebarFilters(): void {
     // this.applyFilters();
-    console.log('applySidebarFilters');
   }
 
   applySidebarConfigurations(): void {
     // this.applyConfigurations();
-    console.log('applySidebarConfigurations');
   }
 
   clearFilters(): void {
