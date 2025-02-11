@@ -35,11 +35,17 @@ export class ResultsCenterTableComponent {
   async exportTable() {
     console.log('export');
     // Test data
-    const dummyData = [
-      { Code: 'R001', Title: 'Test Result 1', Status: 'Active' },
-      { Code: 'R002', Title: 'Test Result 2', Status: 'Inactive' },
-      { Code: 'R003', Title: 'Test Result 3', Status: 'Active' }
-    ];
+    const exportData = this.resultsCenterService.list().map(result => ({
+      Code: result.result_official_code,
+      Title: result.title
+      // Description: result.description || '',
+      // 'Indicator ID': result.indicator_id,
+      // 'Indicator Name': result.indicators?.name || '',
+      // Status: result.result_status?.name || '',
+      // Project: result.result_contracts?.contract_id || '',
+      // Lever: result.result_levers?.lever?.short_name || '',
+      // Year: result.report_year_id || '',
+    }));
 
     // Create a new workbook and worksheet
     const workbook = new ExcelJS.Workbook();
@@ -52,14 +58,14 @@ export class ResultsCenterTableComponent {
     });
 
     // Add headers and set basic column widths
-    worksheet.columns = Object.keys(dummyData[0]).map(header => ({
+    worksheet.columns = Object.keys(exportData[0]).map(header => ({
       header,
       key: header,
       width: 15
     }));
 
     // Add data
-    dummyData.forEach(row => {
+    exportData.forEach(row => {
       worksheet.addRow(row);
     });
 
