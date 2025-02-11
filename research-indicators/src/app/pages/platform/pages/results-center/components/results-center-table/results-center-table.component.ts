@@ -8,6 +8,7 @@ import { TagModule } from 'primeng/tag';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ResultsCenterService } from '../../results-center.service';
+import * as ExcelJS from 'exceljs';
 
 @Component({
   selector: 'app-results-center-table',
@@ -29,6 +30,57 @@ export class ResultsCenterTableComponent {
 
   applyFilterGlobal($event: Event, stringVal: string) {
     this.dt2.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
+  }
+
+  async exportTable() {
+    console.log('export');
+    // Test data
+    const dummyData = [
+      { Code: 'R001', Title: 'Test Result 1', Status: 'Active' },
+      { Code: 'R002', Title: 'Test Result 2', Status: 'Inactive' },
+      { Code: 'R003', Title: 'Test Result 3', Status: 'Active' }
+    ];
+
+    // Create a new workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Research Indicators';
+    workbook.created = new Date();
+
+    const worksheet = workbook.addWorksheet('Results', {
+      views: [{ state: 'frozen', ySplit: 1 }],
+      properties: { defaultRowHeight: 20 }
+    });
+
+    // Add headers and set basic column widths
+    worksheet.columns = Object.keys(dummyData[0]).map(header => ({
+      header,
+      key: header,
+      width: 15
+    }));
+
+    // Add data
+    dummyData.forEach(row => {
+      worksheet.addRow(row);
+    });
+
+    // Basic header style
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+    try {
+      // Generate Excel file
+      const date = new Date().toISOString().split('T')[0];
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `test_export_${date}.xlsx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting file:', error);
+    }
   }
 
   showFiltersSidebar() {
