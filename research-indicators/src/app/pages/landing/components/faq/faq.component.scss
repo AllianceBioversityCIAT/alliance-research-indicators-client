@@ -58,6 +58,10 @@ p {
   color: var(--light-blue-400);
 }
 
+::ng-deep .p-accordion-header {
+  height: 100%;
+}
+
 ::ng-deep .p-disabled {
   opacity: 1;
 }
