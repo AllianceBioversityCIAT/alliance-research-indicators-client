@@ -39,7 +39,6 @@ export default class ResultsCenterComponent {
 
   onActiveItemChange(event: MenuItem) {
     this.activeItem.set(event);
-    this.resultsCenterService.selectedFilter.set(null);
     this.onTabChange();
   }
 }

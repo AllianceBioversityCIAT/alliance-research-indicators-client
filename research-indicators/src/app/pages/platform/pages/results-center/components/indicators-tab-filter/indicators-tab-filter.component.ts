@@ -54,6 +54,15 @@ export class IndicatorsTabFilterComponent implements OnInit {
         active: item.indicator_id === 0 ? false : item.indicator_id === indicatorId ? !item.active : item.active
       }));
     });
+
+    this.resultsCenterService.resultsFilter.update(prev => ({
+      ...prev,
+      indicatorsCodes: this.indicators()
+        .filter(item => item.active && item.indicator_id !== 0)
+        .map(item => item.indicator_id)
+    }));
+
+    console.log(this.resultsCenterService.resultsFilter());
   }
 
   scrollLeft() {

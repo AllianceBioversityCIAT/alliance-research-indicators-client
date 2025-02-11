@@ -9,7 +9,6 @@ export class ResultsCenterService {
   hasFilters = signal(false);
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
-  selectedFilter = signal<number | null>(null);
   list = signal<Result[]>([]);
   resultsFilter = signal<ResultFilter>({});
 
@@ -19,6 +18,7 @@ export class ResultsCenterService {
     console.log('onChangeFilters');
     const response = await this.getResultsService.getInstance(this.resultsFilter());
     this.list.set(response());
+    console.log(this.list());
   });
 
   getIndicatorName(id: number): string {
