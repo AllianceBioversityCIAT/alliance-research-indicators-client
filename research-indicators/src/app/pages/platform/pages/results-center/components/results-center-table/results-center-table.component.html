@@ -65,12 +65,7 @@
         <td>{{ result.created_by_user.first_name + ' ' + result.created_by_user.last_name || '-' }}</td>
         <td>{{ result.created_at | date: 'dd/MM/yyyy' }}</td>
         <td>
-          <button
-            pButton
-            pRipple
-            icon="pi pi-ellipsis-v"
-            class="p-button-text p-button-rounded p-button-plain"
-            (click)="menu.toggle($event)"></button>
+          <p-button pRipple icon="pi pi-ellipsis-v" class="p-button-text p-button-rounded p-button-plain" (click)="menu.toggle($event)"></p-button>
         </td>
       </tr>
     </ng-template>

@@ -27,10 +27,8 @@ export class ResultsCenterService {
   private getResultsService = inject(GetResultsService);
 
   onChangeFilters = effect(async () => {
-    console.log('onChangeFilters');
     const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
     this.list.set(response());
-    console.log(this.list());
   });
 
   getIndicatorName(id: number): string {
@@ -61,7 +59,6 @@ export class ResultsCenterService {
   }
 
   applyFilters(): void {
-    console.log('Filtros aplicados');
     this.hasFilters.set(true);
     this.confirmFiltersSignal.set(true); // Se activa la señal cuando se confirman los filtros
   }

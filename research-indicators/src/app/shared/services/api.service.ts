@@ -120,10 +120,7 @@ export class ApiService {
 
     const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
 
-    console.log(queryString);
-
     const url = () => `results${queryString}`;
-    console.log(url());
     return this.TP.get(url(), {});
   };
 

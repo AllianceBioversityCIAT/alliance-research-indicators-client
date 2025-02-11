@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TableFiltersSidebarComponent } from './table-filters-sidebar.component';
 
 describe('TableFiltersSidebarComponent', () => {
@@ -8,9 +8,8 @@ describe('TableFiltersSidebarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TableFiltersSidebarComponent]
-    })
-    .compileComponents();
+      imports: [TableFiltersSidebarComponent, HttpClientTestingModule]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TableFiltersSidebarComponent);
     component = fixture.componentInstance;

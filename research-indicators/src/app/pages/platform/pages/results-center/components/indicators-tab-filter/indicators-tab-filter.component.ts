@@ -3,10 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ResultsCenterService } from '../../results-center.service';
 import { GetAllIndicatorsService } from '../../../../../../shared/services/control-list/get-all-indicators.service';
 import { GetAllIndicators } from '../../../../../../shared/interfaces/get-all-indicators.interface';
-interface FilterItem {
-  filter: string;
-  id: number | null;
-}
 
 @Component({
   selector: 'app-indicators-tab-filter',
@@ -62,8 +58,6 @@ export class IndicatorsTabFilterComponent implements OnInit {
         .filter(item => item.active && item.indicator_id !== 0)
         .map(item => item.indicator_id)
     }));
-
-    console.log(this.resultsCenterService.resultsFilter());
   }
 
   scrollLeft() {
