@@ -11,6 +11,17 @@ export class ResultsCenterService {
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
   list = signal<Result[]>([]);
+  tableColumns = signal([
+    { field: 'result_official_code', header: 'Code' },
+    { field: 'title', header: 'Title' },
+    { field: 'indicator_id', header: 'Indicator' },
+    { field: 'status', header: 'Status' },
+    { field: 'project', header: 'Project' },
+    { field: 'lever', header: 'Lever' },
+    { field: 'year', header: 'Year' },
+    { field: 'creator', header: 'Creator' },
+    { field: 'creation_date', header: 'Creation date' }
+  ]);
   resultsFilter = signal<ResultFilter>({ indicatorsCodes: [] });
   resultsConfig = signal<ResultConfig>({
     indicators: true,

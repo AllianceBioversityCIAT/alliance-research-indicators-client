@@ -17,10 +17,10 @@
         </span>
       </div>
 
-      <!-- <div class="flex gap-3 align-items-center">
-        <p-button label="Apply Filter" icon="pi pi-filter" size="small" (click)="showFiltersSidebar()"></p-button>
+      <div class="flex gap-3 align-items-center">
+        <!-- <p-button label="Apply Filter" icon="pi pi-filter" size="small" (click)="showFiltersSidebar()"></p-button> -->
         <p-button icon="pi pi-cog" size="small" [outlined]="true" (click)="showConfiguratiosnSidebar()"></p-button>
-      </div> -->
+      </div>
     </div>
   </div>
 
@@ -41,16 +41,9 @@
     styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="result_official_code">Code <p-sortIcon field="result_official_code"></p-sortIcon></th>
-        <th pSortableColumn="title" class="w-25rem">Title <p-sortIcon field="title"></p-sortIcon></th>
-        <th pSortableColumn="indicator_id">Indicator <p-sortIcon field="indicator_id"></p-sortIcon></th>
-        <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
-        <th pSortableColumn="project">Project <p-sortIcon field="project"></p-sortIcon></th>
-        <th pSortableColumn="lever">Lever <p-sortIcon field="lever"></p-sortIcon></th>
-        <th pSortableColumn="year">Year <p-sortIcon field="year"></p-sortIcon></th>
-        <th pSortableColumn="creator">Creator <p-sortIcon field="creator"></p-sortIcon></th>
-        <th pSortableColumn="creation_date">Creation date <p-sortIcon field="creation_date"></p-sortIcon></th>
-        <!-- <th style="width: 3rem">Actions</th> -->
+        @for (column of this.resultsCenterService.tableColumns(); track column.field) {
+          <th pSortableColumn="{{ column.field }}">{{ column.header }} <p-sortIcon field="{{ column.field }}"></p-sortIcon></th>
+        }
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-result>
