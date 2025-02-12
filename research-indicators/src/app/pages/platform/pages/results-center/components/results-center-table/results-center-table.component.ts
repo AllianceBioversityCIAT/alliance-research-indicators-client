@@ -65,11 +65,12 @@ export class ResultsCenterTableComponent {
     // Style only the used columns
     for (let i = 1; i <= totalColumns; i++) {
       const cell = worksheet.getRow(1).getCell(i);
+      worksheet.getRow(1).height = 30;
       cell.font = { bold: true };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
       cell.font = {
         color: { argb: 'FFFFFF' },
-        size: 15,
+        size: 16,
         bold: true
       };
       cell.fill = {
