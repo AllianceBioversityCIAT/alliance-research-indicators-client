@@ -34,19 +34,86 @@ export class ResultsCenterTableComponent {
     this.dt2.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
+  private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70, minWidth = 15) {
+    const column = worksheet.getColumn(columnNumber);
+    if (column) {
+      // Initialize maxLength with header length
+      let maxLength = column.header?.toString().length || 0;
+
+      // Check all cell contents
+      column.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
+        if (rowNumber > 1) {
+          // Skip header since we already considered it
+          const cellText = cell.text || '';
+          const textLength = cellText.toString().length;
+          maxLength = Math.max(maxLength, textLength);
+        }
+      });
+
+      column.width = Math.min(Math.max(maxLength + 2, minWidth), maxWidth);
+    }
+  }
+
+  private styleHeaderColumns(worksheet: ExcelJS.Worksheet, totalColumns: number) {
+    // Style each header cell and hide unused columns
+
+    // Set print area and view to only show used columns
+    worksheet.views = [
+      {
+        state: 'frozen',
+        ySplit: 1,
+        xSplit: 0,
+        rightToLeft: false,
+        showGridLines: true,
+        zoomScale: 100
+      }
+    ];
+
+    // Enable autoFilter for all columns
+    worksheet.autoFilter = {
+      from: { row: 1, column: 1 },
+      to: { row: 1, column: totalColumns }
+    };
+
+    // Style only the used columns
+    for (let i = 1; i <= totalColumns; i++) {
+      const cell = worksheet.getRow(1).getCell(i);
+      worksheet.getRow(1).height = 30;
+      cell.font = { bold: true };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.font = {
+        color: { argb: 'FFFFFF' },
+        size: 16,
+        bold: true
+      };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '204887' }
+      };
+    }
+
+    // Hide all columns after our data
+    for (let i = totalColumns + 1; i <= worksheet.columnCount; i++) {
+      worksheet.getColumn(i).hidden = true;
+    }
+  }
+
   async exportTable() {
     // Test data
-    const exportData = this.resultsCenterService.list().map(result => ({
-      Code: result.result_official_code,
-      Title: result.title,
-      // Description: result.description || 'non'
-      'Indicator ID': result.indicator_id,
-      'Indicator Name': result.indicators?.name || '',
-      Status: result.result_status?.name || '',
-      Project: result.result_contracts?.contract_id || '',
-      Lever: result.result_levers?.lever?.short_name || '',
-      Year: result.report_year_id || ''
-    }));
+    const exportData =
+      (this.dt2.filteredValue || this.resultsCenterService.list())?.map(result => ({
+        Code: result.result_official_code,
+        Title: result.title,
+        // Description: result.description?.substring(0, 200) || '',
+        Indicator: result.indicators?.name || '',
+        Status: result.result_status?.name || '',
+        Project: result.result_contracts?.contract_id || '',
+        Lever: result.result_levers?.lever?.short_name || '',
+        Year: result.report_year_id || '',
+        Creator: result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '',
+        'Creation date': result.created_at ? new Date(result.created_at).toLocaleDateString() : ''
+      })) || [];
 
     // Create a new workbook and worksheet
     const workbook = new ExcelJS.Workbook();
@@ -55,14 +122,18 @@ export class ResultsCenterTableComponent {
 
     const worksheet = workbook.addWorksheet('Results', {
       views: [{ state: 'frozen', ySplit: 1 }],
-      properties: { defaultRowHeight: 20 }
+      properties: {
+        defaultRowHeight: 20,
+        showGridLines: false
+      }
     });
 
     // Add headers and set basic column widths
     worksheet.columns = Object.keys(exportData[0]).map(header => ({
       header,
       key: header,
-      width: 15
+      width: 15,
+      hidden: false
     }));
 
     // Add data
@@ -70,15 +141,15 @@ export class ResultsCenterTableComponent {
       worksheet.addRow(row);
     });
 
-    // Basic header style
-    const headerRow = worksheet.getRow(1);
-    headerRow.font = { bold: true };
-    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
-    headerRow.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFE6F3FF' } // Light blue color
-    };
+    // Adjust column widths with specific minimums for each column
+    this.adjustColumnWidth(worksheet, 2, 70); // Title column
+    this.adjustColumnWidth(worksheet, 3, 100); // Description column
+    this.adjustColumnWidth(worksheet, 5, 70); // Indicator Name column
+    this.adjustColumnWidth(worksheet, 8, 70); // Status column
+    this.adjustColumnWidth(worksheet, 9, 70, 20); // Project column
+
+    // Style header columns
+    this.styleHeaderColumns(worksheet, Object.keys(exportData[0]).length);
 
     try {
       // Generate Excel file
