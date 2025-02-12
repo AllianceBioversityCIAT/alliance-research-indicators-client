@@ -18,6 +18,7 @@ export class ResultsCenterService {
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
   list = signal<Result[]>([]);
+  tableFilters = signal({ levers: [], statusCodes: [], years: [], contracts: [], indicators: [] });
 
   tableColumns = signal<TableColumn[]>([
     {
@@ -66,9 +67,6 @@ export class ResultsCenterService {
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
   ]);
-  print = effect(() => {
-    console.log(this.resultsFilter());
-  });
 
   resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [] });
   resultsConfig = signal<ResultConfig>({

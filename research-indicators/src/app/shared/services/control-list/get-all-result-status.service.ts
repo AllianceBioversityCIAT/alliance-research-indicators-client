@@ -17,7 +17,6 @@ export class GetAllResultStatusService {
     this.loading.set(true);
     const response = await this.api.GET_AllResultStatus();
     this.list.set(response.data);
-    console.log(this.list());
     this.loading.set(false);
   }
 }

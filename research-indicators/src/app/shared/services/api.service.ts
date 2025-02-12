@@ -124,7 +124,6 @@ export class ApiService {
 
     // Dynamic handling of filter parameters
     if (resultFilter) {
-      console.log(resultFilter);
       Object.entries(resultFilter).forEach(([key, value]) => {
         if (Array.isArray(value) && value.length) {
           queryParams.push(`${key}=${value.join(',')}`);
@@ -133,7 +132,6 @@ export class ApiService {
     }
 
     const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
-    console.log(queryString);
     const url = () => `results${queryString}`;
     return this.TP.get(url(), {});
   };

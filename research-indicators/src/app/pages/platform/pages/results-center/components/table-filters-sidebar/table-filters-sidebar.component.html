@@ -1,16 +1,17 @@
 <div class="body">
-  <app-multiselect
-    label="Indicator"
-    [signal]="this.tableFilters"
-    optionLabel="name"
-    optionValue="indicator_id"
-    signalOptionValue="indicators"
-    serviceName="getAllIndicators">
-  </app-multiselect>
-
+  @if (!this.resultsCenterService.resultsFilter()['indicator-codes-tabs']?.length) {
+    <app-multiselect
+      label="Indicator"
+      [signal]="this.resultsCenterService.tableFilters"
+      optionLabel="name"
+      optionValue="indicator_id"
+      signalOptionValue="indicators"
+      serviceName="getAllIndicators">
+    </app-multiselect>
+  }
   <app-multiselect
     label="Status"
-    [signal]="this.tableFilters"
+    [signal]="this.resultsCenterService.tableFilters"
     optionLabel="name"
     optionValue="result_status_id"
     signalOptionValue="statusCodes"
@@ -19,7 +20,7 @@
 
   <app-multiselect
     label="Project"
-    [signal]="this.tableFilters"
+    [signal]="this.resultsCenterService.tableFilters"
     optionLabel="select_label"
     optionValue="agreement_id"
     signalOptionValue="contracts"
@@ -28,14 +29,20 @@
 
   <app-multiselect
     label="Lever"
-    [signal]="this.tableFilters"
+    [signal]="this.resultsCenterService.tableFilters"
     optionLabel="full_name"
     optionValue="id"
     signalOptionValue="levers"
     serviceName="levers">
   </app-multiselect>
 
-  <app-multiselect label="Year" [signal]="this.tableFilters" optionLabel="name" optionValue="id" signalOptionValue="years" serviceName="getAllYears">
+  <app-multiselect
+    label="Year"
+    [signal]="this.resultsCenterService.tableFilters"
+    optionLabel="name"
+    optionValue="id"
+    signalOptionValue="years"
+    serviceName="getAllYears">
   </app-multiselect>
 </div>
 <div class="buttons">

@@ -17,18 +17,18 @@ import { GetAllIndicators } from '../../../../../../shared/interfaces/get-all-in
 })
 export class TableFiltersSidebarComponent {
   resultsCenterService = inject(ResultsCenterService);
-  tableFilters = signal({ levers: [], statusCodes: [], years: [], contracts: [], indicators: [] });
+
   @Input() showSignal = signal(false);
   @Input() confirmSidebarEvent = output<void>();
 
   applyFilters = () => {
     this.resultsCenterService.resultsFilter.update(prev => ({
       ...prev,
-      'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id),
-      'status-codes': this.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id),
-      years: this.tableFilters().years.map((year: { id: number; name: string }) => year.id),
-      'contract-codes': this.tableFilters().contracts.map((contract: GetContracts) => contract.agreement_id),
-      'indicator-codes-filter': this.tableFilters().indicators.map((indicator: GetAllIndicators) => indicator.indicator_id)
+      'lever-codes': this.resultsCenterService.tableFilters().levers.map((lever: GetLevers) => lever.id),
+      'status-codes': this.resultsCenterService.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id),
+      years: this.resultsCenterService.tableFilters().years.map((year: { id: number; name: string }) => year.id),
+      'contract-codes': this.resultsCenterService.tableFilters().contracts.map((contract: GetContracts) => contract.agreement_id),
+      'indicator-codes-filter': this.resultsCenterService.tableFilters().indicators.map((indicator: GetAllIndicators) => indicator.indicator_id)
     }));
   };
 

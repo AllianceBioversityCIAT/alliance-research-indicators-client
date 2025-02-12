@@ -18,7 +18,6 @@ export class GetAllIndicatorsService {
     const response = await this.apiService.GET_AllIndicators();
     this.list.set(response.data);
     this.loading.set(false);
-    console.log(response.data);
   }
 
   getInstance = async (): Promise<WritableSignal<GetAllIndicators[]>> => {
