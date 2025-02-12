@@ -7,24 +7,6 @@
     <h1 class="title-text">WANT ASSISTANCE WITH AI FOR YOUR RESULT CREATION?</h1>
 
     <div class="cards-container">
-      <div class="card under-construction-card" style="position: relative; cursor: not-allowed; transform: scale(1)">
-        <div class="under-construction-image">
-          <img src="/construction.png" alt="construction" class="construction-icon" />
-        </div>
-
-        <div class="card-content">
-          <div style="width: 100px">
-            <img src="/images/description_based_ai.svg" alt="description-based-ai" style="width: 100%" />
-          </div>
-
-          <div class="card-title">
-            <p class="title">Description Based AI</p>
-            <p class="description">Describe your result, and our AI will auto-fill the relevant fields.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- (click)="this.createResultManagementService.resultPageStep.set(1)" -->
       <div class="card under-construction-card" style="position: relative; transform: scale(1); cursor: not-allowed">
         <div class="under-construction-image">
           <img src="/construction.png" alt="construction" class="construction-icon" />
@@ -103,7 +85,6 @@
         <h2 class="title">Title*</h2>
         <h4 class="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</h4>
         <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" />
-        <!-- <small class="subtitle" id="username-help">Max. # words</small> -->
       </div>
 
       <div class="button-group">
