@@ -100,7 +100,6 @@ export class ApiService {
   };
 
   GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<Result[]>> => {
-    const { indicatorsCodes, userCodes, 'lever-codes': levers } = resultFilter;
     const queryParams: string[] = [];
 
     // Dynamic handling of boolean config parameters
@@ -112,20 +111,18 @@ export class ApiService {
       });
     }
 
-    if (indicatorsCodes?.length) {
-      queryParams.push(`indicator-codes=${indicatorsCodes.join(',')}`);
-    }
-
-    if (userCodes?.length) {
-      queryParams.push(`create-user-codes=${userCodes.join(',')}`);
-    }
-
-    if (levers?.length) {
-      queryParams.push(`lever-codes=${levers.join(',')}`);
+    // Dynamic handling of filter parameters
+    if (resultFilter) {
+      console.log(resultFilter);
+      Object.entries(resultFilter).forEach(([key, value]) => {
+        if (Array.isArray(value) && value.length) {
+          queryParams.push(`${key}=${value.join(',')}`);
+        }
+      });
     }
 
     const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
-
+    console.log(queryString);
     const url = () => `results${queryString}`;
     return this.TP.get(url(), {});
   };

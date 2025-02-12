@@ -14,7 +14,6 @@ import { GetAllIndicators } from '../../../../../../shared/interfaces/get-all-in
 export class IndicatorsTabFilterComponent implements OnInit {
   getAllIndicatorsServiceInstance = inject(GetAllIndicatorsService).getInstance;
   @Input() activeItem = 'all';
-  @Input() userCodes?: string[];
   indicators = signal<GetAllIndicators[]>([]);
 
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;
@@ -54,7 +53,7 @@ export class IndicatorsTabFilterComponent implements OnInit {
 
     this.resultsCenterService.resultsFilter.update(prev => ({
       ...prev,
-      indicatorsCodes: this.indicators()
+      'indicator-codes': this.indicators()
         .filter(item => item.active && item.indicator_id !== 0)
         .map(item => item.indicator_id)
     }));

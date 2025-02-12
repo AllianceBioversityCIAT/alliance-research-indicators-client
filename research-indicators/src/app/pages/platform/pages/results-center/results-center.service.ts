@@ -70,7 +70,7 @@ export class ResultsCenterService {
     console.log(this.resultsFilter());
   });
 
-  resultsFilter = signal<ResultFilter>({ indicatorsCodes: [], 'lever-codes': [] });
+  resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [] });
   resultsConfig = signal<ResultConfig>({
     indicators: true,
     'result-status': true,
@@ -107,7 +107,10 @@ export class ResultsCenterService {
   }
 
   onActiveItemChange = (event: MenuItem): void =>
-    this.resultsFilter.update(prev => ({ ...prev, userCodes: event.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : [] }));
+    this.resultsFilter.update(prev => ({
+      ...prev,
+      'create-user-codes': event.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : []
+    }));
 
   applySidebarFilters(): void {
     // this.applyFilters();

@@ -84,7 +84,7 @@ describe('ResultsComponent', () => {
           provide: ResultsCenterService,
           useValue: {
             resultsFilter: signal({
-              indicatorsCodes: []
+              'indicator-codes': []
             }),
             showFiltersSidebar: signal(false),
             showConfigurationsSidebar: signal(false),
