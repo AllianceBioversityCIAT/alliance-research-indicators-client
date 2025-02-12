@@ -10,6 +10,7 @@ import { MenuItem } from 'primeng/api';
 import { ResultsCenterService } from '../../results-center.service';
 import * as ExcelJS from 'exceljs';
 import { Router } from '@angular/router';
+import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 
 @Component({
   selector: 'app-results-center-table',
@@ -21,6 +22,7 @@ import { Router } from '@angular/router';
 export class ResultsCenterTableComponent {
   resultsCenterService = inject(ResultsCenterService);
   private router = inject(Router);
+  private cacheService = inject(CacheService);
   searchQuery = signal('');
   @ViewChild('dt2') dt2!: Table;
 
@@ -153,13 +155,16 @@ export class ResultsCenterTableComponent {
 
     try {
       // Generate Excel file
-      const date = new Date().toISOString().split('T')[0];
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `test_export_${date}.xlsx`;
+      const now = new Date();
+      const formattedDate = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
+      const userData = this.cacheService.dataCache().user;
+      const userName = `${userData.first_name}_${userData.last_name}`.toLowerCase().replace(' ', '_');
+      link.download = `export_${userName}_${formattedDate}.xlsx`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
