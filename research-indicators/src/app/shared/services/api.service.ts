@@ -36,6 +36,7 @@ import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.int
 import { GetOsSubNationals, OpenSearchFilters } from '../interfaces/get-os-subnational.interface';
 import { GetAnnouncementSettingAvailable } from '../interfaces/get-announcement-setting-available.interface';
 import { GetAllIndicators } from '../interfaces/get-all-indicators.interface';
+import { GetAllResultStatus } from '../interfaces/get-all-result-status.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -270,6 +271,11 @@ export class ApiService {
 
   GET_ResultsStatus = (): Promise<MainResponse<GetResultsStatus[]>> => {
     const url = () => `results/status/result-amount/current-user`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_AllResultStatus = (): Promise<MainResponse<GetAllResultStatus[]>> => {
+    const url = () => `results/status`;
     return this.TP.get(url(), {});
   };
 

@@ -25,4 +25,5 @@ export type ControlListServices =
   | 'innoUseOutput'
   | 'openSearchSubNationals'
   | 'getAllIndicators'
-  | '';
+  | 'allResultStatus'
+  |'';

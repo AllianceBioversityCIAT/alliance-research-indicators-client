@@ -35,14 +35,14 @@
     serviceName="levers">
   </app-multiselect>
 
-  <!-- <app-multiselect
+  <app-multiselect
     label="Year"
-    [signal]="body"
-    optionLabel="html_full_name"
-    optionValue="institution_id"
-    signalOptionValue="institutions"
-    serviceName="institutions">
-  </app-multiselect> -->
+    [signal]="this.tableFilters"
+    optionLabel="name"
+    optionValue="result_status_id"
+    signalOptionValue="statusCodes"
+    serviceName="allResultStatus">
+  </app-multiselect>
 </div>
 <div class="buttons">
   <!-- <p-button label="Cancel" [outlined]="true" />
