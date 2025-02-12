@@ -34,13 +34,26 @@ export class ResultsCenterTableComponent {
     this.dt2.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
+  private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70) {
+    const column = worksheet.getColumn(columnNumber);
+    if (column) {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: true }, cell => {
+        const cellText = cell.text || '';
+        const textLength = cellText.toString().length;
+        maxLength = Math.max(maxLength, textLength);
+      });
+      column.width = Math.min(Math.max(maxLength + 2, 15), maxWidth);
+    }
+  }
+
   async exportTable() {
     // Test data
     const exportData =
       (this.dt2.filteredValue || this.resultsCenterService.list())?.map(result => ({
         Code: result.result_official_code,
         Title: result.title,
-        Description: result.description?.substring(0, 100) || '',
+        Description: result.description?.substring(0, 200) || '',
         'Indicator ID': result.indicator_id,
         'Indicator Name': result.indicators?.name || '',
         Status: result.result_status?.name || '',
@@ -70,6 +83,11 @@ export class ResultsCenterTableComponent {
     exportData.forEach(row => {
       worksheet.addRow(row);
     });
+
+    // Adjust column widths
+    this.adjustColumnWidth(worksheet, 2, 70); // Title column
+    this.adjustColumnWidth(worksheet, 3, 100); // Description column
+    this.adjustColumnWidth(worksheet, 5, 70); // Indicator Name column
 
     // Auto-fit Title column based on content
     const titleColumn = worksheet.getColumn(2); // Title is the second column
