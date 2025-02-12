@@ -115,7 +115,7 @@ export default class GeographicScopeComponent {
     if (!response.successfulRequest) return;
     await this.getData();
     this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
+    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
     this.loading.set(false);
   }
