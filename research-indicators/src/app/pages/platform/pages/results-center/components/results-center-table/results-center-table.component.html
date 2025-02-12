@@ -36,7 +36,7 @@
     [sortField]="'result_id'"
     [sortOrder]="-1"
     [globalFilterFields]="['result_official_code', 'title', 'indicator_id', 'status', 'project', 'lever', 'year', 'creator', 'creation_date']"
-    styleClass="p-datatable-gridlines table-custom-styles">
+    styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
     <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="result_official_code">Code <p-sortIcon field="result_official_code"></p-sortIcon></th>
@@ -52,7 +52,7 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-result>
-      <tr>
+      <tr (click)="openResult(result.result_id)" class="cursor-pointer hover:surface-ground transition-colors transition-duration-150">
         <td>{{ result.result_official_code }}</td>
         <td class="w-25rem">{{ result.title }}</td>
         <td>{{ result.indicators.name || '-' }}</td>
