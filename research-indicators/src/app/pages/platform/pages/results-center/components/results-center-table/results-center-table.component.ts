@@ -47,6 +47,20 @@ export class ResultsCenterTableComponent {
     }
   }
 
+  private styleHeaderColumns(worksheet: ExcelJS.Worksheet, totalColumns: number) {
+    // Style each header cell
+    for (let i = 1; i <= totalColumns; i++) {
+      const cell = worksheet.getRow(1).getCell(i);
+      cell.font = { bold: true };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE6F3FF' } // Light blue color
+      };
+    }
+  }
+
   async exportTable() {
     // Test data
     const exportData =
@@ -89,27 +103,8 @@ export class ResultsCenterTableComponent {
     this.adjustColumnWidth(worksheet, 3, 100); // Description column
     this.adjustColumnWidth(worksheet, 5, 70); // Indicator Name column
 
-    // Auto-fit Title column based on content
-    const titleColumn = worksheet.getColumn(2); // Title is the second column
-    if (titleColumn) {
-      let maxLength = 0;
-      titleColumn.eachCell({ includeEmpty: true }, cell => {
-        const cellText = cell.text || '';
-        const textLength = cellText.toString().length;
-        maxLength = Math.max(maxLength, textLength);
-      });
-      titleColumn.width = Math.min(Math.max(maxLength + 2, 15), 70); // padding of 2, min 15, max 50
-    }
-
-    // Basic header style
-    const headerRow = worksheet.getRow(1);
-    headerRow.font = { bold: true };
-    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
-    headerRow.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFE6F3FF' } // Light blue color
-    };
+    // Style header columns
+    this.styleHeaderColumns(worksheet, Object.keys(exportData[0]).length);
 
     try {
       // Generate Excel file
