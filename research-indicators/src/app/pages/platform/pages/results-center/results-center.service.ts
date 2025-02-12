@@ -3,6 +3,13 @@ import { GetResultsService } from '../../../../shared/services/control-list/get-
 import { Result, ResultConfig, ResultFilter } from '../../../../shared/interfaces/result/result.interface';
 import { MenuItem } from 'primeng/api';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
+
+interface TableColumn {
+  field: string;
+  header: string;
+  getValue?: (result: Result) => string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,16 +18,53 @@ export class ResultsCenterService {
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
   list = signal<Result[]>([]);
-  tableColumns = signal([
-    { field: 'result_official_code', header: 'Code' },
-    { field: 'title', header: 'Title' },
-    { field: 'indicator_id', header: 'Indicator' },
-    { field: 'status', header: 'Status' },
-    { field: 'project', header: 'Project' },
-    { field: 'lever', header: 'Lever' },
-    { field: 'year', header: 'Year' },
-    { field: 'creator', header: 'Creator' },
-    { field: 'creation_date', header: 'Creation date' }
+
+  tableColumns = signal<TableColumn[]>([
+    {
+      field: 'result_official_code',
+      header: 'Code',
+      getValue: (result: Result) => result.result_official_code
+    },
+    {
+      field: 'title',
+      header: 'Title',
+      getValue: (result: Result) => result.title
+    },
+    {
+      field: 'indicator_id',
+      header: 'Indicator',
+      getValue: (result: Result) => result.indicators?.name || '-'
+    },
+    {
+      field: 'status',
+      header: 'Status',
+      getValue: (result: Result) => result.result_status?.name || '-'
+    },
+    {
+      field: 'project',
+      header: 'Project',
+      getValue: (result: Result) => result.result_contracts?.contract_id || '-'
+    },
+    {
+      field: 'lever',
+      header: 'Lever',
+      getValue: (result: Result) => result.result_levers?.lever?.short_name || '-'
+    },
+    {
+      field: 'year',
+      header: 'Year',
+      getValue: (result: Result) => result.report_year_id?.toString() || '-'
+    },
+    {
+      field: 'creator',
+      header: 'Creator',
+      getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
+    },
+    {
+      field: 'creation_date',
+      header: 'Creation date',
+      getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
+    }
   ]);
   resultsFilter = signal<ResultFilter>({ indicatorsCodes: [] });
   resultsConfig = signal<ResultConfig>({

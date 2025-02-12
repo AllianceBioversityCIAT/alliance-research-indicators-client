@@ -41,7 +41,7 @@
     styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
     <ng-template pTemplate="header">
       <tr>
-        @for (column of this.resultsCenterService.tableColumns(); track column.field) {
+        @for (column of resultsCenterService.tableColumns(); track column.field) {
           <th pSortableColumn="{{ column.field }}">{{ column.header }} <p-sortIcon field="{{ column.field }}"></p-sortIcon></th>
         }
       </tr>
@@ -51,10 +51,10 @@
         @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (column.field === 'status') {
             <td>
-              <p-tag [value]="result.result_status.name" [severity]="getStatusSeverity(result.result_status.name)"></p-tag>
+              <p-tag [value]="result.result_status?.name" [severity]="getStatusSeverity(result.result_status?.name || '')"></p-tag>
             </td>
           } @else {
-            <td [class.w-25rem]="column.field === 'title'">{{ getColumnValue(result, column.field) }}</td>
+            <td [class.w-25rem]="column.field === 'title'">{{ column.getValue ? column.getValue(result) : '-' }}</td>
           }
         }
       </tr>
