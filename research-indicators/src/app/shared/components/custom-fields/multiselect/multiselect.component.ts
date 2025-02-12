@@ -81,7 +81,7 @@ export class MultiselectComponent implements OnInit {
         this.firstLoad.set(false);
       } else {
         if (
-          this.utils.getNestedProperty(this.signal(), this.signalOptionValue).length &&
+          this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.length &&
           !this.currentResultIsLoading() &&
           this.service?.list().length &&
           this.firstLoad()
