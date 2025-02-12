@@ -36,17 +36,18 @@ export class ResultsCenterTableComponent {
 
   async exportTable() {
     // Test data
-    const exportData = this.resultsCenterService.list().map(result => ({
-      Code: result.result_official_code,
-      Title: result.title,
-      Description: result.description?.substring(0, 10) || '',
-      'Indicator ID': result.indicator_id,
-      'Indicator Name': result.indicators?.name || '',
-      Status: result.result_status?.name || '',
-      Project: result.result_contracts?.contract_id || '',
-      Lever: result.result_levers?.lever?.short_name || '',
-      Year: result.report_year_id || ''
-    }));
+    const exportData =
+      (this.dt2.filteredValue || this.resultsCenterService.list())?.map(result => ({
+        Code: result.result_official_code,
+        Title: result.title,
+        Description: result.description || '',
+        'Indicator ID': result.indicator_id,
+        'Indicator Name': result.indicators?.name || '',
+        Status: result.result_status?.name || '',
+        Project: result.result_contracts?.contract_id || '',
+        Lever: result.result_levers?.lever?.short_name || '',
+        Year: result.report_year_id || ''
+      })) || [];
 
     // Create a new workbook and worksheet
     const workbook = new ExcelJS.Workbook();
