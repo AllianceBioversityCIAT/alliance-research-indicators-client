@@ -10,6 +10,7 @@ import { MenuItem } from 'primeng/api';
 import { ResultsCenterService } from '../../results-center.service';
 import * as ExcelJS from 'exceljs';
 import { Router } from '@angular/router';
+import { Result } from '../../../../../../shared/interfaces/result/result.interface';
 
 @Component({
   selector: 'app-results-center-table',
@@ -29,6 +30,30 @@ export class ResultsCenterTableComponent {
     { label: 'Delete', icon: 'pi pi-trash' },
     { label: 'Export', icon: 'pi pi-download' }
   ];
+
+  getColumnValue(result: Result, field: string): string {
+    console.log('test');
+    switch (field) {
+      case 'result_official_code':
+        return result.result_official_code;
+      case 'title':
+        return result.title;
+      case 'indicator_id':
+        return result.indicators?.name || '-';
+      case 'project':
+        return result.result_contracts?.contract_id || '-';
+      case 'lever':
+        return result.result_levers?.lever?.short_name || '-';
+      case 'year':
+        return result.report_year_id?.toString() || '-';
+      case 'creator':
+        return result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-';
+      case 'creation_date':
+        return result.created_at ? new Date(result.created_at).toLocaleDateString() : '-';
+      default:
+        return '-';
+    }
+  }
 
   applyFilterGlobal($event: Event, stringVal: string) {
     this.dt2.filterGlobal(($event.target as HTMLInputElement).value, stringVal);

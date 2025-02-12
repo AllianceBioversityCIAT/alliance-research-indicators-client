@@ -1,13 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { GetInnoDevOutput } from '../../interfaces/get-innovation-outputs.interface';
+import { Result } from '../../interfaces/result/result.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GetInnoDevOutputService {
   api = inject(ApiService);
-  list = signal<GetInnoDevOutput[]>([]);
+  list = signal<Result[]>([]);
   loading = signal(true);
   isOpenSearch = signal(false);
 
@@ -25,7 +25,7 @@ export class GetInnoDevOutputService {
       indicatorsCodes: [2]
     });
     if (response?.data) {
-      this.list.set(response.data as GetInnoDevOutput[]);
+      this.list.set(response.data as Result[]);
     } else {
       this.list.set([]);
     }

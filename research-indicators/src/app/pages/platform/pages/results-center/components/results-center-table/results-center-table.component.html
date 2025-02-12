@@ -48,20 +48,15 @@
     </ng-template>
     <ng-template pTemplate="body" let-result>
       <tr (click)="openResult(result.result_id)" class="cursor-pointer hover:surface-ground transition-colors transition-duration-150">
-        <td>{{ result.result_official_code }}</td>
-        <td class="w-25rem">{{ result.title }}</td>
-        <td>{{ result.indicators.name || '-' }}</td>
-        <td>
-          <p-tag [value]="result.result_status.name" [severity]="getStatusSeverity(result.result_status.name)"></p-tag>
-        </td>
-        <td>{{ result.result_contracts.contract_id || '-' }}</td>
-        <td>{{ result.result_levers?.lever?.short_name || '-' }}</td>
-        <td>{{ result.report_year_id || '-' }}</td>
-        <td>{{ result.created_by_user.first_name + ' ' + result.created_by_user.last_name || '-' }}</td>
-        <td>{{ result.created_at | date: 'dd/MM/yyyy' }}</td>
-        <!-- <td>
-          <p-button pRipple icon="pi pi-ellipsis-v" class="p-button-text p-button-rounded p-button-plain" (click)="menu.toggle($event)"></p-button>
-        </td> -->
+        @for (column of resultsCenterService.tableColumns(); track column.field) {
+          @if (column.field === 'status') {
+            <td>
+              <p-tag [value]="result.result_status.name" [severity]="getStatusSeverity(result.result_status.name)"></p-tag>
+            </td>
+          } @else {
+            <td [class.w-25rem]="column.field === 'title'">{{ getColumnValue(result, column.field) }}</td>
+          }
+        }
       </tr>
     </ng-template>
   </p-table>
