@@ -9,6 +9,8 @@ import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ResultsCenterService } from '../../results-center.service';
 import * as ExcelJS from 'exceljs';
+import { Router } from '@angular/router';
+import { Result } from '../../../../../../shared/interfaces/result/result.interface';
 
 @Component({
   selector: 'app-results-center-table',
@@ -19,6 +21,7 @@ import * as ExcelJS from 'exceljs';
 })
 export class ResultsCenterTableComponent {
   resultsCenterService = inject(ResultsCenterService);
+  private router = inject(Router);
   searchQuery = signal('');
   @ViewChild('dt2') dt2!: Table;
 
@@ -114,5 +117,9 @@ export class ResultsCenterTableComponent {
       EDITING: 'warning'
     };
     return severityMap[status];
+  }
+
+  openResult(resultId: string) {
+    this.router.navigate(['/result', resultId]);
   }
 }

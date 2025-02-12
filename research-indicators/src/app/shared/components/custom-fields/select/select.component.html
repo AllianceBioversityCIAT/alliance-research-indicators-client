@@ -40,6 +40,15 @@
         </ng-template>
       }
 
+      <ng-template pTemplate="item" let-item>
+        <div [innerHTML]="item[this.optionLabel]"></div>
+      </ng-template>
+
+      <!-- selected style -->
+      <ng-template pTemplate="selectedItem" let-item>
+        <div [innerHTML]="item[this.optionLabel]" class="selected-item"></div>
+      </ng-template>
+
       @if (optionLabel2) {
         <ng-template let-item pTemplate="item">
           {{ item[this.optionLabel] }} <br />

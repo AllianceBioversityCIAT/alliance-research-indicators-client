@@ -9,11 +9,11 @@ import { GetPolicyChange } from '../../../../../../shared/interfaces/get-get-pol
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
-
+import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'app-policy-change',
   standalone: true,
-  imports: [RadioButtonComponent, TextareaComponent, MultiselectComponent, SelectComponent, ButtonModule],
+  imports: [RadioButtonComponent, TextareaComponent, MultiselectComponent, SelectComponent, ButtonModule, TooltipModule],
   templateUrl: './policy-change.component.html',
   styleUrl: './policy-change.component.scss'
 })

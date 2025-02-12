@@ -1,12 +1,12 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { GetInnoUseOutput } from '../../interfaces/get-innovation-outputs.interface';
+import { Result } from '../../interfaces/result/result.interface';
 @Injectable({
   providedIn: 'root'
 })
 export class GetInnoUseOutputService {
   api = inject(ApiService);
-  list = signal<GetInnoUseOutput[]>([]);
+  list = signal<Result[]>([]);
   loading = signal(true);
   isOpenSearch = signal(false);
 
@@ -25,7 +25,7 @@ export class GetInnoUseOutputService {
     });
 
     if (response?.data) {
-      this.list.set(response.data as GetInnoUseOutput[]);
+      this.list.set(response.data as Result[]);
     } else {
       this.list.set([]);
     }

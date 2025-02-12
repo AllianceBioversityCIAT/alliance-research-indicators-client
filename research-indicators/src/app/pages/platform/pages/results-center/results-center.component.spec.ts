@@ -89,8 +89,20 @@ describe('ResultsComponent', () => {
             showFiltersSidebar: signal(false),
             showConfigurationsSidebar: signal(false),
             applyFilters: jest.fn(),
-            list: jest.fn(),
-            onActiveItemChange: jest.fn()
+            list: signal([]),
+            onActiveItemChange: jest.fn(),
+            tableColumns: signal([
+              {
+                field: 'result_official_code',
+                header: 'Code',
+                getValue: (result: any) => result.result_official_code
+              },
+              {
+                field: 'title',
+                header: 'Title',
+                getValue: (result: any) => result.title
+              }
+            ])
           }
         },
         {
