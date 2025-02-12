@@ -69,6 +69,12 @@ export class ResultsCenterTableComponent {
       }
     ];
 
+    // Enable autoFilter for all columns
+    worksheet.autoFilter = {
+      from: { row: 1, column: 1 },
+      to: { row: 1, column: totalColumns }
+    };
+
     // Style only the used columns
     for (let i = 1; i <= totalColumns; i++) {
       const cell = worksheet.getRow(1).getCell(i);
