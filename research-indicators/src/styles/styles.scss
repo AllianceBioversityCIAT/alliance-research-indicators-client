@@ -85,6 +85,12 @@ body {
   }
 }
 
+.table-custom-styles {
+  td {
+    padding: 0.5rem !important;
+  }
+}
+
 @media (orientation: landscape) and (height <= 768px) {
   body {
     font-size: 13px !important;
