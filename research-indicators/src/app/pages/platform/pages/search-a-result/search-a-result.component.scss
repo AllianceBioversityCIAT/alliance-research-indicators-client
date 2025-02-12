@@ -29,31 +29,20 @@
           color: #1689ca !important;
         }
       }
-
-      .title-text-no-results {
-        font-family: Barlow, sans-serif;
-        font-size: 16px;
-        font-weight: 700;
-        line-height: 19px;
-        text-align: left;
-        color: #f58220;
-        text-transform: uppercase;
-        margin-bottom: 0;
-      }
-
-      .description-text {
-        color: #4c5158;
-        font-family: Barlow, sans-serif;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 17px;
-        margin-top: 8px;
-      }
     }
 
     .button {
       text-align: right;
     }
+  }
+
+  .description-text {
+    color: #4c5158;
+    font-family: Barlow, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 17px;
+    margin-top: 8px;
   }
 
   .card-container {
@@ -134,4 +123,39 @@
       }
     }
   }
+}
+
+.no-results-container {
+  display: grid;
+  margin-top: 100px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+
+  .no-results-content {
+    display: grid;
+    place-items: center;
+    margin-bottom: 20px;
+
+    img {
+      height: 200px;
+      margin-bottom: 30px;
+    }
+
+    .title-text-no-results {
+      font-family: Barlow, sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 19px;
+      text-align: left;
+      color: #173f6f;
+      text-transform: uppercase;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.explore-other-results-button {
+  display: grid;
+  place-items: center;
 }
