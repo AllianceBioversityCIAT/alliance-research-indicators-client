@@ -39,7 +39,7 @@ export class ResultsCenterTableComponent {
     const exportData = this.resultsCenterService.list().map(result => ({
       Code: result.result_official_code,
       Title: result.title,
-      // Description: result.description || 'non'
+      Description: result.description?.substring(0, 10) || '',
       'Indicator ID': result.indicator_id,
       'Indicator Name': result.indicators?.name || '',
       Status: result.result_status?.name || '',
