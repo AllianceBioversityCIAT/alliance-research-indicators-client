@@ -71,6 +71,18 @@ export class ResultsCenterTableComponent {
       worksheet.addRow(row);
     });
 
+    // Auto-fit Title column based on content
+    const titleColumn = worksheet.getColumn(2); // Title is the second column
+    if (titleColumn) {
+      let maxLength = 0;
+      titleColumn.eachCell({ includeEmpty: true }, cell => {
+        const cellText = cell.text || '';
+        const textLength = cellText.toString().length;
+        maxLength = Math.max(maxLength, textLength);
+      });
+      titleColumn.width = Math.min(Math.max(maxLength + 2, 15), 70); // padding of 2, min 15, max 50
+    }
+
     // Basic header style
     const headerRow = worksheet.getRow(1);
     headerRow.font = { bold: true };
