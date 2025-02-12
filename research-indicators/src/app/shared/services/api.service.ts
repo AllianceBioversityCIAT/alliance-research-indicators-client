@@ -36,6 +36,7 @@ import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.int
 import { GetOsSubNationals, OpenSearchFilters } from '../interfaces/get-os-subnational.interface';
 import { GetAnnouncementSettingAvailable } from '../interfaces/get-announcement-setting-available.interface';
 import { GetAllIndicators } from '../interfaces/get-all-indicators.interface';
+import { GetAllResultStatus } from '../interfaces/get-all-result-status.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -100,8 +101,17 @@ export class ApiService {
   };
 
   GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<Result[]>> => {
-    const { indicatorsCodes, userCodes } = resultFilter;
     const queryParams: string[] = [];
+
+    if (resultFilter['indicator-codes-tabs']?.length) {
+      if (resultFilter['indicator-codes-tabs'].length) {
+        queryParams.push(`indicator-codes=${resultFilter['indicator-codes-tabs'].join(',')}`);
+      }
+    } else {
+      if (resultFilter['indicator-codes-filter']?.length) {
+        queryParams.push(`indicator-codes=${resultFilter['indicator-codes-filter']?.join(',')}`);
+      }
+    }
 
     // Dynamic handling of boolean config parameters
     if (resultConfig) {
@@ -112,16 +122,16 @@ export class ApiService {
       });
     }
 
-    if (indicatorsCodes?.length) {
-      queryParams.push(`indicator-codes=${indicatorsCodes.join(',')}`);
-    }
-
-    if (userCodes?.length) {
-      queryParams.push(`create-user-codes=${userCodes.join(',')}`);
+    // Dynamic handling of filter parameters
+    if (resultFilter) {
+      Object.entries(resultFilter).forEach(([key, value]) => {
+        if (Array.isArray(value) && value.length) {
+          queryParams.push(`${key}=${value.join(',')}`);
+        }
+      });
     }
 
     const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
-
     const url = () => `results${queryString}`;
     return this.TP.get(url(), {});
   };
@@ -269,6 +279,11 @@ export class ApiService {
 
   GET_ResultsStatus = (): Promise<MainResponse<GetResultsStatus[]>> => {
     const url = () => `results/status/result-amount/current-user`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_AllResultStatus = (): Promise<MainResponse<GetAllResultStatus[]>> => {
+    const url = () => `results/status`;
     return this.TP.get(url(), {});
   };
 

@@ -18,6 +18,7 @@ export class ResultsCenterService {
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
   list = signal<Result[]>([]);
+  tableFilters = signal({ levers: [], statusCodes: [], years: [], contracts: [], indicators: [] });
 
   tableColumns = signal<TableColumn[]>([
     {
@@ -66,7 +67,8 @@ export class ResultsCenterService {
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
   ]);
-  resultsFilter = signal<ResultFilter>({ indicatorsCodes: [] });
+
+  resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [] });
   resultsConfig = signal<ResultConfig>({
     indicators: true,
     'result-status': true,
@@ -103,7 +105,10 @@ export class ResultsCenterService {
   }
 
   onActiveItemChange = (event: MenuItem): void =>
-    this.resultsFilter.update(prev => ({ ...prev, userCodes: event.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : [] }));
+    this.resultsFilter.update(prev => ({
+      ...prev,
+      'create-user-codes': event.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : []
+    }));
 
   applySidebarFilters(): void {
     // this.applyFilters();

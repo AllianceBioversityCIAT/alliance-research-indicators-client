@@ -14,7 +14,6 @@ import { GetAllIndicators } from '../../../../../../shared/interfaces/get-all-in
 export class IndicatorsTabFilterComponent implements OnInit {
   getAllIndicatorsServiceInstance = inject(GetAllIndicatorsService).getInstance;
   @Input() activeItem = 'all';
-  @Input() userCodes?: string[];
   indicators = signal<GetAllIndicators[]>([]);
 
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;
@@ -38,25 +37,22 @@ export class IndicatorsTabFilterComponent implements OnInit {
   }
 
   onFilterClick(indicatorId: number) {
-    this.indicators.update(prev => {
-      if (indicatorId === 0) {
-        return prev.map(item => ({
-          ...item,
-          active: item.indicator_id === 0
-        }));
-      }
-
-      return prev.map(item => ({
+    this.indicators.update(prev =>
+      prev.map(item => ({
         ...item,
-        active: item.indicator_id === 0 ? false : item.indicator_id === indicatorId ? !item.active : item.active
-      }));
-    });
+        active: item.indicator_id === indicatorId
+      }))
+    );
 
     this.resultsCenterService.resultsFilter.update(prev => ({
       ...prev,
-      indicatorsCodes: this.indicators()
-        .filter(item => item.active && item.indicator_id !== 0)
-        .map(item => item.indicator_id)
+      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId]
+    }));
+
+    this.resultsCenterService.resultsFilter()['indicator-codes-filter'] = [];
+    this.resultsCenterService.tableFilters.update(prev => ({
+      ...prev,
+      indicators: []
     }));
   }
 

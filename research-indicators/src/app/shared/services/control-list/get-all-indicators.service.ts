@@ -8,6 +8,7 @@ export class GetAllIndicatorsService {
   apiService = inject(ApiService);
   list = signal<GetAllIndicators[]>([]);
   loading = signal(true);
+  isOpenSearch = signal(false);
   constructor() {
     this.main();
   }

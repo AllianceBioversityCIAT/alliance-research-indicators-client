@@ -1,6 +1,6 @@
 <div class="flex flex-column gap-3 p-3">
   <!-- Indicators Filter Tabs -->
-  <app-indicators-tab-filter [activeItem]="activeItem()?.id || 'all'" [userCodes]="userCodes()"></app-indicators-tab-filter>
+  <app-indicators-tab-filter [activeItem]="activeItem()?.id || 'all'"></app-indicators-tab-filter>
 
   <!-- Results Section -->
   <div class="flex flex-column bg-white">
@@ -15,8 +15,8 @@
     [title]="'Table Filters'"
     [description]="'Filter your table data by applying custom criteria.'"
     [showSignal]="this.resultsCenterService.showFiltersSidebar"
-    (confirm)="this.resultsCenterService.applySidebarFilters()">
-    <app-table-filters-sidebar></app-table-filters-sidebar>
+    (confirm)="sidebarFilters.applyFilters()">
+    <app-table-filters-sidebar #sidebarFilters></app-table-filters-sidebar>
   </app-section-sidebar>
 
   <app-section-sidebar

@@ -28,7 +28,6 @@ export default class ResultsCenterComponent {
   cache = inject(CacheService);
   @Input() showSignal = signal(false);
 
-  userCodes = signal<string[]>([]);
   activeItem = signal<MenuItem | undefined>(undefined);
   items: MenuItem[] = [
     { id: 'all', label: 'All Results' },
@@ -37,7 +36,6 @@ export default class ResultsCenterComponent {
 
   constructor() {
     this.activeItem.set(this.items[0]);
-    this.userCodes.set([this.cache.dataCache().user.sec_user_id.toString()]);
   }
 
   toggleSidebar() {
