@@ -1,4 +1,4 @@
-import { Component, effect, inject, Input, signal } from '@angular/core';
+import { Component, effect, inject, Input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -16,17 +16,15 @@ export class TableFiltersSidebarComponent {
   resultsCenterService = inject(ResultsCenterService);
   tableFilters = signal({ levers: [] });
   @Input() showSignal = signal(false);
+  @Input() confirmSidebarEvent = output<void>();
 
-  onChangeFilters = effect(
-    () => {
-      this.resultsCenterService.resultsFilter.update(prev => ({
-        ...prev,
-        'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id)
-      }));
-      console.log('onChangeFilters');
-    },
-    { allowSignalWrites: true }
-  );
+  applyFilters = () => {
+    this.resultsCenterService.resultsFilter.update(prev => ({
+      ...prev,
+      'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id)
+    }));
+    console.log('onChangeFilters');
+  };
 
   toggleSidebar() {
     this.showSignal.update(prev => !prev);
