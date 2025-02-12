@@ -13,6 +13,7 @@ export interface GetProjectDetailIndicator {
   indicator: IndicatorMetadata;
   count_results: number;
   full_name?: string;
+  indicator_id: number;
 }
 
 interface IndicatorMetadata {
