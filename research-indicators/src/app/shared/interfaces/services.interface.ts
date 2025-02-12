@@ -26,4 +26,5 @@ export type ControlListServices =
   | 'openSearchSubNationals'
   | 'getAllIndicators'
   | 'allResultStatus'
+  | 'getAllYears'
   |'';

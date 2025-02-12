@@ -15,7 +15,7 @@ import { GetAllResultStatus } from '../../../../../../shared/interfaces/get-all-
 })
 export class TableFiltersSidebarComponent {
   resultsCenterService = inject(ResultsCenterService);
-  tableFilters = signal({ levers: [], statusCodes: [] });
+  tableFilters = signal({ levers: [], statusCodes: [], years: [] });
   @Input() showSignal = signal(false);
   @Input() confirmSidebarEvent = output<void>();
 
@@ -23,11 +23,9 @@ export class TableFiltersSidebarComponent {
     this.resultsCenterService.resultsFilter.update(prev => ({
       ...prev,
       'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id),
-      'status-codes': this.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id)
+      'status-codes': this.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id),
+      years: this.tableFilters().years.map((year: { id: number; name: string }) => year.id)
     }));
-
-    console.log(this.resultsCenterService.resultsFilter());
-    console.log('onChangeFilters');
   };
 
   toggleSidebar() {
