@@ -21,6 +21,7 @@ export class GetContractsService {
   async main() {
     this.loading.set(true);
     const response = await this.api.GET_Contracts();
+    console.log(response);
 
     if (response?.data) {
       this.list.set(response.data);

@@ -103,6 +103,16 @@ export class ApiService {
   GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<Result[]>> => {
     const queryParams: string[] = [];
 
+    if (resultFilter['indicator-codes-tabs']?.length) {
+      if (resultFilter['indicator-codes-tabs'].length) {
+        queryParams.push(`indicator-codes=${resultFilter['indicator-codes-tabs'].join(',')}`);
+      }
+    } else {
+      if (resultFilter['indicator-codes-filter']?.length) {
+        queryParams.push(`indicator-codes=${resultFilter['indicator-codes-filter']?.join(',')}`);
+      }
+    }
+
     // Dynamic handling of boolean config parameters
     if (resultConfig) {
       Object.entries(resultConfig).forEach(([key, value]) => {

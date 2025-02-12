@@ -6,6 +6,8 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 import { ResultsCenterService } from '../../results-center.service';
 import { GetLevers } from '../../../../../../shared/interfaces/get-levers.interface';
 import { GetAllResultStatus } from '../../../../../../shared/interfaces/get-all-result-status.interface';
+import { GetContracts } from '../../../../../../shared/interfaces/get-contracts.interface';
+import { GetAllIndicators } from '../../../../../../shared/interfaces/get-all-indicators.interface';
 @Component({
   selector: 'app-table-filters-sidebar',
   standalone: true,
@@ -15,7 +17,7 @@ import { GetAllResultStatus } from '../../../../../../shared/interfaces/get-all-
 })
 export class TableFiltersSidebarComponent {
   resultsCenterService = inject(ResultsCenterService);
-  tableFilters = signal({ levers: [], statusCodes: [], years: [] });
+  tableFilters = signal({ levers: [], statusCodes: [], years: [], contracts: [], indicators: [] });
   @Input() showSignal = signal(false);
   @Input() confirmSidebarEvent = output<void>();
 
@@ -24,7 +26,9 @@ export class TableFiltersSidebarComponent {
       ...prev,
       'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id),
       'status-codes': this.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id),
-      years: this.tableFilters().years.map((year: { id: number; name: string }) => year.id)
+      years: this.tableFilters().years.map((year: { id: number; name: string }) => year.id),
+      'contract-codes': this.tableFilters().contracts.map((contract: GetContracts) => contract.agreement_id),
+      'indicator-codes-filter': this.tableFilters().indicators.map((indicator: GetAllIndicators) => indicator.indicator_id)
     }));
   };
 

@@ -53,7 +53,7 @@ export class IndicatorsTabFilterComponent implements OnInit {
 
     this.resultsCenterService.resultsFilter.update(prev => ({
       ...prev,
-      'indicator-codes': this.indicators()
+      'indicator-codes-tabs': this.indicators()
         .filter(item => item.active && item.indicator_id !== 0)
         .map(item => item.indicator_id)
     }));

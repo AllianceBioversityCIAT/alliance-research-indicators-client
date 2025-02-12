@@ -26,6 +26,8 @@ export interface ResultFilter {
   'indicator-codes'?: number[];
   'create-user-codes'?: string[];
   'lever-codes'?: number[];
+  'indicator-codes-tabs'?: number[];
+  'indicator-codes-filter'?: number[];
 }
 
 export interface ResultConfig {
