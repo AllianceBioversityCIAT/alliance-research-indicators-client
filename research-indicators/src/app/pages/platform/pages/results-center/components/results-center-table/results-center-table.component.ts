@@ -38,14 +38,14 @@ export class ResultsCenterTableComponent {
     // Test data
     const exportData = this.resultsCenterService.list().map(result => ({
       Code: result.result_official_code,
-      Title: result.title
-      // Description: result.description || '',
-      // 'Indicator ID': result.indicator_id,
-      // 'Indicator Name': result.indicators?.name || '',
-      // Status: result.result_status?.name || '',
-      // Project: result.result_contracts?.contract_id || '',
-      // Lever: result.result_levers?.lever?.short_name || '',
-      // Year: result.report_year_id || '',
+      Title: result.title,
+      // Description: result.description || 'non'
+      'Indicator ID': result.indicator_id,
+      'Indicator Name': result.indicators?.name || '',
+      Status: result.result_status?.name || '',
+      Project: result.result_contracts?.contract_id || '',
+      Lever: result.result_levers?.lever?.short_name || '',
+      Year: result.report_year_id || ''
     }));
 
     // Create a new workbook and worksheet
