@@ -10,7 +10,6 @@ import { MenuItem } from 'primeng/api';
 import { ResultsCenterService } from '../../results-center.service';
 import * as ExcelJS from 'exceljs';
 import { Router } from '@angular/router';
-import { Result } from '../../../../../../shared/interfaces/result/result.interface';
 
 @Component({
   selector: 'app-results-center-table',
