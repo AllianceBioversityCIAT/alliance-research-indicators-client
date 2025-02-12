@@ -11,6 +11,7 @@ import { MenuModule } from 'primeng/menu';
 import { FormsModule } from '@angular/forms';
 import { PrimeNGConfig } from 'primeng/api';
 import { signal } from '@angular/core';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 import ResultsCenterComponent from './results-center.component';
 import { ResultsCenterService } from './results-center.service';
@@ -43,6 +44,7 @@ describe('ResultsComponent', () => {
         TagModule,
         MenuModule,
         FormsModule,
+        MultiSelectModule,
         ResultsCenterTableComponent,
         IndicatorsTabFilterComponent,
         TableFiltersSidebarComponent,
@@ -50,7 +52,6 @@ describe('ResultsComponent', () => {
         SectionSidebarComponent
       ],
       providers: [
-        ResultsCenterService,
         GetResultsService,
         PrimeNGConfig,
         {
@@ -84,7 +85,10 @@ describe('ResultsComponent', () => {
           provide: ResultsCenterService,
           useValue: {
             resultsFilter: signal({
-              'indicator-codes': []
+              'indicator-codes': [],
+              'indicator-codes-filter': [],
+              'indicator-codes-tabs': [],
+              'lever-codes': []
             }),
             showFiltersSidebar: signal(false),
             showConfigurationsSidebar: signal(false),
@@ -102,13 +106,16 @@ describe('ResultsComponent', () => {
                 header: 'Title',
                 getValue: (result: any) => result.title
               }
-            ])
+            ]),
+            tableFilters: signal({
+              indicators: []
+            })
           }
         },
         {
           provide: SectionSidebarComponent,
           useValue: {
-            showSignal: () => true
+            showSignal: signal(false)
           }
         }
       ]
@@ -124,5 +131,17 @@ describe('ResultsComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should toggle sidebar', () => {
+    const initialValue = component.showSignal();
+    component.toggleSidebar();
+    expect(component.showSignal()).toBe(!initialValue);
+  });
+
+  it('should apply filters', () => {
+    const spy = jest.spyOn(resultsCenterService, 'applyFilters');
+    component.applyFilters();
+    expect(spy).toHaveBeenCalled();
   });
 });
