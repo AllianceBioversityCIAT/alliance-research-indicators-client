@@ -26,7 +26,7 @@
         <app-multiselect
           label="Whose policy is this? (implementing organizations)*"
           [signal]="body"
-          optionLabel="name"
+          optionLabel="html_full_name"
           optionValue="institution_id"
           signalOptionValue="implementing_organization"
           serviceName="institutions">
@@ -51,7 +51,10 @@
 
       <div class="col-6">
         <app-select
+          pTooltip="The field is disabled because there are no results of the type Innovation Development Output."
+          tooltipPosition="top"
           label="Link to a reported Innovation Development output*"
+          [disabled]="true"
           [signal]="body"
           [optionLabel]="'title'"
           [optionValue]="{ body: 'innovation_development', option: 'result_id' }"
@@ -59,8 +62,11 @@
       </div>
       <div class="col-6">
         <app-select
+          pTooltip="The field is disabled because there are no results of the type Innovation Use."
+          tooltipPosition="top"
           label="Link to a reported Innovation Use &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
           [signal]="body"
+          [disabled]="true"
           [optionLabel]="'title'"
           [optionValue]="{ body: 'innovation_use', option: 'result_id' }"
           [serviceName]="'innoUseOutput'"></app-select>

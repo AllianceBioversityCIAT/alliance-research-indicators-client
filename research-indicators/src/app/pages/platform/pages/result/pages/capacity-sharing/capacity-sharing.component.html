@@ -70,9 +70,9 @@
         <app-select
           label="Trainee affiliation"
           [signal]="body"
-          [optionLabel]="'name'"
+          [optionLabel]="'html_full_name'"
           [optionValue]="{ body: 'individual.affiliation.institution_id', option: 'institution_id' }"
-          [serviceName]="'institutions'"></app-select>
+          serviceName="institutions"></app-select>
       </div>
 
       <div class="column">
@@ -81,7 +81,7 @@
           [signal]="body"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'individual.nationality.isoAlpha2', option: 'isoAlpha2' }"
-          [serviceName]="'countries'"></app-select>
+          serviceName="countries"></app-select>
       </div>
     </div>
   </div>
