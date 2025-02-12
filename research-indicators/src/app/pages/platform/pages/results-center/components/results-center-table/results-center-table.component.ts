@@ -48,16 +48,40 @@ export class ResultsCenterTableComponent {
   }
 
   private styleHeaderColumns(worksheet: ExcelJS.Worksheet, totalColumns: number) {
-    // Style each header cell
+    // Style each header cell and hide unused columns
+
+    // Set print area and view to only show used columns
+    worksheet.views = [
+      {
+        state: 'frozen',
+        ySplit: 1,
+        xSplit: 0,
+        rightToLeft: false,
+        showGridLines: true,
+        zoomScale: 100
+      }
+    ];
+
+    // Style only the used columns
     for (let i = 1; i <= totalColumns; i++) {
       const cell = worksheet.getRow(1).getCell(i);
       cell.font = { bold: true };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.font = {
+        color: { argb: 'FFFFFF' },
+        size: 15,
+        bold: true
+      };
       cell.fill = {
         type: 'pattern',
         pattern: 'solid',
-        fgColor: { argb: 'FFE6F3FF' } // Light blue color
+        fgColor: { argb: '204887' }
       };
+    }
+
+    // Hide all columns after our data
+    for (let i = totalColumns + 1; i <= worksheet.columnCount; i++) {
+      worksheet.getColumn(i).hidden = true;
     }
   }
 
@@ -83,14 +107,18 @@ export class ResultsCenterTableComponent {
 
     const worksheet = workbook.addWorksheet('Results', {
       views: [{ state: 'frozen', ySplit: 1 }],
-      properties: { defaultRowHeight: 20 }
+      properties: {
+        defaultRowHeight: 20,
+        showGridLines: false
+      }
     });
 
     // Add headers and set basic column widths
     worksheet.columns = Object.keys(exportData[0]).map(header => ({
       header,
       key: header,
-      width: 15
+      width: 15,
+      hidden: false
     }));
 
     // Add data
