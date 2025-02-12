@@ -8,6 +8,7 @@ export class GetAllIndicatorsService {
   apiService = inject(ApiService);
   list = signal<GetAllIndicators[]>([]);
   loading = signal(true);
+  isOpenSearch = signal(false);
   constructor() {
     this.main();
   }
@@ -17,6 +18,7 @@ export class GetAllIndicatorsService {
     const response = await this.apiService.GET_AllIndicators();
     this.list.set(response.data);
     this.loading.set(false);
+    console.log(response.data);
   }
 
   getInstance = async (): Promise<WritableSignal<GetAllIndicators[]>> => {

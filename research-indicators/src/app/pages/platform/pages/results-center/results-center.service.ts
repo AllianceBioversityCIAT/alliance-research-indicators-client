@@ -66,7 +66,11 @@ export class ResultsCenterService {
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
   ]);
-  resultsFilter = signal<ResultFilter>({ indicatorsCodes: [] });
+  print = effect(() => {
+    console.log(this.resultsFilter());
+  });
+
+  resultsFilter = signal<ResultFilter>({ indicatorsCodes: [], 'lever-codes': [] });
   resultsConfig = signal<ResultConfig>({
     indicators: true,
     'result-status': true,

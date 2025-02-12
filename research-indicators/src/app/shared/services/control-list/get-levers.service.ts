@@ -20,5 +20,6 @@ export class GetLeversService {
     this.list.set(response.data);
     this.list.update(current => current.map(item => ({ ...item, lever_id: item.id })));
     this.loading.set(false);
+    console.log(response.data);
   }
 }

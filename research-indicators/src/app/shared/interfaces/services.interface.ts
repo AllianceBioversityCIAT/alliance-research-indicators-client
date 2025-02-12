@@ -24,4 +24,5 @@ export type ControlListServices =
   | 'innoDevOutput'
   | 'innoUseOutput'
   | 'openSearchSubNationals'
+  | 'getAllIndicators'
   | '';

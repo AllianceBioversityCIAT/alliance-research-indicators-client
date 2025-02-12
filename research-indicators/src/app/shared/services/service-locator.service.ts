@@ -24,6 +24,7 @@ import { GetOsResultService } from './opensearch/get-os-result.service';
 import { GetInnoDevOutputService } from './control-list/get-innovation-dev-output.service';
 import { GetInnoUseOutputService } from './control-list/get-innovation-use-output.service';
 import { GetOsSubnationalService } from './opensearch/get-os-subnational.service';
+import { GetAllIndicatorsService } from './control-list/get-all-indicators.service';
 
 @Injectable({
   providedIn: 'root'
@@ -81,6 +82,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetInnoUseOutputService);
       case 'openSearchSubNationals':
         return this.injector.get(GetOsSubnationalService);
+      case 'getAllIndicators':
+        return this.injector.get(GetAllIndicatorsService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;

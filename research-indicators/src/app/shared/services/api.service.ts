@@ -100,7 +100,7 @@ export class ApiService {
   };
 
   GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<Result[]>> => {
-    const { indicatorsCodes, userCodes } = resultFilter;
+    const { indicatorsCodes, userCodes, 'lever-codes': levers } = resultFilter;
     const queryParams: string[] = [];
 
     // Dynamic handling of boolean config parameters
@@ -118,6 +118,10 @@ export class ApiService {
 
     if (userCodes?.length) {
       queryParams.push(`create-user-codes=${userCodes.join(',')}`);
+    }
+
+    if (levers?.length) {
+      queryParams.push(`lever-codes=${levers.join(',')}`);
     }
 
     const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';

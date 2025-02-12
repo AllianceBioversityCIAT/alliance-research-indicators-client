@@ -25,6 +25,7 @@ export interface ResultTable {
 export interface ResultFilter {
   indicatorsCodes?: number[];
   userCodes?: string[];
+  'lever-codes'?: number[];
 }
 
 export interface ResultConfig {
