@@ -34,16 +34,23 @@ export class ResultsCenterTableComponent {
     this.dt2.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
-  private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70) {
+  private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70, minWidth = 15) {
     const column = worksheet.getColumn(columnNumber);
     if (column) {
-      let maxLength = 0;
-      column.eachCell({ includeEmpty: true }, cell => {
-        const cellText = cell.text || '';
-        const textLength = cellText.toString().length;
-        maxLength = Math.max(maxLength, textLength);
+      // Initialize maxLength with header length
+      let maxLength = column.header?.toString().length || 0;
+
+      // Check all cell contents
+      column.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
+        if (rowNumber > 1) {
+          // Skip header since we already considered it
+          const cellText = cell.text || '';
+          const textLength = cellText.toString().length;
+          maxLength = Math.max(maxLength, textLength);
+        }
       });
-      column.width = Math.min(Math.max(maxLength + 2, 15), maxWidth);
+
+      column.width = Math.min(Math.max(maxLength + 2, minWidth), maxWidth);
     }
   }
 
@@ -128,12 +135,12 @@ export class ResultsCenterTableComponent {
       worksheet.addRow(row);
     });
 
-    // Adjust column widths
+    // Adjust column widths with specific minimums for each column
     this.adjustColumnWidth(worksheet, 2, 70); // Title column
     this.adjustColumnWidth(worksheet, 3, 100); // Description column
     this.adjustColumnWidth(worksheet, 5, 70); // Indicator Name column
     this.adjustColumnWidth(worksheet, 8, 70); // Status column
-    this.adjustColumnWidth(worksheet, 9, 70); // Project column
+    this.adjustColumnWidth(worksheet, 9, 70, 20); // Project column
 
     // Style header columns
     this.styleHeaderColumns(worksheet, Object.keys(exportData[0]).length);
