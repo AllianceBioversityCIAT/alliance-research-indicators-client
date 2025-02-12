@@ -120,6 +120,6 @@ export class ResultsCenterTableComponent {
   }
 
   openResult(resultId: string) {
-    this.router.navigate(['/platform/result', resultId]);
+    this.router.navigate(['/result', resultId]);
   }
 }
