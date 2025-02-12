@@ -92,13 +92,14 @@ export class ResultsCenterTableComponent {
       (this.dt2.filteredValue || this.resultsCenterService.list())?.map(result => ({
         Code: result.result_official_code,
         Title: result.title,
-        Description: result.description?.substring(0, 200) || '',
-        'Indicator ID': result.indicator_id,
-        'Indicator Name': result.indicators?.name || '',
+        // Description: result.description?.substring(0, 200) || '',
+        Indicator: result.indicators?.name || '',
         Status: result.result_status?.name || '',
         Project: result.result_contracts?.contract_id || '',
         Lever: result.result_levers?.lever?.short_name || '',
-        Year: result.report_year_id || ''
+        Year: result.report_year_id || '',
+        Creator: result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '',
+        'Creation date': result.created_at ? new Date(result.created_at).toLocaleDateString() : ''
       })) || [];
 
     // Create a new workbook and worksheet
@@ -131,6 +132,8 @@ export class ResultsCenterTableComponent {
     this.adjustColumnWidth(worksheet, 2, 70); // Title column
     this.adjustColumnWidth(worksheet, 3, 100); // Description column
     this.adjustColumnWidth(worksheet, 5, 70); // Indicator Name column
+    this.adjustColumnWidth(worksheet, 8, 70); // Status column
+    this.adjustColumnWidth(worksheet, 9, 70); // Project column
 
     // Style header columns
     this.styleHeaderColumns(worksheet, Object.keys(exportData[0]).length);
