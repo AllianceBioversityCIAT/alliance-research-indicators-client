@@ -40,7 +40,7 @@ export class ResultsCenterTableComponent {
       (this.dt2.filteredValue || this.resultsCenterService.list())?.map(result => ({
         Code: result.result_official_code,
         Title: result.title,
-        Description: result.description || '',
+        Description: result.description?.substring(0, 100) || '',
         'Indicator ID': result.indicator_id,
         'Indicator Name': result.indicators?.name || '',
         Status: result.result_status?.name || '',
