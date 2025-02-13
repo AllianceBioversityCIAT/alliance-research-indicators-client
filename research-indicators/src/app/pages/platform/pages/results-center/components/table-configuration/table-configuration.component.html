@@ -1,9 +1,12 @@
 <div class="body" id="table-configuration">
   <p-orderList [value]="this.resultsCenterService.tableColumns()" [dragdrop]="true">
     <ng-template let-filter pTemplate="item">
-      <div class="flex flex-wrap p-2 align-items-center gap-3">
-        <div class="flex-1 flex flex-column gap-2">
-          <span class="font-bold">{{ filter.header }}</span>
+      <div class="item-container">
+        <div class="content">
+          <span class="column-name">{{ filter.header }}</span>
+        </div>
+        <div class="drag-handle">
+          <i class="pi pi-bars"></i>
         </div>
       </div>
     </ng-template>
