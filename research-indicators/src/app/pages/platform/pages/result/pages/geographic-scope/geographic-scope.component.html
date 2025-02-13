@@ -37,6 +37,7 @@
         <app-multiselect
           (selectEvent)="onSelect()"
           [signal]="body"
+          [disabledSelectedScroll]="body().geo_scope_id === 5 || body().geo_scope_id === '5'"
           [optionLabel]="'name'"
           [optionValue]="'isoAlpha2'"
           [signalOptionValue]="'countries'"

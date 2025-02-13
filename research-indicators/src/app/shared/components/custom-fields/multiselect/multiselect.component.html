@@ -55,7 +55,7 @@
         <p-skeleton width="100%" height="41px" styleClass="mb-2" />
       }
     } @else {
-      <div class="selected-items">
+      <div class="selected-items" [class.show-scroll]="!this.disabledSelectedScroll">
         @for (row of selectedOptions(); track $index) {
           <div class="item abc-grey-100">
             <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>

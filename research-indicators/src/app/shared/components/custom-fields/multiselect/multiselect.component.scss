@@ -5,10 +5,11 @@
   .selected-items {
     display: flex;
     flex-direction: column;
-    max-height: 380px;
-    overflow-y: auto;
-    // max-height: 380px;
-    // overflow-y: auto;
+
+    &.show-scroll {
+      max-height: 380px;
+      overflow-y: auto;
+    }
   }
 
   .item {
