@@ -3,12 +3,7 @@ import { GetResultsService } from '../../../../shared/services/control-list/get-
 import { Result, ResultConfig, ResultFilter } from '../../../../shared/interfaces/result/result.interface';
 import { MenuItem } from 'primeng/api';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
-
-interface TableColumn {
-  field: string;
-  header: string;
-  getValue?: (result: Result) => string;
-}
+import { TableColumn } from './result-center.interface';
 
 @Injectable({
   providedIn: 'root'

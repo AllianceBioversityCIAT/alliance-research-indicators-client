@@ -1,14 +1,24 @@
-<div class="body">
-  <p-orderList [value]="this.resultsCenterService.tableColumns()" [dragdrop]="true">
+<div class="body" id="table-configuration">
+  <p-orderList [value]="auxiliaryColumns()" [dragdrop]="true">
     <ng-template let-filter pTemplate="item">
-      <div class="flex flex-wrap p-2 align-items-center gap-3">
-        <div class="flex-1 flex flex-column gap-2">
-          <span class="font-bold">{{ filter.header }}</span>
+      <div class="item-container">
+        <div class="content">
+          <span class="column-name">{{ filter.header }}</span>
+        </div>
+        <div class="drag-handle">
+          <i class="pi pi-bars"></i>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template let-filter pTemplate="dragItem">
+      <div class="item-container">
+        <div class="content">
+          <span class="column-name">{{ filter.header }}</span>
+        </div>
+        <div class="drag-handle">
+          <i class="pi pi-bars"></i>
         </div>
       </div>
     </ng-template>
   </p-orderList>
-</div>
-<div class="buttons">
-  <!-- <p-button label="Save table settings" /> -->
 </div>

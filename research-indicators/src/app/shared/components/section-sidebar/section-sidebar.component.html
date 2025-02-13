@@ -1,16 +1,45 @@
-<div class="container" [class.hide-sidebar]="!this.showSignal()">
+<div
+  class="container"
+  [class.hide-sidebar]="!this.showSignal()"
+  [style.height]="'calc(100vh - ' + (this.cache.navbarHeight() + this.cache.headerHeight()) + 'px)'">
   <div class="content">
     <div class="header">
       <div class="title">{{ title }}</div>
       <div class="description">{{ description }}</div>
     </div>
-    <div>
+    <div class="scrollable-content">
       <ng-content></ng-content>
     </div>
 
-    <div class="flex justify-content-end gap-2 pt-5">
+    <div class="button-container">
       <p-button label="Cancel" (onClick)="hideSidebar()" [outlined]="true" />
       <p-button label="Confirm" (onClick)="confirmSidebar()" [severity]="'primary'" />
     </div>
   </div>
 </div>
+
+<style>
+  .container {
+    overflow: hidden;
+  }
+
+  .content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .scrollable-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+</style>

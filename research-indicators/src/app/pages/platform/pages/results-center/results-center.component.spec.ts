@@ -62,7 +62,9 @@ describe('ResultsComponent', () => {
                 sec_user_id: '123'
               }
             }),
-            currentResultIsLoading: () => signal(false)
+            currentResultIsLoading: () => signal(false),
+            navbarHeight: signal(0),
+            headerHeight: signal(0)
           }
         },
         {

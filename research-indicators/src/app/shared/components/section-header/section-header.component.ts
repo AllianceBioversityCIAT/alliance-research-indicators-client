@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
-import { computed, signal } from '@angular/core';
+import { computed, signal, AfterViewInit } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
@@ -16,13 +16,14 @@ import { TooltipModule } from 'primeng/tooltip';
   templateUrl: './section-header.component.html',
   styleUrl: './section-header.component.scss'
 })
-export class SectionHeaderComponent implements OnInit, OnDestroy {
+export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit {
   router = inject(Router);
   cache = inject(CacheService);
   route = inject(ActivatedRoute);
+  elementRef = inject(ElementRef);
 
   @ViewChild('historyPanel') historyPanel!: OverlayPanel;
-
+  private resizeObserver: ResizeObserver | null = null;
   private currentUrl = signal('');
   private routeTitle = signal('');
   private routeId = signal<string | null>(null);
@@ -55,8 +56,21 @@ export class SectionHeaderComponent implements OnInit, OnDestroy {
     );
   }
 
+  ngAfterViewInit(): void {
+    const sectionSidebar = this.elementRef.nativeElement.querySelector('#section-sidebar');
+    if (sectionSidebar) {
+      this.resizeObserver = new ResizeObserver(() => {
+        const totalHeight = sectionSidebar.getBoundingClientRect().height;
+        this.cache.headerHeight.set(totalHeight);
+      });
+
+      this.resizeObserver.observe(sectionSidebar);
+    }
+  }
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
+    this.resizeObserver?.disconnect();
   }
 
   private updateRouteInfo() {
