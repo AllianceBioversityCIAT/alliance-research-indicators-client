@@ -53,8 +53,6 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
 
   ngAfterViewInit(): void {
     const navbar = this.elementRef.nativeElement.querySelector('#navbar');
-    console.log(navbar);
-
     if (navbar) {
       this.resizeObserver = new ResizeObserver(entries => {
         for (const entry of entries) {
