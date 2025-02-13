@@ -45,7 +45,7 @@ export class ResultSidebarComponent {
     {
       label: 'Geographic scope',
       path: 'geographic-scope',
-      underConstruction: true,
+      underConstruction: false,
       hide: false
     },
     {

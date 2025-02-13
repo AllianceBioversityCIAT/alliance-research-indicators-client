@@ -39,7 +39,7 @@ export class AllianceNavbarComponent implements OnInit {
     { label: 'Home', path: '/home', underConstruction: false },
     { label: 'My Dashboard', path: '/settings', underConstruction: true, disabled: true },
     { label: 'My Projects', path: '/my-projects', icon: 'keyboard_arrow_down', underConstruction: false },
-    { label: 'Results', path: '/results-center', underConstruction: true, disabled: false }
+    { label: 'Results Center', path: '/results-center', underConstruction: false, disabled: false }
   ];
 
   ngOnInit() {
