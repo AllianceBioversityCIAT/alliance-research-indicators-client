@@ -95,9 +95,30 @@ export class MultiselectInstanceComponent implements OnInit {
 
   setValue(event: MultiSelectChangeEvent) {
     this.signal.update((current: any) => {
-      this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, [...current[this.signalOptionValue], event.itemValue]);
+      const currentArray = this.utils.getNestedProperty(current, this.signalOptionValue) || [];
+
+      // Si el elemento existe en currentArray pero no en event.value, significa que se eliminó
+      // Si el elemento existe en event.value pero no en currentArray, significa que se agregó
+      const itemExists = currentArray.some((item: any) => item[this.optionValue] === event.itemValue[this.optionValue]);
+
+      if (!itemExists) {
+        // El elemento no existe, por lo tanto se está agregando
+        this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, [...currentArray, event.itemValue]);
+      } else {
+        // El elemento existe, por lo tanto se está eliminando
+        const newArray = currentArray.filter((item: any) => item[this.optionValue] !== event.itemValue[this.optionValue]);
+        this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, newArray);
+      }
+
+      // Actualizar el body signal con los nuevos valores
+      const updatedArray = this.utils.getNestedProperty(current, this.signalOptionValue);
+      this.body.set({ value: this.objectArrayToIdArray(updatedArray, this.optionValue) });
+
       return { ...current };
     });
+
+    // Emitir el evento de selección
+    this.selectEvent.emit(event);
   }
 
   removeOption(option: any) {
