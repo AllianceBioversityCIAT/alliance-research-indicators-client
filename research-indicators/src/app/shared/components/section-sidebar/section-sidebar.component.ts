@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal, inject } from '@angular/core';
+import { CacheService } from '../../services/cache/cache.service';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
@@ -9,6 +10,7 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './section-sidebar.component.scss'
 })
 export class SectionSidebarComponent {
+  cache = inject(CacheService);
   @Input() title!: string;
   @Input() description!: string;
   @Input() showSignal = signal(false);
