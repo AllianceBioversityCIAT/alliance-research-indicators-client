@@ -1,36 +1,28 @@
-import { JsonPipe } from '@angular/common';
-import { Component, inject, Input, signal } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { OrderListModule } from 'primeng/orderlist';
+import { signal } from '@angular/core';
 import { ResultsCenterService } from '../../results-center.service';
-
+import { TableColumn } from '../../result-center.interface';
 @Component({
   selector: 'app-table-configuration',
   standalone: true,
-  imports: [ButtonModule, OrderListModule, JsonPipe],
+  imports: [CommonModule, OrderListModule],
   templateUrl: './table-configuration.component.html',
-  styleUrl: './table-configuration.component.scss'
+  styleUrls: ['./table-configuration.component.scss']
 })
-export class TableConfigurationComponent {
-  @Input() showSignal = signal(false);
+export class TableConfigurationComponent implements OnInit {
   resultsCenterService = inject(ResultsCenterService);
-  filters = signal([
-    { name: 'Code' },
-    { name: 'Title' },
-    { name: 'Indicator' },
-    { name: 'Status' },
-    { name: 'Project' },
-    { name: 'Lever' },
-    { name: 'Year' },
-    { name: 'Creator' },
-    { name: 'Creation date' }
-  ]);
 
-  toggleSidebar() {
-    this.showSignal.update(prev => !prev);
+  filters = signal<TableColumn[]>([]);
+
+  ngOnInit() {
+    // Inicializar la copia local con los valores actuales
+    this.filters.set([...this.resultsCenterService.tableColumns()]);
   }
 
   applyConfigurations() {
-    console.log('applyConfigurations');
+    // Actualizar la configuración real con la copia local
+    this.resultsCenterService.tableColumns.set([...this.filters()]);
   }
 }
