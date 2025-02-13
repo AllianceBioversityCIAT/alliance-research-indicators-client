@@ -22,35 +22,7 @@
       serviceName="institutions">
       @if (!this.loading()) {
         <ng-template #rows let-institution>
-          <div class="item-content">
-            <div class="information">
-              <div class="row">
-                <div>
-                  <strong>{{ institution.acronym }}</strong> - {{ institution.name }}
-                </div>
-                <div class="metadata-container">
-                  <div class="metadata-text">
-                    <div class="metadata-title">Institution Type</div>
-                    &nbsp; <i class="material-symbols-rounded"> arrow_forward </i>&nbsp;
-                    <i class="institution-type-description">{{ institution?.institution_type?.name }}</i>
-                  </div>
-
-                  <div class="divider"></div>
-
-                  <div class="metadata-text">
-                    <div class="metadata-title">Headquarter</div>
-                    &nbsp; <i class="material-symbols-rounded"> arrow_forward </i>&nbsp;
-                    <img
-                      width="20"
-                      height="20"
-                      [src]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'"
-                      [alt]="institution?.institution_type?.name"
-                      [srcset]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <app-partner-selected-item [institution]="institution" />
         </ng-template>
       }
     </app-multiselect>

@@ -37,6 +37,7 @@ import { GetOsSubNationals, OpenSearchFilters } from '../interfaces/get-os-subna
 import { GetAnnouncementSettingAvailable } from '../interfaces/get-announcement-setting-available.interface';
 import { GetAllIndicators } from '../interfaces/get-all-indicators.interface';
 import { GetAllResultStatus } from '../interfaces/get-all-result-status.interface';
+import { GetSubnationalsByIsoAlpha } from '../interfaces/get-subnationals-by-iso-alpha.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -82,6 +83,11 @@ export class ApiService {
 
   GET_Institutions = (): Promise<MainResponse<GetInstitution[]>> => {
     const url = () => `tools/clarisa/institutions?location=true&type=true&only-hq=true`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SubNationals = (isoAlpha2: string): Promise<MainResponse<GetSubnationalsByIsoAlpha[]>> => {
+    const url = () => `tools/clarisa/sub-nationals/country/${isoAlpha2}`;
     return this.TP.get(url(), {});
   };
 

@@ -47,6 +47,7 @@ export class MultiselectComponent implements OnInit {
   @Input() label = '';
   @Input() description = '';
   @Input() hideSelected = false;
+  @Input() disabledSelectedScroll = false;
   selectEvent = output<any>();
 
   service: any;

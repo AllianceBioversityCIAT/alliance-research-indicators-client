@@ -21,7 +21,7 @@
   "dataGroups": [
     {
       "name": "dynamic-data",
-      "urls": ["/api/results/**", "/api/indicators/**"],
+      "urls": [],
       "cacheConfig": {
         "strategy": "freshness",
         "maxSize": 100,
@@ -31,7 +31,7 @@
     },
     {
       "name": "semi-dynamic-data",
-      "urls": ["/api/metadata/**", "/api/user/**"],
+      "urls": [],
       "cacheConfig": {
         "strategy": "freshness",
         "maxSize": 50,
@@ -41,7 +41,7 @@
     },
     {
       "name": "static-data",
-      "urls": ["/api/countries/**", "/api/languages/**", "/api/regions/**"],
+      "urls": [],
       "cacheConfig": {
         "strategy": "performance",
         "maxSize": 100,

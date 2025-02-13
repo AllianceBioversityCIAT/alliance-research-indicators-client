@@ -27,6 +27,7 @@ import { GetOsSubnationalService } from './opensearch/get-os-subnational.service
 import { GetAllIndicatorsService } from './control-list/get-all-indicators.service';
 import { GetAllResultStatusService } from './control-list/get-all-result-status.service';
 import { GetAllYearsService } from './control-list/get-all-years.service';
+import { GetSubnationalByIsoAlphaService } from './get-subnational-by-iso-alpha.service';
 
 @Injectable({
   providedIn: 'root'
@@ -90,6 +91,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetAllResultStatusService);
       case 'getAllYears':
         return this.injector.get(GetAllYearsService);
+      case 'GetSubnationalByIsoAlpha':
+        return this.injector.get(GetSubnationalByIsoAlphaService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;

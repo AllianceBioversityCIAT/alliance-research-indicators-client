@@ -16,6 +16,7 @@
     <div class="fields">
       <app-radio-button
         label="What is the main geographic focus of the Impact?*"
+        description="This should reflect where the Impact has taken place/contributed to benefit."
         [signal]="body"
         [optionLabel]="'label'"
         serviceName="geoFocus"
@@ -36,6 +37,7 @@
         <app-multiselect
           (selectEvent)="onSelect()"
           [signal]="body"
+          [disabledSelectedScroll]="body().geo_scope_id === 5 || body().geo_scope_id === '5'"
           [optionLabel]="'name'"
           [optionValue]="'isoAlpha2'"
           [signalOptionValue]="'countries'"
@@ -67,15 +69,15 @@
 
                 <!-- Right column: Multiselect -->
                 <div class="right-column" style="width: 300px">
-                  <app-multiselect-opensearch
+                  <app-multiselect-instance
                     #subnationalmultiselect
                     [signal]="country.result_countries_sub_nationals_signal"
                     [optionLabel]="'name'"
                     [optionValue]="'sub_national_id'"
                     [signalOptionValue]="'regions'"
-                    serviceName="openSearchSubNationals"
+                    serviceName="GetSubnationalByIsoAlpha"
                     [hideSelected]="true"
-                    [openSearchFilters]="{ country: country.isoAlpha2 }"></app-multiselect-opensearch>
+                    [endpointParams]="{ isoAlpha2: country.isoAlpha2 }"></app-multiselect-instance>
                 </div>
               </div>
             </ng-template>

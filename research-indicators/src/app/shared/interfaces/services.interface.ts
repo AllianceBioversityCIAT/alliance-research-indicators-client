@@ -27,4 +27,5 @@ export type ControlListServices =
   | 'getAllIndicators'
   | 'allResultStatus'
   | 'getAllYears'
+  | 'GetSubnationalByIsoAlpha'
   |'';
