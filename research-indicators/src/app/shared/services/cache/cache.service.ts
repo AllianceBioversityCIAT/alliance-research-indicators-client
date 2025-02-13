@@ -16,6 +16,8 @@ export class CacheService {
   currentResultIsLoading = signal(false);
   currentMetadata: WritableSignal<GetMetadata> = signal({});
   loadingCurrentResult = signal(false);
+  navbarHeight = signal(0);
+  headerHeight = signal(0);
   currentResultIndicatorSectionPath = computed(() => {
     switch (this.currentMetadata().indicator_id) {
       case 1:
