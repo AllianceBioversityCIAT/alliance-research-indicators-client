@@ -9,32 +9,73 @@
   margin-top: auto;
 }
 
-:host ::ng-deep {
-  .p-orderlist-item {
-    padding: 0 !important;
+.p-orderlist {
+  width: 100%;
+
+  .p-orderlist-controls {
+    display: none;
   }
 
-  .item-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #f8f9fa;
-    padding: 0.75rem;
-    border-radius: 6px;
-    margin: 0.25rem;
+  .p-orderlist-list {
+    width: 100%;
+    border: none;
+    background: transparent;
 
-    .drag-handle {
-      display: flex;
-      align-items: center;
-      color: #6c757d;
-      cursor: move;
-    }
+    .p-orderlist-item {
+      padding: 0 !important;
+      margin: 0.5rem 0;
+      border: none;
+      background: transparent;
 
-    .content {
-      .column-name {
-        font-weight: 500;
-        color: #495057;
+      &:not(.p-highlight):hover {
+        background: transparent;
       }
     }
+  }
+}
+
+.p-orderlist-item-content,
+.p-orderlist-current-item-content {
+  width: 100%;
+}
+
+.item-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #e8ebed;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  width: 100%;
+  transition: all 0.2s ease;
+  border: 1px solid #e9ecef;
+
+  &:hover {
+    background-color: #e9ecef;
+    transform: translateY(-1px);
+  }
+
+  .drag-handle {
+    display: flex;
+    align-items: center;
+    color: #6c757d;
+    cursor: move;
+  }
+
+  .content {
+    .column-name {
+      font-weight: 500;
+      color: #495057;
+    }
+  }
+}
+
+// Estilos específicos para el elemento siendo arrastrado
+.p-orderlist-current-item-content,
+.p-orderlist-droppoint-highlight {
+  .item-container {
+    box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
+    background-color: #e9ecef;
+    border-color: #dee2e6;
   }
 }
