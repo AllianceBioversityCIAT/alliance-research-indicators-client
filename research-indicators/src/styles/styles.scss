@@ -16,6 +16,16 @@ body {
   margin: 0;
 }
 
+#table-configuration {
+  .p-orderlist-controls {
+    display: none;
+  }
+
+  .p-orderlist-list-container {
+    background: none;
+  }
+}
+
 .input-container {
   display: flex;
   flex-direction: column;
