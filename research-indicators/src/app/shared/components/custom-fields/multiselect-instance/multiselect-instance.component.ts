@@ -1,20 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  ContentChild,
-  effect,
-  inject,
-  Input,
-  signal,
-  TemplateRef,
-  WritableSignal,
-  OnInit,
-  output,
-  DestroyRef
-} from '@angular/core';
+import { Component, computed, ContentChild, effect, inject, Input, signal, TemplateRef, WritableSignal, OnInit, output } from '@angular/core';
 import { MultiSelectChangeEvent, MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
@@ -24,9 +9,6 @@ import { ControlListServices } from '../../../interfaces/services.interface';
 import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
 import { UtilsService } from '../../../services/utils.service';
-import { Subject } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-multiselect-instance',

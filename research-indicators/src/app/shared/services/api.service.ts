@@ -37,6 +37,7 @@ import { GetOsSubNationals, OpenSearchFilters } from '../interfaces/get-os-subna
 import { GetAnnouncementSettingAvailable } from '../interfaces/get-announcement-setting-available.interface';
 import { GetAllIndicators } from '../interfaces/get-all-indicators.interface';
 import { GetAllResultStatus } from '../interfaces/get-all-result-status.interface';
+import { GetSubnationalsByIsoAlpha } from '../interfaces/get-subnationals-by-iso-alpha.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -85,7 +86,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_SubNationals = (isoAlpha2: string): Promise<MainResponse<any[]>> => {
+  GET_SubNationals = (isoAlpha2: string): Promise<MainResponse<GetSubnationalsByIsoAlpha[]>> => {
     const url = () => `tools/clarisa/sub-nationals/country/${isoAlpha2}`;
     return this.TP.get(url(), {});
   };
