@@ -32,6 +32,7 @@
     "@angular/platform-browser-dynamic": "^18.2.5",
     "@angular/router": "^18.2.5",
     "@angular/service-worker": "18.2.5",
+    "@hotjar/browser": "^1.0.9",
     "@microsoft/clarity": "^1.0.0",
     "@openreplay/tracker": "^14.0.9",
     "chart.js": "^4.4.7",

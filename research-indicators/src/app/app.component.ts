@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { environment } from '@envs/environment';
 import { CacheService } from '@services/cache/cache.service';
@@ -11,6 +11,7 @@ import { GlobalAlertComponent } from './shared/components/global-alert/global-al
 import { GlobalToastComponent } from './shared/components/global-toast/global-toast.component';
 import { CopyTokenComponent } from './shared/components/copy-token/copy-token.component';
 import { ConnectionStatusComponent } from './shared/components/connection-status/connection-status.component';
+import Hotjar from '@hotjar/browser';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,7 @@ import { ConnectionStatusComponent } from './shared/components/connection-status
   imports: [RouterOutlet, MetadataPanelComponent, GlobalAlertComponent, GlobalToastComponent, CopyTokenComponent, ConnectionStatusComponent],
   templateUrl: './app.component.html'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   cache = inject(CacheService);
   sockets = inject(WebsocketService);
   openReplay = inject(OpenReplayService);
@@ -27,4 +28,8 @@ export class AppComponent {
   title = 'research-indicators';
   name = environment.name;
   route = inject(ActivatedRoute);
+
+  ngOnInit() {
+    Hotjar.init(environment.hotjarId, environment.hotjarVersion);
+  }
 }
