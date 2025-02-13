@@ -23,11 +23,13 @@ import { ControlListServices } from '../../../interfaces/services.interface';
 import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
 import { UtilsService } from '../../../services/utils.service';
+import { environment } from '../../../../../environments/environment';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-multiselect',
   standalone: true,
-  imports: [MultiSelectModule, FormsModule, NgTemplateOutlet, SkeletonModule],
+  imports: [MultiSelectModule, FormsModule, NgTemplateOutlet, SkeletonModule, TooltipModule],
   templateUrl: './multiselect.component.html',
   styleUrl: './multiselect.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -48,7 +50,10 @@ export class MultiselectComponent implements OnInit {
   @Input() description = '';
   @Input() hideSelected = false;
   @Input() disabledSelectedScroll = false;
+  @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
+
   selectEvent = output<any>();
+  environment = environment;
 
   service: any;
 
