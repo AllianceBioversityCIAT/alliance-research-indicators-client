@@ -134,7 +134,7 @@ export const routes: Routes = [
         path: 'search-a-result',
         loadComponent: () => import('./pages/platform/pages/search-a-result/search-a-result.component'),
         data: {
-          title: 'Search a Result'
+          title: 'Results List'
         }
       },
       {
