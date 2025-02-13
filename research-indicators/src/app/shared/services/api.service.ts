@@ -85,6 +85,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_SubNationals = (isoAlpha2: string): Promise<MainResponse<any[]>> => {
+    const url = () => `tools/clarisa/sub-nationals/country/${isoAlpha2}`;
+    return this.TP.get(url(), {});
+  };
+
   GET_IndicatorTypeById = (id: number): Promise<MainResponse<Indicator>> => {
     const url = () => `indicator-types/${id}`;
     return this.TP.get(url(), {});

@@ -7,14 +7,13 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { Country, GetGeoLocation } from '../../../../../../shared/interfaces/get-geo-location.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { Router } from '@angular/router';
-import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { environment } from '../../../../../../../environments/environment';
-import { MultiselectOpensearchComponent } from '../../../../../../shared/components/custom-fields/multiselect-opensearch/multiselect-opensearch.component';
+import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 
 @Component({
   selector: 'app-geographic-scope',
   standalone: true,
-  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, SelectComponent, MultiselectOpensearchComponent],
+  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html',
   styleUrl: './geographic-scope.component.scss'
 })

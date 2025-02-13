@@ -2,15 +2,6 @@
   display: flex;
   flex-direction: column;
 
-  .selected-items {
-    display: flex;
-    flex-direction: column;
-    max-height: 380px;
-    overflow-y: auto;
-    // max-height: 380px;
-    // overflow-y: auto;
-  }
-
   .item {
     border: 0.7px solid #e8ebed;
     padding: 20px;

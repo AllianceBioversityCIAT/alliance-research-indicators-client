@@ -67,15 +67,15 @@
 
                 <!-- Right column: Multiselect -->
                 <div class="right-column" style="width: 300px">
-                  <app-multiselect-opensearch
+                  <app-multiselect-instance
                     #subnationalmultiselect
                     [signal]="country.result_countries_sub_nationals_signal"
                     [optionLabel]="'name'"
                     [optionValue]="'sub_national_id'"
                     [signalOptionValue]="'regions'"
-                    serviceName="openSearchSubNationals"
+                    serviceName="GetSubnationalByIsoAlpha"
                     [hideSelected]="true"
-                    [openSearchFilters]="{ country: country.isoAlpha2 }"></app-multiselect-opensearch>
+                    [endpointParams]="{ isoAlpha2: country.isoAlpha2 }"></app-multiselect-instance>
                 </div>
               </div>
             </ng-template>
