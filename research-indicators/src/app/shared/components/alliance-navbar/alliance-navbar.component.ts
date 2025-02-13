@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, ViewChild, ElementRef, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
@@ -15,6 +15,7 @@ import { ActionsService } from '@services/actions.service';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.service';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
+
 @Component({
   selector: 'alliance-navbar',
   standalone: true,
@@ -23,7 +24,10 @@ import { ServiceLocatorService } from '@shared/services/service-locator.service'
   styleUrl: './alliance-navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AllianceNavbarComponent implements OnInit {
+export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('navbar') navbarElement!: ElementRef;
+  private resizeObserver: ResizeObserver | null = null;
+  private zone = inject(NgZone);
   dropdownsCache = inject(DropdownsCacheService);
   allModalsService = inject(AllModalsService);
   cache = inject(CacheService);
@@ -31,6 +35,7 @@ export class AllianceNavbarComponent implements OnInit {
   router = inject(Router);
   actions = inject(ActionsService);
   serviceLocator = inject(ServiceLocatorService);
+  elementRef = inject(ElementRef);
   service: any;
   private searchDebounceTimeout: any;
 
@@ -44,6 +49,25 @@ export class AllianceNavbarComponent implements OnInit {
 
   ngOnInit() {
     this.service = this.serviceLocator.getService('openSearchResult');
+  }
+
+  ngAfterViewInit(): void {
+    const navbar = this.elementRef.nativeElement.querySelector('#navbar');
+    console.log(navbar);
+
+    if (navbar) {
+      this.resizeObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          this.cache.navbarHeight.set(entry.contentRect.height);
+        }
+      });
+
+      this.resizeObserver.observe(navbar);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
   }
 
   onSearchTextChange(event: Event) {
