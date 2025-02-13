@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { environment } from '@envs/environment';
 import { CacheService } from '@services/cache/cache.service';
 import { MetadataPanelComponent } from '@components/metadata-panel/metadata-panel.component';
@@ -12,6 +12,7 @@ import { GlobalToastComponent } from './shared/components/global-toast/global-to
 import { CopyTokenComponent } from './shared/components/copy-token/copy-token.component';
 import { ConnectionStatusComponent } from './shared/components/connection-status/connection-status.component';
 import Hotjar from '@hotjar/browser';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -28,8 +29,16 @@ export class AppComponent implements OnInit {
   title = 'research-indicators';
   name = environment.name;
   route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   ngOnInit() {
+    // Initialize Hotjar
     Hotjar.init(environment.hotjarId, environment.hotjarVersion);
+
+    // Track route changes
+    this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
+      // Notify Hotjar of the route change
+      Hotjar.stateChange(event.urlAfterRedirects);
+    });
   }
 }
