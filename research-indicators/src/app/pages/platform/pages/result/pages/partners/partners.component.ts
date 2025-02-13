@@ -7,12 +7,11 @@ import { Router } from '@angular/router';
 import { PatchPartners } from '@interfaces/patch-partners.interface';
 import { ApiService } from '@services/api.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
-import { environment } from '../../../../../../../environments/environment';
-
+import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 @Component({
   selector: 'app-partners',
   standalone: true,
-  imports: [ButtonModule, FormsModule, MultiselectComponent],
+  imports: [ButtonModule, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
   templateUrl: './partners.component.html',
   styleUrl: './partners.component.scss'
 })
@@ -23,7 +22,6 @@ export default class PartnersComponent {
   api = inject(ApiService);
   body = signal<PatchPartners>(new PatchPartners());
   loading = signal(false);
-  environment = environment;
 
   constructor() {
     this.getData();
