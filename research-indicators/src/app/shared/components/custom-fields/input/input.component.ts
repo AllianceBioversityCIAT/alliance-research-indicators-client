@@ -54,6 +54,7 @@ export class InputComponent {
 
   setValue(value: any) {
     // this.signal.set({ ...this.signal(), [this.optionValue]: value });
+    value = value.toLowerCase();
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, value);
   }
@@ -63,7 +64,11 @@ export class InputComponent {
       case 'email':
         return { pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$', message: 'Please enter a valid email address.' };
       case 'url':
-        return { pattern: /^(https?:\/\/)?([a-zA-Z0-9-]+\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=%-]*)?(#[a-zA-Z0-9._~:/?[\]@!$&'()*+,;=%-]*)?$/, message: 'Please enter a valid URL.' };
+        return {
+          pattern:
+            /^(https?:\/\/)?([a-zA-Z0-9-]+\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=%-]*)?(#[a-zA-Z0-9._~:/?[\]@!$&'()*+,;=%-]*)?$/,
+          message: 'Please enter a valid URL.'
+        };
       default:
         return { pattern: '', message: '' };
     }
