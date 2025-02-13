@@ -7,6 +7,15 @@ import { signal } from '@angular/core';
 import { CacheService } from '@services/cache/cache.service';
 import { DarkModeService } from '@services/dark-mode.service';
 
+// Mock ResizeObserver
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+global.ResizeObserver = ResizeObserverMock;
+
 describe('AllianceNavbarComponent', () => {
   let component: AllianceNavbarComponent;
   let fixture: ComponentFixture<AllianceNavbarComponent>;
@@ -21,7 +30,8 @@ describe('AllianceNavbarComponent', () => {
       }
     }),
     isLoggedIn: signal(true),
-    isValidatingToken: signal(false)
+    isValidatingToken: signal(false),
+    navbarHeight: signal(0)
   };
 
   const mockDarkModeService = {
