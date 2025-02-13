@@ -29,4 +29,8 @@ export class TableConfigurationComponent {
   toggleSidebar() {
     this.showSignal.update(prev => !prev);
   }
+
+  applyConfigurations() {
+    console.log('applyConfigurations');
+  }
 }
