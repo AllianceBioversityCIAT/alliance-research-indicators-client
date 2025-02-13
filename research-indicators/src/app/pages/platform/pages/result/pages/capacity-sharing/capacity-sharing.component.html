@@ -159,20 +159,7 @@
         serviceName="institutions">
         @if (!this.loading()) {
           <ng-template #rows let-institution>
-            <div class="item-content">
-              <div class="information">
-                <div class="row">
-                  <div>
-                    <strong>{{ institution.acronym }}</strong> - {{ institution.name }}
-                  </div>
-                  <div class="institution-type">
-                    <h4>Institution Type</h4>
-                    &nbsp; <span class="material-symbols-rounded"> arrow_forward </span>&nbsp;
-                    <span class="institution-type-description">{{ institution?.institution_type?.name }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <app-partner-selected-item [institution]="institution"></app-partner-selected-item>
           </ng-template>
         }
       </app-multiselect>

@@ -24,6 +24,7 @@ export class GetInstitutionsService {
         ? `<strong>${institution.acronym}</strong> - ${institution.name} - ${institution.institution_locations[0]?.name}`
         : `${institution.name} - ${institution.institution_locations[0]?.name}`;
       institution.isoAlpha2 = institution.institution_locations[0]?.isoAlpha2;
+      institution.institution_location_name = institution.institution_locations[0]?.name;
     });
     this.list.set(response.data);
     this.loading.set(false);

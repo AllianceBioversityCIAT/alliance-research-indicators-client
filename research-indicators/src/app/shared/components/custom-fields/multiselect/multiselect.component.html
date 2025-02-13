@@ -44,7 +44,21 @@
       }
       @if (!this.hideSelected) {
         <ng-template let-value pTemplate="selectedItems"> {{ selectedOptions()?.length }} items selected </ng-template>
-        <ng-template let-item pTemplate="item"><span [innerHTML]="item[this.optionLabel]"></span></ng-template>
+        <ng-template let-item pTemplate="item">
+          <div class="flex align-items-center gap-2">
+            @if (this.flagAttributes.isoAlpha2) {
+              <img
+                width="25"
+                height="25"
+                [src]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
+                [alt]="item[this.flagAttributes.institution_location_name]"
+                [srcset]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
+                [pTooltip]="item[this.flagAttributes.institution_location_name]"
+                tooltipPosition="right" />
+            }
+            <span [innerHTML]="item[this.optionLabel]"></span>
+          </div>
+        </ng-template>
       }
     </p-multiSelect>
   }

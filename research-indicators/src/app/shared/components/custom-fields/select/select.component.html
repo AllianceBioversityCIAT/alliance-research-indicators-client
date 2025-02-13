@@ -41,7 +41,19 @@
       }
 
       <ng-template pTemplate="item" let-item>
-        <div [innerHTML]="item[this.optionLabel]"></div>
+        <div class="flex align-items-center gap-2">
+          @if (this.flagAttributes.isoAlpha2) {
+            <img
+              width="25"
+              height="25"
+              [src]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
+              [alt]="item[this.flagAttributes.institution_location_name]"
+              [srcset]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
+              [pTooltip]="item[this.flagAttributes.institution_location_name]"
+              tooltipPosition="right" />
+          }
+          <span [innerHTML]="item[this.optionLabel]"></span>
+        </div>
       </ng-template>
 
       <!-- selected style -->

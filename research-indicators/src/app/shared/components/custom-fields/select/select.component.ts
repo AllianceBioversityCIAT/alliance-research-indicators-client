@@ -7,11 +7,13 @@ import { ServiceLocatorService } from '../../../services/service-locator.service
 import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
 import { UtilsService } from '../../../services/utils.service';
+import { environment } from '../../../../../environments/environment';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [DropdownModule, FormsModule, SkeletonModule],
+  imports: [DropdownModule, FormsModule, SkeletonModule, TooltipModule],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss'
 })
@@ -26,10 +28,11 @@ export class SelectComponent implements OnInit {
   @Input() label = '';
   @Input() description = '';
   @Input() disabled = false;
+  @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
 
   service: any;
   body = signal({ value: null });
-
+  environment = environment;
   constructor(private serviceLocator: ServiceLocatorService) {}
 
   onSectionLoad = effect(

@@ -17,11 +17,13 @@
           <div class="metadata-title">Headquarter</div>
           &nbsp; <i class="material-symbols-rounded"> arrow_forward </i>&nbsp;
           <img
-            width="20"
-            height="20"
+            width="25"
+            height="25"
             [src]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'"
             [alt]="institution?.institution_type?.name"
-            [srcset]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'" />
+            [srcset]="environment.flagsUrl + institution?.isoAlpha2 + '.svg'"
+            [pTooltip]="institution?.institution_location_name"
+            tooltipPosition="right" />
         </div>
       </div>
     </div>

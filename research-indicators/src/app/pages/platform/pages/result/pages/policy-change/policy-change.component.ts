@@ -10,10 +10,19 @@ import { RadioButtonComponent } from '../../../../../../shared/components/custom
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
+import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 @Component({
   selector: 'app-policy-change',
   standalone: true,
-  imports: [RadioButtonComponent, TextareaComponent, MultiselectComponent, SelectComponent, ButtonModule, TooltipModule],
+  imports: [
+    RadioButtonComponent,
+    TextareaComponent,
+    MultiselectComponent,
+    SelectComponent,
+    ButtonModule,
+    TooltipModule,
+    PartnerSelectedItemComponent
+  ],
   templateUrl: './policy-change.component.html',
   styleUrl: './policy-change.component.scss'
 })

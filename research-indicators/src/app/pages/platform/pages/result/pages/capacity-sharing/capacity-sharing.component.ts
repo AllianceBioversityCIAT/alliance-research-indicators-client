@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { CalendarInputComponent } from '../../../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
-
+import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 @Component({
   selector: 'app-capacity-sharing',
   standalone: true,
@@ -28,7 +28,8 @@ import { CalendarInputComponent } from '../../../../../../shared/components/cust
     SelectComponent,
     InputComponent,
     CalendarInputComponent,
-    MultiselectComponent
+    MultiselectComponent,
+    PartnerSelectedItemComponent
   ],
   templateUrl: './capacity-sharing.component.html',
   styleUrl: './capacity-sharing.component.scss'
