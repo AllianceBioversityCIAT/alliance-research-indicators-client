@@ -36,7 +36,7 @@
               "src/styles/colors.scss",
               "src/styles/font.scss",
               "src/styles/custom-fields.scss",
-              "src/styles/font-size-responsive.scss",
+              "src/styles/responsive-size.scss",
               "node_modules/primeflex/primeflex.css"
             ],
             "scripts": []
