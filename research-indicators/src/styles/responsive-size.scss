@@ -3,7 +3,7 @@
 // <div class="fs-[24] md:fs-[20]">Text</div>
 
 // Generate base font size utility classes
-@for $i from 1 through 30 {
+@for $i from 1 through 100 {
   .rs-fs-\[#{$i}\] {
     font-size: #{$i}px;
   }
@@ -11,7 +11,7 @@
 
 // Generate MD (small screen) utility classes
 @media (orientation: landscape) and (height <= 768px) {
-  @for $i from 1 through 30 {
+  @for $i from 1 through 100 {
     .md\:rs-fs-\[#{$i}\] {
       font-size: #{$i}px !important;
     }
@@ -43,7 +43,7 @@
 }
 
 // Generate base gap utilities
-@for $i from 1 through 30 {
+@for $i from 1 through 100 {
   // Gap all
   .rs-gap-\[#{$i}\] {
     gap: #{$i}px;
@@ -65,7 +65,7 @@
 // <div class="rs-mt-[24] md:rs-mt-[16]">Content</div>
 
 // Generate base margin utilities
-@for $i from 1 through 30 {
+@for $i from 1 through 100 {
   // Margin all sides
   .rs-m-\[#{$i}\] {
     margin: #{$i}px;
@@ -99,7 +99,7 @@
 }
 
 // Generate base padding utilities
-@for $i from 1 through 30 {
+@for $i from 1 through 100 {
   // Padding all sides
   .rs-p-\[#{$i}\] {
     padding: #{$i}px;
@@ -153,7 +153,7 @@
     }
   }
 
-  @for $i from 1 through 30 {
+  @for $i from 1 through 100 {
     // Gap MD classes
     .md\:rs-gap-\[#{$i}\] {
       gap: #{$i}px !important;
