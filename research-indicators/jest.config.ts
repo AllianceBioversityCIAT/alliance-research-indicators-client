@@ -30,7 +30,6 @@ const config: Config = {
     }
   },
   moduleNameMapper: {
-    '@openreplay/tracker': '<rootDir>/tests/mocks/openReplayMock.ts',
     '@microsoft/clarity': '<rootDir>/tests/mocks/clarityMock.ts',
     '^@public/(.*)$': '<rootDir>/public/$1',
     '^@shared/(.*)$': '<rootDir>/src/app/shared/$1',
