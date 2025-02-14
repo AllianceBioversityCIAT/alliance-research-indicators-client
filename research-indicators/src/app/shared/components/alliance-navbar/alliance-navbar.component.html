@@ -6,7 +6,7 @@
     @for (option of this.options; track $index) {
       @if (!option.hide) {
         <a
-          class="option atc-white-1"
+          class="option atc-white-1 rs-py-[25] rs-px-[15] md:rs-py-[15] md:rs-px-[10]"
           [routerLink]="option.disabled ? null : option.path"
           routerLinkActive="active atc-light-blue-200-i"
           [class.disabled]="option.disabled"

@@ -1,0 +1,218 @@
+// Font size utility classes with responsive behavior
+// Usage example:
+// <div class="fs-[24] md:fs-[20]">Text</div>
+
+// Generate base font size utility classes
+@for $i from 1 through 30 {
+  .fs-\[#{$i}\] {
+    font-size: #{$i}px;
+  }
+}
+
+// Generate MD (small screen) utility classes
+@media (orientation: landscape) and (height <= 768px) {
+  @for $i from 1 through 30 {
+    .md\:fs-\[#{$i}\] {
+      font-size: #{$i}px !important;
+    }
+  }
+}
+
+// Base visibility utilities
+.rs-hide {
+  display: none;
+}
+
+// Generate size utilities (width and height)
+@for $i from 0 through 500 {
+  // Both width and height
+  .rs-size-\[#{$i}\] {
+    width: #{$i}px;
+    height: #{$i}px;
+  }
+
+  // Width only
+  .rs-w-\[#{$i}\] {
+    width: #{$i}px;
+  }
+
+  // Height only
+  .rs-h-\[#{$i}\] {
+    height: #{$i}px;
+  }
+}
+
+// Generate base gap utilities
+@for $i from 1 through 30 {
+  // Gap all
+  .rs-gap-\[#{$i}\] {
+    gap: #{$i}px;
+  }
+
+  // Row gap (y-axis)
+  .rs-gap-y-\[#{$i}\] {
+    row-gap: #{$i}px;
+  }
+
+  // Column gap (x-axis)
+  .rs-gap-x-\[#{$i}\] {
+    column-gap: #{$i}px;
+  }
+}
+
+// Responsive Size Utilities for Margins and Paddings
+// Usage example:
+// <div class="rs-mt-[24] md:rs-mt-[16]">Content</div>
+
+// Generate base margin utilities
+@for $i from 1 through 30 {
+  // Margin all sides
+  .rs-m-\[#{$i}\] {
+    margin: #{$i}px;
+  }
+
+  // Margin top/bottom (y-axis)
+  .rs-my-\[#{$i}\] {
+    margin-top: #{$i}px;
+    margin-bottom: #{$i}px;
+  }
+
+  // Margin left/right (x-axis)
+  .rs-mx-\[#{$i}\] {
+    margin-left: #{$i}px;
+    margin-right: #{$i}px;
+  }
+
+  // Individual margins
+  .rs-mt-\[#{$i}\] {
+    margin-top: #{$i}px;
+  }
+  .rs-mb-\[#{$i}\] {
+    margin-bottom: #{$i}px;
+  }
+  .rs-ml-\[#{$i}\] {
+    margin-left: #{$i}px;
+  }
+  .rs-mr-\[#{$i}\] {
+    margin-right: #{$i}px;
+  }
+}
+
+// Generate base padding utilities
+@for $i from 1 through 30 {
+  // Padding all sides
+  .rs-p-\[#{$i}\] {
+    padding: #{$i}px;
+  }
+
+  // Padding top/bottom (y-axis)
+  .rs-py-\[#{$i}\] {
+    padding-top: #{$i}px;
+    padding-bottom: #{$i}px;
+  }
+
+  // Padding left/right (x-axis)
+  .rs-px-\[#{$i}\] {
+    padding-left: #{$i}px;
+    padding-right: #{$i}px;
+  }
+
+  // Individual paddings
+  .rs-pt-\[#{$i}\] {
+    padding-top: #{$i}px;
+  }
+  .rs-pb-\[#{$i}\] {
+    padding-bottom: #{$i}px;
+  }
+  .rs-pl-\[#{$i}\] {
+    padding-left: #{$i}px;
+  }
+  .rs-pr-\[#{$i}\] {
+    padding-right: #{$i}px;
+  }
+}
+
+// Generate MD (small screen) utilities
+@media (orientation: landscape) and (height <= 768px) {
+  // Hide elements on MD screens
+  .md-rs-hide {
+    display: none !important;
+  }
+
+  @for $i from 0 through 500 {
+    // Size MD classes
+    .md\:rs-size-\[#{$i}\] {
+      width: #{$i}px !important;
+      height: #{$i}px !important;
+    }
+    .md\:rs-w-\[#{$i}\] {
+      width: #{$i}px !important;
+    }
+    .md\:rs-h-\[#{$i}\] {
+      height: #{$i}px !important;
+    }
+  }
+
+  @for $i from 1 through 30 {
+    // Gap MD classes
+    .md\:rs-gap-\[#{$i}\] {
+      gap: #{$i}px !important;
+    }
+    .md\:rs-gap-y-\[#{$i}\] {
+      row-gap: #{$i}px !important;
+    }
+    .md\:rs-gap-x-\[#{$i}\] {
+      column-gap: #{$i}px !important;
+    }
+
+    // Margin MD classes
+    .md\:rs-m-\[#{$i}\] {
+      margin: #{$i}px !important;
+    }
+    .md\:rs-my-\[#{$i}\] {
+      margin-top: #{$i}px !important;
+      margin-bottom: #{$i}px !important;
+    }
+    .md\:rs-mx-\[#{$i}\] {
+      margin-left: #{$i}px !important;
+      margin-right: #{$i}px !important;
+    }
+    .md\:rs-mt-\[#{$i}\] {
+      margin-top: #{$i}px !important;
+    }
+    .md\:rs-mb-\[#{$i}\] {
+      margin-bottom: #{$i}px !important;
+    }
+    .md\:rs-ml-\[#{$i}\] {
+      margin-left: #{$i}px !important;
+    }
+    .md\:rs-mr-\[#{$i}\] {
+      margin-right: #{$i}px !important;
+    }
+
+    // Padding MD classes
+    .md\:rs-p-\[#{$i}\] {
+      padding: #{$i}px !important;
+    }
+    .md\:rs-py-\[#{$i}\] {
+      padding-top: #{$i}px !important;
+      padding-bottom: #{$i}px !important;
+    }
+    .md\:rs-px-\[#{$i}\] {
+      padding-left: #{$i}px !important;
+      padding-right: #{$i}px !important;
+    }
+    .md\:rs-pt-\[#{$i}\] {
+      padding-top: #{$i}px !important;
+    }
+    .md\:rs-pb-\[#{$i}\] {
+      padding-bottom: #{$i}px !important;
+    }
+    .md\:rs-pl-\[#{$i}\] {
+      padding-left: #{$i}px !important;
+    }
+    .md\:rs-pr-\[#{$i}\] {
+      padding-right: #{$i}px !important;
+    }
+  }
+}

@@ -6,7 +6,6 @@ import { WebsocketService } from '../sockets/websocket.service';
 import { environment } from '@envs/environment';
 import { ActionsService } from '@services/actions.service';
 import { SoundService } from './sound.service';
-import { OpenReplayService } from './open-replay.service';
 import { ClarityService } from './clarity.service';
 
 @Injectable({
@@ -20,7 +19,6 @@ export class CognitoService {
   websocket = inject(WebsocketService);
   actions = inject(ActionsService);
   soundService = inject(SoundService);
-  openReplay = inject(OpenReplayService);
   clarity = inject(ClarityService);
 
   redirectToCognito() {
@@ -61,8 +59,6 @@ export class CognitoService {
     this.cache.dataCache.set(localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data') ?? '') : {});
     this.cache.isLoggedIn.set(true);
     this.cache.isValidatingToken.set(false);
-    // Update user information in OpenReplay after login
-    this.openReplay.updateUserInfo();
     this.clarity.updateUserInfo();
   }
 }

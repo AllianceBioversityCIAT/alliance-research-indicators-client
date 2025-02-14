@@ -24,6 +24,7 @@
     </div>
   </div>
 
+  <!-- scrollHeight="calc(100vh - 30rem)" -->
   <p-table
     #dt2
     [value]="resultsCenterService.list()"
@@ -31,7 +32,6 @@
     [rows]="5"
     [showCurrentPageReport]="true"
     [scrollable]="true"
-    scrollHeight="calc(100vh - 30rem)"
     [tableStyle]="{ 'min-width': '100%' }"
     [rowsPerPageOptions]="[5, 10, 25, 50]"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"

@@ -6,7 +6,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { of } from 'rxjs';
-import { OpenReplayService } from './shared/services/open-replay.service';
 import { ActionsService } from './shared/services/actions.service';
 import { signal } from '@angular/core';
 
@@ -29,10 +28,6 @@ describe('AppComponent', () => {
       isLoggedIn: { set: jest.fn() }
     };
 
-    const mockOpenReplayService = {
-      start: jest.fn().mockResolvedValue(undefined)
-    };
-
     mockActionsService = {
       isTokenExpired: jest.fn()
     };
@@ -44,7 +39,6 @@ describe('AppComponent', () => {
         { provide: WebsocketService, useValue: mockWebsocketService },
         { provide: CacheService, useValue: mockCacheService },
         { provide: Socket, useValue: mockSocket },
-        { provide: OpenReplayService, useValue: mockOpenReplayService },
         { provide: ActionsService, useValue: mockActionsService }
       ]
     }).compileComponents();

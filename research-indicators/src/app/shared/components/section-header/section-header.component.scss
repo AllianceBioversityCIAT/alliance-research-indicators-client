@@ -2,7 +2,8 @@
   display: flex;
   align-items: center;
   background: white;
-  padding: 20px;
+
+  // padding: 20px;
   border: 1px solid #e8ebed;
   gap: 1rem;
 
@@ -24,13 +25,13 @@
 
   .navigation-controls {
     display: flex;
-    gap: 0.5rem;
 
     .nav-button {
       background: none;
       border: none;
       cursor: pointer;
-      padding: 0.5rem;
+
+      // padding: 0.5rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -42,7 +43,7 @@
       }
 
       .material-symbols-rounded {
-        font-size: 24px;
+        // font-size: 24px;
         color: var(--text-color);
       }
     }
@@ -51,7 +52,8 @@
   .title {
     h1 {
       margin: 0;
-      font-size: 1.5rem;
+
+      // font-size: 1.5rem;
       font-weight: 500;
       color: var(--text-color);
     }
