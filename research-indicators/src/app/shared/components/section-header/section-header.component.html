@@ -1,11 +1,11 @@
-<div class="section-header" id="section-sidebar">
+<div class="section-header rs-p-[20] md:rs-p-[10]" id="section-sidebar">
   <div class="navigation-controls">
     @if (canGoBack()) {
       <button class="nav-button" (click)="historyPanel.toggle($event)" pTooltip="Navigation History" tooltipPosition="bottom">
-        <span class="material-symbols-rounded">history</span>
+        <span class="material-symbols-rounded md:fs-[18] fs-[24]">history</span>
       </button>
       <button class="nav-button" (click)="goBack()" pTooltip="Go Back" tooltipPosition="bottom">
-        <span class="material-symbols-rounded">arrow_back</span>
+        <span class="material-symbols-rounded md:fs-[18] fs-[24]">arrow_back</span>
       </button>
     }
   </div>

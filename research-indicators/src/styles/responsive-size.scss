@@ -17,3 +17,130 @@
     }
   }
 }
+
+// Responsive Size Utilities for Margins and Paddings
+// Usage example:
+// <div class="rs-mt-[24] md:rs-mt-[16]">Content</div>
+
+// Generate base margin utilities
+@for $i from 1 through 30 {
+  // Margin all sides
+  .rs-m-\[#{$i}\] {
+    margin: #{$i}px;
+  }
+
+  // Margin top/bottom (y-axis)
+  .rs-my-\[#{$i}\] {
+    margin-top: #{$i}px;
+    margin-bottom: #{$i}px;
+  }
+
+  // Margin left/right (x-axis)
+  .rs-mx-\[#{$i}\] {
+    margin-left: #{$i}px;
+    margin-right: #{$i}px;
+  }
+
+  // Individual margins
+  .rs-mt-\[#{$i}\] {
+    margin-top: #{$i}px;
+  }
+  .rs-mb-\[#{$i}\] {
+    margin-bottom: #{$i}px;
+  }
+  .rs-ml-\[#{$i}\] {
+    margin-left: #{$i}px;
+  }
+  .rs-mr-\[#{$i}\] {
+    margin-right: #{$i}px;
+  }
+}
+
+// Generate base padding utilities
+@for $i from 1 through 30 {
+  // Padding all sides
+  .rs-p-\[#{$i}\] {
+    padding: #{$i}px;
+  }
+
+  // Padding top/bottom (y-axis)
+  .rs-py-\[#{$i}\] {
+    padding-top: #{$i}px;
+    padding-bottom: #{$i}px;
+  }
+
+  // Padding left/right (x-axis)
+  .rs-px-\[#{$i}\] {
+    padding-left: #{$i}px;
+    padding-right: #{$i}px;
+  }
+
+  // Individual paddings
+  .rs-pt-\[#{$i}\] {
+    padding-top: #{$i}px;
+  }
+  .rs-pb-\[#{$i}\] {
+    padding-bottom: #{$i}px;
+  }
+  .rs-pl-\[#{$i}\] {
+    padding-left: #{$i}px;
+  }
+  .rs-pr-\[#{$i}\] {
+    padding-right: #{$i}px;
+  }
+}
+
+// Generate MD (small screen) margin utilities
+@media (orientation: landscape) and (height <= 768px) {
+  @for $i from 1 through 30 {
+    // Margin MD classes
+    .md\:rs-m-\[#{$i}\] {
+      margin: #{$i}px !important;
+    }
+    .md\:rs-my-\[#{$i}\] {
+      margin-top: #{$i}px !important;
+      margin-bottom: #{$i}px !important;
+    }
+    .md\:rs-mx-\[#{$i}\] {
+      margin-left: #{$i}px !important;
+      margin-right: #{$i}px !important;
+    }
+    .md\:rs-mt-\[#{$i}\] {
+      margin-top: #{$i}px !important;
+    }
+    .md\:rs-mb-\[#{$i}\] {
+      margin-bottom: #{$i}px !important;
+    }
+    .md\:rs-ml-\[#{$i}\] {
+      margin-left: #{$i}px !important;
+    }
+    .md\:rs-mr-\[#{$i}\] {
+      margin-right: #{$i}px !important;
+    }
+
+    // Padding MD classes
+    .md\:rs-p-\[#{$i}\] {
+      padding: #{$i}px !important;
+    }
+    .md\:rs-py-\[#{$i}\] {
+      padding-top: #{$i}px !important;
+      padding-bottom: #{$i}px !important;
+    }
+    .md\:rs-px-\[#{$i}\] {
+      padding-left: #{$i}px !important;
+      padding-right: #{$i}px !important;
+    }
+    .md\:rs-pt-\[#{$i}\] {
+      padding-top: #{$i}px !important;
+    }
+    .md\:rs-pb-\[#{$i}\] {
+      padding-bottom: #{$i}px !important;
+    }
+    .md\:rs-pl-\[#{$i}\] {
+      padding-left: #{$i}px !important;
+    }
+    .md\:rs-pr-\[#{$i}\] {
+      padding-right: #{$i}px !important;
+    }
+  }
+}

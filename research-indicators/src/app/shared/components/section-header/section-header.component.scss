@@ -2,7 +2,8 @@
   display: flex;
   align-items: center;
   background: white;
-  padding: 20px;
+
+  // padding: 20px;
   border: 1px solid #e8ebed;
   gap: 1rem;
 
@@ -30,7 +31,8 @@
       background: none;
       border: none;
       cursor: pointer;
-      padding: 0.5rem;
+
+      // padding: 0.5rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -42,7 +44,7 @@
       }
 
       .material-symbols-rounded {
-        font-size: 24px;
+        // font-size: 24px;
         color: var(--text-color);
       }
     }
