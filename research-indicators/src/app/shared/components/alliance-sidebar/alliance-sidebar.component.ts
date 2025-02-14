@@ -35,7 +35,5 @@ export class AllianceSidebarComponent implements OnInit {
     this.cache.toggleSidebar();
   }
 
-  getSidebarWidth() {
-    return this.cache.isSidebarCollapsed() ? '140px' : '250px';
-  }
+
 }

@@ -18,8 +18,13 @@
   }
 }
 
+// Base visibility utilities
+.rs-hide {
+  display: none;
+}
+
 // Generate size utilities (width and height)
-@for $i from 0 through 150 {
+@for $i from 0 through 500 {
   // Both width and height
   .rs-size-\[#{$i}\] {
     width: #{$i}px;
@@ -129,7 +134,12 @@
 
 // Generate MD (small screen) utilities
 @media (orientation: landscape) and (height <= 768px) {
-  @for $i from 0 through 150 {
+  // Hide elements on MD screens
+  .md-rs-hide {
+    display: none !important;
+  }
+
+  @for $i from 0 through 500 {
     // Size MD classes
     .md\:rs-size-\[#{$i}\] {
       width: #{$i}px !important;
