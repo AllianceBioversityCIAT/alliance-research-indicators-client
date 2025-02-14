@@ -1,0 +1,19 @@
+// Font size utility classes with responsive behavior
+// Usage example:
+// <div class="fs-[24] md:fs-[20]">Text</div>
+
+// Generate base font size utility classes
+@for $i from 1 through 30 {
+  .fs-\[#{$i}\] {
+    font-size: #{$i}px;
+  }
+}
+
+// Generate MD (small screen) utility classes
+@media (orientation: landscape) and (height <= 768px) {
+  @for $i from 1 through 30 {
+    .md\:fs-\[#{$i}\] {
+      font-size: #{$i}px !important;
+    }
+  }
+}
