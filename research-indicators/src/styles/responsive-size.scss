@@ -18,6 +18,24 @@
   }
 }
 
+// Generate base gap utilities
+@for $i from 1 through 30 {
+  // Gap all
+  .rs-gap-\[#{$i}\] {
+    gap: #{$i}px;
+  }
+
+  // Row gap (y-axis)
+  .rs-gap-y-\[#{$i}\] {
+    row-gap: #{$i}px;
+  }
+
+  // Column gap (x-axis)
+  .rs-gap-x-\[#{$i}\] {
+    column-gap: #{$i}px;
+  }
+}
+
 // Responsive Size Utilities for Margins and Paddings
 // Usage example:
 // <div class="rs-mt-[24] md:rs-mt-[16]">Content</div>
@@ -90,9 +108,20 @@
   }
 }
 
-// Generate MD (small screen) margin utilities
+// Generate MD (small screen) utilities
 @media (orientation: landscape) and (height <= 768px) {
   @for $i from 1 through 30 {
+    // Gap MD classes
+    .md\:rs-gap-\[#{$i}\] {
+      gap: #{$i}px !important;
+    }
+    .md\:rs-gap-y-\[#{$i}\] {
+      row-gap: #{$i}px !important;
+    }
+    .md\:rs-gap-x-\[#{$i}\] {
+      column-gap: #{$i}px !important;
+    }
+
     // Margin MD classes
     .md\:rs-m-\[#{$i}\] {
       margin: #{$i}px !important;
