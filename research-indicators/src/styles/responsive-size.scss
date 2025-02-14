@@ -18,6 +18,25 @@
   }
 }
 
+// Generate size utilities (width and height)
+@for $i from 0 through 150 {
+  // Both width and height
+  .rs-size-\[#{$i}\] {
+    width: #{$i}px;
+    height: #{$i}px;
+  }
+
+  // Width only
+  .rs-w-\[#{$i}\] {
+    width: #{$i}px;
+  }
+
+  // Height only
+  .rs-h-\[#{$i}\] {
+    height: #{$i}px;
+  }
+}
+
 // Generate base gap utilities
 @for $i from 1 through 30 {
   // Gap all
@@ -110,6 +129,20 @@
 
 // Generate MD (small screen) utilities
 @media (orientation: landscape) and (height <= 768px) {
+  @for $i from 0 through 150 {
+    // Size MD classes
+    .md\:rs-size-\[#{$i}\] {
+      width: #{$i}px !important;
+      height: #{$i}px !important;
+    }
+    .md\:rs-w-\[#{$i}\] {
+      width: #{$i}px !important;
+    }
+    .md\:rs-h-\[#{$i}\] {
+      height: #{$i}px !important;
+    }
+  }
+
   @for $i from 1 through 30 {
     // Gap MD classes
     .md\:rs-gap-\[#{$i}\] {
