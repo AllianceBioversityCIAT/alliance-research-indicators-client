@@ -4,7 +4,7 @@
 
 // Generate base font size utility classes
 @for $i from 1 through 30 {
-  .fs-\[#{$i}\] {
+  .rs-fs-\[#{$i}\] {
     font-size: #{$i}px;
   }
 }
@@ -12,7 +12,7 @@
 // Generate MD (small screen) utility classes
 @media (orientation: landscape) and (height <= 768px) {
   @for $i from 1 through 30 {
-    .md\:fs-\[#{$i}\] {
+    .md\:rs-fs-\[#{$i}\] {
       font-size: #{$i}px !important;
     }
   }
