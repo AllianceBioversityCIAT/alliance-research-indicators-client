@@ -28,6 +28,7 @@ export class CacheService {
         return '';
     }
   });
+  searchAResultValue = signal('');
   isSidebarCollapsed = signal(localStorage.getItem('isSidebarCollapsed') === 'true');
 
   setCurrentSectionHeaderName(name: string) {

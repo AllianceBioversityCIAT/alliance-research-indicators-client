@@ -8,6 +8,7 @@ import { RouterLink } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { GetOsResultService } from '../../../../shared/services/opensearch/get-os-result.service';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
+import { CacheService } from '@shared/services/cache/cache.service';
 
 @Component({
   selector: 'app-search-a-result',
@@ -22,4 +23,6 @@ export default class SearchAResultComponent {
   getOsResultService = inject(GetOsResultService);
   first = signal(0);
   rows = signal(10);
+
+  cache = inject(CacheService);
 }
