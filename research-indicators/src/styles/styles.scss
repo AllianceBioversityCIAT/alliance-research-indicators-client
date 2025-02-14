@@ -111,6 +111,12 @@ body {
   body {
     font-size: 13px !important;
 
+    .table-custom-styles {
+      td {
+        padding: 0.2rem 0.5rem !important;
+      }
+    }
+
     .p-card-body {
       padding: 0.8rem !important;
     }
