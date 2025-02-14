@@ -138,3 +138,117 @@ In cases where custom themes or direct application of colors is needed, you can 
 - Ensure that classes are applied in the correct context.
 - Use `.abc-` for background color and `.atc-` for text color.
 - Switch between light and dark themes by toggling the `data-theme` attribute on the `body` tag.
+
+# Responsive Size Utility Classes Documentation
+
+This document explains the responsive utility classes defined in `responsive-size.scss`. These classes provide a flexible way to handle responsive design, particularly focusing on landscape orientation and screens with height <= 768px.
+
+## Font Size Classes
+
+Font size classes allow you to set responsive font sizes:
+
+```html
+<div class="fs-[24] md:fs-[20]">
+  <!-- Text will be 24px normally, 20px on medium screens -->
+</div>
+```
+
+- `.fs-[n]`: Sets font size to n pixels (where n is 1-30)
+- `.md:fs-[n]`: Sets font size on medium screens (landscape and height <= 768px)
+
+## Size Utilities
+
+### Width and Height
+
+```html
+<div class="rs-size-[100]">
+  <!-- Both width and height will be 100px -->
+</div>
+<div class="rs-w-[200] rs-h-[150]">
+  <!-- Width: 200px, Height: 150px -->
+</div>
+```
+
+- `.rs-size-[n]`: Sets both width and height to n pixels (0-500)
+- `.rs-w-[n]`: Sets width to n pixels
+- `.rs-h-[n]`: Sets height to n pixels
+- `.md:rs-size-[n]`, `.md:rs-w-[n]`, `.md:rs-h-[n]`: Medium screen variants
+
+### Gap Utilities
+
+```html
+<div class="rs-gap-[20]">
+  <!-- Gap of 20px between all items -->
+</div>
+<div class="rs-gap-x-[10] rs-gap-y-[15]">
+  <!-- Horizontal gap: 10px, Vertical gap: 15px -->
+</div>
+```
+
+- `.rs-gap-[n]`: Sets gap in all directions
+- `.rs-gap-y-[n]`: Sets vertical gap
+- `.rs-gap-x-[n]`: Sets horizontal gap
+- `.md:rs-gap-[n]`, `.md:rs-gap-y-[n]`, `.md:rs-gap-x-[n]`: Medium screen variants
+
+## Margin and Padding Utilities
+
+### Margins
+
+```html
+<div class="rs-m-[20]">
+  <!-- 20px margin on all sides -->
+</div>
+<div class="rs-mx-[10] rs-my-[15]">
+  <!-- Horizontal margin: 10px, Vertical margin: 15px -->
+</div>
+<div class="rs-mt-[10] rs-mb-[20] rs-ml-[15] rs-mr-[15]">
+  <!-- Individual margins for each side -->
+</div>
+```
+
+- `.rs-m-[n]`: Margin on all sides
+- `.rs-my-[n]`: Vertical margin (top and bottom)
+- `.rs-mx-[n]`: Horizontal margin (left and right)
+- `.rs-mt-[n]`, `.rs-mb-[n]`, `.rs-ml-[n]`, `.rs-mr-[n]`: Individual side margins
+- `.md:rs-m-[n]`, `.md:rs-my-[n]`, etc.: Medium screen variants
+
+### Paddings
+
+```html
+<div class="rs-p-[20]">
+  <!-- 20px padding on all sides -->
+</div>
+<div class="rs-px-[10] rs-py-[15]">
+  <!-- Horizontal padding: 10px, Vertical padding: 15px -->
+</div>
+<div class="rs-pt-[10] rs-pb-[20] rs-pl-[15] rs-pr-[15]">
+  <!-- Individual paddings for each side -->
+</div>
+```
+
+- `.rs-p-[n]`: Padding on all sides
+- `.rs-py-[n]`: Vertical padding (top and bottom)
+- `.rs-px-[n]`: Horizontal padding (left and right)
+- `.rs-pt-[n]`, `.rs-pb-[n]`, `.rs-pl-[n]`, `.rs-pr-[n]`: Individual side paddings
+- `.md:rs-p-[n]`, `.md:rs-py-[n]`, etc.: Medium screen variants
+
+## Visibility Classes
+
+```html
+<div class="rs-hide">
+  <!-- Hidden on all screens -->
+</div>
+<div class="md-rs-hide">
+  <!-- Hidden only on medium screens -->
+</div>
+```
+
+- `.rs-hide`: Hides element on all screens
+- `.md-rs-hide`: Hides element only on medium screens
+
+## Notes:
+
+- All values (n) range from 1 to 30 for most utilities (except size which goes up to 500)
+- Medium screen breakpoint is triggered at landscape orientation and height <= 768px
+- Medium screen variants use `!important` to ensure they override base styles
+- Use the appropriate class based on the specific need rather than combining multiple classes for the same property
