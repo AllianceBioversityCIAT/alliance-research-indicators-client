@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, ViewChild, ElementRef, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
@@ -39,7 +39,6 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
   service: any;
   private searchDebounceTimeout: any;
 
-  searchText = signal('');
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home', underConstruction: false },
     { label: 'My Dashboard', path: '/settings', underConstruction: true, disabled: true },
@@ -70,10 +69,10 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
 
   onSearchTextChange(event: Event) {
     this.router.navigate(['/search-a-result']);
-    this.searchText.set((event.target as HTMLInputElement).value);
+    this.cache.searchAResultValue.set((event.target as HTMLInputElement).value);
     clearTimeout(this.searchDebounceTimeout);
     this.searchDebounceTimeout = setTimeout(async () => {
-      await this.service.update(this.searchText(), 100);
+      await this.service.update(this.cache.searchAResultValue(), 100);
     }, 500);
   }
 }

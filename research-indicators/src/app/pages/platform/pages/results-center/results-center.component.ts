@@ -1,6 +1,5 @@
-import { Component, inject, Input, signal } from '@angular/core';
-import { TabMenuModule } from 'primeng/tabmenu';
-import { MenuItem } from 'primeng/api';
+import { Component, inject, ViewChild, signal } from '@angular/core';
+import { TabMenu, TabMenuModule } from 'primeng/tabmenu';
 import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
 import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
@@ -26,20 +25,12 @@ import { SectionSidebarComponent } from '../../../../shared/components/section-s
 export default class ResultsCenterComponent {
   resultsCenterService = inject(ResultsCenterService);
   cache = inject(CacheService);
-  @Input() showSignal = signal(false);
+  @ViewChild('tm') tm!: TabMenu;
 
-  activeItem = signal<MenuItem | undefined>(undefined);
-  items: MenuItem[] = [
-    { id: 'all', label: 'All Results' },
-    { id: 'my', label: 'My Results' }
-  ];
-
-  constructor() {
-    this.activeItem.set(this.items[0]);
-  }
+  showSignal = signal(false);
 
   toggleSidebar() {
-    this.showSignal.update(prev => !prev);
+    this.showSignal.update(value => !value);
   }
 
   applyFilters() {

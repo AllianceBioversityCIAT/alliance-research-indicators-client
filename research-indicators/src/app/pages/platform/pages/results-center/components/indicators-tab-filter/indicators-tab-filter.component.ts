@@ -1,8 +1,6 @@
-import { Component, signal, ViewChild, ElementRef, inject, Input, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ResultsCenterService } from '../../results-center.service';
-import { GetAllIndicatorsService } from '../../../../../../shared/services/control-list/get-all-indicators.service';
-import { GetAllIndicators } from '../../../../../../shared/interfaces/get-all-indicators.interface';
 
 @Component({
   selector: 'app-indicators-tab-filter',
@@ -11,50 +9,9 @@ import { GetAllIndicators } from '../../../../../../shared/interfaces/get-all-in
   templateUrl: './indicators-tab-filter.component.html',
   styleUrl: './indicators-tab-filter.component.scss'
 })
-export class IndicatorsTabFilterComponent implements OnInit {
-  getAllIndicatorsServiceInstance = inject(GetAllIndicatorsService).getInstance;
-  @Input() activeItem = 'all';
-  indicators = signal<GetAllIndicators[]>([]);
-
+export class IndicatorsTabFilterComponent {
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;
   resultsCenterService = inject(ResultsCenterService);
-
-  ngOnInit(): void {
-    this.getIndicators();
-  }
-
-  async getIndicators() {
-    const response = await this.getAllIndicatorsServiceInstance();
-    this.indicators.set(response());
-    this.indicators.update(prev => [
-      {
-        name: 'All Indicators',
-        indicator_id: 0,
-        active: true
-      },
-      ...prev
-    ]);
-  }
-
-  onFilterClick(indicatorId: number) {
-    this.indicators.update(prev =>
-      prev.map(item => ({
-        ...item,
-        active: item.indicator_id === indicatorId
-      }))
-    );
-
-    this.resultsCenterService.resultsFilter.update(prev => ({
-      ...prev,
-      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId]
-    }));
-
-    this.resultsCenterService.resultsFilter()['indicator-codes-filter'] = [];
-    this.resultsCenterService.tableFilters.update(prev => ({
-      ...prev,
-      indicators: []
-    }));
-  }
 
   scrollLeft() {
     if (this.filtersContainer) {

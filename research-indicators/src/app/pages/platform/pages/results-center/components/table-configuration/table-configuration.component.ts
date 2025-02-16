@@ -36,7 +36,7 @@ export class TableConfigurationComponent implements OnInit {
     const savedOrder = localStorage.getItem(STORAGE_KEY);
     if (savedOrder) {
       try {
-        const parsedOrder = JSON.parse(savedOrder) as Pick<TableColumn, 'field' | 'header'>[];
+        const parsedOrder = JSON.parse(savedOrder) as Pick<TableColumn, 'field' | 'header' | 'path'>[];
         const currentColumns = this.resultsCenterService.tableColumns();
 
         // Verificar que todas las columnas actuales estén en el orden guardado

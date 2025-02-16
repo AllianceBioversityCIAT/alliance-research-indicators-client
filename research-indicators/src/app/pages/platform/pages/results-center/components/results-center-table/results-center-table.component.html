@@ -10,15 +10,26 @@
           <input
             pInputText
             type="text"
-            (input)="applyFilterGlobal($event, 'contains')"
-            [(ngModel)]="searchQuery"
+            [(ngModel)]="this.resultsCenterService.searchInput"
+            (input)="setSearchInputFilter($event)"
             placeholder="Find a result by code, title or creator"
-            class="w-25rem" />
+            class="w-25rem cpf-small-padding" />
         </span>
       </div>
 
       <div class="flex gap-3 align-items-center">
-        <p-button label="Apply Filter" icon="pi pi-filter" size="small" (click)="showFiltersSidebar()"></p-button>
+        <p-button
+          label="Apply Filter"
+          icon="pi pi-filter"
+          size="small"
+          [badge]="resultsCenterService.countFiltersSelected()"
+          (click)="showFiltersSidebar()"></p-button>
+        <p-button
+          label="Clear Filters"
+          [text]="true"
+          size="small"
+          severity="secondary"
+          (click)="this.resultsCenterService.clearAllFilters()"></p-button>
         <p-button icon="pi pi-cog" size="small" [outlined]="true" (click)="showConfiguratiosnSidebar()"></p-button>
       </div>
     </div>
@@ -30,6 +41,7 @@
     [value]="resultsCenterService.list()"
     [paginator]="true"
     [rows]="5"
+    [loading]="resultsCenterService.loading()"
     [showCurrentPageReport]="true"
     [scrollable]="true"
     [tableStyle]="{ 'min-width': '100%' }"
@@ -37,12 +49,12 @@
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"
     [sortField]="'result_official_code'"
     [sortOrder]="-1"
-    [globalFilterFields]="['result_official_code', 'title', 'indicator_id', 'status', 'project', 'lever', 'year', 'creator', 'creation_date']"
+    [globalFilterFields]="resultsCenterService.getAllPathsAsArray()"
     styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
     <ng-template pTemplate="header">
       <tr>
         @for (column of resultsCenterService.tableColumns(); track column.field) {
-          <th pSortableColumn="{{ column.field }}">{{ column.header }} <p-sortIcon field="{{ column.field }}"></p-sortIcon></th>
+          <th pSortableColumn="{{ column.path }}">{{ column.header }} <p-sortIcon field="{{ column.path }}"></p-sortIcon></th>
         }
       </tr>
     </ng-template>
@@ -51,13 +63,66 @@
         @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (column.field === 'status') {
             <td>
-              <p-tag [value]="result.result_status?.name" [severity]="getStatusSeverity(result.result_status?.name || '')"></p-tag>
+              <p-button
+                size="small"
+                styleClass="tag-button"
+                [label]="result.result_status?.name"
+                [outlined]="true"
+                [severity]="getStatusSeverity(result.result_status?.name || '')" />
+
+              <!-- <p-tag [value]="result.result_status?.name" [severity]="getStatusSeverity(result.result_status?.name || '')"></p-tag> -->
             </td>
           } @else {
             <td [class.w-25rem]="column.field === 'title'">{{ column.getValue ? column.getValue(result) : '-' }}</td>
           }
         }
       </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      @if (!resultsCenterService.loading()) {
+        @if (resultsCenterService.countFiltersSelected()) {
+          <tr>
+            <td [attr.colspan]="resultsCenterService.tableColumns().length" class="text-center p-8">
+              <div class="flex flex-column align-items-center gap-4 surface-ground p-6 border-round-xl">
+                <div class="flex flex-column align-items-center gap-2">
+                  <div class="w-4rem h-4rem flex align-items-center justify-content-center border-round-xl bg-primary-50">
+                    <i class="pi pi-filter-slash text-3xl text-primary-500"></i>
+                  </div>
+                  <h2 class="text-900 font-semibold m-0">No Results Found</h2>
+                  <p class="text-600 text-center m-0 max-w-30rem line-height-3">
+                    We couldn't find any results matching your current filters. Try adjusting your search criteria or clearing the filters.
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <p-button
+                    label="Clear All Filters"
+                    icon="pi pi-filter-slash"
+                    severity="primary"
+                    [outlined]="true"
+                    (click)="resultsCenterService.clearAllFilters()">
+                  </p-button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        } @else {
+          <tr>
+            <td [attr.colspan]="resultsCenterService.tableColumns().length" class="text-center p-8">
+              <div class="flex flex-column align-items-center gap-4 surface-ground p-6 border-round-xl">
+                <div class="flex flex-column align-items-center gap-2">
+                  <div class="w-4rem h-4rem flex align-items-center justify-content-center border-round-xl bg-blue-50">
+                    <i class="pi pi-inbox text-3xl text-blue-500"></i>
+                  </div>
+                  <h2 class="text-900 font-semibold m-0">No Results Available</h2>
+                  <p class="text-600 text-center m-0 max-w-30rem line-height-3">
+                    There are currently no results in the database. New results will appear here once they are added to the system.
+                  </p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        }
+      }
     </ng-template>
   </p-table>
 </div>

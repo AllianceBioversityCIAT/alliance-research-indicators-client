@@ -1,11 +1,16 @@
 <div class="flex flex-column gap-3 p-3">
   <!-- Indicators Filter Tabs -->
-  <app-indicators-tab-filter [activeItem]="activeItem()?.id || 'all'"></app-indicators-tab-filter>
+  <app-indicators-tab-filter></app-indicators-tab-filter>
 
   <!-- Results Section -->
   <div class="flex flex-column bg-white">
     <!-- Tab Menu -->
-    <p-tabMenu [model]="items" [activeItem]="activeItem()" (activeItemChange)="this.resultsCenterService.onActiveItemChange($event)"></p-tabMenu>
+
+    <p-tabMenu
+      #tm
+      [model]="this.resultsCenterService.myResultsFilterItems"
+      [activeItem]="this.resultsCenterService.myResultsFilterItem()"
+      (activeItemChange)="this.resultsCenterService.onActiveItemChange($event)"></p-tabMenu>
     <!-- Results Table -->
     <app-results-center-table></app-results-center-table>
   </div>
@@ -15,8 +20,8 @@
     [title]="'Table Filters'"
     [description]="'Filter your table data by applying custom criteria.'"
     [showSignal]="this.resultsCenterService.showFiltersSidebar"
-    (confirm)="sidebarFilters.applyFilters()">
-    <app-table-filters-sidebar #sidebarFilters></app-table-filters-sidebar>
+    (confirm)="this.resultsCenterService.applyFilters()">
+    <app-table-filters-sidebar></app-table-filters-sidebar>
   </app-section-sidebar>
 
   <app-section-sidebar
