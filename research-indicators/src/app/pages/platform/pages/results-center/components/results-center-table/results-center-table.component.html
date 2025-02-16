@@ -17,7 +17,12 @@
       </div>
 
       <div class="flex gap-3 align-items-center">
-        <p-button label="Apply Filter" icon="pi pi-filter" size="small" badge="8" (click)="showFiltersSidebar()"></p-button>
+        <p-button
+          label="Apply Filter"
+          icon="pi pi-filter"
+          size="small"
+          [badge]="resultsCenterService.countFiltersSelected()"
+          (click)="showFiltersSidebar()"></p-button>
         <p-button
           label="Clear Filters"
           [text]="true"

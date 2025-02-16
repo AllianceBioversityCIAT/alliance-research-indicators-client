@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, effect } from '@angular/core';
+import { inject, Injectable, signal, effect, computed } from '@angular/core';
 import { GetResultsService } from '../../../../shared/services/control-list/get-results.service';
 import { Result, ResultConfig, ResultFilter } from '../../../../shared/interfaces/result/result.interface';
 import { MenuItem } from 'primeng/api';
@@ -106,6 +106,11 @@ export class ResultsCenterService {
     this.getIndicatorsList();
   }
 
+  countFiltersSelected = computed(() => {
+    const activeFilters = Object.values(this.resultsFilter()).filter(arr => Array.isArray(arr) && arr.length > 0).length;
+    return activeFilters > 0 ? activeFilters.toString() : undefined;
+  });
+
   async getIndicatorsList() {
     const response = await this.getAllIndicatorsServiceInstance();
     this.indicatorsTabFilterList.set(response());
@@ -164,5 +169,7 @@ export class ResultsCenterService {
     this.applyFilters();
     //? clear search input
     this.searchInput.set('');
+    //? clear indicators tab filter
+    this.indicatorsTabFilterList.update(prev => prev.map(filter => ({ ...filter, active: false })));
   }
 }
