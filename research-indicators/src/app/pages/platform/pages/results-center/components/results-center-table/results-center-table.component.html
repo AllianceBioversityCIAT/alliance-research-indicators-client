@@ -78,6 +78,52 @@
         }
       </tr>
     </ng-template>
+    <ng-template pTemplate="emptymessage">
+      @if (!resultsCenterService.loading()) {
+        @if (resultsCenterService.countFiltersSelected()) {
+          <tr>
+            <td [attr.colspan]="resultsCenterService.tableColumns().length" class="text-center p-8">
+              <div class="flex flex-column align-items-center gap-4 surface-ground p-6 border-round-xl">
+                <div class="flex flex-column align-items-center gap-2">
+                  <div class="w-4rem h-4rem flex align-items-center justify-content-center border-round-xl bg-primary-50">
+                    <i class="pi pi-filter-slash text-3xl text-primary-500"></i>
+                  </div>
+                  <h2 class="text-900 font-semibold m-0">No Results Found</h2>
+                  <p class="text-600 text-center m-0 max-w-30rem line-height-3">
+                    We couldn't find any results matching your current filters. Try adjusting your search criteria or clearing the filters.
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <p-button
+                    label="Clear All Filters"
+                    icon="pi pi-filter-slash"
+                    severity="primary"
+                    [outlined]="true"
+                    (click)="resultsCenterService.clearAllFilters()">
+                  </p-button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        } @else {
+          <tr>
+            <td [attr.colspan]="resultsCenterService.tableColumns().length" class="text-center p-8">
+              <div class="flex flex-column align-items-center gap-4 surface-ground p-6 border-round-xl">
+                <div class="flex flex-column align-items-center gap-2">
+                  <div class="w-4rem h-4rem flex align-items-center justify-content-center border-round-xl bg-blue-50">
+                    <i class="pi pi-inbox text-3xl text-blue-500"></i>
+                  </div>
+                  <h2 class="text-900 font-semibold m-0">No Results Available</h2>
+                  <p class="text-600 text-center m-0 max-w-30rem line-height-3">
+                    There are currently no results in the database. New results will appear here once they are added to the system.
+                  </p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </ng-template>
   </p-table>
 </div>
 
