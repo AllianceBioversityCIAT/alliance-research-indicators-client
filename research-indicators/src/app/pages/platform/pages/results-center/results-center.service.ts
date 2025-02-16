@@ -163,13 +163,33 @@ export class ResultsCenterService {
     }));
   };
 
+  onSelectFilterTab(indicatorId: number) {
+    this.indicatorsTabFilterList.update(prev =>
+      prev.map(item => ({
+        ...item,
+        active: item.indicator_id === indicatorId
+      }))
+    );
+
+    this.resultsFilter.update(prev => ({
+      ...prev,
+      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId]
+    }));
+
+    this.resultsFilter()['indicator-codes-filter'] = [];
+    this.tableFilters.update(prev => ({
+      ...prev,
+      indicators: []
+    }));
+  }
+
   clearAllFilters() {
     //? Clear all filters and apply them again
     this.tableFilters.set(new TableFilters());
     this.applyFilters();
     //? clear search input
     this.searchInput.set('');
-    //? clear indicators tab filter
-    this.indicatorsTabFilterList.update(prev => prev.map(filter => ({ ...filter, active: false })));
+    //? clear indicators tab filter, keeping first one active
+    this.onSelectFilterTab(0);
   }
 }
