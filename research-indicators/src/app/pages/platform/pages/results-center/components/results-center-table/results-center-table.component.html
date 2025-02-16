@@ -47,7 +47,7 @@
     <ng-template pTemplate="header">
       <tr>
         @for (column of resultsCenterService.tableColumns(); track column.field) {
-          <th pSortableColumn="{{ column.field }}">{{ column.header }} <p-sortIcon field="{{ column.field }}"></p-sortIcon></th>
+          <th pSortableColumn="{{ column.path }}">{{ column.header }} <p-sortIcon field="{{ column.path }}"></p-sortIcon></th>
         }
       </tr>
     </ng-template>

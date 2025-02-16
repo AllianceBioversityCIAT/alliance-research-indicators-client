@@ -22,46 +22,55 @@ export class ResultsCenterService {
   tableColumns = signal<TableColumn[]>([
     {
       field: 'result_official_code',
+      path: 'result_official_code',
       header: 'Code',
       getValue: (result: Result) => result.result_official_code
     },
     {
       field: 'title',
+      path: 'title',
       header: 'Title',
       getValue: (result: Result) => result.title
     },
     {
       field: 'indicator_id',
+      path: 'indicators.name',
       header: 'Indicator',
       getValue: (result: Result) => result.indicators?.name || '-'
     },
     {
       field: 'status',
+      path: 'result_status.name',
       header: 'Status',
       getValue: (result: Result) => result.result_status?.name || '-'
     },
     {
       field: 'project',
+      path: 'result_contracts.contract_id',
       header: 'Project',
       getValue: (result: Result) => result.result_contracts?.contract_id || '-'
     },
     {
       field: 'lever',
+      path: 'result_levers.lever.short_name',
       header: 'Lever',
       getValue: (result: Result) => result.result_levers?.lever?.short_name || '-'
     },
     {
       field: 'year',
+      path: 'report_year_id',
       header: 'Year',
       getValue: (result: Result) => result.report_year_id?.toString() || '-'
     },
     {
       field: 'creator',
+      path: 'created_by_user.first_name',
       header: 'Creator',
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
     },
     {
       field: 'creation_date',
+      path: 'created_at',
       header: 'Creation date',
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
