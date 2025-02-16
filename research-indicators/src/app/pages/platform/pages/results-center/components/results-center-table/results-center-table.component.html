@@ -56,7 +56,14 @@
         @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (column.field === 'status') {
             <td>
-              <p-tag [value]="result.result_status?.name" [severity]="getStatusSeverity(result.result_status?.name || '')"></p-tag>
+              <p-button
+                size="small"
+                styleClass="tag-button"
+                [label]="result.result_status?.name"
+                [outlined]="true"
+                [severity]="getStatusSeverity(result.result_status?.name || '')" />
+
+              <!-- <p-tag [value]="result.result_status?.name" [severity]="getStatusSeverity(result.result_status?.name || '')"></p-tag> -->
             </td>
           } @else {
             <td [class.w-25rem]="column.field === 'title'">{{ column.getValue ? column.getValue(result) : '-' }}</td>
