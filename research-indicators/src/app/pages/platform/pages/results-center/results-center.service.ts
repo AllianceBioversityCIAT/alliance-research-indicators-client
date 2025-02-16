@@ -4,7 +4,11 @@ import { Result, ResultConfig, ResultFilter } from '../../../../shared/interface
 import { MenuItem } from 'primeng/api';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { TableColumn } from './result-center.interface';
-
+import { TableFilters } from './class/table.filters.class';
+import { GetLevers } from '../../../../shared/interfaces/get-levers.interface';
+import { GetAllResultStatus } from '../../../../shared/interfaces/get-all-result-status.interface';
+import { GetContracts } from '../../../../shared/interfaces/get-contracts.interface';
+import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicators.interface';
 @Injectable({
   providedIn: 'root'
 })
@@ -13,8 +17,8 @@ export class ResultsCenterService {
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
   list = signal<Result[]>([]);
-  tableFilters = signal({ levers: [], statusCodes: [], years: [], contracts: [], indicators: [] });
-
+  tableFilters = signal(new TableFilters());
+  searchInput = signal('');
   tableColumns = signal<TableColumn[]>([
     {
       field: 'result_official_code',
@@ -105,14 +109,6 @@ export class ResultsCenterService {
       'create-user-codes': event.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : []
     }));
 
-  applySidebarFilters(): void {
-    // this.applyFilters();
-  }
-
-  applySidebarConfigurations(): void {
-    // this.applyConfigurations();
-  }
-
   clearFilters(): void {
     this.hasFilters.set(false);
     // TODO: Implement clear filters logic
@@ -126,10 +122,22 @@ export class ResultsCenterService {
     this.showConfigurationsSidebar.set(true);
   }
 
-  clearAllFilters() {}
+  applyFilters = () => {
+    this.resultsFilter.update(prev => ({
+      ...prev,
+      'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id),
+      'status-codes': this.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id),
+      years: this.tableFilters().years.map((year: { id: number; name: string }) => year.id),
+      'contract-codes': this.tableFilters().contracts.map((contract: GetContracts) => contract.agreement_id),
+      'indicator-codes-filter': this.tableFilters().indicators.map((indicator: GetAllIndicators) => indicator.indicator_id)
+    }));
+  };
 
-  applyFilters(): void {
-    this.hasFilters.set(true);
-    this.confirmFiltersSignal.set(true); // Se activa la señal cuando se confirman los filtros
+  clearAllFilters() {
+    //? Clear all filters and apply them again
+    this.tableFilters.set(new TableFilters());
+    this.applyFilters();
+    //? clear search input
+    this.searchInput.set('');
   }
 }

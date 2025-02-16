@@ -1,4 +1,4 @@
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, effect, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
@@ -23,7 +23,6 @@ export class ResultsCenterTableComponent {
   resultsCenterService = inject(ResultsCenterService);
   private router = inject(Router);
   private cacheService = inject(CacheService);
-  searchQuery = signal('');
   @ViewChild('dt2') dt2!: Table;
 
   menuItems: MenuItem[] = [
@@ -32,8 +31,12 @@ export class ResultsCenterTableComponent {
     { label: 'Export', icon: 'pi pi-download' }
   ];
 
-  applyFilterGlobal($event: Event, stringVal: string) {
-    this.dt2.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
+  onSearchInputChange = effect(() => {
+    this.dt2.filterGlobal(this.resultsCenterService.searchInput(), 'contains');
+  });
+
+  setSearchInputFilter($event: Event) {
+    this.resultsCenterService.searchInput.set(($event.target as HTMLInputElement).value);
   }
 
   private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70, minWidth = 15) {

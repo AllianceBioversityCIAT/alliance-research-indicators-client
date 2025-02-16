@@ -10,8 +10,7 @@
           <input
             pInputText
             type="text"
-            (input)="applyFilterGlobal($event, 'contains')"
-            [(ngModel)]="searchQuery"
+            (input)="setSearchInputFilter($event)"
             placeholder="Find a result by code, title or creator"
             class="w-25rem cpf-small-padding" />
         </span>
