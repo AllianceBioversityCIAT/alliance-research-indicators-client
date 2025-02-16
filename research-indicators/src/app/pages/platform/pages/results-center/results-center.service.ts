@@ -19,6 +19,12 @@ export class ResultsCenterService {
   hasFilters = signal(false);
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
+  myResultsFilterItems: MenuItem[] = [
+    { id: 'all', label: 'All Results' },
+    { id: 'my', label: 'My Results' }
+  ];
+  myResultsFilterItem = signal<MenuItem | undefined>(this.myResultsFilterItems[0]);
+
   list = signal<Result[]>([]);
   tableFilters = signal(new TableFilters());
   searchInput = signal('');
@@ -135,11 +141,13 @@ export class ResultsCenterService {
     return severityMap[status];
   }
 
-  onActiveItemChange = (event: MenuItem): void =>
-    this.resultsFilter.update(prev => ({
+  onActiveItemChange = (event: MenuItem): void => {
+    this.myResultsFilterItem.set(event);
+    return this.resultsFilter.update(prev => ({
       ...prev,
       'create-user-codes': event.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : []
     }));
+  };
 
   clearFilters(): void {
     this.hasFilters.set(false);
@@ -193,5 +201,7 @@ export class ResultsCenterService {
     this.searchInput.set('');
     //? clear indicators tab filter, keeping first one active
     this.onSelectFilterTab(0);
+    //? clear my results filter item
+    this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
   }
 }

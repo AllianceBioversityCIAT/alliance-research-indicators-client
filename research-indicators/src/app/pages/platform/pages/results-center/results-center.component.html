@@ -5,7 +5,12 @@
   <!-- Results Section -->
   <div class="flex flex-column bg-white">
     <!-- Tab Menu -->
-    <p-tabMenu [model]="items" [activeItem]="activeItem()" (activeItemChange)="this.resultsCenterService.onActiveItemChange($event)"></p-tabMenu>
+
+    <p-tabMenu
+      #tm
+      [model]="this.resultsCenterService.myResultsFilterItems"
+      [activeItem]="this.resultsCenterService.myResultsFilterItem()"
+      (activeItemChange)="this.resultsCenterService.onActiveItemChange($event)"></p-tabMenu>
     <!-- Results Table -->
     <app-results-center-table></app-results-center-table>
   </div>
