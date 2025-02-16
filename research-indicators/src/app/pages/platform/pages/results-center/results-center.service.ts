@@ -80,6 +80,8 @@ export class ResultsCenterService {
     }
   ]);
 
+  getAllPathsAsArray = computed(() => this.tableColumns().map(column => column.path));
+
   resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [] });
   resultsConfig = signal<ResultConfig>({
     indicators: true,
