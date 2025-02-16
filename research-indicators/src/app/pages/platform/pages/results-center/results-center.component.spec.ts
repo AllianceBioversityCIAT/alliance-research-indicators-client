@@ -10,7 +10,7 @@ import { TagModule } from 'primeng/tag';
 import { MenuModule } from 'primeng/menu';
 import { FormsModule } from '@angular/forms';
 import { PrimeNGConfig } from 'primeng/api';
-import { signal } from '@angular/core';
+import { signal, computed } from '@angular/core';
 import { MultiSelectModule } from 'primeng/multiselect';
 
 import ResultsCenterComponent from './results-center.component';
@@ -97,6 +97,14 @@ describe('ResultsComponent', () => {
             applyFilters: jest.fn(),
             list: signal([]),
             onActiveItemChange: jest.fn(),
+            myResultsFilterItem: signal(undefined),
+            myResultsFilterItems: [
+              { id: 'all', label: 'All Results' },
+              { id: 'my', label: 'My Results' }
+            ],
+            indicatorsTabFilterList: signal([]),
+            countFiltersSelected: signal(undefined),
+            loading: signal(false),
             tableColumns: signal([
               {
                 field: 'result_official_code',
@@ -109,6 +117,7 @@ describe('ResultsComponent', () => {
                 getValue: (result: any) => result.title
               }
             ]),
+            getAllPathsAsArray: computed(() => ['result_official_code', 'title']),
             tableFilters: signal({
               indicators: []
             })

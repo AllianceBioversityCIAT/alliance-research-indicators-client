@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild, signal } from '@angular/core';
 import { TabMenu, TabMenuModule } from 'primeng/tabmenu';
 import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
 import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
@@ -26,4 +26,14 @@ export default class ResultsCenterComponent {
   resultsCenterService = inject(ResultsCenterService);
   cache = inject(CacheService);
   @ViewChild('tm') tm!: TabMenu;
+
+  showSignal = signal(false);
+
+  toggleSidebar() {
+    this.showSignal.update(value => !value);
+  }
+
+  applyFilters() {
+    this.resultsCenterService.applyFilters();
+  }
 }
