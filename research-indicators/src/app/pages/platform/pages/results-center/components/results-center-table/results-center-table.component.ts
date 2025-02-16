@@ -183,11 +183,6 @@ export class ResultsCenterTableComponent {
     this.resultsCenterService.showConfigurationsSidebar.set(true);
   }
 
-  getIndicatorName(id: number): string {
-    // TODO: Implement indicator name mapping
-    return `Indicator ${id}`;
-  }
-
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
     const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
       SUBMITTED: 'info',

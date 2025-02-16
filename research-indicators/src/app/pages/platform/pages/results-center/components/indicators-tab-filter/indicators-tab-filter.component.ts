@@ -11,33 +11,14 @@ import { GetAllIndicators } from '../../../../../../shared/interfaces/get-all-in
   templateUrl: './indicators-tab-filter.component.html',
   styleUrl: './indicators-tab-filter.component.scss'
 })
-export class IndicatorsTabFilterComponent implements OnInit {
-  getAllIndicatorsServiceInstance = inject(GetAllIndicatorsService).getInstance;
+export class IndicatorsTabFilterComponent {
   @Input() activeItem = 'all';
-  indicators = signal<GetAllIndicators[]>([]);
 
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;
   resultsCenterService = inject(ResultsCenterService);
 
-  ngOnInit(): void {
-    this.getIndicators();
-  }
-
-  async getIndicators() {
-    const response = await this.getAllIndicatorsServiceInstance();
-    this.indicators.set(response());
-    this.indicators.update(prev => [
-      {
-        name: 'All Indicators',
-        indicator_id: 0,
-        active: true
-      },
-      ...prev
-    ]);
-  }
-
   onFilterClick(indicatorId: number) {
-    this.indicators.update(prev =>
+    this.resultsCenterService.indicatorsTabFilterList.update(prev =>
       prev.map(item => ({
         ...item,
         active: item.indicator_id === indicatorId

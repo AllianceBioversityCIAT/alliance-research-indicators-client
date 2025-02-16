@@ -9,16 +9,20 @@ import { GetLevers } from '../../../../shared/interfaces/get-levers.interface';
 import { GetAllResultStatus } from '../../../../shared/interfaces/get-all-result-status.interface';
 import { GetContracts } from '../../../../shared/interfaces/get-contracts.interface';
 import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicators.interface';
+import { GetAllIndicatorsService } from '../../../../shared/services/control-list/get-all-indicators.service';
 @Injectable({
   providedIn: 'root'
 })
 export class ResultsCenterService {
+  getAllIndicatorsServiceInstance = inject(GetAllIndicatorsService).getInstance;
+
   hasFilters = signal(false);
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
   list = signal<Result[]>([]);
   tableFilters = signal(new TableFilters());
   searchInput = signal('');
+  indicatorsTabFilterList = signal<GetAllIndicators[]>([]);
   tableColumns = signal<TableColumn[]>([
     {
       field: 'result_official_code',
@@ -98,9 +102,21 @@ export class ResultsCenterService {
     this.list.set(response());
   });
 
-  getIndicatorName(id: number): string {
-    // TODO: Implement indicator name mapping
-    return `Indicator ${id}`;
+  constructor() {
+    this.getIndicatorsList();
+  }
+
+  async getIndicatorsList() {
+    const response = await this.getAllIndicatorsServiceInstance();
+    this.indicatorsTabFilterList.set(response());
+    this.indicatorsTabFilterList.update(prev => [
+      {
+        name: 'All Indicators',
+        indicator_id: 0,
+        active: true
+      },
+      ...prev
+    ]);
   }
 
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
