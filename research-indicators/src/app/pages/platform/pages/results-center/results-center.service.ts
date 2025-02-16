@@ -116,7 +116,9 @@ export class ResultsCenterService {
 
   countFiltersSelected = computed(() => {
     const activeFilters = Object.values(this.resultsFilter()).filter(arr => Array.isArray(arr) && arr.length > 0).length;
-    return activeFilters > 0 ? activeFilters.toString() : undefined;
+    const searchFilterActive = this.searchInput().length > 0 ? 1 : 0;
+    const totalFilters = activeFilters + searchFilterActive;
+    return totalFilters > 0 ? totalFilters.toString() : undefined;
   });
 
   async getIndicatorsList() {
