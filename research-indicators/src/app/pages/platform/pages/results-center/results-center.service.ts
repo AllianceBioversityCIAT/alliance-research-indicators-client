@@ -126,6 +126,8 @@ export class ResultsCenterService {
     this.showConfigurationsSidebar.set(true);
   }
 
+  clearAllFilters() {}
+
   applyFilters(): void {
     this.hasFilters.set(true);
     this.confirmFiltersSignal.set(true); // Se activa la señal cuando se confirman los filtros
