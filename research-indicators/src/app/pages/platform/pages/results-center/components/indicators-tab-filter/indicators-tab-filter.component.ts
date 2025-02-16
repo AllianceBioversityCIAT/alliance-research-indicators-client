@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, inject, Input } from '@angular/core';
+import { Component, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ResultsCenterService } from '../../results-center.service';
 
@@ -10,8 +10,6 @@ import { ResultsCenterService } from '../../results-center.service';
   styleUrl: './indicators-tab-filter.component.scss'
 })
 export class IndicatorsTabFilterComponent {
-  @Input() activeItem = 'all';
-
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;
   resultsCenterService = inject(ResultsCenterService);
 
