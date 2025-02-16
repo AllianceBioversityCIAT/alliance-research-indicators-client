@@ -24,7 +24,7 @@ export class ResultsCenterService {
     { id: 'my', label: 'My Results' }
   ];
   myResultsFilterItem = signal<MenuItem | undefined>(this.myResultsFilterItems[0]);
-
+  loading = signal(false);
   list = signal<Result[]>([]);
   tableFilters = signal(new TableFilters());
   searchInput = signal('');
@@ -105,10 +105,18 @@ export class ResultsCenterService {
   getResultsService = inject(GetResultsService);
   cache = inject(CacheService);
 
-  onChangeFilters = effect(async () => {
-    const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
-    this.list.set(response());
-  });
+  onChangeFilters = effect(
+    async () => {
+      console.log('change filt');
+      this.loading.set(true);
+      const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
+      this.list.set(response());
+      this.loading.set(false);
+    },
+    {
+      allowSignalWrites: true
+    }
+  );
 
   constructor() {
     this.getIndicatorsList();
