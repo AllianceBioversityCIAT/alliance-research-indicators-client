@@ -107,7 +107,6 @@ export class ResultsCenterService {
 
   onChangeFilters = effect(
     async () => {
-      console.log('change filt');
       this.loading.set(true);
       const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
       this.list.set(response());

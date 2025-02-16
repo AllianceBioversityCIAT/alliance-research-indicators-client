@@ -1,6 +1,5 @@
-import { Component, effect, inject, Input, signal, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { TabMenu, TabMenuModule } from 'primeng/tabmenu';
-import { MenuItem } from 'primeng/api';
 import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
 import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';

@@ -4,10 +4,6 @@ import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { ResultsCenterService } from '../../results-center.service';
-import { GetLevers } from '../../../../../../shared/interfaces/get-levers.interface';
-import { GetAllResultStatus } from '../../../../../../shared/interfaces/get-all-result-status.interface';
-import { GetContracts } from '../../../../../../shared/interfaces/get-contracts.interface';
-import { GetAllIndicators } from '../../../../../../shared/interfaces/get-all-indicators.interface';
 @Component({
   selector: 'app-table-filters-sidebar',
   standalone: true,
