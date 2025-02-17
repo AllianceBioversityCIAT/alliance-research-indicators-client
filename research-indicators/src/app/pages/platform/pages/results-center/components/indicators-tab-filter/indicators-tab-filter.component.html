@@ -11,7 +11,9 @@
       </div>
     }
   </div>
-  <div class="scroll-button right" (click)="scrollRight()">
-    <span class="material-symbols-rounded">chevron_right</span>
-  </div>
+  @if (showRightArrow()) {
+    <div class="scroll-button right" (click)="scrollRight()">
+      <span class="material-symbols-rounded">chevron_right</span>
+    </div>
+  }
 </div>
