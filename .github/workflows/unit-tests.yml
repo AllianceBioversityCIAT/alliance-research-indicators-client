@@ -3,11 +3,12 @@ name: Unit Tests
 on:
   pull_request:
     branches:
-      - '**'
+      - "**"
   push:
     branches:
       - main
-      - develop
+      - dev
+      - dev-general-adjustments
 
 jobs:
   test:
@@ -23,15 +24,35 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: './research-indicators/package-lock.json'
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "./research-indicators/package-lock.json"
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Create environment file
+      - name: Create environment files
         run: |
+          # Create environment.ts
+          cat > src/environments/environment.ts << EOL
+          export const environment = {
+            production: false,
+            name: 'test',
+            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
+            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
+            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
+            cognitoUrl: '${{ secrets.COGNITO_URL }}',
+            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
+            platform: 'ALLIANCE',
+            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
+            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
+            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
+            hotjarId: ${{ secrets.HOTJAR_ID }},
+            hotjarVersion: 6
+          };
+          EOL
+
+          # Create environment.dev.ts
           cat > src/environments/environment.dev.ts << EOL
           export const environment = {
             production: false,
@@ -59,4 +80,4 @@ jobs:
         with:
           name: coverage-report
           path: research-indicators/coverage/
-          retention-days: 30 
+          retention-days: 30
