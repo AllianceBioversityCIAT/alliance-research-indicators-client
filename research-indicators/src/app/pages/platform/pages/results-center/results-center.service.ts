@@ -50,6 +50,7 @@ export class ResultsCenterService {
       field: 'indicator_id',
       path: 'indicators.name',
       header: 'Indicator',
+      hideIf: computed(() => this.indicatorsTabFilterList().some(indicator => indicator.active === true && indicator.indicator_id !== 0)),
       getValue: (result: Result) => result.indicators?.name || '-'
     },
     {
