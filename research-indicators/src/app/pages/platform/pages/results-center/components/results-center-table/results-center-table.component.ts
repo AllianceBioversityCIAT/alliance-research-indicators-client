@@ -1,4 +1,4 @@
-import { Component, effect, inject, ViewChild } from '@angular/core';
+import { Component, effect, inject, ViewChild, signal, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
@@ -19,11 +19,12 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
   templateUrl: './results-center-table.component.html',
   styleUrls: ['./results-center-table.component.scss']
 })
-export class ResultsCenterTableComponent {
+export class ResultsCenterTableComponent implements AfterViewInit {
   resultsCenterService = inject(ResultsCenterService);
   private router = inject(Router);
   private cacheService = inject(CacheService);
   @ViewChild('dt2') dt2!: Table;
+  tableRef = signal<Table | undefined>(undefined);
 
   menuItems: MenuItem[] = [
     { label: 'Edit', icon: 'pi pi-pencil' },
@@ -194,5 +195,10 @@ export class ResultsCenterTableComponent {
 
   openResult(resultId: string) {
     this.router.navigate(['/result', resultId]);
+  }
+
+  ngAfterViewInit() {
+    this.tableRef.set(this.dt2);
+    this.resultsCenterService.tableRef.set(this.dt2);
   }
 }

@@ -10,6 +10,8 @@ import { GetAllResultStatus } from '../../../../shared/interfaces/get-all-result
 import { GetContracts } from '../../../../shared/interfaces/get-contracts.interface';
 import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicators.interface';
 import { GetAllIndicatorsService } from '../../../../shared/services/control-list/get-all-indicators.service';
+import { Table } from 'primeng/table';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -112,6 +114,8 @@ export class ResultsCenterService {
   getResultsService = inject(GetResultsService);
   cache = inject(CacheService);
 
+  tableRef = signal<Table | undefined>(undefined);
+
   onChangeFilters = effect(
     async () => {
       this.loading.set(true);
@@ -210,6 +214,13 @@ export class ResultsCenterService {
     this.applyFilters();
     //? clear search input
     this.searchInput.set('');
+    //? clear table filters and reset sort
+    const table = this.tableRef();
+    if (table) {
+      table.clear();
+      table.sortField = 'result_official_code';
+      table.sortOrder = -1;
+    }
     //? clear indicators tab filter, keeping first one active
     this.onSelectFilterTab(0);
     //? clear my results filter item
