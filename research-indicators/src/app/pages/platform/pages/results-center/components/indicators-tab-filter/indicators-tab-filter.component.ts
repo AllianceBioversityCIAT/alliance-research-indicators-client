@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, ViewChild, ElementRef, inject, signal, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ResultsCenterService } from '../../results-center.service';
 
@@ -9,9 +9,21 @@ import { ResultsCenterService } from '../../results-center.service';
   templateUrl: './indicators-tab-filter.component.html',
   styleUrl: './indicators-tab-filter.component.scss'
 })
-export class IndicatorsTabFilterComponent {
+export class IndicatorsTabFilterComponent implements AfterViewInit {
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;
   resultsCenterService = inject(ResultsCenterService);
+  showLeftArrow = signal(false);
+
+  ngAfterViewInit() {
+    if (this.filtersContainer) {
+      this.filtersContainer.nativeElement.addEventListener('scroll', () => this.updateArrowVisibility());
+    }
+  }
+
+  updateArrowVisibility() {
+    const container = this.filtersContainer.nativeElement;
+    this.showLeftArrow.set(container.scrollLeft > 0);
+  }
 
   scrollLeft() {
     if (this.filtersContainer) {

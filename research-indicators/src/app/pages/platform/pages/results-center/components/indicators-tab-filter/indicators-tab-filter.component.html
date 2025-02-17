@@ -1,7 +1,9 @@
 <div class="container">
-  <div class="scroll-button left" (click)="scrollLeft()">
-    <span class="material-symbols-rounded">chevron_left</span>
-  </div>
+  @if (showLeftArrow()) {
+    <div class="scroll-button left" (click)="scrollLeft()">
+      <span class="material-symbols-rounded">chevron_left</span>
+    </div>
+  }
   <div class="filters-content" #filtersContainer>
     @for (filter of resultsCenterService.indicatorsTabFilterList(); track $index) {
       <div class="filters" [class.active]="filter.active" (click)="resultsCenterService.onSelectFilterTab(filter.indicator_id)">
