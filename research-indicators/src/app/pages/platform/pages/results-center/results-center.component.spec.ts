@@ -95,6 +95,7 @@ describe('ResultsComponent', () => {
             showFiltersSidebar: signal(false),
             showConfigurationsSidebar: signal(false),
             applyFilters: jest.fn(),
+            clearAllFilters: jest.fn(),
             list: signal([]),
             onActiveItemChange: jest.fn(),
             myResultsFilterItem: signal(undefined),
