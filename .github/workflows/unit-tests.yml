@@ -52,7 +52,8 @@ jobs:
           EOL
 
       - name: Run unit tests
-        run: npm run test
+        run: |
+          npm run test -- --no-cache --detectOpenHandles --forceExit
 
       - name: Upload test coverage reports
         uses: actions/upload-artifact@v4
