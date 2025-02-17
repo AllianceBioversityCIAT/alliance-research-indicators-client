@@ -31,8 +31,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Create environment file
+      - name: Create environment files
         run: |
+          # Create environment.ts
+          cat > src/environments/environment.ts << EOL
+          export const environment = {
+            production: false,
+            name: 'test',
+            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
+            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
+            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
+            cognitoUrl: '${{ secrets.COGNITO_URL }}',
+            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
+            platform: 'ALLIANCE',
+            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
+            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
+            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
+            hotjarId: ${{ secrets.HOTJAR_ID }},
+            hotjarVersion: 6
+          };
+          EOL
+
+          # Create environment.dev.ts
           cat > src/environments/environment.dev.ts << EOL
           export const environment = {
             production: false,
@@ -52,8 +72,7 @@ jobs:
           EOL
 
       - name: Run unit tests
-        run: |
-          npm run test -- --no-cache --detectOpenHandles --forceExit
+        run: npm run test
 
       - name: Upload test coverage reports
         uses: actions/upload-artifact@v4
