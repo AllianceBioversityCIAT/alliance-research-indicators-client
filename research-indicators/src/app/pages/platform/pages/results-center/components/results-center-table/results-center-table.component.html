@@ -34,7 +34,6 @@
       </div>
     </div>
   </div>
-
   <!-- scrollHeight="calc(100vh - 30rem)" -->
   <p-table
     #dt2
@@ -54,26 +53,30 @@
     <ng-template pTemplate="header">
       <tr>
         @for (column of resultsCenterService.tableColumns(); track column.field) {
-          <th pSortableColumn="{{ column.path }}">{{ column.header }} <p-sortIcon field="{{ column.path }}"></p-sortIcon></th>
+          @if (!column.hideIf || !column.hideIf()) {
+            <th pSortableColumn="{{ column.path }}">{{ column.header }} <p-sortIcon field="{{ column.path }}"></p-sortIcon></th>
+          }
         }
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-result>
       <tr (click)="openResult(result.result_id)" class="cursor-pointer hover:surface-ground transition-colors transition-duration-150">
         @for (column of resultsCenterService.tableColumns(); track column.field) {
-          @if (column.field === 'status') {
-            <td>
-              <p-button
-                size="small"
-                styleClass="tag-button"
-                [label]="result.result_status?.name"
-                [outlined]="true"
-                [severity]="getStatusSeverity(result.result_status?.name || '')" />
+          @if (!column.hideIf || !column.hideIf()) {
+            @if (column.field === 'status') {
+              <td>
+                <p-button
+                  size="small"
+                  styleClass="tag-button"
+                  [label]="result.result_status?.name"
+                  [outlined]="true"
+                  [severity]="getStatusSeverity(result.result_status?.name || '')" />
 
-              <!-- <p-tag [value]="result.result_status?.name" [severity]="getStatusSeverity(result.result_status?.name || '')"></p-tag> -->
-            </td>
-          } @else {
-            <td [class.w-25rem]="column.field === 'title'">{{ column.getValue ? column.getValue(result) : '-' }}</td>
+                <!-- <p-tag [value]="result.result_status?.name" [severity]="getStatusSeverity(result.result_status?.name || '')"></p-tag> -->
+              </td>
+            } @else {
+              <td [class.w-25rem]="column.field === 'title'">{{ column.getValue ? column.getValue(result) : '-' }}</td>
+            }
           }
         }
       </tr>

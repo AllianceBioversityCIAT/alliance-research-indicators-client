@@ -6,4 +6,5 @@ export interface TableColumn {
   header: string;
   getValue?: (result: Result) => string;
   filter?: boolean;
+  hideIf?: () => boolean;
 }
