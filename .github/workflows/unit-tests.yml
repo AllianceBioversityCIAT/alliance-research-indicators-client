@@ -81,3 +81,74 @@ jobs:
           name: coverage-report
           path: research-indicators/coverage/
           retention-days: 30
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./research-indicators
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "./research-indicators/package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create environment files
+        run: |
+          # Create environment.ts
+          cat > src/environments/environment.ts << EOL
+          export const environment = {
+            production: false,
+            name: 'test',
+            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
+            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
+            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
+            cognitoUrl: '${{ secrets.COGNITO_URL }}',
+            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
+            platform: 'ALLIANCE',
+            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
+            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
+            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
+            hotjarId: ${{ secrets.HOTJAR_ID }},
+            hotjarVersion: 6
+          };
+          EOL
+
+          # Create environment.dev.ts
+          cat > src/environments/environment.dev.ts << EOL
+          export const environment = {
+            production: false,
+            name: 'test',
+            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
+            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
+            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
+            cognitoUrl: '${{ secrets.COGNITO_URL }}',
+            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
+            platform: 'ALLIANCE',
+            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
+            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
+            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
+            hotjarId: ${{ secrets.HOTJAR_ID }},
+            hotjarVersion: 6
+          };
+          EOL
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: research-indicators/dist/
+          retention-days: 30
