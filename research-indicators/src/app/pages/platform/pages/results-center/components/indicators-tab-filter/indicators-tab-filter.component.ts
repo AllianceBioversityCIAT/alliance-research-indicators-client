@@ -20,12 +20,18 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
     if (this.filtersContainer) {
       this.filtersContainer.nativeElement.addEventListener('scroll', () => this.updateArrowVisibility());
 
-      // Crear ResizeObserver para detectar cambios en el tamaño
-      this.resizeObserver = new ResizeObserver(() => {
-        this.updateArrowVisibility();
-      });
+      // Verificar si ResizeObserver está disponible
+      if (typeof ResizeObserver !== 'undefined') {
+        this.resizeObserver = new ResizeObserver(() => {
+          this.updateArrowVisibility();
+        });
 
-      this.resizeObserver.observe(this.filtersContainer.nativeElement);
+        this.resizeObserver.observe(this.filtersContainer.nativeElement);
+      } else {
+        // Fallback para navegadores que no soportan ResizeObserver
+        window.addEventListener('resize', () => this.updateArrowVisibility());
+      }
+
       // Validación inicial
       this.updateArrowVisibility();
     }
@@ -34,6 +40,10 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
+    }
+    // Limpiar el event listener de resize si se usó el fallback
+    if (typeof ResizeObserver === 'undefined') {
+      window.removeEventListener('resize', () => this.updateArrowVisibility());
     }
   }
 
