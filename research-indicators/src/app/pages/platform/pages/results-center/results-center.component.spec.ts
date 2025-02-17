@@ -22,6 +22,7 @@ import { TableFiltersSidebarComponent } from './components/table-filters-sidebar
 import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
+import { Table } from 'primeng/table';
 
 describe('ResultsComponent', () => {
   let component: ResultsCenterComponent;
@@ -121,7 +122,9 @@ describe('ResultsComponent', () => {
             getAllPathsAsArray: computed(() => ['result_official_code', 'title']),
             tableFilters: signal({
               indicators: []
-            })
+            }),
+            searchInput: signal(''),
+            tableRef: signal<Table | undefined>(undefined)
           }
         },
         {

@@ -33,7 +33,10 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   ];
 
   onSearchInputChange = effect(() => {
-    this.dt2.filterGlobal(this.resultsCenterService.searchInput(), 'contains');
+    const searchValue = this.resultsCenterService.searchInput();
+    if (this.dt2) {
+      this.dt2.filterGlobal(searchValue, 'contains');
+    }
   });
 
   setSearchInputFilter($event: Event) {
