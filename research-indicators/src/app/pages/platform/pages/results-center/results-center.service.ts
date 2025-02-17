@@ -34,12 +34,14 @@ export class ResultsCenterService {
       field: 'result_official_code',
       path: 'result_official_code',
       header: 'Code',
+      filter: true,
       getValue: (result: Result) => result.result_official_code
     },
     {
       field: 'title',
       path: 'title',
       header: 'Title',
+      filter: true,
       getValue: (result: Result) => result.title
     },
     {
@@ -76,6 +78,7 @@ export class ResultsCenterService {
       field: 'creator',
       path: 'created_by_user.first_name',
       header: 'Creator',
+      filter: true,
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
     },
     {
@@ -86,7 +89,11 @@ export class ResultsCenterService {
     }
   ]);
 
-  getAllPathsAsArray = computed(() => this.tableColumns().map(column => column.path));
+  getAllPathsAsArray = computed(() =>
+    this.tableColumns()
+      .filter(column => column.filter)
+      .map(column => column.path)
+  );
 
   resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [] });
   resultsConfig = signal<ResultConfig>({
@@ -157,11 +164,6 @@ export class ResultsCenterService {
       'create-user-codes': event.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : []
     }));
   };
-
-  clearFilters(): void {
-    this.hasFilters.set(false);
-    // TODO: Implement clear filters logic
-  }
 
   showFilterSidebar(): void {
     this.showFiltersSidebar.set(true);

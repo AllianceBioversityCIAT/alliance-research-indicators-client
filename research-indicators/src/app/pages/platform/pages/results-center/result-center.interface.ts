@@ -5,4 +5,5 @@ export interface TableColumn {
   path: string;
   header: string;
   getValue?: (result: Result) => string;
+  filter?: boolean;
 }

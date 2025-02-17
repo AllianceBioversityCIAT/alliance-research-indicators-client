@@ -19,6 +19,8 @@
     .p-paginator {
       background: transparent;
       border: none;
+      display: flex;
+      justify-content: flex-end;
     }
   }
 }

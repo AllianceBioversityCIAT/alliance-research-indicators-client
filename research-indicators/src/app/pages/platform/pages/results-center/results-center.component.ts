@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, signal } from '@angular/core';
+import { Component, inject, ViewChild, signal, OnInit } from '@angular/core';
 import { TabMenu, TabMenuModule } from 'primeng/tabmenu';
 import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
 import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
@@ -22,10 +22,14 @@ import { SectionSidebarComponent } from '../../../../shared/components/section-s
   templateUrl: './results-center.component.html',
   styleUrls: ['./results-center.component.scss']
 })
-export default class ResultsCenterComponent {
+export default class ResultsCenterComponent implements OnInit {
   resultsCenterService = inject(ResultsCenterService);
   cache = inject(CacheService);
   @ViewChild('tm') tm!: TabMenu;
+
+  ngOnInit(): void {
+    this.resultsCenterService.clearAllFilters();
+  }
 
   showSignal = signal(false);
 
