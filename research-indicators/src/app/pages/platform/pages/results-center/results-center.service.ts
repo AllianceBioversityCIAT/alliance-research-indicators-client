@@ -11,6 +11,7 @@ import { GetContracts } from '../../../../shared/interfaces/get-contracts.interf
 import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicators.interface';
 import { Table } from 'primeng/table';
 import { ApiService } from '../../../../shared/services/api.service';
+import { MultiselectComponent } from '../../../../shared/components/custom-fields/multiselect/multiselect.component';
 @Injectable({
   providedIn: 'root'
 })
@@ -19,6 +20,7 @@ export class ResultsCenterService {
   hasFilters = signal(false);
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
+  multiselectRefs = signal<Record<string, MultiselectComponent>>({});
   myResultsFilterItems: MenuItem[] = [
     { id: 'all', label: 'All Results' },
     { id: 'my', label: 'My Results' }
@@ -220,13 +222,7 @@ export class ResultsCenterService {
   }
 
   cleanFilters() {
-    this.tableFilters.update(prev => ({
-      ...prev,
-      indicators: [],
-      statusCodes: [],
-      years: [],
-      contracts: []
-    }));
+    this.cleanMultiselects();
     //? clear table filters and reset sort
     const table = this.tableRef();
     if (table) {
@@ -261,5 +257,12 @@ export class ResultsCenterService {
     this.onSelectFilterTab(0);
     //? clear my results filter item
     this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
+  }
+
+  cleanMultiselects() {
+    const refs = this.multiselectRefs();
+    Object.values(refs).forEach(multiselect => {
+      multiselect.clear();
+    });
   }
 }

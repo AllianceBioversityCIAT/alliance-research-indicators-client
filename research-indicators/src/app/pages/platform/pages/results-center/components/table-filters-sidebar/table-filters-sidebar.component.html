@@ -1,6 +1,7 @@
 <div class="body">
   @if (!this.resultsCenterService.resultsFilter()['indicator-codes-tabs']?.length) {
     <app-multiselect
+      #indicatorSelect
       label="Indicator"
       [signal]="this.resultsCenterService.tableFilters"
       optionLabel="name"
@@ -10,6 +11,7 @@
     </app-multiselect>
   }
   <app-multiselect
+    #statusSelect
     label="Status"
     [signal]="this.resultsCenterService.tableFilters"
     optionLabel="name"
@@ -19,6 +21,7 @@
   </app-multiselect>
 
   <app-multiselect
+    #projectSelect
     label="Project"
     [signal]="this.resultsCenterService.tableFilters"
     optionLabel="select_label"
@@ -28,6 +31,7 @@
   </app-multiselect>
 
   <app-multiselect
+    #leverSelect
     label="Lever"
     [signal]="this.resultsCenterService.tableFilters"
     optionLabel="full_name"
@@ -37,6 +41,7 @@
   </app-multiselect>
 
   <app-multiselect
+    #yearSelect
     label="Year"
     [signal]="this.resultsCenterService.tableFilters"
     optionLabel="name"
