@@ -87,6 +87,15 @@ describe('ResultsComponent', () => {
         {
           provide: ResultsCenterService,
           useValue: {
+            api: {
+              indicatorTabs: {
+                lazy: () => ({
+                  list: signal([]),
+                  isLoading: signal(false),
+                  hasValue: signal(false)
+                })
+              }
+            },
             resultsFilter: signal({
               'indicator-codes': [],
               'indicator-codes-filter': [],
@@ -124,7 +133,8 @@ describe('ResultsComponent', () => {
               indicators: []
             }),
             searchInput: signal(''),
-            tableRef: signal<Table | undefined>(undefined)
+            tableRef: signal<Table | undefined>(undefined),
+            onSelectFilterTab: jest.fn()
           }
         },
         {
