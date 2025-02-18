@@ -124,25 +124,25 @@ export class ResultsCenterService {
 
   getActiveFilters = computed(() => {
     const filters: { label: string }[] = [];
-    const tableFilters = this.tableFilters();
+    const activeFilters = this.resultsFilter();
 
-    if (tableFilters.indicators.length > 0) {
+    if ((activeFilters['indicator-codes-filter'] ?? []).length > 0) {
       filters.push({ label: 'INDICATOR' });
     }
 
-    if (tableFilters.statusCodes.length > 0) {
+    if ((activeFilters['status-codes'] ?? []).length > 0) {
       filters.push({ label: 'STATUS' });
     }
 
-    if (tableFilters.contracts.length > 0) {
+    if ((activeFilters['contract-codes'] ?? []).length > 0) {
       filters.push({ label: 'PROJECT' });
     }
 
-    if (tableFilters.levers.length > 0) {
+    if ((activeFilters['lever-codes'] ?? []).length > 0) {
       filters.push({ label: 'LEVER' });
     }
 
-    if (tableFilters.years.length > 0) {
+    if ((activeFilters['years'] ?? []).length > 0) {
       filters.push({ label: 'YEAR' });
     }
 
