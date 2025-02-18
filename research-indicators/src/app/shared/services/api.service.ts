@@ -168,7 +168,7 @@ export class ApiService {
   };
 
   indicatorsWithResult = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators/with/result');
-  indicatorTabs = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators/with/result', 'indicatortabs');
+  indicatorTabs = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators', 'indicatortabs');
 
   GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
     const url = () => `results/institutions/by-result-id/${id}?role=partners`;
