@@ -14,6 +14,7 @@ export class SectionSidebarComponent {
   @Input() title!: string;
   @Input() description!: string;
   @Input() showSignal = signal(false);
+  @Input() confirmText = 'Confirm';
   @Output() confirm = new EventEmitter<void>();
 
   hideSidebar = () => this.showSignal.set(false);
