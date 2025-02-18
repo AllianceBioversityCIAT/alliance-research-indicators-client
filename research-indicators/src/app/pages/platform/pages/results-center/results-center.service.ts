@@ -148,6 +148,7 @@ export class ResultsCenterService {
       },
       ...prev
     ]);
+    // this.api.indicatorsWithResult.list();
   }
 
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
