@@ -4,7 +4,8 @@ import { ToPromiseService } from './to-promise.service';
 import { ControlListCacheService } from './control-list-cache.service';
 
 export interface SignalEndpoint<T> {
-  loading: Signal<boolean>;
+  isLoading: Signal<boolean>;
+  hasValue: Signal<boolean>;
   list: Signal<T>;
   fetch: () => Promise<void>;
 }
@@ -19,6 +20,17 @@ export class SignalEndpointService {
   createEndpoint<T>(urlFn: () => string, useCache = true): SignalEndpoint<T> {
     const loading = signal(false);
     const data = signal<T>([] as unknown as T);
+
+    const hasValue = computed(() => {
+      const value = data();
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      if (value && typeof value === 'object') {
+        return Object.keys(value).length > 0;
+      }
+      return false;
+    });
 
     const fetch = async () => {
       if (useCache && this.clCache.has(urlFn())) {
@@ -45,7 +57,8 @@ export class SignalEndpointService {
     );
 
     return {
-      loading: computed(() => loading()),
+      isLoading: computed(() => loading()),
+      hasValue,
       list: computed(() => data()),
       fetch
     };
