@@ -96,6 +96,7 @@ describe('ResultsComponent', () => {
                 })
               }
             },
+            multiselectRefs: signal<Record<string, any>>({}),
             resultsFilter: signal({
               'indicator-codes': [],
               'indicator-codes-filter': [],
