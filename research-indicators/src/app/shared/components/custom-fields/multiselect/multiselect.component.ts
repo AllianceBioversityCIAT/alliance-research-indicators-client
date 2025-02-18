@@ -115,6 +115,14 @@ export class MultiselectComponent implements OnInit {
     if (this.service?.isOpenSearch()) this.service.update(event.filter);
   }
 
+  clear() {
+    this.body.set({ value: null });
+    this.signal.update(prev => ({
+      ...prev,
+      [this.signalOptionValue]: []
+    }));
+  }
+
   setValue(event: number[]) {
     this.body.set({ value: event });
 
