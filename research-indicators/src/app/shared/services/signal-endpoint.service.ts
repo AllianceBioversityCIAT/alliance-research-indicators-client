@@ -1,12 +1,12 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { Injectable, WritableSignal, effect, inject, signal } from '@angular/core';
 import { MainResponse } from '../interfaces/responses.interface';
 import { ToPromiseService } from './to-promise.service';
 import { ControlListCacheService } from './control-list-cache.service';
 
-export interface SignalEndpointValue<T> {
-  isLoading: boolean;
-  hasValue: boolean;
-  list: T;
+export interface SignalEndpoint<T> {
+  isLoading: WritableSignal<boolean>;
+  hasValue: WritableSignal<boolean>;
+  list: WritableSignal<T>;
   fetch: () => Promise<void>;
   promise: () => Promise<T>;
   setReferenceName: (name: string) => void;
@@ -19,30 +19,11 @@ export class SignalEndpointService {
   private TP = inject(ToPromiseService);
   private clCache = inject(ControlListCacheService);
 
-  createEndpoint<T>(urlFn: () => string, referenceName?: string, useCache = true) {
+  createEndpoint<T>(urlFn: () => string, referenceName?: string, useCache = true): SignalEndpoint<T> {
     const loading = signal(false);
     const data = signal<T>([] as unknown as T);
     const currentReferenceName = signal<string | undefined>(referenceName);
-
-    const endpointSignal = signal<SignalEndpointValue<T>>({
-      isLoading: false,
-      hasValue: false,
-      list: [] as unknown as T,
-      fetch: () => Promise.resolve(),
-      promise: () => Promise.resolve([] as unknown as T),
-      setReferenceName: (name: string) => name // placeholder
-    });
-
-    const hasValue = computed(() => {
-      const value = data();
-      if (Array.isArray(value)) {
-        return value.length > 0;
-      }
-      if (value && typeof value === 'object') {
-        return Object.keys(value).length > 0;
-      }
-      return false;
-    });
+    const hasValueSignal = signal(false);
 
     const getCacheKey = () => {
       const ref = currentReferenceName();
@@ -63,10 +44,10 @@ export class SignalEndpointService {
       try {
         const responseData = await promise();
         data.set(responseData);
-        endpointSignal.update(prev => ({
-          ...prev,
-          list: responseData
-        }));
+
+        // Actualizar hasValue basado en la respuesta
+        const value = responseData;
+        hasValueSignal.set(Array.isArray(value) ? value.length > 0 : value && typeof value === 'object' ? Object.keys(value).length > 0 : false);
       } finally {
         loading.set(false);
       }
@@ -80,25 +61,18 @@ export class SignalEndpointService {
     // Ejecutar fetch automáticamente al crear el endpoint
     effect(
       () => {
-        endpointSignal.update(prev => ({
-          ...prev,
-          isLoading: loading(),
-          hasValue: hasValue(),
-          fetch,
-          promise,
-          setReferenceName
-        }));
-      },
-      { allowSignalWrites: true }
-    );
-
-    effect(
-      () => {
         fetch();
       },
       { allowSignalWrites: true }
     );
 
-    return endpointSignal;
+    return {
+      isLoading: loading,
+      hasValue: hasValueSignal,
+      list: data,
+      fetch,
+      promise,
+      setReferenceName
+    };
   }
 }

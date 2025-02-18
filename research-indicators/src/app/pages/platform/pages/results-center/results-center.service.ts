@@ -48,7 +48,7 @@ export class ResultsCenterService {
       path: 'indicators.name',
       header: 'Indicator',
       hideIf: computed(() =>
-        this.api.indicatorTabs().list.some((indicator: GetAllIndicators) => indicator.active === true && indicator.indicator_id !== 0)
+        this.api.indicatorTabs.list().some((indicator: GetAllIndicators) => indicator.active === true && indicator.indicator_id !== 0)
       ),
       getValue: (result: Result) => result.indicators?.name || '-'
     },
@@ -140,18 +140,14 @@ export class ResultsCenterService {
   });
 
   async mapAllIndicators() {
-    this.api.indicatorTabs.update(prev => {
-      prev.list = [
-        {
-          name: 'All Indicators',
-          indicator_id: 0,
-          active: true
-        },
-        ...prev.list
-      ];
-
-      return prev;
-    });
+    this.api.indicatorTabs.list.update(prev => [
+      {
+        name: 'All Indicators',
+        indicator_id: 0,
+        active: true
+      },
+      ...prev
+    ]);
   }
 
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
@@ -191,13 +187,12 @@ export class ResultsCenterService {
   };
 
   onSelectFilterTab(indicatorId: number) {
-    this.api.indicatorTabs.update(prev => {
-      prev.list = prev.list.map((item: GetAllIndicators) => ({
+    this.api.indicatorTabs.list.update(prev =>
+      prev.map((item: GetAllIndicators) => ({
         ...item,
         active: item.indicator_id === indicatorId
-      }));
-      return prev;
-    });
+      }))
+    );
     this.resultsFilter.update(prev => ({
       ...prev,
       'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId]
