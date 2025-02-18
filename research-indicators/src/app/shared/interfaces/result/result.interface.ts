@@ -28,6 +28,9 @@ export interface ResultFilter {
   'lever-codes'?: number[];
   'indicator-codes-tabs'?: number[];
   'indicator-codes-filter'?: number[];
+  'status-codes'?: number[];
+  'contract-codes'?: string[];
+  years?: number[];
 }
 
 export interface ResultConfig {

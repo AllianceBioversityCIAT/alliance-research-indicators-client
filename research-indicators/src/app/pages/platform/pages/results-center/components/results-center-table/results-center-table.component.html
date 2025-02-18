@@ -1,6 +1,6 @@
 <!-- Results Table -->
 <div class="flex flex-column">
-  <div class="flex justify-content-between align-items-center">
+  <div class="flex flex-column">
     <div class="flex align-items-center justify-content-between w-full p-3">
       <div class="flex gap-3 align-items-center">
         <p-button icon="pi pi-download" (click)="exportTable()" label="Export Results" class="p-button-outlined" [outlined]="true"></p-button>
@@ -19,7 +19,7 @@
 
       <div class="flex gap-3 align-items-center">
         <p-button
-          label="Apply Filter"
+          label="Apply Filters"
           icon="pi pi-filter"
           size="small"
           [badge]="resultsCenterService.countFiltersSelected()"
@@ -28,7 +28,23 @@
         <p-button icon="pi pi-cog" size="small" [outlined]="true" (click)="showConfiguratiosnSidebar()"></p-button>
       </div>
     </div>
+
+    @if (resultsCenterService.getActiveFilters().length > 0) {
+      <div class="flex gap-2 px-3 mt-2 mb-3 align-items-center">
+        <span class="font-semibold text-sm" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
+        <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>
+        @for (filter of resultsCenterService.getActiveFilters(); track filter.label) {
+          <div class="flex align-items-center">
+            <span class="text-primary-700 font-bold text-sm" style="font-family: 'Space Grotesk', sans-serif">{{ filter.label }}</span>
+            @if (!$last) {
+              <span class="text-500 text-sm">, </span>
+            }
+          </div>
+        }
+      </div>
+    }
   </div>
+
   <!-- scrollHeight="calc(100vh - 30rem)" -->
   <p-table
     #dt2

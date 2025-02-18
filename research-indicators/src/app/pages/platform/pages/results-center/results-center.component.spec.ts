@@ -135,7 +135,8 @@ describe('ResultsComponent', () => {
             }),
             searchInput: signal(''),
             tableRef: signal<Table | undefined>(undefined),
-            onSelectFilterTab: jest.fn()
+            onSelectFilterTab: jest.fn(),
+            getActiveFilters: computed(() => [])
           }
         },
         {
