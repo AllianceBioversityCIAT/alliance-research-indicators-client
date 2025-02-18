@@ -13,7 +13,7 @@
 
     <div class="button-container">
       <p-button label="Cancel" (onClick)="hideSidebar()" [outlined]="true" />
-      <p-button label="Confirm" (onClick)="confirmSidebar()" [severity]="'primary'" />
+      <p-button [label]="confirmText" (onClick)="confirmSidebar()" [severity]="'primary'" />
     </div>
   </div>
 </div>
