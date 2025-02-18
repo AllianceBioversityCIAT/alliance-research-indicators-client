@@ -1,6 +1,6 @@
 <!-- Results Table -->
 <div class="flex flex-column">
-  <div class="flex justify-content-between align-items-center">
+  <div class="flex flex-column">
     <div class="flex align-items-center justify-content-between w-full p-3">
       <div class="flex gap-3 align-items-center">
         <p-button icon="pi pi-download" (click)="exportTable()" label="Export Results" class="p-button-outlined" [outlined]="true"></p-button>
@@ -28,8 +28,9 @@
         <p-button icon="pi pi-cog" size="small" [outlined]="true" (click)="showConfiguratiosnSidebar()"></p-button>
       </div>
     </div>
+
     @if (resultsCenterService.getActiveFilters().length > 0) {
-      <div class="flex gap-2 p-2">
+      <div class="flex gap-2 px-3 pb-2">
         Results filtered by:
         @for (filter of resultsCenterService.getActiveFilters(); track filter.label) {
           <div class="flex gap-2 align-items-center">
@@ -42,6 +43,7 @@
       </div>
     }
   </div>
+
   <!-- scrollHeight="calc(100vh - 30rem)" -->
   <p-table
     #dt2
