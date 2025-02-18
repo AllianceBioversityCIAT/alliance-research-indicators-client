@@ -9,15 +9,13 @@ import { GetLevers } from '../../../../shared/interfaces/get-levers.interface';
 import { GetAllResultStatus } from '../../../../shared/interfaces/get-all-result-status.interface';
 import { GetContracts } from '../../../../shared/interfaces/get-contracts.interface';
 import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicators.interface';
-import { GetAllIndicatorsService } from '../../../../shared/services/control-list/get-all-indicators.service';
 import { Table } from 'primeng/table';
-
+import { ApiService } from '../../../../shared/services/api.service';
 @Injectable({
   providedIn: 'root'
 })
 export class ResultsCenterService {
-  getAllIndicatorsServiceInstance = inject(GetAllIndicatorsService).getInstance;
-
+  api = inject(ApiService);
   hasFilters = signal(false);
   showFiltersSidebar = signal(false);
   showConfigurationSidebar = signal(false);
@@ -141,8 +139,8 @@ export class ResultsCenterService {
   });
 
   async getIndicatorsList() {
-    const response = await this.getAllIndicatorsServiceInstance();
-    this.indicatorsTabFilterList.set(response());
+    const response = await this.api.GET_IndicatorsWithResult();
+    this.indicatorsTabFilterList.set(response);
     this.indicatorsTabFilterList.update(prev => [
       {
         name: 'All Indicators',

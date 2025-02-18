@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef, inject, signal, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ResultsCenterService } from '../../results-center.service';
+import { ApiService } from '../../../../../../shared/services/api.service';
 
 @Component({
   selector: 'app-indicators-tab-filter',
@@ -11,6 +12,7 @@ import { ResultsCenterService } from '../../results-center.service';
 })
 export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;
+  api = inject(ApiService);
   resultsCenterService = inject(ResultsCenterService);
   showLeftArrow = signal(false);
   showRightArrow = signal(false);
