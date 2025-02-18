@@ -28,7 +28,6 @@ export class ResultsCenterService {
   list = signal<Result[]>([]);
   tableFilters = signal(new TableFilters());
   searchInput = signal('');
-  indicatorsTabFilterList = signal<any>({});
   tableColumns = signal<TableColumn[]>([
     {
       field: 'result_official_code',
@@ -49,7 +48,7 @@ export class ResultsCenterService {
       path: 'indicators.name',
       header: 'Indicator',
       hideIf: computed(() =>
-        this.indicatorsTabFilterList().list.some((indicator: GetAllIndicators) => indicator.active === true && indicator.indicator_id !== 0)
+        this.api.indicatorTabs().list.some((indicator: GetAllIndicators) => indicator.active === true && indicator.indicator_id !== 0)
       ),
       getValue: (result: Result) => result.indicators?.name || '-'
     },
@@ -130,7 +129,7 @@ export class ResultsCenterService {
   );
 
   constructor() {
-    this.getIndicatorsList();
+    this.mapAllIndicators();
   }
 
   countFiltersSelected = computed(() => {
@@ -140,9 +139,8 @@ export class ResultsCenterService {
     return totalFilters > 0 ? totalFilters.toString() : undefined;
   });
 
-  async getIndicatorsList() {
-    this.indicatorsTabFilterList.set(this.api.indicatorsWithResult());
-    this.indicatorsTabFilterList.update(prev => {
+  async mapAllIndicators() {
+    this.api.indicatorTabs.update(prev => {
       prev.list = [
         {
           name: 'All Indicators',
@@ -193,7 +191,7 @@ export class ResultsCenterService {
   };
 
   onSelectFilterTab(indicatorId: number) {
-    this.indicatorsTabFilterList.update(prev => {
+    this.api.indicatorTabs.update(prev => {
       prev.list = prev.list.map((item: GetAllIndicators) => ({
         ...item,
         active: item.indicator_id === indicatorId
@@ -209,8 +207,6 @@ export class ResultsCenterService {
       ...prev,
       indicators: []
     }));
-
-    console.log(this.api.indicatorsWithResult().list);
   }
 
   clearAllFilters() {
