@@ -7,7 +7,7 @@ import { ResultsCenterTableComponent } from './components/results-center-table/r
 import { ResultsCenterService } from './results-center.service';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
-
+import { ApiService } from '../../../../shared/services/api.service';
 @Component({
   selector: 'app-results-center',
   standalone: true,
@@ -23,6 +23,7 @@ import { SectionSidebarComponent } from '../../../../shared/components/section-s
   styleUrls: ['./results-center.component.scss']
 })
 export default class ResultsCenterComponent implements OnInit {
+  api = inject(ApiService);
   resultsCenterService = inject(ResultsCenterService);
   cache = inject(CacheService);
   @ViewChild('tm') tm!: TabMenu;

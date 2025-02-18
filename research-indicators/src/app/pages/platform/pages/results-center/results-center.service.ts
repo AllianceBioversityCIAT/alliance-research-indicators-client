@@ -139,7 +139,7 @@ export class ResultsCenterService {
   });
 
   async getIndicatorsList() {
-    const response = await this.api.GET_IndicatorsWithResult();
+    const response = await this.api.indicatorsWithResult.list();
     this.indicatorsTabFilterList.set(response);
     this.indicatorsTabFilterList.update(prev => [
       {
