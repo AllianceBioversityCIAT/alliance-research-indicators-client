@@ -227,6 +227,13 @@ export class ResultsCenterService {
       years: [],
       contracts: []
     }));
+    //? clear table filters and reset sort
+    const table = this.tableRef();
+    if (table) {
+      table.clear();
+      table.sortField = 'result_official_code';
+      table.sortOrder = -1;
+    }
     this.applyFilters();
   }
 
