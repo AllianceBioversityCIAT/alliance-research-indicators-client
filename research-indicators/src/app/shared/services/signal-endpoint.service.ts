@@ -8,6 +8,7 @@ export interface SignalEndpoint<T> {
   hasValue: Signal<boolean>;
   list: Signal<T>;
   fetch: () => Promise<void>;
+  promise: () => Promise<T>;
 }
 
 @Injectable({
@@ -32,16 +33,19 @@ export class SignalEndpointService {
       return false;
     });
 
-    const fetch = async () => {
+    const promise = async () => {
       if (useCache && this.clCache.has(urlFn())) {
-        data.set(this.clCache.get(urlFn()));
-        return;
+        return this.clCache.get(urlFn());
       }
+      const { data: responseData } = (await this.TP.get(urlFn(), {})) as MainResponse<T>;
+      if (useCache) this.clCache.set(urlFn(), responseData);
+      return responseData;
+    };
 
+    const fetch = async () => {
       loading.set(true);
       try {
-        const { data: responseData } = (await this.TP.get(urlFn(), {})) as MainResponse<T>;
-        if (useCache) this.clCache.set(urlFn(), responseData);
+        const responseData = await promise();
         data.set(responseData);
       } finally {
         loading.set(false);
@@ -60,7 +64,8 @@ export class SignalEndpointService {
       isLoading: computed(() => loading()),
       hasValue,
       list: computed(() => data()),
-      fetch
+      fetch,
+      promise
     };
   }
 }
