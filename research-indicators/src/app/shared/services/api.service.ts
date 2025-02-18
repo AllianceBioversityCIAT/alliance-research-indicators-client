@@ -38,13 +38,14 @@ import { GetAnnouncementSettingAvailable } from '../interfaces/get-announcement-
 import { GetAllIndicators } from '../interfaces/get-all-indicators.interface';
 import { GetAllResultStatus } from '../interfaces/get-all-result-status.interface';
 import { GetSubnationalsByIsoAlpha } from '../interfaces/get-subnationals-by-iso-alpha.interface';
-
+import { ControlListCacheService } from './control-list-cache.service';
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   TP = inject(ToPromiseService);
   cache = inject(CacheService);
+  clCache = inject(ControlListCacheService);
   //? >>>>>>>>>>>> Endpoints <<<<<<<<<<<<<<<<<
   login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
     const url = () => `authorization/login`;
@@ -161,6 +162,15 @@ export class ApiService {
   PATCH_GeneralInformation = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/${id}/general-information`;
     return this.TP.patch(url(), body);
+  };
+
+  //? active indicators
+  GET_IndicatorsWithResult = async () => {
+    const url = () => `indicators/with/result`;
+    if (this.clCache.has(url())) this.clCache.get(url());
+    const { data } = (await this.TP.get(url(), {})) as MainResponse<GetAllIndicators[]>;
+    this.clCache.set(url(), data);
+    return data;
   };
 
   GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
