@@ -1,12 +1,16 @@
-import { Injectable, WritableSignal, effect, inject, signal } from '@angular/core';
+import { Injectable, WritableSignal, inject, signal } from '@angular/core';
 import { MainResponse } from '../interfaces/responses.interface';
 import { ToPromiseService } from './to-promise.service';
 import { ControlListCacheService } from './control-list-cache.service';
 
-export interface SignalEndpoint<T> {
+export interface LazySignals<T> {
   isLoading: WritableSignal<boolean>;
   hasValue: WritableSignal<boolean>;
   list: WritableSignal<T>;
+}
+
+export interface SignalEndpoint<T> {
+  lazy: () => LazySignals<T>;
   fetch: () => Promise<void>;
   promise: () => Promise<T>;
   setReferenceName: (name: string) => void;
@@ -24,6 +28,7 @@ export class SignalEndpointService {
     const data = signal<T>([] as unknown as T);
     const hasValueSignal = signal(false);
     const currentReferenceName = signal<string | undefined>(referenceName);
+    const isInitialized = signal(false);
 
     const getParentCacheKey = () => urlFn();
     const getReferenceCacheKey = (reference: string) => `${urlFn()}_${reference}`;
@@ -31,10 +36,7 @@ export class SignalEndpointService {
     const fetchFromAPI = async () => {
       const { data: responseData } = (await this.TP.get(urlFn(), {})) as MainResponse<T>;
       if (useCache) {
-        // Guardar en caché padre
-        console.log(this.clCache.getAll());
         this.clCache.set(getParentCacheKey(), responseData);
-        // Si hay referencia, guardar también en su caché
         const reference = currentReferenceName();
         if (reference) {
           this.clCache.set(getReferenceCacheKey(reference), responseData);
@@ -60,11 +62,7 @@ export class SignalEndpointService {
 
     const promise = async () => {
       const cachedData = getCachedData();
-      // console.log("first")
       if (cachedData) return cachedData;
-      console.log('reference: ', currentReferenceName());
-      console.log(cachedData);
-      console.log('consumir api: ', urlFn());
       return fetchFromAPI();
     };
 
@@ -85,20 +83,25 @@ export class SignalEndpointService {
 
     const setReferenceName = (name: string) => {
       currentReferenceName.set(name);
-      fetch();
+      if (isInitialized()) {
+        fetch();
+      }
     };
 
-    effect(
-      () => {
+    const lazy = () => {
+      if (!isInitialized()) {
+        isInitialized.set(true);
         fetch();
-      },
-      { allowSignalWrites: true }
-    );
+      }
+      return {
+        isLoading: loading,
+        hasValue: hasValueSignal,
+        list: data
+      };
+    };
 
     return {
-      isLoading: loading,
-      hasValue: hasValueSignal,
-      list: data,
+      lazy,
       fetch,
       promise,
       setReferenceName

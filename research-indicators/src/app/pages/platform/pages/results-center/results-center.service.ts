@@ -48,7 +48,10 @@ export class ResultsCenterService {
       path: 'indicators.name',
       header: 'Indicator',
       hideIf: computed(() =>
-        this.api.indicatorTabs.list().some((indicator: GetAllIndicators) => indicator.active === true && indicator.indicator_id !== 0)
+        this.api.indicatorTabs
+          .lazy()
+          .list()
+          .some((indicator: GetAllIndicators) => indicator.active === true && indicator.indicator_id !== 0)
       ),
       getValue: (result: Result) => result.indicators?.name || '-'
     },
@@ -128,10 +131,6 @@ export class ResultsCenterService {
     }
   );
 
-  constructor() {
-    this.mapAllIndicators();
-  }
-
   countFiltersSelected = computed(() => {
     const activeFilters = Object.values(this.resultsFilter()).filter(arr => Array.isArray(arr) && arr.length > 0).length;
     const searchFilterActive = this.searchInput().length > 0 ? 1 : 0;
@@ -139,17 +138,25 @@ export class ResultsCenterService {
     return totalFilters > 0 ? totalFilters.toString() : undefined;
   });
 
-  async mapAllIndicators() {
-    this.api.indicatorTabs.list.update(prev => [
-      {
-        name: 'All Indicators',
-        indicator_id: 0,
-        active: true
-      },
-      ...prev
-    ]);
-    // this.api.indicatorsWithResult.list();
-  }
+  onChangeList = effect(
+    () => {
+      if (!this.api.indicatorTabs.lazy().isLoading()) {
+        this.api.indicatorTabs.lazy().list.update(prev => [
+          {
+            name: 'All Indicators',
+            indicator_id: 0,
+            active: true
+          },
+          ...prev
+        ]);
+        //? destroy effect if data is loaded
+        this.onChangeList.destroy();
+      }
+    },
+    {
+      allowSignalWrites: true
+    }
+  );
 
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
     const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
@@ -188,7 +195,7 @@ export class ResultsCenterService {
   };
 
   onSelectFilterTab(indicatorId: number) {
-    this.api.indicatorTabs.list.update(prev =>
+    this.api.indicatorTabs.lazy().list.update(prev =>
       prev.map((item: GetAllIndicators) => ({
         ...item,
         active: item.indicator_id === indicatorId
