@@ -122,6 +122,33 @@ export class ResultsCenterService {
 
   tableRef = signal<Table | undefined>(undefined);
 
+  getActiveFilters = computed(() => {
+    const filters: { label: string }[] = [];
+    const tableFilters = this.tableFilters();
+
+    if (tableFilters.indicators.length > 0) {
+      filters.push({ label: 'INDICATOR' });
+    }
+
+    if (tableFilters.statusCodes.length > 0) {
+      filters.push({ label: 'STATUS' });
+    }
+
+    if (tableFilters.contracts.length > 0) {
+      filters.push({ label: 'PROJECT' });
+    }
+
+    if (tableFilters.levers.length > 0) {
+      filters.push({ label: 'LEVER' });
+    }
+
+    if (tableFilters.years.length > 0) {
+      filters.push({ label: 'YEAR' });
+    }
+
+    return filters;
+  });
+
   onChangeFilters = effect(
     async () => {
       this.loading.set(true);

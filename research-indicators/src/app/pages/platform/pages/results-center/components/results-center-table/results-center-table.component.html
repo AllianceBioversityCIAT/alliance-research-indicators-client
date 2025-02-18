@@ -28,6 +28,19 @@
         <p-button icon="pi pi-cog" size="small" [outlined]="true" (click)="showConfiguratiosnSidebar()"></p-button>
       </div>
     </div>
+    @if (resultsCenterService.getActiveFilters().length > 0) {
+      <div class="flex gap-2 p-2">
+        Results filtered by:
+        @for (filter of resultsCenterService.getActiveFilters(); track filter.label) {
+          <div class="flex gap-2 align-items-center">
+            <span class="font-bold">{{ filter.label }}</span>
+            @if (!$last) {
+              <span class="text-500">, </span>
+            }
+          </div>
+        }
+      </div>
+    }
   </div>
   <!-- scrollHeight="calc(100vh - 30rem)" -->
   <p-table
