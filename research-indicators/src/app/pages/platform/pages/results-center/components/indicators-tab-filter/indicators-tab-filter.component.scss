@@ -76,9 +76,11 @@
       padding: 10px 20px;
       white-space: nowrap;
       flex-shrink: 0;
-      cursor: pointer;
+      cursor: not-allowed;
       transition: all 0.2s ease;
       border: 1px solid transparent;
+      opacity: 0.5;
+      pointer-events: none;
 
       &:hover:not(.active) {
         background-color: rgb(52 91 143 / 10%);
@@ -90,6 +92,12 @@
         border-radius: 10px;
         color: #fff;
         box-shadow: 0 2px 4px rgb(52 91 143 / 20%);
+      }
+
+      &.able {
+        opacity: 1;
+        pointer-events: auto;
+        cursor: pointer;
       }
     }
   }

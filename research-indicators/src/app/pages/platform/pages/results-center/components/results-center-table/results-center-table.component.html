@@ -24,12 +24,7 @@
           size="small"
           [badge]="resultsCenterService.countFiltersSelected()"
           (click)="showFiltersSidebar()"></p-button>
-        <p-button
-          label="Clear Filters"
-          [text]="true"
-          size="small"
-          severity="secondary"
-          (click)="this.resultsCenterService.clearAllFilters()"></p-button>
+        <p-button label="Clear Filters" [text]="true" size="small" severity="secondary" (click)="this.resultsCenterService.cleanFilters()"></p-button>
         <p-button icon="pi pi-cog" size="small" [outlined]="true" (click)="showConfiguratiosnSidebar()"></p-button>
       </div>
     </div>

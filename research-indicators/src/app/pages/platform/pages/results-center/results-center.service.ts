@@ -133,24 +133,30 @@ export class ResultsCenterService {
   );
 
   countFiltersSelected = computed(() => {
-    const activeFilters = Object.values(this.resultsFilter()).filter(arr => Array.isArray(arr) && arr.length > 0).length;
-    const searchFilterActive = this.searchInput().length > 0 ? 1 : 0;
-    const totalFilters = activeFilters + searchFilterActive;
+    const activeFilters = Object.entries(this.resultsFilter()).filter(
+      ([key, arr]) => !['create-user-codes', 'indicator-codes-tabs'].includes(key) && Array.isArray(arr) && arr.length > 0
+    ).length;
+    const totalFilters = activeFilters;
     return totalFilters > 0 ? totalFilters.toString() : undefined;
   });
 
   onChangeList = effect(
     () => {
       if (!this.api.indicatorTabs.lazy().isLoading()) {
-        this.api.indicatorTabs.lazy().list.update(prev => [
-          {
-            name: 'All Indicators',
-            indicator_id: 0,
-            active: true
-          },
-          ...prev
-        ]);
-        //? destroy effect if data is loaded
+        this.api.indicatorTabs.lazy().list.update(prev => {
+          return [
+            {
+              name: 'All Indicators',
+              indicator_id: 0,
+              able: true,
+              active: true
+            },
+            ...prev.map(indicator => ({
+              ...indicator,
+              able: [0, 1, 4].includes(indicator.indicator_id)
+            }))
+          ];
+        });
         this.onChangeList.destroy();
       }
     },
@@ -213,9 +219,27 @@ export class ResultsCenterService {
     }));
   }
 
+  cleanFilters() {
+    this.tableFilters.update(prev => ({
+      ...prev,
+      indicators: [],
+      statusCodes: [],
+      years: [],
+      contracts: []
+    }));
+    this.applyFilters();
+  }
+
   clearAllFilters() {
     //? Clear all filters and apply them again
     this.tableFilters.set(new TableFilters());
+    this.tableFilters.update(prev => ({
+      ...prev,
+      indicators: [],
+      statusCodes: [],
+      years: [],
+      contracts: []
+    }));
     this.applyFilters();
     //? clear search input
     this.searchInput.set('');
