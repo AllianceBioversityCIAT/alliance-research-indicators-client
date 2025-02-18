@@ -83,6 +83,7 @@ export class ResultsCenterService {
       field: 'creator',
       path: 'created_by_user.first_name',
       header: 'Creator',
+      hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
     },
@@ -100,7 +101,7 @@ export class ResultsCenterService {
       .map(column => column.path)
   );
 
-  resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [] });
+  resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
   resultsConfig = signal<ResultConfig>({
     indicators: true,
     'result-status': true,

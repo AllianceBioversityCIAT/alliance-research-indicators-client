@@ -7,4 +7,5 @@ export interface TableColumn {
   getValue?: (result: Result) => string;
   filter?: boolean;
   hideIf?: () => boolean;
+  hideFilterIf?: () => boolean;
 }
