@@ -28,7 +28,6 @@ export class ResultsCenterService {
   list = signal<Result[]>([]);
   tableFilters = signal(new TableFilters());
   searchInput = signal('');
-  indicatorsTabFilterList = signal<GetAllIndicators[]>([]);
   tableColumns = signal<TableColumn[]>([
     {
       field: 'result_official_code',
@@ -48,7 +47,12 @@ export class ResultsCenterService {
       field: 'indicator_id',
       path: 'indicators.name',
       header: 'Indicator',
-      hideIf: computed(() => this.indicatorsTabFilterList().some(indicator => indicator.active === true && indicator.indicator_id !== 0)),
+      hideIf: computed(() =>
+        this.api.indicatorTabs
+          .lazy()
+          .list()
+          .some((indicator: GetAllIndicators) => indicator.active === true && indicator.indicator_id !== 0)
+      ),
       getValue: (result: Result) => result.indicators?.name || '-'
     },
     {
@@ -79,6 +83,7 @@ export class ResultsCenterService {
       field: 'creator',
       path: 'created_by_user.first_name',
       header: 'Creator',
+      hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
     },
@@ -96,7 +101,7 @@ export class ResultsCenterService {
       .map(column => column.path)
   );
 
-  resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [] });
+  resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
   resultsConfig = signal<ResultConfig>({
     indicators: true,
     'result-status': true,
@@ -127,10 +132,6 @@ export class ResultsCenterService {
     }
   );
 
-  constructor() {
-    this.getIndicatorsList();
-  }
-
   countFiltersSelected = computed(() => {
     const activeFilters = Object.values(this.resultsFilter()).filter(arr => Array.isArray(arr) && arr.length > 0).length;
     const searchFilterActive = this.searchInput().length > 0 ? 1 : 0;
@@ -138,18 +139,25 @@ export class ResultsCenterService {
     return totalFilters > 0 ? totalFilters.toString() : undefined;
   });
 
-  async getIndicatorsList() {
-    const response = await this.api.GET_IndicatorsWithResult();
-    this.indicatorsTabFilterList.set(response);
-    this.indicatorsTabFilterList.update(prev => [
-      {
-        name: 'All Indicators',
-        indicator_id: 0,
-        active: true
-      },
-      ...prev
-    ]);
-  }
+  onChangeList = effect(
+    () => {
+      if (!this.api.indicatorTabs.lazy().isLoading()) {
+        this.api.indicatorTabs.lazy().list.update(prev => [
+          {
+            name: 'All Indicators',
+            indicator_id: 0,
+            active: true
+          },
+          ...prev
+        ]);
+        //? destroy effect if data is loaded
+        this.onChangeList.destroy();
+      }
+    },
+    {
+      allowSignalWrites: true
+    }
+  );
 
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
     const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
@@ -188,18 +196,16 @@ export class ResultsCenterService {
   };
 
   onSelectFilterTab(indicatorId: number) {
-    this.indicatorsTabFilterList.update(prev =>
-      prev.map(item => ({
+    this.api.indicatorTabs.lazy().list.update(prev =>
+      prev.map((item: GetAllIndicators) => ({
         ...item,
         active: item.indicator_id === indicatorId
       }))
     );
-
     this.resultsFilter.update(prev => ({
       ...prev,
       'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId]
     }));
-
     this.resultsFilter()['indicator-codes-filter'] = [];
     this.tableFilters.update(prev => ({
       ...prev,

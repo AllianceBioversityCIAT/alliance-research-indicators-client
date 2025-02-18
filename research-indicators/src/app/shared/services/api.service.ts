@@ -39,6 +39,8 @@ import { GetAllIndicators } from '../interfaces/get-all-indicators.interface';
 import { GetAllResultStatus } from '../interfaces/get-all-result-status.interface';
 import { GetSubnationalsByIsoAlpha } from '../interfaces/get-subnationals-by-iso-alpha.interface';
 import { ControlListCacheService } from './control-list-cache.service';
+import { SignalEndpointService } from './signal-endpoint.service';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -46,6 +48,7 @@ export class ApiService {
   TP = inject(ToPromiseService);
   cache = inject(CacheService);
   clCache = inject(ControlListCacheService);
+  private signalEndpoint = inject(SignalEndpointService);
   //? >>>>>>>>>>>> Endpoints <<<<<<<<<<<<<<<<<
   login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
     const url = () => `authorization/login`;
@@ -164,14 +167,8 @@ export class ApiService {
     return this.TP.patch(url(), body);
   };
 
-  //? active indicators
-  GET_IndicatorsWithResult = async () => {
-    const url = () => `indicators/with/result`;
-    if (this.clCache.has(url())) this.clCache.get(url());
-    const { data } = (await this.TP.get(url(), {})) as MainResponse<GetAllIndicators[]>;
-    this.clCache.set(url(), data);
-    return data;
-  };
+  indicatorsWithResult = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators/with/result');
+  indicatorTabs = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators/with/result', 'indicatortabs');
 
   GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
     const url = () => `results/institutions/by-result-id/${id}?role=partners`;

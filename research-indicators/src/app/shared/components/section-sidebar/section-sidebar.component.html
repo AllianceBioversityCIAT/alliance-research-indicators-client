@@ -1,6 +1,6 @@
 <div
   class="container"
-  [class.hide-sidebar]="!this.showSignal()"
+  [class.show-sidebar]="this.showSignal()"
   [style.height]="'calc(100vh - ' + (this.cache.navbarHeight() + this.cache.headerHeight()) + 'px)'">
   <div class="content">
     <div class="header">
