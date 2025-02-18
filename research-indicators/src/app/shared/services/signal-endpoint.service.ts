@@ -3,10 +3,10 @@ import { MainResponse } from '../interfaces/responses.interface';
 import { ToPromiseService } from './to-promise.service';
 import { ControlListCacheService } from './control-list-cache.service';
 
-export interface SignalEndpoint<T> {
-  isLoading: Signal<boolean>;
-  hasValue: Signal<boolean>;
-  list: Signal<T>;
+export interface SignalEndpointValue<T> {
+  isLoading: boolean;
+  hasValue: boolean;
+  list: T;
   fetch: () => Promise<void>;
   promise: () => Promise<T>;
 }
@@ -18,9 +18,16 @@ export class SignalEndpointService {
   private TP = inject(ToPromiseService);
   private clCache = inject(ControlListCacheService);
 
-  createEndpoint<T>(urlFn: () => string, useCache = true): SignalEndpoint<T> {
+  createEndpoint<T>(urlFn: () => string, useCache = true) {
     const loading = signal(false);
     const data = signal<T>([] as unknown as T);
+    const endpointSignal = signal<SignalEndpointValue<T>>({
+      isLoading: false,
+      hasValue: false,
+      list: [] as unknown as T,
+      fetch: () => Promise.resolve(),
+      promise: () => Promise.resolve([] as unknown as T)
+    });
 
     const hasValue = computed(() => {
       const value = data();
@@ -34,6 +41,7 @@ export class SignalEndpointService {
     });
 
     const promise = async () => {
+      console.log('get data');
       if (useCache && this.clCache.has(urlFn())) {
         return this.clCache.get(urlFn());
       }
@@ -47,6 +55,10 @@ export class SignalEndpointService {
       try {
         const responseData = await promise();
         data.set(responseData);
+        endpointSignal.update(prev => ({
+          ...prev,
+          list: responseData
+        }));
       } finally {
         loading.set(false);
       }
@@ -55,17 +67,24 @@ export class SignalEndpointService {
     // Ejecutar fetch automáticamente al crear el endpoint
     effect(
       () => {
+        endpointSignal.update(prev => ({
+          ...prev,
+          isLoading: loading(),
+          hasValue: hasValue(),
+          fetch,
+          promise
+        }));
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
         fetch();
       },
       { allowSignalWrites: true }
     );
 
-    return {
-      isLoading: computed(() => loading()),
-      hasValue,
-      list: computed(() => data()),
-      fetch,
-      promise
-    };
+    return endpointSignal;
   }
 }

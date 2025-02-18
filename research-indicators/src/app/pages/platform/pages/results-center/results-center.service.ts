@@ -28,7 +28,7 @@ export class ResultsCenterService {
   list = signal<Result[]>([]);
   tableFilters = signal(new TableFilters());
   searchInput = signal('');
-  indicatorsTabFilterList = signal<GetAllIndicators[]>([]);
+  indicatorsTabFilterList = signal<any>({});
   tableColumns = signal<TableColumn[]>([
     {
       field: 'result_official_code',
@@ -48,7 +48,9 @@ export class ResultsCenterService {
       field: 'indicator_id',
       path: 'indicators.name',
       header: 'Indicator',
-      hideIf: computed(() => this.indicatorsTabFilterList().some(indicator => indicator.active === true && indicator.indicator_id !== 0)),
+      hideIf: computed(() =>
+        this.indicatorsTabFilterList().list.some((indicator: GetAllIndicators) => indicator.active === true && indicator.indicator_id !== 0)
+      ),
       getValue: (result: Result) => result.indicators?.name || '-'
     },
     {
@@ -139,17 +141,19 @@ export class ResultsCenterService {
   });
 
   async getIndicatorsList() {
-    const response = await this.api.indicatorsWithResult.promise();
+    this.indicatorsTabFilterList.set(this.api.indicatorsWithResult());
+    this.indicatorsTabFilterList.update(prev => {
+      prev.list = [
+        {
+          name: 'All Indicators',
+          indicator_id: 0,
+          active: true
+        },
+        ...prev.list
+      ];
 
-    this.indicatorsTabFilterList.set(response);
-    this.indicatorsTabFilterList.update(prev => [
-      {
-        name: 'All Indicators',
-        indicator_id: 0,
-        active: true
-      },
-      ...prev
-    ]);
+      return prev;
+    });
   }
 
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
@@ -189,23 +193,24 @@ export class ResultsCenterService {
   };
 
   onSelectFilterTab(indicatorId: number) {
-    this.indicatorsTabFilterList.update(prev =>
-      prev.map(item => ({
+    this.indicatorsTabFilterList.update(prev => {
+      prev.list = prev.list.map((item: GetAllIndicators) => ({
         ...item,
         active: item.indicator_id === indicatorId
-      }))
-    );
-
+      }));
+      return prev;
+    });
     this.resultsFilter.update(prev => ({
       ...prev,
       'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId]
     }));
-
     this.resultsFilter()['indicator-codes-filter'] = [];
     this.tableFilters.update(prev => ({
       ...prev,
       indicators: []
     }));
+
+    console.log(this.api.indicatorsWithResult().list);
   }
 
   clearAllFilters() {

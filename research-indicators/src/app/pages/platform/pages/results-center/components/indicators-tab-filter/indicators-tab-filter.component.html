@@ -5,7 +5,7 @@
     </div>
   }
   <div class="filters-content" #filtersContainer>
-    @for (filter of resultsCenterService.indicatorsTabFilterList(); track $index) {
+    @for (filter of this.resultsCenterService.indicatorsTabFilterList().list; track $index) {
       <div class="filters" [class.active]="filter.active" (click)="resultsCenterService.onSelectFilterTab(filter.indicator_id)">
         {{ filter.name }}
       </div>
