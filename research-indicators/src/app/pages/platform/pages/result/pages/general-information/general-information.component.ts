@@ -17,6 +17,7 @@ import { GetResultsService } from '../../../../../../shared/services/control-lis
 import { GetUserStaffService } from '../../../../../../shared/services/control-list/get-user-staff.service';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { GetMetadataService } from '../../../../../../shared/services/get-metadata.service';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 interface Option {
   name: string;
@@ -34,7 +35,8 @@ interface Option {
     ChipModule,
     InputComponent,
     TextareaComponent,
-    SelectComponent
+    SelectComponent,
+    AutoCompleteModule
   ],
   templateUrl: './general-information.component.html',
   styleUrl: './general-information.component.scss'

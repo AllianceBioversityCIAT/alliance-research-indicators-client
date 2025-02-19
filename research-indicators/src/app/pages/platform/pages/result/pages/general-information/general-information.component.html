@@ -35,7 +35,8 @@
             </small>
 
             <div class="card p-fluid">
-              <p-chips [(ngModel)]="body().keywords" (ngModelChange)="this.actions.saveCurrentSection()" />
+              <!-- <p-chips [(ngModel)]="body().keywords" (ngModelChange)="this.actions.saveCurrentSection()" /> -->
+              <p-autocomplete [(ngModel)]="body().keywords" inputId="multiple-ac-2" multiple fluid [typeahead]="false" />
             </div>
           </div>
 
