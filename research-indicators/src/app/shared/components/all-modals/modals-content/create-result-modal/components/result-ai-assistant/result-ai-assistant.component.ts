@@ -100,6 +100,18 @@ export class ResultAiAssistantComponent {
     this.selectedFile = file;
   }
 
+  goBackToCreateResult() {
+    this.createResultManagementService.resetModal();
+    this.selectedFile = null;
+    this.analyzingDocument.set(false);
+    this.documentAnalyzed.set(false);
+  }
+
+  goBackToUploadNewFile() {
+    this.goBackToCreateResult();
+    this.createResultManagementService.resultPageStep.set(1);
+  }
+
   async handleAnalyzingDocument() {
     if (!this.selectedFile) return;
 
