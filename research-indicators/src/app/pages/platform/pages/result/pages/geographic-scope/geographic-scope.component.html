@@ -1,22 +1,24 @@
-<div class="container">
-  <h3 class="title-text">{{ this.cache.currentMetadata().result_title }}</h3>
+<div class="flex flex-col mx-[40px] my-[30px]">
+  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
   <br />
 
-  <div class="card-container">
-    <div class="card-title">GEOGRAPHIC SCOPE</div>
-    <div class="alert-container">
-      <span class="icon material-symbols-rounded">info</span>
-      <h3 class="card-description">Select the geographic location/s where this result is taking place.</h3>
+  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-5">
+    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GEOGRAPHIC SCOPE</div>
+    <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-5 px-5 mb-[30px]">
+      <span class="text-[#074b86] material-symbols-rounded">info</span>
+      <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+        Select the geographic location/s where this result is taking place.
+      </h3>
     </div>
 
-    <div class="item-content">
+    <div class="flex justify-between items-start w-full">
       <div class="information"></div>
     </div>
 
-    <div class="fields">
+    <div class="flex flex-col gap-5">
       <app-radio-button
         label="What is the main geographic focus of the Impact?*"
-        description="This should reflect where the Impact has taken place/contributed to benefit."
+        description="This should reflect where the Impact has taken place/contributed to benefit."
         [signal]="body"
         [optionLabel]="'label'"
         serviceName="geoFocus"
@@ -47,21 +49,22 @@
           description="{{ getMultiselectLabel().country.description }}">
           @if (body().geo_scope_id === 5 || body().geo_scope_id === '5') {
             <ng-template #rows let-country>
-              <div class="country-row">
-                <div class="left-column">
-                  <div class="country-info">
-                    <img [src]="environment.flagsUrl + country.isoAlpha2 + '.svg'" [alt]="country.name" class="country-flag" />
-                    <span class="country-name">{{ country.name }}</span>
+              <div class="flex justify-between items-start py-3 w-full">
+                <div class="flex flex-col gap-3 max-w-[70%]">
+                  <div class="flex items-center gap-3">
+                    <img [src]="environment.flagsUrl + country.isoAlpha2 + '.svg'" [alt]="country.name" class="w-6 h-4 object-cover" />
+                    <span class="font-medium text-[var(--text-color)]">{{ country.name }}</span>
                   </div>
                   <div class="sub-national-section">
-                    <div class="sub-national-header"></div>
-                    <div class="chips-container">
-                      <span>Sub-national levels</span>
-                      <i class="pi pi-arrow-right"></i>
+                    <div class="chips-container flex flex-wrap gap-2 items-center">
+                      <span class="text-[var(--text-color-secondary)] text-sm">Sub-national levels</span>
+                      <i class="pi pi-arrow-right text-xs text-[var(--text-color-secondary)]"></i>
                       @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
-                        <div class="p-chip">
+                        <div class="bg-[var(--surface-200)] rounded-2xl px-3 py-1 flex items-center gap-2 text-sm text-[var(--text-color)]">
                           {{ region.name }}
-                          <i class="pi pi-times remove-chip" (click)="subnationalmultiselect.removeOption(region)"></i>
+                          <i
+                            class="pi pi-times text-xs text-[var(--text-color-secondary)] hover:text-[var(--text-color)] cursor-pointer"
+                            (click)="subnationalmultiselect.removeOption(region)"></i>
                         </div>
                       }
                     </div>
@@ -69,7 +72,7 @@
                 </div>
 
                 <!-- Right column: Multiselect -->
-                <div class="right-column" style="width: 300px">
+                <div class="w-[300px]">
                   <app-multiselect-instance
                     #subnationalmultiselect
                     [signal]="country.result_countries_sub_nationals_signal"
@@ -87,7 +90,7 @@
       }
     </div>
   </div>
-  <div class="button-container">
+  <div class="flex gap-5">
     <p-button (click)="saveData('back')" label="Back" icon="pi pi-arrow-left" iconPos="left" [loading]="this.loading()" />
     <p-button (click)="saveData('next')" label="Next" icon="pi pi-arrow-right" iconPos="left" [loading]="this.loading()" />
     <p-button (click)="saveData()" label="Save" severity="success" icon="pi pi-save" iconPos="left" [loading]="this.loading()" />
