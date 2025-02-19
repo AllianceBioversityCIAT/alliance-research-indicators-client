@@ -38,8 +38,7 @@ interface Option {
     SelectComponent,
     AutoCompleteModule
   ],
-  templateUrl: './general-information.component.html',
-  styleUrl: './general-information.component.scss'
+  templateUrl: './general-information.component.html'
 })
 export default class GeneralInformationComponent {
   actions = inject(ActionsService);
