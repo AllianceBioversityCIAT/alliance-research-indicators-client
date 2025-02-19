@@ -5,8 +5,8 @@
   <!-- TRAINING TYPE-->
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]">
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING TYPE</div>
-    <div class="grid">
-      <div class="lg:col-12 xl:col-6">
+    <div class="flex flex-col xl:flex-row gap-5">
+      <div class="flex-1">
         <app-radio-button
           label="What training or engagement do you want to report?*"
           [signal]="body"
@@ -15,7 +15,7 @@
           [optionValue]="{ body: 'session_format_id', option: 'session_format_id' }"></app-radio-button>
       </div>
 
-      <div class="lg:col-12 xl:col-6">
+      <div class="flex-1">
         <app-radio-button
           label="Is this a training or a engagement?*"
           [signal]="body"
@@ -29,12 +29,12 @@
   <!-- INDIVIDUAL TRAINING -->
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]" [class.hidden]="body().session_format_id !== 1">
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">INDIVIDUAL TRAINING</div>
-    <div class="mb-0">
+    <div class="mb-6">
       <app-input label="Trainee name*" [signal]="body" optionValue="individual.trainee_name"></app-input>
     </div>
 
-    <div class="grid grid-cols-3 mb-[25px]">
-      <div class="gap-1">
+    <div class="flex flex-col xl:flex-row gap-5 mb-6">
+      <div class="flex-1">
         <app-radio-button
           label="Degree*"
           [signal]="body"
@@ -43,7 +43,7 @@
           [optionValue]="{ body: 'individual.degree_id', option: 'degree_id' }"></app-radio-button>
       </div>
 
-      <div>
+      <div class="flex-1">
         <app-radio-button
           label="Gender*"
           [signal]="body"
@@ -52,7 +52,7 @@
           [optionValue]="{ body: 'individual.gender_id', option: 'gender_id' }"></app-radio-button>
       </div>
 
-      <div>
+      <div class="flex-1">
         <app-radio-button
           label="Lenght of training*"
           [signal]="body"
@@ -62,8 +62,8 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-5">
-      <div>
+    <div class="flex flex-col xl:flex-row gap-5">
+      <div class="flex-1">
         <app-select
           label="Trainee affiliation"
           [signal]="body"
@@ -72,7 +72,7 @@
           serviceName="institutions"></app-select>
       </div>
 
-      <div>
+      <div class="flex-1">
         <app-select
           label="Trainee nationality"
           [signal]="body"
@@ -87,8 +87,8 @@
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]" [class.hidden]="body().session_format_id !== 2">
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GROUP TRAINING</div>
 
-    <div class="grid">
-      <div class="lg:col-12 xl:col-6">
+    <div class="flex flex-col xl:flex-row gap-5 mb-6">
+      <div class="flex-1">
         <app-input
           label="What was the total number of participants?"
           type="number"
@@ -96,25 +96,23 @@
           [optionValue]="'group.session_participants_total'"></app-input>
       </div>
 
-      <div class="lg:col-12 xl:col-6">
-        <app-input
-          label="Male participants?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-          [signal]="body"
-          optionValue="group.session_participants_male"
-          type="number"></app-input>
+      <div class="flex-1">
+        <app-input label="Male participants?" [signal]="body" optionValue="group.session_participants_male" type="number"></app-input>
       </div>
+    </div>
 
-      <div class="lg:col-12 xl:col-6">
+    <div class="flex flex-col xl:flex-row gap-5 mb-6">
+      <div class="flex-1">
         <app-input label="Female participants?" [signal]="body" optionValue="group.session_participants_female" type="number"></app-input>
       </div>
 
-      <div class="lg:col-12 xl:col-6">
+      <div class="flex-1">
         <app-input label="Non-binary participants?" [signal]="body" optionValue="group.session_participants_non_binary" type="number"></app-input>
       </div>
     </div>
 
-    <div class="grid">
-      <div class="lg:col-12 xl:col-6">
+    <div class="flex flex-col xl:flex-row gap-5 mb-6">
+      <div class="flex-1">
         <app-radio-button
           label="What was the purpose of this training/engagement?*"
           [signal]="body"
@@ -123,7 +121,7 @@
           [optionValue]="{ body: 'group.session_purpose_id', option: 'session_purpose_id' }"></app-radio-button>
       </div>
 
-      <div class="lg:col-12 xl:col-6">
+      <div class="flex-1">
         <app-radio-button
           label="Were the trainees attending on behalf of an organization?*"
           [signal]="body"
@@ -131,15 +129,16 @@
           [serviceName]="'yesOrNo'"
           [optionValue]="{ body: 'group.is_attending_organization', option: 'value' }"></app-radio-button>
       </div>
-
-      @if (body().group?.session_purpose_id === 4) {
-        <div class="grid grid-cols-2 gap-5 mb-[25px]">
-          <div>
-            <app-input [signal]="body" placeholder="Write the other purpose" optionValue="group.session_purpose_description"></app-input>
-          </div>
-        </div>
-      }
     </div>
+
+    @if (body().group?.session_purpose_id === 4) {
+      <div class="flex flex-col xl:flex-row gap-5 mb-6">
+        <div class="flex-1">
+          <app-input [signal]="body" placeholder="Write the other purpose" optionValue="group.session_purpose_description"></app-input>
+        </div>
+        <div class="flex-1"></div>
+      </div>
+    }
 
     <div>
       <app-multiselect
@@ -163,8 +162,8 @@
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]">
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING DETAILS</div>
 
-    <div class="grid">
-      <div class="lg:col-12 xl:col-6">
+    <div class="flex flex-col xl:flex-row gap-5 mb-6">
+      <div class="flex-1">
         <app-select
           label="Training / Engagement supervisor*"
           optionLabel="first_name"
@@ -175,7 +174,7 @@
         </app-select>
       </div>
 
-      <div class="lg:col-12 xl:col-6">
+      <div class="flex-1">
         <app-select
           label="Language"
           [signal]="body"
@@ -185,12 +184,13 @@
         </app-select>
       </div>
     </div>
-    <div class="grid">
-      <div class="lg:col-12 xl:col-6">
+
+    <div class="flex flex-col xl:flex-row gap-5 mb-6">
+      <div class="flex-1">
         <app-calendar-input label="Start date" [signal]="body" [optionValue]="'start_date'" [maxDate]="body().end_date"></app-calendar-input>
       </div>
 
-      <div class="lg:col-12 xl:col-6">
+      <div class="flex-1">
         <app-calendar-input label="End date" [signal]="body" [optionValue]="'end_date'" [minDate]="body().start_date"></app-calendar-input>
       </div>
     </div>
