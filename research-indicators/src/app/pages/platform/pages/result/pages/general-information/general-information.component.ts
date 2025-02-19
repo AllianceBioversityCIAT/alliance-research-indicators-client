@@ -4,10 +4,9 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ApiService } from '@services/api.service';
 import { CacheService } from '@services/cache/cache.service';
-import { ChipsModule } from 'primeng/chips';
+import { ChipModule } from 'primeng/chip';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
@@ -24,23 +23,21 @@ interface Option {
 }
 
 @Component({
-    selector: 'app-general-information',
-    imports: [
-        DialogModule,
-        ButtonModule,
-        FormsModule,
-        InputTextModule,
-        DropdownModule,
-        InputTextareaModule,
-        ReactiveFormsModule,
-        ChipsModule,
-        SaveOnWritingDirective,
-        InputComponent,
-        TextareaComponent,
-        SelectComponent
-    ],
-    templateUrl: './general-information.component.html',
-    styleUrl: './general-information.component.scss'
+  selector: 'app-general-information',
+  imports: [
+    DialogModule,
+    ButtonModule,
+    FormsModule,
+    InputTextModule,
+    DropdownModule,
+    ReactiveFormsModule,
+    ChipModule,
+    InputComponent,
+    TextareaComponent,
+    SelectComponent
+  ],
+  templateUrl: './general-information.component.html',
+  styleUrl: './general-information.component.scss'
 })
 export default class GeneralInformationComponent {
   actions = inject(ActionsService);

@@ -13,10 +13,10 @@ import { Router } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 
 @Component({
-    selector: 'app-results-center-table',
-    imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TagModule, MenuModule],
-    templateUrl: './results-center-table.component.html',
-    styleUrls: ['./results-center-table.component.scss']
+  selector: 'app-results-center-table',
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TagModule, MenuModule],
+  templateUrl: './results-center-table.component.html',
+  styleUrls: ['./results-center-table.component.scss']
 })
 export class ResultsCenterTableComponent implements AfterViewInit {
   resultsCenterService = inject(ResultsCenterService);
@@ -186,11 +186,11 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     this.resultsCenterService.showConfigurationsSidebar.set(true);
   }
 
-  getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
-    const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
+  getStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'help' | 'primary' | 'secondary' | 'contrast' | null | undefined {
+    const severityMap: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'help' | 'primary' | 'secondary' | 'contrast' | null | undefined> = {
       SUBMITTED: 'info',
       ACCEPTED: 'success',
-      EDITING: 'warning'
+      EDITING: 'warn'
     };
     return severityMap[status];
   }
