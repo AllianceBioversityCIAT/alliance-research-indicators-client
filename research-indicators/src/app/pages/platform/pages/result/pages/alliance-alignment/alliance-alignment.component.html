@@ -9,11 +9,12 @@
         <div class="flex flex-col gap-[25px]">
           <div>
             <app-multiselect
-              label="Projects*"
+              label="Projects"
               [signal]="body"
               optionLabel="select_label"
               optionValue="contract_id"
               signalOptionValue="contracts"
+              [isRequired]="true"
               serviceName="contracts">
               <ng-template #rows let-contract>
                 <div class="grid grid-cols-[1fr_auto] items-center w-full gap-5">
@@ -69,6 +70,7 @@
               optionLabel="full_name"
               optionValue="lever_id"
               signalOptionValue="levers"
+              [isRequired]="true"
               [serviceName]="'levers'">
               <ng-template #rows let-lever>
                 <div class="grid grid-cols-[1fr_auto] items-center w-full gap-5">
