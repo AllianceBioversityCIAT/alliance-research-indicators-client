@@ -38,7 +38,8 @@
 
           <div class="flex flex-col gap-1">
             <app-select
-              label="Main contact person*"
+              label="Main contact person"
+              [isRequired]="true"
               [signal]="this.body"
               [optionValue]="{ body: 'user_id', option: 'user_id' }"
               optionLabel="full_name"

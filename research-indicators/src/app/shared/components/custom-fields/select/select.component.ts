@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, effect, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { ControlListServices } from '../../../interfaces/services.interface';
@@ -28,11 +28,17 @@ export class SelectComponent implements OnInit {
   @Input() label = '';
   @Input() description = '';
   @Input() disabled = false;
+  @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
 
   service: any;
   body = signal({ value: null });
   environment = environment;
+
+  isInvalid = computed(() => {
+    return this.isRequired && !this.body()?.value;
+  });
+
   constructor(private serviceLocator: ServiceLocatorService) {}
 
   onSectionLoad = effect(
