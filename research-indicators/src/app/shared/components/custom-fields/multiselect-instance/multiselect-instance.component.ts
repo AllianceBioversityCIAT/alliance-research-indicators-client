@@ -11,11 +11,10 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { UtilsService } from '../../../services/utils.service';
 
 @Component({
-  selector: 'app-multiselect-instance',
-  standalone: true,
-  imports: [MultiSelectModule, FormsModule, NgTemplateOutlet, SkeletonModule],
-  templateUrl: './multiselect-instance.component.html',
-  styleUrl: './multiselect-instance.component.scss'
+    selector: 'app-multiselect-instance',
+    imports: [MultiSelectModule, FormsModule, NgTemplateOutlet, SkeletonModule],
+    templateUrl: './multiselect-instance.component.html',
+    styleUrl: './multiselect-instance.component.scss'
 })
 export class MultiselectInstanceComponent implements OnInit {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;

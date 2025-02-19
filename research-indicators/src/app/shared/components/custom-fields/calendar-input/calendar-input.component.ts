@@ -7,11 +7,10 @@ import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
-  selector: 'app-calendar-input',
-  standalone: true,
-  imports: [CalendarModule, FormsModule, SkeletonModule],
-  templateUrl: './calendar-input.component.html',
-  styleUrl: './calendar-input.component.scss'
+    selector: 'app-calendar-input',
+    imports: [CalendarModule, FormsModule, SkeletonModule],
+    templateUrl: './calendar-input.component.html',
+    styleUrl: './calendar-input.component.scss'
 })
 export class CalendarInputComponent {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;

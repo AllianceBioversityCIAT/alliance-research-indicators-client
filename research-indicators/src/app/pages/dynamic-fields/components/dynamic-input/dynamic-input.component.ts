@@ -6,11 +6,10 @@ import { DynamicFieldsService } from '../../dynamic-fields.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-dynamic-input',
-  standalone: true,
-  imports: [FloatLabelModule, InputTextModule, ReactiveFormsModule, CommonModule],
-  templateUrl: './dynamic-input.component.html',
-  styleUrl: './dynamic-input.component.scss'
+    selector: 'app-dynamic-input',
+    imports: [FloatLabelModule, InputTextModule, ReactiveFormsModule, CommonModule],
+    templateUrl: './dynamic-input.component.html',
+    styleUrl: './dynamic-input.component.scss'
 })
 export class DynamicInputComponent {
   @Input() field!: any;

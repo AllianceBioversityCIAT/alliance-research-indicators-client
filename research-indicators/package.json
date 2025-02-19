@@ -22,16 +22,16 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^18.2.5",
+    "@angular/animations": "^19.1.6",
     "@angular/cdk": "^18.2.5",
-    "@angular/common": "^18.2.5",
-    "@angular/compiler": "^18.2.5",
-    "@angular/core": "^18.2.5",
-    "@angular/forms": "^18.2.5",
-    "@angular/platform-browser": "^18.2.5",
-    "@angular/platform-browser-dynamic": "^18.2.5",
-    "@angular/router": "^18.2.5",
-    "@angular/service-worker": "18.2.5",
+    "@angular/common": "^19.1.6",
+    "@angular/compiler": "^19.1.6",
+    "@angular/core": "^19.1.6",
+    "@angular/forms": "^19.1.6",
+    "@angular/platform-browser": "^19.1.6",
+    "@angular/platform-browser-dynamic": "^19.1.6",
+    "@angular/router": "^19.1.6",
+    "@angular/service-worker": "19.1.6",
     "@hotjar/browser": "^1.0.9",
     "@microsoft/clarity": "^1.0.0",
     "@primeng/themes": "^19.0.6",
@@ -48,9 +48,9 @@
     "zone.js": "~0.14.10"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.2.5",
-    "@angular/cli": "^18.2.5",
-    "@angular/compiler-cli": "^18.2.5",
+    "@angular/build": "^19.1.7",
+    "@angular/cli": "^19.1.7",
+    "@angular/compiler-cli": "^19.1.6",
     "@types/jest": "^29.5.12",
     "angular-eslint": "18.0.1",
     "eslint": "^9.3.0",
@@ -59,7 +59,7 @@
     "stylelint": "^16.6.1",
     "stylelint-config-standard-scss": "^13.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "~5.4.2",
+    "typescript": "~5.7.3",
     "typescript-eslint": "8.0.0-alpha.20"
   }
 }

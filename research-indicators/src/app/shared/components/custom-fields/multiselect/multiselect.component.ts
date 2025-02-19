@@ -27,12 +27,11 @@ import { environment } from '../../../../../environments/environment';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'app-multiselect',
-  standalone: true,
-  imports: [MultiSelectModule, FormsModule, NgTemplateOutlet, SkeletonModule, TooltipModule],
-  templateUrl: './multiselect.component.html',
-  styleUrl: './multiselect.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-multiselect',
+    imports: [MultiSelectModule, FormsModule, NgTemplateOutlet, SkeletonModule, TooltipModule],
+    templateUrl: './multiselect.component.html',
+    styleUrl: './multiselect.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MultiselectComponent implements OnInit {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;

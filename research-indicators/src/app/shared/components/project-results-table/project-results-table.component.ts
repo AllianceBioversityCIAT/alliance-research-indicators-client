@@ -14,11 +14,10 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-project-results-table',
-  standalone: true,
-  imports: [TableModule, InputTextModule, Button, FilterByTextWithAttrPipe, DatePipe, FilterByTextWithAttrPipe, FormsModule, RouterLink],
-  templateUrl: './project-results-table.component.html',
-  styleUrl: './project-results-table.component.scss'
+    selector: 'app-project-results-table',
+    imports: [TableModule, InputTextModule, Button, FilterByTextWithAttrPipe, DatePipe, FilterByTextWithAttrPipe, FormsModule, RouterLink],
+    templateUrl: './project-results-table.component.html',
+    styleUrl: './project-results-table.component.scss'
 })
 export class ProjectResultsTableComponent implements OnInit {
   api = inject(ApiService);

@@ -8,11 +8,10 @@ import { TableColumn } from '../../result-center.interface';
 const STORAGE_KEY = 'results-center-columns-order';
 
 @Component({
-  selector: 'app-table-configuration',
-  standalone: true,
-  imports: [CommonModule, OrderListModule],
-  templateUrl: './table-configuration.component.html',
-  styleUrls: ['./table-configuration.component.scss']
+    selector: 'app-table-configuration',
+    imports: [CommonModule, OrderListModule],
+    templateUrl: './table-configuration.component.html',
+    styleUrls: ['./table-configuration.component.scss']
 })
 export class TableConfigurationComponent implements OnInit {
   private resultsCenterService = inject(ResultsCenterService);

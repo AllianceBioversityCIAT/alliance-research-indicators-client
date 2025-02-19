@@ -24,24 +24,23 @@ interface Option {
 }
 
 @Component({
-  selector: 'app-general-information',
-  standalone: true,
-  imports: [
-    DialogModule,
-    ButtonModule,
-    FormsModule,
-    InputTextModule,
-    DropdownModule,
-    InputTextareaModule,
-    ReactiveFormsModule,
-    ChipsModule,
-    SaveOnWritingDirective,
-    InputComponent,
-    TextareaComponent,
-    SelectComponent
-  ],
-  templateUrl: './general-information.component.html',
-  styleUrl: './general-information.component.scss'
+    selector: 'app-general-information',
+    imports: [
+        DialogModule,
+        ButtonModule,
+        FormsModule,
+        InputTextModule,
+        DropdownModule,
+        InputTextareaModule,
+        ReactiveFormsModule,
+        ChipsModule,
+        SaveOnWritingDirective,
+        InputComponent,
+        TextareaComponent,
+        SelectComponent
+    ],
+    templateUrl: './general-information.component.html',
+    styleUrl: './general-information.component.scss'
 })
 export default class GeneralInformationComponent {
   actions = inject(ActionsService);

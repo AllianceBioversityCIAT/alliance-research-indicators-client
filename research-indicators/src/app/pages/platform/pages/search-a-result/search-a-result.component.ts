@@ -11,11 +11,10 @@ import { CustomProgressBarComponent } from '@shared/components/custom-progress-b
 import { CacheService } from '@shared/services/cache/cache.service';
 
 @Component({
-  selector: 'app-search-a-result',
-  standalone: true,
-  imports: [CommonModule, ButtonModule, PaginatorModule, RouterLink, TooltipModule, CustomProgressBarComponent],
-  templateUrl: './search-a-result.component.html',
-  styleUrl: './search-a-result.component.scss'
+    selector: 'app-search-a-result',
+    imports: [CommonModule, ButtonModule, PaginatorModule, RouterLink, TooltipModule, CustomProgressBarComponent],
+    templateUrl: './search-a-result.component.html',
+    styleUrl: './search-a-result.component.scss'
 })
 export default class SearchAResultComponent {
   api = inject(ApiService);

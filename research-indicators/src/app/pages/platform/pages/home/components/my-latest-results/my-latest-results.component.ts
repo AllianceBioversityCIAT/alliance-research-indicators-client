@@ -64,11 +64,10 @@ export interface AgressoContract {
 }
 
 @Component({
-  selector: 'app-my-latest-results',
-  standalone: true,
-  imports: [ButtonModule, AboutIndicatorsComponent, DatePipe, RouterLink],
-  templateUrl: './my-latest-results.component.html',
-  styleUrl: './my-latest-results.component.scss'
+    selector: 'app-my-latest-results',
+    imports: [ButtonModule, AboutIndicatorsComponent, DatePipe, RouterLink],
+    templateUrl: './my-latest-results.component.html',
+    styleUrl: './my-latest-results.component.scss'
 })
 export class MyLatestResultsComponent implements OnInit {
   api = inject(ApiService);

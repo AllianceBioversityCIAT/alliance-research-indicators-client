@@ -5,11 +5,10 @@ import { DynamicBlockComponent } from './components/dynamic-block/dynamic-block.
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-dynamic-fields',
-  standalone: true,
-  imports: [DynamicComponentSelectorComponent, ReactiveFormsModule, DynamicBlockComponent, CommonModule],
-  templateUrl: './dynamic-fields.component.html',
-  styleUrl: './dynamic-fields.component.scss'
+    selector: 'app-dynamic-fields',
+    imports: [DynamicComponentSelectorComponent, ReactiveFormsModule, DynamicBlockComponent, CommonModule],
+    templateUrl: './dynamic-fields.component.html',
+    styleUrl: './dynamic-fields.component.scss'
 })
 export default class DynamicFieldsComponent implements OnInit {
   form!: FormGroup;

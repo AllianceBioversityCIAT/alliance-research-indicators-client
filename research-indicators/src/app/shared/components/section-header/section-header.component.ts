@@ -10,11 +10,10 @@ import { OverlayPanel } from 'primeng/overlaypanel';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'app-section-header',
-  standalone: true,
-  imports: [RouterLink, CommonModule, OverlayPanelModule, ButtonModule, TooltipModule],
-  templateUrl: './section-header.component.html',
-  styleUrl: './section-header.component.scss'
+    selector: 'app-section-header',
+    imports: [RouterLink, CommonModule, OverlayPanelModule, ButtonModule, TooltipModule],
+    templateUrl: './section-header.component.html',
+    styleUrl: './section-header.component.scss'
 })
 export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit {
   router = inject(Router);

@@ -1,11 +1,10 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-dynamic-title',
-  standalone: true,
-  imports: [],
-  templateUrl: './dynamic-title.component.html',
-  styleUrl: './dynamic-title.component.scss'
+    selector: 'app-dynamic-title',
+    imports: [],
+    templateUrl: './dynamic-title.component.html',
+    styleUrl: './dynamic-title.component.scss'
 })
 export class DynamicTitleComponent {
   @Input() text!: string;

@@ -3,10 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ConnectionMonitorService } from '../../services/connection-monitor.service';
 
 @Component({
-  selector: 'app-connection-status',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-connection-status',
+    imports: [CommonModule],
+    template: `
     <div class="connection-status" *ngIf="shouldShowStatus()">
       <div class="status-indicator" [class]="getStatusClass()">
         <i class="material-symbols-rounded">{{ getStatusIcon() }}</i>
@@ -14,8 +13,8 @@ import { ConnectionMonitorService } from '../../services/connection-monitor.serv
       <div class="status-text">{{ getStatusText() }}</div>
     </div>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .connection-status {
         display: flex;
         align-items: center;
@@ -77,7 +76,7 @@ import { ConnectionMonitorService } from '../../services/connection-monitor.serv
         }
       }
     `
-  ]
+    ]
 })
 export class ConnectionStatusComponent {
   private connectionMonitor = inject(ConnectionMonitorService);

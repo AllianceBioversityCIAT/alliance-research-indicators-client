@@ -14,11 +14,10 @@ import { DatePipe } from '@angular/common';
 import { environment } from '../../../../../../../environments/environment';
 
 @Component({
-  selector: 'app-alliance-alignment',
-  standalone: true,
-  imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
-  templateUrl: './alliance-alignment.component.html',
-  styleUrl: './alliance-alignment.component.scss'
+    selector: 'app-alliance-alignment',
+    imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
+    templateUrl: './alliance-alignment.component.html',
+    styleUrl: './alliance-alignment.component.scss'
 })
 export default class AllianceAlignmentComponent {
   environment = environment;

@@ -4,11 +4,10 @@ import { ResultsCenterService } from '../../results-center.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
 
 @Component({
-  selector: 'app-indicators-tab-filter',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './indicators-tab-filter.component.html',
-  styleUrl: './indicators-tab-filter.component.scss'
+    selector: 'app-indicators-tab-filter',
+    imports: [CommonModule],
+    templateUrl: './indicators-tab-filter.component.html',
+    styleUrl: './indicators-tab-filter.component.scss'
 })
 export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;

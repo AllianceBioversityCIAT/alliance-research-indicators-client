@@ -32,11 +32,10 @@ Chart.defaults.set('plugins.datalabels', {
 });
 
 @Component({
-  selector: 'app-data-overview',
-  standalone: true,
-  imports: [ChartModule],
-  templateUrl: './data-overview.component.html',
-  styleUrl: './data-overview.component.scss'
+    selector: 'app-data-overview',
+    imports: [ChartModule],
+    templateUrl: './data-overview.component.html',
+    styleUrl: './data-overview.component.scss'
 })
 export class DataOverviewComponent implements OnInit {
   api = inject(ApiService);

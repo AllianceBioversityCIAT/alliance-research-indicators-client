@@ -5,11 +5,10 @@ import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { GetMetadataService } from '../../../../shared/services/get-metadata.service';
 
 @Component({
-  selector: 'app-result',
-  standalone: true,
-  imports: [RouterOutlet, ResultSidebarComponent],
-  templateUrl: './result.component.html',
-  styleUrl: './result.component.scss'
+    selector: 'app-result',
+    imports: [RouterOutlet, ResultSidebarComponent],
+    templateUrl: './result.component.html',
+    styleUrl: './result.component.scss'
 })
 export default class ResultComponent {
   cache = inject(CacheService);

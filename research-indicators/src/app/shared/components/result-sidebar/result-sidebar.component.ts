@@ -11,11 +11,10 @@ interface SidebarOption {
   hide?: boolean;
 }
 @Component({
-  selector: 'app-result-sidebar',
-  standalone: true,
-  imports: [RouterLink, RouterLinkActive, ButtonModule],
-  templateUrl: './result-sidebar.component.html',
-  styleUrl: './result-sidebar.component.scss'
+    selector: 'app-result-sidebar',
+    imports: [RouterLink, RouterLinkActive, ButtonModule],
+    templateUrl: './result-sidebar.component.html',
+    styleUrl: './result-sidebar.component.scss'
 })
 export class ResultSidebarComponent {
   cache = inject(CacheService);

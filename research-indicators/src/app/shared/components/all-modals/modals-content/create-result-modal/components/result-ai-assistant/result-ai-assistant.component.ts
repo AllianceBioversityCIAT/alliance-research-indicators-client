@@ -9,12 +9,11 @@ import { AIAssistantResult } from '../../models/AIAssistantResult';
 import { ResultAiItemComponent } from './components/result-ai-item/result-ai-item.component';
 
 @Component({
-  selector: 'app-result-ai-assistant',
-  standalone: true,
-  imports: [CommonModule, ButtonModule, PaginatorModule, ResultAiItemComponent],
-  templateUrl: './result-ai-assistant.component.html',
-  styleUrl: './result-ai-assistant.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-result-ai-assistant',
+    imports: [CommonModule, ButtonModule, PaginatorModule, ResultAiItemComponent],
+    templateUrl: './result-ai-assistant.component.html',
+    styleUrl: './result-ai-assistant.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiAssistantComponent {
   acceptedFormats: string[] = ['.pdf', '.docx', '.txt'];

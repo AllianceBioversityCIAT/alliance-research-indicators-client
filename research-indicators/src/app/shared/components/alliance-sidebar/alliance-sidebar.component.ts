@@ -4,12 +4,11 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'alliance-sidebar',
-  standalone: true,
-  imports: [RouterModule, CommonModule],
-  templateUrl: './alliance-sidebar.component.html',
-  styleUrl: './alliance-sidebar.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'alliance-sidebar',
+    imports: [RouterModule, CommonModule],
+    templateUrl: './alliance-sidebar.component.html',
+    styleUrl: './alliance-sidebar.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AllianceSidebarComponent implements OnInit {
   cache = inject(CacheService);

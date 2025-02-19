@@ -7,11 +7,10 @@ import { DynamicButtonComponent } from '../dynamic-button/dynamic-button.compone
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-dynamic-component-selector',
-  standalone: true,
-  imports: [DynamicInputComponent, DynamicTitleComponent, ReactiveFormsModule, DynamicButtonComponent, CommonModule],
-  templateUrl: './dynamic-component-selector.component.html',
-  styleUrl: './dynamic-component-selector.component.scss'
+    selector: 'app-dynamic-component-selector',
+    imports: [DynamicInputComponent, DynamicTitleComponent, ReactiveFormsModule, DynamicButtonComponent, CommonModule],
+    templateUrl: './dynamic-component-selector.component.html',
+    styleUrl: './dynamic-component-selector.component.scss'
 })
 export class DynamicComponentSelectorComponent {
   @Input() field!: any;

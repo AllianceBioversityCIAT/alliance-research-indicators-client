@@ -6,11 +6,10 @@ import { ActivatedRoute } from '@angular/router';
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 
 @Component({
-  selector: 'app-project-detail',
-  standalone: true,
-  imports: [ProjectResultsTableComponent, ProjectItemComponent],
-  templateUrl: './project-detail.component.html',
-  styleUrl: './project-detail.component.scss'
+    selector: 'app-project-detail',
+    imports: [ProjectResultsTableComponent, ProjectItemComponent],
+    templateUrl: './project-detail.component.html',
+    styleUrl: './project-detail.component.scss'
 })
 export default class ProjectDetailComponent implements OnInit {
   activatedRoute = inject(ActivatedRoute);

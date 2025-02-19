@@ -6,11 +6,10 @@ import { WebsocketService } from '../../shared/sockets/websocket.service';
 import { SocketUser } from '../../shared/interfaces/sockets.interface';
 
 @Component({
-  selector: 'app-room',
-  standalone: true,
-  imports: [],
-  templateUrl: './room.component.html',
-  styleUrl: './room.component.scss'
+    selector: 'app-room',
+    imports: [],
+    templateUrl: './room.component.html',
+    styleUrl: './room.component.scss'
 })
 export default class RoomComponent implements OnInit, OnDestroy {
   websocket = inject(WebsocketService);

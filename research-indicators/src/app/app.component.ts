@@ -14,10 +14,9 @@ import Hotjar from '@hotjar/browser';
 import { filter } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, MetadataPanelComponent, GlobalAlertComponent, GlobalToastComponent, CopyTokenComponent, ConnectionStatusComponent],
-  templateUrl: './app.component.html'
+    selector: 'app-root',
+    imports: [RouterOutlet, MetadataPanelComponent, GlobalAlertComponent, GlobalToastComponent, CopyTokenComponent, ConnectionStatusComponent],
+    templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
   cache = inject(CacheService);

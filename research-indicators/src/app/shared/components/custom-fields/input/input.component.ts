@@ -9,11 +9,10 @@ import { CacheService } from '../../../services/cache/cache.service';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { UtilsService } from '../../../services/utils.service';
 @Component({
-  selector: 'app-input',
-  standalone: true,
-  imports: [FormsModule, InputTextModule, SaveOnWritingDirective, SkeletonModule, InputNumberModule],
-  templateUrl: './input.component.html',
-  styleUrl: './input.component.scss'
+    selector: 'app-input',
+    imports: [FormsModule, InputTextModule, SaveOnWritingDirective, SkeletonModule, InputNumberModule],
+    templateUrl: './input.component.html',
+    styleUrl: './input.component.scss'
 })
 export class InputComponent {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;

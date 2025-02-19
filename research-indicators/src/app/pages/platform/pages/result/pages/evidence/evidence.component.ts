@@ -13,11 +13,10 @@ import { InputComponent } from '../../../../../../shared/components/custom-field
 import { EvidenceItemComponent } from './components/evidence-item/evidence-item.component';
 
 @Component({
-  selector: 'app-evidence',
-  standalone: true,
-  imports: [ButtonModule, InputTextareaModule, FormsModule, InputTextModule, SaveOnWritingDirective, InputComponent, EvidenceItemComponent],
-  templateUrl: './evidence.component.html',
-  styleUrl: './evidence.component.scss'
+    selector: 'app-evidence',
+    imports: [ButtonModule, InputTextareaModule, FormsModule, InputTextModule, SaveOnWritingDirective, InputComponent, EvidenceItemComponent],
+    templateUrl: './evidence.component.html',
+    styleUrl: './evidence.component.scss'
 })
 export default class EvidenceComponent {
   value: undefined;

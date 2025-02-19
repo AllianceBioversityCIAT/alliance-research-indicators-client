@@ -4,11 +4,10 @@ import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
-  selector: 'app-notification-item',
-  standalone: true,
-  imports: [AvatarModule, BadgeModule, ButtonModule],
-  templateUrl: './notification-item.component.html',
-  styleUrl: './notification-item.component.scss'
+    selector: 'app-notification-item',
+    imports: [AvatarModule, BadgeModule, ButtonModule],
+    templateUrl: './notification-item.component.html',
+    styleUrl: './notification-item.component.scss'
 })
 export class NotificationItemComponent {
   @Input() type: 'update' | 'request' = 'update';

@@ -6,11 +6,10 @@ import { SectionHeaderComponent } from '@components/section-header/section-heade
 import { AllModalsComponent } from '../../shared/components/all-modals/all-modals.component';
 
 @Component({
-  selector: 'app-platform',
-  standalone: true,
-  imports: [RouterOutlet, AllianceNavbarComponent, AllianceSidebarComponent, SectionHeaderComponent, AllModalsComponent],
-  templateUrl: './platform.component.html',
-  styleUrl: './platform.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-platform',
+    imports: [RouterOutlet, AllianceNavbarComponent, AllianceSidebarComponent, SectionHeaderComponent, AllModalsComponent],
+    templateUrl: './platform.component.html',
+    styleUrl: './platform.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class PlatformComponent {}

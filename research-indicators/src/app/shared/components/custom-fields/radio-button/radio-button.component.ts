@@ -11,11 +11,10 @@ import { ControlListServices } from '../../../interfaces/services.interface';
 import { UtilsService } from '../../../services/utils.service';
 
 @Component({
-  selector: 'app-radio-button',
-  standalone: true,
-  imports: [RadioButtonModule, FormsModule, SkeletonModule],
-  templateUrl: './radio-button.component.html',
-  styleUrl: './radio-button.component.scss'
+    selector: 'app-radio-button',
+    imports: [RadioButtonModule, FormsModule, SkeletonModule],
+    templateUrl: './radio-button.component.html',
+    styleUrl: './radio-button.component.scss'
 })
 export class RadioButtonComponent implements OnInit {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;

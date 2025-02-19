@@ -21,12 +21,11 @@ import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocompl
 import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
 
 @Component({
-  selector: 'app-create-result-form',
-  standalone: true,
-  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, RouterModule, AutoCompleteModule],
-  templateUrl: './create-result-form.component.html',
-  styleUrl: './create-result-form.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-create-result-form',
+    imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, RouterModule, AutoCompleteModule],
+    templateUrl: './create-result-form.component.html',
+    styleUrl: './create-result-form.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CreateResultFormComponent {
   allModalsService = inject(AllModalsService);

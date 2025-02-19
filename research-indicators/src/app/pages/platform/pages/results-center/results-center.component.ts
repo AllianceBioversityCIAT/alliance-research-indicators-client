@@ -9,18 +9,17 @@ import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 import { ApiService } from '../../../../shared/services/api.service';
 @Component({
-  selector: 'app-results-center',
-  standalone: true,
-  imports: [
-    TabMenuModule,
-    IndicatorsTabFilterComponent,
-    ResultsCenterTableComponent,
-    TableFiltersSidebarComponent,
-    TableConfigurationComponent,
-    SectionSidebarComponent
-  ],
-  templateUrl: './results-center.component.html',
-  styleUrls: ['./results-center.component.scss']
+    selector: 'app-results-center',
+    imports: [
+        TabMenuModule,
+        IndicatorsTabFilterComponent,
+        ResultsCenterTableComponent,
+        TableFiltersSidebarComponent,
+        TableConfigurationComponent,
+        SectionSidebarComponent
+    ],
+    templateUrl: './results-center.component.html',
+    styleUrls: ['./results-center.component.scss']
 })
 export default class ResultsCenterComponent implements OnInit {
   api = inject(ApiService);

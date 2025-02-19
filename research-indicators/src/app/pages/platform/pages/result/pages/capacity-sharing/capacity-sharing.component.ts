@@ -16,23 +16,22 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 import { CalendarInputComponent } from '../../../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 @Component({
-  selector: 'app-capacity-sharing',
-  standalone: true,
-  imports: [
-    ButtonModule,
-    FormsModule,
-    DropdownModule,
-    CalendarModule,
-    RadioButtonModule,
-    RadioButtonComponent,
-    SelectComponent,
-    InputComponent,
-    CalendarInputComponent,
-    MultiselectComponent,
-    PartnerSelectedItemComponent
-  ],
-  templateUrl: './capacity-sharing.component.html',
-  styleUrl: './capacity-sharing.component.scss'
+    selector: 'app-capacity-sharing',
+    imports: [
+        ButtonModule,
+        FormsModule,
+        DropdownModule,
+        CalendarModule,
+        RadioButtonModule,
+        RadioButtonComponent,
+        SelectComponent,
+        InputComponent,
+        CalendarInputComponent,
+        MultiselectComponent,
+        PartnerSelectedItemComponent
+    ],
+    templateUrl: './capacity-sharing.component.html',
+    styleUrl: './capacity-sharing.component.scss'
 })
 export default class CapacitySharingComponent {
   api = inject(ApiService);
