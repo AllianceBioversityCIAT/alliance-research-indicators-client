@@ -56,14 +56,14 @@
                     <span class="font-medium text-[var(--text-color)]">{{ country.name }}</span>
                   </div>
                   <div class="sub-national-section">
-                    <div class="chips-container flex flex-wrap gap-2 items-center">
-                      <span class="text-[var(--text-color-secondary)] text-sm">Sub-national levels</span>
-                      <i class="pi pi-arrow-right text-xs text-[var(--text-color-secondary)]"></i>
+                    <div class="flex flex-wrap gap-2 items-center">
+                      <span class="text-[#777c83] text-[13px]">Sub-national levels</span>
+                      <i class="pi pi-arrow-right !text-[12px] text-[#8d9299]"></i>
                       @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
-                        <div class="bg-[var(--surface-200)] rounded-2xl px-3 py-1 flex items-center gap-2 text-sm text-[var(--text-color)]">
+                        <div class="bg-[#e5e7eb] rounded-full px-3 py-1 flex items-center gap-2 text-[13px] text-[#4c5158]">
                           {{ region.name }}
                           <i
-                            class="pi pi-times text-xs text-[var(--text-color-secondary)] hover:text-[var(--text-color)] cursor-pointer"
+                            class="pi pi-times !text-[12px] text-[#8d9299] hover:text-[#4c5158] cursor-pointer"
                             (click)="subnationalmultiselect.removeOption(region)"></i>
                         </div>
                       }
