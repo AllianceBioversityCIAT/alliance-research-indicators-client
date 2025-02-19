@@ -1,13 +1,13 @@
-<div class="evidence-container">
-  <div class="flex flex-column first-column gap-1">
+<div class="relative flex flex-col gap-4">
+  <div class="flex flex-col gap-1">
     <!-- <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="evidence.evidence_url" /> -->
     <app-input label="Evidence link" [signal]="this.body" [optionValue]="'evidence_url'" pattern="url"></app-input>
   </div>
-  <div class="flex flex-column gap-1">
+  <div class="flex flex-col gap-1">
     <app-textarea label="Evidence description" [signal]="this.body" [optionValue]="'evidence_description'"></app-textarea>
   </div>
-  <div class="delete-button">
-    <i class="material-symbols-rounded atc-primary-blue-500" (click)="deleteEvidence()">delete</i>
+  <div class="absolute -top-[15px] right-0 cursor-pointer p-[7px] shadow-[0_0_10px_0_rgba(0,0,0,0.1)] rounded-[20px]">
+    <i class="material-symbols-rounded text-[#ff3e3e] block" (click)="deleteEvidence()">delete</i>
   </div>
-  <div class="divider"></div>
+  <div class="h-[2px] w-full mt-10 mb-[30px] bg-[#e0e0e0] rounded-[10px]"></div>
 </div>
