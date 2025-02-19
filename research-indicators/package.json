@@ -34,6 +34,7 @@
     "@angular/service-worker": "18.2.5",
     "@hotjar/browser": "^1.0.9",
     "@microsoft/clarity": "^1.0.0",
+    "@primeng/themes": "^19.0.6",
     "chart.js": "^4.4.7",
     "chartjs-plugin-datalabels": "^2.2.0",
     "exceljs": "^4.4.0",
