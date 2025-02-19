@@ -17,7 +17,8 @@
 
     <div class="flex flex-col gap-5">
       <app-radio-button
-        label="What is the main geographic focus of the Impact?*"
+        [isRequired]="true"
+        label="What is the main geographic focus of the Impact?"
         description="This should reflect where the Impact has taken place/contributed to benefit."
         [signal]="body"
         [optionLabel]="'label'"

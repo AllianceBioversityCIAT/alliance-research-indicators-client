@@ -5,7 +5,8 @@
     <div class="grid">
       <div class="col-6">
         <app-radio-button
-          label="Policy Type*"
+          [isRequired]="true"
+          label="Policy Type"
           [signal]="body"
           [serviceName]="'policyTypes'"
           [optionLabel]="'name'"
@@ -13,7 +14,8 @@
       </div>
       <div class="col-6">
         <app-radio-button
-          label="Stage in Policy Process*"
+          [isRequired]="true"
+          label="Stage in Policy Process"
           [signal]="body"
           [serviceName]="'policyStages'"
           [optionLabel]="'name'"
@@ -24,7 +26,8 @@
       </div>
       <div class="col-12">
         <app-multiselect
-          label="Whose policy is this? (implementing organizations)*"
+          label="Whose policy is this? (implementing organizations)"
+          [isRequired]="true"
           [signal]="body"
           optionLabel="html_full_name"
           optionValue="institution_id"
