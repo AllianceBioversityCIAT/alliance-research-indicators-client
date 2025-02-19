@@ -6,7 +6,13 @@
   // padding: 20px;
   border: 1px solid #e8ebed;
   gap: 1rem;
+  justify-content: space-between;
 
+  .section-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
   .back-button {
     display: flex;
     align-items: center;
@@ -99,4 +105,8 @@
       color: var(--text-color);
     }
   }
+}
+
+.buttons-container {
+  display: flex;
 }

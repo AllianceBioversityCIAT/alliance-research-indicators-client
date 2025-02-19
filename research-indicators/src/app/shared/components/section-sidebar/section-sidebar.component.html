@@ -11,10 +11,12 @@
       <ng-content></ng-content>
     </div>
 
-    <div class="button-container">
-      <p-button label="Cancel" (onClick)="hideSidebar()" [outlined]="true" />
-      <p-button [label]="confirmText" (onClick)="confirmSidebar()" [severity]="'primary'" />
-    </div>
+    @if (hideActions === false) {
+      <div class="button-container">
+        <p-button label="Cancel" (onClick)="hideSidebar()" [outlined]="true" />
+        <p-button [label]="confirmText" (onClick)="confirmSidebar()" [severity]="'primary'" />
+      </div>
+    }
   </div>
 </div>
 
