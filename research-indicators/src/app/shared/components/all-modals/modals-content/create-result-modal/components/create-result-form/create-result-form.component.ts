@@ -19,13 +19,13 @@ import { Result } from '../../../../../../interfaces/result/result.interface';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocomplete';
 import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
-
+import { SelectModule } from 'primeng/select';
 @Component({
-    selector: 'app-create-result-form',
-    imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, RouterModule, AutoCompleteModule],
-    templateUrl: './create-result-form.component.html',
-    styleUrl: './create-result-form.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-create-result-form',
+  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, SelectModule, RouterModule, AutoCompleteModule],
+  templateUrl: './create-result-form.component.html',
+  styleUrl: './create-result-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CreateResultFormComponent {
   allModalsService = inject(AllModalsService);

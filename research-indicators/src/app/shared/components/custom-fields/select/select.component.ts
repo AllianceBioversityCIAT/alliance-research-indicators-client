@@ -9,12 +9,13 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { UtilsService } from '../../../services/utils.service';
 import { environment } from '../../../../../environments/environment';
 import { TooltipModule } from 'primeng/tooltip';
+import { SelectModule } from 'primeng/select';
 
 @Component({
-    selector: 'app-select',
-    imports: [DropdownModule, FormsModule, SkeletonModule, TooltipModule],
-    templateUrl: './select.component.html',
-    styleUrl: './select.component.scss'
+  selector: 'app-select',
+  imports: [FormsModule, SkeletonModule, TooltipModule, SelectModule],
+  templateUrl: './select.component.html',
+  styleUrl: './select.component.scss'
 })
 export class SelectComponent implements OnInit {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;

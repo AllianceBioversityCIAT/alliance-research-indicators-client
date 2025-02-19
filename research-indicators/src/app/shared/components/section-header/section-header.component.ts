@@ -4,14 +4,14 @@ import { CacheService } from '@services/cache/cache.service';
 import { computed, signal, AfterViewInit } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ButtonModule } from 'primeng/button';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { TooltipModule } from 'primeng/tooltip';
+import { PopoverModule } from 'primeng/popover';
 
 @Component({
   selector: 'app-section-header',
-  imports: [CommonModule, OverlayPanelModule, ButtonModule, TooltipModule],
+  imports: [CommonModule, PopoverModule, ButtonModule, TooltipModule],
   templateUrl: './section-header.component.html',
   styleUrl: './section-header.component.scss'
 })

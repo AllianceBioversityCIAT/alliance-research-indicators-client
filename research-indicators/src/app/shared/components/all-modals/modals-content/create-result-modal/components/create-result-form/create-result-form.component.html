@@ -67,7 +67,7 @@
           </span>
           for more details.
         </h4>
-        <p-dropdown
+        <p-select
           [style]="{ width: '100%' }"
           [options]="indicatorsService.indicatorsGrouped()"
           [(ngModel)]="body().indicator_id"
@@ -78,7 +78,7 @@
               <span>{{ group.label }}</span>
             </div>
           </ng-template>
-        </p-dropdown>
+        </p-select>
       </div>
 
       <div class="section">

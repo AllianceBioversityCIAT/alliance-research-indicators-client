@@ -10,7 +10,7 @@
     }
   </div>
 
-  <p-overlayPanel #historyPanel>
+  <p-popover #historyPanel>
     <div class="history-list">
       @for (item of filteredHistory(); track $index; let i = $index) {
         <div class="history-item" (click)="navigateToHistoryItem(i)">
@@ -19,7 +19,7 @@
         </div>
       }
     </div>
-  </p-overlayPanel>
+  </p-popover>
 
   <div class="title md:rs-fs-[8] rs-fs-[12]">
     <h1>{{ welcomeMessage() }}</h1>
