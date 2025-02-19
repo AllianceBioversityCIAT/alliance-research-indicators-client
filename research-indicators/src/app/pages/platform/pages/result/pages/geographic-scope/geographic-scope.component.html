@@ -58,7 +58,7 @@
                   <div class="sub-national-section">
                     <div class="flex flex-wrap gap-2 items-center">
                       <span class="text-[#777c83] text-[13px]">Sub-national levels</span>
-                      <i class="pi pi-arrow-right !text-[12px] text-[#8d9299]"></i>
+                      <i class="pi pi-arrow-right !text-[12px] text-[#8d9299] cursor-pointer"></i>
                       @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
                         <div class="bg-[#e5e7eb] rounded-full px-3 py-1 flex items-center gap-2 text-[13px] text-[#4c5158]">
                           {{ region.name }}
