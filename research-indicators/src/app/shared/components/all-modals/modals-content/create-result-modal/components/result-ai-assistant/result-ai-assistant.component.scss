@@ -285,10 +285,36 @@ p {
   cursor: not-allowed;
 }
 
+.no-results-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 60px 40px;
+  height: 100%;
+  width: 100%;
+  background-color: #fff;
+}
+
+.no-results-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-blue-500);
+  margin-bottom: 1rem;
+}
+
 .no-results {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
-  color: var(--grey-600);
+  color: var(--grey-800);
+  margin-bottom: 50px;
+}
+
+.no-results-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 
 :host ::ng-deep .p-paginator {
