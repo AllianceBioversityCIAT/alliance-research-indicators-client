@@ -9,7 +9,8 @@
         <div class="grid gap-[25px]">
           <div class="flex flex-col">
             <app-input
-              label="Title*"
+              label="Title"
+              [isRequired]="true"
               [validateEmpty]="true"
               description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon."
               [signal]="this.body"

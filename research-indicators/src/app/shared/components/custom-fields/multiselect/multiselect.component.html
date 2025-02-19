@@ -1,8 +1,8 @@
 @let list = this.signal()[this.signalOptionValue];
 <div class="input-container">
   @if (label) {
-    <label class="label flex items-center gap-1" for="username">
-      {{ label }}
+    <label class="label flex items-center" for="username"
+      >{{ label }}
       @if (isRequired) {
         <span class="text-red-500">*</span>
       }
