@@ -1,11 +1,10 @@
-<div class="container">
-  <h3 class="title-text">{{ this.cache.currentMetadata().result_title }}</h3>
+<div class="flex flex-col mx-[40px] my-[30px]">
+  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
   <br />
 
   <!-- TRAINING TYPE-->
-
-  <div class="card-container">
-    <div class="card-title">TRAINING TYPE</div>
+  <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]">
+    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING TYPE</div>
     <div class="grid">
       <div class="lg:col-12 xl:col-6">
         <app-radio-button
@@ -28,16 +27,14 @@
   </div>
 
   <!-- INDIVIDUAL TRAINING -->
-
-  <!-- @if (body().session_format_id === 1) { -->
-  <div class="card-container" [class.hidden]="body().session_format_id !== 1">
-    <div class="card-title">INDIVIDUAL TRAINING</div>
-    <div class="field mg-0">
+  <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]" [class.hidden]="body().session_format_id !== 1">
+    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">INDIVIDUAL TRAINING</div>
+    <div class="mb-0">
       <app-input label="Trainee name*" [signal]="body" optionValue="individual.trainee_name"></app-input>
     </div>
 
-    <div class="individual-training-columns">
-      <div class="column gap-1">
+    <div class="grid grid-cols-3 mb-[25px]">
+      <div class="gap-1">
         <app-radio-button
           label="Degree*"
           [signal]="body"
@@ -46,7 +43,7 @@
           [optionValue]="{ body: 'individual.degree_id', option: 'degree_id' }"></app-radio-button>
       </div>
 
-      <div class="column">
+      <div>
         <app-radio-button
           label="Gender*"
           [signal]="body"
@@ -55,7 +52,7 @@
           [optionValue]="{ body: 'individual.gender_id', option: 'gender_id' }"></app-radio-button>
       </div>
 
-      <div class="column">
+      <div>
         <app-radio-button
           label="Lenght of training*"
           [signal]="body"
@@ -65,8 +62,8 @@
       </div>
     </div>
 
-    <div class="trainee-columns">
-      <div class="column">
+    <div class="grid grid-cols-2 gap-5">
+      <div>
         <app-select
           label="Trainee affiliation"
           [signal]="body"
@@ -75,7 +72,7 @@
           serviceName="institutions"></app-select>
       </div>
 
-      <div class="column">
+      <div>
         <app-select
           label="Trainee nationality"
           [signal]="body"
@@ -85,12 +82,10 @@
       </div>
     </div>
   </div>
-  <!-- } -->
 
   <!-- GROUP TRAINING -->
-
-  <div class="card-container" [class.hidden]="body().session_format_id !== 2">
-    <div class="card-title">GROUP TRAINING</div>
+  <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]" [class.hidden]="body().session_format_id !== 2">
+    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GROUP TRAINING</div>
 
     <div class="grid">
       <div class="lg:col-12 xl:col-6">
@@ -128,8 +123,6 @@
           [optionValue]="{ body: 'group.session_purpose_id', option: 'session_purpose_id' }"></app-radio-button>
       </div>
 
-      <!-- Other -->
-
       <div class="lg:col-12 xl:col-6">
         <app-radio-button
           label="Were the trainees attending on behalf of an organization?*"
@@ -140,15 +133,15 @@
       </div>
 
       @if (body().group?.session_purpose_id === 4) {
-        <div class="columns">
-          <div class="column">
+        <div class="grid grid-cols-2 gap-5 mb-[25px]">
+          <div>
             <app-input [signal]="body" placeholder="Write the other purpose" optionValue="group.session_purpose_description"></app-input>
           </div>
         </div>
       }
     </div>
 
-    <div class="column">
+    <div>
       <app-multiselect
         label="Select the organizations*"
         description="Partner organizations you collaborated with or are currently collaborating with to generate this result."
@@ -167,9 +160,8 @@
   </div>
 
   <!-- TRAINING DETAILS -->
-
-  <div class="card-container">
-    <div class="card-title">TRAINING DETAILS</div>
+  <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]">
+    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING DETAILS</div>
 
     <div class="grid">
       <div class="lg:col-12 xl:col-6">
@@ -195,8 +187,6 @@
     </div>
     <div class="grid">
       <div class="lg:col-12 xl:col-6">
-        <!-- <app-input label="Start date" [signal]="body" [optionValue]="'test'"></app-input>
-          -->
         <app-calendar-input label="Start date" [signal]="body" [optionValue]="'start_date'" [maxDate]="body().end_date"></app-calendar-input>
       </div>
 
@@ -205,7 +195,7 @@
       </div>
     </div>
 
-    <div class="modality-container">
+    <div class="mt-5">
       <app-radio-button
         label="Delivery modality*"
         [signal]="body"
@@ -215,7 +205,7 @@
     </div>
   </div>
 
-  <div class="button-container">
+  <div class="flex gap-5">
     <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" [loading]="this.loading()" />
     <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')" [loading]="this.loading()" />
     <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
