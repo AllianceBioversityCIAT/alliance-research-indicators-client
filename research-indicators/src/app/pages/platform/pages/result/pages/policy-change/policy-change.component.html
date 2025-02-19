@@ -1,9 +1,13 @@
-<div class="container">
-  <div class="title-text pb-3">{{ this.cache.currentMetadata().result_title }}</div>
-  <div class="card-content">
-    <div class="card-title">POLICY CHANGE DETAILS</div>
-    <div class="grid">
-      <div class="col-6">
+<div class="mx-[40px] my-[30px]">
+  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0 pb-3">
+    {{ this.cache.currentMetadata().result_title }}
+  </h3>
+
+  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px]">
+    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">POLICY CHANGE DETAILS</div>
+
+    <div class="grid grid-cols-12 gap-5">
+      <div class="col-span-6">
         <app-radio-button
           [isRequired]="true"
           label="Policy Type"
@@ -12,7 +16,7 @@
           [optionLabel]="'name'"
           [optionValue]="{ body: 'policy_type_id', option: 'id' }"></app-radio-button>
       </div>
-      <div class="col-6">
+      <div class="col-span-6">
         <app-radio-button
           [isRequired]="true"
           label="Stage in Policy Process"
@@ -21,10 +25,10 @@
           [optionLabel]="'name'"
           [optionValue]="{ body: 'policy_stage_id', option: 'id' }"></app-radio-button>
       </div>
-      <div class="col-12">
+      <div class="col-span-12">
         <app-textarea label="Evidence for stage" description="Description." [signal]="this.body" [optionValue]="'evidence_stage'"></app-textarea>
       </div>
-      <div class="col-12">
+      <div class="col-span-12">
         <app-multiselect
           label="Whose policy is this? (implementing organizations)"
           [isRequired]="true"
@@ -39,7 +43,7 @@
         </app-multiselect>
       </div>
 
-      <div class="col-6">
+      <div class="col-span-6">
         <app-select
           pTooltip="The field is disabled because there are no results of the type Innovation Development Output."
           tooltipPosition="top"
@@ -50,7 +54,7 @@
           [optionValue]="{ body: 'innovation_development', option: 'result_id' }"
           [serviceName]="'innoDevOutput'"></app-select>
       </div>
-      <div class="col-6">
+      <div class="col-span-6">
         <app-select
           pTooltip="The field is disabled because there are no results of the type Innovation Use."
           tooltipPosition="top"
@@ -63,7 +67,8 @@
       </div>
     </div>
   </div>
-  <div class="p-5 flex gap-2">
+
+  <div class="flex gap-5 p-5">
     <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" [loading]="this.loading()" />
     <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="saveData('next')" [loading]="this.loading()" />
     <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
