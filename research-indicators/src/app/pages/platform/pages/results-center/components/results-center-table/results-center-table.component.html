@@ -5,16 +5,18 @@
       <div class="flex gap-3 items-center">
         <p-button icon="pi pi-download" (click)="exportTable()" label="Export Results" class="p-button-outlined" [outlined]="true"></p-button>
 
-        <span class="relative">
-          <i class="pi pi-search absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+        <div class="relative w-[25rem]">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="pi pi-search text-gray-400"></i>
+          </span>
           <input
             pInputText
             type="text"
             [(ngModel)]="this.resultsCenterService.searchInput"
             (input)="setSearchInputFilter($event)"
             placeholder="Find a result by code, title or creator"
-            class="w-[25rem] pl-8 cpf-small-padding" />
-        </span>
+            class="w-full !pl-9 py-2 border rounded-lg" />
+        </div>
       </div>
 
       <div class="flex gap-3 items-center">

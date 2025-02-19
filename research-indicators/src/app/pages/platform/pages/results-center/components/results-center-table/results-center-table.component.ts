@@ -15,8 +15,7 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 @Component({
   selector: 'app-results-center-table',
   imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TagModule, MenuModule],
-  templateUrl: './results-center-table.component.html',
-  styleUrls: ['./results-center-table.component.scss']
+  templateUrl: './results-center-table.component.html'
 })
 export class ResultsCenterTableComponent implements AfterViewInit {
   resultsCenterService = inject(ResultsCenterService);
