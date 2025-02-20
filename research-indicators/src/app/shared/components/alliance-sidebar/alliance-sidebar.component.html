@@ -1,7 +1,8 @@
 @let hss = this.cache.hasSmallScreen();
+<!-- 'md:rs-w-[65]' : 'rs-w-[140]') : hss ? 'md:rs-w-[250]' : 'rs-w-[250]' -->
 <div
   class="sidebar abc-white-1 p-[15px] {{ hss ? 'p-[15px]' : 'p-[30px]' }} {{
-    cache.isSidebarCollapsed() ? (hss ? 'md:rs-w-[65]' : 'rs-w-[140]') : hss ? 'md:rs-w-[250]' : 'rs-w-[250]'
+    cache.isSidebarCollapsed() ? (hss ? 'w-[65px]' : 'w-[140px]') : 'w-[250px]'
   }}"
   [class.collapsed]="cache.isSidebarCollapsed()">
   <div class="sidebar-header">
@@ -10,7 +11,7 @@
       >keyboard_double_arrow_left</i
     >
   </div>
-  <h4 class="h4 atc-grey-600" [class.hidden]="hss">LEARNING</h4>
+  <h4 class="h4 atc-grey-600" [class.hidden]="hss && cache.isSidebarCollapsed()">LEARNING</h4>
   <div class="options">
     @for (option of this.options; track $index) {
       @if (!option.hide) {
