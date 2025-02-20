@@ -1,7 +1,7 @@
 @let hss = this.cache.hasSmallScreen();
 <div
   class="sidebar abc-white-1 p-[15px] {{ hss ? 'p-[15px]' : 'p-[30px]' }} {{
-    cache.isSidebarCollapsed() ? 'rs-w-[140] md:rs-w-[65]' : 'rs-w-[250] md:rs-w-[250]'
+    cache.isSidebarCollapsed() ? (hss ? 'md:rs-w-[65]' : 'rs-w-[140]') : hss ? 'md:rs-w-[250]' : 'rs-w-[250]'
   }}"
   [class.collapsed]="cache.isSidebarCollapsed()">
   <div class="sidebar-header">
