@@ -100,3 +100,11 @@
 .buttons-container {
   display: flex;
 }
+
+::ng-deep .delete-result .p-menuitem-text {
+  color: red !important;
+}
+
+::ng-deep .delete-result .pi-trash {
+  color: red !important;
+}

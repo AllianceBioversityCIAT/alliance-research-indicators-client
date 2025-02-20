@@ -72,7 +72,8 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
           },
           {
             label: 'Delete Result',
-            icon: 'pi pi-trash'
+            icon: 'pi pi-trash',
+            styleClass: 'delete-result'
           }
         ]
       }
