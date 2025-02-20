@@ -2,10 +2,10 @@
   <div class="navigation-controls rs-gap-[8] md:rs-gap-[4]">
     @if (canGoBack()) {
       <button class="nav-button" (click)="historyPanel.toggle($event)" pTooltip="Navigation History" tooltipPosition="bottom">
-        <span class="material-symbols-rounded md:rs-fs-[18] rs-fs-[24]">history</span>
+        <span class="material-symbols-rounded md:rs-fs-[18] rs-fs-[24] !text-slate-600">history</span>
       </button>
       <button class="nav-button" (click)="goBack()" pTooltip="Go Back" tooltipPosition="bottom">
-        <span class="material-symbols-rounded md:rs-fs-[18] rs-fs-[24]">arrow_back</span>
+        <span class="material-symbols-rounded md:rs-fs-[18] rs-fs-[24] !text-slate-600">arrow_back</span>
       </button>
     }
   </div>
@@ -21,7 +21,7 @@
     </div>
   </p-popover>
 
-  <div class="title md:rs-fs-[8] rs-fs-[12]">
-    <h1>{{ welcomeMessage() }}</h1>
+  <div class="section-title md:rs-fs-[8] rs-fs-[24] text-slate-600 font-medium">
+    {{ welcomeMessage() }}
   </div>
 </div>
