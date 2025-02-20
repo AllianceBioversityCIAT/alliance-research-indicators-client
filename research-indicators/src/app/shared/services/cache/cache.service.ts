@@ -18,7 +18,7 @@ export class CacheService {
   loadingCurrentResult = signal(false);
   navbarHeight = signal(0);
   headerHeight = signal(0);
-  showSubmissionHistory = signal(true);
+  showSubmissionHistory = signal(false);
   currentResultIndicatorSectionPath = computed(() => {
     switch (this.currentMetadata().indicator_id) {
       case 1:
