@@ -10,7 +10,7 @@
       >keyboard_double_arrow_left</i
     >
   </div>
-  <h4 class="h4 atc-grey-600 md-rs-hide">LEARNING</h4>
+  <h4 class="h4 atc-grey-600" [class.hidden]="hss">LEARNING</h4>
   <div class="options">
     @for (option of this.options; track $index) {
       @if (!option.hide) {
