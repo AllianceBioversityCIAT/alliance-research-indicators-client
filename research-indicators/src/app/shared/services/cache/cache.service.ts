@@ -18,6 +18,8 @@ export class CacheService {
   loadingCurrentResult = signal(false);
   navbarHeight = signal(0);
   headerHeight = signal(0);
+  windowHeight = signal(window.innerHeight);
+  hasSmallScreen = computed(() => this.windowHeight() < 768);
   currentResultIndicatorSectionPath = computed(() => {
     switch (this.currentMetadata().indicator_id) {
       case 1:

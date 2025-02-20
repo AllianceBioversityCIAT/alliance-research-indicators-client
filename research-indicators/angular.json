@@ -36,7 +36,6 @@
               "src/styles/colors.scss",
               "src/styles/font.scss",
               "src/styles/custom-fields.scss",
-              "src/styles/responsive-size.scss",
               "src/styles/custom-prime-force-styles.scss"
             ],
             "scripts": []
