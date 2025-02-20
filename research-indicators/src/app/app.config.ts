@@ -15,7 +15,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
-import { ROARPreset } from './theme/roartheme';
+import { MyPreset } from './theme/roartheme';
 const config: SocketIoConfig = { url: environment.webSocketServerUrl, options: {} };
 
 function initializeClarityService(clarityService: ClarityService) {
@@ -31,7 +31,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: ROARPreset,
+        preset: MyPreset,
         options: {
           darkModeSelector: '.dark-mode'
         }

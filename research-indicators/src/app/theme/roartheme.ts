@@ -4,7 +4,7 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 import { definePreset } from '@primeng/themes';
 
-export const ROARPreset = definePreset(Aura, {
+export const MyPreset = definePreset(Aura, {
   primitive: {
     borderRadius: {
       none: '0',
@@ -132,17 +132,17 @@ export const ROARPreset = definePreset(Aura, {
       950: '#083344'
     },
     sky: {
-      50: '#f0f9ff',
-      100: '#e0f2fe',
-      200: '#bae6fd',
-      300: '#7dd3fc',
-      400: '#38bdf8',
-      500: '#0ea5e9',
-      600: '#0284c7',
-      700: '#0369a1',
-      800: '#075985',
-      900: '#0c4a6e',
-      950: '#082f49'
+      50: '#f3f9fc',
+      100: '#c7e3f2',
+      200: '#9bcce8',
+      300: '#6fb6de',
+      400: '#429fd4',
+      500: '#1689ca',
+      600: '#1374ac',
+      700: '#0f608d',
+      800: '#0c4b6f',
+      900: '#093751',
+      950: '#062233'
     },
     blue: {
       50: '#eff6ff',
@@ -661,3 +661,14 @@ export const ROARPreset = definePreset(Aura, {
     }
   }
 });
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideAnimationsAsync(),
+    providePrimeNG({
+      theme: {
+        preset: MyPreset
+      }
+    })
+  ]
+};
