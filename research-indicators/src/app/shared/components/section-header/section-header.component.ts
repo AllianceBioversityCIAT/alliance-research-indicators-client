@@ -8,10 +8,12 @@ import { ButtonModule } from 'primeng/button';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { TooltipModule } from 'primeng/tooltip';
 import { PopoverModule } from 'primeng/popover';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-section-header',
-  imports: [CommonModule, PopoverModule, ButtonModule, TooltipModule],
+  imports: [CommonModule, PopoverModule, ButtonModule, TooltipModule, MenuModule],
   templateUrl: './section-header.component.html',
   styleUrl: './section-header.component.scss'
 })
@@ -20,6 +22,8 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
   cache = inject(CacheService);
   route = inject(ActivatedRoute);
   elementRef = inject(ElementRef);
+
+  items: MenuItem[] | undefined;
 
   @ViewChild('historyPanel') historyPanel!: OverlayPanel;
   private resizeObserver: ResizeObserver | null = null;
@@ -53,6 +57,26 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
         }
       })
     );
+
+    // Menu Popup
+
+    this.items = [
+      {
+        items: [
+          {
+            label: 'Submission History',
+            icon: 'pi pi-clock',
+            command: () => {
+              this.cache.showSubmissionHistory.set(true);
+            }
+          },
+          {
+            label: 'Delete Result',
+            icon: 'pi pi-trash'
+          }
+        ]
+      }
+    ];
   }
 
   ngAfterViewInit(): void {

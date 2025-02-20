@@ -3,12 +3,14 @@ import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { ResultSidebarComponent } from '../../../../shared/components/result-sidebar/result-sidebar.component';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { GetMetadataService } from '../../../../shared/services/get-metadata.service';
+import { SubmissionHistoryContentComponent } from '../../../../shared/components/submission-history-content/submission-history-content.component';
+import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 
 @Component({
-    selector: 'app-result',
-    imports: [RouterOutlet, ResultSidebarComponent],
-    templateUrl: './result.component.html',
-    styleUrl: './result.component.scss'
+  selector: 'app-result',
+  imports: [RouterOutlet, ResultSidebarComponent, SubmissionHistoryContentComponent, SectionSidebarComponent],
+  templateUrl: './result.component.html',
+  styleUrl: './result.component.scss'
 })
 export default class ResultComponent {
   cache = inject(CacheService);

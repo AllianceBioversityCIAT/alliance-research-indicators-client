@@ -20,6 +20,7 @@ export class CacheService {
   headerHeight = signal(0);
   windowHeight = signal(window.innerHeight);
   hasSmallScreen = computed(() => this.windowHeight() < 768);
+  showSubmissionHistory = signal(false);
   currentResultIndicatorSectionPath = computed(() => {
     switch (this.currentMetadata().indicator_id) {
       case 1:
