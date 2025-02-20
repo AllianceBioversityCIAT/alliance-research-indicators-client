@@ -10,7 +10,7 @@ import { OverlayPanel } from 'primeng/overlaypanel';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
-import { SubmissionHistoryContentComponent } from '../submission-history-content/submission-history-content.component';
+import { SubmissionHistoryContentComponent } from '../../../pages/platform/pages/result/components/submission-history-content/submission-history-content.component';
 
 @Component({
   selector: 'app-section-header',
@@ -74,7 +74,8 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
           },
           {
             label: 'Delete Result',
-            icon: 'pi pi-trash'
+            icon: 'pi pi-trash',
+            styleClass: 'delete-result'
           }
         ]
       }

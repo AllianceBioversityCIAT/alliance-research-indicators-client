@@ -1,0 +1,35 @@
+<div class="container">
+  <div class="avatar-content">
+    <div class="avatar">{{ historyItem.initials }}</div>
+  </div>
+  <div class="info-content">
+    <div class="text-content">
+      <span class="title">{{ historyItem.name }}</span>
+      <span class="description-text">&nbsp;has&nbsp;</span>
+      <span class="title">{{ historyItem.status }}</span>
+      <span class="description-text">&nbsp;the result.</span>
+    </div>
+    <div class="status-content">
+      @if (historyItem.status === 'Submitted') {
+        <div class="editing-content">
+          <span class="editing">EDITING</span>
+        </div>
+        <i class="material-symbols-rounded">arrow_forward</i>
+        <div class="submitted-content">
+          <span class="submitted">SUBMITTED</span>
+        </div>
+      } @else {
+        <div class="submitted-content">
+          <span class="submitted">SUBMITTED</span>
+        </div>
+        <i class="material-symbols-rounded">arrow_forward</i>
+        <div class="editing-content">
+          <span class="editing">EDITING</span>
+        </div>
+      }
+    </div>
+    <div class="date-content">
+      <span class="date">{{ historyItem.date }} at {{ historyItem.time }}</span>
+    </div>
+  </div>
+</div>
