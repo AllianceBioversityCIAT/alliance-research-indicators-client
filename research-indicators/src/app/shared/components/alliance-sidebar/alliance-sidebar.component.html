@@ -1,5 +1,4 @@
 @let hss = this.cache.hasSmallScreen();
-<!-- 'md:rs-w-[65]' : 'rs-w-[140]') : hss ? 'md:rs-w-[250]' : 'rs-w-[250]' -->
 <div
   class="sidebar abc-white-1 p-[15px] {{ hss ? 'p-[15px]' : 'p-[30px]' }} {{
     cache.isSidebarCollapsed() ? (hss ? 'w-[65px]' : 'w-[140px]') : 'w-[250px]'
