@@ -11,7 +11,6 @@ import { environment } from '../environments/environment';
 import { jWtInterceptor } from './shared/interceptors/jwt.interceptor';
 import { httpErrorInterceptor } from './shared/interceptors/http-error.interceptor';
 import { ClarityService } from './shared/services/clarity.service';
-import { connectionMonitorInterceptor } from './shared/interceptors/connection-monitor.interceptor';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
@@ -27,7 +26,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
-    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor, connectionMonitorInterceptor])),
+    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor])),
     importProvidersFrom(BrowserModule, BrowserAnimationsModule, SocketIoModule.forRoot(config)),
     provideAnimationsAsync(),
     providePrimeNG({

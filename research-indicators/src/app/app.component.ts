@@ -9,14 +9,13 @@ import { ActionsService } from './shared/services/actions.service';
 import { GlobalAlertComponent } from './shared/components/global-alert/global-alert.component';
 import { GlobalToastComponent } from './shared/components/global-toast/global-toast.component';
 import { CopyTokenComponent } from './shared/components/copy-token/copy-token.component';
-import { ConnectionStatusComponent } from './shared/components/connection-status/connection-status.component';
 import Hotjar from '@hotjar/browser';
 import { filter } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-root',
-    imports: [RouterOutlet, MetadataPanelComponent, GlobalAlertComponent, GlobalToastComponent, CopyTokenComponent, ConnectionStatusComponent],
-    templateUrl: './app.component.html'
+  selector: 'app-root',
+  imports: [RouterOutlet, MetadataPanelComponent, GlobalAlertComponent, GlobalToastComponent, CopyTokenComponent],
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
   cache = inject(CacheService);
