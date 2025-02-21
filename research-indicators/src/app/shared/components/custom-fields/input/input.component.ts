@@ -67,8 +67,7 @@ export class InputComponent {
         return { pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$', message: 'Please enter a valid email address.' };
       case 'url':
         return {
-          pattern:
-            /^(https?:\/\/)?([a-zA-Z0-9-]+\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=%-]*)?(#[a-zA-Z0-9._~:/?[\]@!$&'()*+,;=%-]*)?$/,
+          pattern: "^(https?:\\/\\/)?([\\w-]+(\\.[\\w-]+)*\\.([a-z]{2,}))(\\/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=%-]*)?$",
           message: 'Please enter a valid URL.'
         };
       default:
