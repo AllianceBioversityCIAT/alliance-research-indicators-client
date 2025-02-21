@@ -1,7 +1,7 @@
 <div class="evidence-container">
   <div class="flex flex-column first-column gap-1">
     <!-- <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="evidence.evidence_url" /> -->
-    <app-input label="Evidence link" [signal]="this.body" [optionValue]="'evidence_url'" pattern="url"></app-input>
+    <app-input label="Evidence link" [onlyLowerCase]="true" [signal]="this.body" [optionValue]="'evidence_url'" pattern="url"></app-input>
   </div>
   <div class="flex flex-column gap-1">
     <app-textarea label="Evidence description" [signal]="this.body" [optionValue]="'evidence_description'"></app-textarea>

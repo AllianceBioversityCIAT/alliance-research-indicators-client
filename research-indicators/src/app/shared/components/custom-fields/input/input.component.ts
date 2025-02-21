@@ -27,6 +27,7 @@ export class InputComponent {
   @Input() placeholder = '';
   @Input() min = 0;
   @Input() validateEmpty = false;
+  @Input() onlyLowerCase = false;
   body = signal({ value: null });
   firstTime = signal(true);
 
@@ -53,8 +54,9 @@ export class InputComponent {
   });
 
   setValue(value: any) {
+    if (this.onlyLowerCase) value = value.toLowerCase();
+
     // this.signal.set({ ...this.signal(), [this.optionValue]: value });
-    value = value.toLowerCase();
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, value);
   }
