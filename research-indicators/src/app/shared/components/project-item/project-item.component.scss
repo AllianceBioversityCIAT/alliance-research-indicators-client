@@ -3,11 +3,19 @@
   width: 100%;
   border-radius: 12px;
   border: 0.8px solid #e8ebed;
-  background-color: #ffffff;
+  background-color: #fff;
   padding: 25px 40px;
-  box-shadow: 0px 1.49px 8.18px 0px rgba(0, 182, 255, 0.1);
+  box-shadow: 0 1.49px 8.18px 0 rgb(0 182 255 / 10%);
   margin-bottom: 25px;
   cursor: pointer;
+  text-decoration: none;
+  display: block;
+  color: inherit;
+
+  &:hover {
+    text-decoration: none;
+    color: inherit;
+  }
 
   .card-content {
     display: grid;
@@ -34,7 +42,7 @@
 
         .project-name {
           grid-row: 2;
-          font-family: 'Barlow', sans-serif;
+          font-family: Barlow, sans-serif;
           font-size: 20px;
           font-weight: 600;
           line-height: 24px;
@@ -84,7 +92,7 @@
       .start-date {
         display: flex;
         align-items: center;
-        padding: 0px 40px;
+        padding: 0 40px;
         border-left: 0.4px solid #b9c0c5;
         border-right: 0.4px solid #b9c0c5;
       }
@@ -92,7 +100,7 @@
       .end-date {
         display: flex;
         align-items: center;
-        padding: 0px 40px;
+        padding: 0 40px;
       }
     }
 
@@ -114,6 +122,7 @@
           .outcome-icon {
             color: #f58220;
           }
+
           .indicator-number {
             font-family: 'Space Grotesk', sans-serif;
             font-size: 17px;
@@ -122,6 +131,7 @@
             color: #112f5c;
           }
         }
+
         .indicator-type {
           display: grid;
           font-family: 'Space Grotesk', sans-serif;
