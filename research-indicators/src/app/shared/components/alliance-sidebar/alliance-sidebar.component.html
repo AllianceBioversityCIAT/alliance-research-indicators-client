@@ -1,8 +1,6 @@
 @let hss = this.cache.hasSmallScreen();
 <div
-  class="sidebar abc-white-1 p-[15px] {{ hss ? 'p-[15px]' : 'p-[30px]' }} {{
-    cache.isSidebarCollapsed() ? (hss ? 'w-[65px]' : 'w-[140px]') : 'w-[250px]'
-  }}"
+  class="sidebar abc-white-1 p-[15px] {{ hss ? 'p-[15px]' : 'p-[30px]' }} {{ cache.isSidebarCollapsed() ? 'w-[65px]' : 'w-[250px]' }}"
   [class.collapsed]="cache.isSidebarCollapsed()">
   <div class="sidebar-header">
     <h2 class="h3 sidebar-title atc-primary-blue-600">Resources</h2>
@@ -10,7 +8,7 @@
       >keyboard_double_arrow_left</i
     >
   </div>
-  <h4 class="h4 atc-grey-600" [class.hidden]="hss && cache.isSidebarCollapsed()">LEARNING</h4>
+  <div class="h4 my-5 atc-grey-600" [class.hidden]="cache.isSidebarCollapsed()">LEARNING</div>
 
   <div class="options">
     @for (option of this.options; track $index) {
