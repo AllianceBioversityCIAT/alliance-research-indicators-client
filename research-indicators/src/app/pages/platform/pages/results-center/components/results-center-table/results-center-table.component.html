@@ -47,13 +47,13 @@
     }
   </div>
 
-  <!-- scrollHeight="calc(100vh - 30rem)" -->
   <p-table
     #dt2
     [value]="resultsCenterService.list()"
     [paginator]="true"
-    [rows]="5"
+    [rows]="10"
     [loading]="resultsCenterService.loading()"
+    [scrollHeight]="this.getScrollHeight()"
     [showCurrentPageReport]="true"
     [scrollable]="true"
     [tableStyle]="{ 'min-width': '100%' }"

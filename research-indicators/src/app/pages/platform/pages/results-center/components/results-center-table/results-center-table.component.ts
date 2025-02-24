@@ -1,4 +1,4 @@
-import { Component, effect, inject, ViewChild, signal, AfterViewInit } from '@angular/core';
+import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
@@ -40,6 +40,11 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   setSearchInputFilter($event: Event) {
     this.resultsCenterService.searchInput.set(($event.target as HTMLInputElement).value);
   }
+
+  getScrollHeight = computed(
+    () =>
+      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 240 : 270)}px)`
+  );
 
   private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70, minWidth = 15) {
     const column = worksheet.getColumn(columnNumber);

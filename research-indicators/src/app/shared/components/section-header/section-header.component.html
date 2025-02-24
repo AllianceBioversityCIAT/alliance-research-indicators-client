@@ -1,5 +1,5 @@
 @let hss = this.cache.hasSmallScreen();
-<div class="section-header pl-12 {{ hss ? 'p-[10px]' : 'p-[10px]' }} " id="section-sidebar">
+<div class="section-header pl-12 {{ hss ? 'p-[5px]' : 'p-[10px]' }} " id="section-sidebar">
   <div class="flex gap-7">
     <!-- <div class="navigation-controls {{ hss ? 'gap-[4px]' : 'gap-[15px]' }}">
       @if (canGoBack()) {
@@ -12,7 +12,7 @@
       }
     </div> -->
 
-    <div class="section-title {{ hss ? 'text-[8px]' : 'text-[18px]' }} text-slate-600 font-small">
+    <div class="section-title {{ hss ? 'text-[18px]' : 'text-[18px]' }} text-slate-600 font-small">
       {{ welcomeMessage() }}
     </div>
   </div>

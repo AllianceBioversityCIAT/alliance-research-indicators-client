@@ -2,16 +2,18 @@ import { Component, ViewChild, ElementRef, inject, signal, AfterViewInit, OnDest
 import { CommonModule } from '@angular/common';
 import { ResultsCenterService } from '../../results-center.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
-
+import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 @Component({
-    selector: 'app-indicators-tab-filter',
-    imports: [CommonModule],
-    templateUrl: './indicators-tab-filter.component.html',
-    styleUrl: './indicators-tab-filter.component.scss'
+  selector: 'app-indicators-tab-filter',
+  imports: [CommonModule],
+  templateUrl: './indicators-tab-filter.component.html',
+  styleUrl: './indicators-tab-filter.component.scss'
 })
 export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
   @ViewChild('filtersContainer') filtersContainer!: ElementRef;
   api = inject(ApiService);
+  elementRef = inject(ElementRef);
+  cache = inject(CacheService);
   resultsCenterService = inject(ResultsCenterService);
   showLeftArrow = signal(false);
   showRightArrow = signal(false);
@@ -35,6 +37,16 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
 
       // Validación inicial
       this.updateArrowVisibility();
+    }
+
+    const sectionSidebar = this.elementRef.nativeElement.querySelector('#section-sidebar');
+    if (sectionSidebar) {
+      this.resizeObserver = new ResizeObserver(() => {
+        const totalHeight = sectionSidebar.getBoundingClientRect().height;
+        this.cache.tableFiltersSidebarHeight.set(totalHeight);
+      });
+
+      this.resizeObserver.observe(sectionSidebar);
     }
   }
 
