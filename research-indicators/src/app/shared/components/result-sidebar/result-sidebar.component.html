@@ -7,7 +7,8 @@
     <div class="status-code">
       <div class="indicator-title">
         <span class="header-title">Status</span>
-        <span class="status-description">{{ cache.currentMetadata().status_name }}</span>
+        <app-custom-tag [statusId]="cache.currentMetadata().status_id || 0" [statusName]="cache.currentMetadata().status_name || ''"></app-custom-tag>
+        <!-- <span class="status-description">{{ cache.currentMetadata().status_name }}</span> -->
       </div>
       <div class="indicator-title">
         <span class="header-title">Code</span>

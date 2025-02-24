@@ -2,6 +2,7 @@ import { Component, computed, inject, signal, WritableSignal } from '@angular/co
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
+import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 interface SidebarOption {
   label: string;
   path: string;
@@ -11,10 +12,10 @@ interface SidebarOption {
   hide?: boolean;
 }
 @Component({
-    selector: 'app-result-sidebar',
-    imports: [RouterLink, RouterLinkActive, ButtonModule],
-    templateUrl: './result-sidebar.component.html',
-    styleUrl: './result-sidebar.component.scss'
+  selector: 'app-result-sidebar',
+  imports: [RouterLink, RouterLinkActive, ButtonModule, CustomTagComponent],
+  templateUrl: './result-sidebar.component.html',
+  styleUrl: './result-sidebar.component.scss'
 })
 export class ResultSidebarComponent {
   cache = inject(CacheService);

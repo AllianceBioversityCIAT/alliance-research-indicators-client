@@ -182,8 +182,6 @@ export class ActionsService {
 
   listenToWindowHeight(): void {
     const updateHeight = () => {
-      console.log('window.innerHeight', window.innerHeight);
-
       this.cache.windowHeight.set(window.innerHeight);
     };
 
