@@ -9,7 +9,7 @@
 
   .items {
     display: grid;
-    grid-template-columns: 0.8fr 1.2fr;
+    grid-template-columns: 1fr 1.4fr;
     gap: 2rem;
     width: 100%;
 
@@ -38,7 +38,16 @@
 
     .items {
       gap: 1.5rem;
-      grid-template-columns: 0.7fr 1.3fr;
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+}
+
+@media screen and (width <= 1250px) {
+  .content {
+    .items {
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
     }
   }
 }
@@ -51,7 +60,6 @@
 
     .items {
       gap: 1rem;
-      grid-template-columns: 0.6fr 1.4fr;
     }
   }
 }
@@ -73,12 +81,5 @@
     .items {
       gap: 1rem;
     }
-  }
-}
-
-@media (orientation: landscape) and (height <= 833px) {
-  .items {
-    grid-template-columns: 0.7fr 1fr !important;
-    gap: 30px !important;
   }
 }

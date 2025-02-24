@@ -1,4 +1,4 @@
-<div class="container">
+<div class="local-container max-[1251px]:mt-4">
   <div class="header">
     <span class="title-text">DATA OVERVIEW</span>
     <span class="description-text">Insights with real-time data updates.</span>
@@ -37,8 +37,10 @@
           </div>
         }
       </div>
+
       <div class="results-status">
-        <span class="card-title">Results by Status</span>
+        <p class="card-title">Results by Status</p>
+
         @if (this.showChart()) {
           <div class="chart-container">
             <div class="chart-wrapper">
@@ -64,6 +66,7 @@
         }
       </div>
     </div>
+
     <div class="indicators-content">
       <div class="text-content">
         <span class="card-title">My total numbers of results by indicator type</span>
