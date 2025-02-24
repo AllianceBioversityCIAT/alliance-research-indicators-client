@@ -13,7 +13,6 @@ import { GetContractsService } from '../../../../../../services/control-list/get
 import { GetResultsService } from '../../../../../../services/control-list/get-results.service';
 import { CacheService } from '../../../../../../services/cache/cache.service';
 import { ActionsService } from '../../../../../../services/actions.service';
-import { SoundService } from '../../../../../../services/sound.service';
 import { MainResponse } from '../../../../../../interfaces/responses.interface';
 import { Result } from '../../../../../../interfaces/result/result.interface';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
@@ -42,7 +41,6 @@ export class CreateResultFormComponent {
     title: null,
     contract_id: null
   });
-  soundService = inject(SoundService);
   filteredPrimaryContracts = signal<GetContracts[]>([]);
 
   async createResult(openresult?: boolean) {
@@ -77,7 +75,6 @@ export class CreateResultFormComponent {
       summary: 'Success',
       detail: `Result "${this.body().title}" created successfully`
     });
-    this.soundService.playCreationAudio();
     this.allModalsService.closeModal('createResult');
     this.body.set({ indicator_id: null, title: null, contract_id: null });
     if (openresult) this.actions.changeResultRoute(result.data.result_id);
