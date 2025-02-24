@@ -12,12 +12,23 @@ import { GetResultsByContract } from '../../interfaces/get-results-by-contract.i
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 
 @Component({
-    selector: 'app-project-results-table',
-    imports: [TableModule, InputTextModule, Button, FilterByTextWithAttrPipe, DatePipe, FilterByTextWithAttrPipe, FormsModule, RouterLink],
-    templateUrl: './project-results-table.component.html',
-    styleUrl: './project-results-table.component.scss'
+  selector: 'app-project-results-table',
+  imports: [
+    TableModule,
+    InputTextModule,
+    Button,
+    FilterByTextWithAttrPipe,
+    DatePipe,
+    FilterByTextWithAttrPipe,
+    FormsModule,
+    RouterLink,
+    CustomTagComponent
+  ],
+  templateUrl: './project-results-table.component.html',
+  styleUrl: './project-results-table.component.scss'
 })
 export class ProjectResultsTableComponent implements OnInit {
   api = inject(ApiService);
