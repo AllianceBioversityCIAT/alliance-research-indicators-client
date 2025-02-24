@@ -46,7 +46,6 @@ export class CognitoService {
     if (loginResponse.data.user.first_name && loginResponse.data.user.sec_user_id)
       await this.websocket.configUser(loginResponse.data.user.first_name, loginResponse.data.user.sec_user_id);
 
-    this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'You are now logged in' });
     this.updateCacheService();
     setTimeout(() => {
       this.router.navigate(['/']);
