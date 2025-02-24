@@ -12,7 +12,10 @@
   </div>
 }
 
-<section class="container" [ngStyle]="{ 'margin-top': documentAnalyzed() ? '0' : '40px' }" [ngClass]="{ 'analyzing-container': analyzingDocument() }">
+<section
+  class="local-container"
+  [ngStyle]="{ 'margin-top': documentAnalyzed() ? '0' : '40px' }"
+  [ngClass]="{ 'analyzing-container': analyzingDocument() }">
   @if (!analyzingDocument() && !documentAnalyzed()) {
     <div class="container-header">
       <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />

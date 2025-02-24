@@ -94,6 +94,14 @@ body {
   }
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}
+
 @media (orientation: landscape) and (height <= 768px) {
   body {
     font-size: 13px !important;
