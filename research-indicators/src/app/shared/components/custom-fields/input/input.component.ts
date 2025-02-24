@@ -27,6 +27,7 @@ export class InputComponent {
   @Input() min = 0;
   @Input() validateEmpty = false;
   @Input() isRequired = false;
+  @Input() onlyLowerCase = false;
   body = signal({ value: null });
   firstTime = signal(true);
 
@@ -60,8 +61,9 @@ export class InputComponent {
   });
 
   setValue(value: any) {
+    if (this.onlyLowerCase) value = value.toLowerCase();
+
     // this.signal.set({ ...this.signal(), [this.optionValue]: value });
-    value = value.toLowerCase();
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, value);
   }
@@ -72,8 +74,7 @@ export class InputComponent {
         return { pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$', message: 'Please enter a valid email address.' };
       case 'url':
         return {
-          pattern:
-            /^(https?:\/\/)?([a-zA-Z0-9-]+\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=%-]*)?(#[a-zA-Z0-9._~:/?[\]@!$&'()*+,;=%-]*)?$/,
+          pattern: "^(https?:\\/\\/)?([\\w-]+(\\.[\\w-]+)*\\.([a-z]{2,}))(\\/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=%-]*)?$",
           message: 'Please enter a valid URL.'
         };
       default:

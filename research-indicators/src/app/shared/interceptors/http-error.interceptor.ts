@@ -55,7 +55,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         // Send error to tracking endpoint
         from(api.saveErrors(errorObj)).subscribe();
 
-        if (cache.isLoggedIn() && error.status !== 409 && error.status !== 401) {
+        if (cache.isLoggedIn() && error.status !== 409 && error.status !== 401 && !req.url.includes('refresh-token')) {
           actions.showToast({ detail: error.error.errors, severity: 'error', summary: 'Error', sticky: true });
         }
 

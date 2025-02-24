@@ -18,7 +18,7 @@ export class GetUserStaffService {
     this.loading.set(true);
     const response = await this.api.GET_UserStaff();
     response.data.map(item => {
-      item.full_name = `${item.first_name} ${item.last_name} - ${item.email}`;
+      item.full_name = `${item.last_name}, ${item.first_name}  - ${item.email}`;
       item.user_id = item.carnet;
     });
     this.list.set(response.data);
