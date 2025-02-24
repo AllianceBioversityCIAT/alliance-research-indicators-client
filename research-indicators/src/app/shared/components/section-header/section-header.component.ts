@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { Router, RouterLink, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { computed, signal, AfterViewInit } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
