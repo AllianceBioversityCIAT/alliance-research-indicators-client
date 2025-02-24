@@ -11,6 +11,7 @@
     >
   </div>
   <h4 class="h4 atc-grey-600" [class.hidden]="hss && cache.isSidebarCollapsed()">LEARNING</h4>
+
   <div class="options">
     @for (option of this.options; track $index) {
       @if (!option.hide) {
@@ -22,7 +23,10 @@
           [class]="{ disabled: option.underConstruction }"
           [ngStyle]="{ 'padding-left': !cache.isSidebarCollapsed() ? '10px' : '0' }"
           [routerLink]="option.link"
-          [routerLinkActive]="'active'">
+          [routerLinkActive]="'active'"
+          [pTooltip]="cache.isSidebarCollapsed() ? option.label : ''"
+          tooltipPosition="right"
+          placeholder="Right">
           @if (cache.isSidebarCollapsed() && option.underConstruction) {
             <div class="icon-construction-container">
               <i class="material-symbols-rounded">{{ option.icon }}</i>

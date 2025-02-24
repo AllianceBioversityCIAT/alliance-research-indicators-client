@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/cor
 import { CacheService } from '@services/cache/cache.service';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
     selector: 'alliance-sidebar',
-    imports: [RouterModule, CommonModule],
+    imports: [RouterModule, CommonModule, TooltipModule],
     templateUrl: './alliance-sidebar.component.html',
     styleUrl: './alliance-sidebar.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
