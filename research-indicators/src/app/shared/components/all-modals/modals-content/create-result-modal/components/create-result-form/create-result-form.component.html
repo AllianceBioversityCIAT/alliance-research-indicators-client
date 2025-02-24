@@ -29,7 +29,7 @@
 
     <div class="columns">
       <div class="section">
-        <h2 class="title" style="margin-top: 0">Primary Project</h2>
+        <h2 class="title" style="margin-top: 0">Primary Project<span class="text-red-500">*</span></h2>
 
         <p-autoComplete
           [style]="{ width: '100%' }"
@@ -59,7 +59,7 @@
       </div>
 
       <div class="section">
-        <h2 class="title">Indicator*</h2>
+        <h2 class="title">Indicator<span class="text-red-500">*</span></h2>
         <h4 class="description">
           If you're unsure which indicator to select, visit
           <span class="about-indicators" (click)="this.router.navigate(['/about-indicators']); this.allModalsService.closeModal('createResult')">
@@ -82,7 +82,7 @@
       </div>
 
       <div class="section">
-        <h2 class="title">Title*</h2>
+        <h2 class="title">Title<span class="text-red-500">*</span></h2>
         <h4 class="description">Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.</h4>
         <input pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" />
       </div>
