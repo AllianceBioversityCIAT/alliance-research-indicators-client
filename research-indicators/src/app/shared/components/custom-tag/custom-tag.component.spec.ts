@@ -13,11 +13,23 @@ describe('CustomTagComponent', () => {
 
     fixture = TestBed.createComponent(CustomTagComponent);
     component = fixture.componentInstance;
-    component.border = '1px solid black'; // Inicializar con un valor por defecto
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should have default statusId and statusName', () => {
+    expect(component.statusId).toBe('');
+    expect(component.statusName).toBe('');
+  });
+
+  it('should set statusId and statusName from inputs', () => {
+    component.statusId = '1';
+    component.statusName = 'Active';
+    fixture.detectChanges();
+    expect(component.statusId).toBe('1');
+    expect(component.statusName).toBe('Active');
   });
 });
