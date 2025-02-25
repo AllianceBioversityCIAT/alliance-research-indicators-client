@@ -53,7 +53,8 @@ describe('ResultsComponent', () => {
         SectionSidebarComponent
       ],
       providers: [
-        GetResultsService,
+        { provide: ResultsCenterService, useValue: {} },
+        { provide: GetResultsService, useValue: {} },
         PrimeNGConfig,
         {
           provide: CacheService,

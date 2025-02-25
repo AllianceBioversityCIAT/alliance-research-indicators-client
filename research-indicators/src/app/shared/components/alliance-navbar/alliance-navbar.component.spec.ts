@@ -31,7 +31,9 @@ describe('AllianceNavbarComponent', () => {
     }),
     isLoggedIn: signal(true),
     isValidatingToken: signal(false),
-    navbarHeight: signal(0)
+    navbarHeight: signal(0),
+    windowHeight: signal(0),
+    hasSmallScreen: jest.fn(() => true)
   };
 
   const mockDarkModeService = {
