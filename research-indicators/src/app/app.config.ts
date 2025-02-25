@@ -14,7 +14,6 @@ import { ClarityService } from './shared/services/clarity.service';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeng/themes/aura';
 import { MyPreset } from './theme/roartheme';
 const config: SocketIoConfig = { url: environment.webSocketServerUrl, options: {} };
 

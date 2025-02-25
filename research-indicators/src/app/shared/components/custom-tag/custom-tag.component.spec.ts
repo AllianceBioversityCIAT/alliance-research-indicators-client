@@ -9,11 +9,11 @@ describe('CustomTagComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CustomTagComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CustomTagComponent);
     component = fixture.componentInstance;
+    component.border = '1px solid black'; // Ajusta según sea necesario
     fixture.detectChanges();
   });
 

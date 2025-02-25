@@ -9,7 +9,6 @@ import { CacheService } from '@services/cache/cache.service';
 import { ChipModule } from 'primeng/chip';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { TextareaComponent } from '../../../../../../shared/components/custom-fields/textarea/textarea.component';
