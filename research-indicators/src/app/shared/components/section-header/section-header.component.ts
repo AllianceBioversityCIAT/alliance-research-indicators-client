@@ -10,6 +10,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { PopoverModule } from 'primeng/popover';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
+import { ActionsService } from '@shared/services/actions.service';
 
 @Component({
   selector: 'app-section-header',
@@ -22,6 +23,7 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
   cache = inject(CacheService);
   route = inject(ActivatedRoute);
   elementRef = inject(ElementRef);
+  actions = inject(ActionsService);
 
   items: MenuItem[] | undefined;
 
@@ -73,7 +75,28 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
           {
             label: 'Delete Result',
             icon: 'pi pi-trash',
-            styleClass: 'delete-result'
+            styleClass: 'delete-result',
+            command: () => {
+              this.actions.showGlobalAlert({
+                severity: 'warning',
+                summary: 'Are you sure you want to delete this result? ',
+                detail: 'Once deleted, it cannot be recovered.',
+                callbacks: [
+                  {
+                    label: 'Close',
+                    event: () => {
+                      return;
+                    }
+                  },
+                  {
+                    label: 'Delete result',
+                    event: () => {
+                      return;
+                    }
+                  }
+                ]
+              });
+            }
           }
         ]
       }
