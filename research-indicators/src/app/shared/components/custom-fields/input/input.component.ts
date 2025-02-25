@@ -10,7 +10,6 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { UtilsService } from '../../../services/utils.service';
 @Component({
   selector: 'app-input',
-  standalone: true,
   imports: [FormsModule, InputTextModule, SaveOnWritingDirective, SkeletonModule, InputNumberModule],
   templateUrl: './input.component.html',
   styleUrl: './input.component.scss'
@@ -27,6 +26,7 @@ export class InputComponent {
   @Input() placeholder = '';
   @Input() min = 0;
   @Input() validateEmpty = false;
+  @Input() isRequired = false;
   @Input() onlyLowerCase = false;
   body = signal({ value: null });
   firstTime = signal(true);
@@ -41,8 +41,15 @@ export class InputComponent {
     { allowSignalWrites: true }
   );
 
+  isInvalid = computed(() => {
+    return this.isRequired && !this.body()?.value;
+  });
+
   inputValid = computed(() => {
     const value = this.signal()[this.optionValue];
+    if (this.isRequired && (!value || value.length === 0)) {
+      return { valid: false, class: 'ng-invalid ng-dirty', message: 'This field is required' };
+    }
     if (this.validateEmpty && !value) {
       return { valid: false, class: 'ng-invalid ng-dirty', message: 'Field cannot be empty' };
     }

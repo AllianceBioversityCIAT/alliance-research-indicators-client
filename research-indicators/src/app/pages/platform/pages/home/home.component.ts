@@ -5,10 +5,9 @@ import { DataOverviewComponent } from './components/data-overview/data-overview.
 import { MyLatestResultsComponent } from './components/my-latest-results/my-latest-results.component';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [HeaderComponent, MainActionsComponent, DataOverviewComponent, MyLatestResultsComponent],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+    selector: 'app-home',
+    imports: [HeaderComponent, MainActionsComponent, DataOverviewComponent, MyLatestResultsComponent],
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.scss'
 })
 export default class HomeComponent {}

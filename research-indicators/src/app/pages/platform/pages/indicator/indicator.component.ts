@@ -6,11 +6,10 @@ import { ApiService } from '@services/api.service';
 import { CacheService } from '@services/cache/cache.service';
 
 @Component({
-  selector: 'app-indicator',
-  standalone: true,
-  imports: [],
-  templateUrl: './indicator.component.html',
-  styleUrl: './indicator.component.scss'
+    selector: 'app-indicator',
+    imports: [],
+    templateUrl: './indicator.component.html',
+    styleUrl: './indicator.component.scss'
 })
 export default class IndicatorComponent implements OnInit {
   indicatorsSE = inject(IndicatorsService);

@@ -17,7 +17,7 @@ describe('PlatformComponent', () => {
       imports: [RouterTestingModule, PlatformComponent, HttpClientTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
-        { provide: CacheService, useValue: { dataCache: signal({}), isLoggedIn: { set: jest.fn() } } },
+        { provide: CacheService, useValue: { dataCache: signal({}), isLoggedIn: { set: jest.fn() }, windowHeight: signal(0) } },
         { provide: WebsocketService, useValue: {} },
         {
           provide: DarkModeService,

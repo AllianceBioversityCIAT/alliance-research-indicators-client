@@ -9,11 +9,10 @@ interface Indicator {
 }
 
 @Component({
-  selector: 'app-discover-hero',
-  standalone: true,
-  imports: [],
-  templateUrl: './discover-hero.component.html',
-  styleUrl: './discover-hero.component.scss'
+    selector: 'app-discover-hero',
+    imports: [],
+    templateUrl: './discover-hero.component.html',
+    styleUrl: './discover-hero.component.scss'
 })
 export class DiscoverHeroComponent {
   indicators: Indicator[] = [

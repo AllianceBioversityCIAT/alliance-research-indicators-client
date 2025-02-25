@@ -32,7 +32,8 @@ describe('SectionHeaderComponent', () => {
         user: { first_name: 'Test User' }
       }),
       headerHeight: signal(0),
-      navbarHeight: signal(0)
+      navbarHeight: signal(0),
+      hasSmallScreen: jest.fn(() => true)
     };
 
     await TestBed.configureTestingModule({

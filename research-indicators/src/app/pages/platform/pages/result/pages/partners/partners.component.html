@@ -1,12 +1,12 @@
-<div class="container">
-  <h3 class="title-text">{{ this.cache.currentMetadata().result_title }}</h3>
+<div class="flex flex-col mx-[40px] my-[30px]">
+  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
   <br />
 
-  <div class="card-container">
-    <div class="card-title">PARTNERS</div>
-    <div class="alert-container">
-      <span class="icon material-symbols-rounded">info</span>
-      <h3 class="card-description">
+  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-5">
+    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">PARTNERS</div>
+    <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-5 px-5 mb-[30px]">
+      <span class="text-[#074b86] material-symbols-rounded">info</span>
+      <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
         If you do not find the partner in the dropdown menu, you can request to have it added to the list. Once approved, it may take up to an hour
         for the partner to appear in the CLARISA institutions list.
       </h3>
@@ -27,7 +27,7 @@
       }
     </app-multiselect>
   </div>
-  <div class="button-container">
+  <div class="flex gap-5">
     <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" [loading]="this.loading()" />
     <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')" [loading]="this.loading()" />
     <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />

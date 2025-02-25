@@ -1,10 +1,9 @@
 import { Component, HostListener } from '@angular/core';
 
 @Component({
-  selector: 'app-copy-token',
-  standalone: true,
-  imports: [],
-  templateUrl: './copy-token.component.html'
+    selector: 'app-copy-token',
+    imports: [],
+    templateUrl: './copy-token.component.html'
 })
 export class CopyTokenComponent {
   private isMacOS: boolean = /Mac|iPod|iPhone|iPad/.test(navigator.platform);

@@ -21,6 +21,7 @@ export class ActionsService {
 
   constructor() {
     this.validateToken();
+    this.listenToWindowHeight();
   }
 
   saveCurrentSection() {
@@ -177,5 +178,17 @@ export class ActionsService {
     };
 
     return { decoded: decodeJwtPayload(token), token };
+  }
+
+  listenToWindowHeight(): void {
+    const updateHeight = () => {
+      this.cache.windowHeight.set(window.innerHeight);
+    };
+
+    // Actualizar altura inicial
+    updateHeight();
+
+    // Suscribirse a cambios de tamaño de ventana
+    window.addEventListener('resize', updateHeight);
   }
 }

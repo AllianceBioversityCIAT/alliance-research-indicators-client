@@ -9,11 +9,10 @@ import { ApiService } from '@services/api.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 @Component({
-  selector: 'app-partners',
-  standalone: true,
-  imports: [ButtonModule, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
-  templateUrl: './partners.component.html',
-  styleUrl: './partners.component.scss'
+    selector: 'app-partners',
+    imports: [ButtonModule, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
+    templateUrl: './partners.component.html',
+    styleUrl: './partners.component.scss'
 })
 export default class PartnersComponent {
   actions = inject(ActionsService);

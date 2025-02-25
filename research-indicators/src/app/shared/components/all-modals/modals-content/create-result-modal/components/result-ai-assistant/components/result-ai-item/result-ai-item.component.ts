@@ -7,12 +7,11 @@ import { ButtonModule } from 'primeng/button';
 type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_participants' | 'male_participants';
 
 @Component({
-  selector: 'app-result-ai-item',
-  standalone: true,
-  imports: [CommonModule, ButtonModule],
-  templateUrl: './result-ai-item.component.html',
-  styleUrl: './result-ai-item.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-result-ai-item',
+    imports: [CommonModule, ButtonModule],
+    templateUrl: './result-ai-item.component.html',
+    styleUrl: './result-ai-item.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiItemComponent {
   @Input() item!: AIAssistantResult;

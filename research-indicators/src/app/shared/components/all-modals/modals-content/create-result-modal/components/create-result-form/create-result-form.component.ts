@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { ApiService } from '@services/api.service';
@@ -13,17 +12,15 @@ import { GetContractsService } from '../../../../../../services/control-list/get
 import { GetResultsService } from '../../../../../../services/control-list/get-results.service';
 import { CacheService } from '../../../../../../services/cache/cache.service';
 import { ActionsService } from '../../../../../../services/actions.service';
-import { SoundService } from '../../../../../../services/sound.service';
 import { MainResponse } from '../../../../../../interfaces/responses.interface';
 import { Result } from '../../../../../../interfaces/result/result.interface';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocomplete';
 import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
-
+import { SelectModule } from 'primeng/select';
 @Component({
   selector: 'app-create-result-form',
-  standalone: true,
-  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, DropdownModule, RouterModule, AutoCompleteModule],
+  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, SelectModule, RouterModule, AutoCompleteModule],
   templateUrl: './create-result-form.component.html',
   styleUrl: './create-result-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -43,7 +40,6 @@ export class CreateResultFormComponent {
     title: null,
     contract_id: null
   });
-  soundService = inject(SoundService);
   filteredPrimaryContracts = signal<GetContracts[]>([]);
 
   async createResult(openresult?: boolean) {
@@ -78,7 +74,6 @@ export class CreateResultFormComponent {
       summary: 'Success',
       detail: `Result "${this.body().title}" created successfully`
     });
-    this.soundService.playCreationAudio();
     this.allModalsService.closeModal('createResult');
     this.body.set({ indicator_id: null, title: null, contract_id: null });
     if (openresult) this.actions.changeResultRoute(result.data.result_id);

@@ -6,7 +6,7 @@
         <span class="description-text">View and track your most recent results.</span>
       </div>
       <div class="submmit-button">
-        <p-button label="Submit Result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
+        <p-button severity="info" label="Submit Result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
       </div>
     </div>
     <div class="card-container">
@@ -42,7 +42,7 @@
               </div>
               <!-- TODO: we need the green check feature -->
               <div class="progress-bar">
-                <div class="status">EDITING</div>
+                <app-custom-tag [statusId]="1" [statusName]="'EDITING'"></app-custom-tag>
                 <!-- <div class="progress-bar-content">
                   <div class="progress" style="width: 25%"></div>
                 </div> -->
@@ -62,7 +62,7 @@
         >
       </div>
       <div class="submmit-button">
-        <p-button label="Submit Result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
+        <p-button severity="info" label="Submit Result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
       </div>
     </div>
     <div>

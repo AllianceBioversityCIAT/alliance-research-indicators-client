@@ -2,6 +2,7 @@ import { Component, computed, inject, signal, WritableSignal } from '@angular/co
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
+import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 interface SidebarOption {
   label: string;
   path: string;
@@ -12,8 +13,7 @@ interface SidebarOption {
 }
 @Component({
   selector: 'app-result-sidebar',
-  standalone: true,
-  imports: [RouterLink, RouterLinkActive, ButtonModule],
+  imports: [RouterLink, RouterLinkActive, ButtonModule, CustomTagComponent],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })

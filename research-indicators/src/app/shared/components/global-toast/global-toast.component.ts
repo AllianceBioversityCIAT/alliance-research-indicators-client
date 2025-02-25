@@ -4,11 +4,10 @@ import { ToastModule } from 'primeng/toast';
 import { ActionsService } from '../../services/actions.service';
 
 @Component({
-  selector: 'app-global-toast',
-  standalone: true,
-  imports: [ToastModule],
-  templateUrl: './global-toast.component.html',
-  providers: [MessageService]
+    selector: 'app-global-toast',
+    imports: [ToastModule],
+    templateUrl: './global-toast.component.html',
+    providers: [MessageService]
 })
 export class GlobalToastComponent {
   actions = inject(ActionsService);

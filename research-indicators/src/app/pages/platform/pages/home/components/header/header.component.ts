@@ -3,7 +3,6 @@ import { ApiService } from '@shared/services/api.service';
 import { GetAnnouncementSettingAvailable } from '../../../../../../shared/interfaces/get-announcement-setting-available.interface';
 @Component({
   selector: 'app-header',
-  standalone: true,
   imports: [],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
@@ -13,7 +12,7 @@ export class HeaderComponent implements OnInit {
   @ViewChild('tiltBox') tiltBox!: ElementRef;
   message = signal<GetAnnouncementSettingAvailable | null>(null);
 
-  private readonly maxTilt = 4; // Reduced from 10 to 3 degrees for subtler effect
+  private readonly maxTilt = 0; // Reduced from 10 to 3 degrees for subtler effect
 
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {

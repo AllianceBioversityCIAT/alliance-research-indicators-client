@@ -5,6 +5,7 @@ import AboutIndicatorsComponent from '../../../about-indicators/about-indicators
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 
 export interface LatestResult {
   updated_at: Date;
@@ -65,8 +66,7 @@ export interface AgressoContract {
 
 @Component({
   selector: 'app-my-latest-results',
-  standalone: true,
-  imports: [ButtonModule, AboutIndicatorsComponent, DatePipe, RouterLink],
+  imports: [ButtonModule, AboutIndicatorsComponent, DatePipe, RouterLink, CustomTagComponent],
   templateUrl: './my-latest-results.component.html',
   styleUrl: './my-latest-results.component.scss'
 })

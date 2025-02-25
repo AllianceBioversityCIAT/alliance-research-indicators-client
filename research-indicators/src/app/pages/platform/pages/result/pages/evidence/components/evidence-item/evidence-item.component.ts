@@ -5,11 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { Evidence, PatchResultEvidences } from '../../../../../../../../shared/interfaces/patch-result-evidences.interface';
 
 @Component({
-  selector: 'app-evidence-item',
-  standalone: true,
-  imports: [InputComponent, TextareaComponent, FormsModule],
-  templateUrl: './evidence-item.component.html',
-  styleUrl: './evidence-item.component.scss'
+    selector: 'app-evidence-item',
+    imports: [InputComponent, TextareaComponent, FormsModule],
+    templateUrl: './evidence-item.component.html',
+    styleUrl: './evidence-item.component.scss'
 })
 export class EvidenceItemComponent implements OnInit {
   @Output() deleteEvidenceEvent = new EventEmitter();

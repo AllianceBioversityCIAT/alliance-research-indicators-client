@@ -4,13 +4,11 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ApiService } from '@services/api.service';
 import { CacheService } from '@services/cache/cache.service';
-import { ChipsModule } from 'primeng/chips';
+import { ChipModule } from 'primeng/chip';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { TextareaComponent } from '../../../../../../shared/components/custom-fields/textarea/textarea.component';
@@ -18,6 +16,7 @@ import { GetResultsService } from '../../../../../../shared/services/control-lis
 import { GetUserStaffService } from '../../../../../../shared/services/control-list/get-user-staff.service';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { GetMetadataService } from '../../../../../../shared/services/get-metadata.service';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 interface Option {
   name: string;
@@ -25,23 +24,20 @@ interface Option {
 
 @Component({
   selector: 'app-general-information',
-  standalone: true,
   imports: [
     DialogModule,
     ButtonModule,
     FormsModule,
     InputTextModule,
     DropdownModule,
-    InputTextareaModule,
     ReactiveFormsModule,
-    ChipsModule,
-    SaveOnWritingDirective,
+    ChipModule,
     InputComponent,
     TextareaComponent,
-    SelectComponent
+    SelectComponent,
+    AutoCompleteModule
   ],
-  templateUrl: './general-information.component.html',
-  styleUrl: './general-information.component.scss'
+  templateUrl: './general-information.component.html'
 })
 export default class GeneralInformationComponent {
   actions = inject(ActionsService);

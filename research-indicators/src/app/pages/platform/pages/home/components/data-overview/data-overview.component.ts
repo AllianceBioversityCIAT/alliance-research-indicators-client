@@ -33,7 +33,6 @@ Chart.defaults.set('plugins.datalabels', {
 
 @Component({
   selector: 'app-data-overview',
-  standalone: true,
   imports: [ChartModule],
   templateUrl: './data-overview.component.html',
   styleUrl: './data-overview.component.scss'
@@ -78,18 +77,13 @@ export class DataOverviewComponent implements OnInit {
       }))
     );
 
-    const documentStyle = getComputedStyle(document.documentElement);
     this.data = {
       labels,
       datasets: [
         {
           data: amounts,
           backgroundColor: colors,
-          hoverBackgroundColor: [
-            documentStyle.getPropertyValue('--blue-400'),
-            documentStyle.getPropertyValue('--yellow-400'),
-            documentStyle.getPropertyValue('--green-400')
-          ]
+          hoverBackgroundColor: ['#266abb', '#1689CA', '#7CB580']
         }
       ]
     };

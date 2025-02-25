@@ -3,11 +3,12 @@ import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { ResultSidebarComponent } from '../../../../shared/components/result-sidebar/result-sidebar.component';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { GetMetadataService } from '../../../../shared/services/get-metadata.service';
+import { SubmissionHistoryContentComponent } from './components/submission-history-content/submission-history-content.component';
+import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 
 @Component({
   selector: 'app-result',
-  standalone: true,
-  imports: [RouterOutlet, ResultSidebarComponent],
+  imports: [RouterOutlet, ResultSidebarComponent, SubmissionHistoryContentComponent, SectionSidebarComponent],
   templateUrl: './result.component.html',
   styleUrl: './result.component.scss'
 })

@@ -8,10 +8,9 @@ import { VersionNumberComponent } from './components/version-number/version-numb
 import { MyProjectsComponent } from './components/my-projects/my-projects.component';
 
 @Component({
-  selector: 'app-landing',
-  standalone: true,
-  imports: [BannerComponent, FeaturesComponent, DiscoverHeroComponent, MyProjectsComponent, FaqComponent, FooterComponent, VersionNumberComponent],
-  templateUrl: './landing.component.html',
-  styleUrl: './landing.component.scss'
+    selector: 'app-landing',
+    imports: [BannerComponent, FeaturesComponent, DiscoverHeroComponent, MyProjectsComponent, FaqComponent, FooterComponent, VersionNumberComponent],
+    templateUrl: './landing.component.html',
+    styleUrl: './landing.component.scss'
 })
 export default class LandingComponent {}

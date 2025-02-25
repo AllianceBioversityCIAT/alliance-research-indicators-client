@@ -2,11 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-load-result',
-  standalone: true,
-  imports: [],
-  templateUrl: './load-result.component.html',
-  styleUrls: ['./load-result.component.scss']
+    selector: 'app-load-result',
+    imports: [],
+    templateUrl: './load-result.component.html',
+    styleUrls: ['./load-result.component.scss']
 })
 export default class LoadResultComponent implements OnInit, OnDestroy {
   /* eslint-disable @typescript-eslint/no-explicit-any */

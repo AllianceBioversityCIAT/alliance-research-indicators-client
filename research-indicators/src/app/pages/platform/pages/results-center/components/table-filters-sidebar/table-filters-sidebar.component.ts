@@ -6,11 +6,10 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 import { ResultsCenterService } from '../../results-center.service';
 
 @Component({
-  selector: 'app-table-filters-sidebar',
-  standalone: true,
-  imports: [FormsModule, MultiSelectModule, ButtonModule, MultiselectComponent],
-  templateUrl: './table-filters-sidebar.component.html',
-  styleUrl: './table-filters-sidebar.component.scss'
+    selector: 'app-table-filters-sidebar',
+    imports: [FormsModule, MultiSelectModule, ButtonModule, MultiselectComponent],
+    templateUrl: './table-filters-sidebar.component.html',
+    styleUrl: './table-filters-sidebar.component.scss'
 })
 export class TableFiltersSidebarComponent implements AfterViewInit {
   @ViewChild('indicatorSelect') indicatorSelect?: MultiselectComponent;

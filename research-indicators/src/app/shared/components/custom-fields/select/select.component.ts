@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, effect, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DropdownModule } from 'primeng/dropdown';
 import { ControlListServices } from '../../../interfaces/services.interface';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { CacheService } from '../../../services/cache/cache.service';
@@ -9,11 +8,11 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { UtilsService } from '../../../services/utils.service';
 import { environment } from '../../../../../environments/environment';
 import { TooltipModule } from 'primeng/tooltip';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-select',
-  standalone: true,
-  imports: [DropdownModule, FormsModule, SkeletonModule, TooltipModule],
+  imports: [FormsModule, SkeletonModule, TooltipModule, SelectModule],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss'
 })
@@ -28,11 +27,17 @@ export class SelectComponent implements OnInit {
   @Input() label = '';
   @Input() description = '';
   @Input() disabled = false;
+  @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
 
   service: any;
   body = signal({ value: null });
   environment = environment;
+
+  isInvalid = computed(() => {
+    return this.isRequired && !this.body()?.value;
+  });
+
   constructor(private serviceLocator: ServiceLocatorService) {}
 
   onSectionLoad = effect(

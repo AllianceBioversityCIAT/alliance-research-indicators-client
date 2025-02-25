@@ -1,4 +1,4 @@
-import { Component, effect, inject, ViewChild, signal, AfterViewInit } from '@angular/core';
+import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
@@ -11,13 +11,11 @@ import { ResultsCenterService } from '../../results-center.service';
 import * as ExcelJS from 'exceljs';
 import { Router } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
-
+import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 @Component({
   selector: 'app-results-center-table',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TagModule, MenuModule],
-  templateUrl: './results-center-table.component.html',
-  styleUrls: ['./results-center-table.component.scss']
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TagModule, MenuModule, CustomTagComponent],
+  templateUrl: './results-center-table.component.html'
 })
 export class ResultsCenterTableComponent implements AfterViewInit {
   resultsCenterService = inject(ResultsCenterService);
@@ -42,6 +40,11 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   setSearchInputFilter($event: Event) {
     this.resultsCenterService.searchInput.set(($event.target as HTMLInputElement).value);
   }
+
+  getScrollHeight = computed(
+    () =>
+      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 240 : 270)}px)`
+  );
 
   private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70, minWidth = 15) {
     const column = worksheet.getColumn(columnNumber);
@@ -187,11 +190,11 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     this.resultsCenterService.showConfigurationsSidebar.set(true);
   }
 
-  getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
-    const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
+  getStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'help' | 'primary' | 'secondary' | 'contrast' | null | undefined {
+    const severityMap: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'help' | 'primary' | 'secondary' | 'contrast' | null | undefined> = {
       SUBMITTED: 'info',
       ACCEPTED: 'success',
-      EDITING: 'warning'
+      EDITING: 'warn'
     };
     return severityMap[status];
   }

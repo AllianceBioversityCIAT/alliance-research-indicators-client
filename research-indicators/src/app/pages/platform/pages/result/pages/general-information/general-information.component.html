@@ -1,47 +1,45 @@
-<div class="container">
-  <h3 class="title-text">{{ this.cache.currentMetadata().result_title }}</h3>
+<div class="flex flex-col mx-[40px] my-[30px]">
+  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
 
   <br />
-  <div class="card-container">
+  <div class="flex flex-col gap-5">
     <div class="content-section">
-      <div class="card-content first-column">
-        <div class="card-title">GENERAL INFORMATION</div>
-        <div class="form-container">
-          <div class="flex flex-column">
-            <!-- <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="body().title" /> -->
+      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-5">
+        <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GENERAL INFORMATION</div>
+        <div class="grid gap-[25px]">
+          <div class="flex flex-col">
             <app-input
-              label="Title*"
+              label="Title"
+              [isRequired]="true"
               [validateEmpty]="true"
               description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon."
               [signal]="this.body"
               optionValue="title"></app-input>
-            <!-- <small class="card-description" id="username-help">Max. # words</small> -->
           </div>
 
-          <div class="card flex flex-column">
-            <!-- <textarea appSaveOnWriting rows="5" pInputTextarea [autoResize]="true" [(ngModel)]="body().description"> </textarea> -->
+          <div class="flex flex-col">
             <app-textarea
               label="Description"
               description="Offer a detailed, understandable explanation, without repeating the title."
               [signal]="this.body"
               [optionValue]="'description'"></app-textarea>
-            <!-- <small class="card-description" id="username-help">Max. # words</small> -->
           </div>
 
-          <div class="flex flex-column">
-            <h1 class="title">Keywords</h1>
-            <small class="description" for="username" style="margin-bottom: 7px">
+          <div class="flex flex-col">
+            <h1 class="text-[16px] font-semibold mb-[10px] text-[#153c71]">Keywords</h1>
+            <small class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left mb-[7px]">
               Press <strong>"Enter"</strong> to generate the keyword before saving it. Use relevant terms that describe the content of your result.
             </small>
 
             <div class="card p-fluid">
-              <p-chips [(ngModel)]="body().keywords" (ngModelChange)="this.actions.saveCurrentSection()" />
+              <p-autocomplete [(ngModel)]="body().keywords" inputId="multiple-ac-2" multiple fluid [typeahead]="false" />
             </div>
           </div>
 
-          <div class="card flex flex-column gap-1">
+          <div class="flex flex-col gap-1">
             <app-select
-              label="Main contact person*"
+              label="Main contact person"
+              [isRequired]="true"
               [signal]="this.body"
               [optionValue]="{ body: 'user_id', option: 'user_id' }"
               optionLabel="full_name"
@@ -49,7 +47,7 @@
           </div>
         </div>
       </div>
-      <div class="actions">
+      <div class="flex gap-[10px]">
         <p-button
           [disabled]="!this.body().title"
           [loading]="this.loading()"

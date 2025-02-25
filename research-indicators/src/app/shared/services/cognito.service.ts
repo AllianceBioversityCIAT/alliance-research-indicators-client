@@ -5,7 +5,6 @@ import { ApiService } from '@services/api.service';
 import { WebsocketService } from '../sockets/websocket.service';
 import { environment } from '@envs/environment';
 import { ActionsService } from '@services/actions.service';
-import { SoundService } from './sound.service';
 import { ClarityService } from './clarity.service';
 
 @Injectable({
@@ -18,7 +17,6 @@ export class CognitoService {
   api = inject(ApiService);
   websocket = inject(WebsocketService);
   actions = inject(ActionsService);
-  soundService = inject(SoundService);
   clarity = inject(ClarityService);
 
   redirectToCognito() {
@@ -48,7 +46,6 @@ export class CognitoService {
     if (loginResponse.data.user.first_name && loginResponse.data.user.sec_user_id)
       await this.websocket.configUser(loginResponse.data.user.first_name, loginResponse.data.user.sec_user_id);
 
-    this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'You are now logged in' });
     this.updateCacheService();
     setTimeout(() => {
       this.router.navigate(['/']);

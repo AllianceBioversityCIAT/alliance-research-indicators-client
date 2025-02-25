@@ -2,20 +2,16 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { Router } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { Evidence, PatchResultEvidences } from '../../../../../../shared/interfaces/patch-result-evidences.interface';
-import { SaveOnWritingDirective } from '../../../../../../shared/directives/save-on-writing.directive';
-import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { EvidenceItemComponent } from './components/evidence-item/evidence-item.component';
 
 @Component({
   selector: 'app-evidence',
-  standalone: true,
-  imports: [ButtonModule, InputTextareaModule, FormsModule, InputTextModule, SaveOnWritingDirective, InputComponent, EvidenceItemComponent],
+  imports: [ButtonModule, FormsModule, InputTextModule, EvidenceItemComponent],
   templateUrl: './evidence.component.html',
   styleUrl: './evidence.component.scss'
 })

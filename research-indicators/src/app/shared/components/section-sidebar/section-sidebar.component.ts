@@ -3,11 +3,10 @@ import { CacheService } from '../../services/cache/cache.service';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
-  selector: 'app-section-sidebar',
-  standalone: true,
-  imports: [ButtonModule],
-  templateUrl: './section-sidebar.component.html',
-  styleUrl: './section-sidebar.component.scss'
+    selector: 'app-section-sidebar',
+    imports: [ButtonModule],
+    templateUrl: './section-sidebar.component.html',
+    styleUrl: './section-sidebar.component.scss'
 })
 export class SectionSidebarComponent {
   cache = inject(CacheService);
@@ -16,6 +15,7 @@ export class SectionSidebarComponent {
   @Input() showSignal = signal(false);
   @Input() confirmText = 'Confirm';
   @Output() confirm = new EventEmitter<void>();
+  @Input() hideActions = false;
 
   hideSidebar = () => this.showSignal.set(false);
 

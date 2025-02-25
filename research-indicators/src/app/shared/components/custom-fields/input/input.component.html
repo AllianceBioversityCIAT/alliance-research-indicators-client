@@ -1,6 +1,11 @@
 <div class="input-container">
   @if (label) {
-    <label class="label" for="username">{{ label }}</label>
+    <label class="label flex items-center" for="username"
+      >{{ label }}
+      @if (isRequired) {
+        <span class="text-red-500">*</span>
+      }
+    </label>
   }
   @if (description) {
     <small class="description" for="username">{{ description }}</small>
@@ -8,13 +13,39 @@
   @if (currentResultIsLoading()) {
     <p-skeleton width="100%" height="2.8rem" styleClass="mb-2" />
   } @else {
-    @if (type === 'text') {
-      <input appSaveOnWriting pInputText id="username" [placeholder]="placeholder" [class]="this.inputValid().class" aria-describedby="username-help" [(ngModel)]="this.body().value" (ngModelChange)="setValue($event)" />
-    } @else if (type === 'number') {
-      <p-inputNumber [min]="min" styleClass="w-full" [placeholder]="placeholder" [(ngModel)]="this.body().value" (ngModelChange)="setValue($event)" [showButtons]="true" inputId="minmax-buttons" />
-    }
-  }
-  @if (!this.inputValid().valid) {
-    <small class="p-error" id="username-help"> {{ this.inputValid().message }} </small>
+    <div>
+      @if (type === 'text') {
+        <input
+          appSaveOnWriting
+          pInputText
+          id="username"
+          [placeholder]="placeholder"
+          [class]="this.inputValid().class"
+          [style]="isInvalid() ? { border: '2px solid #E69F00' } : {}"
+          aria-describedby="username-help"
+          [(ngModel)]="this.body().value"
+          (ngModelChange)="setValue($event)" />
+      } @else if (type === 'number') {
+        <p-inputNumber
+          [min]="min"
+          styleClass="w-full"
+          [placeholder]="placeholder"
+          [(ngModel)]="this.body().value"
+          (ngModelChange)="setValue($event)"
+          [showButtons]="true"
+          [style]="isInvalid() ? { border: '2px solid #E69F00' } : {}"
+          inputId="minmax-buttons" />
+      }
+      @if (!this.inputValid().valid) {
+        @if (isInvalid()) {
+          <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+            <i class="material-symbols-rounded !text-base">warning</i>
+            <span>{{ this.inputValid().message }}</span>
+          </div>
+        } @else {
+          <small class="p-error" id="username-help">{{ this.inputValid().message }}</small>
+        }
+      }
+    </div>
   }
 </div>

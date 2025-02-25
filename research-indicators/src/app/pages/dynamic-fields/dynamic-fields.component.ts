@@ -1,13 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DynamicComponentSelectorComponent } from './components/dynamic-component-selector/dynamic-component-selector.component';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicBlockComponent } from './components/dynamic-block/dynamic-block.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dynamic-fields',
-  standalone: true,
-  imports: [DynamicComponentSelectorComponent, ReactiveFormsModule, DynamicBlockComponent, CommonModule],
+  imports: [DynamicComponentSelectorComponent, ReactiveFormsModule, CommonModule],
   templateUrl: './dynamic-fields.component.html',
   styleUrl: './dynamic-fields.component.scss'
 })

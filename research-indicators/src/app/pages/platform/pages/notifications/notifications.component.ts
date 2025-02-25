@@ -3,11 +3,10 @@ import { NotificationItemComponent } from '@shared/components/notification-item/
 import { TabViewModule } from 'primeng/tabview';
 
 @Component({
-  selector: 'app-notifications',
-  standalone: true,
-  imports: [TabViewModule, NotificationItemComponent],
-  templateUrl: './notifications.component.html',
-  styleUrl: './notifications.component.scss'
+    selector: 'app-notifications',
+    imports: [TabViewModule, NotificationItemComponent],
+    templateUrl: './notifications.component.html',
+    styleUrl: './notifications.component.scss'
 })
 export default class NotificationsComponent {
   selectedFilter = 'unread';

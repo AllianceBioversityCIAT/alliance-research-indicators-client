@@ -1,12 +1,13 @@
-<div class="container">
-  <div class="header">
+<div class="flex flex-col gap-4 h-full">
+  <div class="flex flex-col gap-1">
     <span class="title-text">MAIN ACTIONS</span>
     <span class="description-text">Effortlessly access your key actions and get started.</span>
   </div>
 
-  <div class="actions">
-    <div class="first-column" routerLink="/my-projects">
-      <img src="/images/home/main-action-1.png" alt="" class="main-action-1" />
+  <div class="grid grid-cols-2 grid-rows-2 gap-4 h-full max-[1251px]:grid-cols-3 max-[1251px]:grid-rows-1 max-[1251px]:h-50">
+    <div class="main-action min-[1251px]:row-span-2" routerLink="/my-projects">
+      <img src="/images/home/main-action-1.png" alt="" />
+
       <div class="text-content">
         <div class="title-content">
           <img src="/images/home/my-dashboard.png" alt="" />
@@ -15,26 +16,28 @@
         <span class="description">Track, monitor, and manage your ongoing projects seamlessly.</span>
       </div>
     </div>
-    <div class="second-column">
-      <div class="main-action-2">
-        <img src="/images/home/main-action-2.png" alt="" />
-        <div class="text-content">
-          <div class="title-content">
-            <img src="/images/home/my-projects.png" alt="" />
-            <span class="title">My Dashboard</span>
-          </div>
-          <span class="description">Manage results and track progress.</span>
+
+    <div class="main-action">
+      <img src="/images/home/main-action-2.png" alt="" />
+
+      <div class="text-content">
+        <div class="title-content">
+          <img src="/images/home/my-projects.png" alt="" />
+          <span class="title">My Dashboard</span>
         </div>
+        <span class="description">Manage results and track progress.</span>
       </div>
-      <div class="main-action-3" routerLink="/results-center">
-        <img src="/images/home/main-action-3.png" alt="" />
-        <div class="text-content">
-          <div class="title-content">
-            <img src="/images/home/my-results.png" alt="" />
-            <span class="title">Results Center</span>
-          </div>
-          <span class="description">Review your saved results.</span>
+    </div>
+
+    <div class="main-action" routerLink="/results-center">
+      <img src="/images/home/main-action-3.png" alt="" />
+
+      <div class="text-content">
+        <div class="title-content">
+          <img src="/images/home/my-results.png" alt="" />
+          <span class="title">Results Center</span>
         </div>
+        <span class="description">Review your saved results.</span>
       </div>
     </div>
   </div>

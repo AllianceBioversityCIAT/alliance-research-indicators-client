@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
 
 import { Table, TableModule } from 'primeng/table';
 
@@ -12,16 +12,27 @@ import { GetResultsByContract } from '../../interfaces/get-results-by-contract.i
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-
+import { CustomTagComponent } from '../custom-tag/custom-tag.component';
+import { CacheService } from '../../services/cache/cache.service';
 @Component({
   selector: 'app-project-results-table',
-  standalone: true,
-  imports: [TableModule, InputTextModule, Button, FilterByTextWithAttrPipe, DatePipe, FilterByTextWithAttrPipe, FormsModule, RouterLink],
+  imports: [
+    TableModule,
+    InputTextModule,
+    Button,
+    FilterByTextWithAttrPipe,
+    DatePipe,
+    FilterByTextWithAttrPipe,
+    FormsModule,
+    RouterLink,
+    CustomTagComponent
+  ],
   templateUrl: './project-results-table.component.html',
   styleUrl: './project-results-table.component.scss'
 })
 export class ProjectResultsTableComponent implements OnInit {
   api = inject(ApiService);
+  cacheService = inject(CacheService);
   @Input() contractId = '';
   loading = signal(true);
 
@@ -30,6 +41,11 @@ export class ProjectResultsTableComponent implements OnInit {
   searchValue = '';
 
   resultList: WritableSignal<GetResultsByContract[]> = signal([]);
+
+  getScrollHeight = computed(
+    () =>
+      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 240 : 490)}px)`
+  );
 
   columns: ResultTable[] = [
     { attr: 'result_official_code', header: 'Code' },

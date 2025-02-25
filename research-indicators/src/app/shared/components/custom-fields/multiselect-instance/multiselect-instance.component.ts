@@ -2,7 +2,6 @@
 import { Component, computed, ContentChild, effect, inject, Input, signal, TemplateRef, WritableSignal, OnInit, output } from '@angular/core';
 import { MultiSelectChangeEvent, MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
-import { NgTemplateOutlet } from '@angular/common';
 import { ActionsService } from '../../../services/actions.service';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { ControlListServices } from '../../../interfaces/services.interface';
@@ -12,8 +11,7 @@ import { UtilsService } from '../../../services/utils.service';
 
 @Component({
   selector: 'app-multiselect-instance',
-  standalone: true,
-  imports: [MultiSelectModule, FormsModule, NgTemplateOutlet, SkeletonModule],
+  imports: [MultiSelectModule, FormsModule, SkeletonModule],
   templateUrl: './multiselect-instance.component.html',
   styleUrl: './multiselect-instance.component.scss'
 })

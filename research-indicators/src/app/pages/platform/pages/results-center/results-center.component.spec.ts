@@ -9,7 +9,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { MenuModule } from 'primeng/menu';
 import { FormsModule } from '@angular/forms';
-import { PrimeNGConfig } from 'primeng/api';
 import { signal, computed } from '@angular/core';
 import { MultiSelectModule } from 'primeng/multiselect';
 
@@ -29,9 +28,74 @@ describe('ResultsComponent', () => {
   let fixture: ComponentFixture<ResultsCenterComponent>;
   let resultsCenterService: ResultsCenterService;
   let getResultsService: GetResultsService;
-  let primeNGConfig: PrimeNGConfig;
 
   beforeEach(async () => {
+    const mockCacheService = {
+      windowHeight: signal(window.innerHeight),
+      hasSmallScreen: computed(() => window.innerHeight < 768),
+      headerHeight: signal(50),
+      navbarHeight: signal(50),
+      tableFiltersSidebarHeight: signal(50),
+      dataCache: signal({ access_token: 'mock_token' }),
+      isLoggedIn: signal(true),
+      currentResultIsLoading: signal(false),
+      currentResultIndicatorSectionPath: computed(() => ''),
+      toggleSidebar: jest.fn()
+    };
+
+    const mockResultsCenterService = {
+      api: {
+        indicatorTabs: {
+          lazy: () => ({
+            list: signal([]),
+            isLoading: signal(false),
+            hasValue: signal(false)
+          })
+        }
+      },
+      multiselectRefs: signal<Record<string, any>>({}),
+      resultsFilter: signal({
+        'indicator-codes': [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': [],
+        'lever-codes': []
+      }),
+      showFiltersSidebar: signal(false),
+      showConfigurationsSidebar: signal(false),
+      applyFilters: jest.fn(),
+      clearAllFilters: jest.fn(),
+      list: signal([]),
+      onActiveItemChange: jest.fn(),
+      myResultsFilterItem: signal(undefined),
+      myResultsFilterItems: [
+        { id: 'all', label: 'All Results' },
+        { id: 'my', label: 'My Results' }
+      ],
+      indicatorsTabFilterList: signal([]),
+      countFiltersSelected: signal(undefined),
+      loading: signal(false),
+      tableColumns: signal([
+        {
+          field: 'result_official_code',
+          header: 'Code',
+          getValue: (result: any) => result.result_official_code
+        },
+        {
+          field: 'title',
+          header: 'Title',
+          getValue: (result: any) => result.title
+        }
+      ]),
+      getAllPathsAsArray: computed(() => ['result_official_code', 'title']),
+      tableFilters: signal({
+        indicators: []
+      }),
+      searchInput: signal(''),
+      tableRef: signal<Table | undefined>(undefined),
+      onSelectFilterTab: jest.fn(),
+      getActiveFilters: computed(() => [])
+    };
+
     await TestBed.configureTestingModule({
       imports: [
         ResultsCenterComponent,
@@ -53,21 +117,9 @@ describe('ResultsComponent', () => {
         SectionSidebarComponent
       ],
       providers: [
-        GetResultsService,
-        PrimeNGConfig,
-        {
-          provide: CacheService,
-          useValue: {
-            dataCache: signal({
-              user: {
-                sec_user_id: '123'
-              }
-            }),
-            currentResultIsLoading: () => signal(false),
-            navbarHeight: signal(0),
-            headerHeight: signal(0)
-          }
-        },
+        { provide: ResultsCenterService, useValue: mockResultsCenterService },
+        { provide: GetResultsService, useValue: {} },
+        { provide: CacheService, useValue: mockCacheService },
         {
           provide: RouterModule,
           useValue: {
@@ -85,61 +137,6 @@ describe('ResultsComponent', () => {
           }
         },
         {
-          provide: ResultsCenterService,
-          useValue: {
-            api: {
-              indicatorTabs: {
-                lazy: () => ({
-                  list: signal([]),
-                  isLoading: signal(false),
-                  hasValue: signal(false)
-                })
-              }
-            },
-            multiselectRefs: signal<Record<string, any>>({}),
-            resultsFilter: signal({
-              'indicator-codes': [],
-              'indicator-codes-filter': [],
-              'indicator-codes-tabs': [],
-              'lever-codes': []
-            }),
-            showFiltersSidebar: signal(false),
-            showConfigurationsSidebar: signal(false),
-            applyFilters: jest.fn(),
-            clearAllFilters: jest.fn(),
-            list: signal([]),
-            onActiveItemChange: jest.fn(),
-            myResultsFilterItem: signal(undefined),
-            myResultsFilterItems: [
-              { id: 'all', label: 'All Results' },
-              { id: 'my', label: 'My Results' }
-            ],
-            indicatorsTabFilterList: signal([]),
-            countFiltersSelected: signal(undefined),
-            loading: signal(false),
-            tableColumns: signal([
-              {
-                field: 'result_official_code',
-                header: 'Code',
-                getValue: (result: any) => result.result_official_code
-              },
-              {
-                field: 'title',
-                header: 'Title',
-                getValue: (result: any) => result.title
-              }
-            ]),
-            getAllPathsAsArray: computed(() => ['result_official_code', 'title']),
-            tableFilters: signal({
-              indicators: []
-            }),
-            searchInput: signal(''),
-            tableRef: signal<Table | undefined>(undefined),
-            onSelectFilterTab: jest.fn(),
-            getActiveFilters: computed(() => [])
-          }
-        },
-        {
           provide: SectionSidebarComponent,
           useValue: {
             showSignal: signal(false)
@@ -152,7 +149,6 @@ describe('ResultsComponent', () => {
     component = fixture.componentInstance;
     resultsCenterService = TestBed.inject(ResultsCenterService);
     getResultsService = TestBed.inject(GetResultsService);
-    primeNGConfig = TestBed.inject(PrimeNGConfig);
     fixture.detectChanges();
   });
 

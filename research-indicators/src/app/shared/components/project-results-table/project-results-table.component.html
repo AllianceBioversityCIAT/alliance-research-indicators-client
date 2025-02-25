@@ -1,4 +1,14 @@
-<p-table #dt1 [value]="resultList() | filterByTextWithAttr: 'full_name' : searchValue" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="this.loading()" [paginator]="true" [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']" styleClass="custom-table">
+<p-table
+  #dt1
+  [value]="resultList() | filterByTextWithAttr: 'full_name' : searchValue"
+  dataKey="id"
+  [rows]="10"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  [scrollHeight]="getScrollHeight()"
+  [loading]="this.loading()"
+  [paginator]="true"
+  [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
+  styleClass="custom-table">
   <ng-template pTemplate="caption">
     <div class="header">
       <div class="search-box">
@@ -14,10 +24,10 @@
   <ng-template pTemplate="header" let-customer>
     <tr>
       @for (col of this.columns; track $index) {
-        <th>
-          <div class="flex align-items-center" style="justify-content: flex-start">
+        <th [pSortableColumn]="col.attr">
+          <div class="flex items-start gap-2">
             {{ col.header }}
-            <p-columnFilter type="text" [field]="col.attr" display="menu" />
+            <p-sortIcon field="{{ col.attr }}"></p-sortIcon>
           </div>
         </th>
       }
@@ -27,7 +37,11 @@
     <tr>
       @for (col of this.columns; track $index) {
         <td [routerLink]="['/result', customer.result_id]">
-          {{ col.pipe ? (customer[col.attr] | date: 'dd/MM/yyyy') : customer[col.attr] }}
+          @if (col.attr === 'statusName') {
+            <app-custom-tag [statusId]="customer.result_status?.result_status_id" [statusName]="customer.result_status?.name"></app-custom-tag>
+          } @else {
+            {{ col.pipe ? (customer[col.attr] | date: 'dd/MM/yyyy') : customer[col.attr] }}
+          }
         </td>
       }
     </tr>

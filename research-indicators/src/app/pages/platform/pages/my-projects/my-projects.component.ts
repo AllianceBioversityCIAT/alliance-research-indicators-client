@@ -7,11 +7,10 @@ import { CustomProgressBarComponent } from '@shared/components/custom-progress-b
 import { GetContractsByUserService } from '@shared/services/control-list/get-contracts-by-user.service';
 
 @Component({
-  selector: 'app-my-projects',
-  standalone: true,
-  imports: [ProjectItemComponent, FilterByTextWithAttrPipe, FormsModule, CustomProgressBarComponent],
-  templateUrl: './my-projects.component.html',
-  styleUrl: './my-projects.component.scss'
+    selector: 'app-my-projects',
+    imports: [ProjectItemComponent, FilterByTextWithAttrPipe, FormsModule, CustomProgressBarComponent],
+    templateUrl: './my-projects.component.html',
+    styleUrl: './my-projects.component.scss'
 })
 export default class MyProjectsComponent {
   api = inject(ApiService);

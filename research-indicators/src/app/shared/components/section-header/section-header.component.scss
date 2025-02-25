@@ -6,7 +6,13 @@
   // padding: 20px;
   border: 1px solid #e8ebed;
   gap: 1rem;
+  justify-content: space-between;
 
+  .section-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
   .back-button {
     display: flex;
     align-items: center;
@@ -46,16 +52,6 @@
         // font-size: 24px;
         color: var(--text-color);
       }
-    }
-  }
-
-  .title {
-    h1 {
-      margin: 0;
-
-      // font-size: 1.5rem;
-      font-weight: 500;
-      color: var(--text-color);
     }
   }
 }
@@ -99,4 +95,16 @@
       color: var(--text-color);
     }
   }
+}
+
+.buttons-container {
+  display: flex;
+}
+
+::ng-deep .delete-result .p-menu-item-content {
+  color: red !important;
+}
+
+::ng-deep .delete-result .pi-trash {
+  color: red !important;
 }

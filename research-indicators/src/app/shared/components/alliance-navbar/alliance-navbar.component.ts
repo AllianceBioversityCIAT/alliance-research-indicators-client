@@ -17,12 +17,11 @@ import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.serv
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 
 @Component({
-  selector: 'alliance-navbar',
-  standalone: true,
-  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, DropdownComponent],
-  templateUrl: './alliance-navbar.component.html',
-  styleUrl: './alliance-navbar.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'alliance-navbar',
+    imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, DropdownComponent],
+    templateUrl: './alliance-navbar.component.html',
+    styleUrl: './alliance-navbar.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navbar') navbarElement!: ElementRef;

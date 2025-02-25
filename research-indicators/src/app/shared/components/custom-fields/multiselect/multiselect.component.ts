@@ -50,6 +50,7 @@ export class MultiselectComponent implements OnInit {
   @Input() description = '';
   @Input() hideSelected = false;
   @Input() disabledSelectedScroll = false;
+  @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
 
   selectEvent = output<any>();
@@ -58,6 +59,10 @@ export class MultiselectComponent implements OnInit {
   service: any;
 
   body: WritableSignal<any> = signal({ value: null });
+
+  isInvalid = computed(() => {
+    return this.isRequired && (!this.selectedOptions() || this.selectedOptions()?.length === 0);
+  });
 
   selectedOptions = computed(() => {
     return this.utils.getNestedProperty(this.signal(), this.signalOptionValue);

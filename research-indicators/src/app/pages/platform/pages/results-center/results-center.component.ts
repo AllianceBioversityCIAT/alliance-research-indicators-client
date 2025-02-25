@@ -10,7 +10,6 @@ import { SectionSidebarComponent } from '../../../../shared/components/section-s
 import { ApiService } from '../../../../shared/services/api.service';
 @Component({
   selector: 'app-results-center',
-  standalone: true,
   imports: [
     TabMenuModule,
     IndicatorsTabFilterComponent,

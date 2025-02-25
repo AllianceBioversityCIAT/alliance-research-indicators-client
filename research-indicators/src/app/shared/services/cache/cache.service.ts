@@ -18,6 +18,10 @@ export class CacheService {
   loadingCurrentResult = signal(false);
   navbarHeight = signal(0);
   headerHeight = signal(0);
+  tableFiltersSidebarHeight = signal(0);
+  windowHeight = signal(window.innerHeight);
+  hasSmallScreen = computed(() => this.windowHeight() < 768);
+  showSubmissionHistory = signal(false);
   currentResultIndicatorSectionPath = computed(() => {
     switch (this.currentMetadata().indicator_id) {
       case 1:
@@ -29,7 +33,7 @@ export class CacheService {
     }
   });
   searchAResultValue = signal('');
-  isSidebarCollapsed = signal(localStorage.getItem('isSidebarCollapsed') === 'true');
+  isSidebarCollapsed = signal(localStorage.getItem('isSidebarCollapsed') !== 'false');
 
   setCurrentSectionHeaderName(name: string) {
     this.currentSectionHeaderName.set(name);
