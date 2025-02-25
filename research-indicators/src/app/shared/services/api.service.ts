@@ -1,4 +1,4 @@
-import { Injectable, WritableSignal, inject } from '@angular/core';
+import { Injectable, WritableSignal, inject, resource } from '@angular/core';
 import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
@@ -40,6 +40,7 @@ import { GetAllResultStatus } from '../interfaces/get-all-result-status.interfac
 import { GetSubnationalsByIsoAlpha } from '../interfaces/get-subnationals-by-iso-alpha.interface';
 import { ControlListCacheService } from './control-list-cache.service';
 import { SignalEndpointService } from './signal-endpoint.service';
+import { GreenChecks } from '../interfaces/get-green-checks.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -166,9 +167,6 @@ export class ApiService {
     const url = () => `results/${id}/general-information`;
     return this.TP.patch(url(), body);
   };
-
-  indicatorsWithResult = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators/with/result');
-  indicatorTabs = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators', 'indicatortabs');
 
   GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
     const url = () => `results/institutions/by-result-id/${id}?role=partners`;
@@ -357,6 +355,9 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  indicatorsWithResult = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators/with/result');
+  indicatorTabs = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators', 'indicatortabs');
+  greenChecks = this.signalEndpoint.createEndpoint<GreenChecks>(() => `results/green-checks/${this.cache.currentResultId()}`);
   // Add the saveErrors endpoint
   saveErrors = (error: PostError): Promise<MainResponse<PostError>> => {
     const url = () => '';

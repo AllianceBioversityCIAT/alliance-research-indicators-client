@@ -1,4 +1,4 @@
-import { Injectable, WritableSignal, inject, signal } from '@angular/core';
+import { Injectable, WritableSignal, inject, signal, effect } from '@angular/core';
 import { MainResponse } from '../interfaces/responses.interface';
 import { ToPromiseService } from './to-promise.service';
 import { ControlListCacheService } from './control-list-cache.service';
@@ -32,6 +32,12 @@ export class SignalEndpointService {
 
     const getParentCacheKey = () => urlFn();
     const getReferenceCacheKey = (reference: string) => `${urlFn()}_${reference}`;
+
+    effect(() => {
+      if (isInitialized()) {
+        fetch();
+      }
+    });
 
     const fetchFromAPI = async () => {
       const { data: responseData } = (await this.TP.get(urlFn(), {})) as MainResponse<T>;
