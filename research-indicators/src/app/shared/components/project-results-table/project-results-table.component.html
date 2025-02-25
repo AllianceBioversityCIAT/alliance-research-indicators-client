@@ -4,6 +4,7 @@
   dataKey="id"
   [rows]="10"
   [rowsPerPageOptions]="[10, 25, 50]"
+  [scrollHeight]="getScrollHeight()"
   [loading]="this.loading()"
   [paginator]="true"
   [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
