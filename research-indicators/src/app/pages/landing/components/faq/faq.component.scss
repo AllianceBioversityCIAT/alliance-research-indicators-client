@@ -26,6 +26,26 @@ p {
       column-gap: 40px;
       width: 100%;
 
+      .custom-panel {
+        margin: 0;
+        height: 100%;
+      }
+
+      .custom-header {
+        border-radius: 0px;
+        border: none;
+        background-color: #ffffff;
+        padding: 32px 24px;
+        color: var(--primary-blue-500);
+        font-weight: 300;
+        text-transform: uppercase;
+      }
+
+      .custom-content {
+        border-radius: 0px;
+        border: none;
+      }
+
       @media (max-width: 1024px) {
         grid-template-columns: 1fr;
       }
