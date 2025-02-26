@@ -5,27 +5,15 @@
   </div>
 
   <div class="content">
-    <p-accordion expandIcon="pi pi-plus" collapseIcon="pi pi-minus">
+    <p-accordion expandIcon="pi pi-plus" collapseIcon="pi pi-minus" [value]="0" [multiple]="true">
       <div class="accordions">
-        @for (faqItem of this.faqList(); track $index) {
-          <p-accordionTab
-            [header]="faqItem.question"
-            iconPos="end"
-            [disabled]="true"
-            [tabStyle]="{ margin: '0px', height: '100% ' }"
-            [headerStyle]="{
-              borderRadius: '0px',
-              border: 'none',
-              borderBottom: '1px solid #b9c0c5',
-              backgroundColor: '#FFFFFF',
-              padding: '32px 24px',
-              color: 'var(--primary-blue-500)',
-              fontWeight: '500',
-              height: '100%'
-            }"
-            [contentStyle]="{ borderRadius: '0px', border: 'none', padding: '24px' }">
-            <p>{{ faqItem.answer }}</p>
-          </p-accordionTab>
+        @for (faqItem of faqList(); track faqItem.question) {
+          <p-accordion-panel class="custom-panel" [disabled]="true">
+            <p-accordion-header class="custom-header">{{ faqItem.question }}</p-accordion-header>
+            <p-accordion-content class="custom-content">
+              <p>{{ faqItem.answer }}</p>
+            </p-accordion-content>
+          </p-accordion-panel>
         }
       </div>
     </p-accordion>
