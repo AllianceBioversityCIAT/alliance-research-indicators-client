@@ -51,7 +51,7 @@ export const routes: Routes = [
         path: 'result/:id',
         loadComponent: () => import('@platform/pages/result/result.component'),
         data: {
-          ok: 'Result'
+          showSectionHeaderActions: true
         },
         children: [
           {

@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { NavigationEnd } from '@angular/router';
 import { HotjarService } from './hotjar.service';
+import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
@@ -17,13 +18,24 @@ export class TrackingToolsService {
   private router = inject(Router);
 
   init() {
+    this.initAllTools();
+    this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
+      this.cache.currentUrlPath.set(event.urlAfterRedirects);
+      this.updateAllTools(event.urlAfterRedirects);
+    });
+  }
+
+  initAllTools() {
+    if (!environment.production) return;
     this.clarity.init();
     this.googleAnalytics.init();
     this.hotjar.init();
-    this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
-      this.hotjar.updateState(event.urlAfterRedirects);
-      this.clarity.updateState(event.urlAfterRedirects);
-      this.googleAnalytics.updateState(event.urlAfterRedirects);
-    });
+  }
+
+  updateAllTools(url: string) {
+    if (!environment.production) return;
+    this.hotjar.updateState(url);
+    this.clarity.updateState(url);
+    this.googleAnalytics.updateState(url);
   }
 }

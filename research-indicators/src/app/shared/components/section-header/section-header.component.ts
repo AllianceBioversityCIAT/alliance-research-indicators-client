@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, ElementRef, effect } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { computed, signal, AfterViewInit } from '@angular/core';
@@ -18,6 +18,7 @@ import { ActionsService } from '@shared/services/actions.service';
   styleUrl: './section-header.component.scss'
 })
 export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit {
+  showSectionHeaderActions = signal(false);
   router = inject(Router);
   cache = inject(CacheService);
   route = inject(ActivatedRoute);
@@ -95,9 +96,18 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
     this.resizeObserver?.disconnect();
   }
 
+  onChangePath = effect(
+    () => {
+      this.cache.currentUrlPath();
+      this.showSectionHeaderActions.set(!!this.route.firstChild?.snapshot.data['showSectionHeaderActions']);
+    },
+    {
+      allowSignalWrites: true
+    }
+  );
+
   private updateRouteInfo() {
     let currentRoute = this.route;
-
     // Navigate to the deepest route
     while (currentRoute.firstChild) {
       currentRoute = currentRoute.firstChild;

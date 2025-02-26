@@ -14,6 +14,7 @@ export class CacheService {
   currentSectionHeaderName = signal('');
   currentResultId: WritableSignal<number> = signal(0);
   currentResultIsLoading = signal(false);
+  currentUrlPath = signal('');
   currentMetadata: WritableSignal<GetMetadata> = signal({});
   loadingCurrentResult = signal(false);
   navbarHeight = signal(0);
