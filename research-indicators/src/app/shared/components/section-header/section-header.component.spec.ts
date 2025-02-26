@@ -6,6 +6,7 @@ import { CacheService } from '@services/cache/cache.service';
 import { signal } from '@angular/core';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ActionsService } from '@shared/services/actions.service';
 
 // Mock ResizeObserver
 class ResizeObserverMock {
@@ -21,6 +22,7 @@ describe('SectionHeaderComponent', () => {
   let fixture: ComponentFixture<SectionHeaderComponent>;
   let routerSpy: Partial<Router>;
   let cacheService: Partial<CacheService>;
+  let actionsService: Partial<ActionsService>;
 
   beforeEach(async () => {
     routerSpy = {
@@ -64,7 +66,16 @@ describe('SectionHeaderComponent', () => {
       }),
       headerHeight: signal<number>(0),
       navbarHeight: signal<number>(0),
-      hasSmallScreen: signal<boolean>(true)
+      hasSmallScreen: signal<boolean>(true),
+      isLoggedIn: signal<boolean>(false),
+      currentUrlPath: signal<string>('/test'),
+      showSubmissionHistory: signal<boolean>(false)
+    };
+
+    actionsService = {
+      validateToken: jest.fn(),
+      logOut: jest.fn(),
+      showGlobalAlert: jest.fn()
     };
 
     await TestBed.configureTestingModule({
@@ -90,6 +101,10 @@ describe('SectionHeaderComponent', () => {
         {
           provide: CacheService,
           useValue: cacheService
+        },
+        {
+          provide: ActionsService,
+          useValue: actionsService
         }
       ]
     }).compileComponents();
