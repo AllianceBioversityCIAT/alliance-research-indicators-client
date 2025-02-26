@@ -46,14 +46,21 @@ describe('SectionHeaderComponent', () => {
               is_active: true,
               user_id: 1,
               role_id: 1,
-              role: 'Admin'
+              role: {
+                is_active: true,
+                justification_update: null,
+                sec_role_id: 1,
+                name: 'Admin',
+                focus_id: 0
+              }
             }
           ]
           // Agregar otras propiedades necesarias aquí
         },
         access_token: 'dummy_access_token',
         refresh_token: 'dummy_refresh_token',
-        exp: 0
+        exp: 0,
+        isLoggedIn: signal<boolean>(false)
       }),
       headerHeight: signal<number>(0),
       navbarHeight: signal<number>(0),
