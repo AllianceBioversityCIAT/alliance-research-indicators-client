@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { of } from 'rxjs';
 import { CacheService } from '@services/cache/cache.service';
 import { signal } from '@angular/core';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 // Mock ResizeObserver
 class ResizeObserverMock {
@@ -28,16 +30,38 @@ describe('SectionHeaderComponent', () => {
     };
 
     cacheService = {
-      dataCache: () => ({
-        user: { first_name: 'Test User' }
+      dataCache: signal({
+        user: {
+          first_name: 'Test User',
+          last_name: 'User',
+          is_active: true,
+          sec_user_id: 1,
+          roleName: 'Admin',
+          email: 'testuser@example.com',
+          status_id: 1,
+          user_role_list: [
+            {
+              roleName: 'Admin',
+              roleId: 1,
+              is_active: true,
+              user_id: 1,
+              role_id: 1,
+              role: 'Admin'
+            }
+          ]
+          // Agregar otras propiedades necesarias aquí
+        },
+        access_token: 'dummy_access_token',
+        refresh_token: 'dummy_refresh_token',
+        exp: 0
       }),
-      headerHeight: signal(0),
-      navbarHeight: signal(0),
-      hasSmallScreen: jest.fn(() => true)
+      headerHeight: signal<number>(0),
+      navbarHeight: signal<number>(0),
+      hasSmallScreen: signal<boolean>(true)
     };
 
     await TestBed.configureTestingModule({
-      imports: [SectionHeaderComponent],
+      imports: [HttpClientTestingModule, RouterTestingModule, SectionHeaderComponent],
       providers: [
         {
           provide: ActivatedRoute,
