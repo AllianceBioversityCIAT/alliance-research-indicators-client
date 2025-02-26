@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import clarity from '@microsoft/clarity';
 import { environment } from '../../../environments/environment';
 import { CacheService } from './cache/cache.service';
@@ -19,7 +18,6 @@ export class ClarityService {
 
     try {
       this.initClarity();
-      this.setupRouteTracking();
       this.setUserInfo();
       this.initialized = true;
     } catch (error) {
@@ -37,17 +35,12 @@ export class ClarityService {
     }
   }
 
-  private setupRouteTracking(): void {
-    this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe({
-      next: (event: NavigationEnd) => {
-        try {
-          clarity.setTag('page', event.urlAfterRedirects);
-        } catch (error) {
-          console.error('Error tracking page view:', error);
-        }
-      },
-      error: error => console.error('Error in route tracking subscription:', error)
-    });
+  updateState(url: string) {
+    try {
+      clarity.setTag('page', url);
+    } catch (error) {
+      console.error('Error updating Clarity state:', error);
+    }
   }
 
   private setUserInfo(): void {

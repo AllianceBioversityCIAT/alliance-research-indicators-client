@@ -10,15 +10,15 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from '../environments/environment';
 import { jWtInterceptor } from './shared/interceptors/jwt.interceptor';
 import { httpErrorInterceptor } from './shared/interceptors/http-error.interceptor';
-import { ClarityService } from './shared/services/clarity.service';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { MyPreset } from './theme/roartheme';
+import { TrackingToolsService } from './shared/services/tracking-tools.service';
 const config: SocketIoConfig = { url: environment.webSocketServerUrl, options: {} };
 
-function initializeClarityService(clarityService: ClarityService) {
-  return () => clarityService.init();
+function initializeTrackingToolsService(trackingToolsService: TrackingToolsService) {
+  return () => trackingToolsService.init();
 }
 
 export const appConfig: ApplicationConfig = {
@@ -36,11 +36,11 @@ export const appConfig: ApplicationConfig = {
         }
       }
     }),
-    ClarityService,
+    TrackingToolsService,
     {
       provide: APP_INITIALIZER,
-      useFactory: initializeClarityService,
-      deps: [ClarityService],
+      useFactory: initializeTrackingToolsService,
+      deps: [TrackingToolsService],
       multi: true
     },
     provideServiceWorker('ngsw-worker.js', {

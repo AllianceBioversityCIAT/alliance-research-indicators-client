@@ -50,6 +50,9 @@ export const routes: Routes = [
       {
         path: 'result/:id',
         loadComponent: () => import('@platform/pages/result/result.component'),
+        data: {
+          ok: 'Result'
+        },
         children: [
           {
             path: '',
@@ -60,49 +63,49 @@ export const routes: Routes = [
             path: 'general-information',
             loadComponent: () => import('@platform/pages/result/pages/general-information/general-information.component'),
             data: {
-              title: 'General Information'
+              title: 'Result Information'
             }
           },
           {
             path: 'alliance-alignment',
             loadComponent: () => import('@platform/pages/result/pages/alliance-alignment/alliance-alignment.component'),
             data: {
-              title: 'Alliance Alignment'
+              title: 'Result Information'
             }
           },
           {
             path: 'partners',
             loadComponent: () => import('@platform/pages/result/pages/partners/partners.component'),
             data: {
-              title: 'Partners'
+              title: 'Result Information'
             }
           },
           {
             path: 'evidence',
             loadComponent: () => import('@platform/pages/result/pages/evidence/evidence.component'),
             data: {
-              title: 'Evidence'
+              title: 'Result Information'
             }
           },
           {
             path: 'capacity-sharing',
             loadComponent: () => import('@platform/pages/result/pages/capacity-sharing/capacity-sharing.component'),
             data: {
-              title: 'Capacity Sharing'
+              title: 'Result Information'
             }
           },
           {
             path: 'policy-change',
             loadComponent: () => import('@platform/pages/result/pages/policy-change/policy-change.component'),
             data: {
-              title: 'Policy Change'
+              title: 'Result Information'
             }
           },
           {
             path: 'geographic-scope',
             loadComponent: () => import('@platform/pages/result/pages/geographic-scope/geographic-scope.component'),
             data: {
-              title: 'Geographic Scope'
+              title: 'Result Information'
             }
           }
         ]

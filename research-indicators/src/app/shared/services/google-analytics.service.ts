@@ -6,7 +6,10 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class GoogleAnalyticsService {
-  constructor() {
+  init() {
     IBDGoogleAnalytics().initialize(environment.googleAnalyticsId);
+  }
+  updateState(url: string) {
+    IBDGoogleAnalytics().trackPageView(url);
   }
 }

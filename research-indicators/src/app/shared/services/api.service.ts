@@ -1,4 +1,4 @@
-import { Injectable, WritableSignal, inject, resource } from '@angular/core';
+import { Injectable, WritableSignal, inject } from '@angular/core';
 import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
@@ -358,7 +358,7 @@ export class ApiService {
   indicatorsWithResult = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators/with/result');
   indicatorTabs = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators', 'indicatortabs');
   // greenChecks = this.signalEndpoint.createEndpoint<GreenChecks>(() => `results/green-checks/${this.cache.currentResultId()}`);
-  getGreenChecks = () => {
+  getGreenChecks = (): Promise<MainResponse<GreenChecks>> => {
     const url = () => `results/green-checks/${this.cache.currentResultId()}`;
     return this.TP.get(url(), {});
   };

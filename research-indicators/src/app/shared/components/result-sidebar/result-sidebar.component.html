@@ -22,7 +22,7 @@
     @for (option of options(); track option.path) {
       @if (!option.hide) {
         <div class="options" [class.disabled]="option.disabled" [routerLink]="option.disabled ? null : option.path" routerLinkActive="active">
-          <i class="material-symbols-rounded {{ this.greenChecks()[option.greenCheckKey] ? '!text-green-400' : '' }}">circle</i>
+          <i class="material-symbols-rounded {{ option.greenCheck ? '!text-green-400' : '' }}">circle</i>
           <div class="option">{{ option.label }}</div>
           @if (option.underConstruction) {
             <img src="construction.png" alt="" class="construction-icon-x1" />

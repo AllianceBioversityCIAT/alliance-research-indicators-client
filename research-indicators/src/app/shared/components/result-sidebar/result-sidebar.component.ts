@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { ApiService } from '../../services/api.service';
+import { GreenChecks } from '../../interfaces/get-green-checks.interface';
 interface SidebarOption {
   label: string;
   path: string;
@@ -12,9 +13,9 @@ interface SidebarOption {
   underConstruction?: boolean;
   hide?: boolean;
   greenCheckKey: string;
+  greenCheck?: boolean;
 }
 
-type GreenChecks = Record<string, boolean>;
 @Component({
   selector: 'app-result-sidebar',
   imports: [RouterLink, RouterLinkActive, ButtonModule, CustomTagComponent],
@@ -27,16 +28,20 @@ export class ResultSidebarComponent implements OnInit {
 
   greenChecks = signal<GreenChecks>({});
   ngOnInit(): void {
-    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-    //Add 'implements OnInit' to the class.
     this.getData();
   }
 
   async getData() {
     const response = await this.api.getGreenChecks();
     this.greenChecks.set(response.data);
-    console.log(this.greenChecks());
   }
+
+  allOptionsWithGreenChecks = computed(() => {
+    return this.allOptions().map(option => ({
+      ...option,
+      greenCheck: Boolean(this.greenChecks()[option.greenCheckKey as keyof GreenChecks])
+    }));
+  });
 
   allOptions: WritableSignal<SidebarOption[]> = signal([
     {
