@@ -41,6 +41,7 @@ import { GetSubnationalsByIsoAlpha } from '../interfaces/get-subnationals-by-iso
 import { ControlListCacheService } from './control-list-cache.service';
 import { SignalEndpointService } from './signal-endpoint.service';
 import { GreenChecks } from '../interfaces/get-green-checks.interface';
+import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
 
 @Injectable({
   providedIn: 'root'
@@ -366,6 +367,11 @@ export class ApiService {
   saveErrors = (error: PostError): Promise<MainResponse<PostError>> => {
     const url = () => '';
     return this.TP.post(url(), { error }, { isAuth: environment.saveErrorsUrl });
+  };
+
+  GET_CurrentUser = (token: string): Promise<MainResponse<GetCurrentUser>> => {
+    const url = () => `authorization/users/current`;
+    return this.TP.get(url(), { isAuth: true, token });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

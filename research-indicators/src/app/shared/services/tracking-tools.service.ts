@@ -16,24 +16,28 @@ export class TrackingToolsService {
   hotjar = inject(HotjarService);
   googleAnalytics = inject(GoogleAnalyticsService);
   private router = inject(Router);
-
-  init() {
+  async init() {
     this.initAllTools();
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
       this.cache.currentUrlPath.set(event.urlAfterRedirects);
       this.updateAllTools(event.urlAfterRedirects);
+      // }, 1000);
     });
   }
 
+  get isTester(): boolean {
+    return !!JSON.parse(localStorage.getItem('data') ?? '{}')?.user?.user_role_list?.find((role: { role_id: number }) => role.role_id === 8);
+  }
+
   initAllTools() {
-    if (!environment.production) return;
+    if (!environment.production && !this.isTester) return;
     this.clarity.init();
     this.googleAnalytics.init();
     this.hotjar.init();
   }
 
   updateAllTools(url: string) {
-    if (!environment.production) return;
+    if (!environment.production && !this.isTester) return;
     this.hotjar.updateState(url);
     this.clarity.updateState(url);
     this.googleAnalytics.updateState(url);
