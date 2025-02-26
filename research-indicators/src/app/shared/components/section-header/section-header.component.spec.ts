@@ -4,6 +4,9 @@ import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { of } from 'rxjs';
 import { CacheService } from '@services/cache/cache.service';
 import { signal } from '@angular/core';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { ActionsService } from '@shared/services/actions.service';
 
 // Mock ResizeObserver
 class ResizeObserverMock {
@@ -19,6 +22,7 @@ describe('SectionHeaderComponent', () => {
   let fixture: ComponentFixture<SectionHeaderComponent>;
   let routerSpy: Partial<Router>;
   let cacheService: Partial<CacheService>;
+  let actionsService: Partial<ActionsService>;
 
   beforeEach(async () => {
     routerSpy = {
@@ -28,16 +32,54 @@ describe('SectionHeaderComponent', () => {
     };
 
     cacheService = {
-      dataCache: () => ({
-        user: { first_name: 'Test User' }
+      dataCache: signal({
+        user: {
+          first_name: 'Test User',
+          last_name: 'User',
+          is_active: true,
+          sec_user_id: 1,
+          roleName: 'Admin',
+          email: 'testuser@example.com',
+          status_id: 1,
+          user_role_list: [
+            {
+              roleName: 'Admin',
+              roleId: 1,
+              is_active: true,
+              user_id: 1,
+              role_id: 1,
+              role: {
+                is_active: true,
+                justification_update: null,
+                sec_role_id: 1,
+                name: 'Admin',
+                focus_id: 0
+              }
+            }
+          ]
+          // Agregar otras propiedades necesarias aquí
+        },
+        access_token: 'dummy_access_token',
+        refresh_token: 'dummy_refresh_token',
+        exp: 0,
+        isLoggedIn: signal<boolean>(false)
       }),
-      headerHeight: signal(0),
-      navbarHeight: signal(0),
-      hasSmallScreen: jest.fn(() => true)
+      headerHeight: signal<number>(0),
+      navbarHeight: signal<number>(0),
+      hasSmallScreen: signal<boolean>(true),
+      isLoggedIn: signal<boolean>(false),
+      currentUrlPath: signal<string>('/test'),
+      showSubmissionHistory: signal<boolean>(false)
+    };
+
+    actionsService = {
+      validateToken: jest.fn(),
+      logOut: jest.fn(),
+      showGlobalAlert: jest.fn()
     };
 
     await TestBed.configureTestingModule({
-      imports: [SectionHeaderComponent],
+      imports: [HttpClientTestingModule, RouterTestingModule, SectionHeaderComponent],
       providers: [
         {
           provide: ActivatedRoute,
@@ -59,6 +101,10 @@ describe('SectionHeaderComponent', () => {
         {
           provide: CacheService,
           useValue: cacheService
+        },
+        {
+          provide: ActionsService,
+          useValue: actionsService
         }
       ]
     }).compileComponents();

@@ -17,17 +17,19 @@
     </div>
   </div>
 
-  <div class="buttons-container rs-gap-x-[15] gap-3">
-    <p-button [outlined]="true" size="small" icon="pi pi-share-alt" />
-    <p-button [outlined]="true" size="small" icon="pi pi-download" />
-    <div>
-      <p-menu #menu [model]="items" [popup]="true" />
-      <p-button (onClick)="menu.toggle($event)" [text]="true" size="small" icon="pi pi-ellipsis-v" />
+  @if (this.showSectionHeaderActions()) {
+    <div class="buttons-container rs-gap-x-[15] gap-3">
+      <p-button [outlined]="true" size="small" icon="pi pi-share-alt" />
+      <p-button [outlined]="true" size="small" icon="pi pi-download" />
+      <div>
+        <p-menu #menu [model]="items" [popup]="true" />
+        <p-button (onClick)="menu.toggle($event)" [text]="true" size="small" icon="pi pi-ellipsis-v" />
+      </div>
     </div>
-  </div>
+  }
 </div>
 
-<p-popover #historyPanel>
+<!-- <p-popover #historyPanel>
   <div class="history-list">
     @for (item of filteredHistory(); track $index; let i = $index) {
       <div class="history-item" (click)="navigateToHistoryItem(i)">
@@ -36,9 +38,9 @@
       </div>
     }
   </div>
-</p-popover>
+</p-popover> -->
 
-<p-popover #historyPanel>
+<!-- <p-popover #historyPanel>
   <div class="history-list">
     @for (item of filteredHistory(); track $index; let i = $index) {
       <div class="history-item" (click)="navigateToHistoryItem(i)">
@@ -47,4 +49,4 @@
       </div>
     }
   </div>
-</p-popover>
+</p-popover> -->
