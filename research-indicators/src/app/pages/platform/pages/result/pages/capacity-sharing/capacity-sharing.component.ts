@@ -31,7 +31,6 @@ import { PartnerSelectedItemComponent } from '../../../../../../shared/component
         PartnerSelectedItemComponent
     ],
     templateUrl: './capacity-sharing.component.html',
-    styleUrl: './capacity-sharing.component.scss'
 })
 export default class CapacitySharingComponent {
   api = inject(ApiService);
