@@ -1,10 +1,11 @@
-import { Component, computed, inject, signal, WritableSignal, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { ApiService } from '../../services/api.service';
 import { GreenChecks } from '../../interfaces/get-green-checks.interface';
+import { GreenChecksService } from '../../services/green-checks.service';
 interface SidebarOption {
   label: string;
   path: string;
@@ -22,24 +23,15 @@ interface SidebarOption {
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })
-export class ResultSidebarComponent implements OnInit {
+export class ResultSidebarComponent {
   cache = inject(CacheService);
   api = inject(ApiService);
-
-  greenChecks = signal<GreenChecks>({});
-  ngOnInit(): void {
-    this.getData();
-  }
-
-  async getData() {
-    const response = await this.api.getGreenChecks();
-    this.greenChecks.set(response.data);
-  }
+  greenChecksService = inject(GreenChecksService);
 
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions().map(option => ({
       ...option,
-      greenCheck: Boolean(this.greenChecks()[option.greenCheckKey as keyof GreenChecks])
+      greenCheck: Boolean(this.greenChecksService.greenChecks()[option.greenCheckKey as keyof GreenChecks])
     }));
   });
 
