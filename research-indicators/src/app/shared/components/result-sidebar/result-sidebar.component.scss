@@ -101,6 +101,10 @@
         border-radius: 10px;
         padding: 5px;
 
+        .greenCheckBorder:not(.greenCheckActive) {
+          background-color: #173f6f !important;
+        }
+
         .material-symbols-rounded {
           color: #173f6f;
         }

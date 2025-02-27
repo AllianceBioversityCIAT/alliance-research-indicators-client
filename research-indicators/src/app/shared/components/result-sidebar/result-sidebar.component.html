@@ -22,7 +22,10 @@
     @for (option of allOptionsWithGreenChecks(); track option.path) {
       @if (!option.hide) {
         <div class="options" [class.disabled]="option.disabled" [routerLink]="option.disabled ? null : option.path" routerLinkActive="active">
-          <div class="w-4 h-4 rounded-full flex items-center justify-center {{ option.greenCheck ? 'bg-[#509c55]' : 'bg-[#A2A9AF]' }}">
+          <div
+            class="w-4 h-4 rounded-full flex items-center justify-center greenCheckBorder {{ option.greenCheck && 'greenCheckActive' }} {{
+              option.greenCheck ? 'bg-[#509c55]' : 'bg-[#A2A9AF]'
+            }}">
             <div class="w-3 h-3 rounded-full {{ option.greenCheck ? 'bg-[#a8ceab]' : 'bg-[#ffffff]' }}"></div>
           </div>
 
