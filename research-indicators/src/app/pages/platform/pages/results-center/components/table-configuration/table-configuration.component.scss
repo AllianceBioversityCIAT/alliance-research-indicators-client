@@ -1,36 +1,11 @@
-.body {
-  display: grid;
-  gap: 20px;
-}
-
-.p-orderlist {
-  width: 100%;
-
-  .p-orderlist-controls {
-    display: none;
-  }
-
-  .p-orderlist-list {
-    width: 100%;
-    border: none;
-    background: transparent;
-
-    .p-orderlist-item {
-      padding: 0 !important;
-      margin: 0.5rem 0;
-      border: none;
-      background: transparent;
-
-      &:not(.p-highlight):hover {
-        background: transparent;
-      }
-    }
-  }
-}
-
-.p-orderlist-item-content,
-.p-orderlist-current-item-content {
-  width: 100%;
+.filter-list {
+  max-width: 100%;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .item-container {
@@ -41,22 +16,20 @@
   padding: 0.7rem 1rem;
   border-radius: 8px;
   width: 100%;
-  transition: all 0.2s ease;
+  cursor: move;
   border: 1px solid #e9ecef;
 
   &:hover {
     background-color: #e9ecef;
     transform: translateY(-1px);
-  }
-
-  .drag-handle {
-    display: flex;
-    align-items: center;
-    color: #6c757d;
-    cursor: move;
+    transition: all 0.2s ease;
   }
 
   .content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
     .column-name {
       font-weight: 500;
       color: #495057;
@@ -64,12 +37,28 @@
   }
 }
 
-// Estilos específicos para el elemento siendo arrastrado
-.p-orderlist-current-item-content,
-.p-orderlist-droppoint-highlight {
-  .item-container {
-    box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
-    background-color: #e9ecef;
-    border-color: #dee2e6;
-  }
+.cdk-drag-preview {
+  border: none;
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow:
+    0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14),
+    0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.example-box:last-child {
+  border: none;
+}
+
+.example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
