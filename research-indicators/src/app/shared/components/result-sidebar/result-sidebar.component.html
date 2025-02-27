@@ -22,7 +22,13 @@
     @for (option of allOptionsWithGreenChecks(); track option.path) {
       @if (!option.hide) {
         <div class="options" [class.disabled]="option.disabled" [routerLink]="option.disabled ? null : option.path" routerLinkActive="active">
-          <i class="material-symbols-rounded {{ option.greenCheck ? '!text-green-400' : '' }}">circle</i>
+          <div
+            class="w-4 h-4 rounded-full flex items-center justify-center greenCheckBorder {{ option.greenCheck && 'greenCheckActive' }} {{
+              option.greenCheck ? 'bg-[#509c55]' : 'bg-[#A2A9AF]'
+            }}">
+            <div class="w-3 h-3 rounded-full {{ option.greenCheck ? 'bg-[#a8ceab]' : 'bg-[#ffffff]' }}"></div>
+          </div>
+
           <div class="option">{{ option.label }}</div>
           @if (option.underConstruction) {
             <img src="construction.png" alt="" class="construction-icon-x1" />
@@ -31,5 +37,12 @@
       }
     }
   </div>
-  <p-button label="Submit Result" size="small" icon="pi pi-check" iconPos="right" class="button" [style]="{ width: '100%' }" [disabled]="true" />
+  <p-button
+    label="Submit Result"
+    size="small"
+    icon="pi pi-check"
+    iconPos="right"
+    class="button"
+    [style]="{ width: '100%' }"
+    (onClick)="submmitConfirm()" />
 </div>
