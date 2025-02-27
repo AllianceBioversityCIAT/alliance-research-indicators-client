@@ -65,6 +65,7 @@ export class ActionsService {
   async logOut() {
     // Clear localStorage
     localStorage.removeItem('data');
+    localStorage.removeItem('isSidebarCollapsed');
     this.cache.isLoggedIn.set(false);
     // Navigate to home first
     try {
