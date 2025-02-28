@@ -27,7 +27,45 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
   actions = inject(ActionsService);
   api = inject(ApiService);
 
-  items: MenuItem[] | undefined;
+  items = computed((): MenuItem[] => {
+    const deleteOption: MenuItem = {
+      label: 'Delete Result',
+      icon: 'pi pi-trash',
+      styleClass: 'delete-result',
+      command: () => {
+        this.actions.showGlobalAlert({
+          severity: 'warning',
+          summary: 'Are you sure you want to delete this result? ',
+          detail: 'Once deleted, it cannot be recovered.',
+          confirmCallback: {
+            label: 'Delete result',
+            event: async () => {
+              const res = await this.api.DELETE_Result(this.cache.currentResultId());
+              if (res.successfulRequest) this.router.navigate(['/results-center']);
+            }
+          }
+        });
+      }
+    };
+
+    const items: MenuItem[] = [
+      {
+        items: [
+          {
+            label: 'Submission History',
+            icon: 'pi pi-clock',
+            command: () => {
+              this.cache.showSubmissionHistory.set(true);
+            }
+          }
+        ]
+      }
+    ];
+
+    if (!this.cache.currentResultIsSubmitted() && this.cache.isMyResult()) items[0].items?.push(deleteOption);
+
+    return items;
+  });
 
   @ViewChild('historyPanel') historyPanel!: OverlayPanel;
   private resizeObserver: ResizeObserver | null = null;
@@ -39,39 +77,6 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
     // Set initial values
     this.currentUrl.set(this.router.url);
     this.updateRouteInfo();
-
-    this.items = [
-      {
-        items: [
-          {
-            label: 'Submission History',
-            icon: 'pi pi-clock',
-            command: () => {
-              this.cache.showSubmissionHistory.set(true);
-            }
-          },
-          {
-            label: 'Delete Result',
-            icon: 'pi pi-trash',
-            styleClass: 'delete-result',
-            command: () => {
-              this.actions.showGlobalAlert({
-                severity: 'warning',
-                summary: 'Are you sure you want to delete this result? ',
-                detail: 'Once deleted, it cannot be recovered.',
-                confirmCallback: {
-                  label: 'Delete result',
-                  event: async () => {
-                    const res = await this.api.DELETE_Result(this.cache.currentResultId());
-                    if (res.successfulRequest) this.router.navigate(['/results-center']);
-                  }
-                }
-              });
-            }
-          }
-        ]
-      }
-    ];
   }
 
   ngAfterViewInit(): void {
