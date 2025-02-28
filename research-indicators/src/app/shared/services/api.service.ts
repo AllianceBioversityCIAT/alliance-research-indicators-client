@@ -370,6 +370,11 @@ export class ApiService {
     return this.TP.get(url(), { isAuth: true, token });
   };
 
+  // PATCH_SubmitResult = (resultId: number, body: { comment: string }): Promise<MainResponse<any>> => {
+  //   const url = () => `results/green-checks/submit/${resultId}`;
+  //   return this.TP.patch(url(), body);
+  // };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {
