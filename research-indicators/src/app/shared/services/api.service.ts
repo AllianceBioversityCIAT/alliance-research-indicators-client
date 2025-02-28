@@ -40,7 +40,6 @@ import { GetAllResultStatus } from '../interfaces/get-all-result-status.interfac
 import { GetSubnationalsByIsoAlpha } from '../interfaces/get-subnationals-by-iso-alpha.interface';
 import { ControlListCacheService } from './control-list-cache.service';
 import { SignalEndpointService } from './signal-endpoint.service';
-import { GreenChecks } from '../interfaces/get-green-checks.interface';
 import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
 
 @Injectable({
@@ -359,10 +358,7 @@ export class ApiService {
   indicatorsWithResult = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators/with/result');
   indicatorTabs = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators', 'indicatortabs');
   // greenChecks = this.signalEndpoint.createEndpoint<GreenChecks>(() => `results/green-checks/${this.cache.currentResultId()}`);
-  getGreenChecks = (): Promise<MainResponse<GreenChecks>> => {
-    const url = () => `results/green-checks/${this.cache.currentResultId()}`;
-    return this.TP.get(url(), {});
-  };
+
   // Add the saveErrors endpoint
   saveErrors = (error: PostError): Promise<MainResponse<PostError>> => {
     const url = () => '';

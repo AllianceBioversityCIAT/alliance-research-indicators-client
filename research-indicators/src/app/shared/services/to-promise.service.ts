@@ -4,7 +4,7 @@ import { Observable, firstValueFrom, map, catchError, finalize } from 'rxjs';
 import { MainResponse } from '../interfaces/responses.interface';
 import { environment } from '../../../environments/environment';
 import { CacheService } from './cache/cache.service';
-
+import { GreenChecks } from '../interfaces/get-green-checks.interface';
 @Injectable({
   providedIn: 'root'
 })
@@ -13,7 +13,11 @@ export class ToPromiseService {
   cacheService = inject(CacheService);
 
   private TP = (subscription: Observable<any>, loadingTrigger?: boolean): Promise<MainResponse<any>> => {
-    if (loadingTrigger) this.cacheService.currentResultIsLoading.set(true);
+    if (loadingTrigger) {
+      this.cacheService.currentResultIsLoading.set(true);
+      this.cacheService.greenChecks.set({});
+    }
+
     return firstValueFrom(
       subscription.pipe(
         map(data => ({ ...data, successfulRequest: true })),
@@ -22,7 +26,10 @@ export class ToPromiseService {
           return [{ ...error, successfulRequest: false, errorDetail: error?.error }];
         }),
         finalize(() => {
-          if (loadingTrigger) this.cacheService.currentResultIsLoading.set(false);
+          if (loadingTrigger) {
+            this.cacheService.currentResultIsLoading.set(false);
+            this.updateGreenChecks();
+          }
         })
       )
     );
@@ -55,6 +62,17 @@ export class ToPromiseService {
     if (typeof isAuth === 'string') return isAuth;
     return isAuth ? environment.managementApiUrl : environment.mainApiUrl;
   };
+
+  getGreenChecks = (): Promise<MainResponse<GreenChecks>> => {
+    const url = () => `results/green-checks/${this.cacheService.currentResultId()}`;
+    return this.get(url(), {});
+  };
+
+  async updateGreenChecks() {
+    const response = await this.getGreenChecks();
+    console.log(response);
+    this.cacheService.greenChecks.set(response.data);
+  }
 }
 
 interface Config {

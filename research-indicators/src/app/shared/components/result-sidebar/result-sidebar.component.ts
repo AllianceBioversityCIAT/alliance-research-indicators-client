@@ -5,7 +5,6 @@ import { CacheService } from '../../services/cache/cache.service';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { ApiService } from '../../services/api.service';
 import { GreenChecks } from '../../interfaces/get-green-checks.interface';
-import { GreenChecksService } from '../../services/green-checks.service';
 import { CommonModule } from '@angular/common';
 import { ActionsService } from '@shared/services/actions.service';
 interface SidebarOption {
@@ -28,13 +27,12 @@ interface SidebarOption {
 export class ResultSidebarComponent {
   cache = inject(CacheService);
   api = inject(ApiService);
-  greenChecksService = inject(GreenChecksService);
   actions = inject(ActionsService);
 
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions().map(option => ({
       ...option,
-      greenCheck: Boolean(this.greenChecksService.greenChecks()[option.greenCheckKey as keyof GreenChecks])
+      greenCheck: Boolean(this.cache.greenChecks()[option.greenCheckKey as keyof GreenChecks])
     }));
   });
 
