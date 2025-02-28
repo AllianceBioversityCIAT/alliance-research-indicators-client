@@ -33,10 +33,10 @@ export class CognitoService {
         severity: 'error',
         summary: 'Error authenticating',
         detail: loginResponse.errorDetail.errors,
-        callbacks: [
-          { label: 'Close', event: () => this.router.navigate(['/']) },
-          { label: 'Retry Log in', event: () => this.redirectToCognito() }
-        ]
+        confirmCallback: {
+          label: 'Retry Log in',
+          event: () => this.redirectToCognito()
+        }
       });
       return;
     }
