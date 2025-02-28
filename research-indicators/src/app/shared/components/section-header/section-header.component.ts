@@ -57,20 +57,12 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
                 severity: 'warning',
                 summary: 'Are you sure you want to delete this result? ',
                 detail: 'Once deleted, it cannot be recovered.',
-                callbacks: [
-                  {
-                    label: 'Close',
-                    event: () => {
-                      return;
-                    }
-                  },
-                  {
-                    label: 'Delete result',
-                    event: () => {
-                      return;
-                    }
+                confirmCallback: {
+                  label: 'Delete result',
+                  event: () => {
+                    return;
                   }
-                ]
+                }
               });
             }
           }

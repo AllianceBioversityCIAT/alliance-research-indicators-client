@@ -85,24 +85,16 @@ export class ResultSidebarComponent {
       severity: 'success',
       summary: 'CONFIRM SUBMISSION',
       detail: `The result <strong>"${this.cache.currentMetadata().result_title}"</strong> is about to be submitted. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.`,
-      callbacks: [
-        {
-          label: 'Close',
-          event: () => {
-            return;
-          }
-        },
-        {
-          label: 'Submit',
-          event: async () => {
-            // console.log(this.cache.currentMetadata());
-            // console.log(this.cache.dataCache());
-            // const response = await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: 'test' });
-            // console.log(response);
-            return;
-          }
+      confirmCallback: {
+        label: 'Submit',
+        event: async () => {
+          // console.log(this.cache.currentMetadata());
+          // console.log(this.cache.dataCache());
+          // const response = await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: 'test' });
+          // console.log(response);
+          return;
         }
-      ]
+      }
     });
   }
 }

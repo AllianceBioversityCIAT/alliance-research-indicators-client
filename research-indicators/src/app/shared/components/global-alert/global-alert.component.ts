@@ -26,6 +26,7 @@ export class GlobalAlertComponent {
     const list = this.actions.globalAlertsStatus().map((alert: GlobalAlert) => {
       alert.icon = this.getIcon(alert.severity).icon;
       alert.color = this.getIcon(alert.severity).color;
+      if (!alert.cancelCallback?.label) alert.cancelCallback = { label: 'Cancel' };
       return alert;
     });
     return list;
