@@ -1,6 +1,7 @@
 import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { DataCache } from '@interfaces/cache.interface';
 import { GetMetadata } from '../../interfaces/get-metadata.interface';
+import { GreenChecks } from '../../interfaces/get-green-checks.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class CacheService {
   currentResultIsLoading = signal(false);
   currentUrlPath = signal('');
   currentMetadata: WritableSignal<GetMetadata> = signal({});
+  greenChecks = signal<GreenChecks>({});
   loadingCurrentResult = signal(false);
   navbarHeight = signal(0);
   headerHeight = signal(0);

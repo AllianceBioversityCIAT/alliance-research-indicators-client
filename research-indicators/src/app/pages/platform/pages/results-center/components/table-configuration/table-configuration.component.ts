@@ -1,20 +1,20 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderListModule } from 'primeng/orderlist';
-import { signal } from '@angular/core';
 import { ResultsCenterService } from '../../results-center.service';
 import { TableColumn } from '../../result-center.interface';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 const STORAGE_KEY = 'results-center-columns-order';
 
 @Component({
-    selector: 'app-table-configuration',
-    imports: [CommonModule, OrderListModule],
-    templateUrl: './table-configuration.component.html',
-    styleUrls: ['./table-configuration.component.scss']
+  selector: 'app-table-configuration',
+  imports: [CommonModule, OrderListModule, CdkDropList, CdkDrag],
+  templateUrl: './table-configuration.component.html',
+  styleUrls: ['./table-configuration.component.scss']
 })
 export class TableConfigurationComponent implements OnInit {
-  private resultsCenterService = inject(ResultsCenterService);
+  private readonly resultsCenterService = inject(ResultsCenterService);
   auxiliaryColumns = signal<TableColumn[]>([]);
 
   private reorderByReference(referenceArray: TableColumn[]) {
@@ -51,6 +51,10 @@ export class TableConfigurationComponent implements OnInit {
         console.error('Error loading saved configuration:', e);
       }
     }
+  }
+
+  drop(event: CdkDragDrop<string[]>) {
+    moveItemInArray(this.auxiliaryColumns(), event.previousIndex, event.currentIndex);
   }
 
   applyConfigurations() {

@@ -12,6 +12,7 @@ export class CustomTagComponent {
   @Input() statusName = '';
 
   getColors: Colors = {
+    '': { border: '#79D9FF', text: '#1689CA' },
     '0': { border: '#79D9FF', text: '#1689CA' },
     '1': { border: '#79D9FF', text: '#1689CA' },
     '2': { border: '#7C9CB9', text: '#173F6F' },
