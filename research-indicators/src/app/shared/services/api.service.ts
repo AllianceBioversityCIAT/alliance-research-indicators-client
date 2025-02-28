@@ -376,6 +376,11 @@ export class ApiService {
     return this.TP.patch(url(), body);
   };
 
+  DELETE_Result = (resultId: number) => {
+    const url = () => `results/${resultId}/delete`;
+    return this.TP.delete(url());
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {

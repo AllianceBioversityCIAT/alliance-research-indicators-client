@@ -35,6 +35,10 @@ export class ToPromiseService {
     );
   };
 
+  delete = <T>(url: string, config?: Config) => {
+    return this.TP(this.http.delete<T>(this.getEnv(config?.isAuth) + url));
+  };
+
   post = <T, B>(url: string, body: B, config?: Config) => {
     let headers = new HttpHeaders();
     if (config?.token) {

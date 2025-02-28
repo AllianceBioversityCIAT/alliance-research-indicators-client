@@ -18,9 +18,10 @@ export class CacheService {
   currentUrlPath = signal('');
   currentMetadata: WritableSignal<GetMetadata> = signal({});
   greenChecks = signal<GreenChecks>({});
+  allGreenChecksAreTrue = computed(() => Object.values(this.greenChecks()).every(check => check));
   canSubmitResult = computed(() => {
     return (
-      Object.values(this.greenChecks()).every(check => check) &&
+      this.allGreenChecksAreTrue() &&
       Object.values(this.greenChecks()).length &&
       Number(this.currentMetadata().created_by) === Number(this.dataCache().user.sec_user_id)
     );

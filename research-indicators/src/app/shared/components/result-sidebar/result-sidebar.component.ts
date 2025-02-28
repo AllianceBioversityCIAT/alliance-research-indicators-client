@@ -8,7 +8,7 @@ import { GreenChecks } from '../../interfaces/get-green-checks.interface';
 import { CommonModule } from '@angular/common';
 import { ActionsService } from '@shared/services/actions.service';
 import { GetMetadataService } from '../../services/get-metadata.service';
-
+import { TooltipModule } from 'primeng/tooltip';
 interface submissionAlertData {
   severity: 'success' | 'warning';
   summary: string;
@@ -27,7 +27,7 @@ interface SidebarOption {
 
 @Component({
   selector: 'app-result-sidebar',
-  imports: [RouterLink, RouterLinkActive, ButtonModule, CustomTagComponent, CommonModule],
+  imports: [RouterLink, RouterLinkActive, ButtonModule, CustomTagComponent, CommonModule, TooltipModule],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })
@@ -114,12 +114,8 @@ export class ResultSidebarComponent {
       confirmCallback: {
         label: 'Submit',
         event: async () => {
-          console.log(this.cache.currentMetadata());
-          console.log(this.cache.dataCache().user.sec_user_id);
-          const response = await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: 'test' });
+          await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: 'test' });
           this.metadata.update(this.cache.currentResultId());
-
-          console.log(response);
           return;
         }
       }

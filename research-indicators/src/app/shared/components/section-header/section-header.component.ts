@@ -10,6 +10,7 @@ import { PopoverModule } from 'primeng/popover';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ActionsService } from '@shared/services/actions.service';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-section-header',
@@ -24,6 +25,7 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
   route = inject(ActivatedRoute);
   elementRef = inject(ElementRef);
   actions = inject(ActionsService);
+  api = inject(ApiService);
 
   items: MenuItem[] | undefined;
 
@@ -59,8 +61,9 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
                 detail: 'Once deleted, it cannot be recovered.',
                 confirmCallback: {
                   label: 'Delete result',
-                  event: () => {
-                    return;
+                  event: async () => {
+                    const res = await this.api.DELETE_Result(this.cache.currentResultId());
+                    if (res.successfulRequest) this.router.navigate(['/results-center']);
                   }
                 }
               });

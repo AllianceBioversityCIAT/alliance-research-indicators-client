@@ -38,8 +38,10 @@
     }
   </div>
   <p-button
+    [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
     [label]="cache.currentMetadata().status_id === 1 ? 'Submit Result' : 'Unsubmit Result'"
     size="small"
+    tooltipPosition="bottom"
     [icon]="cache.currentMetadata().status_id === 1 ? 'pi pi-check' : ''"
     iconPos="right"
     class="button"
