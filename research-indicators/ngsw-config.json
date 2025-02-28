@@ -41,7 +41,7 @@
     },
     {
       "name": "static-data",
-      "urls": ["/api/indicators", "/api/results/status"],
+      "urls": ["/api/indicators", "/api/results/status", "/api/indicator-types"],
       "cacheConfig": {
         "strategy": "performance",
         "maxSize": 100,
