@@ -30,10 +30,12 @@ export class ResultSidebarComponent {
   actions = inject(ActionsService);
 
   allOptionsWithGreenChecks = computed(() => {
-    return this.allOptions().map(option => ({
-      ...option,
-      greenCheck: Boolean(this.cache.greenChecks()[option.greenCheckKey as keyof GreenChecks])
-    }));
+    return this.allOptions()
+      .filter(option => option?.indicator_id === this.cache.currentMetadata()?.indicator_id || !option?.indicator_id)
+      .map(option => ({
+        ...option,
+        greenCheck: Boolean(this.cache.greenChecks()[option.greenCheckKey as keyof GreenChecks])
+      }));
   });
 
   allOptions: WritableSignal<SidebarOption[]> = signal([
@@ -78,10 +80,6 @@ export class ResultSidebarComponent {
     }
   ]);
 
-  options = computed(() => {
-    return this.allOptions().filter(option => option.indicator_id === this.cache.currentMetadata().indicator_id || !option.indicator_id);
-  });
-
   submmitConfirm() {
     this.actions.showGlobalAlert({
       severity: 'info',
@@ -97,7 +95,11 @@ export class ResultSidebarComponent {
         },
         {
           label: 'Submit',
-          event: () => {
+          event: async () => {
+            // console.log(this.cache.currentMetadata());
+            // console.log(this.cache.dataCache());
+            // const response = await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: 'test' });
+            // console.log(response);
             return;
           }
         }
