@@ -84,7 +84,7 @@ export class ResultSidebarComponent {
 
   submmitConfirm() {
     this.actions.showGlobalAlert({
-      severity: 'info',
+      severity: 'success',
       summary: 'CONFIRM SUBMISSION',
       detail:
         'The result is about to be submitted. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.',

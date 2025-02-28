@@ -3,6 +3,8 @@ export interface GlobalAlert {
   summary: string;
   detail: string;
   callbacks?: callback[];
+  icon?: string;
+  color?: string;
 }
 
 interface callback {
