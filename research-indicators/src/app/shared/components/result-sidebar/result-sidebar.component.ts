@@ -84,8 +84,7 @@ export class ResultSidebarComponent {
     this.actions.showGlobalAlert({
       severity: 'success',
       summary: 'CONFIRM SUBMISSION',
-      detail:
-        'The result is about to be submitted. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.',
+      detail: `The result <strong>"${this.cache.currentMetadata().result_title}"</strong> is about to be submitted. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.`,
       callbacks: [
         {
           label: 'Close',
