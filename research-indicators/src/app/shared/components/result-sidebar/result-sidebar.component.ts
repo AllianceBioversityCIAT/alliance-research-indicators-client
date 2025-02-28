@@ -7,6 +7,13 @@ import { ApiService } from '../../services/api.service';
 import { GreenChecks } from '../../interfaces/get-green-checks.interface';
 import { CommonModule } from '@angular/common';
 import { ActionsService } from '@shared/services/actions.service';
+import { GetMetadataService } from '../../services/get-metadata.service';
+
+interface submissionAlertData {
+  severity: 'success' | 'warning';
+  summary: string;
+  detail: string;
+}
 interface SidebarOption {
   label: string;
   path: string;
@@ -28,6 +35,7 @@ export class ResultSidebarComponent {
   cache = inject(CacheService);
   api = inject(ApiService);
   actions = inject(ActionsService);
+  metadata = inject(GetMetadataService);
 
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions()
@@ -80,18 +88,38 @@ export class ResultSidebarComponent {
     }
   ]);
 
-  submmitConfirm() {
-    this.actions.showGlobalAlert({
+  submissionAlertData = computed(
+    (): submissionAlertData => ({
       severity: 'success',
       summary: 'CONFIRM SUBMISSION',
-      detail: `The result <strong>"${this.cache.currentMetadata().result_title}"</strong> is about to be submitted. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.`,
+      detail: `The result <strong>"${this.cache.currentMetadata().result_title}"</strong> is about to be <strong>submitted</strong>. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.`
+    })
+  );
+
+  unsavedChangesAlertData = computed(
+    (): submissionAlertData => ({
+      severity: 'warning',
+      summary: 'CONFIRM UNSUBMISSION',
+      detail: `You are about to <strong>unsubmit</strong> the result <strong>"${this.cache.currentMetadata().result_title}"</strong>. To continue, please provide a brief reason for the unsubmission.`
+    })
+  );
+
+  submmitConfirm() {
+    const { severity, summary, detail } = this.cache.currentMetadata().status_id === 1 ? this.submissionAlertData() : this.unsavedChangesAlertData();
+
+    this.actions.showGlobalAlert({
+      severity,
+      summary,
+      detail,
       confirmCallback: {
         label: 'Submit',
         event: async () => {
-          // console.log(this.cache.currentMetadata());
-          // console.log(this.cache.dataCache());
-          // const response = await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: 'test' });
-          // console.log(response);
+          console.log(this.cache.currentMetadata());
+          console.log(this.cache.dataCache().user.sec_user_id);
+          const response = await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: 'test' });
+          this.metadata.update(this.cache.currentResultId());
+
+          console.log(response);
           return;
         }
       }

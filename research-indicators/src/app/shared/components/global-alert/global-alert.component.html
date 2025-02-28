@@ -6,9 +6,9 @@
       <div class="summary !text-[{{ alert.color }}]">{{ alert.summary }}</div>
       <div class="detail" [innerHTML]="alert.detail"></div>
       <div class="actions">
-        <p-button [label]="alert.cancelCallback?.label" (onClick)="alert.cancelCallback?.event(); closeAlert($index)" variant="outlined" />
+        <p-button [label]="alert.cancelCallback?.label" (onClick)="alert.cancelCallback?.event?.(); closeAlert($index)" variant="outlined" />
         @if (alert.confirmCallback?.event) {
-          <p-button [label]="alert.confirmCallback?.label" (onClick)="alert.confirmCallback?.event(); closeAlert($index)" />
+          <p-button [label]="alert.confirmCallback?.label" (onClick)="alert.confirmCallback?.event?.(); closeAlert($index)" />
         }
         @for (callback of alert.callbacks; track $index) {
           <p-button label="{{ callback.label }}" (onClick)="callback?.event(); closeAlert($index)" />

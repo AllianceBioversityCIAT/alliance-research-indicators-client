@@ -72,7 +72,7 @@ export default class GeneralInformationComponent {
     this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
     this.getResultsService.updateList();
     await this.getData();
-    await this.metadata.GET_Metadata(this.cache.currentResultId());
+    await this.metadata.update(this.cache.currentResultId());
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     this.loading.set(false);
   }

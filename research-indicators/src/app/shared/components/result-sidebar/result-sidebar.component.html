@@ -38,11 +38,13 @@
     }
   </div>
   <p-button
-    label="Submit Result"
+    [label]="cache.currentMetadata().status_id === 1 ? 'Submit Result' : 'Unsubmit Result'"
     size="small"
-    icon="pi pi-check"
+    [icon]="cache.currentMetadata().status_id === 1 ? 'pi pi-check' : ''"
     iconPos="right"
     class="button"
+    [severity]="cache.currentMetadata().status_id === 1 ? (cache.canSubmitResult() ? null : 'secondary') : 'warn'"
+    [disabled]="!cache.canSubmitResult()"
     [style]="{ width: '100%' }"
     (onClick)="submmitConfirm()" />
 </div>

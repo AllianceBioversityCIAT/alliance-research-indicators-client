@@ -18,6 +18,13 @@ export class CacheService {
   currentUrlPath = signal('');
   currentMetadata: WritableSignal<GetMetadata> = signal({});
   greenChecks = signal<GreenChecks>({});
+  canSubmitResult = computed(() => {
+    return (
+      Object.values(this.greenChecks()).every(check => check) &&
+      Object.values(this.greenChecks()).length &&
+      Number(this.currentMetadata().created_by) === Number(this.dataCache().user.sec_user_id)
+    );
+  });
   loadingCurrentResult = signal(false);
   navbarHeight = signal(0);
   headerHeight = signal(0);
