@@ -23,7 +23,9 @@ import { InputComponent } from '../custom-fields/input/input.component';
 })
 export class GlobalAlertComponent {
   actions = inject(ActionsService);
-  commentValue = signal('');
+  body = signal({
+    commentValue: ''
+  });
   alertList = computed(() => {
     const list = this.actions.globalAlertsStatus().map((alert: GlobalAlert) => {
       alert.icon = this.getIcon(alert.severity).icon;
@@ -37,6 +39,7 @@ export class GlobalAlertComponent {
 
   closeAlert(index: number) {
     this.actions.hideGlobalAlert(index);
+    this.body.update(body => ({ ...body, commentValue: '' }));
   }
 
   getIcon(severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast'): { icon: string; color: string } {
