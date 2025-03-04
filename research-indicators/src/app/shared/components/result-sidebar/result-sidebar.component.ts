@@ -111,10 +111,12 @@ export class ResultSidebarComponent {
       severity,
       summary,
       detail,
+      commentLabel: this.cache.currentMetadata().status_id === 1 ? 'Comment' : 'Feedback about the unsubmission',
+      commentRequired: this.cache.currentMetadata().status_id === 1 ? false : true,
       confirmCallback: {
         label: 'Submit',
-        event: async () => {
-          await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: 'test' });
+        event: async (comment?: string) => {
+          await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: comment || '' });
           this.metadata.update(this.cache.currentResultId());
           return;
         }

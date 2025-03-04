@@ -1,12 +1,13 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { ActionsService } from '../../services/actions.service';
 import { ButtonModule } from 'primeng/button';
 import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
+import { InputComponent } from '../custom-fields/input/input.component';
 
 @Component({
   selector: 'app-global-alert',
-  imports: [ButtonModule],
+  imports: [ButtonModule, InputComponent],
   templateUrl: './global-alert.component.html',
   styleUrls: ['./global-alert.component.scss'],
   animations: [
@@ -22,10 +23,12 @@ import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
 })
 export class GlobalAlertComponent {
   actions = inject(ActionsService);
+  commentValue = signal('');
   alertList = computed(() => {
     const list = this.actions.globalAlertsStatus().map((alert: GlobalAlert) => {
       alert.icon = this.getIcon(alert.severity).icon;
       alert.color = this.getIcon(alert.severity).color;
+      alert.commentLabel = alert.commentRequired ? alert.commentLabel : `${alert.commentLabel} (optional)`;
       if (!alert.cancelCallback?.label) alert.cancelCallback = { label: 'Cancel' };
       return alert;
     });

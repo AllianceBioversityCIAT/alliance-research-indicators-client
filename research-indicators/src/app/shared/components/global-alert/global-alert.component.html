@@ -5,10 +5,18 @@
       <img [src]="alert.icon" alt="" class="w-[60px]" />
       <div class="summary !text-[{{ alert.color }}]">{{ alert.summary }}</div>
       <div class="detail" [innerHTML]="alert.detail"></div>
+      @if (alert.commentLabel) {
+        <app-input
+          [label]="alert.commentLabel"
+          optionValue="individual.trainee_name"
+          [signal]="commentValue"
+          [style]="{ width: '100%' }"
+          [isRequired]="alert.commentRequired || false"></app-input>
+      }
       <div class="actions">
         <p-button [label]="alert.cancelCallback?.label" (onClick)="alert.cancelCallback?.event?.(); closeAlert($index)" variant="outlined" />
         @if (alert.confirmCallback?.event) {
-          <p-button [label]="alert.confirmCallback?.label" (onClick)="alert.confirmCallback?.event?.(); closeAlert($index)" />
+          <p-button [label]="alert.confirmCallback?.label" (onClick)="alert.confirmCallback?.event?.(this.commentValue()); closeAlert($index)" />
         }
         @for (callback of alert.callbacks; track $index) {
           <p-button label="{{ callback.label }}" (onClick)="callback?.event(); closeAlert($index)" />
