@@ -19,6 +19,6 @@ export default class ResultComponent {
 
   constructor() {
     this.cache.currentResultId.set(this.resultId);
-    this.metadata.GET_Metadata(this.resultId);
+    this.metadata.update(this.resultId);
   }
 }

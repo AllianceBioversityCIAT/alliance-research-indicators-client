@@ -1,12 +1,17 @@
-@for (alert of this.actions.globalAlertsStatus(); track $index) {
+@for (alert of this.alertList(); track $index) {
   <div class="alert-overlay">
     <div class="alert">
-      <i class="material-symbols-rounded" [class]="'text-' + alert.severity">{{ this.getIcon(alert.severity) }}</i>
-      <div class="summary" [class]="'text-' + alert.severity">{{ alert.summary }}</div>
+      <!-- <i class="material-symbols-rounded" [class]="'text-' + alert.severity">{{ this.getIcon(alert.severity) }}</i> -->
+      <img [src]="alert.icon" alt="" class="w-[60px]" />
+      <div class="summary !text-[{{ alert.color }}]">{{ alert.summary }}</div>
       <div class="detail" [innerHTML]="alert.detail"></div>
       <div class="actions">
+        <p-button [label]="alert.cancelCallback?.label" (onClick)="alert.cancelCallback?.event?.(); closeAlert($index)" variant="outlined" />
+        @if (alert.confirmCallback?.event) {
+          <p-button [label]="alert.confirmCallback?.label" (onClick)="alert.confirmCallback?.event?.(); closeAlert($index)" />
+        }
         @for (callback of alert.callbacks; track $index) {
-          <p-button label="{{ callback.label }}" (onClick)="callback.event(); closeAlert($index)" />
+          <p-button label="{{ callback.label }}" (onClick)="callback?.event(); closeAlert($index)" />
         }
       </div>
     </div>

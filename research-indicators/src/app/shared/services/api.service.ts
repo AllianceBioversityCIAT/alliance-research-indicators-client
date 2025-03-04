@@ -41,6 +41,7 @@ import { GetSubnationalsByIsoAlpha } from '../interfaces/get-subnationals-by-iso
 import { ControlListCacheService } from './control-list-cache.service';
 import { SignalEndpointService } from './signal-endpoint.service';
 import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
+import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -370,10 +371,15 @@ export class ApiService {
     return this.TP.get(url(), { isAuth: true, token });
   };
 
-  // PATCH_SubmitResult = (resultId: number, body: { comment: string }): Promise<MainResponse<any>> => {
-  //   const url = () => `results/green-checks/submit/${resultId}`;
-  //   return this.TP.patch(url(), body);
-  // };
+  PATCH_SubmitResult = (resultId: number, body: PatchSubmitResult) => {
+    const url = () => `results/green-checks/submit/${resultId}`;
+    return this.TP.patch(url(), body);
+  };
+
+  DELETE_Result = (resultId: number) => {
+    const url = () => `results/${resultId}/delete`;
+    return this.TP.delete(url());
+  };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 

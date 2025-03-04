@@ -2,10 +2,14 @@ export interface GlobalAlert {
   severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast';
   summary: string;
   detail: string;
-  callbacks?: callback[];
+  callbacks?: Callback[];
+  icon?: string;
+  color?: string;
+  confirmCallback?: Callback;
+  cancelCallback?: Callback;
 }
 
-interface callback {
+interface Callback {
   label: string;
-  event: () => void;
+  event?: () => void;
 }

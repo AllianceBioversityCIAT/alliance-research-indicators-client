@@ -8,7 +8,8 @@
     <div class="flex flex-col xl:flex-row gap-5">
       <div class="flex-1">
         <app-radio-button
-          label="What training or engagement do you want to report?*"
+          label="What training or engagement do you want to report?"
+          [isRequired]="true"
           [signal]="body"
           [serviceName]="'capSharingFormats'"
           [optionLabel]="'name'"
@@ -17,7 +18,8 @@
 
       <div class="flex-1">
         <app-radio-button
-          label="Is this a training or a engagement?*"
+          label="Is this a training or a engagement?"
+          [isRequired]="true"
           [signal]="body"
           [serviceName]="'capSharingTypes'"
           [optionLabel]="'name'"
@@ -30,13 +32,14 @@
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]" [class.hidden]="body().session_format_id !== 1">
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">INDIVIDUAL TRAINING</div>
     <div class="mb-6">
-      <app-input label="Trainee name*" [signal]="body" optionValue="individual.trainee_name"></app-input>
+      <app-input label="Trainee name" [isRequired]="true" [signal]="body" optionValue="individual.trainee_name"></app-input>
     </div>
 
     <div class="flex flex-col xl:flex-row gap-5 mb-6">
       <div class="flex-1">
         <app-radio-button
-          label="Degree*"
+          label="Degree"
+          [isRequired]="true"
           [signal]="body"
           [serviceName]="'capSharingDegrees'"
           [optionLabel]="'name'"
@@ -45,7 +48,8 @@
 
       <div class="flex-1">
         <app-radio-button
-          label="Gender*"
+          label="Gender"
+          [isRequired]="true"
           [signal]="body"
           [serviceName]="'capSharingGenders'"
           [optionLabel]="'name'"
@@ -54,7 +58,8 @@
 
       <div class="flex-1">
         <app-radio-button
-          label="Lenght of training*"
+          label="Lenght of training"
+          [isRequired]="true"
           [signal]="body"
           [serviceName]="'capSharingLengths'"
           [optionLabel]="'name'"
@@ -114,7 +119,8 @@
     <div class="flex flex-col xl:flex-row gap-5 mb-6">
       <div class="flex-1">
         <app-radio-button
-          label="What was the purpose of this training/engagement?*"
+          label="What was the purpose of this training/engagement?"
+          [isRequired]="true"
           [signal]="body"
           [serviceName]="'capSharingSessionPurpose'"
           [optionLabel]="'name'"
@@ -123,7 +129,8 @@
 
       <div class="flex-1">
         <app-radio-button
-          label="Were the trainees attending on behalf of an organization?*"
+          label="Were the trainees attending on behalf of an organization?"
+          [isRequired]="true"
           [signal]="body"
           [optionLabel]="'name'"
           [serviceName]="'yesOrNo'"
@@ -142,7 +149,8 @@
 
     <div>
       <app-multiselect
-        label="Select the organizations*"
+        label="Select the organizations"
+        [isRequired]="true"
         description="Partner organizations you collaborated with or are currently collaborating with to generate this result."
         [signal]="body"
         optionLabel="html_full_name"
@@ -165,7 +173,8 @@
     <div class="flex flex-col xl:flex-row gap-5 mb-6">
       <div class="flex-1">
         <app-select
-          label="Training / Engagement supervisor*"
+          label="Training / Engagement supervisor"
+          [isRequired]="true"
           optionLabel="full_name"
           optionLabel2="email"
           [signal]="body"
@@ -197,7 +206,8 @@
 
     <div class="mt-5">
       <app-radio-button
-        label="Delivery modality*"
+        label="Delivery modality"
+        [isRequired]="true"
         [signal]="body"
         [serviceName]="'capSharingDeliveryModalities'"
         [optionLabel]="'name'"

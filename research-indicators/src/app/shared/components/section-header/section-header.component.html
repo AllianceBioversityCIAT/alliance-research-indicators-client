@@ -22,7 +22,7 @@
       <p-button [outlined]="true" size="small" icon="pi pi-share-alt" />
       <p-button [outlined]="true" size="small" icon="pi pi-download" />
       <div>
-        <p-menu #menu [model]="items" [popup]="true" />
+        <p-menu #menu [model]="items()" [popup]="true" />
         <p-button (onClick)="menu.toggle($event)" [text]="true" size="small" icon="pi pi-ellipsis-v" />
       </div>
     </div>

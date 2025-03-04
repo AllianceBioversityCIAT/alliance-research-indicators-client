@@ -85,15 +85,7 @@ export class CreateResultFormComponent {
     this.actions.showGlobalAlert({
       severity: isWarning ? 'warning' : 'error',
       summary: isWarning ? 'Warning' : 'Error',
-      detail: isWarning ? `${result.errorDetail.errors} "${this.body().title}"` : result.errorDetail.errors,
-      callbacks: [
-        {
-          label: 'Close',
-          event: () => {
-            return;
-          }
-        }
-      ]
+      detail: isWarning ? `${result.errorDetail.errors} "${this.body().title}"` : result.errorDetail.errors
     });
   };
 }
