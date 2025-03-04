@@ -5,11 +5,13 @@ export interface GlobalAlert {
   callbacks?: Callback[];
   icon?: string;
   color?: string;
+  commentLabel?: string;
+  commentRequired?: boolean;
   confirmCallback?: Callback;
   cancelCallback?: Callback;
 }
 
 interface Callback {
   label: string;
-  event?: () => void;
+  event?: (comment?: string) => void;
 }
