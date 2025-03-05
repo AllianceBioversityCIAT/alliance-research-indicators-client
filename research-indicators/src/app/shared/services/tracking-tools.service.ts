@@ -2,9 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { ClarityService } from './clarity.service';
 import { CacheService } from './cache/cache.service';
 import { GoogleAnalyticsService } from './google-analytics.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { NavigationEnd } from '@angular/router';
 import { HotjarService } from './hotjar.service';
 import { environment } from '../../../environments/environment';
 @Injectable({
@@ -17,13 +16,17 @@ export class TrackingToolsService {
   googleAnalytics = inject(GoogleAnalyticsService);
   route = inject(ActivatedRoute);
 
-  private router = inject(Router);
+  private readonly router = inject(Router);
   async init() {
     this.initAllTools();
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
       this.cache.currentUrlPath.set(event.urlAfterRedirects);
       this.updateAllTools(event.urlAfterRedirects);
       this.getCurrentTitle();
+
+      if (this.cache.hasSmallScreen()) {
+        this.cache.collapseSidebar();
+      }
     });
   }
 
