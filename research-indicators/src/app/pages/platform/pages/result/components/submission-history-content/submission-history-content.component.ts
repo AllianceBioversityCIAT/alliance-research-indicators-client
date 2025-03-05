@@ -16,14 +16,11 @@ export class SubmissionHistoryContentComponent implements OnInit {
   historyList = signal<SubmissionHistoryItem[]>([]);
 
   ngOnInit(): void {
-    console.log('data');
     this.getSubmitionHistory();
   }
 
   async getSubmitionHistory() {
     const response = await this.api.GET_SubmitionHistory(this.cache.currentResultId());
-    console.log(response.data);
     this.historyList.set(response.data);
-    console.log(response);
   }
 }
