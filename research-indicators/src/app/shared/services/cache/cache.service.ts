@@ -52,4 +52,9 @@ export class CacheService {
     this.isSidebarCollapsed.update(isCollapsed => !isCollapsed);
     localStorage.setItem('isSidebarCollapsed', this.isSidebarCollapsed().toString());
   }
+
+  collapseSidebar() {
+    this.isSidebarCollapsed.set(true);
+    localStorage.setItem('isSidebarCollapsed', 'true');
+  }
 }

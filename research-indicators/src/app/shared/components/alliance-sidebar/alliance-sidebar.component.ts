@@ -5,11 +5,11 @@ import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-    selector: 'alliance-sidebar',
-    imports: [RouterModule, CommonModule, TooltipModule],
-    templateUrl: './alliance-sidebar.component.html',
-    styleUrl: './alliance-sidebar.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'alliance-sidebar',
+  imports: [RouterModule, CommonModule, TooltipModule],
+  templateUrl: './alliance-sidebar.component.html',
+  styleUrl: './alliance-sidebar.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AllianceSidebarComponent implements OnInit {
   cache = inject(CacheService);
@@ -22,18 +22,14 @@ export class AllianceSidebarComponent implements OnInit {
   ];
 
   innerWidth = 0;
+  innerHeight = 0;
 
   ngOnInit() {
     this.innerWidth = window.innerWidth;
+    this.innerHeight = window.innerHeight;
 
-    if (this.innerWidth <= 1200 && !this.cache.isSidebarCollapsed()) {
+    if ((this.innerWidth <= 1200 || this.innerHeight <= 768) && !this.cache.isSidebarCollapsed()) {
       this.cache.toggleSidebar();
     }
   }
-
-  collapse() {
-    this.cache.toggleSidebar();
-  }
-
-
 }

@@ -17,11 +17,11 @@ import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.serv
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 
 @Component({
-    selector: 'alliance-navbar',
-    imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, DropdownComponent],
-    templateUrl: './alliance-navbar.component.html',
-    styleUrl: './alliance-navbar.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'alliance-navbar',
+  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, DropdownComponent],
+  templateUrl: './alliance-navbar.component.html',
+  styleUrl: './alliance-navbar.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navbar') navbarElement!: ElementRef;
@@ -37,6 +37,7 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
   elementRef = inject(ElementRef);
   service: any;
   private searchDebounceTimeout: any;
+  innerHeight = 0;
 
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home', underConstruction: false },
@@ -47,6 +48,7 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
 
   ngOnInit() {
     this.service = this.serviceLocator.getService('openSearchResult');
+    this.innerHeight = window.innerHeight;
   }
 
   ngAfterViewInit(): void {
