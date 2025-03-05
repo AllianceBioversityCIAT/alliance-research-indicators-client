@@ -69,7 +69,12 @@ describe('SectionHeaderComponent', () => {
       hasSmallScreen: signal<boolean>(true),
       isLoggedIn: signal<boolean>(false),
       currentUrlPath: signal<string>('/test'),
-      showSubmissionHistory: signal<boolean>(false)
+      showSubmissionHistory: signal<boolean>(false),
+      currentRouteTitle: signal<string>('Test Title'),
+      showSectionHeaderActions: signal<boolean>(true),
+      currentResultId: signal<number>(123),
+      currentResultIsSubmitted: signal<boolean>(false),
+      isMyResult: signal<boolean>(true)
     };
 
     actionsService = {

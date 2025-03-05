@@ -11,6 +11,7 @@
           [routerLink]="option.disabled ? null : option.path"
           routerLinkActive="active atc-light-blue-200-i"
           [class.disabled]="option.disabled"
+          (click)="innerHeight < 768 && this.cache.collapseSidebar()"
           [attr.aria-disabled]="option.disabled ? true : null">
           {{ option.label }}
           <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">

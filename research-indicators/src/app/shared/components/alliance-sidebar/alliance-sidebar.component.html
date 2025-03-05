@@ -4,9 +4,14 @@
   [class.collapsed]="cache.isSidebarCollapsed()">
   <div class="sidebar-header">
     <h2 class="h3 sidebar-title atc-primary-blue-600">Resources</h2>
-    <i class="material-symbols-rounded sidebar-icon atc-primary-blue-600" (click)="collapse()" (keydown.enter)="collapse()" tabindex="0" role="button"
-      >keyboard_double_arrow_left</i
-    >
+    <i
+      class="material-symbols-rounded sidebar-icon atc-primary-blue-600"
+      (click)="this.cache.toggleSidebar()"
+      (keydown.enter)="this.cache.toggleSidebar()"
+      tabindex="0"
+      role="button">
+      keyboard_double_arrow_left
+    </i>
   </div>
   <div class="h4 my-5 atc-grey-600" [class.hidden]="cache.isSidebarCollapsed()">LEARNING</div>
 
@@ -24,7 +29,8 @@
           [routerLinkActive]="'active'"
           [pTooltip]="cache.isSidebarCollapsed() ? option.label : ''"
           tooltipPosition="right"
-          placeholder="Right">
+          placeholder="Right"
+          (click)="innerHeight < 768 && this.cache.collapseSidebar()">
           @if (cache.isSidebarCollapsed() && option.underConstruction) {
             <div class="icon-construction-container">
               <i class="material-symbols-rounded">{{ option.icon }}</i>

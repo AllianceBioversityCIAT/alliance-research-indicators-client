@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ClarityService } from './clarity.service';
 import { CacheService } from './cache/cache.service';
 import { GoogleAnalyticsService } from './google-analytics.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { NavigationEnd } from '@angular/router';
 import { HotjarService } from './hotjar.service';
@@ -15,13 +15,27 @@ export class TrackingToolsService {
   clarity = inject(ClarityService);
   hotjar = inject(HotjarService);
   googleAnalytics = inject(GoogleAnalyticsService);
+  route = inject(ActivatedRoute);
+
   private router = inject(Router);
   async init() {
     this.initAllTools();
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
       this.cache.currentUrlPath.set(event.urlAfterRedirects);
       this.updateAllTools(event.urlAfterRedirects);
+      this.getCurrentTitle();
     });
+  }
+
+  private getCurrentTitle() {
+    let currentRoute = this.route;
+    this.cache.showSectionHeaderActions.set(false);
+    while (currentRoute.firstChild) {
+      currentRoute = currentRoute.firstChild;
+      if (currentRoute.snapshot.data['showSectionHeaderActions']) this.cache.showSectionHeaderActions.set(true);
+    }
+    const baseTitle = currentRoute.snapshot.data['title'] || '';
+    this.cache.currentRouteTitle.set(baseTitle);
   }
 
   isTester() {

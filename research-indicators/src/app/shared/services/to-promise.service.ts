@@ -74,7 +74,6 @@ export class ToPromiseService {
 
   async updateGreenChecks() {
     const response = await this.getGreenChecks();
-    console.log(response);
     this.cacheService.greenChecks.set(response.data);
   }
 }
