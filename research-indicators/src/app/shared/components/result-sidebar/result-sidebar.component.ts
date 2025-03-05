@@ -92,7 +92,7 @@ export class ResultSidebarComponent {
     (): submissionAlertData => ({
       severity: 'success',
       summary: 'CONFIRM SUBMISSION',
-      detail: `The result <strong>"${this.cache.currentMetadata().result_title}"</strong> is about to be <strong>submitted</strong>. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.`
+      detail: `The result <span class="font-medium">"${this.cache.currentMetadata().result_title}"</span> is about to be <span class="font-medium">submitted</span>. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.`
     })
   );
 
@@ -100,7 +100,7 @@ export class ResultSidebarComponent {
     (): submissionAlertData => ({
       severity: 'warning',
       summary: 'CONFIRM UNSUBMISSION',
-      detail: `You are about to <strong>unsubmit</strong> the result <strong>"${this.cache.currentMetadata().result_title}"</strong>. To continue, please provide a brief reason for the unsubmission.`
+      detail: `You are about to <span class="font-medium">unsubmit</span> the result <span class="font-medium">"${this.cache.currentMetadata().result_title}"</span>. To continue, please provide a brief reason for the unsubmission.`
     })
   );
 

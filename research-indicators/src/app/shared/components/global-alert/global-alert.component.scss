@@ -7,7 +7,7 @@
   align-items: center;
   width: 100vw;
   height: 100vh;
-  background-color: rgb(2 0 23 / 63.7%);
+  background-color: rgb(97, 102, 109, 0.7);
   backdrop-filter: blur(10px);
   z-index: 1000;
   animation: fade-in 0.2s ease-out;
@@ -17,13 +17,23 @@
     background-color: white;
     box-shadow: 0 0 10px 0 rgb(0 0 0 / 19.8%);
     border-radius: 10px;
-    padding: 30px 40px;
+    padding: 44px 36px;
     gap: 30px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 50vw;
+    width: 60vw;
+    border: 1.5px solid;
+    box-shadow: 0px 2.99px 16.46px 0px #00b6ff1a;
+
+    @media (max-width: 1024px) {
+      width: 70vw;
+    }
+
+    @media (min-width: 1400px) {
+      width: 800px;
+    }
 
     i {
       font-size: 60px;
@@ -37,8 +47,12 @@
     }
 
     .detail {
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 400;
+
+      @media (max-width: 1024px) {
+        font-size: 1rem;
+      }
 
       a {
         color: #007bff;

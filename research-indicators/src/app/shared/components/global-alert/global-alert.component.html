@@ -1,16 +1,16 @@
 @for (alert of this.alertList(); track $index) {
   <div class="alert-overlay">
-    <div class="alert">
-      <!-- <i class="material-symbols-rounded" [class]="'text-' + alert.severity">{{ this.getIcon(alert.severity) }}</i> -->
-      <img [src]="alert.icon" alt="" class="w-[60px]" />
+    <div class="alert" [style]="{ borderColor: alert.color }">
+      <i [class]="alert.icon" [style]="{ 'font-size': '50px', color: alert.color }"></i>
       <div class="summary !text-[{{ alert.color }}]">{{ alert.summary }}</div>
-      <div class="detail" [innerHTML]="alert.detail"></div>
+      <div class="detail text-[#4C5158]" [innerHTML]="alert.detail"></div>
       @if (alert.commentLabel) {
         <app-input
           [label]="alert.commentLabel"
           [signal]="body"
           optionValue="commentValue"
           [style]="{ width: '100%' }"
+          autoComplete="off"
           [isRequired]="alert.commentRequired || false"></app-input>
       }
       <div class="actions">
@@ -19,7 +19,8 @@
           <p-button
             [label]="alert.confirmCallback?.label"
             (onClick)="alert.confirmCallback?.event?.(this.body().commentValue); closeAlert($index)"
-            [disabled]="alert.commentRequired && !this.body().commentValue" />
+            [disabled]="alert.commentRequired && !this.body().commentValue"
+            [style]="{ backgroundColor: alert.buttonColor, borderColor: alert.buttonColor }" />
         }
         @for (callback of alert.callbacks; track $index) {
           <p-button label="{{ callback.label }}" (onClick)="callback?.event(); closeAlert($index)" />
