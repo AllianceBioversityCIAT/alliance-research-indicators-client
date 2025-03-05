@@ -1,3 +1,3 @@
-@for (user of users; track $index) {
-  <app-submission-history-item [historyItem]="user"></app-submission-history-item>
+@for (history of historyList(); track $index) {
+  <app-submission-history-item [historyItem]="history"></app-submission-history-item>
 }

@@ -376,6 +376,11 @@ export class ApiService {
     return this.TP.patch(url(), body);
   };
 
+  GET_SubmitionHistory = (resultId: number) => {
+    const url = () => `results/green-checks/history/${resultId}`;
+    return this.TP.get(url(), {});
+  };
+
   DELETE_Result = (resultId: number) => {
     const url = () => `results/${resultId}/delete`;
     return this.TP.delete(url());
