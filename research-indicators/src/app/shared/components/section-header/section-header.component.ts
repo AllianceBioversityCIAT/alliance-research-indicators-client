@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { computed, signal, AfterViewInit } from '@angular/core';
@@ -18,7 +18,7 @@ import { ApiService } from '../../services/api.service';
   templateUrl: './section-header.component.html',
   styleUrl: './section-header.component.scss'
 })
-export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit {
+export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
   showSectionHeaderActions = signal(false);
   router = inject(Router);
   cache = inject(CacheService);
@@ -69,13 +69,7 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
 
   @ViewChild('historyPanel') historyPanel!: OverlayPanel;
   private resizeObserver: ResizeObserver | null = null;
-  private currentUrl = signal('');
   private routeId = signal<string | null>(null);
-
-  ngOnInit() {
-    // Set initial values
-    this.currentUrl.set(this.router.url);
-  }
 
   ngAfterViewInit(): void {
     const sectionSidebar = this.elementRef.nativeElement.querySelector('#section-sidebar');
