@@ -19,6 +19,7 @@ export class CacheService {
   currentMetadata: WritableSignal<GetMetadata> = signal({});
   greenChecks = signal<GreenChecks>({});
   currentResultIsSubmitted = computed(() => this.currentMetadata().status_id === 2);
+  currentRouteTitle = signal('');
   allGreenChecksAreTrue = computed(() => Object.values(this.greenChecks()).every(check => check));
   isMyResult = computed(() => Number(this.currentMetadata().created_by) === Number(this.dataCache().user.sec_user_id));
   canSubmitResult = computed(() => {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, ElementRef, effect } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { computed, signal, AfterViewInit } from '@angular/core';
@@ -70,13 +70,11 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
   @ViewChild('historyPanel') historyPanel!: OverlayPanel;
   private resizeObserver: ResizeObserver | null = null;
   private currentUrl = signal('');
-  private routeTitle = signal('');
   private routeId = signal<string | null>(null);
 
   ngOnInit() {
     // Set initial values
     this.currentUrl.set(this.router.url);
-    this.updateRouteInfo();
   }
 
   ngAfterViewInit(): void {
@@ -96,52 +94,15 @@ export class SectionHeaderComponent implements OnInit, OnDestroy, AfterViewInit 
     this.resizeObserver?.disconnect();
   }
 
-  onChangePath = effect(
-    () => {
-      this.cache.currentUrlPath();
-      this.showSectionHeaderActions.set(!!this.route.firstChild?.snapshot.data['showSectionHeaderActions']);
-    },
-    {
-      allowSignalWrites: true
-    }
-  );
-
-  private updateRouteInfo() {
-    let currentRoute = this.route;
-    // Navigate to the deepest route
-    while (currentRoute.firstChild) {
-      currentRoute = currentRoute.firstChild;
-    }
-
-    const baseTitle = currentRoute.snapshot.data['title'] || '';
-    this.routeTitle.set(baseTitle);
-
-    // Find the result route segment that contains the ID
-    let resultRoute = currentRoute;
-    while (resultRoute.parent) {
-      if (resultRoute.snapshot.url.some(segment => segment.path === 'result') && resultRoute.snapshot.params['id']) {
-        this.routeId.set(resultRoute.snapshot.params['id']);
-        return;
-      }
-      resultRoute = resultRoute.parent;
-    }
-    this.routeId.set(null);
-  }
-
   getHistoryItemTitle(item: { title: string; id: string | null }): string {
     return item.id ? `${item.title} (id: ${item.id})` : item.title;
   }
 
-  isHomePage = computed(() => {
-    const url = this.currentUrl();
-    return url === '/home' || url === '/' || url.startsWith('/?');
-  });
-
   welcomeMessage = computed(() => {
-    if (this.isHomePage()) {
+    if (this.cache.currentRouteTitle() === 'Home') {
       const userName = this.cache.dataCache().user?.first_name || '';
       return `Welcome, ${userName}`;
     }
-    return this.routeTitle();
+    return this.cache.currentRouteTitle();
   });
 }
