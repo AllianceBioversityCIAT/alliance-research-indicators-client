@@ -4,7 +4,10 @@
   [style.height]="'calc(100vh - ' + (this.cache.navbarHeight() + this.cache.headerHeight()) + 'px)'">
   <div class="content">
     <div class="header">
-      <div class="title">{{ title }}</div>
+      <div class="title-container">
+        <span class="title">{{ title }}</span>
+        <span class="material-symbols-rounded" (click)="hideSidebar()">close</span>
+      </div>
       <div class="description">{{ description }}</div>
     </div>
     <div class="scrollable-content">
