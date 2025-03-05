@@ -37,7 +37,6 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
   elementRef = inject(ElementRef);
   service: any;
   private searchDebounceTimeout: any;
-  innerHeight = 0;
 
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home', underConstruction: false },
@@ -48,7 +47,6 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
 
   ngOnInit() {
     this.service = this.serviceLocator.getService('openSearchResult');
-    this.innerHeight = window.innerHeight;
   }
 
   ngAfterViewInit(): void {

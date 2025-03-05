@@ -22,13 +22,11 @@ export class AllianceSidebarComponent implements OnInit {
   ];
 
   innerWidth = 0;
-  innerHeight = 0;
 
   ngOnInit() {
     this.innerWidth = window.innerWidth;
-    this.innerHeight = window.innerHeight;
 
-    if ((this.innerWidth <= 1200 || this.innerHeight <= 768) && !this.cache.isSidebarCollapsed()) {
+    if ((this.innerWidth <= 1200 || this.cache.hasSmallScreen()) && !this.cache.isSidebarCollapsed()) {
       this.cache.toggleSidebar();
     }
   }

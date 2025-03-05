@@ -29,8 +29,7 @@
           [routerLinkActive]="'active'"
           [pTooltip]="cache.isSidebarCollapsed() ? option.label : ''"
           tooltipPosition="right"
-          placeholder="Right"
-          (click)="innerHeight < 768 && this.cache.collapseSidebar()">
+          placeholder="Right">
           @if (cache.isSidebarCollapsed() && option.underConstruction) {
             <div class="icon-construction-container">
               <i class="material-symbols-rounded">{{ option.icon }}</i>
