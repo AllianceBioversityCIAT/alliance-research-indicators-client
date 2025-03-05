@@ -29,8 +29,10 @@ export class TrackingToolsService {
 
   private getCurrentTitle() {
     let currentRoute = this.route;
+    this.cache.showSectionHeaderActions.set(false);
     while (currentRoute.firstChild) {
       currentRoute = currentRoute.firstChild;
+      if (currentRoute.snapshot.data['showSectionHeaderActions']) this.cache.showSectionHeaderActions.set(true);
     }
     const baseTitle = currentRoute.snapshot.data['title'] || '';
     this.cache.currentRouteTitle.set(baseTitle);

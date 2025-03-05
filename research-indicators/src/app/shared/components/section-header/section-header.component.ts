@@ -19,7 +19,6 @@ import { ApiService } from '../../services/api.service';
   styleUrl: './section-header.component.scss'
 })
 export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
-  showSectionHeaderActions = signal(false);
   router = inject(Router);
   cache = inject(CacheService);
   route = inject(ActivatedRoute);
