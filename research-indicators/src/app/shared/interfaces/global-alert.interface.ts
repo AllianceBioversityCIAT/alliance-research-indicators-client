@@ -9,6 +9,7 @@ export interface GlobalAlert {
   commentRequired?: boolean;
   confirmCallback?: Callback;
   cancelCallback?: Callback;
+  buttonColor?: string;
 }
 
 interface Callback {

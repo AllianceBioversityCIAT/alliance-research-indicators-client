@@ -30,6 +30,7 @@ export class GlobalAlertComponent {
     const list = this.actions.globalAlertsStatus().map((alert: GlobalAlert) => {
       alert.icon = this.getIcon(alert.severity).icon;
       alert.color = this.getIcon(alert.severity).color;
+      alert.buttonColor = this.getIcon(alert.severity).buttonColor;
       alert.commentLabel = alert.commentRequired ? alert.commentLabel : `${alert.commentLabel} (optional)`;
       if (!alert.cancelCallback?.label) alert.cancelCallback = { label: 'Cancel' };
       return alert;
@@ -42,12 +43,12 @@ export class GlobalAlertComponent {
     this.body.update(body => ({ ...body, commentValue: '' }));
   }
 
-  getIcon(severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast'): { icon: string; color: string } {
+  getIcon(severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast'): { icon: string; color: string; buttonColor?: string } {
     switch (severity) {
       case 'success':
-        return { icon: 'status-icons/success.png', color: '#509C55' };
+        return { icon: 'pi pi-check-circle', color: '#509C55' };
       case 'warning':
-        return { icon: 'status-icons/warning.png', color: '#E69F00' };
+        return { icon: 'pi pi-history', color: '#E69F00', buttonColor: '#E69F00' };
       case 'error':
         return { icon: 'cancel', color: 'red' };
       default:

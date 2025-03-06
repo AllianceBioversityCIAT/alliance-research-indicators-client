@@ -24,6 +24,7 @@
           [style]="isInvalid() ? { border: '2px solid #E69F00' } : {}"
           aria-describedby="username-help"
           [(ngModel)]="this.body().value"
+          [autocomplete]="autoComplete"
           (ngModelChange)="setValue($event)" />
       } @else if (type === 'number') {
         <p-inputNumber

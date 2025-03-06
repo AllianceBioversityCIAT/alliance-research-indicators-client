@@ -28,6 +28,7 @@ export class InputComponent {
   @Input() validateEmpty = false;
   @Input() isRequired = false;
   @Input() onlyLowerCase = false;
+  @Input() autoComplete: 'on' | 'off' = 'on';
   body = signal({ value: null });
   firstTime = signal(true);
 
