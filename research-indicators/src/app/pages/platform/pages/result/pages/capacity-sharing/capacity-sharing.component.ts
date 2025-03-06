@@ -16,21 +16,21 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 import { CalendarInputComponent } from '../../../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 @Component({
-    selector: 'app-capacity-sharing',
-    imports: [
-        ButtonModule,
-        FormsModule,
-        DropdownModule,
-        CalendarModule,
-        RadioButtonModule,
-        RadioButtonComponent,
-        SelectComponent,
-        InputComponent,
-        CalendarInputComponent,
-        MultiselectComponent,
-        PartnerSelectedItemComponent
-    ],
-    templateUrl: './capacity-sharing.component.html',
+  selector: 'app-capacity-sharing',
+  imports: [
+    ButtonModule,
+    FormsModule,
+    DropdownModule,
+    CalendarModule,
+    RadioButtonModule,
+    RadioButtonComponent,
+    SelectComponent,
+    InputComponent,
+    CalendarInputComponent,
+    MultiselectComponent,
+    PartnerSelectedItemComponent
+  ],
+  templateUrl: './capacity-sharing.component.html'
 })
 export default class CapacitySharingComponent {
   api = inject(ApiService);
@@ -40,7 +40,7 @@ export default class CapacitySharingComponent {
   body: WritableSignal<GetCapSharing> = signal({});
   loading = signal(false);
 
-  constructor() {
+  ngOnInit() {
     this.getData();
   }
 
@@ -79,8 +79,4 @@ export default class CapacitySharingComponent {
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     this.loading.set(false);
   }
-
-  // onSaveSection = effect(() => {
-  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
-  // });
 }
