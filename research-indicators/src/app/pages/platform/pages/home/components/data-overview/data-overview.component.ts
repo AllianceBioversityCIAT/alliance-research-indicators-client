@@ -66,7 +66,7 @@ export class DataOverviewComponent implements OnInit {
 
     const labels = filteredData.map((item: any) => item?.name);
     const amounts = filteredData.map((item: any) => item?.amount_results);
-    const colors = ['#173F6F', '#1689CA', '#7CB580'];
+    const colors = ['#1689ca', '#173F6F', '#7CB580'];
 
     // Update chart legend
     this.chartLegend.set(
@@ -83,12 +83,12 @@ export class DataOverviewComponent implements OnInit {
         {
           data: amounts,
           backgroundColor: colors,
-          hoverBackgroundColor: ['#266abb', '#1689CA', '#7CB580']
+          hoverBackgroundColor: ['#1689ca', '#173f6f', '#7cb580']
         }
       ]
     };
     this.options = {
-      cutout: '60%',
+      cutout: '40%',
       responsive: true,
       maintainAspectRatio: true,
       aspectRatio: 1,
@@ -97,14 +97,7 @@ export class DataOverviewComponent implements OnInit {
           display: false
         },
         datalabels: {
-          formatter: (value: number) => {
-            return value > 0 ? value : '';
-          },
-          color: '#ffffff',
-          font: {
-            size: 14,
-            weight: 600
-          }
+          display: false
         }
       }
     };
