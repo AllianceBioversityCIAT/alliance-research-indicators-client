@@ -31,7 +31,10 @@ export class GlobalAlertComponent {
       alert.icon = this.getIcon(alert.severity).icon;
       alert.color = this.getIcon(alert.severity).color;
       alert.buttonColor = this.getIcon(alert.severity).buttonColor;
-      alert.commentLabel = alert.commentRequired ? alert.commentLabel : `${alert.commentLabel} (optional)`;
+
+      if (alert.commentLabel) {
+        alert.commentLabel = alert.commentRequired ? alert.commentLabel : `${alert.commentLabel} (optional)`;
+      }
       if (!alert.cancelCallback?.label) alert.cancelCallback = { label: 'Cancel' };
       return alert;
     });
