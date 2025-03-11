@@ -11,6 +11,8 @@ import { MainResponse } from '@shared/interfaces/responses.interface';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { Router } from '@angular/router';
 import { environment } from '@envs/environment';
+import { GetClarisaInstitutionsTypesChildlessService } from '@shared/services/get-clarisa-institutions-type-childless.service';
+import { GetCountriesService } from '@shared/services/control-list/get-countries.service';
 
 @Component({
   selector: 'app-request-partner-modal',
@@ -34,8 +36,8 @@ export class RequestPartnerModalComponent implements OnInit {
     websiteLink: null
   });
   loading = signal(false);
-  serviceInstitutionsTypes: any;
-  serviceCountries: any;
+  serviceInstitutionsTypes!: GetClarisaInstitutionsTypesChildlessService;
+  serviceCountries!: GetCountriesService;
 
   serviceLocator = inject(ServiceLocatorService);
   api = inject(ApiService);
@@ -44,8 +46,10 @@ export class RequestPartnerModalComponent implements OnInit {
   router = inject(Router);
 
   ngOnInit() {
-    this.serviceInstitutionsTypes = this.serviceLocator.getService('clarisaInstitutionsTypesChildless');
-    this.serviceCountries = this.serviceLocator.getService('countries');
+    this.serviceInstitutionsTypes = this.serviceLocator.getService(
+      'clarisaInstitutionsTypesChildless'
+    ) as GetClarisaInstitutionsTypesChildlessService;
+    this.serviceCountries = this.serviceLocator.getService('countries') as GetCountriesService;
   }
 
   validateWebsite = (website: string) => {
@@ -64,14 +68,14 @@ export class RequestPartnerModalComponent implements OnInit {
       platformUrl: `${environment.frontBaseUrl}${this.router.url}`
     });
     if (result.successfulRequest) {
-      this.successRequest(result);
+      this.successRequest();
     } else {
       this.badRequest(result);
     }
     this.loading.set(false);
   }
 
-  successRequest = (result: MainResponse<Result>) => {
+  successRequest = () => {
     this.actions.showToast({
       severity: 'success',
       summary: 'Success',

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -32,7 +32,7 @@ import { PartnerSelectedItemComponent } from '../../../../../../shared/component
   ],
   templateUrl: './capacity-sharing.component.html'
 })
-export default class CapacitySharingComponent {
+export default class CapacitySharingComponent implements OnInit {
   api = inject(ApiService);
   actions = inject(ActionsService);
   cache = inject(CacheService);
