@@ -9,6 +9,7 @@ import { UtilsService } from '../../../services/utils.service';
 import { environment } from '../../../../../environments/environment';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 
 @Component({
   selector: 'app-select',
@@ -26,9 +27,12 @@ export class SelectComponent implements OnInit {
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
   @Input() description = '';
+  @Input() showPartnerRequestDescription = false;
   @Input() disabled = false;
   @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
+
+  allModalsService = inject(AllModalsService);
 
   service: any;
   body = signal({ value: null });

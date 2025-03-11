@@ -7,7 +7,8 @@ import { ModalName } from '@ts-types/modal.types';
 export class AllModalsService {
   showModal: WritableSignal<Record<ModalName, boolean>> = signal({
     createResult: false,
-    createTest: false
+    createTest: false,
+    requestPartner: false
   });
 
   toggleModal(modalName: ModalName) {
@@ -42,7 +43,8 @@ export class AllModalsService {
   closeAllModals() {
     this.showModal.set({
       createResult: false,
-      createTest: false
+      createTest: false,
+      requestPartner: false
     });
   }
 }

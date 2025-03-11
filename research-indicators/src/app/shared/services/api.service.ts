@@ -42,6 +42,7 @@ import { ControlListCacheService } from './control-list-cache.service';
 import { SignalEndpointService } from './signal-endpoint.service';
 import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
 import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
+import { GetClarisaInstitutionsTypes } from '@shared/interfaces/get-clarisa-institutions-types.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -89,6 +90,16 @@ export class ApiService {
 
   GET_Institutions = (): Promise<MainResponse<GetInstitution[]>> => {
     const url = () => `tools/clarisa/institutions?location=true&type=true&only-hq=true`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InstitutionsTypesChildless = (): Promise<MainResponse<GetClarisaInstitutionsTypes[]>> => {
+    const url = () => `tools/clarisa/institutions-types/childless`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InstitutionsTypes = (): Promise<MainResponse<GetClarisaInstitutionsTypes[]>> => {
+    const url = () => `tools/clarisa/institutions-types`;
     return this.TP.get(url(), {});
   };
 
@@ -151,6 +162,12 @@ export class ApiService {
   // create result
   POST_Result = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `results`;
+    return this.TP.post(url(), body, {});
+  };
+
+  // create partner request
+  POST_PartnerRequest = <T>(body: T): Promise<MainResponse<Result>> => {
+    const url = () => `tools/clarisa/manager/partner-request/create`;
     return this.TP.post(url(), body, {});
   };
 

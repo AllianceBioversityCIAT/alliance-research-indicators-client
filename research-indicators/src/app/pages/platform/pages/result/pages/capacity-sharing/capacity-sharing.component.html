@@ -72,6 +72,7 @@
         <app-select
           label="Trainee affiliation"
           [signal]="body"
+          [showPartnerRequestDescription]="true"
           [optionLabel]="'html_full_name'"
           [optionValue]="{ body: 'individual.affiliation.institution_id', option: 'institution_id' }"
           serviceName="institutions"></app-select>
@@ -151,7 +152,7 @@
       <app-multiselect
         label="Select the organizations"
         [isRequired]="true"
-        description="Partner organizations you collaborated with or are currently collaborating with to generate this result."
+        [showPartnerRequestDescription]="true"
         [signal]="body"
         optionLabel="html_full_name"
         optionValue="institution_id"

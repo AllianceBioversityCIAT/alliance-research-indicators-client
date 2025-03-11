@@ -25,6 +25,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { UtilsService } from '../../../services/utils.service';
 import { environment } from '../../../../../environments/environment';
 import { TooltipModule } from 'primeng/tooltip';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 
 @Component({
   selector: 'app-multiselect',
@@ -39,6 +40,8 @@ export class MultiselectComponent implements OnInit {
   utils = inject(UtilsService);
   actions = inject(ActionsService);
   serviceLocator = inject(ServiceLocatorService);
+  allModalsService = inject(AllModalsService);
+
   @ContentChild('rows') rows!: TemplateRef<any>;
 
   @Input() signal: WritableSignal<any> = signal({});
@@ -50,6 +53,7 @@ export class MultiselectComponent implements OnInit {
   @Input() description = '';
   @Input() hideSelected = false;
   @Input() disabledSelectedScroll = false;
+  @Input() showPartnerRequestDescription = false;
   @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
 

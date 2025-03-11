@@ -28,6 +28,8 @@ import { GetAllIndicatorsService } from './control-list/get-all-indicators.servi
 import { GetAllResultStatusService } from './control-list/get-all-result-status.service';
 import { GetAllYearsService } from './control-list/get-all-years.service';
 import { GetSubnationalByIsoAlphaService } from './get-subnational-by-iso-alpha.service';
+import { GetClarisaInstitutionsTypesChildlessService } from './get-clarisa-institutions-type-childless.service';
+import { GetClarisaInstitutionsTypesService } from './get-clarisa-institutions-type.service';
 
 @Injectable({
   providedIn: 'root'
@@ -93,6 +95,10 @@ export class ServiceLocatorService {
         return this.injector.get(GetAllYearsService);
       case 'GetSubnationalByIsoAlpha':
         return this.injector.get(GetSubnationalByIsoAlphaService);
+      case 'clarisaInstitutionsTypes':
+        return this.injector.get(GetClarisaInstitutionsTypesService);
+      case 'clarisaInstitutionsTypesChildless':
+        return this.injector.get(GetClarisaInstitutionsTypesChildlessService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;
