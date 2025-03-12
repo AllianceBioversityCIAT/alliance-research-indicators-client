@@ -48,5 +48,5 @@
     [severity]="cache.currentMetadata().status_id === 1 ? (cache.canSubmitResult() ? null : 'secondary') : 'warn'"
     [disabled]="!cache.canSubmitResult()"
     [style]="{ width: '100%' }"
-    (onClick)="submmitConfirm()" />
+    (onClick)="this.allModalsService.openModal('submitResult')" />
 </div>

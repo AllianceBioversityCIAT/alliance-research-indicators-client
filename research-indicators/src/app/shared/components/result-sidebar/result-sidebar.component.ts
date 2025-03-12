@@ -3,17 +3,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
-import { ApiService } from '../../services/api.service';
 import { GreenChecks } from '../../interfaces/get-green-checks.interface';
 import { CommonModule } from '@angular/common';
 import { ActionsService } from '@shared/services/actions.service';
-import { GetMetadataService } from '../../services/get-metadata.service';
 import { TooltipModule } from 'primeng/tooltip';
-interface submissionAlertData {
-  severity: 'success' | 'warning';
-  summary: string;
-  detail: string;
-}
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
+
 interface SidebarOption {
   label: string;
   path: string;
@@ -33,9 +28,8 @@ interface SidebarOption {
 })
 export class ResultSidebarComponent {
   cache = inject(CacheService);
-  api = inject(ApiService);
   actions = inject(ActionsService);
-  metadata = inject(GetMetadataService);
+  allModalsService = inject(AllModalsService);
 
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions()
@@ -87,40 +81,4 @@ export class ResultSidebarComponent {
       greenCheckKey: 'evidences'
     }
   ]);
-
-  submissionAlertData = computed(
-    (): submissionAlertData => ({
-      severity: 'success',
-      summary: 'CONFIRM SUBMISSION',
-      detail: `The result <span class="font-medium">"${this.cache.currentMetadata().result_title}"</span> is about to be <span class="font-medium">submitted</span>. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.`
-    })
-  );
-
-  unsavedChangesAlertData = computed(
-    (): submissionAlertData => ({
-      severity: 'warning',
-      summary: 'CONFIRM UNSUBMISSION',
-      detail: `You are about to <span class="font-medium">unsubmit</span> the result <span class="font-medium">"${this.cache.currentMetadata().result_title}"</span>. To continue, please provide a brief reason for the unsubmission.`
-    })
-  );
-
-  submmitConfirm() {
-    const { severity, summary, detail } = this.cache.currentMetadata().status_id === 1 ? this.submissionAlertData() : this.unsavedChangesAlertData();
-
-    this.actions.showGlobalAlert({
-      severity,
-      summary,
-      detail,
-      commentLabel: this.cache.currentMetadata().status_id === 1 ? 'Comment' : 'Feedback about the unsubmission',
-      commentRequired: this.cache.currentMetadata().status_id === 1 ? false : true,
-      confirmCallback: {
-        label: 'Submit',
-        event: async (comment?: string) => {
-          await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: comment || '' });
-          this.metadata.update(this.cache.currentResultId());
-          return;
-        }
-      }
-    });
-  }
 }

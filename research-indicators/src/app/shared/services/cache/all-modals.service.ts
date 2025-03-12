@@ -7,6 +7,7 @@ import { ModalName } from '@ts-types/modal.types';
 export class AllModalsService {
   showModal: WritableSignal<Record<ModalName, boolean>> = signal({
     createResult: false,
+    submitResult: false,
     createTest: false
   });
 
@@ -42,6 +43,7 @@ export class AllModalsService {
   closeAllModals() {
     this.showModal.set({
       createResult: false,
+      submitResult: false,
       createTest: false
     });
   }

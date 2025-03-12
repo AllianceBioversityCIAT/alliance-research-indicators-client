@@ -1,0 +1,57 @@
+<header class="px-10 py-4 bg-white rounded-t-lg atc-primary-blue-500">
+  <p class="font-medium text-xl">Review Result</p>
+</header>
+
+<div class="p-12 pt-10">
+  <h3 class="text-[15px] font-semibold text-[#153C71] mb-6">Select a review action</h3>
+
+  <div class="flex justify-between space-x-5">
+    @for (option of reviewOptions; track option.key) {
+      <div
+        class="relative flex flex-col items-center p-6 rounded-lg text-center"
+        [ngClass]="{
+          'border-[#1689CA]/20 border-1 bg-[#79D9FF]/10': selectedAction === option.key,
+          'bg-white': selectedAction !== option.key
+        }"
+        (click)="setSelectedAction(option.key)"
+        (keypress)="setSelectedAction(option.key)">
+        <div class="absolute top-2.5 right-3 w-3.5 h-3.5 rounded-full border-1 border-[#B9C0C5] flex items-center justify-center">
+          @if (selectedAction === option.key) {
+            <div class="w-3.5 h-3.5 bg-[#1689CA] border-[#B9C0C5] rounded-full"></div>
+          }
+        </div>
+
+        <i class="pi !text-[30px]" [ngClass]="[option.icon, option.color]"></i>
+        <span class="font-semibold text-[15px] text-[#4C5158]">{{ option?.label }}</span>
+        <p class="text-[12px] text-[#4c5158]">{{ option?.description }}</p>
+      </div>
+    }
+  </div>
+
+  @if (selectedReviewOption?.message) {
+    <p class="text-[15px] text-[#4c5158] mt-6">
+      {{ selectedReviewOption?.message }}
+    </p>
+  }
+
+  @if (selectedReviewOption?.commentLabel) {
+    <div class="mt-4">
+      <label for="comments" class="font-semibold text-[15px] text-[#153C71] block mb-1">
+        {{ selectedReviewOption?.commentLabel }}
+        <span class="text-red-500">*</span>
+      </label>
+      <textarea
+        id="comments"
+        rows="6"
+        pTextarea
+        autoResize="false"
+        class="w-full border-1 border-gray-500 rounded-md resize-none"
+        [(ngModel)]="comments"></textarea>
+    </div>
+  }
+
+  <div class="flex space-x-4 mt-8">
+    <button class="border-[1.5px] text-[15px] font-medium border-[#035BA9] text-[#035BA9] px-6 py-2 rounded-lg" (click)="allModalsService.toggleModal('submitResult')">Cancel</button>
+    <button class="bg-[#035BA9] text-[15px] text-white px-6 py-2 rounded-lg" (click)="submitReview()">Confirm</button>
+  </div>
+</div>
