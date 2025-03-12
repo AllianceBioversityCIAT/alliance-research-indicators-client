@@ -73,6 +73,7 @@ jobs:
             clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
             saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
             hotjarId: ${{ secrets.HOTJAR_ID }},
+            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
             hotjarVersion: 6
           };
           EOL
@@ -92,6 +93,7 @@ jobs:
             clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
             saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
             hotjarId: ${{ secrets.HOTJAR_ID }},
+            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
             hotjarVersion: 6
           };
           EOL
@@ -145,6 +147,7 @@ jobs:
             clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
             saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
             hotjarId: ${{ secrets.HOTJAR_ID }},
+            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
             hotjarVersion: 6
           };
           EOL
@@ -164,6 +167,7 @@ jobs:
             clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
             saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
             hotjarId: ${{ secrets.HOTJAR_ID }},
+            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
             hotjarVersion: 6
           };
           EOL
