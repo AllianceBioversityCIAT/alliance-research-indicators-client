@@ -8,7 +8,14 @@
     </label>
   }
   @if (description) {
-    <small class="description" for="username">{{ description }}</small>
+    <small class="description" for="username" [innerHTML]="description"></small>
+  }
+
+  @if (showPartnerRequestDescription) {
+    <small class="description">
+      Can't find the institution you need? Request to add it
+      <span (click)="this.allModalsService.openModal('requestPartner')" class="text-[#2792ce] cursor-pointer underline">here</span>.
+    </small>
   }
 
   @if (this.currentResultIsLoading()) {

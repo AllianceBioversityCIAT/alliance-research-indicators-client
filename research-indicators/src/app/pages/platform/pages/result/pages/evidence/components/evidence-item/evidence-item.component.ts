@@ -8,7 +8,6 @@ import { Evidence, PatchResultEvidences } from '../../../../../../../../shared/i
     selector: 'app-evidence-item',
     imports: [InputComponent, TextareaComponent, FormsModule],
     templateUrl: './evidence-item.component.html',
-    styleUrl: './evidence-item.component.scss'
 })
 export class EvidenceItemComponent implements OnInit {
   @Output() deleteEvidenceEvent = new EventEmitter();

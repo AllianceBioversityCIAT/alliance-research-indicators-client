@@ -1,0 +1,112 @@
+<header class="px-10 h-12 bg-white rounded-t-lg atc-primary-blue-500 flex items-center">
+  <p class="font-medium text-lg">Partners Request</p>
+</header>
+
+<div class="px-15 py-4 2xl:py-6 flex flex-col gap-6 reduce-gap">
+  <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-5 px-5">
+    <span class="text-[#074b86] material-symbols-rounded">info</span>
+    <h3 class="text-[#777c83] font-['Barlow'] text-base font-normal leading-[17px] text-left my-[15px]">
+      Please note that once your partner request is approved (the partner review process may take up to 2 business days), it could take up to an hour
+      to be available in the CLARISA institutions list. Make sure that you are requesting to add a legal entity.
+    </h3>
+  </div>
+
+  <div class="flex flex-col gap-6 reduce-gap">
+    <div class="flex flex-col gap-1 2xl:gap-2">
+      <h2 class="text-base font-semibold atc-primary-blue-500">Acronym</h2>
+      <input
+        pInputText
+        id="acronym"
+        aria-describedby="acronym-help"
+        [(ngModel)]="body().acronym"
+        placeholder="Enter acronym"
+        class="w-full !text-base"
+        [disabled]="loading()" />
+    </div>
+
+    <div class="flex flex-col gap-1 2xl:gap-2">
+      <h2 class="text-base font-semibold atc-primary-blue-500">Name<span class="text-red-500">*</span></h2>
+      <input
+        pInputText
+        id="name"
+        aria-describedby="name-help"
+        autocomplete="off"
+        [(ngModel)]="body().name"
+        placeholder="Enter name"
+        class="w-full !text-base"
+        [disabled]="loading()" />
+    </div>
+
+    <div class="flex flex-col gap-1 2xl:gap-2">
+      <h2 class="text-base font-semibold atc-primary-blue-500">Type<span class="text-red-500">*</span></h2>
+      <p-select
+        [style]="{ width: '100%' }"
+        [options]="serviceInstitutionsTypes.list()"
+        optionLabel="name"
+        optionValue="code"
+        [(ngModel)]="body().institutionTypeCode"
+        placeholder="Select Type"
+        [filter]="true"
+        filterBy="name"
+        class="!text-base"
+        [showClear]="true"
+        [disabled]="loading()">
+      </p-select>
+    </div>
+
+    <div class="flex flex-col gap-1 2xl:gap-2">
+      <h2 class="text-base font-semibold atc-primary-blue-500">Headquarter country<span class="text-red-500">*</span></h2>
+      <p-select
+        [style]="{ width: '100%' }"
+        [options]="serviceCountries.list()"
+        [(ngModel)]="body().hqCountryIso"
+        optionValue="isoAlpha2"
+        placeholder="Select Country"
+        [filter]="true"
+        filterBy="name"
+        [showClear]="true"
+        class="!text-base"
+        [disabled]="loading()">
+        <ng-template #selectedItem let-selectedOption>
+          @if (selectedOption) {
+            <div class="flex items-center gap-1 2xl:gap-2">
+              <div>
+                <span>{{ selectedOption.isoAlpha2 }}</span> - {{ selectedOption.name }}
+              </div>
+            </div>
+          }
+        </ng-template>
+
+        <ng-template let-country #item>
+          <div class="flex items-center gap-1 2xl:gap-2">
+            <div>
+              <span>{{ country.isoAlpha2 }}</span> - {{ country.name }}
+            </div>
+          </div>
+        </ng-template>
+      </p-select>
+    </div>
+
+    <div class="flex flex-col gap-1 2xl:gap-2">
+      <h2 class="text-base font-semibold atc-primary-blue-500">Website</h2>
+      <input
+        pInputText
+        id="website"
+        aria-describedby="website-help"
+        [(ngModel)]="body().websiteLink"
+        placeholder="Enter website"
+        type="url"
+        class="w-full !text-base"
+        [disabled]="loading()"
+        [class.ng-invalid]="!validateWebsite(body().websiteLink ?? '')" />
+    </div>
+
+    <p-button
+      [disabled]="!body().name || !body().institutionTypeCode || !body().hqCountryIso || !validateWebsite(body().websiteLink ?? '') || loading()"
+      label="Request"
+      [loading]="loading()"
+      iconPos="right"
+      class="2xl:mt-4"
+      (click)="this.createPartner()"></p-button>
+  </div>
+</div>

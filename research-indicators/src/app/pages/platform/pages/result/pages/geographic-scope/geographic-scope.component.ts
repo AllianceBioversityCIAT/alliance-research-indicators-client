@@ -11,10 +11,9 @@ import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 
 @Component({
-    selector: 'app-geographic-scope',
-    imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
-    templateUrl: './geographic-scope.component.html',
-    styleUrl: './geographic-scope.component.scss'
+  selector: 'app-geographic-scope',
+  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
+  templateUrl: './geographic-scope.component.html'
 })
 export default class GeographicScopeComponent {
   environment = environment;
