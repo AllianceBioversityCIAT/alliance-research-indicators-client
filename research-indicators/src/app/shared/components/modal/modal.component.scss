@@ -12,32 +12,12 @@
   z-index: 1000;
 }
 
-.modal {
-  position: relative;
-}
-
 .modal-content {
   overflow: auto;
   max-height: 85vh;
   background-color: #f5f5f5;
   max-width: 75vw;
-  border-radius: 15px;
-}
-
-.close-button {
-  position: absolute;
-  top: -5px;
-  right: -40px;
-  background-color: white;
-  padding: 3px;
-  border-radius: 50px;
-  cursor: pointer;
-
-  i {
-    display: block;
-    color: rgb(50 50 50);
-    font-size: 22px;
-  }
+  border-radius: 27px;
 }
 
 @media screen and (height <= 900px) {

@@ -2,8 +2,8 @@
   <p class="font-medium text-xl">Review Result</p>
 </header>
 
-<div class="p-12 pt-10">
-  <h3 class="text-[15px] font-semibold text-[#153C71] mb-6">Select a review action</h3>
+<div class="p-12 pt-8">
+  <h3 class="text-[15px] font-semibold text-[#153C71] mb-1">Select a review action</h3>
 
   <div class="flex justify-between space-x-5">
     @for (option of reviewOptions; track option.key) {
@@ -29,28 +29,26 @@
   </div>
 
   @if (selectedReviewOption?.message) {
-    <p class="text-[15px] text-[#4c5158] mt-6">
+    <p class="text-[15px] text-[#4c5158] my-5">
       {{ selectedReviewOption?.message }}
     </p>
   }
 
   @if (selectedReviewOption?.commentLabel) {
-    <div class="mt-4">
       <label for="comments" class="font-semibold text-[15px] text-[#153C71] block mb-1">
         {{ selectedReviewOption?.commentLabel }}
         <span class="text-red-500">*</span>
       </label>
       <textarea
         id="comments"
-        rows="6"
+        rows="5"
         pTextarea
         autoResize="false"
         class="w-full border-1 border-gray-500 rounded-md resize-none"
         [(ngModel)]="comments"></textarea>
-    </div>
   }
 
-  <div class="flex space-x-4 mt-8">
+  <div class="flex space-x-4 mt-9">
     <button class="border-[1.5px] text-[15px] font-medium border-[#035BA9] text-[#035BA9] px-6 py-2 rounded-lg" (click)="allModalsService.toggleModal('submitResult')">Cancel</button>
     <button class="bg-[#035BA9] text-[15px] text-white px-6 py-2 rounded-lg" (click)="submitReview()">Confirm</button>
   </div>
