@@ -62,11 +62,23 @@ export class RequestPartnerModalComponent implements OnInit {
   };
 
   async createPartner() {
+    if (
+      !this.body().name ||
+      !this.body().institutionTypeCode ||
+      !this.body().hqCountryIso ||
+      !this.validateWebsite(this.body().websiteLink ?? '') ||
+      this.loading()
+    ) {
+      return;
+    }
+
     this.loading.set(true);
+
     const result = await this.api.POST_PartnerRequest({
       ...this.body(),
       platformUrl: `${environment.frontBaseUrl}${this.router.url}`
     });
+
     if (result.successfulRequest) {
       this.successRequest();
     } else {
