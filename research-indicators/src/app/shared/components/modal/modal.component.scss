@@ -18,9 +18,9 @@
 
 .modal-content {
   overflow: auto;
-  height: 85vh;
+  max-height: 85vh;
   background-color: #f5f5f5;
-  width: 75vw;
+  max-width: 75vw;
   border-radius: 15px;
 }
 
@@ -42,7 +42,7 @@
 
 @media screen and (height <= 900px) {
   .modal-content {
-    height: 95vh;
-    width: 85vw;
+    max-height: 95vh;
+    max-width: 85vw;
   }
 }
