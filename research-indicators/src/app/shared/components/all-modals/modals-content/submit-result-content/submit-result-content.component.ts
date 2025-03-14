@@ -9,6 +9,16 @@ import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 
+interface ReviewOption {
+  key: string;
+  label: string;
+  description: string;
+  icon: string;
+  color: string;
+  message: string;
+  commentLabel?: string;
+  mark: boolean;
+}
 @Component({
   selector: 'app-submit-result-content',
   imports: [DialogModule, ButtonModule, FormsModule, TextareaModule, NgClass],
@@ -18,13 +28,16 @@ export class SubmitResultContentComponent implements OnInit {
   allModalsService = inject(AllModalsService);
   metadata = inject(GetMetadataService);
   cache = inject(CacheService);
-
   api = inject(ApiService);
 
   selectedAction: string = '';
   comments: string = '';
 
-  reviewOptions = [
+  constructor() {
+    this.allModalsService.setSubmitReview(() => this.submitReview());
+  }
+
+  reviewOptions: ReviewOption[] = [
     {
       key: 'approve',
       label: 'Approve',
@@ -57,7 +70,7 @@ export class SubmitResultContentComponent implements OnInit {
     }
   ];
 
-  get selectedReviewOption() {
+  get selectedReviewOption(): ReviewOption | undefined {
     return this.reviewOptions.find(option => option.key === this.selectedAction);
   }
 
@@ -77,7 +90,6 @@ export class SubmitResultContentComponent implements OnInit {
   }
 
   async submitReview(): Promise<void> {
-    console.log(this.cache.currentMetadata().status_id);
     await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: this.comments || '' });
     this.metadata.update(this.cache.currentResultId());
   }

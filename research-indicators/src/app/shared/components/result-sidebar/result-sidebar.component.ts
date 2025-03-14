@@ -2,7 +2,6 @@ import { Component, computed, inject, signal, WritableSignal } from '@angular/co
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
-import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { GreenChecks } from '../../interfaces/get-green-checks.interface';
 import { CommonModule } from '@angular/common';
 import { ActionsService } from '@shared/services/actions.service';
@@ -22,7 +21,7 @@ interface SidebarOption {
 
 @Component({
   selector: 'app-result-sidebar',
-  imports: [RouterLink, RouterLinkActive, ButtonModule, CustomTagComponent, CommonModule, TooltipModule],
+  imports: [RouterLink, RouterLinkActive, ButtonModule, CommonModule, TooltipModule],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })

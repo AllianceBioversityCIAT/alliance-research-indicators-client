@@ -27,4 +27,8 @@ export class ModalComponent {
   showModal() {
     return this.allModalsService.isModalOpen(this.modalName);
   }
+  
+  getConfig() {
+    return this.allModalsService.modalConfig()[this.modalName] || {};
+  }
 }
