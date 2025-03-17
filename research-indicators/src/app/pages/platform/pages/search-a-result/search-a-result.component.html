@@ -1,0 +1,76 @@
+<div class="container">
+  @if (this.getOsResultService.loading()) {
+    <app-custom-progress-bar></app-custom-progress-bar>
+  } @else {
+    @if (this.getOsResultService.list().length > 0) {
+      <div class="header-container">
+        <div class="header">
+          <span class="title-text"
+            >THERE ARE <span class="number-results">{{ this.getOsResultService.list().length }}</span> RESULTS FOR YOUR SEARCH</span
+          >
+          <span class="description-text">You searched "{{ this.cache.searchAResultValue() }}"</span>
+        </div>
+        <div class="button">
+          <p-button label="Explore other results" size="small" [disabled]="true" pTooltip="This feature is under construction">
+            <ng-template pTemplate="icon">
+              <img src="/construction.png" width="20" height="20" alt="Under construction" />
+            </ng-template>
+          </p-button>
+        </div>
+      </div>
+    }
+    @if (this.getOsResultService.list().length === 0) {
+      <div class="no-results-container">
+        <div class="no-results-content">
+          <img src="images/no-results-found.png" alt="" />
+          <div class="title-text-no-results">NO RESULTS FOUND FOR YOUR SEARCH</div>
+          <div class="description-text">
+            You searched "{{ this.cache.searchAResultValue() }}". Please check the entered term or try using different keywords.
+          </div>
+        </div>
+      </div>
+      <div class="explore-other-results-button">
+        <p-button label="Explore other results" size="small" [disabled]="true" pTooltip="This feature is under construction">
+          <ng-template pTemplate="icon">
+            <img src="/construction.png" width="20" height="20" alt="Under construction" />
+          </ng-template>
+        </p-button>
+      </div>
+
+      <!-- <div class="header-container">
+        <div class="header">
+          <span class="title-text-no-results">NO RESULTS FOUND FOR YOUR SEARCH</span>
+          <span class="description-text">You searched "Systems Resources''. Please check the entered term or try using different keywords.</span>
+        </div>
+      </div> -->
+    } @else {
+      @for (result of this.getOsResultService.list(); track $index) {
+        <div class="card-container" [routerLink]="['/result', result.result_id]">
+          <div class="indicator">
+            <span class="material-symbols-rounded icon-color-{{ result.indicator.icon_src }}">{{ result.indicator.icon_src }}</span>
+            <span class="indicator-text">{{ result.indicator.name }}</span>
+          </div>
+          <div class="card-title">{{ result.title }}</div>
+          <div class="card-description">{{ result.description ?? 'No description found' }}</div>
+          <div class="footer">
+            <div class="code-container">
+              <span class="subtitle-card">Result Code</span>
+              <span class="material-symbols-rounded">arrow_forward</span>
+              <span class="code">{{ result.result_official_code }}</span>
+            </div>
+            @if (result.keywords.length > 0) {
+              <div class="keyword-container">
+                <span class="subtitle-card">Keywords</span>
+                <span class="material-symbols-rounded">arrow_forward</span>
+
+                @for (keyword of result.keywords; track $index) {
+                  <span class="keyword">{{ keyword }}</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

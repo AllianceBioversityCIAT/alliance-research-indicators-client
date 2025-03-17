@@ -1,0 +1,8 @@
+<app-project-item [project]="currentProject()" [isHeader]="true"></app-project-item>
+<div class="container">
+  <div class="header">
+    <span class="title-text">PROJECT RESULTS</span>
+    <span class="description-text">View and track your project results.</span>
+  </div>
+  <app-project-results-table [contractId]="contractId()"></app-project-results-table>
+</div>

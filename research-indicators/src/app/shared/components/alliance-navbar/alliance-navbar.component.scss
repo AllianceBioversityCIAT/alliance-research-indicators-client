@@ -5,10 +5,18 @@
   box-shadow: 0 0 15px 0 #00000030;
 
   .logo {
+    min-width: 140px;
+
+    @media (max-width: 1250px) {
+      min-width: 100px;
+    }
+
+    @media (max-height: 768px) {
+      min-width: 80px;
+    }
+
     img {
-      height: 45px;
       cursor: pointer;
-      margin-right: 70px;
     }
 
     transition: all ease-in-out 0.3s;
@@ -16,8 +24,6 @@
 
   .options {
     display: flex;
-    gap: 35px;
-    cursor: pointer;
     align-items: center;
     flex-grow: 1;
     justify-content: flex-start;
@@ -27,8 +33,16 @@
       display: flex;
       align-items: center;
       text-decoration: none;
-      padding: 25px;
+      white-space: nowrap;
       font-weight: 500;
+      cursor: pointer;
+      font-size: 1em;
+      min-width: fit-content;
+
+      &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
       &:hover {
         background-color: #1b1b1b56;
@@ -41,12 +55,13 @@
           content: '';
           display: block;
           width: 100%;
-          height: 7px;
+          height: 2px;
           background-color: #00b6ff;
           position: absolute;
-          bottom: 0px;
-          left: 0;
-          border-radius: 3px;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          border-radius: 1px;
         }
       }
 
@@ -59,11 +74,8 @@
       font-size: 1.3rem !important;
     }
 
-    .search-container {
-      padding: 0px;
-    }
     .search-box {
-      background-color: rgba(255, 255, 255, 0.1); /* Fondo blanco con 50% de transparencia */
+      background-color: rgb(255 255 255 / 10%);
       border-radius: 12px;
       width: 300px;
       display: flex;
@@ -74,18 +86,24 @@
         color: white;
         margin: 6px;
       }
-    }
-    .search-box input {
-      border: none;
-      outline: none;
-      color: white;
-      background: transparent;
-      flex-grow: 1;
-    }
 
-    .search-box input::placeholder {
-      color: var(--ac-grey-500);
+      input {
+        border: none;
+        outline: none;
+        color: white;
+        background: transparent;
+        flex-grow: 1;
+        padding: 7px 0;
+      }
+
+      input::placeholder {
+        color: var(--ac-grey-500);
+      }
     }
+  }
+
+  :host ::ng-deep .button-custom-rounded.p-button {
+    border-radius: 12px !important;
   }
 
   .icons-container {
@@ -93,38 +111,74 @@
     display: flex;
     align-items: center;
     gap: 35px;
-  }
 
-  .notification-dropdown-icon {
-    position: relative;
-
-    .notification-dropdown {
-      overflow: hidden;
-      opacity: 0;
-      position: absolute;
-      top: 22px;
-      right: 22px;
-      background-color: white;
-      box-shadow: 0 0 5px 0 #001b3130;
-      width: 0;
-      height: 0;
-      z-index: 100;
-      border-radius: 4px;
-      transition: all ease-in-out 0.3s;
-      padding: 20px;
-    }
-
-    &:hover {
-      .notification-dropdown {
-        opacity: 1;
-        display: block;
-        width: 450px;
-        height: 300px;
-      }
+    @media (max-width: 1200px) {
+      gap: 15px;
     }
   }
 
   i {
     cursor: pointer;
+  }
+
+  search-dropdown {
+    dropdown-content {
+      width: 500px !important;
+    }
+  }
+
+  .profile {
+    padding: 20px;
+  }
+
+  .account-container {
+    width: 250px;
+    color: #3e3e3e;
+    margin: 20px 0 40px;
+
+    .account-header {
+      font-size: 1rem;
+      margin-bottom: 30px;
+    }
+
+    .account-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 15px;
+
+      .account-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+      }
+
+      .account-details {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .account-name {
+          font-size: 1rem;
+          margin-bottom: 10px;
+          color: #909090;
+        }
+
+        .account-email {
+          font-size: 0.85rem;
+          color: #000;
+        }
+
+        .account-role {
+          font-size: 12px;
+          color: white;
+          background-color: rgb(37 37 37);
+          border-radius: 4px;
+          padding: 5px;
+          width: max-content;
+          margin-top: 10px;
+        }
+      }
+    }
   }
 }

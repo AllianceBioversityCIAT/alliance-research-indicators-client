@@ -1,0 +1,35 @@
+<div class="my-8 mx-10 min-[1686px]:container min-[1686px]:mx-auto" [class.summary-mode]="summaryMode">
+  @for (item of indicatorsSE.indicators(); track $index) {
+    @if (summaryMode === false) {
+      <div class="title-text">{{ item.other_names }}</div>
+      <p class="description-text" [innerHTML]="item.description"></p>
+    }
+
+    <div class="options" [attr.data-index]="$index" [ngClass]="{ 'mb-6 lg:mb-10': $index === 0 }">
+      @for (indicator of item.indicators; track $index) {
+        <div class="card-container" styleClass="card-container" [routerLink]="['/indicator', indicator.indicator_id]">
+          <div class="card-panel">
+            <div class="card-content">
+              <div class="icon-background">
+                <i class="material-symbols-rounded output-icon outcome-icon">{{ indicator.icon_src }}</i>
+              </div>
+
+              <div class="card-header">
+                <div class="type-text">{{ item.name }}</div>
+                <div class="title-text-indicator">{{ indicator.name }}</div>
+              </div>
+            </div>
+
+            <div class="card-description">
+              <div class="card-description-text">{{ indicator.description }}</div>
+
+              <div class="learn-more-content">
+                <span class="learn-more-text">Learn more <span class="material-symbols-rounded">arrow_forward</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

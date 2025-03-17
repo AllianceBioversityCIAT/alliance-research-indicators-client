@@ -1,0 +1,104 @@
+<div class="flex flex-col mx-[40px] my-[30px]">
+  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
+  <br />
+
+  <div class="flex flex-col gap-5">
+    <div class="content-section">
+      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-5">
+        <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">ALLIANCE ALIGNMENT</div>
+        <div class="flex flex-col gap-[25px]">
+          <div>
+            <app-multiselect
+              label="Projects"
+              [signal]="body"
+              optionLabel="select_label"
+              optionValue="contract_id"
+              signalOptionValue="contracts"
+              [isRequired]="true"
+              serviceName="contracts">
+              <ng-template #rows let-contract>
+                <div class="grid grid-cols-[1fr_auto] items-center w-full gap-5">
+                  <div class="information">
+                    <div class="grid grid-cols-1">
+                      <div class="mb-[10px] text-[15px]">
+                        <strong>{{ contract.agreement_id }}</strong> - {{ contract.description }}
+                      </div>
+                      <div class="flex text-[#4c5158] font-['Barlow'] text-[15px] font-normal leading-4">
+                        <div class="flex items-center pr-10 lg:pr-[15px]">
+                          <h4 class="m-0 font-normal text-[13px] text-[#777c83] font-['Space_Grotesk']">Project lead</h4>
+                          <i class="material-symbols-rounded !text-[16px] text-[#8d9299] mx-1 lg:mx-0">arrow_forward</i>
+                          <span class="text-[14px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                            contract.project_lead_description
+                          }}</span>
+                        </div>
+                        <div class="flex items-center px-10 lg:px-[15px] border-l border-r border-[#b9c0c5] border-opacity-40">
+                          <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">Start Date</span>
+                          <i class="material-symbols-rounded !text-[16px] text-[#8d9299] mx-1 lg:mx-0">arrow_forward</i>
+                          <span class="text-[14px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                            contract.start_date | date : 'dd/MM/yyyy'
+                          }}</span>
+                        </div>
+                        <div class="flex items-center px-10 lg:px-[15px]">
+                          <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">End Date</span>
+                          <i class="material-symbols-rounded !text-[16px] text-[#8d9299] mx-1 lg:mx-0">arrow_forward</i>
+                          <span class="text-[14px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                            contract.endDateGlobal | date : 'dd/MM/yyyy'
+                          }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    class="px-3 py-[3px] rounded-full text-xs whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
+                    [class]="contract.is_primary ? 'bg-[var(--ac-primary-blue-300)] text-white' : 'bg-transparent text-[var(--ac-primary-blue-300)]'"
+                    (click)="markAsPrimary(contract, 'contract')">
+                    {{ contract.is_primary ? 'Primary' : 'Select as Primary' }}
+                    <i
+                      class="material-symbols-rounded w-0 overflow-hidden transition-all duration-300 pl-0 opacity-0 group-[.bg-[var(--ac-primary-blue-300)]]:w-[30px] group-[.bg-[var(--ac-primary-blue-300)]]:pl-[10px] group-[.bg-[var(--ac-primary-blue-300)]]:opacity-100"
+                      >star</i
+                    >
+                  </button>
+                </div>
+              </ng-template>
+            </app-multiselect>
+          </div>
+
+          <div>
+            <app-multiselect
+              label="Levers"
+              [signal]="body"
+              optionLabel="full_name"
+              optionValue="lever_id"
+              signalOptionValue="levers"
+              [isRequired]="true"
+              [serviceName]="'levers'">
+              <ng-template #rows let-lever>
+                <div class="grid grid-cols-[1fr_auto] items-center w-full gap-5">
+                  <div class="text-[#4c5158] font-['Barlow'] text-[15px] font-normal">
+                    <strong>{{ lever.short_name }}&nbsp;</strong> - {{ lever.other_names }}
+                  </div>
+                  <button
+                    class="px-3 py-[3px] rounded-full text-xs whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
+                    [class]="lever.is_primary ? 'bg-[var(--ac-primary-blue-300)] text-white' : 'bg-transparent text-[var(--ac-primary-blue-300)]'"
+                    (click)="markAsPrimary(lever, 'lever')">
+                    {{ lever.is_primary ? 'Primary' : 'Select as Primary' }}
+                    <i
+                      class="material-symbols-rounded w-0 overflow-hidden transition-all duration-300 pl-0 opacity-0 group-[.bg-[var(--ac-primary-blue-300)]]:w-[30px] group-[.bg-[var(--ac-primary-blue-300)]]:pl-[10px] group-[.bg-[var(--ac-primary-blue-300)]]:opacity-100"
+                      >star</i
+                    >
+                  </button>
+                </div>
+              </ng-template>
+            </app-multiselect>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex gap-5">
+    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" [loading]="this.loading()" />
+    <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')" [loading]="this.loading()" />
+    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+  </div>
+</div>

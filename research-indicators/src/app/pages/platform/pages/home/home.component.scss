@@ -1,3 +1,85 @@
 .content {
-  padding: 100px 50px 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+
+  .items {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 2rem;
+    width: 100%;
+
+    .item {
+      width: 100%;
+    }
+  }
+}
+
+// Pantallas grandes (laptops y desktops)
+@media screen and (width >= 1440px) {
+  .content {
+    padding: 2.5rem;
+
+    .items {
+      gap: 2.5rem;
+    }
+  }
+}
+
+// Pantallas medianas (laptops pequeñas)
+@media screen and (width <= 1280px) {
+  .content {
+    padding: 1.5rem;
+    gap: 1.5rem;
+
+    .items {
+      gap: 1.5rem;
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+}
+
+@media screen and (width <= 1250px) {
+  .content {
+    .items {
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Pantallas pequeñas (tablets landscape y laptops muy pequeñas)
+@media screen and (width <= 1024px) {
+  .content {
+    padding: 1rem;
+    gap: 1rem;
+
+    .items {
+      gap: 1rem;
+    }
+  }
+}
+
+// Tablets portrait
+@media screen and (width <= 768px) {
+  .content {
+    .items {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Ajuste específico para alturas pequeñas
+@media screen and (height <= 800px) {
+  .content {
+    gap: 1rem;
+
+    .items {
+      gap: 1rem;
+    }
+  }
 }

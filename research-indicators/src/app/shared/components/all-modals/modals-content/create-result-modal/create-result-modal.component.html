@@ -1,0 +1,11 @@
+@switch (createResultManagementService.resultPageStep()) {
+  @case (0) {
+    <app-create-result-form />
+  }
+  @case (1) {
+    <app-result-ai-assistant />
+  }
+  @default {
+    <app-create-result-form />
+  }
+}

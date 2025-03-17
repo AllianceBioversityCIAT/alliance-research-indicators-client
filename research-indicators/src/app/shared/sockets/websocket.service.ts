@@ -1,7 +1,8 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { Router } from '@angular/router';
-import { CacheService } from '../services/cache.service';
+import { CacheService } from '@services/cache/cache.service';
+import { ActionsService } from '@services/actions.service';
 import { User } from './classes/User';
 import { environment } from '../../../environments/environment';
 import { SocketUser } from '../interfaces/sockets.interface';
@@ -13,6 +14,7 @@ export class WebsocketService {
   cache = inject(CacheService);
   socket = inject(Socket);
   router = inject(Router);
+  actions = inject(ActionsService);
   public socketStatus = false;
   public user: User | null = null;
 
@@ -29,8 +31,8 @@ export class WebsocketService {
     this.getConnectedUsers();
     this.getAlerts();
 
-    const { first_name, id } = this.cache.userInfo();
-    this.configUser(first_name, id);
+    const { first_name, sec_user_id } = this.cache.dataCache().user || {};
+    this.configUser(first_name, sec_user_id);
   }
 
   checkStatus() {
@@ -84,13 +86,21 @@ export class WebsocketService {
 
   getAlerts() {
     this.listen(`alert-${this.platform}`).subscribe(msg => {
-      alert(msg);
+      this.actions.showToast({
+        severity: 'info',
+        summary: 'Alert',
+        detail: msg as string
+      });
     });
   }
 
   getNotifications() {
     this.listen('notifications').subscribe(msg => {
-      alert(msg);
+      this.actions.showToast({
+        severity: 'info',
+        summary: 'Notification',
+        detail: msg as string
+      });
     });
   }
 }

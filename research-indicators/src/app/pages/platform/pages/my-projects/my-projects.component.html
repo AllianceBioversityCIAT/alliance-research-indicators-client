@@ -1,0 +1,15 @@
+<div class="container mx-auto">
+  <div class="content">
+    <div class="search-box">
+      <i class="material-symbols-rounded">search</i>
+      <input type="text" [(ngModel)]="searchValue" placeholder="Search a project by code, name or principal investigator" />
+    </div>
+    @if (getContractsByUserService.loading()) {
+      <app-custom-progress-bar></app-custom-progress-bar>
+    } @else {
+      @for (project of getContractsByUserService.list() | filterByTextWithAttr: 'full_name' : this.searchValue; track $index) {
+        <app-project-item [project]="project"></app-project-item>
+      }
+    }
+  </div>
+</div>

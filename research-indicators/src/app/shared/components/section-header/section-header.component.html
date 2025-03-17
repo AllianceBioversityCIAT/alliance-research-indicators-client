@@ -1,0 +1,52 @@
+@let hss = this.cache.hasSmallScreen();
+<div class="section-header pl-12 {{ hss ? 'p-[5px]' : 'p-[10px]' }} " id="section-sidebar">
+  <div class="flex gap-7">
+    <!-- <div class="navigation-controls {{ hss ? 'gap-[4px]' : 'gap-[15px]' }}">
+      @if (canGoBack()) {
+      <button class="nav-button" (click)="historyPanel.toggle($event)" pTooltip="Navigation History" tooltipPosition="bottom">
+        <span class="material-symbols-rounded {{ hss ? 'text-[18px]' : 'text-[24px]' }} !text-slate-600">history</span>
+      </button>
+      <button class="nav-button" (click)="goBack()" pTooltip="Go Back" tooltipPosition="bottom">
+        <span class="material-symbols-rounded {{ hss ? 'text-[18px]' : 'text-[24px]' }} !text-slate-600">arrow_back</span>
+      </button>
+      }
+    </div> -->
+
+    <div class="section-title {{ hss ? 'text-[18px]' : 'text-[18px]' }} text-slate-600 font-small">
+      {{ welcomeMessage() }}
+    </div>
+  </div>
+
+  @if (this.cache.showSectionHeaderActions()) {
+    <div class="buttons-container rs-gap-x-[15] gap-3">
+      <p-button [outlined]="true" size="small" icon="pi pi-share-alt" />
+      <p-button [outlined]="true" size="small" icon="pi pi-download" />
+      <div>
+        <p-menu #menu [model]="items()" [popup]="true" />
+        <p-button (onClick)="menu.toggle($event)" [text]="true" size="small" icon="pi pi-ellipsis-v" />
+      </div>
+    </div>
+  }
+</div>
+
+<!-- <p-popover #historyPanel>
+  <div class="history-list">
+    @for (item of filteredHistory(); track $index; let i = $index) {
+      <div class="history-item" (click)="navigateToHistoryItem(i)">
+        <span class="material-symbols-rounded">history</span>
+        <span>{{ getHistoryItemTitle(item) }}</span>
+      </div>
+    }
+  </div>
+</p-popover> -->
+
+<!-- <p-popover #historyPanel>
+  <div class="history-list">
+    @for (item of filteredHistory(); track $index; let i = $index) {
+      <div class="history-item" (click)="navigateToHistoryItem(i)">
+        <span class="material-symbols-rounded">history</span>
+        <span>{{ getHistoryItemTitle(item) }}</span>
+      </div>
+    }
+  </div>
+</p-popover> -->

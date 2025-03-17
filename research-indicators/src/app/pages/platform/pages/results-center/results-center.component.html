@@ -1,0 +1,35 @@
+<div class="flex flex-col gap-3 px-3 pt-3">
+  <!-- Indicators Filter Tabs -->
+  <app-indicators-tab-filter></app-indicators-tab-filter>
+
+  <!-- Results Section -->
+  <div class="flex flex-col bg-white">
+    <!-- Tab Menu -->
+    <p-tabMenu
+      #tm
+      [model]="this.resultsCenterService.myResultsFilterItems"
+      [activeItem]="this.resultsCenterService.myResultsFilterItem()"
+      (activeItemChange)="this.resultsCenterService.onActiveItemChange($event)"></p-tabMenu>
+    <!-- Results Table -->
+    <app-results-center-table></app-results-center-table>
+  </div>
+</div>
+
+<!-- Sidebars -->
+<app-section-sidebar
+  [title]="'Table Filters'"
+  [description]="'Filter your table data by applying custom criteria.'"
+  [showSignal]="this.resultsCenterService.showFiltersSidebar"
+  confirmText="Apply filters"
+  (confirm)="this.resultsCenterService.applyFilters()">
+  <app-table-filters-sidebar></app-table-filters-sidebar>
+</app-section-sidebar>
+
+<app-section-sidebar
+  [title]="'Table Configuration'"
+  [description]="'Customize your table by enabling, disabling, or reordering columns.'"
+  [showSignal]="this.resultsCenterService.showConfigurationsSidebar"
+  confirmText="Save table settings"
+  (confirm)="sidebarConfigurations.applyConfigurations()">
+  <app-table-configuration #sidebarConfigurations></app-table-configuration>
+</app-section-sidebar>

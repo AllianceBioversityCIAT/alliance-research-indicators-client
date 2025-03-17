@@ -1,0 +1,35 @@
+<div class="container">
+  <div class="avatar-content">
+    <div class="avatar">{{ historyItem.created_by_object.first_name[0] }} {{ historyItem.created_by_object.last_name[0] }}</div>
+  </div>
+  <div class="info-content">
+    <div class="text-content">
+      <span class="title">{{ historyItem.created_by_object.first_name }}</span>
+      <span class="description-text">&nbsp;has&nbsp;</span>
+      <span class="title">{{ historyItem.from_status_id === 1 ? 'Edited' : 'Submitted' }}</span>
+      <span class="description-text">&nbsp;the result.</span>
+    </div>
+    <div class="status-content">
+      @if (historyItem.from_status_id === 1) {
+        <div class="editing-content">
+          <span class="editing">EDITING</span>
+        </div>
+        <i class="material-symbols-rounded">arrow_forward</i>
+        <div class="submitted-content">
+          <span class="submitted">SUBMITTED</span>
+        </div>
+      } @else {
+        <div class="submitted-content">
+          <span class="submitted">SUBMITTED</span>
+        </div>
+        <i class="material-symbols-rounded">arrow_forward</i>
+        <div class="editing-content">
+          <span class="editing">EDITING</span>
+        </div>
+      }
+    </div>
+    <div class="date-content">
+      <span class="date">{{ historyItem.updated_at | date: 'dd/MM/yyyy' }} at {{ historyItem.updated_at | date: 'HH:mm' }}</span>
+    </div>
+  </div>
+</div>

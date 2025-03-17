@@ -1,0 +1,35 @@
+<div class="input-container">
+  @if (label) {
+    <label class="label flex items-center" for="username"
+      >{{ label }}
+      @if (isRequired) {
+        <span class="text-red-500">*</span>
+      }
+    </label>
+  }
+  @if (description) {
+    <small class="description" for="username">{{ description }}</small>
+  }
+
+  @if (currentResultIsLoading()) {
+    <p-skeleton width="100%" height="7rem" styleClass="mb-2" />
+  } @else {
+    <div>
+      <textarea
+        appSaveOnWriting
+        rows="10"
+        pTextarea
+        [autoResize]="false"
+        [(ngModel)]="this.signal()[this.optionValue]"
+        (ngModelChange)="setValue($event)"
+        [style]="isInvalid() ? { border: '2px solid #E69F00', resize: 'none' } : { resize: 'none' }">
+      </textarea>
+      @if (isInvalid()) {
+        <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+          <i class="material-symbols-rounded !text-base">warning</i>
+          <span>This field is required</span>
+        </div>
+      }
+    </div>
+  }
+</div>
