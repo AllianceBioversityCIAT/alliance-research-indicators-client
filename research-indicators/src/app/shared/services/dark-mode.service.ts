@@ -9,7 +9,7 @@ export class DarkModeService {
 
   constructor(rendererFactory: RendererFactory2) {
     this.renderer = rendererFactory.createRenderer(null, null);
-    this.loadThemePreference();
+    // this.loadThemePreference();
   }
 
   // Load the user's theme preference from localStorage or the system's default

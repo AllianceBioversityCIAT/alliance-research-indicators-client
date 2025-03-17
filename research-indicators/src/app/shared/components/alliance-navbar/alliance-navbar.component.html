@@ -1,35 +1,91 @@
-<div class="navbar abc-primary-blue-500">
-  <div class="logo">
-    <img routerLink="home" src="alliance-white.png" alt="" srcset="" />
+@let hss = this.cache.hasSmallScreen();
+<div id="navbar" #navbar class="navbar abc-primary-blue-500">
+  <div class="logo" routerLink="/">
+    <img src="roar.png" alt="" class="{{ hss ? 'h-[25px]' : 'h-[35px]' }}" />
   </div>
   <div class="options">
     @for (option of this.options; track $index) {
-      <a [routerLink]="option.path" class="option atc-white-1" routerLinkActive="active atc-light-blue-200-i">
-        {{ option.label }}
-        <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
-          {{ option.icon }}
+      @if (!option.hide) {
+        <a
+          class="option atc-white-1 {{ hss ? 'py-[15px] px-[10px]' : 'py-[25px] px-[15px]' }}"
+          [routerLink]="option.disabled ? null : option.path"
+          routerLinkActive="active atc-light-blue-200-i"
+          [class.disabled]="option.disabled"
+          [attr.aria-disabled]="option.disabled ? true : null">
+          {{ option.label }}
+          <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
+            {{ option.icon }}
+          </a>
+          @if (option.underConstruction) {
+            <img src="construction.png" class="construction-icon-x1" alt="" />
+          }
         </a>
-      </a>
+      }
     }
-    <p-button label="New result" size="small" />
+
+    <p-button
+      label="Submit result"
+      severity="info"
+      size="small"
+      styleClass="button-custom-rounded"
+      (onClick)="this.allModalsService.openModal('createResult')"
+      [style]="{ 'margin-left': '20px', 'min-width': '105px !important' }" />
     <div class="icons-container">
-      <div class="search-container">
-        <div class="search-box">
-          <i class="material-symbols-rounded">search</i>
-          <input type="text" placeholder="Search a result" />
-        </div>
+      <!-- <app-dropdown dropdownName="result" position="top-left" class="search-dropdown">
+        <div dropdown-button (click)="this.dropdownsCache.showDropdown('result')"> -->
+      <div class="search-box">
+        <i class="material-symbols-rounded">search</i>
+        <input id="search-result-input" type="text" placeholder="Search a result" (keyup.enter)="this.onSearchTextChange($event)" />
       </div>
-      <i class="material-symbols-rounded atc-white-1" (click)="this.darkModeService.toggleDarkMode()">{{ this.darkModeService.isDarkModeEnabled() ? 'light_mode' : 'dark_mode' }}</i>
-      <i class="material-symbols-rounded atc-white-1 notification-dropdown-icon" pBadge severity="danger" value="2">
-        notifications
-        <div class="notification-dropdown"></div>
-      </i>
-      <div class="notification-dropdown-icon">
-        <p-avatar label="P" styleClass="mr-2" />
-        <div class="notification-dropdown">
-          <p-button size="small" label="Log out" icon="pi pi-sign-in" [loading]="this.cache.isValidatingToken()" (onClick)="logOut()" />
+      <!-- </div>
+        <div dropdown-content>
+          @if (this.dropdownsCache.dropdown().result) {
+            <app-results-list-dropdown [searchText]="this.searchText" />
+          }
         </div>
-      </div>
+      </app-dropdown> -->
+
+      <!-- <i class="material-symbols-rounded atc-white-1" (click)="this.darkModeService.toggleDarkMode()">
+        {{ this.darkModeService.isDarkModeEnabled() ? 'light_mode' : 'dark_mode' }}
+      </i> -->
+      <!-- <app-dropdown position="top-right" positionX="right" positionY="top">
+        <div dropdown-button>
+          <i class="material-symbols-rounded atc-white-1" pBadge severity="danger" value="2">notifications</i>
+        </div>
+        <div dropdown-content>
+          <p>Notification 1</p>
+          <p>Notification 2</p>
+          <p>Notification 3</p>
+        </div>
+      </app-dropdown> -->
+
+      <app-dropdown position="top-right" positionX="right" positionY="top">
+        <div dropdown-button>
+          <p-avatar [label]="this.actions.getInitials()" styleClass="mr-2"></p-avatar>
+        </div>
+        <div dropdown-content>
+          <div class="profile">
+            <div class="account-container">
+              <div class="account-header">Account</div>
+              <div class="account-content">
+                <p-avatar [label]="this.actions.getInitials()" size="large"></p-avatar>
+                <div class="account-details">
+                  <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{ this.cache.dataCache().user.last_name }}</span>
+                  <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
+                  <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
+                </div>
+              </div>
+            </div>
+
+            <p-button
+              size="small"
+              label="Log out"
+              icon="pi pi-sign-in"
+              [loading]="this.cache.isValidatingToken()"
+              (onClick)="this.actions.logOut()"></p-button>
+          </div>
+        </div>
+      </app-dropdown>
     </div>
   </div>
 </div>

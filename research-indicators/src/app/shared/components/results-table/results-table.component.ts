@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { CardModule } from 'primeng/card';
 import { TabViewModule } from 'primeng/tabview';
-import { Result, ResultTable } from '../../interfaces/result.interface';
+import { Result, ResultTable } from '@interfaces/result/result.interface';
 
 @Component({
   selector: 'app-results-table',
@@ -42,10 +42,7 @@ export class ResultsTableComponent implements OnInit {
     { attr: 'creation_date', header: 'Creation Date' }
   ];
 
-  GET_results = async () => this.results.set((await this.api.GET_results()).data);
-
   ngOnInit() {
-    this.GET_results();
     setTimeout(() => {
       this.loading.set(false);
     }, 1000);

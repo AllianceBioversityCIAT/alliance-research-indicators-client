@@ -1,0 +1,27 @@
+.container {
+  margin: 30px 40px;
+
+  .header {
+    display: grid;
+
+    .title-text {
+      font-family: Inter, sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 18px;
+      color: #173f6f;
+      text-transform: uppercase;
+      margin-bottom: 0;
+    }
+
+    .description-text {
+      color: #4c5158;
+      font-family: Barlow, sans-serif;
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 17px;
+      text-align: left;
+      margin: 8px 0 30px;
+    }
+  }
+}

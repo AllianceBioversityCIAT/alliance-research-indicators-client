@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import PlatformComponent from './platform.component';
-import { CacheService } from '../../shared/services/cache.service';
-import { WebsocketService } from '../../shared/sockets/websocket.service';
-import { DarkModeService } from '../../shared/services/dark-mode.service';
-
+import { CacheService } from '@services/cache/cache.service';
+import { WebsocketService } from '@sockets/websocket.service';
+import { DarkModeService } from '@services/dark-mode.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { signal } from '@angular/core';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('PlatformComponent', () => {
   let component: PlatformComponent;
@@ -13,10 +14,10 @@ describe('PlatformComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, PlatformComponent],
-      schemas: [NO_ERRORS_SCHEMA], // This will ignore unknown elements and attributes
+      imports: [RouterTestingModule, PlatformComponent, HttpClientTestingModule],
+      schemas: [NO_ERRORS_SCHEMA],
       providers: [
-        { provide: CacheService, useValue: { userInfo: () => ({ first_name: 'Test', id: 1 }) } },
+        { provide: CacheService, useValue: { dataCache: signal({}), isLoggedIn: { set: jest.fn() }, windowHeight: signal(0) } },
         { provide: WebsocketService, useValue: {} },
         {
           provide: DarkModeService,
@@ -28,7 +29,6 @@ describe('PlatformComponent', () => {
       ]
     }).compileComponents();
 
-    // Mock window.matchMedia
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: jest.fn().mockImplementation(query => ({

@@ -4,7 +4,6 @@ import { LandingTextsService } from '../../services/landing-texts.service';
 
 @Component({
   selector: 'app-faq',
-  standalone: true,
   imports: [AccordionModule],
   templateUrl: './faq.component.html',
   styleUrl: './faq.component.scss'

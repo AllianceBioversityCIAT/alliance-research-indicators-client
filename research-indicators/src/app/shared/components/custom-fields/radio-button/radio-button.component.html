@@ -1,0 +1,40 @@
+<div class="options input-container">
+  <!-- <strong>{{ this.signal() }}</strong> -->
+  <!-- @if (this) {
+
+} -->
+
+  @if (label) {
+    <label class="label flex items-center" for="username"
+      >{{ label }}
+      @if (isRequired) {
+        <span class="text-red-500">*</span>
+      }
+    </label>
+  }
+  @if (description) {
+    <small class="description" for="username">{{ description }}</small>
+  }
+
+  <div class="flex flex-col gap-[10px]">
+    @for (item of this.service.list(); track $index) {
+      <div class="option">
+        <p-radioButton
+          [name]="item[optionValue.option]"
+          value="{{ item[optionValue.option] }}"
+          (ngModelChange)="setValue(item[optionValue.option])"
+          [(ngModel)]="this.body().value"
+          [inputId]="item[optionLabel] + 'id' + item[optionValue.option]"
+          [class]="isInvalid() ? 'warning-radio' : ''" />
+        <label [for]="item[optionLabel] + 'id' + item[optionValue.option]" class="ml-2"> {{ item[optionLabel] }} </label>
+      </div>
+    }
+  </div>
+
+  @if (isInvalid()) {
+    <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+      <i class="material-symbols-rounded !text-base">warning</i>
+      <span>This field is required</span>
+    </div>
+  }
+</div>

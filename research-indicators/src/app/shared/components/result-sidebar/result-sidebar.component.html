@@ -1,0 +1,52 @@
+<div class="card-content">
+  <div class="indicator-header">
+    <div class="indicator-title">
+      <span class="indicator-title">Indicator</span>
+      <span class="indicator-description">{{ cache.currentMetadata().indicator_name }}</span>
+    </div>
+    <div class="status-code">
+      <div class="indicator-title">
+        <span class="header-title">Status</span>
+        <app-custom-tag [statusId]="cache.currentMetadata().status_id || 0" [statusName]="cache.currentMetadata().status_name || ''"></app-custom-tag>
+        <!-- <span class="status-description">{{ cache.currentMetadata().status_name }}</span> -->
+      </div>
+      <div class="indicator-title">
+        <span class="header-title">Code</span>
+        <span class="code-description">{{ cache.currentMetadata().result_official_code }}</span>
+      </div>
+    </div>
+  </div>
+  <hr />
+  <div class="title">FORM PROGRESS</div>
+  <div class="options-container">
+    @for (option of allOptionsWithGreenChecks(); track option.path) {
+      @if (!option.hide) {
+        <div class="options" [class.disabled]="option.disabled" [routerLink]="option.disabled ? null : option.path" routerLinkActive="active">
+          <div
+            class="w-4 h-4 rounded-full flex items-center justify-center greenCheckBorder {{ option.greenCheck && 'greenCheckActive' }} {{
+              option.greenCheck ? 'bg-[#509c55]' : 'bg-[#A2A9AF]'
+            }}">
+            <div class="w-3 h-3 rounded-full {{ option.greenCheck ? 'bg-[#a8ceab]' : 'bg-[#ffffff]' }}"></div>
+          </div>
+
+          <div class="option">{{ option.label }}</div>
+          @if (option.underConstruction) {
+            <img src="construction.png" alt="" class="construction-icon-x1" />
+          }
+        </div>
+      }
+    }
+  </div>
+  <p-button
+    [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
+    [label]="cache.currentMetadata().status_id === 1 ? 'Submit Result' : 'Unsubmit Result'"
+    size="small"
+    tooltipPosition="bottom"
+    [icon]="cache.currentMetadata().status_id === 1 ? 'pi pi-check' : ''"
+    iconPos="right"
+    class="button"
+    [severity]="cache.currentMetadata().status_id === 1 ? (cache.canSubmitResult() ? null : 'secondary') : 'warn'"
+    [disabled]="!cache.canSubmitResult()"
+    [style]="{ width: '100%' }"
+    (onClick)="submmitConfirm()" />
+</div>

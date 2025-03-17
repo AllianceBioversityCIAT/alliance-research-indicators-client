@@ -1,44 +1,58 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AllianceNavbarComponent } from './alliance-navbar.component';
-import { DynamicToastService } from '../../services/dynamic-toast.service';
-import { CacheService } from '../../services/cache.service';
-import { DarkModeService } from '../../services/dark-mode.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { signal } from '@angular/core';
+import { CacheService } from '@services/cache/cache.service';
+import { DarkModeService } from '@services/dark-mode.service';
+
+// Mock ResizeObserver
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+global.ResizeObserver = ResizeObserverMock;
 
 describe('AllianceNavbarComponent', () => {
   let component: AllianceNavbarComponent;
   let fixture: ComponentFixture<AllianceNavbarComponent>;
 
+  const mockCacheService = {
+    dataCache: signal({
+      user: {
+        first_name: 'Test',
+        last_name: 'User',
+        email: 'test@example.com',
+        roleName: 'Test Role'
+      }
+    }),
+    isLoggedIn: signal(true),
+    isValidatingToken: signal(false),
+    navbarHeight: signal(0),
+    windowHeight: signal(0),
+    hasSmallScreen: jest.fn(() => true)
+  };
+
+  const mockDarkModeService = {
+    isDarkMode: signal(false)
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AllianceNavbarComponent, RouterTestingModule],
+      imports: [AllianceNavbarComponent, HttpClientTestingModule, RouterTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
-        {
-          provide: DynamicToastService,
-          useValue: {
-            // Add any methods you use from DynamicToastService
-          }
-        },
-        {
-          provide: CacheService,
-          useValue: {
-            isLoggedIn: { set: jest.fn() }
-          }
-        },
-        {
-          provide: DarkModeService,
-          useValue: {
-            isDarkModeEnabled: () => false,
-            toggleDarkMode: jest.fn()
-          }
-        }
+        { provide: CacheService, useValue: mockCacheService },
+        { provide: DarkModeService, useValue: mockDarkModeService }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AllianceNavbarComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {

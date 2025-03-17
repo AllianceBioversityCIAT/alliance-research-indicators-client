@@ -1,0 +1,40 @@
+<div class="discover-hero">
+  <div class="discover-hero-content">
+    <div class="discover-hero-header">
+      <h2 class="discover-hero-header-subtitle">DISCOVER MORE</h2>
+      <h1 class="discover-hero-header-title">Search for Projects and Results</h1>
+    </div>
+
+    <p class="discover-hero-description">View both your own results and those of others. Explore successful projects, gain insights, and find inspiration all in one place.</p>
+
+    <div class="discover-hero-images">
+      <img src="/images/landing/platform-1.png" alt="discover-hero-1" class="discover-hero-image-1" />
+      <img src="/images/landing/platform-2.png" alt="discover-hero-2" class="discover-hero-image-2" />
+      <img src="/images/landing/platform-3.png" alt="discover-hero-3" class="discover-hero-image-3" />
+    </div>
+  </div>
+
+  <div class="discover-hero-content" style="margin-top: 105px">
+    <div class="discover-hero-header">
+      <h2 class="discover-hero-header-subtitle" style="color: #fff">LEARN</h2>
+      <h1 class="discover-hero-header-title" style="color: #fff">About Indicators</h1>
+    </div>
+
+    <div class="discover-hero-learn-content">
+      @for (indicator of indicators; track $index) {
+        <div class="discover-hero-learn-content-item">
+          <div class="discover-hero-learn-content-item-header">
+            <i class="material-symbols-rounded" [class]="indicator.type" style="font-size: 45px">{{ indicator.icon }}</i>
+
+            <div>
+              <h2 class="discover-hero-learn-content-item-header-subtitle">{{ indicator.subtitle }}</h2>
+              <p class="discover-hero-learn-content-item-header-title">{{ indicator.name }}</p>
+            </div>
+          </div>
+
+          <p class="discover-hero-learn-content-item-description">{{ indicator.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

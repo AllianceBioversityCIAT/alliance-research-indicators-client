@@ -1,0 +1,19 @@
+<div class="input-container">
+  @if (label) {
+    <label class="label" for="username">{{ label }}</label>
+  }
+  @if (description) {
+    <small class="description" for="username">{{ description }}</small>
+  }
+  @if (currentResultIsLoading()) {
+    <p-skeleton width="100%" height="2.8rem" styleClass="mb-2" />
+  } @else {
+    <p-calendar
+      styleClass="w-full"
+      [(ngModel)]="this.signal()[this.optionValue]"
+      (ngModelChange)="setValue($event)"
+      [minDate]="minDate"
+      [maxDate]="maxDate"
+      dateFormat="dd/mm/yy" />
+  }
+</div>

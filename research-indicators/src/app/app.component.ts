@@ -1,27 +1,24 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { environment } from '../environments/environment';
-import { CacheService } from './shared/services/cache.service';
-import { MetadataPanelComponent } from './shared/components/metadata-panel/metadata-panel.component';
-import { WebsocketService } from './shared/sockets/websocket.service';
-import { DynamicToastComponent } from './shared/components/dynamic-toast/dynamic-toast.component';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { environment } from '@envs/environment';
+import { CacheService } from '@services/cache/cache.service';
+import { MetadataPanelComponent } from '@components/metadata-panel/metadata-panel.component';
+import { WebsocketService } from '@sockets/websocket.service';
+import { ActionsService } from './shared/services/actions.service';
+import { GlobalAlertComponent } from './shared/components/global-alert/global-alert.component';
+import { GlobalToastComponent } from './shared/components/global-toast/global-toast.component';
+import { CopyTokenComponent } from './shared/components/copy-token/copy-token.component';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, DynamicToastComponent, MetadataPanelComponent],
+  imports: [RouterOutlet, MetadataPanelComponent, GlobalAlertComponent, GlobalToastComponent, CopyTokenComponent],
   templateUrl: './app.component.html'
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   cache = inject(CacheService);
   sockets = inject(WebsocketService);
+  actions = inject(ActionsService);
   title = 'research-indicators';
   name = environment.name;
-  ngOnInit(): void {
-    this.validateToken();
-  }
-
-  validateToken() {
-    if (localStorage.getItem('token')) this.cache.isLoggedIn.set(true);
-  }
+  route = inject(ActivatedRoute);
 }

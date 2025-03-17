@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%;
-  padding: 30px;
+
+  // padding: 30px;
   transition: all 0.3s ease-in-out;
 
   &.collapsed {
@@ -22,9 +22,21 @@
       rotate: 180deg;
     }
 
-    .h4 {
-      text-align: center;
+    .sidebar-icon {
+      margin-bottom: 50px !important;
     }
+
+    .option {
+      padding: 3px 0 !important;
+    }
+  }
+
+  .h4 {
+    font-family: Space Grotesk;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 15.31px;
+    letter-spacing: 0%;
   }
 
   .sidebar-header {
@@ -47,7 +59,7 @@
   .options {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 
     .option {
       display: flex;
@@ -55,10 +67,74 @@
       gap: 15px;
       cursor: pointer;
       padding: 10px 0;
+      border-radius: 3px;
+
+      &:hover {
+        background-color: var(--ac-grey-100);
+        transition: background-color 0.2s ease-out;
+      }
+
+      &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+
+        &:hover {
+          background-color: transparent;
+        }
+      }
+
+      &.active {
+        background-color: var(--ac-grey-100);
+        color: var(--ac-light-blue-300);
+        position: relative;
+
+        &::after {
+          content: '';
+          position: absolute;
+          left: -30px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 6px;
+          height: 22px;
+          background-color: var(--ac-light-blue-200);
+          border-top-right-radius: 10px;
+          border-bottom-right-radius: 10px;
+        }
+      }
 
       i {
         font-size: 20px;
       }
     }
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--ac-grey-300);
+    margin: 10px 0;
+  }
+}
+
+.icon-construction-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid orange;
+  padding: 8px;
+  border-radius: 5px;
+  position: relative;
+}
+
+.icon-construction-container-img {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+}
+
+@media (orientation: landscape) and (height <= 768px) {
+  .sidebar {
+    box-shadow: 0 0 10px 0 rgb(0 0 0 / 10%) !important;
+
+    // border: 1px solid black !important;
   }
 }
