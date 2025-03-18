@@ -30,8 +30,8 @@ export class SubmitResultContentComponent implements OnInit {
   cache = inject(CacheService);
   api = inject(ApiService);
 
-  selectedAction: string = '';
-  comments: string = '';
+  selectedAction = '';
+  comments = '';
 
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
@@ -90,7 +90,7 @@ export class SubmitResultContentComponent implements OnInit {
   }
 
   async submitReview(): Promise<void> {
-    await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: this.comments || '' });
+    await this.api.PATCH_SubmitResult({ resultId: this.cache.currentResultId(), comment: this.comments || '', status: 1 });
     this.metadata.update(this.cache.currentResultId());
   }
 }

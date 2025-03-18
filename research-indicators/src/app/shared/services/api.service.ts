@@ -371,9 +371,15 @@ export class ApiService {
     return this.TP.get(url(), { isAuth: true, token });
   };
 
-  PATCH_SubmitResult = (resultId: number, body: PatchSubmitResult) => {
-    const url = () => `results/green-checks/submit/${resultId}`;
-    return this.TP.patch(url(), body);
+  GET_AllSubmitionStatus = () => {
+    const url = () => `results/green-checks/change/status`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_SubmitResult = ({ resultId, comment, status }: PatchSubmitResult) => {
+    const commentQuery = comment ? `&comment=${comment}` : '';
+    const url = () => `results/green-checks/change/status?resultId=${resultId}${commentQuery}&status=${status}`;
+    return this.TP.patch(url(), {});
   };
 
   GET_SubmitionHistory = (resultId: number) => {
