@@ -382,6 +382,11 @@ export class ApiService {
     return this.TP.patch(url(), {});
   };
 
+  GET_ReviewStatuses = () => {
+    const url = () => `results/status/review-statuses`;
+    return this.TP.get(url(), {});
+  };
+
   GET_SubmitionHistory = (resultId: number) => {
     const url = () => `results/green-checks/history/${resultId}`;
     return this.TP.get(url(), {});

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal, WritableSignal, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';

@@ -40,28 +40,30 @@
       }
     }
   </div>
-  <div class="px-6">
-    <p-button
+  @if (cache.currentMetadata().is_principal_investigator) {
+    <button
+      class="font-medium text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
       [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
-      [label]="submissionService.currentResultIsSubmitted() ? 'Unsubmit Result' : 'Submit Result'"
-      size="small"
       tooltipPosition="bottom"
-      [icon]="submissionService.currentResultIsSubmitted() ? '' : 'pi pi-check'"
-      iconPos="right"
-      class="button"
-      [severity]="submissionService.currentResultIsSubmitted() ? 'warn' : submissionService.canSubmitResult() ? null : 'secondary'"
       [disabled]="!submissionService.canSubmitResult()"
-      [style]="{ width: '100%' }"
-      (onClick)="submmitConfirm()" />
-  </div>
-
-  <button
-    class="font-medium text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
-    [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
-    tooltipPosition="bottom"
-    [disabled]="!submissionService.canSubmitResult()"
-    (click)="this.allModalsService.openModal('submitResult')">
-    Review Result
-    <i class="pi pi-pencil pl-2 !text-[12px]"></i>
-  </button>
+      (click)="this.allModalsService.openModal('submitResult')">
+      Review Result
+      <i class="pi pi-pencil pl-2 !text-[12px]"></i>
+    </button>
+  } @else {
+    <div class="px-6">
+      <p-button
+        [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
+        [label]="submissionService.currentResultIsSubmitted() ? 'Unsubmit Result' : 'Submit Result'"
+        size="small"
+        tooltipPosition="bottom"
+        [icon]="submissionService.currentResultIsSubmitted() ? '' : 'pi pi-check'"
+        iconPos="right"
+        class="button"
+        [severity]="submissionService.currentResultIsSubmitted() ? 'warn' : submissionService.canSubmitResult() ? null : 'secondary'"
+        [disabled]="!submissionService.canSubmitResult()"
+        [style]="{ width: '100%' }"
+        (onClick)="submmitConfirm()" />
+    </div>
+  }
 </div>
