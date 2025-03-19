@@ -112,8 +112,6 @@ export class ResultSidebarComponent {
       ? this.unsavedChangesAlertData()
       : this.submissionAlertData();
 
-    console.log(this.cache.currentMetadata().status_id);
-
     this.actions.showGlobalAlert({
       severity,
       summary,
