@@ -45,7 +45,7 @@
       class="font-medium text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
       [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
       tooltipPosition="bottom"
-      [disabled]="!submissionService.canSubmitResult()"
+      [disabled]="!this.cache.allGreenChecksAreTrue()"
       (click)="this.allModalsService.openModal('submitResult')">
       Review Result
       <i class="pi pi-pencil pl-2 !text-[12px]"></i>
