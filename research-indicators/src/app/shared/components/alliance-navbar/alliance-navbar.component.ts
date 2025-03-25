@@ -1,6 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  OnDestroy,
+  NgZone,
+  Renderer2
+} from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
@@ -10,7 +21,6 @@ import { DarkModeService } from '@services/dark-mode.service';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AllianceNavOptions } from '@interfaces/nav.interface';
-import { DropdownComponent } from '@components/dropdown/dropdown.component';
 import { ActionsService } from '@services/actions.service';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.service';
@@ -18,13 +28,15 @@ import { ServiceLocatorService } from '@shared/services/service-locator.service'
 
 @Component({
   selector: 'alliance-navbar',
-  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, DropdownComponent],
+  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule],
   templateUrl: './alliance-navbar.component.html',
   styleUrl: './alliance-navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navbar') navbarElement!: ElementRef;
+  @ViewChild('dropdownRef') dropdownRef!: ElementRef;
+
   private resizeObserver: ResizeObserver | null = null;
   private zone = inject(NgZone);
   dropdownsCache = inject(DropdownsCacheService);
@@ -37,6 +49,7 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
   elementRef = inject(ElementRef);
   service: any;
   private searchDebounceTimeout: any;
+  showDropdown: boolean = false;
 
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home', underConstruction: false },
@@ -44,6 +57,8 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
     { label: 'My Projects', path: '/my-projects', underConstruction: false },
     { label: 'Results Center', path: '/results-center', underConstruction: false, disabled: false }
   ];
+
+  constructor(private readonly renderer: Renderer2) {}
 
   ngOnInit() {
     this.service = this.serviceLocator.getService('openSearchResult');
@@ -60,6 +75,12 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
 
       this.resizeObserver.observe(navbar);
     }
+
+    this.renderer.listen('document', 'click', (event: Event) => {
+      if (this.showDropdown && this.dropdownRef && !this.dropdownRef.nativeElement.contains(event.target)) {
+        this.showDropdown = false;
+      }
+    });
   }
 
   ngOnDestroy(): void {
