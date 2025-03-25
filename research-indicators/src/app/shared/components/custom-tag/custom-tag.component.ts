@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 type Colors = Record<string, { border: string; text: string }>;
 
@@ -7,24 +7,20 @@ type Colors = Record<string, { border: string; text: string }>;
   imports: [],
   templateUrl: './custom-tag.component.html'
 })
-export class CustomTagComponent implements OnInit {
+export class CustomTagComponent {
   @Input() statusId: string | number = '';
   @Input() statusName = '';
 
   getColors: Colors = {
-    '': { border: '#79D9FF', text: '#1689CA' },
-    '0': { border: '#79D9FF', text: '#1689CA' },
-    '1': { border: '#79D9FF', text: '#1689CA' },
+    '': { border: '#1689CA', text: '#1689CA' },
+    '0': { border: '#1689CA', text: '#1689CA' },
+    '1': { border: '#1689CA', text: '#1689CA' },
     '2': { border: '#7C9CB9', text: '#173F6F' },
     '3': { border: '#A8CEAB', text: '#7CB580' },
-    '4': { border: '#F5C76E', text: '#F5C76E' },
-    '5': { border: '#F5C76E', text: '#F5C76E' },
-    '6': { border: '#F5C76E', text: '#F5C76E' },
-    '7': { border: '#F5C76E', text: '#F5C76E' },
-    '8': { border: '#F5C76E', text: '#F5C76E' }
+    '4': { border: '#79D9FF', text: '#1689CA' },
+    '5': { border: '#E69F00', text: '#F58220' },
+    '6': { border: '#7CB580', text: '#358540' },
+    '7': { border: '#F16937', text: '#CF0808' },
+    '8': { border: '#777C83', text: '#4C5158' }
   };
-
-  ngOnInit() {
-    console.log(this.statusId);
-  }
 }
