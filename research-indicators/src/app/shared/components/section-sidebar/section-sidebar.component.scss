@@ -1,9 +1,17 @@
+.button-container {
+  display: grid;
+  grid-template-columns: 105px 1fr;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
 .container {
   display: flex;
   flex-direction: column;
   position: fixed;
-  z-index: 2;
   right: -450px;
+  overflow: hidden;
   bottom: 0;
   width: 450px;
   background-color: #f4f7f9;
@@ -17,6 +25,12 @@
     height: 100%;
     padding: 30px 30px 20px 30px;
     overflow: hidden;
+
+    .scrollable-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
 
     .header {
       margin-bottom: 40px;
