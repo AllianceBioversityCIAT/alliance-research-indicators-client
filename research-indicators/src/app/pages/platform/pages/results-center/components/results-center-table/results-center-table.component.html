@@ -67,7 +67,7 @@
       <tr>
         @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
-            <th [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path">
+            <th class="{{ column.minWidth }}" [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path">
               {{ column.header }}
               @if (!column?.hideFilterIf?.()) {
                 <p-sortIcon field="{{ column.path }}"></p-sortIcon>
