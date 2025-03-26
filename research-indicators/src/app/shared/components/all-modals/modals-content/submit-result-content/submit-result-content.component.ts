@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -21,8 +21,27 @@ export class SubmitResultContentComponent {
   cache = inject(CacheService);
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
+
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
+
+    let wasVisible = false;
+    effect(() => {
+      const visible = this.allModalsService.modalConfig().submitResult.isOpen;
+      if (!wasVisible && visible) {
+        this.setInitialSelectedReviewOption();
+      }
+      wasVisible = visible;
+    });
+  }
+  setInitialSelectedReviewOption(): void {
+    const currentStatusId = this.cache.currentMetadata()?.status_id;
+    if (currentStatusId == null) return;
+
+    const matchingOption = this.reviewOptions().find(option => option.statusId === currentStatusId);
+    if (matchingOption) {
+      this.submissionService.statusSelected.set(matchingOption);
+    }
   }
 
   reviewOptions = signal<ReviewOption[]>([
@@ -34,7 +53,6 @@ export class SubmitResultContentComponent {
       color: 'text-[#509C55]',
       message: 'Once this result is approved, no further changes will be allowed.',
       commentLabel: undefined,
-      mark: false,
       statusId: 6,
       selected: false
     },
@@ -46,7 +64,6 @@ export class SubmitResultContentComponent {
       color: 'text-[#e69f00]',
       message: 'The result submitter will address the provided recommendations and resubmit for review.',
       commentLabel: 'Add recommendations/comments',
-      mark: true,
       statusId: 5,
       selected: false
     },
@@ -58,7 +75,6 @@ export class SubmitResultContentComponent {
       color: 'text-[#cf0808]',
       message: 'If the result is rejected, it can no longer be edited or resubmitted.',
       commentLabel: 'Add the reject reason',
-      mark: false,
       statusId: 7,
       selected: false
     }

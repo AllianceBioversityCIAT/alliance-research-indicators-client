@@ -7,6 +7,7 @@
         class="relative flex flex-col items-center p-6 rounded-lg text-center {{
           option.selected ? 'border-[#1689CA]/20 border-1 bg-[#79D9FF]/10' : 'bg-white'
         }}"
+        (keydown)="submissionService.statusSelected.set(option)"
         (click)="submissionService.statusSelected.set(option)">
         <div class="absolute top-2.5 right-3 w-3.5 h-3.5 rounded-full border-1 border-[#B9C0C5] flex items-center justify-center">
           @if (option.selected) {

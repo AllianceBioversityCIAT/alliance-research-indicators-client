@@ -40,30 +40,32 @@
       }
     }
   </div>
-  @if (cache.currentMetadata().is_principal_investigator) {
-    <button
-      class="font-medium text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
-      [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
-      tooltipPosition="bottom"
-      [disabled]="!this.cache.allGreenChecksAreTrue()"
-      (click)="this.allModalsService.openModal('submitResult')">
-      Review Result
-      <i class="pi pi-pencil pl-2 !text-[12px]"></i>
-    </button>
-  } @else {
-    <div class="px-6">
-      <p-button
+  @if (cache.currentMetadata().status_id !== 6 && cache.currentMetadata().status_id !== 7 && cache.currentMetadata().status_id !== 8) {
+    @if (cache.currentMetadata().is_principal_investigator) {
+      <button
+        class="font-medium disabled:bg-gray-200 disabled:text-gray-600 text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
         [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
-        [label]="submissionService.currentResultIsSubmitted() ? 'Unsubmit Result' : 'Submit Result'"
-        size="small"
         tooltipPosition="bottom"
-        [icon]="submissionService.currentResultIsSubmitted() ? '' : 'pi pi-check'"
-        iconPos="right"
-        class="button"
-        [severity]="submissionService.currentResultIsSubmitted() ? 'warn' : submissionService.canSubmitResult() ? null : 'secondary'"
+        [disabled]="!this.cache.allGreenChecksAreTrue()"
+        (click)="this.allModalsService.openModal('submitResult')">
+        Review Result
+        <i class="pi pi-pencil pl-2 !text-[12px]"></i>
+      </button>
+    } @else {
+      <button
+        class="font-medium disabled:bg-gray-200 disabled:text-gray-600 text-sm text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl transition-all duration-300"
+        [ngClass]="{
+          'bg-[#f97316]': submissionService.currentResultIsSubmitted(),
+          'bg-[#035BA9]': submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted(),
+          'bg-gray-200 text-gray-600': !submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted()
+        }"
+        [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
+        tooltipPosition="bottom"
         [disabled]="!submissionService.canSubmitResult()"
-        [style]="{ width: '100%' }"
-        (onClick)="submmitConfirm()" />
-    </div>
+        (click)="submmitConfirm()">
+        {{ submissionService.currentResultIsSubmitted() ? 'Unsubmit Result' : 'Submit Result' }}
+        <i [ngClass]="submissionService.currentResultIsSubmitted() ? '' : 'pi pi-check'" class="pl-2 !text-[12px]"></i>
+      </button>
+    }
   }
 </div>
