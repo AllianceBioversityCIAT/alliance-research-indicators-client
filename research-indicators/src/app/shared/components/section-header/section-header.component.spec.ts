@@ -74,8 +74,7 @@ describe('SectionHeaderComponent', () => {
       currentRouteTitle: signal<string>('Test Title'),
       showSectionHeaderActions: signal<boolean>(true),
       currentResultId: signal<number>(123),
-      currentResultIsSubmitted: signal<boolean>(false),
-      isMyResult: signal(true),
+      isMyResult: signal(() => true),
       currentMetadata: signal({
         status_id: 5
       })
