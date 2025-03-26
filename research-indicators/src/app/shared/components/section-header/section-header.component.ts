@@ -61,8 +61,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
       }
     ];
 
-    if (!this.submissionService.currentResultIsSubmitted() && this.cache.isMyResult()) items[0].items?.push(deleteOption);
-
+    if (this.cache.currentMetadata()?.status_id == 5 || this.cache.currentMetadata()?.status_id == 7 || this.cache.currentMetadata()?.status_id == 4 && this.cache.isMyResult()) items[0].items?.push(deleteOption);
     return items;
   });
 
