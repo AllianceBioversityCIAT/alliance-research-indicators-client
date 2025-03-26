@@ -49,7 +49,7 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
   elementRef = inject(ElementRef);
   service: any;
   private searchDebounceTimeout: any;
-  showDropdown: boolean = false;
+  showDropdown = false;
 
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home', underConstruction: false },
