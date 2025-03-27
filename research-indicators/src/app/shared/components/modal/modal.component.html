@@ -25,20 +25,24 @@
         </div>
 
         @if (getConfig().cancelAction || getConfig().confirmAction) {
-          <div class="flex space-x-5 mt-8 m-12">
-            <button
-              class="border-[1.5px] text-[15px] font-medium border-[#035BA9] text-[#035BA9] px-5 py-2 rounded-[14px]"
-              (click)="getConfig().cancelAction?.()">
-              {{ getConfig().cancelText }}
-            </button>
-            <button
-              class="bg-[#035BA9] text-[15px] text-white px-5 py-2 rounded-[14px] {{
-                this.disabledConfirmIf() ? 'opacity-50 cursor-not-allowed' : ''
-              }}"
-              (click)="getConfig().confirmAction?.()"
-              [disabled]="disabledConfirmIf()">
-              {{ getConfig().confirmText }}
-            </button>
+          <div class="flex space-x-5 mt-12 mb-10 m-12">
+            @if (getConfig().cancelAction) {
+              <button
+                class="border-[1.5px] text-[15px] font-medium border-[#035BA9] text-[#035BA9] px-5 py-2 rounded-[14px]"
+                (click)="getConfig().cancelAction?.()">
+                {{ getConfig().cancelText }}
+              </button>
+            }
+            @if (getConfig().confirmAction) {
+              <button
+                class="bg-[#035BA9] text-[15px] text-white px-5 py-2 rounded-[14px] {{
+                 getConfig().disabledConfirmAction?.() ? 'opacity-50 cursor-not-allowed' : ''
+                }}"
+                (click)="getConfig().confirmAction?.()"
+                [disabled]="getConfig().disabledConfirmAction?.()">
+                {{ getConfig().confirmText }}
+              </button>
+            }
           </div>
         }
       </div>

@@ -11,6 +11,7 @@ interface ModalConfig {
   iconAction?: () => void;
   cancelAction?: () => void;
   confirmAction?: () => void;
+  disabledConfirmAction?: () => boolean;
 }
 
 @Injectable({
@@ -22,6 +23,10 @@ export class AllModalsService {
   setGoBackFunction = (fn: () => void) => (this.goBackFunction = fn);
   submitReview?: () => void;
   setSubmitReview = (fn: () => void) => (this.submitReview = fn);
+  createPartner?: () => void;
+  setCreatePartner = (fn: () => void) => (this.createPartner = fn);
+  disabledConfirmPartner?: () => boolean;
+  setDisabledConfirmPartner = (fn: () => boolean) => (this.disabledConfirmPartner = fn);
 
   modalConfig: WritableSignal<Record<ModalName, ModalConfig>> = signal({
     createResult: {
@@ -39,10 +44,9 @@ export class AllModalsService {
     requestPartner: {
       isOpen: false,
       title: 'Partners Request',
-      // cancelText: 'Cancel',
       confirmText: 'Request',
-      // cancelAction: () => this.toggleModal('submitResult'),
-      confirmAction: () => this.submitReview?.()
+      confirmAction: () => this.createPartner?.(),
+      // disabledConfirmAction: () => this.disabledConfirmPartner?.() ?? false
     }
   });
 
@@ -114,9 +118,10 @@ export class AllModalsService {
     this.modalConfig.set({
       createResult: { ...this.modalConfig().createResult, isOpen: false },
       submitResult: { ...this.modalConfig().submitResult, isOpen: false },
-      requestPartner: { ...this.modalConfig().submitResult, isOpen: false }
+      requestPartner: { ...this.modalConfig().requestPartner, isOpen: false }
     });
 
     this.createResultManagementService.resultPageStep.set(0);
   }
+  
 }
