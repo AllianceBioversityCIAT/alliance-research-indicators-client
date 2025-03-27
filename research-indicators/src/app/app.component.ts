@@ -8,6 +8,7 @@ import { ActionsService } from './shared/services/actions.service';
 import { GlobalAlertComponent } from './shared/components/global-alert/global-alert.component';
 import { GlobalToastComponent } from './shared/components/global-toast/global-toast.component';
 import { CopyTokenComponent } from './shared/components/copy-token/copy-token.component';
+import { BugHerdService } from './shared/services/bug-herd.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ export class AppComponent {
   cache = inject(CacheService);
   sockets = inject(WebsocketService);
   actions = inject(ActionsService);
+  bugHerd = inject(BugHerdService);
   title = 'research-indicators';
   name = environment.name;
   route = inject(ActivatedRoute);
