@@ -8,17 +8,19 @@ import { PatchPartners } from '@interfaces/patch-partners.interface';
 import { ApiService } from '@services/api.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
+
 @Component({
-    selector: 'app-partners',
-    imports: [ButtonModule, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
-    templateUrl: './partners.component.html',
-    styleUrl: './partners.component.scss'
+  selector: 'app-partners',
+  imports: [ButtonModule, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
+  templateUrl: './partners.component.html'
 })
 export default class PartnersComponent {
   actions = inject(ActionsService);
   cache = inject(CacheService);
   router = inject(Router);
   api = inject(ApiService);
+  allModalsService = inject(AllModalsService);
   body = signal<PatchPartners>(new PatchPartners());
   loading = signal(false);
 

@@ -28,4 +28,6 @@ export type ControlListServices =
   | 'allResultStatus'
   | 'getAllYears'
   | 'GetSubnationalByIsoAlpha'
-  |'';
+  | 'clarisaInstitutionsTypes'
+  | 'clarisaInstitutionsTypesChildless'
+  | '';

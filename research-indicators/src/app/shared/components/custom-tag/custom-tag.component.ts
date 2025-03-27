@@ -1,6 +1,9 @@
 import { Component, Input } from '@angular/core';
 
-type Colors = Record<string, { border: string; text: string }>;
+interface Colors {
+  border: string;
+  text: string;
+}
 
 @Component({
   selector: 'app-custom-tag',

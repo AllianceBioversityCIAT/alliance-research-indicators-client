@@ -35,6 +35,14 @@ export class AllModalsService {
       confirmText: 'Confirm',
       cancelAction: () => this.toggleModal('submitResult'),
       confirmAction: () => this.submitReview?.()
+    },
+    requestPartner: {
+      isOpen: false,
+      title: 'Partners Request',
+      // cancelText: 'Cancel',
+      confirmText: 'Request',
+      // cancelAction: () => this.toggleModal('submitResult'),
+      confirmAction: () => this.submitReview?.()
     }
   });
 
@@ -105,7 +113,8 @@ export class AllModalsService {
   closeAllModals(): void {
     this.modalConfig.set({
       createResult: { ...this.modalConfig().createResult, isOpen: false },
-      submitResult: { ...this.modalConfig().submitResult, isOpen: false }
+      submitResult: { ...this.modalConfig().submitResult, isOpen: false },
+      requestPartner: { ...this.modalConfig().submitResult, isOpen: false }
     });
 
     this.createResultManagementService.resultPageStep.set(0);
