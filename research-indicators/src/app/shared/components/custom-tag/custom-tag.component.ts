@@ -1,9 +1,12 @@
 import { Component, Input } from '@angular/core';
 
-interface Colors {
-  border: string;
-  text: string;
-}
+type ColorMap = Record<
+  string,
+  {
+    border: string;
+    text: string;
+  }
+>;
 
 @Component({
   selector: 'app-custom-tag',
@@ -14,7 +17,7 @@ export class CustomTagComponent {
   @Input() statusId: string | number = '';
   @Input() statusName = '';
 
-  getColors: Colors = {
+  private readonly colorMap: ColorMap = {
     '': { border: '#1689CA', text: '#1689CA' },
     '0': { border: '#1689CA', text: '#1689CA' },
     '1': { border: '#1689CA', text: '#1689CA' },
@@ -26,4 +29,9 @@ export class CustomTagComponent {
     '7': { border: '#F16937', text: '#CF0808' },
     '8': { border: '#777C83', text: '#4C5158' }
   };
+
+  getColors() {
+    const status = String(this.statusId);
+    return this.colorMap[status] || this.colorMap[''];
+  }
 }
