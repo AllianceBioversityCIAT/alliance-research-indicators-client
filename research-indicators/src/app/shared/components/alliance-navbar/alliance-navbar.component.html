@@ -59,33 +59,36 @@
         </div>
       </app-dropdown> -->
 
-      <app-dropdown position="top-right" positionX="right" positionY="top">
-        <div dropdown-button>
-          <p-avatar [label]="this.actions.getInitials()" styleClass="mr-2"></p-avatar>
-        </div>
-        <div dropdown-content>
-          <div class="profile">
-            <div class="account-container">
-              <div class="account-header">Account</div>
-              <div class="account-content">
-                <p-avatar [label]="this.actions.getInitials()" size="large"></p-avatar>
-                <div class="account-details">
-                  <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{ this.cache.dataCache().user.last_name }}</span>
-                  <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
-                  <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
-                </div>
-              </div>
-            </div>
-
-            <p-button
-              size="small"
-              label="Log out"
-              icon="pi pi-sign-in"
-              [loading]="this.cache.isValidatingToken()"
-              (onClick)="this.actions.logOut()"></p-button>
-          </div>
-        </div>
-      </app-dropdown>
+      <div dropdown-button (click)="this.showDropdown = !this.showDropdown">
+        <p-avatar [label]="this.actions.getInitials()" styleClass="mr-2"></p-avatar>
+      </div>
     </div>
   </div>
 </div>
+
+@if (this.showDropdown) {
+  <div #dropdownRef class="icons-container fixed top-11 right-14 p-3 z-[9999] bg-white shadow-lg rounded-[4px] w-[280px]">
+    <div dropdown-content>
+      <div class="profile">
+        <div class="account-container">
+          <div class="account-header">Account</div>
+          <div class="account-content">
+            <p-avatar [label]="this.actions.getInitials()" size="large"></p-avatar>
+            <div class="account-details">
+              <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{ this.cache.dataCache().user.last_name }}</span>
+              <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
+              <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <p-button
+          size="small"
+          label="Log out"
+          icon="pi pi-sign-in"
+          [loading]="this.cache.isValidatingToken()"
+          (onClick)="this.actions.logOut()"></p-button>
+      </div>
+    </div>
+  </div>
+}

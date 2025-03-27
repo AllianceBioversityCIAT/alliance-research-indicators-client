@@ -1,24 +1,27 @@
 <div class="card-content">
-  <div class="indicator-header">
-    <div class="indicator-title">
-      <span class="indicator-title">Indicator</span>
-      <span class="indicator-description">{{ cache.currentMetadata().indicator_name }}</span>
-    </div>
-    <div class="status-code">
-      <div class="indicator-title">
-        <span class="header-title">Status</span>
-        <app-custom-tag [statusId]="cache.currentMetadata().status_id || 0" [statusName]="cache.currentMetadata().status_name || ''"></app-custom-tag>
-        <!-- <span class="status-description">{{ cache.currentMetadata().status_name }}</span> -->
-      </div>
-      <div class="indicator-title">
-        <span class="header-title">Code</span>
-        <span class="code-description">{{ cache.currentMetadata().result_official_code }}</span>
-      </div>
+  <div class="flex flex-col p-[25px] pb-0">
+    <span class="text-[#345B8F] text-[12px] font-semibold">
+      RESULT CODE <span class="text-[#153C71] font-bold">#{{ cache.currentMetadata().result_official_code }}</span>
+    </span>
+
+    <div class="flex items-center gap-2 mt-1">
+      <span class="text-[#7CB580]">
+        <i class="pi pi-users !text-[18px]"></i>
+      </span>
+      <span class="text-[#153C71] leading-4 font-bold uppercase text-[12px]">{{ cache.currentMetadata().indicator_name }}</span>
     </div>
   </div>
+
   <hr />
-  <div class="title">FORM PROGRESS</div>
-  <div class="options-container">
+
+  <div class="flex px-[25px] items-center justify-between font-medium full text-xs mb-[15px] text-[#777c83] title">
+    FORM PROGRESS
+    <button class="border border-[#1689CA] text-[#1689CA] uppercase text-xs font-semibold px-3 py-1 rounded-lg">
+      {{ cache.currentMetadata().status_name }}
+    </button>
+  </div>
+
+  <div class="options-container px-[25px]">
     @for (option of allOptionsWithGreenChecks(); track option.path) {
       @if (!option.hide) {
         <div class="options" [class.disabled]="option.disabled" [routerLink]="option.disabled ? null : option.path" routerLinkActive="active">
@@ -37,16 +40,32 @@
       }
     }
   </div>
-  <p-button
-    [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
-    [label]="cache.currentMetadata().status_id === 1 ? 'Submit Result' : 'Unsubmit Result'"
-    size="small"
-    tooltipPosition="bottom"
-    [icon]="cache.currentMetadata().status_id === 1 ? 'pi pi-check' : ''"
-    iconPos="right"
-    class="button"
-    [severity]="cache.currentMetadata().status_id === 1 ? (cache.canSubmitResult() ? null : 'secondary') : 'warn'"
-    [disabled]="!cache.canSubmitResult()"
-    [style]="{ width: '100%' }"
-    (onClick)="submmitConfirm()" />
+  @if (cache.currentMetadata().status_id !== 6 && cache.currentMetadata().status_id !== 7 && cache.currentMetadata().status_id !== 8) {
+    @if (cache.currentMetadata().is_principal_investigator) {
+      <button
+        class="font-medium disabled:bg-gray-200 disabled:text-gray-600 text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
+        [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
+        tooltipPosition="bottom"
+        [disabled]="!this.cache.allGreenChecksAreTrue()"
+        (click)="this.allModalsService.openModal('submitResult')">
+        Review Result
+        <i class="pi pi-pencil pl-2 !text-[12px]"></i>
+      </button>
+    } @else {
+      <button
+        class="font-medium disabled:bg-gray-200 disabled:text-gray-600 text-sm text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl transition-all duration-300"
+        [ngClass]="{
+          'bg-[#f97316]': submissionService.currentResultIsSubmitted(),
+          'bg-[#035BA9]': submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted(),
+          'bg-gray-200 text-gray-600': !submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted()
+        }"
+        [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
+        tooltipPosition="bottom"
+        [disabled]="!submissionService.canSubmitResult()"
+        (click)="submmitConfirm()">
+        {{ submissionService.currentResultIsSubmitted() ? 'Unsubmit Result' : 'Submit Result' }}
+        <i [ngClass]="submissionService.currentResultIsSubmitted() ? '' : 'pi pi-check'" class="pl-2 !text-[12px]"></i>
+      </button>
+    }
+  }
 </div>

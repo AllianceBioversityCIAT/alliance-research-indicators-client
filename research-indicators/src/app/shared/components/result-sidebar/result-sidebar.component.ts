@@ -2,13 +2,15 @@ import { Component, computed, inject, signal, WritableSignal } from '@angular/co
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
-import { CustomTagComponent } from '../custom-tag/custom-tag.component';
-import { ApiService } from '../../services/api.service';
 import { GreenChecks } from '../../interfaces/get-green-checks.interface';
 import { CommonModule } from '@angular/common';
 import { ActionsService } from '@shared/services/actions.service';
-import { GetMetadataService } from '../../services/get-metadata.service';
 import { TooltipModule } from 'primeng/tooltip';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { ApiService } from '../../services/api.service';
+import { GetMetadataService } from '../../services/get-metadata.service';
+import { SubmissionService } from '../../services/submission.service';
+
 interface submissionAlertData {
   severity: 'success' | 'warning';
   summary: string;
@@ -27,16 +29,17 @@ interface SidebarOption {
 
 @Component({
   selector: 'app-result-sidebar',
-  imports: [RouterLink, RouterLinkActive, ButtonModule, CustomTagComponent, CommonModule, TooltipModule],
+  imports: [RouterLink, RouterLinkActive, ButtonModule, CommonModule, TooltipModule],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })
 export class ResultSidebarComponent {
   cache = inject(CacheService);
-  api = inject(ApiService);
   actions = inject(ActionsService);
+  allModalsService = inject(AllModalsService);
+  api = inject(ApiService);
   metadata = inject(GetMetadataService);
-
+  submissionService = inject(SubmissionService);
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions()
       .filter(option => option?.indicator_id === this.cache.currentMetadata()?.indicator_id || !option?.indicator_id)
@@ -105,18 +108,24 @@ export class ResultSidebarComponent {
   );
 
   submmitConfirm() {
-    const { severity, summary, detail } = this.cache.currentMetadata().status_id === 1 ? this.submissionAlertData() : this.unsavedChangesAlertData();
+    const { severity, summary, detail } = this.submissionService.currentResultIsSubmitted()
+      ? this.unsavedChangesAlertData()
+      : this.submissionAlertData();
 
     this.actions.showGlobalAlert({
       severity,
       summary,
       detail,
-      commentLabel: this.cache.currentMetadata().status_id === 1 ? 'Comment' : 'Feedback about the unsubmission',
-      commentRequired: this.cache.currentMetadata().status_id === 1 ? false : true,
+      commentLabel: this.submissionService.currentResultIsSubmitted() ? 'Feedback about the unsubmission' : 'Comment',
+      commentRequired: this.submissionService.currentResultIsSubmitted(),
       confirmCallback: {
         label: 'Submit',
         event: async (comment?: string) => {
-          await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: comment || '' });
+          await this.api.PATCH_SubmitResult({
+            resultId: this.cache.currentResultId(),
+            comment: comment || '',
+            status: this.submissionService.currentResultIsSubmitted() ? 4 : 2
+          });
           this.metadata.update(this.cache.currentResultId());
           return;
         }

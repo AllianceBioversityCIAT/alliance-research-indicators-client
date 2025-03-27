@@ -2,12 +2,13 @@
   display: flex;
   align-items: center;
   background: white;
-
-  // padding: 20px;
   border: 1px solid #e8ebed;
   gap: 1rem;
   justify-content: space-between;
-
+  position: fixed;
+  z-index: 2;
+  width: calc(100% - 65px);
+  
   .section-header-content {
     display: flex;
     align-items: center;

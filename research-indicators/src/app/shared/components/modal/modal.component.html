@@ -1,11 +1,50 @@
-@if (showModal()) {
+@if (getConfig().isOpen) {
   <div class="local-container" [@fadeIn]>
-    <div class="modal" [@scaleIn]>
-      <div class="close-button" (click)="allModalsService.toggleModal(modalName); clearModal()">
-        <i class="material-symbols-rounded">close</i>
-      </div>
-      <div class="modal-content no-scrollbar">
-        <ng-content></ng-content>
+    <div [@scaleIn]>
+      <div class="bg-[#f5f5f5] max-w-[75vw] max-h-[45vw] rounded-[27px] flex flex-col no-scrollbar">
+        <header class="px-10 py-4 flex items-center bg-white rounded-t-[27px] atc-primary-blue-500">
+          @if (getConfig().icon) {
+            <i
+              class="material-symbols-rounded cursor-pointer pr-2 !text-[22px]"
+              (click)="getConfig().iconAction?.()"
+              (keydown)="getConfig().iconAction?.()"
+              >{{ getConfig().icon }}</i
+            >
+          }
+          <p class="font-medium text-xl">{{ getConfig().title }}</p>
+        </header>
+        <div
+          class="absolute top-5 right-6 text-[#777c83] cursor-pointer"
+          (click)="allModalsService.toggleModal(modalName)"
+          (keydown.enter)="allModalsService.toggleModal(modalName)">
+          <i class="material-symbols-rounded !text-[22px]">close</i>
+        </div>
+
+        <div class="overflow-y-auto">
+          <ng-content></ng-content>
+        </div>
+
+        @if (getConfig().cancelAction || getConfig().confirmAction) {
+          <div class="flex space-x-5 mt-12 mb-10 m-12">
+            @if (getConfig().cancelAction) {
+              <button
+                class="border-[1.5px] text-[15px] font-medium border-[#035BA9] text-[#035BA9] px-5 py-2 rounded-[14px]"
+                (click)="getConfig().cancelAction?.()">
+                {{ getConfig().cancelText }}
+              </button>
+            }
+            @if (getConfig().confirmAction) {
+              <button
+                class="bg-[#035BA9] text-[15px] text-white px-5 py-2 rounded-[14px] {{
+                 getConfig().disabledConfirmAction?.() ? 'opacity-50 cursor-not-allowed' : ''
+                }}"
+                (click)="getConfig().confirmAction?.()"
+                [disabled]="getConfig().disabledConfirmAction?.()">
+                {{ getConfig().confirmText }}
+              </button>
+            }
+          </div>
+        }
       </div>
     </div>
   </div>

@@ -5,64 +5,15 @@
   flex-direction: column;
   background-color: #fcfcfc;
   border-radius: 10px;
-  padding: 25px;
   margin-right: 32px;
   width: 280px;
   max-width: 280px;
   top: 20px;
 
-  .indicator-header {
-    display: grid;
-    justify-content: space-between;
-    gap: 15px;
-
-    .indicator-title {
-      display: grid;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 11px;
-      font-weight: 300;
-      color: #777c83;
-    }
-
-    .indicator-description,
-    .code-description,
-    .status-description {
-      font-family: Barlow, sans-serif;
-      font-size: 17px;
-      font-weight: 600;
-      color: #173f6f;
-    }
-
-    .indicator-description {
-      text-transform: capitalize;
-    }
-    .status-description {
-      font-size: 13px;
-      color: #1689ca;
-      border: 0.47px solid #1689ca;
-      border-radius: 5px;
-      padding: 5px;
-      text-transform: uppercase;
-    }
-
-    .status-code {
-      display: flex;
-      gap: 15px;
-    }
-  }
-
   hr {
     border: 0;
     border-top: 1px solid #dee2e6;
     margin: 20px 0;
-  }
-
-  .title {
-    font-family: Barlow, sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    color: #777c83;
-    margin-bottom: 15px;
   }
 
   .options-container {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
@@ -44,6 +44,19 @@ export class RequestPartnerModalComponent implements OnInit {
   actions = inject(ActionsService);
   allModalsService = inject(AllModalsService);
   router = inject(Router);
+
+  readonly isPartnerConfirmDisabled = computed(() =>
+    !this.body().name ||
+    !this.body().institutionTypeCode ||
+    !this.body().hqCountryIso ||
+    !this.validateWebsite(this.body().websiteLink ?? '') ||
+    this.loading()
+  );
+  
+  constructor() {
+    this.allModalsService.setCreatePartner(() => this.createPartner());
+    this.allModalsService.setDisabledConfirmPartner(() => this.isPartnerConfirmDisabled());    
+  }
 
   ngOnInit() {
     this.serviceInstitutionsTypes = this.serviceLocator.getService(

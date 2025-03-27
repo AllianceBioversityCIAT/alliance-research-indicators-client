@@ -7,4 +7,5 @@ export interface GetMetadata {
   status_name?: string;
   result_title?: string;
   created_by?: string;
+  is_principal_investigator?: boolean;
 }

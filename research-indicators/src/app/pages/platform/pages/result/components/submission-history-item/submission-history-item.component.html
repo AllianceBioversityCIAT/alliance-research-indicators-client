@@ -1,33 +1,25 @@
 <div class="container">
-  <div class="avatar-content">
-    <div class="avatar">{{ historyItem.created_by_object.first_name[0] }} {{ historyItem.created_by_object.last_name[0] }}</div>
-  </div>
+  <div class="flex items-center justify-center h-11 w-11 rounded-full bg-[#7cb580]">
+    <div class="font-[400] text-[22px] leading-5 text-white  tracking-[1.5px]">{{ historyItem.created_by_object.first_name[0] }}{{ historyItem.created_by_object.last_name[0] }}</div>
+</div>
+
   <div class="info-content">
     <div class="text-content">
       <span class="title">{{ historyItem.created_by_object.first_name }}</span>
       <span class="description-text">&nbsp;has&nbsp;</span>
-      <span class="title">{{ historyItem.from_status_id === 1 ? 'Edited' : 'Submitted' }}</span>
+      <span class="title lowercase">{{ getStatusName(historyItem.to_status_id) }}</span>
       <span class="description-text">&nbsp;the result.</span>
     </div>
     <div class="status-content">
-      @if (historyItem.from_status_id === 1) {
-        <div class="editing-content">
-          <span class="editing">EDITING</span>
-        </div>
-        <i class="material-symbols-rounded">arrow_forward</i>
-        <div class="submitted-content">
-          <span class="submitted">SUBMITTED</span>
-        </div>
-      } @else {
-        <div class="submitted-content">
-          <span class="submitted">SUBMITTED</span>
-        </div>
-        <i class="material-symbols-rounded">arrow_forward</i>
-        <div class="editing-content">
-          <span class="editing">EDITING</span>
-        </div>
-      }
+      <app-custom-tag [statusId]="historyItem.from_status_id" [statusName]="getStatusName(historyItem.from_status_id)"></app-custom-tag>
+      <i class="material-symbols-rounded">arrow_forward</i>
+      <app-custom-tag [statusId]="historyItem.to_status_id" [statusName]="getStatusName(historyItem.to_status_id)"></app-custom-tag>
     </div>
+    @if (historyItem.submission_comment && historyItem.submission_comment !== '' && historyItem.submission_comment !== null) {
+      <span class="text-[#4C5158] py-1">
+        <span class="font-bold">Comment:</span> {{ historyItem.submission_comment }}
+      </span>
+    }
     <div class="date-content">
       <span class="date">{{ historyItem.updated_at | date: 'dd/MM/yyyy' }} at {{ historyItem.updated_at | date: 'HH:mm' }}</span>
     </div>

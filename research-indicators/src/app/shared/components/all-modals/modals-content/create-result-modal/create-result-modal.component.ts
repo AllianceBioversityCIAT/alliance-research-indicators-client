@@ -5,10 +5,10 @@ import { ResultAiAssistantComponent } from './components/result-ai-assistant/res
 import { CreateResultManagementService } from './services/create-result-management.service';
 
 @Component({
-    selector: 'app-create-result-modal',
-    imports: [CreateResultFormComponent, ResultAiAssistantComponent],
-    templateUrl: './create-result-modal.component.html',
-    styleUrl: './create-result-modal.component.scss'
+  selector: 'app-create-result-modal',
+  imports: [CreateResultFormComponent, ResultAiAssistantComponent],
+  templateUrl: './create-result-modal.component.html',
+  styleUrl: './create-result-modal.component.scss'
 })
 export class CreateResultModalComponent {
   createResultManagementService = inject(CreateResultManagementService);

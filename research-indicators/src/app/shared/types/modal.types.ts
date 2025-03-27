@@ -1,1 +1,1 @@
-export type ModalName = 'createResult' | 'createTest' | 'requestPartner';
+export type ModalName = 'createResult' | 'submitResult' | 'requestPartner';
