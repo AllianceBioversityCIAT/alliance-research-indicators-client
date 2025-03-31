@@ -14,20 +14,20 @@ describe('ScrollToTopService', () => {
   });
 
   it('should scroll to top if element exists', () => {
-    const scrollSpy = jasmine.createSpy('scrollTo');
-    const fakeElement = { scrollTo: scrollSpy } as any;
+    const scrollToMock = jest.fn();
+    const fakeElement = { scrollTo: scrollToMock };
 
-    spyOn(document, 'getElementById').and.returnValue(fakeElement);
+    jest.spyOn(document, 'getElementById').mockReturnValue(fakeElement as any);
 
     service.scrollContentToTop('content');
 
     expect(document.getElementById).toHaveBeenCalledWith('content');
-    expect(scrollSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+    expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
   });
 
   it('should warn if element does not exist', () => {
-    spyOn(document, 'getElementById').and.returnValue(null);
-    const warnSpy = spyOn(console, 'warn');
+    jest.spyOn(document, 'getElementById').mockReturnValue(null);
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
     service.scrollContentToTop('nonexistent');
 
