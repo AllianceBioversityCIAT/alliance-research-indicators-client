@@ -4,7 +4,7 @@
   <br />
   <div class="flex flex-col gap-5">
     <div class="content-section">
-      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-5">
+      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
         <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GENERAL INFORMATION</div>
         <div class="grid gap-[25px]">
           <div class="flex flex-col">
@@ -47,14 +47,14 @@
           </div>
         </div>
       </div>
-      <div class="flex gap-[10px]">
-        <p-button
-          [disabled]="!this.body().title"
-          [loading]="this.loading()"
-          label="Next"
-          icon="pi pi-arrow-right"
-          iconPos="right"
-          (click)="saveData('next')" />
+      <div class="flex gap-5">
+        <button
+          type="button"
+          (click)="saveData('next')"
+          class="flex items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+          Next
+          <i class="pi pi-arrow-right !text-[12px]"></i>
+        </button>
         <p-button
           [disabled]="!this.body().title"
           [loading]="this.loading()"

@@ -2,7 +2,7 @@
   <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
   <br />
 
-  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-5">
+  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <h3 class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">EVIDENCE</h3>
 
     <div class="flex flex-col gap-5">
@@ -18,8 +18,14 @@
       </div>
     </div>
   </div>
-  <div class="flex gap-[10px]">
-    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" [loading]="this.loading()" />
+  <div class="flex gap-5">
+    <button
+      type="button"
+      (click)="saveData('back')"
+      class="flex items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+      <i class="pi pi-arrow-left !text-[12px]"></i>
+      Back
+    </button>
     <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
   </div>
 </div>

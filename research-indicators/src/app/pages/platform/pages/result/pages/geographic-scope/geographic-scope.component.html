@@ -2,7 +2,7 @@
   <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
   <br />
 
-  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-5">
+  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GEOGRAPHIC SCOPE</div>
     <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-5 px-5 mb-[30px]">
       <span class="text-[#074b86] material-symbols-rounded">info</span>
@@ -92,8 +92,20 @@
     </div>
   </div>
   <div class="flex gap-5">
-    <p-button (click)="saveData('back')" label="Back" icon="pi pi-arrow-left" iconPos="left" [loading]="this.loading()" />
-    <p-button (click)="saveData('next')" label="Next" icon="pi pi-arrow-right" iconPos="left" [loading]="this.loading()" />
+    <button
+      type="button"
+      (click)="saveData('back')"
+      class="flex items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+      <i class="pi pi-arrow-left !text-[12px]"></i>
+      Back
+    </button>
+    <button
+      type="button"
+      (click)="saveData('next')"
+      class="flex items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+      Next
+      <i class="pi pi-arrow-right !text-[12px]"></i>
+    </button>
     <p-button (click)="saveData()" label="Save" severity="success" icon="pi pi-save" iconPos="left" [loading]="this.loading()" />
   </div>
 </div>
