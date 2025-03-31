@@ -34,11 +34,11 @@
           placeholder="Right">
           @if (cache.isSidebarCollapsed() && option.underConstruction) {
             <div class="icon-construction-container">
-              <i class="material-symbols-rounded">{{ option.icon }}</i>
+              <i class="!text-[16px]" [ngClass]="'pi ' + option.icon"></i>
               <img src="construction.png" class="construction-icon-x1 icon-construction-container-img" alt="" />
             </div>
           } @else {
-            <i class="material-symbols-rounded">{{ option.icon }}</i>
+            <i class="!text-[16px]" [ngClass]="'pi ' + option.icon"></i>
           }
 
           <div class="body-2 text">{{ option.label }}</div>
