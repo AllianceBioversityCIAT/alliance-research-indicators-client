@@ -77,7 +77,8 @@ describe('SectionHeaderComponent', () => {
       isMyResult: signal(() => true),
       currentMetadata: signal({
         status_id: 5
-      })
+      }),
+      isSidebarCollapsed: signal<boolean>(false)
     };
 
     actionsService = {
