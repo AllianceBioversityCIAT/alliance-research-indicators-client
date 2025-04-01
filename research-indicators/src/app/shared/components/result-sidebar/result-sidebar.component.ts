@@ -10,6 +10,7 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { ApiService } from '../../services/api.service';
 import { GetMetadataService } from '../../services/get-metadata.service';
 import { SubmissionService } from '../../services/submission.service';
+import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 
 interface submissionAlertData {
   severity: 'success' | 'warning';
@@ -29,7 +30,7 @@ interface SidebarOption {
 
 @Component({
   selector: 'app-result-sidebar',
-  imports: [RouterLink, RouterLinkActive, ButtonModule, CommonModule, TooltipModule],
+  imports: [RouterLink, RouterLinkActive, CustomTagComponent, ButtonModule, CommonModule, TooltipModule],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })
