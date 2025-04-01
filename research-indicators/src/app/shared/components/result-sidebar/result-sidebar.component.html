@@ -16,9 +16,8 @@
 
   <div class="flex px-[25px] items-center justify-between font-medium full text-xs mb-[15px] text-[#777c83] title">
     FORM PROGRESS
-    <button class="border border-[#1689CA] text-[#1689CA] uppercase text-xs font-semibold px-3 py-1 rounded-lg">
-      {{ cache.currentMetadata().status_name }}
-    </button>
+    <app-custom-tag [statusId]="cache.currentMetadata().status_id ?? ''" [statusName]="cache.currentMetadata().status_name ?? ''"></app-custom-tag>
+
   </div>
 
   <div class="options-container px-[25px]">

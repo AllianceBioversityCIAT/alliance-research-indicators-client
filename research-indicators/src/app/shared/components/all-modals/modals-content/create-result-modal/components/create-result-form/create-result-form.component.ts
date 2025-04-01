@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -15,14 +15,19 @@ import { ActionsService } from '../../../../../../services/actions.service';
 import { MainResponse } from '../../../../../../interfaces/responses.interface';
 import { Result } from '../../../../../../interfaces/result/result.interface';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
-import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocomplete';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
 import { SelectModule } from 'primeng/select';
+import localeEs from '@angular/common/locales/es';
+import { DatePipe, registerLocaleData } from '@angular/common';
+
+registerLocaleData(localeEs);
 @Component({
   selector: 'app-create-result-form',
-  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, SelectModule, RouterModule, AutoCompleteModule],
+  imports: [DialogModule, DatePipe, ButtonModule, FormsModule, InputTextModule, SelectModule, RouterModule, AutoCompleteModule],
   templateUrl: './create-result-form.component.html',
   styleUrl: './create-result-form.component.scss',
+  providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CreateResultFormComponent {
@@ -49,23 +54,6 @@ export class CreateResultFormComponent {
     } else {
       this.badRequest(result);
     }
-  }
-
-  filterPrimaryContract(event: AutoCompleteCompleteEvent) {
-    const filtered: GetContracts[] = [];
-    const query = event.query.toLowerCase();
-
-    for (const item of this.getContractsService.list()) {
-      if (
-        item.description.toLowerCase().includes(query) ||
-        item.agreement_id.toString().toLowerCase().includes(query) ||
-        item.project_lead_description.toLowerCase().includes(query)
-      ) {
-        filtered.push(item);
-      }
-    }
-
-    this.filteredPrimaryContracts.set(filtered);
   }
 
   successRequest = (result: MainResponse<Result>, openresult?: boolean) => {
