@@ -9,11 +9,11 @@ import { AIAssistantResult } from '../../models/AIAssistantResult';
 import { ResultAiItemComponent } from './components/result-ai-item/result-ai-item.component';
 
 @Component({
-    selector: 'app-result-ai-assistant',
-    imports: [CommonModule, ButtonModule, PaginatorModule, ResultAiItemComponent],
-    templateUrl: './result-ai-assistant.component.html',
-    styleUrl: './result-ai-assistant.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-result-ai-assistant',
+  imports: [CommonModule, ButtonModule, PaginatorModule, ResultAiItemComponent],
+  templateUrl: './result-ai-assistant.component.html',
+  styleUrl: './result-ai-assistant.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiAssistantComponent {
   acceptedFormats: string[] = ['.pdf', '.docx', '.txt'];
@@ -120,20 +120,20 @@ export class ResultAiAssistantComponent {
     form.append('file', this.selectedFile);
     const result = await this.TP.post(`results/ai/create`, form);
 
-    if (!result?.data?.data) {
+    if (!result?.data?.results) {
       this.analyzingDocument.set(false);
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
       return;
     }
 
-    if (result?.data?.data?.results?.length === 0) {
+    if (result?.data?.results?.length === 0) {
       this.analyzingDocument.set(false);
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'No results found. Please try again.' });
       return;
     }
 
     if (result.successfulRequest) {
-      this.createResultManagementService.items.set(result.data.data.results);
+      this.createResultManagementService.items.set(result.data.results);
       this.analyzingDocument.set(false);
       this.documentAnalyzed.set(true);
     }
