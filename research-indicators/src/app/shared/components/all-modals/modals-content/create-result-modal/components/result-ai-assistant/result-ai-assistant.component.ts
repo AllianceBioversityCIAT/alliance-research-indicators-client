@@ -126,20 +126,20 @@ export class ResultAiAssistantComponent {
     form.append('file', this.selectedFile);
     const result = await this.TP.post(`results/ai/create`, form);
 
-    if (!result?.data?.data) {
+    if (!result?.data?.results) {
       this.analyzingDocument.set(false);
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
       return;
     }
 
-    if (result?.data?.data?.results?.length === 0) {
+    if (result?.data?.results?.length === 0) {
       this.analyzingDocument.set(false);
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'No results found. Please try again.' });
       return;
     }
 
     if (result.successfulRequest) {
-      this.createResultManagementService.items.set(result.data.data.results);
+      this.createResultManagementService.items.set(result.data.results);
       this.analyzingDocument.set(false);
       this.documentAnalyzed.set(true);
     }
