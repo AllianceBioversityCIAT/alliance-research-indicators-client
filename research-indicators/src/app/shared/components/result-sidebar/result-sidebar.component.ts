@@ -71,7 +71,7 @@ export class ResultSidebarComponent {
       label: 'Policy Change details',
       path: 'policy-change',
       indicator_id: 4,
-      greenCheckKey: 'completness'
+      greenCheckKey: 'policy_change'
     },
     {
       label: 'Partners',
