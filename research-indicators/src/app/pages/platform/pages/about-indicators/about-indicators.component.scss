@@ -52,14 +52,8 @@
     height: 100%;
 
     &:hover {
-      transform: scale(1.06);
+      transform: scale(1.03);
       box-shadow: 0 1.5px 8.24px 0 rgb(0 182 255 / 10%);
-
-      .icon-background {
-        i {
-          animation: wiggle 0.5s ease-in-out 1;
-        }
-      }
     }
 
     .card-panel {
