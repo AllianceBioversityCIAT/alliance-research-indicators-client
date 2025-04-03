@@ -15,6 +15,7 @@ import { InputComponent } from '../../../../../../shared/components/custom-field
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { CalendarInputComponent } from '../../../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
+import { effect } from '@angular/core';
 @Component({
   selector: 'app-capacity-sharing',
   imports: [
@@ -40,10 +41,26 @@ export default class CapacitySharingComponent implements OnInit {
   body: WritableSignal<GetCapSharing> = signal({});
   loading = signal(false);
 
+  constructor() {
+    effect(() => {
+      if (!this.isLongTermSelected()) {
+        const current = this.body();
+        if (current?.degree_id) {
+          this.body.update(b => ({
+            ...b,
+            degree_id: undefined
+          }));
+        }
+      }
+    });
+  }
+
   ngOnInit() {
     this.getData();
   }
-
+  
+  isLongTermSelected = computed(() => this.body()?.session_length_id === 2);
+  
   isStartDateGreaterThanEndDate = computed(() => {
     const { start_date, end_date } = this.body() || {};
     if (!start_date || !end_date) return false;
@@ -70,7 +87,7 @@ export default class CapacitySharingComponent implements OnInit {
       if (current.end_date) current.end_date = new Date(current.end_date || '').toISOString();
 
       return { ...current };
-    });
+    }); 
 
     await this.api.PATCH_CapacitySharing(this.body());
     this.actions.showToast({ severity: 'success', summary: 'Capacity Sharing', detail: 'Data saved successfully' });

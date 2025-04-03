@@ -62,7 +62,7 @@ export class ResultSidebarComponent {
       greenCheckKey: 'alignment'
     },
     {
-      label: 'Capacity Sharing',
+      label: 'CapSharing details',
       path: 'capacity-sharing',
       indicator_id: 1,
       greenCheckKey: 'cap_sharing'
