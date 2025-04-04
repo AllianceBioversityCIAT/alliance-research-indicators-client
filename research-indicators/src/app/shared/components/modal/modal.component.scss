@@ -12,16 +12,10 @@
   z-index: 1000;
 }
 
-@media screen and (height <= 900px) {
-  .modal-content {
-    max-height: 95vh;
-    max-width: 85vw;
-  }
-}
-
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
