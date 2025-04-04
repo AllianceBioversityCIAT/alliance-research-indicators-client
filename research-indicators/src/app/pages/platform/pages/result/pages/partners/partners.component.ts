@@ -30,9 +30,10 @@ export default class PartnersComponent {
     this.getData();
   }
 
-  canRemoveInstitution = (item: any) => {
-    return !(item?.institution_role_id !== 3);
+  canRemoveInstitution = (item: any): boolean => {
+    return item?.institution_role_id === 3 || item?.institution_role_id == null;
   };
+  
   
   async getData() {
     this.loading.set(true);
