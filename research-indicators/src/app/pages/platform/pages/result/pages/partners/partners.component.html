@@ -16,10 +16,13 @@
     <app-multiselect
       label="Partners to be acknowledge"
       description="Partner organizations you collaborated with or are currently collaborating with to generate this result."
+      [isRequired]="true"
       [signal]="body"
       optionLabel="html_full_name"
       optionValue="institution_id"
       signalOptionValue="institutions"
+      [removeCondition]="canRemoveInstitution"
+      removeTooltip="This institution was added in the CapSharing details section and can only be removed from there."    
       serviceName="institutions">
       @if (!this.loading()) {
         <ng-template #rows let-institution>

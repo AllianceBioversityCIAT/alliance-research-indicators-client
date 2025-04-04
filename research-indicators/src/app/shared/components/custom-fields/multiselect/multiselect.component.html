@@ -92,7 +92,20 @@
         @for (row of selectedOptions(); track $index) {
           <div class="item abc-grey-100">
             <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
-            <i class="material-symbols-rounded" (click)="removeOption(row)">cancel</i>
+            @if (removeCondition(row)) {
+              <i
+                class="text-[#CF0808] cursor-pointer material-symbols-rounded"
+                (click)="removeOption(row)">
+                cancel
+              </i>
+            } @else {
+              <i
+                class="text-[#A2A9AF] material-symbols-rounded"
+                [pTooltip]="removeTooltip"
+                tooltipPosition="top">
+                cancel
+              </i>
+            }
           </div>
         }
       </div>

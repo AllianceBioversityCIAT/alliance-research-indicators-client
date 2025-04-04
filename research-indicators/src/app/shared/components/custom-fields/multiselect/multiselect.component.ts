@@ -56,7 +56,9 @@ export class MultiselectComponent implements OnInit {
   @Input() showPartnerRequestDescription = false;
   @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
-
+  @Input() removeCondition: (item: any) => boolean = () => true;
+  @Input() removeTooltip = '';
+  
   selectEvent = output<any>();
   environment = environment;
 

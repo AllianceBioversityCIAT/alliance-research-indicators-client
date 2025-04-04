@@ -28,6 +28,10 @@ export default class PartnersComponent {
     this.getData();
   }
 
+  canRemoveInstitution = (item: any) => {
+    return !(item?.institution_role_id !== 3);
+  };
+  
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_Partners(this.cache.currentResultId());
