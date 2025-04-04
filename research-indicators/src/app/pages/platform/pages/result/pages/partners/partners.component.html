@@ -22,12 +22,13 @@
       optionValue="institution_id"
       signalOptionValue="institutions"
       [removeCondition]="canRemoveInstitution"
-      removeTooltip="This institution was added in the CapSharing details section and can only be removed from there."    
+      removeTooltip="This institution was added in the CapSharing details section and can only be removed from there."
+      [optionsDisabled]="this.optionsDisabled"
       serviceName="institutions">
       @if (!this.loading()) {
-        <ng-template #rows let-institution>
-          <app-partner-selected-item [institution]="institution" />
-        </ng-template>
+      <ng-template #rows let-institution>
+        <app-partner-selected-item [institution]="institution" />
+      </ng-template>
       }
     </app-multiselect>
   </div>

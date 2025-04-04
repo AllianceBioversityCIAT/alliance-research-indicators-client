@@ -58,13 +58,23 @@ export class MultiselectComponent implements OnInit {
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
   @Input() removeCondition: (item: any) => boolean = () => true;
   @Input() removeTooltip = '';
-  
+
+  @Input() optionsDisabled: WritableSignal<any[]> = signal([]);
+
   selectEvent = output<any>();
   environment = environment;
 
   service: any;
 
   body: WritableSignal<any> = signal({ value: null });
+
+  useDisabled = computed(() => this.optionsDisabled()?.length);
+
+  listWithDisabled = computed(() => {
+    return this.service
+      ?.list()
+      .map((item: any) => ({ ...item, disabled: this.optionsDisabled().find((option: any) => option[this.optionValue] === item[this.optionValue]) }));
+  });
 
   isInvalid = computed(() => {
     return this.isRequired && (!this.selectedOptions() || this.selectedOptions()?.length === 0);
