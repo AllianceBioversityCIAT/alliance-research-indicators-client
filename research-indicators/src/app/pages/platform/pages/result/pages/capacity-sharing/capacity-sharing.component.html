@@ -26,6 +26,31 @@
           [optionValue]="{ body: 'session_type_id', option: 'session_type_id' }"></app-radio-button>
       </div>
     </div>
+    <div class="flex flex-col pt-5 xl:flex-row gap-5">
+      <div class="flex-1">
+        <app-radio-button
+          label="Length of training"
+          [isRequired]="true"
+          [signal]="body"
+          [serviceName]="'capSharingLengths'"
+          [optionLabel]="'name'"
+          [optionValue]="{ body: 'session_length_id', option: 'session_length_id' }">
+        </app-radio-button>
+      </div>
+    
+      @if (isLongTermSelected()) {
+        <div class="flex-1">
+          <app-radio-button
+            label="Degree"
+            [isRequired]="true"
+            [signal]="body"
+            [serviceName]="'capSharingDegrees'"
+            [optionLabel]="'name'"
+            [optionValue]="{ body: 'degree_id', option: 'degree_id' }">
+          </app-radio-button>
+        </div>
+      }
+    </div>    
   </div>
 
   <!-- INDIVIDUAL TRAINING -->
@@ -38,32 +63,12 @@
     <div class="flex flex-col xl:flex-row gap-5 mb-6">
       <div class="flex-1">
         <app-radio-button
-          label="Degree"
-          [isRequired]="true"
-          [signal]="body"
-          [serviceName]="'capSharingDegrees'"
-          [optionLabel]="'name'"
-          [optionValue]="{ body: 'individual.degree_id', option: 'degree_id' }"></app-radio-button>
-      </div>
-
-      <div class="flex-1">
-        <app-radio-button
           label="Gender"
           [isRequired]="true"
           [signal]="body"
           [serviceName]="'capSharingGenders'"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'individual.gender_id', option: 'gender_id' }"></app-radio-button>
-      </div>
-
-      <div class="flex-1">
-        <app-radio-button
-          label="Lenght of training"
-          [isRequired]="true"
-          [signal]="body"
-          [serviceName]="'capSharingLengths'"
-          [optionLabel]="'name'"
-          [optionValue]="{ body: 'individual.session_length_id', option: 'session_length_id' }"></app-radio-button>
       </div>
     </div>
 
