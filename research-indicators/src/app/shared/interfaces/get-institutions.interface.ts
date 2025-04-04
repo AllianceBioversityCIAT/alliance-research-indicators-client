@@ -15,6 +15,7 @@ export interface GetInstitution {
   institution_type_id: number;
   institution_locations: Institutionlocation[];
   institution_type: Institutiontype;
+  disabled: boolean;
 }
 
 interface Institutiontype {

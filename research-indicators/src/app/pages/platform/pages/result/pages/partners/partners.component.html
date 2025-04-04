@@ -20,6 +20,7 @@
       optionLabel="html_full_name"
       optionValue="institution_id"
       signalOptionValue="institutions"
+      [optionsDisabled]="this.optionsDisabled"
       serviceName="institutions">
       @if (!this.loading()) {
         <ng-template #rows let-institution>

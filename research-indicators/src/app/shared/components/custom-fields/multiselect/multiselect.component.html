@@ -27,7 +27,7 @@
       <p-multiSelect
         [style]="isInvalid() ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
         [loading]="this.service?.loading()"
-        [options]="this.service?.list()"
+        [options]="this.useDisabled() ? this.listWithDisabled() : this.service?.list()"
         [filter]="!this.service?.isOpenSearch()"
         [filterBy]="this.optionLabel"
         [optionLabel]="this.optionLabel"
