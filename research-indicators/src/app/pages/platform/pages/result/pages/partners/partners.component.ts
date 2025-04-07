@@ -4,11 +4,12 @@ import { ButtonModule } from 'primeng/button';
 import { ActionsService } from '@services/actions.service';
 import { CacheService } from '@services/cache/cache.service';
 import { Router } from '@angular/router';
-import { PatchPartners } from '@interfaces/patch-partners.interface';
+import { Institution, PatchPartners } from '@interfaces/patch-partners.interface';
 import { ApiService } from '@services/api.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { GetInstitution } from '@shared/interfaces/get-institutions.interface';
 
 @Component({
   selector: 'app-partners',
@@ -24,13 +25,13 @@ export default class PartnersComponent {
   body = signal<PatchPartners>(new PatchPartners());
   loading = signal(false);
 
-  optionsDisabled: WritableSignal<any[]> = signal([]);
+  optionsDisabled: WritableSignal<Institution[]> = signal([]);
 
   constructor() {
     this.getData();
   }
 
-  canRemoveInstitution = (item: any): boolean => {
+  canRemoveInstitution = (item: GetInstitution): boolean => {
     return item?.institution_role_id === 3 || item?.institution_role_id == null;
   };
   
@@ -39,7 +40,7 @@ export default class PartnersComponent {
     this.loading.set(true);
     const response = await this.api.GET_Partners(this.cache.currentResultId());
     this.body.set(response.data);
-    this.optionsDisabled.set(response.data.institutions.filter((institution: any) => institution.institution_role_id !== 3));
+    this.optionsDisabled.set(response.data.institutions.filter(institution => institution.institution_role_id !== 3));
     this.loading.set(false);
   }
 
