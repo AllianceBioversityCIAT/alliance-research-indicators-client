@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { ApiService } from '@services/api.service';
-import { WebsocketService } from '../sockets/websocket.service';
 import { environment } from '@envs/environment';
 import { ActionsService } from '@services/actions.service';
 import { ClarityService } from './clarity.service';
@@ -15,7 +14,6 @@ export class CognitoService {
   router = inject(Router);
   cache = inject(CacheService);
   api = inject(ApiService);
-  websocket = inject(WebsocketService);
   actions = inject(ActionsService);
   clarity = inject(ClarityService);
 
@@ -42,9 +40,6 @@ export class CognitoService {
     }
 
     this.actions.updateLocalStorage(loginResponse);
-
-    if (loginResponse.data.user.first_name && loginResponse.data.user.sec_user_id)
-      await this.websocket.configUser(loginResponse.data.user.first_name, loginResponse.data.user.sec_user_id);
 
     this.updateCacheService();
     setTimeout(() => {
