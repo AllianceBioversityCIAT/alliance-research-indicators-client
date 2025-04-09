@@ -26,7 +26,8 @@
           [optionValue]="{ body: 'policy_stage_id', option: 'id' }"></app-radio-button>
       </div>
       <div class="col-span-12">
-        <app-textarea label="Evidence for stage" description="Description." [signal]="this.body" [optionValue]="'evidence_stage'"></app-textarea>
+        <app-textarea label="Evidence for stage" 
+        [isRequired]="true" description="Description."  [signal]="this.body" [optionValue]="'evidence_stage'"></app-textarea>
       </div>
       <div class="col-span-12">
         <app-multiselect
