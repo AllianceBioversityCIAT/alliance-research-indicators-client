@@ -56,6 +56,12 @@ export default class AllianceAlignmentComponent {
   //   if (this.actions.saveCurrentSectionValue()) this.saveData();
   // });
 
+
+  get showPrimaryLeverError(): boolean {
+    const levers = this.body().levers || [];
+    return levers.length > 1 && !levers.some((l) => l.is_primary);
+  }
+  
   markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever') {
     this.body.update(current => {
       if (type === 'contract') {

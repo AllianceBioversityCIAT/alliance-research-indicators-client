@@ -34,7 +34,7 @@ export class RadioButtonComponent implements OnInit {
   firstTime = signal(true);
 
   isInvalid = computed(() => {
-    return this.isRequired && !this.body()?.value;
+    return this.isRequired && (this.body().value === null || this.body().value === undefined);
   });
 
   onChange = effect(
