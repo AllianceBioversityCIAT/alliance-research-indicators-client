@@ -44,8 +44,6 @@ export class AllModalsService {
     requestPartner: {
       isOpen: false,
       title: 'Partners Request',
-      confirmText: 'Request',
-      confirmAction: () => this.createPartner?.(),
       // disabledConfirmAction: () => this.disabledConfirmPartner?.() ?? false
     }
   });

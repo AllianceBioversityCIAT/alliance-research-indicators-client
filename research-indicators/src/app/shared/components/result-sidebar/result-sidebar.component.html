@@ -56,7 +56,7 @@
         [ngClass]="{
           'bg-[#f97316]': submissionService.currentResultIsSubmitted(),
           'bg-[#035BA9]': submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted(),
-          'bg-gray-200 text-gray-600': !submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted()
+          'bg-[#E8EBED] !text-[#8D9299]': !submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted()
         }"
         [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
         tooltipPosition="bottom"
