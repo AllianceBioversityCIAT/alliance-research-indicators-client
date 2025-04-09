@@ -49,4 +49,20 @@ export class EvidenceItemComponent implements OnInit {
   deleteEvidence() {
     this.deleteEvidenceEvent.emit();
   }
+  
+  validateWebsite = (website: string): boolean => {
+    if (!website || website.trim() === '') {
+      return true;
+    }
+    const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(\/[\w\-./?%&=]*)?$/;
+    return urlPattern.test(website.trim());
+  };
+
+  setValue(value: string) {
+   value = value.toLowerCase();
+    this.body.set({
+      ...this.body(),
+      evidence_url: value
+    });
+  }
 }
