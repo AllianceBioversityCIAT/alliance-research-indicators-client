@@ -69,7 +69,7 @@ export class RequestPartnerModalComponent implements OnInit {
     if (!website || website.trim() === '') {
       return true;
     }
-    const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(\/[\w\-./?%&=]*)?$/;
+    const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(\/[\w\-./?%&=]*)?$/;
     return urlPattern.test(website.trim());
   };
   
