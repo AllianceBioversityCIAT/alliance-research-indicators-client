@@ -1,6 +1,10 @@
 <div class="input-container">
   @if (label) {
-    <label class="label" for="username">{{ label }}</label>
+    <label class="label inline-block" for="username">{{ label }}
+      @if (isRequired) {
+        <span class="text-red-500">*</span>
+      }
+    </label>
   }
   @if (description) {
     <small class="description" for="username">{{ description }}</small>

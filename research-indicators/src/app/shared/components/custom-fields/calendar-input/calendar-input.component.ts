@@ -20,6 +20,7 @@ export class CalendarInputComponent {
   @Input() description = '';
   @Input() minDate: any = null;
   @Input() maxDate: any = null;
+  @Input() isRequired = false;
   setValue(value: string) {
     this.signal.set({ ...this.signal(), [this.optionValue]: value });
   }

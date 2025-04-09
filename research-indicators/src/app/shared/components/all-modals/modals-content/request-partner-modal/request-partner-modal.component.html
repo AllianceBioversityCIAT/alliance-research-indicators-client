@@ -101,7 +101,7 @@
         [class.ng-invalid]="!validateWebsite(body().websiteLink ?? '')" />
     </div>
     @if (!validateWebsite(body().websiteLink ?? '')) {
-      <div class="flex items-center gap-1 -mt-5 text-[#E69F00] text-sm">
+      <div class="flex items-center gap-1 -mt-3 text-[#E69F00] text-sm">
         <i class="material-symbols-rounded !text-base">warning</i>
         <span>Please enter a valid URL</span>
       </div>
