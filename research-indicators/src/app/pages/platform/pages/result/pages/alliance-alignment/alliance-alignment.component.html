@@ -90,6 +90,13 @@
                 </div>
               </ng-template>
             </app-multiselect>
+
+            @if (showPrimaryLeverError) {
+              <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+                <i class="material-symbols-rounded !text-base">warning</i>
+                <span>Please select one primary Lever.</span>
+              </div>
+            }
           </div>
         </div>
       </div>
