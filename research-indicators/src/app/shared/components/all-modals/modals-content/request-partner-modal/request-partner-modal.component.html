@@ -94,11 +94,18 @@
         [(ngModel)]="body().websiteLink"
         placeholder="Enter website"
         type="url"
+        (ngModelChange)="setValue($event)"
         class="w-full !text-base"
         [disabled]="loading()"
+        [style]="!validateWebsite(body().websiteLink ?? '') ? { border: '2px solid #E69F00' } : {}"
         [class.ng-invalid]="!validateWebsite(body().websiteLink ?? '')" />
     </div>
-
+    @if (!validateWebsite(body().websiteLink ?? '')) {
+      <div class="flex items-center gap-1 -mt-5 text-[#E69F00] text-sm">
+        <i class="material-symbols-rounded !text-base">warning</i>
+        <span>Please enter a valid URL</span>
+      </div>
+    }
   </div>
 
   <div class="flex mt-4 mb-10">

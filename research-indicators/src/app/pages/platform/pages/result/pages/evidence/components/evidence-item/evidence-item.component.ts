@@ -1,12 +1,12 @@
 import { Component, effect, EventEmitter, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
-import { InputComponent } from '../../../../../../../../shared/components/custom-fields/input/input.component';
 import { TextareaComponent } from '../../../../../../../../shared/components/custom-fields/textarea/textarea.component';
 import { FormsModule } from '@angular/forms';
 import { Evidence, PatchResultEvidences } from '../../../../../../../../shared/interfaces/patch-result-evidences.interface';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
     selector: 'app-evidence-item',
-    imports: [InputComponent, TextareaComponent, FormsModule],
+    imports: [TextareaComponent, FormsModule, InputTextModule],
     templateUrl: './evidence-item.component.html',
 })
 export class EvidenceItemComponent implements OnInit {
