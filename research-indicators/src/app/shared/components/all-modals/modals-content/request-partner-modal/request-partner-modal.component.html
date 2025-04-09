@@ -45,6 +45,7 @@
         [filter]="true"
         filterBy="name"
         class="!text-base"
+        appendTo="body"
         [showClear]="true"
         [disabled]="loading()">
       </p-select>
@@ -62,6 +63,7 @@
         filterBy="name"
         [showClear]="true"
         class="!text-base"
+        appendTo="body"
         [disabled]="loading()">
         <ng-template #selectedItem let-selectedOption>
           @if (selectedOption) {
