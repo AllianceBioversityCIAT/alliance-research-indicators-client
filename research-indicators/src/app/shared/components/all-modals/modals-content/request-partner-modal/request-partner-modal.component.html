@@ -45,6 +45,7 @@
         [filter]="true"
         filterBy="name"
         class="!text-base"
+        appendTo="body"
         [showClear]="true"
         [disabled]="loading()">
       </p-select>
@@ -62,6 +63,7 @@
         filterBy="name"
         [showClear]="true"
         class="!text-base"
+        appendTo="body"
         [disabled]="loading()">
         <ng-template #selectedItem let-selectedOption>
           @if (selectedOption) {
@@ -92,9 +94,28 @@
         [(ngModel)]="body().websiteLink"
         placeholder="Enter website"
         type="url"
+        (ngModelChange)="setValue($event)"
         class="w-full !text-base"
         [disabled]="loading()"
+        [style]="!validateWebsite(body().websiteLink ?? '') ? { border: '2px solid #E69F00' } : {}"
         [class.ng-invalid]="!validateWebsite(body().websiteLink ?? '')" />
     </div>
+    @if (!validateWebsite(body().websiteLink ?? '')) {
+      <div class="flex items-center gap-1 -mt-5 text-[#E69F00] text-sm">
+        <i class="material-symbols-rounded !text-base">warning</i>
+        <span>Please enter a valid URL</span>
+      </div>
+    }
+  </div>
+
+  <div class="flex mt-4 mb-10">
+    <button
+      class="bg-[#035BA9] text-[15px] text-white px-5 py-2 rounded-[14px] {{
+      !body().name || !body().institutionTypeCode || !body().hqCountryIso || !validateWebsite(body().websiteLink ?? '') || loading() ? 'bg-[#E8EBED] !text-[#8D9299] cursor-not-allowed' : ''
+      }}"
+      (click)="this.createPartner()"
+      [disabled]="!body().name || !body().institutionTypeCode || !body().hqCountryIso || !validateWebsite(body().websiteLink ?? '') || loading()">
+      Request
+    </button>
   </div>
 </div>

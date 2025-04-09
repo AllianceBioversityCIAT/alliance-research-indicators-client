@@ -1,13 +1,30 @@
 <div class="relative flex flex-col gap-4">
-  <div class="flex flex-col gap-1">
-    <!-- <input appSaveOnWriting pInputText id="username" aria-describedby="username-help" [(ngModel)]="evidence.evidence_url" /> -->
-    <app-input label="Evidence link" [onlyLowerCase]="true" [signal]="this.body" [optionValue]="'evidence_url'" pattern="url"></app-input>
+  <div class="flex flex-col gap-1 pb-4">
+    <div class="flex flex-col gap-1 2xl:gap-2">
+      <h2 class="text-base font-semibold atc-primary-blue-500">Evidence link</h2>
+      <input
+        pInputText
+        id="evidence_url"
+        aria-describedby="evidence_url"
+        [(ngModel)]="body().evidence_url"
+        type="url"
+        (ngModelChange)="setValue($event)"
+        class="w-full !text-base"
+        [style]="!validateWebsite(body().evidence_url) ? { border: '2px solid #E69F00' } : {}"
+        [class.ng-invalid]="!validateWebsite(body().evidence_url)" />
+    </div>
+    @if (!validateWebsite(body().evidence_url)) {
+      <div class="flex items-center gap-1  text-[#E69F00] text-sm">
+        <i class="material-symbols-rounded !text-base">warning</i>
+        <span>Please enter a valid URL</span>
+      </div>
+    }
   </div>
   <div class="flex flex-col gap-1">
     <app-textarea label="Evidence description" [signal]="this.body" [optionValue]="'evidence_description'"></app-textarea>
   </div>
-  <div class="absolute -top-[15px] right-0 cursor-pointer p-[7px] shadow-[0_0_10px_0_rgba(0,0,0,0.1)] rounded-[20px]">
-    <i class="material-symbols-rounded text-[#ff3e3e] block" (click)="deleteEvidence()">delete</i>
+  <div class="absolute -top-[15px] right-0 cursor-pointer p-[7px] pb-[4px] shadow-[0_0_10px_0_rgba(0,0,0,0.1)] rounded-[20px]">
+    <i class="material-symbols-rounded text-[#ff3e3e] block" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">delete</i>
   </div>
   <div class="h-[2px] w-full mt-10 mb-[30px] bg-[#e0e0e0] rounded-[10px]"></div>
 </div>

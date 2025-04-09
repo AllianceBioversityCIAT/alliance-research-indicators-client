@@ -8,6 +8,12 @@
   font-family: Barlow, sans-serif;
 }
 
+.p-tooltip {
+  --p-tooltip-background: #345B8F;
+  --p-tooltip-max-width: 320px;
+  --p-tooltip-border-radius: 8px;
+}
+
 body {
   padding: 0;
   margin: 0;
