@@ -16,6 +16,7 @@ interface submissionAlertData {
   severity: 'success' | 'warning';
   summary: string;
   detail: string;
+  placeholder: string;
 }
 interface SidebarOption {
   label: string;
@@ -95,6 +96,7 @@ export class ResultSidebarComponent {
   submissionAlertData = computed(
     (): submissionAlertData => ({
       severity: 'success',
+      placeholder: 'Add any additional comments here',
       summary: 'CONFIRM SUBMISSION',
       detail: `The result <span class="font-medium">"${this.cache.currentMetadata().result_title}"</span> is about to be <span class="font-medium">submitted</span>. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.`
     })
@@ -103,13 +105,14 @@ export class ResultSidebarComponent {
   unsavedChangesAlertData = computed(
     (): submissionAlertData => ({
       severity: 'warning',
+      placeholder: 'Please share your feedback about the unsubmission',
       summary: 'CONFIRM UNSUBMISSION',
       detail: `You are about to <span class="font-medium">unsubmit</span> the result <span class="font-medium">"${this.cache.currentMetadata().result_title}"</span>. To continue, please provide a brief reason for the unsubmission.`
     })
   );
 
   submmitConfirm() {
-    const { severity, summary, detail } = this.submissionService.currentResultIsSubmitted()
+    const { severity, placeholder, summary, detail } = this.submissionService.currentResultIsSubmitted()
       ? this.unsavedChangesAlertData()
       : this.submissionAlertData();
 
@@ -117,10 +120,11 @@ export class ResultSidebarComponent {
       severity,
       summary,
       detail,
+      placeholder,
       commentLabel: this.submissionService.currentResultIsSubmitted() ? 'Feedback about the unsubmission' : 'Comment',
       commentRequired: this.submissionService.currentResultIsSubmitted(),
       confirmCallback: {
-        label: 'Submit',
+        label: 'Confirm',
         event: async (comment?: string) => {
           await this.api.PATCH_SubmitResult({
             resultId: this.cache.currentResultId(),
