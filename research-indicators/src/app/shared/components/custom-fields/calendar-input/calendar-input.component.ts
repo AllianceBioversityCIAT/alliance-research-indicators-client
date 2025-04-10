@@ -21,6 +21,8 @@ export class CalendarInputComponent {
   @Input() minDate: any = null;
   @Input() maxDate: any = null;
   @Input() isRequired = false;
+  @Input() disabled = false;
+
   setValue(value: string) {
     this.signal.set({ ...this.signal(), [this.optionValue]: value });
   }

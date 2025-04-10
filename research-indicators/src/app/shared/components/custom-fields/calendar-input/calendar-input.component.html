@@ -1,6 +1,7 @@
 <div class="input-container">
   @if (label) {
-    <label class="label inline-block" for="username">{{ label }}
+    <label class="label inline-block" for="username"
+      >{{ label }}
       @if (isRequired) {
         <span class="text-red-500">*</span>
       }
@@ -18,6 +19,7 @@
       (ngModelChange)="setValue($event)"
       [minDate]="minDate"
       [maxDate]="maxDate"
+      [disabled]="disabled"
       dateFormat="dd/mm/yy" />
   }
 </div>
