@@ -32,6 +32,7 @@
           [optionLabel]="'name'"
           [optionValue]="'region_id'"
           [signalOptionValue]="'regions'"
+          [isRequired]="isRegionsRequired()"
           serviceName="regions"
           label="{{ getMultiselectLabel().region.label }}"
           description="{{ getMultiselectLabel().region.description }}"></app-multiselect>
@@ -43,6 +44,7 @@
           [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
           [disabledSelectedScroll]="body().geo_scope_id === 5 || body().geo_scope_id === '5'"
           [optionLabel]="'name'"
+          [isRequired]="isCountriesRequired()"
           [optionValue]="'isoAlpha2'"
           [signalOptionValue]="'countries'"
           serviceName="countries"
@@ -88,6 +90,14 @@
             </ng-template>
           }
         </app-multiselect>
+
+        @if (showSubnationalError()) {
+          <div class="flex items-center gap-1 -mt-3 text-[#E69F00] text-sm">
+            <i class="material-symbols-rounded !text-base">warning</i>
+            <span>Please select at least one sub-national level per country.</span>
+          </div>
+        }
+        
       }
     </div>
   </div>
