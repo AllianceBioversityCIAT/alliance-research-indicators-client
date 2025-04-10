@@ -13,7 +13,6 @@ import { EvidenceItemComponent } from './components/evidence-item/evidence-item.
   selector: 'app-evidence',
   imports: [ButtonModule, FormsModule, InputTextModule, EvidenceItemComponent],
   templateUrl: './evidence.component.html',
-  styleUrl: './evidence.component.scss'
 })
 export default class EvidenceComponent {
   value: undefined;
@@ -40,10 +39,18 @@ export default class EvidenceComponent {
 
   async getData() {
     this.loading.set(true);
+  
     const response = await this.api.GET_ResultEvidences(this.cache.currentResultId());
-    this.body.set(response.data);
+    const data = response.data;
+  
+    if (!data.evidence || data.evidence.length === 0) {
+      data.evidence = [new Evidence()];
+    }
+  
+    this.body.set(data);
     this.loading.set(false);
   }
+  
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
