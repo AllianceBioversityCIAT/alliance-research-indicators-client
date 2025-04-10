@@ -20,6 +20,7 @@ export class TextareaComponent {
   @Input() label = '';
   @Input() description = '';
   @Input() isRequired = false;
+  @Input() disabled = false;
 
   body = signal({ value: null });
 

@@ -31,6 +31,27 @@ export default class GeographicScopeComponent {
 
   onSelect = () => this.mapSignal();
 
+  isRegionsRequired = computed(() => Number(this.body().geo_scope_id) === 2);
+
+  isCountriesRequired = computed(() => {
+    const scope = Number(this.body().geo_scope_id);
+    return scope === 4 || scope === 5;
+  });
+  
+  isSubNationalRequired = computed(() => Number(this.body().geo_scope_id) === 5);
+
+  showSubnationalError = computed(() => {
+    const scopeId = Number(this.body().geo_scope_id);
+    if (scopeId !== 5) return false;
+
+    const countries = this.body().countries || [];
+
+    return countries.some(country =>
+      !country.result_countries_sub_nationals_signal?.() ||
+      (country.result_countries_sub_nationals_signal()?.regions?.length ?? 0) === 0
+      );
+  });
+
   getMultiselectLabel = computed(() => {
     let countryLabel = '';
     let regionLabel = '';

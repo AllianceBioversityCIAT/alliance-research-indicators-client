@@ -3,6 +3,7 @@ export interface GlobalAlert {
   summary: string;
   detail: string;
   callbacks?: Callback[];
+  placeholder?: string;
   icon?: string;
   color?: string;
   commentLabel?: string;

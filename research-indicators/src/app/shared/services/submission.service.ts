@@ -29,6 +29,11 @@ export class SubmissionService {
   ]);
 
   currentResultIsSubmitted = computed(() => this.cache.currentMetadata().status_id == 2);
+  
+  isEditableStatus = computed(() => {
+    const editableStatuses = [4, 5]; 
+    return editableStatuses.includes(this.cache.currentMetadata().status_id ?? -1);
+  });
 
   getStatusNameById(id: number): string {
     const status = this.submissionStatuses().find(status => status.id === id);

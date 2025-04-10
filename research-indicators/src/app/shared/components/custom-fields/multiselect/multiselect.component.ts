@@ -58,7 +58,7 @@ export class MultiselectComponent implements OnInit {
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
   @Input() removeCondition: (item: any) => boolean = () => true;
   @Input() removeTooltip = '';
-
+  @Input() disabled = false;
   @Input() optionsDisabled: WritableSignal<any[]> = signal([]);
 
   selectEvent = output<any>();

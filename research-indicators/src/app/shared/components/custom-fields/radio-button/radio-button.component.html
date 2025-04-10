@@ -1,9 +1,4 @@
 <div class="options input-container">
-  <!-- <strong>{{ this.signal() }}</strong> -->
-  <!-- @if (this) {
-
-} -->
-
   @if (label) {
     <label class="label inline-block" for="username"
       >{{ label }}
@@ -24,6 +19,7 @@
           value="{{ item[optionValue.option] }}"
           (ngModelChange)="setValue(item[optionValue.option])"
           [(ngModel)]="this.body().value"
+          [disabled]="disabled"
           [inputId]="item[optionLabel] + 'id' + item[optionValue.option]"
           [class]="isInvalid() ? 'warning-radio' : ''" />
         <label [for]="item[optionLabel] + 'id' + item[optionValue.option]" class="ml-2"> {{ item[optionLabel] }} </label>

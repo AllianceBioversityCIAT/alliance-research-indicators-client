@@ -36,6 +36,7 @@
         placeholder="Select items"
         [(ngModel)]="this.body().value"
         (ngModelChange)="this.setValue($event)"
+        [disabled]="disabled"
         [virtualScroll]="true"
         [virtualScrollItemSize]="41">
         @if (this.service?.isOpenSearch()) {
@@ -93,18 +94,9 @@
           <div class="item abc-grey-100">
             <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
             @if (removeCondition(row)) {
-              <i
-                class="text-[#CF0808] cursor-pointer material-symbols-rounded"
-                (click)="removeOption(row)">
-                cancel
-              </i>
+              <i class="text-[#CF0808] cursor-pointer material-symbols-rounded" (click)="removeOption(row)"> cancel </i>
             } @else {
-              <i
-                class="text-[#A2A9AF] material-symbols-rounded"
-                [pTooltip]="removeTooltip"
-                tooltipPosition="top">
-                cancel
-              </i>
+              <i class="text-[#A2A9AF] material-symbols-rounded" [pTooltip]="removeTooltip" tooltipPosition="top"> cancel </i>
             }
           </div>
         }

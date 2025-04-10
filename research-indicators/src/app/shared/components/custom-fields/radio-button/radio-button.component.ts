@@ -28,6 +28,8 @@ export class RadioButtonComponent implements OnInit {
   @Input() label = '';
   @Input() description = '';
   @Input() isRequired = false;
+  @Input() disabled = false;
+
   selectEvent = output<any>();
   service: any;
   body = signal({ value: null });
