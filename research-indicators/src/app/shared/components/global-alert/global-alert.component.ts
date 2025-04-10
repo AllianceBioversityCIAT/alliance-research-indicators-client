@@ -33,7 +33,7 @@ export class GlobalAlertComponent {
       alert.buttonColor = this.getIcon(alert.severity).buttonColor;
 
       if (alert.commentLabel) {
-        alert.commentLabel = alert.commentRequired ? alert.commentLabel : `${alert.commentLabel} (optional)`;
+        alert.commentLabel = alert.commentRequired ? alert.commentLabel : `${alert.commentLabel} (Optional)`;
       }
       if (!alert.cancelCallback?.label) alert.cancelCallback = { label: 'Cancel' };
       return alert;
