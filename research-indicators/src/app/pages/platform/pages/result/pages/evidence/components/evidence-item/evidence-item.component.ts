@@ -58,6 +58,11 @@ export class EvidenceItemComponent implements OnInit {
     return urlPattern.test(website.trim());
   };
 
+  isFieldInvalid(): boolean {
+    const url = this.body().evidence_url;
+    return (!url || url.trim() === '');
+  }
+  
   setValue(value: string) {
    value = value.toLowerCase();
     this.body.set({
