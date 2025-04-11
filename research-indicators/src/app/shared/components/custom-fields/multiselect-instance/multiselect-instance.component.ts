@@ -32,6 +32,7 @@ export class MultiselectInstanceComponent implements OnInit {
   @Input() label = '';
   @Input() description = '';
   @Input() hideSelected = false;
+  @Input() disabled = false;
   @Input() endpointParams: any = {};
   selectEvent = output<any>();
 
