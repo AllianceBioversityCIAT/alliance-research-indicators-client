@@ -132,6 +132,7 @@ export class ResultSidebarComponent {
             status: this.submissionService.currentResultIsSubmitted() ? 4 : 2
           });
           this.metadata.update(this.cache.currentResultId());
+          this.submissionService.refreshSubmissionHistory.update(v => v + 1);
           return;
         }
       }
