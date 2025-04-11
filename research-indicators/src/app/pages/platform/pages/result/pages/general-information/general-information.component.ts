@@ -17,6 +17,7 @@ import { GetUserStaffService } from '../../../../../../shared/services/control-l
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { GetMetadataService } from '../../../../../../shared/services/get-metadata.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { SubmissionService } from '@shared/services/submission.service';
 
 interface Option {
   name: string;
@@ -51,6 +52,7 @@ export default class GeneralInformationComponent {
   options: Option[] | undefined;
   body: WritableSignal<GeneralInformation> = signal({ title: '', description: '', keywords: [], user_id: '', main_contact_person: { user_id: '' } });
   loading = signal(false);
+  submission = inject(SubmissionService);
 
   constructor() {
     this.getData();

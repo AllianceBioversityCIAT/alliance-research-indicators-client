@@ -11,6 +11,7 @@
           label="What training or engagement do you want to report?"
           [isRequired]="true"
           [signal]="body"
+          [disabled]="!submission.isEditableStatus()"
           [serviceName]="'capSharingFormats'"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'session_format_id', option: 'session_format_id' }"></app-radio-button>
@@ -21,6 +22,7 @@
           label="Is this a training or a engagement?"
           [isRequired]="true"
           [signal]="body"
+          [disabled]="!submission.isEditableStatus()"
           [serviceName]="'capSharingTypes'"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'session_type_id', option: 'session_type_id' }"></app-radio-button>
@@ -32,32 +34,39 @@
           label="Length of training"
           [isRequired]="true"
           [signal]="body"
+          [disabled]="!submission.isEditableStatus()"
           [serviceName]="'capSharingLengths'"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'session_length_id', option: 'session_length_id' }">
         </app-radio-button>
       </div>
-    
+
       @if (isLongTermSelected()) {
         <div class="flex-1">
           <app-radio-button
             label="Degree"
             [isRequired]="true"
             [signal]="body"
+            [disabled]="!submission.isEditableStatus()"
             [serviceName]="'capSharingDegrees'"
             [optionLabel]="'name'"
             [optionValue]="{ body: 'degree_id', option: 'degree_id' }">
           </app-radio-button>
         </div>
       }
-    </div>    
+    </div>
   </div>
 
   <!-- INDIVIDUAL TRAINING -->
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]" [class.hidden]="body().session_format_id !== 1">
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">INDIVIDUAL TRAINING</div>
     <div class="mb-6">
-      <app-input label="Trainee name" [isRequired]="true" [signal]="body" optionValue="individual.trainee_name"></app-input>
+      <app-input
+        label="Trainee name"
+        [isRequired]="true"
+        [disabled]="!submission.isEditableStatus()"
+        [signal]="body"
+        optionValue="individual.trainee_name"></app-input>
     </div>
 
     <div class="flex flex-col xl:flex-row gap-5 mb-6">
@@ -66,6 +75,7 @@
           label="Gender"
           [isRequired]="true"
           [signal]="body"
+          [disabled]="!submission.isEditableStatus()"
           [serviceName]="'capSharingGenders'"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'individual.gender_id', option: 'gender_id' }"></app-radio-button>
@@ -77,6 +87,7 @@
         <app-select
           label="Trainee affiliation"
           [signal]="body"
+          [disabled]="!submission.isEditableStatus()"
           [showPartnerRequestDescription]="true"
           [isRequired]="true"
           [optionLabel]="'html_full_name'"
@@ -88,6 +99,7 @@
         <app-select
           label="Trainee nationality"
           [signal]="body"
+          [disabled]="!submission.isEditableStatus()"
           [isRequired]="true"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'individual.nationality.isoAlpha2', option: 'isoAlpha2' }"
@@ -105,23 +117,39 @@
         <app-input
           label="What was the total number of participants?"
           type="number"
+          [disabled]="!submission.isEditableStatus()"
           [isRequired]="true"
           [signal]="body"
           [optionValue]="'group.session_participants_total'"></app-input>
       </div>
 
       <div class="flex-1">
-        <app-input label="Male participants?" [signal]="body" optionValue="group.session_participants_male" type="number"></app-input>
+        <app-input
+          label="Male participants?"
+          [signal]="body"
+          optionValue="group.session_participants_male"
+          [disabled]="!submission.isEditableStatus()"
+          type="number"></app-input>
       </div>
     </div>
 
     <div class="flex flex-col xl:flex-row gap-5 mb-6">
       <div class="flex-1">
-        <app-input label="Female participants?" [signal]="body" optionValue="group.session_participants_female" type="number"></app-input>
+        <app-input
+          label="Female participants?"
+          [signal]="body"
+          optionValue="group.session_participants_female"
+          [disabled]="!submission.isEditableStatus()"
+          type="number"></app-input>
       </div>
 
       <div class="flex-1">
-        <app-input label="Non-binary participants?" [signal]="body" optionValue="group.session_participants_non_binary" type="number"></app-input>
+        <app-input
+          label="Non-binary participants?"
+          [signal]="body"
+          optionValue="group.session_participants_non_binary"
+          [disabled]="!submission.isEditableStatus()"
+          type="number"></app-input>
       </div>
     </div>
 
@@ -130,6 +158,7 @@
         <app-radio-button
           label="What was the purpose of this training/engagement?"
           [isRequired]="true"
+          [disabled]="!submission.isEditableStatus()"
           [signal]="body"
           [serviceName]="'capSharingSessionPurpose'"
           [optionLabel]="'name'"
@@ -140,6 +169,7 @@
         <app-radio-button
           label="Were the trainees attending on behalf of an organization?"
           [isRequired]="true"
+          [disabled]="!submission.isEditableStatus()"
           [signal]="body"
           [optionLabel]="'name'"
           [serviceName]="'yesOrNo'"
@@ -150,7 +180,11 @@
     @if (body().group?.session_purpose_id === 4) {
       <div class="flex flex-col xl:flex-row gap-5 mb-6">
         <div class="flex-1">
-          <app-input [signal]="body" placeholder="Write the other purpose" optionValue="group.session_purpose_description"></app-input>
+          <app-input
+            [signal]="body"
+            [disabled]="!submission.isEditableStatus()"
+            placeholder="Write the other purpose"
+            optionValue="group.session_purpose_description"></app-input>
         </div>
         <div class="flex-1"></div>
       </div>
@@ -162,9 +196,11 @@
         [isRequired]="true"
         [showPartnerRequestDescription]="true"
         [signal]="body"
+        [disabled]="!submission.isEditableStatus()"
         optionLabel="html_full_name"
         optionValue="institution_id"
         signalOptionValue="group.trainee_organization_representative"
+        [removeCondition]="canRemove"
         serviceName="institutions">
         @if (!this.loading()) {
           <ng-template #rows let-institution>
@@ -184,6 +220,7 @@
         <app-select
           label="Training / Engagement supervisor"
           [isRequired]="true"
+          [disabled]="!submission.isEditableStatus()"
           optionLabel="full_name"
           optionLabel2="email"
           [signal]="body"
@@ -195,6 +232,7 @@
       <div class="flex-1">
         <app-select
           label="Language"
+          [disabled]="!submission.isEditableStatus()"
           [signal]="body"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
@@ -205,13 +243,23 @@
 
     <div class="flex flex-col xl:flex-row gap-5 mb-6">
       <div class="flex-1">
-        <app-calendar-input label="Start date" [signal]="body" 
-        [isRequired]="true" [optionValue]="'start_date'" [maxDate]="body().end_date"></app-calendar-input>
+        <app-calendar-input
+          label="Start date"
+          [signal]="body"
+          [disabled]="!submission.isEditableStatus()"
+          [isRequired]="true"
+          [optionValue]="'start_date'"
+          [maxDate]="body().end_date"></app-calendar-input>
       </div>
 
       <div class="flex-1">
-        <app-calendar-input label="End date" [signal]="body" 
-        [isRequired]="true" [optionValue]="'end_date'" [minDate]="body().start_date"></app-calendar-input>
+        <app-calendar-input
+          label="End date"
+          [signal]="body"
+          [disabled]="!submission.isEditableStatus()"
+          [isRequired]="true"
+          [optionValue]="'end_date'"
+          [minDate]="body().start_date"></app-calendar-input>
       </div>
     </div>
 
@@ -219,6 +267,7 @@
       <app-radio-button
         label="Delivery modality"
         [isRequired]="true"
+        [disabled]="!submission.isEditableStatus()"
         [signal]="body"
         [serviceName]="'capSharingDeliveryModalities'"
         [optionLabel]="'name'"
@@ -241,6 +290,8 @@
       Next
       <i class="pi pi-arrow-right !text-[12px]"></i>
     </button>
-    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+      @if (submission.isEditableStatus()) {
+        <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+      }
   </div>
 </div>

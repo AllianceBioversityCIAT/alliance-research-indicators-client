@@ -10,6 +10,7 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GetInstitution } from '@shared/interfaces/get-institutions.interface';
+import { SubmissionService } from '@shared/services/submission.service';
 
 @Component({
   selector: 'app-partners',
@@ -24,6 +25,7 @@ export default class PartnersComponent {
   allModalsService = inject(AllModalsService);
   body = signal<PatchPartners>(new PatchPartners());
   loading = signal(false);
+  submission = inject(SubmissionService);
 
   optionsDisabled: WritableSignal<Institution[]> = signal([]);
 
@@ -34,8 +36,11 @@ export default class PartnersComponent {
   canRemoveInstitution = (item: GetInstitution): boolean => {
     return item?.institution_role_id === 3 || item?.institution_role_id == null;
   };
-  
-  
+
+  canRemove = (): boolean => {
+    return this.submission.isEditableStatus();
+  };
+
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_Partners(this.cache.currentResultId());

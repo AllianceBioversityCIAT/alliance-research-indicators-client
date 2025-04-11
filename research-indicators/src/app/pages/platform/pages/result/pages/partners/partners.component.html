@@ -21,8 +21,11 @@
       optionLabel="html_full_name"
       optionValue="institution_id"
       signalOptionValue="institutions"
-      [removeCondition]="canRemoveInstitution"
-      removeTooltip="This institution was added in the CapSharing details section and can only be removed from there."
+      [disabled]="!submission.isEditableStatus()"
+      [removeCondition]="!submission.isEditableStatus() ? canRemove : canRemoveInstitution"
+      removeTooltip="{{
+        !submission.isEditableStatus() ? '' : 'This institution was added in the CapSharing details section and can only be removed from there.'
+      }}"
       [optionsDisabled]="this.optionsDisabled"
       serviceName="institutions">
       @if (!this.loading()) {
@@ -47,6 +50,8 @@
       Next
       <i class="pi pi-arrow-right !text-[12px]"></i>
     </button>
-    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+      @if (submission.isEditableStatus()) {
+        <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+      }
   </div>
 </div>

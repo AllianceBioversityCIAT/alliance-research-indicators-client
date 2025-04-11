@@ -13,9 +13,11 @@
           [index]="$index"
           (deleteEvidenceEvent)="deleteEvidence($index)"></app-evidence-item>
       }
-      <div class="flex justify-center mt-5">
-        <p-button label="Add other evidence" severity="info" icon="pi pi-plus" iconPos="right" (onClick)="addEvidence()" />
-      </div>
+      @if (submission.isEditableStatus()) {
+        <div class="flex justify-center mt-5">
+          <p-button label="Add other evidence" severity="info" icon="pi pi-plus" iconPos="right" (onClick)="addEvidence()" />
+        </div>
+      }
     </div>
   </div>
   <div class="flex gap-5">
@@ -26,6 +28,8 @@
       <i class="pi pi-arrow-left !text-[12px]"></i>
       Back
     </button>
-    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
-  </div>
+      @if (submission.isEditableStatus()) {
+        <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+      }
+    </div>
 </div>

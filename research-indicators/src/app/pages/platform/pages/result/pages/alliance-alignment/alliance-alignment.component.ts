@@ -12,6 +12,7 @@ import { GetAllianceAlignment } from '../../../../../../shared/interfaces/get-al
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { environment } from '../../../../../../../environments/environment';
+import { SubmissionService } from '@shared/services/submission.service';
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -31,6 +32,8 @@ export default class AllianceAlignmentComponent {
   actions = inject(ActionsService);
   router = inject(Router);
   loading = signal(false);
+  submission = inject(SubmissionService);
+
   constructor() {
     this.getData();
   }
@@ -39,6 +42,10 @@ export default class AllianceAlignmentComponent {
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
     this.body.set(response.data);
   }
+
+  canRemove = (): boolean => {
+    return this.submission.isEditableStatus();
+  };
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
@@ -56,12 +63,11 @@ export default class AllianceAlignmentComponent {
   //   if (this.actions.saveCurrentSectionValue()) this.saveData();
   // });
 
-
   get showPrimaryLeverError(): boolean {
     const levers = this.body().levers || [];
-    return levers.length > 1 && !levers.some((l) => l.is_primary);
+    return levers.length > 1 && !levers.some(l => l.is_primary);
   }
-  
+
   markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever') {
     this.body.update(current => {
       if (type === 'contract') {
