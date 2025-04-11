@@ -1,8 +1,9 @@
-import { Component, effect, EventEmitter, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
 import { TextareaComponent } from '../../../../../../../../shared/components/custom-fields/textarea/textarea.component';
 import { FormsModule } from '@angular/forms';
 import { Evidence, PatchResultEvidences } from '../../../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { InputTextModule } from 'primeng/inputtext';
+import { SubmissionService } from '@shared/services/submission.service';
 
 @Component({
     selector: 'app-evidence-item',
@@ -15,6 +16,7 @@ export class EvidenceItemComponent implements OnInit {
   @Input() index: number | null = null;
   @Input() bodySignal: WritableSignal<PatchResultEvidences> = signal(new PatchResultEvidences());
   body = signal<Evidence>(new Evidence());
+  submission = inject(SubmissionService);
 
   onChange = effect(
     () => {

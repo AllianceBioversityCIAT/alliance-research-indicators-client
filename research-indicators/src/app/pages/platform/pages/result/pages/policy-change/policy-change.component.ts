@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { FormsModule } from '@angular/forms';
+import { SubmissionService } from '@shared/services/submission.service';
 
 @Component({
   selector: 'app-policy-change',
@@ -30,6 +31,7 @@ import { FormsModule } from '@angular/forms';
 })
 export default class PolicyChangeComponent {
   api = inject(ApiService);
+  submission = inject(SubmissionService);
   cache = inject(CacheService);
   actions = inject(ActionsService);
   router = inject(Router);
@@ -48,6 +50,10 @@ export default class PolicyChangeComponent {
   constructor() {
     this.getData();
   }
+
+  canRemove = (): boolean => {
+    return this.submission.isEditableStatus();
+  };
 
   async getData() {
     this.loading.set(true);

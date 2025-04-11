@@ -30,6 +30,8 @@ export class SubmissionService {
 
   currentResultIsSubmitted = computed(() => this.cache.currentMetadata().status_id == 2);
   
+  refreshSubmissionHistory = signal(0); 
+  
   isEditableStatus = computed(() => {
     const editableStatuses = [4, 5]; 
     return editableStatuses.includes(this.cache.currentMetadata().status_id ?? -1);

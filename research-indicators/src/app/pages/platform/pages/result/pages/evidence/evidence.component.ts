@@ -8,11 +8,12 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { Evidence, PatchResultEvidences } from '../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { EvidenceItemComponent } from './components/evidence-item/evidence-item.component';
+import { SubmissionService } from '@shared/services/submission.service';
 
 @Component({
   selector: 'app-evidence',
   imports: [ButtonModule, FormsModule, InputTextModule, EvidenceItemComponent],
-  templateUrl: './evidence.component.html',
+  templateUrl: './evidence.component.html'
 })
 export default class EvidenceComponent {
   value: undefined;
@@ -23,6 +24,7 @@ export default class EvidenceComponent {
   body = signal<PatchResultEvidences>(new PatchResultEvidences());
   example = signal({ evidence_url: signal('test') });
   loading = signal(false);
+  submission = inject(SubmissionService);
 
   constructor() {
     this.getData();
@@ -39,18 +41,17 @@ export default class EvidenceComponent {
 
   async getData() {
     this.loading.set(true);
-  
+
     const response = await this.api.GET_ResultEvidences(this.cache.currentResultId());
     const data = response.data;
-  
+
     if (!data.evidence || data.evidence.length === 0) {
       data.evidence = [new Evidence()];
     }
-  
+
     this.body.set(data);
     this.loading.set(false);
   }
-  
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);

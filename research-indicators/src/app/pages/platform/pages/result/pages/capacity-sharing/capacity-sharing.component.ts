@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, effect, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -15,7 +15,7 @@ import { InputComponent } from '../../../../../../shared/components/custom-field
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { CalendarInputComponent } from '../../../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
-import { effect } from '@angular/core';
+import { SubmissionService } from '@shared/services/submission.service';
 @Component({
   selector: 'app-capacity-sharing',
   imports: [
@@ -39,6 +39,7 @@ export default class CapacitySharingComponent implements OnInit {
   cache = inject(CacheService);
   router = inject(Router);
   body: WritableSignal<GetCapSharing> = signal({});
+  submission = inject(SubmissionService);
   loading = signal(false);
 
   constructor() {
@@ -58,9 +59,13 @@ export default class CapacitySharingComponent implements OnInit {
   ngOnInit() {
     this.getData();
   }
-  
+
   isLongTermSelected = computed(() => this.body()?.session_length_id === 2);
-  
+
+  canRemove = (): boolean => {
+    return this.submission.isEditableStatus();
+  };
+
   isStartDateGreaterThanEndDate = computed(() => {
     const { start_date, end_date } = this.body() || {};
     if (!start_date || !end_date) return false;
@@ -87,7 +92,7 @@ export default class CapacitySharingComponent implements OnInit {
       if (current.end_date) current.end_date = new Date(current.end_date || '').toISOString();
 
       return { ...current };
-    }); 
+    });
 
     await this.api.PATCH_CapacitySharing(this.body());
     this.actions.showToast({ severity: 'success', summary: 'Capacity Sharing', detail: 'Data saved successfully' });

@@ -9,6 +9,7 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 import { Router } from '@angular/router';
 import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
+import { SubmissionService } from '@shared/services/submission.service';
 
 @Component({
   selector: 'app-geographic-scope',
@@ -24,6 +25,7 @@ export default class GeographicScopeComponent {
   cache = inject(CacheService);
   actions = inject(ActionsService);
   loading = signal(false);
+  submission = inject(SubmissionService);
 
   constructor() {
     this.getData();
@@ -31,13 +33,12 @@ export default class GeographicScopeComponent {
 
   onSelect = () => this.mapSignal();
 
-  isRegionsRequired = computed(() => Number(this.body().geo_scope_id) === 2);
+  canRemove = (): boolean => {
+    return this.submission.isEditableStatus();
+  };
 
-  isCountriesRequired = computed(() => {
-    const scope = Number(this.body().geo_scope_id);
-    return scope === 4 || scope === 5;
-  });
-  
+  isRegionsRequired = computed(() => Number(this.body().geo_scope_id) === 2);
+  isCountriesRequired = computed(() => [4, 5].includes(Number(this.body().geo_scope_id)));
   isSubNationalRequired = computed(() => Number(this.body().geo_scope_id) === 5);
 
   showSubnationalError = computed(() => {
@@ -46,10 +47,9 @@ export default class GeographicScopeComponent {
 
     const countries = this.body().countries || [];
 
-    return countries.some(country =>
-      !country.result_countries_sub_nationals_signal?.() ||
-      (country.result_countries_sub_nationals_signal()?.regions?.length ?? 0) === 0
-      );
+    return countries.some(
+      country => !country.result_countries_sub_nationals_signal?.() || (country.result_countries_sub_nationals_signal()?.regions?.length ?? 0) === 0
+    );
   });
 
   getMultiselectLabel = computed(() => {

@@ -54,13 +54,16 @@ export class MultiselectComponent implements OnInit {
   @Input() hideSelected = false;
   @Input() disabledSelectedScroll = false;
   @Input() showPartnerRequestDescription = false;
-  @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
   @Input() removeCondition: (item: any) => boolean = () => true;
   @Input() removeTooltip = '';
   @Input() disabled = false;
   @Input() optionsDisabled: WritableSignal<any[]> = signal([]);
-
+  @Input() set isRequired(value: boolean) {
+    this._isRequired.set(value);
+  }
+  private _isRequired = signal(false);
+  
   selectEvent = output<any>();
   environment = environment;
 
@@ -77,7 +80,7 @@ export class MultiselectComponent implements OnInit {
   });
 
   isInvalid = computed(() => {
-    return this.isRequired && (!this.selectedOptions() || this.selectedOptions()?.length === 0);
+    return this._isRequired() && (!this.selectedOptions() || this.selectedOptions()?.length === 0);
   });
 
   selectedOptions = computed(() => {

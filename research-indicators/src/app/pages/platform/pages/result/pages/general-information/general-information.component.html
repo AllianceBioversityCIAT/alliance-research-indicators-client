@@ -11,6 +11,7 @@
             <app-input
               label="Title"
               [isRequired]="true"
+              [disabled]="!submission.isEditableStatus()"
               [validateEmpty]="true"
               description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon."
               [signal]="this.body"
@@ -20,6 +21,7 @@
           <div class="flex flex-col">
             <app-textarea
               [isRequired]="true"
+              [disabled]="!submission.isEditableStatus()"
               label="Description"
               description="Offer a detailed, understandable explanation, without repeating the title."
               [signal]="this.body"
@@ -33,7 +35,13 @@
             </small>
 
             <div class="card p-fluid">
-              <p-autocomplete [(ngModel)]="body().keywords" inputId="multiple-ac-2" multiple fluid [typeahead]="false" />
+              <p-autocomplete
+                [(ngModel)]="body().keywords"
+                [disabled]="!submission.isEditableStatus()"
+                inputId="multiple-ac-2"
+                multiple
+                fluid
+                [typeahead]="false" />
             </div>
           </div>
 
@@ -41,6 +49,7 @@
             <app-select
               label="Main contact person"
               [isRequired]="true"
+              [disabled]="!submission.isEditableStatus()"
               [signal]="this.body"
               [optionValue]="{ body: 'user_id', option: 'user_id' }"
               optionLabel="full_name"
@@ -56,6 +65,7 @@
           Next
           <i class="pi pi-arrow-right !text-[12px]"></i>
         </button>
+      @if (submission.isEditableStatus()) {
         <p-button
           [disabled]="!this.body().title"
           [loading]="this.loading()"
@@ -64,7 +74,8 @@
           icon="pi pi-save"
           iconPos="left"
           (click)="saveData()" />
-      </div>
+      }
+    </div>
     </div>
   </div>
 </div>
