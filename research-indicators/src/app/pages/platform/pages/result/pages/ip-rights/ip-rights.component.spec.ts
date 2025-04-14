@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import IpRightsComponent from './ip-rights.component';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('IpRightsComponent', () => {
   let component: IpRightsComponent;
@@ -8,9 +8,8 @@ describe('IpRightsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IpRightsComponent]
-    })
-    .compileComponents();
+      imports: [IpRightsComponent, HttpClientTestingModule]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(IpRightsComponent);
     component = fixture.componentInstance;
