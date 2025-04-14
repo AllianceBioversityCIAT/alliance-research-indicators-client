@@ -20,6 +20,12 @@ export interface Length {
   name: string;
 }
 
+export interface IpOwners {
+  id: number;
+  name: string;
+}
+
+
 export interface Gender {
   is_active: boolean;
   gender_id: number;
