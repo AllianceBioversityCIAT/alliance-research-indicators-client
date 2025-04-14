@@ -35,14 +35,22 @@ export default class IpRightsComponent implements OnInit {
     this.loading.set(false);
   }
 
-  async saveData(page?: 'next' | 'back') {
+  async saveData(page?: 'next' | 'back'): Promise<void> {
     this.loading.set(true);
     if (this.submission.isEditableStatus()) {
+      const current = this.body();
+
+      if (current.asset_ip_owner !== 4) {
+        current.asset_ip_owner_description = null;
+        this.body.set({ ...current });
+      }
+
       const response = await this.api.PATCH_IpOwners(this.cache.currentResultId(), this.body());
       if (!response.successfulRequest) return;
       await this.getData();
       this.actions.showToast({ severity: 'success', summary: 'IP rights', detail: 'Data saved successfully' });
     }
+
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
     this.loading.set(false);
   }
