@@ -95,7 +95,7 @@ export class ResultSidebarComponent {
       label: 'IP Rights',
       path: 'ip-rights',
       indicator_id: 1,
-      greenCheckKey: 'evidences'
+      greenCheckKey: 'cap_sharing_ip'
     }
   ]);
 
