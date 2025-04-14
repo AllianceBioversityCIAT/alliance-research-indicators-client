@@ -27,6 +27,8 @@ export class AllModalsService {
   setCreatePartner = (fn: () => void) => (this.createPartner = fn);
   disabledConfirmPartner?: () => boolean;
   setDisabledConfirmPartner = (fn: () => boolean) => (this.disabledConfirmPartner = fn);
+  disabledSubmitReview?: () => boolean;
+  setDisabledSubmitReview = (fn: () => boolean) => (this.disabledSubmitReview = fn);
 
   modalConfig: WritableSignal<Record<ModalName, ModalConfig>> = signal({
     createResult: {
@@ -39,7 +41,8 @@ export class AllModalsService {
       cancelText: 'Cancel',
       confirmText: 'Confirm',
       cancelAction: () => this.toggleModal('submitResult'),
-      confirmAction: () => this.submitReview?.()
+      confirmAction: () => this.submitReview?.(),
+      disabledConfirmAction: () => this.disabledSubmitReview?.() ?? false
     },
     requestPartner: {
       isOpen: false,

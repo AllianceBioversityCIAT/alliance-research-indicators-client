@@ -24,7 +24,8 @@ export class SubmitResultContentComponent {
 
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
-
+    this.allModalsService.setDisabledSubmitReview(() => this.disabledConfirmSubmit());
+    
     let wasVisible = false;
     effect(() => {
       const visible = this.allModalsService.modalConfig().submitResult.isOpen;
@@ -86,6 +87,12 @@ export class SubmitResultContentComponent {
 
   setComment = (event: Event) => this.submissionService.comment.set((event.target as HTMLTextAreaElement).value);
 
+  disabledConfirmSubmit = (): boolean => {
+    const selected = this.submissionService.statusSelected();
+    const comment = this.submissionService.comment();
+    return !!selected?.commentLabel && !comment?.trim();
+  };
+  
   async submitReview(): Promise<void> {
     const response = await this.api.PATCH_SubmitResult({
       resultId: this.cache.currentResultId(),

@@ -15,11 +15,21 @@
   } @else {
     <p-calendar
       styleClass="w-full"
-      [(ngModel)]="this.signal()[this.optionValue]"
+      [(ngModel)]="signal()[optionValue]"
       (ngModelChange)="setValue($event)"
+      [inputStyle]="isInvalid() ? { 'border': '2px solid #E69F00' } : {}"
       [minDate]="minDate"
       [maxDate]="maxDate"
       [disabled]="disabled"
       dateFormat="dd/mm/yy" />
+  }
+
+  @if (!this.inputValid().valid) {
+    @if (isInvalid()) {
+      <div class="flex items-center gap-1 -mt-1.5 text-[#E69F00] text-sm">
+        <i class="material-symbols-rounded !text-base">warning</i>
+        <span>{{ this.inputValid().message }}</span>
+      </div>
+    }
   }
 </div>

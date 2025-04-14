@@ -20,6 +20,7 @@ describe('SubmitResultContentComponent', () => {
   beforeEach(async () => {
     allModalsService = {
       setSubmitReview: jest.fn(),
+      setDisabledSubmitReview: jest.fn(),
       modalConfig: signal({
         createResult: {
           isOpen: false,
@@ -30,6 +31,10 @@ describe('SubmitResultContentComponent', () => {
           title: 'Review Result',
           cancelText: 'Cancel',
           confirmText: 'Confirm'
+        },
+        requestPartner: {
+          isOpen: false,
+          title: 'Request Partner'
         }
       }),
       closeModal: jest.fn()
