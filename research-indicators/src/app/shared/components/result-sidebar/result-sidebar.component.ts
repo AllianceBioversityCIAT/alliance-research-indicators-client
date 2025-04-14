@@ -90,6 +90,11 @@ export class ResultSidebarComponent {
       label: 'Evidence',
       path: 'evidence',
       greenCheckKey: 'evidences'
+    },
+    {
+      label: 'IP Rights',
+      path: 'ip-rights',
+      greenCheckKey: 'ip-rights'
     }
   ]);
 

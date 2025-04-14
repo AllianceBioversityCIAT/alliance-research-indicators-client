@@ -87,16 +87,18 @@ export default class CapacitySharingComponent implements OnInit {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    this.body.update(current => {
-      if (current.start_date) current.start_date = new Date(current.start_date || '').toISOString();
-      if (current.end_date) current.end_date = new Date(current.end_date || '').toISOString();
+    if (this.submission.isEditableStatus()) {
+      this.body.update(current => {
+        if (current.start_date) current.start_date = new Date(current.start_date || '').toISOString();
+        if (current.end_date) current.end_date = new Date(current.end_date || '').toISOString();
 
-      return { ...current };
-    });
+        return { ...current };
+      });
 
-    await this.api.PATCH_CapacitySharing(this.body());
-    this.actions.showToast({ severity: 'success', summary: 'Capacity Sharing', detail: 'Data saved successfully' });
-    await this.getData();
+      await this.api.PATCH_CapacitySharing(this.body());
+      this.actions.showToast({ severity: 'success', summary: 'CapSharing Details', detail: 'Data saved successfully' });
+      await this.getData();
+    }
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     this.loading.set(false);

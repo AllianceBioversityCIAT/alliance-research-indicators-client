@@ -1,13 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { Degree } from '../../interfaces/get-cap-sharing.interface';
+import { IpOwners } from '../../interfaces/get-cap-sharing.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CapSharingDegreesService {
+export class IpOwnerService {
   api = inject(ApiService);
-  list = signal<Degree[]>([]);
+  list = signal<IpOwners[]>([]);
   loading = signal(false);
   constructor() {
     this.main();
@@ -15,7 +15,7 @@ export class CapSharingDegreesService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_Degrees();
+    const response = await this.api.GET_IpOwners();
     this.list.set(response.data);
     this.loading.set(false);
   }

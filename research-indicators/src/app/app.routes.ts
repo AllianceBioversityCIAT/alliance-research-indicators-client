@@ -86,6 +86,13 @@ export const routes: Routes = [
             data: {
               title: 'Result Information'
             }
+          }, 
+          {
+            path: 'ip-rights',
+            loadComponent: () => import('@platform/pages/result/pages/ip-rights/ip-rights.component'),
+            data: {
+              title: 'Result Information'
+            }
           },
           {
             path: 'capacity-sharing',

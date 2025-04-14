@@ -1,0 +1,87 @@
+<div class="flex flex-col mx-[40px] my-[30px]">
+  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
+  <br />
+
+  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
+    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">IP RIGHTS</div>
+    <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-5 px-5 mb-[30px]">
+      <span class="text-[#074b86] material-symbols-rounded">info</span>
+      <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+        In case of doubt, please contact the Alliance’s IP Lawyer at the legal office.
+      </h3>
+    </div>
+
+    <div class="flex flex-col pb-5 xl:flex-row gap-5">
+      <div class="flex-1">
+        <app-radio-button
+          label="Who owns the intellectual property rights to this asset?"
+          [isRequired]="true"
+          [signal]="body"
+          [disabled]="!submission.isEditableStatus()"
+          serviceName="ipOwners"
+          [optionLabel]="'name'"
+          [optionValue]="{ body: 'asset_ip_owner', option: 'id' }">
+        </app-radio-button>
+
+        @if (body().asset_ip_owner === 4) {
+          <div class="flex w-full pt-1">
+              <app-input class="w-full"
+                [signal]="body"
+                [disabled]="!submission.isEditableStatus()"
+                placeholder="Write the other owner"
+                optionValue="asset_ip_owner_description"></app-input>
+          </div>
+        }
+      </div>
+
+      <div class="flex-1">
+        <app-radio-button
+          label="Are there any legal restrictions for the publication of the work? (confidential information or embargo periods)?"
+          [isRequired]="true"
+          [signal]="body"
+          [serviceName]="'yesOrNo'"
+          [disabled]="!submission.isEditableStatus()"
+          [optionLabel]="'name'"
+          [optionValue]="{ body: 'publicity_restriction', option: 'value' }">
+        </app-radio-button>
+      </div>
+    </div>
+
+    <div class="flex flex-col xl:flex-row gap-5">
+      <div class="flex-1">
+        <app-radio-button
+          label="Is there any potential for commercialization/release/making avaiable this asset?"
+          [isRequired]="true"
+          [disabled]="!submission.isEditableStatus()"
+          [signal]="body"
+          [serviceName]="'yesOrNo'"
+          [optionLabel]="'name'"
+          [optionValue]="{ body: 'potential_asset', option: 'value' }"></app-radio-button>
+      </div>
+
+      <div class="flex-1">
+        <app-radio-button
+          label="Does this asset require further development or refinement?"
+          [isRequired]="true"
+          [disabled]="!submission.isEditableStatus()"
+          [signal]="body"
+          [optionLabel]="'name'"
+          [serviceName]="'yesOrNo'"
+          [optionValue]="{ body: 'requires_futher_development', option: 'value' }"></app-radio-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex gap-5">
+    <button
+      type="button"
+      (click)="saveData('back')"
+      class="flex items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+      <i class="pi pi-arrow-left !text-[12px]"></i>
+      Back
+    </button>
+    @if (submission.isEditableStatus()) {
+      <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+    }
+  </div>
+</div>

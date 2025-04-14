@@ -30,6 +30,7 @@ import { GetAllYearsService } from './control-list/get-all-years.service';
 import { GetSubnationalByIsoAlphaService } from './get-subnational-by-iso-alpha.service';
 import { GetClarisaInstitutionsTypesChildlessService } from './get-clarisa-institutions-type-childless.service';
 import { GetClarisaInstitutionsTypesService } from './get-clarisa-institutions-type.service';
+import { IpOwnerService } from './short-control-list/ip-owner.service';
 
 @Injectable({
   providedIn: 'root'
@@ -93,6 +94,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetAllResultStatusService);
       case 'getAllYears':
         return this.injector.get(GetAllYearsService);
+      case 'ipOwners':
+        return this.injector.get(IpOwnerService);
       case 'GetSubnationalByIsoAlpha':
         return this.injector.get(GetSubnationalByIsoAlphaService);
       case 'clarisaInstitutionsTypes':

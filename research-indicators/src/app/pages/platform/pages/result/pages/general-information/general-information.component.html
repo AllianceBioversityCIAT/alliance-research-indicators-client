@@ -65,17 +65,17 @@
           Next
           <i class="pi pi-arrow-right !text-[12px]"></i>
         </button>
-      @if (submission.isEditableStatus()) {
-        <p-button
-          [disabled]="!this.body().title"
-          [loading]="this.loading()"
-          label="Save"
-          severity="success"
-          icon="pi pi-save"
-          iconPos="left"
-          (click)="saveData()" />
-      }
-    </div>
+        @if (submission.isEditableStatus()) {
+          <p-button
+            [disabled]="!this.body().title"
+            [loading]="this.loading()"
+            label="Save"
+            severity="success"
+            icon="pi pi-save"
+            iconPos="left"
+            (click)="saveData()" />
+        }
+      </div>
     </div>
   </div>
 </div>

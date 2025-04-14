@@ -10,7 +10,7 @@ import { PatchResultEvidences } from '../interfaces/patch-result-evidences.inter
 import { GetLevers } from '../interfaces/get-levers.interface';
 import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
 import { PatchPartners } from '../interfaces/patch-partners.interface';
-import { Degree, Gender, GetCapSharing, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
+import { Degree, Gender, GetCapSharing, IpOwners, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
 import { CacheService } from './cache/cache.service';
 import { GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
 import { GetMetadata } from '../interfaces/get-metadata.interface';
@@ -43,6 +43,7 @@ import { SignalEndpointService } from './signal-endpoint.service';
 import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
 import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
 import { GetClarisaInstitutionsTypes } from '@shared/interfaces/get-clarisa-institutions-types.interface';
+import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 
 @Injectable({
   providedIn: 'root'
@@ -209,6 +210,21 @@ export class ApiService {
   GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
     const url = () => `tools/clarisa/levers`;
     return this.TP.get(url(), {});
+  };
+
+  GET_IpOwners = (): Promise<MainResponse<IpOwners[]>> => {
+    const url = () => `results/capacity-sharing/ip-owners`;
+    return this.TP.get(url(), { loadingTrigger: true });
+  };
+
+  GET_IpOwner = (id: number): Promise<MainResponse<PatchIpOwner>> => {
+    const url = () => `results/capacity-sharing/ip/${id}`;
+    return this.TP.get(url(), { loadingTrigger: true });
+  };
+
+  PATCH_IpOwners = <T>(id: number, body: T): Promise<MainResponse<PatchIpOwner>> => {
+    const url = () => `results/capacity-sharing/ip/${id}`;
+    return this.TP.patch(url(), body);
   };
 
   GET_CapacitySharing = (): Promise<MainResponse<GetCapSharing>> => {

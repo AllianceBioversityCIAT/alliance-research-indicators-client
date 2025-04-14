@@ -132,8 +132,8 @@
       Next
       <i class="pi pi-arrow-right !text-[12px]"></i>
     </button>
-      @if (submission.isEditableStatus()) {
-        <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
-      }
+    @if (submission.isEditableStatus()) {
+      <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+    }
   </div>
 </div>
