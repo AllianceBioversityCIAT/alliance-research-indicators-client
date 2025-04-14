@@ -65,10 +65,15 @@ export default class PolicyChangeComponent {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    const response = await this.api.PATCH_PolicyChange(this.cache.currentResultId(), this.body());
-    if (response.successfulRequest) {
-      this.actions.showToast({ severity: 'success', summary: 'Policy Change', detail: 'Data saved successfully' });
-      await this.getData();
+    if (this.submission.isEditableStatus()) {
+      const response = await this.api.PATCH_PolicyChange(this.cache.currentResultId(), this.body());
+      if (response.successfulRequest) {
+        this.actions.showToast({ severity: 'success', summary: 'Policy Change', detail: 'Data saved successfully' });
+        await this.getData();
+        if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+        if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
+      }
+    } else {
       if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
       if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     }

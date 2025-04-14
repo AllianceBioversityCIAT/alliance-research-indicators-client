@@ -65,20 +65,19 @@ export default class GeneralInformationComponent {
   }
 
   async saveData(page?: 'next') {
-    this.loading.set(true);
-    this.body.update((current: GeneralInformation) => {
-      current.main_contact_person = { user_id: current.user_id };
-      return { ...current };
-    });
-    await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
-    this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
-    this.getResultsService.updateList();
-    await this.getData();
-    await this.metadata.update(this.cache.currentResultId());
+    if (this.submission.isEditableStatus()) {
+      this.loading.set(true);
+      this.body.update((current: GeneralInformation) => {
+        current.main_contact_person = { user_id: current.user_id };
+        return { ...current };
+      });
+      await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
+      this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
+      this.getResultsService.updateList();
+      await this.getData();
+      await this.metadata.update(this.cache.currentResultId());
+    }
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     this.loading.set(false);
   }
-  // onSaveSection = effect(() => {
-  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
-  // });
 }

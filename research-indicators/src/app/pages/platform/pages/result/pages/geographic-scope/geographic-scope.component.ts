@@ -127,14 +127,18 @@ export default class GeographicScopeComponent {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    this.mapArray();
-    const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
-
-    if (!response.successfulRequest) return;
-    await this.getData();
-    this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    if (this.submission.isEditableStatus()) {
+      this.mapArray();
+      const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
+      if (!response.successfulRequest) return;
+      await this.getData();
+      this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
+      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    } else {
+      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    }
     this.loading.set(false);
   }
 }

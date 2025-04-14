@@ -55,10 +55,13 @@ export default class EvidenceComponent {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    await this.api.PATCH_ResultEvidences(this.cache.currentResultId(), this.body());
-    this.actions.showToast({ severity: 'success', summary: 'Evidence', detail: 'Data saved successfully' });
-    await this.getData();
+    if (this.submission.isEditableStatus()) {
+      await this.api.PATCH_ResultEvidences(this.cache.currentResultId(), this.body());
+      this.actions.showToast({ severity: 'success', summary: 'Evidence', detail: 'Data saved successfully' });
+      await this.getData();
+    }
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'geographic-scope']);
+    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'ip-rights']);
     this.loading.set(false);
   }
 }

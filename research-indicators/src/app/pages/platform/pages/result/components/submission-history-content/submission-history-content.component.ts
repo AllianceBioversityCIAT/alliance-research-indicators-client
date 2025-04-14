@@ -21,7 +21,7 @@ export class SubmissionHistoryContentComponent implements OnInit {
     this.getSubmitionHistory();
   }
 
-  test = effect(() => {
+  refreshHistoryEffect = effect(() => {
     this.submissionService.refreshSubmissionHistory(); 
     this.getSubmitionHistory(); 
   });
