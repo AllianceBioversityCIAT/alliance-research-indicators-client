@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { CacheService } from './cache/cache.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -8,10 +9,15 @@ import { CacheService } from './cache/cache.service';
 export class GetMetadataService {
   api = inject(ApiService);
   cache = inject(CacheService);
+  router = inject(Router);
 
   async update(id: number) {
-    const response = await this.api.GET_Metadata(id);
-    this.cache.currentMetadata.set(response?.data);
+      const response = await this.api.GET_Metadata(id);
+      if (response?.status === 404) {
+        this.router.navigate(['/results-center']);
+      } else {
+        this.cache.currentMetadata.set(response?.data);
+      }
   }
 
   formatText(input: string): string {
