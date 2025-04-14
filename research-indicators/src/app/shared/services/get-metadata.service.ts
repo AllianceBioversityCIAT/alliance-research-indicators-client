@@ -11,12 +11,14 @@ export class GetMetadataService {
   cache = inject(CacheService);
   router = inject(Router);
 
-  async update(id: number) {
+  async update(id: number): Promise<boolean> {
       const response = await this.api.GET_Metadata(id);
       if (response?.status === 404) {
         this.router.navigate(['/results-center']);
+        return false;
       } else {
         this.cache.currentMetadata.set(response?.data);
+        return true;
       }
   }
 
