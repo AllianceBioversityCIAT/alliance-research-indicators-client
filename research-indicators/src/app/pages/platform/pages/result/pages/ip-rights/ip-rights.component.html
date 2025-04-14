@@ -2,7 +2,7 @@
   <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
   <br />
 
-  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
+  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-[24px] mb-6">
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">IP RIGHTS</div>
     <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-5 px-5 mb-[30px]">
       <span class="text-[#074b86] material-symbols-rounded">info</span>
@@ -11,7 +11,7 @@
       </h3>
     </div>
 
-    <div class="flex flex-col pb-5 xl:flex-row gap-5">
+    <div class="flex flex-col pb-5 xl:flex-row gap-16">
       <div class="flex-1">
         <app-radio-button
           label="Who owns the intellectual property rights to this asset?"
@@ -41,13 +41,14 @@
           [signal]="body"
           [serviceName]="'yesOrNo'"
           [disabled]="!submission.isEditableStatus()"
+          direction="horizontal"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'publicity_restriction', option: 'value' }">
         </app-radio-button>
       </div>
     </div>
 
-    <div class="flex flex-col xl:flex-row gap-5">
+    <div class="flex flex-col xl:flex-row gap-16">
       <div class="flex-1">
         <app-radio-button
           label="Is there any potential for commercialization/release/making avaiable this asset?"
@@ -55,6 +56,7 @@
           [disabled]="!submission.isEditableStatus()"
           [signal]="body"
           [serviceName]="'yesOrNo'"
+          direction="horizontal"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'potential_asset', option: 'value' }"></app-radio-button>
       </div>
@@ -65,6 +67,7 @@
           [isRequired]="true"
           [disabled]="!submission.isEditableStatus()"
           [signal]="body"
+          direction="horizontal"
           [optionLabel]="'name'"
           [serviceName]="'yesOrNo'"
           [optionValue]="{ body: 'requires_futher_development', option: 'value' }"></app-radio-button>

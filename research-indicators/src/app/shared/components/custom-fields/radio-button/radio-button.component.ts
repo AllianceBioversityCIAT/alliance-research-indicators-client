@@ -24,6 +24,7 @@ export class RadioButtonComponent implements OnInit {
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
   @Input() optionValue = { body: '', option: '' };
+  @Input() direction: 'vertical' | 'horizontal' = 'vertical';
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
   @Input() description = '';
