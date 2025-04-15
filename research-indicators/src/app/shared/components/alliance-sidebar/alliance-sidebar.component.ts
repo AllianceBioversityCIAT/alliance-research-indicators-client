@@ -30,4 +30,13 @@ export class AllianceSidebarComponent implements OnInit {
       this.cache.toggleSidebar();
     }
   }
+
+  toggleSidebarAndResize(): void {
+    this.cache.toggleSidebar();
+  
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 150); 
+  }
+  
 }
