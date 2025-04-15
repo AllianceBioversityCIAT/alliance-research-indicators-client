@@ -82,21 +82,18 @@
       </div>
     </div>
 
-    <div class="flex flex-col xl:flex-row gap-5">
-      <div class="flex-1">
+    <div class="flex flex-col gap-5">
+
         <app-select
           label="Trainee affiliation"
           [signal]="body"
           [disabled]="!submission.isEditableStatus()"
-          [showPartnerRequestDescription]="true"
           [isRequired]="true"
           [optionLabel]="'html_full_name'"
           [optionValue]="{ body: 'individual.affiliation.institution_id', option: 'institution_id' }"
           serviceName="institutions"></app-select>
-      </div>
 
-      <div class="flex-1">
-        <app-select
+          <app-select
           label="Trainee nationality"
           [signal]="body"
           [disabled]="!submission.isEditableStatus()"
@@ -105,7 +102,6 @@
           [optionValue]="{ body: 'individual.nationality.isoAlpha2', option: 'isoAlpha2' }"
           serviceName="countries"></app-select>
       </div>
-    </div>
   </div>
 
   <!-- GROUP TRAINING -->
@@ -215,8 +211,7 @@
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING DETAILS</div>
 
-    <div class="flex flex-col xl:flex-row gap-5 mb-6">
-      <div class="flex-1">
+    <div class="flex flex-col gap-5 mb-6">
         <app-select
           label="Training / Engagement supervisor"
           [isRequired]="true"
@@ -227,9 +222,7 @@
           [optionValue]="{ body: 'training_supervisor.user_id', option: 'user_id' }"
           serviceName="userStaff">
         </app-select>
-      </div>
 
-      <div class="flex-1">
         <app-select
           label="Language"
           [disabled]="!submission.isEditableStatus()"
@@ -238,7 +231,6 @@
           [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
           [serviceName]="'languages'">
         </app-select>
-      </div>
     </div>
 
     <div class="flex flex-col xl:flex-row gap-5 mb-6">
