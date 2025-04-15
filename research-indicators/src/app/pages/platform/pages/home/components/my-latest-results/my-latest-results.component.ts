@@ -15,8 +15,17 @@ export interface LatestResult {
   title: string;
   description: null;
   indicator_id: number;
+  result_status: ResultStatus;
   result_contracts: ResultContract;
   indicator: Indicator;
+}
+export interface ResultStatus {
+  created_at: string;        
+  updated_at: string;   
+  is_active: boolean;
+  result_status_id: number;
+  name: string;
+  description: string | null;
 }
 
 export interface Indicator {
@@ -83,5 +92,6 @@ export class MyLatestResultsComponent implements OnInit {
   async getLatestResults() {
     const response = await this.api.GET_LatestResults();
     this.latestResultList.set(response.data);
+    console.log('Latest Results:', this.latestResultList());
   }
 }
