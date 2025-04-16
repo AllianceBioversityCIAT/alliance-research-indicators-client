@@ -1,13 +1,13 @@
 @let hss = this.cache.hasSmallScreen();
 <div id="navbar" #navbar class="navbar abc-primary-blue-500">
   <div class="logo" routerLink="/">
-    <img src="roar.png" alt="" class="{{ hss ? 'h-[25px]' : 'h-[35px]' }}" />
+    <img src="roar.png" alt="" class="{{ hss ? 'h-[25px]' : 'h-[30px]' }}" />
   </div>
   <div class="options">
     @for (option of this.options; track $index) {
       @if (!option.hide) {
         <a
-          class="option atc-white-1 {{ hss ? 'py-[15px] px-[10px]' : 'py-[25px] px-[15px]' }}"
+          class="option atc-white-1 {{ hss ? 'py-[15px] px-[15px]' : 'py-[25px] px-[25px]' }}"
           [routerLink]="option.disabled ? null : option.path"
           routerLinkActive="active atc-light-blue-200-i"
           [class.disabled]="option.disabled"
@@ -34,8 +34,8 @@
       <!-- <app-dropdown dropdownName="result" position="top-left" class="search-dropdown">
         <div dropdown-button (click)="this.dropdownsCache.showDropdown('result')"> -->
       <div class="search-box">
-        <i class="material-symbols-rounded">search</i>
-        <input id="search-result-input" type="text" placeholder="Search a result" (keyup.enter)="this.onSearchTextChange($event)" />
+        <i class="pi pi-search !text-[15px] px-2"></i>
+        <input id="search-result-input" type="text" placeholder="Search" class="h-9" (keyup.enter)="this.onSearchTextChange($event)" />
       </div>
       <!-- </div>
         <div dropdown-content>
@@ -58,9 +58,10 @@
           <p>Notification 3</p>
         </div>
       </app-dropdown> -->
+      <!-- <i class="pi pi-bell !text-[18px] text-white"></i> -->
 
       <div dropdown-button (click)="this.showDropdown = !this.showDropdown">
-        <p-avatar [label]="this.actions.getInitials()" styleClass="mr-2"></p-avatar>
+        <p-avatar [label]="this.actions.getInitials()" styleClass="!rounded-xl font-[600] flex"></p-avatar>
       </div>
     </div>
   </div>
