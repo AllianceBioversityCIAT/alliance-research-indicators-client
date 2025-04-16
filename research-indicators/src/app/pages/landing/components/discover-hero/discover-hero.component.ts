@@ -32,14 +32,14 @@ export class DiscoverHeroComponent {
     },
     {
       icon: 'group',
-      name: 'Capacity Sharing for Development',
+      name: 'Capacity Sharing',
       type: 'output-icon',
       subtitle: 'OUTPUT',
       description: 'Individuals trained or engaged by Alliance staff to foster changes in knowledge, attitudes, skills, and practices.'
     },
     {
       icon: 'pie_chart',
-      name: 'OICRS',
+      name: 'OICRs',
       type: 'outcome-icon',
       subtitle: 'OUTCOME',
       description: 'A report based on evidence that details outcomes or impacts from the work of CGIAR programs, initiatives, or centers.'

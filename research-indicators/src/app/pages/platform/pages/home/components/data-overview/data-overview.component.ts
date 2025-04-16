@@ -5,6 +5,7 @@ import { ApiService } from '@shared/services/api.service';
 import { ChartModule } from 'primeng/chart';
 import { Chart } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 
 interface Indicator {
   indicator_id: number;
@@ -61,47 +62,46 @@ export class DataOverviewComponent implements OnInit {
   }
 
   chartData(data: any) {
-    // Filter out items with zero amount_results
     const filteredData = data.filter((item: any) => item.amount_results > 0);
-
-    const labels = filteredData.map((item: any) => item?.name);
-    const amounts = filteredData.map((item: any) => item?.amount_results);
-    const colors = ['#1689ca', '#173F6F', '#7CB580'];
-
-    // Update chart legend
+  
+    const labels = filteredData.map((item: any) => item.name);
+    const amounts = filteredData.map((item: any) => item.amount_results);
+    const backgroundColors = filteredData.map((item: any) => {
+    const statusKey = String(item.result_status_id);
+    return STATUS_COLOR_MAP[statusKey]?.text || STATUS_COLOR_MAP[''].border;
+    });
+    
     this.chartLegend.set(
       filteredData.map((item: any, index: number) => ({
-        color: colors[index],
+        color: backgroundColors[index],
         label: item.name,
         value: item.amount_results
       }))
     );
-
+  
     this.data = {
       labels,
       datasets: [
         {
           data: amounts,
-          backgroundColor: colors,
-          hoverBackgroundColor: ['#1689ca', '#173f6f', '#7cb580']
+          backgroundColor: backgroundColors,
+          hoverBackgroundColor: backgroundColors
         }
       ]
     };
+  
     this.options = {
       cutout: '40%',
       responsive: true,
       maintainAspectRatio: true,
       aspectRatio: 1,
       plugins: {
-        legend: {
-          display: false
-        },
-        datalabels: {
-          display: false
-        }
+        legend: { display: false },
+        datalabels: { display: false }
       }
     };
   }
+  
 
   async getData() {
     const response = await this.api.GET_ResultsStatus();
