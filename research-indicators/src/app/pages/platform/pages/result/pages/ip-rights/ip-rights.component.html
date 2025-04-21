@@ -27,6 +27,7 @@
           <div class="flex w-full pt-1">
               <app-input class="w-full"
                 [signal]="body"
+                [isRequired]="true"
                 [disabled]="!submission.isEditableStatus()"
                 placeholder="Write the other owner"
                 optionValue="asset_ip_owner_description"></app-input>
