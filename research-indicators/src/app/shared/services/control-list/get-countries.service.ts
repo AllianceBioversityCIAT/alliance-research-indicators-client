@@ -10,13 +10,16 @@ export class GetCountriesService {
   list = signal<GetCountries[]>([]);
   loading = signal(false);
   isOpenSearch = signal(false);
+
   constructor() {
     this.main();
   }
 
-  async main() {
+  async main(isSubNational: boolean = false) {
     this.loading.set(true);
-    const response = await this.api.GET_Countries();
+      const response = await this.api.GET_Countries(
+      isSubNational ? { 'is-sub-national': true } : {'is-sub-national': false}
+    );
     this.list.set(response.data);
     this.loading.set(false);
   }

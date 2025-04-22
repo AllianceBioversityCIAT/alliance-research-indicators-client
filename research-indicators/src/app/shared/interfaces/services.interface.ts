@@ -5,6 +5,8 @@ export type ControlListServices =
   | 'institutions'
   | 'userStaff'
   | 'countries'
+  | 'countriesWithSubnational'
+  | 'countriesWithoutSubnational'
   | 'languages'
   | 'capSharingFormats'
   | 'capSharingTypes'

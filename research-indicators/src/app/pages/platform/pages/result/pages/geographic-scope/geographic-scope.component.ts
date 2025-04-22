@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, signal, WritableSignal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
@@ -26,10 +26,29 @@ export default class GeographicScopeComponent {
   actions = inject(ActionsService);
   loading = signal(false);
   submission = inject(SubmissionService);
+  private lastGeoIdCleaned: number | null = null;
 
   constructor() {
     this.getData();
   }
+
+
+  isSubNational = effect(() => {
+    const geoId = Number(this.body().geo_scope_id);
+
+    if (geoId === 5 && this.lastGeoIdCleaned !== 5) {
+      this.body.update((value) => ({
+        ...value,
+        countries: []
+      }));
+
+      this.lastGeoIdCleaned = 5;
+    }
+
+    if (geoId !== 5) {
+      this.lastGeoIdCleaned = null; 
+    }
+  });
 
   onSelect = () => this.mapSignal();
 

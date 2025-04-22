@@ -48,6 +48,16 @@ export class ServiceLocatorService {
         return this.injector.get(GetInstitutionsService);
       case 'userStaff':
         return this.injector.get(GetUserStaffService);
+      case 'countriesWithSubnational': {
+        const countriesWithSub = this.injector.get(GetCountriesService);
+        countriesWithSub.main(true);
+        return countriesWithSub;
+      }
+      case 'countriesWithoutSubnational': {
+        const countriesWithoutSub = this.injector.get(GetCountriesService);
+        countriesWithoutSub.main(false);
+        return countriesWithoutSub;
+      }
       case 'countries':
         return this.injector.get(GetCountriesService);
       case 'languages':

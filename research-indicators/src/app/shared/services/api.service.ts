@@ -287,9 +287,10 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Countries = (): Promise<MainResponse<GetCountries[]>> => {
+  GET_Countries = (params?: { 'is-sub-national'?: boolean }): Promise<MainResponse<GetCountries[]>> => {
     const url = () => `tools/clarisa/countries`;
-    return this.TP.get(url(), {});
+    const stringParams = params ? Object.fromEntries(Object.entries(params).map(([key, value]) => [key, String(value)])) : undefined;
+    return this.TP.getWithParams(url(), stringParams);
   };
 
   GET_DeliveryModalities = (): Promise<MainResponse<GetDeliveryModality[]>> => {
