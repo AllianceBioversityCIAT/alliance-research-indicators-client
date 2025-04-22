@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { environment } from '@envs/environment';
 import { GetClarisaInstitutionsTypesChildlessService } from '@shared/services/get-clarisa-institutions-type-childless.service';
 import { GetCountriesService } from '@shared/services/control-list/get-countries.service';
+import { CacheService } from '@shared/services/cache/cache.service';
 
 @Component({
   selector: 'app-request-partner-modal',
@@ -28,13 +29,16 @@ export class RequestPartnerModalComponent implements OnInit {
     institutionTypeCode: string | null;
     hqCountryIso: string | null;
     websiteLink: string | null;
+    externalUserComments: string | null;
   }>({
     acronym: null,
     name: null,
     institutionTypeCode: null,
     hqCountryIso: null,
-    websiteLink: null
+    websiteLink: null,
+    externalUserComments: null
   });
+
   loading = signal(false);
   serviceInstitutionsTypes!: GetClarisaInstitutionsTypesChildlessService;
   serviceCountries!: GetCountriesService;
@@ -44,18 +48,20 @@ export class RequestPartnerModalComponent implements OnInit {
   actions = inject(ActionsService);
   allModalsService = inject(AllModalsService);
   router = inject(Router);
+  cache = inject(CacheService);
 
-  readonly isPartnerConfirmDisabled = computed(() =>
-    !this.body().name ||
-    !this.body().institutionTypeCode ||
-    !this.body().hqCountryIso ||
-    !this.validateWebsite(this.body().websiteLink ?? '') ||
-    this.loading()
+  readonly isPartnerConfirmDisabled = computed(
+    () =>
+      !this.body().name ||
+      !this.body().institutionTypeCode ||
+      !this.body().hqCountryIso ||
+      !this.validateWebsite(this.body().websiteLink ?? '') ||
+      this.loading()
   );
-  
+
   constructor() {
     this.allModalsService.setCreatePartner(() => this.createPartner());
-    this.allModalsService.setDisabledConfirmPartner(() => this.isPartnerConfirmDisabled());    
+    this.allModalsService.setDisabledConfirmPartner(() => this.isPartnerConfirmDisabled());
   }
 
   ngOnInit() {
@@ -72,14 +78,14 @@ export class RequestPartnerModalComponent implements OnInit {
     const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(\/[\w\-./?%&=]*)?$/;
     return urlPattern.test(website.trim());
   };
-  
+
   setValue(value: string) {
     value = value.toLowerCase();
-     this.body.set({
-       ...this.body(),
-       websiteLink: value       
-     });
-   }
+    this.body.set({
+      ...this.body(),
+      websiteLink: value
+    });
+  }
 
   async createPartner() {
     if (
@@ -93,7 +99,12 @@ export class RequestPartnerModalComponent implements OnInit {
     }
 
     this.loading.set(true);
-
+    this.body().externalUserComments = 
+    'Username: ' + this.cache.dataCache().user.first_name + ' ' + this.cache.dataCache().user.last_name + 
+    ' | User ID: ' + this.cache.dataCache().user.sec_user_id + 
+    ' | Result code: ' + this.cache.currentMetadata().result_official_code + 
+    ' | Section: '+ this.allModalsService.partnerRequestSection();
+    
     const result = await this.api.POST_PartnerRequest({
       ...this.body(),
       platformUrl: `${environment.frontBaseUrl}${this.router.url}`
@@ -114,7 +125,7 @@ export class RequestPartnerModalComponent implements OnInit {
       detail: `Partner request sent successfully`
     });
     this.allModalsService.closeModal('requestPartner');
-    this.body.set({ acronym: null, name: null, institutionTypeCode: null, hqCountryIso: null, websiteLink: null });
+    this.body.set({ acronym: null, name: null, institutionTypeCode: null, hqCountryIso: null, websiteLink: null, externalUserComments: null });
   };
 
   badRequest = (result: MainResponse<Result>) => {

@@ -16,6 +16,7 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 import { CalendarInputComponent } from '../../../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { SubmissionService } from '@shared/services/submission.service';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 @Component({
   selector: 'app-capacity-sharing',
   imports: [
@@ -41,6 +42,7 @@ export default class CapacitySharingComponent implements OnInit {
   body: WritableSignal<GetCapSharing> = signal({});
   submission = inject(SubmissionService);
   loading = signal(false);
+  allModalsService = inject(AllModalsService);
 
   constructor() {
     effect(() => {
@@ -102,5 +104,10 @@ export default class CapacitySharingComponent implements OnInit {
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     this.loading.set(false);
+  }
+
+  setSectionAndOpenModal(section: string) {
+    this.allModalsService.setPartnerRequestSection(section);
+    this.allModalsService.openModal('requestPartner');
   }
 }
