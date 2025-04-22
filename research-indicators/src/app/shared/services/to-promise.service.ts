@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, firstValueFrom, map, catchError, finalize } from 'rxjs';
 import { MainResponse } from '../interfaces/responses.interface';
@@ -58,6 +58,13 @@ export class ToPromiseService {
     return this.TP(this.http.get<T>(this.getEnv(config?.isAuth) + url), config?.loadingTrigger);
   };
 
+  getWithParams = <T>(url: string, params?: Record<string, string>, config?: Config) => {
+    return this.TP(
+      this.http.get<T>(this.getEnv(config?.isAuth) + url, { params }),
+      config?.loadingTrigger
+    );
+  };
+
   patch = <T, B>(url: string, body: B, config?: Config) => {
     return this.TP(this.http.patch<T>(this.getEnv(config?.isAuth) + url, body));
   };
@@ -83,4 +90,5 @@ interface Config {
   isAuth?: boolean | string;
   isRefreshToken?: boolean;
   loadingTrigger?: boolean;
+  params?: HttpParams;
 }

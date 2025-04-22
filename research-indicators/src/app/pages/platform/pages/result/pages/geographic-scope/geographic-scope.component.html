@@ -41,21 +41,21 @@
           description="{{ getMultiselectLabel().region.description }}"></app-multiselect>
       }
       @if (getMultiselectLabel().country.label) {
-        <app-multiselect
-          (selectEvent)="onSelect()"
-          [signal]="body"
-          [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
-          [disabledSelectedScroll]="body().geo_scope_id === 5 || body().geo_scope_id === '5'"
-          [optionLabel]="'name'"
-          [isRequired]="isCountriesRequired()"
-          [disabled]="!submission.isEditableStatus()"
-          [optionValue]="'isoAlpha2'"
-          [removeCondition]="canRemove"
-          [signalOptionValue]="'countries'"
-          serviceName="countries"
-          label="{{ getMultiselectLabel().country.label }}"
-          description="{{ getMultiselectLabel().country.description }}">
-          @if (body().geo_scope_id === 5 || body().geo_scope_id === '5') {
+        @if (body().geo_scope_id === 5 || body().geo_scope_id === '5') {
+          <app-multiselect
+            (selectEvent)="onSelect()"
+            [signal]="body"
+            [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
+            [disabledSelectedScroll]="body().geo_scope_id === 5 || body().geo_scope_id === '5'"
+            [optionLabel]="'name'"
+            [isRequired]="isCountriesRequired()"
+            [disabled]="!submission.isEditableStatus()"
+            [optionValue]="'isoAlpha2'"
+            [removeCondition]="canRemove"
+            [signalOptionValue]="'countries'"
+            serviceName="countriesWithSubnational"
+            label="{{ getMultiselectLabel().country.label }}"
+            description="{{ getMultiselectLabel().country.description }}">
             <ng-template #rows let-country>
               <div class="flex justify-between items-start w-full">
                 <div class="flex flex-col gap-3 max-w-[70%]">
@@ -96,14 +96,30 @@
                 </div>
               </div>
             </ng-template>
-          }
-        </app-multiselect>
+          </app-multiselect>
 
-        @if (showSubnationalError()) {
-          <div class="flex items-center gap-1 -mt-4 text-[#E69F00] text-sm">
-            <i class="material-symbols-rounded !text-base">warning</i>
-            <span>Please select at least one sub-national level per country.</span>
-          </div>
+          @if (showSubnationalError()) {
+            <div class="flex items-center gap-1 -mt-4 text-[#E69F00] text-sm">
+              <i class="material-symbols-rounded !text-base">warning</i>
+              <span>Please select at least one sub-national level per country.</span>
+            </div>
+          }
+        } @else {
+          <app-multiselect
+            (selectEvent)="onSelect()"
+            [signal]="body"
+            [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
+            [disabledSelectedScroll]="body().geo_scope_id === 5 || body().geo_scope_id === '5'"
+            [optionLabel]="'name'"
+            [isRequired]="isCountriesRequired()"
+            [disabled]="!submission.isEditableStatus()"
+            [optionValue]="'isoAlpha2'"
+            [removeCondition]="canRemove"
+            [signalOptionValue]="'countries'"
+            serviceName="countriesWithoutSubnational"
+            label="{{ getMultiselectLabel().country.label }}"
+            description="{{ getMultiselectLabel().country.description }}">
+          </app-multiselect>
         }
       }
     </div>
