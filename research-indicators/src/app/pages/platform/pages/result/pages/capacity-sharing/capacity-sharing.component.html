@@ -60,7 +60,36 @@
   <!-- INDIVIDUAL TRAINING -->
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]" [class.hidden]="body().session_format_id !== 1">
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">INDIVIDUAL TRAINING</div>
-    <div class="mb-6">
+
+    <div class="flex flex-col gap-5 mb-6">
+      <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074B86] gap-[7px] px-2.5 mb-2">
+        <span class="!text-[#074b86] !font-[300] material-symbols-rounded rotate-180">info</span>
+        <h3 class="text-[#777C83] font-['Barlow'] text-[15px] font-normal leading-[17px] text-left my-[15px]">
+          Can't find the institution you need? Request to add it
+          <span (click)="setSectionAndOpenModal('Capacity Sharing')" class="text-[#2792ce] cursor-pointer underline">here</span>.
+        </h3>
+      </div>
+
+      <app-select
+        label="Trainee affiliation"
+        [signal]="body"
+        [disabled]="!submission.isEditableStatus()"
+        [isRequired]="true"
+        [optionLabel]="'html_full_name'"
+        [optionValue]="{ body: 'individual.affiliation.institution_id', option: 'institution_id' }"
+        serviceName="institutions"></app-select>
+
+      <app-select
+        label="Trainee nationality"
+        [signal]="body"
+        [disabled]="!submission.isEditableStatus()"
+        [isRequired]="true"
+        [optionLabel]="'name'"
+        [optionValue]="{ body: 'individual.nationality.isoAlpha2', option: 'isoAlpha2' }"
+        serviceName="countries"></app-select>
+    </div>
+
+    <div class="mb-8">
       <app-input
         label="Trainee name"
         [isRequired]="true"
@@ -69,39 +98,19 @@
         optionValue="individual.trainee_name"></app-input>
     </div>
 
-    <div class="flex flex-col xl:flex-row gap-5 mb-6">
+    <div class="flex flex-col xl:flex-row">
       <div class="flex-1">
         <app-radio-button
           label="Gender"
           [isRequired]="true"
           [signal]="body"
+          direction="horizontal"
           [disabled]="!submission.isEditableStatus()"
           [serviceName]="'capSharingGenders'"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'individual.gender_id', option: 'gender_id' }"></app-radio-button>
       </div>
     </div>
-
-    <div class="flex flex-col gap-5">
-
-        <app-select
-          label="Trainee affiliation"
-          [signal]="body"
-          [disabled]="!submission.isEditableStatus()"
-          [isRequired]="true"
-          [optionLabel]="'html_full_name'"
-          [optionValue]="{ body: 'individual.affiliation.institution_id', option: 'institution_id' }"
-          serviceName="institutions"></app-select>
-
-          <app-select
-          label="Trainee nationality"
-          [signal]="body"
-          [disabled]="!submission.isEditableStatus()"
-          [isRequired]="true"
-          [optionLabel]="'name'"
-          [optionValue]="{ body: 'individual.nationality.isoAlpha2', option: 'isoAlpha2' }"
-          serviceName="countries"></app-select>
-      </div>
   </div>
 
   <!-- GROUP TRAINING -->
@@ -187,10 +196,16 @@
     }
 
     <div>
+      <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074B86] gap-[7px] px-2.5 mb-[30px]">
+        <span class="!text-[#074b86] !font-[300] material-symbols-rounded rotate-180">info</span>
+        <h3 class="text-[#777C83] font-['Barlow'] text-[15px] font-normal leading-[17px] text-left my-[15px]">
+          Can't find the institution you need? Request to add it
+          <span (click)="setSectionAndOpenModal('Capacity Sharing')" class="text-[#2792ce] cursor-pointer underline">here</span>.
+        </h3>
+      </div>
       <app-multiselect
         label="Select the organizations"
         [isRequired]="true"
-        [showPartnerRequestDescription]="true"
         [signal]="body"
         [disabled]="!submission.isEditableStatus()"
         optionLabel="html_full_name"
@@ -212,25 +227,25 @@
     <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING DETAILS</div>
 
     <div class="flex flex-col gap-5 mb-6">
-        <app-select
-          label="Training / Engagement supervisor"
-          [isRequired]="true"
-          [disabled]="!submission.isEditableStatus()"
-          optionLabel="full_name"
-          optionLabel2="email"
-          [signal]="body"
-          [optionValue]="{ body: 'training_supervisor.user_id', option: 'user_id' }"
-          serviceName="userStaff">
-        </app-select>
+      <app-select
+        label="Training / Engagement supervisor"
+        [isRequired]="true"
+        [disabled]="!submission.isEditableStatus()"
+        optionLabel="full_name"
+        optionLabel2="email"
+        [signal]="body"
+        [optionValue]="{ body: 'training_supervisor.user_id', option: 'user_id' }"
+        serviceName="userStaff">
+      </app-select>
 
-        <app-select
-          label="Language"
-          [disabled]="!submission.isEditableStatus()"
-          [signal]="body"
-          [optionLabel]="'name'"
-          [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
-          [serviceName]="'languages'">
-        </app-select>
+      <app-select
+        label="Language"
+        [disabled]="!submission.isEditableStatus()"
+        [signal]="body"
+        [optionLabel]="'name'"
+        [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
+        [serviceName]="'languages'">
+      </app-select>
     </div>
 
     <div class="flex flex-col xl:flex-row gap-5 mb-6">
@@ -282,8 +297,8 @@
       Next
       <i class="pi pi-arrow-right !text-[12px]"></i>
     </button>
-      @if (submission.isEditableStatus()) {
-        <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
-      }
+    @if (submission.isEditableStatus()) {
+      <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+    }
   </div>
 </div>

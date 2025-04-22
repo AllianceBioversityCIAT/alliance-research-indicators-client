@@ -27,7 +27,6 @@ export class SelectComponent implements OnInit {
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
   @Input() description = '';
-  @Input() showPartnerRequestDescription = false;
   @Input() disabled = false;
   @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };

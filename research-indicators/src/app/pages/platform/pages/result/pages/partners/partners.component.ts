@@ -65,4 +65,9 @@ export default class PartnersComponent {
     }
     this.loading.set(false);
   }
+
+  setSectionAndOpenModal(section: string) {
+    this.allModalsService.setPartnerRequestSection(section);
+    this.allModalsService.openModal('requestPartner');
+  }
 }

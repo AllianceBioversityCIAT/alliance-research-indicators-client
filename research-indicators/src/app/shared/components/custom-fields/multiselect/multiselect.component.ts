@@ -53,7 +53,6 @@ export class MultiselectComponent implements OnInit {
   @Input() description = '';
   @Input() hideSelected = false;
   @Input() disabledSelectedScroll = false;
-  @Input() showPartnerRequestDescription = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
   @Input() removeCondition: (item: any) => boolean = () => true;
   @Input() removeTooltip = '';

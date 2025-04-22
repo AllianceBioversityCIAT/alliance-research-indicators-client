@@ -18,6 +18,7 @@ interface ModalConfig {
   providedIn: 'root'
 })
 export class AllModalsService {
+  partnerRequestSection = signal<string | null>(null);
   createResultManagementService = inject(CreateResultManagementService);
   goBackFunction?: () => void;
   setGoBackFunction = (fn: () => void) => (this.goBackFunction = fn);
@@ -56,6 +57,10 @@ export class AllModalsService {
       const step = this.createResultManagementService.resultPageStep();
       this.updateModal(step);
     });
+  }
+
+  setPartnerRequestSection(section: string) {
+    this.partnerRequestSection.set(section);
   }
 
   updateModal(step: number): void {
