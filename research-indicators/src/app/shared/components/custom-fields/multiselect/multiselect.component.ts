@@ -61,7 +61,7 @@ export class MultiselectComponent implements OnInit {
   @Input() set isRequired(value: boolean) {
     this._isRequired.set(value);
   }
-  private _isRequired = signal(false);
+  _isRequired = signal(false);
   
   selectEvent = output<any>();
   environment = environment;
