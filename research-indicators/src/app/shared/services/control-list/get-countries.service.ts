@@ -15,7 +15,7 @@ export class GetCountriesService {
     this.main();
   }
 
-  async main(isSubNational: boolean = false) {
+  async main(isSubNational = false) {
     this.loading.set(true);
       const response = await this.api.GET_Countries(
       isSubNational ? { 'is-sub-national': true } : {'is-sub-national': false}
