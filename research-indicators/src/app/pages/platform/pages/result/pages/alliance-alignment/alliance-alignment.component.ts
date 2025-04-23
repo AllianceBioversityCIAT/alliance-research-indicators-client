@@ -13,10 +13,11 @@ import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { environment } from '../../../../../../../environments/environment';
 import { SubmissionService } from '@shared/services/submission.service';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-alliance-alignment',
-  imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
+  imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule, VersionSelectorComponent, DatePipe],
   templateUrl: './alliance-alignment.component.html'
 })
 export default class AllianceAlignmentComponent {
