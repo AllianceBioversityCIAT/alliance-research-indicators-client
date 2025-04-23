@@ -40,6 +40,11 @@
           [style]="isInvalid() ? { border: '2px solid #E69F00' } : {}"
           inputId="minmax-buttons" />
       }
+      @if (helperText) {
+        <div class="pt-1">
+          <small class="text-[#8D9299] text-[14px]" for="username">{{ helperText }}</small>
+        </div>
+      }
       @if (!this.inputValid().valid) {
         @if (isInvalid()) {
           <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">

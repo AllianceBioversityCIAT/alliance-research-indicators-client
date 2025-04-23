@@ -18,9 +18,11 @@ export class TextareaComponent {
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionValue = '';
   @Input() label = '';
+  @Input() helperText = '';
   @Input() description = '';
   @Input() isRequired = false;
   @Input() disabled = false;
+  @Input() rows = 10;
 
   body = signal({ value: null });
 
