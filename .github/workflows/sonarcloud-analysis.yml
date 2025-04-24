@@ -17,7 +17,8 @@ jobs:
       - name: Set up Java 17
         uses: actions/setup-java@v2
         with:
-          java-version: "17" # Ensure that Java 17 is set up for the analysis
+          java-version: "17" # Specify the version of Java you want to use
+          distribution: "adoptium" # Specify the distribution (AdoptOpenJDK, now Adoptium)
 
       # Step 2: Checkout the repository code
       - name: Checkout repository
