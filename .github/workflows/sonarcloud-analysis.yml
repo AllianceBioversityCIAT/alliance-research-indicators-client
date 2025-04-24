@@ -13,27 +13,29 @@ jobs:
     runs-on: ubuntu-latest # Use the latest Ubuntu image for the job
 
     steps:
-      # Step 1: Set up Java 17
-      - name: Set up JDK 11 for SonarQube analysis
+      # Step 1: Set up Java 11 for SonarCloud analysis
+      - name: Set up JDK 11 for SonarCloud analysis
         uses: actions/setup-java@v2
         with:
-          java-version: 11
-          distribution: "temurin"
+          java-version: "11" # Use Java 11 as requested
+          distribution: "temurin" # Use the Adoptium distribution (previously AdoptOpenJDK)
 
       # Step 2: Checkout the repository code
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 3: Install Angular dependencies
+      # Step 3: Install Angular dependencies in the correct directory
       - name: Install dependencies
         run: |
           npm install -g @angular/cli  # Install Angular CLI globally if it's not installed
           npm install  # Install project dependencies
+        working-directory: ./alliance-research-indicators-client # Adjust path as necessary
 
       # Step 4: Run the build and SonarCloud analysis
       - name: Run SonarCloud analysis
         run: |
           npm run build -- --prod  # Build the Angular project for production
           sonar-scanner  # Execute SonarCloud analysis
+        working-directory: ./alliance-research-indicators-client # Adjust path as necessary
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use SonarCloud token from GitHub secrets
