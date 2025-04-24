@@ -1,4 +1,4 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { GetLeversService } from '@services/control-list/get-levers.service';
@@ -13,14 +13,13 @@ import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { environment } from '../../../../../../../environments/environment';
 import { SubmissionService } from '@shared/services/submission.service';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-alliance-alignment',
-  imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule, VersionSelectorComponent, DatePipe],
+  imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
   templateUrl: './alliance-alignment.component.html'
 })
-export default class AllianceAlignmentComponent {
+export default class AllianceAlignmentComponent implements OnInit {
   environment = environment;
   getContractsService = inject(GetContractsService);
   getLeversService = inject(GetLeversService);
@@ -35,7 +34,7 @@ export default class AllianceAlignmentComponent {
   loading = signal(false);
   submission = inject(SubmissionService);
 
-  constructor() {
+  ngOnInit() {
     this.getData();
   }
 
@@ -73,9 +72,9 @@ export default class AllianceAlignmentComponent {
   markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever') {
     this.body.update(current => {
       if (type === 'contract') {
-        current.contracts.map(contract => (contract.is_primary = false));
+        current.contracts.forEach(contract => (contract.is_primary = false));
       } else if (type === 'lever') {
-        current.levers.map(lever => (lever.is_primary = false));
+        current.levers.forEach(lever => (lever.is_primary = false));
       }
       return { ...current };
     });

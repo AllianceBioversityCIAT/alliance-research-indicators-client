@@ -20,8 +20,8 @@ export interface LatestResult {
   indicator: Indicator;
 }
 export interface ResultStatus {
-  created_at: string;        
-  updated_at: string;   
+  created_at: string;
+  updated_at: string;
   is_active: boolean;
   result_status_id: number;
   name: string;
