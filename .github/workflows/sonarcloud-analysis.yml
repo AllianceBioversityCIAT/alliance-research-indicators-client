@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest # Use the latest Ubuntu image for the job
 
     steps:
-      # Step 1: Set up Java 11 for SonarCloud analysis
+      # Step 1: Set up JDK 11 for SonarCloud analysis
       - name: Set up JDK 11 for SonarCloud analysis
         uses: actions/setup-java@v2
         with:
@@ -29,13 +29,13 @@ jobs:
         run: |
           npm install -g @angular/cli  # Install Angular CLI globally if it's not installed
           npm install  # Install project dependencies
-        working-directory: ./alliance-research-indicators-client # Adjust path as necessary
+        working-directory: ./alliance-research-indicators-client/research-indicators # Ensure correct directory path
 
       # Step 4: Run the build and SonarCloud analysis
       - name: Run SonarCloud analysis
         run: |
           npm run build -- --prod  # Build the Angular project for production
           sonar-scanner  # Execute SonarCloud analysis
-        working-directory: ./alliance-research-indicators-client # Adjust path as necessary
+        working-directory: ./alliance-research-indicators-client/research-indicators # Ensure correct directory path
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use SonarCloud token from GitHub secrets
