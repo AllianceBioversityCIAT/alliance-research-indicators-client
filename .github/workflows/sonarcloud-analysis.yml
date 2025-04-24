@@ -80,7 +80,7 @@ jobs:
           # Download and install SonarScanner
           sudo apt-get update
           sudo apt-get install -y unzip
-          wget https://github.com/SonarSource/sonar-scanner-cli/releases/download/4.6.2.2472/sonar-scanner-cli-4.7.0.2747-linux.zip
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
           unzip sonar-scanner-4.6.2.2472-linux.zip
           sudo mv sonar-scanner-4.6.2.2472-linux /opt/sonar-scanner
           sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
