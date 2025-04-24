@@ -7,7 +7,6 @@
   }
 
   .dropdown-content {
-    // display: none;
     position: absolute;
     background-color: #fff;
     min-width: 160px;
@@ -19,7 +18,6 @@
   }
 
   &:focus-within .dropdown-content {
-    // display: block;
     transform: scale(1);
   }
 
