@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
@@ -10,14 +10,13 @@ import { Router } from '@angular/router';
 import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 import { SubmissionService } from '@shared/services/submission.service';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-geographic-scope',
-  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, VersionSelectorComponent, MultiselectInstanceComponent],
+  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
-export default class GeographicScopeComponent {
+export default class GeographicScopeComponent implements OnInit {
   environment = environment;
   bodyTest = signal({ value: null, valueMulti: null });
   api = inject(ApiService);
@@ -29,7 +28,7 @@ export default class GeographicScopeComponent {
   submission = inject(SubmissionService);
   private isFirstSelect = true;
 
-  constructor() {
+  ngOnInit() {
     this.getData();
   }
 
@@ -67,6 +66,14 @@ export default class GeographicScopeComponent {
     );
   });
 
+  private getCountrySelectionText() {
+    return {
+      countryLabel: 'Select the countries',
+      countryDescription:
+        'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard'
+    };
+  }
+
   getMultiselectLabel = computed(() => {
     let countryLabel = '';
     let regionLabel = '';
@@ -82,25 +89,15 @@ export default class GeographicScopeComponent {
           'The list of regions below follows the <a href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
         break;
       case 2:
-        countryLabel = '';
         regionLabel = 'Select the regions';
-        countryDescription = '';
         regionDescription =
           'The list of regions below follows the <a href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
         break;
       case 4:
-        countryLabel = 'Select the countries';
-        regionLabel = '';
-        countryDescription =
-          'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard';
-        regionDescription = '';
+        ({ countryLabel, countryDescription } = this.getCountrySelectionText());
         break;
       case 5:
-        countryLabel = 'Select the countries';
-        regionLabel = '';
-        countryDescription =
-          'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard';
-        regionDescription = '';
+        ({ countryLabel, countryDescription } = this.getCountrySelectionText());
         break;
       default:
         break;
@@ -131,7 +128,7 @@ export default class GeographicScopeComponent {
     const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
     response.data.countries?.forEach(country => {
       country.result_countries_sub_nationals.forEach(subNational => {
-        subNational.name = subNational.sub_national?.name || '';
+        subNational.name = subNational.sub_national?.name ?? '';
       });
     });
 
