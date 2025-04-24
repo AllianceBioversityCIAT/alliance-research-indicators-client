@@ -25,10 +25,12 @@ jobs:
         run: |
           java -version  # This will print the version of Java in the logs to confirm Java 17 is being used
 
-      # Step 3: Set JAVA_HOME to the correct path (Java 17)
-      - name: Set JAVA_HOME
+      # Step 3: Set JAVA_HOME and SONAR_JAVA_HOME explicitly
+      - name: Set JAVA_HOME and SONAR_JAVA_HOME
         run: |
           echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> $GITHUB_ENV
+          echo "SONAR_JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> $GITHUB_ENV
+          echo "JAVA_HOME and SONAR_JAVA_HOME are set to $(dirname $(dirname $(readlink -f $(which java))))"
 
       # Step 2: Checkout the repository code
       - name: Checkout repository
