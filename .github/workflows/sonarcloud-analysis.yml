@@ -89,7 +89,7 @@ jobs:
       - name: Run SonarCloud analysis
         run: |
           npm run build  # Build the Angular project for production
-          sonar-scanner  # Execute SonarCloud analysis
+          sonar-scanner -Dsonar.host.url=https://sonarcloud.io
         working-directory: ./research-indicators # Correct directory path
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use SonarCloud token from GitHub secrets
