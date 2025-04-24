@@ -6,40 +6,33 @@ on:
       - AC-410-First-testing-Enhancements-soanr # Executes on this specific branch
   pull_request:
     branches:
-      - AC-410-First-testing-Enhancements-soanr # Also configure for Pull Requests
+      - AC-410-First-testing-Enhancements-soanr # Also configure for Pull Requests to this branch
 
 jobs:
   sonarcloud:
-    name: Run SonarCloud analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Use the latest Ubuntu image for the job
 
     steps:
-      # Step 1: Checkout the repository code
+      # Step 1: Set up Java 17
+      - name: Set up Java 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: "17" # Ensure that Java 17 is set up for the analysis
+
+      # Step 2: Checkout the repository code
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      # Step 2: Set up Node.js (Recommended LTS version)
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: "14" # You can choose the version that fits your project
 
       # Step 3: Install Angular dependencies
       - name: Install dependencies
         run: |
-          npm install -g @angular/cli  # Install Angular CLI globally if not already installed
+          npm install -g @angular/cli  # Install Angular CLI globally if it's not installed
           npm install  # Install project dependencies
 
-      # Step 4: Set up SonarCloud
-      - name: Set up SonarCloud
-        uses: sonarsource/sonarcloud-github-action@v1
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use the SonarCloud token set in GitHub secrets
-
-      # Step 5: Run SonarCloud analysis
+      # Step 4: Run the build and SonarCloud analysis
       - name: Run SonarCloud analysis
         run: |
-          npm run build -- --prod  # Build the project for production (adjust as needed)
-          sonar-scanner  # Run the SonarCloud analysis
+          npm run build -- --prod  # Build the Angular project for production
+          sonar-scanner  # Execute SonarCloud analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use the SonarCloud token
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use SonarCloud token from GitHub secrets
