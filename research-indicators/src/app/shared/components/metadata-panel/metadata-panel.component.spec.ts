@@ -10,9 +10,15 @@ class MockWebsocketService {
   userList = signal([]);
   currentRoom = signal({ id: '', userList: [] });
 
-  getConnectedUsers() {}
-  getAlerts() {}
-  getNotifications() {}
+  getConnectedUsers() {
+    return signal([]);
+  }
+  getAlerts() {
+    return signal([]);
+  }
+  getNotifications() {
+    return signal([]);
+  }
 }
 
 describe('MetadataPanelComponent', () => {
