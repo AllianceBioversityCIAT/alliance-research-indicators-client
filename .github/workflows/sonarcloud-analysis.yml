@@ -1,0 +1,45 @@
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - AC-410-First-testing-Enhancements-soanr # Executes on this specific branch
+  pull_request:
+    branches:
+      - AC-410-First-testing-Enhancements-soanr # Also configure for Pull Requests
+
+jobs:
+  sonarcloud:
+    name: Run SonarCloud analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js (Recommended LTS version)
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14" # You can choose the version that fits your project
+
+      # Step 3: Install Angular dependencies
+      - name: Install dependencies
+        run: |
+          npm install -g @angular/cli  # Install Angular CLI globally if not already installed
+          npm install  # Install project dependencies
+
+      # Step 4: Set up SonarCloud
+      - name: Set up SonarCloud
+        uses: sonarsource/sonarcloud-github-action@v1
+        with:
+          token: ${{ secrets.SONAR_TOKEN }} # Use the SonarCloud token set in GitHub secrets
+
+      # Step 5: Run SonarCloud analysis
+      - name: Run SonarCloud analysis
+        run: |
+          npm run build -- --prod  # Build the project for production (adjust as needed)
+          sonar-scanner  # Run the SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use the SonarCloud token
