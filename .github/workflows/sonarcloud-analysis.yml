@@ -29,13 +29,55 @@ jobs:
         run: |
           npm install -g @angular/cli  # Install Angular CLI globally if it's not installed
           npm install  # Install project dependencies
-        working-directory: ./research-indicators # Corrected directory path
+        working-directory: ./research-indicators # Correct directory path
 
-      # Step 4: Run the build and SonarCloud analysis
+      # Step 4: Create environment files (environment.ts, environment.dev.ts)
+      - name: Create environment files
+        run: |
+          # Create environment.ts
+          cat > src/environments/environment.ts << EOL
+          export const environment = {
+            production: false,
+            name: 'test',
+            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
+            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
+            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
+            cognitoUrl: '${{ secrets.COGNITO_URL }}',
+            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
+            platform: 'ALLIANCE',
+            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
+            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
+            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
+            hotjarId: ${{ secrets.HOTJAR_ID }},
+            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
+            hotjarVersion: 6
+          };
+          EOL
+          # Create environment.dev.ts
+          cat > src/environments/environment.dev.ts << EOL
+          export const environment = {
+            production: false,
+            name: 'test',
+            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
+            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
+            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
+            cognitoUrl: '${{ secrets.COGNITO_URL }}',
+            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
+            platform: 'ALLIANCE',
+            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
+            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
+            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
+            hotjarId: ${{ secrets.HOTJAR_ID }},
+            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
+            hotjarVersion: 6
+          };
+          EOL
+
+      # Step 5: Run the build and SonarCloud analysis
       - name: Run SonarCloud analysis
         run: |
-          npm run build
-          sonar-scanner
-        working-directory: ./research-indicators # Corrected directory path
+          npm run build  # Build the Angular project for production
+          sonar-scanner  # Execute SonarCloud analysis
+        working-directory: ./research-indicators # Correct directory path
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use SonarCloud token from GitHub secrets
