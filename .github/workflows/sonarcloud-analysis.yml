@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: "17" # Specify the version of Java you want to use
-          distribution: "adoptium" # Specify the distribution (AdoptOpenJDK, now Adoptium)
+          distribution: "adoptopenjdk" # Use 'adoptopenjdk' instead of 'adoptium'
 
       # Step 2: Checkout the repository code
       - name: Checkout repository
