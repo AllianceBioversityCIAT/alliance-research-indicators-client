@@ -8,8 +8,8 @@ import { CacheService } from './cache/cache.service';
   providedIn: 'root'
 })
 export class ClarityService {
-  private router = inject(Router);
-  private cache = inject(CacheService);
+  private readonly router = inject(Router);
+  private readonly cache = inject(CacheService);
   private readonly CLARITY_PROJECT_ID = environment.clarityProjectId;
   private initialized = false;
 
