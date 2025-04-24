@@ -5,5 +5,6 @@ export interface GreenChecks {
   partners?: number;
   evidences?: number;
   policy_change?: number;
+  cap_sharing_ip?: number;
   completness?: number;
 }

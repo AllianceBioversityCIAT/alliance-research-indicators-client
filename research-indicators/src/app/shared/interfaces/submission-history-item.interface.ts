@@ -6,4 +6,5 @@ export class SubmissionHistoryItem {
   updated_at = '';
   from_status_id = 0;
   to_status_id = 0;
+  submission_comment = '';
 }

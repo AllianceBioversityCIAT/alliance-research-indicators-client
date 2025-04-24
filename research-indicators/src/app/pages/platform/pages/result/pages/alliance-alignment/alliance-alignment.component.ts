@@ -12,10 +12,12 @@ import { GetAllianceAlignment } from '../../../../../../shared/interfaces/get-al
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { environment } from '../../../../../../../environments/environment';
+import { SubmissionService } from '@shared/services/submission.service';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-alliance-alignment',
-  imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
+  imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule, VersionSelectorComponent, DatePipe],
   templateUrl: './alliance-alignment.component.html'
 })
 export default class AllianceAlignmentComponent {
@@ -31,6 +33,8 @@ export default class AllianceAlignmentComponent {
   actions = inject(ActionsService);
   router = inject(Router);
   loading = signal(false);
+  submission = inject(SubmissionService);
+
   constructor() {
     this.getData();
   }
@@ -40,21 +44,31 @@ export default class AllianceAlignmentComponent {
     this.body.set(response.data);
   }
 
+  canRemove = (): boolean => {
+    return this.submission.isEditableStatus();
+  };
+
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    const response = await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
-    if (response.successfulRequest) {
-      this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
-      await this.getData();
+    if (this.submission.isEditableStatus()) {
+      const response = await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
+      if (response.successfulRequest) {
+        this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
+        await this.getData();
+        if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
+        if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
+      }
+    } else {
       if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
       if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
     }
     this.loading.set(false);
   }
 
-  // onSaveSection = effect(() => {
-  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
-  // });
+  get showPrimaryLeverError(): boolean {
+    const levers = this.body().levers || [];
+    return levers.length > 1 && !levers.some(l => l.is_primary);
+  }
 
   markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever') {
     this.body.update(current => {

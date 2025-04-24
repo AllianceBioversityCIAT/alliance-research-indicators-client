@@ -1,8 +1,4 @@
-<header class="px-10 py-4 bg-white rounded-t-lg atc-primary-blue-500">
-  <p class="font-medium text-xl">Create a result</p>
-</header>
-
-<div class="grid grid-cols-[1fr_30%] h-[calc(100%-60px)]">
+<div class="container grid pb-4.5 pr-4.5 pl-1 pt-2 grid-cols-[1fr_30%] h-[calc(100%-60px)]">
   <div class="container-left">
     <h1 class="title-text">WANT ASSISTANCE WITH AI FOR YOUR RESULT CREATION?</h1>
 
@@ -29,33 +25,57 @@
 
     <div class="columns">
       <div class="section">
-        <h2 class="title" style="margin-top: 0">Primary Project<span class="text-red-500">*</span></h2>
-
-        <p-autoComplete
-          [style]="{ width: '100%' }"
-          inputStyleClass="primary-contract-input"
+        <h2 class="title" style="margin-top: 0">Primary Project</h2>
+        <p-select
+          [options]="getContractsService.list()"
           [(ngModel)]="body().contract_id"
-          [virtualScroll]="true"
-          [suggestions]="this.filteredPrimaryContracts()"
-          [virtualScrollItemSize]="65"
-          (completeMethod)="filterPrimaryContract($event)"
           optionLabel="select_label"
           optionValue="agreement_id"
-          [forceSelection]="true"
-          [showClear]="true"
-          [dropdown]="true"
-          placeholder="Select a Primary Contract">
+          placeholder="Search by project code, project name or principal investigator"
+          [virtualScroll]="true"
+          [lazy]="true"
+          [virtualScrollItemSize]="10"
+          [filter]="true"
+          [filterBy]="'select_label,project_lead_description'"
+          class="!text-base">
           <ng-template let-item pTemplate="item">
             <div class="primary-item">
               <p>
                 <b>{{ item?.agreement_id }} -</b> {{ item?.description }}
               </p>
-              <p class="primary-item-investigator">
-                Principal investigator &rarr; <span class="primary-item-investigator-name">{{ item?.project_lead_description }}</span>
+              <p class="primary-item-investigator space-x-3">
+                Principal investigator &rarr;
+                <span class="primary-item-investigator-name">{{ item?.project_lead_description }}</span>
+                <span class="text-[#B9C0C5]">|</span>
+                Start date &rarr;
+                <span class="primary-item-investigator-name">{{ item?.start_date | date: 'dd MMMM yyyy' }}</span>
+                <span class="text-[#B9C0C5]">|</span>
+                End date &rarr;
+                <span class="primary-item-investigator-name">{{ item?.end_date | date: 'dd MMMM yyyy' }}</span>
               </p>
             </div>
+            <div class="px-5 w-full flex items-end primary-item">
+              <button
+                class="uppercase max-w-22 text-xs font-semibold px-2 py-1 rounded-lg border"
+                [class.border-[#7CB580]]="item?.contract_status?.toUpperCase() !== 'ONGOING'"
+                [class.text-[#235B2D]]="item?.contract_status?.toUpperCase() !== 'ONGOING'"
+                [class.border-[#7C9CB9]]="item?.contract_status?.toUpperCase() === 'ONGOING'"
+                [class.text-[#153C71]]="item?.contract_status?.toUpperCase() === 'ONGOING'">
+                {{ item?.contract_status }}
+              </button>
+            </div>
           </ng-template>
-        </p-autoComplete>
+
+          <ng-template let-selected pTemplate="selectedItem">
+            @if (selected?.select_label?.includes(' - ')) {
+              <span>
+                <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
+              </span>
+            } @else {
+              <span>{{ selected.select_label }}</span>
+            }
+          </ng-template>
+        </p-select>
       </div>
 
       <div class="section">

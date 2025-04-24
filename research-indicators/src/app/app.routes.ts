@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { rolesGuard } from '@guards/roles.guard';
+import { resultExistsResolver } from '@pages/platform/pages/result/resolvers/result-exists.resolver';
 
 export const routes: Routes = [
   {
@@ -50,6 +51,9 @@ export const routes: Routes = [
       {
         path: 'result/:id',
         loadComponent: () => import('@platform/pages/result/result.component'),
+        resolve: {
+          resultExists: resultExistsResolver 
+        },
         data: {
           showSectionHeaderActions: true
         },
@@ -83,6 +87,13 @@ export const routes: Routes = [
           {
             path: 'evidence',
             loadComponent: () => import('@platform/pages/result/pages/evidence/evidence.component'),
+            data: {
+              title: 'Result Information'
+            }
+          }, 
+          {
+            path: 'ip-rights',
+            loadComponent: () => import('@platform/pages/result/pages/ip-rights/ip-rights.component'),
             data: {
               title: 'Result Information'
             }

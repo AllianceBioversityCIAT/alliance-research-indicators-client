@@ -20,6 +20,7 @@
       [optionLabel]="this.optionLabel"
       [showToggleAll]="false"
       [optionValue]="this.optionValue"
+      [disabled]="disabled"
       placeholder="Select items"
       [(ngModel)]="this.body().value"
       (onChange)="this.setValue($event)"

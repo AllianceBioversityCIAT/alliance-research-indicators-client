@@ -1,16 +1,21 @@
-<div class="flex flex-col mx-[40px] my-[30px]">
+<div class="flex flex-col mx-[40px] mb-15 mt-10">
   <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
 
   <br />
+  <!-- <app-version-selector></app-version-selector>
+  <br /> -->
+
   <div class="flex flex-col gap-5">
     <div class="content-section">
-      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-5">
-        <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GENERAL INFORMATION</div>
+      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
+        <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GENERAL INFORMATION</div>
         <div class="grid gap-[25px]">
           <div class="flex flex-col">
             <app-input
               label="Title"
               [isRequired]="true"
+              [disabled]="!submission.isEditableStatus()"
+              helperText="Max. # words"
               [validateEmpty]="true"
               description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon."
               [signal]="this.body"
@@ -19,10 +24,38 @@
 
           <div class="flex flex-col">
             <app-textarea
+              [isRequired]="true"
+              [disabled]="!submission.isEditableStatus()"
+              [rows]="5"
+              helperText="Max. # words"
               label="Description"
               description="Offer a detailed, understandable explanation, without repeating the title."
               [signal]="this.body"
               [optionValue]="'description'"></app-textarea>
+          </div>
+
+          <div class="flex flex-col xl:flex-row gap-5">
+            <div class="flex-1">
+              <app-select
+                label="Reporting year"
+                [isRequired]="true"
+                [disabled]="!submission.isEditableStatus()"
+                [signal]="this.body"
+                [optionValue]="{ body: 'user_id', option: 'user_id' }"
+                optionLabel="name"
+                serviceName="getAllYears"></app-select>
+            </div>
+
+            <div class="flex-1">
+              <app-select
+                label="Main contact person"
+                [isRequired]="true"
+                [disabled]="!submission.isEditableStatus()"
+                [signal]="this.body"
+                [optionValue]="{ body: 'user_id', option: 'user_id' }"
+                optionLabel="full_name"
+                serviceName="userStaff"></app-select>
+            </div>
           </div>
 
           <div class="flex flex-col">
@@ -31,38 +64,37 @@
               Press <strong>"Enter"</strong> to generate the keyword before saving it. Use relevant terms that describe the content of your result.
             </small>
 
-            <div class="card p-fluid">
-              <p-autocomplete [(ngModel)]="body().keywords" inputId="multiple-ac-2" multiple fluid [typeahead]="false" />
+            <div class="card p-fluid pb-1">
+              <p-autocomplete
+                [(ngModel)]="body().keywords"
+                [disabled]="!submission.isEditableStatus()"
+                inputId="multiple-ac-2"
+                multiple
+                fluid
+                [typeahead]="false" />
             </div>
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <app-select
-              label="Main contact person"
-              [isRequired]="true"
-              [signal]="this.body"
-              [optionValue]="{ body: 'user_id', option: 'user_id' }"
-              optionLabel="full_name"
-              serviceName="userStaff"></app-select>
+            <small class="text-[#8D9299] text-[14px]" for="username">Max. 4 keywords</small>
           </div>
         </div>
       </div>
-      <div class="flex gap-[10px]">
-        <p-button
-          [disabled]="!this.body().title"
-          [loading]="this.loading()"
-          label="Next"
-          icon="pi pi-arrow-right"
-          iconPos="right"
-          (click)="saveData('next')" />
-        <p-button
-          [disabled]="!this.body().title"
-          [loading]="this.loading()"
-          label="Save"
-          severity="success"
-          icon="pi pi-save"
-          iconPos="left"
-          (click)="saveData()" />
+      <div class="flex gap-5">
+        <button
+          type="button"
+          (click)="saveData('next')"
+          class="flex items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+          Next
+          <i class="pi pi-arrow-right !text-[12px]"></i>
+        </button>
+        @if (submission.isEditableStatus()) {
+          <p-button
+            [disabled]="!this.body().title"
+            [loading]="this.loading()"
+            label="Save"
+            severity="success"
+            icon="pi pi-save"
+            iconPos="left"
+            (click)="saveData()" />
+        }
       </div>
     </div>
   </div>

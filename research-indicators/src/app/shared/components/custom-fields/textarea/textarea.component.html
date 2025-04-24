@@ -1,6 +1,6 @@
 <div class="input-container">
   @if (label) {
-    <label class="label flex items-center" for="username"
+    <label class="label inline-block flex items-center" for="username"
       >{{ label }}
       @if (isRequired) {
         <span class="text-red-500">*</span>
@@ -17,13 +17,17 @@
     <div>
       <textarea
         appSaveOnWriting
-        rows="10"
+        [rows]="rows"
         pTextarea
         [autoResize]="false"
+        [disabled]="disabled"
         [(ngModel)]="this.signal()[this.optionValue]"
         (ngModelChange)="setValue($event)"
         [style]="isInvalid() ? { border: '2px solid #E69F00', resize: 'none' } : { resize: 'none' }">
       </textarea>
+      @if (helperText) {
+        <small class="text-[#8D9299] text-[14px]" for="username">{{ helperText }}</small>
+      }
       @if (isInvalid()) {
         <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
           <i class="material-symbols-rounded !text-base">warning</i>

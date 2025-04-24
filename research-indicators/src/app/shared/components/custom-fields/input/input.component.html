@@ -1,6 +1,6 @@
 <div class="input-container">
   @if (label) {
-    <label class="label flex items-center" for="username"
+    <label class="label inline-block flex items-center" for="username"
       >{{ label }}
       @if (isRequired) {
         <span class="text-red-500">*</span>
@@ -19,10 +19,12 @@
           appSaveOnWriting
           pInputText
           id="username"
+          class="text-[14px]"
           [placeholder]="placeholder"
           [class]="this.inputValid().class"
           [style]="isInvalid() ? { border: '2px solid #E69F00' } : {}"
           aria-describedby="username-help"
+          [disabled]="disabled"
           [(ngModel)]="this.body().value"
           [autocomplete]="autoComplete"
           (ngModelChange)="setValue($event)" />
@@ -33,9 +35,15 @@
           [placeholder]="placeholder"
           [(ngModel)]="this.body().value"
           (ngModelChange)="setValue($event)"
+          [disabled]="disabled"
           [showButtons]="true"
           [style]="isInvalid() ? { border: '2px solid #E69F00' } : {}"
           inputId="minmax-buttons" />
+      }
+      @if (helperText) {
+        <div class="pt-1">
+          <small class="text-[#8D9299] text-[14px]" for="username">{{ helperText }}</small>
+        </div>
       }
       @if (!this.inputValid().valid) {
         @if (isInvalid()) {
@@ -43,9 +51,10 @@
             <i class="material-symbols-rounded !text-base">warning</i>
             <span>{{ this.inputValid().message }}</span>
           </div>
-        } @else {
-          <small class="p-error" id="username-help">{{ this.inputValid().message }}</small>
         }
+        <!-- @else {
+          <small class="p-error" id="username-help">{{ this.inputValid().message }}</small>
+        } -->
       }
     </div>
   }

@@ -24,11 +24,13 @@ export class InputComponent {
   @Input() description = '';
   @Input() type: 'text' | 'number' = 'text';
   @Input() placeholder = '';
+  @Input() helperText = '';
   @Input() min = 0;
   @Input() validateEmpty = false;
   @Input() isRequired = false;
   @Input() onlyLowerCase = false;
   @Input() autoComplete: 'on' | 'off' = 'on';
+  @Input() disabled = false;
   body = signal({ value: null });
   firstTime = signal(true);
 

@@ -67,24 +67,29 @@ export class ResultsCenterService {
       field: 'project',
       path: 'result_contracts.contract_id',
       header: 'Project',
+      minWidth: 'min-w-[90px]',
       getValue: (result: Result) => result.result_contracts?.contract_id || '-'
     },
     {
       field: 'lever',
       path: 'result_levers.lever.short_name',
       header: 'Lever',
+      minWidth: 'min-w-[90px]',
       getValue: (result: Result) => result.result_levers?.lever?.short_name || '-'
     },
     {
       field: 'year',
       path: 'report_year_id',
       header: 'Year',
+      minWidth: 'min-w-[90px]',
       getValue: (result: Result) => result.report_year_id?.toString() || '-'
     },
     {
       field: 'creator',
       path: 'created_by_user.first_name',
       header: 'Creator',
+      minWidth: 'min-w-[120px]',
+
       hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
@@ -93,6 +98,8 @@ export class ResultsCenterService {
       field: 'creation_date',
       path: 'created_at',
       header: 'Creation date',
+      minWidth: 'min-w-[140px]',
+
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
   ]);

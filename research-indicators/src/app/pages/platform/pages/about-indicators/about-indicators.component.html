@@ -1,4 +1,4 @@
-<div class="my-8 mx-10 min-[1686px]:container min-[1686px]:mx-auto" [class.summary-mode]="summaryMode">
+<div class="my-8 mx-10 min-[1686px]:container min-[1686px]:mx-10" [class.summary-mode]="summaryMode">
   @for (item of indicatorsSE.indicators(); track $index) {
     @if (summaryMode === false) {
       <div class="title-text">{{ item.other_names }}</div>

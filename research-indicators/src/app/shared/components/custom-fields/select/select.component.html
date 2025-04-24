@@ -1,6 +1,6 @@
 <div class="input-container">
   @if (label) {
-    <label class="label flex items-center" for="username"
+    <label class="label inline-block flex items-center" for="username"
       >{{ label }}
       @if (isRequired) {
         <span class="text-red-500">*</span>
@@ -9,13 +9,6 @@
   }
   @if (description) {
     <small class="description" for="username" [innerHTML]="description"></small>
-  }
-
-  @if (showPartnerRequestDescription) {
-    <small class="description">
-      Can't find the institution you need? Request to add it
-      <span (click)="this.allModalsService.openModal('requestPartner')" class="text-[#2792ce] cursor-pointer underline">here</span>.
-    </small>
   }
 
   @if (this.currentResultIsLoading()) {
@@ -54,7 +47,7 @@
         }
 
         <ng-template #selectedItem let-selectedOption>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center block whitespace-normal break-words gap-2">
             <div [innerHTML]="selectedOption[this.optionLabel]"></div>
           </div>
         </ng-template>

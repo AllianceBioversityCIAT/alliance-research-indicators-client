@@ -9,10 +9,12 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 import { Router } from '@angular/router';
 import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
+import { SubmissionService } from '@shared/services/submission.service';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-geographic-scope',
-  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
+  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, VersionSelectorComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
 export default class GeographicScopeComponent {
@@ -24,12 +26,46 @@ export default class GeographicScopeComponent {
   cache = inject(CacheService);
   actions = inject(ActionsService);
   loading = signal(false);
+  submission = inject(SubmissionService);
+  private isFirstSelect = true;
 
   constructor() {
     this.getData();
   }
 
-  onSelect = () => this.mapSignal();
+  onSelect = () => {
+    this.mapSignal();
+
+    const currentId = Number(this.body().geo_scope_id);
+
+    if (!this.isFirstSelect && currentId === 5) {
+      this.body.update(value => ({
+        ...value,
+        countries: []
+      }));
+    }
+
+    this.isFirstSelect = false;
+  };
+
+  canRemove = (): boolean => {
+    return this.submission.isEditableStatus();
+  };
+
+  isRegionsRequired = computed(() => Number(this.body().geo_scope_id) === 2);
+  isCountriesRequired = computed(() => [4, 5].includes(Number(this.body().geo_scope_id)));
+  isSubNationalRequired = computed(() => Number(this.body().geo_scope_id) === 5);
+
+  showSubnationalError = computed(() => {
+    const scopeId = Number(this.body().geo_scope_id);
+    if (scopeId !== 5) return false;
+
+    const countries = this.body().countries || [];
+
+    return countries.some(
+      country => !country.result_countries_sub_nationals_signal?.() || (country.result_countries_sub_nationals_signal()?.regions?.length ?? 0) === 0
+    );
+  });
 
   getMultiselectLabel = computed(() => {
     let countryLabel = '';
@@ -106,14 +142,18 @@ export default class GeographicScopeComponent {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    this.mapArray();
-    const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
-
-    if (!response.successfulRequest) return;
-    await this.getData();
-    this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    if (this.submission.isEditableStatus()) {
+      this.mapArray();
+      const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
+      if (!response.successfulRequest) return;
+      await this.getData();
+      this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
+      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    } else {
+      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    }
     this.loading.set(false);
   }
 }

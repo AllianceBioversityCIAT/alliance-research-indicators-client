@@ -1,5 +1,10 @@
 @let hss = this.cache.hasSmallScreen();
-<div class="section-header pl-12 {{ hss ? 'p-[5px]' : 'p-[10px]' }} " id="section-sidebar">
+<div
+  [ngStyle]="{
+    width: cache.showSectionHeaderActions() ? (cache.isSidebarCollapsed() ? 'calc(100% - 65px)' : 'calc(100% - 250px)') : 'calc(100% - 65px)'
+  }"
+  class="section-header pl-8 transition-all duration-700 ease-in-out {{ hss ? 'p-[5px]' : 'p-[10px]' }} calc(100% - 65px) "
+  id="section-sidebar">
   <div class="flex gap-7">
     <!-- <div class="navigation-controls {{ hss ? 'gap-[4px]' : 'gap-[15px]' }}">
       @if (canGoBack()) {
@@ -19,10 +24,10 @@
 
   @if (this.cache.showSectionHeaderActions()) {
     <div class="buttons-container rs-gap-x-[15] gap-3">
-      <p-button [outlined]="true" size="small" icon="pi pi-share-alt" />
-      <p-button [outlined]="true" size="small" icon="pi pi-download" />
+      <!-- <p-button [outlined]="true" size="small" icon="pi pi-share-alt" />
+      <p-button [outlined]="true" size="small" icon="pi pi-download" /> -->
       <div>
-        <p-menu #menu [model]="items()" [popup]="true" />
+        <p-menu #menu [model]="items()" [popup]="true" [appendTo]="'body'" />
         <p-button (onClick)="menu.toggle($event)" [text]="true" size="small" icon="pi pi-ellipsis-v" />
       </div>
     </div>

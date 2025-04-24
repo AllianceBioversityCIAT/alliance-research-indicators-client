@@ -1,15 +1,8 @@
-<header class="header px-10 py-4">
-  <div class="header-content" (click)="goBack()">
-    <i class="material-symbols-rounded" style="font-size: 22px">arrow_back</i>
-    <p class="title">File Upload AI</p>
-  </div>
-</header>
-
 @if (documentAnalyzed() && selectedFile) {
-  <div class="document-analyzed-container">
-    <i class="pi pi-file upload-icon" style="font-size: 32px; margin: 0"></i>
-    <p class="upload-text" style="font-weight: 500; margin: 0">{{ selectedFile.name }}</p>
-  </div>
+<div class="document-analyzed-container">
+  <i class="pi pi-file upload-icon" style="font-size: 32px; margin: 0"></i>
+  <p class="upload-text" style="font-weight: 500; margin: 0">{{ selectedFile.name }}</p>
+</div>
 }
 
 <section
@@ -17,112 +10,101 @@
   [ngStyle]="{ 'margin-top': documentAnalyzed() ? '0' : '40px' }"
   [ngClass]="{ 'analyzing-container': analyzingDocument() }">
   @if (!analyzingDocument() && !documentAnalyzed()) {
-    <div class="container-header">
-      <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
+  <div class="container-header">
+    <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
 
-      <div class="title-group">
-        <p class="subtitle">AI ASSISTANCE</p>
-        <h1 class="title">UPLOAD YOUR DOCUMENTS</h1>
-        <p class="description">
-          Upload your research documents, and let the AI-powered system analyze them to generate actionable insights and populate key fields
-          automatically.
-        </p>
+    <div class="title-group">
+      <p class="subtitle">AI ASSISTANCE</p>
+      <h1 class="title">UPLOAD YOUR DOCUMENTS</h1>
+      <p class="description">
+        Upload your research documents, and let the AI-powered system analyze them to generate actionable insights and populate key fields
+        automatically.
+      </p>
+    </div>
+  </div>
+
+  <div class="file-upload-container">
+    @if (!selectedFile) {
+    <div
+      class="upload-area"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      [class.dragging]="isDragging"
+      (click)="fileInput.click()">
+      <input #fileInput type="file" [accept]="acceptedFormats.join(',')" (change)="onFileSelected($event)" style="display: none" />
+      <i class="material-symbols-rounded upload-icon">add_circle</i>
+      <p class="upload-text">Drag and drop your file here or click to upload.</p>
+      <p class="file-formats">Accepted file formats: {{ acceptedFormats.join(', ') }}</p>
+    </div>
+    } @else {
+    <div class="upload-area" style="cursor: default">
+      <i class="pi pi-file upload-icon" style="font-size: 50px; margin-bottom: 15px"></i>
+      <div class="upload-area-content">
+        <i class="pi pi-file pi-times-circle" style="font-size: 16px; cursor: pointer; color: #cf0808" (click)="selectedFile = null"></i>
+        <p class="upload-text" style="font-weight: 500; margin: 0">{{ selectedFile.name }}</p>
       </div>
     </div>
+    }
+    <p class="file-size-limit">Each file can be up to {{ maxSizeMB }} MB. Ensure uploads comply with this limit.</p>
+  </div>
 
-    <div class="file-upload-container">
-      @if (!selectedFile) {
-        <div
-          class="upload-area"
-          (dragover)="onDragOver($event)"
-          (dragleave)="onDragLeave($event)"
-          (drop)="onDrop($event)"
-          [class.dragging]="isDragging"
-          (click)="fileInput.click()">
-          <input #fileInput type="file" [accept]="acceptedFormats.join(',')" (change)="onFileSelected($event)" style="display: none" />
-          <i class="material-symbols-rounded upload-icon">add_circle</i>
-          <p class="upload-text">Drag and drop your file here or click to upload.</p>
-          <p class="file-formats">Accepted file formats: {{ acceptedFormats.join(', ') }}</p>
-        </div>
-      } @else {
-        <div class="upload-area" style="cursor: default">
-          <i class="pi pi-file upload-icon" style="font-size: 50px; margin-bottom: 15px"></i>
-          <div class="upload-area-content">
-            <i class="pi pi-file pi-times-circle" style="font-size: 16px; cursor: pointer; color: #cf0808" (click)="selectedFile = null"></i>
-            <p class="upload-text" style="font-weight: 500; margin: 0">{{ selectedFile.name }}</p>
-          </div>
-        </div>
-      }
-      <p class="file-size-limit">Each file can be up to {{ maxSizeMB }} MB. Ensure uploads comply with this limit.</p>
-    </div>
-
-    <button
-      type="button"
-      class="analyze_button"
-      [disabled]="!selectedFile"
-      [ngClass]="{ disabled: !selectedFile }"
-      (click)="handleAnalyzingDocument()">
-      Analyze Document
-      <i class="pi pi-sparkles" style="font-size: 16px"></i>
-    </button>
-  }
-
-  @if (analyzingDocument() && !documentAnalyzed()) {
-    <div class="loading-container">
-      <h1 class="loading-title">
-        ANALYZING DOCUMENT
-        <span>
-          <i class="pi pi-sparkles" style="font-size: 30px"></i>
-        </span>
+  <button type="button" class="analyze_button" [disabled]="!selectedFile" [ngClass]="{ disabled: !selectedFile }" (click)="handleAnalyzingDocument()">
+    Analyze Document
+    <i class="pi pi-sparkles" style="font-size: 16px"></i>
+  </button>
+  } @if (analyzingDocument() && !documentAnalyzed()) {
+  <div class="loading-container">
+    <h1 class="loading-title">
+      ANALYZING DOCUMENT
+      <span>
+        <i class="pi pi-sparkles" style="font-size: 30px"></i>
+      </span>
+    </h1>
+    <i class="pi pi-spin pi-spinner" style="font-size: 90px"></i>
+  </div>
+  } @if (documentAnalyzed()) {
+  <section class="analyze-result-container">
+    <div class="analyze-result-header">
+      <h1 class="analyze-result-title">
+        THE AI IDENTIFIED
+        <span class="analyze-result-title-number">{{ createResultManagementService.items().length }}</span>
+        RESULTS
       </h1>
-      <i class="pi pi-spin pi-spinner" style="font-size: 90px"></i>
+
+      <p class="analyze-result-description">Select the ones you want to create.</p>
     </div>
-  }
 
-  @if (documentAnalyzed()) {
-    <section class="analyze-result-container">
-      <div class="analyze-result-header">
-        <h1 class="analyze-result-title">
-          THE AI IDENTIFIED
-          <span class="analyze-result-title-number">{{ createResultManagementService.items().length }}</span>
-          RESULTS
-        </h1>
+    <div style="width: 100%">
+      <div class="analyze-result-content">
+        @if (createResultManagementService.items().length === 0) {
+        <div class="no-results-container">
+          <h1 class="no-results-title">ALL RESULTS DISCARDED</h1>
+          <p class="no-results">You’ve discarded all the generated results. What would you like to do next?</p>
 
-        <p class="analyze-result-description">Select the ones you want to create.</p>
-      </div>
-
-      <div style="width: 100%">
-        <div class="analyze-result-content">
-          @if (createResultManagementService.items().length === 0) {
-            <div class="no-results-container">
-              <h1 class="no-results-title">ALL RESULTS DISCARDED</h1>
-              <p class="no-results">You’ve discarded all the generated results. What would you like to do next?</p>
-
-              <div class="no-results-actions">
-                <p-button label="Return to Create Result" [outlined]="true" (onClick)="goBackToCreateResult()"></p-button>
-                <p-button label="Upload a new file" (onClick)="goBackToUploadNewFile()"></p-button>
-              </div>
-            </div>
-          } @else {
-            @for (item of createResultManagementService.items() | slice: first() : first() + rows(); track $index) {
-              <app-result-ai-item [item]="item" style="width: 100%"></app-result-ai-item>
-            }
-          }
-        </div>
-
-        @if (createResultManagementService.items().length > 0) {
-          <div style="display: flex; justify-content: flex-end; align-items: center; background-color: #fff">
-            <p-paginator
-              (onPageChange)="onPageChange($event)"
-              [first]="first()"
-              [rows]="rows()"
-              [totalRecords]="createResultManagementService.items().length"
-              [showCurrentPageReport]="true"
-              [showJumpToPageDropdown]="false"
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" />
+          <div class="no-results-actions">
+            <p-button label="Return to Create Result" [outlined]="true" (onClick)="goBackToCreateResult()"></p-button>
+            <p-button label="Upload a new file" (onClick)="goBackToUploadNewFile()"></p-button>
           </div>
-        }
+        </div>
+        } @else { @for (item of createResultManagementService.items() | slice: first() : first() + rows(); track $index) {
+        <app-result-ai-item [item]="item" style="width: 100%"></app-result-ai-item>
+        } }
       </div>
-    </section>
+
+      @if (createResultManagementService.items().length > 0) {
+      <div style="display: flex; justify-content: flex-end; align-items: center; background-color: #fff">
+        <p-paginator
+          (onPageChange)="onPageChange($event)"
+          [first]="first()"
+          [rows]="rows()"
+          [totalRecords]="createResultManagementService.items().length"
+          [showCurrentPageReport]="true"
+          [showJumpToPageDropdown]="false"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" />
+      </div>
+      }
+    </div>
+  </section>
   }
 </section>
