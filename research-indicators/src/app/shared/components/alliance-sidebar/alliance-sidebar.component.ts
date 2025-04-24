@@ -18,7 +18,7 @@ export class AllianceSidebarComponent implements OnInit {
     { icon: 'pi-exclamation-circle transform scale-y-[-1]', label: 'About the Tool', link: '1', underConstruction: true, hide: false },
     { icon: 'pi-chart-bar', label: 'Alliance Dashboard', link: '23', underConstruction: true, hide: false },
     { icon: 'pi-external-link', label: 'Other Reporting Tools', link: '45', underConstruction: true, hide: false },
-    { icon: 'pi-comments', label: 'Give Feedback', underConstruction: true, hide: false }
+    { icon: 'pi-comments', label: 'Ask for Help', underConstruction: true, hide: false }
   ];
 
   innerWidth = 0;
@@ -33,10 +33,9 @@ export class AllianceSidebarComponent implements OnInit {
 
   toggleSidebarAndResize(): void {
     this.cache.toggleSidebar();
-  
+
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
-    }, 150); 
+    }, 150);
   }
-  
 }
