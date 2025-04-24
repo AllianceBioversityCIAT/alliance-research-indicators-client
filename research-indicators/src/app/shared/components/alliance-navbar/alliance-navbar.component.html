@@ -1,7 +1,7 @@
 @let hss = this.cache.hasSmallScreen();
-<div id="navbar" #navbar class="navbar abc-primary-blue-500">
+<div id="navbar" #navbar class="navbar bg-[#173F6F]">
   <div class="logo" routerLink="/">
-    <img src="roar.png" alt="" class="{{ hss ? 'h-[25px]' : 'h-[30px]' }}" />
+    <img src="STAR.png" alt="" class="{{ hss ? 'h-[40px]' : 'h-[60px]' }}" />
   </div>
   <div class="options">
     @for (option of this.options; track $index) {
@@ -61,7 +61,7 @@
       <!-- <i class="pi pi-bell !text-[18px] text-white"></i> -->
 
       <div dropdown-button (click)="this.showDropdown = !this.showDropdown">
-        <p-avatar [label]="this.actions.getInitials()" styleClass="!rounded-xl font-[600] flex"></p-avatar>
+        <p-avatar [label]="this.actions.getInitials()" styleClass="!rounded-xl font-[600] flex pb-[1px]"></p-avatar>
       </div>
     </div>
   </div>

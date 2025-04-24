@@ -1,10 +1,11 @@
-<div class="flex flex-col mx-[40px] my-[30px]">
+<div class="flex flex-col mx-[40px] mb-15 mt-10">
   <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
   <br />
-
+  <app-version-selector></app-version-selector>
+  <br />
   <!-- TRAINING TYPE-->
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]">
-    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING TYPE</div>
+    <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING TYPE</div>
     <div class="flex flex-col xl:flex-row gap-5">
       <div class="flex-1">
         <app-radio-button
@@ -59,7 +60,7 @@
 
   <!-- INDIVIDUAL TRAINING -->
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]" [class.hidden]="body().session_format_id !== 1">
-    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">INDIVIDUAL TRAINING</div>
+    <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">INDIVIDUAL TRAINING</div>
 
     <div class="flex flex-col gap-5 mb-6">
       <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074B86] gap-[7px] px-2.5 mb-2">
@@ -115,7 +116,7 @@
 
   <!-- GROUP TRAINING -->
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]" [class.hidden]="body().session_format_id !== 2">
-    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GROUP TRAINING</div>
+    <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GROUP TRAINING</div>
 
     <div class="flex flex-col xl:flex-row gap-5 mb-6">
       <div class="flex-1">
@@ -224,7 +225,7 @@
 
   <!-- TRAINING DETAILS -->
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
-    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING DETAILS</div>
+    <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING DETAILS</div>
 
     <div class="flex flex-col gap-5 mb-6">
       <app-select

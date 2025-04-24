@@ -17,6 +17,7 @@ import { CalendarInputComponent } from '../../../../../../shared/components/cust
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { SubmissionService } from '@shared/services/submission.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 @Component({
   selector: 'app-capacity-sharing',
   imports: [
@@ -30,6 +31,7 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
     InputComponent,
     CalendarInputComponent,
     MultiselectComponent,
+    VersionSelectorComponent,
     PartnerSelectedItemComponent
   ],
   templateUrl: './capacity-sharing.component.html'

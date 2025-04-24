@@ -24,6 +24,7 @@ export class InputComponent {
   @Input() description = '';
   @Input() type: 'text' | 'number' = 'text';
   @Input() placeholder = '';
+  @Input() helperText = '';
   @Input() min = 0;
   @Input() validateEmpty = false;
   @Input() isRequired = false;

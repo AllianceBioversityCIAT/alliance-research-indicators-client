@@ -10,10 +10,11 @@ import { Router } from '@angular/router';
 import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 import { SubmissionService } from '@shared/services/submission.service';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-geographic-scope',
-  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
+  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, VersionSelectorComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
 export default class GeographicScopeComponent {
@@ -34,18 +35,18 @@ export default class GeographicScopeComponent {
 
   onSelect = () => {
     this.mapSignal();
-  
+
     const currentId = Number(this.body().geo_scope_id);
 
     if (!this.isFirstSelect && currentId === 5) {
-      this.body.update((value) => ({
+      this.body.update(value => ({
         ...value,
         countries: []
       }));
     }
 
     this.isFirstSelect = false;
-  }
+  };
 
   canRemove = (): boolean => {
     return this.submission.isEditableStatus();

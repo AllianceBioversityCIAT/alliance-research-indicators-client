@@ -35,7 +35,7 @@
             }
             @if (getConfig().confirmAction) {
               <button
-                class="bg-[#035BA9] text-[15px] text-white disabled:bg-gray-200 disabled:text-gray-600 px-5 py-2 rounded-[14px] disabled:cursor-not-allowed"
+                class="bg-[#035BA9] text-[15px] text-white disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] px-5 py-2 rounded-[14px] disabled:cursor-not-allowed"
                 (click)="getConfig().confirmAction?.()"
                 [disabled]="getConfig().disabledConfirmAction?.()">
                 {{ getConfig().confirmText }}

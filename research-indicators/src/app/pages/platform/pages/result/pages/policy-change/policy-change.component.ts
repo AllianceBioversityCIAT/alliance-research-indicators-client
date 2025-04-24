@@ -13,6 +13,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { FormsModule } from '@angular/forms';
 import { SubmissionService } from '@shared/services/submission.service';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-policy-change',
@@ -26,6 +27,7 @@ import { SubmissionService } from '@shared/services/submission.service';
     SelectComponent,
     FormsModule,
     TooltipModule,
+    VersionSelectorComponent, 
     PartnerSelectedItemComponent
   ]
 })

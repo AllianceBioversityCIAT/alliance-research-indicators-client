@@ -18,6 +18,7 @@ import { SelectComponent } from '../../../../../../shared/components/custom-fiel
 import { GetMetadataService } from '../../../../../../shared/services/get-metadata.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SubmissionService } from '@shared/services/submission.service';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 interface Option {
   name: string;
@@ -36,6 +37,7 @@ interface Option {
     InputComponent,
     TextareaComponent,
     SelectComponent,
+    VersionSelectorComponent,
     AutoCompleteModule
   ],
   templateUrl: './general-information.component.html'

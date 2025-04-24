@@ -1,11 +1,14 @@
-<div class="flex flex-col mx-[40px] my-[30px]">
+<div class="flex flex-col mx-[40px] mb-15 mt-10">
   <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
+
+  <br />
+  <app-version-selector></app-version-selector>
   <br />
 
   <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-[24px] mb-6">
-    <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">IP RIGHTS</div>
+    <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">IP RIGHTS</div>
     <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074B86] gap-[7px] px-2.5 mb-[30px]">
-      <span class="!text-[#074b86]  !font-[300] material-symbols-rounded rotate-180">info</span>
+      <span class="!text-[#074b86] !font-[300] material-symbols-rounded rotate-180">info</span>
       <h3 class="text-[#777C83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
         In case of doubt, please contact the Alliance’s IP Lawyer at the legal office.
       </h3>
@@ -25,12 +28,13 @@
 
         @if (body().asset_ip_owner === 4) {
           <div class="flex w-full pt-1">
-              <app-input class="w-full"
-                [signal]="body"
-                [isRequired]="true"
-                [disabled]="!submission.isEditableStatus()"
-                placeholder="Write the other owner"
-                optionValue="asset_ip_owner_description"></app-input>
+            <app-input
+              class="w-full"
+              [signal]="body"
+              [isRequired]="true"
+              [disabled]="!submission.isEditableStatus()"
+              placeholder="Write the other owner"
+              optionValue="asset_ip_owner_description"></app-input>
           </div>
         }
       </div>

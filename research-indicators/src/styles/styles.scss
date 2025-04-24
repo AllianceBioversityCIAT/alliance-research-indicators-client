@@ -9,9 +9,13 @@
 }
 
 .p-tooltip {
-  --p-tooltip-background: #345B8F;
+  --p-tooltip-background: #345b8f;
   --p-tooltip-max-width: 320px;
   --p-tooltip-border-radius: 8px;
+}
+
+.p-divider-vertical:before {
+  border-inline-start: 1px solid #b9c0c5 !important;
 }
 
 body {

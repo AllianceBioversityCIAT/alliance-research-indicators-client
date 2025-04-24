@@ -17,7 +17,6 @@
   <div class="flex px-[25px] items-center justify-between font-medium full text-xs mb-[15px] text-[#777c83] title">
     FORM PROGRESS
     <app-custom-tag [statusId]="cache.currentMetadata().status_id ?? ''" [statusName]="cache.currentMetadata().status_name ?? ''"></app-custom-tag>
-
   </div>
 
   <div class="options-container px-[25px]">
@@ -42,7 +41,7 @@
   @if (cache.currentMetadata().status_id !== 6 && cache.currentMetadata().status_id !== 7 && cache.currentMetadata().status_id !== 8) {
     @if (cache.currentMetadata().is_principal_investigator) {
       <button
-        class="font-medium disabled:bg-gray-200 disabled:text-gray-600 text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
+        class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
         [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
         tooltipPosition="bottom"
         [disabled]="!this.cache.allGreenChecksAreTrue()"
@@ -52,7 +51,7 @@
       </button>
     } @else {
       <button
-        class="font-medium disabled:bg-gray-200 disabled:text-gray-600 text-sm text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl transition-all duration-300"
+        class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl transition-all duration-300"
         [ngClass]="{
           'bg-[#f97316]': submissionService.currentResultIsSubmitted(),
           'bg-[#035BA9]': submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted(),
