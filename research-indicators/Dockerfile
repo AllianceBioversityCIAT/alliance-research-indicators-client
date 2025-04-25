@@ -1,6 +1,6 @@
 #################### DEVELOPMENT STAGE ####################
-# Use an official Node.js runtime as a parent image
-FROM node:20-alpine as build
+# Use an official Node.js runtime AS a parent image
+FROM node:20-alpine AS build
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -18,8 +18,8 @@ COPY . .
 RUN npm run build --prod
 
 #################### TESTING STAGE ####################
-# Use the same Node.js runtime as a parent image
-FROM node:20-alpine as test
+# Use the same Node.js runtime AS a parent image
+FROM node:20-alpine AS test
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -28,7 +28,7 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app /usr/src/app
 
 #################### PRODUCTION STAGE ####################
-# Use an official Nginx runtime as a parent image
+# Use an official Nginx runtime AS a parent image
 FROM nginx:alpine
 
 # Remove the default Nginx website
