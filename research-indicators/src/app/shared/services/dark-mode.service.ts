@@ -4,12 +4,11 @@ import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
   providedIn: 'root'
 })
 export class DarkModeService {
-  private renderer: Renderer2;
+  private readonly renderer: Renderer2;
   private isDarkMode = false;
 
   constructor(rendererFactory: RendererFactory2) {
     this.renderer = rendererFactory.createRenderer(null, null);
-    // this.loadThemePreference();
   }
 
   // Load the user's theme preference from localStorage or the system's default

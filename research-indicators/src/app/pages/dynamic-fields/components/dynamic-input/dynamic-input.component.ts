@@ -1,15 +1,13 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { DynamicFieldsService } from '../../dynamic-fields.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-dynamic-input',
-    imports: [FloatLabelModule, InputTextModule, ReactiveFormsModule, CommonModule],
-    templateUrl: './dynamic-input.component.html',
-    styleUrl: './dynamic-input.component.scss'
+  selector: 'app-dynamic-input',
+  imports: [FloatLabelModule, InputTextModule, ReactiveFormsModule, CommonModule],
+  templateUrl: './dynamic-input.component.html'
 })
 export class DynamicInputComponent {
   @Input() field!: any;

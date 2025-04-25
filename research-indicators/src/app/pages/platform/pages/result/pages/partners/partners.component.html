@@ -2,8 +2,6 @@
   <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
 
   <br />
-  <!-- <app-version-selector></app-version-selector>
-  <br /> -->
 
   <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">PARTNERS</div>
@@ -11,8 +9,13 @@
       <span class="text-[#074b86] material-symbols-rounded">info</span>
       <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
         If you do not find the partner in the dropdown menu, you can
-        <span (click)="setSectionAndOpenModal('Partners')" class="text-[#2792ce] cursor-pointer underline">request</span> to have it added to the
-        list.
+        <span
+          (keydown.enter)="setSectionAndOpenModal('Partners')"
+          (click)="setSectionAndOpenModal('Partners')"
+          class="text-[#2792ce] cursor-pointer underline"
+          >request</span
+        >
+        to have it added to the list.
       </h3>
     </div>
 
@@ -42,19 +45,26 @@
     <button
       type="button"
       (click)="saveData('back')"
-      class="flex items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+      class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
       <i class="pi pi-arrow-left !text-[12px]"></i>
       Back
     </button>
     <button
       type="button"
       (click)="saveData('next')"
-      class="flex items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+      class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
       Next
       <i class="pi pi-arrow-right !text-[12px]"></i>
     </button>
     @if (submission.isEditableStatus()) {
-      <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+      <p-button
+        label="Save"
+        severity="success"
+        icon="pi pi-save"
+        iconPos="left"
+        (keydown.enter)="saveData()"
+        (click)="saveData()"
+        [loading]="this.loading()" />
     }
   </div>
 </div>

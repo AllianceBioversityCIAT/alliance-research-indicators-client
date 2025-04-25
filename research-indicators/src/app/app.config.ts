@@ -6,8 +6,6 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 
-// import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
-// import { environment } from '../environments/environment';
 import { jWtInterceptor } from './shared/interceptors/jwt.interceptor';
 import { httpErrorInterceptor } from './shared/interceptors/http-error.interceptor';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -15,13 +13,11 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { MyPreset } from './theme/roartheme';
 import { TrackingToolsService } from './shared/services/tracking-tools.service';
-// const config: SocketIoConfig = { url: environment.webSocketServerUrl, options: {} };
 
 function initializeTrackingToolsService(trackingToolsService: TrackingToolsService) {
   return () => trackingToolsService.init();
 }
 
-// SocketIoModule.forRoot(config)
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),

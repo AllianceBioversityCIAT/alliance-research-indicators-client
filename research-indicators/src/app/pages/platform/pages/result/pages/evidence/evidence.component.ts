@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -9,14 +9,13 @@ import { ApiService } from '../../../../../../shared/services/api.service';
 import { Evidence, PatchResultEvidences } from '../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { EvidenceItemComponent } from './components/evidence-item/evidence-item.component';
 import { SubmissionService } from '@shared/services/submission.service';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-evidence',
-  imports: [ButtonModule, FormsModule, VersionSelectorComponent, InputTextModule, EvidenceItemComponent],
+  imports: [ButtonModule, FormsModule, InputTextModule, EvidenceItemComponent],
   templateUrl: './evidence.component.html'
 })
-export default class EvidenceComponent {
+export default class EvidenceComponent implements OnInit {
   value: undefined;
   actions = inject(ActionsService);
   cache = inject(CacheService);
@@ -27,7 +26,7 @@ export default class EvidenceComponent {
   loading = signal(false);
   submission = inject(SubmissionService);
 
-  constructor() {
+  ngOnInit() {
     this.getData();
   }
 

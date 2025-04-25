@@ -52,8 +52,8 @@ export class ApiService {
   TP = inject(ToPromiseService);
   cache = inject(CacheService);
   clCache = inject(ControlListCacheService);
-  private signalEndpoint = inject(SignalEndpointService);
-  //? >>>>>>>>>>>> Endpoints <<<<<<<<<<<<<<<<<
+  private readonly signalEndpoint = inject(SignalEndpointService);
+
   login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
     const url = () => `authorization/login`;
     return this.TP.post(url(), {}, { token: awsToken, isAuth: true });
@@ -78,16 +78,6 @@ export class ApiService {
     const url = () => `agresso/contracts`;
     return this.TP.get(url(), {});
   };
-
-  // GET_InnoDevOutput = (): Promise<MainResponse<GetInnoDevOutput[]>> => {
-  //   const url = () => `results?indicator-codes=2`;
-  //   return this.TP.get(url(), {});
-  // };
-
-  // GET_InnoUseOutput = (): Promise<MainResponse<GetInnoUseOutput[]>> => {
-  //   const url = () => `results?indicator-codes=6`;
-  //   return this.TP.get(url(), {});
-  // };
 
   GET_Institutions = (): Promise<MainResponse<GetInstitution[]>> => {
     const url = () => `tools/clarisa/institutions?location=true&type=true&only-hq=true`;
@@ -131,10 +121,8 @@ export class ApiService {
       if (resultFilter['indicator-codes-tabs'].length) {
         queryParams.push(`indicator-codes=${resultFilter['indicator-codes-tabs'].join(',')}`);
       }
-    } else {
-      if (resultFilter['indicator-codes-filter']?.length) {
-        queryParams.push(`indicator-codes=${resultFilter['indicator-codes-filter']?.join(',')}`);
-      }
+    } else if (resultFilter['indicator-codes-filter']?.length) {
+      queryParams.push(`indicator-codes=${resultFilter['indicator-codes-filter']?.join(',')}`);
     }
 
     // Dynamic handling of boolean config parameters
@@ -358,11 +346,6 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  // GET_GeoScope = (): Promise<MainResponse<any[]>> => {
-  //   const url = () => `tools/clarisa/geo-scope`;
-  //   return this.TP.get(url(), {});
-  // };
-
   GET_GeoSearch = (scope: string, search: string): Promise<MainResponse<GetGeoSearch[]>> => {
     const url = () => `tools/clarisa/manager/opensearch/${scope}/search?query=${search}`;
     return this.TP.get(url(), {});
@@ -392,7 +375,6 @@ export class ApiService {
 
   indicatorsWithResult = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators/with/result');
   indicatorTabs = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators', 'indicatortabs');
-  // greenChecks = this.signalEndpoint.createEndpoint<GreenChecks>(() => `results/green-checks/${this.cache.currentResultId()}`);
 
   // Add the saveErrors endpoint
   saveErrors = (error: PostError): Promise<MainResponse<PostError>> => {

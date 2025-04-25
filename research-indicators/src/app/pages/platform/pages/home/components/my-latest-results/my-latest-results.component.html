@@ -19,9 +19,9 @@
                   <i class="material-symbols-rounded  icon-color-{{ result.indicator.icon_src }}">{{ result.indicator.icon_src }} </i>
                 </div>
                 <label class="indicator-type" for="username">{{ result.indicator.name }}</label>
-                <!-- <div class="more-vert">
+                <div class="more-vert">
                   <span class="material-symbols-rounded"> more_vert </span>
-                </div> -->
+                </div>
               </div>
               <div class="organization-identifier">
                 <div class="project">
@@ -40,13 +40,8 @@
                   }
                 </div>
               </div>
-              <!-- TODO: we need the green check feature -->
               <div class="progress-bar">
                 <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status.name"></app-custom-tag>
-
-                <!-- <div class="progress-bar-content">
-                  <div class="progress" style="width: 25%"></div>
-                </div> -->
               </div>
               <label class="last-update" for="username"> Last update on {{ result.updated_at | date: 'MM/dd/yyyy - h:mm a' }} </label>
             </div>

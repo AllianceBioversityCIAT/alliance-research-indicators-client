@@ -14,7 +14,7 @@ export default class DynamicFieldsComponent implements OnInit {
   fields!: any[];
   data!: any;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private readonly fb: FormBuilder) {}
 
   ngOnInit() {
     // Datos iniciales que recibes
@@ -113,6 +113,7 @@ export default class DynamicFieldsComponent implements OnInit {
 
   save() {
     if (this.form.valid) {
+      // Otros casos
     }
   }
 }

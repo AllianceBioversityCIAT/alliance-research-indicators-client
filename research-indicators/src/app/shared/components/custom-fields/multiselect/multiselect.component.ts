@@ -62,7 +62,7 @@ export class MultiselectComponent implements OnInit {
     this._isRequired.set(value);
   }
   _isRequired = signal(false);
-  
+
   selectEvent = output<any>();
   environment = environment;
 
@@ -91,7 +91,7 @@ export class MultiselectComponent implements OnInit {
     () => {
       const hasNoLabelList = this.utils
         .getNestedProperty(this.signal(), this.signalOptionValue)
-        ?.filter((item: any) => !Object.prototype.hasOwnProperty.call(item, this.optionLabel));
+        ?.filter((item: any) => !Object.hasOwn(item, this.optionLabel));
       if (!this.currentResultIsLoading() && this.service?.list().length && this.firstLoad() && hasNoLabelList?.length) {
         this.signal.update((current: any) => {
           this.utils.setNestedPropertyWithReduce(
@@ -108,14 +108,13 @@ export class MultiselectComponent implements OnInit {
         });
         this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
         this.firstLoad.set(false);
-      } else {
-        if (
-          this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.length &&
-          !this.currentResultIsLoading() &&
-          this.service?.list().length &&
-          this.firstLoad()
-        )
-          this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
+      } else if (
+        this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.length &&
+        !this.currentResultIsLoading() &&
+        this.service?.list().length &&
+        this.firstLoad()
+      ) {
+        this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
       }
     },
     { allowSignalWrites: true }
@@ -158,7 +157,7 @@ export class MultiselectComponent implements OnInit {
         .find((option: any) => event?.includes(option[this.optionValue]) && !existingValues?.includes(option[this.optionValue]));
 
       if (newOption) {
-        const currentValues = this.utils.getNestedProperty(current, this.signalOptionValue) || [];
+        const currentValues = this.utils.getNestedProperty(current, this.signalOptionValue) ?? [];
         this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, [...currentValues, newOption]);
       }
 

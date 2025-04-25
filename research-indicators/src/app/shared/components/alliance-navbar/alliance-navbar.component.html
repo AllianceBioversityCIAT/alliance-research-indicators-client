@@ -31,36 +31,11 @@
       (onClick)="this.allModalsService.openModal('createResult')"
       [style]="{ 'margin-left': '20px', 'min-width': '105px !important' }" />
     <div class="icons-container">
-      <!-- <app-dropdown dropdownName="result" position="top-left" class="search-dropdown">
-        <div dropdown-button (click)="this.dropdownsCache.showDropdown('result')"> -->
       <div class="search-box">
         <i class="pi pi-search !text-[15px] px-2"></i>
         <input id="search-result-input" type="text" placeholder="Search" class="h-9" (keyup.enter)="this.onSearchTextChange($event)" />
       </div>
-      <!-- </div>
-        <div dropdown-content>
-          @if (this.dropdownsCache.dropdown().result) {
-            <app-results-list-dropdown [searchText]="this.searchText" />
-          }
-        </div>
-      </app-dropdown> -->
-
-      <!-- <i class="material-symbols-rounded atc-white-1" (click)="this.darkModeService.toggleDarkMode()">
-        {{ this.darkModeService.isDarkModeEnabled() ? 'light_mode' : 'dark_mode' }}
-      </i> -->
-      <!-- <app-dropdown position="top-right" positionX="right" positionY="top">
-        <div dropdown-button>
-          <i class="material-symbols-rounded atc-white-1" pBadge severity="danger" value="2">notifications</i>
-        </div>
-        <div dropdown-content>
-          <p>Notification 1</p>
-          <p>Notification 2</p>
-          <p>Notification 3</p>
-        </div>
-      </app-dropdown> -->
-      <!-- <i class="pi pi-bell !text-[18px] text-white"></i> -->
-
-      <div dropdown-button (click)="this.showDropdown = !this.showDropdown">
+      <div dropdown-button (keydown.enter)="this.showDropdown = !this.showDropdown" (click)="this.showDropdown = !this.showDropdown">
         <p-avatar [label]="this.actions.getInitials()" styleClass="!rounded-xl font-[600] flex pb-[1px]"></p-avatar>
       </div>
     </div>

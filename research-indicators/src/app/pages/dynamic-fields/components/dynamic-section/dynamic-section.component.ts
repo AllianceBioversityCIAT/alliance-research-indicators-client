@@ -4,9 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-dynamic-section',
   standalone: true,
   imports: [],
-  templateUrl: './dynamic-section.component.html',
-  styleUrl: './dynamic-section.component.scss'
+  templateUrl: './dynamic-section.component.html'
 })
-export class DynamicSectionComponent {
-
-}
+export class DynamicSectionComponent {}

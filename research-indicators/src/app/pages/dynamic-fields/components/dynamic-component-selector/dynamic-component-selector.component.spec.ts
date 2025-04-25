@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { DynamicComponentSelectorComponent } from './dynamic-component-selector.component';
 
 describe('DynamicComponentSelectorComponent', () => {

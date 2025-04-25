@@ -10,7 +10,7 @@ export class SaveOnWritingDirective {
   private timeout: ReturnType<typeof setTimeout> = setTimeout(() => null, 0);
   @Input() delay = 2000;
 
-  constructor(private el: ElementRef) {}
+  constructor(private readonly el: ElementRef) {}
 
   @HostListener('input') onInputChange() {
     clearTimeout(this.timeout);
@@ -21,6 +21,6 @@ export class SaveOnWritingDirective {
   }
 
   private autosave() {
-    // this.actions.saveCurrentSection();
+    // Perform autosave logic here using this.el.nativeElement.value if needed
   }
 }

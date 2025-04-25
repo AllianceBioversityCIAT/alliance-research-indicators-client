@@ -12,7 +12,7 @@ import { GetMetadataService } from '../../services/get-metadata.service';
 import { SubmissionService } from '../../services/submission.service';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 
-interface submissionAlertData {
+interface SubmissionAlertData {
   severity: 'success' | 'warning';
   summary: string;
   detail: string;
@@ -100,7 +100,7 @@ export class ResultSidebarComponent {
   ]);
 
   submissionAlertData = computed(
-    (): submissionAlertData => ({
+    (): SubmissionAlertData => ({
       severity: 'success',
       placeholder: 'Add any additional comments here',
       summary: 'CONFIRM SUBMISSION',
@@ -109,7 +109,7 @@ export class ResultSidebarComponent {
   );
 
   unsavedChangesAlertData = computed(
-    (): submissionAlertData => ({
+    (): SubmissionAlertData => ({
       severity: 'warning',
       placeholder: 'Please share your feedback about the unsubmission',
       summary: 'CONFIRM UNSUBMISSION',
@@ -131,15 +131,16 @@ export class ResultSidebarComponent {
       commentRequired: this.submissionService.currentResultIsSubmitted(),
       confirmCallback: {
         label: 'Confirm',
-        event: async (comment?: string) => {
-          await this.api.PATCH_SubmitResult({
-            resultId: this.cache.currentResultId(),
-            comment: comment || '',
-            status: this.submissionService.currentResultIsSubmitted() ? 4 : 2
-          });
-          this.metadata.update(this.cache.currentResultId());
-          this.submissionService.refreshSubmissionHistory.update(v => v + 1);
-          return;
+        event: (comment?: string) => {
+          (async () => {
+            await this.api.PATCH_SubmitResult({
+              resultId: this.cache.currentResultId(),
+              comment: comment ?? '',
+              status: this.submissionService.currentResultIsSubmitted() ? 4 : 2
+            });
+            this.metadata.update(this.cache.currentResultId());
+            this.submissionService.refreshSubmissionHistory.update(v => v + 1);
+          })();
         }
       }
     });

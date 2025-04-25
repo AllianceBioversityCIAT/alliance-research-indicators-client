@@ -16,7 +16,6 @@ import { BugHerdService } from './shared/services/bug-herd.service';
 })
 export class AppComponent {
   cache = inject(CacheService);
-  // sockets = inject(WebsocketService);
   actions = inject(ActionsService);
   bugHerd = inject(BugHerdService);
   title = 'research-indicators';

@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ResultsTableComponent } from './results-table.component';
 import { ApiService } from '@services/api.service';
-import { of } from 'rxjs';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('ResultsTableComponent', () => {
@@ -11,9 +10,18 @@ describe('ResultsTableComponent', () => {
 
   beforeAll(() => {
     global.ResizeObserver = class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
+      observe(target: Element) {
+        // Mock implementation for observe
+        console.log('Observing:', target);
+      }
+      unobserve(target: Element) {
+        // Mock implementation for unobserve
+        console.log('Stopped observing:', target);
+      }
+      disconnect() {
+        // Mock implementation for disconnect
+        console.log('Disconnected');
+      }
     };
   });
 

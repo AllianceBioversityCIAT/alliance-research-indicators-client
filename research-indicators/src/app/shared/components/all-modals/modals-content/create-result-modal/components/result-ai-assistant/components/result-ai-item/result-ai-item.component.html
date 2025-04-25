@@ -2,7 +2,7 @@
 
 <div class="result-item" [class.expanded]="expandedItem === item">
   @if (item.training_type !== undefined) {
-    <div class="result-item-expand-icon" (click)="toggleExpand(item)">
+    <div class="result-item-expand-icon" (keydown.enter)="toggleExpand(item)" (click)="toggleExpand(item)">
       <i class="pi" [ngClass]="expandedItem === item ? 'pi-angle-down' : 'pi-angle-right'" style="font-size: 10px"></i>
     </div>
   } @else {
@@ -56,7 +56,7 @@
       size="small"
       [outlined]="true"
       severity="danger"
-      [disabled]="isCreating()"
+      (keydown.enter)="discardResult(item)"
       (click)="discardResult(item)"></p-button>
     <p-button
       type="button"
@@ -67,6 +67,7 @@
       size="small"
       [disabled]="isCreating()"
       [loading]="isCreating()"
+      (keydown.enter)="createResult(item.temp_result_ai)"
       (click)="createResult(item.temp_result_ai)"></p-button>
   </div>
 </div>

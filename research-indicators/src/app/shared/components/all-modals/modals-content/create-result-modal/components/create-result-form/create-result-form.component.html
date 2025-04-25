@@ -3,7 +3,11 @@
     <h1 class="title-text">WANT ASSISTANCE WITH AI FOR YOUR RESULT CREATION?</h1>
 
     <div class="cards-container">
-      <div class="card under-construction-card" style="position: relative" (click)="this.createResultManagementService.resultPageStep.set(1)">
+      <div
+        class="card under-construction-card"
+        style="position: relative"
+        (keydown.enter)="this.createResultManagementService.resultPageStep.set(1)"
+        (click)="this.createResultManagementService.resultPageStep.set(1)">
         <div class="under-construction-image">
           <img src="/construction.png" alt="construction" class="construction-icon" />
         </div>
@@ -82,7 +86,10 @@
         <h2 class="title">Indicator<span class="text-red-500">*</span></h2>
         <h4 class="description">
           If you're unsure which indicator to select, visit
-          <span class="about-indicators" (click)="this.router.navigate(['/about-indicators']); this.allModalsService.closeModal('createResult')">
+          <span
+            class="about-indicators"
+            (keydown.enter)="this.router.navigate(['/about-indicators'])"
+            (click)="this.router.navigate(['/about-indicators']); this.allModalsService.closeModal('createResult')">
             About Indicators
           </span>
           for more details.
@@ -113,6 +120,7 @@
           label="Create and Continue"
           icon="pi pi-arrow-right"
           iconPos="right"
+          (keydown.enter)="this.createResult(true)"
           (click)="this.createResult(true)"></p-button>
       </div>
     </div>

@@ -55,34 +55,34 @@ export class ResultsCenterService {
           .list()
           .some((indicator: GetAllIndicators) => indicator.active === true && indicator.indicator_id !== 0)
       ),
-      getValue: (result: Result) => result.indicators?.name || '-'
+      getValue: (result: Result) => result.indicators?.name ?? '-'
     },
     {
       field: 'status',
       path: 'result_status.name',
       header: 'Status',
-      getValue: (result: Result) => result.result_status?.name || '-'
+      getValue: (result: Result) => result.result_status?.name ?? '-'
     },
     {
       field: 'project',
       path: 'result_contracts.contract_id',
       header: 'Project',
       minWidth: 'min-w-[90px]',
-      getValue: (result: Result) => result.result_contracts?.contract_id || '-'
+      getValue: (result: Result) => result.result_contracts?.contract_id ?? '-'
     },
     {
       field: 'lever',
       path: 'result_levers.lever.short_name',
       header: 'Lever',
       minWidth: 'min-w-[90px]',
-      getValue: (result: Result) => result.result_levers?.lever?.short_name || '-'
+      getValue: (result: Result) => result.result_levers?.lever?.short_name ?? '-'
     },
     {
       field: 'year',
       path: 'report_year_id',
       header: 'Year',
       minWidth: 'min-w-[90px]',
-      getValue: (result: Result) => result.report_year_id?.toString() || '-'
+      getValue: (result: Result) => result.report_year_id?.toString() ?? '-'
     },
     {
       field: 'creator',

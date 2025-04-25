@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { DynamicFieldsService } from './dynamic-fields.service';
 import { DynamicComponentSelectorService } from './components/dynamic-component-selector/dynamic-component-selector.service';
-import { Validators } from '@angular/forms';
 
 describe('DynamicFieldsService', () => {
   let service: DynamicFieldsService;
@@ -50,7 +49,6 @@ describe('DynamicFieldsService', () => {
       ]
     });
     service = TestBed.inject(DynamicFieldsService);
-    dynamicComponentSelectorSE = TestBed.inject(DynamicComponentSelectorService);
   });
 
   it('should be created', () => {
