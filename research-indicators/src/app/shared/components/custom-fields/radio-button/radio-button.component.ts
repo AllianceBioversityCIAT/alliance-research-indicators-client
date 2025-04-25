@@ -24,17 +24,20 @@ export class RadioButtonComponent implements OnInit {
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
   @Input() optionValue = { body: '', option: '' };
+  @Input() direction: 'vertical' | 'horizontal' = 'vertical';
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
   @Input() description = '';
   @Input() isRequired = false;
+  @Input() disabled = false;
+
   selectEvent = output<any>();
   service: any;
   body = signal({ value: null });
   firstTime = signal(true);
 
   isInvalid = computed(() => {
-    return this.isRequired && !this.body()?.value;
+    return this.isRequired && (this.body().value === null || this.body().value === undefined);
   });
 
   onChange = effect(

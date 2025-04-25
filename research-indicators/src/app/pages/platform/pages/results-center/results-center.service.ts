@@ -55,36 +55,41 @@ export class ResultsCenterService {
           .list()
           .some((indicator: GetAllIndicators) => indicator.active === true && indicator.indicator_id !== 0)
       ),
-      getValue: (result: Result) => result.indicators?.name || '-'
+      getValue: (result: Result) => result.indicators?.name ?? '-'
     },
     {
       field: 'status',
       path: 'result_status.name',
       header: 'Status',
-      getValue: (result: Result) => result.result_status?.name || '-'
+      getValue: (result: Result) => result.result_status?.name ?? '-'
     },
     {
       field: 'project',
       path: 'result_contracts.contract_id',
       header: 'Project',
-      getValue: (result: Result) => result.result_contracts?.contract_id || '-'
+      minWidth: 'min-w-[90px]',
+      getValue: (result: Result) => result.result_contracts?.contract_id ?? '-'
     },
     {
       field: 'lever',
       path: 'result_levers.lever.short_name',
       header: 'Lever',
-      getValue: (result: Result) => result.result_levers?.lever?.short_name || '-'
+      minWidth: 'min-w-[90px]',
+      getValue: (result: Result) => result.result_levers?.lever?.short_name ?? '-'
     },
     {
       field: 'year',
       path: 'report_year_id',
       header: 'Year',
-      getValue: (result: Result) => result.report_year_id?.toString() || '-'
+      minWidth: 'min-w-[90px]',
+      getValue: (result: Result) => result.report_year_id?.toString() ?? '-'
     },
     {
       field: 'creator',
       path: 'created_by_user.first_name',
       header: 'Creator',
+      minWidth: 'min-w-[120px]',
+
       hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
@@ -93,6 +98,8 @@ export class ResultsCenterService {
       field: 'creation_date',
       path: 'created_at',
       header: 'Creation date',
+      minWidth: 'min-w-[140px]',
+
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
   ]);

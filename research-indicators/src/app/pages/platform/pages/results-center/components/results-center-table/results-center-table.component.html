@@ -3,7 +3,13 @@
   <div class="flex flex-col">
     <div class="flex items-center justify-between w-full p-3">
       <div class="flex gap-3 items-center">
-        <p-button icon="pi pi-download" (click)="exportTable()" label="Export Results" class="p-button-outlined" [outlined]="true"></p-button>
+        <p-button
+          icon="pi pi-download"
+          (keydown.enter)="exportTable()"
+          (click)="exportTable()"
+          label="Export Results"
+          class="p-button-outlined"
+          [outlined]="true"></p-button>
 
         <div class="relative w-[25rem]">
           <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -25,9 +31,21 @@
           icon="pi pi-filter"
           size="small"
           [badge]="resultsCenterService.countFiltersSelected()"
+          (keydown.enter)="showFiltersSidebar()"
           (click)="showFiltersSidebar()"></p-button>
-        <p-button label="Clear Filters" [text]="true" size="small" severity="secondary" (click)="this.resultsCenterService.cleanFilters()"></p-button>
-        <p-button icon="pi pi-cog" size="small" [outlined]="true" (click)="showConfiguratiosnSidebar()"></p-button>
+        <p-button
+          label="Clear Filters"
+          [text]="true"
+          size="small"
+          severity="secondary"
+          (keydown.enter)="this.resultsCenterService.cleanFilters()"
+          (click)="this.resultsCenterService.cleanFilters()"></p-button>
+        <p-button
+          icon="pi pi-cog"
+          size="small"
+          [outlined]="true"
+          (keydown.enter)="showConfiguratiosnSidebar()"
+          (click)="showConfiguratiosnSidebar()"></p-button>
       </div>
     </div>
 
@@ -67,7 +85,7 @@
       <tr>
         @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
-            <th [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path">
+            <th class="{{ column.minWidth }}" [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path" scope="col">
               {{ column.header }}
               @if (!column?.hideFilterIf?.()) {
                 <p-sortIcon field="{{ column.path }}"></p-sortIcon>
@@ -78,7 +96,10 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-result>
-      <tr (click)="openResult(result.result_id)" class="cursor-pointer hover:surface-ground transition-colors duration-150">
+      <tr
+        (keydown.enter)="openResult(result.result_id)"
+        (click)="openResult(result.result_id)"
+        class="cursor-pointer hover:surface-ground transition-colors duration-150">
         @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
             @if (column.field === 'status') {
@@ -113,6 +134,7 @@
                     icon="pi pi-filter-slash"
                     severity="primary"
                     [outlined]="true"
+                    (keydown.enter)="resultsCenterService.clearAllFilters()"
                     (click)="resultsCenterService.clearAllFilters()">
                   </p-button>
                 </div>

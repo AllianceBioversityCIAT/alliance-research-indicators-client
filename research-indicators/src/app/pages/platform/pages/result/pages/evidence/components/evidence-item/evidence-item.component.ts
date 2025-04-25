@@ -1,12 +1,13 @@
-import { Component, effect, EventEmitter, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
-import { InputComponent } from '../../../../../../../../shared/components/custom-fields/input/input.component';
+import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
 import { TextareaComponent } from '../../../../../../../../shared/components/custom-fields/textarea/textarea.component';
 import { FormsModule } from '@angular/forms';
 import { Evidence, PatchResultEvidences } from '../../../../../../../../shared/interfaces/patch-result-evidences.interface';
+import { InputTextModule } from 'primeng/inputtext';
+import { SubmissionService } from '@shared/services/submission.service';
 
 @Component({
     selector: 'app-evidence-item',
-    imports: [InputComponent, TextareaComponent, FormsModule],
+    imports: [TextareaComponent, FormsModule, InputTextModule],
     templateUrl: './evidence-item.component.html',
 })
 export class EvidenceItemComponent implements OnInit {
@@ -15,6 +16,7 @@ export class EvidenceItemComponent implements OnInit {
   @Input() index: number | null = null;
   @Input() bodySignal: WritableSignal<PatchResultEvidences> = signal(new PatchResultEvidences());
   body = signal<Evidence>(new Evidence());
+  submission = inject(SubmissionService);
 
   onChange = effect(
     () => {
@@ -48,5 +50,26 @@ export class EvidenceItemComponent implements OnInit {
 
   deleteEvidence() {
     this.deleteEvidenceEvent.emit();
+  }
+  
+  validateWebsite = (website: string): boolean => {
+    if (!website || website.trim() === '') {
+      return true;
+    }
+    const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(\/[\w\-./?%&=]*)?$/;
+    return urlPattern.test(website.trim());
+  };
+
+  isFieldInvalid(): boolean {
+    const url = this.body().evidence_url;
+    return (!url || url.trim() === '');
+  }
+  
+  setValue(value: string) {
+   value = value.toLowerCase();
+    this.body.set({
+      ...this.body(),
+      evidence_url: value
+    });
   }
 }

@@ -1,7 +1,6 @@
-import { Component, inject, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, OnDestroy, ViewChild, ElementRef, computed, signal, AfterViewInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
-import { computed, signal, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { OverlayPanel } from 'primeng/overlaypanel';
@@ -11,6 +10,7 @@ import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '../../services/api.service';
+import { SubmissionService } from '../../services/submission.service';
 
 @Component({
   selector: 'app-section-header',
@@ -25,7 +25,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
   elementRef = inject(ElementRef);
   actions = inject(ActionsService);
   api = inject(ApiService);
-
+  submissionService = inject(SubmissionService);
   items = computed((): MenuItem[] => {
     const deleteOption: MenuItem = {
       label: 'Delete Result',
@@ -61,14 +61,18 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
       }
     ];
 
-    if (!this.cache.currentResultIsSubmitted() && this.cache.isMyResult()) items[0].items?.push(deleteOption);
-
+    if (
+      this.cache.currentMetadata()?.status_id == 5 ||
+      this.cache.currentMetadata()?.status_id == 7 ||
+      (this.cache.currentMetadata()?.status_id == 4 && this.cache.isMyResult())
+    )
+      items[0].items?.push(deleteOption);
     return items;
   });
 
   @ViewChild('historyPanel') historyPanel!: OverlayPanel;
   private resizeObserver: ResizeObserver | null = null;
-  private routeId = signal<string | null>(null);
+  private readonly routeId = signal<string | null>(null);
 
   ngAfterViewInit(): void {
     const sectionSidebar = this.elementRef.nativeElement.querySelector('#section-sidebar');
@@ -83,7 +87,6 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    // this.subscription.unsubscribe();
     this.resizeObserver?.disconnect();
   }
 
@@ -93,7 +96,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
 
   welcomeMessage = computed(() => {
     if (this.cache.currentRouteTitle() === 'Home') {
-      const userName = this.cache.dataCache().user?.first_name || '';
+      const userName = this.cache.dataCache().user?.first_name ?? '';
       return `Welcome, ${userName}`;
     }
     return this.cache.currentRouteTitle();

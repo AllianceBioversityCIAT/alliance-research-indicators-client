@@ -1,4 +1,4 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { GetLeversService } from '@services/control-list/get-levers.service';
@@ -12,13 +12,14 @@ import { GetAllianceAlignment } from '../../../../../../shared/interfaces/get-al
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { environment } from '../../../../../../../environments/environment';
+import { SubmissionService } from '@shared/services/submission.service';
 
 @Component({
   selector: 'app-alliance-alignment',
   imports: [MultiSelectModule, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
   templateUrl: './alliance-alignment.component.html'
 })
-export default class AllianceAlignmentComponent {
+export default class AllianceAlignmentComponent implements OnInit {
   environment = environment;
   getContractsService = inject(GetContractsService);
   getLeversService = inject(GetLeversService);
@@ -31,7 +32,9 @@ export default class AllianceAlignmentComponent {
   actions = inject(ActionsService);
   router = inject(Router);
   loading = signal(false);
-  constructor() {
+  submission = inject(SubmissionService);
+
+  ngOnInit() {
     this.getData();
   }
 
@@ -40,28 +43,38 @@ export default class AllianceAlignmentComponent {
     this.body.set(response.data);
   }
 
+  canRemove = (): boolean => {
+    return this.submission.isEditableStatus();
+  };
+
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    const response = await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
-    if (response.successfulRequest) {
-      this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
-      await this.getData();
+    if (this.submission.isEditableStatus()) {
+      const response = await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
+      if (response.successfulRequest) {
+        this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
+        await this.getData();
+        if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
+        if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
+      }
+    } else {
       if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
       if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
     }
     this.loading.set(false);
   }
 
-  // onSaveSection = effect(() => {
-  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
-  // });
+  get showPrimaryLeverError(): boolean {
+    const levers = this.body().levers ?? [];
+    return levers.length > 1 && !levers.some(l => l.is_primary);
+  }
 
   markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever') {
     this.body.update(current => {
       if (type === 'contract') {
-        current.contracts.map(contract => (contract.is_primary = false));
+        current.contracts.forEach(contract => (contract.is_primary = false));
       } else if (type === 'lever') {
-        current.levers.map(lever => (lever.is_primary = false));
+        current.levers.forEach(lever => (lever.is_primary = false));
       }
       return { ...current };
     });

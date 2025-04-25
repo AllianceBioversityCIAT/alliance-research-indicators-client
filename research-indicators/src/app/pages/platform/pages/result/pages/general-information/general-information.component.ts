@@ -1,4 +1,4 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -17,6 +17,7 @@ import { GetUserStaffService } from '../../../../../../shared/services/control-l
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { GetMetadataService } from '../../../../../../shared/services/get-metadata.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { SubmissionService } from '@shared/services/submission.service';
 
 interface Option {
   name: string;
@@ -39,7 +40,7 @@ interface Option {
   ],
   templateUrl: './general-information.component.html'
 })
-export default class GeneralInformationComponent {
+export default class GeneralInformationComponent implements OnInit {
   actions = inject(ActionsService);
   api = inject(ApiService);
   cache = inject(CacheService);
@@ -51,8 +52,9 @@ export default class GeneralInformationComponent {
   options: Option[] | undefined;
   body: WritableSignal<GeneralInformation> = signal({ title: '', description: '', keywords: [], user_id: '', main_contact_person: { user_id: '' } });
   loading = signal(false);
+  submission = inject(SubmissionService);
 
-  constructor() {
+  ngOnInit() {
     this.getData();
   }
 
@@ -63,20 +65,19 @@ export default class GeneralInformationComponent {
   }
 
   async saveData(page?: 'next') {
-    this.loading.set(true);
-    this.body.update((current: GeneralInformation) => {
-      current.main_contact_person = { user_id: current.user_id };
-      return { ...current };
-    });
-    await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
-    this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
-    this.getResultsService.updateList();
-    await this.getData();
-    await this.metadata.update(this.cache.currentResultId());
+    if (this.submission.isEditableStatus()) {
+      this.loading.set(true);
+      this.body.update((current: GeneralInformation) => {
+        current.main_contact_person = { user_id: current.user_id };
+        return { ...current };
+      });
+      await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
+      this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
+      this.getResultsService.updateList();
+      await this.getData();
+      await this.metadata.update(this.cache.currentResultId());
+    }
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     this.loading.set(false);
   }
-  // onSaveSection = effect(() => {
-  //   if (this.actions.saveCurrentSectionValue()) this.saveData();
-  // });
 }

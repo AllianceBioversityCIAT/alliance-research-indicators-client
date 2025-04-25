@@ -4,8 +4,7 @@ import { Router } from '@angular/router';
 import { GlobalAlert } from '../interfaces/global-alert.interface';
 import { ToastMessage } from '../interfaces/toast-message.interface';
 import { ApiService } from './api.service';
-import { LoginRes, TokenValidation } from '../interfaces/responses.interface';
-import { MainResponse } from '../interfaces/responses.interface';
+import { LoginRes, TokenValidation, MainResponse } from '../interfaces/responses.interface';
 import { DataCache } from '../interfaces/cache.interface';
 
 @Injectable({
@@ -51,11 +50,10 @@ export class ActionsService {
   }
 
   getInitials = computed(() => {
-    const name = `${this.cache.dataCache().user.first_name} ${this.cache.dataCache().user.last_name}`;
-    const words = name.split(' ');
-    if (words.length === 1) return words[0][0];
-    if (words.length === 2) return words[0][0] + words[1][0];
-    return words[0][0] + words[2][0];
+    const user = this.cache.dataCache().user;
+    const firstInitial = user.first_name?.[0] ?? '';
+    const lastInitial = user.last_name?.split(' ')[0]?.[0] ?? '';
+    return (firstInitial + lastInitial).toUpperCase();
   });
 
   validateToken() {

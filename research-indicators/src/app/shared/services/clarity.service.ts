@@ -8,8 +8,8 @@ import { CacheService } from './cache/cache.service';
   providedIn: 'root'
 })
 export class ClarityService {
-  private router = inject(Router);
-  private cache = inject(CacheService);
+  private readonly router = inject(Router);
+  private readonly cache = inject(CacheService);
   private readonly CLARITY_PROJECT_ID = environment.clarityProjectId;
   private initialized = false;
 
@@ -48,8 +48,8 @@ export class ClarityService {
       if (this.cache.dataCache()?.user) {
         const user = this.cache.dataCache().user;
         clarity.setTag('user_id', `${user.first_name} ${user.last_name}`);
-        clarity.setTag('user_email', user.email || '');
-        clarity.setTag('user_role', user.roleName || '');
+        clarity.setTag('user_email', user.email ?? '');
+        clarity.setTag('user_role', user.roleName ?? '');
       }
     } catch (error) {
       console.error('Error setting user info:', error);

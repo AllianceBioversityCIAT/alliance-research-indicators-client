@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MultiselectComponent } from './multiselect.component';
 import { GetLeversService } from '../../../services/control-list/get-levers.service';
-import { signal } from '@angular/core';
 
 describe('MultiselectComponent', () => {
   let component: MultiselectComponent;
@@ -9,9 +8,7 @@ describe('MultiselectComponent', () => {
   let mockGetLeversService: Partial<GetLeversService>;
 
   beforeEach(async () => {
-    mockGetLeversService = {
-      // Mock the loading method to return a signal
-    };
+    mockGetLeversService = {};
 
     await TestBed.configureTestingModule({
       imports: [MultiselectComponent],

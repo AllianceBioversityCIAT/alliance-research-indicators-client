@@ -1,10 +1,3 @@
-<header class="header px-10 py-4">
-  <div class="header-content" (click)="goBack()">
-    <i class="material-symbols-rounded" style="font-size: 22px">arrow_back</i>
-    <p class="title">File Upload AI</p>
-  </div>
-</header>
-
 @if (documentAnalyzed() && selectedFile) {
   <div class="document-analyzed-container">
     <i class="pi pi-file upload-icon" style="font-size: 32px; margin: 0"></i>
@@ -38,6 +31,7 @@
           (dragleave)="onDragLeave($event)"
           (drop)="onDrop($event)"
           [class.dragging]="isDragging"
+          (keydown.enter)="fileInput.click()"
           (click)="fileInput.click()">
           <input #fileInput type="file" [accept]="acceptedFormats.join(',')" (change)="onFileSelected($event)" style="display: none" />
           <i class="material-symbols-rounded upload-icon">add_circle</i>
@@ -48,7 +42,11 @@
         <div class="upload-area" style="cursor: default">
           <i class="pi pi-file upload-icon" style="font-size: 50px; margin-bottom: 15px"></i>
           <div class="upload-area-content">
-            <i class="pi pi-file pi-times-circle" style="font-size: 16px; cursor: pointer; color: #cf0808" (click)="selectedFile = null"></i>
+            <i
+              class="pi pi-file pi-times-circle"
+              style="font-size: 16px; cursor: pointer; color: #cf0808"
+              (keydown.enter)="selectedFile = null"
+              (click)="selectedFile = null"></i>
             <p class="upload-text" style="font-weight: 500; margin: 0">{{ selectedFile.name }}</p>
           </div>
         </div>
@@ -66,7 +64,6 @@
       <i class="pi pi-sparkles" style="font-size: 16px"></i>
     </button>
   }
-
   @if (analyzingDocument() && !documentAnalyzed()) {
     <div class="loading-container">
       <h1 class="loading-title">
@@ -78,7 +75,6 @@
       <i class="pi pi-spin pi-spinner" style="font-size: 90px"></i>
     </div>
   }
-
   @if (documentAnalyzed()) {
     <section class="analyze-result-container">
       <div class="analyze-result-header">

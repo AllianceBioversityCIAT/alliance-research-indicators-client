@@ -1,11 +1,12 @@
-<div class="flex flex-col mx-[40px] my-[30px]">
+<div class="flex flex-col mx-[40px] mb-15 mt-10">
   <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
+
   <br />
 
   <div class="flex flex-col gap-5">
     <div class="content-section">
-      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-5">
-        <div class="font-['Space_Grotesk'] text-xs font-medium text-[#8d9299] uppercase mb-[30px] mt-0">ALLIANCE ALIGNMENT</div>
+      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
+        <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">ALLIANCE ALIGNMENT</div>
         <div class="flex flex-col gap-[25px]">
           <div>
             <app-multiselect
@@ -14,6 +15,8 @@
               optionLabel="select_label"
               optionValue="contract_id"
               signalOptionValue="contracts"
+              [disabled]="!submission.isEditableStatus()"
+              [removeCondition]="canRemove"
               [isRequired]="true"
               serviceName="contracts">
               <ng-template #rows let-contract>
@@ -49,8 +52,13 @@
                     </div>
                   </div>
                   <button
-                    class="px-3 py-[3px] rounded-full text-xs whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
-                    [class]="contract.is_primary ? 'bg-[var(--ac-primary-blue-300)] text-white' : 'bg-transparent text-[var(--ac-primary-blue-300)]'"
+                    [disabled]="!submission.isEditableStatus()"
+                    class="px-3 py-[3px] disabled:cursor-not-allowed rounded-full text-[14px] whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
+                    [class]="
+                      contract.is_primary
+                        ? 'bg-[var(--ac-primary-blue-300)] text-white disabled:bg-[#8D9299] disabled:border-[#8D9299]'
+                        : 'disabled:bg-[#E8EBED] disabled:!text-[#8D9299] disabled:border-[#8D9299] bg-transparent text-[var(--ac-primary-blue-300)]'
+                    "
                     (click)="markAsPrimary(contract, 'contract')">
                     {{ contract.is_primary ? 'Primary' : 'Select as Primary' }}
                     <i
@@ -71,6 +79,8 @@
               optionValue="lever_id"
               signalOptionValue="levers"
               [isRequired]="true"
+              [removeCondition]="canRemove"
+              [disabled]="!submission.isEditableStatus()"
               [serviceName]="'levers'">
               <ng-template #rows let-lever>
                 <div class="grid grid-cols-[1fr_auto] items-center w-full gap-5">
@@ -78,8 +88,13 @@
                     <strong>{{ lever.short_name }}&nbsp;</strong> - {{ lever.other_names }}
                   </div>
                   <button
-                    class="px-3 py-[3px] rounded-full text-xs whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
-                    [class]="lever.is_primary ? 'bg-[var(--ac-primary-blue-300)] text-white' : 'bg-transparent text-[var(--ac-primary-blue-300)]'"
+                    [disabled]="!submission.isEditableStatus()"
+                    class="px-3 py-[3px] rounded-full text-[14px] disabled:cursor-not-allowed whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
+                    [class]="
+                      lever.is_primary
+                        ? 'bg-[var(--ac-primary-blue-300)] text-white disabled:bg-[#8D9299] disabled:border-[#8D9299]'
+                        : 'disabled:bg-[#E8EBED] disabled:!text-[#8D9299] disabled:border-[#8D9299] bg-transparent text-[var(--ac-primary-blue-300)]'
+                    "
                     (click)="markAsPrimary(lever, 'lever')">
                     {{ lever.is_primary ? 'Primary' : 'Select as Primary' }}
                     <i
@@ -90,6 +105,13 @@
                 </div>
               </ng-template>
             </app-multiselect>
+
+            @if (showPrimaryLeverError) {
+              <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+                <i class="material-symbols-rounded !text-base">warning</i>
+                <span>Please select one primary Lever.</span>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -97,8 +119,29 @@
   </div>
 
   <div class="flex gap-5">
-    <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (click)="saveData('back')" [loading]="this.loading()" />
-    <p-button label="Next" icon="pi pi-arrow-right" iconPos="left" (click)="saveData('next')" [loading]="this.loading()" />
-    <p-button label="Save" severity="success" icon="pi pi-save" iconPos="left" (click)="saveData()" [loading]="this.loading()" />
+    <button
+      type="button"
+      (click)="saveData('back')"
+      class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+      <i class="pi pi-arrow-left !text-[12px]"></i>
+      Back
+    </button>
+    <button
+      type="button"
+      (click)="saveData('next')"
+      class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+      Next
+      <i class="pi pi-arrow-right !text-[12px]"></i>
+    </button>
+    @if (submission.isEditableStatus()) {
+      <p-button
+        label="Save"
+        severity="success"
+        icon="pi pi-save"
+        iconPos="left"
+        (keydown.enter)="saveData()"
+        (click)="saveData()"
+        [loading]="this.loading()" />
+    }
   </div>
 </div>

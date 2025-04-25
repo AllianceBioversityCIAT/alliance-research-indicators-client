@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, effect, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -15,6 +15,9 @@ import { InputComponent } from '../../../../../../shared/components/custom-field
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { CalendarInputComponent } from '../../../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
+import { SubmissionService } from '@shared/services/submission.service';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
+
 @Component({
   selector: 'app-capacity-sharing',
   imports: [
@@ -38,14 +41,36 @@ export default class CapacitySharingComponent implements OnInit {
   cache = inject(CacheService);
   router = inject(Router);
   body: WritableSignal<GetCapSharing> = signal({});
+  submission = inject(SubmissionService);
   loading = signal(false);
+  allModalsService = inject(AllModalsService);
+
+  constructor() {
+    effect(() => {
+      if (!this.isLongTermSelected()) {
+        const current = this.body();
+        if (current?.degree_id) {
+          this.body.update(b => ({
+            ...b,
+            degree_id: undefined
+          }));
+        }
+      }
+    });
+  }
 
   ngOnInit() {
     this.getData();
   }
 
+  isLongTermSelected = computed(() => this.body()?.session_length_id === 2);
+
+  canRemove = (): boolean => {
+    return this.submission.isEditableStatus();
+  };
+
   isStartDateGreaterThanEndDate = computed(() => {
-    const { start_date, end_date } = this.body() || {};
+    const { start_date, end_date } = this.body() ?? {};
     if (!start_date || !end_date) return false;
     return new Date(start_date).getTime() > new Date(end_date).getTime();
   });
@@ -56,8 +81,8 @@ export default class CapacitySharingComponent implements OnInit {
     this.body.set(response.data);
     this.cache.loadingCurrentResult.set(false);
     this.body.update(current => {
-      if (current.start_date) current.start_date = new Date(current.start_date || '');
-      if (current.end_date) current.end_date = new Date(current.end_date || '');
+      if (current.start_date) current.start_date = new Date(current.start_date ?? '');
+      if (current.end_date) current.end_date = new Date(current.end_date ?? '');
       return { ...current };
     });
     this.loading.set(false);
@@ -65,18 +90,25 @@ export default class CapacitySharingComponent implements OnInit {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    this.body.update(current => {
-      if (current.start_date) current.start_date = new Date(current.start_date || '').toISOString();
-      if (current.end_date) current.end_date = new Date(current.end_date || '').toISOString();
+    if (this.submission.isEditableStatus()) {
+      this.body.update(current => {
+        if (current.start_date) current.start_date = new Date(current.start_date ?? '').toISOString();
+        if (current.end_date) current.end_date = new Date(current.end_date ?? '').toISOString();
 
-      return { ...current };
-    });
+        return { ...current };
+      });
 
-    await this.api.PATCH_CapacitySharing(this.body());
-    this.actions.showToast({ severity: 'success', summary: 'Capacity Sharing', detail: 'Data saved successfully' });
-    await this.getData();
+      await this.api.PATCH_CapacitySharing(this.body());
+      this.actions.showToast({ severity: 'success', summary: 'CapSharing Details', detail: 'Data saved successfully' });
+      await this.getData();
+    }
     if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
     if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
     this.loading.set(false);
+  }
+
+  setSectionAndOpenModal(section: string) {
+    this.allModalsService.setPartnerRequestSection(section);
+    this.allModalsService.openModal('requestPartner');
   }
 }

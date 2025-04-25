@@ -20,6 +20,12 @@ export interface Length {
   name: string;
 }
 
+export interface IpOwners {
+  id: number;
+  name: string;
+}
+
+
 export interface Gender {
   is_active: boolean;
   gender_id: number;
@@ -27,6 +33,8 @@ export interface Gender {
 }
 
 export interface GetCapSharing {
+  degree_id?: number;
+  session_length_id?: number;
   delivery_modality_id?: number;
   end_date?: string | Date;
   session_format_id?: number;
@@ -86,10 +94,8 @@ interface User {
 }
 
 interface Individual {
-  degree_id?: number;
   gender_id?: number;
   trainee_name?: string;
-  session_length_id?: number;
   affiliation?: Affiliation;
   nationality?: Nationality;
 }

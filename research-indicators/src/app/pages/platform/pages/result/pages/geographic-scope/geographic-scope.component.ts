@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
@@ -9,13 +9,14 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 import { Router } from '@angular/router';
 import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
+import { SubmissionService } from '@shared/services/submission.service';
 
 @Component({
   selector: 'app-geographic-scope',
   imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
-export default class GeographicScopeComponent {
+export default class GeographicScopeComponent implements OnInit {
   environment = environment;
   bodyTest = signal({ value: null, valueMulti: null });
   api = inject(ApiService);
@@ -24,12 +25,54 @@ export default class GeographicScopeComponent {
   cache = inject(CacheService);
   actions = inject(ActionsService);
   loading = signal(false);
+  submission = inject(SubmissionService);
+  private isFirstSelect = true;
 
-  constructor() {
+  ngOnInit() {
     this.getData();
   }
 
-  onSelect = () => this.mapSignal();
+  onSelect = () => {
+    this.mapSignal();
+
+    const currentId = Number(this.body().geo_scope_id);
+
+    if (!this.isFirstSelect && currentId === 5) {
+      this.body.update(value => ({
+        ...value,
+        countries: []
+      }));
+    }
+
+    this.isFirstSelect = false;
+  };
+
+  canRemove = (): boolean => {
+    return this.submission.isEditableStatus();
+  };
+
+  isRegionsRequired = computed(() => Number(this.body().geo_scope_id) === 2);
+  isCountriesRequired = computed(() => [4, 5].includes(Number(this.body().geo_scope_id)));
+  isSubNationalRequired = computed(() => Number(this.body().geo_scope_id) === 5);
+
+  showSubnationalError = computed(() => {
+    const scopeId = Number(this.body().geo_scope_id);
+    if (scopeId !== 5) return false;
+
+    const countries = this.body().countries ?? [];
+
+    return countries.some(
+      country => !country.result_countries_sub_nationals_signal?.() || (country.result_countries_sub_nationals_signal()?.regions?.length ?? 0) === 0
+    );
+  });
+
+  private getCountrySelectionText() {
+    return {
+      countryLabel: 'Select the countries',
+      countryDescription:
+        'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard'
+    };
+  }
 
   getMultiselectLabel = computed(() => {
     let countryLabel = '';
@@ -46,25 +89,15 @@ export default class GeographicScopeComponent {
           'The list of regions below follows the <a href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
         break;
       case 2:
-        countryLabel = '';
         regionLabel = 'Select the regions';
-        countryDescription = '';
         regionDescription =
           'The list of regions below follows the <a href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
         break;
       case 4:
-        countryLabel = 'Select the countries';
-        regionLabel = '';
-        countryDescription =
-          'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard';
-        regionDescription = '';
+        ({ countryLabel, countryDescription } = this.getCountrySelectionText());
         break;
       case 5:
-        countryLabel = 'Select the countries';
-        regionLabel = '';
-        countryDescription =
-          'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard';
-        regionDescription = '';
+        ({ countryLabel, countryDescription } = this.getCountrySelectionText());
         break;
       default:
         break;
@@ -95,7 +128,7 @@ export default class GeographicScopeComponent {
     const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
     response.data.countries?.forEach(country => {
       country.result_countries_sub_nationals.forEach(subNational => {
-        subNational.name = subNational.sub_national?.name || '';
+        subNational.name = subNational.sub_national?.name ?? '';
       });
     });
 
@@ -106,14 +139,18 @@ export default class GeographicScopeComponent {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    this.mapArray();
-    const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
-
-    if (!response.successfulRequest) return;
-    await this.getData();
-    this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    if (this.submission.isEditableStatus()) {
+      this.mapArray();
+      const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
+      if (!response.successfulRequest) return;
+      await this.getData();
+      this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
+      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    } else {
+      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
+      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    }
     this.loading.set(false);
   }
 }

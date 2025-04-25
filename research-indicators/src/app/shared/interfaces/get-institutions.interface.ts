@@ -6,6 +6,7 @@ export interface GetInstitution {
   // aux
   html_full_name: string;
   institution_id: number;
+  institution_role_id: number;
   institution_location_name: string;
   region_id: number;
   isoAlpha2?: string;
@@ -15,6 +16,7 @@ export interface GetInstitution {
   institution_type_id: number;
   institution_locations: Institutionlocation[];
   institution_type: Institutiontype;
+  disabled: boolean;
 }
 
 interface Institutiontype {

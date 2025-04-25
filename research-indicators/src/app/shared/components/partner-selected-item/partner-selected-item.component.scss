@@ -21,8 +21,6 @@
 
       .metadata-container {
         display: flex;
-
-        // flex-direction: column;
         gap: 10px;
       }
 
@@ -50,7 +48,6 @@
         }
 
         .metadata-title {
-          // margin-top: 10px;
           margin-bottom: 0 !important;
           font-weight: normal;
           font-size: 13px;

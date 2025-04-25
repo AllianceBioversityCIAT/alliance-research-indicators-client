@@ -21,7 +21,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const createErrorObj = (status: 'error' | 'pending', message: string, originalError?: HttpErrorResponse): PostError => {
     const now = new Date();
     const user = cache.dataCache()?.user;
-    // const userId = user?.email?.split('@')[0] || '';
     return {
       path: req.url,
       current_route: router.url,

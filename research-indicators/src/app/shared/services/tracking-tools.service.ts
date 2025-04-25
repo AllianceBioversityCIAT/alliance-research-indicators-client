@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { HotjarService } from './hotjar.service';
 import { environment } from '../../../environments/environment';
+import { BugHerdService } from './bug-herd.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -13,6 +14,7 @@ export class TrackingToolsService {
   cache = inject(CacheService);
   clarity = inject(ClarityService);
   hotjar = inject(HotjarService);
+  bugherd = inject(BugHerdService);
   googleAnalytics = inject(GoogleAnalyticsService);
   route = inject(ActivatedRoute);
 
@@ -37,7 +39,7 @@ export class TrackingToolsService {
       currentRoute = currentRoute.firstChild;
       if (currentRoute.snapshot.data['showSectionHeaderActions']) this.cache.showSectionHeaderActions.set(true);
     }
-    const baseTitle = currentRoute.snapshot.data['title'] || '';
+    const baseTitle = currentRoute.snapshot.data['title'] ?? '';
     this.cache.currentRouteTitle.set(baseTitle);
   }
 

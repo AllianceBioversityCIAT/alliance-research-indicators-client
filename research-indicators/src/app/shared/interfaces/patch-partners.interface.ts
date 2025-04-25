@@ -2,6 +2,7 @@ export class PatchPartners {
   institutions: Institution[] = [];
 }
 
-interface Institution {
+export interface Institution {
   institution_id: number;
+  institution_role_id: number;
 }

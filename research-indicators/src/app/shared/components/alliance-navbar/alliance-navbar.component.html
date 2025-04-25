@@ -1,13 +1,13 @@
 @let hss = this.cache.hasSmallScreen();
-<div id="navbar" #navbar class="navbar abc-primary-blue-500">
+<div id="navbar" #navbar class="navbar bg-[#173F6F]">
   <div class="logo" routerLink="/">
-    <img src="roar.png" alt="" class="{{ hss ? 'h-[25px]' : 'h-[35px]' }}" />
+    <img src="STAR.png" alt="" class="{{ hss ? 'h-[40px]' : 'h-[60px]' }}" />
   </div>
   <div class="options">
     @for (option of this.options; track $index) {
       @if (!option.hide) {
         <a
-          class="option atc-white-1 {{ hss ? 'py-[15px] px-[10px]' : 'py-[25px] px-[15px]' }}"
+          class="option atc-white-1 {{ hss ? 'py-[15px] px-[15px]' : 'py-[25px] px-[25px]' }}"
           [routerLink]="option.disabled ? null : option.path"
           routerLinkActive="active atc-light-blue-200-i"
           [class.disabled]="option.disabled"
@@ -31,61 +31,40 @@
       (onClick)="this.allModalsService.openModal('createResult')"
       [style]="{ 'margin-left': '20px', 'min-width': '105px !important' }" />
     <div class="icons-container">
-      <!-- <app-dropdown dropdownName="result" position="top-left" class="search-dropdown">
-        <div dropdown-button (click)="this.dropdownsCache.showDropdown('result')"> -->
       <div class="search-box">
-        <i class="material-symbols-rounded">search</i>
-        <input id="search-result-input" type="text" placeholder="Search a result" (keyup.enter)="this.onSearchTextChange($event)" />
+        <i class="pi pi-search !text-[15px] px-2"></i>
+        <input id="search-result-input" type="text" placeholder="Search" class="h-9" (keyup.enter)="this.onSearchTextChange($event)" />
       </div>
-      <!-- </div>
-        <div dropdown-content>
-          @if (this.dropdownsCache.dropdown().result) {
-            <app-results-list-dropdown [searchText]="this.searchText" />
-          }
-        </div>
-      </app-dropdown> -->
-
-      <!-- <i class="material-symbols-rounded atc-white-1" (click)="this.darkModeService.toggleDarkMode()">
-        {{ this.darkModeService.isDarkModeEnabled() ? 'light_mode' : 'dark_mode' }}
-      </i> -->
-      <!-- <app-dropdown position="top-right" positionX="right" positionY="top">
-        <div dropdown-button>
-          <i class="material-symbols-rounded atc-white-1" pBadge severity="danger" value="2">notifications</i>
-        </div>
-        <div dropdown-content>
-          <p>Notification 1</p>
-          <p>Notification 2</p>
-          <p>Notification 3</p>
-        </div>
-      </app-dropdown> -->
-
-      <app-dropdown position="top-right" positionX="right" positionY="top">
-        <div dropdown-button>
-          <p-avatar [label]="this.actions.getInitials()" styleClass="mr-2"></p-avatar>
-        </div>
-        <div dropdown-content>
-          <div class="profile">
-            <div class="account-container">
-              <div class="account-header">Account</div>
-              <div class="account-content">
-                <p-avatar [label]="this.actions.getInitials()" size="large"></p-avatar>
-                <div class="account-details">
-                  <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{ this.cache.dataCache().user.last_name }}</span>
-                  <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
-                  <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
-                </div>
-              </div>
-            </div>
-
-            <p-button
-              size="small"
-              label="Log out"
-              icon="pi pi-sign-in"
-              [loading]="this.cache.isValidatingToken()"
-              (onClick)="this.actions.logOut()"></p-button>
-          </div>
-        </div>
-      </app-dropdown>
+      <div dropdown-button (keydown.enter)="this.showDropdown = !this.showDropdown" (click)="this.showDropdown = !this.showDropdown">
+        <p-avatar [label]="this.actions.getInitials()" styleClass="!rounded-xl font-[600] flex pb-[1px]"></p-avatar>
+      </div>
     </div>
   </div>
 </div>
+
+@if (this.showDropdown) {
+  <div #dropdownRef class="icons-container fixed top-11 right-14 p-3 z-[9999] bg-white shadow-lg rounded-[4px] w-[280px]">
+    <div dropdown-content>
+      <div class="profile">
+        <div class="account-container">
+          <div class="account-header">Account</div>
+          <div class="account-content">
+            <p-avatar [label]="this.actions.getInitials()" size="large"></p-avatar>
+            <div class="account-details">
+              <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{ this.cache.dataCache().user.last_name }}</span>
+              <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
+              <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <p-button
+          size="small"
+          label="Log out"
+          icon="pi pi-sign-in"
+          [loading]="this.cache.isValidatingToken()"
+          (onClick)="this.actions.logOut()"></p-button>
+      </div>
+    </div>
+  </div>
+}

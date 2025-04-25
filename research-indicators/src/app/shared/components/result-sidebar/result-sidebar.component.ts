@@ -2,17 +2,21 @@ import { Component, computed, inject, signal, WritableSignal } from '@angular/co
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
-import { CustomTagComponent } from '../custom-tag/custom-tag.component';
-import { ApiService } from '../../services/api.service';
 import { GreenChecks } from '../../interfaces/get-green-checks.interface';
 import { CommonModule } from '@angular/common';
 import { ActionsService } from '@shared/services/actions.service';
-import { GetMetadataService } from '../../services/get-metadata.service';
 import { TooltipModule } from 'primeng/tooltip';
-interface submissionAlertData {
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { ApiService } from '../../services/api.service';
+import { GetMetadataService } from '../../services/get-metadata.service';
+import { SubmissionService } from '../../services/submission.service';
+import { CustomTagComponent } from '../custom-tag/custom-tag.component';
+
+interface SubmissionAlertData {
   severity: 'success' | 'warning';
   summary: string;
   detail: string;
+  placeholder: string;
 }
 interface SidebarOption {
   label: string;
@@ -27,16 +31,17 @@ interface SidebarOption {
 
 @Component({
   selector: 'app-result-sidebar',
-  imports: [RouterLink, RouterLinkActive, ButtonModule, CustomTagComponent, CommonModule, TooltipModule],
+  imports: [RouterLink, RouterLinkActive, CustomTagComponent, ButtonModule, CommonModule, TooltipModule],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })
 export class ResultSidebarComponent {
   cache = inject(CacheService);
-  api = inject(ApiService);
   actions = inject(ActionsService);
+  allModalsService = inject(AllModalsService);
+  api = inject(ApiService);
   metadata = inject(GetMetadataService);
-
+  submissionService = inject(SubmissionService);
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions()
       .filter(option => option?.indicator_id === this.cache.currentMetadata()?.indicator_id || !option?.indicator_id)
@@ -58,7 +63,7 @@ export class ResultSidebarComponent {
       greenCheckKey: 'alignment'
     },
     {
-      label: 'Capacity Sharing',
+      label: 'CapSharing details',
       path: 'capacity-sharing',
       indicator_id: 1,
       greenCheckKey: 'cap_sharing'
@@ -67,7 +72,7 @@ export class ResultSidebarComponent {
       label: 'Policy Change details',
       path: 'policy-change',
       indicator_id: 4,
-      greenCheckKey: 'completness'
+      greenCheckKey: 'policy_change'
     },
     {
       label: 'Partners',
@@ -85,40 +90,57 @@ export class ResultSidebarComponent {
       label: 'Evidence',
       path: 'evidence',
       greenCheckKey: 'evidences'
+    },
+    {
+      label: 'IP Rights',
+      path: 'ip-rights',
+      indicator_id: 1,
+      greenCheckKey: 'cap_sharing_ip'
     }
   ]);
 
   submissionAlertData = computed(
-    (): submissionAlertData => ({
+    (): SubmissionAlertData => ({
       severity: 'success',
+      placeholder: 'Add any additional comments here',
       summary: 'CONFIRM SUBMISSION',
       detail: `The result <span class="font-medium">"${this.cache.currentMetadata().result_title}"</span> is about to be <span class="font-medium">submitted</span>. Once confirmed, no further changes can be made. If you have any comments, feel free to add them below.`
     })
   );
 
   unsavedChangesAlertData = computed(
-    (): submissionAlertData => ({
+    (): SubmissionAlertData => ({
       severity: 'warning',
+      placeholder: 'Please share your feedback about the unsubmission',
       summary: 'CONFIRM UNSUBMISSION',
       detail: `You are about to <span class="font-medium">unsubmit</span> the result <span class="font-medium">"${this.cache.currentMetadata().result_title}"</span>. To continue, please provide a brief reason for the unsubmission.`
     })
   );
 
   submmitConfirm() {
-    const { severity, summary, detail } = this.cache.currentMetadata().status_id === 1 ? this.submissionAlertData() : this.unsavedChangesAlertData();
+    const { severity, placeholder, summary, detail } = this.submissionService.currentResultIsSubmitted()
+      ? this.unsavedChangesAlertData()
+      : this.submissionAlertData();
 
     this.actions.showGlobalAlert({
       severity,
       summary,
       detail,
-      commentLabel: this.cache.currentMetadata().status_id === 1 ? 'Comment' : 'Feedback about the unsubmission',
-      commentRequired: this.cache.currentMetadata().status_id === 1 ? false : true,
+      placeholder,
+      commentLabel: this.submissionService.currentResultIsSubmitted() ? 'Feedback about the unsubmission' : 'Comment',
+      commentRequired: this.submissionService.currentResultIsSubmitted(),
       confirmCallback: {
-        label: 'Submit',
-        event: async (comment?: string) => {
-          await this.api.PATCH_SubmitResult(this.cache.currentResultId(), { comment: comment || '' });
-          this.metadata.update(this.cache.currentResultId());
-          return;
+        label: 'Confirm',
+        event: (comment?: string) => {
+          (async () => {
+            await this.api.PATCH_SubmitResult({
+              resultId: this.cache.currentResultId(),
+              comment: comment ?? '',
+              status: this.submissionService.currentResultIsSubmitted() ? 4 : 2
+            });
+            this.metadata.update(this.cache.currentResultId());
+            this.submissionService.refreshSubmissionHistory.update(v => v + 1);
+          })();
         }
       }
     });

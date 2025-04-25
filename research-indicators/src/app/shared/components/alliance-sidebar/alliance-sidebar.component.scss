@@ -3,7 +3,6 @@
   flex-direction: column;
   height: 100%;
 
-  // padding: 30px;
   transition: all 0.3s ease-in-out;
 
   &.collapsed {
@@ -20,9 +19,6 @@
     .sidebar-icon {
       margin-left: 15px 0;
       rotate: 180deg;
-    }
-
-    .sidebar-icon {
       margin-bottom: 50px !important;
     }
 
@@ -32,7 +28,9 @@
   }
 
   .h4 {
-    font-family: Space Grotesk;
+    font-family:
+      Space Grotesk,
+      sans-serif;
     font-weight: 500;
     font-size: 15px;
     line-height: 15.31px;
@@ -134,7 +132,5 @@
 @media (orientation: landscape) and (height <= 768px) {
   .sidebar {
     box-shadow: 0 0 10px 0 rgb(0 0 0 / 10%) !important;
-
-    // border: 1px solid black !important;
   }
 }

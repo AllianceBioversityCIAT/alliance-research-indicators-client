@@ -14,8 +14,6 @@
 .sidebar {
   grid-row: 2;
   z-index: 1000;
-
-  // overflow-y: auto;
 }
 
 .content {
@@ -45,7 +43,6 @@
   }
 }
 
-/* HTML: <div class="loader"></div> */
 .loader {
   width: 55px;
   aspect-ratio: 1;
@@ -93,11 +90,5 @@
       100% 100%,
       0 0,
       0 100%;
-  }
-}
-
-@media (orientation: landscape) and (height <= 768px) {
-  .grid-container {
-    grid-template-columns: 65px 1fr !important;
   }
 }

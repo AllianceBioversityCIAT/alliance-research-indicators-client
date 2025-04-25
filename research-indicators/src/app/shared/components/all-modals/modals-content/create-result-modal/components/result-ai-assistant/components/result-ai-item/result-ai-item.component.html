@@ -2,7 +2,7 @@
 
 <div class="result-item" [class.expanded]="expandedItem === item">
   @if (item.training_type !== undefined) {
-    <div class="result-item-expand-icon" (click)="toggleExpand(item)">
+    <div class="result-item-expand-icon" (keydown.enter)="toggleExpand(item)" (click)="toggleExpand(item)">
       <i class="pi" [ngClass]="expandedItem === item ? 'pi-angle-down' : 'pi-angle-right'" style="font-size: 10px"></i>
     </div>
   } @else {
@@ -11,7 +11,9 @@
 
   <div class="result-item-content">
     <div class="result-item-header">
-      <i class="material-symbols-rounded" [class]="getIndicatorTypeIcon(item.indicator).class" style="font-size: 22px">{{ getIndicatorTypeIcon(item.indicator).icon }}</i>
+      <i class="material-symbols-rounded" [class]="getIndicatorTypeIcon(item.indicator).class" style="font-size: 22px">{{
+        getIndicatorTypeIcon(item.indicator).icon
+      }}</i>
       <p class="result-item-category">{{ item.indicator | uppercase }}</p>
     </div>
 
@@ -47,7 +49,23 @@
   </div>
 
   <div class="result-item-actions">
-    <p-button type="button" label="Discard" class="discard-button" size="small" [outlined]="true" severity="danger" (click)="discardResult(item)"></p-button>
-    <p-button type="button" label="Create" iconPos="right" icon="pi pi-plus" class="create-button" size="small" (click)="createResult(item)"></p-button>
+    <p-button
+      type="button"
+      label="Discard"
+      class="discard-button"
+      size="small"
+      [outlined]="true"
+      severity="danger"
+      (keydown.enter)="discardResult(item)"
+      (click)="discardResult(item)"></p-button>
+    <p-button
+      type="button"
+      label="Create"
+      iconPos="right"
+      icon="pi pi-plus"
+      class="create-button"
+      size="small"
+      (keydown.enter)="createResult(item)"
+      (click)="createResult(item)"></p-button>
   </div>
 </div>

@@ -30,14 +30,25 @@ import { GetAllYearsService } from './control-list/get-all-years.service';
 import { GetSubnationalByIsoAlphaService } from './get-subnational-by-iso-alpha.service';
 import { GetClarisaInstitutionsTypesChildlessService } from './get-clarisa-institutions-type-childless.service';
 import { GetClarisaInstitutionsTypesService } from './get-clarisa-institutions-type.service';
+import { IpOwnerService } from './short-control-list/ip-owner.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServiceLocatorService {
-  constructor(private injector: Injector) {}
+  constructor(private readonly injector: Injector) {}
 
   getService(serviceName: ControlListServices) {
+    return (
+      this.getPrimaryServices(serviceName) ??
+      this.getSecondaryServices(serviceName) ??
+      this.getTertiaryServices(serviceName) ??
+      this.getQuaternaryServices(serviceName) ??
+      this.getOtherServices(serviceName)
+    );
+  }
+
+  private getPrimaryServices(serviceName: ControlListServices) {
     switch (serviceName) {
       case 'contracts':
         return this.injector.get(GetContractsService);
@@ -47,6 +58,23 @@ export class ServiceLocatorService {
         return this.injector.get(GetInstitutionsService);
       case 'userStaff':
         return this.injector.get(GetUserStaffService);
+      case 'countriesWithSubnational': {
+        const svc = this.injector.get(GetCountriesService);
+        svc.main(true);
+        return svc;
+      }
+      case 'countriesWithoutSubnational': {
+        const svc = this.injector.get(GetCountriesService);
+        svc.main(false);
+        return svc;
+      }
+      default:
+        return null;
+    }
+  }
+
+  private getSecondaryServices(serviceName: ControlListServices) {
+    switch (serviceName) {
       case 'countries':
         return this.injector.get(GetCountriesService);
       case 'languages':
@@ -61,6 +89,13 @@ export class ServiceLocatorService {
         return this.injector.get(CapSharingDegreesService);
       case 'capSharingLengths':
         return this.injector.get(CapSharingLengthsService);
+      default:
+        return null;
+    }
+  }
+
+  private getTertiaryServices(serviceName: ControlListServices) {
+    switch (serviceName) {
       case 'capSharingDeliveryModalities':
         return this.injector.get(CapSharingDeliveryModalitiesService);
       case 'capSharingSessionPurpose':
@@ -73,6 +108,13 @@ export class ServiceLocatorService {
         return this.injector.get(PolicyStagesService);
       case 'geoFocus':
         return this.injector.get(GetGeoFocusService);
+      default:
+        return null;
+    }
+  }
+
+  private getQuaternaryServices(serviceName: ControlListServices) {
+    switch (serviceName) {
       case 'regions':
         return this.injector.get(GetRegionsService);
       case 'geoScopeOpenSearch':
@@ -85,6 +127,13 @@ export class ServiceLocatorService {
         return this.injector.get(GetInnoDevOutputService);
       case 'innoUseOutput':
         return this.injector.get(GetInnoUseOutputService);
+      default:
+        return null;
+    }
+  }
+
+  private getOtherServices(serviceName: ControlListServices) {
+    switch (serviceName) {
       case 'openSearchSubNationals':
         return this.injector.get(GetOsSubnationalService);
       case 'getAllIndicators':
@@ -93,6 +142,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetAllResultStatusService);
       case 'getAllYears':
         return this.injector.get(GetAllYearsService);
+      case 'ipOwners':
+        return this.injector.get(IpOwnerService);
       case 'GetSubnationalByIsoAlpha':
         return this.injector.get(GetSubnationalByIsoAlphaService);
       case 'clarisaInstitutionsTypes':

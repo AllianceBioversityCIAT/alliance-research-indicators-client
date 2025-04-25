@@ -10,7 +10,7 @@ import { PatchResultEvidences } from '../interfaces/patch-result-evidences.inter
 import { GetLevers } from '../interfaces/get-levers.interface';
 import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
 import { PatchPartners } from '../interfaces/patch-partners.interface';
-import { Degree, Gender, GetCapSharing, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
+import { Degree, Gender, GetCapSharing, IpOwners, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
 import { CacheService } from './cache/cache.service';
 import { GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
 import { GetMetadata } from '../interfaces/get-metadata.interface';
@@ -43,6 +43,7 @@ import { SignalEndpointService } from './signal-endpoint.service';
 import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
 import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
 import { GetClarisaInstitutionsTypes } from '@shared/interfaces/get-clarisa-institutions-types.interface';
+import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 
 @Injectable({
   providedIn: 'root'
@@ -51,8 +52,8 @@ export class ApiService {
   TP = inject(ToPromiseService);
   cache = inject(CacheService);
   clCache = inject(ControlListCacheService);
-  private signalEndpoint = inject(SignalEndpointService);
-  //? >>>>>>>>>>>> Endpoints <<<<<<<<<<<<<<<<<
+  private readonly signalEndpoint = inject(SignalEndpointService);
+
   login = (awsToken: string): Promise<MainResponse<LoginRes>> => {
     const url = () => `authorization/login`;
     return this.TP.post(url(), {}, { token: awsToken, isAuth: true });
@@ -77,16 +78,6 @@ export class ApiService {
     const url = () => `agresso/contracts`;
     return this.TP.get(url(), {});
   };
-
-  // GET_InnoDevOutput = (): Promise<MainResponse<GetInnoDevOutput[]>> => {
-  //   const url = () => `results?indicator-codes=2`;
-  //   return this.TP.get(url(), {});
-  // };
-
-  // GET_InnoUseOutput = (): Promise<MainResponse<GetInnoUseOutput[]>> => {
-  //   const url = () => `results?indicator-codes=6`;
-  //   return this.TP.get(url(), {});
-  // };
 
   GET_Institutions = (): Promise<MainResponse<GetInstitution[]>> => {
     const url = () => `tools/clarisa/institutions?location=true&type=true&only-hq=true`;
@@ -130,10 +121,8 @@ export class ApiService {
       if (resultFilter['indicator-codes-tabs'].length) {
         queryParams.push(`indicator-codes=${resultFilter['indicator-codes-tabs'].join(',')}`);
       }
-    } else {
-      if (resultFilter['indicator-codes-filter']?.length) {
-        queryParams.push(`indicator-codes=${resultFilter['indicator-codes-filter']?.join(',')}`);
-      }
+    } else if (resultFilter['indicator-codes-filter']?.length) {
+      queryParams.push(`indicator-codes=${resultFilter['indicator-codes-filter']?.join(',')}`);
     }
 
     // Dynamic handling of boolean config parameters
@@ -211,6 +200,21 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_IpOwners = (): Promise<MainResponse<IpOwners[]>> => {
+    const url = () => `results/capacity-sharing/ip-owners`;
+    return this.TP.get(url(), { loadingTrigger: true });
+  };
+
+  GET_IpOwner = (id: number): Promise<MainResponse<PatchIpOwner>> => {
+    const url = () => `results/capacity-sharing/ip/${id}`;
+    return this.TP.get(url(), { loadingTrigger: true });
+  };
+
+  PATCH_IpOwners = <T>(id: number, body: T): Promise<MainResponse<PatchIpOwner>> => {
+    const url = () => `results/capacity-sharing/ip/${id}`;
+    return this.TP.patch(url(), body);
+  };
+
   GET_CapacitySharing = (): Promise<MainResponse<GetCapSharing>> => {
     const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
     return this.TP.get(url(), { loadingTrigger: true });
@@ -271,9 +275,10 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Countries = (): Promise<MainResponse<GetCountries[]>> => {
+  GET_Countries = (params?: { 'is-sub-national'?: boolean }): Promise<MainResponse<GetCountries[]>> => {
     const url = () => `tools/clarisa/countries`;
-    return this.TP.get(url(), {});
+    const stringParams = params ? Object.fromEntries(Object.entries(params).map(([key, value]) => [key, String(value)])) : undefined;
+    return this.TP.getWithParams(url(), stringParams);
   };
 
   GET_DeliveryModalities = (): Promise<MainResponse<GetDeliveryModality[]>> => {
@@ -341,11 +346,6 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  // GET_GeoScope = (): Promise<MainResponse<any[]>> => {
-  //   const url = () => `tools/clarisa/geo-scope`;
-  //   return this.TP.get(url(), {});
-  // };
-
   GET_GeoSearch = (scope: string, search: string): Promise<MainResponse<GetGeoSearch[]>> => {
     const url = () => `tools/clarisa/manager/opensearch/${scope}/search?query=${search}`;
     return this.TP.get(url(), {});
@@ -375,7 +375,6 @@ export class ApiService {
 
   indicatorsWithResult = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators/with/result');
   indicatorTabs = this.signalEndpoint.createEndpoint<GetAllIndicators[]>(() => 'indicators', 'indicatortabs');
-  // greenChecks = this.signalEndpoint.createEndpoint<GreenChecks>(() => `results/green-checks/${this.cache.currentResultId()}`);
 
   // Add the saveErrors endpoint
   saveErrors = (error: PostError): Promise<MainResponse<PostError>> => {
@@ -388,9 +387,20 @@ export class ApiService {
     return this.TP.get(url(), { isAuth: true, token });
   };
 
-  PATCH_SubmitResult = (resultId: number, body: PatchSubmitResult) => {
-    const url = () => `results/green-checks/submit/${resultId}`;
-    return this.TP.patch(url(), body);
+  GET_AllSubmitionStatus = () => {
+    const url = () => `results/green-checks/change/status`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_SubmitResult = ({ resultId, comment, status }: PatchSubmitResult) => {
+    const commentQuery = comment ? `&comment=${comment}` : '';
+    const url = () => `results/green-checks/change/status?resultId=${resultId}${commentQuery}&status=${status}`;
+    return this.TP.patch(url(), {});
+  };
+
+  GET_ReviewStatuses = () => {
+    const url = () => `results/status/review-statuses`;
+    return this.TP.get(url(), {});
   };
 
   GET_SubmitionHistory = (resultId: number) => {

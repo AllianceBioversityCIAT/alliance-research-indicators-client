@@ -7,13 +7,14 @@ import { ToPromiseService } from '../../../../../../services/to-promise.service'
 import { ActionsService } from '../../../../../../services/actions.service';
 import { AIAssistantResult } from '../../models/AIAssistantResult';
 import { ResultAiItemComponent } from './components/result-ai-item/result-ai-item.component';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 
 @Component({
-    selector: 'app-result-ai-assistant',
-    imports: [CommonModule, ButtonModule, PaginatorModule, ResultAiItemComponent],
-    templateUrl: './result-ai-assistant.component.html',
-    styleUrl: './result-ai-assistant.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-result-ai-assistant',
+  imports: [CommonModule, ButtonModule, PaginatorModule, ResultAiItemComponent],
+  templateUrl: './result-ai-assistant.component.html',
+  styleUrl: './result-ai-assistant.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiAssistantComponent {
   acceptedFormats: string[] = ['.pdf', '.docx', '.txt'];
@@ -29,6 +30,11 @@ export class ResultAiAssistantComponent {
   TP = inject(ToPromiseService);
   actions = inject(ActionsService);
   createResultManagementService = inject(CreateResultManagementService);
+  allModalsService = inject(AllModalsService);
+
+  constructor() {
+    this.allModalsService.setGoBackFunction(() => this.goBack());
+  }
 
   goBack() {
     if (this.analyzingDocument()) return;
