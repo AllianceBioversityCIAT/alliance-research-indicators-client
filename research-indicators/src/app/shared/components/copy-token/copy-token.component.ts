@@ -2,11 +2,20 @@ import { Component, HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-copy-token',
-  imports: [],
+  standalone: true,
   templateUrl: './copy-token.component.html'
 })
 export class CopyTokenComponent {
-  private readonly isMacOS: boolean = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+  private readonly isMacOS: boolean = this.detectMacOS();
+
+  private detectMacOS(): boolean {
+    if ('userAgentData' in navigator) {
+      const userAgentData = navigator.userAgentData as { platform?: string };
+      return userAgentData.platform?.includes('Mac') ?? false;
+    } else {
+      return /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+    }
+  }
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -17,7 +26,7 @@ export class CopyTokenComponent {
     } else if (this.isMacOS && event.metaKey && event.key === 'k') {
       this.focusSearchInput();
     } else if (this.isMacOS && event.ctrlKey && event.altKey && event.key === 'c') {
-      // call to this.clearLocalStorageAndReload();
+      // call this.clearLocalStorageAndReload();
     }
   }
 
