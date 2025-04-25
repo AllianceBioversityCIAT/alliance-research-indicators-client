@@ -13,7 +13,6 @@
               label="Title"
               [isRequired]="true"
               [disabled]="!submission.isEditableStatus()"
-              helperText="Max. # words"
               [validateEmpty]="true"
               description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon."
               [signal]="this.body"
@@ -25,7 +24,6 @@
               [isRequired]="true"
               [disabled]="!submission.isEditableStatus()"
               [rows]="5"
-              helperText="Max. # words"
               label="Description"
               description="Offer a detailed, understandable explanation, without repeating the title."
               [signal]="this.body"
@@ -33,17 +31,6 @@
           </div>
 
           <div class="flex flex-col xl:flex-row gap-5">
-            <div class="flex-1">
-              <app-select
-                label="Reporting year"
-                [isRequired]="true"
-                [disabled]="!submission.isEditableStatus()"
-                [signal]="this.body"
-                [optionValue]="{ body: 'user_id', option: 'user_id' }"
-                optionLabel="name"
-                serviceName="getAllYears"></app-select>
-            </div>
-
             <div class="flex-1">
               <app-select
                 label="Main contact person"
