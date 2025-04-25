@@ -30,7 +30,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       message,
       original_error: originalError,
       user_id: user?.sec_user_id.toString(),
-      user_name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+      user_name: `${user?.first_name ?? ''} ${user?.last_name ?? ''}`.trim(),
       user_email: user?.email
     };
   };
