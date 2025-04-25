@@ -6,25 +6,25 @@ import { WebsocketService } from '../../shared/sockets/websocket.service';
 import { SocketUser } from '../../shared/interfaces/sockets.interface';
 
 @Component({
-    selector: 'app-room',
-    imports: [],
-    templateUrl: './room.component.html',
-    styleUrl: './room.component.scss'
+  selector: 'app-room',
+  imports: [],
+  templateUrl: './room.component.html',
+  styleUrl: './room.component.scss'
 })
 export default class RoomComponent implements OnInit, OnDestroy {
   websocket = inject(WebsocketService);
 
   roomId = '';
   users: string[] = [];
-  private subscriptions: Subscription[] = [];
+  private readonly subscriptions: Subscription[] = [];
 
   constructor(
-    private route: ActivatedRoute,
-    private socket: Socket
+    private readonly route: ActivatedRoute,
+    private readonly socket: Socket
   ) {}
 
   ngOnInit() {
-    this.roomId = this.route.snapshot.paramMap.get('id') || '';
+    this.roomId = this.route.snapshot.paramMap.get('id') ?? '';
     this.socket.emit('join-room', this.roomId);
 
     this.websocket.listen(`room-users-${this.websocket.platform}`).subscribe(userList => {
