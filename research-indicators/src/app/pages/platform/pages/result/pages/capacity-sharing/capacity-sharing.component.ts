@@ -70,7 +70,7 @@ export default class CapacitySharingComponent implements OnInit {
   };
 
   isStartDateGreaterThanEndDate = computed(() => {
-    const { start_date, end_date } = this.body() || {};
+    const { start_date, end_date } = this.body() ?? {};
     if (!start_date || !end_date) return false;
     return new Date(start_date).getTime() > new Date(end_date).getTime();
   });
@@ -81,8 +81,8 @@ export default class CapacitySharingComponent implements OnInit {
     this.body.set(response.data);
     this.cache.loadingCurrentResult.set(false);
     this.body.update(current => {
-      if (current.start_date) current.start_date = new Date(current.start_date || '');
-      if (current.end_date) current.end_date = new Date(current.end_date || '');
+      if (current.start_date) current.start_date = new Date(current.start_date ?? '');
+      if (current.end_date) current.end_date = new Date(current.end_date ?? '');
       return { ...current };
     });
     this.loading.set(false);
@@ -92,8 +92,8 @@ export default class CapacitySharingComponent implements OnInit {
     this.loading.set(true);
     if (this.submission.isEditableStatus()) {
       this.body.update(current => {
-        if (current.start_date) current.start_date = new Date(current.start_date || '').toISOString();
-        if (current.end_date) current.end_date = new Date(current.end_date || '').toISOString();
+        if (current.start_date) current.start_date = new Date(current.start_date ?? '').toISOString();
+        if (current.end_date) current.end_date = new Date(current.end_date ?? '').toISOString();
 
         return { ...current };
       });

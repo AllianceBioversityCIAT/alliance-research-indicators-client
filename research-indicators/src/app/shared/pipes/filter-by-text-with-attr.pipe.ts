@@ -14,7 +14,7 @@ export class FilterByTextWithAttrPipe implements PipeTransform {
     const lowerSearchText = searchText.toLowerCase();
 
     return list.filter(item => {
-      const attributeValue = item[attribute]?.toString().toLowerCase() || '';
+      const attributeValue = item[attribute]?.toString().toLowerCase() ?? '';
       return attributeValue.includes(lowerSearchText);
     });
   }

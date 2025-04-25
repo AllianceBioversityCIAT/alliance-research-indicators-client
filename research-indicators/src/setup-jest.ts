@@ -55,7 +55,7 @@ HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, cont
 const originalConsoleError = console.error;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 console.error = (...args: any[]) => {
-  const errorMessage = args[0]?.toString() || '';
+  const errorMessage = args[0]?.toString() ?? '';
   if (
     errorMessage.includes('Could not parse CSS stylesheet') ||
     errorMessage.includes('@layer') ||

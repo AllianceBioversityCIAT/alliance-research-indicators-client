@@ -39,7 +39,7 @@ export class TrackingToolsService {
       currentRoute = currentRoute.firstChild;
       if (currentRoute.snapshot.data['showSectionHeaderActions']) this.cache.showSectionHeaderActions.set(true);
     }
-    const baseTitle = currentRoute.snapshot.data['title'] || '';
+    const baseTitle = currentRoute.snapshot.data['title'] ?? '';
     this.cache.currentRouteTitle.set(baseTitle);
   }
 

@@ -96,7 +96,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
 
   welcomeMessage = computed(() => {
     if (this.cache.currentRouteTitle() === 'Home') {
-      const userName = this.cache.dataCache().user?.first_name || '';
+      const userName = this.cache.dataCache().user?.first_name ?? '';
       return `Welcome, ${userName}`;
     }
     return this.cache.currentRouteTitle();

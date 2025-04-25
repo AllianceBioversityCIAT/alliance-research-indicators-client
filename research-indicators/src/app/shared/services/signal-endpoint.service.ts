@@ -67,7 +67,13 @@ export class SignalEndpointService {
     };
 
     const updateHasValue = (value: T) => {
-      hasValueSignal.set(Array.isArray(value) ? value.length > 0 : value && typeof value === 'object' ? Object.keys(value).length > 0 : false);
+      let hasValue = false;
+      if (Array.isArray(value)) {
+        hasValue = value.length > 0;
+      } else if (value && typeof value === 'object') {
+        hasValue = Object.keys(value).length > 0;
+      }
+      hasValueSignal.set(hasValue);
     };
 
     const fetch = async () => {

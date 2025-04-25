@@ -22,7 +22,7 @@ export class CognitoService {
   }
 
   async validateCognitoCode() {
-    const { code } = this.activatedRoute.snapshot.queryParams || {};
+    const { code } = this.activatedRoute.snapshot.queryParams ?? {};
     if (!code) return;
     this.cache.isValidatingToken.set(true);
     const loginResponse = await this.api.login(code);
