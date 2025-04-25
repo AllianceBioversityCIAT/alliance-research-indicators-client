@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest # Use the latest Ubuntu image for the job
 
     steps:
-      # Step 1: Set up JDK 11 for SonarCloud analysis
+      # Step 1: Set up JDK 17 for SonarCloud analysis
       - name: Set up JDK 17 for SonarCloud analysis
         uses: actions/setup-java@v2
         with:
-          java-version: "17" # Use Java 11 as requested
+          java-version: "17" # Ensure using Java 17
           distribution: "temurin" # Use the Adoptium distribution (previously AdoptOpenJDK)
 
-      # Step 2: Verify that Java 17 is being used
+      # Step 2: Verify Java version
       - name: Verify Java version
         run: |
           java -version  # This will print the version of Java in the logs to confirm Java 17 is being used
@@ -32,18 +32,18 @@ jobs:
           echo "SONAR_JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> $GITHUB_ENV
           echo "JAVA_HOME and SONAR_JAVA_HOME are set to $(dirname $(dirname $(readlink -f $(which java))))"
 
-      # Step 2: Checkout the repository code
+      # Step 4: Checkout the repository code
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 3: Install Angular dependencies in the correct directory
+      # Step 5: Install Angular dependencies in the correct directory
       - name: Install dependencies
         run: |
           npm install -g @angular/cli  # Install Angular CLI globally if it's not installed
           npm install  # Install project dependencies
         working-directory: ./research-indicators # Correct directory path
 
-      # Step 4: Create environment files (environment.ts, environment.dev.ts)
+      # Step 6: Create environment files (environment.ts, environment.dev.ts)
       - name: Create environment files
         run: |
           # Create environment.ts
@@ -86,7 +86,7 @@ jobs:
           EOL
         working-directory: ./research-indicators # Correct directory path
 
-      # Step 5: Install SonarScanner
+      # Step 7: Install SonarScanner
       - name: Install SonarScanner
         run: |
           # Download and install SonarScanner
@@ -97,10 +97,20 @@ jobs:
           sudo mv sonar-scanner-4.6.2.2472-linux /opt/sonar-scanner
           sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
 
-      # Step 5: Run the build and SonarCloud analysis
+      # Step 8: Run SonarCloud analysis
       - name: Run SonarCloud analysis
         run: |
-          npm run build  # Build the Angular project for production
+          # Establecer JAVA_HOME a la versión correcta de Java (Java 17)
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+          export SONAR_JAVA_HOME=$JAVA_HOME
+
+          # Verificar la versión de Java que se está utilizando
+          java -version
+
+          # Ejecutar el build de Angular
+          npm run build
+
+          # Ejecutar SonarScanner
           sonar-scanner -Dsonar.host.url=https://sonarcloud.io
         working-directory: ./research-indicators # Correct directory path
         env:
