@@ -1,4 +1,4 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ActionsService } from '@services/actions.service';
@@ -11,14 +11,13 @@ import { PartnerSelectedItemComponent } from '../../../../../../shared/component
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GetInstitution } from '@shared/interfaces/get-institutions.interface';
 import { SubmissionService } from '@shared/services/submission.service';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-partners',
-  imports: [ButtonModule, FormsModule, VersionSelectorComponent, MultiselectComponent, PartnerSelectedItemComponent],
+  imports: [ButtonModule, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
   templateUrl: './partners.component.html'
 })
-export default class PartnersComponent {
+export default class PartnersComponent implements OnInit {
   actions = inject(ActionsService);
   cache = inject(CacheService);
   router = inject(Router);
@@ -30,7 +29,7 @@ export default class PartnersComponent {
 
   optionsDisabled: WritableSignal<Institution[]> = signal([]);
 
-  constructor() {
+  ngOnInit() {
     this.getData();
   }
 

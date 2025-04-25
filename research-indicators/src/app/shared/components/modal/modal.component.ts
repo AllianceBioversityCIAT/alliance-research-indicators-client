@@ -34,6 +34,6 @@ export class ModalComponent {
   }
 
   getConfig() {
-    return this.allModalsService.modalConfig()[this.modalName] || {};
+    return this.allModalsService.modalConfig()[this.modalName] ?? {};
   }
 }

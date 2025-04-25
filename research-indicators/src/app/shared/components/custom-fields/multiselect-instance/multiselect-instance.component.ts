@@ -76,7 +76,7 @@ export class MultiselectInstanceComponent implements OnInit {
 
   setValue(event: MultiSelectChangeEvent) {
     this.signal.update((current: any) => {
-      const currentArray = this.utils.getNestedProperty(current, this.signalOptionValue) || [];
+      const currentArray = this.utils.getNestedProperty(current, this.signalOptionValue) ?? [];
 
       // Si el elemento existe en currentArray pero no en event.value, significa que se eliminó
       // Si el elemento existe en event.value pero no en currentArray, significa que se agregó

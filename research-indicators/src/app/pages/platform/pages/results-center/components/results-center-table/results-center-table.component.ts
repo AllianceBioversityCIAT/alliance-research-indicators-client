@@ -19,8 +19,8 @@ import { CustomTagComponent } from '../../../../../../shared/components/custom-t
 })
 export class ResultsCenterTableComponent implements AfterViewInit {
   resultsCenterService = inject(ResultsCenterService);
-  private router = inject(Router);
-  private cacheService = inject(CacheService);
+  private readonly router = inject(Router);
+  private readonly cacheService = inject(CacheService);
   @ViewChild('dt2') dt2!: Table;
   tableRef = signal<Table | undefined>(undefined);
 
@@ -50,13 +50,13 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     const column = worksheet.getColumn(columnNumber);
     if (column) {
       // Initialize maxLength with header length
-      let maxLength = column.header?.toString().length || 0;
+      let maxLength = column.header?.toString().length ?? 0;
 
       // Check all cell contents
       column.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
         if (rowNumber > 1) {
           // Skip header since we already considered it
-          const cellText = cell.text || '';
+          const cellText = cell.text ?? '';
           const textLength = cellText.toString().length;
           maxLength = Math.max(maxLength, textLength);
         }
@@ -114,18 +114,17 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   async exportTable() {
     // Test data
     const exportData =
-      (this.dt2.filteredValue || this.resultsCenterService.list())?.map(result => ({
+      (this.dt2.filteredValue ?? this.resultsCenterService.list())?.map(result => ({
         Code: result.result_official_code,
         Title: result.title,
-        // Description: result.description?.substring(0, 200) || '',
-        Indicator: result.indicators?.name || '',
-        Status: result.result_status?.name || '',
-        Project: result.result_contracts?.contract_id || '',
-        Lever: result.result_levers?.lever?.short_name || '',
-        Year: result.report_year_id || '',
+        Indicator: result.indicators?.name ?? '',
+        Status: result.result_status?.name ?? '',
+        Project: result.result_contracts?.contract_id ?? '',
+        Lever: result.result_levers?.lever?.short_name ?? '',
+        Year: result.report_year_id ?? '',
         Creator: result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '',
         'Creation date': result.created_at ? new Date(result.created_at).toLocaleDateString() : ''
-      })) || [];
+      })) ?? [];
 
     // Create a new workbook and worksheet
     const workbook = new ExcelJS.Workbook();

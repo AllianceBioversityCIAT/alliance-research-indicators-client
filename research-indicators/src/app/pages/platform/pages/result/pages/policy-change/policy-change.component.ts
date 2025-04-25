@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { TextareaComponent } from '../../../../../../shared/components/custom-fields/textarea/textarea.component';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
@@ -13,7 +13,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { FormsModule } from '@angular/forms';
 import { SubmissionService } from '@shared/services/submission.service';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-policy-change',
@@ -27,11 +26,10 @@ import { VersionSelectorComponent } from '../../components/version-selector/vers
     SelectComponent,
     FormsModule,
     TooltipModule,
-    VersionSelectorComponent, 
     PartnerSelectedItemComponent
   ]
 })
-export default class PolicyChangeComponent {
+export default class PolicyChangeComponent implements OnInit {
   api = inject(ApiService);
   submission = inject(SubmissionService);
   cache = inject(CacheService);
@@ -49,7 +47,7 @@ export default class PolicyChangeComponent {
     loading: false
   });
 
-  constructor() {
+  ngOnInit() {
     this.getData();
   }
 

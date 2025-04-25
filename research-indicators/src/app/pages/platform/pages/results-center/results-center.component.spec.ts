@@ -3,7 +3,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TabMenuModule } from 'primeng/tabmenu';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
@@ -21,7 +21,6 @@ import { TableFiltersSidebarComponent } from './components/table-filters-sidebar
 import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
-import { Table } from 'primeng/table';
 
 describe('ResultsComponent', () => {
   let component: ResultsCenterComponent;
@@ -148,7 +147,6 @@ describe('ResultsComponent', () => {
     fixture = TestBed.createComponent(ResultsCenterComponent);
     component = fixture.componentInstance;
     resultsCenterService = TestBed.inject(ResultsCenterService);
-    getResultsService = TestBed.inject(GetResultsService);
     fixture.detectChanges();
   });
 

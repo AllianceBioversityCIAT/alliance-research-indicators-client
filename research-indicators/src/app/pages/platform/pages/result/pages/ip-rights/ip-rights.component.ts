@@ -9,11 +9,10 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { ActionsService } from '@shared/services/actions.service';
 import { Router } from '@angular/router';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-ip-rights',
-  imports: [ButtonModule, FormsModule, VersionSelectorComponent, RadioButtonComponent, InputComponent],
+  imports: [ButtonModule, FormsModule, RadioButtonComponent, InputComponent],
   templateUrl: './ip-rights.component.html'
 })
 export default class IpRightsComponent implements OnInit {

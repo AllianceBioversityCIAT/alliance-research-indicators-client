@@ -8,7 +8,7 @@
   position: fixed;
   z-index: 2;
   width: calc(100% - 65px);
-  
+
   .section-header-content {
     display: flex;
     align-items: center;
@@ -38,7 +38,6 @@
       border: none;
       cursor: pointer;
 
-      // padding: 0.5rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -50,7 +49,6 @@
       }
 
       .material-symbols-rounded {
-        // font-size: 24px;
         color: var(--text-color);
       }
     }

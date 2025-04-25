@@ -14,7 +14,7 @@ export default class DynamicFieldsComponent implements OnInit {
   fields!: any[];
   data!: any;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private readonly fb: FormBuilder) {}
 
   ngOnInit() {
     // Datos iniciales que recibes
@@ -88,7 +88,7 @@ export default class DynamicFieldsComponent implements OnInit {
     fields.forEach(field => {
       switch (field.type) {
         case 'input':
-          group.addControl(field.name, this.fb.control(data ? data[field.name] : '', field.validators || []));
+          group.addControl(field.name, this.fb.control(data ? data[field.name] : '', field.validators ?? []));
           break;
 
         case 'section':
@@ -113,6 +113,7 @@ export default class DynamicFieldsComponent implements OnInit {
 
   save() {
     if (this.form.valid) {
+      // Otros casos
     }
   }
 }

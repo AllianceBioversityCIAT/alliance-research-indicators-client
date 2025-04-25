@@ -3,11 +3,10 @@ import { AppComponent } from './app.component';
 import { WebsocketService } from './shared/sockets/websocket.service';
 import { CacheService } from '@services/cache/cache.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { of } from 'rxjs';
 import { ActionsService } from './shared/services/actions.service';
-import { signal } from '@angular/core';
 
 describe('AppComponent', () => {
   let mockActionsService: Partial<ActionsService>;

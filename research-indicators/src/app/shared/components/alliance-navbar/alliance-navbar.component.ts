@@ -38,7 +38,7 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
   @ViewChild('dropdownRef') dropdownRef!: ElementRef;
 
   private resizeObserver: ResizeObserver | null = null;
-  private zone = inject(NgZone);
+  private readonly zone = inject(NgZone);
   dropdownsCache = inject(DropdownsCacheService);
   allModalsService = inject(AllModalsService);
   cache = inject(CacheService);

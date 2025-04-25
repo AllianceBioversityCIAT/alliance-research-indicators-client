@@ -61,13 +61,18 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
       }
     ];
 
-    if (this.cache.currentMetadata()?.status_id == 5 || this.cache.currentMetadata()?.status_id == 7 || this.cache.currentMetadata()?.status_id == 4 && this.cache.isMyResult()) items[0].items?.push(deleteOption);
+    if (
+      this.cache.currentMetadata()?.status_id == 5 ||
+      this.cache.currentMetadata()?.status_id == 7 ||
+      (this.cache.currentMetadata()?.status_id == 4 && this.cache.isMyResult())
+    )
+      items[0].items?.push(deleteOption);
     return items;
   });
 
   @ViewChild('historyPanel') historyPanel!: OverlayPanel;
   private resizeObserver: ResizeObserver | null = null;
-  private routeId = signal<string | null>(null);
+  private readonly routeId = signal<string | null>(null);
 
   ngAfterViewInit(): void {
     const sectionSidebar = this.elementRef.nativeElement.querySelector('#section-sidebar');
@@ -82,7 +87,6 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    // this.subscription.unsubscribe();
     this.resizeObserver?.disconnect();
   }
 
@@ -92,7 +96,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
 
   welcomeMessage = computed(() => {
     if (this.cache.currentRouteTitle() === 'Home') {
-      const userName = this.cache.dataCache().user?.first_name || '';
+      const userName = this.cache.dataCache().user?.first_name ?? '';
       return `Welcome, ${userName}`;
     }
     return this.cache.currentRouteTitle();

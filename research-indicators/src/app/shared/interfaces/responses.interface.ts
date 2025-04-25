@@ -8,7 +8,7 @@ export interface MainResponse<T> {
   errorDetail: ErrorResponse;
 }
 
-export class multiControlListResponse<T> {
+export class MultiControlListResponse<T> {
   list: T[] = [];
   loading = true;
 }

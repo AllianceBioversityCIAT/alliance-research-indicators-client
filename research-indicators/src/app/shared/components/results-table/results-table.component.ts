@@ -15,7 +15,18 @@ import { Result, ResultTable } from '@interfaces/result/result.interface';
 @Component({
   selector: 'app-results-table',
   standalone: true,
-  imports: [TableModule, InputTextModule, TagModule, DropdownModule, MultiSelectModule, ProgressBarModule, ButtonModule, FormsModule, CardModule, TabViewModule],
+  imports: [
+    TableModule,
+    InputTextModule,
+    TagModule,
+    DropdownModule,
+    MultiSelectModule,
+    ProgressBarModule,
+    ButtonModule,
+    FormsModule,
+    CardModule,
+    TabViewModule
+  ],
   templateUrl: './results-table.component.html',
   styleUrl: './results-table.component.scss'
 })
@@ -72,5 +83,4 @@ export class ResultsTableComponent implements OnInit {
     }
     return null;
   }
-  // }
 }

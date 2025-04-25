@@ -12,9 +12,18 @@ describe('ProjectComponent', () => {
   beforeAll(() => {
     // Mock ResizeObserver
     global.ResizeObserver = class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
+      observe(target: Element) {
+        // Mock implementation
+        console.log('Mock observe called on:', target);
+      }
+      unobserve(target: Element) {
+        // Mock implementation
+        console.log('Mock unobserve called on:', target);
+      }
+      disconnect() {
+        // Mock implementation
+        console.log('Mock disconnect called');
+      }
     };
   });
 

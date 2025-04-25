@@ -4,8 +4,7 @@ import PlatformComponent from './platform.component';
 import { CacheService } from '@services/cache/cache.service';
 import { WebsocketService } from '@sockets/websocket.service';
 import { DarkModeService } from '@services/dark-mode.service';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { signal } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('PlatformComponent', () => {

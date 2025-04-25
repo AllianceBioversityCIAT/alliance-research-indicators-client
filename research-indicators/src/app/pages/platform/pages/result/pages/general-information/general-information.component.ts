@@ -1,4 +1,4 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -18,7 +18,6 @@ import { SelectComponent } from '../../../../../../shared/components/custom-fiel
 import { GetMetadataService } from '../../../../../../shared/services/get-metadata.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SubmissionService } from '@shared/services/submission.service';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 interface Option {
   name: string;
@@ -37,12 +36,11 @@ interface Option {
     InputComponent,
     TextareaComponent,
     SelectComponent,
-    VersionSelectorComponent,
     AutoCompleteModule
   ],
   templateUrl: './general-information.component.html'
 })
-export default class GeneralInformationComponent {
+export default class GeneralInformationComponent implements OnInit {
   actions = inject(ActionsService);
   api = inject(ApiService);
   cache = inject(CacheService);
@@ -56,7 +54,7 @@ export default class GeneralInformationComponent {
   loading = signal(false);
   submission = inject(SubmissionService);
 
-  constructor() {
+  ngOnInit() {
     this.getData();
   }
 

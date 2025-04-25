@@ -4,8 +4,7 @@ import { Router } from '@angular/router';
 import { GlobalAlert } from '../interfaces/global-alert.interface';
 import { ToastMessage } from '../interfaces/toast-message.interface';
 import { ApiService } from './api.service';
-import { LoginRes, TokenValidation } from '../interfaces/responses.interface';
-import { MainResponse } from '../interfaces/responses.interface';
+import { LoginRes, TokenValidation, MainResponse } from '../interfaces/responses.interface';
 import { DataCache } from '../interfaces/cache.interface';
 
 @Injectable({
@@ -56,7 +55,7 @@ export class ActionsService {
     const lastInitial = user.last_name?.split(' ')[0]?.[0] ?? '';
     return (firstInitial + lastInitial).toUpperCase();
   });
-  
+
   validateToken() {
     if (this.cache.dataCache().access_token) this.cache.isLoggedIn.set(true);
   }
