@@ -66,7 +66,6 @@ export class InputComponent {
   setValue(value: any) {
     if (this.onlyLowerCase) value = value.toLowerCase();
 
-    // this.signal.set({ ...this.signal(), [this.optionValue]: value });
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, value);
   }

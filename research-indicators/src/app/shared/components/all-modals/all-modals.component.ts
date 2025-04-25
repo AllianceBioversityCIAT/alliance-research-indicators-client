@@ -9,8 +9,7 @@ import { RequestPartnerModalComponent } from './modals-content/request-partner-m
 @Component({
   selector: 'app-all-modals',
   imports: [ModalComponent, CreateResultModalComponent, RequestPartnerModalComponent, SubmitResultContentComponent],
-  templateUrl: './all-modals.component.html',
-  styleUrl: './all-modals.component.scss'
+  templateUrl: './all-modals.component.html'
 })
 export class AllModalsComponent {
   createResultManagementService = inject(CreateResultManagementService);

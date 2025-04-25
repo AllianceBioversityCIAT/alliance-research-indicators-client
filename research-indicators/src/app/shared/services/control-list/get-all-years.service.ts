@@ -15,7 +15,6 @@ export class GetAllYearsService {
 
   async main() {
     this.loading.set(true);
-    // const response = await this.api.GET_AllYears();
     this.list.set([
       { id: 2024, name: '2024' },
       { id: 2025, name: '2025' }

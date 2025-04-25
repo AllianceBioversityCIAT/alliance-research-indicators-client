@@ -7,8 +7,7 @@ import { CreateResultManagementService } from './services/create-result-manageme
 @Component({
   selector: 'app-create-result-modal',
   imports: [CreateResultFormComponent, ResultAiAssistantComponent],
-  templateUrl: './create-result-modal.component.html',
-  styleUrl: './create-result-modal.component.scss'
+  templateUrl: './create-result-modal.component.html'
 })
 export class CreateResultModalComponent {
   createResultManagementService = inject(CreateResultManagementService);
