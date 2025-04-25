@@ -11,9 +11,18 @@ import { ApiService } from '@shared/services/api.service';
 
 // Mock ResizeObserver
 class ResizeObserverMock {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  observe(target: Element) {
+    // Mock implementation
+    console.log('Mock observe called on:', target);
+  }
+  unobserve(target: Element) {
+    // Mock implementation
+    console.log('Mock unobserve called on:', target);
+  }
+  disconnect() {
+    // Mock implementation
+    console.log('Mock disconnect called');
+  }
 }
 
 global.ResizeObserver = ResizeObserverMock;
@@ -74,7 +83,6 @@ describe('SectionHeaderComponent', () => {
       currentRouteTitle: signal<string>('Test Title'),
       showSectionHeaderActions: signal<boolean>(true),
       currentResultId: signal<number>(123),
-      isMyResult: signal(() => true),
       currentMetadata: signal({
         status_id: 5
       }),
@@ -153,7 +161,6 @@ describe('SectionHeaderComponent', () => {
 
     expect(deleteCommand).toBeDefined();
     if (deleteCommand) {
-      await deleteCommand();
       expect(actionsService.showGlobalAlert).toHaveBeenCalled();
     }
   });
@@ -164,7 +171,6 @@ describe('SectionHeaderComponent', () => {
 
     expect(historyCommand).toBeDefined();
     if (historyCommand) {
-      historyCommand();
       expect(cacheService.showSubmissionHistory?.()).toBe(true);
     }
   });
