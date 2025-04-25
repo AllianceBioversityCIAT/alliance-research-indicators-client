@@ -4,9 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-dynamic-select',
   standalone: true,
   imports: [],
-  templateUrl: './dynamic-select.component.html',
-  styleUrl: './dynamic-select.component.scss'
+  templateUrl: './dynamic-select.component.html'
 })
-export class DynamicSelectComponent {
-
-}
+export class DynamicSelectComponent {}
