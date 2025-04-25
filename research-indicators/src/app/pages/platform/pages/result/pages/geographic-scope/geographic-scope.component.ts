@@ -108,7 +108,7 @@ export default class GeographicScopeComponent implements OnInit {
   mapSignal = () => {
     this.body.update(currentBody => {
       currentBody.countries?.forEach((country: Country) => {
-        country.result_countries_sub_nationals_signal = signal({ regions: country.result_countries_sub_nationals || [] });
+        country.result_countries_sub_nationals_signal = signal({ regions: country.result_countries_sub_nationals ?? [] });
       });
       return currentBody;
     });
@@ -117,7 +117,7 @@ export default class GeographicScopeComponent implements OnInit {
   mapArray = () => {
     this.body.update(currentBody => {
       currentBody.countries?.forEach((country: Country) => {
-        country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal().regions || [];
+        country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal().regions ?? [];
       });
       return currentBody;
     });

@@ -93,13 +93,15 @@ export default class DynamicFieldsComponent implements OnInit {
 
         case 'section':
         case 'block':
-          const nestedData = field.attribute && data ? data[field.attribute] : data;
-          const nestedGroup = this.buildFormGroup(field.fields, nestedData);
-          if (field.attribute) {
-            group.addControl(field.attribute, nestedGroup);
-          } else {
-            // Fusionar controles si no se especifica atributo
-            Object.assign(group.controls, nestedGroup.controls);
+          {
+            const nestedData = field.attribute && data ? data[field.attribute] : data;
+            const nestedGroup = this.buildFormGroup(field.fields, nestedData);
+            if (field.attribute) {
+              group.addControl(field.attribute, nestedGroup);
+            } else {
+              // Fusionar controles si no se especifica atributo
+              Object.assign(group.controls, nestedGroup.controls);
+            }
           }
           break;
 

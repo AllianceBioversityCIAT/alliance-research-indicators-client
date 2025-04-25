@@ -22,7 +22,13 @@ export class IndicatorsService {
     this.loading.set(false);
   }
 
-  generateGroupedIndicators(data: IndicatorTypes[], parentLabelKey: keyof IndicatorTypes, parentValueKey: keyof IndicatorTypes, itemLabelKey: keyof Indicator, itemValueKey: keyof Indicator) {
+  generateGroupedIndicators(
+    data: IndicatorTypes[],
+    parentLabelKey: keyof IndicatorTypes,
+    parentValueKey: keyof IndicatorTypes,
+    itemLabelKey: keyof Indicator,
+    itemValueKey: keyof Indicator
+  ) {
     const targetIndicatorIds = [1, 4];
     const filteredData = data.filter(parent => parent.indicators.some(item => targetIndicatorIds.includes(item.indicator_id)));
 
@@ -36,13 +42,5 @@ export class IndicatorsService {
           value: item[itemValueKey] as string
         }))
     }));
-    // return data.map(parent => ({
-    //   label: parent[parentLabelKey] as string,
-    //   value: parent[parentValueKey] as string,
-    //   items: parent.indicators.map(item => ({
-    //     label: item[itemLabelKey] as string,
-    //     value: item[itemValueKey] as string
-    //   }))
-    // }));
   }
 }

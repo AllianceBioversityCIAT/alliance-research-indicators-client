@@ -25,7 +25,6 @@ export interface IpOwners {
   name: string;
 }
 
-
 export interface Gender {
   is_active: boolean;
   gender_id: number;
@@ -49,13 +48,13 @@ export interface GetCapSharing {
 }
 
 interface GroupTraining {
-  is_attending_organization?: number | boolean | null | undefined;
-  session_participants_female?: number | null | undefined;
-  session_participants_male?: number | null | undefined;
-  session_participants_non_binary?: number | null | undefined;
-  session_participants_total?: number | null | undefined;
-  session_purpose_description?: string | null | undefined;
-  session_purpose_id?: number | null | undefined;
+  is_attending_organization: number | boolean | null | undefined;
+  session_participants_female: number | null | undefined;
+  session_participants_male: number | null | undefined;
+  session_participants_non_binary: number | null | undefined;
+  session_participants_total: number | null | undefined;
+  session_purpose_description: string | null | undefined;
+  session_purpose_id: number | null | undefined;
   trainee_organization_representative?: [];
 }
 
@@ -63,7 +62,7 @@ interface Trainingsupervisorlanguages {
   is_active?: boolean;
   result_language_id?: number;
   result_id?: number;
-  language_id?: number | string | null | undefined;
+  language_id: number | string | null | undefined;
   language_role_id?: number;
   language?: Language;
 }
@@ -80,7 +79,7 @@ interface Trainingsupervisor {
   is_active?: boolean;
   result_user_id?: number;
   result_id?: number;
-  user_id?: string | number | null | undefined;
+  user_id: string | number | null | undefined;
   user_role_id?: number;
   user?: User;
 }

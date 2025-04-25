@@ -1,4 +1,5 @@
-<p-table class="w-full"
+<p-table
+  class="w-full"
   #dt1
   [value]="resultList() | filterByTextWithAttr: 'full_name' : searchValue"
   dataKey="id"
@@ -16,7 +17,6 @@
         <input [(ngModel)]="searchValue" type="text" placeholder="Search by code, title or creator" />
       </div>
       <div class="options">
-        <!-- <p-button label="Export Results" icon="pi pi-file-export" iconPos="right" size="small" /> -->
         <p-button label="Clear" [text]="true" icon="pi pi-filter-slash" (onClick)="clear(dt1)" size="small" />
       </div>
     </div>
@@ -24,7 +24,7 @@
   <ng-template pTemplate="header" let-customer>
     <tr>
       @for (col of this.columns; track $index) {
-        <th [pSortableColumn]="col.attr">
+        <th [pSortableColumn]="col.attr" scope="col">
           <div class="flex items-start gap-2">
             {{ col.header }}
             <p-sortIcon field="{{ col.attr }}"></p-sortIcon>

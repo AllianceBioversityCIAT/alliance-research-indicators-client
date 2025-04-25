@@ -78,7 +78,8 @@ class MockStyleSheet {
     if (rule.includes('@layer')) {
       return 0;
     }
-    return 0;
+    this.cssRules.push({ cssText: rule } as CSSRule);
+    return this.cssRules.length - 1; // Return the index of the newly added rule
   }
   deleteRule(): void {
     // No-op

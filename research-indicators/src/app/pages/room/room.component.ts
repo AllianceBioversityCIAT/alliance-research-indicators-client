@@ -8,8 +8,7 @@ import { SocketUser } from '../../shared/interfaces/sockets.interface';
 @Component({
   selector: 'app-room',
   imports: [],
-  templateUrl: './room.component.html',
-  styleUrl: './room.component.scss'
+  templateUrl: './room.component.html'
 })
 export default class RoomComponent implements OnInit, OnDestroy {
   websocket = inject(WebsocketService);
