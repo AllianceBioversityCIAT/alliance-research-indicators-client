@@ -29,7 +29,7 @@ jobs:
       - name: Set JAVA_HOME and SONAR_JAVA_HOME
         run: |
           echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> $GITHUB_ENV
-          echo "SONAR_JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> $GITHUB_ENV
+          echo "SONAR_JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
           echo "JAVA_HOME and SONAR_JAVA_HOME are set to $(dirname $(dirname $(readlink -f $(which java))))"
 
       # Step 4: Checkout the repository code
@@ -86,32 +86,24 @@ jobs:
           EOL
         working-directory: ./research-indicators # Correct directory path
 
-      # Step 7: Install SonarScanner
+      # Step 7: Install SonarScanner (only if needed)
       - name: Install SonarScanner
         run: |
-          # Download and install SonarScanner
+          # Use system package manager to install sonar-scanner
           sudo apt-get update
-          sudo apt-get install -y unzip
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
-          unzip sonar-scanner-cli-4.6.2.2472-linux.zip
-          sudo mv sonar-scanner-4.6.2.2472-linux /opt/sonar-scanner
-          sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
+          sudo apt-get install -y sonar-scanner
 
       # Step 8: Run SonarCloud analysis
       - name: Run SonarCloud analysis
         run: |
-          # Establecer JAVA_HOME a la versión correcta de Java (Java 17)
-          export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-          export SONAR_JAVA_HOME=$JAVA_HOME
-
           # Verificar la versión de Java que se está utilizando
           java -version
 
           # Ejecutar el build de Angular
           npm run build
 
-          # Ejecutar SonarScanner
-          JAVA_HOME=$JAVA_HOME sonar-scanner -Dsonar.host.url=https://sonarcloud.io
+          # Ejecutar SonarScanner con la versión correcta de Java
+          sonar-scanner -Dsonar.host.url=https://sonarcloud.io
         working-directory: ./research-indicators # Correct directory path
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use SonarCloud token from GitHub secrets
