@@ -36,13 +36,6 @@
           </ng-template>
         </p-button>
       </div>
-
-      <!-- <div class="header-container">
-        <div class="header">
-          <span class="title-text-no-results">NO RESULTS FOUND FOR YOUR SEARCH</span>
-          <span class="description-text">You searched "Systems Resources''. Please check the entered term or try using different keywords.</span>
-        </div>
-      </div> -->
     } @else {
       @for (result of this.getOsResultService.list(); track $index) {
         <div class="card-container" [routerLink]="['/result', result.result_id]">

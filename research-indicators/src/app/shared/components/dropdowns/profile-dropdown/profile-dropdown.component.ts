@@ -4,9 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-profile-dropdown',
   standalone: true,
   imports: [],
-  templateUrl: './profile-dropdown.component.html',
-  styleUrl: './profile-dropdown.component.scss'
+  templateUrl: './profile-dropdown.component.html'
 })
-export class ProfileDropdownComponent {
-
-}
+export class ProfileDropdownComponent {}

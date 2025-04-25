@@ -87,7 +87,7 @@ export class ActionsService {
         await Promise.all(deletions);
 
         // Check if service worker is available and registered
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        if (navigator.serviceWorker?.controller) {
           try {
             const registration = await navigator.serviceWorker.ready;
             if (registration) {

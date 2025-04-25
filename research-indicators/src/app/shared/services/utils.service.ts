@@ -12,9 +12,7 @@ export class UtilsService {
       signal.update(obj => {
         keys.slice(0, -1).reduce((acc, key) => {
           // Crea el subobjeto si no existe
-          if (!acc[key]) {
-            acc[key] = {};
-          }
+          acc[key] ??= {};
           return acc[key];
         }, obj)[keys[keys.length - 1]] = value;
         return { ...obj };
@@ -32,9 +30,7 @@ export class UtilsService {
     if (keys.length >= 2) {
       keys.slice(0, -1).reduce((acc, key) => {
         // Crea el subobjeto si no existe
-        if (!acc[key]) {
-          acc[key] = {};
-        }
+        acc[key] ??= {};
         return acc[key];
       }, obj)[keys[keys.length - 1]] = value;
     } else {
@@ -44,13 +40,13 @@ export class UtilsService {
 
   getNestedProperty(obj: any, path: string): any {
     const splitted = path.split('.');
-    if (splitted.length >= 2) return splitted.reduce((acc, key) => acc && acc[key], obj);
+    if (splitted.length >= 2) return splitted.reduce((acc, key) => acc?.[key], obj);
     return obj[splitted[0]];
   }
 
   getNestedPropertySignal(signal: WritableSignal<any>, path: string): any {
     const splitted = path.split('.');
-    if (splitted.length >= 2) return splitted.reduce((acc, key) => acc && acc[key], signal());
+    if (splitted.length >= 2) return splitted.reduce((acc, key) => acc?.[key], signal());
     return signal()[splitted[0]];
   }
 }
