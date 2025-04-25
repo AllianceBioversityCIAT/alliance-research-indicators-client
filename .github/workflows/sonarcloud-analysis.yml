@@ -101,7 +101,7 @@ jobs:
           npm run build
 
           # Ejecutar SonarScanner con la versión correcta de Java
-          sonar-scanner -Dsonar.host.url=https://sonarcloud.io
+          sonar-scanner -Dsonar.projectKey=AllianceBioversityCIAT_alliance-research-indicators-client -Dsonar.organization=alliancebioversityciat -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
         working-directory: ./research-indicators # Correct directory path
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use SonarCloud token from GitHub secrets
