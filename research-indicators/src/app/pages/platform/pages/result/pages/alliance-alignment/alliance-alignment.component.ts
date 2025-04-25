@@ -65,7 +65,7 @@ export default class AllianceAlignmentComponent implements OnInit {
   }
 
   get showPrimaryLeverError(): boolean {
-    const levers = this.body().levers || [];
+    const levers = this.body().levers ?? [];
     return levers.length > 1 && !levers.some(l => l.is_primary);
   }
 

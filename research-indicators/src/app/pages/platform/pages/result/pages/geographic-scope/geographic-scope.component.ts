@@ -59,7 +59,7 @@ export default class GeographicScopeComponent implements OnInit {
     const scopeId = Number(this.body().geo_scope_id);
     if (scopeId !== 5) return false;
 
-    const countries = this.body().countries || [];
+    const countries = this.body().countries ?? [];
 
     return countries.some(
       country => !country.result_countries_sub_nationals_signal?.() || (country.result_countries_sub_nationals_signal()?.regions?.length ?? 0) === 0
