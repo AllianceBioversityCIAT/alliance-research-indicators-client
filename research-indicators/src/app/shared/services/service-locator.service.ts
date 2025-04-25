@@ -40,10 +40,10 @@ export class ServiceLocatorService {
 
   getService(serviceName: ControlListServices) {
     return (
-      this.getPrimaryServices(serviceName) ||
-      this.getSecondaryServices(serviceName) ||
-      this.getTertiaryServices(serviceName) ||
-      this.getQuaternaryServices(serviceName) ||
+      this.getPrimaryServices(serviceName) ??
+      this.getSecondaryServices(serviceName) ??
+      this.getTertiaryServices(serviceName) ??
+      this.getQuaternaryServices(serviceName) ??
       this.getOtherServices(serviceName)
     );
   }
