@@ -8,6 +8,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
+import { MenuItemCommandEvent } from 'primeng/api';
 
 // Mock ResizeObserver
 class ResizeObserverMock {
@@ -155,12 +156,17 @@ describe('SectionHeaderComponent', () => {
     expect(component.welcomeMessage()).toBe('Test Route');
   });
 
-  it('should handle delete result action', async () => {
+  it('should handle delete result action', () => {
     const deleteMenuItem = component.items().find(item => item.items?.some(subItem => subItem.label === 'Delete Result'));
     const deleteCommand = deleteMenuItem?.items?.find(item => item.label === 'Delete Result')?.command;
 
     expect(deleteCommand).toBeDefined();
+
     if (deleteCommand) {
+      const fakeEvent = { originalEvent: new Event('click'), item: {} } as MenuItemCommandEvent;
+
+      deleteCommand(fakeEvent);
+
       expect(actionsService.showGlobalAlert).toHaveBeenCalled();
     }
   });
@@ -170,7 +176,11 @@ describe('SectionHeaderComponent', () => {
     const historyCommand = historyMenuItem?.items?.find(item => item.label === 'Submission History')?.command;
 
     expect(historyCommand).toBeDefined();
+
     if (historyCommand) {
+      const fakeEvent = { originalEvent: new Event('click'), item: {} } as MenuItemCommandEvent;
+      historyCommand(fakeEvent);
+
       expect(cacheService.showSubmissionHistory?.()).toBe(true);
     }
   });
