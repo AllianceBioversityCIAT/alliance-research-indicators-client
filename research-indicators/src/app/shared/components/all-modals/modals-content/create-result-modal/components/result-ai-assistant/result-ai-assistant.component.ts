@@ -8,6 +8,9 @@ import { ActionsService } from '../../../../../../services/actions.service';
 import { AIAssistantResult } from '../../models/AIAssistantResult';
 import { ResultAiItemComponent } from './components/result-ai-item/result-ai-item.component';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { FileManagerService } from '@shared/services/file-manager.service';
+import { ResultRawAi, TextMiningService } from '@shared/services/text-mining.service';
+import { CacheService } from '@shared/services/cache/cache.service';
 
 @Component({
   selector: 'app-result-ai-assistant',
@@ -31,6 +34,9 @@ export class ResultAiAssistantComponent {
   actions = inject(ActionsService);
   createResultManagementService = inject(CreateResultManagementService);
   allModalsService = inject(AllModalsService);
+  fileManagerService = inject(FileManagerService);
+  textMiningService = inject(TextMiningService);
+  cache = inject(CacheService);
 
   constructor() {
     this.allModalsService.setGoBackFunction(() => this.goBack());
@@ -118,30 +124,77 @@ export class ResultAiAssistantComponent {
     this.createResultManagementService.resultPageStep.set(1);
   }
 
-  async handleAnalyzingDocument() {
-    if (!this.selectedFile) return;
+  async handleAnalyzingDocument(): Promise<void> {
+    if (!this.selectedFile) {
+      console.warn('No file selected.');
+      return;
+    }
 
     this.analyzingDocument.set(true);
-    const form = new FormData();
-    form.append('file', this.selectedFile);
-    const result = await this.TP.post(`results/ai/create`, form);
 
-    if (!result?.data?.results) {
-      this.analyzingDocument.set(false);
-      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
-      return;
-    }
+    try {
+      // 1. Subir el archivo
+      const uploadResponse = await this.fileManagerService.uploadFile(this.selectedFile, String(this.cache.dataCache().user.sec_user_id));
 
-    if (result?.data?.results?.length === 0) {
-      this.analyzingDocument.set(false);
-      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'No results found. Please try again.' });
-      return;
-    }
+      const filename = uploadResponse.data.filename;
 
-    if (result.successfulRequest) {
-      this.createResultManagementService.items.set(result.data.results);
-      this.analyzingDocument.set(false);
+      if (!filename) {
+        throw new Error('No se pudo obtener el nombre del archivo subido.');
+      }
+
+      // 2. Ejecutar text mining con el nombre del archivo
+      const miningResponse = (await this.textMiningService.executeTextMining(filename)).content;
+
+      if (!miningResponse?.length) {
+        this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
+        return;
+      }
+
+      let combinedResults: ResultRawAi[] = [];
+
+      for (const item of miningResponse) {
+        if (item?.text) {
+          try {
+            const parsedText = JSON.parse(item.text);
+
+            if (parsedText?.results?.length > 0) {
+              combinedResults = combinedResults.concat(parsedText.results);
+            }
+          } catch (parseError) {
+            console.error('Error parsing text:', parseError);
+          }
+        }
+      }
+
+      if (combinedResults.length === 0) {
+        this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'No results found. Please try again.' });
+        return;
+      }
+
+      const mappedResults = this.mapResultRawAiToAIAssistantResult(combinedResults);
+
+      this.createResultManagementService.items.set(mappedResults);
       this.documentAnalyzed.set(true);
+    } catch (error) {
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
+      throw error;
+    } finally {
+      this.analyzingDocument.set(false);
     }
+  }
+
+  private mapResultRawAiToAIAssistantResult(results: ResultRawAi[]): AIAssistantResult[] {
+    return results.map(result => ({
+      indicator: result.indicator,
+      title: result.title,
+      description: result.description,
+      keywords: result.keywords,
+      geoscope: result.geoscope.sub_list ?? [],
+      training_type: result.training_type,
+      total_participants: result.total_participants,
+      male_participants: result.male_participants ?? 0,
+      female_participants: result.female_participants ?? 0,
+      non_binary_participants: result.non_binary_participants ?? '0'
+    }));
   }
 }
