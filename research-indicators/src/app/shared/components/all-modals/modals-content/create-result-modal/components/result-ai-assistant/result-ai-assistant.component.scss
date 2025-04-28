@@ -87,10 +87,8 @@ p {
   flex-direction: column;
   gap: 24px;
   justify-content: flex-start;
-  max-height: 460px;
-  height: 460px;
-  border-radius: 0 0 27px 27px;
 
+  border-radius: 0 0 27px 27px;
 
   @media (min-width: 1201px) {
     max-width: 915px;
