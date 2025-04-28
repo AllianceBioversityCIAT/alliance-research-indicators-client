@@ -56,7 +56,6 @@ export interface ResponseAiRoarDto {
 export interface MiningTextItem {
   type: string;
   text: string;
-  annotations?: any;
 }
 
 @Injectable({
