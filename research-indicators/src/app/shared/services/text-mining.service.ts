@@ -34,7 +34,7 @@ export interface MiningTextItem {
   providedIn: 'root'
 })
 export class TextMiningService {
-  private readonly baseUrl = 'http://mining-load-balancer-232292462.us-east-1.elb.amazonaws.com';
+  private readonly baseUrl = 'https://d3djd7q7g7v7di.cloudfront.net';
 
   cache = inject(CacheService);
   api = inject(ApiService);
