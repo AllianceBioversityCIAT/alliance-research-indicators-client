@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, LOCALE_ID, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -42,13 +42,31 @@ export class CreateResultFormComponent {
   router = inject(Router);
   api = inject(ApiService);
   actions = inject(ActionsService);
-  body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null; year: string | null }>({
+  body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null; year: number | null }>({
     indicator_id: null,
     title: null,
     year: null,
     contract_id: null
   });
   filteredPrimaryContracts = signal<GetContracts[]>([]);
+
+  onYearsLoaded = effect(
+    () => {
+      const years = this.yearsService.list();
+      const currentYear = new Date().getFullYear();
+
+      console.log('AÑOS CARGADOS:', years);
+      console.log('AÑO ACTUAL:', currentYear);
+
+      if (years.length > 0 && years.some(y => y.report_year === currentYear)) {
+        this.body.update(body => ({
+          ...body,
+          year: currentYear
+        }));
+      }
+    },
+    { allowSignalWrites: true }
+  );
 
   async createResult(openresult?: boolean) {
     const result = await this.api.POST_Result(this.body());

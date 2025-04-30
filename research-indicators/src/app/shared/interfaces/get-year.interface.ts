@@ -1,3 +1,3 @@
 export interface GetYear {
-  report_year: string;
+  report_year: number;
 }
