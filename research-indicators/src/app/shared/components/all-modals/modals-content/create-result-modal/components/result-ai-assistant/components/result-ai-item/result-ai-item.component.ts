@@ -3,8 +3,10 @@ import { ChangeDetectionStrategy, Component, inject, Input, signal } from '@angu
 import { AIAssistantResult } from '../../../../models/AIAssistantResult';
 import { CreateResultManagementService } from '../../../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
-import { ToPromiseService } from '@shared/services/to-promise.service';
-import { ActionsService } from '../../../../../../../../services/actions.service';
+import { ApiService } from '@shared/services/api.service';
+import { Router } from '@angular/router';
+import { ActionsService } from '@shared/services/actions.service';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 
 type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_participants' | 'male_participants';
 
@@ -17,6 +19,13 @@ type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_pa
 })
 export class ResultAiItemComponent {
   @Input() item!: AIAssistantResult;
+  createResultManagementService = inject(CreateResultManagementService);
+  createdResults = signal<Set<string>>(new Set());
+  api = inject(ApiService);
+  isCreated = signal(false);
+  actions = inject(ActionsService);
+  allModalsService = inject(AllModalsService);
+
   expandedItemDetails = [
     { title: 'Total participants', value: 'total_participants' as DetailValue },
     { title: 'Non-binary', value: 'non_binary_participants' as DetailValue },
@@ -34,9 +43,7 @@ export class ResultAiItemComponent {
   ];
   isCreating = signal(false);
 
-  createResultManagementService = inject(CreateResultManagementService);
-  TP = inject(ToPromiseService);
-  actions = inject(ActionsService);
+  constructor(private readonly router: Router) {}
 
   getIndicatorTypeIcon(type: string) {
     return {
@@ -53,19 +60,27 @@ export class ResultAiItemComponent {
     this.createResultManagementService.items.update(items => items.filter(i => i !== item));
   }
 
-  async createResult(temp_result_ai: number) {
-    this.isCreating.set(true);
+  createResult(item: AIAssistantResult) {
+    this.api
+      .POST_CreateResult({ ...item })
+      .then(response => {
+        if (!response.successfulRequest) {
+          this.isCreated.set(false);
+          this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
+        } else {
+          this.isCreated.set(true);
+          if ('data' in response && 'result_official_code' in response.data) {
+            item.result_official_code = response.data.result_official_code as string;
+          }
+        }
+      })
+      .catch(err => {
+        console.error('Error creating result:', err);
+      });
+  }
 
-    const result = await this.TP.patch(`results/ai/${temp_result_ai}/formalize`, {});
-
-    if (!result.successfulRequest) {
-      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
-      this.isCreating.set(false);
-      return;
-    }
-
-    this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Result created successfully.' });
-    this.discardResult(this.item);
-    this.isCreating.set(false);
+  openResult(item: AIAssistantResult) {
+    this.router.navigate([`/result/${item.result_official_code}/general-information`]);
+    this.allModalsService.closeModal('createResult');
   }
 }

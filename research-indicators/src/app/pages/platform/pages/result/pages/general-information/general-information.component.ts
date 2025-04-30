@@ -50,7 +50,14 @@ export default class GeneralInformationComponent implements OnInit {
   getResultsService = inject(GetResultsService);
   getUserStaffService = inject(GetUserStaffService);
   options: Option[] | undefined;
-  body: WritableSignal<GeneralInformation> = signal({ title: '', description: '', keywords: [], user_id: '', main_contact_person: { user_id: '' } });
+  body: WritableSignal<GeneralInformation> = signal({
+    title: '',
+    description: '',
+    year: '',
+    keywords: [],
+    user_id: '',
+    main_contact_person: { user_id: '' }
+  });
   loading = signal(false);
   submission = inject(SubmissionService);
 
