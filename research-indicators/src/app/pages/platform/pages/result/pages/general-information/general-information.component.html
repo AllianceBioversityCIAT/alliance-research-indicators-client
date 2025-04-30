@@ -31,6 +31,16 @@
           </div>
 
           <div class="flex flex-col xl:flex-row gap-5">
+            <div class="flex-1 max-w-[160px]">
+              <app-select
+                label="Reporting year"
+                [disabled]="!submission.isEditableStatus()"
+                [signal]="this.body"
+                [optionValue]="{ body: 'year', option: 'year' }"
+                optionLabel="report_year"
+                serviceName="getYears"></app-select>
+            </div>
+
             <div class="flex-1">
               <app-select
                 label="Main contact person"
