@@ -25,7 +25,7 @@ import { GetContracts } from '@shared/interfaces/get-contracts.interface';
 })
 export class ResultAiAssistantComponent {
   acceptedFormats: string[] = ['.pdf', '.docx', '.txt'];
-  maxSizeMB = 300;
+  maxSizeMB = 10;
   isDragging = false;
   selectedFile: File | null = null;
   analyzingDocument = signal(false);

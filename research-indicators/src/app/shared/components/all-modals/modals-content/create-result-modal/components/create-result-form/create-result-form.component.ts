@@ -55,9 +55,6 @@ export class CreateResultFormComponent {
       const years = this.yearsService.list();
       const currentYear = new Date().getFullYear();
 
-      console.log('AÑOS CARGADOS:', years);
-      console.log('AÑO ACTUAL:', currentYear);
-
       if (years.length > 0 && years.some(y => y.report_year === currentYear)) {
         this.body.update(body => ({
           ...body,
