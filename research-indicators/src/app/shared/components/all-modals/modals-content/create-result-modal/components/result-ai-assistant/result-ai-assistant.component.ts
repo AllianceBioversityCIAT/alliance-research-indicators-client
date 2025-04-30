@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -9,12 +9,16 @@ import { AIAssistantResult } from '../../models/AIAssistantResult';
 import { ResultAiItemComponent } from './components/result-ai-item/result-ai-item.component';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { FileManagerService } from '@shared/services/file-manager.service';
-import { ResultRawAi, TextMiningService } from '@shared/services/text-mining.service';
+import { TextMiningService } from '@shared/services/text-mining.service';
 import { CacheService } from '@shared/services/cache/cache.service';
+import { SelectModule } from 'primeng/select';
+import { GetContractsService } from '@shared/services/control-list/get-contracts.service';
+import { FormsModule } from '@angular/forms';
+import { GetContracts } from '@shared/interfaces/get-contracts.interface';
 
 @Component({
   selector: 'app-result-ai-assistant',
-  imports: [CommonModule, ButtonModule, PaginatorModule, ResultAiItemComponent],
+  imports: [CommonModule, ButtonModule, PaginatorModule, SelectModule, FormsModule, ResultAiItemComponent],
   templateUrl: './result-ai-assistant.component.html',
   styleUrl: './result-ai-assistant.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -29,6 +33,8 @@ export class ResultAiAssistantComponent {
   first = signal(0);
   rows = signal(5);
   expandedItem = signal<AIAssistantResult | null>(null);
+  getContractsService = inject(GetContractsService);
+  filteredPrimaryContracts = signal<GetContracts[]>([]);
 
   TP = inject(ToPromiseService);
   actions = inject(ActionsService);
@@ -37,6 +43,13 @@ export class ResultAiAssistantComponent {
   fileManagerService = inject(FileManagerService);
   textMiningService = inject(TextMiningService);
   cache = inject(CacheService);
+  body = signal<{ contract_id: number | null }>({
+    contract_id: null
+  });
+
+  isInvalid = computed(() => {
+    return !this.body().contract_id;
+  });
 
   constructor() {
     this.allModalsService.setGoBackFunction(() => this.goBack());
@@ -133,16 +146,13 @@ export class ResultAiAssistantComponent {
     this.analyzingDocument.set(true);
 
     try {
-      // 1. Subir el archivo
-      const uploadResponse = await this.fileManagerService.uploadFile(this.selectedFile, String(this.cache.dataCache().user.sec_user_id));
-
+      const uploadResponse = await this.fileManagerService.uploadFile(this.selectedFile);
       const filename = uploadResponse.data.filename;
 
       if (!filename) {
         throw new Error('No se pudo obtener el nombre del archivo subido.');
       }
 
-      // 2. Ejecutar text mining con el nombre del archivo
       const miningResponse = (await this.textMiningService.executeTextMining(filename)).content;
 
       if (!miningResponse?.length) {
@@ -150,13 +160,11 @@ export class ResultAiAssistantComponent {
         return;
       }
 
-      let combinedResults: ResultRawAi[] = [];
-
+      let combinedResults: AIAssistantResult[] = [];
       for (const item of miningResponse) {
         if (item?.text) {
           try {
             const parsedText = JSON.parse(item.text);
-
             if (parsedText?.results?.length > 0) {
               combinedResults = combinedResults.concat(parsedText.results);
             }
@@ -165,14 +173,12 @@ export class ResultAiAssistantComponent {
           }
         }
       }
-
       if (combinedResults.length === 0) {
         this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'No results found. Please try again.' });
         return;
       }
 
       const mappedResults = this.mapResultRawAiToAIAssistantResult(combinedResults);
-
       this.createResultManagementService.items.set(mappedResults);
       this.documentAnalyzed.set(true);
     } catch (error) {
@@ -183,18 +189,24 @@ export class ResultAiAssistantComponent {
     }
   }
 
-  private mapResultRawAiToAIAssistantResult(results: ResultRawAi[]): AIAssistantResult[] {
+  private mapResultRawAiToAIAssistantResult(results: AIAssistantResult[]): AIAssistantResult[] {
     return results.map(result => ({
       indicator: result.indicator,
       title: result.title,
       description: result.description,
       keywords: result.keywords,
-      geoscope: result.geoscope.sub_list ?? [],
+      geoscope: result.geoscope ?? [],
       training_type: result.training_type,
       total_participants: result.total_participants,
+      evidence_for_stage: result.evidence_for_stage,
+      policy_type: result.policy_type,
+      alliance_main_contact_person_first_name: result.alliance_main_contact_person_first_name,
+      alliance_main_contact_person_last_name: result.alliance_main_contact_person_last_name,
+      stage_in_policy_process: result.stage_in_policy_process,
       male_participants: result.male_participants ?? 0,
       female_participants: result.female_participants ?? 0,
-      non_binary_participants: result.non_binary_participants ?? '0'
+      non_binary_participants: result.non_binary_participants ?? '0',
+      contract_code: this.body().contract_id !== null ? String(this.body().contract_id) : undefined
     }));
   }
 }

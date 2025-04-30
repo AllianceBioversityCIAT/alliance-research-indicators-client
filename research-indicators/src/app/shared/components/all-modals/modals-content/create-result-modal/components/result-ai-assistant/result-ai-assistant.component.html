@@ -22,6 +22,69 @@
         </p>
       </div>
     </div>
+    <div class="flex flex-col">
+      <h2 class="mb-[6px] font-[600] text-[17px] text-[#153C71]" style="margin-top: 0">Primary Project <span class="text-red-500">*</span></h2>
+
+      <p-select
+        [options]="getContractsService.list()"
+        [(ngModel)]="body().contract_id"
+        optionLabel="select_label"
+        optionValue="agreement_id"
+        placeholder="Search by project code, project name or principal investigator"
+        [virtualScroll]="true"
+        [lazy]="true"
+        [virtualScrollItemSize]="10"
+        [style]="isInvalid() ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
+        [filter]="true"
+        (ngModelChange)="body.set({ contract_id: $event })"
+        [filterBy]="'select_label,project_lead_description'"
+        class="!text-base">
+        <ng-template let-item pTemplate="item">
+          <div class="primary-item">
+            <p>
+              <b>{{ item?.agreement_id }} -</b> {{ item?.description }}
+            </p>
+            <p class="primary-item-investigator space-x-3">
+              Principal investigator &rarr;
+              <span class="primary-item-investigator-name">{{ item?.project_lead_description }}</span>
+              <span class="text-[#B9C0C5]">|</span>
+              Start date &rarr;
+              <span class="primary-item-investigator-name">{{ item?.start_date | date: 'dd MMMM yyyy' }}</span>
+              <span class="text-[#B9C0C5]">|</span>
+              End date &rarr;
+              <span class="primary-item-investigator-name">{{ item?.end_date | date: 'dd MMMM yyyy' }}</span>
+            </p>
+          </div>
+          <div class="px-5 w-full flex items-end primary-item">
+            <button
+              class="uppercase max-w-22 text-xs font-semibold px-2 py-1 rounded-lg border"
+              [class.border-[#7CB580]]="item?.contract_status?.toUpperCase() !== 'ONGOING'"
+              [class.text-[#235B2D]]="item?.contract_status?.toUpperCase() !== 'ONGOING'"
+              [class.border-[#7C9CB9]]="item?.contract_status?.toUpperCase() === 'ONGOING'"
+              [class.text-[#153C71]]="item?.contract_status?.toUpperCase() === 'ONGOING'">
+              {{ item?.contract_status }}
+            </button>
+          </div>
+        </ng-template>
+
+        <ng-template let-selected pTemplate="selectedItem">
+          @if (selected?.select_label?.includes(' - ')) {
+            <span>
+              <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
+            </span>
+          } @else {
+            <span>{{ selected.select_label }}</span>
+          }
+        </ng-template>
+      </p-select>
+
+      @if (isInvalid()) {
+        <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+          <i class="material-symbols-rounded !text-base">warning</i>
+          <span>This field is required</span>
+        </div>
+      }
+    </div>
 
     <div class="file-upload-container">
       @if (!selectedFile) {
@@ -58,9 +121,9 @@
       type="button"
       class="analyze_button"
       [disabled]="!selectedFile"
-      [ngClass]="{ disabled: !selectedFile }"
+      [ngClass]="{ disabled: !selectedFile || isInvalid() }"
       (click)="handleAnalyzingDocument()">
-      Analyze Document
+      Analyze
       <i class="pi pi-sparkles" style="font-size: 16px"></i>
     </button>
   }

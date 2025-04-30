@@ -44,6 +44,9 @@ import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
 import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
 import { GetClarisaInstitutionsTypes } from '@shared/interfaces/get-clarisa-institutions-types.interface';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
+import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
+import { GetYear } from '@shared/interfaces/get-year.interface';
+import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -154,6 +157,11 @@ export class ApiService {
     return this.TP.post(url(), body, {});
   };
 
+  POST_CreateResult = (result: AIAssistantResult): Promise<MainResponse<CreateResultResponse | ExtendedHttpErrorResponse>> => {
+    const url = () => `results/ai/formalize`;
+    return this.TP.post(url(), result, {});
+  };
+
   // create partner request
   POST_PartnerRequest = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `tools/clarisa/manager/partner-request/create`;
@@ -197,6 +205,11 @@ export class ApiService {
 
   GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
     const url = () => `tools/clarisa/levers`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Years = (): Promise<MainResponse<GetYear[]>> => {
+    const url = () => `results/year`;
     return this.TP.get(url(), {});
   };
 

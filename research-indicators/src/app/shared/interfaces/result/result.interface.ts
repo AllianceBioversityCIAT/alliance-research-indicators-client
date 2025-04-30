@@ -14,6 +14,7 @@ export interface Result {
   report_year_id?: number;
   created_by_user?: { first_name: string; last_name: string };
   created_at?: string;
+  year?: string;
 }
 
 export interface ResultTable {

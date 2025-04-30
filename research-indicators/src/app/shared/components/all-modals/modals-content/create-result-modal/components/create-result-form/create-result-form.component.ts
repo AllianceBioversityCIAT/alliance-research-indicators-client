@@ -20,6 +20,7 @@ import { GetContracts } from '../../../../../../interfaces/get-contracts.interfa
 import { SelectModule } from 'primeng/select';
 import localeEs from '@angular/common/locales/es';
 import { DatePipe, registerLocaleData } from '@angular/common';
+import { GetYearsService } from '@shared/services/control-list/get-years.service';
 
 registerLocaleData(localeEs);
 @Component({
@@ -33,6 +34,7 @@ registerLocaleData(localeEs);
 export class CreateResultFormComponent {
   allModalsService = inject(AllModalsService);
   indicatorsService = inject(IndicatorsService);
+  yearsService = inject(GetYearsService);
   getContractsService = inject(GetContractsService);
   getResultsService = inject(GetResultsService);
   createResultManagementService = inject(CreateResultManagementService);
@@ -40,9 +42,10 @@ export class CreateResultFormComponent {
   router = inject(Router);
   api = inject(ApiService);
   actions = inject(ActionsService);
-  body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null }>({
+  body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null; year: string | null }>({
     indicator_id: null,
     title: null,
+    year: null,
     contract_id: null
   });
   filteredPrimaryContracts = signal<GetContracts[]>([]);
@@ -63,7 +66,7 @@ export class CreateResultFormComponent {
       detail: `Result "${this.body().title}" created successfully`
     });
     this.allModalsService.closeModal('createResult');
-    this.body.set({ indicator_id: null, title: null, contract_id: null });
+    this.body.set({ indicator_id: null, title: null, contract_id: null, year: null });
     if (openresult) this.actions.changeResultRoute(result.data.result_id);
     this.getResultsService.updateList();
   };
