@@ -1,17 +1,13 @@
-<div class="container grid pb-4.5 pr-4.5 pl-1 pt-2 grid-cols-[1fr_30%] h-[calc(100%-60px)]">
+<div class="container grid pb-4 pr-4 pl-1 pt-2 grid-cols-[1fr_30%] h-[calc(100%-60px)]">
   <div class="container-left">
     <h1 class="title-text">WANT ASSISTANCE WITH AI FOR YOUR RESULT CREATION?</h1>
 
     <div class="cards-container">
       <div
-        class="card under-construction-card"
+        class="card"
         style="position: relative"
         (keydown.enter)="this.createResultManagementService.resultPageStep.set(1)"
         (click)="this.createResultManagementService.resultPageStep.set(1)">
-        <div class="under-construction-image">
-          <img src="/construction.png" alt="construction" class="construction-icon" />
-        </div>
-
         <div class="card-content">
           <div style="width: 90px">
             <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
@@ -71,13 +67,15 @@
           </ng-template>
 
           <ng-template let-selected pTemplate="selectedItem">
-            @if (selected?.select_label?.includes(' - ')) {
-              <span>
-                <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
-              </span>
-            } @else {
-              <span>{{ selected.select_label }}</span>
-            }
+            <div class="flex items-center block whitespace-normal break-words gap-2">
+              @if (selected?.select_label?.includes(' - ')) {
+                <span>
+                  <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
+                </span>
+              } @else {
+                <span>{{ selected.select_label }}</span>
+              }
+            </div>
           </ng-template>
         </p-select>
       </div>
@@ -108,7 +106,7 @@
           </p-select>
         </div>
 
-        <div class="flex-1 xl:max-w-[280px]">
+        <div class="flex-1 xl:max-w-[260px]">
           <h2 class="title">Reporting year<span class="text-red-500">*</span></h2>
           <h4 class="description">Choose the year you are reporting data for.</h4>
           <p-select
