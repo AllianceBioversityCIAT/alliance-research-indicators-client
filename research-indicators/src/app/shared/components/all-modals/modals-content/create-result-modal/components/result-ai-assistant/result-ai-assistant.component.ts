@@ -119,8 +119,12 @@ export class ResultAiAssistantComponent {
     if (this.isValidFileType(file) && this.isValidFileSize(file)) {
       this.fileSelected(file);
     } else {
-      console.error('Invalid file type or size');
-      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Invalid file type or size' });
+      this.actions.showGlobalAlert({
+        severity: 'error',
+        hasNoButton: true,
+        summary: 'FILE SIZE EXCEEDED',
+        detail: `The uploaded document exceeds the ${this.maxSizeMB} MB limit. Please select a smaller file to continue. `
+      });
     }
   }
 
