@@ -43,6 +43,17 @@ export class ResultAiAssistantComponent {
   fileManagerService = inject(FileManagerService);
   textMiningService = inject(TextMiningService);
   cache = inject(CacheService);
+
+  activeIndex = signal(0);
+
+  steps = signal([
+    { label: 'Uploading document', completed: false, inProgress: false, progress: 0 },
+    { label: 'Reading content', completed: false, inProgress: false, progress: 0 },
+    { label: 'Analyzing text', completed: false, inProgress: false, progress: 0 },
+    { label: 'Finding relevant content', completed: false, inProgress: false, progress: 0 },
+    { label: 'Generating response', completed: false, inProgress: false, progress: 0 }
+  ]);
+
   body = signal<{ contract_id: number | null }>({
     contract_id: null
   });
@@ -144,6 +155,7 @@ export class ResultAiAssistantComponent {
     }
 
     this.analyzingDocument.set(true);
+    this.startProgress();
 
     try {
       const uploadResponse = await this.fileManagerService.uploadFile(this.selectedFile);
@@ -208,5 +220,54 @@ export class ResultAiAssistantComponent {
       non_binary_participants: result.non_binary_participants ?? '0',
       contract_code: this.body().contract_id !== null ? String(this.body().contract_id) : undefined
     }));
+  }
+
+  startProgress(): void {
+    let currentStep = 0;
+
+    this.runStep(currentStep);
+    this.activeIndex.set(currentStep);
+    currentStep++;
+
+    const stepInterval = setInterval(() => {
+      if (currentStep < this.steps().length) {
+        this.runStep(currentStep);
+        this.activeIndex.set(currentStep);
+        currentStep++;
+      } else {
+        clearInterval(stepInterval);
+      }
+    }, this.getRandomInterval());
+  }
+
+  runStep(index: number): void {
+    const step = this.steps()[index];
+    step.inProgress = true;
+    step.progress = 0;
+
+    const duration = this.getRandomInterval();
+    const increment = 100 / (duration / 300);
+
+    const progressTimer = setInterval(() => {
+      if (step.progress < 100) {
+        step.progress = Math.min(step.progress + increment, 100);
+        this.steps.update(steps => {
+          steps[index] = { ...step };
+          return [...steps];
+        });
+      } else {
+        clearInterval(progressTimer);
+        step.inProgress = false;
+        step.completed = true;
+        this.steps.update(steps => {
+          steps[index] = { ...step };
+          return [...steps];
+        });
+      }
+    }, 300);
+  }
+
+  getRandomInterval(): number {
+    return Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
   }
 }
