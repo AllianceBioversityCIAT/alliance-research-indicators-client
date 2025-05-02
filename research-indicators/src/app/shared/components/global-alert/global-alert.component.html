@@ -2,9 +2,7 @@
   <div class="alert-overlay">
     <div class="alert" [style]="{ borderColor: alert.color }">
       <div class="w-full flex justify-end -mt-4 -mr-5">
-        <i 
-          class="pi pi-times top-2 right-2 text-[#777C83] !text-[15px] cursor-pointer"
-          (click)="closeAlert($index)" (keydown)="closeAlert($index)">
+        <i class="pi pi-times top-2 right-2 text-[#777C83] !text-[15px] cursor-pointer" (click)="closeAlert($index)" (keydown)="closeAlert($index)">
         </i>
       </div>
 
@@ -15,32 +13,42 @@
       <div class="summary !text-[{{ alert.color }}]">{{ alert.summary }}</div>
       <div class="detail leading-5 text-[#4C5158]" [innerHTML]="alert.detail"></div>
       @if (alert.commentLabel) {
-      <app-input
-        [label]="alert.commentLabel"
-        [signal]="body"
-        [placeholder]="alert.placeholder ?? ''"
-        optionValue="commentValue"
-        [style]="{ width: '100%', textAlign: 'start' }"
-        autoComplete="off"
-        [isRequired]="alert.commentRequired || false">
-      </app-input>
+        <app-input
+          [label]="alert.commentLabel"
+          [signal]="body"
+          [placeholder]="alert.placeholder ?? ''"
+          optionValue="commentValue"
+          [style]="{ width: '100%', textAlign: 'start' }"
+          autoComplete="off"
+          [isRequired]="alert.commentRequired || false">
+        </app-input>
       }
-      <div class="flex gap-4">
-        <p-button 
-        [label]="alert.cancelCallback?.label" (onClick)="alert.cancelCallback?.event?.(); closeAlert($index)" variant="outlined" 
-        [style]="{ borderRadius: '13px', paddingLeft: '16px', paddingRight: '16px', border: '2px solid #035BA9', height: '38px' }"
-        />
-        @if (alert.confirmCallback?.event) {
+      @if (!alert.hasNoButton) {
+        <div class="flex gap-4">
           <p-button
-            [label]="alert.confirmCallback?.label"
-            (onClick)="alert.confirmCallback?.event?.(this.body().commentValue); closeAlert($index)"
-            [disabled]="alert.commentRequired && !this.body().commentValue"
-            [style]="{ backgroundColor: alert.buttonColor, borderColor: alert.buttonColor, borderRadius: '13px', paddingLeft: '20px', paddingRight: '20px', height: '38px' }" />
-        }
-        @for (callback of alert.callbacks; track $index) {
-          <p-button label="{{ callback.label }}" (onClick)="callback?.event(); closeAlert($index)" />
-        }
-      </div>
+            [label]="alert.cancelCallback?.label"
+            (onClick)="alert.cancelCallback?.event?.(); closeAlert($index)"
+            variant="outlined"
+            [style]="{ borderRadius: '13px', paddingLeft: '16px', paddingRight: '16px', border: '2px solid #035BA9', height: '38px' }" />
+          @if (alert.confirmCallback?.event) {
+            <p-button
+              [label]="alert.confirmCallback?.label"
+              (onClick)="alert.confirmCallback?.event?.(this.body().commentValue); closeAlert($index)"
+              [disabled]="alert.commentRequired && !this.body().commentValue"
+              [style]="{
+                backgroundColor: alert.buttonColor,
+                borderColor: alert.buttonColor,
+                borderRadius: '13px',
+                paddingLeft: '20px',
+                paddingRight: '20px',
+                height: '38px'
+              }" />
+          }
+          @for (callback of alert.callbacks; track $index) {
+            <p-button label="{{ callback.label }}" (onClick)="callback?.event(); closeAlert($index)" />
+          }
+        </div>
+      }
     </div>
   </div>
 }

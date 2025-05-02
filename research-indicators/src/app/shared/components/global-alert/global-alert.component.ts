@@ -53,7 +53,7 @@ export class GlobalAlertComponent {
       case 'warning':
         return { icon: 'pi pi-history', color: '#E69F00', buttonColor: '#E69F00' };
       case 'error':
-        return { icon: 'cancel', color: 'red' };
+        return { icon: 'pi pi-times-circle', color: 'red' };
       default:
         return { icon: 'info', color: 'blue' };
     }
