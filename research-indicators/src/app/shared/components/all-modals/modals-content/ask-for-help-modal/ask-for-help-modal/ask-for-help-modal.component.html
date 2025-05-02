@@ -1,0 +1,51 @@
+<div class="px-12 pt-12 2xl:pt-12 flex flex-col gap-6 reduce-gap">
+  <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-5 px-5">
+    <span class="text-[#074b86] material-symbols-rounded">info</span>
+    <h3 class="text-[#777c83] font-['Barlow'] text-base font-normal leading-[17px] text-left my-[15px]">
+      If you are experiencing technical issues or need guidance on how to report research-related information in STAR, you can use this form to ask
+      for support.
+    </h3>
+  </div>
+
+  <div class="flex flex-col gap-6 reduce-gap">
+    <div class="flex flex-col gap-1 2xl:gap-2">
+      <h2 class="text-base font-semibold atc-primary-blue-500">Please select the type of support you need<span class="text-red-500">*</span></h2>
+      <p-select
+        optionLabel="title"
+        optionValue="value"
+        placeholder="Select Support Type"
+        [options]="this.supportTypes"
+        [(ngModel)]="body().type"
+        class="!text-base"
+        [disabled]="loading()">
+      </p-select>
+    </div>
+
+    <div class="flex flex-col gap-1 2xl:gap-2">
+      <h2 class="text-base font-semibold atc-primary-blue-500">
+        Provide as much detail as possible so we can assist you effectively<span class="text-red-500">*</span>
+      </h2>
+      <textarea
+        pTextarea
+        id="name"
+        aria-describedby="name-help"
+        autocomplete="off"
+        [(ngModel)]="body().message"
+        placeholder=""
+        class="w-full !text-base"
+        [disabled]="loading()"
+        rows="5"></textarea>
+    </div>
+  </div>
+
+  <div class="flex mt-4 mb-10">
+    <button
+      class="bg-[#035BA9] text-[15px] text-white px-5 py-2 rounded-[14px] {{
+        !this.validateForm() || loading() ? 'bg-[#E8EBED] !text-[#8D9299] cursor-not-allowed' : 'cursor-pointer'
+      }}"
+      (click)="this.sendRequest()"
+      [disabled]="!this.validateForm() || loading()">
+      Send feedback
+    </button>
+  </div>
+</div>
