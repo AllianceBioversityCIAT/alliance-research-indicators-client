@@ -6,7 +6,7 @@
 }
 
 <section
-  class="local-container"
+  class="local-container px-16"
   [ngStyle]="{ 'margin-top': documentAnalyzed() ? '0' : '40px' }"
   [ngClass]="{ 'analyzing-container': analyzingDocument() }">
   @if (!analyzingDocument() && !documentAnalyzed()) {
@@ -22,7 +22,7 @@
         </p>
       </div>
     </div>
-    <div class="flex flex-col">
+    <div class="flex flex-col xl:px-44 px-12">
       <h2 class="mb-[6px] font-[600] text-[17px] text-[#153C71]" style="margin-top: 0">Primary Project <span class="text-red-500">*</span></h2>
 
       <p-select
@@ -68,13 +68,15 @@
         </ng-template>
 
         <ng-template let-selected pTemplate="selectedItem">
-          @if (selected?.select_label?.includes(' - ')) {
-            <span>
-              <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
-            </span>
-          } @else {
-            <span>{{ selected.select_label }}</span>
-          }
+          <div class="flex items-center block whitespace-normal break-words gap-2">
+            @if (selected?.select_label?.includes(' - ')) {
+              <span>
+                <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
+              </span>
+            } @else {
+              <span>{{ selected.select_label }}</span>
+            }
+          </div>
         </ng-template>
       </p-select>
 
@@ -86,7 +88,7 @@
       }
     </div>
 
-    <div class="file-upload-container">
+    <div class="file-upload-container pt-2 xl:px-44 px-12">
       @if (!selectedFile) {
         <div
           class="upload-area"
@@ -116,26 +118,45 @@
       }
       <p class="file-size-limit">Each file can be up to {{ maxSizeMB }} MB. Ensure uploads comply with this limit.</p>
     </div>
-
-    <button
-      type="button"
-      class="analyze_button"
-      [disabled]="!selectedFile"
-      [ngClass]="{ disabled: !selectedFile || isInvalid() }"
-      (click)="handleAnalyzingDocument()">
-      Analyze
-      <i class="pi pi-sparkles" style="font-size: 16px"></i>
-    </button>
+    <div class="xl:px-44 pb-2.5 px-12">
+      <button
+        type="button"
+        class="analyze_button"
+        [disabled]="!selectedFile"
+        [ngClass]="{ disabled: !selectedFile || isInvalid() }"
+        (click)="handleAnalyzingDocument()">
+        Analyze
+        <i class="pi pi-sparkles" style="font-size: 16px"></i>
+      </button>
+    </div>
   }
   @if (analyzingDocument() && !documentAnalyzed()) {
     <div class="loading-container">
-      <h1 class="loading-title">
-        ANALYZING DOCUMENT
-        <span>
-          <i class="pi pi-sparkles" style="font-size: 30px"></i>
-        </span>
-      </h1>
-      <i class="pi pi-spin pi-spinner" style="font-size: 90px"></i>
+      <div class="flex flex-col items-center justify-center pb-3 -mt-20 bg-white">
+        <span class="block uppercase text-[18px] font-[700] p-6 text-[#173F6F]"> Processing Status</span>
+
+        <img src="gifs/robot.gif" alt="Robot animado" class="w-1/4 h-auto" />
+
+        @if (steps()[activeIndex()]) {
+          @if (steps()[activeIndex()]) {
+            <div class="w-full max-w-md flex items-start space-x-4">
+              <div class="w-8 h-8 rounded-full bg-[#1689ca82] flex items-center justify-center text-white mt-1">
+                <i class="pi pi-spinner animate-spin !text-[12px]"></i>
+              </div>
+
+              <div class="flex-1 space-y-2">
+                <span class="block text-[16px] font-[500] text-[#173F6F]">
+                  {{ steps()[activeIndex()].label }}
+                </span>
+
+                <div class="w-full h-2 bg-[#E8EBED] rounded">
+                  <div class="h-full bg-[#00B6FF] rounded transition-all duration-300" [style.width.%]="steps()[activeIndex()].progress"></div>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
     </div>
   }
   @if (documentAnalyzed()) {
