@@ -249,26 +249,42 @@ export class ResultAiAssistantComponent {
     step.inProgress = true;
     step.progress = 0;
 
+    this.updateStep(index, step);
+
+    requestAnimationFrame(() => {
+      setTimeout(() => this.startProgressAnimation(index, step), 100);
+    });
+  }
+
+  private startProgressAnimation(index: number, step: any): void {
     const duration = this.getRandomInterval();
-    const increment = 100 / (duration / 300);
+    const interval = 50;
+    const increment = 100 / (duration / interval);
 
     const progressTimer = setInterval(() => {
       if (step.progress < 100) {
         step.progress = Math.min(step.progress + increment, 100);
-        this.steps.update(steps => {
-          steps[index] = { ...step };
-          return [...steps];
-        });
+        this.updateStep(index, step);
       } else {
         clearInterval(progressTimer);
-        step.inProgress = false;
-        step.completed = true;
-        this.steps.update(steps => {
-          steps[index] = { ...step };
-          return [...steps];
-        });
+        this.finishStep(index, step);
       }
+    }, interval);
+  }
+
+  private finishStep(index: number, step: any): void {
+    setTimeout(() => {
+      step.inProgress = false;
+      step.completed = true;
+      this.updateStep(index, step);
     }, 300);
+  }
+
+  private updateStep(index: number, step: any): void {
+    this.steps.update(steps => {
+      steps[index] = { ...step };
+      return [...steps];
+    });
   }
 
   getRandomInterval(): number {
