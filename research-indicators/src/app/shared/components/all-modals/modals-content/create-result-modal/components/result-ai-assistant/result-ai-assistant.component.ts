@@ -15,6 +15,7 @@ import { SelectModule } from 'primeng/select';
 import { GetContractsService } from '@shared/services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { GetContracts } from '@shared/interfaces/get-contracts.interface';
+import { Step } from '@shared/interfaces/step.interface';
 
 @Component({
   selector: 'app-result-ai-assistant',
@@ -46,7 +47,7 @@ export class ResultAiAssistantComponent {
 
   activeIndex = signal(0);
 
-  steps = signal([
+  steps = signal<Step[]>([
     { label: 'Uploading document', completed: false, inProgress: false, progress: 0 },
     { label: 'Reading content', completed: false, inProgress: false, progress: 0 },
     { label: 'Analyzing text', completed: false, inProgress: false, progress: 0 },
@@ -252,11 +253,11 @@ export class ResultAiAssistantComponent {
     this.updateStep(index, step);
 
     requestAnimationFrame(() => {
-      setTimeout(() => this.startProgressAnimation(index, step), 300);
+      setTimeout(() => this.startProgressAnimation(index, step), 500);
     });
   }
 
-  private startProgressAnimation(index: number, step: any): void {
+  private startProgressAnimation(index: number, step: Step): void {
     const duration = this.getRandomInterval();
     const interval = 50;
     const increment = 100 / (duration / interval);
@@ -272,7 +273,7 @@ export class ResultAiAssistantComponent {
     }, interval);
   }
 
-  private finishStep(index: number, step: any): void {
+  private finishStep(index: number, step: Step): void {
     setTimeout(() => {
       step.inProgress = false;
       step.completed = true;
@@ -280,7 +281,7 @@ export class ResultAiAssistantComponent {
     }, 100);
   }
 
-  private updateStep(index: number, step: any): void {
+  private updateStep(index: number, step: Step): void {
     this.steps.update(steps => {
       steps[index] = { ...step };
       return [...steps];
