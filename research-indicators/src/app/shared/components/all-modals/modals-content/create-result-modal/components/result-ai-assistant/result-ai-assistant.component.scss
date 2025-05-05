@@ -29,11 +29,18 @@ p {
 .analyzing-container {
   height: calc(85vh - 82.5px);
   background: #fff;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 27px 27px;
   margin: 0 !important;
+  max-height: 685px;
+}
 
-  @media screen and (height <= 850px) {
-    height: calc(95vh - 82.5px);
+.container {
+  max-width: 78vw;
+  width: 78vw;
+
+  @media (min-width: 1881px) {
+    max-width: 1500px;
+    min-width: 1500px;
   }
 }
 
@@ -79,26 +86,6 @@ p {
   to {
     --angle: 360deg;
   }
-}
-
-.local-container {
-  display: flex;
-  margin: 40px;
-  flex-direction: column;
-  gap: 24px;
-  justify-content: flex-start;
-
-  border-radius: 0 0 27px 27px;
-
-  @media (min-width: 1801px) {
-    max-width: 1130px;
-  }
-}
-
-.container-header {
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 20px;
 }
 
 .title-group {
@@ -191,9 +178,7 @@ p {
   z-index: 1;
   transition: all 0.2s ease-in-out;
 
-  @media (min-width: 1801px) {
-    max-width: 1130px;
-  }
+  max-width: 1500px;
 }
 
 .loading-title {
@@ -266,7 +251,7 @@ p {
 }
 
 .analyze_button {
-  margin-top: 18px;
+  margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
