@@ -15,6 +15,7 @@ import { SelectModule } from 'primeng/select';
 import { GetContractsService } from '@shared/services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { GetContracts } from '@shared/interfaces/get-contracts.interface';
+import { Step } from '@shared/interfaces/step.interface';
 
 @Component({
   selector: 'app-result-ai-assistant',
@@ -46,7 +47,7 @@ export class ResultAiAssistantComponent {
 
   activeIndex = signal(0);
 
-  steps = signal([
+  steps = signal<Step[]>([
     { label: 'Uploading document', completed: false, inProgress: false, progress: 0 },
     { label: 'Reading content', completed: false, inProgress: false, progress: 0 },
     { label: 'Analyzing text', completed: false, inProgress: false, progress: 0 },
@@ -119,8 +120,12 @@ export class ResultAiAssistantComponent {
     if (this.isValidFileType(file) && this.isValidFileSize(file)) {
       this.fileSelected(file);
     } else {
-      console.error('Invalid file type or size');
-      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Invalid file type or size' });
+      this.actions.showGlobalAlert({
+        severity: 'error',
+        hasNoButton: true,
+        summary: 'FILE SIZE EXCEEDED',
+        detail: `The uploaded document exceeds the ${this.maxSizeMB} MB limit. Please select a smaller file to continue. `
+      });
     }
   }
 
@@ -245,26 +250,42 @@ export class ResultAiAssistantComponent {
     step.inProgress = true;
     step.progress = 0;
 
+    this.updateStep(index, step);
+
+    requestAnimationFrame(() => {
+      setTimeout(() => this.startProgressAnimation(index, step), 500);
+    });
+  }
+
+  private startProgressAnimation(index: number, step: Step): void {
     const duration = this.getRandomInterval();
-    const increment = 100 / (duration / 300);
+    const interval = 50;
+    const increment = 100 / (duration / interval);
 
     const progressTimer = setInterval(() => {
       if (step.progress < 100) {
         step.progress = Math.min(step.progress + increment, 100);
-        this.steps.update(steps => {
-          steps[index] = { ...step };
-          return [...steps];
-        });
+        this.updateStep(index, step);
       } else {
         clearInterval(progressTimer);
-        step.inProgress = false;
-        step.completed = true;
-        this.steps.update(steps => {
-          steps[index] = { ...step };
-          return [...steps];
-        });
+        this.finishStep(index, step);
       }
-    }, 300);
+    }, interval);
+  }
+
+  private finishStep(index: number, step: Step): void {
+    setTimeout(() => {
+      step.inProgress = false;
+      step.completed = true;
+      this.updateStep(index, step);
+    }, 100);
+  }
+
+  private updateStep(index: number, step: Step): void {
+    this.steps.update(steps => {
+      steps[index] = { ...step };
+      return [...steps];
+    });
   }
 
   getRandomInterval(): number {
