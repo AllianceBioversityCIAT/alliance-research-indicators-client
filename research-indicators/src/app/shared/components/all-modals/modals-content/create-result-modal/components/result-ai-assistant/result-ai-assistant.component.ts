@@ -252,7 +252,7 @@ export class ResultAiAssistantComponent {
     this.updateStep(index, step);
 
     requestAnimationFrame(() => {
-      setTimeout(() => this.startProgressAnimation(index, step), 100);
+      setTimeout(() => this.startProgressAnimation(index, step), 300);
     });
   }
 
@@ -277,7 +277,7 @@ export class ResultAiAssistantComponent {
       step.inProgress = false;
       step.completed = true;
       this.updateStep(index, step);
-    }, 300);
+    }, 100);
   }
 
   private updateStep(index: number, step: any): void {

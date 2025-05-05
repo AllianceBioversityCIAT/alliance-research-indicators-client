@@ -75,13 +75,14 @@ export class CreateResultFormComponent {
   }
 
   successRequest = (result: MainResponse<Result>, openresult?: boolean) => {
+    const currentYear = new Date().getFullYear();
     this.actions.showToast({
       severity: 'success',
       summary: 'Success',
       detail: `Result "${this.body().title}" created successfully`
     });
     this.allModalsService.closeModal('createResult');
-    this.body.set({ indicator_id: null, title: null, contract_id: null, year: null });
+    this.body.set({ indicator_id: null, title: null, contract_id: null, year: currentYear });
     if (openresult) this.actions.changeResultRoute(result.data.result_id);
     this.getResultsService.updateList();
   };
