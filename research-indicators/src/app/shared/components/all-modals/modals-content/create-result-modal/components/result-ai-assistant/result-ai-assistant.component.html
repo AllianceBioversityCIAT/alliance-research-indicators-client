@@ -6,11 +6,11 @@
 }
 
 <section
-  class="local-container px-16"
+  class="mx-auto w-full container flex flex-col gap-6 justify-start rounded-b-[27px] px-16"
   [ngStyle]="{ 'margin-top': documentAnalyzed() ? '0' : '40px' }"
   [ngClass]="{ 'analyzing-container': analyzingDocument() }">
   @if (!analyzingDocument() && !documentAnalyzed()) {
-    <div class="container-header">
+    <div class="gap-[20px] grid grid-cols-[120px_1fr]">
       <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
 
       <div class="title-group">
@@ -118,7 +118,7 @@
       }
       <p class="file-size-limit">Each file can be up to {{ maxSizeMB }} MB. Ensure uploads comply with this limit.</p>
     </div>
-    <div class="xl:px-44 pb-2.5 px-12">
+    <div class="xl:px-44 pb-10 px-12">
       <button
         type="button"
         class="analyze_button"
