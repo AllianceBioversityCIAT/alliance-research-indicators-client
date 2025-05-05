@@ -32,8 +32,8 @@ p {
   border-radius: 0 0 10px 10px;
   margin: 0 !important;
 
-  @media screen and (height <= 850px) {
-    height: calc(95vh - 82.5px);
+  @media (min-width: 1801px) {
+    max-height: 630px;
   }
 }
 
