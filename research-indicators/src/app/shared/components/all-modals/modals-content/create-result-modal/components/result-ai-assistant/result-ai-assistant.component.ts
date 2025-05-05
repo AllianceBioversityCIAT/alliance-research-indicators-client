@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,9 @@ import { GetContractsService } from '@shared/services/control-list/get-contracts
 import { FormsModule } from '@angular/forms';
 import { GetContracts } from '@shared/interfaces/get-contracts.interface';
 import { Step } from '@shared/interfaces/step.interface';
+import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
+
+GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 @Component({
   selector: 'app-result-ai-assistant',
@@ -25,8 +28,9 @@ import { Step } from '@shared/interfaces/step.interface';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiAssistantComponent {
-  acceptedFormats: string[] = ['.pdf', '.docx', '.txt'];
+  acceptedFormats: string[] = ['.pdf', '.docx', '.txt', '.xlsx', '.pptx'];
   maxSizeMB = 10;
+  pageLimit = 100;
   isDragging = false;
   selectedFile: File | null = null;
   analyzingDocument = signal(false);
@@ -63,7 +67,7 @@ export class ResultAiAssistantComponent {
     return !this.body().contract_id;
   });
 
-  constructor() {
+  constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
   }
 
@@ -116,17 +120,62 @@ export class ResultAiAssistantComponent {
     }
   }
 
-  handleFile(file: File) {
-    if (this.isValidFileType(file) && this.isValidFileSize(file)) {
-      this.fileSelected(file);
-    } else {
-      this.actions.showGlobalAlert({
-        severity: 'error',
-        hasNoButton: true,
-        summary: 'FILE SIZE EXCEEDED',
-        detail: `The uploaded document exceeds the ${this.maxSizeMB} MB limit. Please select a smaller file to continue. `
-      });
+  async handleFile(file: File) {
+    const isPdf = file.name.toLowerCase().endsWith('.pdf');
+    if (!this.isValidFileType(file)) {
+      this.showInvalidTypeAlert();
+      return;
     }
+
+    if (!this.isValidFileSize(file)) {
+      this.showSizeExceededAlert();
+      return;
+    }
+
+    if (isPdf) {
+      const isValid = await this.isValidPageCount(file);
+      if (!isValid) {
+        this.actions.showGlobalAlert({
+          severity: 'error',
+          hasNoButton: true,
+          summary: 'PAGE LIMIT EXCEEDED',
+          detail: `The PDF exceeds the ${this.pageLimit} page limit. Please select a shorter document.`
+        });
+        return;
+      }
+    }
+
+    this.fileSelected(file);
+    this.cdr.detectChanges();
+  }
+
+  async isValidPageCount(file: File): Promise<boolean> {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+      return pdf.numPages <= this.pageLimit;
+    } catch (err) {
+      console.error('Error reading PDF pages:', err);
+      return false;
+    }
+  }
+
+  showSizeExceededAlert() {
+    this.actions.showGlobalAlert({
+      severity: 'error',
+      hasNoButton: true,
+      summary: 'FILE SIZE EXCEEDED',
+      detail: `The uploaded document exceeds the ${this.maxSizeMB} MB limit. Please select a smaller file.`
+    });
+  }
+
+  showInvalidTypeAlert() {
+    this.actions.showGlobalAlert({
+      severity: 'error',
+      hasNoButton: true,
+      summary: 'UNSUPPORTED FILE TYPE',
+      detail: `Supported formats are: ${this.acceptedFormats.join(', ')}`
+    });
   }
 
   isValidFileType(file: File): boolean {
@@ -163,7 +212,7 @@ export class ResultAiAssistantComponent {
     this.startProgress();
 
     try {
-      const uploadResponse = await this.fileManagerService.uploadFile(this.selectedFile);
+      const uploadResponse = await this.fileManagerService.uploadFile(this.selectedFile, this.maxSizeMB, this.pageLimit);
       const filename = uploadResponse.data.filename;
 
       if (!filename) {
