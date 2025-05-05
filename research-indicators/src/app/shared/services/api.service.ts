@@ -47,6 +47,7 @@ import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
 import { GetYear } from '@shared/interfaces/get-year.interface';
 import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
+import { TransformResultCodeResponse } from '@shared/interfaces/get-transform-result-code.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -185,6 +186,12 @@ export class ApiService {
 
   GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
     const url = () => `results/institutions/by-result-id/${id}?role=partners`;
+    return this.TP.get(url(), { loadingTrigger: true });
+  };
+
+  GET_TransformResultCode = (id: number, year?: number): Promise<MainResponse<TransformResultCodeResponse>> => {
+    const query = year ? `?year=${year}` : '';
+    const url = () => `results/transform/result-code/${id}${query}`;
     return this.TP.get(url(), { loadingTrigger: true });
   };
 
