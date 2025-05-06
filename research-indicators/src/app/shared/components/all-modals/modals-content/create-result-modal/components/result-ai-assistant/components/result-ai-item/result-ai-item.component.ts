@@ -69,8 +69,8 @@ export class ResultAiItemComponent {
           this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
         } else {
           this.isCreated.set(true);
-          if ('data' in response && 'result_official_code' in response.data) {
-            item.result_official_code = response.data.result_official_code as string;
+          if ('data' in response && 'result_id' in response.data) {
+            item.result_id = response.data.result_id as string;
           }
         }
       })
@@ -80,7 +80,7 @@ export class ResultAiItemComponent {
   }
 
   openResult(item: AIAssistantResult) {
-    this.router.navigate([`/result/${item.result_official_code}/general-information`]);
+    this.router.navigate([`/result/${item.result_id}/general-information`]);
     this.allModalsService.closeModal('createResult');
   }
 }
