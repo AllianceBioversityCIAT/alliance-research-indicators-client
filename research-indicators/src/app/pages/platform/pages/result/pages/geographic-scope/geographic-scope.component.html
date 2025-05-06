@@ -16,13 +16,15 @@
       <div class="information"></div>
     </div>
 
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-8">
       <app-radio-button
         [isRequired]="true"
         label="What is the main geographic focus of the Impact?"
         description="This should reflect where the Impact has taken place/contributed to benefit."
         [signal]="body"
         [optionLabel]="'label'"
+        direction="horizontal"
+        spaceX="gap-10"
         serviceName="geoFocus"
         [disabled]="!submission.isEditableStatus()"
         (selectEvent)="onSelect()"
@@ -32,6 +34,7 @@
         <app-multiselect
           [signal]="body"
           [optionLabel]="'name'"
+          class="-mt-3"
           [optionValue]="'region_id'"
           [signalOptionValue]="'regions'"
           [removeCondition]="canRemove"
