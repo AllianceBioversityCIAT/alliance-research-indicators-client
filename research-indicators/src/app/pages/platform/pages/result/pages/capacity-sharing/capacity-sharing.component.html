@@ -142,15 +142,6 @@
     <div class="flex flex-col xl:flex-row gap-8 mb-6">
       <div class="flex-1">
         <app-input
-          label="Male participants?"
-          [signal]="body"
-          optionValue="group.session_participants_male"
-          [disabled]="!submission.isEditableStatus()"
-          type="number"></app-input>
-      </div>
-
-      <div class="flex-1">
-        <app-input
           label="Female participants?"
           [signal]="body"
           optionValue="group.session_participants_female"
@@ -163,6 +154,14 @@
           label="Non-binary participants?"
           [signal]="body"
           optionValue="group.session_participants_non_binary"
+          [disabled]="!submission.isEditableStatus()"
+          type="number"></app-input>
+      </div>
+      <div class="flex-1">
+        <app-input
+          label="Male participants?"
+          [signal]="body"
+          optionValue="group.session_participants_male"
           [disabled]="!submission.isEditableStatus()"
           type="number"></app-input>
       </div>
