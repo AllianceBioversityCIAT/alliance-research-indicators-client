@@ -15,7 +15,11 @@ export class SubmissionService {
   comment = signal('');
   statusSelected = signal<ReviewOption | null>(null);
   canSubmitResult = computed(() => {
-    return this.cache.allGreenChecksAreTrue() && Object.values(this.cache.greenChecks()).length && this.cache.isMyResult();
+    return (
+      this.cache.allGreenChecksAreTrue() &&
+      Object.values(this.cache.greenChecks()).length &&
+      (this.cache.isMyResult() || this.cache.currentMetadata().is_principal_investigator)
+    );
   });
   submissionStatuses = signal<SubmissionStatus[]>([
     { id: 1, name: 'Editing' },

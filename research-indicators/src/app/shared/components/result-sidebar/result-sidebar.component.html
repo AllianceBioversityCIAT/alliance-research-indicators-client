@@ -39,7 +39,7 @@
     }
   </div>
   @if (cache.currentMetadata().status_id !== 6 && cache.currentMetadata().status_id !== 7 && cache.currentMetadata().status_id !== 8) {
-    @if (cache.currentMetadata().is_principal_investigator && cache.currentMetadata().status_id !== 4) {
+    @if (cache.currentMetadata().is_principal_investigator && cache.currentMetadata().status_id !== 5 && cache.currentMetadata().status_id !== 4) {
       <button
         class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
         [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
