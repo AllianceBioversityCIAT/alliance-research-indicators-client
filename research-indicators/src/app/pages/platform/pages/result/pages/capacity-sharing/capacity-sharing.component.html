@@ -5,10 +5,10 @@
   <!-- TRAINING TYPE-->
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]">
     <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING TYPE</div>
-    <div class="flex flex-col xl:flex-row gap-5">
-      <div class="flex-1">
+    <div class="flex flex-col xl:flex-row gap-8 justify-between">
+      <div class="flex-1 max-w-[260px]">
         <app-radio-button
-          label="What training or engagement do you want to report?"
+          label="Training or engagement to report"
           [isRequired]="true"
           [signal]="body"
           [disabled]="!submission.isEditableStatus()"
@@ -17,7 +17,7 @@
           [optionValue]="{ body: 'session_format_id', option: 'session_format_id' }"></app-radio-button>
       </div>
 
-      <div class="flex-1">
+      <div class="flex-1 max-w-[260px]">
         <app-radio-button
           label="Is this a training or a engagement?"
           [isRequired]="true"
@@ -27,9 +27,8 @@
           [optionLabel]="'name'"
           [optionValue]="{ body: 'session_type_id', option: 'session_type_id' }"></app-radio-button>
       </div>
-    </div>
-    <div class="flex flex-col pt-5 xl:flex-row gap-5">
-      <div class="flex-1">
+
+      <div class="flex-1 max-w-[240px]">
         <app-radio-button
           label="Length of training"
           [isRequired]="true"
@@ -40,13 +39,17 @@
           [optionValue]="{ body: 'session_length_id', option: 'session_length_id' }">
         </app-radio-button>
       </div>
+    </div>
 
+    <div class="flex flex-col pt-8 xl:flex-row">
       @if (isLongTermSelected()) {
         <div class="flex-1">
           <app-radio-button
             label="Degree"
             [isRequired]="true"
+            direction="horizontal"
             [signal]="body"
+            spaceX="gap-[35px]"
             [disabled]="!submission.isEditableStatus()"
             [serviceName]="'capSharingDegrees'"
             [optionLabel]="'name'"
@@ -124,7 +127,7 @@
   <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-[25px]" [class.hidden]="body().session_format_id !== 2">
     <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GROUP TRAINING</div>
 
-    <div class="flex flex-col xl:flex-row gap-5 mb-6">
+    <div class="flex flex-col xl:flex-row mb-6">
       <div class="flex-1">
         <app-input
           label="What was the total number of participants?"
@@ -134,7 +137,9 @@
           [signal]="body"
           [optionValue]="'group.session_participants_total'"></app-input>
       </div>
+    </div>
 
+    <div class="flex flex-col xl:flex-row gap-8 mb-6">
       <div class="flex-1">
         <app-input
           label="Male participants?"
@@ -143,9 +148,7 @@
           [disabled]="!submission.isEditableStatus()"
           type="number"></app-input>
       </div>
-    </div>
 
-    <div class="flex flex-col xl:flex-row gap-5 mb-6">
       <div class="flex-1">
         <app-input
           label="Female participants?"
@@ -165,7 +168,7 @@
       </div>
     </div>
 
-    <div class="flex flex-col xl:flex-row gap-5 mb-6">
+    <div class="flex flex-col xl:flex-row gap-8 mb-6">
       <div class="flex-1">
         <app-radio-button
           label="What was the purpose of this training/engagement?"
@@ -190,7 +193,7 @@
     </div>
 
     @if (body().group?.session_purpose_id === 4) {
-      <div class="flex flex-col xl:flex-row gap-5 mb-6">
+      <div class="flex flex-col xl:flex-row gap-8 mb-6">
         <div class="flex-1">
           <app-input
             [signal]="body"
@@ -235,10 +238,10 @@
   </div>
 
   <!-- TRAINING DETAILS -->
-  <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
+  <div class="bg-[#fcfcfc] rounded-[10px] p-[30px] pb-5 mb-6">
     <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">TRAINING DETAILS</div>
 
-    <div class="flex flex-col gap-5 mb-6">
+    <div class="flex flex-col mb-6">
       <app-select
         label="Training / Engagement supervisor"
         [isRequired]="true"
@@ -249,19 +252,21 @@
         [optionValue]="{ body: 'training_supervisor.user_id', option: 'user_id' }"
         serviceName="userStaff">
       </app-select>
-
-      <app-select
-        label="Language"
-        [disabled]="!submission.isEditableStatus()"
-        [signal]="body"
-        [optionLabel]="'name'"
-        [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
-        [serviceName]="'languages'">
-      </app-select>
     </div>
 
-    <div class="flex flex-col xl:flex-row gap-5 mb-6">
+    <div class="flex flex-col xl:flex-row gap-8 mb-6">
       <div class="flex-1">
+        <app-select
+          label="Language"
+          [disabled]="!submission.isEditableStatus()"
+          [signal]="body"
+          [optionLabel]="'name'"
+          [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
+          [serviceName]="'languages'">
+        </app-select>
+      </div>
+
+      <div class="flex-1 max-w-[160px]">
         <app-calendar-input
           label="Start date"
           [signal]="body"
@@ -271,7 +276,7 @@
           [maxDate]="body().end_date"></app-calendar-input>
       </div>
 
-      <div class="flex-1">
+      <div class="flex-1 max-w-[160px]">
         <app-calendar-input
           label="End date"
           [signal]="body"
@@ -287,7 +292,9 @@
         label="Delivery modality"
         [isRequired]="true"
         [disabled]="!submission.isEditableStatus()"
+        direction="horizontal"
         [signal]="body"
+        spaceX="gap-[35px]"
         [serviceName]="'capSharingDeliveryModalities'"
         [optionLabel]="'name'"
         [optionValue]="{ body: 'delivery_modality_id', option: 'delivery_modality_id' }"></app-radio-button>
