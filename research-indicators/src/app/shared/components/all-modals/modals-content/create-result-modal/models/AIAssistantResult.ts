@@ -37,6 +37,7 @@ export interface AIAssistantResult {
   male_participants: number;
   evidence_for_stage: string;
   policy_type: string;
+  result_id?: string;
   stage_in_policy_process: string;
   result_official_code?: string;
   alliance_main_contact_person_first_name: string;
