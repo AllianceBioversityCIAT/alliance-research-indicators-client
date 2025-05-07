@@ -9,10 +9,11 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { ActionsService } from '@shared/services/actions.service';
 import { Router } from '@angular/router';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-ip-rights',
-  imports: [ButtonModule, FormsModule, RadioButtonComponent, InputComponent],
+  imports: [ButtonModule, NgStyle, FormsModule, RadioButtonComponent, InputComponent],
   templateUrl: './ip-rights.component.html'
 })
 export default class IpRightsComponent implements OnInit {
@@ -35,7 +36,7 @@ export default class IpRightsComponent implements OnInit {
     this.loading.set(false);
   }
 
-  async saveData(page?: 'next' | 'back'): Promise<void> {
+  async saveData(page?: 'back'): Promise<void> {
     this.loading.set(true);
     if (this.submission.isEditableStatus()) {
       const current = this.body();
