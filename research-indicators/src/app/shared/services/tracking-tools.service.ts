@@ -5,7 +5,6 @@ import { GoogleAnalyticsService } from './google-analytics.service';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { HotjarService } from './hotjar.service';
-import { environment } from '../../../environments/environment';
 import { BugHerdService } from './bug-herd.service';
 @Injectable({
   providedIn: 'root'
@@ -55,14 +54,14 @@ export class TrackingToolsService {
   }
 
   initAllTools() {
-    if (!environment.production && this.isTester()) return;
+    if (this.isTester()) return;
     this.clarity.init();
     this.googleAnalytics.init();
     this.hotjar.init();
   }
 
   updateAllTools(url: string) {
-    if (!environment.production && this.isTester()) return;
+    if (this.isTester()) return;
     this.hotjar.updateState(url);
     this.clarity.updateState(url);
     this.googleAnalytics.updateState(url);
