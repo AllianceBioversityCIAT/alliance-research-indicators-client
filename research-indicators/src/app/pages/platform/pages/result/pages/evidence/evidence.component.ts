@@ -9,10 +9,11 @@ import { ApiService } from '../../../../../../shared/services/api.service';
 import { Evidence, PatchResultEvidences } from '../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { EvidenceItemComponent } from './components/evidence-item/evidence-item.component';
 import { SubmissionService } from '@shared/services/submission.service';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-evidence',
-  imports: [ButtonModule, FormsModule, InputTextModule, EvidenceItemComponent],
+  imports: [ButtonModule, NgStyle, FormsModule, InputTextModule, EvidenceItemComponent],
   templateUrl: './evidence.component.html'
 })
 export default class EvidenceComponent implements OnInit {

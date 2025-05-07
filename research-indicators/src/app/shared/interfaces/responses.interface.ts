@@ -58,6 +58,7 @@ interface Role {
   sec_role_id: number;
   name: string;
   focus_id: number;
+  role_id: number;
 }
 
 //? Extra

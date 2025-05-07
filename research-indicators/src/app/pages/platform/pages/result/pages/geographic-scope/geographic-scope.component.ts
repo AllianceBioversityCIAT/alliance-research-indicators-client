@@ -10,10 +10,11 @@ import { Router } from '@angular/router';
 import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 import { SubmissionService } from '@shared/services/submission.service';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-geographic-scope',
-  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
+  imports: [ButtonModule, NgStyle, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
 export default class GeographicScopeComponent implements OnInit {

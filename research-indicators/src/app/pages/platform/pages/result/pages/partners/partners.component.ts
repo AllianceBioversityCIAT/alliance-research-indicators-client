@@ -11,10 +11,11 @@ import { PartnerSelectedItemComponent } from '../../../../../../shared/component
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GetInstitution } from '@shared/interfaces/get-institutions.interface';
 import { SubmissionService } from '@shared/services/submission.service';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-partners',
-  imports: [ButtonModule, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
+  imports: [ButtonModule, NgStyle, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
   templateUrl: './partners.component.html'
 })
 export default class PartnersComponent implements OnInit {

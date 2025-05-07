@@ -13,6 +13,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { FormsModule } from '@angular/forms';
 import { SubmissionService } from '@shared/services/submission.service';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-policy-change',
@@ -24,6 +25,7 @@ import { SubmissionService } from '@shared/services/submission.service';
     TextareaComponent,
     MultiselectComponent,
     SelectComponent,
+    NgStyle,
     FormsModule,
     TooltipModule,
     PartnerSelectedItemComponent

@@ -26,7 +26,9 @@ describe('EvidenceComponent', () => {
       currentMetadata: jest.fn().mockReturnValue({
         result_type: 'mock-type',
         title: 'mock-title'
-      })
+      }),
+      showSectionHeaderActions: jest.fn().mockReturnValue(true),
+      isSidebarCollapsed: jest.fn().mockReturnValue(false)
     };
 
     const mockRouter = {

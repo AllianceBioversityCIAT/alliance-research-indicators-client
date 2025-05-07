@@ -18,6 +18,7 @@ import { SelectComponent } from '../../../../../../shared/components/custom-fiel
 import { GetMetadataService } from '../../../../../../shared/services/get-metadata.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SubmissionService } from '@shared/services/submission.service';
+import { NgStyle } from '@angular/common';
 
 interface Option {
   name: string;
@@ -33,6 +34,7 @@ interface Option {
     DropdownModule,
     ReactiveFormsModule,
     ChipModule,
+    NgStyle,
     InputComponent,
     TextareaComponent,
     SelectComponent,

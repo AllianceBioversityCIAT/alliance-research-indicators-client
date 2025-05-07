@@ -17,12 +17,14 @@ import { CalendarInputComponent } from '../../../../../../shared/components/cust
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { SubmissionService } from '@shared/services/submission.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-capacity-sharing',
   imports: [
     ButtonModule,
     FormsModule,
+    NgStyle,
     DropdownModule,
     CalendarModule,
     RadioButtonModule,
