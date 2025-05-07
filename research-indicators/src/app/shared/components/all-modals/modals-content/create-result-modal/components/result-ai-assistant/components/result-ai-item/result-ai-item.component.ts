@@ -81,6 +81,5 @@ export class ResultAiItemComponent {
   openResult(item: AIAssistantResult) {
     const url = `/result/${item.result_id}/general-information`;
     window.open(url, '_blank');
-    this.allModalsService.closeModal('createResult');
   }
 }
