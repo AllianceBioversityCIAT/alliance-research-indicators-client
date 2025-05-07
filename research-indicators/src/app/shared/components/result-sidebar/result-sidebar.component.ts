@@ -117,6 +117,14 @@ export class ResultSidebarComponent {
     })
   );
 
+  getCompletedCount(): number {
+    return this.allOptionsWithGreenChecks().filter(option => option.greenCheck).length;
+  }
+
+  getTotalCount(): number {
+    return this.allOptionsWithGreenChecks().filter(option => !option.hide).length;
+  }
+
   submmitConfirm() {
     const { severity, placeholder, summary, detail } = this.submissionService.currentResultIsSubmitted()
       ? this.unsavedChangesAlertData()
