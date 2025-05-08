@@ -1,7 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CognitoService } from '../../shared/services/cognito.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
+import { ActionsService } from '../../shared/services/actions.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -13,34 +16,66 @@ import { CommonModule } from '@angular/common';
 })
 export default class LoginComponent {
   cognito = inject(CognitoService);
-  email = '';
-  password = '';
+  actions = inject(ActionsService);
+  router = inject(Router);
+  body = signal<{ email: string; password: string }>({
+    email: '',
+    password: ''
+  });
 
   loginWithAzureAd() {
-    const loginUrl =
-      'https://ost-toc.auth.us-east-1.amazoncognito.com/oauth2/authorize?response_type=code&client_id=633s5bbcklq3bpvnctpnf1e2si&redirect_uri=https%3A%2F%2Fallianceindicatorstest.ciat.cgiar.org%2Fauth&scope=openid+email+profile&identity_provider=CGIAR-AzureAD';
-
-    window.location.href = loginUrl;
+    window.location.href =
+      `${environment.cognitoDomain}oauth2/authorize` +
+      `?response_type=code` +
+      `&client_id=${environment.cognitoClientId}` +
+      `&redirect_uri=${environment.cognitoRedirectUri}` +
+      `&scope=openid+email+profile` +
+      `&identity_provider=${environment.cognitoIdentityProvider}`;
   }
 
-  loginWithCredentials() {
-    // Implement email/password login logic here
-    // Actual authentication code would go here
-    if (!this.email || !this.password) {
-      // Handle validation error
+  async loginWithCredentials() {
+    if (!this.body().email || !this.body().password) {
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Invalid credentials',
+        detail: 'Please fill all the fields'
+      });
+      return;
     }
-  }
 
-  forgotPassword() {
-    // Implement password recovery logic
-    // Password reset functionality would go here
-    if (!this.email) {
-      // Handle missing email
+    const url = `${environment.cognitoDomain}oauth2/token`;
+
+    const auth = btoa(`${environment.cognitoClientId}:${environment.cognitoClientSecret}`);
+
+    const body = new URLSearchParams({
+      grant_type: 'refresh_token',
+      username: this.body().email,
+      password: this.body().password,
+      scope: 'openid email profile phone'
+    });
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: body.toString(),
+      headers: {
+        Authorization: `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+
+    const data = await response.json();
+
+    console.error(data);
+
+    if (data.access_token) {
+      this.actions.updateLocalStorage(data);
+      this.router.navigate(['/']);
+    } else {
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Invalid credentials',
+        detail: 'Please fill all the fields'
+      });
     }
-  }
-
-  signUp() {
-    // Navigate to signup page or show signup modal
-    // Navigation code would go here
   }
 }

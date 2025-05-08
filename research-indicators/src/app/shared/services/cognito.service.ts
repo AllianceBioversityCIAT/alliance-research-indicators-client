@@ -18,7 +18,13 @@ export class CognitoService {
   clarity = inject(ClarityService);
 
   redirectToCognito() {
-    window.location.href = environment.cognitoUrl;
+    window.location.href =
+      `${environment.cognitoDomain}oauth2/authorize` +
+      `?response_type=code` +
+      `&client_id=${environment.cognitoClientId}` +
+      `&redirect_uri=${environment.cognitoRedirectUri}` +
+      `&scope=openid+email+profile` +
+      `&identity_provider=${environment.cognitoIdentityProvider}`;
   }
 
   async validateCognitoCode() {
