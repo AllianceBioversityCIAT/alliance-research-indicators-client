@@ -12,7 +12,7 @@ export class ToPromiseService {
   http = inject(HttpClient);
   cacheService = inject(CacheService);
 
-  private TP = (subscription: Observable<any>, loadingTrigger?: boolean): Promise<MainResponse<any>> => {
+  private readonly TP = (subscription: Observable<any>, loadingTrigger?: boolean): Promise<MainResponse<any>> => {
     if (loadingTrigger) {
       this.cacheService.currentResultIsLoading.set(true);
       this.cacheService.greenChecks.set({});
@@ -36,7 +36,13 @@ export class ToPromiseService {
   };
 
   delete = <T>(url: string, config?: Config) => {
-    return this.TP(this.http.delete<T>(this.getEnv(config?.isAuth) + url));
+    let headers = new HttpHeaders();
+
+    if (config?.useYearInterceptor) {
+      headers = headers.set('X-Use-Year', 'true');
+    }
+
+    return this.TP(this.http.delete<T>(this.getEnv(config?.isAuth) + url, { headers }));
   };
 
   post = <T, B>(url: string, body: B, config?: Config) => {
@@ -44,25 +50,47 @@ export class ToPromiseService {
     if (config?.token) {
       headers = headers.set('Authorization', `Bearer ${config.token}`);
     }
+
     if (config?.isRefreshToken) {
       headers = headers.set('refresh-token', `${config.token}`);
     }
+
+    if (config?.useYearInterceptor) {
+      headers = headers.set('X-Use-Year', 'true');
+    }
+
     return this.TP(this.http.post<T>(this.getEnv(config?.isAuth) + url, body, { headers }));
   };
 
   put = <T, B>(url: string, body: B, config?: Config) => {
-    return this.TP(this.http.put<T>(this.getEnv(config?.isAuth) + url, body));
+    let headers = new HttpHeaders();
+
+    if (config?.useYearInterceptor) {
+      headers = headers.set('X-Use-Year', 'true');
+    }
+    return this.TP(this.http.put<T>(this.getEnv(config?.isAuth) + url, body, { headers }));
   };
 
   get = <T>(url: string, config?: Config) => {
-    return this.TP(this.http.get<T>(this.getEnv(config?.isAuth) + url), config?.loadingTrigger);
+    let headers = config?.params instanceof HttpHeaders ? config.params : new HttpHeaders();
+
+    if (config?.useYearInterceptor) {
+      headers = headers.set('X-Use-Year', 'true');
+    }
+
+    const fullUrl = this.getEnv(config?.isAuth) + url;
+
+    return this.TP(
+      this.http.get<T>(fullUrl, {
+        headers,
+        params: config?.params
+      }),
+      config?.loadingTrigger
+    );
   };
 
   getWithParams = <T>(url: string, params?: Record<string, string>, config?: Config) => {
-    return this.TP(
-      this.http.get<T>(this.getEnv(config?.isAuth) + url, { params }),
-      config?.loadingTrigger
-    );
+    return this.TP(this.http.get<T>(this.getEnv(config?.isAuth) + url, { params }), config?.loadingTrigger);
   };
 
   patch = <T, B>(url: string, body: B, config?: Config) => {
@@ -91,4 +119,5 @@ interface Config {
   isRefreshToken?: boolean;
   loadingTrigger?: boolean;
   params?: HttpParams;
+  useYearInterceptor?: boolean;
 }

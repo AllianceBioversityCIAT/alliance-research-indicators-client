@@ -81,8 +81,9 @@
         <div class="flex gap-5">
           <button
             type="button"
+            [disabled]="!this.body().title"
             (click)="saveData('next')"
-            class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
+            class="flex cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:border-[#E8EBED] disabled:text-[#A2A9AF] items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
             Next
             <i class="pi pi-arrow-right !text-[12px]"></i>
           </button>
@@ -92,7 +93,7 @@
             type="button"
             [disabled]="!this.body().title"
             (click)="saveData()"
-            class="flex cursor-pointer items-center gap-2 bg-[#509C55] text-[#FFFFFF] px-5 py-2 rounded-[13px] text-[15px]">
+            class="flex cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] items-center gap-2 bg-[#509C55] text-[#FFFFFF] px-5 py-2 rounded-[13px] text-[15px]">
             <i class="pi pi-save !text-[12px] -scale-x-100"></i>
             Save
           </button>

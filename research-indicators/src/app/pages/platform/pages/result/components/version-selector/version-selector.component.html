@@ -3,8 +3,12 @@
     <span
       (click)="selectVersion(liveVersionData)"
       (keydown.enter)="selectVersion(liveVersionData)"
-      class="ml-3 rounded-[9px] pl-4 pr-3 py-[9px] text-[12px] tracking-[0.15em] font-['Space_Grotesk'] flex items-center transition-all duration-150 cursor-pointer
-        {{ isSelected(liveVersionData) ? 'bg-[#1689CA] text-white mr-2' : 'bg-transparent font-[600] text-[#1689CA]' }}">
+      class="rounded-[9px] pl-4 pr-3 py-[9px] tracking-[0.15em] font-['Space_Grotesk'] flex items-center transition-all duration-150 cursor-pointer
+        {{
+        isSelected(liveVersionData)
+          ? 'bg-[#1689CA] ml-4 font-[500] text-[11.5px] text-white mr-2'
+          : 'bg-transparent text-[12px] ml-2 font-[600] text-[#1689CA]'
+      }}">
       LIVE VERSION
       <i class="pi pi-pencil ml-2 !text-[12px] {{ isSelected(liveVersionData) ? 'text-white' : 'text-[#1689CA]' }}"></i>
     </span>
@@ -13,16 +17,20 @@
   }
 
   @if (approvedVersions().length === 0) {
-    <span class="text-[#777C83] text-[14px]">There are no approved versions for this result.</span>
+    <span class="flex text-[#777C83] text-[14px] px-1">There are no approved versions for this result.</span>
   } @else {
     <div class="flex gap-2 flex-wrap">
       @for (version of approvedVersions(); track version.result_id) {
         <span
           (click)="selectVersion(version)"
           (keydown.enter)="selectVersion(version)"
-          class="rounded-[9px] pl-4 pr-3 py-[9px] text-[12px] tracking-[0.15em] font-['Space_Grotesk'] flex items-center transition-all duration-150 cursor-pointer
-              {{ isSelected(version) ? 'bg-[#509C55] text-white mx-3' : 'text-[#509C55] font-[600] bg-transparent' }}">
-          VERSION {{ version.result_official_code }}
+          class="rounded-[9px] pl-4 pr-3 py-[9px] tracking-[0.15em] font-['Space_Grotesk'] flex items-center transition-all duration-150 cursor-pointer
+              {{
+            isSelected(version)
+              ? 'bg-[#509C55] font-[500] text-white ml-3 mr-1 text-[11.5px]'
+              : 'text-[#509C55] text-[12px] font-[600] bg-transparent'
+          }}">
+          {{ version.report_year_id }} VERSION
           <i class="pi pi-check ml-2 !text-[12px]"></i>
         </span>
       }

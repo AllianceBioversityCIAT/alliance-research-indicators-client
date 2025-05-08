@@ -1,4 +1,5 @@
 import { Component, effect, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TransformResultCodeResponse } from '@shared/interfaces/get-transform-result-code.interface';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
@@ -13,11 +14,10 @@ import { DividerModule } from 'primeng/divider';
 export class VersionSelectorComponent {
   private readonly api = inject(ApiService);
   private readonly cache = inject(CacheService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  // Versión seleccionada
   selectedResultId = signal<number | null>(null);
-
-  // Datos de la API
   liveVersion = signal<TransformResultCodeResponse | null>(null);
   approvedVersions = signal<TransformResultCodeResponse[]>([]);
 
@@ -36,10 +36,31 @@ export class VersionSelectorComponent {
 
     const versionsArray = Array.isArray(data.versions) ? data.versions : [];
     this.approvedVersions.set(versionsArray);
+
+    const versionParam = this.route.snapshot.queryParamMap.get('version');
+    if (versionParam) {
+      const versionFound = versionsArray.find(v => String(v.report_year_id) === versionParam);
+      if (versionFound) {
+        this.selectedResultId.set(versionFound.result_id);
+        return;
+      }
+    }
+
+    if (data.live) {
+      this.selectedResultId.set(data.live.result_id);
+    }
   }
 
   selectVersion(version: TransformResultCodeResponse) {
     this.selectedResultId.set(version.result_id);
+    const isLive = this.liveVersion()?.result_id === version.result_id;
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: isLive ? {} : { version: version.report_year_id },
+      queryParamsHandling: '',
+      replaceUrl: true
+    });
   }
 
   isSelected(version: TransformResultCodeResponse) {
