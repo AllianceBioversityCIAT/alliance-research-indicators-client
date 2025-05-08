@@ -298,7 +298,9 @@ export class ApiService {
 
   GET_Metadata = (id: number): Promise<MainResponse<GetMetadata>> => {
     const url = () => `results/${id}/metadata`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), {
+      useYearInterceptor: true
+    });
   };
 
   GET_Countries = (params?: { 'is-sub-national'?: boolean }): Promise<MainResponse<GetCountries[]>> => {

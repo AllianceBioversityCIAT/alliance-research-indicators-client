@@ -13,6 +13,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { MyPreset } from './theme/roartheme';
 import { TrackingToolsService } from './shared/services/tracking-tools.service';
+import { yearInterceptor } from '@shared/interceptors/year.interceptor';
 
 function initializeTrackingToolsService(trackingToolsService: TrackingToolsService) {
   return () => trackingToolsService.init();
@@ -22,7 +23,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
-    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor])),
+    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor, yearInterceptor])),
     importProvidersFrom(BrowserModule, BrowserAnimationsModule),
     provideAnimationsAsync(),
     providePrimeNG({
