@@ -6,6 +6,7 @@
 
   .logo {
     min-width: 120px;
+    transition: all ease-in-out 0.3s;
 
     @media (max-width: 1250px) {
       min-width: 100px;
@@ -18,8 +19,6 @@
     img {
       cursor: pointer;
     }
-
-    transition: all ease-in-out 0.3s;
   }
 
   .options {

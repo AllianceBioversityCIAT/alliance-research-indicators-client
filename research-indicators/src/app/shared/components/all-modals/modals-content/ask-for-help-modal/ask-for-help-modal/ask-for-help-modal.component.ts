@@ -7,6 +7,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { CacheService } from 'src/app/shared/services/cache/cache.service';
 import { AllModalsService } from '../../../../../services/cache/all-modals.service';
 import { getBrowserInfo } from 'src/app/shared/utils/browser.util';
+import { ActionsService } from '../../../../../services/actions.service';
 
 @Component({
   selector: 'app-ask-for-help-modal',
@@ -24,6 +25,7 @@ export class AskForHelpModalComponent {
     message: null
   });
   modalService = inject(AllModalsService);
+  actions = inject(ActionsService);
 
   loading = signal(false);
   supportTypes = [
@@ -60,14 +62,20 @@ export class AskForHelpModalComponent {
       browserInfo
     };
 
-    console.log(sendData);
+    this.actions.showGlobalAlert({
+      severity: 'success',
+      summary: 'HELP REQUEST SUBMITTED',
+      detail: 'We&apos;ve received your request and will get back to you as soon as possible.',
+      cancelCallback: {
+        label: 'Close'
+      }
+    });
 
-    // clear form
     this.body.set({
       type: null,
       message: null
     });
-    // close modal
+
     this.modalService.closeModal('askForHelp');
   }
 }
