@@ -48,6 +48,7 @@ import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-
 import { GetYear } from '@shared/interfaces/get-year.interface';
 import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 import { TransformResultCodeResponse } from '@shared/interfaces/get-transform-result-code.interface';
+import { GetVersions } from '@shared/interfaces/get-versions.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -192,7 +193,12 @@ export class ApiService {
   GET_TransformResultCode = (id: number, year?: number): Promise<MainResponse<TransformResultCodeResponse>> => {
     const query = year ? `?year=${year}` : '';
     const url = () => `results/transform/result-code/${id}${query}`;
-    return this.TP.get(url(), { loadingTrigger: true });
+    return this.TP.get(url(), {});
+  };
+
+  GET_Versions = (resultCode: number, year?: number): Promise<MainResponse<GetVersions>> => {
+    const url = () => `results/versions/${resultCode}`;
+    return this.TP.get(url(), {});
   };
 
   PATCH_Partners = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
