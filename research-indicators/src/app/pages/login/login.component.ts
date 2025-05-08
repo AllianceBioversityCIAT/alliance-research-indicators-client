@@ -43,22 +43,17 @@ export default class LoginComponent {
       return;
     }
 
-    const url = `${environment.cognitoDomain}oauth2/token`;
-
-    const auth = btoa(`${environment.cognitoClientId}:${environment.cognitoClientSecret}`);
+    const url = `${environment.cognitoDomain}login?client_id=${environment.cognitoClientId}&response_type=code&scope=email+openid+phone+profile&redirect_uri=${environment.cognitoRedirectUri}`;
 
     const body = new URLSearchParams({
-      grant_type: 'refresh_token',
       username: this.body().email,
-      password: this.body().password,
-      scope: 'openid email profile phone'
+      password: this.body().password
     });
 
     const response = await fetch(url, {
       method: 'POST',
       body: body.toString(),
       headers: {
-        Authorization: `Basic ${auth}`,
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
@@ -67,14 +62,11 @@ export default class LoginComponent {
 
     console.error(data);
 
-    if (data.access_token) {
-      this.actions.updateLocalStorage(data);
-      this.router.navigate(['/']);
-    } else {
+    if (data.error) {
       this.actions.showToast({
         severity: 'error',
-        summary: 'Invalid credentials',
-        detail: 'Please fill all the fields'
+        summary: 'Error authenticating',
+        detail: data.error
       });
     }
   }
