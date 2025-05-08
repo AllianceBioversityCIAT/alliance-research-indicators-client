@@ -1,0 +1,128 @@
+:host {
+  display: block;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  font-family: Arial, sans-serif;
+}
+
+.login-card {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 380px;
+  overflow: hidden;
+}
+
+.logo-section {
+  background-color: #0a4c81;
+  padding: 30px 20px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.alliance-logo,
+.star-logo {
+  height: 40px;
+}
+
+.login-form {
+  padding: 20px 30px 30px;
+}
+
+h2 {
+  color: #0a4c81;
+  font-size: 18px;
+  margin: 15px 0;
+  font-weight: 500;
+}
+
+.corp-id-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px;
+  width: 100%;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.divider span {
+  padding: 0 10px;
+  color: #757575;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  color: #0a4c81;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.forgot-password {
+  display: block;
+  text-align: left;
+  color: #0a4c81;
+  text-decoration: none;
+  margin: 10px 0 20px;
+  font-size: 14px;
+}
+
+.signin-btn {
+  background-color: #0a4c81;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px;
+  width: 100%;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.signup-link {
+  text-align: center;
+  font-size: 14px;
+  color: #555;
+}
+
+.signup-link a {
+  color: #0a4c81;
+  text-decoration: none;
+}

@@ -1,0 +1,33 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="logo-section">
+      <img src="/images/landing/STAR.svg" alt="STAR logo" style="width: 450px" />
+    </div>
+
+    <div class="login-form">
+      <h2>Sign in with your corporate ID</h2>
+      <button class="corp-id-btn" (click)="loginWithAzureAd()">CGIAR-AzureAD</button>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <h2>Sign in with your email and password</h2>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="name@host.com" [(ngModel)]="email" disabled />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Password" [(ngModel)]="password" disabled />
+      </div>
+
+      <a href="javascript:void(0)" class="forgot-password" (click)="forgotPassword()">Forgot your password?</a>
+
+      <button class="signin-btn" (click)="loginWithCredentials()" disabled>Sign in</button>
+
+      <div class="signup-link">Need an account? <a href="javascript:void(0)" (click)="signUp()">Sign up</a></div>
+    </div>
+  </div>
+</div>
