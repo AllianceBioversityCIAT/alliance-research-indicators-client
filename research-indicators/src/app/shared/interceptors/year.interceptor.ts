@@ -1,9 +1,8 @@
-import { HttpInterceptorFn, HttpEvent } from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
 
-export const yearInterceptor: HttpInterceptorFn = (req, next): Observable<HttpEvent<any>> => {
+export const yearInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const shouldUseYear = req.headers.has('X-Use-Year');
 
