@@ -5,6 +5,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { CacheService } from 'src/app/shared/services/cache/cache.service';
+import { AllModalsService } from '../../../../../services/cache/all-modals.service';
+import { getBrowserInfo } from 'src/app/shared/utils/browser.util';
 
 @Component({
   selector: 'app-ask-for-help-modal',
@@ -21,6 +23,7 @@ export class AskForHelpModalComponent {
     type: null,
     message: null
   });
+  modalService = inject(AllModalsService);
 
   loading = signal(false);
   supportTypes = [
@@ -42,19 +45,29 @@ export class AskForHelpModalComponent {
   }
 
   sendRequest() {
+    const browserInfo = getBrowserInfo();
+
     const sendData = {
       type: this.body().type,
       message: this.body().message,
       url: this.cache.currentUrlPath(),
       metadata: this.cache.currentMetadata(),
       userData: this.cache.dataCache().user,
-      currentSectionHeaderName: this.cache.currentSectionHeaderName(),
       currentResultId: this.cache.currentResultId(),
       currentRouteTitle: this.cache.currentRouteTitle(),
       windowWidth: this.cache.windowWidth(),
-      windowHeight: this.cache.windowHeight()
+      windowHeight: this.cache.windowHeight(),
+      browserInfo
     };
 
     console.log(sendData);
+
+    // clear form
+    this.body.set({
+      type: null,
+      message: null
+    });
+    // close modal
+    this.modalService.closeModal('askForHelp');
   }
 }
