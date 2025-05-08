@@ -122,6 +122,12 @@ export class MultiselectInstanceComponent implements OnInit {
     this.selectEvent.emit(event);
   }
 
+  public removeRegionById(id: number) {
+    const current = this.body();
+    const newValue = (current.value ?? []).filter((v: number) => v !== id);
+    this.body.set({ value: newValue });
+  }
+
   removeOption(option: any) {
     this.signal.update((current: any) => {
       const updatedOptions = this.utils
