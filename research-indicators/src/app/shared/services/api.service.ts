@@ -196,7 +196,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Versions = (resultCode: number, year?: number): Promise<MainResponse<GetVersions>> => {
+  GET_Versions = (resultCode: number): Promise<MainResponse<GetVersions>> => {
     const url = () => `results/versions/${resultCode}`;
     return this.TP.get(url(), {});
   };

@@ -1,28 +1,28 @@
-<div class="flex items-center bg-[#E8EBED] border border-[#B9C0C5] rounded-xl p-2">
-  <span
-    (click)="selectVersion('live')"
-    (keydown)="selectVersion('live')"
-    class="ml-3 rounded-[9px] pl-4 pr-3 py-[9px] text-[12px] tracking-[0.15em] font-['Space_Grotesk'] flex items-center transition-all duration-150 cursor-pointer
-        {{ selectedVersion === 'live' ? 'bg-[#1689CA] text-white mr-2' : 'bg-transparent font-[600] text-[#1689CA]' }}">
-    LIVE VERSION
-    <i
-      class="pi pi-pencil ml-2 !text-[12px]
-          {{ selectedVersion === 'live' ? 'text-white' : 'text-[#1689CA]' }}"></i>
-  </span>
+<div class="flex items-center bg-[#E8EBED] border border-[#B9C0C5] rounded-xl p-2 flex-wrap">
+  @if (hasLiveVersion) {
+    <span
+      (click)="selectVersion(liveVersionData)"
+      (keydown.enter)="selectVersion(liveVersionData)"
+      class="ml-3 rounded-[9px] pl-4 pr-3 py-[9px] text-[12px] tracking-[0.15em] font-['Space_Grotesk'] flex items-center transition-all duration-150 cursor-pointer
+        {{ isSelected(liveVersionData) ? 'bg-[#1689CA] text-white mr-2' : 'bg-transparent font-[600] text-[#1689CA]' }}">
+      LIVE VERSION
+      <i class="pi pi-pencil ml-2 !text-[12px] {{ isSelected(liveVersionData) ? 'text-white' : 'text-[#1689CA]' }}"></i>
+    </span>
 
-  <p-divider type="solid" layout="vertical" />
+    <p-divider layout="vertical" class="mx-2" />
+  }
 
-  @if (versions.length === 0) {
+  @if (approvedVersions().length === 0) {
     <span class="text-[#777C83] text-[14px]">There are no approved versions for this result.</span>
   } @else {
-    <div class="flex">
-      @for (version of versions; track version) {
+    <div class="flex gap-2 flex-wrap">
+      @for (version of approvedVersions(); track version.result_id) {
         <span
           (click)="selectVersion(version)"
-          (keydown)="selectVersion(version)"
+          (keydown.enter)="selectVersion(version)"
           class="rounded-[9px] pl-4 pr-3 py-[9px] text-[12px] tracking-[0.15em] font-['Space_Grotesk'] flex items-center transition-all duration-150 cursor-pointer
-              {{ selectedVersion === version ? 'bg-[#509C55] text-white mx-3 ' : 'text-[#509C55] font-[600] bg-transparent' }}">
-          {{ version }} VERSION
+              {{ isSelected(version) ? 'bg-[#509C55] text-white mx-3' : 'text-[#509C55] font-[600] bg-transparent' }}">
+          VERSION {{ version.result_official_code }}
           <i class="pi pi-check ml-2 !text-[12px]"></i>
         </span>
       }
