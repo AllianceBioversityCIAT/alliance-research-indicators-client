@@ -79,7 +79,8 @@
                               @if (submission.isEditableStatus()) {
                                 <i
                                   class="pi pi-times !text-[12px] text-[#8d9299] hover:text-[#4c5158] cursor-pointer"
-                                  (onClick)="removeSubnationalRegion(c, region)">
+                                  (keydown.enter)="removeSubnationalRegion(c, region)"
+                                  (click)="removeSubnationalRegion(c, region)">
                                 </i>
                               }
                             </div>

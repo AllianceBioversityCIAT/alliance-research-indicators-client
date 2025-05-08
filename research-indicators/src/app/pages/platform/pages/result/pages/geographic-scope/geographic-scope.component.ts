@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
@@ -28,6 +28,7 @@ export default class GeographicScopeComponent implements OnInit {
   loading = signal(false);
   submission = inject(SubmissionService);
   private isFirstSelect = true;
+  @ViewChildren(MultiselectInstanceComponent) multiselectInstances!: QueryList<MultiselectInstanceComponent>;
 
   ngOnInit() {
     this.getData();
@@ -125,9 +126,17 @@ export default class GeographicScopeComponent implements OnInit {
       const target = current.countries?.find(c => c.isoAlpha2 === country.isoAlpha2);
       if (target?.result_countries_sub_nationals_signal?.set) {
         const newRegions = (target.result_countries_sub_nationals_signal().regions ?? []).filter(r => r.sub_national_id !== region.sub_national_id);
+
         target.result_countries_sub_nationals_signal.set({ regions: newRegions });
         target.result_countries_sub_nationals = newRegions;
+
+        // 👉 sincroniza visualmente el selector
+        const instance = this.multiselectInstances.find(m => m.endpointParams?.isoAlpha2 === country.isoAlpha2);
+        if (region.sub_national_id !== undefined) {
+          instance?.removeRegionById(region.sub_national_id);
+        }
       }
+
       return current;
     });
   }
