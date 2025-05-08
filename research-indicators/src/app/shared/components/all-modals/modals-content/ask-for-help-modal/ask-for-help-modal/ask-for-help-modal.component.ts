@@ -62,13 +62,17 @@ export class AskForHelpModalComponent {
       browserInfo
     };
 
+    console.log(sendData);
+
     this.actions.showGlobalAlert({
       severity: 'success',
       summary: 'HELP REQUEST SUBMITTED',
       detail: 'We&apos;ve received your request and will get back to you as soon as possible.',
       cancelCallback: {
         label: 'Close'
-      }
+      },
+      autoHideDuration: 1500,
+      hideCancelButton: true
     });
 
     this.body.set({
