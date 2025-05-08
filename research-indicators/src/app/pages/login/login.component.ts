@@ -18,7 +18,7 @@ export default class LoginComponent {
 
   loginWithAzureAd() {
     const loginUrl =
-      'https://ost-toc.auth.us-east-1.amazoncognito.com/oauth2/authorize?response_type=code&client_id=633s5bbcklq3bpvnctpnf1e2si&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Fauth&scope=openid+email+profile&identity_provider=CGIAR-AzureAD';
+      'https://ost-toc.auth.us-east-1.amazoncognito.com/oauth2/authorize?response_type=code&client_id=633s5bbcklq3bpvnctpnf1e2si&redirect_uri=https%3A%2F%2Fallianceindicatorstest.ciat.cgiar.org%2Fauth&scope=openid+email+profile&identity_provider=CGIAR-AzureAD';
 
     window.location.href = loginUrl;
   }
