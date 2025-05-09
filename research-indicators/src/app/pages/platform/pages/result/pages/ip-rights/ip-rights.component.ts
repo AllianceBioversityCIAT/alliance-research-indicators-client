@@ -8,12 +8,14 @@ import { InputComponent } from '@shared/components/custom-fields/input/input.com
 import { SubmissionService } from '@shared/services/submission.service';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { ActionsService } from '@shared/services/actions.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgStyle } from '@angular/common';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-ip-rights',
-  imports: [ButtonModule, NgStyle, FormsModule, RadioButtonComponent, InputComponent],
+  imports: [ButtonModule, NgStyle, FormsModule, VersionSelectorComponent, RadioButtonComponent, InputComponent],
   templateUrl: './ip-rights.component.html'
 })
 export default class IpRightsComponent implements OnInit {
@@ -24,6 +26,14 @@ export default class IpRightsComponent implements OnInit {
   actions = inject(ActionsService);
   loading = signal(false);
   submission = inject(SubmissionService);
+  versionWatcher = inject(VersionWatcherService);
+  route = inject(ActivatedRoute);
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+  }
 
   ngOnInit() {
     this.getData();
@@ -38,6 +48,18 @@ export default class IpRightsComponent implements OnInit {
 
   async saveData(page?: 'back'): Promise<void> {
     this.loading.set(true);
+
+    const resultId = this.cache.currentResultId().toString();
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const queryParams = version ? { version } : undefined;
+
+    const navigateTo = (path: string) => {
+      this.router.navigate(['result', resultId, path], {
+        queryParams,
+        replaceUrl: true
+      });
+    };
+
     if (this.submission.isEditableStatus()) {
       const current = this.body();
 
@@ -46,13 +68,23 @@ export default class IpRightsComponent implements OnInit {
         this.body.set({ ...current });
       }
 
-      const response = await this.api.PATCH_IpOwners(this.cache.currentResultId(), this.body());
-      if (!response.successfulRequest) return;
+      const response = await this.api.PATCH_IpOwners(Number(resultId), this.body());
+      if (!response.successfulRequest) {
+        this.loading.set(false);
+        return;
+      }
+
       await this.getData();
-      this.actions.showToast({ severity: 'success', summary: 'IP rights', detail: 'Data saved successfully' });
+
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'IP rights',
+        detail: 'Data saved successfully'
+      });
     }
 
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    if (page === 'back') navigateTo('evidence');
+
     this.loading.set(false);
   }
 }

@@ -19,6 +19,8 @@ import { GetMetadataService } from '../../../../../../shared/services/get-metada
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SubmissionService } from '@shared/services/submission.service';
 import { NgStyle } from '@angular/common';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 interface Option {
   name: string;
@@ -35,6 +37,7 @@ interface Option {
     ReactiveFormsModule,
     ChipModule,
     NgStyle,
+    VersionSelectorComponent,
     InputComponent,
     TextareaComponent,
     SelectComponent,
@@ -43,13 +46,14 @@ interface Option {
   templateUrl: './general-information.component.html'
 })
 export default class GeneralInformationComponent implements OnInit {
-  actions = inject(ActionsService);
   api = inject(ApiService);
-  cache = inject(CacheService);
   router = inject(Router);
+  cache = inject(CacheService);
   route = inject(ActivatedRoute);
+  actions = inject(ActionsService);
   metadata = inject(GetMetadataService);
   getResultsService = inject(GetResultsService);
+  versionWatcher = inject(VersionWatcherService);
   getUserStaffService = inject(GetUserStaffService);
   options: Option[] | undefined;
   body: WritableSignal<GeneralInformation> = signal({
@@ -62,6 +66,12 @@ export default class GeneralInformationComponent implements OnInit {
   });
   loading = signal(false);
   submission = inject(SubmissionService);
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+  }
 
   ngOnInit() {
     this.getData();
@@ -86,7 +96,17 @@ export default class GeneralInformationComponent implements OnInit {
       await this.getData();
       await this.metadata.update(this.cache.currentResultId());
     }
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
+
+    if (page === 'next') {
+      const version = this.route.snapshot.queryParamMap.get('version');
+      const commands: string[] = ['result', this.cache.currentResultId().toString(), 'alliance-alignment'];
+      const queryParams = version ? { version } : undefined;
+
+      this.router.navigate(commands, {
+        queryParams,
+        replaceUrl: true
+      });
+    }
     this.loading.set(false);
   }
 }

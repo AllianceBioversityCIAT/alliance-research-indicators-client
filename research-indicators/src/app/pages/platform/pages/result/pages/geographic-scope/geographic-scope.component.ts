@@ -6,15 +6,17 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { Country, GetGeoLocation, Region } from '../../../../../../shared/interfaces/get-geo-location.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 import { SubmissionService } from '@shared/services/submission.service';
 import { NgStyle } from '@angular/common';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
   selector: 'app-geographic-scope',
-  imports: [ButtonModule, NgStyle, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
+  imports: [ButtonModule, VersionSelectorComponent, NgStyle, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
 export default class GeographicScopeComponent implements OnInit {
@@ -27,8 +29,17 @@ export default class GeographicScopeComponent implements OnInit {
   actions = inject(ActionsService);
   loading = signal(false);
   submission = inject(SubmissionService);
+  versionWatcher = inject(VersionWatcherService);
+  route = inject(ActivatedRoute);
+
   private isFirstSelect = true;
   @ViewChildren(MultiselectInstanceComponent) multiselectInstances!: QueryList<MultiselectInstanceComponent>;
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+  }
 
   ngOnInit() {
     this.getData();
@@ -182,18 +193,41 @@ export default class GeographicScopeComponent implements OnInit {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
+
+    const resultId = Number(this.cache.currentResultId());
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const queryParams = version ? { version } : undefined;
+
+    const navigateTo = (path: string) => {
+      this.router.navigate(['result', resultId, path], {
+        queryParams,
+        replaceUrl: true
+      });
+    };
+
     if (this.submission.isEditableStatus()) {
       this.mapArray();
-      const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
-      if (!response.successfulRequest) return;
+      const response = await this.api.PATCH_GeoLocation(resultId, this.body());
+      if (!response.successfulRequest) {
+        this.loading.set(false);
+        return;
+      }
+
       await this.getData();
-      this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
-      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Geographic Scope',
+        detail: 'Data saved successfully'
+      });
+
+      if (page === 'back') navigateTo('partners');
+      if (page === 'next') navigateTo('evidence');
     } else {
-      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+      if (page === 'back') navigateTo('partners');
+      if (page === 'next') navigateTo('evidence');
     }
+
     this.loading.set(false);
   }
 }

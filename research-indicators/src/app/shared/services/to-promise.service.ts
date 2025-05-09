@@ -94,7 +94,13 @@ export class ToPromiseService {
   };
 
   patch = <T, B>(url: string, body: B, config?: Config) => {
-    return this.TP(this.http.patch<T>(this.getEnv(config?.isAuth) + url, body));
+    let headers = new HttpHeaders();
+
+    if (config?.useYearInterceptor) {
+      headers = headers.set('X-Use-Year', 'true');
+    }
+
+    return this.TP(this.http.patch<T>(this.getEnv(config?.isAuth) + url, body, { headers }));
   };
 
   getEnv = (isAuth: boolean | string | undefined) => {
@@ -104,7 +110,7 @@ export class ToPromiseService {
 
   getGreenChecks = (): Promise<MainResponse<GreenChecks>> => {
     const url = () => `results/green-checks/${this.cacheService.currentResultId()}`;
-    return this.get(url(), {});
+    return this.get(url(), { useYearInterceptor: true });
   };
 
   async updateGreenChecks() {

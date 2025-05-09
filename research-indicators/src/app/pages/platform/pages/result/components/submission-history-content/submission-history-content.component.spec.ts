@@ -6,6 +6,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ToPromiseService } from '@shared/services/to-promise.service';
 import { SubmissionHistoryItem } from '@shared/interfaces/submission-history-item.interface';
 import { signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('SubmissionHistoryContentComponent', () => {
   let component: SubmissionHistoryContentComponent;
@@ -34,7 +36,17 @@ describe('SubmissionHistoryContentComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [SubmissionHistoryContentComponent, HttpClientTestingModule],
-      providers: [{ provide: ApiService, useValue: apiServiceMock }, { provide: CacheService, useValue: cacheServiceMock }, ToPromiseService]
+      providers: [
+        { provide: ApiService, useValue: apiServiceMock },
+        { provide: CacheService, useValue: cacheServiceMock },
+        ToPromiseService,
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            queryParams: of({ version: '1.0' })
+          }
+        }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SubmissionHistoryContentComponent);

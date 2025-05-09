@@ -5,6 +5,7 @@ import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { GetMetadataService } from '../../../../shared/services/get-metadata.service';
 import { SubmissionHistoryContentComponent } from './components/submission-history-content/submission-history-content.component';
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
   selector: 'app-result',
@@ -16,9 +17,14 @@ export default class ResultComponent {
   cache = inject(CacheService);
   metadata = inject(GetMetadataService);
   resultId = Number(inject(ActivatedRoute).snapshot.params['id']);
+  versionWatcher = inject(VersionWatcherService);
 
   constructor() {
     this.cache.currentResultId.set(this.resultId);
     this.metadata.update(this.resultId);
+
+    this.versionWatcher.onVersionChange(() => {
+      this.metadata.update(this.resultId);
+    });
   }
 }

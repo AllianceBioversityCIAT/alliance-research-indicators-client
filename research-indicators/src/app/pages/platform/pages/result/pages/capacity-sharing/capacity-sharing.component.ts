@@ -10,7 +10,7 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { GetCapSharing } from '../../../../../../shared/interfaces/get-cap-sharing.interface';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { CalendarInputComponent } from '../../../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
@@ -18,6 +18,8 @@ import { PartnerSelectedItemComponent } from '../../../../../../shared/component
 import { SubmissionService } from '@shared/services/submission.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { NgStyle } from '@angular/common';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
   selector: 'app-capacity-sharing',
@@ -26,6 +28,7 @@ import { NgStyle } from '@angular/common';
     FormsModule,
     NgStyle,
     DropdownModule,
+    VersionSelectorComponent,
     CalendarModule,
     RadioButtonModule,
     RadioButtonComponent,
@@ -46,8 +49,14 @@ export default class CapacitySharingComponent implements OnInit {
   submission = inject(SubmissionService);
   loading = signal(false);
   allModalsService = inject(AllModalsService);
+  versionWatcher = inject(VersionWatcherService);
+  route = inject(ActivatedRoute);
 
   constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+
     effect(() => {
       if (!this.isLongTermSelected()) {
         const current = this.body();
@@ -92,20 +101,43 @@ export default class CapacitySharingComponent implements OnInit {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
+
+    const resultId = this.cache.currentResultId().toString();
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const queryParams = version ? { version } : undefined;
+
+    const navigateTo = (path: string) => {
+      this.router.navigate(['result', resultId, path], {
+        queryParams,
+        replaceUrl: true
+      });
+    };
+
     if (this.submission.isEditableStatus()) {
       this.body.update(current => {
-        if (current.start_date) current.start_date = new Date(current.start_date ?? '').toISOString();
-        if (current.end_date) current.end_date = new Date(current.end_date ?? '').toISOString();
-
+        if (current.start_date) {
+          current.start_date = new Date(current.start_date).toISOString();
+        }
+        if (current.end_date) {
+          current.end_date = new Date(current.end_date).toISOString();
+        }
         return { ...current };
       });
 
       await this.api.PATCH_CapacitySharing(this.body());
-      this.actions.showToast({ severity: 'success', summary: 'CapSharing Details', detail: 'Data saved successfully' });
+
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'CapSharing Details',
+        detail: 'Data saved successfully'
+      });
+
       await this.getData();
     }
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
+
+    if (page === 'next') navigateTo('partners');
+    if (page === 'back') navigateTo('alliance-alignment');
+
     this.loading.set(false);
   }
 
