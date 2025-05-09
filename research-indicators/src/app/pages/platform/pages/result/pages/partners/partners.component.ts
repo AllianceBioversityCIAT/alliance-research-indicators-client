@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ActionsService } from '@services/actions.service';
@@ -20,7 +20,7 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
   imports: [ButtonModule, NgStyle, VersionSelectorComponent, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
   templateUrl: './partners.component.html'
 })
-export default class PartnersComponent implements OnInit {
+export default class PartnersComponent {
   actions = inject(ActionsService);
   cache = inject(CacheService);
   router = inject(Router);
@@ -38,10 +38,6 @@ export default class PartnersComponent implements OnInit {
     this.versionWatcher.onVersionChange(() => {
       this.getData();
     });
-  }
-
-  ngOnInit() {
-    this.getData();
   }
 
   canRemoveInstitution = (item: GetInstitution): boolean => {

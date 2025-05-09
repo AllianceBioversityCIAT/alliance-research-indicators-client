@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { GetLeversService } from '@services/control-list/get-levers.service';
@@ -21,7 +21,7 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
   imports: [MultiSelectModule, VersionSelectorComponent, NgStyle, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
   templateUrl: './alliance-alignment.component.html'
 })
-export default class AllianceAlignmentComponent implements OnInit {
+export default class AllianceAlignmentComponent {
   environment = environment;
   getContractsService = inject(GetContractsService);
   getLeversService = inject(GetLeversService);
@@ -39,14 +39,9 @@ export default class AllianceAlignmentComponent implements OnInit {
   route = inject(ActivatedRoute);
 
   constructor() {
-    // versioning
     this.versionWatcher.onVersionChange(() => {
       this.getData();
     });
-  }
-
-  ngOnInit() {
-    this.getData();
   }
 
   async getData() {

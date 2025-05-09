@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,7 +18,7 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
   imports: [ButtonModule, VersionSelectorComponent, NgStyle, FormsModule, InputTextModule, EvidenceItemComponent],
   templateUrl: './evidence.component.html'
 })
-export default class EvidenceComponent implements OnInit {
+export default class EvidenceComponent {
   value: undefined;
   actions = inject(ActionsService);
   cache = inject(CacheService);
@@ -35,10 +35,6 @@ export default class EvidenceComponent implements OnInit {
     this.versionWatcher.onVersionChange(() => {
       this.getData();
     });
-  }
-
-  ngOnInit() {
-    this.getData();
   }
 
   addEvidence() {

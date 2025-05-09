@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -45,7 +45,7 @@ interface Option {
   ],
   templateUrl: './general-information.component.html'
 })
-export default class GeneralInformationComponent implements OnInit {
+export default class GeneralInformationComponent {
   api = inject(ApiService);
   router = inject(Router);
   cache = inject(CacheService);
@@ -71,10 +71,6 @@ export default class GeneralInformationComponent implements OnInit {
     this.versionWatcher.onVersionChange(() => {
       this.getData();
     });
-  }
-
-  ngOnInit() {
-    this.getData();
   }
 
   async getData() {
