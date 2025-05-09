@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, effect, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, effect, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -40,7 +40,7 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
   ],
   templateUrl: './capacity-sharing.component.html'
 })
-export default class CapacitySharingComponent implements OnInit {
+export default class CapacitySharingComponent {
   api = inject(ApiService);
   actions = inject(ActionsService);
   cache = inject(CacheService);
@@ -68,10 +68,6 @@ export default class CapacitySharingComponent implements OnInit {
         }
       }
     });
-  }
-
-  ngOnInit() {
-    this.getData();
   }
 
   isLongTermSelected = computed(() => this.body()?.session_length_id === 2);

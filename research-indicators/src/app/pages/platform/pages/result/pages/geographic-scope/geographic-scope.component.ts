@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
+import { Component, computed, inject, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
@@ -19,7 +19,7 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
   imports: [ButtonModule, VersionSelectorComponent, NgStyle, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
-export default class GeographicScopeComponent implements OnInit {
+export default class GeographicScopeComponent {
   environment = environment;
   bodyTest = signal({ value: null, valueMulti: null });
   api = inject(ApiService);
@@ -39,10 +39,6 @@ export default class GeographicScopeComponent implements OnInit {
     this.versionWatcher.onVersionChange(() => {
       this.getData();
     });
-  }
-
-  ngOnInit() {
-    this.getData();
   }
 
   onSelect = () => {

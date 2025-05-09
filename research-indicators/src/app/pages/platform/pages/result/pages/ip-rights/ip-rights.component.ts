@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
@@ -18,7 +18,7 @@ import { VersionSelectorComponent } from '../../components/version-selector/vers
   imports: [ButtonModule, NgStyle, FormsModule, VersionSelectorComponent, RadioButtonComponent, InputComponent],
   templateUrl: './ip-rights.component.html'
 })
-export default class IpRightsComponent implements OnInit {
+export default class IpRightsComponent {
   api = inject(ApiService);
   router = inject(Router);
   body: WritableSignal<PatchIpOwner> = signal({});
@@ -34,11 +34,6 @@ export default class IpRightsComponent implements OnInit {
       this.getData();
     });
   }
-
-  ngOnInit() {
-    this.getData();
-  }
-
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_IpOwner(this.cache.currentResultId());

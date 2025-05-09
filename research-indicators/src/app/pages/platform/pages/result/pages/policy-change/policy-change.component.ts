@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TextareaComponent } from '../../../../../../shared/components/custom-fields/textarea/textarea.component';
 import { SelectComponent } from '../../../../../../shared/components/custom-fields/select/select.component';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
@@ -34,7 +34,7 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
     PartnerSelectedItemComponent
   ]
 })
-export default class PolicyChangeComponent implements OnInit {
+export default class PolicyChangeComponent {
   api = inject(ApiService);
   submission = inject(SubmissionService);
   cache = inject(CacheService);
@@ -59,10 +59,6 @@ export default class PolicyChangeComponent implements OnInit {
     this.versionWatcher.onVersionChange(() => {
       this.getData();
     });
-  }
-
-  ngOnInit() {
-    this.getData();
   }
 
   canRemove = (): boolean => {
