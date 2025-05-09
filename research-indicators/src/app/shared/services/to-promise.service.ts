@@ -94,7 +94,13 @@ export class ToPromiseService {
   };
 
   patch = <T, B>(url: string, body: B, config?: Config) => {
-    return this.TP(this.http.patch<T>(this.getEnv(config?.isAuth) + url, body));
+    let headers = new HttpHeaders();
+
+    if (config?.useYearInterceptor) {
+      headers = headers.set('X-Use-Year', 'true');
+    }
+
+    return this.TP(this.http.patch<T>(this.getEnv(config?.isAuth) + url, body, { headers }));
   };
 
   getEnv = (isAuth: boolean | string | undefined) => {
