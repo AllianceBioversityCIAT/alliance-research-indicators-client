@@ -8,7 +8,7 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 import { GetPolicyChange } from '../../../../../../shared/interfaces/get-get-policy-change.interface';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ButtonModule } from 'primeng/button';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { FormsModule } from '@angular/forms';
@@ -39,6 +39,8 @@ export default class PolicyChangeComponent implements OnInit {
   submission = inject(SubmissionService);
   cache = inject(CacheService);
   actions = inject(ActionsService);
+  route = inject(ActivatedRoute);
+
   router = inject(Router);
   body = signal<GetPolicyChange>({});
   loading = signal(false);
@@ -77,17 +79,28 @@ export default class PolicyChangeComponent implements OnInit {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
+    const resultId = this.cache.currentResultId().toString();
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const queryParams = version ? { version } : undefined;
+
+    const navigateTo = (path: string) => {
+      this.router.navigate(['result', resultId, path], {
+        queryParams,
+        replaceUrl: true
+      });
+    };
+
     if (this.submission.isEditableStatus()) {
       const response = await this.api.PATCH_PolicyChange(this.cache.currentResultId(), this.body());
       if (response.successfulRequest) {
         this.actions.showToast({ severity: 'success', summary: 'Policy Change', detail: 'Data saved successfully' });
         await this.getData();
-        if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-        if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
+        if (page === 'next') navigateTo('partners');
+        if (page === 'back') navigateTo('alliance-alignment');
       }
     } else {
-      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
+      if (page === 'next') navigateTo('partners');
+      if (page === 'back') navigateTo('alliance-alignment');
     }
     this.loading.set(false);
   }

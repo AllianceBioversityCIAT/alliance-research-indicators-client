@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ActionsService } from '@services/actions.service';
 import { CacheService } from '@services/cache/cache.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Institution, PatchPartners } from '@interfaces/patch-partners.interface';
 import { ApiService } from '@services/api.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
@@ -30,6 +30,7 @@ export default class PartnersComponent implements OnInit {
   loading = signal(false);
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
+  route = inject(ActivatedRoute);
 
   optionsDisabled: WritableSignal<Institution[]> = signal([]);
 
@@ -61,18 +62,38 @@ export default class PartnersComponent implements OnInit {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
+
+    const resultId = Number(this.cache.currentResultId());
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const queryParams = version ? { version } : undefined;
+
+    const navigateTo = (path: string) => {
+      this.router.navigate(['result', resultId, path], {
+        queryParams,
+        replaceUrl: true
+      });
+    };
+
+    const backPath = this.cache.currentResultIndicatorSectionPath();
+
     if (this.submission.isEditableStatus()) {
-      const response = await this.api.PATCH_Partners(this.cache.currentResultId(), this.body());
+      const response = await this.api.PATCH_Partners(resultId, this.body());
       if (response.successfulRequest) {
-        this.actions.showToast({ severity: 'success', summary: 'Partners', detail: 'Data saved successfully' });
+        this.actions.showToast({
+          severity: 'success',
+          summary: 'Partners',
+          detail: 'Data saved successfully'
+        });
         await this.getData();
-        if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
-        if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'geographic-scope']);
+
+        if (page === 'back') navigateTo(backPath);
+        if (page === 'next') navigateTo('geographic-scope');
       }
     } else {
-      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
-      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'geographic-scope']);
+      if (page === 'back') navigateTo(backPath);
+      if (page === 'next') navigateTo('geographic-scope');
     }
+
     this.loading.set(false);
   }
 

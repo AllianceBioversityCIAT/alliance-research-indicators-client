@@ -9,7 +9,7 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { ButtonModule } from 'primeng/button';
 import { GetAllianceAlignment } from '../../../../../../shared/interfaces/get-alliance-alignment.interface';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, NgStyle } from '@angular/common';
 import { environment } from '../../../../../../../environments/environment';
 import { SubmissionService } from '@shared/services/submission.service';
@@ -36,6 +36,7 @@ export default class AllianceAlignmentComponent implements OnInit {
   loading = signal(false);
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
+  route = inject(ActivatedRoute);
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {
@@ -58,18 +59,39 @@ export default class AllianceAlignmentComponent implements OnInit {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
+
+    const resultId = Number(this.cache.currentResultId());
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const queryParams = version ? { version } : undefined;
+
+    const navigateTo = (path: string) => {
+      this.router.navigate(['result', resultId, path], {
+        queryParams,
+        replaceUrl: true
+      });
+    };
+
+    const nextPath = this.cache.currentResultIndicatorSectionPath();
+
     if (this.submission.isEditableStatus()) {
-      const response = await this.apiService.PATCH_Alignments(this.cache.currentResultId(), this.body());
+      const response = await this.apiService.PATCH_Alignments(resultId, this.body());
       if (response.successfulRequest) {
-        this.actions.showToast({ severity: 'success', summary: 'Alliance Alignment', detail: 'Data saved successfully' });
+        this.actions.showToast({
+          severity: 'success',
+          summary: 'Alliance Alignment',
+          detail: 'Data saved successfully'
+        });
+
         await this.getData();
-        if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
-        if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
+
+        if (page === 'back') navigateTo('general-information');
+        if (page === 'next') navigateTo(nextPath);
       }
     } else {
-      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'general-information']);
-      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
+      if (page === 'back') navigateTo('general-information');
+      if (page === 'next') navigateTo(nextPath);
     }
+
     this.loading.set(false);
   }
 

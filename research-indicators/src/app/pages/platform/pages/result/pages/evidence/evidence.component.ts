@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { Evidence, PatchResultEvidences } from '../../../../../../shared/interfaces/patch-result-evidences.interface';
@@ -29,6 +29,7 @@ export default class EvidenceComponent implements OnInit {
   loading = signal(false);
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
+  route = inject(ActivatedRoute);
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {
@@ -65,13 +66,33 @@ export default class EvidenceComponent implements OnInit {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
+
+    const resultId = Number(this.cache.currentResultId());
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const queryParams = version ? { version } : undefined;
+
+    const navigateTo = (path: string) => {
+      this.router.navigate(['result', resultId, path], {
+        queryParams,
+        replaceUrl: true
+      });
+    };
+
     if (this.submission.isEditableStatus()) {
-      await this.api.PATCH_ResultEvidences(this.cache.currentResultId(), this.body());
-      this.actions.showToast({ severity: 'success', summary: 'Evidence', detail: 'Data saved successfully' });
+      await this.api.PATCH_ResultEvidences(resultId, this.body());
+
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Evidence',
+        detail: 'Data saved successfully'
+      });
+
       await this.getData();
     }
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'geographic-scope']);
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'ip-rights']);
+
+    if (page === 'back') navigateTo('geographic-scope');
+    if (page === 'next') navigateTo('ip-rights');
+
     this.loading.set(false);
   }
 }

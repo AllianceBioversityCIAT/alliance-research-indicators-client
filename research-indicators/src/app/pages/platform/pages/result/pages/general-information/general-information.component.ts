@@ -9,7 +9,7 @@ import { CacheService } from '@services/cache/cache.service';
 import { ChipModule } from 'primeng/chip';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { TextareaComponent } from '../../../../../../shared/components/custom-fields/textarea/textarea.component';
 import { GetResultsService } from '../../../../../../shared/services/control-list/get-results.service';
@@ -49,6 +49,7 @@ export default class GeneralInformationComponent implements OnInit {
   api = inject(ApiService);
   router = inject(Router);
   cache = inject(CacheService);
+  route = inject(ActivatedRoute);
   actions = inject(ActionsService);
   metadata = inject(GetMetadataService);
   getResultsService = inject(GetResultsService);
@@ -95,7 +96,17 @@ export default class GeneralInformationComponent implements OnInit {
       await this.getData();
       await this.metadata.update(this.cache.currentResultId());
     }
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
+
+    if (page === 'next') {
+      const version = this.route.snapshot.queryParamMap.get('version');
+      const commands: string[] = ['result', this.cache.currentResultId().toString(), 'alliance-alignment'];
+      const queryParams = version ? { version } : undefined;
+
+      this.router.navigate(commands, {
+        queryParams,
+        replaceUrl: true
+      });
+    }
     this.loading.set(false);
   }
 }
