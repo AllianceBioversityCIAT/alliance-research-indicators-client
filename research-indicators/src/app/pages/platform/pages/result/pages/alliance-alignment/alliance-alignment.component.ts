@@ -39,6 +39,7 @@ export default class AllianceAlignmentComponent implements OnInit {
   route = inject(ActivatedRoute);
 
   constructor() {
+    // versioning
     this.versionWatcher.onVersionChange(() => {
       this.getData();
     });
