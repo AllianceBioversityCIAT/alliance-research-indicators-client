@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import PolicyChangeComponent from './policy-change.component';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('PolicyChangeComponent', () => {
   let component: PolicyChangeComponent;
@@ -9,7 +11,15 @@ describe('PolicyChangeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PolicyChangeComponent, HttpClientTestingModule]
+      imports: [PolicyChangeComponent, HttpClientTestingModule],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            queryParams: of({ version: '1.0' })
+          }
+        }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PolicyChangeComponent);

@@ -16,7 +16,7 @@ describe('GeneralInformationComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            params: of({})
+            queryParams: of({ version: '1.0' }) // Mock básico
           }
         }
       ]

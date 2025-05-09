@@ -4,7 +4,8 @@ import EvidenceComponent from './evidence.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('EvidenceComponent', () => {
   let component: EvidenceComponent;
@@ -41,7 +42,13 @@ describe('EvidenceComponent', () => {
         { provide: ApiService, useValue: mockApiService },
         { provide: ActionsService, useValue: mockActionsService },
         { provide: CacheService, useValue: mockCacheService },
-        { provide: Router, useValue: mockRouter }
+        { provide: Router, useValue: mockRouter },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            queryParams: of({ version: '1.0' })
+          }
+        }
       ]
     }).compileComponents();
 
