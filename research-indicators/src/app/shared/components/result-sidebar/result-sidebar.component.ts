@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
 import { GreenChecks } from '../../interfaces/get-green-checks.interface';
@@ -31,7 +31,7 @@ interface SidebarOption {
 
 @Component({
   selector: 'app-result-sidebar',
-  imports: [RouterLink, RouterLinkActive, CustomTagComponent, ButtonModule, CommonModule, TooltipModule],
+  imports: [CustomTagComponent, ButtonModule, CommonModule, TooltipModule],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })
@@ -41,6 +41,8 @@ export class ResultSidebarComponent {
   allModalsService = inject(AllModalsService);
   api = inject(ApiService);
   metadata = inject(GetMetadataService);
+  router = inject(Router);
+  route = inject(ActivatedRoute);
   submissionService = inject(SubmissionService);
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions()
@@ -151,6 +153,21 @@ export class ResultSidebarComponent {
           })();
         }
       }
+    });
+  }
+
+  navigateTo(option: SidebarOption) {
+    if (option.disabled) return;
+
+    const id = this.route.snapshot.paramMap.get('id');
+    const version = this.route.snapshot.queryParamMap.get('version');
+
+    const commands = ['/result', id, option.path];
+    const queryParams = version ? { version } : {};
+
+    this.router.navigate(commands, {
+      queryParams,
+      replaceUrl: true
     });
   }
 }

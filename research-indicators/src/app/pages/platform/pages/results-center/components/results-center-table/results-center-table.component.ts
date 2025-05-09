@@ -198,8 +198,8 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     return severityMap[status];
   }
 
-  openResult(resultId: string) {
-    this.router.navigate(['/result', resultId]);
+  openResult(result_official_code: string) {
+    this.router.navigate(['/result', result_official_code]);
   }
 
   ngAfterViewInit() {
