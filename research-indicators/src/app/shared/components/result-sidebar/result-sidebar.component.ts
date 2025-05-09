@@ -31,7 +31,7 @@ interface SidebarOption {
 
 @Component({
   selector: 'app-result-sidebar',
-  imports: [CustomTagComponent, ButtonModule, CommonModule, TooltipModule],
+  imports: [CustomTagComponent, RouterLink, RouterLinkActive, ButtonModule, CommonModule, TooltipModule],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })
@@ -156,18 +156,28 @@ export class ResultSidebarComponent {
     });
   }
 
-  navigateTo(option: SidebarOption) {
-    if (option.disabled) return;
+  navigateTo(option: SidebarOption, event: MouseEvent) {
+    if (option.disabled) {
+      event.preventDefault();
+      return;
+    }
 
     const id = this.route.snapshot.paramMap.get('id');
     const version = this.route.snapshot.queryParamMap.get('version');
-
     const commands = ['/result', id, option.path];
+
     const queryParams = version ? { version } : {};
 
     this.router.navigate(commands, {
       queryParams,
       replaceUrl: true
     });
+  }
+
+  getRouterLink(option: SidebarOption): string[] | null {
+    if (option.disabled) return null;
+
+    const id = this.route.snapshot.paramMap.get('id');
+    return ['/result', id!, option.path];
   }
 }

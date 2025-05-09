@@ -27,7 +27,12 @@
   <div class="options-container px-[25px] pb-2">
     @for (option of allOptionsWithGreenChecks(); track option.path) {
       @if (!option.hide) {
-        <div class="options" [class.disabled]="option.disabled" (click)="navigateTo(option)">
+        <div
+          class="options"
+          [class.disabled]="option.disabled"
+          (click)="navigateTo(option, $event)"
+          [routerLink]="option.disabled ? null : option.path"
+          routerLinkActive="active">
           <div
             class="w-4 h-4 rounded-full flex items-center justify-center greenCheckBorder {{ option.greenCheck && 'greenCheckActive' }} {{
               option.greenCheck ? 'bg-[#509c55]' : 'bg-[#A2A9AF]'
