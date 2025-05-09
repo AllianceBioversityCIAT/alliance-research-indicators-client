@@ -104,7 +104,7 @@ export class ToPromiseService {
 
   getGreenChecks = (): Promise<MainResponse<GreenChecks>> => {
     const url = () => `results/green-checks/${this.cacheService.currentResultId()}`;
-    return this.get(url(), {});
+    return this.get(url(), { useYearInterceptor: true });
   };
 
   async updateGreenChecks() {
