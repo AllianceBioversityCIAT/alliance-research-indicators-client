@@ -11,10 +11,12 @@ import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 import { SubmissionService } from '@shared/services/submission.service';
 import { NgStyle } from '@angular/common';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
   selector: 'app-geographic-scope',
-  imports: [ButtonModule, NgStyle, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
+  imports: [ButtonModule, VersionSelectorComponent, NgStyle, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
 export default class GeographicScopeComponent implements OnInit {
@@ -27,8 +29,16 @@ export default class GeographicScopeComponent implements OnInit {
   actions = inject(ActionsService);
   loading = signal(false);
   submission = inject(SubmissionService);
+  versionWatcher = inject(VersionWatcherService);
+
   private isFirstSelect = true;
   @ViewChildren(MultiselectInstanceComponent) multiselectInstances!: QueryList<MultiselectInstanceComponent>;
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+  }
 
   ngOnInit() {
     this.getData();

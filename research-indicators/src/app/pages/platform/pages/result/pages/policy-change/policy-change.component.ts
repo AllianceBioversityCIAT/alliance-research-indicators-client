@@ -14,6 +14,8 @@ import { PartnerSelectedItemComponent } from '../../../../../../shared/component
 import { FormsModule } from '@angular/forms';
 import { SubmissionService } from '@shared/services/submission.service';
 import { NgStyle } from '@angular/common';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
   selector: 'app-policy-change',
@@ -26,6 +28,7 @@ import { NgStyle } from '@angular/common';
     MultiselectComponent,
     SelectComponent,
     NgStyle,
+    VersionSelectorComponent,
     FormsModule,
     TooltipModule,
     PartnerSelectedItemComponent
@@ -39,6 +42,7 @@ export default class PolicyChangeComponent implements OnInit {
   router = inject(Router);
   body = signal<GetPolicyChange>({});
   loading = signal(false);
+  versionWatcher = inject(VersionWatcherService);
 
   policyStages = signal<{ list: { id: number; name: string }[]; loading: boolean }>({
     list: [
@@ -48,6 +52,12 @@ export default class PolicyChangeComponent implements OnInit {
     ],
     loading: false
   });
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+  }
 
   ngOnInit() {
     this.getData();

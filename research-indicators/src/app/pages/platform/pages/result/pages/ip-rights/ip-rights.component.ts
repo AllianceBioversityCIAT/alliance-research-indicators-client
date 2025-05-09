@@ -10,10 +10,12 @@ import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { ActionsService } from '@shared/services/actions.service';
 import { Router } from '@angular/router';
 import { NgStyle } from '@angular/common';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 
 @Component({
   selector: 'app-ip-rights',
-  imports: [ButtonModule, NgStyle, FormsModule, RadioButtonComponent, InputComponent],
+  imports: [ButtonModule, NgStyle, FormsModule, VersionSelectorComponent, RadioButtonComponent, InputComponent],
   templateUrl: './ip-rights.component.html'
 })
 export default class IpRightsComponent implements OnInit {
@@ -24,6 +26,13 @@ export default class IpRightsComponent implements OnInit {
   actions = inject(ActionsService);
   loading = signal(false);
   submission = inject(SubmissionService);
+  versionWatcher = inject(VersionWatcherService);
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+  }
 
   ngOnInit() {
     this.getData();

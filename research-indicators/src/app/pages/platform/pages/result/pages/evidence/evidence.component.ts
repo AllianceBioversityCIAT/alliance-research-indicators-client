@@ -10,10 +10,12 @@ import { Evidence, PatchResultEvidences } from '../../../../../../shared/interfa
 import { EvidenceItemComponent } from './components/evidence-item/evidence-item.component';
 import { SubmissionService } from '@shared/services/submission.service';
 import { NgStyle } from '@angular/common';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
   selector: 'app-evidence',
-  imports: [ButtonModule, NgStyle, FormsModule, InputTextModule, EvidenceItemComponent],
+  imports: [ButtonModule, VersionSelectorComponent, NgStyle, FormsModule, InputTextModule, EvidenceItemComponent],
   templateUrl: './evidence.component.html'
 })
 export default class EvidenceComponent implements OnInit {
@@ -26,6 +28,13 @@ export default class EvidenceComponent implements OnInit {
   example = signal({ evidence_url: signal('test') });
   loading = signal(false);
   submission = inject(SubmissionService);
+  versionWatcher = inject(VersionWatcherService);
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+  }
 
   ngOnInit() {
     this.getData();

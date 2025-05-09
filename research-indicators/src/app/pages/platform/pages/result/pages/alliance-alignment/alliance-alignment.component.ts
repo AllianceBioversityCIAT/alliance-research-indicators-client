@@ -13,10 +13,12 @@ import { Router } from '@angular/router';
 import { DatePipe, NgStyle } from '@angular/common';
 import { environment } from '../../../../../../../environments/environment';
 import { SubmissionService } from '@shared/services/submission.service';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
   selector: 'app-alliance-alignment',
-  imports: [MultiSelectModule, NgStyle, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
+  imports: [MultiSelectModule, VersionSelectorComponent, NgStyle, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
   templateUrl: './alliance-alignment.component.html'
 })
 export default class AllianceAlignmentComponent implements OnInit {
@@ -33,6 +35,13 @@ export default class AllianceAlignmentComponent implements OnInit {
   router = inject(Router);
   loading = signal(false);
   submission = inject(SubmissionService);
+  versionWatcher = inject(VersionWatcherService);
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+  }
 
   ngOnInit() {
     this.getData();

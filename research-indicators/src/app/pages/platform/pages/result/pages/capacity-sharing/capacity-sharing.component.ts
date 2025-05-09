@@ -18,6 +18,8 @@ import { PartnerSelectedItemComponent } from '../../../../../../shared/component
 import { SubmissionService } from '@shared/services/submission.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { NgStyle } from '@angular/common';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
   selector: 'app-capacity-sharing',
@@ -26,6 +28,7 @@ import { NgStyle } from '@angular/common';
     FormsModule,
     NgStyle,
     DropdownModule,
+    VersionSelectorComponent,
     CalendarModule,
     RadioButtonModule,
     RadioButtonComponent,
@@ -46,8 +49,13 @@ export default class CapacitySharingComponent implements OnInit {
   submission = inject(SubmissionService);
   loading = signal(false);
   allModalsService = inject(AllModalsService);
+  versionWatcher = inject(VersionWatcherService);
 
   constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+
     effect(() => {
       if (!this.isLongTermSelected()) {
         const current = this.body();

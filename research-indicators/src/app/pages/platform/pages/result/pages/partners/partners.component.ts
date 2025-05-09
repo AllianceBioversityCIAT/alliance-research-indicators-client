@@ -12,10 +12,12 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GetInstitution } from '@shared/interfaces/get-institutions.interface';
 import { SubmissionService } from '@shared/services/submission.service';
 import { NgStyle } from '@angular/common';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
   selector: 'app-partners',
-  imports: [ButtonModule, NgStyle, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
+  imports: [ButtonModule, NgStyle, VersionSelectorComponent, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
   templateUrl: './partners.component.html'
 })
 export default class PartnersComponent implements OnInit {
@@ -27,8 +29,15 @@ export default class PartnersComponent implements OnInit {
   body = signal<PatchPartners>(new PatchPartners());
   loading = signal(false);
   submission = inject(SubmissionService);
+  versionWatcher = inject(VersionWatcherService);
 
   optionsDisabled: WritableSignal<Institution[]> = signal([]);
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+  }
 
   ngOnInit() {
     this.getData();

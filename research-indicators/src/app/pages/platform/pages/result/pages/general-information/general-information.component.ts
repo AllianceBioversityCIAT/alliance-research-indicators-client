@@ -9,7 +9,7 @@ import { CacheService } from '@services/cache/cache.service';
 import { ChipModule } from 'primeng/chip';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { TextareaComponent } from '../../../../../../shared/components/custom-fields/textarea/textarea.component';
 import { GetResultsService } from '../../../../../../shared/services/control-list/get-results.service';
@@ -19,6 +19,8 @@ import { GetMetadataService } from '../../../../../../shared/services/get-metada
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SubmissionService } from '@shared/services/submission.service';
 import { NgStyle } from '@angular/common';
+import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 interface Option {
   name: string;
@@ -35,6 +37,7 @@ interface Option {
     ReactiveFormsModule,
     ChipModule,
     NgStyle,
+    VersionSelectorComponent,
     InputComponent,
     TextareaComponent,
     SelectComponent,
@@ -43,13 +46,13 @@ interface Option {
   templateUrl: './general-information.component.html'
 })
 export default class GeneralInformationComponent implements OnInit {
-  actions = inject(ActionsService);
   api = inject(ApiService);
-  cache = inject(CacheService);
   router = inject(Router);
-  route = inject(ActivatedRoute);
+  cache = inject(CacheService);
+  actions = inject(ActionsService);
   metadata = inject(GetMetadataService);
   getResultsService = inject(GetResultsService);
+  versionWatcher = inject(VersionWatcherService);
   getUserStaffService = inject(GetUserStaffService);
   options: Option[] | undefined;
   body: WritableSignal<GeneralInformation> = signal({
@@ -62,6 +65,12 @@ export default class GeneralInformationComponent implements OnInit {
   });
   loading = signal(false);
   submission = inject(SubmissionService);
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
+  }
 
   ngOnInit() {
     this.getData();
