@@ -83,7 +83,7 @@ export class CreateResultFormComponent {
     });
     this.allModalsService.closeModal('createResult');
     this.body.set({ indicator_id: null, title: null, contract_id: null, year: currentYear });
-    if (openresult) this.actions.changeResultRoute(result.data.result_id);
+    if (openresult) this.actions.changeResultRoute(Number(result.data.result_official_code));
     this.getResultsService.updateList();
   };
 

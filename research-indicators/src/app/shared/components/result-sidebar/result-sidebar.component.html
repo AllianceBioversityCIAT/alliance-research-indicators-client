@@ -31,6 +31,7 @@
           class="options"
           [class.disabled]="option.disabled"
           (click)="navigateTo(option, $event)"
+          (keydown.enter)="navigateTo(option, $event)"
           [routerLink]="option.disabled ? null : option.path"
           routerLinkActive="active">
           <div

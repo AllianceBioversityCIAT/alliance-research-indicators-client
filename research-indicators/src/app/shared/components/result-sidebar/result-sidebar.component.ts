@@ -156,7 +156,7 @@ export class ResultSidebarComponent {
     });
   }
 
-  navigateTo(option: SidebarOption, event: MouseEvent) {
+  navigateTo(option: SidebarOption, event: Event) {
     if (option.disabled) {
       event.preventDefault();
       return;
