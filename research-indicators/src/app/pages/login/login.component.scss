@@ -119,10 +119,40 @@ input {
   cursor: pointer;
   margin-bottom: 15px;
   transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .signin-btn:hover {
   background-color: #09375e;
+}
+
+.signin-btn:disabled {
+  background-color: #6c8ba8;
+  cursor: not-allowed;
+}
+
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 .signup-link {

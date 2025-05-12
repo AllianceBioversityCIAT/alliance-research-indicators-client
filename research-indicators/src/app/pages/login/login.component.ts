@@ -6,6 +6,12 @@ import { environment } from '../../../environments/environment';
 import { ActionsService } from '../../shared/services/actions.service';
 import { Router } from '@angular/router';
 
+interface UserData {
+  Username: string;
+  UserAttributes: { Name: string; Value: string }[];
+  [key: string]: string | { Name: string; Value: string }[] | unknown;
+}
+
 @Component({
   selector: 'app-login',
   imports: [FormsModule, CommonModule],
@@ -22,6 +28,8 @@ export default class LoginComponent {
     email: '',
     password: ''
   });
+  isLoading = signal<boolean>(false);
+  userData = signal<UserData | null>(null);
 
   loginWithAzureAd() {
     window.location.href =
@@ -43,31 +51,102 @@ export default class LoginComponent {
       return;
     }
 
-    const url = `${environment.cognitoDomain}login?client_id=${environment.cognitoClientId}&response_type=code&scope=email+openid+phone+profile&redirect_uri=${environment.cognitoRedirectUri}`;
+    this.isLoading.set(true);
 
-    const body = new URLSearchParams({
-      username: this.body().email,
-      password: this.body().password
-    });
+    setTimeout(() => {
+      this.isLoading.set(false);
+    }, 1000);
 
-    const response = await fetch(url, {
-      method: 'POST',
-      body: body.toString(),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
+    // try {
+    //   const authData = {
+    //     AuthFlow: 'USER_PASSWORD_AUTH',
+    //     AuthParameters: {
+    //       USERNAME: this.body().email,
+    //       PASSWORD: this.body().password,
+    //       SECRET_HASH: 'qVpW1g3NfOt1Cnrm6QyxV4ONBgYUAWa8cHG2hpIFAY4='
+    //     },
+    //     ClientId: environment.cognitoClientLoginId
+    //   };
 
-    const data = await response.json();
+    //   const url = `https://cognito-idp.us-east-1.amazonaws.com/`;
 
-    console.error(data);
+    //   // Make the API call to Cognito
+    //   const response = await fetch(url, {
+    //     method: 'POST',
+    //     headers: {
+    //       'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
+    //       'Content-Type': 'application/x-amz-json-1.1'
+    //     },
+    //     body: JSON.stringify(authData)
+    //   });
 
-    if (data.error) {
-      this.actions.showToast({
-        severity: 'error',
-        summary: 'Error authenticating',
-        detail: data.error
-      });
-    }
+    //   const data = await response.json();
+
+    //   if (data.AuthenticationResult) {
+    //     // Authentication successful
+    //     const { AccessToken } = data.AuthenticationResult;
+
+    //     console.log('data', data);
+
+    //     // Get user data after successful login
+    //     const user = await this.getUserData(AccessToken);
+    //     console.log(user);
+    //     // if (user) {
+    //     //   this.router.navigate(['/auth'], { queryParams: { code: user?.Username } });
+    //     // }
+    //   } else if (data.ChallengeName) {
+    //     // Handle different challenges like NEW_PASSWORD_REQUIRED
+    //     this.actions.showToast({
+    //       severity: 'warning',
+    //       summary: 'Additional verification required',
+    //       detail: `Challenge: ${data.ChallengeName}`
+    //     });
+    //   } else {
+    //     throw new Error(data.message || 'Authentication failed');
+    //   }
+    // } catch (error) {
+    //   console.error('Authentication error:', error);
+    //   this.actions.showToast({
+    //     severity: 'error',
+    //     summary: 'Login failed',
+    //     detail: error instanceof Error ? error.message : 'Unknown error occurred'
+    //   });
+    // } finally {
+    //   this.isLoading.set(false);
+    // }
   }
+
+  // async getUserData(accessToken: string) {
+  //   try {
+  //     const url = `https://cognito-idp.us-east-1.amazonaws.com`;
+
+  //     const response = await fetch(url, {
+  //       method: 'POST',
+  //       headers: {
+  //         'X-Amz-Target': 'AWSCognitoIdentityProviderService.GetUser',
+  //         'Content-Type': 'application/x-amz-json-1.1'
+  //       },
+  //       body: JSON.stringify({
+  //         AccessToken: accessToken
+  //       })
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error(`Failed to get user data: ${response.status}`);
+  //     }
+
+  //     const userData = await response.json();
+  //     this.userData.set(userData);
+
+  //     return userData;
+  //   } catch (error) {
+  //     console.error('Error getting user data:', error);
+  //     this.actions.showToast({
+  //       severity: 'error',
+  //       summary: 'Failed to get user data',
+  //       detail: error instanceof Error ? error.message : 'Unknown error occurred'
+  //     });
+  //     return null;
+  //   }
+  // }
 }
