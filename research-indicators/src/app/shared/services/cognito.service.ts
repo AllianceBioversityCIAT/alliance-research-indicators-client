@@ -2,9 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { ApiService } from '@services/api.service';
-import { environment } from '@envs/environment';
 import { ActionsService } from '@services/actions.service';
 import { ClarityService } from './clarity.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
