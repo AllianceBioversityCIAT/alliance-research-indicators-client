@@ -1,43 +1,12 @@
 <div class="login-container">
   <div class="login-card">
     <div class="logo-section">
-      <!-- <img src="/images/landing/STAR.svg" alt="STAR logo" style="width: 450px" /> -->
       <img src="/STAR-login.jpg" alt="STAR logo" width="90%" />
     </div>
 
     <div class="login-form">
-      <h2>Sign in with your corporate ID</h2>
-      <button class="corp-id-btn" (click)="loginWithAzureAd()">Log in with corporate ID</button>
-
-      <div class="divider">
-        <span>or</span>
-      </div>
-
-      <h2>Sign in with your email and password</h2>
-
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="name@host.com" [(ngModel)]="body().email" />
-      </div>
-
-      <div class="form-group !mb-6">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Password" [(ngModel)]="body().password" />
-      </div>
-
-      <button class="signin-btn" [disabled]="isLoading()" (click)="loginWithCredentials()">
-        <span *ngIf="!isLoading()">Sign in</span>
-        <span *ngIf="isLoading()" class="loading-indicator">
-          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Signing in...
-        </span>
-      </button>
+      <h2>Sign in with your CGIAR credentials</h2>
+      <button class="corp-id-btn" (click)="loginWithAzureAd()">Continue with your CGIAR account</button>
     </div>
   </div>
 </div>
