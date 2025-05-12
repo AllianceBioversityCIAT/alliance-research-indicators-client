@@ -43,7 +43,7 @@ jobs:
           npm install  # Install project dependencies
         working-directory: ./research-indicators # Correct directory path
 
-      # Step 6: Create environment files (environment.ts, environment.dev.ts)
+      # Step 6: Create environment files (environment.ts, environment.dev.ts).
       - name: Create environment files
         run: |
           # Create environment.ts
