@@ -5,11 +5,7 @@
   box-shadow: 0 0 15px 0 #00000030;
 
   .logo {
-    min-width: 120px;
-
-    @media (max-width: 1250px) {
-      min-width: 100px;
-    }
+    min-width: 75px;
 
     @media (max-height: 768px) {
       min-width: 80px;
