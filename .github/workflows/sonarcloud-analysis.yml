@@ -72,6 +72,7 @@ jobs:
             -Dsonar.organization=alliancebioversityciat \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.exclusions=**/environments/**,**/*.spec.ts
         working-directory: ./research-indicators
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
