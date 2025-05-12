@@ -71,7 +71,8 @@ jobs:
             -Dsonar.projectKey=AllianceBioversityCIAT_alliance-research-indicators-client \
             -Dsonar.organization=alliancebioversityciat \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.exclusions=**/environments/**,**/*.spec.ts
         working-directory: ./research-indicators
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
