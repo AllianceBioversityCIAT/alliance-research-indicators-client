@@ -2,110 +2,76 @@ name: SonarCloud Analysis
 
 on:
   push:
-    branches:
-      - dev
-      - staging
-      - main
+    branches: [dev, staging, main]
   pull_request:
-    branches:
-      - dev
-      - staging
-      - main
+    branches: [dev, staging, main]
 
 jobs:
   sonarcloud:
-    runs-on: ubuntu-latest # Use the latest Ubuntu image for the job
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Set up JDK 17 for SonarCloud analysis
+      # Step 1: Set up JDK 17
       - name: Set up JDK 17 for SonarCloud analysis
         uses: actions/setup-java@v2
         with:
-          java-version: "17" # Ensure using Java 17
-          distribution: "temurin" # Use the Adoptium distribution (previously AdoptOpenJDK)
+          java-version: "17"
+          distribution: "temurin"
 
       # Step 2: Verify Java version
       - name: Verify Java version
-        run: |
-          java -version  # This will print the version of Java in the logs to confirm Java 17 is being used
+        run: java -version
 
-      # Step 3: Set JAVA_HOME and SONAR_JAVA_HOME explicitly
+      # Step 3: Set JAVA_HOME and SONAR_JAVA_HOME
       - name: Set JAVA_HOME and SONAR_JAVA_HOME
         run: |
           echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> $GITHUB_ENV
           echo "SONAR_JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
-          echo "JAVA_HOME and SONAR_JAVA_HOME are set to $(dirname $(dirname $(readlink -f $(which java))))"
 
-      # Step 4: Checkout the repository code
+      # Step 4: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 5: Install Angular dependencies in the correct directory
+      # Step 5: Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # Step 6: Install Angular dependencies
       - name: Install dependencies
         run: |
-          npm install -g @angular/cli  # Install Angular CLI globally if it's not installed
-          npm install  # Install project dependencies
-        working-directory: ./research-indicators # Correct directory path
+          npm install -g @angular/cli
+          npm install
+        working-directory: ./research-indicators
 
-      # Step 6: Create environment files (environment.ts, environment.dev.ts).
-      - name: Create environment files
+      # ✅ Step 7: Load environment.ts from Secrets Manager
+      - name: Create environment.ts and environment.dev.ts from AWS Secrets Manager
         run: |
-          # Create environment.ts
-          cat > src/environments/environment.ts << EOL
-          export const environment = {
-            production: false,
-            name: 'test',
-            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
-            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
-            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
-            cognitoUrl: '${{ secrets.COGNITO_URL }}',
-            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
-            platform: 'ALLIANCE',
-            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
-            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
-            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
-            hotjarId: ${{ secrets.HOTJAR_ID }},
-            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
-            hotjarVersion: 6
-          };
-          EOL
-          # Create environment.dev.ts
-          cat > src/environments/environment.dev.ts << EOL
-          export const environment = {
-            production: false,
-            name: 'test',
-            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
-            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
-            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
-            cognitoUrl: '${{ secrets.COGNITO_URL }}',
-            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
-            platform: 'ALLIANCE',
-            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
-            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
-            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
-            hotjarId: ${{ secrets.HOTJAR_ID }},
-            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
-            hotjarVersion: 6
-          };
-          EOL
-        working-directory: ./research-indicators # Correct directory path
+          aws secretsmanager get-secret-value \
+            --secret-id dev/app/frontend/alliance/reportingtool \
+            --query SecretString \
+            --output text > src/environments/environment.ts
 
-      # Step 7: Install SonarScanner using npm
+          cp src/environments/environment.ts src/environments/environment.dev.ts
+        working-directory: ./research-indicators
+
+      # Step 8: Install SonarScanner
       - name: Install SonarScanner
-        run: |
-          npm install -g sonar-scanner  # Install sonar-scanner globally using npm
+        run: npm install -g sonar-scanner
 
-      # Step 8: Run SonarCloud analysis
+      # Step 9: Run SonarCloud analysis
       - name: Run SonarCloud analysis
         run: |
-          # Verificar la versión de Java que se está utilizando
           java -version
-
-          # Ejecutar el build de Angular
           npm run build
-
-          # Ejecutar SonarScanner con la versión correcta de Java
-          sonar-scanner -Dsonar.projectKey=AllianceBioversityCIAT_alliance-research-indicators-client -Dsonar.organization=alliancebioversityciat -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-        working-directory: ./research-indicators # Correct directory path
+          sonar-scanner \
+            -Dsonar.projectKey=AllianceBioversityCIAT_alliance-research-indicators-client \
+            -Dsonar.organization=alliancebioversityciat \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        working-directory: ./research-indicators
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Use SonarCloud token from GitHub secrets
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
