@@ -1,31 +1,12 @@
 <div class="login-container">
   <div class="login-card">
     <div class="logo-section">
-      <!-- <img src="/images/landing/STAR.svg" alt="STAR logo" style="width: 450px" /> -->
       <img src="/STAR-login.jpg" alt="STAR logo" width="90%" />
     </div>
 
     <div class="login-form">
-      <h2>Sign in with your corporate ID</h2>
-      <button class="corp-id-btn" (click)="loginWithAzureAd()">Log in with corporate ID</button>
-
-      <div class="divider">
-        <span>or</span>
-      </div>
-
-      <h2>Sign in with your email and password</h2>
-
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="name@host.com" [(ngModel)]="body().email" />
-      </div>
-
-      <div class="form-group !mb-6">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Password" [(ngModel)]="body().password" />
-      </div>
-
-      <button class="signin-btn" (click)="loginWithCredentials()">Sign in</button>
+      <h2>Sign in with your CGIAR credentials</h2>
+      <button class="corp-id-btn" (click)="loginWithAzureAd()">Continue with your CGIAR account</button>
     </div>
   </div>
 </div>
