@@ -14,7 +14,7 @@ export class GetSubnationalByIsoAlphaService {
   getInstance = async (endpointParams: { isoAlpha2: string }): Promise<WritableSignal<GetSubnationalsByIsoAlpha[]>> => {
     const newSignal = signal<GetSubnationalsByIsoAlpha[]>([]);
     const response = await this.api.GET_SubNationals(endpointParams.isoAlpha2);
-    response.data.map((item: GetSubnationalsByIsoAlpha) => {
+    response.data.forEach((item: GetSubnationalsByIsoAlpha) => {
       item.sub_national_id = item.id;
     });
 

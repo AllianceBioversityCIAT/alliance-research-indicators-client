@@ -38,9 +38,11 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
           detail: 'Once deleted, it cannot be recovered.',
           confirmCallback: {
             label: 'Delete result',
-            event: async () => {
-              const res = await this.api.DELETE_Result(this.cache.currentResultId());
-              if (res.successfulRequest) this.router.navigate(['/results-center']);
+            event: () => {
+              (async () => {
+                const res = await this.api.DELETE_Result(this.cache.currentResultId());
+                if (res.successfulRequest) this.router.navigate(['/results-center']);
+              })();
             }
           }
         });
