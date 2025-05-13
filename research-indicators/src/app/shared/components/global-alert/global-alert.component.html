@@ -11,7 +11,7 @@
       </div>
 
       <div class="summary !text-[{{ alert.color }}]">{{ alert.summary }}</div>
-      <div class="detail leading-5 text-[#4C5158]" [innerHTML]="alert.detail"></div>
+      <div class="detail -mt-1.5 leading-5 text-[#4C5158]" [innerHTML]="alert.detail"></div>
       @if (alert.commentLabel) {
         <app-input
           [label]="alert.commentLabel"

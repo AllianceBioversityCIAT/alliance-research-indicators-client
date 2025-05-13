@@ -143,13 +143,23 @@ export class ResultSidebarComponent {
         label: 'Confirm',
         event: (comment?: string) => {
           (async () => {
-            await this.api.PATCH_SubmitResult({
+            const response = await this.api.PATCH_SubmitResult({
               resultId: this.cache.currentResultId(),
               comment: comment ?? '',
               status: this.submissionService.currentResultIsSubmitted() ? 4 : 2
             });
             this.metadata.update(this.cache.currentResultId());
             this.submissionService.refreshSubmissionHistory.update(v => v + 1);
+            if (!response.successfulRequest) {
+              this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
+            } else if (!this.submissionService.currentResultIsSubmitted()) {
+              this.actions.showGlobalAlert({
+                severity: 'success',
+                hasNoButton: true,
+                summary: 'RESULT SUBMITTED',
+                detail: 'The result was submitted successfully.'
+              });
+            }
           })();
         }
       }
