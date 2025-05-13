@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, isDevMode, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -35,12 +35,11 @@ export const appConfig: ApplicationConfig = {
       }
     }),
     TrackingToolsService,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeTrackingToolsService,
-      deps: [TrackingToolsService],
-      multi: true
-    },
+
+    provideAppInitializer(() => {
+      const trackingToolsService = inject(TrackingToolsService);
+      return trackingToolsService.init();
+    }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
