@@ -55,12 +55,7 @@
               </p>
             </div>
             <div class="px-5 w-full flex items-end primary-item">
-              <button
-                class="uppercase max-w-22 text-xs font-semibold px-2 py-1 rounded-lg border"
-                [class.border-[#7CB580]]="item?.contract_status?.toUpperCase() !== 'ONGOING'"
-                [class.text-[#235B2D]]="item?.contract_status?.toUpperCase() !== 'ONGOING'"
-                [class.border-[#7C9CB9]]="item?.contract_status?.toUpperCase() === 'ONGOING'"
-                [class.text-[#153C71]]="item?.contract_status?.toUpperCase() === 'ONGOING'">
+              <button class="uppercase max-w-24 text-xs font-semibold px-2 py-1 rounded-lg" [class]="getContractStatusClasses(item?.contract_status)">
                 {{ item?.contract_status }}
               </button>
             </div>
