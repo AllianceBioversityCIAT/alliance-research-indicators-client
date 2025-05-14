@@ -11,12 +11,12 @@ import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 import { SubmissionService } from '@shared/services/submission.service';
 import { NgStyle } from '@angular/common';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 
 @Component({
   selector: 'app-geographic-scope',
-  imports: [ButtonModule, VersionSelectorComponent, NgStyle, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
+  imports: [ButtonModule, FormHeaderComponent, NgStyle, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
 export default class GeographicScopeComponent {

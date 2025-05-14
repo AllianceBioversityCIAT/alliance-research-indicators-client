@@ -14,7 +14,7 @@ import { PartnerSelectedItemComponent } from '../../../../../../shared/component
 import { FormsModule } from '@angular/forms';
 import { SubmissionService } from '@shared/services/submission.service';
 import { NgStyle } from '@angular/common';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
@@ -28,7 +28,7 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
     MultiselectComponent,
     SelectComponent,
     NgStyle,
-    VersionSelectorComponent,
+    FormHeaderComponent,
     FormsModule,
     TooltipModule,
     PartnerSelectedItemComponent

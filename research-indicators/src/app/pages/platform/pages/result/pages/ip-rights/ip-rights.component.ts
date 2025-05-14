@@ -11,11 +11,11 @@ import { ActionsService } from '@shared/services/actions.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgStyle } from '@angular/common';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 
 @Component({
   selector: 'app-ip-rights',
-  imports: [ButtonModule, NgStyle, FormsModule, VersionSelectorComponent, RadioButtonComponent, InputComponent],
+  imports: [ButtonModule, NgStyle, FormsModule, FormHeaderComponent, RadioButtonComponent, InputComponent],
   templateUrl: './ip-rights.component.html'
 })
 export default class IpRightsComponent {

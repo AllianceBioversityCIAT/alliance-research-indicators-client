@@ -19,7 +19,7 @@ import { GetMetadataService } from '../../../../../../shared/services/get-metada
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SubmissionService } from '@shared/services/submission.service';
 import { NgStyle } from '@angular/common';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 interface Option {
@@ -37,7 +37,7 @@ interface Option {
     ReactiveFormsModule,
     ChipModule,
     NgStyle,
-    VersionSelectorComponent,
+    FormHeaderComponent,
     InputComponent,
     TextareaComponent,
     SelectComponent,
