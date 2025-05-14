@@ -4,10 +4,17 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { CacheService } from 'src/app/shared/services/cache/cache.service';
 import { AllModalsService } from '../../../../../services/cache/all-modals.service';
-import { getBrowserInfo } from 'src/app/shared/utils/browser.util';
 import { ActionsService } from '../../../../../services/actions.service';
+import { ApiService } from '../../../../../services/api.service';
+import { AskForHelp } from '../interfaces/ask-for-help.interface';
+import { CacheService } from '../../../../../services/cache/cache.service';
+import { getBrowserInfo } from '../../../../../utils/browser.util';
+
+interface FormBody {
+  type: string;
+  message: string;
+}
 
 @Component({
   selector: 'app-ask-for-help-modal',
@@ -17,13 +24,7 @@ import { ActionsService } from '../../../../../services/actions.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AskForHelpModalComponent {
-  body = signal<{
-    type: string | null;
-    message: string | null;
-  }>({
-    type: null,
-    message: null
-  });
+  body = signal<FormBody>({ type: '', message: '' });
   modalService = inject(AllModalsService);
   actions = inject(ActionsService);
 
@@ -40,16 +41,22 @@ export class AskForHelpModalComponent {
   ];
 
   cache = inject(CacheService);
+  api = inject(ApiService);
 
   validateForm() {
     const { type, message } = this.body();
-    return type && message && message.length >= 50;
+    return type && message && message.length >= 25;
   }
 
-  sendRequest() {
+  resetModal() {
+    this.body.set({ type: '', message: '' });
+    this.modalService.closeModal('askForHelp');
+  }
+
+  async sendRequest() {
     const browserInfo = getBrowserInfo();
 
-    const sendData = {
+    const sendData: AskForHelp = {
       type: this.body().type,
       message: this.body().message,
       url: this.cache.currentUrlPath(),
@@ -62,7 +69,22 @@ export class AskForHelpModalComponent {
       browserInfo
     };
 
-    console.log(sendData);
+    const response = await this.api.PATCH_Feedback(sendData);
+
+    if (!response.successfulRequest) {
+      this.actions.showGlobalAlert({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to send request',
+        cancelCallback: {
+          label: 'Close'
+        },
+        autoHideDuration: 2000,
+        hideCancelButton: true
+      });
+      this.resetModal();
+      return;
+    }
 
     this.actions.showGlobalAlert({
       severity: 'success',
@@ -71,15 +93,10 @@ export class AskForHelpModalComponent {
       cancelCallback: {
         label: 'Close'
       },
-      autoHideDuration: 1500,
+      autoHideDuration: 2000,
       hideCancelButton: true
     });
 
-    this.body.set({
-      type: null,
-      message: null
-    });
-
-    this.modalService.closeModal('askForHelp');
+    this.resetModal();
   }
 }

@@ -44,6 +44,7 @@ import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
 import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
 import { GetClarisaInstitutionsTypes } from '@shared/interfaces/get-clarisa-institutions-types.interface';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
+import { AskForHelp } from '../components/all-modals/modals-content/ask-for-help-modal/interfaces/ask-for-help.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -411,6 +412,12 @@ export class ApiService {
   DELETE_Result = (resultId: number) => {
     const url = () => `results/${resultId}/delete`;
     return this.TP.delete(url());
+  };
+
+  // Feedback | Ask for help
+  PATCH_Feedback = (body: AskForHelp) => {
+    const url = () => `reporting-feedback/send`;
+    return this.TP.patch(url(), body);
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
