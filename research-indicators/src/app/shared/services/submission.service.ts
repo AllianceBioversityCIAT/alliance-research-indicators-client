@@ -15,7 +15,11 @@ export class SubmissionService {
   comment = signal('');
   statusSelected = signal<ReviewOption | null>(null);
   canSubmitResult = computed(() => {
-    return this.cache.allGreenChecksAreTrue() && Object.values(this.cache.greenChecks()).length && this.cache.isMyResult();
+    return (
+      this.cache.allGreenChecksAreTrue() &&
+      Object.values(this.cache.greenChecks()).length &&
+      (this.cache.isMyResult() || this.cache.currentMetadata().is_principal_investigator)
+    );
   });
   submissionStatuses = signal<SubmissionStatus[]>([
     { id: 1, name: 'Editing' },
@@ -29,11 +33,16 @@ export class SubmissionService {
   ]);
 
   currentResultIsSubmitted = computed(() => this.cache.currentMetadata().status_id == 2);
-  
-  refreshSubmissionHistory = signal(0); 
-  
+
+  refreshSubmissionHistory = signal(0);
+
   isEditableStatus = computed(() => {
-    const editableStatuses = [4, 5]; 
+    const editableStatuses = [4, 5];
+    return editableStatuses.includes(this.cache.currentMetadata().status_id ?? -1);
+  });
+
+  isSubmitted = computed(() => {
+    const editableStatuses = [2];
     return editableStatuses.includes(this.cache.currentMetadata().status_id ?? -1);
   });
 

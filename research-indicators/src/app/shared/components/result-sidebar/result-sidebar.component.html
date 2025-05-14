@@ -1,28 +1,39 @@
-<div class="card-content">
-  <div class="flex flex-col p-[25px] pb-0">
-    <span class="text-[#345B8F] text-[12px] font-semibold">
+@let hss = this.cache.hasSmallScreen();
+<div class="card-content {{ hss ? '-mt-3' : '-mt-0' }}">
+  <div class="flex flex-col p-[25px] pb-4 pt-9 !bg-[#ffffff]">
+    <span class="text-[#345B8F] text-[14px] font-semibold">
       RESULT CODE <span class="text-[#153C71] font-bold">#{{ cache.currentMetadata().result_official_code }}</span>
     </span>
 
-    <div class="flex items-center gap-2 mt-1">
-      <span class="text-[#7CB580]">
-        <i class="pi pi-users !text-[18px]"></i>
+    <div class="flex items-center gap-2 mt-[0.5px]">
+      <span class="{{ cache.currentMetadata().indicator_name === 'Policy Change' ? 'text-[#F58220]' : 'text-[#7CB580]' }}">
+        <i class="{{ cache.currentMetadata().indicator_name === 'Policy Change' ? 'pi pi-folder-open' : 'pi pi-users' }} !text-[16px]"> </i>
       </span>
-      <span class="text-[#153C71] leading-4 font-bold uppercase text-[12px]">{{ cache.currentMetadata().indicator_name }}</span>
+
+      <span class="text-[#153C71] leading-4 font-bold uppercase text-[14px]">{{ cache.currentMetadata().indicator_name }}</span>
     </div>
   </div>
 
-  <hr />
+  <hr class="!my-0" />
 
-  <div class="flex px-[25px] items-center justify-between font-medium full text-xs mb-[15px] text-[#777c83] title">
+  <div class="flex p-[25px] pb-4 flex-wrap items-center justify-between font-medium full text-[13px] mb-[15px] text-[#777c83] title">
     FORM PROGRESS
     <app-custom-tag [statusId]="cache.currentMetadata().status_id ?? ''" [statusName]="cache.currentMetadata().status_name ?? ''"></app-custom-tag>
+    <div class="flex w-full text-[14px] -mt-1 font-normal">
+      <span class="text-[#70ae74] pr-1">{{ getCompletedCount() }}/{{ getTotalCount() }}</span> sections completed
+    </div>
   </div>
 
-  <div class="options-container px-[25px]">
+  <div class="options-container px-[25px] pb-2">
     @for (option of allOptionsWithGreenChecks(); track option.path) {
       @if (!option.hide) {
-        <div class="options" [class.disabled]="option.disabled" [routerLink]="option.disabled ? null : option.path" routerLinkActive="active">
+        <div
+          class="options"
+          [class.disabled]="option.disabled"
+          (click)="navigateTo(option, $event)"
+          (keydown.enter)="navigateTo(option, $event)"
+          [routerLink]="option.disabled ? null : option.path"
+          routerLinkActive="active">
           <div
             class="w-4 h-4 rounded-full flex items-center justify-center greenCheckBorder {{ option.greenCheck && 'greenCheckActive' }} {{
               option.greenCheck ? 'bg-[#509c55]' : 'bg-[#A2A9AF]'
@@ -39,12 +50,12 @@
     }
   </div>
   @if (cache.currentMetadata().status_id !== 6 && cache.currentMetadata().status_id !== 7 && cache.currentMetadata().status_id !== 8) {
-    @if (cache.currentMetadata().is_principal_investigator) {
+    @if (cache.currentMetadata().is_principal_investigator && cache.currentMetadata().status_id !== 5 && cache.currentMetadata().status_id !== 4) {
       <button
         class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
         [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
         tooltipPosition="bottom"
-        [disabled]="!this.cache.allGreenChecksAreTrue()"
+        [disabled]="!this.cache.allGreenChecksAreTrue() || !submissionService.isSubmitted()"
         (click)="this.allModalsService.openModal('submitResult')">
         Review Result
         <i class="pi pi-pencil pl-2 !text-[12px]"></i>

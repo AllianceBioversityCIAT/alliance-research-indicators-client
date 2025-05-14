@@ -1,15 +1,14 @@
 .card-content {
-  position: sticky;
-  margin: 67px 0 0;
+  position: fixed;
   display: flex;
   flex-direction: column;
   background-color: #fcfcfc;
-  border-radius: 10px;
-  margin-right: 32px;
-  width: 280px;
-  max-width: 280px;
-  top: 20px;
-
+  height: 100%;
+  max-width: 323px;
+  border-left: 1px solid #e8ebed;
+  width: 323px;
+  z-index: 1;
+  right: 0px;
   hr {
     border: 0;
     border-top: 1px solid #dee2e6;
@@ -19,7 +18,6 @@
   .options-container {
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px;
 
     .option {
       color: #173f6f;

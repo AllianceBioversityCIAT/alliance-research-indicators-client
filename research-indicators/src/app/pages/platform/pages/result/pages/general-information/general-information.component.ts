@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -18,6 +18,9 @@ import { SelectComponent } from '../../../../../../shared/components/custom-fiel
 import { GetMetadataService } from '../../../../../../shared/services/get-metadata.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SubmissionService } from '@shared/services/submission.service';
+import { NgStyle } from '@angular/common';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 interface Option {
   name: string;
@@ -33,6 +36,8 @@ interface Option {
     DropdownModule,
     ReactiveFormsModule,
     ChipModule,
+    NgStyle,
+    FormHeaderComponent,
     InputComponent,
     TextareaComponent,
     SelectComponent,
@@ -40,22 +45,32 @@ interface Option {
   ],
   templateUrl: './general-information.component.html'
 })
-export default class GeneralInformationComponent implements OnInit {
-  actions = inject(ActionsService);
+export default class GeneralInformationComponent {
   api = inject(ApiService);
-  cache = inject(CacheService);
   router = inject(Router);
+  cache = inject(CacheService);
   route = inject(ActivatedRoute);
+  actions = inject(ActionsService);
   metadata = inject(GetMetadataService);
   getResultsService = inject(GetResultsService);
+  versionWatcher = inject(VersionWatcherService);
   getUserStaffService = inject(GetUserStaffService);
   options: Option[] | undefined;
-  body: WritableSignal<GeneralInformation> = signal({ title: '', description: '', keywords: [], user_id: '', main_contact_person: { user_id: '' } });
+  body: WritableSignal<GeneralInformation> = signal({
+    title: '',
+    description: '',
+    year: '',
+    keywords: [],
+    user_id: '',
+    main_contact_person: { user_id: '' }
+  });
   loading = signal(false);
   submission = inject(SubmissionService);
 
-  ngOnInit() {
-    this.getData();
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
   }
 
   async getData() {
@@ -77,7 +92,17 @@ export default class GeneralInformationComponent implements OnInit {
       await this.getData();
       await this.metadata.update(this.cache.currentResultId());
     }
-    if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment']);
+
+    if (page === 'next') {
+      const version = this.route.snapshot.queryParamMap.get('version');
+      const commands: string[] = ['result', this.cache.currentResultId().toString(), 'alliance-alignment'];
+      const queryParams = version ? { version } : undefined;
+
+      this.router.navigate(commands, {
+        queryParams,
+        replaceUrl: true
+      });
+    }
     this.loading.set(false);
   }
 }

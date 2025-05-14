@@ -1,9 +1,9 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ActionsService } from '@services/actions.service';
 import { CacheService } from '@services/cache/cache.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Institution, PatchPartners } from '@interfaces/patch-partners.interface';
 import { ApiService } from '@services/api.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
@@ -11,13 +11,16 @@ import { PartnerSelectedItemComponent } from '../../../../../../shared/component
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GetInstitution } from '@shared/interfaces/get-institutions.interface';
 import { SubmissionService } from '@shared/services/submission.service';
+import { NgStyle } from '@angular/common';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 @Component({
   selector: 'app-partners',
-  imports: [ButtonModule, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
+  imports: [ButtonModule, NgStyle, FormHeaderComponent, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
   templateUrl: './partners.component.html'
 })
-export default class PartnersComponent implements OnInit {
+export default class PartnersComponent {
   actions = inject(ActionsService);
   cache = inject(CacheService);
   router = inject(Router);
@@ -26,11 +29,15 @@ export default class PartnersComponent implements OnInit {
   body = signal<PatchPartners>(new PatchPartners());
   loading = signal(false);
   submission = inject(SubmissionService);
+  versionWatcher = inject(VersionWatcherService);
+  route = inject(ActivatedRoute);
 
   optionsDisabled: WritableSignal<Institution[]> = signal([]);
 
-  ngOnInit() {
-    this.getData();
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
   }
 
   canRemoveInstitution = (item: GetInstitution): boolean => {
@@ -51,18 +58,38 @@ export default class PartnersComponent implements OnInit {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
+
+    const resultId = Number(this.cache.currentResultId());
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const queryParams = version ? { version } : undefined;
+
+    const navigateTo = (path: string) => {
+      this.router.navigate(['result', resultId, path], {
+        queryParams,
+        replaceUrl: true
+      });
+    };
+
+    const backPath = this.cache.currentResultIndicatorSectionPath();
+
     if (this.submission.isEditableStatus()) {
-      const response = await this.api.PATCH_Partners(this.cache.currentResultId(), this.body());
+      const response = await this.api.PATCH_Partners(resultId, this.body());
       if (response.successfulRequest) {
-        this.actions.showToast({ severity: 'success', summary: 'Partners', detail: 'Data saved successfully' });
+        this.actions.showToast({
+          severity: 'success',
+          summary: 'Partners',
+          detail: 'Data saved successfully'
+        });
         await this.getData();
-        if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
-        if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'geographic-scope']);
+
+        if (page === 'back') navigateTo(backPath);
+        if (page === 'next') navigateTo('geographic-scope');
       }
     } else {
-      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), this.cache.currentResultIndicatorSectionPath()]);
-      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'geographic-scope']);
+      if (page === 'back') navigateTo(backPath);
+      if (page === 'next') navigateTo('geographic-scope');
     }
+
     this.loading.set(false);
   }
 

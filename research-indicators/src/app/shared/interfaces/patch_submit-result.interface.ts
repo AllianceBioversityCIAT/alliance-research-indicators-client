@@ -1,5 +1,5 @@
 export interface PatchSubmitResult {
   comment?: string;
-  resultId: number;
+  resultCode: number;
   status: number;
 }

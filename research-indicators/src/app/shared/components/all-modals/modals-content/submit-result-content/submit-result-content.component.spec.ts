@@ -7,6 +7,7 @@ import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { signal } from '@angular/core';
+import { ReviewOption } from '@shared/interfaces/review-option.interface';
 
 describe('SubmitResultContentComponent', () => {
   let component: SubmitResultContentComponent;
@@ -49,6 +50,36 @@ describe('SubmitResultContentComponent', () => {
     };
 
     cacheService = {
+      windowHeight: signal(0),
+      dataCache: signal({
+        access_token: 'dummy_token',
+        refresh_token: 'dummy_refresh_token',
+        user: {
+          sec_user_id: 1,
+          is_active: true,
+          first_name: 'John',
+          last_name: 'Doe',
+          roleName: 'Admin',
+          email: 'john.doe@example.com',
+          status_id: 1,
+          user_role_list: [
+            {
+              is_active: true,
+              user_id: 1,
+              role_id: 1,
+              role: {
+                is_active: true,
+                justification_update: null,
+                sec_role_id: 1,
+                name: 'Admin',
+                focus_id: 0
+              }
+            }
+          ]
+        },
+        exp: 3600
+      }),
+      isLoggedIn: signal<boolean>(false),
       currentMetadata: signal({
         status_id: 5
       }),
@@ -56,7 +87,16 @@ describe('SubmitResultContentComponent', () => {
     };
 
     submissionService = {
-      statusSelected: signal(null),
+      statusSelected: signal<ReviewOption>({
+        key: 'submitted',
+        label: 'Submitted',
+        description: 'The result has been submitted',
+        icon: 'pi pi-check',
+        color: 'success',
+        message: 'The result was submitted successfully.',
+        statusId: 1,
+        selected: true
+      }),
       comment: signal('')
     };
 

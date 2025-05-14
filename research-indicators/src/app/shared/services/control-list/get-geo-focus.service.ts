@@ -17,7 +17,7 @@ export class GetGeoFocusService {
     this.list.set([
       { value: '1', label: 'Global' },
       { value: '2', label: 'Regional' },
-      { value: '4', label: 'Country' },
+      { value: '4', label: 'National' },
       { value: '5', label: 'Sub-national' },
       { value: '50', label: 'This is yet to be determined' }
     ]);

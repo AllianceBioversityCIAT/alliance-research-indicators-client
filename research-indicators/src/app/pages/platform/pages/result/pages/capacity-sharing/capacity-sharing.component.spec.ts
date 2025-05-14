@@ -4,6 +4,8 @@ import CapacitySharingComponent from './capacity-sharing.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('CapacitySharingComponent', () => {
   let component: CapacitySharingComponent;
@@ -12,7 +14,17 @@ describe('CapacitySharingComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CapacitySharingComponent, HttpClientTestingModule],
-      providers: [ApiService, ActionsService, CacheService]
+      providers: [
+        ApiService,
+        ActionsService,
+        CacheService,
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            queryParams: of({ version: '1.0' })
+          }
+        }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(CapacitySharingComponent);

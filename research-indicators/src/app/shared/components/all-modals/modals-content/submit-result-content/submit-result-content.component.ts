@@ -9,6 +9,7 @@ import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { ReviewOption } from '../../../../interfaces/review-option.interface';
 import { SubmissionService } from '../../../../services/submission.service';
+import { ActionsService } from '@shared/services/actions.service';
 
 @Component({
   selector: 'app-submit-result-content',
@@ -21,11 +22,12 @@ export class SubmitResultContentComponent {
   cache = inject(CacheService);
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
+  actions = inject(ActionsService);
 
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
     this.allModalsService.setDisabledSubmitReview(() => this.disabledConfirmSubmit());
-    
+
     let wasVisible = false;
     effect(() => {
       const visible = this.allModalsService.modalConfig().submitResult.isOpen;
@@ -92,10 +94,10 @@ export class SubmitResultContentComponent {
     const comment = this.submissionService.comment();
     return !!selected?.commentLabel && !comment?.trim();
   };
-  
+
   async submitReview(): Promise<void> {
     const response = await this.api.PATCH_SubmitResult({
-      resultId: this.cache.currentResultId(),
+      resultCode: this.cache.currentResultId(),
       comment: this.submissionService.comment(),
       status: this.submissionService.statusSelected()!.statusId
     });

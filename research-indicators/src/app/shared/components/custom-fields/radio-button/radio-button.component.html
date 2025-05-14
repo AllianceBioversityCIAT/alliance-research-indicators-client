@@ -11,8 +11,7 @@
     <small class="description" for="username">{{ description }}</small>
   }
 
-  <div class="flex gap-[10px] {{ direction === 'vertical' ? 'flex-col' : 'flex-row' }}">
-
+  <div class="flex {{ spaceX }} {{ direction === 'vertical' ? 'flex-col' : 'flex-row' }}">
     @for (item of this.service.list(); track $index) {
       <div class="option {{ direction === 'vertical' ? 'pr-0' : 'pr-1' }}">
         <p-radioButton

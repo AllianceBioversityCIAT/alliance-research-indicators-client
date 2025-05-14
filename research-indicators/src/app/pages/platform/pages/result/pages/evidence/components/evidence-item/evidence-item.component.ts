@@ -4,19 +4,22 @@ import { FormsModule } from '@angular/forms';
 import { Evidence, PatchResultEvidences } from '../../../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { InputTextModule } from 'primeng/inputtext';
 import { SubmissionService } from '@shared/services/submission.service';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
-    selector: 'app-evidence-item',
-    imports: [TextareaComponent, FormsModule, InputTextModule],
-    templateUrl: './evidence-item.component.html',
+  selector: 'app-evidence-item',
+  imports: [TextareaComponent, CheckboxModule, FormsModule, InputTextModule],
+  templateUrl: './evidence-item.component.html'
 })
 export class EvidenceItemComponent implements OnInit {
   @Output() deleteEvidenceEvent = new EventEmitter();
   @Input() evidence: Evidence = new Evidence();
   @Input() index: number | null = null;
+  @Input() evidenceNumber: number | null = null;
   @Input() bodySignal: WritableSignal<PatchResultEvidences> = signal(new PatchResultEvidences());
   body = signal<Evidence>(new Evidence());
   submission = inject(SubmissionService);
+  isPrivate = false;
 
   onChange = effect(
     () => {
@@ -51,22 +54,22 @@ export class EvidenceItemComponent implements OnInit {
   deleteEvidence() {
     this.deleteEvidenceEvent.emit();
   }
-  
+
   validateWebsite = (website: string): boolean => {
     if (!website || website.trim() === '') {
       return true;
     }
-    const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(\/[\w\-./?%&=]*)?$/;
+    const urlPattern = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/g;
     return urlPattern.test(website.trim());
   };
 
   isFieldInvalid(): boolean {
     const url = this.body().evidence_url;
-    return (!url || url.trim() === '');
+    return !url || url.trim() === '';
   }
-  
+
   setValue(value: string) {
-   value = value.toLowerCase();
+    value = value.toLowerCase();
     this.body.set({
       ...this.body(),
       evidence_url: value

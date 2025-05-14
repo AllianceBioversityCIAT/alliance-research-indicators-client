@@ -212,10 +212,33 @@ export class ResultsCenterService {
 
   onActiveItemChange = (event: MenuItem): void => {
     this.myResultsFilterItem.set(event);
-    return this.resultsFilter.update(prev => ({
-      ...prev,
-      'create-user-codes': event.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : []
+
+    this.searchInput.set('');
+    this.tableFilters.set(new TableFilters());
+
+    this.resultsFilter.update(() => ({
+      'create-user-codes': event.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : [],
+      'indicator-codes': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
     }));
+
+    this.onSelectFilterTab(0);
+    this.cleanMultiselects();
+
+    const table = this.tableRef();
+    if (table) {
+      table.clear();
+      table.sortField = 'result_official_code';
+      table.sortOrder = -1;
+      table.first = 0;
+    }
+
+    this.applyFilters();
   };
 
   showFilterSidebar(): void {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, LOCALE_ID, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -20,6 +20,7 @@ import { GetContracts } from '../../../../../../interfaces/get-contracts.interfa
 import { SelectModule } from 'primeng/select';
 import localeEs from '@angular/common/locales/es';
 import { DatePipe, registerLocaleData } from '@angular/common';
+import { GetYearsService } from '@shared/services/control-list/get-years.service';
 
 registerLocaleData(localeEs);
 @Component({
@@ -33,6 +34,7 @@ registerLocaleData(localeEs);
 export class CreateResultFormComponent {
   allModalsService = inject(AllModalsService);
   indicatorsService = inject(IndicatorsService);
+  yearsService = inject(GetYearsService);
   getContractsService = inject(GetContractsService);
   getResultsService = inject(GetResultsService);
   createResultManagementService = inject(CreateResultManagementService);
@@ -40,12 +42,28 @@ export class CreateResultFormComponent {
   router = inject(Router);
   api = inject(ApiService);
   actions = inject(ActionsService);
-  body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null }>({
+  body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null; year: number | null }>({
     indicator_id: null,
     title: null,
+    year: null,
     contract_id: null
   });
   filteredPrimaryContracts = signal<GetContracts[]>([]);
+
+  onYearsLoaded = effect(
+    () => {
+      const years = this.yearsService.list();
+      const currentYear = new Date().getFullYear();
+
+      if (years.length > 0 && years.some(y => y.report_year === currentYear)) {
+        this.body.update(body => ({
+          ...body,
+          year: currentYear
+        }));
+      }
+    },
+    { allowSignalWrites: true }
+  );
 
   async createResult(openresult?: boolean) {
     const result = await this.api.POST_Result(this.body());
@@ -57,14 +75,15 @@ export class CreateResultFormComponent {
   }
 
   successRequest = (result: MainResponse<Result>, openresult?: boolean) => {
+    const currentYear = new Date().getFullYear();
     this.actions.showToast({
       severity: 'success',
       summary: 'Success',
       detail: `Result "${this.body().title}" created successfully`
     });
     this.allModalsService.closeModal('createResult');
-    this.body.set({ indicator_id: null, title: null, contract_id: null });
-    if (openresult) this.actions.changeResultRoute(result.data.result_id);
+    this.body.set({ indicator_id: null, title: null, contract_id: null, year: currentYear });
+    if (openresult) this.actions.changeResultRoute(Number(result.data.result_official_code));
     this.getResultsService.updateList();
   };
 
@@ -76,4 +95,17 @@ export class CreateResultFormComponent {
       detail: isWarning ? `${result.errorDetail.errors} "${this.body().title}"` : result.errorDetail.errors
     });
   };
+
+  getContractStatusClasses(status: string): string {
+    const normalizedStatus = status?.toUpperCase() ?? '';
+
+    const styles: Record<string, string> = {
+      SUSPENDED: 'text-[#F58220] border border-[#F58220]',
+      DISCONTINUED: 'text-[#777c83] border border-[#777c83]',
+      ONGOING: 'text-[#153C71] border border-[#7C9CB9]',
+      DEFAULT: 'text-[#235B2D] border border-[#7CB580]'
+    };
+
+    return styles[normalizedStatus] || styles['DEFAULT'];
+  }
 }
