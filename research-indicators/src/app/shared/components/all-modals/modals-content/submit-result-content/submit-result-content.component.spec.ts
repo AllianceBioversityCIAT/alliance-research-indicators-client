@@ -6,8 +6,8 @@ import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
-import { signal, WritableSignal } from '@angular/core';
-import { DataCache } from '@shared/interfaces/cache.interface';
+import { signal } from '@angular/core';
+import { ReviewOption } from '@shared/interfaces/review-option.interface';
 
 describe('SubmitResultContentComponent', () => {
   let component: SubmitResultContentComponent;
@@ -87,7 +87,16 @@ describe('SubmitResultContentComponent', () => {
     };
 
     submissionService = {
-      statusSelected: signal(null),
+      statusSelected: signal<ReviewOption>({
+        key: 'submitted',
+        label: 'Submitted',
+        description: 'The result has been submitted',
+        icon: 'pi pi-check',
+        color: 'success',
+        message: 'The result was submitted successfully.',
+        statusId: 1,
+        selected: true
+      }),
       comment: signal('')
     };
 
