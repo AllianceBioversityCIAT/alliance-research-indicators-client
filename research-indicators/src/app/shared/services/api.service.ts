@@ -48,6 +48,7 @@ import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-
 import { GetYear } from '@shared/interfaces/get-year.interface';
 import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 import { GetVersions } from '@shared/interfaces/get-versions.interface';
+import { AskForHelp } from '../components/all-modals/modals-content/ask-for-help-modal/interfaces/ask-for-help.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -434,6 +435,12 @@ export class ApiService {
   DELETE_Result = (resultId: number) => {
     const url = () => `results/${resultId}/delete`;
     return this.TP.delete(url(), { useYearInterceptor: true });
+  };
+
+  // Feedback | Ask for help
+  PATCH_Feedback = (body: AskForHelp) => {
+    const url = () => `reporting-feedback/send`;
+    return this.TP.patch(url(), body);
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
