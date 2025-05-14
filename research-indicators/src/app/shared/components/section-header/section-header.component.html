@@ -1,7 +1,7 @@
 @let hss = this.cache.hasSmallScreen();
 <div
   [ngStyle]="{
-    paddingLeft: cache.showSectionHeaderActions() ? (cache.isSidebarCollapsed() ? '97px' : '282px') : '97px'
+    paddingLeft: cache.isSidebarCollapsed() ? '97px' : '282px'
   }"
   class="section-header w-full pl-8  left-0  {{ hss ? 'p-[5px]' : 'p-[10px]' }} calc(100% - 65px) "
   id="section-sidebar">

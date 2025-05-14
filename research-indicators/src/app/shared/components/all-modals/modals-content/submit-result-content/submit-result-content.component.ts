@@ -35,12 +35,6 @@ export class SubmitResultContentComponent {
         this.setInitialSelectedReviewOption();
       }
       wasVisible = visible;
-      this.actions.showGlobalAlert({
-        severity: 'success',
-        hasNoButton: true,
-        summary: `RESULT ${this.submissionService.statusSelected()!.label.toLocaleUpperCase()}`,
-        detail: `The result was ${this.submissionService.statusSelected()!.label.toLowerCase()} successfully.`
-      });
     });
   }
   setInitialSelectedReviewOption(): void {
