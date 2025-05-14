@@ -97,7 +97,7 @@ export class SubmitResultContentComponent {
 
   async submitReview(): Promise<void> {
     const response = await this.api.PATCH_SubmitResult({
-      resultId: this.cache.currentResultId(),
+      resultCode: this.cache.currentResultId(),
       comment: this.submissionService.comment(),
       status: this.submissionService.statusSelected()!.statusId
     });

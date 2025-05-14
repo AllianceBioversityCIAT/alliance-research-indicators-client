@@ -415,9 +415,9 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  PATCH_SubmitResult = ({ resultId, comment, status }: PatchSubmitResult): Promise<MainResponse<PatchSubmitResult | ExtendedHttpErrorResponse>> => {
+  PATCH_SubmitResult = ({ resultCode, comment, status }: PatchSubmitResult): Promise<MainResponse<PatchSubmitResult | ExtendedHttpErrorResponse>> => {
     const commentQuery = comment ? `&comment=${comment}` : '';
-    const url = () => `results/green-checks/change/status?resultId=${resultId}${commentQuery}&status=${status}`;
+    const url = () => `results/green-checks/change/status?resultCode=${resultCode}${commentQuery}&status=${status}`;
     return this.TP.patch(url(), { useYearInterceptor: true });
   };
 

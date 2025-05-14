@@ -1,7 +1,24 @@
 <div class="relative flex flex-col gap-4">
   <div class="flex flex-col gap-1 pb-4">
     <div class="flex flex-col gap-1 2xl:gap-2">
-      <h2 class="text-base font-semibold atc-primary-blue-500">Evidence link <span class="text-red-500">*</span></h2>
+      @if (index !== 0) {
+        <div class="h-[1px] w-full -mt-1 mb-4 bg-[#e0e0e0] rounded-[10px]"></div>
+      }
+
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-semibold atc-primary-blue-500 pb-1">
+          {{ evidenceNumber ?? 1 }}. Evidence link <span class="text-red-500">*</span>
+        </h2>
+        <div class="flex items-center space-x-2 text-[13px] text-sm text-gray-600">
+          @if (index !== 0 && submission.isEditableStatus()) {
+            <div class="cursor-pointer text-[#CF0808] pl-5" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">
+              <i class="pi pi-trash block !text-[10px] pr-1"></i>
+              <span> Remove evidence</span>
+            </div>
+          }
+        </div>
+      </div>
+
       <input
         pInputText
         id="evidence_url"
@@ -27,12 +44,12 @@
     }
   </div>
   <div class="flex flex-col gap-1">
-    <app-textarea label="Evidence description" [disabled]="!submission.isEditableStatus()" [isRequired]="true" [signal]="this.body" [optionValue]="'evidence_description'"></app-textarea>
+    <app-textarea
+      label="Evidence description"
+      [disabled]="!submission.isEditableStatus()"
+      [isRequired]="true"
+      [signal]="this.body"
+      [rows]="7"
+      [optionValue]="'evidence_description'"></app-textarea>
   </div>
-  @if (index !== 0 && submission.isEditableStatus()) {
-    <div class="absolute -top-[15px] right-0 cursor-pointer p-[7px] pb-[4px] shadow-[0_0_10px_0_rgba(0,0,0,0.1)] rounded-[20px]">
-      <i class="material-symbols-rounded text-[#ff3e3e] block" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">delete</i>
-    </div>
-  }
-    <div class="h-[2px] w-full mt-10 mb-[30px] bg-[#e0e0e0] rounded-[10px]"></div>
 </div>
