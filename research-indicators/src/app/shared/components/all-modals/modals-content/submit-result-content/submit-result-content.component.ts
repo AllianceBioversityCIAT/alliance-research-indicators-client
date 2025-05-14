@@ -35,6 +35,12 @@ export class SubmitResultContentComponent {
         this.setInitialSelectedReviewOption();
       }
       wasVisible = visible;
+      this.actions.showGlobalAlert({
+        severity: 'success',
+        hasNoButton: true,
+        summary: `RESULT ${this.submissionService.statusSelected()!.label.toLocaleUpperCase()}`,
+        detail: `The result was ${this.submissionService.statusSelected()!.label.toLowerCase()} successfully.`
+      });
     });
   }
   setInitialSelectedReviewOption(): void {
@@ -101,16 +107,7 @@ export class SubmitResultContentComponent {
       comment: this.submissionService.comment(),
       status: this.submissionService.statusSelected()!.statusId
     });
-    if (!response.successfulRequest) {
-      this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
-    } else if (!this.submissionService.currentResultIsSubmitted()) {
-      this.actions.showGlobalAlert({
-        severity: 'success',
-        hasNoButton: true,
-        summary: 'RESULT SUBMITTED',
-        detail: 'The result was submitted successfully.'
-      });
-    }
+    if (!response.successfulRequest) return;
     if (this.submissionService.statusSelected()?.statusId === 6) this.submissionService.comment.set('');
     await this.metadata.update(this.cache.currentResultId());
     this.allModalsService.closeModal('submitResult');
