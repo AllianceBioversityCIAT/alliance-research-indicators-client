@@ -144,7 +144,7 @@ export class ResultSidebarComponent {
         event: (comment?: string) => {
           (async () => {
             const response = await this.api.PATCH_SubmitResult({
-              resultId: this.cache.currentResultId(),
+              resultCode: this.cache.currentResultId(),
               comment: comment ?? '',
               status: this.submissionService.currentResultIsSubmitted() ? 4 : 2
             });
