@@ -1,5 +1,4 @@
 import { Component, computed, inject, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
@@ -10,13 +9,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 import { SubmissionService } from '@shared/services/submission.service';
-import { NgStyle } from '@angular/common';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
+import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 
 @Component({
   selector: 'app-geographic-scope',
-  imports: [ButtonModule, FormHeaderComponent, NgStyle, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
+  imports: [FormHeaderComponent, NavigationButtonsComponent, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
 export default class GeographicScopeComponent {
@@ -216,13 +215,9 @@ export default class GeographicScopeComponent {
         summary: 'Geographic Scope',
         detail: 'Data saved successfully'
       });
-
-      if (page === 'back') navigateTo('partners');
-      if (page === 'next') navigateTo('evidence');
-    } else {
-      if (page === 'back') navigateTo('partners');
-      if (page === 'next') navigateTo('evidence');
     }
+    if (page === 'back') navigateTo('partners');
+    if (page === 'next') navigateTo('evidence');
 
     this.loading.set(false);
   }

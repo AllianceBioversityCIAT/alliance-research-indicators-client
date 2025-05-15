@@ -18,9 +18,9 @@ import { SelectComponent } from '../../../../../../shared/components/custom-fiel
 import { GetMetadataService } from '../../../../../../shared/services/get-metadata.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SubmissionService } from '@shared/services/submission.service';
-import { NgStyle } from '@angular/common';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 
 interface Option {
   name: string;
@@ -36,7 +36,7 @@ interface Option {
     DropdownModule,
     ReactiveFormsModule,
     ChipModule,
-    NgStyle,
+    NavigationButtonsComponent,
     FormHeaderComponent,
     InputComponent,
     TextareaComponent,
