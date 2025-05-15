@@ -108,18 +108,17 @@ p {
   border: 2px dashed var(--light-blue-200);
   background-color: var(--grey-100);
   border-radius: 8px;
-  padding: 55px 20px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   height: 205px;
   position: relative;
-
+  place-content: center;
+  justify-items: center;
   .upload-area-content {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
   }
 }
 

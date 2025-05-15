@@ -1,4 +1,4 @@
-<div class="grid mx-10 my-8 h-[calc(100%-60px)] w-[70vw]">
+<div class="grid mx-10 my-8 h-[calc(100%-60px)] w-[70vw] max-w-[1300px]">
   @if (documentAnalyzed() && selectedFile) {
     <div class="document-analyzed-container">
       <i class="pi pi-file upload-icon" style="font-size: 32px; margin: 0"></i>
@@ -7,7 +7,7 @@
   }
 
   <section
-    class="mx-auto w-full container flex flex-col gap-6 justify-start rounded-b-[27px] px-6 py-2"
+    class="mx-auto w-full container flex flex-col gap-6 justify-start rounded-b-[27px] px-6 py-2 xl:pt-4 xl:pb-20"
     [ngClass]="{ 'analyzing-container': analyzingDocument() }">
     @if (!analyzingDocument() && !documentAnalyzed()) {
       <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
@@ -76,8 +76,8 @@
 
           @if (isInvalid()) {
             <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
-              <i class="material-symbols-rounded !text-base">warning</i>
-              <span>This field is required</span>
+              <i class="material-symbols-rounded !text-[12px]">warning</i>
+              <span class="!text-[12px]">This field is required</span>
             </div>
           }
         </div>
@@ -98,15 +98,19 @@
               <p class="text-[11px] font-[400] text-[#173F6F] pt-1">Accepted file formats: {{ acceptedFormats.join(', ') }}</p>
             </div>
           } @else {
-            <div class="upload-area" style="cursor: default">
-              <i class="pi pi-file upload-icon" style="font-size: 50px; margin-bottom: 15px"></i>
-              <div class="upload-area-content">
-                <i
-                  class="pi pi-file pi-times-circle"
-                  style="font-size: 16px; cursor: pointer; color: #cf0808"
-                  (keydown.enter)="selectedFile = null"
-                  (click)="selectedFile = null"></i>
-                <p class="upload-text" style="font-weight: 500; margin: 0">{{ selectedFile.name }}</p>
+            <div class="upload-area justify-center" style="cursor: default">
+              <div class="border-[#DBDBDB] border-1 w-auto rounded-[15px] p-4">
+                <i class="pi pi-file upload-icon" style="font-size: 50px; margin-bottom: 15px"></i>
+                <div class="upload-area-content flex flex-col items-center">
+                  <p class="text-[12px] font-[600] leading-5 text-[#173F6F]">{{ selectedFile.name }}</p>
+                  <p class="text-[10px] font-[400] pb-3 leading-4 text-[#173F6F]">{{ (selectedFile.size / (1024 * 1024)).toFixed(2) }} MB</p>
+
+                  <i
+                    class="pi pi-file pi-times-circle"
+                    style="font-size: 16px; cursor: pointer; color: #cf0808"
+                    (keydown.enter)="selectedFile = null"
+                    (click)="selectedFile = null"></i>
+                </div>
               </div>
             </div>
           }
@@ -116,11 +120,15 @@
           <button
             type="button"
             class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl"
-            [disabled]="!selectedFile"
+            [disabled]="!selectedFile || isInvalid()"
             [ngClass]="{ disabled: !selectedFile || isInvalid() }"
             (click)="handleAnalyzingDocument()">
             Analyze file
-            <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="selectedFile" [class.text-[#A2A9AF]]="!selectedFile"> </i>
+            <i
+              class="pi pi-arrow-right !text-[10px] pl-1"
+              [class.text-white]="selectedFile || isInvalid()"
+              [class.text-[#A2A9AF]]="!selectedFile || isInvalid()">
+            </i>
           </button>
         </div>
       </div>

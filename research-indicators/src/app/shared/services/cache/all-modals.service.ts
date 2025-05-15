@@ -47,7 +47,7 @@ export class AllModalsService {
     },
     requestPartner: {
       isOpen: false,
-      title: 'Partners Request',
+      title: 'Partners Request'
       // disabledConfirmAction: () => this.disabledConfirmPartner?.() ?? false
     }
   });
@@ -67,7 +67,7 @@ export class AllModalsService {
     this.modalConfig.update(modal => {
       modal.createResult = {
         isOpen: modal.createResult.isOpen,
-        title: step === 1 ? 'File Upload AI' : 'Create a result',
+        title: 'Create A Result',
         ...(step === 1 ? { iconAction: () => this.goBackFunction?.(), icon: 'arrow_back' } : {})
       };
       return modal;
@@ -129,5 +129,4 @@ export class AllModalsService {
 
     this.createResultManagementService.resultPageStep.set(0);
   }
-  
 }
