@@ -59,8 +59,8 @@ jobs:
 
       - name: Download environment files from AWS Secrets Manager
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_SECRET }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_SECRET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           aws secretsmanager get-secret-value \
@@ -111,8 +111,8 @@ jobs:
 
       - name: Download environment files from AWS Secrets Manager
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_SECRET }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_SECRET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           aws secretsmanager get-secret-value \
