@@ -1,6 +1,5 @@
 import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { RadioButtonComponent } from '@shared/components/custom-fields/radio-button/radio-button.component';
@@ -9,13 +8,13 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { ActionsService } from '@shared/services/actions.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgStyle } from '@angular/common';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
+import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 
 @Component({
   selector: 'app-ip-rights',
-  imports: [ButtonModule, NgStyle, FormsModule, VersionSelectorComponent, RadioButtonComponent, InputComponent],
+  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, RadioButtonComponent, InputComponent],
   templateUrl: './ip-rights.component.html'
 })
 export default class IpRightsComponent {

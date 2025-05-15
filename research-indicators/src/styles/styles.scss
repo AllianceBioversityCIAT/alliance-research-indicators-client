@@ -8,6 +8,15 @@
   font-family: Barlow, sans-serif;
 }
 
+.app-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 70px;
+  margin-top: 40px;
+  margin-right: 40px;
+  margin-left: 30px;
+}
+
 .p-tooltip {
   --p-tooltip-background: #345b8f;
   --p-tooltip-max-width: 320px;

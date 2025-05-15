@@ -1,10 +1,5 @@
-<div class="flex flex-col mb-15 mt-10 mr-[40px] ml-[30px]">
-  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
-
-  <br />
-  <app-version-selector></app-version-selector>
-  <br />
-
+<div class="app-page-wrapper">
+  <app-form-header />
   <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <h3 class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">EVIDENCE</h3>
 
@@ -31,38 +26,9 @@
     </div>
   </div>
 
-  <div
-    [ngStyle]="{
-      paddingLeft: cache.showSectionHeaderActions() ? (cache.isSidebarCollapsed() ? '89px' : '274px') : '89px',
-      width: 'calc(100% - 323px)'
-    }"
-    class="flex border-t-1 border-[#e8ebed] fixed bg-[#ffffff] bottom-0 left-0 px-6 py-4 justify-between">
-    <div class="flex gap-5">
-      <button
-        type="button"
-        (click)="saveData('back')"
-        class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
-        <i class="pi pi-arrow-left !text-[12px]"></i>
-        Back
-      </button>
-      @if (this.cache.currentMetadata().indicator_id === 1) {
-        <button
-          type="button"
-          (click)="saveData('next')"
-          class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
-          Next
-          <i class="pi pi-arrow-right !text-[12px]"></i>
-        </button>
-      }
-    </div>
-    @if (submission.isEditableStatus()) {
-      <button
-        type="button"
-        (click)="saveData()"
-        class="flex cursor-pointer items-center gap-2 bg-[#509C55] text-[#FFFFFF] px-5 py-2 rounded-[13px] text-[15px]">
-        <i class="pi pi-save !text-[12px] -scale-x-100"></i>
-        Save
-      </button>
-    }
-  </div>
+  <app-navigation-buttons
+    [showNext]="cache.currentMetadata().indicator_id === 1"
+    (back)="saveData('back')"
+    (next)="saveData('next')"
+    (save)="saveData()" />
 </div>

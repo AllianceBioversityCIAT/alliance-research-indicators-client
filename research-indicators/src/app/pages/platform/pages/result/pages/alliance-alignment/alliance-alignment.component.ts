@@ -7,18 +7,18 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
-import { ButtonModule } from 'primeng/button';
 import { GetAllianceAlignment } from '../../../../../../shared/interfaces/get-alliance-alignment.interface';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe, NgStyle } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { environment } from '../../../../../../../environments/environment';
 import { SubmissionService } from '@shared/services/submission.service';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 
 @Component({
   selector: 'app-alliance-alignment',
-  imports: [MultiSelectModule, VersionSelectorComponent, NgStyle, FormsModule, MultiselectComponent, ButtonModule, DatePipe],
+  imports: [MultiSelectModule, FormHeaderComponent, FormsModule, MultiselectComponent, NavigationButtonsComponent, DatePipe],
   templateUrl: './alliance-alignment.component.html'
 })
 export default class AllianceAlignmentComponent {
@@ -79,15 +79,10 @@ export default class AllianceAlignmentComponent {
         });
 
         await this.getData();
-
-        if (page === 'back') navigateTo('general-information');
-        if (page === 'next') navigateTo(nextPath);
       }
-    } else {
-      if (page === 'back') navigateTo('general-information');
-      if (page === 'next') navigateTo(nextPath);
     }
-
+    if (page === 'back') navigateTo('general-information');
+    else if (page === 'next') navigateTo(nextPath);
     this.loading.set(false);
   }
 

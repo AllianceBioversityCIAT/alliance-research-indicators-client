@@ -9,13 +9,13 @@ import { ApiService } from '../../../../../../shared/services/api.service';
 import { Evidence, PatchResultEvidences } from '../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { EvidenceItemComponent } from './components/evidence-item/evidence-item.component';
 import { SubmissionService } from '@shared/services/submission.service';
-import { NgStyle } from '@angular/common';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 
 @Component({
   selector: 'app-evidence',
-  imports: [ButtonModule, VersionSelectorComponent, NgStyle, FormsModule, InputTextModule, EvidenceItemComponent],
+  imports: [ButtonModule, FormHeaderComponent, NavigationButtonsComponent, FormsModule, InputTextModule, EvidenceItemComponent],
   templateUrl: './evidence.component.html'
 })
 export default class EvidenceComponent {

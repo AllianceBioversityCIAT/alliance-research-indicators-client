@@ -7,28 +7,26 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { GetPolicyChange } from '../../../../../../shared/interfaces/get-get-policy-change.interface';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
-import { ButtonModule } from 'primeng/button';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { FormsModule } from '@angular/forms';
 import { SubmissionService } from '@shared/services/submission.service';
-import { NgStyle } from '@angular/common';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 
 @Component({
   selector: 'app-policy-change',
   templateUrl: './policy-change.component.html',
   standalone: true,
   imports: [
-    ButtonModule,
     RadioButtonComponent,
     TextareaComponent,
     MultiselectComponent,
     SelectComponent,
-    NgStyle,
-    VersionSelectorComponent,
+    NavigationButtonsComponent,
+    FormHeaderComponent,
     FormsModule,
     TooltipModule,
     PartnerSelectedItemComponent
@@ -91,13 +89,10 @@ export default class PolicyChangeComponent {
       if (response.successfulRequest) {
         this.actions.showToast({ severity: 'success', summary: 'Policy Change', detail: 'Data saved successfully' });
         await this.getData();
-        if (page === 'next') navigateTo('partners');
-        if (page === 'back') navigateTo('alliance-alignment');
       }
-    } else {
-      if (page === 'next') navigateTo('partners');
-      if (page === 'back') navigateTo('alliance-alignment');
     }
+    if (page === 'next') navigateTo('partners');
+    if (page === 'back') navigateTo('alliance-alignment');
     this.loading.set(false);
   }
 }

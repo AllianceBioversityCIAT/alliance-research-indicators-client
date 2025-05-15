@@ -1,6 +1,5 @@
 import { Component, computed, inject, effect, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { RadioButtonModule } from 'primeng/radiobutton';
@@ -17,18 +16,17 @@ import { CalendarInputComponent } from '../../../../../../shared/components/cust
 import { PartnerSelectedItemComponent } from '../../../../../../shared/components/partner-selected-item/partner-selected-item.component';
 import { SubmissionService } from '@shared/services/submission.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
-import { NgStyle } from '@angular/common';
-import { VersionSelectorComponent } from '../../components/version-selector/version-selector.component';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 
 @Component({
   selector: 'app-capacity-sharing',
   imports: [
-    ButtonModule,
     FormsModule,
-    NgStyle,
+    NavigationButtonsComponent,
     DropdownModule,
-    VersionSelectorComponent,
+    FormHeaderComponent,
     CalendarModule,
     RadioButtonModule,
     RadioButtonComponent,
