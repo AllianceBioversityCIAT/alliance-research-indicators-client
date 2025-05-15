@@ -13,7 +13,6 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: ./research-indicators
@@ -32,13 +31,11 @@ jobs:
         run: npm ci
 
       - name: Run linter
-        run: |
-          npm run lint
+        run: npm run lint
 
   test:
     needs: lint
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: ./research-indicators
@@ -56,47 +53,26 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Create environment files
+      - name: Install AWS CLI and jq
         run: |
-          # Create environment.ts
-          cat > src/environments/environment.ts << EOL
-          export const environment = {
-            production: false,
-            name: 'test',
-            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
-            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
-            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
-            cognitoUrl: '${{ secrets.COGNITO_URL }}',
-            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
-            platform: 'ALLIANCE',
-            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
-            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
-            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
-            hotjarId: ${{ secrets.HOTJAR_ID }},
-            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
-            hotjarVersion: 6
-          };
-          EOL
+          sudo apt-get update
+          sudo apt-get install -y unzip jq
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
 
-          # Create environment.dev.ts
-          cat > src/environments/environment.dev.ts << EOL
-          export const environment = {
-            production: false,
-            name: 'test',
-            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
-            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
-            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
-            cognitoUrl: '${{ secrets.COGNITO_URL }}',
-            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
-            platform: 'ALLIANCE',
-            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
-            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
-            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
-            hotjarId: ${{ secrets.HOTJAR_ID }},
-            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
-            hotjarVersion: 6
-          };
-          EOL
+      - name: Download environment files from AWS Secrets Manager
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws secretsmanager get-secret-value \
+            --secret-id dev/app/frontend/alliance/reportingtool \
+            --query SecretString \
+            --output text > src/environments/environment.ts
+
+          cp src/environments/environment.ts src/environments/environment.dev.ts
 
       - name: Run unit tests
         run: npm run test
@@ -112,7 +88,6 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: ./research-indicators
@@ -130,47 +105,26 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Create environment files
+      - name: Install AWS CLI and jq
         run: |
-          # Create environment.ts
-          cat > src/environments/environment.ts << EOL
-          export const environment = {
-            production: false,
-            name: 'test',
-            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
-            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
-            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
-            cognitoUrl: '${{ secrets.COGNITO_URL }}',
-            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
-            platform: 'ALLIANCE',
-            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
-            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
-            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
-            hotjarId: ${{ secrets.HOTJAR_ID }},
-            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
-            hotjarVersion: 6
-          };
-          EOL
+          sudo apt-get update
+          sudo apt-get install -y unzip jq
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
 
-          # Create environment.dev.ts
-          cat > src/environments/environment.dev.ts << EOL
-          export const environment = {
-            production: false,
-            name: 'test',
-            managementApiUrl: '${{ secrets.MANAGEMENT_API_URL }}',
-            mainApiUrl: '${{ secrets.MAIN_API_URL }}',
-            flagsUrl: 'https://purecatamphetamine.github.io/country-flag-icons/3x2/',
-            cognitoUrl: '${{ secrets.COGNITO_URL }}',
-            webSocketServerUrl: '${{ secrets.WEBSOCKET_SERVER_URL }}',
-            platform: 'ALLIANCE',
-            googleAnalyticsId: '${{ secrets.GOOGLE_ANALYTICS_ID }}',
-            clarityProjectId: '${{ secrets.CLARITY_PROJECT_ID }}',
-            saveErrorsUrl: '${{ secrets.SAVE_ERRORS_URL }}',
-            hotjarId: ${{ secrets.HOTJAR_ID }},
-            frontBaseUrl: '${{ secrets.FRONT_BASE_URL }}',
-            hotjarVersion: 6
-          };
-          EOL
+      - name: Download environment files from AWS Secrets Manager
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws secretsmanager get-secret-value \
+            --secret-id dev/app/frontend/alliance/reportingtool \
+            --query SecretString \
+            --output text > src/environments/environment.ts
+
+          cp src/environments/environment.ts src/environments/environment.dev.ts
 
       - name: Build
         run: npm run build
