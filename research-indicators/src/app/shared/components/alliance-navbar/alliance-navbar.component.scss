@@ -5,14 +5,10 @@
   box-shadow: 0 0 15px 0 #00000030;
 
   .logo {
-    min-width: 120px;
-
-    @media (max-width: 1250px) {
-      min-width: 100px;
-    }
+    min-width: 72px;
 
     @media (max-height: 768px) {
-      min-width: 80px;
+      min-width: 46px;
     }
 
     img {
@@ -114,10 +110,6 @@
         color: var(--ac-grey-500);
       }
     }
-  }
-
-  :host ::ng-deep .button-custom-rounded.p-button {
-    border-radius: 12px !important;
   }
 
   .icons-container {

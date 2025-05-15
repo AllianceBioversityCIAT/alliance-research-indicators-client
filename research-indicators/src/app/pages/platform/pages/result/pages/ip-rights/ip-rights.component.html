@@ -1,8 +1,5 @@
-<div class="flex flex-col mx-[40px] mb-15 mt-10">
-  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
-
-  <br />
-
+<div class="app-page-wrapper">
+  <app-form-header />
   <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-[24px] mb-6">
     <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">IP RIGHTS</div>
     <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074B86] gap-[7px] px-2.5 mb-[30px]">
@@ -78,23 +75,5 @@
     </div>
   </div>
 
-  <div class="flex gap-5">
-    <button
-      type="button"
-      (click)="saveData('back')"
-      class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
-      <i class="pi pi-arrow-left !text-[12px]"></i>
-      Back
-    </button>
-    @if (submission.isEditableStatus()) {
-      <p-button
-        label="Save"
-        severity="success"
-        icon="pi pi-save"
-        iconPos="left"
-        (keydown.enter)="saveData()"
-        (click)="saveData()"
-        [loading]="this.loading()" />
-    }
-  </div>
+  <app-navigation-buttons [showNext]="false" (back)="saveData('back')" (save)="saveData()" />
 </div>

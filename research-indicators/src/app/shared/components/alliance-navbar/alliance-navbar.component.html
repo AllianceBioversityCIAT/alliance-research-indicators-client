@@ -27,13 +27,18 @@
       label="Submit result"
       severity="info"
       size="small"
-      styleClass="button-custom-rounded"
+      styleClass="!rounded-[15px] {{ hss ? '!h-7.5 !text-[13px]' : '!h-9 !text-[16px]' }}"
       (onClick)="this.allModalsService.openModal('createResult')"
       [style]="{ 'margin-left': '20px', 'min-width': '105px !important' }" />
     <div class="icons-container">
       <div class="search-box">
-        <i class="pi pi-search !text-[15px] px-2"></i>
-        <input id="search-result-input" type="text" placeholder="Search" class="h-9" (keyup.enter)="this.onSearchTextChange($event)" />
+        <i class="pi pi-search !text-[12px] px-2"></i>
+        <input
+          id="search-result-input"
+          type="text"
+          placeholder="Search"
+          class="{{ hss ? '!h-7.5 !text-[13px]' : '!h-9 !text-[16px]' }}"
+          (keyup.enter)="this.onSearchTextChange($event)" />
       </div>
       <div dropdown-button (keydown.enter)="this.showDropdown = !this.showDropdown" (click)="this.showDropdown = !this.showDropdown">
         <p-avatar [label]="this.actions.getInitials()" styleClass="!rounded-xl font-[600] flex pb-[1px]"></p-avatar>

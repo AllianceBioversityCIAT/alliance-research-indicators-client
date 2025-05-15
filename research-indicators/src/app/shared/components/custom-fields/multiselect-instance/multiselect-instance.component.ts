@@ -1,5 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, computed, ContentChild, effect, inject, Input, signal, TemplateRef, WritableSignal, OnInit, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  ContentChild,
+  effect,
+  inject,
+  Input,
+  signal,
+  TemplateRef,
+  WritableSignal,
+  OnInit,
+  output,
+  Output,
+  EventEmitter
+} from '@angular/core';
 import { MultiSelectChangeEvent, MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
 import { ActionsService } from '../../../services/actions.service';
@@ -8,6 +22,7 @@ import { ControlListServices } from '../../../interfaces/services.interface';
 import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
 import { UtilsService } from '../../../services/utils.service';
+import { Region } from '@shared/interfaces/get-geo-location.interface';
 
 @Component({
   selector: 'app-multiselect-instance',
@@ -23,6 +38,7 @@ export class MultiselectInstanceComponent implements OnInit {
   listInstance = signal<any[]>([]);
   loadingList = signal(false);
   @ContentChild('rows') rows!: TemplateRef<any>;
+  @Output() valueChange = new EventEmitter<Region[]>();
 
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
@@ -78,28 +94,38 @@ export class MultiselectInstanceComponent implements OnInit {
     this.signal.update((current: any) => {
       const currentArray = this.utils.getNestedProperty(current, this.signalOptionValue) ?? [];
 
-      // Si el elemento existe en currentArray pero no en event.value, significa que se eliminó
-      // Si el elemento existe en event.value pero no en currentArray, significa que se agregó
+      let newArray: any[];
+
       const itemExists = currentArray.some((item: any) => item[this.optionValue] === event.itemValue[this.optionValue]);
 
       if (!itemExists) {
-        // El elemento no existe, por lo tanto se está agregando
-        this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, [...currentArray, event.itemValue]);
+        newArray = [...currentArray, event.itemValue];
       } else {
-        // El elemento existe, por lo tanto se está eliminando
-        const newArray = currentArray.filter((item: any) => item[this.optionValue] !== event.itemValue[this.optionValue]);
-        this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, newArray);
+        newArray = currentArray.filter((item: any) => item[this.optionValue] !== event.itemValue[this.optionValue]);
       }
 
-      // Actualizar el body signal con los nuevos valores
-      const updatedArray = this.utils.getNestedProperty(current, this.signalOptionValue);
-      this.body.set({ value: this.objectArrayToIdArray(updatedArray, this.optionValue) });
+      // Actualiza el array en la señal padre
+      this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, newArray);
+
+      // Actualiza el body local
+      this.body.set({ value: this.objectArrayToIdArray(newArray, this.optionValue) });
+
+      if ('result_countries_sub_nationals_signal' in current && current.result_countries_sub_nationals_signal?.set) {
+        current.result_countries_sub_nationals_signal.set({ regions: newArray });
+      }
+      this.valueChange.emit(newArray);
 
       return { ...current };
     });
 
-    // Emitir el evento de selección
+    // Emitir el evento original
     this.selectEvent.emit(event);
+  }
+
+  public removeRegionById(id: number) {
+    const current = this.body();
+    const newValue = (current.value ?? []).filter((v: number) => v !== id);
+    this.body.set({ value: newValue });
   }
 
   removeOption(option: any) {

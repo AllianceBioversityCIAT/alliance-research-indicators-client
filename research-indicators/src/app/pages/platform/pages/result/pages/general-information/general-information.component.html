@@ -1,8 +1,5 @@
-<div class="flex flex-col mx-[40px] mb-15 mt-10">
-  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
-
-  <br />
-
+<div class="app-page-wrapper">
+  <app-form-header />
   <div class="flex flex-col gap-5">
     <div class="content-section">
       <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
@@ -31,6 +28,17 @@
           </div>
 
           <div class="flex flex-col xl:flex-row gap-5">
+            <div class="flex-1 xl:max-w-[144px]">
+              <app-select
+                label="Reporting year"
+                [isRequired]="true"
+                [disabled]="!submission.isEditableStatus()"
+                [signal]="this.body"
+                [optionValue]="{ body: 'year', option: 'report_year' }"
+                optionLabel="report_year"
+                serviceName="getYears"></app-select>
+            </div>
+
             <div class="flex-1">
               <app-select
                 label="Main contact person"
@@ -58,30 +66,17 @@
                 fluid
                 [typeahead]="false" />
             </div>
-            <small class="text-[#8D9299] text-[14px]" for="username">Max. 4 keywords</small>
           </div>
         </div>
       </div>
-      <div class="flex gap-5">
-        <button
-          type="button"
-          (click)="saveData('next')"
-          class="flex items-center cursor-pointer gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
-          Next
-          <i class="pi pi-arrow-right !text-[12px]"></i>
-        </button>
-        @if (submission.isEditableStatus()) {
-          <p-button
-            [disabled]="!this.body().title"
-            [loading]="this.loading()"
-            label="Save"
-            severity="success"
-            icon="pi pi-save"
-            iconPos="left"
-            (keydown.enter)="saveData()"
-            (click)="saveData()" />
-        }
-      </div>
+
+      <app-navigation-buttons
+        [showBack]="false"
+        [showSave]="submission.isEditableStatus()"
+        [disableNext]="!body().title"
+        [disableSave]="!body().title"
+        (next)="saveData('next')"
+        (save)="saveData()" />
     </div>
   </div>
 </div>

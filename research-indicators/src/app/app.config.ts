@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, isDevMode, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -13,16 +13,13 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { MyPreset } from './theme/roartheme';
 import { TrackingToolsService } from './shared/services/tracking-tools.service';
-
-function initializeTrackingToolsService(trackingToolsService: TrackingToolsService) {
-  return () => trackingToolsService.init();
-}
+import { yearInterceptor } from '@shared/interceptors/year.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
-    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor])),
+    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor, yearInterceptor])),
     importProvidersFrom(BrowserModule, BrowserAnimationsModule),
     provideAnimationsAsync(),
     providePrimeNG({
@@ -34,12 +31,11 @@ export const appConfig: ApplicationConfig = {
       }
     }),
     TrackingToolsService,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeTrackingToolsService,
-      deps: [TrackingToolsService],
-      multi: true
-    },
+
+    provideAppInitializer(() => {
+      const trackingToolsService = inject(TrackingToolsService);
+      return trackingToolsService.init();
+    }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'

@@ -10,6 +10,7 @@ export interface GlobalAlert {
   commentRequired?: boolean;
   confirmCallback?: Callback;
   cancelCallback?: Callback;
+  hasNoButton?: boolean;
   buttonColor?: string;
 }
 

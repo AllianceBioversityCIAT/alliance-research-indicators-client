@@ -27,6 +27,7 @@ export class RadioButtonComponent implements OnInit {
   @Input() direction: 'vertical' | 'horizontal' = 'vertical';
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
+  @Input() spaceX = 'gap-[10px]';
   @Input() description = '';
   @Input() isRequired = false;
   @Input() disabled = false;

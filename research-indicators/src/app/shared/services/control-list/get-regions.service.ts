@@ -16,7 +16,7 @@ export class GetRegionsService {
 
   async main() {
     const response = await this.api.GET_Regions();
-    response.data.map((region: GetRegion) => {
+    response.data.forEach((region: GetRegion) => {
       region.region_id = region.um49Code;
       region.sub_national_id = region.um49Code;
     });

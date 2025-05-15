@@ -1,22 +1,24 @@
-import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
+import { Component, computed, inject, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
 import { RadioButtonComponent } from '../../../../../../shared/components/custom-fields/radio-button/radio-button.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
-import { Country, GetGeoLocation } from '../../../../../../shared/interfaces/get-geo-location.interface';
+import { Country, GetGeoLocation, Region } from '../../../../../../shared/interfaces/get-geo-location.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../../../../environments/environment';
 import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 import { SubmissionService } from '@shared/services/submission.service';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
+import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 
 @Component({
   selector: 'app-geographic-scope',
-  imports: [ButtonModule, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
+  imports: [FormHeaderComponent, NavigationButtonsComponent, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
   templateUrl: './geographic-scope.component.html'
 })
-export default class GeographicScopeComponent implements OnInit {
+export default class GeographicScopeComponent {
   environment = environment;
   bodyTest = signal({ value: null, valueMulti: null });
   api = inject(ApiService);
@@ -26,15 +28,21 @@ export default class GeographicScopeComponent implements OnInit {
   actions = inject(ActionsService);
   loading = signal(false);
   submission = inject(SubmissionService);
-  private isFirstSelect = true;
+  versionWatcher = inject(VersionWatcherService);
+  route = inject(ActivatedRoute);
 
-  ngOnInit() {
-    this.getData();
+  private isFirstSelect = true;
+  @ViewChildren(MultiselectInstanceComponent) multiselectInstances!: QueryList<MultiselectInstanceComponent>;
+
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
   }
 
   onSelect = () => {
     this.mapSignal();
-
+    this.mapArray();
     const currentId = Number(this.body().geo_scope_id);
 
     if (!this.isFirstSelect && currentId === 5) {
@@ -105,11 +113,52 @@ export default class GeographicScopeComponent implements OnInit {
     return { country: { label: countryLabel, description: countryDescription }, region: { label: regionLabel, description: regionDescription } };
   });
 
+  updateCountryRegions = (isoAlpha2: string, newRegions: Region[]) => {
+    this.body.update(current => {
+      const country = current.countries?.find(c => c.isoAlpha2 === isoAlpha2);
+      if (country) {
+        country.result_countries_sub_nationals = newRegions;
+      }
+      return current;
+    });
+  };
+
+  isArray<T>(value: unknown): value is T[] {
+    return Array.isArray(value);
+  }
+
+  removeSubnationalRegion(country: Country, region: Region) {
+    this.body.update(current => {
+      const target = current.countries?.find(c => c.isoAlpha2 === country.isoAlpha2);
+      if (target?.result_countries_sub_nationals_signal?.set) {
+        const newRegions = (target.result_countries_sub_nationals_signal().regions ?? []).filter(r => r.sub_national_id !== region.sub_national_id);
+
+        target.result_countries_sub_nationals_signal.set({ regions: newRegions });
+        target.result_countries_sub_nationals = newRegions;
+
+        // 👉 sincroniza visualmente el selector
+        const instance = this.multiselectInstances.find(m => m.endpointParams?.isoAlpha2 === country.isoAlpha2);
+        if (region.sub_national_id !== undefined) {
+          instance?.removeRegionById(region.sub_national_id);
+        }
+      }
+
+      return current;
+    });
+  }
+
   mapSignal = () => {
     this.body.update(currentBody => {
       currentBody.countries?.forEach((country: Country) => {
-        country.result_countries_sub_nationals_signal = signal({ regions: country.result_countries_sub_nationals ?? [] });
+        const regions = Array.isArray(country.result_countries_sub_nationals) ? country.result_countries_sub_nationals : [];
+
+        if ('result_countries_sub_nationals_signal' in country && country.result_countries_sub_nationals_signal?.set) {
+          country.result_countries_sub_nationals_signal.set({ regions });
+        } else {
+          country.result_countries_sub_nationals_signal = signal({ regions });
+        }
       });
+
       return currentBody;
     });
   };
@@ -139,18 +188,37 @@ export default class GeographicScopeComponent implements OnInit {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
+
+    const resultId = Number(this.cache.currentResultId());
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const queryParams = version ? { version } : undefined;
+
+    const navigateTo = (path: string) => {
+      this.router.navigate(['result', resultId, path], {
+        queryParams,
+        replaceUrl: true
+      });
+    };
+
     if (this.submission.isEditableStatus()) {
       this.mapArray();
-      const response = await this.api.PATCH_GeoLocation(this.cache.currentResultId(), this.body());
-      if (!response.successfulRequest) return;
+      const response = await this.api.PATCH_GeoLocation(resultId, this.body());
+      if (!response.successfulRequest) {
+        this.loading.set(false);
+        return;
+      }
+
       await this.getData();
-      this.actions.showToast({ severity: 'success', summary: 'Geographic Scope', detail: 'Data saved successfully' });
-      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
-    } else {
-      if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'partners']);
-      if (page === 'next') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Geographic Scope',
+        detail: 'Data saved successfully'
+      });
     }
+    if (page === 'back') navigateTo('partners');
+    if (page === 'next') navigateTo('evidence');
+
     this.loading.set(false);
   }
 }

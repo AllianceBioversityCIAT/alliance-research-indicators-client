@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
 import { GreenChecks } from '../../interfaces/get-green-checks.interface';
@@ -31,7 +31,7 @@ interface SidebarOption {
 
 @Component({
   selector: 'app-result-sidebar',
-  imports: [RouterLink, RouterLinkActive, CustomTagComponent, ButtonModule, CommonModule, TooltipModule],
+  imports: [CustomTagComponent, RouterLink, RouterLinkActive, ButtonModule, CommonModule, TooltipModule],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })
@@ -41,6 +41,8 @@ export class ResultSidebarComponent {
   allModalsService = inject(AllModalsService);
   api = inject(ApiService);
   metadata = inject(GetMetadataService);
+  router = inject(Router);
+  route = inject(ActivatedRoute);
   submissionService = inject(SubmissionService);
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions()
@@ -117,6 +119,14 @@ export class ResultSidebarComponent {
     })
   );
 
+  getCompletedCount(): number {
+    return this.allOptionsWithGreenChecks().filter(option => option.greenCheck).length;
+  }
+
+  getTotalCount(): number {
+    return this.allOptionsWithGreenChecks().filter(option => !option.hide).length;
+  }
+
   submmitConfirm() {
     const { severity, placeholder, summary, detail } = this.submissionService.currentResultIsSubmitted()
       ? this.unsavedChangesAlertData()
@@ -133,16 +143,51 @@ export class ResultSidebarComponent {
         label: 'Confirm',
         event: (comment?: string) => {
           (async () => {
-            await this.api.PATCH_SubmitResult({
-              resultId: this.cache.currentResultId(),
+            const response = await this.api.PATCH_SubmitResult({
+              resultCode: this.cache.currentResultId(),
               comment: comment ?? '',
               status: this.submissionService.currentResultIsSubmitted() ? 4 : 2
             });
             this.metadata.update(this.cache.currentResultId());
             this.submissionService.refreshSubmissionHistory.update(v => v + 1);
+            if (!response.successfulRequest) {
+              this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
+            } else if (!this.submissionService.currentResultIsSubmitted()) {
+              this.actions.showGlobalAlert({
+                severity: 'success',
+                hasNoButton: true,
+                summary: 'RESULT SUBMITTED',
+                detail: 'The result was submitted successfully.'
+              });
+            }
           })();
         }
       }
     });
+  }
+
+  navigateTo(option: SidebarOption, event: Event) {
+    if (option.disabled) {
+      event.preventDefault();
+      return;
+    }
+
+    const id = this.route.snapshot.paramMap.get('id');
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const commands = ['/result', id, option.path];
+
+    const queryParams = version ? { version } : {};
+
+    this.router.navigate(commands, {
+      queryParams,
+      replaceUrl: true
+    });
+  }
+
+  getRouterLink(option: SidebarOption): string[] | null {
+    if (option.disabled) return null;
+
+    const id = this.route.snapshot.paramMap.get('id');
+    return ['/result', id!, option.path];
   }
 }

@@ -88,7 +88,7 @@ export default class DynamicFieldsComponent implements OnInit {
     fields.forEach(field => {
       switch (field.type) {
         case 'input':
-          group.addControl(field.name, this.fb.control(data ? data[field.name] : '', field.validators ?? []));
+          group.addControl(field.name, this.fb.control(data ? data[field.name] : '', { validators: field.validators ?? [], nonNullable: true }));
           break;
 
         case 'section':
