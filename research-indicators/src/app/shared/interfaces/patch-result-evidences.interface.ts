@@ -9,4 +9,5 @@ export class Evidence {
   evidence_description = '';
   evidence_url = '';
   evidence_role_id = null;
+  is_private = false;
 }
