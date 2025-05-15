@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { CacheService } from './cache/cache.service';
+import { environment } from '@envs/environment';
 
 export interface FileUploadResponse {
   data: { filename: string };
@@ -10,7 +11,6 @@ export interface FileUploadResponse {
   providedIn: 'root'
 })
 export class FileManagerService {
-  private readonly baseUrl = 'https://reports.prms.cgiar.org';
   cache = inject(CacheService);
 
   constructor(private readonly http: HttpClient) {}
@@ -32,7 +32,7 @@ export class FileManagerService {
 
     try {
       const response = await firstValueFrom(
-        this.http.post<FileUploadResponse>(`${this.baseUrl}/api/file-management/upload-file`, formData, { headers })
+        this.http.post<FileUploadResponse>(`${environment.fileManagerUrl}/api/file-management/upload-file`, formData, { headers })
       );
       return response;
     } catch (error) {
