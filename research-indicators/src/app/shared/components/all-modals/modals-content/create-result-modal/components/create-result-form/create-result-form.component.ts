@@ -119,4 +119,9 @@ export class CreateResultFormComponent {
 
     return styles[normalizedStatus] || styles['DEFAULT'];
   }
+
+  get isDisabled(): boolean {
+    const b = this.body();
+    return !b.title?.length || !b.indicator_id || !b.contract_id || !b.year;
+  }
 }

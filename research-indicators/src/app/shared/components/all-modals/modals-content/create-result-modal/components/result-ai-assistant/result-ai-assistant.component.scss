@@ -34,16 +34,6 @@ p {
   max-height: 685px;
 }
 
-.container {
-  max-width: 78vw;
-  width: 78vw;
-
-  @media (min-width: 1881px) {
-    max-width: 1500px;
-    min-width: 1500px;
-  }
-}
-
 .analyzing-container::after,
 .analyzing-container::before {
   content: '';
