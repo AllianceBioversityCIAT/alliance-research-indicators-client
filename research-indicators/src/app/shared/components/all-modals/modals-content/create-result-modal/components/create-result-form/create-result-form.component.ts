@@ -19,15 +19,26 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
 import { SelectModule } from 'primeng/select';
 import localeEs from '@angular/common/locales/es';
-import { DatePipe, registerLocaleData } from '@angular/common';
+import { DatePipe, registerLocaleData, SlicePipe } from '@angular/common';
 import { GetYearsService } from '@shared/services/control-list/get-years.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 registerLocaleData(localeEs);
 @Component({
   selector: 'app-create-result-form',
-  imports: [DialogModule, DatePipe, ButtonModule, FormsModule, InputTextModule, SelectModule, RouterModule, AutoCompleteModule],
+  imports: [
+    DialogModule,
+    DatePipe,
+    TooltipModule,
+    SlicePipe,
+    ButtonModule,
+    FormsModule,
+    InputTextModule,
+    SelectModule,
+    RouterModule,
+    AutoCompleteModule
+  ],
   templateUrl: './create-result-form.component.html',
-  styleUrl: './create-result-form.component.scss',
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -107,5 +118,10 @@ export class CreateResultFormComponent {
     };
 
     return styles[normalizedStatus] || styles['DEFAULT'];
+  }
+
+  get isDisabled(): boolean {
+    const b = this.body();
+    return !b.title?.length || !b.indicator_id || !b.contract_id || !b.year;
   }
 }

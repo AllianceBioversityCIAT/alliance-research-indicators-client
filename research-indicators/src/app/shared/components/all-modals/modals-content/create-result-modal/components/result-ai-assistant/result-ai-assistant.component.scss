@@ -34,16 +34,6 @@ p {
   max-height: 685px;
 }
 
-.container {
-  max-width: 78vw;
-  width: 78vw;
-
-  @media (min-width: 1881px) {
-    max-width: 1500px;
-    min-width: 1500px;
-  }
-}
-
 .analyzing-container::after,
 .analyzing-container::before {
   content: '';
@@ -118,18 +108,17 @@ p {
   border: 2px dashed var(--light-blue-200);
   background-color: var(--grey-100);
   border-radius: 8px;
-  padding: 55px 20px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   height: 205px;
   position: relative;
-
+  place-content: center;
+  justify-items: center;
   .upload-area-content {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
   }
 }
 
@@ -203,14 +192,6 @@ p {
   gap: 25px;
 }
 
-.analyze-result-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  flex-direction: column;
-  gap: 5px;
-}
-
 .analyze-result-title {
   font-size: 18px;
   font-weight: 700;
@@ -218,7 +199,7 @@ p {
 }
 
 .analyze-result-title-number {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--light-blue-300);
 }
@@ -234,14 +215,10 @@ p {
   align-items: flex-start;
   justify-content: flex-start;
   flex-direction: column;
-  max-height: calc(85vh - 351.5px);
+  max-height: calc(95vh - 351.5px);
   overflow-y: auto;
   height: 100%;
   width: 100%;
-
-  @media screen and (height <= 850px) {
-    max-height: calc(95vh - 351.5px);
-  }
 }
 
 .paginator {
@@ -277,38 +254,6 @@ p {
   background: var(--grey-200);
   color: var(--grey-600);
   cursor: not-allowed;
-}
-
-.no-results-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  padding: 60px 40px;
-  height: 100%;
-  width: 100%;
-  background-color: #fff;
-}
-
-.no-results-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--primary-blue-500);
-  margin-bottom: 1rem;
-}
-
-.no-results {
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--grey-800);
-  margin-bottom: 50px;
-}
-
-.no-results-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
 }
 
 :host ::ng-deep .p-paginator {

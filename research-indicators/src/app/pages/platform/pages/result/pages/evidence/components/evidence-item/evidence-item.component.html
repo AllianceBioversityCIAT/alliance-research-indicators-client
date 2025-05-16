@@ -10,12 +10,13 @@
           {{ evidenceNumber ?? 1 }}. Evidence link <span class="text-red-500">*</span>
         </h2>
         <div class="flex items-center space-x-2 text-[13px] text-sm text-gray-600">
-          @if (index !== 0 && submission.isEditableStatus()) {
-            <div class="cursor-pointer text-[#CF0808] pl-5" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">
-              <i class="pi pi-trash block !text-[10px] pr-1"></i>
-              <span> Remove evidence</span>
-            </div>
-          }
+          <p-checkbox id="is_private" [(ngModel)]="body().is_private" binary="true" styleClass="w-4 h-4" />
+          <label for="is_private" class="cursor-pointer select-none"> Tag link as private </label>
+
+          <div class="cursor-pointer text-[#CF0808] pl-5" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">
+            <i class="pi pi-trash block !text-[10px] pr-1"></i>
+            <span> Remove evidence</span>
+          </div>
         </div>
       </div>
 
