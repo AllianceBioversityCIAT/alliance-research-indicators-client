@@ -7,10 +7,21 @@ describe('SharedResultFormComponent', () => {
   let fixture: ComponentFixture<SharedResultFormComponent>;
 
   beforeEach(async () => {
+    (globalThis as any).ResizeObserver = class {
+      observe() {
+        // intentionally left blank for testing
+      }
+      unobserve() {
+        // intentionally left blank for testing
+      }
+      disconnect() {
+        // intentionally left blank for testing
+      }
+    };
+
     await TestBed.configureTestingModule({
       imports: [SharedResultFormComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SharedResultFormComponent);
     component = fixture.componentInstance;
