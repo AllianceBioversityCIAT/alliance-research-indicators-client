@@ -4,12 +4,10 @@ export interface BrowserInfo {
   majorVersion: number;
 }
 
-export function getBrowserInfo(): BrowserInfo {
-  const nAgt = navigator.userAgent;
-  let browserName = navigator.appName;
-  let fullVersion = '' + parseFloat(navigator.appVersion);
-  let majorVersion = parseInt(navigator.appVersion, 10);
-  let nameOffset: number, verOffset: number, ix: number;
+function extractBrowserInfo(nAgt: string): { browserName: string; fullVersion: string } {
+  let browserName = 'Unknown';
+  let fullVersion = '';
+  let verOffset: number, nameOffset: number;
 
   // In Opera, the true version is after "OPR" or after "Version"
   if ((verOffset = nAgt.indexOf('OPR')) != -1) {
@@ -48,23 +46,33 @@ export function getBrowserInfo(): BrowserInfo {
     browserName = nAgt.substring(nameOffset, verOffset);
     fullVersion = nAgt.substring(verOffset + 1);
     if (browserName.toLowerCase() == browserName.toUpperCase()) {
-      browserName = navigator.appName;
+      browserName = 'Unknown';
     }
   }
 
-  // trim the fullVersion string at semicolon/space if present
-  if ((ix = fullVersion.indexOf(';')) != -1) fullVersion = fullVersion.substring(0, ix);
-  if ((ix = fullVersion.indexOf(' ')) != -1) fullVersion = fullVersion.substring(0, ix);
+  return { browserName, fullVersion };
+}
 
-  majorVersion = parseInt('' + fullVersion, 10);
+export function getBrowserInfo(): BrowserInfo {
+  const nAgt = navigator.userAgent;
+  const { browserName, fullVersion } = extractBrowserInfo(nAgt);
+  let majorVersion = parseInt(fullVersion, 10);
+  let ix: number;
+
+  // trim the fullVersion string at semicolon/space if present
+  let trimmedVersion = fullVersion;
+  if ((ix = trimmedVersion.indexOf(';')) != -1) trimmedVersion = trimmedVersion.substring(0, ix);
+  if ((ix = trimmedVersion.indexOf(' ')) != -1) trimmedVersion = trimmedVersion.substring(0, ix);
+
+  majorVersion = parseInt(trimmedVersion, 10);
   if (isNaN(majorVersion)) {
-    fullVersion = '' + parseFloat(navigator.appVersion);
-    majorVersion = parseInt(navigator.appVersion, 10);
+    trimmedVersion = nAgt.split(' ')[0];
+    majorVersion = parseInt(trimmedVersion, 10) || 0;
   }
 
   return {
     name: browserName,
-    fullVersion,
+    fullVersion: trimmedVersion,
     majorVersion
   };
 }
