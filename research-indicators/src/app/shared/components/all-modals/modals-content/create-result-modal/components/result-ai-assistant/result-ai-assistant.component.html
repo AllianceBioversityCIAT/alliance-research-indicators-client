@@ -14,7 +14,7 @@
           <img src="/icons/star-blue-icon.svg" alt="upload-ai" class="w-4.5 pl-1" />
         </p>
 
-        <div class="w-full flex flex-col">
+        <div #containerRef class="w-full flex flex-col">
           <h2 class="text-[14px] font-[500] text-[#173F6F] pb-1">Primary Project<span class="text-[15px] text-[#CF0808]">*</span></h2>
 
           <p-select
@@ -32,30 +32,32 @@
             [filterBy]="'select_label,project_lead_description'"
             class="!text-[13px]">
             <ng-template let-item pTemplate="item">
-              <div class="primary-item">
-                <p>
-                  <b>{{ item?.agreement_id }} -</b> {{ item?.description }}
+              <div class="flex flex-col gap-2 text-[14px]" pTooltip="{{ item?.description }}">
+                <p class="text-[#4C5158] font-[400]">
+                  <b>{{ item?.agreement_id }} -</b>
+                  {{ getShortDescription(item?.description) }}
                 </p>
-                <p class="primary-item-investigator space-x-3">
-                  Principal investigator &rarr;
-                  <span class="primary-item-investigator-name">{{ item?.project_lead_description }}</span>
+
+                <p class="space-x-3 text-[11px] text-[#777C83]">
+                  <button
+                    class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg"
+                    [class]="getContractStatusClasses(item?.contract_status)">
+                    {{ item?.contract_status }}
+                  </button>
+
+                  Principal investigator <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
+                  <span class="text-[#345B8F]">{{ item?.project_lead_description }}</span>
                   <span class="text-[#B9C0C5]">|</span>
-                  Start date &rarr;
-                  <span class="primary-item-investigator-name">{{ item?.start_date | date: 'dd MMMM yyyy' }}</span>
-                  <span class="text-[#B9C0C5]">|</span>
-                  End date &rarr;
-                  <span class="primary-item-investigator-name">{{ item?.end_date | date: 'dd MMMM yyyy' }}</span>
+                  Start date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
+
+                  <span class="text-[#345B8F]">{{ item?.start_date | date: 'dd/MM/yyyy' }}</span>
+
+                  @if (item?.end_date) {
+                    <span class="text-[#B9C0C5]">|</span>
+                    End date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
+                    <span class="text-[#345B8F]">{{ item?.end_date | date: 'dd/MM/yyyy' }}</span>
+                  }
                 </p>
-              </div>
-              <div class="px-5 w-full flex items-end primary-item">
-                <button
-                  class="uppercase max-w-22 text-xs font-semibold px-2 py-1 rounded-lg border"
-                  [class.border-[#7CB580]]="item?.contract_status?.toUpperCase() !== 'ONGOING'"
-                  [class.text-[#235B2D]]="item?.contract_status?.toUpperCase() !== 'ONGOING'"
-                  [class.border-[#7C9CB9]]="item?.contract_status?.toUpperCase() === 'ONGOING'"
-                  [class.text-[#153C71]]="item?.contract_status?.toUpperCase() === 'ONGOING'">
-                  {{ item?.contract_status }}
-                </button>
               </div>
             </ng-template>
 
