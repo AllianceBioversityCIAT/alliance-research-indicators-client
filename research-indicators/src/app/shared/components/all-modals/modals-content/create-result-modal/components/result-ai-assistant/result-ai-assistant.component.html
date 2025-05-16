@@ -126,7 +126,7 @@
             Analyze file
             <i
               class="pi pi-arrow-right !text-[10px] pl-1"
-              [class.text-white]="selectedFile || isInvalid()"
+              [class.text-white]="selectedFile && !isInvalid()"
               [class.text-[#A2A9AF]]="!selectedFile || isInvalid()">
             </i>
           </button>
