@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -11,24 +11,23 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { FileManagerService } from '@shared/services/file-manager.service';
 import { TextMiningService } from '@shared/services/text-mining.service';
 import { CacheService } from '@shared/services/cache/cache.service';
-import { SelectModule } from 'primeng/select';
 import { GetContractsService } from '@shared/services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { GetContracts } from '@shared/interfaces/get-contracts.interface';
 import { Step } from '@shared/interfaces/step.interface';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
-import { TooltipModule } from 'primeng/tooltip';
+import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
 
 GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 @Component({
   selector: 'app-result-ai-assistant',
-  imports: [CommonModule, ButtonModule, TooltipModule, PaginatorModule, SelectModule, FormsModule, ResultAiItemComponent],
+  imports: [CommonModule, SharedResultFormComponent, ButtonModule, PaginatorModule, FormsModule, ResultAiItemComponent],
   templateUrl: './result-ai-assistant.component.html',
   styleUrl: './result-ai-assistant.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ResultAiAssistantComponent implements AfterViewInit {
+export class ResultAiAssistantComponent {
   acceptedFormats: string[] = ['.pdf', '.docx', '.txt', '.xlsx', '.pptx'];
   maxSizeMB = 10;
   pageLimit = 100;
@@ -49,8 +48,7 @@ export class ResultAiAssistantComponent implements AfterViewInit {
   fileManagerService = inject(FileManagerService);
   textMiningService = inject(TextMiningService);
   cache = inject(CacheService);
-  @ViewChild('containerRef') containerRef!: ElementRef;
-  containerWidth = 0;
+
   activeIndex = signal(0);
 
   steps = signal<Step[]>([
@@ -61,39 +59,17 @@ export class ResultAiAssistantComponent implements AfterViewInit {
     { label: 'Generating response', completed: false, inProgress: false, progress: 0 }
   ]);
 
-  body = signal<{ contract_id: number | null }>({
-    contract_id: null
-  });
-
-  isInvalid = computed(() => {
-    return !this.body().contract_id;
-  });
+  body = signal<{ contract_id: number | null }>({ contract_id: null });
+  sharedFormValid = false;
+  contractId: string | null = null;
 
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
   }
 
-  ngAfterViewInit() {
-    const observer = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        this.containerWidth = entry.contentRect.width;
-        this.cdr.detectChanges();
-      }
-    });
-
-    observer.observe(this.containerRef.nativeElement);
-  }
-
-  getShortDescription(description: string): string {
-    let max: number;
-    if (this.containerWidth < 900) {
-      max = 30;
-    } else if (this.containerWidth > 1350) {
-      max = 150;
-    } else {
-      max = 100;
-    }
-    return description.length > max ? description.slice(0, max) + '...' : description;
+  onContractIdChange(newContractId: number | null) {
+    this.contractId = newContractId !== null ? String(newContractId) : null;
+    this.body.update(b => ({ ...b, contract_id: newContractId }));
   }
 
   goBack() {

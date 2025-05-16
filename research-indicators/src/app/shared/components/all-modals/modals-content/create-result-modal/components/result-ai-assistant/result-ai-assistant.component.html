@@ -14,73 +14,15 @@
           <img src="/icons/star-blue-icon.svg" alt="upload-ai" class="w-4.5 pl-1" />
         </p>
 
-        <div #containerRef class="w-full flex flex-col">
-          <h2 class="text-[14px] font-[500] text-[#173F6F] pb-1">Primary Project<span class="text-[15px] text-[#CF0808]">*</span></h2>
-
-          <p-select
-            [options]="getContractsService.list()"
-            [(ngModel)]="body().contract_id"
-            optionLabel="select_label"
-            optionValue="agreement_id"
-            placeholder="Search by project code, project name or principal investigator"
-            [virtualScroll]="true"
-            [lazy]="true"
-            [virtualScrollItemSize]="10"
-            [style]="isInvalid() ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
-            [filter]="true"
-            (ngModelChange)="body.set({ contract_id: $event })"
-            [filterBy]="'select_label,project_lead_description'"
-            class="!text-[13px]">
-            <ng-template let-item pTemplate="item">
-              <div class="flex flex-col gap-2 text-[14px]" pTooltip="{{ item?.description }}">
-                <p class="text-[#4C5158] font-[400]">
-                  <b>{{ item?.agreement_id }} -</b>
-                  {{ getShortDescription(item?.description) }}
-                </p>
-
-                <p class="space-x-3 text-[11px] text-[#777C83]">
-                  <button
-                    class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg"
-                    [class]="getContractStatusClasses(item?.contract_status)">
-                    {{ item?.contract_status }}
-                  </button>
-
-                  Principal investigator <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
-                  <span class="text-[#345B8F]">{{ item?.project_lead_description }}</span>
-                  <span class="text-[#B9C0C5]">|</span>
-                  Start date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
-
-                  <span class="text-[#345B8F]">{{ item?.start_date | date: 'dd/MM/yyyy' }}</span>
-
-                  @if (item?.end_date) {
-                    <span class="text-[#B9C0C5]">|</span>
-                    End date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
-                    <span class="text-[#345B8F]">{{ item?.end_date | date: 'dd/MM/yyyy' }}</span>
-                  }
-                </p>
-              </div>
-            </ng-template>
-
-            <ng-template let-selected pTemplate="selectedItem">
-              <div class="flex items-center block whitespace-normal break-words gap-2">
-                @if (selected?.select_label?.includes(' - ')) {
-                  <span>
-                    <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
-                  </span>
-                } @else {
-                  <span>{{ selected.select_label }}</span>
-                }
-              </div>
-            </ng-template>
-          </p-select>
-
-          @if (isInvalid()) {
-            <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
-              <i class="material-symbols-rounded !text-[12px]">warning</i>
-              <span class="!text-[12px]">This field is required</span>
-            </div>
-          }
-        </div>
+        <app-shared-result-form
+          [contracts]="getContractsService.list()"
+          [showWarning]="true"
+          [getContractStatusClasses]="getContractStatusClasses"
+          title="Primary Project"
+          [maxLength]="100"
+          (validityChanged)="sharedFormValid = $event"
+          (contractIdChange)="onContractIdChange($event)">
+        </app-shared-result-form>
 
         <div class="file-upload-container pt-2">
           @if (!selectedFile) {
@@ -120,14 +62,14 @@
           <button
             type="button"
             class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl"
-            [disabled]="!selectedFile || isInvalid()"
-            [ngClass]="{ disabled: !selectedFile || isInvalid() }"
+            [disabled]="!selectedFile || !sharedFormValid"
+            [ngClass]="{ disabled: !selectedFile || !sharedFormValid }"
             (click)="handleAnalyzingDocument()">
             Analyze file
             <i
               class="pi pi-arrow-right !text-[10px] pl-1"
-              [class.text-white]="selectedFile && !isInvalid()"
-              [class.text-[#A2A9AF]]="!selectedFile || isInvalid()">
+              [class.text-white]="selectedFile && sharedFormValid"
+              [class.text-[#A2A9AF]]="!selectedFile || !sharedFormValid">
             </i>
           </button>
         </div>
