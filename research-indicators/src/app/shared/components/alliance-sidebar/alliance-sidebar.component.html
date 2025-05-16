@@ -33,6 +33,7 @@
           tooltipPosition="right"
           [positionLeft]="15"
           (click)="option.action?.()"
+          (keydown.enter)="option.action?.()"
           placeholder="Right">
           @if (cache.isSidebarCollapsed() && option.underConstruction) {
             <div class="icon-construction-container">

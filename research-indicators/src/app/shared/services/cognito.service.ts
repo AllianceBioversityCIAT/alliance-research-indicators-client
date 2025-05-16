@@ -39,7 +39,7 @@ export class CognitoService {
         detail: loginResponse.errorDetail.errors,
         cancelCallback: {
           label: 'Cancel',
-          event: () => this.router.navigate(['/login'])
+          event: () => void this.router.navigate(['/login'])
         },
         confirmCallback: {
           label: 'Retry Log in',
