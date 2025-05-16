@@ -18,7 +18,7 @@
 
   <div class="options">
     @for (option of this.options; track $index; let last = $last) {
-      @if (!option.hide && !(last && cache.isSidebarCollapsed())) {
+      @if (!option.hide) {
         @if (cache.isSidebarCollapsed() === false) {
           @if ($index === this.options.length - 1) {
             <hr class="divider" />
@@ -31,6 +31,8 @@
           [routerLinkActive]="'active'"
           [pTooltip]="cache.isSidebarCollapsed() ? option.label : ''"
           tooltipPosition="right"
+          [positionLeft]="15"
+          (click)="option.action?.()"
           placeholder="Right">
           @if (cache.isSidebarCollapsed() && option.underConstruction) {
             <div class="icon-construction-container">

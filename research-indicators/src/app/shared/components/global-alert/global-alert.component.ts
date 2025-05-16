@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { ActionsService } from '../../services/actions.service';
 import { ButtonModule } from 'primeng/button';
@@ -21,11 +21,13 @@ import { InputComponent } from '../custom-fields/input/input.component';
     ])
   ]
 })
-export class GlobalAlertComponent {
+export class GlobalAlertComponent implements OnInit, OnDestroy {
   actions = inject(ActionsService);
   body = signal({
     commentValue: ''
   });
+  private autoHideTimeouts: number[] = [];
+
   alertList = computed(() => {
     const list = this.actions.globalAlertsStatus().map((alert: GlobalAlert) => {
       alert.icon = this.getIcon(alert.severity).icon;
@@ -38,10 +40,49 @@ export class GlobalAlertComponent {
       if (!alert.cancelCallback?.label) alert.cancelCallback = { label: 'Cancel' };
       return alert;
     });
+
+    this.setupAutoHideForAlerts(list);
+
     return list;
   });
 
+  ngOnInit(): void {
+    this.setupAutoHideForAlerts(this.alertList());
+  }
+
+  ngOnDestroy(): void {
+    this.clearAllTimeouts();
+  }
+
+  private setupAutoHideForAlerts(alerts: GlobalAlert[]): void {
+    this.clearAllTimeouts();
+
+    alerts.forEach((alert, index) => {
+      if (alert.autoHideDuration) {
+        const timeoutId = window.setTimeout(() => {
+          this.closeAlert(index);
+        }, alert.autoHideDuration);
+
+        this.autoHideTimeouts[index] = timeoutId;
+      }
+    });
+  }
+
+  private clearAllTimeouts(): void {
+    this.autoHideTimeouts.forEach(timeoutId => {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    });
+    this.autoHideTimeouts = [];
+  }
+
   closeAlert(index: number) {
+    if (this.autoHideTimeouts[index]) {
+      window.clearTimeout(this.autoHideTimeouts[index]);
+      this.autoHideTimeouts[index] = 0;
+    }
+
     this.actions.hideGlobalAlert(index);
     this.body.update(body => ({ ...body, commentValue: '' }));
   }

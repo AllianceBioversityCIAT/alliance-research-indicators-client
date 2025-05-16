@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { ResultSidebarComponent } from '../../../../shared/components/result-sidebar/result-sidebar.component';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
@@ -13,18 +13,22 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
   templateUrl: './result.component.html',
   styleUrl: './result.component.scss'
 })
-export default class ResultComponent {
+export default class ResultComponent implements OnInit, OnDestroy {
   cache = inject(CacheService);
   metadata = inject(GetMetadataService);
   resultId = Number(inject(ActivatedRoute).snapshot.params['id']);
   versionWatcher = inject(VersionWatcherService);
 
-  constructor() {
+  ngOnInit() {
     this.cache.currentResultId.set(this.resultId);
     this.metadata.update(this.resultId);
 
     this.versionWatcher.onVersionChange(() => {
       this.metadata.update(this.resultId);
     });
+  }
+
+  ngOnDestroy() {
+    this.metadata.clearMetadata();
   }
 }

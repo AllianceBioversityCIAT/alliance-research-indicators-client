@@ -25,11 +25,13 @@
       }
       @if (!alert.hasNoButton) {
         <div class="flex gap-4">
-          <p-button
-            [label]="alert.cancelCallback?.label"
-            (onClick)="alert.cancelCallback?.event?.(); closeAlert($index)"
-            variant="outlined"
-            [style]="{ borderRadius: '13px', paddingLeft: '16px', paddingRight: '16px', border: '2px solid #035BA9', height: '38px' }" />
+          @if (!alert.hideCancelButton) {
+            <p-button
+              [label]="alert.cancelCallback?.label"
+              (onClick)="alert.cancelCallback?.event?.(); closeAlert($index)"
+              variant="outlined"
+              [style]="{ borderRadius: '13px', paddingLeft: '16px', paddingRight: '16px', border: '2px solid #035BA9', height: '38px' }" />
+          }
           @if (alert.confirmCallback?.event) {
             <p-button
               [label]="alert.confirmCallback?.label"
