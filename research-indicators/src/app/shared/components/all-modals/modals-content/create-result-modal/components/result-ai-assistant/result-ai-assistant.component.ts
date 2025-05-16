@@ -278,7 +278,6 @@ export class ResultAiAssistantComponent implements AfterViewInit {
         }
       }
       if (combinedResults.length === 0) {
-        this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'No results found. Please try again.' });
         this.noResults.set(true);
         return;
       }
