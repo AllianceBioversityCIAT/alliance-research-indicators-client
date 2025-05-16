@@ -28,7 +28,7 @@
         type="url"
         [disabled]="!submission.isEditableStatus()"
         (ngModelChange)="setValue($event)"
-        class="w-full !text-base"
+        class="w-full !text-base !text-[#1689CA]"
         [style]="(!validateWebsite(body().evidence_url) || isFieldInvalid()) && submission.isEditableStatus() ? { border: '2px solid #E69F00' } : {}"
         [class.ng-invalid]="!validateWebsite(body().evidence_url)" />
     </div>
