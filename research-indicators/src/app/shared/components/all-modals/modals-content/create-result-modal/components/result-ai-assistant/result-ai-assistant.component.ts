@@ -36,6 +36,7 @@ export class ResultAiAssistantComponent implements AfterViewInit {
   selectedFile: File | null = null;
   analyzingDocument = signal(false);
   documentAnalyzed = signal(false);
+  noResults = signal(false);
   first = signal(0);
   rows = signal(5);
   expandedItem = signal<AIAssistantResult | null>(null);
@@ -277,7 +278,7 @@ export class ResultAiAssistantComponent implements AfterViewInit {
         }
       }
       if (combinedResults.length === 0) {
-        this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'No results found. Please try again.' });
+        this.noResults.set(true);
         return;
       }
 
