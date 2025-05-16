@@ -158,19 +158,6 @@
         align-items: center;
         gap: 10px;
 
-        .status {
-          display: inline-block;
-          font-family: Barlow, sans-serif;
-          font-size: 11px;
-          font-weight: 600;
-          line-height: 16px;
-          color: #1689ca;
-          border: 0.47px solid #79d9ff;
-          border-radius: 5px;
-          padding: 5px 10px;
-          text-transform: uppercase;
-        }
-
         .progress-bar-content {
           width: 100%;
           height: 10px;
@@ -181,7 +168,6 @@
 
         .progress {
           height: 100%;
-          background-color: #00b6ff;
           border-radius: 10px 0 0 10px;
         }
       }

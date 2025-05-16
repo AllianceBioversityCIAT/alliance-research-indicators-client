@@ -48,6 +48,7 @@ import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-
 import { GetYear } from '@shared/interfaces/get-year.interface';
 import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 import { GetVersions } from '@shared/interfaces/get-versions.interface';
+import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -426,13 +427,18 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_SubmitionHistory = (resultId: number) => {
-    const url = () => `results/green-checks/history/${resultId}`;
+  GET_GreenChecks = (resultCode: number): Promise<MainResponse<GreenChecks>> => {
+    const url = () => `results/green-checks/${resultCode}`;
     return this.TP.get(url(), { useYearInterceptor: true });
   };
 
-  DELETE_Result = (resultId: number) => {
-    const url = () => `results/${resultId}/delete`;
+  GET_SubmitionHistory = (resultCode: number) => {
+    const url = () => `results/green-checks/history/${resultCode}`;
+    return this.TP.get(url(), { useYearInterceptor: true });
+  };
+
+  DELETE_Result = (resultCode: number) => {
+    const url = () => `results/${resultCode}/delete`;
     return this.TP.delete(url(), { useYearInterceptor: true });
   };
 
