@@ -28,7 +28,8 @@ export class FileManagerService {
     formData.append('environmentUrl', environment.managementApiUrl);
 
     const headers = new HttpHeaders({
-      'access-token': this.cache.dataCache().access_token
+      'access-token': this.cache.dataCache().access_token,
+      'environment-url': environment.managementApiUrl
     });
 
     try {
