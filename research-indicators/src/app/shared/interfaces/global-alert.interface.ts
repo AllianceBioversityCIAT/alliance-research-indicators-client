@@ -12,6 +12,8 @@ export interface GlobalAlert {
   cancelCallback?: Callback;
   hasNoButton?: boolean;
   buttonColor?: string;
+  autoHideDuration?: number;
+  hideCancelButton?: boolean;
 }
 
 interface Callback {

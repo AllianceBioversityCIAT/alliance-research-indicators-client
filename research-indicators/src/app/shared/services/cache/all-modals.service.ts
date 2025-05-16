@@ -47,8 +47,12 @@ export class AllModalsService {
     },
     requestPartner: {
       isOpen: false,
-      title: 'Partners Request',
+      title: 'Partners Request'
       // disabledConfirmAction: () => this.disabledConfirmPartner?.() ?? false
+    },
+    askForHelp: {
+      isOpen: false,
+      title: 'Ask for Help'
     }
   });
 
@@ -124,10 +128,10 @@ export class AllModalsService {
     this.modalConfig.set({
       createResult: { ...this.modalConfig().createResult, isOpen: false },
       submitResult: { ...this.modalConfig().submitResult, isOpen: false },
-      requestPartner: { ...this.modalConfig().requestPartner, isOpen: false }
+      requestPartner: { ...this.modalConfig().requestPartner, isOpen: false },
+      askForHelp: { ...this.modalConfig().askForHelp, isOpen: false }
     });
 
     this.createResultManagementService.resultPageStep.set(0);
   }
-  
 }
