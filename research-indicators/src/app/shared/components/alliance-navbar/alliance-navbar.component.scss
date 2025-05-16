@@ -57,30 +57,29 @@
           bottom: 0;
           left: 50%;
           transform: translateX(-50%);
-          height: 2px;
+          height: 3px;
           background-color: #00b6ff;
-        }
-
-        &[ng-reflect-router-link='/home']::after {
-          width: 53px !important;
-        }
-
-        &[ng-reflect-router-link='/settings']::after {
-          width: 113px !important;
-        }
-
-        &[ng-reflect-router-link='/my-projects']::after {
-          width: 97px !important;
-        }
-
-        &[ng-reflect-router-link='/results-center']::after {
-          width: 110px !important;
         }
       }
 
       .option-icon {
         margin: -10px 0;
       }
+    }
+    .option.active[data-route='/home']::after {
+      width: 53px;
+    }
+
+    .option.active[data-route='/settings']::after {
+      width: 113px;
+    }
+
+    .option.active[data-route='/my-projects']::after {
+      width: 97px;
+    }
+
+    .option.active[data-route='/results-center']::after {
+      width: 110px;
     }
 
     .notification-icon {
