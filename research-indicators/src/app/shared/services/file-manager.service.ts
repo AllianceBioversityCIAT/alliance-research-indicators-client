@@ -25,9 +25,11 @@ export class FileManagerService {
     const weightLimitBytes = weightLimit * 1024 * 1024;
     formData.append('weightLimit', weightLimitBytes.toString());
     formData.append('pageLimit', pageLimit.toString());
+    formData.append('environmentUrl', environment.managementApiUrl);
 
     const headers = new HttpHeaders({
-      'access-token': this.cache.dataCache().access_token
+      'access-token': this.cache.dataCache().access_token,
+      'environment-url': environment.managementApiUrl
     });
 
     try {

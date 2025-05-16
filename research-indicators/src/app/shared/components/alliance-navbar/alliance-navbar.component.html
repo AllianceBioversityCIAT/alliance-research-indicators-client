@@ -10,6 +10,8 @@
           class="option atc-white-1 {{ hss ? 'py-[15px] px-[15px]' : 'py-[25px] px-[25px]' }}"
           [routerLink]="option.disabled ? null : option.path"
           routerLinkActive="active atc-light-blue-200-i"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [attr.data-route]="option.path"
           [class.disabled]="option.disabled"
           [attr.aria-disabled]="option.disabled ? true : null">
           {{ option.label }}
