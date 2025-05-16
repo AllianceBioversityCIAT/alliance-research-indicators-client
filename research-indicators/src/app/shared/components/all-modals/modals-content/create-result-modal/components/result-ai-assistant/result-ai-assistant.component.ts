@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -17,17 +17,18 @@ import { FormsModule } from '@angular/forms';
 import { GetContracts } from '@shared/interfaces/get-contracts.interface';
 import { Step } from '@shared/interfaces/step.interface';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
+import { TooltipModule } from 'primeng/tooltip';
 
 GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 @Component({
   selector: 'app-result-ai-assistant',
-  imports: [CommonModule, ButtonModule, PaginatorModule, SelectModule, FormsModule, ResultAiItemComponent],
+  imports: [CommonModule, ButtonModule, TooltipModule, PaginatorModule, SelectModule, FormsModule, ResultAiItemComponent],
   templateUrl: './result-ai-assistant.component.html',
   styleUrl: './result-ai-assistant.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ResultAiAssistantComponent {
+export class ResultAiAssistantComponent implements AfterViewInit {
   acceptedFormats: string[] = ['.pdf', '.docx', '.txt', '.xlsx', '.pptx'];
   maxSizeMB = 10;
   pageLimit = 100;
@@ -35,12 +36,12 @@ export class ResultAiAssistantComponent {
   selectedFile: File | null = null;
   analyzingDocument = signal(false);
   documentAnalyzed = signal(false);
+  noResults = signal(false);
   first = signal(0);
   rows = signal(5);
   expandedItem = signal<AIAssistantResult | null>(null);
   getContractsService = inject(GetContractsService);
   filteredPrimaryContracts = signal<GetContracts[]>([]);
-
   TP = inject(ToPromiseService);
   actions = inject(ActionsService);
   createResultManagementService = inject(CreateResultManagementService);
@@ -48,7 +49,8 @@ export class ResultAiAssistantComponent {
   fileManagerService = inject(FileManagerService);
   textMiningService = inject(TextMiningService);
   cache = inject(CacheService);
-
+  @ViewChild('containerRef') containerRef!: ElementRef;
+  containerWidth = 0;
   activeIndex = signal(0);
 
   steps = signal<Step[]>([
@@ -69,6 +71,29 @@ export class ResultAiAssistantComponent {
 
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
+  }
+
+  ngAfterViewInit() {
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        this.containerWidth = entry.contentRect.width;
+        this.cdr.detectChanges();
+      }
+    });
+
+    observer.observe(this.containerRef.nativeElement);
+  }
+
+  getShortDescription(description: string): string {
+    let max: number;
+    if (this.containerWidth < 900) {
+      max = 30;
+    } else if (this.containerWidth > 1350) {
+      max = 150;
+    } else {
+      max = 100;
+    }
+    return description.length > max ? description.slice(0, max) + '...' : description;
   }
 
   goBack() {
@@ -202,6 +227,19 @@ export class ResultAiAssistantComponent {
     this.createResultManagementService.resultPageStep.set(1);
   }
 
+  getContractStatusClasses(status: string): string {
+    const normalizedStatus = status?.toUpperCase() ?? '';
+
+    const styles: Record<string, string> = {
+      SUSPENDED: 'text-[#F58220] border border-[#F58220]',
+      DISCONTINUED: 'text-[#777c83] border border-[#777c83]',
+      ONGOING: 'text-[#153C71] border border-[#7C9CB9]',
+      DEFAULT: 'text-[#235B2D] border border-[#7CB580]'
+    };
+
+    return styles[normalizedStatus] || styles['DEFAULT'];
+  }
+
   async handleAnalyzingDocument(): Promise<void> {
     if (!this.selectedFile) {
       console.warn('No file selected.');
@@ -240,7 +278,7 @@ export class ResultAiAssistantComponent {
         }
       }
       if (combinedResults.length === 0) {
-        this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'No results found. Please try again.' });
+        this.noResults.set(true);
         return;
       }
 
