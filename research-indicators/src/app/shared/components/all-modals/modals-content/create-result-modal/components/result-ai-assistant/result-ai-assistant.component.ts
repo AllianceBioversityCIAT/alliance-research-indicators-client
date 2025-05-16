@@ -84,7 +84,14 @@ export class ResultAiAssistantComponent {
   }
 
   getShortDescription(description: string): string {
-    const max = this.containerWidth < 900 ? 30 : this.containerWidth > 1350 ? 150 : 100;
+    let max: number;
+    if (this.containerWidth < 900) {
+      max = 30;
+    } else if (this.containerWidth > 1350) {
+      max = 150;
+    } else {
+      max = 100;
+    }
     return description.length > max ? description.slice(0, max) + '...' : description;
   }
 
