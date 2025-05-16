@@ -1,13 +1,13 @@
-<div class="grid mx-10 my-8 h-[calc(100%-60px)] w-[70vw] max-w-[1300px]">
+<div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px]">
   @if (documentAnalyzed() && selectedFile) {
-    <div class="document-analyzed-container">
-      <i class="pi pi-file upload-icon" style="font-size: 32px; margin: 0"></i>
+    <div class="document-analyzed-container border-[#E8EBED] border-1">
+      <i class="pi pi-file upload-icon" style="font-size: 28px; margin: 0"></i>
       <p class="upload-text" style="font-weight: 500; margin: 0">{{ selectedFile.name }}</p>
     </div>
   }
 
-  <section class="mx-auto w-full container flex flex-col gap-6 justify-start rounded-b-[27px] px-6 py-2 xl:pt-4 xl:pb-20">
-    @if (!analyzingDocument() && !documentAnalyzed()) {
+  <section class="mx-auto w-full container flex flex-col gap-6 justify-start rounded-b-[27px] px-14 py-6 xl:pt-12 xl:pb-20">
+    @if (!analyzingDocument() && !documentAnalyzed() && !noResults()) {
       <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[14px] font-[700] flex text-[#173F6F]">
           UPLOAD YOUR FILE
@@ -167,7 +167,7 @@
     }
     @if (documentAnalyzed()) {
       <section class="analyze-result-container">
-        <div>
+        <div class="-mt-4 pb-6">
           <h1 class="text-[16px] font-[700] text-[#173F6F]">
             THE AI IDENTIFIED
             <span class="analyze-result-title-number">{{ createResultManagementService.items().length }}</span>
@@ -177,7 +177,7 @@
           <p class="text-[14px] font-[400] text-[#4C5158]">Select the ones you want to create.</p>
         </div>
 
-        <div class="w-full pb-16">
+        <div class="w-full analyze-result-content">
           @if (createResultManagementService.items().length === 0) {
             <div class="flex flex-col items-center justify-center bg-white border-[#E8EBED] border-1 rounded-[7px] py-12 px-10 w-full h-full">
               <h1 class="text-[20px] font-[700] text-[#173F6F] flex gap-4 py-4">ALL RESULTS DISCARDED</h1>
@@ -186,10 +186,10 @@
               <div class="text-[16px] font-[500] text-[#173F6F] flex items-center justify-center gap-4 pt-6">
                 <p-button
                   label="Return to Create Result"
-                  styleClass="!rounded-[12px] !text-[15px]"
+                  styleClass="!rounded-[12px] !text-[12px]"
                   [outlined]="true"
                   (onClick)="goBackToCreateResult()"></p-button>
-                <p-button label="Upload a new file" styleClass="!rounded-[12px] !text-[15px]" (onClick)="goBackToUploadNewFile()"></p-button>
+                <p-button label="Upload a new file" styleClass="!rounded-[12px] !text-[12px]" (onClick)="goBackToUploadNewFile()"></p-button>
               </div>
             </div>
           } @else {
@@ -197,21 +197,47 @@
               <app-result-ai-item [item]="item" style="width: 100%"></app-result-ai-item>
             }
           }
-
-          @if (createResultManagementService.items().length > 0) {
-            <div style="display: flex; justify-content: flex-end; align-items: center; background-color: #fff">
-              <p-paginator
-                (onPageChange)="onPageChange($event)"
-                [first]="first()"
-                [rows]="rows()"
-                [totalRecords]="createResultManagementService.items().length"
-                [showCurrentPageReport]="true"
-                [showJumpToPageDropdown]="false"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" />
-            </div>
-          }
         </div>
+        @if (createResultManagementService.items().length > 0) {
+          <div class="flex justify-end w-full bg-white">
+            <p-paginator
+              (onPageChange)="onPageChange($event)"
+              [first]="first()"
+              [rows]="rows()"
+              [totalRecords]="createResultManagementService.items().length"
+              [showCurrentPageReport]="true"
+              [showJumpToPageDropdown]="false"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" />
+          </div>
+        }
       </section>
+    }
+
+    @if (noResults()) {
+      <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
+        <p class="text-[14px] font-[700] flex text-[#173F6F]">
+          PROCESSING STATUS
+          <img src="/icons/star-blue-icon.svg" alt="upload-ai" class="w-4.5 pl-1" />
+        </p>
+
+        <div class="w-full flex place-content-center">
+          <img src="images/upload-ai-2.svg" alt="upload-ai" class="w-1/4 h-auto" />
+        </div>
+
+        <div class="flex flex-col items-center justify-center w-full h-full">
+          <h1 class="text-[17px] font-[700] text-[#173F6F] flex">NO RESULTS IDENTIFIED</h1>
+          <p class="text-[#4C5158] text-[14px]">The AI didn’t identify any results. What would you like to do next?</p>
+
+          <div class="text-[16px] font-[500] text-[#173F6F] flex items-center justify-center gap-4 py-6">
+            <p-button
+              label="Return to Create Result"
+              styleClass="!rounded-[12px] !text-[12px]"
+              [outlined]="true"
+              (onClick)="goBackToCreateResult()"></p-button>
+            <p-button label="Upload a new file" styleClass="!rounded-[12px] !text-[12px]" (onClick)="goBackToUploadNewFile()"></p-button>
+          </div>
+        </div>
+      </div>
     }
   </section>
 </div>

@@ -133,7 +133,7 @@ p {
 }
 
 .upload-text {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 19.2px;
   color: var(--primary-blue-500);
@@ -179,7 +179,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 30px 40px;
+  padding: 20px 45px;
   background-color: var(--grey-100);
   gap: 15px;
 }
@@ -189,7 +189,6 @@ p {
   align-items: flex-start;
   justify-content: flex-start;
   flex-direction: column;
-  gap: 25px;
 }
 
 .analyze-result-title {
