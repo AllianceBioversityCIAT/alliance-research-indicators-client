@@ -1,7 +1,4 @@
-export const STATUS_COLOR_MAP: Record<
-  string,
-  { border: string; text: string }
-> = {
+export const STATUS_COLOR_MAP: Record<string, { border: string; text: string }> = {
   '': { border: '#1689CA', text: '#1689CA' },
   '0': { border: '#1689CA', text: '#1689CA' },
   '1': { border: '#1689CA', text: '#1689CA' },

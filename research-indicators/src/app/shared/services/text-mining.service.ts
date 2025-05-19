@@ -45,6 +45,7 @@ export class TextMiningService {
     formData.append('token', this.cache.dataCache().access_token);
     formData.append('key', documentName);
     formData.append('bucketName', 'microservice-mining');
+    formData.append('environmentUrl', environment.managementApiUrl);
 
     const headers = new HttpHeaders({
       'access-token': this.cache.dataCache().access_token

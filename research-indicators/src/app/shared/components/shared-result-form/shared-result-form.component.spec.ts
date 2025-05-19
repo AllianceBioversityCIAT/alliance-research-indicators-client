@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CreateResultModalComponent } from './create-result-modal.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-describe('CreateResultModalComponent', () => {
-  let component: CreateResultModalComponent;
-  let fixture: ComponentFixture<CreateResultModalComponent>;
+import { SharedResultFormComponent } from './shared-result-form.component';
+
+describe('SharedResultFormComponent', () => {
+  let component: SharedResultFormComponent;
+  let fixture: ComponentFixture<SharedResultFormComponent>;
 
   beforeEach(async () => {
     (globalThis as any).ResizeObserver = class {
@@ -20,10 +20,10 @@ describe('CreateResultModalComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [CreateResultModalComponent, HttpClientTestingModule]
+      imports: [SharedResultFormComponent]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CreateResultModalComponent);
+    fixture = TestBed.createComponent(SharedResultFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

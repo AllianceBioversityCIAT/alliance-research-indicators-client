@@ -11,6 +11,17 @@ describe('AllModalsComponent', () => {
   let fixture: ComponentFixture<AllModalsComponent>;
 
   beforeEach(async () => {
+    (globalThis as any).ResizeObserver = class {
+      observe() {
+        // intentionally left blank for testing
+      }
+      unobserve() {
+        // intentionally left blank for testing
+      }
+      disconnect() {
+        // intentionally left blank for testing
+      }
+    };
     const mockSubmissionService = {
       statusSelected: signal({
         key: 'submitted',
