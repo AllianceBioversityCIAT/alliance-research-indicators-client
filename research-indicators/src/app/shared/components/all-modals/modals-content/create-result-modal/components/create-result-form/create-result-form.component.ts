@@ -19,25 +19,14 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
 import { SelectModule } from 'primeng/select';
 import localeEs from '@angular/common/locales/es';
-import { DatePipe, registerLocaleData, SlicePipe } from '@angular/common';
+import { registerLocaleData } from '@angular/common';
 import { GetYearsService } from '@shared/services/control-list/get-years.service';
-import { TooltipModule } from 'primeng/tooltip';
+import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
 
 registerLocaleData(localeEs);
 @Component({
   selector: 'app-create-result-form',
-  imports: [
-    DialogModule,
-    DatePipe,
-    TooltipModule,
-    SlicePipe,
-    ButtonModule,
-    FormsModule,
-    InputTextModule,
-    SelectModule,
-    RouterModule,
-    AutoCompleteModule
-  ],
+  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, SelectModule, RouterModule, SharedResultFormComponent, AutoCompleteModule],
   templateUrl: './create-result-form.component.html',
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -60,7 +49,8 @@ export class CreateResultFormComponent {
     contract_id: null
   });
   filteredPrimaryContracts = signal<GetContracts[]>([]);
-
+  sharedFormValid = false;
+  contractId: string | null = null;
   onYearsLoaded = effect(
     () => {
       const years = this.yearsService.list();
@@ -76,6 +66,10 @@ export class CreateResultFormComponent {
     { allowSignalWrites: true }
   );
 
+  onContractIdChange(newContractId: number | null) {
+    this.contractId = newContractId !== null ? String(newContractId) : null;
+    this.body.update(b => ({ ...b, contract_id: newContractId }));
+  }
   async createResult(openresult?: boolean) {
     const result = await this.api.POST_Result(this.body());
     if (result.successfulRequest) {
