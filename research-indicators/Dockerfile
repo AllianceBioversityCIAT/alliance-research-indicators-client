@@ -16,7 +16,7 @@ COPY public ./public
 COPY angular.json ./
 COPY tsconfig*.json ./
 COPY eslint.config.js ./
-COPY .eslintrc.json ./
+COPY .stylelintrc.json ./
 
 # Build Angular application in production mode
 RUN npm run build --prod
