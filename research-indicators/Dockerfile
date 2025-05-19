@@ -8,10 +8,16 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --ignore-scripts
 
-# Copy application source code
-COPY . .
+# Copy only the necessary application files
+COPY src ./src
+COPY public ./public
+COPY .angular ./.angular
+COPY angular.json ./
+COPY tsconfig*.json ./
+COPY eslint.config.js ./
+COPY .eslintrc.json ./
 
 # Build Angular application in production mode
 RUN npm run build --prod
@@ -19,13 +25,12 @@ RUN npm run build --prod
 #################### TESTING STAGE ####################
 FROM node:20-alpine AS test
 
-# Set working directory
 WORKDIR /usr/src/app
 
-# Copy built app (including source, node_modules, etc.)
+# Copy everything from build (source, config, node_modules, etc.)
 COPY --from=build /usr/src/app /usr/src/app
 
-# Optional: run tests if needed
+# Optional: uncomment to run tests
 # RUN npm run test
 
 #################### PRODUCTION STAGE ####################
@@ -34,7 +39,7 @@ FROM nginx:alpine
 # Set working directory
 WORKDIR /usr/share/nginx/html
 
-# Remove default Nginx website
+# Remove default Nginx content
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy built Angular app from build stage
@@ -43,14 +48,14 @@ COPY --from=build /usr/src/app/dist/research-indicators/browser /usr/share/nginx
 # Copy custom Nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Set ownership and permissions for nginx user
+# Set ownership and secure permissions
 RUN chown -R nginx:nginx /usr/share/nginx/html && chmod -R 755 /usr/share/nginx/html
 
-# Expose HTTP port
+# Expose port 80
 EXPOSE 80
 
-# Switch to non-root user (Sonar recommendation)
+# Run as non-root user for better security
 USER nginx
 
-# Start Nginx
+# Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]
