@@ -11,15 +11,7 @@ COPY package*.json ./
 RUN npm ci
 
 # Copy only the necessary application files
-COPY src ./src
-COPY public ./public
-COPY angular.json ./
-COPY tsconfig*.json ./
-COPY eslint.config.js ./
-COPY .stylelintrc.json ./
-COPY ngsw-config.json ./
-COPY jest.config.ts ./
-COPY jest.setup.ts ./
+COPY . .
 
 # Build Angular application in production mode
 RUN npm run build --prod
