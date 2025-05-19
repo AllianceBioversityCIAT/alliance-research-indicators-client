@@ -1,9 +1,9 @@
 <div
   [ngStyle]="{
-    paddingLeft: '89px',
+    paddingLeft: cache.isSidebarCollapsed() ? '97px' : '282px',
     width: 'calc(100% - 323px)'
   }"
-  class="flex border-t-1 border-[#e8ebed] fixed bg-[#ffffff] bottom-0 left-0 px-6 py-4 justify-between">
+  class="flex border-t-1 z-1 border-[#e8ebed] fixed bg-[#ffffff] bottom-0 left-0 px-6 py-4 justify-between">
   <div class="flex gap-5">
     @if (showBack) {
       <button
