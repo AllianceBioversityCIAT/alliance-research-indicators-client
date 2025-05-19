@@ -1,5 +1,6 @@
 import { NgStyle } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { ButtonModule } from 'primeng/button';
 
@@ -10,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 })
 export class NavigationButtonsComponent {
   submission = inject(SubmissionService);
+  cache = inject(CacheService);
 
   @Input() showBack = true;
   @Input() showNext = true;
