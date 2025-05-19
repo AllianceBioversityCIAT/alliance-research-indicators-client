@@ -1,50 +1,56 @@
-#################### DEVELOPMENT STAGE ####################
-# Use an official Node.js runtime AS a parent image
+#################### BUILD STAGE ####################
 FROM node:20-alpine AS build
 
-# Set the working directory
+# Set working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
+# Copy dependency files
 COPY package*.json ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy the rest of the application code
+# Copy application source code
 COPY . .
 
-# Build the Angular application
+# Build Angular application in production mode
 RUN npm run build --prod
 
 #################### TESTING STAGE ####################
-# Use the same Node.js runtime AS a parent image
 FROM node:20-alpine AS test
 
-# Set the working directory
+# Set working directory
 WORKDIR /usr/src/app
 
-# Copy the built Angular application from the build stage
+# Copy built app (including source, node_modules, etc.)
 COPY --from=build /usr/src/app /usr/src/app
 
+# Optional: run tests if needed
+# RUN npm run test
+
 #################### PRODUCTION STAGE ####################
-# Use an official Nginx runtime AS a parent image
 FROM nginx:alpine
 
-# Remove the default Nginx website
+# Set working directory
+WORKDIR /usr/share/nginx/html
+
+# Remove default Nginx website
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy the built Angular application from the build stage
+# Copy built Angular app from build stage
 COPY --from=build /usr/src/app/dist/research-indicators/browser /usr/share/nginx/html
 
-# Copy the custom Nginx configuration file
+# Copy custom Nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Ensure the correct permissions
-RUN chmod -R 755 /usr/share/nginx/html
+# Set ownership and permissions for nginx user
+RUN chown -R nginx:nginx /usr/share/nginx/html && chmod -R 755 /usr/share/nginx/html
 
-# Expose port 80
+# Expose HTTP port
 EXPOSE 80
 
-# Start Nginx server
+# Switch to non-root user (Sonar recommendation)
+USER nginx
+
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
