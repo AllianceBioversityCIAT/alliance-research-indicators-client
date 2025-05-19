@@ -7,8 +7,8 @@ WORKDIR /usr/src/app
 # Copy dependency files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --ignore-scripts
+# Install dependencies.
+RUN npm ci
 
 # Copy only the necessary application files
 COPY src ./src
