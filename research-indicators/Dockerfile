@@ -18,6 +18,8 @@ COPY tsconfig*.json ./
 COPY eslint.config.js ./
 COPY .stylelintrc.json ./
 COPY ngsw-config.json ./
+COPY jest.config.ts ./
+COPY jest.setup.ts ./
 
 # Build Angular application in production mode
 RUN npm run build --prod
