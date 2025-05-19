@@ -1,55 +1,50 @@
-#################### BUILD STAGE ####################
+#################### DEVELOPMENT STAGE ####################
+# Use an official Node.js runtime AS a parent image
 FROM node:20-alpine AS build
 
-# Set working directory
+# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy dependency files
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies.
+# Install dependencies
 RUN npm ci
 
-# Copy only the necessary application files
+# Copy the rest of the application code
 COPY . .
 
-# Build Angular application in production mode
+# Build the Angular application
 RUN npm run build --prod
 
 #################### TESTING STAGE ####################
+# Use the same Node.js runtime AS a parent image
 FROM node:20-alpine AS test
 
+# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy everything from build (source, config, node_modules, etc.)
+# Copy the built Angular application from the build stage
 COPY --from=build /usr/src/app /usr/src/app
 
-# Optional: uncomment to run tests
-# RUN npm run test
-
 #################### PRODUCTION STAGE ####################
+# Use an official Nginx runtime AS a parent image
 FROM nginx:alpine
 
-# Set working directory
-WORKDIR /usr/share/nginx/html
-
-# Remove default Nginx content
+# Remove the default Nginx website
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy built Angular app from build stage
+# Copy the built Angular application from the build stage
 COPY --from=build /usr/src/app/dist/research-indicators/browser /usr/share/nginx/html
 
-# Copy custom Nginx config
+# Copy the custom Nginx configuration file
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Set ownership and secure permissions
-RUN chown -R nginx:nginx /usr/share/nginx/html && chmod -R 755 /usr/share/nginx/html
+# Ensure the correct permissions
+RUN chmod -R 755 /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80
-
-# Run as non-root user for better security
-USER nginx
 
 # Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]
