@@ -94,7 +94,10 @@ export class CreateResultFormComponent {
 
   badRequest = (result: MainResponse<Result>) => {
     const isWarning = result.status === 409;
-    const linkUrl = 'https://www.google.com';
+    const errorDetail = result.errorDetail;
+    const id = typeof errorDetail.errors === 'object' && errorDetail.errors !== null ? errorDetail.errors['result_official_code'] : undefined;
+
+    const linkUrl = id ? `result/${id}/general-information` : '#';
 
     const [initialText, existingResult = ''] = result.errorDetail.description.split(':').map(s => s.trim());
     const [boldText, ...regularParts] = existingResult.split('-').map(s => s.trim());
@@ -107,7 +110,7 @@ export class CreateResultFormComponent {
   `;
 
     this.actions.showGlobalAlert({
-      severity: isWarning ? 'warning' : 'error',
+      severity: isWarning ? 'secondary' : 'error',
       summary: isWarning ? 'Title Already Exists' : 'Error',
       detail: detailHtml,
       hasNoCancelButton: true,

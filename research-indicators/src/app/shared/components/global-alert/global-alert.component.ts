@@ -52,6 +52,8 @@ export class GlobalAlertComponent {
         return { icon: 'pi pi-check-circle', color: '#509C55' };
       case 'warning':
         return { icon: 'pi pi-history', color: '#E69F00', buttonColor: '#E69F00' };
+      case 'secondary':
+        return { icon: 'pi pi-exclamation-triangle', color: '#E69F00', buttonColor: '#E69F00' };
       case 'error':
         return { icon: 'pi pi-times-circle', color: 'red' };
       default:
