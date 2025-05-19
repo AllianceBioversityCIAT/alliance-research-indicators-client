@@ -13,7 +13,6 @@ RUN npm ci --ignore-scripts
 # Copy only the necessary application files
 COPY src ./src
 COPY public ./public
-COPY .angular ./.angular
 COPY angular.json ./
 COPY tsconfig*.json ./
 COPY eslint.config.js ./
