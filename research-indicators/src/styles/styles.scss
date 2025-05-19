@@ -89,6 +89,23 @@ body {
   }
 }
 
+.alert-link-custom {
+  color: #3397d0 !important;
+  text-decoration: none;
+  font-weight: normal;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.alert-link-custom:hover {
+  text-decoration: underline;
+}
+
+.alert-link-bold {
+  font-weight: 500;
+  font-style: italic;
+}
+
 .icon-color-flag,
 .icon-color-lightbulb,
 .icon-color-group {

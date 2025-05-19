@@ -16,6 +16,7 @@ export class MultiControlListResponse<T> {
 export interface ErrorResponse {
   errors: string;
   detail: string;
+  description: string;
 }
 
 export interface LoginRes {
