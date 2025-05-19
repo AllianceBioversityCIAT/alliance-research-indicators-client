@@ -11,6 +11,8 @@ export interface GlobalAlert {
   confirmCallback?: Callback;
   cancelCallback?: Callback;
   hasNoButton?: boolean;
+  hasNoCancelButton?: boolean;
+  generalButton?: boolean;
   buttonColor?: string;
 }
 

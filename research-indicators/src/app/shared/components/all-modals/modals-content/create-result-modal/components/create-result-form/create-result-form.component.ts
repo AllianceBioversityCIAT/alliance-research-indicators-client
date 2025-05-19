@@ -93,11 +93,29 @@ export class CreateResultFormComponent {
   };
 
   badRequest = (result: MainResponse<Result>) => {
-    const isWarning = result.status == 409;
+    const isWarning = result.status === 409;
+    const linkUrl = 'https://www.google.com';
+
+    const [initialText, existingResult = ''] = result.errorDetail.description.split(':').map(s => s.trim());
+    const [boldText, ...regularParts] = existingResult.split('-').map(s => s.trim());
+
+    const detailHtml = `
+    ${initialText}: 
+    <a href="${linkUrl}" target="_blank" class="alert-link-custom">
+      <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
+    </a>
+  `;
+
     this.actions.showGlobalAlert({
       severity: isWarning ? 'warning' : 'error',
-      summary: isWarning ? 'Warning' : 'Error',
-      detail: isWarning ? `${result.errorDetail.errors} "${this.body().title}"` : result.errorDetail.errors
+      summary: isWarning ? 'Title Already Exists' : 'Error',
+      detail: detailHtml,
+      hasNoCancelButton: true,
+      generalButton: true,
+      confirmCallback: {
+        label: 'Enter other title'
+      },
+      buttonColor: '#035BA9'
     });
   };
 
