@@ -11,7 +11,7 @@
     </div>
     <div class="card-container">
       @for (result of latestResultList(); track $index) {
-        <div class="card" [routerLink]="['/result', result.result_id]" style="cursor: pointer">
+        <div class="card" [routerLink]="['/result', result.result_official_code]" style="cursor: pointer">
           <div class="card-content">
             <div class="project-indicators">
               <div class="indicator">
@@ -42,8 +42,11 @@
               </div>
               <div class="progress-bar">
                 <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status.name"></app-custom-tag>
+                <div class="progress-bar-content">
+                  <div class="progress" [style.background-color]="getStatusColor(result)" [style.width.%]="calculateProgressFor(result)"></div>
+                </div>
               </div>
-              <label class="last-update" for="username"> Last update on {{ result.updated_at | date: 'MM/dd/yyyy - h:mm a' }} </label>
+              <label class="last-update" for="username"> Last update on {{ result.updated_at | date: 'dd/MM/yyyy - h:mm a' }} </label>
             </div>
           </div>
         </div>

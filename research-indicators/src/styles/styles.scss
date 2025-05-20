@@ -7,6 +7,18 @@
 * {
   font-family: Barlow, sans-serif;
 }
+.indicator-select .p-select-option-group {
+  padding: 0 !important;
+}
+
+.app-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 70px;
+  margin-top: 40px;
+  margin-right: 40px;
+  margin-left: 30px;
+}
 
 .p-tooltip {
   --p-tooltip-background: #345b8f;
@@ -75,6 +87,23 @@ body {
       text-decoration: underline;
     }
   }
+}
+
+.alert-link-custom {
+  color: #3397d0 !important;
+  text-decoration: none;
+  font-weight: normal;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.alert-link-custom:hover {
+  text-decoration: underline;
+}
+
+.alert-link-bold {
+  font-weight: 500;
+  font-style: italic;
 }
 
 .icon-color-flag,

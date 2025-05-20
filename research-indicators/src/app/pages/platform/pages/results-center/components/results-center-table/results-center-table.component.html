@@ -97,8 +97,8 @@
     </ng-template>
     <ng-template pTemplate="body" let-result>
       <tr
-        (keydown.enter)="openResult(result.result_id)"
-        (click)="openResult(result.result_id)"
+        (keydown.enter)="openResult(result.result_official_code)"
+        (click)="openResult(result.result_official_code)"
         class="cursor-pointer hover:surface-ground transition-colors duration-150">
         @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {

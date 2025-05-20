@@ -4,6 +4,7 @@ import { SubmissionHistoryItem } from '@shared/interfaces/submission-history-ite
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 @Component({
   selector: 'app-submission-history-content',
   standalone: true,
@@ -15,17 +16,24 @@ export class SubmissionHistoryContentComponent implements OnInit {
   api = inject(ApiService);
   cache = inject(CacheService);
   submissionService = inject(SubmissionService);
+  versionWatcher = inject(VersionWatcherService);
   historyList = signal<SubmissionHistoryItem[]>([]);
 
   ngOnInit(): void {
     this.getSubmitionHistory();
   }
 
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getSubmitionHistory();
+    });
+  }
+
   refreshHistoryEffect = effect(() => {
-    this.submissionService.refreshSubmissionHistory(); 
-    this.getSubmitionHistory(); 
+    this.submissionService.refreshSubmissionHistory();
+    this.getSubmitionHistory();
   });
-  
+
   async getSubmitionHistory() {
     const response = await this.api.GET_SubmitionHistory(this.cache.currentResultId());
     this.historyList.set(response.data);

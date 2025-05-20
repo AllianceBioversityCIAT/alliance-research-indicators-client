@@ -5,10 +5,11 @@ import { CreateResultManagementService } from './modals-content/create-result-mo
 import { SubmitResultContentComponent } from './modals-content/submit-result-content/submit-result-content.component';
 import { SubmissionService } from '../../services/submission.service';
 import { RequestPartnerModalComponent } from './modals-content/request-partner-modal/request-partner-modal.component';
+import { AskForHelpModalComponent } from './modals-content/ask-for-help-modal/ask-for-help-modal/ask-for-help-modal.component';
 
 @Component({
   selector: 'app-all-modals',
-  imports: [ModalComponent, CreateResultModalComponent, RequestPartnerModalComponent, SubmitResultContentComponent],
+  imports: [ModalComponent, CreateResultModalComponent, RequestPartnerModalComponent, SubmitResultContentComponent, AskForHelpModalComponent],
   templateUrl: './all-modals.component.html'
 })
 export class AllModalsComponent {

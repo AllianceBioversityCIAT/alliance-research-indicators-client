@@ -1,6 +1,5 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { RadioButtonComponent } from '@shared/components/custom-fields/radio-button/radio-button.component';
@@ -8,15 +7,17 @@ import { InputComponent } from '@shared/components/custom-fields/input/input.com
 import { SubmissionService } from '@shared/services/submission.service';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { ActionsService } from '@shared/services/actions.service';
-import { Router } from '@angular/router';
-import { NgStyle } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
+import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 
 @Component({
   selector: 'app-ip-rights',
-  imports: [ButtonModule, NgStyle, FormsModule, RadioButtonComponent, InputComponent],
+  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, RadioButtonComponent, InputComponent],
   templateUrl: './ip-rights.component.html'
 })
-export default class IpRightsComponent implements OnInit {
+export default class IpRightsComponent {
   api = inject(ApiService);
   router = inject(Router);
   body: WritableSignal<PatchIpOwner> = signal({});
@@ -24,11 +25,14 @@ export default class IpRightsComponent implements OnInit {
   actions = inject(ActionsService);
   loading = signal(false);
   submission = inject(SubmissionService);
+  versionWatcher = inject(VersionWatcherService);
+  route = inject(ActivatedRoute);
 
-  ngOnInit() {
-    this.getData();
+  constructor() {
+    this.versionWatcher.onVersionChange(() => {
+      this.getData();
+    });
   }
-
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_IpOwner(this.cache.currentResultId());
@@ -38,6 +42,18 @@ export default class IpRightsComponent implements OnInit {
 
   async saveData(page?: 'back'): Promise<void> {
     this.loading.set(true);
+
+    const resultId = this.cache.currentResultId().toString();
+    const version = this.route.snapshot.queryParamMap.get('version');
+    const queryParams = version ? { version } : undefined;
+
+    const navigateTo = (path: string) => {
+      this.router.navigate(['result', resultId, path], {
+        queryParams,
+        replaceUrl: true
+      });
+    };
+
     if (this.submission.isEditableStatus()) {
       const current = this.body();
 
@@ -46,13 +62,23 @@ export default class IpRightsComponent implements OnInit {
         this.body.set({ ...current });
       }
 
-      const response = await this.api.PATCH_IpOwners(this.cache.currentResultId(), this.body());
-      if (!response.successfulRequest) return;
+      const response = await this.api.PATCH_IpOwners(Number(resultId), this.body());
+      if (!response.successfulRequest) {
+        this.loading.set(false);
+        return;
+      }
+
       await this.getData();
-      this.actions.showToast({ severity: 'success', summary: 'IP rights', detail: 'Data saved successfully' });
+
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'IP rights',
+        detail: 'Data saved successfully'
+      });
     }
 
-    if (page === 'back') this.router.navigate(['result', this.cache.currentResultId(), 'evidence']);
+    if (page === 'back') navigateTo('evidence');
+
     this.loading.set(false);
   }
 }

@@ -3,9 +3,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { OverlayPanel } from 'primeng/overlaypanel';
 import { TooltipModule } from 'primeng/tooltip';
-import { PopoverModule } from 'primeng/popover';
+import { PopoverModule, Popover } from 'primeng/popover';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ActionsService } from '@shared/services/actions.service';
@@ -38,9 +37,11 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
           detail: 'Once deleted, it cannot be recovered.',
           confirmCallback: {
             label: 'Delete result',
-            event: async () => {
-              const res = await this.api.DELETE_Result(this.cache.currentResultId());
-              if (res.successfulRequest) this.router.navigate(['/results-center']);
+            event: () => {
+              (async () => {
+                const res = await this.api.DELETE_Result(this.cache.currentResultId());
+                if (res.successfulRequest) this.router.navigate(['/results-center']);
+              })();
             }
           }
         });
@@ -70,7 +71,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
     return items;
   });
 
-  @ViewChild('historyPanel') historyPanel!: OverlayPanel;
+  @ViewChild('historyPanel') historyPanel!: Popover;
   private resizeObserver: ResizeObserver | null = null;
   private readonly routeId = signal<string | null>(null);
 

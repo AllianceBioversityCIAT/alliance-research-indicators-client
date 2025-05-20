@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { CacheService } from './cache/cache.service';
+import { environment } from '@envs/environment';
 
 export interface FileUploadResponse {
   data: { filename: string };
@@ -10,7 +11,6 @@ export interface FileUploadResponse {
   providedIn: 'root'
 })
 export class FileManagerService {
-  private readonly baseUrl = 'https://reports.prms.cgiar.org';
   cache = inject(CacheService);
 
   constructor(private readonly http: HttpClient) {}
@@ -25,14 +25,16 @@ export class FileManagerService {
     const weightLimitBytes = weightLimit * 1024 * 1024;
     formData.append('weightLimit', weightLimitBytes.toString());
     formData.append('pageLimit', pageLimit.toString());
+    formData.append('environmentUrl', environment.managementApiUrl);
 
     const headers = new HttpHeaders({
-      'access-token': this.cache.dataCache().access_token
+      'access-token': this.cache.dataCache().access_token,
+      'environment-url': environment.managementApiUrl
     });
 
     try {
       const response = await firstValueFrom(
-        this.http.post<FileUploadResponse>(`${this.baseUrl}/api/file-management/upload-file`, formData, { headers })
+        this.http.post<FileUploadResponse>(`${environment.fileManagerUrl}/api/file-management/upload-file`, formData, { headers })
       );
       return response;
     } catch (error) {

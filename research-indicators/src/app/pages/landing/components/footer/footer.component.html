@@ -5,8 +5,8 @@
     </div>
     <div class="footer-column">
       <h3 class="h3">Legal Information</h3>
-      <a href="#" class="caption">Terms and Conditions</a>
-      <a href="#" class="caption">License</a>
+      <a [href]="legalTermsUrl" class="caption" target="_blank" rel="noopener noreferrer">Terms and Conditions</a>
+      <a [href]="licenseUrl" class="caption" target="_blank" rel="noopener noreferrer">License</a>
     </div>
     <div class="footer-column">
       <h3 class="h3">Resources</h3>
@@ -16,7 +16,7 @@
     </div>
     <div class="footer-column">
       <h3 class="h3">Contact Us</h3>
-      <a href="#" class="caption">Contact and Support</a>
+      <a [href]="'mailto:' + supportUrl" class="caption">Contact and Support</a>
     </div>
   </div>
   <hr class="footer-separator" />

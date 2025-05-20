@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -11,18 +11,18 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { FileManagerService } from '@shared/services/file-manager.service';
 import { TextMiningService } from '@shared/services/text-mining.service';
 import { CacheService } from '@shared/services/cache/cache.service';
-import { SelectModule } from 'primeng/select';
 import { GetContractsService } from '@shared/services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { GetContracts } from '@shared/interfaces/get-contracts.interface';
 import { Step } from '@shared/interfaces/step.interface';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
+import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
 
 GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 @Component({
   selector: 'app-result-ai-assistant',
-  imports: [CommonModule, ButtonModule, PaginatorModule, SelectModule, FormsModule, ResultAiItemComponent],
+  imports: [CommonModule, SharedResultFormComponent, ButtonModule, PaginatorModule, FormsModule, ResultAiItemComponent],
   templateUrl: './result-ai-assistant.component.html',
   styleUrl: './result-ai-assistant.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -35,12 +35,12 @@ export class ResultAiAssistantComponent {
   selectedFile: File | null = null;
   analyzingDocument = signal(false);
   documentAnalyzed = signal(false);
+  noResults = signal(false);
   first = signal(0);
   rows = signal(5);
   expandedItem = signal<AIAssistantResult | null>(null);
   getContractsService = inject(GetContractsService);
   filteredPrimaryContracts = signal<GetContracts[]>([]);
-
   TP = inject(ToPromiseService);
   actions = inject(ActionsService);
   createResultManagementService = inject(CreateResultManagementService);
@@ -59,16 +59,17 @@ export class ResultAiAssistantComponent {
     { label: 'Generating response', completed: false, inProgress: false, progress: 0 }
   ]);
 
-  body = signal<{ contract_id: number | null }>({
-    contract_id: null
-  });
-
-  isInvalid = computed(() => {
-    return !this.body().contract_id;
-  });
+  body = signal<{ contract_id: number | null }>({ contract_id: null });
+  sharedFormValid = false;
+  contractId: string | null = null;
 
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
+  }
+
+  onContractIdChange(newContractId: number | null) {
+    this.contractId = newContractId !== null ? String(newContractId) : null;
+    this.body.update(b => ({ ...b, contract_id: newContractId }));
   }
 
   goBack() {
@@ -202,6 +203,19 @@ export class ResultAiAssistantComponent {
     this.createResultManagementService.resultPageStep.set(1);
   }
 
+  getContractStatusClasses(status: string): string {
+    const normalizedStatus = status?.toUpperCase() ?? '';
+
+    const styles: Record<string, string> = {
+      SUSPENDED: 'text-[#F58220] border border-[#F58220]',
+      DISCONTINUED: 'text-[#777c83] border border-[#777c83]',
+      ONGOING: 'text-[#153C71] border border-[#7C9CB9]',
+      DEFAULT: 'text-[#235B2D] border border-[#7CB580]'
+    };
+
+    return styles[normalizedStatus] || styles['DEFAULT'];
+  }
+
   async handleAnalyzingDocument(): Promise<void> {
     if (!this.selectedFile) {
       console.warn('No file selected.');
@@ -240,7 +254,7 @@ export class ResultAiAssistantComponent {
         }
       }
       if (combinedResults.length === 0) {
-        this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'No results found. Please try again.' });
+        this.noResults.set(true);
         return;
       }
 

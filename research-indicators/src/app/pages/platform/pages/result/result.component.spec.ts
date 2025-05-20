@@ -22,7 +22,8 @@ describe('ResultComponent', () => {
                 get: (key: string) => (key === 'id' ? '123' : null)
               }
             },
-            params: of({ id: '123' })
+            params: of({ id: '123' }),
+            queryParams: of({ version: '1.0' })
           }
         }
       ]
@@ -30,7 +31,6 @@ describe('ResultComponent', () => {
 
     fixture = TestBed.createComponent(ResultComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

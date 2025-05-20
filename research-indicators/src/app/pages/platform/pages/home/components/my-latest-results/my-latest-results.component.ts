@@ -6,6 +6,8 @@ import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
+import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
+import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 
 export interface LatestResult {
   updated_at: Date;
@@ -82,15 +84,51 @@ export interface AgressoContract {
 export class MyLatestResultsComponent implements OnInit {
   api = inject(ApiService);
   allModalsService = inject(AllModalsService);
+  greenChecksByResult: WritableSignal<Record<number, GreenChecks>> = signal({});
 
   latestResultList: WritableSignal<LatestResult[]> = signal([]);
 
   ngOnInit() {
-    this.getLatestResults();
+    this.loadLatestResultsWithGreenChecks();
   }
 
-  async getLatestResults() {
-    const response = await this.api.GET_LatestResults();
-    this.latestResultList.set(response.data);
+  async loadLatestResultsWithGreenChecks() {
+    const results = await this.api.GET_LatestResults();
+    this.latestResultList.set(results.data);
+
+    for (const result of results.data) {
+      const { data } = await this.api.GET_GreenChecks(result.result_official_code);
+      this.greenChecksByResult.update(map => ({
+        ...map,
+        [result.result_official_code]: data
+      }));
+    }
+  }
+
+  calculateProgressFor(result: LatestResult): number {
+    const greenChecks = this.greenChecksByResult()[result.result_official_code];
+    if (!greenChecks) return 0;
+
+    const indicatorId = result.indicator.indicator_id;
+
+    const steps = [
+      'general_information',
+      'alignment',
+      ...(indicatorId === 1 ? ['cap_sharing', 'cap_sharing_ip'] : []),
+      ...(indicatorId === 4 ? ['policy_change'] : []),
+      'partners',
+      'geo_location',
+      'evidences'
+    ] as (keyof GreenChecks)[];
+
+    const total = steps.length;
+    const completed = steps.filter(key => greenChecks[key] === 1).length;
+
+    return total === 0 ? 0 : Math.round((completed / total) * 100);
+  }
+
+  getStatusColor(result: LatestResult) {
+    const statusId = String(result.result_status?.result_status_id ?? '');
+    return STATUS_COLOR_MAP[statusId].text || STATUS_COLOR_MAP[''];
   }
 }

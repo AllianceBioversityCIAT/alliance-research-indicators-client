@@ -25,7 +25,7 @@ export class GetInnoUseOutputService {
     });
 
     if (response?.data) {
-      this.list.set(response.data as Result[]);
+      this.list.set(response.data);
     } else {
       this.list.set([]);
     }

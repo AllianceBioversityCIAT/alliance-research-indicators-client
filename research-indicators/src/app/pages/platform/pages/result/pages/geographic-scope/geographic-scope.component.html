@@ -1,8 +1,5 @@
-<div class="flex flex-col mr-[40px] ml-[30px] mb-15 mt-10">
-  <h3 class="font-['Inter'] text-[15px] font-bold leading-[18px] text-[#173f6f] uppercase mb-0">{{ this.cache.currentMetadata().result_title }}</h3>
-
-  <br />
-
+<div class="app-page-wrapper">
+  <app-form-header />
   <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GEOGRAPHIC SCOPE</div>
     <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-5 px-5 mb-[30px]">
@@ -61,45 +58,51 @@
             label="{{ getMultiselectLabel().country.label }}"
             description="{{ getMultiselectLabel().country.description }}">
             <ng-template #rows let-country>
-              <div class="flex justify-between items-start w-full">
-                <div class="flex flex-col gap-3 max-w-[70%]">
-                  <div class="flex items-center gap-3">
-                    <img [src]="environment.flagsUrl + country.isoAlpha2 + '.svg'" [alt]="country.name" class="w-6 h-4 object-cover" />
-                    <span class="font-medium text-[var(--text-color)]">{{ country.name }}</span>
-                  </div>
-                  <div class="sub-national-section">
-                    <div class="flex flex-wrap gap-2 items-center">
-                      <span class="text-[#777c83] text-[13px]">Sub-national levels</span>
-                      <i class="pi pi-arrow-right !text-[12px] text-[#8d9299] cursor-pointer"></i>
-                      @for (region of country.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
-                        <div class="bg-[#e5e7eb] rounded-full px-3 py-1 flex items-center gap-2 text-[13px] text-[#4c5158]">
-                          {{ region.name }}
-                          @if (submission.isEditableStatus()) {
-                            <i
-                              class="pi pi-times !text-[12px] text-[#8d9299] hover:text-[#4c5158] cursor-pointer"
-                              (keydown.enter)="subnationalmultiselect.removeOption(region)"
-                              (click)="subnationalmultiselect.removeOption(region)"></i>
+              @for (c of [country]; track c.isoAlpha2) {
+                <div class="flex justify-between items-start w-full">
+                  <div class="flex flex-col gap-3 max-w-[70%]">
+                    <div class="flex items-center gap-3">
+                      <img [src]="environment.flagsUrl + c.isoAlpha2 + '.svg'" [alt]="c.name" class="w-6 h-4 object-cover" />
+                      <span class="font-medium text-[var(--text-color)]">{{ c.name }}</span>
+                    </div>
+                    <div class="sub-national-section">
+                      <div class="flex flex-wrap gap-2 items-center">
+                        <span class="text-[#777c83] text-[13px]">Sub-national levels</span>
+                        <i class="pi pi-arrow-right !text-[12px] text-[#8d9299] cursor-pointer"></i>
+                        @if (c.result_countries_sub_nationals_signal()?.regions?.length > 0) {
+                          @for (region of c.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
+                            <div class="bg-[#e5e7eb] rounded-full px-3 py-1 flex items-center gap-2 text-[13px] text-[#4c5158]">
+                              {{ region.name }}
+                              @if (submission.isEditableStatus()) {
+                                <i
+                                  class="pi pi-times !text-[12px] text-[#8d9299] hover:text-[#4c5158] cursor-pointer"
+                                  (keydown.enter)="removeSubnationalRegion(c, region)"
+                                  (click)="removeSubnationalRegion(c, region)">
+                                </i>
+                              }
+                            </div>
                           }
-                        </div>
-                      }
+                        }
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- Right column: Multiselect -->
-                <div class="w-[300px]">
-                  <app-multiselect-instance
-                    #subnationalmultiselect
-                    [signal]="country.result_countries_sub_nationals_signal"
-                    [optionLabel]="'name'"
-                    [optionValue]="'sub_national_id'"
-                    [signalOptionValue]="'regions'"
-                    [disabled]="!submission.isEditableStatus()"
-                    serviceName="GetSubnationalByIsoAlpha"
-                    [hideSelected]="true"
-                    [endpointParams]="{ isoAlpha2: country.isoAlpha2 }"></app-multiselect-instance>
+                  <!-- Right column: Multiselect -->
+                  <div class="w-[300px]">
+                    <app-multiselect-instance
+                      [signal]="c.result_countries_sub_nationals_signal"
+                      [optionLabel]="'name'"
+                      (valueChange)="updateCountryRegions(c.isoAlpha2, $event)"
+                      [optionValue]="'sub_national_id'"
+                      [signalOptionValue]="'regions'"
+                      [disabled]="!submission.isEditableStatus()"
+                      serviceName="GetSubnationalByIsoAlpha"
+                      [hideSelected]="true"
+                      [endpointParams]="{ isoAlpha2: c.isoAlpha2 }">
+                    </app-multiselect-instance>
+                  </div>
                 </div>
-              </div>
+              }
             </ng-template>
           </app-multiselect>
 
@@ -129,36 +132,5 @@
       }
     </div>
   </div>
-  <div
-    [ngStyle]="{
-      paddingLeft: cache.showSectionHeaderActions() ? (cache.isSidebarCollapsed() ? '89px' : '274px') : '89px',
-      width: 'calc(100% - 323px)'
-    }"
-    class="flex border-t-1 border-[#e8ebed] fixed bg-[#ffffff] bottom-0 left-0 px-6 py-4 justify-between">
-    <div class="flex gap-5">
-      <button
-        type="button"
-        (click)="saveData('back')"
-        class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
-        <i class="pi pi-arrow-left !text-[12px]"></i>
-        Back
-      </button>
-      <button
-        type="button"
-        (click)="saveData('next')"
-        class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px]">
-        Next
-        <i class="pi pi-arrow-right !text-[12px]"></i>
-      </button>
-    </div>
-    @if (submission.isEditableStatus()) {
-      <button
-        type="button"
-        (click)="saveData()"
-        class="flex cursor-pointer items-center gap-2 bg-[#509C55] text-[#FFFFFF] px-5 py-2 rounded-[13px] text-[15px]">
-        <i class="pi pi-save !text-[12px] -scale-x-100"></i>
-        Save
-      </button>
-    }
-  </div>
+  <app-navigation-buttons (back)="saveData('back')" (next)="saveData('next')" (save)="saveData()" />
 </div>
