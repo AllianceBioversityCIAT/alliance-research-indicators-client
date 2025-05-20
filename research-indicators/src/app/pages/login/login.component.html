@@ -6,13 +6,7 @@
 
     <div class="login-form">
       <h2>Sign in with your CGIAR credentials</h2>
-      <button class="corp-id-btn" (click)="cognito.loginWithAzureAd()" [disabled]="cognito.isLoadingAzureAd()">
-        Continue with your CGIAR account
-
-        @if (cognito.isLoadingAzureAd()) {
-          <i class="pi pi-spin pi-spinner ml-2" style="font-size: 1rem"></i>
-        }
-      </button>
+      <button class="corp-id-btn" (click)="cognito.redirectToCognito()">Continue with your CGIAR account</button>
     </div>
   </div>
 </div>

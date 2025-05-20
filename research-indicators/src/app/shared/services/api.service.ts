@@ -65,20 +65,6 @@ export class ApiService {
     return this.TP.post(url(), {}, { token: awsToken, isAuth: true });
   };
 
-  loginWithAzureAd = async (misId: number, provider: string): Promise<{ authUrl: string }> => {
-    const url = () => `${environment.cognitoMicroserviceUrl}auth/login/provider`;
-
-    const response = await fetch(url(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ misId, provider })
-    });
-
-    return response.json();
-  };
-
   refreshToken = (refreshToken: string): Promise<MainResponse<LoginRes>> => {
     const url = () => `authorization/refresh-token`;
     return this.TP.post(url(), {}, { token: refreshToken, isRefreshToken: true, isAuth: true });

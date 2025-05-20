@@ -1,9 +1,10 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { ApiService } from '@services/api.service';
 import { ActionsService } from '@services/actions.service';
 import { ClarityService } from './clarity.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -16,35 +17,19 @@ export class CognitoService {
   actions = inject(ActionsService);
   clarity = inject(ClarityService);
 
-  isLoadingAzureAd = signal(false);
-
-  async loginWithAzureAd() {
-    if (this.isLoadingAzureAd()) return;
-
-    this.isLoadingAzureAd.set(true);
-
-    const res = await this.api.loginWithAzureAd(23, 'CGIAR-AzureAD');
-
-    if (!res.authUrl) {
-      this.actions.showToast({
-        severity: 'error',
-        summary: 'Server Error',
-        detail: 'Error while trying to login with Azure AD'
-      });
-      this.isLoadingAzureAd.set(false);
-
-      return;
-    }
-
-    window.location.href = res.authUrl;
-
-    this.isLoadingAzureAd.set(false);
+  redirectToCognito() {
+    window.location.href =
+      `${environment.cognitoDomain}oauth2/authorize` +
+      `?response_type=code` +
+      `&client_id=${environment.cognitoClientId}` +
+      `&redirect_uri=${environment.cognitoRedirectUri}` +
+      `&scope=openid+email+profile` +
+      `&identity_provider=${environment.cognitoIdentityProvider}`;
   }
 
   async validateCognitoCode() {
     const { code } = this.activatedRoute.snapshot.queryParams ?? {};
     if (!code) return;
-
     this.cache.isValidatingToken.set(true);
     const loginResponse = await this.api.login(code);
     if (!loginResponse.successfulRequest) {
@@ -58,7 +43,7 @@ export class CognitoService {
         },
         confirmCallback: {
           label: 'Retry Log in',
-          event: () => void this.loginWithAzureAd()
+          event: () => this.redirectToCognito()
         }
       });
       return;
