@@ -50,7 +50,7 @@ export class CreateResultFormComponent {
   });
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   sharedFormValid = false;
-  contractId: string | null = null;
+  contractId: number | null = null;
   onYearsLoaded = effect(
     () => {
       const years = this.yearsService.list();
@@ -67,7 +67,7 @@ export class CreateResultFormComponent {
   );
 
   onContractIdChange(newContractId: number | null) {
-    this.contractId = newContractId !== null ? String(newContractId) : null;
+    this.contractId = newContractId;
     this.body.update(b => ({ ...b, contract_id: newContractId }));
   }
   async createResult(openresult?: boolean) {
@@ -88,6 +88,9 @@ export class CreateResultFormComponent {
     });
     this.allModalsService.closeModal('createResult');
     this.body.set({ indicator_id: null, title: null, contract_id: null, year: currentYear });
+    this.contractId = null;
+    this.sharedFormValid = false;
+
     if (openresult) this.actions.changeResultRoute(Number(result.data.result_official_code));
     this.getResultsService.updateList();
   };
@@ -137,6 +140,6 @@ export class CreateResultFormComponent {
 
   get isDisabled(): boolean {
     const b = this.body();
-    return !b.title?.length || !b.indicator_id || !b.contract_id || !b.year;
+    return !this.sharedFormValid || !b.title?.length || !b.indicator_id || !b.contract_id || !b.year;
   }
 }
