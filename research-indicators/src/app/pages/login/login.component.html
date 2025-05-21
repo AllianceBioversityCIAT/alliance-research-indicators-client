@@ -1,12 +1,34 @@
 <div class="login-container">
-  <div class="login-card">
-    <div class="logo-section">
-      <img src="/STAR-login.jpg" alt="STAR logo" width="90%" />
+  <div class="login-content">
+    <div class="login-form">
+      <div class="logo-section">
+        <img src="./logo-star-ciat.png" alt="Alliance Biodiversity & CIAT" width="100%" />
+      </div>
+
+      <h2 class="login-title">Log in to your STAR platform</h2>
+
+      <p class="login-description">Use your organization email to easily connect</p>
+
+      <button class="cgiar-btn" (click)="cognito.redirectToCognito()">
+        <img src="./cgiar-logo.png" alt="CGIAR" class="cgiar-icon" />
+        Continue with your CGIAR account
+      </button>
+
+      <div class="login-divider"></div>
+
+      <div class="support-info">
+        <p class="support-description">Need help? Contact Alliance IT Support at</p>
+        <a class="support-email" href="mailto:alliance-itsupport&#64;cgiar.org">alliance-itsupport&#64;cgiar.org</a>
+      </div>
+
+      <p class="terms-info">
+        By continuing, you acknowledge that you understand and agree to the <a href="#" class="terms-link">Terms & Conditions</a>.
+      </p>
     </div>
 
-    <div class="login-form">
-      <h2>Sign in with your CGIAR credentials</h2>
-      <button class="corp-id-btn" (click)="loginWithAzureAd()">Continue with your CGIAR account</button>
+    <div class="back-section">
+      <button class="back-btn" routerLink="/"><i class="pi pi-angle-double-left back-icon"></i> Go back to landing page</button>
     </div>
   </div>
+  <div class="bg-image-section"></div>
 </div>
