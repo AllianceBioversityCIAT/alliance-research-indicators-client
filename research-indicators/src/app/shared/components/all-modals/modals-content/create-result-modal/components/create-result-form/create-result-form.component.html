@@ -29,6 +29,7 @@
       title="Primary Project"
       [maxLength]="100"
       (validityChanged)="sharedFormValid = $event"
+      [contractId]="contractId"
       (contractIdChange)="onContractIdChange($event)">
     </app-shared-result-form>
 
