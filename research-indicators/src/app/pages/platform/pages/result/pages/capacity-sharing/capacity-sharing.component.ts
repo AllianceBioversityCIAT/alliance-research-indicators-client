@@ -83,7 +83,13 @@ export default class CapacitySharingComponent {
   async getData() {
     this.cache.loadingCurrentResult.set(true);
     const response = await this.api.GET_CapacitySharing();
-    this.body.set(response.data);
+    const data = {
+      ...response.data,
+      start_date: typeof response.data.start_date === 'string' ? this.parseToLocalDate(response.data.start_date) : undefined,
+      end_date: typeof response.data.end_date === 'string' ? this.parseToLocalDate(response.data.end_date) : undefined
+    };
+
+    this.body.set(data);
     this.cache.loadingCurrentResult.set(false);
     this.body.update(current => {
       if (current.start_date) current.start_date = new Date(current.start_date ?? '');
@@ -138,5 +144,10 @@ export default class CapacitySharingComponent {
   setSectionAndOpenModal(section: string) {
     this.allModalsService.setPartnerRequestSection(section);
     this.allModalsService.openModal('requestPartner');
+  }
+
+  parseToLocalDate(dateStr: string): Date {
+    const date = new Date(dateStr);
+    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
   }
 }
