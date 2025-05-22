@@ -96,7 +96,7 @@
     </div>
 
     <div class="flex flex-col xl:flex-row gap-8">
-      <div class="flex-1 max-w-[460px]">
+      <div class="flex-1 xl:max-w-[460px]">
         <app-select
           label="Trainee nationality"
           [signal]="body"
@@ -263,7 +263,7 @@
         </app-select>
       </div>
 
-      <div class="flex-1 max-w-[160px]">
+      <div class="flex-1 xl:max-w-[160px]">
         <app-calendar-input
           label="Start date"
           [signal]="body"
@@ -273,7 +273,7 @@
           [maxDate]="body().end_date"></app-calendar-input>
       </div>
 
-      <div class="flex-1 max-w-[160px]">
+      <div class="flex-1 xl:max-w-[160px]">
         <app-calendar-input
           label="End date"
           [signal]="body"
