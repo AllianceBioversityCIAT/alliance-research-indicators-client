@@ -59,8 +59,19 @@ export default class IpRightsComponent {
 
       if (current.asset_ip_owner !== 4) {
         current.asset_ip_owner_description = null;
-        this.body.set({ ...current });
       }
+      if (!current.publicity_restriction) {
+        current.publicity_restriction_description = null;
+      }
+
+      if (!current.potential_asset) {
+        current.potential_asset_description = null;
+      }
+
+      if (!current.requires_futher_development) {
+        current.requires_futher_development_description = null;
+      }
+      this.body.set({ ...current });
 
       const response = await this.api.PATCH_IpOwners(Number(resultId), this.body());
       if (!response.successfulRequest) {
