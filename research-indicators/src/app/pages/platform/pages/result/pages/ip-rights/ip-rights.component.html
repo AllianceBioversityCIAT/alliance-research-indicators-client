@@ -9,8 +9,8 @@
       </h3>
     </div>
 
-    <div class="flex flex-col pb-5 xl:flex-row xl:gap-16">
-      <div class="flex-1 pb-5 xl:pb-0">
+    <div class="flex flex-col pb-5">
+      <div class="flex-1 pb-5">
         <app-radio-button
           label="Who owns the intellectual property rights to this asset?"
           [isRequired]="true"
@@ -45,11 +45,22 @@
           [optionLabel]="'name'"
           [optionValue]="{ body: 'publicity_restriction', option: 'value' }">
         </app-radio-button>
+        @if (!body().publicity_restriction) {
+          <div class="flex w-full pt-1">
+            <app-input
+              class="w-full"
+              [signal]="body"
+              [isRequired]="true"
+              [disabled]="!submission.isEditableStatus()"
+              placeholder="When and where?"
+              optionValue="publicity_restriction_description"></app-input>
+          </div>
+        }
       </div>
     </div>
 
-    <div class="flex flex-col xl:flex-row xl:gap-16">
-      <div class="flex-1 pb-5 xl:pb-0">
+    <div class="flex flex-col">
+      <div class="flex-1 pb-5">
         <app-radio-button
           label="Is there any potential for commercialization/release/making avaiable this asset?"
           [isRequired]="true"
@@ -59,6 +70,17 @@
           direction="horizontal"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'potential_asset', option: 'value' }"></app-radio-button>
+        @if (!body().potential_asset) {
+          <div class="flex w-full pt-1">
+            <app-input
+              class="w-full"
+              [signal]="body"
+              [isRequired]="true"
+              [disabled]="!submission.isEditableStatus()"
+              placeholder="Your answer"
+              optionValue="potential_asset_description"></app-input>
+          </div>
+        }
       </div>
 
       <div class="flex-1">
@@ -71,6 +93,17 @@
           [optionLabel]="'name'"
           [serviceName]="'yesOrNo'"
           [optionValue]="{ body: 'requires_futher_development', option: 'value' }"></app-radio-button>
+        @if (!body().requires_futher_development) {
+          <div class="flex w-full pt-1">
+            <app-input
+              class="w-full"
+              [signal]="body"
+              [isRequired]="true"
+              [disabled]="!submission.isEditableStatus()"
+              placeholder="Describe the next steps"
+              optionValue="requires_futher_development_description"></app-input>
+          </div>
+        }
       </div>
     </div>
   </div>
