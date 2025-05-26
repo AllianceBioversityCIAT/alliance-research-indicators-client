@@ -45,7 +45,7 @@
           [optionLabel]="'name'"
           [optionValue]="{ body: 'publicity_restriction', option: 'value' }">
         </app-radio-button>
-        @if (!body().publicity_restriction) {
+        @if (body().publicity_restriction) {
           <div class="flex w-full pt-1">
             <app-input
               class="w-full"
@@ -70,7 +70,7 @@
           direction="horizontal"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'potential_asset', option: 'value' }"></app-radio-button>
-        @if (!body().potential_asset) {
+        @if (body().potential_asset) {
           <div class="flex w-full pt-1">
             <app-input
               class="w-full"
@@ -93,7 +93,7 @@
           [optionLabel]="'name'"
           [serviceName]="'yesOrNo'"
           [optionValue]="{ body: 'requires_futher_development', option: 'value' }"></app-radio-button>
-        @if (!body().requires_futher_development) {
+        @if (body().requires_futher_development) {
           <div class="flex w-full pt-1">
             <app-input
               class="w-full"
