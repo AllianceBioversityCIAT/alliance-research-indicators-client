@@ -2,8 +2,9 @@
   @if (hasLiveVersion) {
     <span
       (click)="selectVersion(liveVersionData)"
+      [class.cursor-pointer]="approvedVersions().length > 0"
       (keydown.enter)="selectVersion(liveVersionData)"
-      class="rounded-[9px] pl-4 pr-3 py-[9px] tracking-[0.15em] font-['Space_Grotesk'] flex items-center transition-all duration-150 cursor-pointer
+      class="rounded-[9px] pl-4 pr-3 py-[9px] tracking-[0.15em] font-['Space_Grotesk'] flex items-center transition-all duration-150 
         {{
         isSelected(liveVersionData)
           ? 'bg-[#1689CA] ml-4 font-[500] text-[11.5px] text-white mr-2'
