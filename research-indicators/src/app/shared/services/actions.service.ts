@@ -6,6 +6,9 @@ import { ToastMessage } from '../interfaces/toast-message.interface';
 import { ApiService } from './api.service';
 import { LoginRes, TokenValidation, MainResponse } from '../interfaces/responses.interface';
 import { DataCache } from '../interfaces/cache.interface';
+import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
+import { Result } from '@shared/interfaces/result/result.interface';
+import { CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +37,37 @@ export class ActionsService {
   changeResultRoute(resultId: number) {
     this.router.navigate(['load-results'], { skipLocationChange: true }).then(() => {
       this.router.navigate(['result', resultId]);
+    });
+  }
+
+  handleBadRequest(result: MainResponse<CreateResultResponse | Result | ExtendedHttpErrorResponse>) {
+    const isWarning = result.status === 409;
+    const errorDetail = result.errorDetail;
+
+    const id = typeof errorDetail.errors === 'object' && errorDetail.errors !== null ? errorDetail.errors['result_official_code'] : undefined;
+
+    const linkUrl = id ? `result/${id}/general-information` : '#';
+
+    const [initialText, existingResult = ''] = errorDetail.description.split(':').map(s => s.trim());
+    const [boldText, ...regularParts] = existingResult.split('-').map(s => s.trim());
+
+    const detailHtml = `
+      ${initialText}: 
+      <a href="${linkUrl}" target="_blank" class="alert-link-custom">
+        <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
+      </a>
+    `;
+
+    this.showGlobalAlert({
+      severity: isWarning ? 'secondary' : 'error',
+      summary: isWarning ? 'Title Already Exists' : 'Error',
+      detail: detailHtml,
+      hasNoCancelButton: true,
+      generalButton: true,
+      confirmCallback: {
+        label: 'Enter other title'
+      },
+      buttonColor: '#035BA9'
     });
   }
 
