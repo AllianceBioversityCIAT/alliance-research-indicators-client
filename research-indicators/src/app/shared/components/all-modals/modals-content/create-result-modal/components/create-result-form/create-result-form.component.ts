@@ -75,7 +75,7 @@ export class CreateResultFormComponent {
     if (result.successfulRequest) {
       this.successRequest(result, openresult);
     } else {
-      this.badRequest(result);
+      this.actions.handleBadRequest(result);
     }
   }
 
@@ -93,36 +93,6 @@ export class CreateResultFormComponent {
 
     if (openresult) this.actions.changeResultRoute(Number(result.data.result_official_code));
     this.getResultsService.updateList();
-  };
-
-  badRequest = (result: MainResponse<Result>) => {
-    const isWarning = result.status === 409;
-    const errorDetail = result.errorDetail;
-    const id = typeof errorDetail.errors === 'object' && errorDetail.errors !== null ? errorDetail.errors['result_official_code'] : undefined;
-
-    const linkUrl = id ? `result/${id}/general-information` : '#';
-
-    const [initialText, existingResult = ''] = result.errorDetail.description.split(':').map(s => s.trim());
-    const [boldText, ...regularParts] = existingResult.split('-').map(s => s.trim());
-
-    const detailHtml = `
-    ${initialText}: 
-    <a href="${linkUrl}" target="_blank" class="alert-link-custom">
-      <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
-    </a>
-  `;
-
-    this.actions.showGlobalAlert({
-      severity: isWarning ? 'secondary' : 'error',
-      summary: isWarning ? 'Title Already Exists' : 'Error',
-      detail: detailHtml,
-      hasNoCancelButton: true,
-      generalButton: true,
-      confirmCallback: {
-        label: 'Enter other title'
-      },
-      buttonColor: '#035BA9'
-    });
   };
 
   getContractStatusClasses(status: string): string {
