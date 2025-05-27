@@ -12,14 +12,14 @@ export class GetMetadataService {
   router = inject(Router);
 
   async update(id: number): Promise<boolean> {
-      const response = await this.api.GET_Metadata(id);
-      if (response?.status === 404) {
-        this.router.navigate(['/results-center']);
-        return false;
-      } else {
-        this.cache.currentMetadata.set(response?.data);
-        return true;
-      }
+    const response = await this.api.GET_Metadata(id);
+    if (response?.status !== 200) {
+      this.router.navigate(['/results-center']);
+      return false;
+    } else {
+      this.cache.currentMetadata.set(response?.data);
+      return true;
+    }
   }
 
   formatText(input: string): string {
