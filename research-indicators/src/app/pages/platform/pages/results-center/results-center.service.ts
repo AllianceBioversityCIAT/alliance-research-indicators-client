@@ -66,23 +66,29 @@ export class ResultsCenterService {
     {
       field: 'project',
       path: 'result_contracts.contract_id',
-      header: 'Project',
+      header: 'Primary Project',
       minWidth: 'min-w-[90px]',
       getValue: (result: Result) => result.result_contracts?.contract_id ?? '-'
     },
     {
       field: 'lever',
       path: 'result_levers.lever.short_name',
-      header: 'Lever',
+      header: 'Primary Lever',
       minWidth: 'min-w-[90px]',
       getValue: (result: Result) => result.result_levers?.lever?.short_name ?? '-'
     },
     {
       field: 'year',
       path: 'report_year_id',
-      header: 'Year',
+      header: 'Live Version',
       minWidth: 'min-w-[90px]',
       getValue: (result: Result) => result.report_year_id?.toString() ?? '-'
+    },
+    {
+      field: 'versions',
+      path: 'snapshot_years',
+      header: 'Approved Versions',
+      getValue: (result: Result) => (Array.isArray(result.snapshot_years) ? result.snapshot_years : [])
     },
     {
       field: 'creator',

@@ -104,10 +104,59 @@
           @if (!column.hideIf || !column.hideIf()) {
             @if (column.field === 'status') {
               <td>
-                <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status?.name"></app-custom-tag>
+                <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status?.name"> </app-custom-tag>
+              </td>
+            } @else if (column.field === 'versions') {
+              <td>
+                @if (column.getValue) {
+                  @let versions = column.getValue(result);
+                  @let count = versions.length;
+                  @let maxVisible = 4;
+                  @let showMoreCount = count > maxVisible ? count - 3 : 0;
+                  @let visibleYears = versions.slice(0, showMoreCount > 0 ? 3 : maxVisible);
+
+                  @if (count > 0) {
+                    <div
+                      (click)="$event.stopPropagation()"
+                      (keydown.enter)="$event.stopPropagation()"
+                      class="w-max-[90px] flex flex-wrap items-center gap-2">
+                      @for (year of visibleYears; track year) {
+                        <span
+                          (keydown.enter)="openResultByYear(result.result_official_code, year)"
+                          (click)="openResultByYear(result.result_official_code, year)"
+                          class="px-3 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[12px] font-medium cursor-pointer">
+                          {{ year }}
+                        </span>
+                      }
+                      @if (showMoreCount > 0) {
+                        <a #popoverTarget class="text-[#035BA9] cursor-pointer text-[13px] underline" (click)="popover.toggle($event)">
+                          +{{ showMoreCount }} more
+                        </a>
+
+                        <p-popover #popover [baseZIndex]="10000" styleClass="rounded-lg p-1 ">
+                          <div class="text-center mb-3 text-[14px] text-[#173F6F]">Approved Versions</div>
+                          <div class="grid grid-cols-2 gap-2">
+                            @for (year of versions; track year) {
+                              <span
+                                (keydown.enter)="openResultByYear(result.result_official_code, year)"
+                                (click)="openResultByYear(result.result_official_code, year)"
+                                class="px-3 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[12px] font-medium cursor-pointer">
+                                {{ year }}
+                              </span>
+                            }
+                          </div>
+                        </p-popover>
+                      }
+                    </div>
+                  } @else {
+                    <span>None</span>
+                  }
+                }
               </td>
             } @else {
-              <td [class.w-[25rem]]="column.field === 'title'">{{ column.getValue ? column.getValue(result) : '-' }}</td>
+              <td [class.w-[25rem]]="column.field === 'title'">
+                {{ column.getValue ? column.getValue(result) : '-' }}
+              </td>
             }
           }
         }

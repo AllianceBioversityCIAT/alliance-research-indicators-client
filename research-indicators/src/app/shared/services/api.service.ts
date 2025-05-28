@@ -50,6 +50,7 @@ import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-respons
 import { GetVersions } from '@shared/interfaces/get-versions.interface';
 import { AskForHelp } from '../components/all-modals/modals-content/ask-for-help-modal/interfaces/ask-for-help.interface';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -217,10 +218,14 @@ export class ApiService {
     const url = () => `tools/clarisa/levers`;
     return this.TP.get(url(), {});
   };
+  GET_Years = (resultCode?: number, reportYear?: number): Promise<MainResponse<GetYear[]>> => {
+    const url = 'results/year';
 
-  GET_Years = (): Promise<MainResponse<GetYear[]>> => {
-    const url = () => `results/year`;
-    return this.TP.get(url(), {});
+    let params = new HttpParams();
+    if (resultCode != null) params = params.set('resultCode', resultCode.toString());
+    if (reportYear != null) params = params.set('reportYear', reportYear.toString());
+
+    return this.TP.get(url, { params });
   };
 
   GET_IpOwners = (): Promise<MainResponse<IpOwners[]>> => {
@@ -410,6 +415,11 @@ export class ApiService {
   GET_CurrentUser = (token: string): Promise<MainResponse<GetCurrentUser>> => {
     const url = () => `authorization/users/current`;
     return this.TP.get(url(), { isAuth: true, token });
+  };
+
+  PATCH_ReportingCycle = (resultCode: number, newReportYear: string) => {
+    const url = () => `results/green-checks/new-reporting-cycle/${resultCode}/year/${newReportYear}`;
+    return this.TP.patch(url(), {});
   };
 
   GET_AllSubmitionStatus = () => {

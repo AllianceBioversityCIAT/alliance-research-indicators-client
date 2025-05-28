@@ -180,6 +180,7 @@
           <div class="flex-1 pt-2">
             <app-input
               [signal]="body"
+              [isRequired]="true"
               [disabled]="!submission.isEditableStatus()"
               placeholder="Write the other purpose"
               optionValue="group.session_purpose_description"></app-input>
