@@ -104,10 +104,48 @@
           @if (!column.hideIf || !column.hideIf()) {
             @if (column.field === 'status') {
               <td>
-                <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status?.name"></app-custom-tag>
+                <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status?.name"> </app-custom-tag>
+              </td>
+            } @else if (column.field === 'versions') {
+              <td>
+                @if (column.getValue) {
+                  @let versions = column.getValue(result);
+                  @let count = versions.length;
+                  @let maxVisible = 4;
+                  @let showMoreCount = count > maxVisible ? count - 3 : 0;
+                  @let visibleYears = versions.slice(0, showMoreCount > 0 ? 3 : maxVisible);
+
+                  @if (count > 0) {
+                    @for (year of visibleYears; track year) {
+                      <span class="px-3 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[10px] font-medium mr-1">
+                        {{ year }}
+                      </span>
+                    }
+                    @if (showMoreCount > 0) {
+                      <a #popoverTarget class="text-blue-600 cursor-pointer text-[10px] font-medium hover:underline" (click)="popover.toggle($event)">
+                        +{{ showMoreCount }} more
+                      </a>
+
+                      <p-popover #popover [baseZIndex]="10000" styleClass="rounded-lg p-4 shadow-lg">
+                        <div class="text-center mb-3 font-semibold text-lg">Approved Versions</div>
+                        <div class="grid grid-cols-2 gap-2">
+                          @for (year of versions; track year) {
+                            <span class="px-3 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[10px] font-medium">
+                              {{ year }}
+                            </span>
+                          }
+                        </div>
+                      </p-popover>
+                    }
+                  } @else {
+                    <span>None</span>
+                  }
+                }
               </td>
             } @else {
-              <td [class.w-[25rem]]="column.field === 'title'">{{ column.getValue ? column.getValue(result) : '-' }}</td>
+              <td [class.w-[25rem]]="column.field === 'title'">
+                {{ column.getValue ? column.getValue(result) : '-' }}
+              </td>
             }
           }
         }

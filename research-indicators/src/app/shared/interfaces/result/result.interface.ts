@@ -15,6 +15,7 @@ export interface Result {
   created_by_user?: { first_name: string; last_name: string };
   created_at?: string;
   year?: string;
+  snapshot_years?: number[];
 }
 
 export interface ResultTable {

@@ -12,9 +12,10 @@ import * as ExcelJS from 'exceljs';
 import { Router } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
+import { PopoverModule } from 'primeng/popover';
 @Component({
   selector: 'app-results-center-table',
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TagModule, MenuModule, CustomTagComponent],
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, PopoverModule, InputTextModule, TagModule, MenuModule, CustomTagComponent],
   templateUrl: './results-center-table.component.html'
 })
 export class ResultsCenterTableComponent implements AfterViewInit {
