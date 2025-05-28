@@ -13,14 +13,60 @@
       <div class="summary !text-[{{ alert.color }}]">{{ alert.summary }}</div>
       <div class="detail -mt-1.5 leading-5 text-[#4C5158]" [innerHTML]="alert.detail"></div>
       @if (alert.selectorLabel) {
-        <app-select
-          [label]="alert.selectorLabel"
-          [signal]="body"
-          [isRequired]="alert.selectorRequired || false"
-          [optionValue]="{ body: 'selectValue', option: 'report_year' }"
-          optionLabel="report_year"
-          class="w-full text-start"
-          serviceName="getYears"></app-select>
+        <div class="w-full flex flex-col pb-2">
+          <label class="label inline-block pb-2 self-start" for="username"
+            >{{ alert.selectorLabel }}
+            <span class="text-red-500">*</span>
+          </label>
+
+          <p-select
+            styleClass="w-full !text-start"
+            [style]="isInvalid ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
+            [options]="this.service?.list()"
+            optionValue="this"
+            [optionLabel]="'report_year'"
+            [optionValue]="'report_year'"
+            placeholder="Select the year"
+            [scrollHeight]="'112px'"
+            (ngModelChange)="onSelectChange($event)"
+            [(ngModel)]="body().selectValue"
+            class="!text-[13px] w-full">
+            <ng-template let-item pTemplate="item">
+              <div class="flex align-items-center">
+                <span class="font-semibold">{{ item.report_year }} </span>
+                @if (item.has_reported === 1) {
+                  <span class="ml-1 font-normal">- Already reported</span>
+                }
+              </div>
+            </ng-template>
+
+            <ng-template let-selected pTemplate="selectedItem">
+              <div class="flex items-center block whitespace-normal break-words gap-2">
+                <span class="font-semibold">{{ selected.report_year }} </span>
+                @if (selected.has_reported === 1) {
+                  -
+                  <span class="font-normal">Already reported</span>
+                }
+              </div>
+            </ng-template>
+          </p-select>
+
+          @if (isInvalid) {
+            <div class="flex items-center gap-1 mt-2 text-[#E69F00] text-sm">
+              <i class="material-symbols-rounded -mt-2 !text-base">warning</i>
+              <span>This field is required</span>
+            </div>
+          }
+          @if (showReportedWarning) {
+            <div class="flex items-center text-start gap-1 mt-2 text-[#E69F00] text-sm">
+              <i class="material-symbols-rounded -mt-2.5 mr-0.5 !text-base">warning</i>
+              <span>
+                Since there is already an approved version for {{ body().selectValue }}, this new update will overwrite the existing version once it
+                is approved.
+              </span>
+            </div>
+          }
+        </div>
       }
       @if (alert.commentLabel) {
         <app-input
@@ -48,11 +94,11 @@
               (onClick)="
                 alert.confirmCallback?.event?.({
                   comment: this.body().commentValue,
-                  selected: this.body().selectValue
+                  selected: body().selectValue !== undefined ? body().selectValue + '' : undefined
                 });
                 closeAlert($index)
               "
-              [disabled]="alert.commentRequired && !this.body().commentValue"
+              [disabled]="(alert.selectorRequired && !this.body().selectValue) || (alert.commentRequired && !this.body().commentValue)"
               [style]="{
                 backgroundColor: alert.buttonColor,
                 borderColor: alert.buttonColor,
@@ -68,11 +114,11 @@
               (click)="
                 alert.confirmCallback?.event?.({
                   comment: this.body().commentValue,
-                  selected: this.body().selectValue
+                  selected: body().selectValue !== undefined ? body().selectValue + '' : undefined
                 });
                 closeAlert($index)
               "
-              [disabled]="alert.commentRequired && !this.body().commentValue">
+              [disabled]="(alert.selectorRequired && !this.body().selectValue) || (alert.commentRequired && !this.body().commentValue)">
               {{ alert.confirmCallback?.label }}
             </button>
           }

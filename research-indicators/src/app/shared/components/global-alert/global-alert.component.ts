@@ -4,12 +4,19 @@ import { ActionsService } from '../../services/actions.service';
 import { ButtonModule } from 'primeng/button';
 import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
 import { InputComponent } from '../custom-fields/input/input.component';
-import { SelectComponent } from '../custom-fields/select/select.component';
+import { SelectModule } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
+import { ServiceLocatorService } from '@shared/services/service-locator.service';
+import { GetYear } from '@shared/interfaces/get-year.interface';
+interface ListService {
+  list(): GetYear[];
+}
 
 @Component({
   selector: 'app-global-alert',
-  imports: [ButtonModule, InputComponent, SelectComponent],
+  imports: [ButtonModule, InputComponent, FormsModule, SelectModule],
   templateUrl: './global-alert.component.html',
+  standalone: true,
   styleUrls: ['./global-alert.component.scss'],
   animations: [
     trigger('alertAnimation', [
@@ -24,15 +31,30 @@ import { SelectComponent } from '../custom-fields/select/select.component';
 })
 export class GlobalAlertComponent {
   actions = inject(ActionsService);
-  body = signal({
+  service?: ListService;
+  optionsList: GetYear[] = [];
+  selectedTemp = null;
+  showReportedWarning = false;
+
+  body = signal<{ commentValue: string; selectValue: number | string | null }>({
     commentValue: '',
-    selectValue: ''
+    selectValue: null
   });
+
+  constructor(private readonly serviceLocator: ServiceLocatorService) {}
+
   alertList = computed(() => {
     const list = this.actions.globalAlertsStatus().map((alert: GlobalAlert) => {
       alert.icon = this.getIcon(alert.severity).icon;
       alert.color = this.getIcon(alert.severity).color;
       alert.buttonColor = this.getIcon(alert.severity).buttonColor;
+      if (alert.serviceName) {
+        const foundService = this.serviceLocator.getService(alert.serviceName);
+        this.service = foundService === null ? undefined : (foundService as unknown as ListService);
+        this.optionsList = this.service ? this.service.list() : [];
+      } else {
+        this.service = undefined;
+      }
 
       if (alert.commentLabel) {
         alert.commentLabel = alert.commentRequired ? alert.commentLabel : `${alert.commentLabel} (Optional)`;
@@ -43,9 +65,12 @@ export class GlobalAlertComponent {
     return list;
   });
 
+  get isInvalid(): boolean {
+    return !this.body()?.selectValue;
+  }
   closeAlert(index: number) {
     this.actions.hideGlobalAlert(index);
-    this.body.update(body => ({ ...body, commentValue: '' }));
+    this.body.update(body => ({ ...body, commentValue: '', selectValue: null }));
   }
 
   getIcon(severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast' | 'confirm'): {
@@ -66,6 +91,16 @@ export class GlobalAlertComponent {
         return { icon: 'pi pi-times-circle', color: 'red' };
       default:
         return { icon: 'info', color: 'blue' };
+    }
+  }
+
+  onSelectChange(selectedValue: number | string) {
+    const selectedObj = this.optionsList.find(x => x.report_year === selectedValue);
+    if (selectedObj?.has_reported === 1) {
+      this.showReportedWarning = true;
+    } else {
+      this.showReportedWarning = false;
+      this.body.update(b => ({ ...b, selectValue: selectedValue }));
     }
   }
 }

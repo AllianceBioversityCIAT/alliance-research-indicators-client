@@ -71,7 +71,7 @@ export class VersionSelectorComponent {
   }
 
   get hasLiveVersion() {
-    return this.liveVersion() !== null;
+    return this.liveVersion() !== null && this.cache.currentMetadata().status_id !== 6;
   }
 
   get liveVersionData(): TransformResultCodeResponse {
@@ -84,6 +84,7 @@ export class VersionSelectorComponent {
       summary: 'CONFIRM UPDATING',
       detail: 'Please confirm the reporting year associated with this update:',
       selectorLabel: 'Reporting year',
+      serviceName: 'getYearsByCode',
       selectorRequired: true,
       confirmCallback: {
         label: 'Confirm',

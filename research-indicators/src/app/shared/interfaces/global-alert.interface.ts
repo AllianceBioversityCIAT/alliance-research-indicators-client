@@ -1,3 +1,5 @@
+import { ControlListServices } from './services.interface';
+
 export interface GlobalAlert {
   severity: 'success' | 'confirm' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast';
   summary: string;
@@ -16,6 +18,7 @@ export interface GlobalAlert {
   hasNoCancelButton?: boolean;
   generalButton?: boolean;
   buttonColor?: string;
+  serviceName?: ControlListServices;
 }
 
 interface Callback {
