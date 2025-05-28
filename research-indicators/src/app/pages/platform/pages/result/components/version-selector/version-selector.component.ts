@@ -34,8 +34,8 @@ export class VersionSelectorComponent {
     const resultId = this.cache.currentResultId();
     const response = await this.api.GET_Versions(resultId);
     const data = response.data;
-
-    this.liveVersion.set(data.live ?? null);
+    const liveData = Array.isArray(data.live) && data.live.length > 0 ? data.live[0] : null;
+    this.liveVersion.set(liveData);
 
     const versionsArray = Array.isArray(data.versions) ? data.versions : [];
     this.approvedVersions.set(versionsArray);
@@ -71,7 +71,7 @@ export class VersionSelectorComponent {
   }
 
   get hasLiveVersion() {
-    return this.liveVersion() !== null;
+    return this.liveVersion() !== null && this.liveVersion()?.result_status_id !== 6;
   }
 
   get liveVersionData(): TransformResultCodeResponse {
