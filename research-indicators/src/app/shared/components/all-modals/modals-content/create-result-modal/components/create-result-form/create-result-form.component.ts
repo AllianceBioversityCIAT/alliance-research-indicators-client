@@ -19,14 +19,24 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
 import { SelectModule } from 'primeng/select';
 import localeEs from '@angular/common/locales/es';
-import { registerLocaleData } from '@angular/common';
+import { NgTemplateOutlet, registerLocaleData } from '@angular/common';
 import { GetYearsService } from '@shared/services/control-list/get-years.service';
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
 
 registerLocaleData(localeEs);
 @Component({
   selector: 'app-create-result-form',
-  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, SelectModule, RouterModule, SharedResultFormComponent, AutoCompleteModule],
+  imports: [
+    DialogModule,
+    ButtonModule,
+    FormsModule,
+    InputTextModule,
+    NgTemplateOutlet,
+    SelectModule,
+    RouterModule,
+    SharedResultFormComponent,
+    AutoCompleteModule
+  ],
   templateUrl: './create-result-form.component.html',
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -65,6 +75,23 @@ export class CreateResultFormComponent {
     },
     { allowSignalWrites: true }
   );
+
+  get isYearMissing(): boolean {
+    return !this.body()?.year;
+  }
+
+  get isTitleMissing(): boolean {
+    return !this.body()?.title;
+  }
+
+  get isIndicatorIdMissing(): boolean {
+    return !this.body()?.indicator_id;
+  }
+
+  get isDisabled(): boolean {
+    const b = this.body();
+    return !this.sharedFormValid || !b.title?.length || !b.indicator_id || !b.contract_id || !b.year;
+  }
 
   onContractIdChange(newContractId: number | null) {
     this.contractId = newContractId;
@@ -106,10 +133,5 @@ export class CreateResultFormComponent {
     };
 
     return styles[normalizedStatus] || styles['DEFAULT'];
-  }
-
-  get isDisabled(): boolean {
-    const b = this.body();
-    return !this.sharedFormValid || !b.title?.length || !b.indicator_id || !b.contract_id || !b.year;
   }
 }
