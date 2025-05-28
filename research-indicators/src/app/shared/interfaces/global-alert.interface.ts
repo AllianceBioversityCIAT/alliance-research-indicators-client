@@ -1,11 +1,13 @@
 export interface GlobalAlert {
-  severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast';
+  severity: 'success' | 'confirm' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast';
   summary: string;
   detail: string;
   callbacks?: Callback[];
   placeholder?: string;
   icon?: string;
   color?: string;
+  selectorLabel?: string;
+  selectorRequired?: boolean;
   commentLabel?: string;
   commentRequired?: boolean;
   confirmCallback?: Callback;
@@ -18,5 +20,5 @@ export interface GlobalAlert {
 
 interface Callback {
   label: string;
-  event?: (comment?: string) => void;
+  event?: (data?: { comment?: string; selected?: string }) => void;
 }

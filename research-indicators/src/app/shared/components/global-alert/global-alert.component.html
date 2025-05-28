@@ -12,6 +12,16 @@
 
       <div class="summary !text-[{{ alert.color }}]">{{ alert.summary }}</div>
       <div class="detail -mt-1.5 leading-5 text-[#4C5158]" [innerHTML]="alert.detail"></div>
+      @if (alert.selectorLabel) {
+        <app-select
+          [label]="alert.selectorLabel"
+          [signal]="body"
+          [isRequired]="alert.selectorRequired || false"
+          [optionValue]="{ body: 'selectValue', option: 'report_year' }"
+          optionLabel="report_year"
+          class="w-full text-start"
+          serviceName="getYears"></app-select>
+      }
       @if (alert.commentLabel) {
         <app-input
           [label]="alert.commentLabel"
@@ -35,7 +45,13 @@
           @if (alert.confirmCallback?.event && !alert.generalButton) {
             <p-button
               [label]="alert.confirmCallback?.label"
-              (onClick)="alert.confirmCallback?.event?.(this.body().commentValue); closeAlert($index)"
+              (onClick)="
+                alert.confirmCallback?.event?.({
+                  comment: this.body().commentValue,
+                  selected: this.body().selectValue
+                });
+                closeAlert($index)
+              "
               [disabled]="alert.commentRequired && !this.body().commentValue"
               [style]="{
                 backgroundColor: alert.buttonColor,
@@ -49,7 +65,13 @@
           @if (alert.generalButton) {
             <button
               class="text-white font-[500] h-12 w-full text-[16px] bg-[#035BA9] cursor-pointer rounded-xl"
-              (click)="alert.confirmCallback?.event?.(this.body().commentValue); closeAlert($index)"
+              (click)="
+                alert.confirmCallback?.event?.({
+                  comment: this.body().commentValue,
+                  selected: this.body().selectValue
+                });
+                closeAlert($index)
+              "
               [disabled]="alert.commentRequired && !this.body().commentValue">
               {{ alert.confirmCallback?.label }}
             </button>

@@ -4,10 +4,11 @@ import { ActionsService } from '../../services/actions.service';
 import { ButtonModule } from 'primeng/button';
 import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
 import { InputComponent } from '../custom-fields/input/input.component';
+import { SelectComponent } from '../custom-fields/select/select.component';
 
 @Component({
   selector: 'app-global-alert',
-  imports: [ButtonModule, InputComponent],
+  imports: [ButtonModule, InputComponent, SelectComponent],
   templateUrl: './global-alert.component.html',
   styleUrls: ['./global-alert.component.scss'],
   animations: [
@@ -24,7 +25,8 @@ import { InputComponent } from '../custom-fields/input/input.component';
 export class GlobalAlertComponent {
   actions = inject(ActionsService);
   body = signal({
-    commentValue: ''
+    commentValue: '',
+    selectValue: ''
   });
   alertList = computed(() => {
     const list = this.actions.globalAlertsStatus().map((alert: GlobalAlert) => {
@@ -46,10 +48,16 @@ export class GlobalAlertComponent {
     this.body.update(body => ({ ...body, commentValue: '' }));
   }
 
-  getIcon(severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast'): { icon: string; color: string; buttonColor?: string } {
+  getIcon(severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast' | 'confirm'): {
+    icon: string;
+    color: string;
+    buttonColor?: string;
+  } {
     switch (severity) {
       case 'success':
         return { icon: 'pi pi-check-circle', color: '#509C55' };
+      case 'confirm':
+        return { icon: 'pi pi-pencil', color: '#509C55' };
       case 'warning':
         return { icon: 'pi pi-history', color: '#E69F00', buttonColor: '#E69F00' };
       case 'secondary':
