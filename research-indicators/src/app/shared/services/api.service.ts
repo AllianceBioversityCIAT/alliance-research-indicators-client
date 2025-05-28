@@ -411,6 +411,11 @@ export class ApiService {
     return this.TP.get(url(), { isAuth: true, token });
   };
 
+  PATCH_ReportingCycle = (resultCode: number, newReportYear: string) => {
+    const url = () => `results/green-checks/new-reporting-cycle/${resultCode}/year/${newReportYear}`;
+    return this.TP.patch(url(), {});
+  };
+
   GET_AllSubmitionStatus = () => {
     const url = () => `results/green-checks/change/status`;
     return this.TP.get(url(), {});

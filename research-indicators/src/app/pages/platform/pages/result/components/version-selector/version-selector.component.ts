@@ -1,21 +1,24 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TransformResultCodeResponse } from '@shared/interfaces/get-transform-result-code.interface';
+import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { DividerModule } from 'primeng/divider';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-version-selector',
   standalone: true,
   templateUrl: './version-selector.component.html',
-  imports: [DividerModule]
+  imports: [DividerModule, TooltipModule]
 })
 export class VersionSelectorComponent {
   private readonly api = inject(ApiService);
   private readonly cache = inject(CacheService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly actions = inject(ActionsService);
 
   selectedResultId = signal<number | null>(null);
   liveVersion = signal<TransformResultCodeResponse | null>(null);
@@ -73,5 +76,35 @@ export class VersionSelectorComponent {
 
   get liveVersionData(): TransformResultCodeResponse {
     return this.liveVersion()!;
+  }
+
+  updateResult() {
+    this.actions.showGlobalAlert({
+      severity: 'confirm',
+      summary: 'CONFIRM UPDATING',
+      detail: 'Please confirm the reporting year associated with this update:',
+      selectorLabel: 'Reporting year',
+      selectorRequired: true,
+      confirmCallback: {
+        label: 'Confirm',
+        event: (data?: { comment?: string; selected?: string }) => {
+          (async () => {
+            const response = await this.api.PATCH_ReportingCycle(this.cache.currentResultId(), data?.selected ?? '');
+
+            if (!response.successfulRequest) {
+              this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
+            } else {
+              this.actions.showGlobalAlert({
+                severity: 'success',
+                hasNoButton: true,
+                summary: 'RESULT UPDATED',
+                detail: 'The result was updated successfully.'
+              });
+            }
+          })();
+        }
+      },
+      buttonColor: '#035BA9'
+    });
   }
 }
