@@ -71,7 +71,7 @@ export class VersionSelectorComponent {
   }
 
   get hasLiveVersion() {
-    return this.liveVersion() !== null && this.cache.currentMetadata().status_id !== 6;
+    return this.liveVersion() !== null;
   }
 
   get liveVersionData(): TransformResultCodeResponse {
@@ -95,6 +95,7 @@ export class VersionSelectorComponent {
             if (!response.successfulRequest) {
               this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
             } else {
+              this.router.navigate(['/result', this.cache.currentMetadata().status_id]);
               this.actions.showGlobalAlert({
                 severity: 'success',
                 hasNoButton: true,

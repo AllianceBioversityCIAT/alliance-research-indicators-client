@@ -116,27 +116,38 @@
                   @let visibleYears = versions.slice(0, showMoreCount > 0 ? 3 : maxVisible);
 
                   @if (count > 0) {
-                    @for (year of visibleYears; track year) {
-                      <span class="px-3 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[10px] font-medium mr-1">
-                        {{ year }}
-                      </span>
-                    }
-                    @if (showMoreCount > 0) {
-                      <a #popoverTarget class="text-blue-600 cursor-pointer text-[10px] font-medium hover:underline" (click)="popover.toggle($event)">
-                        +{{ showMoreCount }} more
-                      </a>
+                    <div
+                      (click)="$event.stopPropagation()"
+                      (keydown.enter)="$event.stopPropagation()"
+                      class="w-max-[90px] flex flex-wrap items-center gap-2">
+                      @for (year of visibleYears; track year) {
+                        <span
+                          (keydown.enter)="openResultByYear(result.result_official_code, year)"
+                          (click)="openResultByYear(result.result_official_code, year)"
+                          class="px-3 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[12px] font-medium cursor-pointer">
+                          {{ year }}
+                        </span>
+                      }
+                      @if (showMoreCount > 0) {
+                        <a #popoverTarget class="text-[#035BA9] cursor-pointer text-[13px] underline" (click)="popover.toggle($event)">
+                          +{{ showMoreCount }} more
+                        </a>
 
-                      <p-popover #popover [baseZIndex]="10000" styleClass="rounded-lg p-4 shadow-lg">
-                        <div class="text-center mb-3 font-semibold text-lg">Approved Versions</div>
-                        <div class="grid grid-cols-2 gap-2">
-                          @for (year of versions; track year) {
-                            <span class="px-3 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[10px] font-medium">
-                              {{ year }}
-                            </span>
-                          }
-                        </div>
-                      </p-popover>
-                    }
+                        <p-popover #popover [baseZIndex]="10000" styleClass="rounded-lg p-1 ">
+                          <div class="text-center mb-3 text-[14px] text-[#173F6F]">Approved Versions</div>
+                          <div class="grid grid-cols-2 gap-2">
+                            @for (year of versions; track year) {
+                              <span
+                                (keydown.enter)="openResultByYear(result.result_official_code, year)"
+                                (click)="openResultByYear(result.result_official_code, year)"
+                                class="px-3 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[12px] font-medium cursor-pointer">
+                                {{ year }}
+                              </span>
+                            }
+                          </div>
+                        </p-popover>
+                      }
+                    </div>
                   } @else {
                     <span>None</span>
                   }

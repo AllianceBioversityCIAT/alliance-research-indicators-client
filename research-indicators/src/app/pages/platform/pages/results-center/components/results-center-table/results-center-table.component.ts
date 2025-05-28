@@ -203,6 +203,12 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     this.router.navigate(['/result', result_official_code]);
   }
 
+  openResultByYear(result_official_code: string, year: string | number) {
+    this.router.navigate(['/result', result_official_code], {
+      queryParams: { version: year }
+    });
+  }
+
   ngAfterViewInit() {
     this.tableRef.set(this.dt2);
     this.resultsCenterService.tableRef.set(this.dt2);
