@@ -31,6 +31,7 @@ export type ControlListServices =
   | 'allResultStatus'
   | 'getAllYears'
   | 'getYears'
+  | 'getYearsByCode'
   | 'GetSubnationalByIsoAlpha'
   | 'clarisaInstitutionsTypes'
   | 'clarisaInstitutionsTypesChildless'

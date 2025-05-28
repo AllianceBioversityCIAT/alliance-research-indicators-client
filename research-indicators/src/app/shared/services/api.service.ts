@@ -49,6 +49,7 @@ import { GetYear } from '@shared/interfaces/get-year.interface';
 import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 import { GetVersions } from '@shared/interfaces/get-versions.interface';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -216,10 +217,14 @@ export class ApiService {
     const url = () => `tools/clarisa/levers`;
     return this.TP.get(url(), {});
   };
+  GET_Years = (resultCode?: number, reportYear?: number): Promise<MainResponse<GetYear[]>> => {
+    const url = 'results/year';
 
-  GET_Years = (): Promise<MainResponse<GetYear[]>> => {
-    const url = () => `results/year`;
-    return this.TP.get(url(), {});
+    let params = new HttpParams();
+    if (resultCode != null) params = params.set('resultCode', resultCode.toString());
+    if (reportYear != null) params = params.set('reportYear', reportYear.toString());
+
+    return this.TP.get(url, { params });
   };
 
   GET_IpOwners = (): Promise<MainResponse<IpOwners[]>> => {

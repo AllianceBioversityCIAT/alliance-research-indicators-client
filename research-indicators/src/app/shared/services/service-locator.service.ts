@@ -32,6 +32,7 @@ import { GetClarisaInstitutionsTypesChildlessService } from './get-clarisa-insti
 import { GetClarisaInstitutionsTypesService } from './get-clarisa-institutions-type.service';
 import { IpOwnerService } from './short-control-list/ip-owner.service';
 import { GetYearsService } from './control-list/get-years.service';
+import { GetYearsByCodeService } from './control-list/get-years-by-code.service';
 
 @Injectable({
   providedIn: 'root'
@@ -143,6 +144,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetAllResultStatusService);
       case 'getYears':
         return this.injector.get(GetYearsService);
+      case 'getYearsByCode':
+        return this.injector.get(GetYearsByCodeService);
       case 'getAllYears':
         return this.injector.get(GetAllYearsService);
       case 'ipOwners':
