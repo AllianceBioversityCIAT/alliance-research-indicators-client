@@ -49,8 +49,22 @@ export class VersionSelectorComponent {
       }
     }
 
-    if (data.live) {
-      this.selectedResultId.set(data.live.result_id);
+    if (liveData && liveData.result_status_id !== 6) {
+      this.selectedResultId.set(liveData.result_id);
+      return;
+    }
+
+    if (!versionParam) {
+      const firstApproved = versionsArray.at(0);
+      if (firstApproved?.result_id) {
+        this.selectedResultId.set(firstApproved.result_id);
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { version: firstApproved.report_year_id },
+          queryParamsHandling: '',
+          replaceUrl: true
+        });
+      }
     }
   }
 
@@ -95,7 +109,8 @@ export class VersionSelectorComponent {
             if (!response.successfulRequest) {
               this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
             } else {
-              this.router.navigate(['/result', this.cache.currentMetadata().status_id]);
+              console.log('Result updated successfully', this.cache.currentMetadata());
+              this.router.navigate(['/result', this.cache.currentMetadata().result_official_code]);
               this.actions.showGlobalAlert({
                 severity: 'success',
                 hasNoButton: true,
