@@ -10,6 +10,7 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { ReviewOption } from '../../../../interfaces/review-option.interface';
 import { SubmissionService } from '../../../../services/submission.service';
 import { ActionsService } from '@shared/services/actions.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-submit-result-content',
@@ -23,6 +24,7 @@ export class SubmitResultContentComponent {
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
   actions = inject(ActionsService);
+  private readonly router = inject(Router);
 
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
@@ -104,6 +106,8 @@ export class SubmitResultContentComponent {
     if (!response.successfulRequest) return;
     if (this.submissionService.statusSelected()?.statusId === 6) this.submissionService.comment.set('');
     await this.metadata.update(this.cache.currentResultId());
+    this.router.navigate(['/result', this.cache.currentMetadata().result_official_code]);
+
     this.allModalsService.closeModal('submitResult');
   }
 }

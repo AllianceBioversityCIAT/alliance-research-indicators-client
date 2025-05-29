@@ -1,11 +1,12 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { TransformResultCodeResponse } from '@shared/interfaces/get-transform-result-code.interface';
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-version-selector',
@@ -25,11 +26,16 @@ export class VersionSelectorComponent {
   approvedVersions = signal<TransformResultCodeResponse[]>([]);
 
   constructor() {
+    const router = inject(Router);
+
+    router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
+      this.loadVersions();
+    });
+
     effect(() => {
       this.loadVersions();
     });
   }
-
   private async loadVersions() {
     const resultId = this.cache.currentResultId();
     const response = await this.api.GET_Versions(resultId);
@@ -109,8 +115,9 @@ export class VersionSelectorComponent {
             if (!response.successfulRequest) {
               this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
             } else {
-              console.log('Result updated successfully', this.cache.currentMetadata());
               this.router.navigate(['/result', this.cache.currentMetadata().result_official_code]);
+              this.loadVersions();
+
               this.actions.showGlobalAlert({
                 severity: 'success',
                 hasNoButton: true,

@@ -87,6 +87,7 @@ export class ResultsCenterService {
     {
       field: 'versions',
       path: 'snapshot_years',
+      minWidth: 'min-w-[140px]',
       header: 'Approved Versions',
       getValue: (result: Result) => (Array.isArray(result.snapshot_years) ? result.snapshot_years : [])
     },

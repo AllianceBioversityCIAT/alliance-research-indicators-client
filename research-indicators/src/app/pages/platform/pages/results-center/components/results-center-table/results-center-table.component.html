@@ -107,7 +107,7 @@
                 <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status?.name"> </app-custom-tag>
               </td>
             } @else if (column.field === 'versions') {
-              <td>
+              <td class="w-max-[140px]">
                 @if (column.getValue) {
                   @let versions = column.getValue(result);
                   @let count = versions.length;
@@ -116,10 +116,7 @@
                   @let visibleYears = versions.slice(0, showMoreCount > 0 ? 3 : maxVisible);
 
                   @if (count > 0) {
-                    <div
-                      (click)="$event.stopPropagation()"
-                      (keydown.enter)="$event.stopPropagation()"
-                      class="w-max-[90px] flex flex-wrap items-center gap-2">
+                    <div (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" class="flex flex-wrap items-center gap-2">
                       @for (year of visibleYears; track year) {
                         <span
                           (keydown.enter)="openResultByYear(result.result_official_code, year)"
