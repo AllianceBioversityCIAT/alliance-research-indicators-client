@@ -5,6 +5,7 @@ export interface TableColumn {
   path: string;
   header: string;
   minWidth?: string;
+  maxWidth?: string;
   getValue?: (result: Result) => string | (string | number)[];
   filter?: boolean;
   hideIf?: () => boolean;
