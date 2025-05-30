@@ -21,14 +21,19 @@
 
     <div class="result-item-title-container">
       @if (!isEditingTitle()) {
-      <p class="result-item-title" #titleText>{{ item.title | uppercase }}</p>
-      <i class="pi pi-pencil" style="font-size: 14px; color: #173f6f; cursor: pointer; margin-left: 10px" (click)="startEditingTitle()"></i>
+        <p class="result-item-title" #titleText>{{ item.title | uppercase }}</p>
+        <i class="pi pi-pencil" style="font-size: 14px; color: #173F6F; cursor: pointer; margin-left: 10px;" (click)="startEditingTitle()" (keydown.enter)="startEditingTitle()"></i>
       } @else {
-      <div class="edit-title-container">
-        <input type="text" class="result-item-title-input" [(ngModel)]="tempTitle" #titleInput />
-        <div class="edit-actions">
-          <i class="pi pi-check" style="font-size: 14px; color: #173f6f; cursor: pointer" (click)="finishEditingTitle()"></i>
-          <i class="pi pi-times" style="font-size: 14px; color: #173f6f; cursor: pointer; margin-left: 5px" (click)="cancelEditingTitle()"></i>
+        <div class="edit-title-container">
+          <input
+            type="text"
+            class="result-item-title-input"
+            [(ngModel)]="tempTitle"
+            #titleInput>
+          <div class="edit-actions">
+            <i class="pi pi-check" style="font-size: 14px; color: #173F6F; cursor: pointer;" (click)="finishEditingTitle()" (keydown.enter)="finishEditingTitle()"></i>
+            <i class="pi pi-times" style="font-size: 14px; color: #173F6F; cursor: pointer; margin-left: 5px;" (click)="cancelEditingTitle()" (keydown.enter)="cancelEditingTitle()"></i>
+          </div>
         </div>
       </div>
       }
