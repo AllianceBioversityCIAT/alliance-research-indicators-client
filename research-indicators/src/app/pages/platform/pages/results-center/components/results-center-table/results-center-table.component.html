@@ -5,7 +5,7 @@
       <div class="flex gap-3 items-center">
         <p-button
           icon="pi pi-file-excel !text-[12px]"
-          styleClass="!rounded-[8px] !text-[11px] !max-h-[26px] !py-1"
+          styleClass="!rounded-[8px] !text-[12px] !max-h-[27px] !py-1"
           (keydown.enter)="exportTable()"
           (click)="exportTable()"
           label="Export Results"
@@ -22,13 +22,13 @@
             [(ngModel)]="this.resultsCenterService.searchInput"
             (input)="setSearchInputFilter($event)"
             placeholder="Find a result by code, title or creator"
-            class="w-full !pl-9 !rounded-[8px] py-2 border !max-h-[26px] !text-[11px] !py-1 !border-[#B9C0C5] !text-[#A2A9AF] rounded-lg" />
+            class="w-full !pl-9 !rounded-[8px] py-2 border !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
         </div>
       </div>
 
       <div class="flex gap-3 items-center result-center-table-buttons">
         <p-button
-          styleClass="!rounded-[8px] !text-[11px] !py-1 !max-h-[26px]"
+          styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
           label="Apply Filters"
           icon="pi pi-filter !text-[10px]"
           size="small"
@@ -36,7 +36,7 @@
           (keydown.enter)="showFiltersSidebar()"
           (click)="showFiltersSidebar()"></p-button>
         <p-button
-          styleClass="!text-[11px]"
+          styleClass="!text-[12px]"
           label="Clear Filters"
           [text]="true"
           size="small"
@@ -44,7 +44,7 @@
           (keydown.enter)="this.resultsCenterService.cleanFilters()"
           (click)="this.resultsCenterService.cleanFilters()"></p-button>
         <p-button
-          styleClass="!rounded-[8px] !p-0 !max-w-[30px] !max-h-[26px]"
+          styleClass="!rounded-[8px] !p-0 !max-w-[30px] !max-h-[27px]"
           icon="pi pi-cog !text-[17px]"
           size="small"
           [outlined]="true"
