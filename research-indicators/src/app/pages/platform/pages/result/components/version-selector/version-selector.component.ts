@@ -80,7 +80,7 @@ export class VersionSelectorComponent {
 
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: isLive ? {} : { version: version.report_year_id },
+      queryParams: isLive ? {} : { version: String(version.report_year_id) },
       queryParamsHandling: '',
       replaceUrl: true
     });
