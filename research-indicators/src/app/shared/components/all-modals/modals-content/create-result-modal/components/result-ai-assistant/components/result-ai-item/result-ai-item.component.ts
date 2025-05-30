@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, Input, signal, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { AIAssistantResult } from '../../../../models/AIAssistantResult';
 import { CreateResultManagementService } from '../../../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
@@ -9,23 +9,37 @@ import { ActionsService } from '@shared/services/actions.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 import { EXPANDED_ITEM_DETAILS, getIndicatorTypeIcon, INDICATOR_TYPE_ICONS } from '@shared/constants/result-ai.constants';
+import { FormsModule } from '@angular/forms';
+
+type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_participants' | 'male_participants';
 
 @Component({
   selector: 'app-result-ai-item',
-  imports: [CommonModule, ButtonModule],
   templateUrl: './result-ai-item.component.html',
   styleUrl: './result-ai-item.component.scss',
+  imports: [CommonModule, ButtonModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiItemComponent {
-  @Input() item!: AIAssistantResult | GetOsResult;
-  @Input() hideButtons = false;
+  @Input() item!: AIAssistantResult;
+  @ViewChild('titleInput') titleInput!: ElementRef;
+  @ViewChild('titleText') titleText!: ElementRef;
   createResultManagementService = inject(CreateResultManagementService);
   createdResults = signal<Set<string>>(new Set());
   api = inject(ApiService);
   isCreated = signal(false);
   actions = inject(ActionsService);
   allModalsService = inject(AllModalsService);
+  isEditingTitle = signal(false);
+  private _tempTitle = '';
+
+  get tempTitle(): string {
+    return this._tempTitle;
+  }
+
+  set tempTitle(value: string) {
+    this._tempTitle = value;
+  }
 
   expandedItemDetails = EXPANDED_ITEM_DETAILS;
   indicatorTypeIcon = INDICATOR_TYPE_ICONS;
@@ -70,5 +84,26 @@ export class ResultAiItemComponent {
   openResult(item: AIAssistantResult) {
     const url = `/result/${item.result_official_code}/general-information`;
     window.open(url, '_blank');
+  }
+
+  startEditingTitle() {
+    this._tempTitle = this.item.title;
+    this.isEditingTitle.set(true);
+    setTimeout(() => {
+      if (this.titleInput?.nativeElement && this.titleText?.nativeElement) {
+        const textWidth = this.titleText.nativeElement.offsetWidth;
+        this.titleInput.nativeElement.style.width = `${textWidth}px`;
+        this.titleInput.nativeElement.focus();
+      }
+    });
+  }
+
+  finishEditingTitle() {
+    this.item.title = this._tempTitle;
+    this.isEditingTitle.set(false);
+  }
+
+  cancelEditingTitle() {
+    this.isEditingTitle.set(false);
   }
 }

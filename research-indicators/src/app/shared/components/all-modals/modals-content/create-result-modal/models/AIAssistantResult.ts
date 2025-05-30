@@ -5,6 +5,8 @@ export interface AIAssistantResult {
   keywords: string[];
   geoscope: CountryArea[];
   training_type: string;
+  start_date: string;
+  end_date: string;
   contract_code?: string;
   total_participants: number;
   non_binary_participants: string;

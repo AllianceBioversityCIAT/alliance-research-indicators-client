@@ -2,11 +2,11 @@
 
 <div class="result-item" [class.expanded]="expandedItem === item">
   @if (isAIAssistantResult(item) && item.training_type !== undefined) {
-    <div class="result-item-expand-icon" (keydown.enter)="toggleExpand(item)" (click)="toggleExpand(item)">
-      <i class="pi" [ngClass]="expandedItem === item ? 'pi-angle-down' : 'pi-angle-right'" style="font-size: 10px"></i>
-    </div>
+  <div class="result-item-expand-icon" (keydown.enter)="toggleExpand(item)" (click)="toggleExpand(item)">
+    <i class="pi" [ngClass]="expandedItem === item ? 'pi-angle-down' : 'pi-angle-right'" style="font-size: 10px"></i>
+  </div>
   } @else {
-    <div></div>
+  <div></div>
   }
 
   <div class="result-item-content">
@@ -19,72 +19,101 @@
       >
     </div>
 
-    <p class="result-item-title">{{ item.title }}</p>
+    <div class="result-item-title-container">
+      @if (!isEditingTitle()) {
+      <p class="result-item-title" #titleText>{{ item.title | uppercase }}</p>
+      <i class="pi pi-pencil" style="font-size: 14px; color: #173f6f; cursor: pointer; margin-left: 10px" (click)="startEditingTitle()"></i>
+      } @else {
+      <div class="edit-title-container">
+        <input type="text" class="result-item-title-input" [(ngModel)]="tempTitle" #titleInput />
+        <div class="edit-actions">
+          <i class="pi pi-check" style="font-size: 14px; color: #173f6f; cursor: pointer" (click)="finishEditingTitle()"></i>
+          <i class="pi pi-times" style="font-size: 14px; color: #173f6f; cursor: pointer; margin-left: 5px" (click)="cancelEditingTitle()"></i>
+        </div>
+      </div>
+      }
+    </div>
     <p class="result-item-description">{{ item.description }}</p>
 
     <div class="result-item-keywords">
       <p class="result-item-keywords-title">Keywords</p>
       <p class="result-item-keywords-arrow">&rarr;</p>
       @for (keyword of item.keywords; track $index) {
-        <span class="keyword">{{ keyword }}</span>
+      <span class="keyword">{{ keyword }}</span>
       }
     </div>
 
     @if (expandedItem === item) {
+    <div class="flex gap-6">
       <div class="result-item-keywords">
         <p class="result-item-keywords-title">Training type</p>
         <p class="result-item-keywords-arrow">&rarr;</p>
-        <p class="result-item-details-value">{{ item.training_type }}</p>
+        <p class="result-item-details-value-training-type">{{ item.training_type }}</p>
       </div>
 
-      @if (item.total_participants !== undefined) {
-        <div class="result-item-details">
-          @for (detail of expandedItemDetails; track $index) {
-            <div class="result-item-details-item">
-              <p class="result-item-details-value">{{ item[detail.value] }}</p>
-              <p class="result-item-keywords-title">{{ detail.title }}</p>
-            </div>
-          }
-        </div>
-      }
-    }
-  </div>
-  @if (!hideButtons && isAIAssistantResult(item)) {
-    <div class="result-item-actions flex gap-2">
-      @if (!isCreated()) {
-        <p-button
-          type="button"
-          label="Discard"
-          styleClass="discard-button !text-[12px] !h-10 !px-3 !border-[1.5px] !border-[#CF0808] !text-[#CF0808] !rounded-[12px]"
-          size="small"
-          [outlined]="true"
-          severity="danger"
-          (keydown.enter)="discardResult(item)"
-          (click)="discardResult(item)">
-        </p-button>
+      <div class="result-item-keywords">
+        <p class="result-item-keywords-title">Start date</p>
+        <p class="result-item-keywords-arrow">&rarr;</p>
+        <p class="result-item-details-value-training-type">{{ item.start_date }}</p>
+      </div>
 
-        <p-button
-          type="button"
-          label="Create"
-          iconPos="right"
-          icon="pi pi-plus"
-          styleClass="create-button !text-[12px] !h-10 !px-3 !bg-[#035BA9] !rounded-[12px]"
-          size="small"
-          (keydown.enter)="createResult(item)"
-          (click)="createResult(item)">
-        </p-button>
-      } @else {
-        <p-button
-          type="button"
-          label="Open Result"
-          iconPos="right"
-          icon="pi pi-arrow-right"
-          styleClass="create-button !text-[12px] !h-10 !px-3 !border-[#1689CA] !bg-[#1689CA] !rounded-[12px]"
-          size="small"
-          (keydown.enter)="openResult(item)"
-          (click)="openResult(item)">
-        </p-button>
+      <div class="result-item-keywords">
+        <p class="result-item-keywords-title">End date</p>
+        <p class="result-item-keywords-arrow">&rarr;</p>
+        <p class="result-item-details-value-training-type">{{ item.end_date }}</p>
+      </div>
+    </div>
+
+    @if (item.total_participants !== undefined) {
+    <div class="result-item-details">
+      @for (detail of expandedItemDetails; track $index) {
+      <div class="result-item-details-item">
+        <p class="result-item-details-value">{{ item[detail.value] }}</p>
+        <p class="result-item-keywords-title">{{ detail.title }}</p>
+        @if (detail.title === 'Total participants') {
+        <p class="result-item-keywords-arrow">&rarr;</p>
+        }
+      </div>
       }
     </div>
+    } }
+  </div>
+  @if (!hideButtons && isAIAssistantResult(item)) {
+  <div class="result-item-actions flex gap-2">
+    @if (!isCreated()) {
+    <p-button
+      type="button"
+      label="Discard"
+      styleClass="discard-button !text-[12px] !h-10 !px-3 !border-[1.5px] !border-[#CF0808] !text-[#CF0808] !rounded-[12px]"
+      size="small"
+      [outlined]="true"
+      severity="danger"
+      (keydown.enter)="discardResult(item)"
+      (click)="discardResult(item)">
+    </p-button>
+
+    <p-button
+      type="button"
+      label="Create"
+      iconPos="right"
+      icon="pi pi-plus"
+      styleClass="create-button !text-[12px] !h-10 !px-3 !bg-[#035BA9] !rounded-[12px]"
+      size="small"
+      (keydown.enter)="createResult(item)"
+      (click)="createResult(item)">
+    </p-button>
+    } @else {
+    <p-button
+      type="button"
+      label="Open Result"
+      iconPos="right"
+      icon="pi pi-arrow-right"
+      styleClass="create-button !text-[12px] !h-10 !px-3 !border-[#1689CA] !bg-[#1689CA] !rounded-[12px]"
+      size="small"
+      (keydown.enter)="openResult(item)"
+      (click)="openResult(item)">
+    </p-button>
+    }
+  </div>
   }
 </div>
