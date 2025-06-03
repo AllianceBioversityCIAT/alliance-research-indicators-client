@@ -1,12 +1,36 @@
+@import 'tailwindcss';
+@import 'colors';
 @import 'primeicons/primeicons.css';
-@import 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200';
 @import 'https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap';
 @import 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap';
-@import 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0';
-@import 'tailwindcss';
+@import 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
 
-* {
+// Configuración base de tipografías - excluyendo iconos
+*:not(.material-symbols-rounded, [class*='pi-'], [class*='p-icon']) {
   font-family: Barlow, sans-serif;
+}
+
+body {
+  font-family: Barlow, sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+// Configuración básica para Material Symbols
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded', monospace;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
 }
 
 .indicator-select .p-select-option-group {
@@ -27,11 +51,6 @@
 
 .p-divider-vertical::before {
   border-inline-start: 1px solid #b9c0c5 !important;
-}
-
-body {
-  padding: 0;
-  margin: 0;
 }
 
 #table-configuration {
