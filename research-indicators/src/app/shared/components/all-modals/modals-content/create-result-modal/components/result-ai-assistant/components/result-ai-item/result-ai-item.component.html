@@ -17,7 +17,24 @@
       <p class="result-item-category">{{ item.indicator | uppercase }}</p>
     </div>
 
-    <p class="result-item-title">{{ item.title | uppercase }}</p>
+    <div class="result-item-title-container">
+      @if (!isEditingTitle()) {
+        <p class="result-item-title" #titleText>{{ item.title | uppercase }}</p>
+        <i class="pi pi-pencil" style="font-size: 14px; color: #173F6F; cursor: pointer; margin-left: 10px;" (click)="startEditingTitle()" (keydown.enter)="startEditingTitle()"></i>
+      } @else {
+        <div class="edit-title-container">
+          <input
+            type="text"
+            class="result-item-title-input"
+            [(ngModel)]="tempTitle"
+            #titleInput>
+          <div class="edit-actions">
+            <i class="pi pi-check" style="font-size: 14px; color: #173F6F; cursor: pointer;" (click)="finishEditingTitle()" (keydown.enter)="finishEditingTitle()"></i>
+            <i class="pi pi-times" style="font-size: 14px; color: #173F6F; cursor: pointer; margin-left: 5px;" (click)="cancelEditingTitle()" (keydown.enter)="cancelEditingTitle()"></i>
+          </div>
+        </div>
+      }
+    </div>
     <p class="result-item-description">{{ item.description }}</p>
 
     <div class="result-item-keywords">
@@ -29,10 +46,24 @@
     </div>
 
     @if (expandedItem === item) {
-      <div class="result-item-keywords">
-        <p class="result-item-keywords-title">Training type</p>
-        <p class="result-item-keywords-arrow">&rarr;</p>
-        <p class="result-item-details-value">{{ item.training_type }}</p>
+      <div class="flex gap-6">
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">Training type</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.training_type }}</p>
+        </div>
+
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">Start date</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.start_date }}</p>
+        </div>
+
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">End date</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.end_date }}</p>
+        </div>
       </div>
 
       @if (item.total_participants !== undefined) {
@@ -41,6 +72,9 @@
             <div class="result-item-details-item">
               <p class="result-item-details-value">{{ item[detail.value] }}</p>
               <p class="result-item-keywords-title">{{ detail.title }}</p>
+              @if (detail.title === 'Total participants') {
+                <p class="result-item-keywords-arrow">&rarr;</p>
+              }
             </div>
           }
         </div>
