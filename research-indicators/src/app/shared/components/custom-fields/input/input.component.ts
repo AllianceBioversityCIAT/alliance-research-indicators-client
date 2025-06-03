@@ -34,15 +34,13 @@ export class InputComponent {
   body = signal({ value: null });
   firstTime = signal(true);
 
-  onChange = effect(
-    () => {
-      if (this.firstTime() && !this.currentResultIsLoading()) {
-        this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.optionValue) });
-        this.firstTime.set(false);
-      }
-    },
-    { allowSignalWrites: true }
-  );
+  onChange = effect(() => {
+    const externalValue = this.utils.getNestedProperty(this.signal(), this.optionValue);
+    if (this.body().value !== externalValue) {
+      this.body.set({ value: externalValue });
+    }
+  }, { allowSignalWrites: true });
+
 
   isInvalid = computed(() => {
     return this.isRequired && !this.body()?.value;

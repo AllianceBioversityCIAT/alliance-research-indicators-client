@@ -21,6 +21,18 @@ export class EvidenceItemComponent implements OnInit {
   submission = inject(SubmissionService);
   isPrivate = false;
 
+  syncBody = effect(() => {
+    if (this.index === null) return;
+    const parentEvidence = this.bodySignal().evidence?.[this.index];
+    if (parentEvidence && JSON.stringify(parentEvidence) !== JSON.stringify(this.body())) {
+      this.body.set(parentEvidence);
+      return;
+    }
+    if (this.evidence && JSON.stringify(this.evidence) !== JSON.stringify(this.body())) {
+      this.body.set(this.evidence);
+    }
+  });
+
   onChange = effect(
     () => {
       if (this.index === null) return;
