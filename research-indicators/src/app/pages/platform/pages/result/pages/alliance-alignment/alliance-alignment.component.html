@@ -77,7 +77,7 @@
               signalOptionValue="levers"
               [isRequired]="true"
               [removeCondition]="canRemove"
-              [disabled]="!submission.isEditableStatus()"
+              [disabled]="true"
               [serviceName]="'levers'">
               <ng-template #rows let-lever>
                 <div class="grid grid-cols-[1fr_auto] items-center w-full gap-5">
@@ -85,7 +85,7 @@
                     <strong>{{ lever.short_name }}&nbsp;</strong> - {{ lever.other_names }}
                   </div>
                   <button
-                    [disabled]="!submission.isEditableStatus()"
+                    [disabled]="true"
                     class="px-3 py-[3px] rounded-full text-[14px] disabled:cursor-not-allowed whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
                     [class]="
                       lever.is_primary
