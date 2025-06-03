@@ -30,9 +30,4 @@ export class GetMetadataService {
     const lastPart = lastWord.slice(0, 3).charAt(0).toUpperCase() + lastWord.slice(1, 3).toLowerCase();
     return firstPart + lastPart;
   }
-
-  clearMetadata() {
-    this.cache.currentMetadata.set({});
-    this.cache.currentResultId.set(0);
-  }
 }
