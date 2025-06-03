@@ -3,10 +3,12 @@
 @import 'https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap';
 @import 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap';
 @import 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0';
+@import 'tailwindcss';
 
 * {
   font-family: Barlow, sans-serif;
 }
+
 .indicator-select .p-select-option-group {
   padding: 0 !important;
 }
@@ -14,10 +16,7 @@
 .app-page-wrapper {
   display: flex;
   flex-direction: column;
-  margin-bottom: 70px;
-  margin-top: 40px;
-  margin-right: 40px;
-  margin-left: 30px;
+  margin: 40px 40px 70px 30px;
 }
 
 .p-tooltip {
@@ -26,7 +25,7 @@
   --p-tooltip-border-radius: 8px;
 }
 
-.p-divider-vertical:before {
+.p-divider-vertical::before {
   border-inline-start: 1px solid #b9c0c5 !important;
 }
 
@@ -66,7 +65,6 @@ body {
 .indicator-title {
   color: var(--primary-blue-500);
   font-family: Inter, sans-serif;
-
   font-weight: 700;
   line-height: 18.15px;
   text-transform: uppercase;
@@ -75,7 +73,6 @@ body {
 .indicator-description {
   color: var(--grey-800);
   font-family: Barlow, sans-serif;
-
   font-weight: 400;
   line-height: 18px;
 
