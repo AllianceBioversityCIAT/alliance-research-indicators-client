@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { CognitoService } from '../../shared/services/cognito.service';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { CacheService } from '../../shared/services/cache/cache.service';
 
 @Component({
   selector: 'app-login',
@@ -10,6 +11,14 @@ import { RouterLink } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true
 })
-export default class LoginComponent {
+export default class LoginComponent implements OnInit {
   cognito = inject(CognitoService);
+  cache = inject(CacheService);
+  router = inject(Router);
+
+  ngOnInit() {
+    if (this.cache.isLoggedIn()) {
+      this.router.navigate(['/']);
+    }
+  }
 }
