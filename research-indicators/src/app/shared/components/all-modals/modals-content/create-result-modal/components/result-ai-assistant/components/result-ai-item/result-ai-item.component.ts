@@ -65,7 +65,7 @@ export class ResultAiItemComponent {
       .then(response => {
         if (!response.successfulRequest) {
           this.isCreated.set(false);
-          this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
+          this.actions.handleBadRequest(response);
         } else {
           this.isCreated.set(true);
           if ('data' in response && 'result_official_code' in response.data) {

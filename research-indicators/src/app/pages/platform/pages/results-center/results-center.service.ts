@@ -61,34 +61,47 @@ export class ResultsCenterService {
       field: 'status',
       path: 'result_status.name',
       header: 'Status',
+      minWidth: 'min-w-[100px]',
+      maxWidth: 'max-w-[100px]',
       getValue: (result: Result) => result.result_status?.name ?? '-'
     },
     {
       field: 'project',
       path: 'result_contracts.contract_id',
-      header: 'Project',
-      minWidth: 'min-w-[90px]',
+      header: 'Primary Project',
+      minWidth: 'min-w-[100px]',
+      maxWidth: 'max-w-[100px]',
       getValue: (result: Result) => result.result_contracts?.contract_id ?? '-'
     },
     {
       field: 'lever',
       path: 'result_levers.lever.short_name',
-      header: 'Lever',
-      minWidth: 'min-w-[90px]',
+      header: 'Primary Lever',
+      minWidth: 'min-w-[100px]',
+      maxWidth: 'max-w-[100px]',
       getValue: (result: Result) => result.result_levers?.lever?.short_name ?? '-'
     },
     {
       field: 'year',
       path: 'report_year_id',
-      header: 'Year',
-      minWidth: 'min-w-[90px]',
+      header: 'Live Version',
+      minWidth: 'min-w-[100px]',
+      maxWidth: 'max-w-[100px]',
       getValue: (result: Result) => result.report_year_id?.toString() ?? '-'
+    },
+    {
+      field: 'versions',
+      path: 'snapshot_years',
+      minWidth: 'min-w-[120px]',
+      maxWidth: 'max-w-[120px]',
+      header: 'Approved Versions',
+      getValue: (result: Result) => (Array.isArray(result.snapshot_years) ? result.snapshot_years : [])
     },
     {
       field: 'creator',
       path: 'created_by_user.first_name',
       header: 'Creator',
-      minWidth: 'min-w-[120px]',
+      minWidth: 'min-w-[160px]',
 
       hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
@@ -98,7 +111,7 @@ export class ResultsCenterService {
       field: 'creation_date',
       path: 'created_at',
       header: 'Creation date',
-      minWidth: 'min-w-[140px]',
+      minWidth: 'min-w-[160px]',
 
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }

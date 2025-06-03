@@ -4,7 +4,8 @@
     <div class="flex items-center justify-between w-full p-3">
       <div class="flex gap-3 items-center">
         <p-button
-          icon="pi pi-download"
+          icon="pi pi-file-excel !text-[12px]"
+          styleClass="!rounded-[8px] !text-[12px] !max-h-[27px] !py-1"
           (keydown.enter)="exportTable()"
           (click)="exportTable()"
           label="Export Results"
@@ -13,7 +14,7 @@
 
         <div class="relative w-[25rem]">
           <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <i class="pi pi-search text-gray-400"></i>
+            <i class="pi pi-search text-[#6B7280] !text-[12px]"></i>
           </span>
           <input
             pInputText
@@ -21,19 +22,21 @@
             [(ngModel)]="this.resultsCenterService.searchInput"
             (input)="setSearchInputFilter($event)"
             placeholder="Find a result by code, title or creator"
-            class="w-full !pl-9 py-2 border rounded-lg" />
+            class="w-full !pl-9 !rounded-[8px] py-2 border !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
         </div>
       </div>
 
       <div class="flex gap-3 items-center result-center-table-buttons">
         <p-button
+          styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
           label="Apply Filters"
-          icon="pi pi-filter"
+          icon="pi pi-filter !text-[10px]"
           size="small"
           [badge]="resultsCenterService.countFiltersSelected()"
           (keydown.enter)="showFiltersSidebar()"
           (click)="showFiltersSidebar()"></p-button>
         <p-button
+          styleClass="!text-[12px]"
           label="Clear Filters"
           [text]="true"
           size="small"
@@ -41,7 +44,8 @@
           (keydown.enter)="this.resultsCenterService.cleanFilters()"
           (click)="this.resultsCenterService.cleanFilters()"></p-button>
         <p-button
-          icon="pi pi-cog"
+          styleClass="!rounded-[8px] !p-0 !max-w-[30px] !max-h-[27px]"
+          icon="pi pi-cog !text-[17px]"
           size="small"
           [outlined]="true"
           (keydown.enter)="showConfiguratiosnSidebar()"
@@ -85,11 +89,16 @@
       <tr>
         @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
-            <th class="{{ column.minWidth }}" [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path" scope="col">
-              {{ column.header }}
-              @if (!column?.hideFilterIf?.()) {
-                <p-sortIcon field="{{ column.path }}"></p-sortIcon>
-              }
+            <th
+              class="{{ column.minWidth }} {{ column.maxWidth }}   !text-[#173F6F]"
+              [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path"
+              scope="col">
+              <div class="flex items-center font-[500] leading-4.5 gap-2">
+                {{ column.header }}
+                @if (!column?.hideFilterIf?.()) {
+                  <p-sortIcon class="pr-5" field="{{ column.path }}"></p-sortIcon>
+                }
+              </div>
             </th>
           }
         }
@@ -104,10 +113,56 @@
           @if (!column.hideIf || !column.hideIf()) {
             @if (column.field === 'status') {
               <td>
-                <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status?.name"></app-custom-tag>
+                <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status?.name"> </app-custom-tag>
+              </td>
+            } @else if (column.field === 'versions') {
+              <td>
+                @if (column.getValue) {
+                  @let versions = column.getValue(result);
+                  @let count = versions.length;
+                  @let maxVisible = 4;
+                  @let showMoreCount = count > maxVisible ? count - 3 : 0;
+                  @let visibleYears = versions.slice(0, showMoreCount > 0 ? 3 : maxVisible);
+
+                  @if (count > 0) {
+                    <div (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" class="flex flex-wrap items-center gap-2 py-1">
+                      @for (year of visibleYears; track year) {
+                        <span
+                          (keydown.enter)="openResultByYear(result.result_official_code, year)"
+                          (click)="openResultByYear(result.result_official_code, year)"
+                          class="px-2 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[11px] cursor-pointer">
+                          {{ year }}
+                        </span>
+                      }
+                      @if (showMoreCount > 0) {
+                        <a #popoverTarget class="text-[#035BA9] cursor-pointer text-[11px] underline" (click)="popover.toggle($event)">
+                          +{{ showMoreCount }} more
+                        </a>
+
+                        <p-popover #popover [baseZIndex]="10000" styleClass="rounded-lg p-1 text-center">
+                          <div class="mb-3 text-[14px] text-[#173F6F]">Approved Versions</div>
+                          <div class="grid grid-cols-2 gap-2">
+                            @for (year of versions; track year) {
+                              <span
+                                (keydown.enter)="openResultByYear(result.result_official_code, year)"
+                                (click)="openResultByYear(result.result_official_code, year)"
+                                class="px-2 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[11px] cursor-pointer">
+                                {{ year }}
+                              </span>
+                            }
+                          </div>
+                        </p-popover>
+                      }
+                    </div>
+                  } @else {
+                    <span>None</span>
+                  }
+                }
               </td>
             } @else {
-              <td [class.w-[25rem]]="column.field === 'title'">{{ column.getValue ? column.getValue(result) : '-' }}</td>
+              <td [class.w-[25rem]]="column.field === 'title'">
+                {{ column.getValue ? column.getValue(result) : '-' }}
+              </td>
             }
           }
         }

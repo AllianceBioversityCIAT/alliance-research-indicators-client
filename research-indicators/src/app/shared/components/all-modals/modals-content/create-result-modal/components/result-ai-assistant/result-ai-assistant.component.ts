@@ -199,7 +199,11 @@ export class ResultAiAssistantComponent {
   }
 
   goBackToUploadNewFile() {
-    this.goBackToCreateResult();
+    this.createResultManagementService.resetModal();
+    this.selectedFile = null;
+    this.analyzingDocument.set(false);
+    this.documentAnalyzed.set(false);
+    this.noResults.set(false);
     this.createResultManagementService.resultPageStep.set(1);
   }
 

@@ -38,7 +38,7 @@
       </div>
     } @else {
       @for (result of this.getOsResultService.list(); track $index) {
-        <div class="card-container" [routerLink]="['/result', result.result_id]">
+        <div class="card-container" [routerLink]="['/result', result.result_official_code]">
           <div class="indicator">
             <span class="material-symbols-rounded icon-color-{{ result.indicator.icon_src }}">{{ result.indicator.icon_src }}</span>
             <span class="indicator-text">{{ result.indicator.name }}</span>

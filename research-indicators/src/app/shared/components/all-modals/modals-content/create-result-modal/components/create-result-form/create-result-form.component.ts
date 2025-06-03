@@ -19,14 +19,24 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
 import { SelectModule } from 'primeng/select';
 import localeEs from '@angular/common/locales/es';
-import { registerLocaleData } from '@angular/common';
+import { NgTemplateOutlet, registerLocaleData } from '@angular/common';
 import { GetYearsService } from '@shared/services/control-list/get-years.service';
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
 
 registerLocaleData(localeEs);
 @Component({
   selector: 'app-create-result-form',
-  imports: [DialogModule, ButtonModule, FormsModule, InputTextModule, SelectModule, RouterModule, SharedResultFormComponent, AutoCompleteModule],
+  imports: [
+    DialogModule,
+    ButtonModule,
+    FormsModule,
+    InputTextModule,
+    NgTemplateOutlet,
+    SelectModule,
+    RouterModule,
+    SharedResultFormComponent,
+    AutoCompleteModule
+  ],
   templateUrl: './create-result-form.component.html',
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -50,7 +60,7 @@ export class CreateResultFormComponent {
   });
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   sharedFormValid = false;
-  contractId: string | null = null;
+  contractId: number | null = null;
   onYearsLoaded = effect(
     () => {
       const years = this.yearsService.list();
@@ -66,8 +76,25 @@ export class CreateResultFormComponent {
     { allowSignalWrites: true }
   );
 
+  get isYearMissing(): boolean {
+    return !this.body()?.year;
+  }
+
+  get isTitleMissing(): boolean {
+    return !this.body()?.title;
+  }
+
+  get isIndicatorIdMissing(): boolean {
+    return !this.body()?.indicator_id;
+  }
+
+  get isDisabled(): boolean {
+    const b = this.body();
+    return !this.sharedFormValid || !b.title?.length || !b.indicator_id || !b.contract_id || !b.year;
+  }
+
   onContractIdChange(newContractId: number | null) {
-    this.contractId = newContractId !== null ? String(newContractId) : null;
+    this.contractId = newContractId;
     this.body.update(b => ({ ...b, contract_id: newContractId }));
   }
   async createResult(openresult?: boolean) {
@@ -75,7 +102,7 @@ export class CreateResultFormComponent {
     if (result.successfulRequest) {
       this.successRequest(result, openresult);
     } else {
-      this.badRequest(result);
+      this.actions.handleBadRequest(result);
     }
   }
 
@@ -88,35 +115,11 @@ export class CreateResultFormComponent {
     });
     this.allModalsService.closeModal('createResult');
     this.body.set({ indicator_id: null, title: null, contract_id: null, year: currentYear });
+    this.contractId = null;
+    this.sharedFormValid = false;
+
     if (openresult) this.actions.changeResultRoute(Number(result.data.result_official_code));
     this.getResultsService.updateList();
-  };
-
-  badRequest = (result: MainResponse<Result>) => {
-    const isWarning = result.status === 409;
-    const linkUrl = 'https://www.google.com';
-
-    const [initialText, existingResult = ''] = result.errorDetail.description.split(':').map(s => s.trim());
-    const [boldText, ...regularParts] = existingResult.split('-').map(s => s.trim());
-
-    const detailHtml = `
-    ${initialText}: 
-    <a href="${linkUrl}" target="_blank" class="alert-link-custom">
-      <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
-    </a>
-  `;
-
-    this.actions.showGlobalAlert({
-      severity: isWarning ? 'warning' : 'error',
-      summary: isWarning ? 'Title Already Exists' : 'Error',
-      detail: detailHtml,
-      hasNoCancelButton: true,
-      generalButton: true,
-      confirmCallback: {
-        label: 'Enter other title'
-      },
-      buttonColor: '#035BA9'
-    });
   };
 
   getContractStatusClasses(status: string): string {
@@ -130,10 +133,5 @@ export class CreateResultFormComponent {
     };
 
     return styles[normalizedStatus] || styles['DEFAULT'];
-  }
-
-  get isDisabled(): boolean {
-    const b = this.body();
-    return !b.title?.length || !b.indicator_id || !b.contract_id || !b.year;
   }
 }

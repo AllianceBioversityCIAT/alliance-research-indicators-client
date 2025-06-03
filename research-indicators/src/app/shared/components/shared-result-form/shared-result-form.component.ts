@@ -14,7 +14,7 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   @Input() contracts: GetContracts[] = [];
   @Input() contractId: number | null = null;
   @Input() title = 'Primary Project';
-  @Input() maxLength = 120;
+  @Input() maxLength = 117;
   @Input() showWarning = false;
   @Input() getContractStatusClasses: (status: string) => string = () => '';
   @Output() validityChanged = new EventEmitter<boolean>();
@@ -53,11 +53,13 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   getShortDescription(description: string): string {
     let max: number;
     if (this.containerWidth < 900) {
-      max = 30;
-    } else if (this.containerWidth > 1350) {
-      max = 150;
+      max = 73;
+    } else if (this.containerWidth < 1100) {
+      max = 105;
+    } else if (this.containerWidth < 1240) {
+      max = 135;
     } else {
-      max = 120;
+      max = 155;
     }
     return description.length > max ? description.slice(0, max) + '...' : description;
   }
