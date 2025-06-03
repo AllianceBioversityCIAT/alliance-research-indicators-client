@@ -31,6 +31,7 @@ p {
   justify-content: flex-start;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
 }
 
 .result-item-header {
@@ -57,6 +58,7 @@ p {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .result-item-description {
@@ -144,11 +146,15 @@ p {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  flex: 1;
 }
 
 .edit-actions {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+  margin-left: 8px;
 }
 
 .result-item-title-input {
@@ -158,8 +164,9 @@ p {
   border: 1px solid var(--primary-blue-600);
   border-radius: 4px;
   padding: 0px 8px;
-  min-width: 450px;
-  height: auto;
+  width: 100%;
+  min-width: 300px;
+  height: 35px;
   outline: none;
   text-transform: uppercase;
   box-sizing: border-box;
