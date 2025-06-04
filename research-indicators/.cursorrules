@@ -1,0 +1,115 @@
+# Project Technology Stack and Best Practices
+
+## Angular Version and Features
+
+Tiene que habalrme en español
+
+- Using Angular 18
+- Using PrimeNG 18
+- Using Signals for state management
+- Using modern Angular features like standalone components and inject function
+
+## Best Practices
+
+1. Always search for the most recent documentation and solutions
+   - Prefer Angular.io official documentation
+   - Check release dates of blog posts and solutions
+   - Prefer solutions that use modern Angular features (signals, inject, etc.)
+   - Avoid outdated patterns (like NgZone for signal updates)
+
+## orders
+
+- cuando te diga que migres de clases y scss, vas a borrar el archivo scss, si necesitas algo que no s epeude hacer cn tialwin lo poner el el .ts y siempre debes respetar las reglas del archivo responsive-size.scss, este no se puede cambiar, lo demas si,
+
+## Common Pitfalls to Avoid
+
+1. Height Detection in Components
+
+   - Use ElementRef with querySelector for direct DOM access when needed
+   - ResizeObserver works directly with signals, no need for NgZone
+   - Example:
+
+     ```typescript
+     elementRef = inject(ElementRef);
+
+     ngAfterViewInit(): void {
+       const element = this.elementRef.nativeElement.querySelector('#myElement');
+       if (element) {
+         this.resizeObserver = new ResizeObserver(entries => {
+           for (const entry of entries) {
+             this.mySignal.set(entry.contentRect.height);
+           }
+         });
+         this.resizeObserver.observe(element);
+       }
+     }
+     ```
+
+2. State Management
+
+   - Prefer signals over BehaviorSubject/Observable for simple state
+   - Use computed() for derived state
+   - Use effect() for side effects
+
+3. Component Architecture
+   - Use standalone components by default
+   - Use inject() function instead of constructor injection
+   - Use OnPush change detection strategy when possible
+
+## Testing Guidelines
+
+1. Unit Tests (.spec.ts files)
+   - Only fix existing tests, do not add new ones unless specifically requested
+   - Follow this process when fixing tests:
+     1. Run all tests first: `npm run test` to identify failing tests
+     2. Run individual failing tests to isolate issues
+     3. Fix tests considering the full context (signals, inject, etc.)
+     4. Run individual tests again to verify fixes
+     5. Run complete test suite to ensure no regressions
+   - Consider the following when fixing tests:
+     - Understand signal behavior in tests
+     - Use TestBed.inject() for dependency injection
+     - Mock services and dependencies appropriately
+     - Respect component lifecycle hooks
+     - Handle async operations properly
+   - Provide confirmation message when all tests are passing
+   - cuando diga "corrige pruebas unitarias" debes correr npm run test y valdiar las que tienen error, una vez se corran las pruebas, solo corres la o las que fallan
+   - cuando diga "mejora branches" te voy a dar un archivo .spec.ts y debes mejorar el coverage en branches, luego corres la prueba con el archivo para valdiar si aumento o no
+   - cuando diga "mejora lines" te voy a dar un archivo .spec.ts y debes mejorar el coverage en lines, luego corres la prueba con el archivo para valdiar si aumento o no
+   - cuando diga "mejora functions" te voy a dar un archivo .spec.ts y debes mejorar el coverage en functions, luego corres la prueba con el archivo para valdiar si aumento o no
+   - todo lo que tenga que ver con pruebas, claramente con jest, debes ser muy logico con lo que se va a hacer y tener contexto de las demas preubas para entender como solucionar ya errores o problemas resueltos
+
+## Token Optimization Rules
+
+1. Response Format
+
+   - Use "Success" for successful operations
+   - Use "Error: [specific error]" for failures
+   - Avoid decorative language or pleasantries
+   - Skip redundant confirmations
+
+2. Code Generation
+
+   - Generate minimal viable code
+   - Skip optional comments
+   - Use shorthand syntax when possible
+   - Avoid redundant type declarations when inferrable
+
+3. Error Handling
+
+   - Report only relevant error details
+   - Skip stack traces unless requested
+   - Use concise error messages
+
+4. Documentation
+
+   - Keep explanations brief and technical
+   - Use bullet points over paragraphs
+   - Skip obvious information
+   - Focus on key technical details
+
+5. Testing
+   - Report only failing tests
+   - Use minimal test descriptions
+   - Skip passing test details
+   - Report only changed values
