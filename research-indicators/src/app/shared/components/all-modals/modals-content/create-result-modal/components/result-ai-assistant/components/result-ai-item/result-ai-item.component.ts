@@ -37,6 +37,7 @@ export class ResultAiItemComponent {
 
   set tempTitle(value: string) {
     this._tempTitle = value;
+    this.autoGrow();
   }
 
   expandedItemDetails = [
@@ -97,15 +98,19 @@ export class ResultAiItemComponent {
     window.open(url, '_blank');
   }
 
+  autoGrow() {
+    if (this.titleInput?.nativeElement) {
+      this.titleInput.nativeElement.style.height = 'auto';
+      this.titleInput.nativeElement.style.height = this.titleInput.nativeElement.scrollHeight + 'px';
+    }
+  }
+
   startEditingTitle() {
     this._tempTitle = this.item.title;
     this.isEditingTitle.set(true);
     setTimeout(() => {
-      if (this.titleInput?.nativeElement && this.titleText?.nativeElement) {
-        const textWidth = this.titleText.nativeElement.offsetWidth;
-        this.titleInput.nativeElement.style.width = `${textWidth}px`;
-        this.titleInput.nativeElement.focus();
-      }
+      this.autoGrow();
+      this.titleInput?.nativeElement?.focus();
     });
   }
 
