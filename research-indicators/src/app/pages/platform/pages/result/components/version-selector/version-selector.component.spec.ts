@@ -3,8 +3,7 @@ import { VersionSelectorComponent } from './version-selector.component';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
-import { Subject } from 'rxjs';
-import { signal } from '@angular/core';
+import { routeMock, cacheServiceMock, routerMock, routerEventsSubject } from 'src/app/testing/mock-services';
 
 describe('VersionSelectorComponent', () => {
   let component: VersionSelectorComponent;
@@ -12,14 +11,8 @@ describe('VersionSelectorComponent', () => {
 
   // Mocks
   let apiMock: Partial<ApiService>;
-  let routerMock: Partial<Router>;
-  let routeMock: Partial<ActivatedRoute>;
-  let routerEventsSubject: Subject<any>;
-  let cacheService: Partial<CacheService>;
 
   beforeEach(waitForAsync(() => {
-    routerEventsSubject = new Subject();
-
     apiMock = {
       GET_Versions: jest.fn().mockResolvedValue({
         data: {
@@ -29,78 +22,11 @@ describe('VersionSelectorComponent', () => {
       })
     };
 
-    cacheService = {
-      windowHeight: signal(0),
-      dataCache: signal({
-        access_token: 'dummy_token',
-        refresh_token: 'dummy_refresh_token',
-        user: {
-          sec_user_id: 1,
-          is_active: true,
-          first_name: 'John',
-          last_name: 'Doe',
-          roleName: 'Admin',
-          email: 'john.doe@example.com',
-          status_id: 1,
-          user_role_list: [
-            {
-              is_active: true,
-              user_id: 1,
-              role_id: 1,
-              role: {
-                is_active: true,
-                justification_update: null,
-                sec_role_id: 1,
-                name: 'Admin',
-                focus_id: 0
-              }
-            }
-          ]
-        },
-        exp: 3600
-      }),
-      isLoggedIn: signal<boolean>(false),
-      currentMetadata: signal({
-        status_id: 5
-      }),
-      currentResultId: signal(123)
-    };
-
-    routerMock = {
-      events: routerEventsSubject.asObservable(),
-      navigate: jest.fn().mockResolvedValue(true)
-    };
-
-    routeMock = {
-      snapshot: {
-        url: [],
-        params: {},
-        queryParams: {},
-        fragment: null,
-        data: {},
-        outlet: '',
-        component: null,
-        routeConfig: null,
-        root: {} as any,
-        parent: null,
-        firstChild: null,
-        children: [],
-        pathFromRoot: [],
-        paramMap: {} as any,
-        queryParamMap: {
-          get: jest.fn().mockReturnValue(null),
-          has: jest.fn().mockReturnValue(false),
-          getAll: jest.fn().mockReturnValue([]),
-          keys: []
-        }
-      } as any
-    };
-
     TestBed.configureTestingModule({
       imports: [VersionSelectorComponent],
       providers: [
         { provide: ApiService, useValue: apiMock },
-        { provide: CacheService, useValue: cacheService },
+        { provide: CacheService, useValue: cacheServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: routeMock }
       ]
@@ -119,8 +45,8 @@ describe('VersionSelectorComponent', () => {
 
   it('should call loadVersions on navigation end event', () => {
     const spyLoadVersions = jest.spyOn(component as any, 'loadVersions').mockImplementation(() => Promise.resolve());
-
     routerEventsSubject.next(new NavigationEnd(1, '/result/ABC123', '/result/ABC123'));
+    fixture.detectChanges();
 
     expect(spyLoadVersions).toHaveBeenCalled();
   });
