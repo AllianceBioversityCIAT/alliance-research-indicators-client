@@ -8,28 +8,31 @@ import { ScrollToTopService } from '@shared/services/scroll-top.service';
 import { filter, Subscription } from 'rxjs';
 
 @Component({
-    selector: 'app-platform',
-    imports: [RouterOutlet, AllianceNavbarComponent, AllianceSidebarComponent, SectionHeaderComponent, AllModalsComponent],
-    templateUrl: './platform.component.html',
-    styleUrl: './platform.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-platform',
+  imports: [RouterOutlet, AllianceNavbarComponent, AllianceSidebarComponent, SectionHeaderComponent, AllModalsComponent],
+  templateUrl: './platform.component.html',
+  styleUrl: './platform.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export default class PlatformComponent  implements OnInit, OnDestroy {
-    private routerSubscription!: Subscription;
-    private readonly router = inject(Router);
-    private readonly scrollService = inject(ScrollToTopService);
-  
-    ngOnInit(): void {
-      this.routerSubscription = this.router.events
-        .pipe(filter(event => event instanceof NavigationEnd))
-        .subscribe(() => {
-          this.scrollService.scrollContentToTop('content');
-        });
-    }
-  
-    ngOnDestroy(): void {
-      if (this.routerSubscription) {
-        this.routerSubscription.unsubscribe();
+export default class PlatformComponent implements OnInit, OnDestroy {
+  private routerSubscription!: Subscription;
+  private readonly router = inject(Router);
+  private readonly scrollService = inject(ScrollToTopService);
+
+  ngOnInit(): void {
+    this.routerSubscription = this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe({
+      next: () => {
+        this.scrollService.scrollContentToTop('content');
+      },
+      error: err => {
+        console.error(err);
       }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription && !this.routerSubscription.closed) {
+      this.routerSubscription.unsubscribe();
     }
+  }
 }
