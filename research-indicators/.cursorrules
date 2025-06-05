@@ -59,6 +59,7 @@ Tiene que habalrme en español
 ## Testing Guidelines
 
 1. Unit Tests (.spec.ts files)
+
    - Only fix existing tests, do not add new ones unless specifically requested
    - Follow this process when fixing tests:
      1. Run all tests first: `npm run test` to identify failing tests
@@ -78,6 +79,67 @@ Tiene que habalrme en español
    - cuando diga "mejora lines" te voy a dar un archivo .spec.ts y debes mejorar el coverage en lines, luego corres la prueba con el archivo para valdiar si aumento o no
    - cuando diga "mejora functions" te voy a dar un archivo .spec.ts y debes mejorar el coverage en functions, luego corres la prueba con el archivo para valdiar si aumento o no
    - todo lo que tenga que ver con pruebas, claramente con jest, debes ser muy logico con lo que se va a hacer y tener contexto de las demas preubas para entender como solucionar ya errores o problemas resueltos
+
+2. Angular 18 + Jest Specific Testing Rules:
+
+   **Signal Testing:**
+
+   - Use `signal()` for mock signals, not jest.fn()
+   - WritableSignal mocks: `mockSignal = { set: jest.fn(), update: jest.fn() } as any`
+   - For effects testing: always call `TestBed.flushEffects()` after signal changes
+   - Mock computed signals as regular functions that return values
+
+   **Service Mocking:**
+
+   - Services with inject(): Mock in providers array of TestBed
+   - ServiceLocatorService pattern: Mock getService() to return your mocked service
+   - Services returning signals: Mock with resolved promises returning signal instances
+   - Always initialize mocks in beforeEach with realistic return values
+
+   **Component Setup:**
+
+   - Standalone components: Import directly in TestBed.imports array
+   - Set all @Input() properties before calling ngOnInit()
+   - Use NoopAnimationsModule for PrimeNG components
+   - Mock all required services in providers array
+
+   **Async Testing:**
+
+   - Use async/await consistently, not .then()
+   - Test loading states: set signal before call, verify during, verify after
+   - Mock async service methods with `jest.fn().mockResolvedValue()`
+   - Always await component async methods in tests
+
+   **Coverage Optimization:**
+
+   - Focus on core functionality, not implementation details
+   - Comment out problematic tests that don't add real value
+   - Aim for 95%+ statements coverage on important components
+   - Test all public methods and computed properties
+   - Mock external dependencies completely
+
+   **Jest Configuration Awareness:**
+
+   - Check testPathIgnorePatterns in jest.config.ts
+   - Some directories might be ignored (like custom-fields)
+   - Temporarily modify jest.config.ts if needed for testing specific files
+   - Always revert jest.config.ts changes after testing
+
+   **Common Error Patterns to Avoid:**
+
+   - Don't mix jasmine and jest syntax
+   - Don't access private methods in tests
+   - Don't test Angular internal behavior
+   - Don't create overly complex effect tests
+   - Always verify mocks are called with correct parameters
+
+3. Error Resolution Strategy:
+   - Run `npm test` first to see all failing tests
+   - Focus on one failing test at a time
+   - Check if test dependencies are properly mocked
+   - Verify component inputs are set before ngOnInit
+   - Use `fixture.detectChanges()` after component setup
+   - For signal errors: ensure proper mock setup with actual signal instances
 
 ## Token Optimization Rules
 
