@@ -283,6 +283,8 @@ export class ResultAiAssistantComponent {
       training_type: result.training_type,
       start_date: result.start_date,
       end_date: result.end_date,
+      degree: result.degree,
+      delivery_modality: result.delivery_modality,
       total_participants: result.total_participants,
       evidence_for_stage: result.evidence_for_stage,
       policy_type: result.policy_type,

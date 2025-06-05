@@ -7,6 +7,8 @@ export interface AIAssistantResult {
   training_type: string;
   start_date: string;
   end_date: string;
+  degree: string;
+  delivery_modality: string;
   contract_code?: string;
   total_participants: number;
   non_binary_participants: string;
