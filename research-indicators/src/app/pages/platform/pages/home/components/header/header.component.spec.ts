@@ -11,18 +11,18 @@ describe('HeaderComponent', () => {
   beforeEach(waitForAsync(() => {
     apiMock = {
       GET_AnnouncementSettingAvailable: jest.fn().mockResolvedValue({
-        data: [{
-          title: 'Test Title',
-          description: 'Test Description'
-        }]
+        data: [
+          {
+            title: 'Test Title',
+            description: 'Test Description'
+          }
+        ]
       })
     };
 
     TestBed.configureTestingModule({
       imports: [HeaderComponent],
-      providers: [
-        { provide: ApiService, useValue: apiMock }
-      ]
+      providers: [{ provide: ApiService, useValue: apiMock }]
     }).compileComponents();
   }));
 
@@ -48,40 +48,77 @@ describe('HeaderComponent', () => {
     });
   });
 
-  it('should handle mouse move event', () => {
-    const mockElement = {
-      style: {
-        transform: ''
-      },
-      getBoundingClientRect: () => ({
-        left: 0,
-        top: 0,
-        width: 100,
-        height: 100
-      })
-    };
+  describe('onMouseMove', () => {
+    it('should not apply transform when element is not available', () => {
+      component.tiltBox = null as unknown as ElementRef;
+      const mockEvent = {
+        clientX: 50,
+        clientY: 50
+      } as MouseEvent;
 
-    component.tiltBox = { nativeElement: mockElement } as ElementRef;
-    
-    const mockEvent = {
-      clientX: 50,
-      clientY: 50
-    } as MouseEvent;
+      component.onMouseMove(mockEvent);
+      // No error should be thrown
+    });
 
-    component.onMouseMove(mockEvent);
-    expect(mockElement.style.transform).toBe('rotateX(0deg) rotateY(0deg)');
+    it('should apply transform for different mouse positions', () => {
+      const mockElement = {
+        style: {
+          transform: ''
+        },
+        getBoundingClientRect: () => ({
+          left: 0,
+          top: 0,
+          width: 100,
+          height: 100
+        })
+      };
+
+      component.tiltBox = { nativeElement: mockElement } as ElementRef;
+
+      // Test center position
+      const centerEvent = {
+        clientX: 50,
+        clientY: 50
+      } as MouseEvent;
+      component.onMouseMove(centerEvent);
+      expect(mockElement.style.transform).toBe('rotateX(0deg) rotateY(0deg)');
+
+      // Test top-left position
+      const topLeftEvent = {
+        clientX: 0,
+        clientY: 0
+      } as MouseEvent;
+      component.onMouseMove(topLeftEvent);
+      expect(mockElement.style.transform).toBe('rotateX(0deg) rotateY(0deg)');
+
+      // Test bottom-right position
+      const bottomRightEvent = {
+        clientX: 100,
+        clientY: 100
+      } as MouseEvent;
+      component.onMouseMove(bottomRightEvent);
+      expect(mockElement.style.transform).toBe('rotateX(0deg) rotateY(0deg)');
+    });
   });
 
-  it('should reset transform on mouse leave', () => {
-    const mockElement = {
-      style: {
-        transform: 'rotateX(10deg) rotateY(10deg)'
-      }
-    };
+  describe('onMouseLeave', () => {
+    it('should not reset transform when element is not available', () => {
+      component.tiltBox = null as unknown as ElementRef;
+      component.onMouseLeave();
+      // No error should be thrown
+    });
 
-    component.tiltBox = { nativeElement: mockElement } as ElementRef;
-    component.onMouseLeave();
-    expect(mockElement.style.transform).toBe('rotateX(0deg) rotateY(0deg)');
+    it('should reset transform on mouse leave', () => {
+      const mockElement = {
+        style: {
+          transform: 'rotateX(10deg) rotateY(10deg)'
+        }
+      };
+
+      component.tiltBox = { nativeElement: mockElement } as ElementRef;
+      component.onMouseLeave();
+      expect(mockElement.style.transform).toBe('rotateX(0deg) rotateY(0deg)');
+    });
   });
 
   it('should render message content in template', async () => {
