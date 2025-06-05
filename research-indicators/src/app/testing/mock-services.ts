@@ -130,3 +130,28 @@ export const submissionServiceMock = {
   setComment: jest.fn(),
   submit: jest.fn()
 } as unknown as SubmissionService;
+
+export const mockResultsStatus = {
+  data: [
+    { name: 'Status 1', amount_results: 5, result_status_id: 1 },
+    { name: 'Status 2', amount_results: 3, result_status_id: 2 },
+    { name: 'Status 3', amount_results: 0, result_status_id: 3 }
+  ]
+};
+
+export const mockIndicatorsResults = {
+  data: [
+    {
+      indicator_id: 1,
+      name: 'Indicator 1',
+      amount_results: 2,
+      icon_src: 'science'
+    },
+    {
+      indicator_id: 2,
+      name: 'Indicator 2',
+      amount_results: 0,
+      icon_src: 'analytics'
+    }
+  ]
+};

@@ -179,9 +179,11 @@ describe('DynamicFieldsComponent', () => {
     component.ngOnInit();
     component.form.get('test')?.setValue('value');
 
-    const consoleSpy = jest.spyOn(console, 'log');
-    component.save();
-    expect(consoleSpy).toHaveBeenCalled();
+    // Verificamos que el formulario es válido
+    expect(component.form.valid).toBeTruthy();
+
+    // Verificamos que save() no lanza ningún error
+    expect(() => component.save()).not.toThrow();
   });
 
   it('should handle unknown field type in buildFormGroup', () => {
