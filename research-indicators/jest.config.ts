@@ -44,6 +44,7 @@ const config: Config = {
     '^@guards/(.*)$': '<rootDir>/src/app/shared/guards/$1',
     '^@envs/(.*)$': '<rootDir>/src/environments/$1',
     '^@utils/(.*)$': '<rootDir>/src/app/shared/utils/$1',
+    '^src/app/testing/(.*)$': '<rootDir>/src/app/testing/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
   },
   transform: {
