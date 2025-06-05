@@ -9,7 +9,6 @@ const config: Config = {
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
     '<rootDir>/dist/',
-    '<rootDir>/src/app/pages/landing',
     '<rootDir>/src/app/shared/services',
     '<rootDir>/src/app/shared/components/custom-fields',
     '<rootDir>/src/app/shared/components/alert/alert.component.spec.ts'
