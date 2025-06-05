@@ -21,16 +21,18 @@
 
     <div class="result-item-title-container">
       @if (!isEditingTitle()) {
-        <p class="result-item-title" #titleText>{{ item.title | uppercase }}</p>
-        <i class="pi pi-pencil" style="font-size: 14px; color: #173F6F; cursor: pointer; margin-left: 10px;" (click)="startEditingTitle()" (keydown.enter)="startEditingTitle()"></i>
+        <div class="result-item-title-flex">
+          <p class="result-item-title" #titleText>{{ item.title | uppercase }}<i class="pi pi-pencil edit-pencil" (click)="startEditingTitle()" (keydown.enter)="startEditingTitle()"></i></p>
+        </div>
       } @else {
         <div class="edit-title-container">
-          <input
-            type="text"
+          <textarea
             class="result-item-title-input"
             [(ngModel)]="tempTitle"
-            #titleInput>
-          <div class="edit-actions">
+            #titleInput
+            (input)="autoGrow()"
+            rows="1"></textarea>
+          <div class="flex">
             <i class="pi pi-check" style="font-size: 14px; color: #173F6F; cursor: pointer;" (click)="finishEditingTitle()" (keydown.enter)="finishEditingTitle()"></i>
             <i class="pi pi-times" style="font-size: 14px; color: #173F6F; cursor: pointer; margin-left: 5px;" (click)="cancelEditingTitle()" (keydown.enter)="cancelEditingTitle()"></i>
           </div>
@@ -49,11 +51,36 @@
     </div>
 
     @if (expandedItem === item) {
-    <div class="flex gap-6">
-      <div class="result-item-keywords">
-        <p class="result-item-keywords-title">Training type</p>
-        <p class="result-item-keywords-arrow">&rarr;</p>
-        <p class="result-item-details-value-training-type">{{ item.training_type }}</p>
+      <div class="flex gap-6">
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">Training type</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.training_type }}</p>
+        </div>
+
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">Start date</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.start_date }}</p>
+        </div>
+
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">End date</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.end_date }}</p>
+        </div>
+
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">Degree</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.degree || 'NOT COLLECTED' }}</p>
+        </div>
+
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">Delivery modality</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.delivery_modality || 'NOT COLLECTED' }}</p>
+        </div>
       </div>
 
       <div class="result-item-keywords">
