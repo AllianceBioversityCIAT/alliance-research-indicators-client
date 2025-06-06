@@ -2,6 +2,7 @@ import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { DataCache } from '@interfaces/cache.interface';
 import { GetMetadata } from '../../interfaces/get-metadata.interface';
 import { GreenChecks } from '../../interfaces/get-green-checks.interface';
+import { TransformResultCodeResponse } from '@shared/interfaces/get-transform-result-code.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,10 @@ export class CacheService {
   greenChecks = signal<GreenChecks>({});
   currentRouteTitle = signal('');
   showSectionHeaderActions = signal(false);
-
+  lastResultId = signal<number | null>(null);
+  lastVersionParam = signal<string | null>(null);
+  versionsList = signal<TransformResultCodeResponse[]>([]);
+  liveVersionData = signal<TransformResultCodeResponse | null>(null);
   allGreenChecksAreTrue = computed(() => Object.values(this.greenChecks()).every(check => check));
   isMyResult = computed(() => Number(this.currentMetadata().created_by) === Number(this.dataCache().user.sec_user_id));
 

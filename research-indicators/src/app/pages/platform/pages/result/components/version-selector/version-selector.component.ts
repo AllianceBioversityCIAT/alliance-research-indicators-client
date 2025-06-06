@@ -52,11 +52,15 @@ export class VersionSelectorComponent implements OnDestroy {
     const resultId = this.cache.currentResultId();
     if (!resultId || resultId <= 0) return;
 
+
     const response = await this.api.GET_Versions(resultId);
     const data = response.data;
 
     const liveData = Array.isArray(data.live) && data.live.length > 0 ? data.live[0] : null;
     const versionsArray = Array.isArray(data.versions) ? data.versions : [];
+
+    this.cache.liveVersionData.set(liveData);
+    this.cache.versionsList.set(versionsArray);
 
     this.liveVersion.set(liveData);
     this.approvedVersions.set(versionsArray);
@@ -64,7 +68,15 @@ export class VersionSelectorComponent implements OnDestroy {
     this.handleVersionSelection({ resultId, liveData, versionsArray });
   }
 
-  private handleVersionSelection({ resultId, liveData, versionsArray }: { resultId: number; liveData: TransformResultCodeResponse; versionsArray: TransformResultCodeResponse[] }) {
+  private handleVersionSelection({
+    resultId,
+    liveData,
+    versionsArray
+  }: {
+    resultId: number;
+    liveData: TransformResultCodeResponse;
+    versionsArray: TransformResultCodeResponse[];
+  }) {
     const versionParam = this.route.snapshot.queryParamMap.get('version');
     const urlParts = this.router.url.split('/');
     const currentChild = urlParts.length > 3 ? urlParts[3].split('?')[0] : 'general-information';
