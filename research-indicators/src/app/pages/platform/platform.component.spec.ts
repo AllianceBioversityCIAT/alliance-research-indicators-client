@@ -1,7 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router, NavigationEnd, RouterOutlet, ActivatedRoute } from '@angular/router';
 import { ScrollToTopService } from '@shared/services/scroll-top.service';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
@@ -11,135 +11,190 @@ import { AllianceSidebarComponent } from '@components/alliance-sidebar/alliance-
 import { SectionHeaderComponent } from '@components/section-header/section-header.component';
 import { AllModalsComponent } from '../../shared/components/all-modals/all-modals.component';
 import PlatformComponent from './platform.component';
-import {
-  actionsServiceMock,
-  apiServiceMock,
-  cacheServiceMock,
-  httpClientMock,
-  routerMock,
-  routerEventsSubject,
-  submissionServiceMock
-} from 'src/app/testing/mock-services';
+import * as mockServices from 'src/app/testing/mock-services';
 import { SubmissionService } from '@shared/services/submission.service';
 
 describe('PlatformComponent', () => {
   let component: PlatformComponent;
   let fixture: ComponentFixture<PlatformComponent>;
-  let scrollToTopService: ScrollToTopService;
+  let scrollToTopServiceMock: { scrollContentToTop: jest.Mock };
+  let routerEventsSubject: Subject<any>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    class ScrollToTopServiceMock {
-      scrollContentToTop = jest.fn();
-    }
+    routerEventsSubject = new Subject<any>();
+    mockServices.routerMock.events = routerEventsSubject.asObservable();
+    scrollToTopServiceMock = {
+      scrollContentToTop: jest.fn()
+    };
 
     await TestBed.configureTestingModule({
       imports: [RouterOutlet, AllianceNavbarComponent, AllianceSidebarComponent, SectionHeaderComponent, AllModalsComponent, PlatformComponent],
       providers: [
-        { provide: Router, useValue: routerMock },
+        { provide: Router, useValue: mockServices.routerMock },
         { provide: ActivatedRoute, useValue: { snapshot: { params: {} } } },
-        { provide: ScrollToTopService, useClass: ScrollToTopServiceMock },
-        { provide: HttpClient, useValue: httpClientMock },
-        { provide: ActionsService, useValue: actionsServiceMock },
-        { provide: ApiService, useValue: apiServiceMock },
-        { provide: CacheService, useValue: cacheServiceMock },
-        { provide: SubmissionService, useValue: submissionServiceMock }
+        { provide: ScrollToTopService, useValue: scrollToTopServiceMock },
+        { provide: HttpClient, useValue: mockServices.httpClientMock },
+        { provide: ActionsService, useValue: mockServices.actionsServiceMock },
+        { provide: ApiService, useValue: mockServices.apiServiceMock },
+        { provide: CacheService, useValue: mockServices.cacheServiceMock },
+        { provide: SubmissionService, useValue: mockServices.submissionServiceMock }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PlatformComponent);
     component = fixture.componentInstance;
-    scrollToTopService = TestBed.inject(ScrollToTopService);
+  });
+
+  afterEach(() => {
+    if (component['routerSubscription'] && !component['routerSubscription'].closed) {
+      component['routerSubscription'].unsubscribe();
+    }
+    routerEventsSubject.complete();
+    fixture.destroy();
+    jest.clearAllMocks();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize router subscription on init', () => {
+  it('should initialize router subscription on init', fakeAsync(() => {
     fixture.detectChanges();
+    tick();
     expect(component['routerSubscription']).toBeTruthy();
-  });
+  }));
 
-  it('should call scrollContentToTop on NavigationEnd event', () => {
+  it('should call scrollContentToTop on NavigationEnd event', fakeAsync(() => {
     fixture.detectChanges();
+    tick();
     routerEventsSubject.next(new NavigationEnd(1, '/test', '/test'));
-    expect(scrollToTopService.scrollContentToTop).toHaveBeenCalledWith('content');
-  });
+    tick();
+    expect(scrollToTopServiceMock.scrollContentToTop).toHaveBeenCalledWith('content');
+  }));
 
-  it('should not call scrollContentToTop on other event types', () => {
+  it('should not call scrollContentToTop on other event types', fakeAsync(() => {
     fixture.detectChanges();
+    tick();
     routerEventsSubject.next({ type: 'other' });
-    expect(scrollToTopService.scrollContentToTop).not.toHaveBeenCalled();
-  });
+    tick();
+    expect(scrollToTopServiceMock.scrollContentToTop).not.toHaveBeenCalled();
+  }));
 
-  it('should unsubscribe from router on component destroy', () => {
+  it('should unsubscribe from router on component destroy', fakeAsync(() => {
     fixture.detectChanges();
+    tick();
     const unsubscribeSpy = jest.spyOn(component['routerSubscription'], 'unsubscribe');
     component.ngOnDestroy();
     expect(unsubscribeSpy).toHaveBeenCalled();
-  });
+  }));
 
   it('should handle case when no subscription exists on destroy', () => {
     component['routerSubscription'] = null as unknown as Subscription;
     expect(() => component.ngOnDestroy()).not.toThrow();
   });
 
-  it('should handle multiple NavigationEnd events', () => {
+  it('should handle multiple NavigationEnd events', fakeAsync(() => {
     fixture.detectChanges();
+    tick();
     routerEventsSubject.next(new NavigationEnd(1, '/test1', '/test1'));
     routerEventsSubject.next(new NavigationEnd(2, '/test2', '/test2'));
-    expect(scrollToTopService.scrollContentToTop).toHaveBeenCalledTimes(2);
-  });
+    tick();
+    expect(scrollToTopServiceMock.scrollContentToTop).toHaveBeenCalledTimes(2);
+  }));
 
-  it('should handle navigation events in order', () => {
+  it('should handle navigation events in order', fakeAsync(() => {
     fixture.detectChanges();
-    const scrollSpy = jest.spyOn(scrollToTopService, 'scrollContentToTop');
+    tick();
+    const scrollSpy = jest.spyOn(scrollToTopServiceMock, 'scrollContentToTop');
 
     routerEventsSubject.next(new NavigationEnd(1, '/test1', '/test1'));
+    tick();
     expect(scrollSpy).toHaveBeenCalledTimes(1);
 
     routerEventsSubject.next(new NavigationEnd(2, '/test2', '/test2'));
+    tick();
     expect(scrollSpy).toHaveBeenCalledTimes(2);
-  });
+  }));
 
-  it('should handle error in router subscription', () => {
+  it('should handle error in router subscription and update errorState', fakeAsync(() => {
     fixture.detectChanges();
+    tick();
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    routerEventsSubject.error(new Error('Test error'));
-    expect(consoleSpy).toHaveBeenCalled();
+    const testError = new Error('Test error');
+
+    // Simulamos un error en el observable
+    mockServices.routerMock.events = throwError(() => testError);
+    fixture = TestBed.createComponent(PlatformComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    tick();
+
+    expect(consoleSpy).toHaveBeenCalledWith('Error en la suscripción del router:', testError);
+    expect(component.errorState()).toBe(testError);
     consoleSpy.mockRestore();
-  });
+  }));
 
-  it('should handle complete in router subscription', () => {
+  it('should reset errorState on successful navigation', fakeAsync(() => {
     fixture.detectChanges();
+    tick();
+
+    // Primero simulamos un error
+    const testError = new Error('Test error');
+    mockServices.routerMock.events = throwError(() => testError);
+    fixture = TestBed.createComponent(PlatformComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    tick();
+    expect(component.errorState()).toBe(testError);
+
+    // Luego restauramos el observable normal y navegamos
+    mockServices.routerMock.events = routerEventsSubject.asObservable();
+    fixture = TestBed.createComponent(PlatformComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    tick();
+
+    routerEventsSubject.next(new NavigationEnd(1, '/test', '/test'));
+    tick();
+    expect(component.errorState()).toBeNull();
+  }));
+
+  it('should handle complete in router subscription', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
     routerEventsSubject.complete();
+    tick();
     expect(component['routerSubscription'].closed).toBeTruthy();
-  });
+  }));
 
-  it('should handle multiple destroy calls', () => {
+  it('should handle multiple destroy calls', fakeAsync(() => {
     fixture.detectChanges();
+    tick();
     component.ngOnDestroy();
-    // Segunda llamada, no debe lanzar error y la suscripción debe estar cerrada
     expect(() => component.ngOnDestroy()).not.toThrow();
     expect(component['routerSubscription'].closed).toBe(true);
-  });
+  }));
 
-  it('should handle navigation with different URLs', () => {
+  it('should handle navigation with different URLs', fakeAsync(() => {
     jest.clearAllMocks();
     fixture.detectChanges();
+    tick();
     expect(() => {
       routerEventsSubject.next(new NavigationEnd(1, '/test1', '/test1'));
       routerEventsSubject.next(new NavigationEnd(2, '/test2', '/test2'));
+      tick();
     }).not.toThrow();
-  });
+  }));
 
-  it('should handle navigation with same URL', () => {
+  it('should handle navigation with same URL', fakeAsync(() => {
     jest.clearAllMocks();
     fixture.detectChanges();
+    tick();
     expect(() => {
       routerEventsSubject.next(new NavigationEnd(1, '/test', '/test'));
       routerEventsSubject.next(new NavigationEnd(2, '/test', '/test'));
+      tick();
     }).not.toThrow();
-  });
+  }));
 });

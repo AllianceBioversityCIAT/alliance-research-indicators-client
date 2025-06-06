@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { AllianceNavbarComponent } from '@components/alliance-navbar/alliance-navbar.component';
 import { AllianceSidebarComponent } from '@components/alliance-sidebar/alliance-sidebar.component';
@@ -19,13 +19,18 @@ export default class PlatformComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly scrollService = inject(ScrollToTopService);
 
+  // Signal para manejar el estado de error
+  public readonly errorState = signal<Error | null>(null);
+
   ngOnInit(): void {
     this.routerSubscription = this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe({
       next: () => {
         this.scrollService.scrollContentToTop('content');
+        this.errorState.set(null); // Resetear el estado de error en navegación exitosa
       },
-      error: err => {
-        console.error(err);
+      error: (err: Error) => {
+        this.errorState.set(err);
+        console.error('Error en la suscripción del router:', err);
       }
     });
   }
