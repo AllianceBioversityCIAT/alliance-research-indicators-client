@@ -106,6 +106,11 @@ export class SubmitResultContentComponent {
     if (!response.successfulRequest) return;
     if (this.submissionService.statusSelected()?.statusId === 6) this.submissionService.comment.set('');
     await this.metadata.update(this.cache.currentResultId());
+    this.cache.lastResultId.set(null);
+    this.cache.lastVersionParam.set(null);
+    this.cache.liveVersionData.set(null);
+    this.cache.versionsList.set([]);
+
     this.router.navigate(['/result', this.cache.currentMetadata().result_official_code]);
 
     this.allModalsService.closeModal('submitResult');

@@ -52,6 +52,33 @@ export class VersionSelectorComponent implements OnDestroy {
     const resultId = this.cache.currentResultId();
     if (!resultId || resultId <= 0) return;
 
+    const versionParam = this.route.snapshot.queryParamMap.get('version');
+    if (this.cache.lastResultId() === resultId && this.cache.lastVersionParam() === versionParam) {
+      this.liveVersion.set(this.cache.liveVersionData());
+      this.approvedVersions.set(this.cache.versionsList());
+
+      if (versionParam) {
+        const selected = this.cache.versionsList().find(v => String(v.report_year_id) === versionParam);
+        if (selected) {
+          this.selectedResultId.set(selected.result_id);
+        }
+      } else {
+        const live = this.cache.liveVersionData();
+        if (live && live.result_status_id !== 6) {
+          this.selectedResultId.set(live.result_id);
+        } else {
+          // No es live version y la ruta está vacía: selecciona la primera versión aprobada
+          const firstApproved = this.cache.versionsList()[0];
+          if (firstApproved) {
+            this.selectedResultId.set(firstApproved.result_id);
+          }
+        }
+      }
+
+      return;
+    }
+    this.cache.lastResultId.set(resultId);
+    this.cache.lastVersionParam.set(versionParam);
 
     const response = await this.api.GET_Versions(resultId);
     const data = response.data;
