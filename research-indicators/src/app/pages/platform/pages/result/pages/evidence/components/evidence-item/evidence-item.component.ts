@@ -50,7 +50,9 @@ export class EvidenceItemComponent implements OnInit {
         const currentEvidence = this.body();
         if (currentEvidence) {
           body.evidence[this.index!].evidence_url = currentEvidence.evidence_url;
-          body.evidence[this.index!].evidence_description = currentEvidence.evidence_description;
+          if (JSON.stringify(body.evidence[this.index!]) !== JSON.stringify(currentEvidence)) {
+            body.evidence[this.index!] = { ...currentEvidence };
+          }
         }
 
         return { ...body };

@@ -43,7 +43,7 @@
           (keyup.enter)="this.onSearchTextChange($event)" />
       </div>
       <div dropdown-button (keydown.enter)="this.showDropdown = !this.showDropdown" (click)="this.showDropdown = !this.showDropdown">
-        <p-avatar [label]="this.actions.getInitials()" styleClass="!rounded-xl font-[600] flex pb-[1px]"></p-avatar>
+        <p-avatar [label]="this.actions.getInitials()" styleClass="!rounded-xl cursor-pointer font-[600] flex pb-[1px]"></p-avatar>
       </div>
     </div>
   </div>
