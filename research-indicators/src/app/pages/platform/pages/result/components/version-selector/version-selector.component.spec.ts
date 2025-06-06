@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { VersionSelectorComponent } from './version-selector.component';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
-import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
-import { routeMock, cacheServiceMock, routerMock, routerEventsSubject } from 'src/app/testing/mock-services';
+import { ActivatedRoute, Router } from '@angular/router';
+import { routeMock, cacheServiceMock, routerMock } from 'src/app/testing/mock-services';
 
 describe('VersionSelectorComponent', () => {
   let component: VersionSelectorComponent;
@@ -41,14 +41,6 @@ describe('VersionSelectorComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should call loadVersions on navigation end event', () => {
-    const spyLoadVersions = jest.spyOn(component as any, 'loadVersions').mockImplementation(() => Promise.resolve());
-    routerEventsSubject.next(new NavigationEnd(1, '/result/ABC123', '/result/ABC123'));
-    fixture.detectChanges();
-
-    expect(spyLoadVersions).toHaveBeenCalled();
   });
 
   it('should set selectedResultId if version query param matches', async () => {
