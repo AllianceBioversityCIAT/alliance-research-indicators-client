@@ -2,34 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ResultsTableComponent } from './results-table.component';
 import { ApiService } from '@services/api.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { apiServiceMock } from 'src/app/testing/mock-services.mock';
 
 describe('ResultsTableComponent', () => {
   let component: ResultsTableComponent;
   let fixture: ComponentFixture<ResultsTableComponent>;
-  let apiServiceMock: Partial<ApiService>;
-
-  beforeAll(() => {
-    global.ResizeObserver = class {
-      observe(target: Element) {
-        // Mock implementation for observe
-        console.log('Observing:', target);
-      }
-      unobserve(target: Element) {
-        // Mock implementation for unobserve
-        console.log('Stopped observing:', target);
-      }
-      disconnect() {
-        // Mock implementation for disconnect
-        console.log('Disconnected');
-      }
-    };
-  });
 
   beforeEach(async () => {
-    apiServiceMock = {
-      // Mock other methods if needed
-    };
-
     await TestBed.configureTestingModule({
       imports: [ResultsTableComponent],
       providers: [{ provide: ApiService, useValue: apiServiceMock }, provideHttpClient(withInterceptorsFromDi())]

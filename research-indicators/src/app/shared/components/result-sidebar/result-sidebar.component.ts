@@ -141,11 +141,11 @@ export class ResultSidebarComponent {
       commentRequired: this.submissionService.currentResultIsSubmitted(),
       confirmCallback: {
         label: 'Confirm',
-        event: (comment?: string) => {
+        event: (data?: { comment?: string; selected?: string }) => {
           (async () => {
             const response = await this.api.PATCH_SubmitResult({
               resultCode: this.cache.currentResultId(),
-              comment: comment ?? '',
+              comment: data?.comment ?? '',
               status: this.submissionService.currentResultIsSubmitted() ? 4 : 2
             });
             this.metadata.update(this.cache.currentResultId());

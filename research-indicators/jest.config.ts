@@ -9,7 +9,6 @@ const config: Config = {
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
     '<rootDir>/dist/',
-    '<rootDir>/src/app/pages/landing',
     '<rootDir>/src/app/shared/services',
     '<rootDir>/src/app/shared/components/custom-fields',
     '<rootDir>/src/app/shared/components/alert/alert.component.spec.ts'
@@ -45,6 +44,7 @@ const config: Config = {
     '^@guards/(.*)$': '<rootDir>/src/app/shared/guards/$1',
     '^@envs/(.*)$': '<rootDir>/src/environments/$1',
     '^@utils/(.*)$': '<rootDir>/src/app/shared/utils/$1',
+    '^src/app/testing/(.*)$': '<rootDir>/src/app/testing/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
   },
   transform: {

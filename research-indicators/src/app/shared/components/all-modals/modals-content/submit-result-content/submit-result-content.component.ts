@@ -10,6 +10,7 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { ReviewOption } from '../../../../interfaces/review-option.interface';
 import { SubmissionService } from '../../../../services/submission.service';
 import { ActionsService } from '@shared/services/actions.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-submit-result-content',
@@ -23,6 +24,7 @@ export class SubmitResultContentComponent {
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
   actions = inject(ActionsService);
+  private readonly router = inject(Router);
 
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
@@ -104,6 +106,34 @@ export class SubmitResultContentComponent {
     if (!response.successfulRequest) return;
     if (this.submissionService.statusSelected()?.statusId === 6) this.submissionService.comment.set('');
     await this.metadata.update(this.cache.currentResultId());
+    this.cache.lastResultId.set(null);
+    this.cache.lastVersionParam.set(null);
+    this.cache.liveVersionData.set(null);
+    this.cache.versionsList.set([]);
+
+    // Primero navegar sin versión para forzar la recarga
+    const currentPath = this.router.url.split('?')[0];
+    await this.router.navigate([currentPath], {
+      queryParams: {},
+      replaceUrl: true
+    });
+
+    // Esperar un momento para que se carguen las versiones
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Luego navegar con la versión si es aprobado
+    if (this.submissionService.statusSelected()?.statusId === 6) {
+      const versionsResponse = await this.api.GET_Versions(this.cache.currentResultId());
+      const versions = Array.isArray(versionsResponse.data.versions) ? versionsResponse.data.versions : [];
+      this.cache.versionsList.set(versions);
+      if (versions.length > 0) {
+        await this.router.navigate([currentPath], {
+          queryParams: { version: versions[0].report_year_id },
+          replaceUrl: true
+        });
+      }
+    }
+
     this.allModalsService.closeModal('submitResult');
   }
 }

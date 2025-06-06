@@ -13,7 +13,7 @@ export class GetMetadataService {
 
   async update(id: number): Promise<boolean> {
     const response = await this.api.GET_Metadata(id);
-    if (response?.status === 404) {
+    if (response?.status !== 200) {
       this.router.navigate(['/results-center']);
       return false;
     } else {

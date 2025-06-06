@@ -5,8 +5,8 @@ import { Injectable, signal } from '@angular/core';
 })
 export class YesOrNotService {
   list = signal<{ name: string; value: number }[]>([
-    { name: 'Yes', value: 0 },
-    { name: 'No', value: 1 }
+    { name: 'Yes', value: 1 },
+    { name: 'No', value: 0 }
   ]);
   loading = signal(false);
 }

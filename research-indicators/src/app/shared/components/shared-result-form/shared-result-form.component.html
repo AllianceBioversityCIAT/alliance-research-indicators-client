@@ -10,13 +10,13 @@
     [style]="isInvalid && showWarning ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
     [lazy]="true"
     (ngModelChange)="onContractChange($event)"
-    [virtualScrollItemSize]="10"
+    [virtualScrollItemSize]="69"
     [filter]="true"
-    [scrollHeight]="'285px'"
+    [scrollHeight]="'290px'"
     [filterBy]="'select_label,project_lead_description'"
     class="!text-[13px]">
     <ng-template let-item pTemplate="item">
-      <div class="flex flex-col gap-2 text-[14px]" pTooltip="{{ item?.description }}">
+      <div class="flex flex-col gap-2 h-[54px] text-[14px]" pTooltip="{{ item?.description }}">
         <p class="text-[#4C5158] font-[400]">
           <b>{{ item?.agreement_id }} -</b>
           {{ getShortDescription(item?.description) }}
@@ -53,7 +53,7 @@
   </p-select>
 
   @if (isInvalid && showWarning) {
-    <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+    <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm test-warning">
       <i class="material-symbols-rounded !text-[12px]">warning</i>
       <span class="!text-[12px]">This field is required</span>
     </div>

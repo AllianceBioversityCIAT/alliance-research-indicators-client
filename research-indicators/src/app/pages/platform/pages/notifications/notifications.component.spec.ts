@@ -8,22 +8,6 @@ describe('NotificationsComponent', () => {
   let fixture: ComponentFixture<NotificationsComponent>;
 
   beforeEach(async () => {
-    // Mock ResizeObserver
-    global.ResizeObserver = class {
-      observe(target: Element) {
-        // Mock implementation
-        console.log('Mock observe called on:', target);
-      }
-      unobserve(target: Element) {
-        // Mock implementation
-        console.log('Mock unobserve called on:', target);
-      }
-      disconnect() {
-        // Mock implementation
-        console.log('Mock disconnect called');
-      }
-    };
-
     await TestBed.configureTestingModule({
       imports: [NotificationsComponent, TabViewModule, NotificationItemComponent]
     }).compileComponents();

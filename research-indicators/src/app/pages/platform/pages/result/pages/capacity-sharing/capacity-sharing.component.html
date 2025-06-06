@@ -96,7 +96,7 @@
     </div>
 
     <div class="flex flex-col xl:flex-row gap-8">
-      <div class="flex-1 max-w-[460px]">
+      <div class="flex-1 xl:max-w-[460px]">
         <app-select
           label="Trainee nationality"
           [signal]="body"
@@ -175,6 +175,18 @@
           [serviceName]="'capSharingSessionPurpose'"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'group.session_purpose_id', option: 'session_purpose_id' }"></app-radio-button>
+
+        @if (body().group?.session_purpose_id === 4) {
+          <div class="flex-1 pt-2">
+            <app-input
+              [signal]="body"
+              [isRequired]="true"
+              [disabled]="!submission.isEditableStatus()"
+              placeholder="Write the other purpose"
+              optionValue="group.session_purpose_description"></app-input>
+          </div>
+          <div class="flex-1"></div>
+        }
       </div>
 
       <div class="flex-1">
@@ -188,19 +200,6 @@
           [optionValue]="{ body: 'group.is_attending_organization', option: 'value' }"></app-radio-button>
       </div>
     </div>
-
-    @if (body().group?.session_purpose_id === 4) {
-      <div class="flex flex-col xl:flex-row gap-8 mb-6">
-        <div class="flex-1">
-          <app-input
-            [signal]="body"
-            [disabled]="!submission.isEditableStatus()"
-            placeholder="Write the other purpose"
-            optionValue="group.session_purpose_description"></app-input>
-        </div>
-        <div class="flex-1"></div>
-      </div>
-    }
 
     <div>
       <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074B86] gap-[7px] px-2.5 mb-[30px]">
@@ -263,7 +262,7 @@
         </app-select>
       </div>
 
-      <div class="flex-1 max-w-[160px]">
+      <div class="flex-1 xl:max-w-[160px]">
         <app-calendar-input
           label="Start date"
           [signal]="body"
@@ -273,7 +272,7 @@
           [maxDate]="body().end_date"></app-calendar-input>
       </div>
 
-      <div class="flex-1 max-w-[160px]">
+      <div class="flex-1 xl:max-w-[160px]">
         <app-calendar-input
           label="End date"
           [signal]="body"

@@ -36,7 +36,24 @@ export default class IpRightsComponent {
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_IpOwner(this.cache.currentResultId());
-    this.body.set(response.data);
+    const fieldsToNormalize = ['publicity_restriction', 'potential_asset', 'requires_futher_development'] as const;
+
+    const normalized = { ...response.data };
+
+    fieldsToNormalize.forEach(field => {
+      const value = response.data[field];
+      let normalizedValue: number | undefined;
+      if (value === true) {
+        normalizedValue = 1;
+      } else if (value === false) {
+        normalizedValue = 0;
+      } else {
+        normalizedValue = undefined;
+      }
+      normalized[field] = normalizedValue;
+    });
+
+    this.body.set(normalized);
     this.loading.set(false);
   }
 
@@ -59,8 +76,13 @@ export default class IpRightsComponent {
 
       if (current.asset_ip_owner !== 4) {
         current.asset_ip_owner_description = null;
-        this.body.set({ ...current });
       }
+
+      current.publicity_restriction_description = current.publicity_restriction ? current.publicity_restriction_description : null;
+      current.potential_asset_description = current.potential_asset ? current.potential_asset_description : null;
+      current.requires_futher_development_description = current.requires_futher_development ? current.requires_futher_development_description : null;
+
+      this.body.set({ ...current });
 
       const response = await this.api.PATCH_IpOwners(Number(resultId), this.body());
       if (!response.successfulRequest) {

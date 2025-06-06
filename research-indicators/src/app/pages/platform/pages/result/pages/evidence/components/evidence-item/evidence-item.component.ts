@@ -21,6 +21,18 @@ export class EvidenceItemComponent implements OnInit {
   submission = inject(SubmissionService);
   isPrivate = false;
 
+  syncBody = effect(() => {
+    if (this.index === null) return;
+    const parentEvidence = this.bodySignal().evidence?.[this.index];
+    if (parentEvidence && JSON.stringify(parentEvidence) !== JSON.stringify(this.body())) {
+      this.body.set(parentEvidence);
+      return;
+    }
+    if (this.evidence && JSON.stringify(this.evidence) !== JSON.stringify(this.body())) {
+      this.body.set(this.evidence);
+    }
+  });
+
   onChange = effect(
     () => {
       if (this.index === null) return;
@@ -38,7 +50,9 @@ export class EvidenceItemComponent implements OnInit {
         const currentEvidence = this.body();
         if (currentEvidence) {
           body.evidence[this.index!].evidence_url = currentEvidence.evidence_url;
-          body.evidence[this.index!].evidence_description = currentEvidence.evidence_description;
+          if (JSON.stringify(body.evidence[this.index!]) !== JSON.stringify(currentEvidence)) {
+            body.evidence[this.index!] = { ...currentEvidence };
+          }
         }
 
         return { ...body };

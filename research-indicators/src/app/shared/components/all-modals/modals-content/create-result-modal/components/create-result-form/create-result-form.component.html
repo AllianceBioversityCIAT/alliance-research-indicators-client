@@ -1,3 +1,10 @@
+<ng-template #requiredMessage>
+  <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+    <i class="material-symbols-rounded !text-[12px]">warning</i>
+    <span class="!text-[12px]">This field is required</span>
+  </div>
+</ng-template>
+
 <div class="grid mx-10 my-8 h-[calc(100%-60px)] w-[70vw] max-w-[1300px]">
   <div class="flex-wrap w-full px-6 items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] mb-[30px]">
     <div class="flex gap-3 mt-[15px] mb-2.5 items-center">
@@ -24,11 +31,12 @@
 
     <app-shared-result-form
       [contracts]="getContractsService.list()"
-      [showWarning]="false"
+      [showWarning]="true"
       [getContractStatusClasses]="getContractStatusClasses"
       title="Primary Project"
       [maxLength]="100"
       (validityChanged)="sharedFormValid = $event"
+      [contractId]="contractId"
       (contractIdChange)="onContractIdChange($event)">
     </app-shared-result-form>
 
@@ -41,6 +49,7 @@
           [(ngModel)]="body().indicator_id"
           placeholder="Select Indicator"
           [group]="true"
+          [style]="isIndicatorIdMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
           class="!text-[13px] w-full indicator-select">
           <ng-template let-group pTemplate="group">
             <div class="flex align-items-center py-2 px-3 bg-[#F4F7F9] text-[#A2A9AF] uppercase">
@@ -59,6 +68,10 @@
           </span>
           for more details.
         </h4>
+
+        @if (isIndicatorIdMissing) {
+          <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
+        }
       </div>
 
       <div class="flex-1 xl:max-w-[260px]">
@@ -66,32 +79,54 @@
         <p-select
           [options]="yearsService.list()"
           [(ngModel)]="body().year"
+          [style]="isYearMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
           [optionLabel]="'report_year'"
           [optionValue]="'report_year'"
           placeholder="Select the year"
           class="!text-[13px] w-full">
         </p-select>
         <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">Choose the year you are reporting data for.</h4>
+
+        @if (isYearMissing) {
+          <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
+        }
       </div>
     </div>
 
     <div class="w-full flex flex-col">
       <h2 class="text-[14px] font-[500] text-[#173F6F] pb-1">Title<span class="text-[15px] text-[#CF0808]">*</span></h2>
-      <input pInputText id="username" class="!text-[12px]" aria-describedby="username-help" [(ngModel)]="body().title" />
+      <input
+        pInputText
+        id="username"
+        class="!text-[12px]"
+        aria-describedby="username-help"
+        [(ngModel)]="body().title"
+        [style]="isTitleMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }" />
       <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">
         Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.
       </h4>
+      @if (isTitleMissing) {
+        <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
+      }
     </div>
 
-    <div class="w-full flex justify-end">
-      <button
-        class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl"
-        [disabled]="isDisabled"
-        (click)="this.createResult(true)">
+  <div class="w-full flex justify-end">
+    <button
+      class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
+      [disabled]="loading || isDisabled"
+      (click)="createResult(true)">
+      
+      @if (loading) {
+        <div class="min-w-[191px]">
+          <i class="pi pi-spinner pi-spin text-white text-xs"></i>
+        </div>
+      } @else {
         Create and continue
-        <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!isDisabled" [class.text-[#A2A9AF]]="isDisabled"> </i>
-      </button>
-    </div>
+        <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
+      }
+    </button>
+  </div>
+
   </div>
 
   <div class="flex items-center my-6">

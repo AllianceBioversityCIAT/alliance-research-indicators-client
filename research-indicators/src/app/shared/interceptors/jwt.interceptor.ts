@@ -11,8 +11,10 @@ export const jWtInterceptor: HttpInterceptorFn = (req, next) => {
   const actionsService = inject(ActionsService);
   const jwtToken = cacheService.dataCache().access_token;
   const targetDomain = environment.mainApiUrl;
+  const textMiningDomain = environment.textMiningUrl;
+  const fileManagerDomain = environment.fileManagerUrl;
 
-  if (req.url.includes(targetDomain)) {
+  if (req.url.includes(targetDomain) || req.url.includes(textMiningDomain) || req.url.includes(fileManagerDomain)) {
     // Skip token refresh if this is already a refresh token request
     if (req.url.includes('refresh-token')) {
       return next(req);
@@ -23,12 +25,29 @@ export const jWtInterceptor: HttpInterceptorFn = (req, next) => {
       switchMap(tokenValidation => {
         const currentToken = tokenValidation.isTokenExpired ? tokenValidation?.token_data?.access_token : jwtToken;
 
-        const clonedRequest = req.clone({
-          setHeaders: {
-            Authorization: `Bearer ${currentToken}`
-          }
-        });
+        let clonedRequest;
+        if (req.url.includes(fileManagerDomain) || req.url.includes(textMiningDomain)) {
+          clonedRequest = req.clone({
+            setHeaders: {
+              'access-token': currentToken ?? ''  
+            }
+          });
 
+          if (req.url.includes(textMiningDomain)) {
+            const newFormData = req.body as FormData; 
+            newFormData.set('token', currentToken ?? ''); 
+            clonedRequest = req.clone({
+              body: newFormData 
+            });
+          }
+
+        } else {
+          clonedRequest = req.clone({
+            setHeaders: {
+              Authorization: `Bearer ${currentToken}`
+            }
+          });
+        }
         // Reactive error handling
         return next(clonedRequest).pipe(
           catchError((error: HttpErrorResponse) => {

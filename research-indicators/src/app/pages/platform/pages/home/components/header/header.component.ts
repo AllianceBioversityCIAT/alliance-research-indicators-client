@@ -49,8 +49,12 @@ export class HeaderComponent implements OnInit {
   }
 
   async main() {
-    const response = await this.api.GET_AnnouncementSettingAvailable();
-    const [message] = response.data;
-    this.message.set(message);
+    try {
+      const response = await this.api.GET_AnnouncementSettingAvailable();
+      const [message] = response.data;
+      this.message.set(message);
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
