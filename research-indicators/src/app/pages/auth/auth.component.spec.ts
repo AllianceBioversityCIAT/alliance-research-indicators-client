@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { Socket } from 'ngx-socket-io';
 import AuthComponent from './auth.component';
@@ -8,6 +8,7 @@ import AuthComponent from './auth.component';
 describe('AuthComponent', () => {
   let component: AuthComponent;
   let fixture: ComponentFixture<AuthComponent>;
+  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -36,10 +37,20 @@ describe('AuthComponent', () => {
 
     fixture = TestBed.createComponent(AuthComponent);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('ngOnInit', () => {
+    it('should redirect to home if user is logged in', () => {
+      jest.spyOn(router, 'navigate');
+      jest.spyOn(component.cache, 'isLoggedIn').mockReturnValue(true);
+      component.ngOnInit();
+      expect(router.navigate).toHaveBeenCalledWith(['/']);
+    });
   });
 });
