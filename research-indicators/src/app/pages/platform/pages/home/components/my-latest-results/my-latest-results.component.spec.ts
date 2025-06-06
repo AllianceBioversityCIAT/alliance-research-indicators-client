@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MyLatestResultsComponent } from './my-latest-results.component';
 import { ApiService } from '@shared/services/api.service';
-import { mockLatestResults, mockGreenChecks, apiServiceMock } from '../../../../../../testing/mock-services';
+import { mockLatestResults, mockGreenChecks, apiServiceMock } from '../../../../../../testing/mock-services.mock';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 
 describe('MyLatestResultsComponent', () => {

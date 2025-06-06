@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ResultsTableComponent } from './results-table.component';
 import { ApiService } from '@services/api.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { apiServiceMock } from 'src/app/testing/mock-services';
+import { apiServiceMock } from 'src/app/testing/mock-services.mock';
 
 describe('ResultsTableComponent', () => {
   let component: ResultsTableComponent;
