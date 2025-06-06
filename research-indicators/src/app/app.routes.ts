@@ -13,6 +13,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'login',
+    loadComponent: () => import('./pages/login/login.component')
+  },
+
+  {
     path: 'auth',
     loadComponent: () => import('./pages/auth/auth.component')
   },
@@ -52,7 +57,7 @@ export const routes: Routes = [
         path: 'result/:id',
         loadComponent: () => import('@platform/pages/result/result.component'),
         resolve: {
-          resultExists: resultExistsResolver 
+          resultExists: resultExistsResolver
         },
         data: {
           showSectionHeaderActions: true
@@ -90,7 +95,7 @@ export const routes: Routes = [
             data: {
               title: 'Result Information'
             }
-          }, 
+          },
           {
             path: 'ip-rights',
             loadComponent: () => import('@platform/pages/result/pages/ip-rights/ip-rights.component'),
