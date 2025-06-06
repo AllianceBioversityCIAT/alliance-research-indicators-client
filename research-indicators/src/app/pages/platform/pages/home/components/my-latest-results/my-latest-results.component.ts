@@ -105,6 +105,8 @@ export class MyLatestResultsComponent implements OnInit {
     }
   }
 
+
+  
   calculateProgressFor(result: LatestResult): number {
     const greenChecks = this.greenChecksByResult()[result.result_official_code];
     if (!greenChecks) return 0;

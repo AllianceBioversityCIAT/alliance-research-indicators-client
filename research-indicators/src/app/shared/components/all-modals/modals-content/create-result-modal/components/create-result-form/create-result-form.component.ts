@@ -60,6 +60,7 @@ export class CreateResultFormComponent {
   });
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   sharedFormValid = false;
+  loading = false;
   contractId: number | null = null;
   onYearsLoaded = effect(
     () => {
@@ -97,12 +98,18 @@ export class CreateResultFormComponent {
     this.contractId = newContractId;
     this.body.update(b => ({ ...b, contract_id: newContractId }));
   }
+
   async createResult(openresult?: boolean) {
-    const result = await this.api.POST_Result(this.body());
-    if (result.successfulRequest) {
-      this.successRequest(result, openresult);
-    } else {
-      this.actions.handleBadRequest(result);
+    this.loading = true;
+    try {
+      const result = await this.api.POST_Result(this.body());
+      if (result.successfulRequest) {
+        this.successRequest(result, openresult);
+      } else {
+        this.actions.handleBadRequest(result);
+      }
+    } finally {
+      this.loading = false;
     }
   }
 

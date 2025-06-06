@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, effect, EffectRef } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { ResultSidebarComponent } from '../../../../shared/components/result-sidebar/result-sidebar.component';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
@@ -16,15 +16,32 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
 export default class ResultComponent {
   cache = inject(CacheService);
   metadata = inject(GetMetadataService);
-  resultId = Number(inject(ActivatedRoute).snapshot.params['id']);
+  route = inject(ActivatedRoute);
   versionWatcher = inject(VersionWatcherService);
+  versionChangeEffect: EffectRef | undefined;
+  lastVersion: string | null = null;
+  lastId: number | null = null;
 
   constructor() {
-    this.cache.currentResultId.set(this.resultId);
-    this.metadata.update(this.resultId);
+    // Sincroniza el ID global con la ruta activa
+    effect(() => {
+      const id = Number(this.route.snapshot.params['id']);
+      if (id > 0) {
+        this.cache.currentResultId.set(id);
+      }
+    });
 
-    this.versionWatcher.onVersionChange(() => {
-      this.metadata.update(this.resultId);
+    // Controla el update de metadata solo si cambia id o version
+    this.versionChangeEffect = effect(() => {
+      const version = this.versionWatcher.version();
+      const id = this.cache.currentResultId();
+      this.metadata.update(id);
+
+      if (id > 0 && (this.lastVersion !== version || this.lastId !== id)) {
+        this.metadata.update(id);
+        this.lastVersion = version;
+        this.lastId = id;
+      }
     });
   }
 }

@@ -164,3 +164,15 @@ document.createRange = () => {
   };
   return range as unknown as Range;
 };
+
+global.ResizeObserver = class {
+  observe(target: Element) {
+    console.warn('Mock observe called on:', target);
+  }
+  unobserve(target: Element) {
+    console.warn('Mock unobserve called on:', target);
+  }
+  disconnect() {
+    console.warn('Mock disconnect called');
+  }
+};
