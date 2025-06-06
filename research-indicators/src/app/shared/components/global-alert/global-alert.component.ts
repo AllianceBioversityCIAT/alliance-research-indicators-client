@@ -40,9 +40,9 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
     commentValue: '',
     selectValue: null
   });
-  private autoHideTimeouts: number[] = [];
 
   constructor(private readonly serviceLocator: ServiceLocatorService) {}
+  private autoHideTimeouts: number[] = [];
 
   alertList = computed(() => {
     const list = this.actions.globalAlertsStatus().map((alert: GlobalAlert) => {
@@ -69,6 +69,9 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
     return list;
   });
 
+  get isInvalid(): boolean {
+    return !this.body()?.selectValue;
+  }
   ngOnInit(): void {
     this.setupAutoHideForAlerts(this.alertList());
   }
@@ -100,9 +103,6 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
     this.autoHideTimeouts = [];
   }
 
-  get isInvalid(): boolean {
-    return !this.body()?.selectValue;
-  }
   closeAlert(index: number) {
     if (this.autoHideTimeouts[index]) {
       window.clearTimeout(this.autoHideTimeouts[index]);

@@ -4,6 +4,7 @@ import { TransformResultCodeResponse } from '@shared/interfaces/get-transform-re
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
+import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { filter, Subscription } from 'rxjs';
@@ -20,6 +21,7 @@ export class VersionSelectorComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly actions = inject(ActionsService);
+  private readonly metadata = inject(GetMetadataService);
 
   selectedResultId = signal<number | null>(null);
   liveVersion = signal<TransformResultCodeResponse | null>(null);
@@ -180,13 +182,26 @@ export class VersionSelectorComponent implements OnDestroy {
             if (!response.successfulRequest) {
               this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
             } else {
+              // Limpiar el cache para forzar una recarga completa
               this.cache.lastResultId.set(null);
               this.cache.lastVersionParam.set(null);
               this.cache.liveVersionData.set(null);
               this.cache.versionsList.set([]);
 
-              this.router.navigate(['/result', this.cache.currentMetadata().result_official_code]);
-              this.loadVersions();
+              // Forzar actualización de metadata
+              this.metadata.update(this.cache.currentResultId());
+
+              // Navegar a la ruta actual sin parámetros para que quede en live version
+              const currentPath = this.router.url.split('?')[0];
+              this.router
+                .navigate([currentPath], {
+                  queryParams: {},
+                  replaceUrl: true
+                })
+                .then(() => {
+                  // Después de navegar, recargar las versiones
+                  this.loadVersions();
+                });
 
               this.actions.showGlobalAlert({
                 severity: 'success',

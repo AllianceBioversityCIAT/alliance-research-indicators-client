@@ -18,9 +18,9 @@ export interface GlobalAlert {
   hasNoCancelButton?: boolean;
   generalButton?: boolean;
   buttonColor?: string;
+  serviceName?: ControlListServices;
   autoHideDuration?: number;
   hideCancelButton?: boolean;
-  serviceName?: ControlListServices;
 }
 
 interface Callback {
