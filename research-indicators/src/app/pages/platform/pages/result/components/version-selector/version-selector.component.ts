@@ -180,6 +180,11 @@ export class VersionSelectorComponent implements OnDestroy {
             if (!response.successfulRequest) {
               this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
             } else {
+              this.cache.lastResultId.set(null);
+              this.cache.lastVersionParam.set(null);
+              this.cache.liveVersionData.set(null);
+              this.cache.versionsList.set([]);
+
               this.router.navigate(['/result', this.cache.currentMetadata().result_official_code]);
               this.loadVersions();
 
