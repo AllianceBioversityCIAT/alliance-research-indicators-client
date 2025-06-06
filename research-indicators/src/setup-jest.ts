@@ -167,12 +167,12 @@ document.createRange = () => {
 
 global.ResizeObserver = class {
   observe(target: Element) {
-    console.log('Mock observe called on:', target);
+    console.warn('Mock observe called on:', target);
   }
   unobserve(target: Element) {
-    console.log('Mock unobserve called on:', target);
+    console.warn('Mock unobserve called on:', target);
   }
   disconnect() {
-    console.log('Mock disconnect called');
+    console.warn('Mock disconnect called');
   }
 };
