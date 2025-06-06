@@ -11,7 +11,7 @@ import { AllianceSidebarComponent } from '@components/alliance-sidebar/alliance-
 import { SectionHeaderComponent } from '@components/section-header/section-header.component';
 import { AllModalsComponent } from '../../shared/components/all-modals/all-modals.component';
 import PlatformComponent from './platform.component';
-import * as mockServices from 'src/app/testing/mock-services';
+import * as mockServices from 'src/app/testing/mock-services.mock';
 import { SubmissionService } from '@shared/services/submission.service';
 
 describe('PlatformComponent', () => {

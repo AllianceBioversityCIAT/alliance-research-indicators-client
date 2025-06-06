@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DataOverviewComponent } from './data-overview.component';
 import { ChartModule } from 'primeng/chart';
 import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
-import { apiServiceMock, mockResultsStatus, mockIndicatorsResults, cacheServiceMock, httpClientMock } from 'src/app/testing/mock-services';
+import { apiServiceMock, mockResultsStatus, mockIndicatorsResults, cacheServiceMock, httpClientMock } from 'src/app/testing/mock-services.mock';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { HttpClient } from '@angular/common/http';
