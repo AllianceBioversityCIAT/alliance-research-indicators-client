@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal, OnDestroy } from '@angular/core';
+import { Component, effect, inject, signal, OnDestroy, EffectRef } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { TransformResultCodeResponse } from '@shared/interfaces/get-transform-result-code.interface';
 import { ActionsService } from '@shared/services/actions.service';
@@ -25,8 +25,8 @@ export class VersionSelectorComponent implements OnDestroy {
   liveVersion = signal<TransformResultCodeResponse | null>(null);
   approvedVersions = signal<TransformResultCodeResponse[]>([]);
 
-  private versionEffectCleanup: any;
-  private routerEventsSub: Subscription | undefined;
+  private readonly versionEffectCleanup: EffectRef | undefined;
+  private readonly routerEventsSub: Subscription | undefined;
   private hasAutoNavigated = false;
 
   constructor() {
@@ -48,44 +48,56 @@ export class VersionSelectorComponent implements OnDestroy {
     }
   }
 
-  private async loadVersions() {
+ private async loadVersions() {
     const resultId = this.cache.currentResultId();
     if (!resultId || resultId <= 0) return;
+
     const response = await this.api.GET_Versions(resultId);
     const data = response.data;
-    const liveData = Array.isArray(data.live) && data.live.length > 0 ? data.live[0] : null;
-    this.liveVersion.set(liveData);
 
+    const liveData = Array.isArray(data.live) && data.live.length > 0 ? data.live[0] : null;
     const versionsArray = Array.isArray(data.versions) ? data.versions : [];
+
+    this.liveVersion.set(liveData);
     this.approvedVersions.set(versionsArray);
 
+    this.handleVersionSelection({ resultId, liveData, versionsArray });
+  }
+
+  private handleVersionSelection({
+      resultId,
+      liveData,
+      versionsArray
+    }: {
+      resultId: number;
+      liveData: any;
+      versionsArray: any[];
+    }) {
     const versionParam = this.route.snapshot.queryParamMap.get('version');
-    let selectedVersion = null;
+    const urlParts = this.router.url.split('/');
+    const currentChild = urlParts.length > 3 ? urlParts[3].split('?')[0] : 'general-information';
 
     if (versionParam) {
-      selectedVersion = versionsArray.find(v => String(v.report_year_id) === versionParam);
-      if (selectedVersion) {
-        if (this.selectedResultId() !== selectedVersion.result_id) {
-          this.selectedResultId.set(selectedVersion.result_id);
-        }
-        // No navegar, ya está correcto
-        return;
+      const selectedVersion = versionsArray.find(v => String(v.report_year_id) === versionParam);
+      if (selectedVersion && this.selectedResultId() !== selectedVersion.result_id) {
+        this.selectedResultId.set(selectedVersion.result_id);
       }
+      return;
     }
 
     if (!versionParam && liveData && liveData.result_status_id !== 6) {
       if (this.selectedResultId() !== liveData.result_id) {
         this.selectedResultId.set(liveData.result_id);
       }
+      if (currentChild === 'general-information') {
+        this.router.navigate(['/result', resultId, currentChild], { replaceUrl: true });
+      }
       return;
     }
 
-    // Si no hay parámetro version y no hay live version, navega a la primera versión aprobada
     if (!versionParam && !liveData && versionsArray.length > 0 && !this.hasAutoNavigated) {
       const firstApproved = versionsArray[0];
       this.selectedResultId.set(firstApproved.result_id);
-      const urlParts = this.router.url.split('/');
-      const currentChild = urlParts.length > 3 ? urlParts[3].split('?')[0] : 'general-information';
       if (currentChild === 'general-information') {
         this.router.navigate(['/result', resultId, currentChild], {
           queryParams: { version: firstApproved.report_year_id },
@@ -93,22 +105,6 @@ export class VersionSelectorComponent implements OnDestroy {
         });
         this.hasAutoNavigated = true;
       }
-      return;
-    }
-
-    // Si hay live version y no hay parámetro, selecciona la live version
-    if (liveData && liveData.result_status_id !== 6) {
-      if (this.selectedResultId() !== liveData.result_id) {
-        this.selectedResultId.set(liveData.result_id);
-      }
-      // Solo navega si la subruta actual es general-information y falta versionParam
-      const urlParts = this.router.url.split('/');
-      const currentChild = urlParts.length > 3 ? urlParts[3].split('?')[0] : 'general-information';
-      if (!versionParam && currentChild === 'general-information') {
-        this.router.navigate(['/result', resultId, currentChild], { replaceUrl: true });
-      }
-      // Si estás en otra subruta, no navegues
-      return;
     }
   }
 

@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 import { PopoverModule } from 'primeng/popover';
+import { Result } from '@shared/interfaces/result/result.interface';
 @Component({
   selector: 'app-results-center-table',
   imports: [CommonModule, FormsModule, TableModule, ButtonModule, PopoverModule, InputTextModule, TagModule, MenuModule, CustomTagComponent],
@@ -199,7 +200,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     return severityMap[status];
   }
 
-  openResult(result: any) {
+  openResult(result: Result) {
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
       this.router.navigate(['/result', result.result_official_code, 'general-information'], { queryParams: { version: latestYear } });

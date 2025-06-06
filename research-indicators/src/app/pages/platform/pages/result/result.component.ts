@@ -1,4 +1,4 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, inject, effect, EffectRef } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { ResultSidebarComponent } from '../../../../shared/components/result-sidebar/result-sidebar.component';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
@@ -18,7 +18,7 @@ export default class ResultComponent {
   metadata = inject(GetMetadataService);
   route = inject(ActivatedRoute);
   versionWatcher = inject(VersionWatcherService);
-  versionChangeEffect: any;
+  versionChangeEffect: EffectRef | undefined;
   lastVersion: string | null = null;
   lastId: number | null = null;
 
