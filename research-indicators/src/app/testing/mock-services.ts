@@ -6,10 +6,11 @@ import { HttpClient } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { SubmissionService } from '@shared/services/submission.service';
+import { ActivatedRouteSnapshot, NavigationEnd, ParamMap } from '@angular/router';
 
-let _routerEventsSubject = new Subject<any>();
+let _routerEventsSubject = new Subject<NavigationEnd>();
 export function resetRouterEventsSubject() {
-  _routerEventsSubject = new Subject<any>();
+  _routerEventsSubject = new Subject<NavigationEnd>();
 }
 export const routerEventsSubject = {
   get: () => _routerEventsSubject
@@ -61,6 +62,13 @@ export const cacheServiceMock = {
   clear: jest.fn()
 } as unknown as CacheService;
 
+const paramMapMock: ParamMap = {
+  get: jest.fn().mockReturnValue(null),
+  has: jest.fn().mockReturnValue(false),
+  getAll: jest.fn().mockReturnValue([]),
+  keys: []
+};
+
 export const routeMock = {
   snapshot: {
     url: [],
@@ -71,19 +79,14 @@ export const routeMock = {
     outlet: '',
     component: null,
     routeConfig: null,
-    root: {} as any,
+    root: {} as Partial<ActivatedRouteSnapshot>,
     parent: null,
     firstChild: null,
     children: [],
     pathFromRoot: [],
-    paramMap: {} as any,
-    queryParamMap: {
-      get: jest.fn().mockReturnValue(null),
-      has: jest.fn().mockReturnValue(false),
-      getAll: jest.fn().mockReturnValue([]),
-      keys: []
-    }
-  } as any
+    paramMap: paramMapMock,
+    queryParamMap: paramMapMock
+  } as Partial<ActivatedRouteSnapshot>
 };
 
 export const actionsServiceMock = {
@@ -250,7 +253,8 @@ export const mockGreenChecks = {
 
 export const apiServiceMock = {
   GET_LatestResults: jest.fn().mockImplementation(() => Promise.resolve(mockLatestResults)),
-  GET_GreenChecks: jest.fn().mockImplementation((resultCode: number) => Promise.resolve(mockGreenChecks)),
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  GET_GreenChecks: jest.fn().mockImplementation((_resultCode: number) => Promise.resolve(mockGreenChecks)),
   GET_InstitutionsTypesChildless: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_Countries: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_IndicatorTypes: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),

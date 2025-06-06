@@ -48,7 +48,7 @@ export class VersionSelectorComponent implements OnDestroy {
     }
   }
 
- private async loadVersions() {
+  private async loadVersions() {
     const resultId = this.cache.currentResultId();
     if (!resultId || resultId <= 0) return;
 
@@ -64,15 +64,7 @@ export class VersionSelectorComponent implements OnDestroy {
     this.handleVersionSelection({ resultId, liveData, versionsArray });
   }
 
-  private handleVersionSelection({
-      resultId,
-      liveData,
-      versionsArray
-    }: {
-      resultId: number;
-      liveData: any;
-      versionsArray: any[];
-    }) {
+  private handleVersionSelection({ resultId, liveData, versionsArray }: { resultId: number; liveData: TransformResultCodeResponse; versionsArray: TransformResultCodeResponse[] }) {
     const versionParam = this.route.snapshot.queryParamMap.get('version');
     const urlParts = this.router.url.split('/');
     const currentChild = urlParts.length > 3 ? urlParts[3].split('?')[0] : 'general-information';
