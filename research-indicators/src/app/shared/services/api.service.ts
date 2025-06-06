@@ -48,6 +48,7 @@ import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-
 import { GetYear } from '@shared/interfaces/get-year.interface';
 import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 import { GetVersions } from '@shared/interfaces/get-versions.interface';
+import { AskForHelp } from '../components/all-modals/modals-content/ask-for-help-modal/interfaces/ask-for-help.interface';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { HttpParams } from '@angular/common/http';
 
@@ -450,6 +451,12 @@ export class ApiService {
   DELETE_Result = (resultCode: number) => {
     const url = () => `results/${resultCode}/delete`;
     return this.TP.delete(url(), { useYearInterceptor: true });
+  };
+
+  // Feedback | Ask for help
+  PATCH_Feedback = (body: AskForHelp) => {
+    const url = () => `reporting-feedback/send`;
+    return this.TP.patch(url(), body);
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

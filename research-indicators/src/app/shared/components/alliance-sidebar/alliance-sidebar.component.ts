@@ -3,6 +3,7 @@ import { CacheService } from '@services/cache/cache.service';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 
 @Component({
   selector: 'alliance-sidebar',
@@ -13,12 +14,13 @@ import { TooltipModule } from 'primeng/tooltip';
 })
 export class AllianceSidebarComponent implements OnInit {
   cache = inject(CacheService);
+  allModalsService = inject(AllModalsService);
   options = [
     { icon: 'pi-file', label: 'About Indicators', link: '/about-indicators', disabled: false },
     { icon: 'pi-exclamation-circle transform scale-y-[-1]', label: 'About the Tool', link: '1', underConstruction: true, hide: false },
     { icon: 'pi-chart-bar', label: 'Alliance Dashboard', link: '23', underConstruction: true, hide: false },
     { icon: 'pi-external-link', label: 'Other Reporting Tools', link: '45', underConstruction: true, hide: false },
-    { icon: 'pi-comments', label: 'Ask for Help', underConstruction: true, hide: false }
+    { icon: 'pi-comments', label: 'Ask for Help', underConstruction: false, hide: false, action: () => this.allModalsService.openModal('askForHelp') }
   ];
 
   innerWidth = 0;

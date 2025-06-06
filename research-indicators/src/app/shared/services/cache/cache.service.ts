@@ -32,6 +32,7 @@ export class CacheService {
   navbarHeight = signal(0);
   headerHeight = signal(0);
   tableFiltersSidebarHeight = signal(0);
+  windowWidth = signal(window.innerWidth);
   windowHeight = signal(window.innerHeight);
   hasSmallScreen = computed(() => this.windowHeight() < 768);
   showSubmissionHistory = signal(false);
