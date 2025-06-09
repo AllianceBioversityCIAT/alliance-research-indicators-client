@@ -1,3 +1,10 @@
+<ng-template #requiredMessage>
+  <div class="flex items-center gap-1 text-[#E69F00] text-sm">
+    <i class="material-symbols-rounded !text-base">warning</i>
+    <span>This field is required</span>
+  </div>
+</ng-template>
+
 <div class="relative flex flex-col gap-4">
   <div class="flex flex-col gap-1 pb-4">
     <div class="flex flex-col gap-1 2xl:gap-2">
@@ -10,18 +17,20 @@
           {{ evidenceNumber ?? 1 }}. Evidence link <span class="text-red-500">*</span>
         </h2>
         <div class="flex items-center space-x-2 text-[13px] text-sm text-gray-600">
-          <p-checkbox id="is_private" 
-        [disabled]="!submission.isEditableStatus()"
-          [(ngModel)]="body().is_private" binary="true" styleClass="w-4 h-4" />
-          <label for="is_private" class="cursor-pointer select-none"
-          > Tag link as private </label>
+          <p-checkbox
+            id="is_private"
+            [disabled]="!submission.isEditableStatus()"
+            [(ngModel)]="body().is_private"
+            binary="true"
+            styleClass="w-4 h-4" />
+          <label for="is_private" class="cursor-pointer select-none"> Tag link as private </label>
 
-       @if (submission.isEditableStatus()) {
-          <div class="cursor-pointer text-[#CF0808] pl-5" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">
-            <i class="pi pi-trash block !text-[10px] pr-1"></i>
-            <span> Remove evidence</span>
-          </div>
-        }
+          @if (submission.isEditableStatus()) {
+            <div class="cursor-pointer text-[#CF0808] pl-5" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">
+              <i class="pi pi-trash block !text-[10px] pr-1"></i>
+              <span> Remove evidence</span>
+            </div>
+          }
         </div>
       </div>
 
@@ -38,10 +47,7 @@
         [class.ng-invalid]="!validateWebsite(body().evidence_url)" />
     </div>
     @if (isFieldInvalid()) {
-      <div class="flex items-center gap-1 text-[#E69F00] text-sm">
-        <i class="material-symbols-rounded !text-base">warning</i>
-        <span>This field is required</span>
-      </div>
+      <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
     } @else if (!validateWebsite(body().evidence_url) && submission.isEditableStatus()) {
       <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
         <i class="material-symbols-rounded !text-base">warning</i>
@@ -50,12 +56,21 @@
     }
   </div>
   <div class="flex flex-col gap-1">
-    <app-textarea
-      label="Evidence description"
+    <label for="evidence_description" class="text-base font-semibold atc-primary-blue-500 pb-1">
+      Evidence description <span class="text-red-500">*</span>
+    </label>
+    <textarea
+      rows="7"
+      pTextarea
+      autoResize="false"
       [disabled]="!submission.isEditableStatus()"
-      [isRequired]="true"
-      [signal]="this.body"
-      [rows]="7"
-      [optionValue]="'evidence_description'"></app-textarea>
+      id="evidence_description"
+      [(ngModel)]="body().evidence_description"
+      [style]="isDescriptionMissing ? { border: '2px solid #E69F00 !important' } : { border: '1px solid #d0d4e4 !important' }"
+      (ngModelChange)="setValue($event)"></textarea>
+
+    @if (isDescriptionMissing) {
+      <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
+    }
   </div>
 </div>
