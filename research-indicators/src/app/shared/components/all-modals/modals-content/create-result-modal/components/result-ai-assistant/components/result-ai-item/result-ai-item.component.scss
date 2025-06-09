@@ -202,3 +202,65 @@ p {
   position: static;
   top: auto;
 }
+
+.save-icon {
+  color: #28a745 !important;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+  cursor: pointer;
+  text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.save-icon:hover {
+  color: #1e7e34 !important;
+  text-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+}
+
+.cancel-icon {
+  color: #dc3545 !important;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+  cursor: pointer;
+  text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.cancel-icon:hover {
+  color: #c82333 !important;
+  text-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+}
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: auto;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 8px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.save-tooltip {
+  background-color: #28a745;
+}
+
+.cancel-tooltip {
+  background-color: #dc3545;
+}

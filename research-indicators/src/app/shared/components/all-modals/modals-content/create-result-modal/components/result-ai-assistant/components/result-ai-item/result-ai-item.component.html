@@ -33,8 +33,18 @@
             (input)="autoGrow()"
             rows="1"></textarea>
           <div class="flex">
-            <i class="pi pi-check" style="font-size: 14px; color: #173F6F; cursor: pointer;" (click)="finishEditingTitle()" (keydown.enter)="finishEditingTitle()"></i>
-            <i class="pi pi-times" style="font-size: 14px; color: #173F6F; cursor: pointer; margin-left: 5px;" (click)="cancelEditingTitle()" (keydown.enter)="cancelEditingTitle()"></i>
+            <i class="pi pi-check save-icon"
+               pTooltip="Save title"
+               tooltipPosition="top"
+               style="font-size: 14px; cursor: pointer;"
+               (click)="finishEditingTitle()"
+               (keydown.enter)="finishEditingTitle()"></i>
+            <i class="pi pi-times cancel-icon"
+               pTooltip="Cancel"
+               tooltipPosition="top"
+               style="font-size: 14px; cursor: pointer; margin-left: 5px;"
+               (click)="cancelEditingTitle()"
+               (keydown.enter)="cancelEditingTitle()"></i>
           </div>
         </div>
       </div>

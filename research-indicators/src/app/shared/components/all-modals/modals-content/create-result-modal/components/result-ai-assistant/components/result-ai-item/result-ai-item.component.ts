@@ -3,6 +3,7 @@ import { Component, inject, Input, signal, ViewChild, ElementRef, ChangeDetectio
 import { AIAssistantResult } from '../../../../models/AIAssistantResult';
 import { CreateResultManagementService } from '../../../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { ApiService } from '@shared/services/api.service';
 import { Router } from '@angular/router';
 import { ActionsService } from '@shared/services/actions.service';
@@ -17,7 +18,7 @@ type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_pa
   selector: 'app-result-ai-item',
   templateUrl: './result-ai-item.component.html',
   styleUrl: './result-ai-item.component.scss',
-  imports: [CommonModule, ButtonModule, FormsModule],
+  imports: [CommonModule, ButtonModule, TooltipModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiItemComponent {
