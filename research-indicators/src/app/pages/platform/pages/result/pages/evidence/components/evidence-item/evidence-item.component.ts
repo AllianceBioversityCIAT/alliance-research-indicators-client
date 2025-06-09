@@ -1,14 +1,16 @@
 import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
-import { TextareaComponent } from '../../../../../../../../shared/components/custom-fields/textarea/textarea.component';
 import { FormsModule } from '@angular/forms';
 import { Evidence, PatchResultEvidences } from '../../../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { InputTextModule } from 'primeng/inputtext';
 import { SubmissionService } from '@shared/services/submission.service';
 import { CheckboxModule } from 'primeng/checkbox';
+import { TextareaModule } from 'primeng/textarea';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-evidence-item',
-  imports: [TextareaComponent, CheckboxModule, FormsModule, InputTextModule],
+  standalone: true,
+  imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, NgTemplateOutlet],
   templateUrl: './evidence-item.component.html'
 })
 export class EvidenceItemComponent implements OnInit {
@@ -67,6 +69,10 @@ export class EvidenceItemComponent implements OnInit {
 
   deleteEvidence() {
     this.deleteEvidenceEvent.emit();
+  }
+
+  get isDescriptionMissing(): boolean {
+    return !this.body()?.evidence_description;
   }
 
   validateWebsite = (website: string): boolean => {

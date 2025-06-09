@@ -35,6 +35,7 @@ export class ResultsCenterService {
       field: 'result_official_code',
       path: 'result_official_code',
       header: 'Code',
+      minWidth: 'min-w-[90px]',
       filter: true,
       getValue: (result: Result) => result.result_official_code
     },
@@ -101,7 +102,7 @@ export class ResultsCenterService {
       field: 'creator',
       path: 'created_by_user.first_name',
       header: 'Creator',
-      minWidth: 'min-w-[160px]',
+      minWidth: 'min-w-[120px]',
 
       hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
@@ -110,8 +111,8 @@ export class ResultsCenterService {
     {
       field: 'creation_date',
       path: 'created_at',
-      header: 'Creation date',
-      minWidth: 'min-w-[160px]',
+      header: 'Creation Date',
+      minWidth: 'min-w-[100px]',
 
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
