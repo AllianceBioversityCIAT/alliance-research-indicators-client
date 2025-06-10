@@ -281,6 +281,7 @@ export class ResultAiAssistantComponent {
       keywords: result.keywords,
       geoscope: result.geoscope ?? [],
       training_type: result.training_type,
+      length_of_training: result.length_of_training,
       start_date: result.start_date,
       end_date: result.end_date,
       degree: result.degree,

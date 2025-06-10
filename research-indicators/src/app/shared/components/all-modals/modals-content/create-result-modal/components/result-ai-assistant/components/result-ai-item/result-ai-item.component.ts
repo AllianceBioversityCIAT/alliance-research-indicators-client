@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, signal, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, Input, signal, ViewChild, ElementRef, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { AIAssistantResult } from '../../../../models/AIAssistantResult';
 import { CreateResultManagementService } from '../../../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
@@ -23,6 +23,7 @@ export class ResultAiItemComponent {
   @Input() item!: AIAssistantResult;
   @ViewChild('titleInput') titleInput!: ElementRef;
   @ViewChild('titleText') titleText!: ElementRef;
+  @ViewChild('editTitleContainer') editTitleContainer!: ElementRef;
   createResultManagementService = inject(CreateResultManagementService);
   createdResults = signal<Set<string>>(new Set());
   api = inject(ApiService);
@@ -122,5 +123,17 @@ export class ResultAiItemComponent {
 
   cancelEditingTitle() {
     this.isEditingTitle.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (!this.isEditingTitle()) {
+      return;
+    }
+
+    const editContainer = this.editTitleContainer?.nativeElement;
+    if (editContainer && !editContainer.contains(event.target as Node)) {
+      this.finishEditingTitle();
+    }
   }
 }
