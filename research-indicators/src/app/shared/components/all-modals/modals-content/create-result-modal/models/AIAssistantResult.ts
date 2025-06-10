@@ -5,6 +5,7 @@ export interface AIAssistantResult {
   keywords: string[];
   geoscope: CountryArea[];
   training_type: string;
+  length_of_training: string;
   start_date: string;
   end_date: string;
   degree: string;
