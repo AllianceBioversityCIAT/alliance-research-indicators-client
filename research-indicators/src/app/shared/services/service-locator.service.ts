@@ -50,6 +50,18 @@ export class ServiceLocatorService {
     );
   }
 
+  clearService(serviceName: ControlListServices) {
+    const service = this.getService(serviceName);
+    if (service) {
+      if ('list' in service) {
+        (service as any).list.set([]);
+      }
+      if ('main' in service && typeof (service as any).main === 'function') {
+        (service as any).main();
+      }
+    }
+  }
+
   private getPrimaryServices(serviceName: ControlListServices) {
     switch (serviceName) {
       case 'contracts':
