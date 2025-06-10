@@ -53,11 +53,11 @@ export class ServiceLocatorService {
   clearService(serviceName: ControlListServices) {
     const service = this.getService(serviceName);
     if (service) {
-      if ('list' in service) {
-        (service as any).list.set([]);
+      if (typeof (service as { list?: unknown }).list !== 'undefined') {
+        (service as { list: { set: (v: unknown[]) => void } }).list.set([]);
       }
-      if ('main' in service && typeof (service as any).main === 'function') {
-        (service as any).main();
+      if (typeof (service as { main?: () => void }).main === 'function') {
+        (service as { main: () => void }).main();
       }
     }
   }
