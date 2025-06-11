@@ -3,18 +3,18 @@ import { Component, inject, signal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { ButtonModule } from 'primeng/button';
-import { PaginatorModule } from 'primeng/paginator';
-import { RouterLink } from '@angular/router';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { TooltipModule } from 'primeng/tooltip';
 import { GetOsResultService } from '../../../../shared/services/opensearch/get-os-result.service';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
 import { CacheService } from '@shared/services/cache/cache.service';
+import { ResultAiItemComponent } from '@shared/components/all-modals/modals-content/create-result-modal/components/result-ai-assistant/components/result-ai-item/result-ai-item.component';
 
 @Component({
-    selector: 'app-search-a-result',
-    imports: [CommonModule, ButtonModule, PaginatorModule, RouterLink, TooltipModule, CustomProgressBarComponent],
-    templateUrl: './search-a-result.component.html',
-    styleUrl: './search-a-result.component.scss'
+  selector: 'app-search-a-result',
+  imports: [CommonModule, ButtonModule, PaginatorModule, ResultAiItemComponent, TooltipModule, CustomProgressBarComponent],
+  templateUrl: './search-a-result.component.html',
+  styleUrl: './search-a-result.component.scss'
 })
 export default class SearchAResultComponent {
   api = inject(ApiService);
@@ -24,4 +24,9 @@ export default class SearchAResultComponent {
   rows = signal(10);
 
   cache = inject(CacheService);
+
+  onPageChange(event: PaginatorState) {
+    this.first.set(event.first ?? 0);
+    this.rows.set(event.rows ?? 5);
+  }
 }

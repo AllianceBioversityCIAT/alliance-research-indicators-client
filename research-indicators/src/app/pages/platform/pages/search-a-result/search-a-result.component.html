@@ -3,7 +3,7 @@
     <app-custom-progress-bar></app-custom-progress-bar>
   } @else {
     @if (this.getOsResultService.list().length > 0) {
-      <div class="header-container">
+      <div class="header-container pt-5">
         <div class="header">
           <span class="title-text"
             >THERE ARE <span class="number-results">{{ this.getOsResultService.list().length }}</span> RESULTS FOR YOUR SEARCH</span
@@ -19,51 +19,46 @@
         </div>
       </div>
     }
-    @if (this.getOsResultService.list().length === 0) {
-      <div class="no-results-container">
-        <div class="no-results-content">
-          <img src="images/no-results-found.png" alt="" />
-          <div class="title-text-no-results">NO RESULTS FOUND FOR YOUR SEARCH</div>
-          <div class="description-text">
-            You searched "{{ this.cache.searchAResultValue() }}". Please check the entered term or try using different keywords.
+
+    <div>
+      @if (this.getOsResultService.list().length === 0) {
+        <div class="no-results-container">
+          <div class="no-results-content">
+            <img src="images/no-results-found.png" alt="" />
+            <div class="title-text-no-results">NO RESULTS FOUND FOR YOUR SEARCH</div>
+            <div class="description-text">
+              You searched "{{ this.cache.searchAResultValue() }}". Please check the entered term or try using different keywords.
+            </div>
           </div>
         </div>
-      </div>
-      <div class="explore-other-results-button">
-        <p-button label="Explore other results" size="small" [disabled]="true" pTooltip="This feature is under construction">
-          <ng-template pTemplate="icon">
-            <img src="/construction.png" width="20" height="20" alt="Under construction" />
-          </ng-template>
-        </p-button>
-      </div>
-    } @else {
-      @for (result of this.getOsResultService.list(); track $index) {
-        <div class="card-container" [routerLink]="['/result', result.result_official_code]">
-          <div class="indicator">
-            <span class="material-symbols-rounded icon-color-{{ result.indicator.icon_src }}">{{ result.indicator.icon_src }}</span>
-            <span class="indicator-text">{{ result.indicator.name }}</span>
-          </div>
-          <div class="card-title">{{ result.title }}</div>
-          <div class="card-description">{{ result.description ?? 'No description found' }}</div>
-          <div class="footer">
-            <div class="code-container">
-              <span class="subtitle-card">Result Code</span>
-              <span class="material-symbols-rounded">arrow_forward</span>
-              <span class="code">{{ result.result_official_code }}</span>
-            </div>
-            @if (result.keywords.length > 0) {
-              <div class="keyword-container">
-                <span class="subtitle-card">Keywords</span>
-                <span class="material-symbols-rounded">arrow_forward</span>
+        <div class="explore-other-results-button">
+          <p-button label="Explore other results" size="small" [disabled]="true" pTooltip="This feature is under construction">
+            <ng-template pTemplate="icon">
+              <img src="/construction.png" width="20" height="20" alt="Under construction" />
+            </ng-template>
+          </p-button>
+        </div>
 
-                @for (keyword of result.keywords; track $index) {
-                  <span class="keyword">{{ keyword }}</span>
-                }
-              </div>
-            }
-          </div>
+      } @else {
+        <div class="w-full analyze-result-content bg-white border-[#E8EBED] border-1">
+          @for (result of this.getOsResultService.list() | slice: first() : first() + rows(); track $index) {
+            <app-result-ai-item [item]="result" style="width: 100%"></app-result-ai-item>
+          }
         </div>
       }
-    }
+
+      @if (getOsResultService.list().length > 0) {
+        <div class="flex justify-end w-full py-2 bg-white border-t-[#E8EBED] border-transparent border-1">
+          <p-paginator
+            (onPageChange)="onPageChange($event)"
+            [first]="first()"
+            [rows]="rows()"
+            [totalRecords]="getOsResultService.list().length"
+            [showCurrentPageReport]="true"
+            [showJumpToPageDropdown]="false"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" />
+        </div>
+      }
+    </div>
   }
 </div>
