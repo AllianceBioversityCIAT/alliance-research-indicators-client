@@ -54,7 +54,7 @@ export class ResultAiItemComponent {
   }
 
   isAIAssistantResult(item: AIAssistantResult | GetOsResult): item is AIAssistantResult {
-    return 'aiScore' in item;
+    return 'training_type' in item;
   }
 
   toggleExpand(item: AIAssistantResult) {
