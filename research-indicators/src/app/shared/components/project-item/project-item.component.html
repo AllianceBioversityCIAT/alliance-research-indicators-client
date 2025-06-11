@@ -34,7 +34,7 @@
       @for (indicator of project.indicators; track $index) {
         <div class="indicator {{ indicator.indicator.name === 'Capacity Sharing for Development' ? 'max-w-[126px]' : 'max-w-[178px]' }}">
           <div class="indicator-number-container">
-            <i class="pi {{ indicator.indicator.icon_src }} {{ (indicator.indicator.indicator_type_id === 1 ? 'output' : 'outcome') + '-icon' }}">
+            <i class="pi {{ indicator.indicator.icon_src }} !text-[18px] {{ (indicator.indicator.indicator_type_id === 1 ? 'output' : 'outcome') + '-icon' }}">
             </i>
             <label class="indicator-number" for="username">{{ indicator.count_results }}</label>
           </div>
