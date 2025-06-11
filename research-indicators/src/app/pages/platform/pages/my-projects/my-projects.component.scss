@@ -1,40 +1,19 @@
 .container {
   padding: 30px 40px;
-
-  .content {
-    .search-box {
-      border: 0.5px solid #b0c4dd;
-      border-radius: 12px;
-      width: 50vh;
-      display: flex;
-      align-items: center;
-      background-color: #fcfcfc;
-      margin-bottom: 25px;
-
-      i {
-        font-size: 18px;
-        color: #8d9299;
-        margin: 6px;
-      }
-
-      input {
-        border: none;
-        outline: none;
-        color: #8d9299;
-        background: transparent;
-        flex-grow: 1;
-        padding: 7px 0;
-      }
-
-      input::placeholder {
-        color: var(--ac-grey-500);
-      }
-    }
-  }
 }
 
-@media (orientation: landscape) and (height <= 768px) {
-  .search-box {
-    width: 60vh !important;
-  }
+.analyze-result-content {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  max-height: 62vh;
+  overflow-y: auto;
+  height: 100%;
+  width: 100%;
+}
+:host ::ng-deep input:focus,
+:host ::ng-deep input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: inherit !important;
 }
