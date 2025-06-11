@@ -1,7 +1,7 @@
 @let expandedItem = createResultManagementService.expandedItem();
 
 <div class="result-item" [class.expanded]="expandedItem === item">
-  @if (item.training_type !== undefined) {
+  @if (isAIAssistantResult(item) && item.training_type !== undefined) {
     <div class="result-item-expand-icon" (keydown.enter)="toggleExpand(item)" (click)="toggleExpand(item)">
       <i class="pi" [ngClass]="expandedItem === item ? 'pi-angle-down' : 'pi-angle-right'" style="font-size: 10px"></i>
     </div>
@@ -11,10 +11,13 @@
 
   <div class="result-item-content">
     <div class="result-item-header">
-      <i class="material-symbols-rounded" [class]="getIndicatorTypeIcon(item.indicator).class" style="font-size: 22px">{{
-        getIndicatorTypeIcon(item.indicator).icon
-      }}</i>
-      <p class="result-item-category">{{ item.indicator | uppercase }}</p>
+      <i
+      class="material-symbols-rounded"
+      [class]="getIndicatorTypeIcon(isAIAssistantResult(item) ? item.indicator : item.indicator.name).class"
+      style="font-size: 22px"
+      >{{ getIndicatorTypeIcon(isAIAssistantResult(item) ? item.indicator : item.indicator.name).icon }}</i
+    >
+      <p class="result-item-category">{{ (isAIAssistantResult(item) ? item.indicator : item.indicator.name) | uppercase }}</p>
     </div>
 
     <div class="result-item-title-container">
@@ -114,6 +117,7 @@
       </div>
     }
   </div>
+  @if (!hideButtons && isAIAssistantResult(item)) {
   <div class="result-item-actions flex gap-2">
     @if (!isCreated()) {
       <p-button
@@ -150,4 +154,5 @@
       </p-button>
     }
   </div>
+  }
 </div>
