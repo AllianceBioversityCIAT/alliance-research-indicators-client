@@ -1,0 +1,92 @@
+<div class="app-page-wrapper">
+  <app-form-header />
+  <div class="flex flex-col gap-5">
+    <div class="content-section">
+      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
+        <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">INNOVATIONS DETAILS</div>
+        <div class="flex flex-col gap-[25px]">
+          <app-input
+            label="Short title"
+            [signal]="body"
+            [isRequired]="true"
+            optionValue="group.session_participants_female"
+            [disabled]="!submission.isEditableStatus()"
+            type="text"></app-input>
+          <app-select
+            label="Innovation nature"
+            [disabled]="!submission.isEditableStatus()"
+            [signal]="body"
+            [isRequired]="true"
+            [optionLabel]="'name'"
+            [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
+            [serviceName]="'languages'">
+          </app-select>
+
+          <app-select
+            label="Innovation type"
+            [disabled]="!submission.isEditableStatus()"
+            [signal]="body"
+            [isRequired]="true"
+            [optionLabel]="'name'"
+            [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
+            [serviceName]="'languages'">
+          </app-select>
+
+          <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5 mb-[30px]">
+            <span class="text-[#074b86] material-symbols-rounded">info</span>
+            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+              At the output level, a single readiness score is given for the innovation, irrespective of the specific geo-location where the
+              innovation is being designed, tested and/or scaled. for example, if it is level 7 in Kenya, level 3 in Peru and level 5 in India, only
+              the highest score for the generic rank is retained. If you need help, use the
+              <span (keydown.enter)="open()" (click)="open()" class="text-[#2792ce] cursor-pointer underline"> Scaling Readiness Calculator </span>
+              for guidance.
+            </h3>
+          </div>
+
+          <div class="flex items-center justify-between w-full max-w-4xl mx-auto my-8 select-none">
+            @for (n of stepNumbers; track $index) {
+              <button
+                pButton
+                type="button"
+                class="!rounded-full !border-2 !border-[#2196F3] !w-12 !h-12 !flex !items-center !justify-center !text-lg !font-bold transition-all duration-200
+                  {{ selectedStep() === n ? '!bg-[#2196F3] !text-white' : '!bg-white !text-[#2196F3]' }}"
+                (click)="selectStep(n)"
+                [attr.aria-label]="'Seleccionar nivel ' + n">
+                {{ n }}
+              </button>
+              @if (n < 9) {
+                <div class="flex-1 h-1 bg-[#E3EAF3] mx-1" style="min-width: 24px"></div>
+              }
+            }
+          </div>
+
+          <div class="flex bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5 mb-[30px]">
+            <h3 class="text-[#4C5158] font-['Barlow'] text-[14px] leading-[17px] font-bold pb-2">7 - Prototype</h3>
+            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
+              The innovation is validated for its ability to achieve a specific impact under semi-controlled conditions. 
+            </h3>
+            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
+              Level 7 is a validation stage, where evidence from prior testing is used to confirm that the innovation can achieve the desired impact
+              under a semi-controlled environment.  
+            </h3>
+            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
+              Evidence for Level 7 needs documentation, like a summary of pilot results, showing validation in semi-controlled settings. 
+            </h3>
+          </div>
+
+          <app-radio-button
+            label="Who would be the anticipated user(s) of this Innovation?"
+            [isRequired]="true"
+            [signal]="body"
+            direction="horizontal"
+            [disabled]="!submission.isEditableStatus()"
+            [serviceName]="'capSharingGenders'"
+            [optionLabel]="'name'"
+            [optionValue]="{ body: 'individual.gender_id', option: 'gender_id' }"></app-radio-button>
+        </div>
+      </div>
+    </div>
+
+    <app-navigation-buttons (back)="saveData('back')" (next)="saveData('next')" (save)="saveData()" />
+  </div>
+</div>

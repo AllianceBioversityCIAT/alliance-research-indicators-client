@@ -113,6 +113,13 @@ export const routes: Routes = [
             }
           },
           {
+            path: 'innovation-details',
+            loadComponent: () => import('@platform/pages/result/pages/innovation-details/innovation-details.component'),
+            data: {
+              title: 'Result Information'
+            }
+          },
+          {
             path: 'geographic-scope',
             loadComponent: () => import('@platform/pages/result/pages/geographic-scope/geographic-scope.component'),
             data: {
