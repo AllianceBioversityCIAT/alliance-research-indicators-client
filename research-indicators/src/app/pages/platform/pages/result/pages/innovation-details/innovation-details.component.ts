@@ -5,25 +5,26 @@ import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
-import { GetAllianceAlignment } from '../../../../../../shared/interfaces/get-alliance-alignment.interface';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { environment } from '../../../../../../../environments/environment';
 import { SubmissionService } from '@shared/services/submission.service';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
+import { GetInnovationDetails } from '@shared/interfaces/get-innovation-details.interface';
+import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
+import { InputComponent } from '@shared/components/custom-fields/input/input.component';
+import { RadioButtonComponent } from '@shared/components/custom-fields/radio-button/radio-button.component';
 
 @Component({
-  selector: 'app-alliance-alignment',
-  imports: [MultiSelectModule, FormHeaderComponent, FormsModule, MultiselectComponent, NavigationButtonsComponent, DatePipe],
-  templateUrl: './alliance-alignment.component.html'
+  selector: 'app-innovation-details',
+  imports: [MultiSelectModule, FormHeaderComponent, RadioButtonComponent, InputComponent, FormsModule, NavigationButtonsComponent, SelectComponent],
+  templateUrl: './innovation-details.component.html'
 })
-export default class AllianceAlignmentComponent {
+export default class InnovationDetailsComponent {
   environment = environment;
   getContractsService = inject(GetContractsService);
-  body: WritableSignal<GetAllianceAlignment> = signal({
+  body: WritableSignal<GetInnovationDetails> = signal({
     contracts: []
   });
   apiService = inject(ApiService);
@@ -46,9 +47,20 @@ export default class AllianceAlignmentComponent {
     this.body.set(response.data);
   }
 
+  open() {
+    this.getData();
+  }
+
   canRemove = (): boolean => {
     return this.submission.isEditableStatus();
   };
+
+  stepNumbers = Array.from({ length: 10 }, (_, i) => i);
+  selectedStep = signal(7); // Por defecto el 7, como en la imagen
+
+  selectStep(n: number) {
+    this.selectedStep.set(n);
+  }
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
@@ -81,16 +93,5 @@ export default class AllianceAlignmentComponent {
     if (page === 'back') navigateTo('general-information');
     else if (page === 'next') navigateTo(nextPath);
     this.loading.set(false);
-  }
-
-  markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever') {
-    this.body.update(current => {
-      if (type === 'contract') {
-        current.contracts.forEach(contract => (contract.is_primary = false));
-      }
-      return { ...current };
-    });
-    item.is_primary = !item.is_primary;
-    this.actions.saveCurrentSection();
   }
 }

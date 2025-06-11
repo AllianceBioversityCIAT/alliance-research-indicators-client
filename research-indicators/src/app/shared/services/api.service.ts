@@ -7,7 +7,6 @@ import { GetContracts } from '../interfaces/get-contracts.interface';
 import { Result, ResultConfig, ResultFilter } from '../interfaces/result/result.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
-import { GetLevers } from '../interfaces/get-levers.interface';
 import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
 import { PatchPartners } from '../interfaces/patch-partners.interface';
 import { Degree, Gender, GetCapSharing, IpOwners, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
@@ -214,10 +213,6 @@ export class ApiService {
     return this.TP.patch(url(), body, { useYearInterceptor: true });
   };
 
-  GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
-    const url = () => `tools/clarisa/levers`;
-    return this.TP.get(url(), {});
-  };
   GET_Years = (resultCode?: number, reportYear?: number): Promise<MainResponse<GetYear[]>> => {
     const url = 'results/year';
 

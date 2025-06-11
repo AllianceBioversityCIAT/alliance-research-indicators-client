@@ -67,49 +67,6 @@
               </ng-template>
             </app-multiselect>
           </div>
-
-          <div>
-            <app-multiselect
-              label="Levers"
-              [signal]="body"
-              optionLabel="full_name"
-              optionValue="lever_id"
-              signalOptionValue="levers"
-              [isRequired]="true"
-              [removeCondition]="canRemove"
-              [disabled]="true"
-              [serviceName]="'levers'">
-              <ng-template #rows let-lever>
-                <div class="grid grid-cols-[1fr_auto] items-center w-full gap-5">
-                  <div class="text-[#4c5158] font-['Barlow'] text-[15px] font-normal">
-                    <strong>{{ lever.short_name }}&nbsp;</strong> - {{ lever.other_names }}
-                  </div>
-                  <button
-                    [disabled]="true"
-                    class="px-3 py-[3px] rounded-full text-[14px] disabled:cursor-not-allowed whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
-                    [class]="
-                      lever.is_primary
-                        ? 'bg-[var(--ac-primary-blue-300)] text-white disabled:bg-[#8D9299] disabled:border-[#8D9299]'
-                        : 'disabled:bg-[#E8EBED] disabled:!text-[#8D9299] disabled:border-[#8D9299] bg-transparent text-[var(--ac-primary-blue-300)]'
-                    "
-                    (click)="markAsPrimary(lever, 'lever')">
-                    {{ lever.is_primary ? 'Primary' : 'Select as Primary' }}
-                    <i
-                      class="material-symbols-rounded w-0 overflow-hidden transition-all duration-300 pl-0 opacity-0 group-[.bg-[var(--ac-primary-blue-300)]]:w-[30px] group-[.bg-[var(--ac-primary-blue-300)]]:pl-[10px] group-[.bg-[var(--ac-primary-blue-300)]]:opacity-100"
-                      >star</i
-                    >
-                  </button>
-                </div>
-              </ng-template>
-            </app-multiselect>
-
-            @if (showPrimaryLeverError) {
-              <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
-                <i class="material-symbols-rounded !text-base">warning</i>
-                <span>Please select one primary Lever.</span>
-              </div>
-            }
-          </div>
         </div>
       </div>
     </div>
