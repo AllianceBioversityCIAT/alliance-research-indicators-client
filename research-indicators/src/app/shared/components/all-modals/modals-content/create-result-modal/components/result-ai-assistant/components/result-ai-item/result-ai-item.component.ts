@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { ActionsService } from '@shared/services/actions.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { FormsModule } from '@angular/forms';
+import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 
 type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_participants' | 'male_participants';
 
@@ -23,6 +24,8 @@ export class ResultAiItemComponent {
   @Input() item!: AIAssistantResult;
   @ViewChild('titleInput') titleInput!: ElementRef;
   @ViewChild('titleText') titleText!: ElementRef;
+  @Input() hideButtons = false;
+  
   createResultManagementService = inject(CreateResultManagementService);
   createdResults = signal<Set<string>>(new Set());
   api = inject(ApiService);
@@ -65,6 +68,10 @@ export class ResultAiItemComponent {
       class: this.indicatorTypeIcon.find(icon => icon.type === type)?.class,
       icon: this.indicatorTypeIcon.find(icon => icon.type === type)?.icon
     };
+  }
+
+  isAIAssistantResult(item: AIAssistantResult | GetOsResult): item is AIAssistantResult {
+    return 'aiScore' in item;
   }
 
   toggleExpand(item: AIAssistantResult) {

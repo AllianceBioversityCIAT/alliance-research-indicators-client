@@ -15,28 +15,27 @@
     </div>
     <div class="project-info">
       <div class="principal-investigator">
-        <span class="project-title">Principal Investigator</span>
-        <span class="material-symbols-rounded"> arrow_forward </span>
+        <span class="project-title">Principal investigator</span>
+        <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
         <label class="project-data" for="username">{{ project.project_lead_description }}</label>
       </div>
       <div class="start-date">
-        <span class="project-title">Start Date</span>
-        <span class="material-symbols-rounded"> arrow_forward </span>
+        <span class="project-title">Start date</span>
+        <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
         <label class="project-data" for="username">{{ project.start_date | date: 'dd/MM/yyyy' }}</label>
       </div>
       <div class="end-date">
-        <span class="project-title">End Date</span>
-        <span class="material-symbols-rounded"> arrow_forward </span>
+        <span class="project-title">End date</span>
+        <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
         <label class="project-data" for="username">{{ project.end_date | date: 'dd/MM/yyyy' }}</label>
       </div>
     </div>
-    <div class="project-indicators">
+    <div class="project-indicators w-full flex flex-wrap gap-16 gap-y-6">
       @for (indicator of project.indicators; track $index) {
-        <div class="indicator">
+        <div class="indicator {{ indicator.indicator.name === 'Capacity Sharing for Development' ? 'max-w-[126px]' : 'max-w-[178px]' }}">
           <div class="indicator-number-container">
-            <i class="material-symbols-rounded {{ (indicator.indicator.indicator_type_id === 1 ? 'output' : 'outcome') + '-icon' }}">{{
-              indicator.indicator.icon_src
-            }}</i>
+            <i class="pi {{ indicator.indicator.icon_src }} {{ (indicator.indicator.indicator_type_id === 1 ? 'output' : 'outcome') + '-icon' }}">
+            </i>
             <label class="indicator-number" for="username">{{ indicator.count_results }}</label>
           </div>
           <label class="indicator-type" for="username">{{ indicator.indicator.name }}</label>
