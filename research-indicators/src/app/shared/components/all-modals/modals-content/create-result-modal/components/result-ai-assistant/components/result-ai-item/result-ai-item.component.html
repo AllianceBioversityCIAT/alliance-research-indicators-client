@@ -12,11 +12,12 @@
   <div class="result-item-content">
     <div class="result-item-header">
       <i
-        class="material-symbols-rounded"
-        [class]="getIndicatorTypeIcon(isAIAssistantResult(item) ? item.indicator : item.indicator.name).class"
-        style="font-size: 22px"
-        >{{ getIndicatorTypeIcon(isAIAssistantResult(item) ? item.indicator : item.indicator.name).icon }}</i
-      >
+      class="material-symbols-rounded"
+      [class]="getIndicatorTypeIcon(isAIAssistantResult(item) ? item.indicator : item.indicator.name).class"
+      style="font-size: 22px"
+      >{{ getIndicatorTypeIcon(isAIAssistantResult(item) ? item.indicator : item.indicator.name).icon }}</i
+    >
+      <p class="result-item-category">{{ (isAIAssistantResult(item) ? item.indicator : item.indicator.name) | uppercase }}</p>
     </div>
 
     <div class="result-item-title-container">
@@ -25,7 +26,7 @@
           <p class="result-item-title" #titleText>{{ item.title | uppercase }}<i class="pi pi-pencil edit-pencil" (click)="startEditingTitle()" (keydown.enter)="startEditingTitle()"></i></p>
         </div>
       } @else {
-        <div class="edit-title-container">
+        <div class="edit-title-container" #editTitleContainer>
           <textarea
             class="result-item-title-input"
             [(ngModel)]="tempTitle"
@@ -60,11 +61,45 @@
     </div>
 
     @if (expandedItem === item) {
+      @if (item.total_participants !== undefined) {
+        <div class="result-item-details">
+          @for (detail of expandedItemDetails; track $index) {
+            <div class="result-item-details-item">
+              <p class="result-item-details-value">{{ item[detail.value] }}</p>
+              <p class="result-item-keywords-title">{{ detail.title }}</p>
+              @if (detail.title === 'Total participants') {
+                <p class="result-item-keywords-arrow">&rarr;</p>
+              }
+            </div>
+          }
+        </div>
+      }
+
       <div class="flex gap-6">
         <div class="result-item-keywords">
           <p class="result-item-keywords-title">Training type</p>
           <p class="result-item-keywords-arrow">&rarr;</p>
           <p class="result-item-details-value-training-type">{{ item.training_type }}</p>
+        </div>
+
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">Length of training</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.length_of_training || 'NOT COLLECTED' }}</p>
+        </div>
+
+        @if (item.length_of_training === 'long-term') {
+          <div class="result-item-keywords">
+            <p class="result-item-keywords-title">Degree</p>
+            <p class="result-item-keywords-arrow">&rarr;</p>
+            <p class="result-item-details-value-training-type">{{ item.degree || 'NOT COLLECTED' }}</p>
+          </div>
+        }
+
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">Delivery modality</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.delivery_modality || 'NOT COLLECTED' }}</p>
         </div>
 
         <div class="result-item-keywords">
@@ -79,70 +114,45 @@
           <p class="result-item-details-value-training-type">{{ item.end_date }}</p>
         </div>
 
-        <div class="result-item-keywords">
-          <p class="result-item-keywords-title">Degree</p>
-          <p class="result-item-keywords-arrow">&rarr;</p>
-          <p class="result-item-details-value-training-type">{{ item.degree || 'NOT COLLECTED' }}</p>
-        </div>
-
-        <div class="result-item-keywords">
-          <p class="result-item-keywords-title">Delivery modality</p>
-          <p class="result-item-keywords-arrow">&rarr;</p>
-          <p class="result-item-details-value-training-type">{{ item.delivery_modality || 'NOT COLLECTED' }}</p>
-        </div>
       </div>
-
-      @if (item.total_participants !== undefined) {
-        <div class="result-item-details">
-          @for (detail of expandedItemDetails; track $index) {
-            <div class="result-item-details-item">
-              <p class="result-item-details-value">{{ item[detail.value] }}</p>
-              <p class="result-item-keywords-title">{{ detail.title }}</p>
-              @if (detail.title === 'Total participants') {
-                <p class="result-item-keywords-arrow">&rarr;</p>
-              }
-            </div>
-          }
-        </div>
-      }
     }
   </div>
   @if (!hideButtons && isAIAssistantResult(item)) {
-    <div class="result-item-actions flex gap-2">
-      @if (!isCreated()) {
-        <p-button
-          type="button"
-          label="Discard"
-          styleClass="discard-button !text-[12px] !h-10 !px-3 !border-[1.5px] !border-[#CF0808] !text-[#CF0808] !rounded-[12px]"
-          size="small"
-          [outlined]="true"
-          severity="danger"
-          (keydown.enter)="discardResult(item)"
-          (click)="discardResult(item)">
-        </p-button>
+  <div class="result-item-actions flex gap-2">
+    @if (!isCreated()) {
+      <p-button
+        type="button"
+        label="Discard"
+        styleClass="discard-button !text-[12px] !h-10 !px-3 !border-[1.5px] !border-[#CF0808] !text-[#CF0808] !rounded-[12px]"
+        size="small"
+        [outlined]="true"
+        severity="danger"
+        (keydown.enter)="discardResult(item)"
+        (click)="discardResult(item)">
+      </p-button>
 
-        <p-button
-          type="button"
-          label="Create"
-          iconPos="right"
-          icon="pi pi-plus"
-          styleClass="create-button !text-[12px] !h-10 !px-3 !bg-[#035BA9] !rounded-[12px]"
-          size="small"
-          (keydown.enter)="createResult(item)"
-          (click)="createResult(item)">
-        </p-button>
-      } @else {
-        <p-button
-          type="button"
-          label="Open Result"
-          iconPos="right"
-          icon="pi pi-arrow-right"
-          styleClass="create-button !text-[12px] !h-10 !px-3 !border-[#1689CA] !bg-[#1689CA] !rounded-[12px]"
-          size="small"
-          (keydown.enter)="openResult(item)"
-          (click)="openResult(item)">
-        </p-button>
-      }
-    </div>
+      <p-button
+        type="button"
+        label="Create"
+        iconPos="right"
+        icon="pi pi-plus"
+        styleClass="create-button !text-[12px] !h-10 !px-3 !bg-[#035BA9] !rounded-[12px]"
+        size="small"
+        (keydown.enter)="createResult(item)"
+        (click)="createResult(item)">
+      </p-button>
+    } @else {
+      <p-button
+        type="button"
+        label="Open Result"
+        iconPos="right"
+        icon="pi pi-arrow-right"
+        styleClass="create-button !text-[12px] !h-10 !px-3 !border-[#1689CA] !bg-[#1689CA] !rounded-[12px]"
+        size="small"
+        (keydown.enter)="openResult(item)"
+        (click)="openResult(item)">
+      </p-button>
+    }
+  </div>
   }
 </div>

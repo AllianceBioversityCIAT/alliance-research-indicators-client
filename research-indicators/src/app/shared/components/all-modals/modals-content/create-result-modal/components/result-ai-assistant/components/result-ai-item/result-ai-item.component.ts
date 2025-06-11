@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, signal, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, Input, signal, ViewChild, ElementRef, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { AIAssistantResult } from '../../../../models/AIAssistantResult';
 import { CreateResultManagementService } from '../../../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
@@ -21,11 +21,11 @@ type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_pa
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiItemComponent {
-  @Input() item!: AIAssistantResult;
+  @Input() item!: AIAssistantResult | GetOsResult;
+  @Input() hideButtons = false;
   @ViewChild('titleInput') titleInput!: ElementRef;
   @ViewChild('titleText') titleText!: ElementRef;
-  @Input() hideButtons = false;
-  
+  @ViewChild('editTitleContainer') editTitleContainer!: ElementRef;
   createResultManagementService = inject(CreateResultManagementService);
   createdResults = signal<Set<string>>(new Set());
   api = inject(ApiService);
@@ -70,10 +70,6 @@ export class ResultAiItemComponent {
     };
   }
 
-  isAIAssistantResult(item: AIAssistantResult | GetOsResult): item is AIAssistantResult {
-    return 'aiScore' in item;
-  }
-
   toggleExpand(item: AIAssistantResult) {
     this.createResultManagementService.expandedItem.set(this.createResultManagementService.expandedItem() === item ? null : item);
   }
@@ -104,6 +100,11 @@ export class ResultAiItemComponent {
   openResult(item: AIAssistantResult) {
     const url = `/result/${item.result_official_code}/general-information`;
     window.open(url, '_blank');
+
+  }
+
+  isAIAssistantResult(item: AIAssistantResult | GetOsResult): item is AIAssistantResult {
+    return 'training_type' in item;
   }
 
   autoGrow() {
@@ -129,5 +130,17 @@ export class ResultAiItemComponent {
 
   cancelEditingTitle() {
     this.isEditingTitle.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (!this.isEditingTitle()) {
+      return;
+    }
+
+    const editContainer = this.editTitleContainer?.nativeElement;
+    if (editContainer && !editContainer.contains(event.target as Node)) {
+      this.finishEditingTitle();
+    }
   }
 }
