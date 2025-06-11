@@ -1,7 +1,6 @@
 import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
-import { GetLeversService } from '@services/control-list/get-levers.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
@@ -24,10 +23,8 @@ import { NavigationButtonsComponent } from '@shared/components/navigation-button
 export default class AllianceAlignmentComponent {
   environment = environment;
   getContractsService = inject(GetContractsService);
-  getLeversService = inject(GetLeversService);
   body: WritableSignal<GetAllianceAlignment> = signal({
-    contracts: [],
-    levers: []
+    contracts: []
   });
   apiService = inject(ApiService);
   cache = inject(CacheService);
@@ -86,17 +83,10 @@ export default class AllianceAlignmentComponent {
     this.loading.set(false);
   }
 
-  get showPrimaryLeverError(): boolean {
-    const levers = this.body().levers ?? [];
-    return levers.length > 1 && !levers.some(l => l.is_primary);
-  }
-
   markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever') {
     this.body.update(current => {
       if (type === 'contract') {
         current.contracts.forEach(contract => (contract.is_primary = false));
-      } else if (type === 'lever') {
-        current.levers.forEach(lever => (lever.is_primary = false));
       }
       return { ...current };
     });

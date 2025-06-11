@@ -214,10 +214,6 @@ export class ApiService {
     return this.TP.patch(url(), body, { useYearInterceptor: true });
   };
 
-  GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
-    const url = () => `tools/clarisa/levers`;
-    return this.TP.get(url(), {});
-  };
   GET_Years = (resultCode?: number, reportYear?: number): Promise<MainResponse<GetYear[]>> => {
     const url = 'results/year';
 

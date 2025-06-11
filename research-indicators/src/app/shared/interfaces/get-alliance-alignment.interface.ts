@@ -1,6 +1,5 @@
 export interface GetAllianceAlignment {
   contracts: Contract[];
-  levers: Lever[];
 }
 
 interface Lever {
