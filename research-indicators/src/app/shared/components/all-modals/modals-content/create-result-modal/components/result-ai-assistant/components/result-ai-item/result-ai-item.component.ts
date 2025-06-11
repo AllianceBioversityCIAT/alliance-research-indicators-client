@@ -11,6 +11,7 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 import { EXPANDED_ITEM_DETAILS, getIndicatorTypeIcon, INDICATOR_TYPE_ICONS } from '@shared/constants/result-ai.constants';
 import { FormsModule } from '@angular/forms';
+import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 
 type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_participants' | 'male_participants';
 
@@ -22,7 +23,8 @@ type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_pa
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiItemComponent {
-  @Input() item!: AIAssistantResult;
+  @Input() item!: AIAssistantResult | GetOsResult;
+  @Input() hideButtons = false;
   @ViewChild('titleInput') titleInput!: ElementRef;
   @ViewChild('titleText') titleText!: ElementRef;
   @ViewChild('editTitleContainer') editTitleContainer!: ElementRef;
@@ -87,6 +89,11 @@ export class ResultAiItemComponent {
   openResult(item: AIAssistantResult) {
     const url = `/result/${item.result_official_code}/general-information`;
     window.open(url, '_blank');
+
+  }
+
+  isAIAssistantResult(item: AIAssistantResult | GetOsResult): item is AIAssistantResult {
+    return 'training_type' in item;
   }
 
   autoGrow() {
