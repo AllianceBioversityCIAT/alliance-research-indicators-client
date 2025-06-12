@@ -50,6 +50,8 @@ import { GetVersions } from '@shared/interfaces/get-versions.interface';
 import { AskForHelp } from '../components/all-modals/modals-content/ask-for-help-modal/interfaces/ask-for-help.interface';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { HttpParams } from '@angular/common/http';
+import { GetInnovationDetails } from '@shared/interfaces/get-innovation-details.interface';
+import { InnovationCharacteristic, InnovationLevel, InnovationType } from '@shared/interfaces/get-innovation.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -188,18 +190,43 @@ export class ApiService {
     });
   };
 
-  GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
-    const url = () => `results/institutions/by-result-id/${id}?role=partners`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
-  };
-
   GET_Versions = (resultCode: number): Promise<MainResponse<GetVersions>> => {
     const url = () => `results/versions/${resultCode}`;
     return this.TP.get(url(), {});
   };
 
+  GET_InnovationReadinessLevels = (): Promise<MainResponse<InnovationLevel[]>> => {
+    const url = () => `tools/clarisa/innovation-readiness-levels`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InnovationCharacteristics = (): Promise<MainResponse<InnovationCharacteristic[]>> => {
+    const url = () => `tools/clarisa/innovation-characteristics`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InnovationTypes = (): Promise<MainResponse<InnovationType[]>> => {
+    const url = () => `tools/clarisa/innovation-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
+    const url = () => `results/institutions/by-result-id/${id}?role=partners`;
+    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+  };
+
   PATCH_Partners = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/institutions/partners/by-result-id/${id}`;
+    return this.TP.patch(url(), body, { useYearInterceptor: true });
+  };
+
+  GET_InnovationDetails = (resultCode: number): Promise<MainResponse<GetInnovationDetails>> => {
+    const url = () => `results/innovation-dev/${resultCode}`;
+    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+  };
+
+  PATCH_InnovationDetails = <T>(resultCode: number, body: T): Promise<MainResponse<GetInnovationDetails>> => {
+    const url = () => `results/innovation-dev/${resultCode}`;
     return this.TP.patch(url(), body, { useYearInterceptor: true });
   };
 
