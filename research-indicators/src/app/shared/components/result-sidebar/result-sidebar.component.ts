@@ -65,6 +65,12 @@ export class ResultSidebarComponent {
       greenCheckKey: 'alignment'
     },
     {
+      label: 'Innovation details',
+      path: 'innovation-details',
+      indicator_id: 2,
+      greenCheckKey: 'innovation_details'
+    },
+    {
       label: 'CapSharing details',
       path: 'capacity-sharing',
       indicator_id: 1,
