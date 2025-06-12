@@ -1,6 +1,9 @@
 /* prettier-ignore */
 export type ControlListServices =
-  | 'levers'
+  | 'anticipatedUsers'
+  | 'innovationTypes'
+  | 'innovationCharacteristics'
+  | 'innovationReadinessLevels'
   | 'contracts'
   | 'institutions'
   | 'userStaff'
