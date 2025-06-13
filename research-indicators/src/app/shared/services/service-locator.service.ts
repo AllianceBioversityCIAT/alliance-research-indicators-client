@@ -32,6 +32,10 @@ import { GetClarisaInstitutionsTypesService } from './get-clarisa-institutions-t
 import { IpOwnerService } from './short-control-list/ip-owner.service';
 import { GetYearsService } from './control-list/get-years.service';
 import { GetYearsByCodeService } from './control-list/get-years-by-code.service';
+import { GetInnovationTypesService } from './control-list/get-innovation-types.service';
+import { GetInnovationCharacteristicsService } from './control-list/get-innovation-characteristics.service';
+import { GetInnovationReadinessLevelsService } from './control-list/get-innovation-readiness-levels.service';
+import { GetAnticipatedUsersService } from './short-control-list/get-anticipated-users.service';
 
 @Injectable({
   providedIn: 'root'
@@ -63,6 +67,14 @@ export class ServiceLocatorService {
 
   private getPrimaryServices(serviceName: ControlListServices) {
     switch (serviceName) {
+      case 'anticipatedUsers':
+        return this.injector.get(GetAnticipatedUsersService);
+      case 'innovationTypes':
+        return this.injector.get(GetInnovationTypesService);
+      case 'innovationCharacteristics':
+        return this.injector.get(GetInnovationCharacteristicsService);
+      case 'innovationReadinessLevels':
+        return this.injector.get(GetInnovationReadinessLevelsService);
       case 'contracts':
         return this.injector.get(GetContractsService);
       case 'institutions':

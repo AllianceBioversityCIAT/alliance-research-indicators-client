@@ -1,0 +1,40 @@
+<div class="relative flex flex-col gap-4 bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5 mb-2">
+  <div class="flex justify-between gap-1">
+    <span class="text-[13px] text-[#8D9299] font-['Space_Grotesk'] tracking-widest">ORGANIZATION # {{ evidenceNumber ?? 1 }}</span>
+
+    @if (submission.isEditableStatus()) {
+      <div class="cursor-pointer text-[#CF0808]" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">
+        <i class="pi pi-times-circle !text-[16px] pr-1"></i>
+      </div>
+    }
+  </div>
+
+  <div class="flex flex-col gap-1">
+    <app-select
+      label="Actor type"
+      [disabled]="!submission.isEditableStatus()"
+      [signal]="body"
+      [isRequired]="true"
+      [optionLabel]="'name'"
+      [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
+      [serviceName]="'languages'">
+    </app-select>
+    <app-select
+      label="Subtype"
+      [disabled]="!submission.isEditableStatus()"
+      [signal]="body"
+      [isRequired]="true"
+      [optionLabel]="'name'"
+      [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
+      [serviceName]="'languages'">
+    </app-select>
+
+    <app-input
+      placeholder="Specify other"
+      [signal]="body"
+      [isRequired]="true"
+      optionValue="group.session_participants_female"
+      [disabled]="!submission.isEditableStatus()"
+      type="text"></app-input>
+  </div>
+</div>
