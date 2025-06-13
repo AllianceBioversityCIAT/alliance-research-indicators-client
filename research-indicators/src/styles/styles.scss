@@ -144,3 +144,11 @@ body {
     font-size: 13px !important;
   }
 }
+
+.p-placeholder {
+  color: #a2a9af !important;
+}
+
+input::placeholder {
+  color: #a2a9af !important;
+}
