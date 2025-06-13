@@ -29,7 +29,7 @@ export class IndicatorsService {
     itemLabelKey: keyof Indicator,
     itemValueKey: keyof Indicator
   ) {
-    const targetIndicatorIds = [1, 4];
+    const targetIndicatorIds = [1, 2, 4];
     const filteredData = data.filter(parent => parent.indicators.some(item => targetIndicatorIds.includes(item.indicator_id)));
 
     return filteredData.map(parent => ({

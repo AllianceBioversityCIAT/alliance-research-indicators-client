@@ -1,92 +1,183 @@
 <div class="app-page-wrapper">
   <app-form-header />
   <div class="flex flex-col gap-5">
-    <div class="content-section">
-      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
-        <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">INNOVATIONS DETAILS</div>
-        <div class="flex flex-col gap-[25px]">
-          <app-input
-            label="Short title"
-            [signal]="body"
-            [isRequired]="true"
-            optionValue="group.session_participants_female"
-            [disabled]="!submission.isEditableStatus()"
-            type="text"></app-input>
-          <app-select
-            label="Innovation nature"
-            [disabled]="!submission.isEditableStatus()"
-            [signal]="body"
-            [isRequired]="true"
-            [optionLabel]="'name'"
-            [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
-            [serviceName]="'languages'">
-          </app-select>
+    <!-- Innovation Details -->
+    <div class="flex flex-col bg-[#fcfcfc] gap-[18px] rounded-[10px] p-[30px] pb-4 mb-2">
+      <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[12px] mt-0">INNOVATIONS DETAILS</div>
+      <app-input
+        label="Short title"
+        [signal]="body"
+        [isRequired]="true"
+        optionValue="short_title"
+        [disabled]="!submission.isEditableStatus()"
+        type="text"></app-input>
 
-          <app-select
-            label="Innovation type"
-            [disabled]="!submission.isEditableStatus()"
-            [signal]="body"
-            [isRequired]="true"
-            [optionLabel]="'name'"
-            [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
-            [serviceName]="'languages'">
-          </app-select>
-
-          <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5 mb-[30px]">
-            <span class="text-[#074b86] material-symbols-rounded">info</span>
-            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
-              At the output level, a single readiness score is given for the innovation, irrespective of the specific geo-location where the
-              innovation is being designed, tested and/or scaled. for example, if it is level 7 in Kenya, level 3 in Peru and level 5 in India, only
-              the highest score for the generic rank is retained. If you need help, use the
-              <span (keydown.enter)="open()" (click)="open()" class="text-[#2792ce] cursor-pointer underline"> Scaling Readiness Calculator </span>
-              for guidance.
-            </h3>
+      <app-select
+        label="Innovation nature"
+        [disabled]="!submission.isEditableStatus()"
+        [signal]="body"
+        [isRequired]="true"
+        [optionLabel]="'name'"
+        [optionValue]="{ body: 'innovation_nature_id', option: 'id' }"
+        [serviceName]="'innovationCharacteristics'">
+        <ng-template pTemplate="item" let-item>
+          <div class="flex align-items-center py-2 px-3 bg-[#F4F7F9] text-[#A2A9AF] uppercase">
+            <span>{{ item.name }}S</span>
           </div>
+        </ng-template>
+      </app-select>
 
-          <div class="flex items-center justify-between w-full max-w-4xl mx-auto my-8 select-none">
-            @for (n of stepNumbers; track $index) {
-              <button
-                pButton
-                type="button"
-                class="!rounded-full !border-2 !border-[#2196F3] !w-12 !h-12 !flex !items-center !justify-center !text-lg !font-bold transition-all duration-200
-                  {{ selectedStep() === n ? '!bg-[#2196F3] !text-white' : '!bg-white !text-[#2196F3]' }}"
-                (click)="selectStep(n)"
-                [attr.aria-label]="'Seleccionar nivel ' + n">
-                {{ n }}
-              </button>
-              @if (n < 9) {
-                <div class="flex-1 h-1 bg-[#E3EAF3] mx-1" style="min-width: 24px"></div>
-              }
-            }
-          </div>
+      <app-select
+        label="Innovation type"
+        [disabled]="!submission.isEditableStatus()"
+        [signal]="body"
+        [isRequired]="true"
+        [optionLabel]="'name'"
+        [optionValue]="{ body: 'innovation_type_id', option: 'code' }"
+        [serviceName]="'innovationTypes'">
+      </app-select>
 
-          <div class="flex bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5 mb-[30px]">
-            <h3 class="text-[#4C5158] font-['Barlow'] text-[14px] leading-[17px] font-bold pb-2">7 - Prototype</h3>
-            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
-              The innovation is validated for its ability to achieve a specific impact under semi-controlled conditions. 
-            </h3>
-            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
-              Level 7 is a validation stage, where evidence from prior testing is used to confirm that the innovation can achieve the desired impact
-              under a semi-controlled environment.  
-            </h3>
-            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
-              Evidence for Level 7 needs documentation, like a summary of pilot results, showing validation in semi-controlled settings. 
-            </h3>
-          </div>
+      <label class="label inline-block flex items-center" for="username">
+        How would you assess the current readiness of this innovation?
+        <span class="text-red-500">*</span>
+      </label>
 
-          <app-radio-button
-            label="Who would be the anticipated user(s) of this Innovation?"
-            [isRequired]="true"
-            [signal]="body"
-            direction="horizontal"
-            [disabled]="!submission.isEditableStatus()"
-            [serviceName]="'capSharingGenders'"
-            [optionLabel]="'name'"
-            [optionValue]="{ body: 'individual.gender_id', option: 'gender_id' }"></app-radio-button>
-        </div>
+      <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5">
+        <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
+        <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+          At the output level, a single readiness score is given for the innovation, irrespective of the specific geo-location where the innovation is
+          being designed, tested and/or scaled. for example, if it is level 7 in Kenya, level 3 in Peru and level 5 in India, only the highest score
+          for the generic rank is retained. If you need help, use the
+          <span (keydown.enter)="open()" (click)="open()" class="text-[#2792ce] cursor-pointer underline"> Scaling Readiness Calculator </span>
+          for guidance.
+        </h3>
       </div>
+
+      <div class="flex items-center justify-between w-full max-w-4xl mx-auto my-3 xl:px-5 select-none">
+        @for (n of stepNumbers; track $index) {
+          <button
+            pButton
+            type="button"
+            class="!rounded-full !border-2 !font-['Space_Grotesk'] !border-[#1689CA] !text-[16px] !w-8 !h-8 !flex !items-center !justify-center !text-lg !font-[400] transition-all duration-200
+                  {{ selectedStep() === n ? '!bg-[#1689CA] !text-white' : '!bg-white !text-[#1689CA]' }}"
+            (click)="selectStep(n)"
+            [attr.aria-label]="'Seleccionar nivel ' + n">
+            {{ n }}
+          </button>
+          @if (n < 9) {
+            <div class="flex-1 h-[2.5px] !bg-[#E8EBED]" style="min-width: 24px"></div>
+          }
+        }
+      </div>
+
+      <div class="flex bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5 mb-2">
+        <h3 class="text-[#4C5158] font-['Barlow'] text-[14px] leading-[17px] font-bold pb-2">7 - Prototype</h3>
+        <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
+          The innovation is validated for its ability to achieve a specific impact under semi-controlled conditions. 
+        </h3>
+        <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
+          Level 7 is a validation stage, where evidence from prior testing is used to confirm that the innovation can achieve the desired impact under
+          a semi-controlled environment.  
+        </h3>
+        <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
+          Evidence for Level 7 needs documentation, like a summary of pilot results, showing validation in semi-controlled settings. 
+        </h3>
+      </div>
+
+      <app-radio-button
+        label="Who would be the anticipated user(s) of this Innovation?"
+        [isRequired]="true"
+        [signal]="body"
+        direction="horizontal"
+        [disabled]="!submission.isEditableStatus()"
+        [serviceName]="'anticipatedUsers'"
+        [optionLabel]="'name'"
+        [optionValue]="{ body: 'anticipated_users_id', option: 'value' }"></app-radio-button>
     </div>
 
+    <!-- Anticipated Users -->
+    @if (body().anticipated_users_id === 2) {
+      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-6">
+        <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">ANTICIPATED USERS</div>
+        <div class="flex flex-col gap-[18px]">
+          <span class="text-[#1689CA] text-[14px] leading-[17px] font-semibold">Actors</span>
+          <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5">
+            <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
+            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+              In the context of One CGIAR, youth are those between 15 and 24 years old, considered key to innovation and transformation in
+              agricultural systems. If applicable, optionally report the number of users who are currently making use of the innovation.
+            </h3>
+          </div>
+
+          @for (evidence of body().actors; track $index) {
+            <app-actor-item
+              [evidence]="evidence"
+              [bodySignal]="body"
+              [index]="$index"
+              [evidenceNumber]="$index + 1"
+              (deleteEvidenceEvent)="deleteActor($index)"></app-actor-item>
+          }
+          @if (submission.isEditableStatus()) {
+            <div class="flex w-full">
+              <button
+                type="button"
+                (click)="addActor()"
+                class="flex cursor-pointer w-full items-center gap-2 border-2 justify-center font-medium border-[#1689CA] text-[#1689CA] px-4 py-3 rounded-[7px] text-[15px]">
+                Add other actor
+                <i class="pi pi-plus !text-[12px]"></i>
+              </button>
+            </div>
+          }
+
+          <span class="text-[#1689CA] text-[14px] leading-[17px] font-semibold">Organizations</span>
+
+          @for (evidence of body().organizations; track $index) {
+            <app-organization-item
+              [evidence]="evidence"
+              [bodySignal]="body"
+              [index]="$index"
+              [evidenceNumber]="$index + 1"
+              (deleteEvidenceEvent)="deleteOrganization($index)"></app-organization-item>
+          }
+
+          @if (submission.isEditableStatus()) {
+            <div class="flex w-full">
+              <button
+                type="button"
+                (click)="addOrganization()"
+                class="flex cursor-pointer w-full items-center gap-2 border-2 justify-center font-medium border-[#1689CA] text-[#1689CA] px-4 py-3 rounded-[7px] text-[15px]">
+                Add other organization
+                <i class="pi pi-plus !text-[12px]"></i>
+              </button>
+            </div>
+          }
+
+          <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5">
+            <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
+            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+              Is the innovation compatible with local needs, circumstances and preferences of the communities? Are there additional, complementary
+              solutions necessary to allow for use of the innovation?
+            </h3>
+          </div>
+
+          <app-textarea
+            [isRequired]="true"
+            [disabled]="!submission.isEditableStatus()"
+            [rows]="5"
+            label="Please elaborate on the intended beneficiaries/users. Who is likely to benefit?"
+            [signal]="this.body"
+            [optionValue]="'description'"></app-textarea>
+
+          <app-textarea
+            [isRequired]="true"
+            [disabled]="!submission.isEditableStatus()"
+            [rows]="5"
+            label="Expected outcomes"
+            [signal]="this.body"
+            [optionValue]="'description'"></app-textarea>
+        </div>
+      </div>
+    }
     <app-navigation-buttons (back)="saveData('back')" (next)="saveData('next')" (save)="saveData()" />
   </div>
 </div>
