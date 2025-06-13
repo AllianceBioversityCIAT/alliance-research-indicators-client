@@ -89,10 +89,12 @@ export class EvidenceItemComponent implements OnInit {
   }
 
   setValue(value: string) {
-    value = value.toLowerCase();
-    this.body.set({
-      ...this.body(),
-      evidence_url: value
-    });
+    setTimeout(() => {
+      value = value.toLowerCase();
+      this.body.set({
+        ...this.body(),
+        evidence_url: value
+      });
+    }, 1500);
   }
 }

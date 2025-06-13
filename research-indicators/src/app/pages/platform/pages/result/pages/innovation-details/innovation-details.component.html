@@ -7,6 +7,8 @@
       <app-input
         label="Short title"
         [signal]="body"
+        placeholder="Select an option"
+        helperText="Max. 10 words"
         [isRequired]="true"
         optionValue="short_title"
         [disabled]="!submission.isEditableStatus()"
@@ -15,6 +17,8 @@
       <app-select
         label="Innovation nature"
         [disabled]="!submission.isEditableStatus()"
+        placeholder="Select an option"
+        helperText="Select an option"
         [signal]="body"
         [isRequired]="true"
         [optionLabel]="'name'"
@@ -30,6 +34,8 @@
       <app-select
         label="Innovation type"
         [disabled]="!submission.isEditableStatus()"
+        placeholder="Select an option"
+        helperText="Select an option"
         [signal]="body"
         [isRequired]="true"
         [optionLabel]="'name'"
