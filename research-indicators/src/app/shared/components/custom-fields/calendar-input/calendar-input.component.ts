@@ -7,10 +7,10 @@ import { CacheService } from '../../../services/cache/cache.service';
 import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
-    selector: 'app-calendar-input',
-    imports: [CalendarModule, FormsModule, SkeletonModule],
-    templateUrl: './calendar-input.component.html',
-    styleUrl: './calendar-input.component.scss'
+  selector: 'app-calendar-input',
+  imports: [CalendarModule, FormsModule, SkeletonModule],
+  templateUrl: './calendar-input.component.html',
+  styleUrl: './calendar-input.component.scss'
 })
 export class CalendarInputComponent {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;
@@ -31,7 +31,7 @@ export class CalendarInputComponent {
   inputValid = computed(() => {
     const value = this.signal()[this.optionValue];
     const isEmpty = !value || value === '';
-  
+
     if (this.isRequired && isEmpty) {
       return {
         valid: false,
@@ -39,14 +39,14 @@ export class CalendarInputComponent {
         message: 'This field is required'
       };
     }
-  
+
     return {
       valid: true,
       class: 'ng-valid ng-dirty',
       message: ''
     };
   });
-  
+
   setValue(value: string) {
     this.signal.set({ ...this.signal(), [this.optionValue]: value });
   }
