@@ -53,6 +53,13 @@
         </h3>
       </div>
 
+      @if (selectedStep() === null) {
+        <div class="flex items-center gap-1 -mt-2 text-[#E69F00]">
+          <i class="material-symbols-rounded !text-[14px]">warning</i>
+          <span class="!text-[14px]">This field is required</span>
+        </div>
+      }
+
       <div class="flex items-center justify-between w-full max-w-4xl mx-auto my-3 xl:px-5 select-none">
         @for (n of stepNumbers; track $index) {
           <button
@@ -96,7 +103,7 @@
     </div>
 
     <!-- Anticipated Users -->
-    @if (body().anticipated_users_id === 2) {
+    @if (body().anticipated_users_id === 6) {
       <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-6">
         <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">ANTICIPATED USERS</div>
         <div class="flex flex-col gap-[18px]">

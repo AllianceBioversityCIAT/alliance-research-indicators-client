@@ -62,8 +62,7 @@ export class OrganizationItemComponent implements OnInit {
     this.deleteEvidenceEvent.emit();
   }
 
-  setValue(value: string) {
-    value = value.toLowerCase();
+  setValue() {
     this.body.set({
       ...this.body()
     });
