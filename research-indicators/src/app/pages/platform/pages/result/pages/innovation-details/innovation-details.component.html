@@ -7,8 +7,8 @@
       <app-input
         label="Short title"
         [signal]="body"
-        placeholder="Select an option"
         helperText="Max. 10 words"
+        [maxLength]="10"
         [isRequired]="true"
         optionValue="short_title"
         [disabled]="!submission.isEditableStatus()"
