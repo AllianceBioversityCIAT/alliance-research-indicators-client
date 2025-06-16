@@ -32,8 +32,44 @@ export class InputComponent {
   @Input() autoComplete: 'on' | 'off' = 'on';
   @Input() disabled = false;
   @Input() maxLength?: number;
+  @Input() maxWords?: number;
   body = signal<{ value: string | number | null }>({ value: null });
   firstTime = signal(true);
+
+  getWordCount(value: string | number | null): number {
+    if (!value) return 0;
+    const str = value.toString().trim();
+    // Contamos palabras separadas por espacios, ignorando espacios múltiples
+    return str.split(/\s+/).filter(word => word.length > 0).length;
+  }
+
+  shouldPreventInput(event: KeyboardEvent, currentValue: string | number | null): boolean {
+    if (!this.maxWords || !currentValue) return false;
+
+    const wordCount = this.getWordCount(currentValue);
+    if (wordCount < this.maxWords) return false;
+
+    // Permitir teclas de navegación y borrado
+    if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '].includes(event.key)) return false;
+
+    // Permitir atajos de teclado
+    if (event.ctrlKey || event.metaKey) return false;
+
+    // Verificar si estamos editando una palabra existente
+    const input = event.target as HTMLInputElement;
+    const cursorPosition = input.selectionStart;
+    if (cursorPosition === null) return true;
+
+    // Obtener la palabra actual donde está el cursor
+    const textBeforeCursor = currentValue.toString().substring(0, cursorPosition);
+    const words = textBeforeCursor.trim().split(/\s+/);
+    const currentWordIndex = words.length - 1;
+
+    // Si estamos en medio de una palabra existente, permitir la edición
+    if (currentWordIndex < this.maxWords) return false;
+
+    return true;
+  }
 
   onChange = effect(
     () => {
@@ -57,6 +93,12 @@ export class InputComponent {
     if (this.validateEmpty && !value) {
       return { valid: false, class: 'ng-invalid ng-dirty', message: 'Field cannot be empty' };
     }
+    if (this.maxWords && value) {
+      const wordCount = this.getWordCount(value);
+      if (wordCount > this.maxWords) {
+        return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${this.maxWords} words allowed` };
+      }
+    }
     if (this.maxLength && value && value.length > this.maxLength) {
       return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${this.maxLength} characters allowed` };
     }
@@ -69,6 +111,36 @@ export class InputComponent {
 
   setValue(value: any) {
     if (this.onlyLowerCase) value = value.toLowerCase();
+
+    if (this.maxWords && typeof value === 'string') {
+      const input = document.activeElement as HTMLInputElement;
+      const cursorPosition = input?.selectionStart;
+
+      // Dividimos el texto en palabras
+      const words = value
+        .trim()
+        .split(/\s+/)
+        .filter(word => word.length > 0);
+
+      // Si excede el límite, tomamos solo las primeras maxWords palabras
+      if (words.length > this.maxWords) {
+        value = words.slice(0, this.maxWords).join(' ');
+
+        // Si el cursor estaba en una posición válida, intentamos mantenerlo
+        if (cursorPosition !== null && cursorPosition !== undefined) {
+          // Calculamos la posición relativa del cursor en la palabra actual
+          const textBeforeCursor = value.substring(0, cursorPosition);
+          const wordsBeforeCursor = textBeforeCursor.trim().split(/\s+/).length - 1;
+
+          // Si el cursor estaba en una palabra que se mantiene, restauramos su posición
+          if (wordsBeforeCursor < this.maxWords) {
+            setTimeout(() => {
+              input.setSelectionRange(cursorPosition, cursorPosition);
+            });
+          }
+        }
+      }
+    }
 
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, value);

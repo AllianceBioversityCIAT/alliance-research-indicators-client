@@ -27,7 +27,7 @@
           [disabled]="disabled"
           [(ngModel)]="this.body().value"
           [autocomplete]="autoComplete"
-          [attr.maxlength]="maxLength"
+          (keydown)="shouldPreventInput($event, body().value || null) ? $event.preventDefault() : null"
           (ngModelChange)="setValue($event)" />
       } @else if (type === 'number') {
         <p-inputNumber
