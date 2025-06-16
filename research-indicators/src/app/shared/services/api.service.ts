@@ -52,6 +52,8 @@ import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { HttpParams } from '@angular/common/http';
 import { GetInnovationDetails } from '@shared/interfaces/get-innovation-details.interface';
 import { InnovationCharacteristic, InnovationLevel, InnovationType } from '@shared/interfaces/get-innovation.interface';
+import { ActorType } from '@shared/interfaces/get-actor-types.interface';
+import { InstitutionType } from '@shared/interfaces/get-institutions-types.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -207,6 +209,16 @@ export class ApiService {
 
   GET_InnovationTypes = (): Promise<MainResponse<InnovationType[]>> => {
     const url = () => `tools/clarisa/innovation-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InstitutionTypes = (): Promise<MainResponse<InstitutionType[]>> => {
+    const url = () => `tools/clarisa/institutions-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ActorTypes = (): Promise<MainResponse<ActorType[]>> => {
+    const url = () => `tools/clarisa/actor-types`;
     return this.TP.get(url(), {});
   };
 

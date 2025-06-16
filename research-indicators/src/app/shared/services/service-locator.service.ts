@@ -36,6 +36,8 @@ import { GetInnovationTypesService } from './control-list/get-innovation-types.s
 import { GetInnovationCharacteristicsService } from './control-list/get-innovation-characteristics.service';
 import { GetInnovationReadinessLevelsService } from './control-list/get-innovation-readiness-levels.service';
 import { GetAnticipatedUsersService } from './short-control-list/get-anticipated-users.service';
+import { GetActorTypesService } from './control-list/get-actor-types.service';
+import { GetInstitutionTypesService } from './control-list/get-institution-types.service';
 
 @Injectable({
   providedIn: 'root'
@@ -67,6 +69,10 @@ export class ServiceLocatorService {
 
   private getPrimaryServices(serviceName: ControlListServices) {
     switch (serviceName) {
+      case 'actorTypes':
+        return this.injector.get(GetActorTypesService);
+      case 'institutionTypes':
+        return this.injector.get(GetInstitutionTypesService);
       case 'anticipatedUsers':
         return this.injector.get(GetAnticipatedUsersService);
       case 'innovationTypes':

@@ -1,5 +1,7 @@
 /* prettier-ignore */
 export type ControlListServices =
+  | 'actorTypes'
+  | 'institutionTypes'
   | 'anticipatedUsers'
   | 'innovationTypes'
   | 'innovationCharacteristics'
