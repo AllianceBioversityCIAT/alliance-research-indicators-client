@@ -31,16 +31,19 @@ export class InputComponent {
   @Input() onlyLowerCase = false;
   @Input() autoComplete: 'on' | 'off' = 'on';
   @Input() disabled = false;
-  body = signal({ value: null });
+  @Input() maxLength?: number;
+  body = signal<{ value: string | number | null }>({ value: null });
   firstTime = signal(true);
 
-  onChange = effect(() => {
-    const externalValue = this.utils.getNestedProperty(this.signal(), this.optionValue);
-    if (this.body().value !== externalValue) {
-      this.body.set({ value: externalValue });
-    }
-  }, { allowSignalWrites: true });
-
+  onChange = effect(
+    () => {
+      const externalValue = this.utils.getNestedProperty(this.signal(), this.optionValue);
+      if (this.body().value !== externalValue) {
+        this.body.set({ value: externalValue });
+      }
+    },
+    { allowSignalWrites: true }
+  );
 
   isInvalid = computed(() => {
     return this.isRequired && !this.body()?.value;
@@ -53,6 +56,9 @@ export class InputComponent {
     }
     if (this.validateEmpty && !value) {
       return { valid: false, class: 'ng-invalid ng-dirty', message: 'Field cannot be empty' };
+    }
+    if (this.maxLength && value && value.length > this.maxLength) {
+      return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${this.maxLength} characters allowed` };
     }
     if (this.pattern) {
       const valid = new RegExp(this.getPattern().pattern).test(value);
