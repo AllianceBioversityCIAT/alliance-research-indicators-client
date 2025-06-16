@@ -68,7 +68,7 @@ export class ResultSidebarComponent {
       label: 'Innovation details',
       path: 'innovation-details',
       indicator_id: 2,
-      greenCheckKey: 'innovation_details'
+      greenCheckKey: 'innovation_dev'
     },
     {
       label: 'CapSharing details',
