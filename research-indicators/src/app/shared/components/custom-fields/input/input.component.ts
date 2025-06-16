@@ -8,6 +8,9 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { CacheService } from '../../../services/cache/cache.service';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { UtilsService } from '../../../services/utils.service';
+
+type InputValueType = string | number | null;
+
 @Component({
   selector: 'app-input',
   imports: [FormsModule, InputTextModule, SaveOnWritingDirective, SkeletonModule, InputNumberModule],
@@ -33,17 +36,17 @@ export class InputComponent {
   @Input() disabled = false;
   @Input() maxLength?: number;
   @Input() maxWords?: number;
-  body = signal<{ value: string | number | null }>({ value: null });
+  body = signal<{ value: InputValueType }>({ value: null });
   firstTime = signal(true);
 
-  getWordCount(value: string | number | null): number {
+  getWordCount(value: InputValueType): number {
     if (!value) return 0;
     const str = value.toString().trim();
     // Contamos palabras separadas por espacios, ignorando espacios múltiples
     return str.split(/\s+/).filter(word => word.length > 0).length;
   }
 
-  shouldPreventInput(event: KeyboardEvent, currentValue: string | number | null): boolean {
+  shouldPreventInput(event: KeyboardEvent, currentValue: InputValueType): boolean {
     if (!this.maxWords || !currentValue) return false;
 
     const wordCount = this.getWordCount(currentValue);
