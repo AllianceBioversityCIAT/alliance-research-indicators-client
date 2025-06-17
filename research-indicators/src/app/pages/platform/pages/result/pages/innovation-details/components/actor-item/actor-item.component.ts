@@ -68,4 +68,16 @@ export class ActorItemComponent implements OnInit {
       ...this.body()
     });
   }
+
+  onDisaggregationChange(event: { checked: boolean }) {
+    if (event.checked) {
+      this.body.update(current => ({
+        ...current,
+        women_youth: false,
+        women_not_youth: false,
+        men_youth: false,
+        men_not_youth: false
+      }));
+    }
+  }
 }
