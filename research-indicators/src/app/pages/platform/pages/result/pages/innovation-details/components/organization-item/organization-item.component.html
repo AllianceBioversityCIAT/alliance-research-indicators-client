@@ -11,13 +11,13 @@
 
   <div class="flex flex-col gap-1">
     <app-select
-      label="Actor type"
+      label="Organization type"
       [disabled]="!submission.isEditableStatus()"
       [signal]="body"
       [isRequired]="true"
       [optionLabel]="'name'"
-      [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
-      [serviceName]="'languages'">
+      [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'code' }"
+      [serviceName]="'institutionTypes'">
     </app-select>
     <app-select
       label="Subtype"

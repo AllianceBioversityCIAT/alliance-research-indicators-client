@@ -14,10 +14,11 @@
       label="Actor type"
       [disabled]="!submission.isEditableStatus()"
       [signal]="body"
+      [scrollHeight]="'218px'"
       [isRequired]="true"
       [optionLabel]="'name'"
-      [optionValue]="{ body: 'actors.actor_type_id', option: 'id' }"
-      [serviceName]="'languages'">
+      [optionValue]="{ body: 'actors.actor_type_id', option: 'code' }"
+      [serviceName]="'actorTypes'">
     </app-select>
 
     <app-input
