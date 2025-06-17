@@ -69,9 +69,9 @@ export class ResultsCenterService {
     {
       field: 'project',
       path: 'result_contracts.contract_id',
-      header: 'Primary Project',
-      minWidth: 'min-w-[100px]',
-      maxWidth: 'max-w-[100px]',
+      header: 'Reporting Project',
+      minWidth: 'min-w-[110px]',
+      maxWidth: 'max-w-[110px]',
       getValue: (result: Result) => result.result_contracts?.contract_id ?? '-'
     },
     {
@@ -203,7 +203,7 @@ export class ResultsCenterService {
             },
             ...prev.map(indicator => ({
               ...indicator,
-              able: [0, 1, 4].includes(indicator.indicator_id)
+              able: [0, 1, 2, 4].includes(indicator.indicator_id)
             }))
           ];
         });

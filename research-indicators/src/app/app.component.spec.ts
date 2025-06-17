@@ -7,9 +7,11 @@ import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { of } from 'rxjs';
 import { ActionsService } from './shared/services/actions.service';
+import { Router, NavigationStart } from '@angular/router';
 
 describe('AppComponent', () => {
   let mockActionsService: Partial<ActionsService>;
+  let router: Router;
 
   beforeEach(async () => {
     const mockSocket = {
@@ -41,6 +43,8 @@ describe('AppComponent', () => {
         { provide: ActionsService, useValue: mockActionsService }
       ]
     }).compileComponents();
+
+    router = TestBed.inject(Router);
   });
 
   it('should create the app', () => {
@@ -53,5 +57,67 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app.title).toEqual('research-indicators');
+  });
+
+  it('should reload on popstate event', () => {
+    const reloadSpy = jest.fn();
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, reload: reloadSpy },
+      writable: true
+    });
+    TestBed.createComponent(AppComponent);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    expect(reloadSpy).toHaveBeenCalled();
+    // Limpia el mock
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, reload: undefined },
+      writable: true
+    });
+  });
+
+  it('should reload on NavigationStart with back_forward', () => {
+    const reloadSpy = jest.fn();
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, reload: reloadSpy },
+      writable: true
+    });
+    TestBed.createComponent(AppComponent);
+    const navType = { type: 'back_forward' };
+    if (!performance.getEntriesByType) {
+      // @ts-ignore
+      performance.getEntriesByType = () => [];
+    }
+    const spy = jest.spyOn(performance, 'getEntriesByType').mockReturnValue([navType as any]);
+    (router.events as any).next(new NavigationStart(1, '/test'));
+    expect(reloadSpy).toHaveBeenCalled();
+    spy.mockRestore();
+    // Limpia el mock
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, reload: undefined },
+      writable: true
+    });
+  });
+
+  it('should NOT reload on NavigationStart with other type', () => {
+    const reloadSpy = jest.fn();
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, reload: reloadSpy },
+      writable: true
+    });
+    TestBed.createComponent(AppComponent);
+    const navType = { type: 'navigate' };
+    if (!performance.getEntriesByType) {
+      // @ts-ignore
+      performance.getEntriesByType = () => [];
+    }
+    const spy = jest.spyOn(performance, 'getEntriesByType').mockReturnValue([navType as any]);
+    (router.events as any).next(new NavigationStart(1, '/test'));
+    expect(reloadSpy).not.toHaveBeenCalled();
+    spy.mockRestore();
+    // Limpia el mock
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, reload: undefined },
+      writable: true
+    });
   });
 });

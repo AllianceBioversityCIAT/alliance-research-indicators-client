@@ -1,4 +1,4 @@
-<div class="relative flex flex-col gap-4 bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5 mb-2">
+<div class="relative flex flex-col gap-4 bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5">
   <div class="flex justify-between gap-1">
     <span class="text-[13px] text-[#8D9299] font-['Space_Grotesk'] tracking-widest">ACTOR # {{ evidenceNumber ?? 1 }}</span>
 
@@ -14,39 +14,46 @@
       label="Actor type"
       [disabled]="!submission.isEditableStatus()"
       [signal]="body"
+      [scrollHeight]="'218px'"
       [isRequired]="true"
       [optionLabel]="'name'"
-      [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
-      [serviceName]="'languages'">
-    </app-select>
-    <app-select
-      label="Subtype"
-      [disabled]="!submission.isEditableStatus()"
-      [signal]="body"
-      [isRequired]="true"
-      [optionLabel]="'name'"
-      [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
-      [serviceName]="'languages'">
+      [optionValue]="{ body: 'actors.actor_type_id', option: 'code' }"
+      [serviceName]="'actorTypes'">
     </app-select>
 
     <app-input
       placeholder="Specify other"
       [signal]="body"
       [isRequired]="true"
-      optionValue="group.session_participants_female"
+      optionValue="actors.session_participants_female"
       [disabled]="!submission.isEditableStatus()"
       type="text"></app-input>
     <div class="flex items-center space-x-2 text-[14px] text-sm text-gray-600 pt-1">
-      <p-checkbox id="is_private" [disabled]="!submission.isEditableStatus()" binary="true" styleClass="w-4 h-4" />
+      <p-checkbox
+        id="is_private"
+        [disabled]="!submission.isEditableStatus()"
+        [(ngModel)]="body().sex_age_disaggregation_not_apply"
+        binary="true"
+        styleClass="w-4 h-4" />
       <label for="is_private"> Sex and age disaggregation does not apply </label>
     </div>
     <div class="flex gap-15 pt-6">
       <div class="flex flex-col gap-4">
         <span class="text-[#153C71] text-[14px] leading-[17px] font-semibold">Women</span>
         <div class="flex items-center space-x-2 text-[14px] text-sm text-gray-600">
-          <p-checkbox id="is_private" [disabled]="!submission.isEditableStatus()" binary="true" styleClass="w-4 h-4" />
+          <p-checkbox
+            id="is_private"
+            [disabled]="!submission.isEditableStatus()"
+            [(ngModel)]="body().women_youth"
+            binary="true"
+            styleClass="w-4 h-4" />
           <label for="is_private"> Youth </label>
-          <p-checkbox id="is_private" [disabled]="!submission.isEditableStatus()" binary="true" styleClass="w-4 h-4" />
+          <p-checkbox
+            id="is_private"
+            [disabled]="!submission.isEditableStatus()"
+            [(ngModel)]="body().women_not_youth"
+            binary="true"
+            styleClass="w-4 h-4" />
           <label for="is_private"> Non-youth </label>
         </div>
       </div>
@@ -54,9 +61,14 @@
       <div class="flex flex-col gap-4">
         <span class="text-[#153C71] text-[14px] leading-[17px] font-semibold">Men</span>
         <div class="flex items-center space-x-2 text-[14px] text-sm text-gray-600">
-          <p-checkbox id="is_private" [disabled]="!submission.isEditableStatus()" binary="true" styleClass="w-4 h-4" />
+          <p-checkbox id="is_private" [disabled]="!submission.isEditableStatus()" [(ngModel)]="body().men_youth" binary="true" styleClass="w-4 h-4" />
           <label for="is_private"> Youth </label>
-          <p-checkbox id="is_private" [disabled]="!submission.isEditableStatus()" binary="true" styleClass="w-4 h-4" />
+          <p-checkbox
+            id="is_private"
+            [disabled]="!submission.isEditableStatus()"
+            [(ngModel)]="body().men_not_youth"
+            binary="true"
+            styleClass="w-4 h-4" />
           <label for="is_private"> Non-youth </label>
         </div>
       </div>

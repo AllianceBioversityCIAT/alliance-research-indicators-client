@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { SubmissionService } from '@shared/services/submission.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
-import { GetInnovationDetails, Organization } from '@shared/interfaces/get-innovation-details.interface';
+import { GetInnovationDetails, InstitutionType } from '@shared/interfaces/get-innovation-details.interface';
 import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 
@@ -14,17 +14,17 @@ import { InputComponent } from '@shared/components/custom-fields/input/input.com
 })
 export class OrganizationItemComponent implements OnInit {
   @Output() deleteEvidenceEvent = new EventEmitter();
-  @Input() evidence: Organization = new Organization();
+  @Input() evidence: InstitutionType = new InstitutionType();
   @Input() index: number | null = null;
   @Input() evidenceNumber: number | null = null;
   @Input() bodySignal: WritableSignal<GetInnovationDetails> = signal(new GetInnovationDetails());
-  body = signal<Organization>(new Organization());
+  body = signal<InstitutionType>(new InstitutionType());
   submission = inject(SubmissionService);
   isPrivate = false;
 
   syncBody = effect(() => {
     if (this.index === null) return;
-    const parentEvidence = this.bodySignal().organizations?.[this.index];
+    const parentEvidence = this.bodySignal().institution_types?.[this.index];
     if (parentEvidence && JSON.stringify(parentEvidence) !== JSON.stringify(this.body())) {
       this.body.set(parentEvidence);
       return;
@@ -39,13 +39,13 @@ export class OrganizationItemComponent implements OnInit {
       if (this.index === null) return;
 
       this.bodySignal.update((body: GetInnovationDetails) => {
-        if (!body.organizations) {
-          body.organizations = [];
+        if (!body.institution_types) {
+          body.institution_types = [];
         }
 
         // Ensure array has enough elements
-        while (body.organizations.length <= this.index!) {
-          body.organizations.push(new Organization());
+        while (body.institution_types.length <= this.index!) {
+          body.institution_types.push(new InstitutionType());
         }
 
         return { ...body };

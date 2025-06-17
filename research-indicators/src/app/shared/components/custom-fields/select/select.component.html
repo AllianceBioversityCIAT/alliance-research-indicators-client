@@ -25,12 +25,17 @@
         [virtualScroll]="true"
         [placeholder]="this.placeholder"
         [virtualScrollItemSize]="optionLabel2 ? 60 : 41"
+        [scrollHeight]="this.scrollHeight"
         [optionValue]="this.optionValue.option"
         [filter]="!this.service?.isOpenSearch()"
         [filterBy]="this.optionLabel"
         [optionLabel]="this.optionLabel"
         [showClear]="false">
-        @if (this.service?.isOpenSearch()) {
+        @if (headerTemplate) {
+          <ng-template pTemplate="header">
+            <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+          </ng-template>
+        } @else if (this.service?.isOpenSearch()) {
           <ng-template pTemplate="header">
             <div class="p-select-header">
               <div class="p-input-icon-left p-fluid">
@@ -47,32 +52,39 @@
           </ng-template>
         }
 
-        <ng-template #selectedItem let-selectedOption>
-          <div class="flex items-center block whitespace-normal break-words gap-2">
-            <div [innerHTML]="selectedOption[this.optionLabel]"></div>
-          </div>
-        </ng-template>
+        @if (selectedItemTemplate) {
+          <ng-template pTemplate="selectedItem" let-selectedOption>
+            <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: selectedOption }"></ng-container>
+          </ng-template>
+        } @else {
+          <ng-template pTemplate="selectedItem" let-selectedOption>
+            <div class="flex items-center block whitespace-normal break-words gap-2">
+              <div [innerHTML]="selectedOption[this.optionLabel]"></div>
+            </div>
+          </ng-template>
+        }
 
-        <ng-template pTemplate="item" let-item>
-          <div class="flex align-items-center gap-2">
-            @if (this.flagAttributes.isoAlpha2) {
-              <img
-                width="25"
-                height="25"
-                [src]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
-                [alt]="item[this.flagAttributes.institution_location_name]"
-                [srcset]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
-                [pTooltip]="item[this.flagAttributes.institution_location_name]"
-                tooltipPosition="right" />
-            }
-            <span [innerHTML]="item[this.optionLabel]"></span>
-          </div>
-        </ng-template>
-
-        <!-- selected style -->
-        <ng-template pTemplate="value" let-item>
-          <div [innerHTML]="item[this.optionLabel]" class="selected-item"></div>
-        </ng-template>
+        @if (itemTemplate) {
+          <ng-template pTemplate="item" let-item>
+            <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
+          </ng-template>
+        } @else {
+          <ng-template pTemplate="item" let-item>
+            <div class="flex align-items-center gap-2">
+              @if (this.flagAttributes.isoAlpha2) {
+                <img
+                  width="25"
+                  height="25"
+                  [src]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
+                  [alt]="item[this.flagAttributes.institution_location_name]"
+                  [srcset]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
+                  [pTooltip]="item[this.flagAttributes.institution_location_name]"
+                  tooltipPosition="right" />
+              }
+              <span [innerHTML]="item[this.optionLabel]"></span>
+            </div>
+          </ng-template>
+        }
 
         @if (optionLabel2) {
           <ng-template let-item pTemplate="item">

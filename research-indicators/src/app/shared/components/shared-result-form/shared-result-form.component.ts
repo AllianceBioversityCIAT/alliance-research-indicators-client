@@ -13,7 +13,7 @@ import { TooltipModule } from 'primeng/tooltip';
 export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   @Input() contracts: GetContracts[] = [];
   @Input() contractId: number | null = null;
-  @Input() title = 'Primary Project';
+  @Input() title = 'Reporting Project';
   @Input() maxLength = 117;
   @Input() showWarning = false;
   @Input() getContractStatusClasses: (status: string) => string = () => '';
