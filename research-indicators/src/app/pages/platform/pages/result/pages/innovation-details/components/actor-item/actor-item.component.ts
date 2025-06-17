@@ -69,7 +69,7 @@ export class ActorItemComponent implements OnInit {
     });
   }
 
-  onDisaggregationChange(event: any) {
+  onDisaggregationChange(event: { checked: boolean }) {
     if (event.checked) {
       this.body.update(current => ({
         ...current,

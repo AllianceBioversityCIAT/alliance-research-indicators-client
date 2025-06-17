@@ -33,7 +33,7 @@
         id="is_private"
         [disabled]="!submission.isEditableStatus()"
         [(ngModel)]="body().sex_age_disaggregation_not_apply"
-        (onChange)="onDisaggregationChange($event)"
+        (onChange)="onDisaggregationChange($event.checked)"
         binary="true"
         styleClass="w-4 h-4" />
       <label for="is_private"> Sex and age disaggregation does not apply </label>
