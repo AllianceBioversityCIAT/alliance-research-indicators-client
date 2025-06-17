@@ -30,8 +30,6 @@ export default class SearchAResultComponent {
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
 
-  constructor() {}
-
   onPageChange(event: PaginatorState) {
     this.first.set(event.first ?? 0);
     this.rows.set(event.rows ?? 5);

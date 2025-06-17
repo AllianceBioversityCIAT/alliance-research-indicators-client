@@ -8,8 +8,7 @@ import { Router } from '@angular/router';
 import { ActionsService } from '@shared/services/actions.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
-
-type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_participants' | 'male_participants';
+import { EXPANDED_ITEM_DETAILS, getIndicatorTypeIcon, INDICATOR_TYPE_ICONS } from '@shared/constants/result-ai.constants';
 
 @Component({
   selector: 'app-result-ai-item',
@@ -28,29 +27,13 @@ export class ResultAiItemComponent {
   actions = inject(ActionsService);
   allModalsService = inject(AllModalsService);
 
-  expandedItemDetails = [
-    { title: 'Total participants', value: 'total_participants' as DetailValue },
-    { title: 'Non-binary', value: 'non_binary_participants' as DetailValue },
-    { title: 'Female', value: 'female_participants' as DetailValue },
-    { title: 'Male', value: 'male_participants' as DetailValue }
-  ];
-
-  indicatorTypeIcon = [
-    { icon: 'group', type: 'Capacity Sharing for Development', class: 'output-icon' },
-    { icon: 'flag', type: 'Innovation Development', class: 'output-icon' },
-    { icon: 'lightbulb', type: 'Knowledge Product', class: 'output-icon' },
-    { icon: 'wb_sunny', type: 'Innovation Use', class: 'outcome-icon' },
-    { icon: 'pie_chart', type: 'Research Output', class: 'outcome-icon' },
-    { icon: 'folder_open', type: 'Policy Change', class: 'outcome-icon' }
-  ];
+  expandedItemDetails = EXPANDED_ITEM_DETAILS;
+  indicatorTypeIcon = INDICATOR_TYPE_ICONS;
 
   constructor(private readonly router: Router) {}
 
   getIndicatorTypeIcon(type: string) {
-    return {
-      class: this.indicatorTypeIcon.find(icon => icon.type === type)?.class,
-      icon: this.indicatorTypeIcon.find(icon => icon.type === type)?.icon
-    };
+    return getIndicatorTypeIcon(type);
   }
 
   isAIAssistantResult(item: AIAssistantResult | GetOsResult): item is AIAssistantResult {
