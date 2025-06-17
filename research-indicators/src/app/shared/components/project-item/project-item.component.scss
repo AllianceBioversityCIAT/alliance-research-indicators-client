@@ -102,19 +102,18 @@
     }
 
     .project-indicators {
-
       .indicator {
         .indicator-number-container {
           display: flex;
           align-items: center;
           gap: 5px;
-          
+
           .output-icon {
-            color: #7CB580;
+            color: #7cb580;
           }
 
           .outcome-icon {
-            color: #F58220;
+            color: #f58220;
           }
 
           .indicator-number {
