@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, effect } from '@angular/core';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -65,6 +65,13 @@ export class ResultAiAssistantComponent {
 
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
+
+    // Effect to control modal width based on document analysis state
+    effect(() => {
+      const isAnalyzed = this.documentAnalyzed();
+      const hasNoResults = this.noResults();
+      this.allModalsService.setModalWidth('createResult', isAnalyzed || hasNoResults);
+    });
   }
 
   onContractIdChange(newContractId: number | null) {
@@ -80,6 +87,7 @@ export class ResultAiAssistantComponent {
       this.createResultManagementService.items.set([]);
       this.documentAnalyzed.set(false);
       this.analyzingDocument.set(false);
+      this.allModalsService.setModalWidth('createResult', false);
       return;
     }
 
@@ -196,6 +204,8 @@ export class ResultAiAssistantComponent {
     this.selectedFile = null;
     this.analyzingDocument.set(false);
     this.documentAnalyzed.set(false);
+    this.noResults.set(false);
+    this.allModalsService.setModalWidth('createResult', false);
   }
 
   goBackToUploadNewFile() {
@@ -204,6 +214,7 @@ export class ResultAiAssistantComponent {
     this.analyzingDocument.set(false);
     this.documentAnalyzed.set(false);
     this.noResults.set(false);
+    this.allModalsService.setModalWidth('createResult', false);
     this.createResultManagementService.resultPageStep.set(1);
   }
 

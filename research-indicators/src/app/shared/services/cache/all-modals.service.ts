@@ -12,6 +12,7 @@ interface ModalConfig {
   cancelAction?: () => void;
   confirmAction?: () => void;
   disabledConfirmAction?: () => boolean;
+  isWide?: boolean;
 }
 
 @Injectable({
@@ -83,7 +84,8 @@ export class AllModalsService {
       ...modals,
       [modalName]: {
         ...modals[modalName],
-        isOpen: !modals[modalName]?.isOpen
+        isOpen: !modals[modalName]?.isOpen,
+        isWide: false
       }
     }));
 
@@ -97,7 +99,8 @@ export class AllModalsService {
       ...modals,
       [modalName]: {
         ...modals[modalName],
-        isOpen: false
+        isOpen: false,
+        isWide: false
       }
     }));
 
@@ -111,7 +114,8 @@ export class AllModalsService {
       ...modals,
       [modalName]: {
         ...modals[modalName],
-        isOpen: true
+        isOpen: true,
+        isWide: false
       }
     }));
   }
@@ -126,12 +130,22 @@ export class AllModalsService {
 
   closeAllModals(): void {
     this.modalConfig.set({
-      createResult: { ...this.modalConfig().createResult, isOpen: false },
-      submitResult: { ...this.modalConfig().submitResult, isOpen: false },
-      requestPartner: { ...this.modalConfig().requestPartner, isOpen: false },
-      askForHelp: { ...this.modalConfig().askForHelp, isOpen: false }
+      createResult: { ...this.modalConfig().createResult, isOpen: false, isWide: false },
+      submitResult: { ...this.modalConfig().submitResult, isOpen: false, isWide: false },
+      requestPartner: { ...this.modalConfig().requestPartner, isOpen: false, isWide: false },
+      askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false }
     });
 
     this.createResultManagementService.resultPageStep.set(0);
+  }
+
+  setModalWidth(modalName: ModalName, isWide: boolean): void {
+    this.modalConfig.update(modals => ({
+      ...modals,
+      [modalName]: {
+        ...modals[modalName],
+        isWide
+      }
+    }));
   }
 }

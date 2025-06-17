@@ -1,4 +1,6 @@
-<div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px]">
+<div
+  class="h-[calc(100%-60px)]"
+  [class]="allModalsService.modalConfig()['createResult'].isWide ? 'flex flex-col w-[95vw] max-w-[2000px]' : 'flex flex-col w-[70vw] max-w-[1300px]'">
   @if (documentAnalyzed() && selectedFile) {
     <div class="document-analyzed-container border-[#E8EBED] border-1">
       <i class="pi pi-file upload-icon" style="font-size: 28px; margin: 0"></i>
@@ -6,7 +8,7 @@
     </div>
   }
 
-  <section class="mx-auto w-full container flex flex-col gap-6 justify-start rounded-b-[27px] px-14 py-6 xl:pt-12 xl:pb-20">
+  <section class="mx-auto w-full result-ai-container flex flex-col gap-6 justify-start rounded-b-[27px] px-14 py-6 lg:py-12 xl:py-12">
     @if (!analyzingDocument() && !documentAnalyzed() && !noResults()) {
       <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[14px] font-[700] flex text-[#173F6F]">
@@ -123,7 +125,7 @@
           @if (createResultManagementService.items().length === 0) {
             <div class="flex flex-col items-center justify-center bg-white border-[#E8EBED] border-1 rounded-[7px] py-12 px-10 w-full h-full">
               <h1 class="text-[20px] font-[700] text-[#173F6F] flex gap-4 py-4">ALL RESULTS DISCARDED</h1>
-              <p class="text-[#4C5158] text-[16px]">You’ve discarded all the generated results. What would you like to do next?</p>
+              <p class="text-[#4C5158] text-[16px]">You've discarded all the generated results. What would you like to do next?</p>
 
               <div class="text-[16px] font-[500] text-[#173F6F] flex items-center justify-center gap-4 pt-6">
                 <p-button
@@ -168,7 +170,7 @@
 
         <div class="flex flex-col items-center justify-center w-full h-full">
           <h1 class="text-[17px] font-[700] text-[#173F6F] flex">NO RESULTS IDENTIFIED</h1>
-          <p class="text-[#4C5158] text-[14px]">The AI didn’t identify any results. What would you like to do next?</p>
+          <p class="text-[#4C5158] text-[14px]">The AI didn't identify any results. What would you like to do next?</p>
 
           <div class="text-[16px] font-[500] text-[#173F6F] flex items-center justify-center gap-4 py-6">
             <p-button
