@@ -46,11 +46,10 @@ export default class InnovationDetailsComponent {
 
   body: WritableSignal<GetInnovationDetails> = signal({
     short_title: '',
-    innovation_nature_id: 0,
-    innovation_type_id: 0,
-    innovation_readiness_id: 0,
-    no_sex_age_disaggregation: true,
-    anticipated_users_id: 0,
+    innovation_nature_id: undefined,
+    innovation_type_id: undefined,
+    innovation_readiness_id: undefined,
+    anticipated_users_id: undefined,
     expected_outcome: '',
     intended_beneficiaries_description: '',
     actors: [],
@@ -123,10 +122,6 @@ export default class InnovationDetailsComponent {
       this.body.set({ ...currentBody, institution_types: updatedTypes });
       this.actions.saveCurrentSection();
     }
-  }
-
-  open() {
-    this.getData();
   }
 
   canRemove = (): boolean => this.submission.isEditableStatus();
