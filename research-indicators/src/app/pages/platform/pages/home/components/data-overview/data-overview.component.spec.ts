@@ -124,4 +124,13 @@ describe('DataOverviewComponent', () => {
     expect(component.options.plugins.legend.display).toBe(false);
     expect(component.options.plugins.datalabels.display).toBe(false);
   });
+
+  it('should use fallback color when statusKey is not in STATUS_COLOR_MAP', async () => {
+    mockApiService.GET_ResultsStatus = jest.fn().mockResolvedValue({
+      data: [{ name: 'Status X', amount_results: 2, result_status_id: 999 }]
+    });
+    await component.getData();
+    expect(component.data.datasets[0].backgroundColor[0]).toBe(STATUS_COLOR_MAP[''].border);
+    expect(component.chartLegend()[0].color).toBe(STATUS_COLOR_MAP[''].border);
+  });
 });
