@@ -1,5 +1,4 @@
 .container {
-  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -39,7 +38,6 @@
     align-items: flex-start;
     justify-content: flex-start;
     flex-direction: column;
-    max-height: calc(95vh - 351.5px);
     overflow-y: auto;
     height: 100%;
     width: 100%;
