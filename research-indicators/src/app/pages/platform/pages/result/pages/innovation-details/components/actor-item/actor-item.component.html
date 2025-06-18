@@ -17,7 +17,7 @@
       [scrollHeight]="'218px'"
       [isRequired]="true"
       [optionLabel]="'name'"
-      [optionValue]="{ body: 'actors.actor_type_id', option: 'code' }"
+      [optionValue]="{ body: 'actor_type_id', option: 'code' }"
       [serviceName]="'actorTypes'">
     </app-select>
 
@@ -25,18 +25,18 @@
       placeholder="Specify other"
       [signal]="body"
       [isRequired]="true"
-      optionValue="actors.session_participants_female"
+      optionValue="actor_type_custom_name"
       [disabled]="!submission.isEditableStatus()"
       type="text"></app-input>
     <div class="flex items-center space-x-2 text-[14px] text-sm text-gray-600 pt-1">
       <p-checkbox
-        id="is_private"
+        id="sex_age_disaggregation_not_apply"
         [disabled]="!submission.isEditableStatus()"
         [(ngModel)]="body().sex_age_disaggregation_not_apply"
         (onChange)="onDisaggregationChange($event.checked)"
         binary="true"
         styleClass="w-4 h-4" />
-      <label for="is_private"> Sex and age disaggregation does not apply </label>
+      <label for="sex_age_disaggregation_not_apply"> Sex and age disaggregation does not apply </label>
     </div>
 
     @if (!body().sex_age_disaggregation_not_apply) {
@@ -45,19 +45,19 @@
           <span class="text-[#153C71] text-[14px] leading-[17px] font-semibold">Women</span>
           <div class="flex items-center space-x-2 text-[14px] text-sm text-gray-600">
             <p-checkbox
-              id="is_private"
+              id="women_youth"
               [disabled]="!submission.isEditableStatus()"
               [(ngModel)]="body().women_youth"
               binary="true"
               styleClass="w-4 h-4" />
-            <label for="is_private"> Youth </label>
+            <label for="women_youth"> Youth </label>
             <p-checkbox
-              id="is_private"
+              id="women_not_youth"
               [disabled]="!submission.isEditableStatus()"
               [(ngModel)]="body().women_not_youth"
               binary="true"
               styleClass="w-4 h-4" />
-            <label for="is_private"> Non-youth </label>
+            <label for="women_not_youth"> Non-youth </label>
           </div>
         </div>
 
@@ -65,19 +65,19 @@
           <span class="text-[#153C71] text-[14px] leading-[17px] font-semibold">Men</span>
           <div class="flex items-center space-x-2 text-[14px] text-sm text-gray-600">
             <p-checkbox
-              id="is_private"
+              id="men_youth"
               [disabled]="!submission.isEditableStatus()"
               [(ngModel)]="body().men_youth"
               binary="true"
               styleClass="w-4 h-4" />
-            <label for="is_private"> Youth </label>
+            <label for="men_youth"> Youth </label>
             <p-checkbox
-              id="is_private"
+              id="men_not_youth"
               [disabled]="!submission.isEditableStatus()"
               [(ngModel)]="body().men_not_youth"
               binary="true"
               styleClass="w-4 h-4" />
-            <label for="is_private"> Non-youth </label>
+            <label for="men_not_youth"> Non-youth </label>
           </div>
         </div>
       </div>
