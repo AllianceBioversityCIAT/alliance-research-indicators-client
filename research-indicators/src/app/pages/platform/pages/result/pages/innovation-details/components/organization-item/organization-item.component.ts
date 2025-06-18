@@ -16,10 +16,10 @@ import { GetClarisaInstitutionsSubTypesService } from '@shared/services/get-clar
   templateUrl: './organization-item.component.html'
 })
 export class OrganizationItemComponent implements OnInit {
-  @Output() deleteEvidenceEvent = new EventEmitter();
-  @Input() evidence: InstitutionType = new InstitutionType();
+  @Output() deleteOrganizationEvent = new EventEmitter();
+  @Input() organization: InstitutionType = new InstitutionType();
   @Input() index: number | null = null;
-  @Input() evidenceNumber: number | null = null;
+  @Input() organizationNumber: number | null = null;
   @Input() bodySignal: WritableSignal<GetInnovationDetails> = signal(new GetInnovationDetails());
   body = signal<InstitutionType>(new InstitutionType());
   submission = inject(SubmissionService);
@@ -31,13 +31,13 @@ export class OrganizationItemComponent implements OnInit {
 
   syncBody = effect(() => {
     if (this.index === null) return;
-    const parentEvidence = this.bodySignal().institution_types?.[this.index];
-    if (parentEvidence && JSON.stringify(parentEvidence) !== JSON.stringify(this.body())) {
-      this.body.set(parentEvidence);
+    const parentOrganization = this.bodySignal().institution_types?.[this.index];
+    if (parentOrganization && JSON.stringify(parentOrganization) !== JSON.stringify(this.body())) {
+      this.body.set(parentOrganization);
       return;
     }
-    if (this.evidence && JSON.stringify(this.evidence) !== JSON.stringify(this.body())) {
-      this.body.set(this.evidence);
+    if (this.organization && JSON.stringify(this.organization) !== JSON.stringify(this.body())) {
+      this.body.set(this.organization);
     }
   });
 
@@ -62,11 +62,11 @@ export class OrganizationItemComponent implements OnInit {
   );
 
   ngOnInit() {
-    this.body.set(this.evidence);
+    this.body.set(this.organization);
   }
 
-  deleteEvidence() {
-    this.deleteEvidenceEvent.emit();
+  deleteOrganization() {
+    this.deleteOrganizationEvent.emit();
   }
 
   setValue() {

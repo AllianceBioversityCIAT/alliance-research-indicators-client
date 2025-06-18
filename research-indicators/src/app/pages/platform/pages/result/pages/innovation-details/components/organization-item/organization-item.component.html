@@ -7,10 +7,10 @@
 
 <div class="relative flex flex-col gap-4 bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5">
   <div class="flex justify-between gap-1">
-    <span class="text-[13px] text-[#8D9299] font-['Space_Grotesk'] tracking-widest">ORGANIZATION # {{ evidenceNumber ?? 1 }}</span>
+    <span class="text-[13px] text-[#8D9299] font-['Space_Grotesk'] tracking-widest">ORGANIZATION # {{ organizationNumber ?? 1 }}</span>
 
     @if (submission.isEditableStatus()) {
-      <div class="cursor-pointer text-[#CF0808]" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">
+      <div class="cursor-pointer text-[#CF0808]" (click)="deleteOrganization()" (keydown.enter)="deleteOrganization()">
         <i class="pi pi-times-circle !text-[16px] pr-1"></i>
       </div>
     }

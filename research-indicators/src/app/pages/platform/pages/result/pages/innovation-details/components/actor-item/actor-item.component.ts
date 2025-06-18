@@ -16,10 +16,10 @@ import { GetActorTypesService } from '@shared/services/control-list/get-actor-ty
   templateUrl: './actor-item.component.html'
 })
 export class ActorItemComponent implements OnInit {
-  @Output() deleteEvidenceEvent = new EventEmitter();
-  @Input() evidence: Actor = new Actor();
+  @Output() deleteActorEvent = new EventEmitter();
+  @Input() actor: Actor = new Actor();
   @Input() index: number | null = null;
-  @Input() evidenceNumber: number | null = null;
+  @Input() actorNumber: number | null = null;
   @Input() bodySignal: WritableSignal<GetInnovationDetails> = signal(new GetInnovationDetails());
   body = signal<Actor>(new Actor());
   submission = inject(SubmissionService);
@@ -28,13 +28,13 @@ export class ActorItemComponent implements OnInit {
 
   syncBody = effect(() => {
     if (this.index === null) return;
-    const parentEvidence = this.bodySignal().actors?.[this.index];
-    if (parentEvidence && JSON.stringify(parentEvidence) !== JSON.stringify(this.body())) {
-      this.body.set(parentEvidence);
+    const parentActor = this.bodySignal().actors?.[this.index];
+    if (parentActor && JSON.stringify(parentActor) !== JSON.stringify(this.body())) {
+      this.body.set(parentActor);
       return;
     }
-    if (this.evidence && JSON.stringify(this.evidence) !== JSON.stringify(this.body())) {
-      this.body.set(this.evidence);
+    if (this.actor && JSON.stringify(this.actor) !== JSON.stringify(this.body())) {
+      this.body.set(this.actor);
     }
   });
 
@@ -47,7 +47,6 @@ export class ActorItemComponent implements OnInit {
           body.actors = [];
         }
 
-        // Ensure array has enough elements
         while (body.actors.length <= this.index!) {
           body.actors.push(new Actor());
         }
@@ -59,11 +58,11 @@ export class ActorItemComponent implements OnInit {
   );
 
   ngOnInit() {
-    this.body.set(this.evidence);
+    this.body.set(this.actor);
   }
 
-  deleteEvidence() {
-    this.deleteEvidenceEvent.emit();
+  deleteActor() {
+    this.deleteActorEvent.emit();
   }
 
   get actorMissing(): boolean {

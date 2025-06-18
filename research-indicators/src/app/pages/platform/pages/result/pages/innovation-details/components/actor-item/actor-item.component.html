@@ -1,9 +1,9 @@
 <div class="relative flex flex-col gap-4 bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5">
   <div class="flex justify-between gap-1">
-    <span class="text-[13px] text-[#8D9299] font-['Space_Grotesk'] tracking-widest">ACTOR # {{ evidenceNumber ?? 1 }}</span>
+    <span class="text-[13px] text-[#8D9299] font-['Space_Grotesk'] tracking-widest">ACTOR # {{ actorNumber ?? 1 }}</span>
 
     @if (submission.isEditableStatus()) {
-      <div class="cursor-pointer text-[#CF0808]" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">
+      <div class="cursor-pointer text-[#CF0808]" (click)="deleteActor()" (keydown.enter)="deleteActor()">
         <i class="pi pi-times-circle !text-[16px] pr-1"></i>
       </div>
     }
@@ -16,8 +16,9 @@
       [disabled]="!submission.isEditableStatus()"
       [scrollHeight]="'218px'"
       [optionLabel]="'name'"
+      class="text-[16px]"
       [(ngModel)]="body().actor_type_id"
-      [style]="actorMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
+      [style]="actorMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' } "
       [optionValue]="'code'"
       (onChange)="onActorTypeChange($event.value)"
       [options]="actorService.list()">

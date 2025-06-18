@@ -33,7 +33,7 @@
           </div>
         </ng-template>
         <ng-template #selectedItemTemplate let-selected>
-          <div class="flex items-center block whitespace-normal break-words">
+          <div class="flex items-center block whitespace-normal !text-[16px] break-words">
             <p class="text-[#4C5158] font-[400]">
               <b>{{ selected?.name }} -</b>
               {{ selected?.definition }}
@@ -61,7 +61,7 @@
           </div>
         </ng-template>
         <ng-template #selectedItemTemplate let-selected>
-          <div class="flex items-center block whitespace-normal break-words">
+          <div class="flex items-center block whitespace-normal text-[16px] break-words">
             <p class="text-[#4C5158] font-[400]">
               <b>{{ selected?.name }} -</b>
               {{ selected?.definition }}
@@ -155,13 +155,13 @@
             </h3>
           </div>
 
-          @for (evidence of body().actors; track $index) {
+          @for (actor of body().actors; track $index) {
             <app-actor-item
-              [evidence]="evidence"
+              [actor]="actor"
               [bodySignal]="body"
               [index]="$index"
-              [evidenceNumber]="$index + 1"
-              (deleteEvidenceEvent)="deleteActor($index)"></app-actor-item>
+              [actorNumber]="$index + 1"
+              (deleteActorEvent)="deleteActor($index)"></app-actor-item>
           }
           @if (submission.isEditableStatus()) {
             <div class="flex w-full">
@@ -177,12 +177,12 @@
 
           <span class="text-[#1689CA] text-[14px] leading-[17px] pt-3 font-semibold">Organizations</span>
 
-          @for (evidence of body().institution_types; track $index) {
+          @for (organization of body().institution_types; track $index) {
             <app-organization-item
-              [evidence]="evidence"
+              [organization]="organization"
               [bodySignal]="body"
               [index]="$index"
-              [evidenceNumber]="$index + 1"
+              [organizationNumber]="$index + 1"
               (deleteEvidenceEvent)="deleteInstitutionType($index)"></app-organization-item>
           }
 
