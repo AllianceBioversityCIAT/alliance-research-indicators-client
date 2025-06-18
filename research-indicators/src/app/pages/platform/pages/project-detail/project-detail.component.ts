@@ -6,10 +6,10 @@ import { ActivatedRoute } from '@angular/router';
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 
 @Component({
-    selector: 'app-project-detail',
-    imports: [ProjectResultsTableComponent, ProjectItemComponent],
-    templateUrl: './project-detail.component.html',
-    styleUrl: './project-detail.component.scss'
+  selector: 'app-project-detail',
+  imports: [ProjectResultsTableComponent, ProjectItemComponent],
+  templateUrl: './project-detail.component.html',
+  styleUrl: './project-detail.component.scss'
 })
 export default class ProjectDetailComponent implements OnInit {
   activatedRoute = inject(ActivatedRoute);
@@ -24,9 +24,15 @@ export default class ProjectDetailComponent implements OnInit {
 
   async getProjectDetail() {
     const response = await this.api.GET_ResultsCount(this.contractId());
-    response?.data?.indicators?.map((indicator: GetProjectDetailIndicator) => {
-      indicator.full_name = indicator.indicator.name;
-    });
-    this.currentProject.set(response.data);
+    if (response?.data?.indicators) {
+      response.data.indicators.forEach((indicator: GetProjectDetailIndicator) => {
+        indicator.full_name = indicator.indicator.name;
+      });
+      this.currentProject.set(response.data);
+    } else if (response?.data) {
+      this.currentProject.set(response.data);
+    } else {
+      this.currentProject.set(undefined as unknown as GetProjectDetail);
+    }
   }
 }
