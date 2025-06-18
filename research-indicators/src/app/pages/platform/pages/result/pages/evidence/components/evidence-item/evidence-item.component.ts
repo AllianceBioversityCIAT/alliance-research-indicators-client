@@ -62,7 +62,6 @@ export class EvidenceItemComponent implements OnInit {
           body.evidence = [];
         }
 
-        // Ensure array has enough elements
         while (body.evidence.length <= this.index!) {
           body.evidence.push(new Evidence());
         }
@@ -107,15 +106,12 @@ export class EvidenceItemComponent implements OnInit {
   }
 
   setValue(value: string) {
-    // Clear any existing timeout
     if (this.updateTimeout) {
       clearTimeout(this.updateTimeout);
     }
 
-    // Update the value immediately for validation
     const lowerCaseValue = value.toLowerCase();
 
-    // Update the body with debounce to prevent duplicate updates
     this.updateTimeout = setTimeout(() => {
       if (this.body().evidence_url !== lowerCaseValue) {
         this.body.set({
@@ -123,6 +119,6 @@ export class EvidenceItemComponent implements OnInit {
           evidence_url: lowerCaseValue
         });
       }
-    }, 300); // Reduced timeout to 300ms for better responsiveness
+    }, 300);
   }
 }
