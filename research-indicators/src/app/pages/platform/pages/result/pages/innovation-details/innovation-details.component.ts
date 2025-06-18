@@ -75,14 +75,10 @@ export default class InnovationDetailsComponent {
     }
 
     if (!response.data.institution_types || response.data.institution_types.length === 0) {
-      const institutionType = new InstitutionType();
-      institutionType.result_id = this.cache.currentResultId();
-      response.data.institution_types = [institutionType];
+      response.data.institution_types = [new InstitutionType()];
     }
     if (!response.data.actors || response.data.actors.length === 0) {
-      const actor = new Actor();
-      actor.result_id = this.cache.currentResultId();
-      response.data.actors = [actor];
+      response.data.actors = [new Actor()];
     }
   }
 
@@ -98,9 +94,7 @@ export default class InnovationDetailsComponent {
 
   addActor() {
     const currentBody = this.body();
-    const newActor = new Actor();
-    newActor.result_id = this.cache.currentResultId();
-    const updatedActors = this.updateArray<Actor>(currentBody.actors || [], newActor, 'add');
+    const updatedActors = this.updateArray<Actor>(currentBody.actors || [], new Actor(), 'add');
     this.body.set({ ...currentBody, actors: updatedActors });
     this.actions.saveCurrentSection();
   }
@@ -116,9 +110,7 @@ export default class InnovationDetailsComponent {
 
   addInstitutionType() {
     const currentBody = this.body();
-    const newInstitutionType = new InstitutionType();
-    newInstitutionType.result_id = this.cache.currentResultId();
-    const updatedTypes = this.updateArray<InstitutionType>(currentBody.institution_types || [], newInstitutionType, 'add');
+    const updatedTypes = this.updateArray<InstitutionType>(currentBody.institution_types || [], new InstitutionType(), 'add');
     this.body.set({ ...currentBody, institution_types: updatedTypes });
     this.actions.saveCurrentSection();
   }
