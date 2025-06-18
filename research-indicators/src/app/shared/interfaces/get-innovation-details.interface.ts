@@ -20,10 +20,13 @@ export class Actor {
   men_youth = false;
   men_not_youth = false;
   actor_role_id: number | undefined = undefined;
+  actor_type_custom_name: string | undefined = undefined;
 }
 
 export class InstitutionType {
   result_institution_type_id: number | undefined = undefined;
   result_id: number | undefined = undefined;
   institution_type_id: number | undefined = undefined;
+  sub_institution_type_id: number | undefined = undefined;
+  institution_type_custom_name: string | undefined = undefined;
 }

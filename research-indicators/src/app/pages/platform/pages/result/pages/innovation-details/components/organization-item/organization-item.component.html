@@ -16,7 +16,7 @@
       [signal]="body"
       [isRequired]="true"
       [optionLabel]="'name'"
-      [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'code' }"
+      [optionValue]="{ body: 'institution_type_id', option: 'code' }"
       [serviceName]="'institutionTypes'">
     </app-select>
     <app-select
@@ -25,7 +25,7 @@
       [signal]="body"
       [isRequired]="true"
       [optionLabel]="'name'"
-      [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
+      [optionValue]="{ body: 'sub_institution_type_id', option: 'id' }"
       [serviceName]="'languages'">
     </app-select>
 
@@ -33,7 +33,7 @@
       placeholder="Specify other"
       [signal]="body"
       [isRequired]="true"
-      optionValue="group.session_participants_female"
+      optionValue="institution_type_custom_name"
       [disabled]="!submission.isEditableStatus()"
       type="text"></app-input>
   </div>
