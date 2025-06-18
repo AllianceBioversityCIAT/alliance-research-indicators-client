@@ -8,7 +8,6 @@ import { InputComponent } from '@shared/components/custom-fields/input/input.com
 import { NgTemplateOutlet } from '@angular/common';
 import { SelectModule } from 'primeng/select';
 import { GetInstitutionTypesService } from '@shared/services/control-list/get-institution-types.service';
-import { GetClarisaInstitutionsTypesService } from '@shared/services/get-clarisa-institutions-type.service';
 import { GetClarisaInstitutionsSubTypesService } from '@shared/services/get-clarisa-institutions-subtypes.service';
 
 @Component({

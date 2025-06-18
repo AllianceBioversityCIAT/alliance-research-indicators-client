@@ -42,7 +42,6 @@ export class InputComponent {
   getWordCount(value: InputValueType): number {
     if (!value) return 0;
     const str = value.toString().trim();
-    // Contamos palabras separadas por espacios, ignorando espacios múltiples
     return str.split(/\s+/).filter(word => word.length > 0).length;
   }
 
@@ -52,23 +51,18 @@ export class InputComponent {
     const wordCount = this.getWordCount(currentValue);
     if (wordCount < this.maxWords) return false;
 
-    // Permitir teclas de navegación y borrado
     if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '].includes(event.key)) return false;
 
-    // Permitir atajos de teclado
     if (event.ctrlKey || event.metaKey) return false;
 
-    // Verificar si estamos editando una palabra existente
     const input = event.target as HTMLInputElement;
     const cursorPosition = input.selectionStart;
     if (cursorPosition === null) return true;
 
-    // Obtener la palabra actual donde está el cursor
     const textBeforeCursor = currentValue.toString().substring(0, cursorPosition);
     const words = textBeforeCursor.trim().split(/\s+/);
     const currentWordIndex = words.length - 1;
 
-    // Si estamos en medio de una palabra existente, permitir la edición
     if (currentWordIndex < this.maxWords) return false;
 
     return true;
@@ -119,23 +113,18 @@ export class InputComponent {
       const input = document.activeElement as HTMLInputElement;
       const cursorPosition = input?.selectionStart;
 
-      // Dividimos el texto en palabras
       const words = value
         .trim()
         .split(/\s+/)
         .filter(word => word.length > 0);
 
-      // Si excede el límite, tomamos solo las primeras maxWords palabras
       if (words.length > this.maxWords) {
         value = words.slice(0, this.maxWords).join(' ');
 
-        // Si el cursor estaba en una posición válida, intentamos mantenerlo
         if (cursorPosition !== null && cursorPosition !== undefined) {
-          // Calculamos la posición relativa del cursor en la palabra actual
           const textBeforeCursor = value.substring(0, cursorPosition);
           const wordsBeforeCursor = textBeforeCursor.trim().split(/\s+/).length - 1;
 
-          // Si el cursor estaba en una palabra que se mantiene, restauramos su posición
           if (wordsBeforeCursor < this.maxWords) {
             setTimeout(() => {
               input.setSelectionRange(cursorPosition, cursorPosition);

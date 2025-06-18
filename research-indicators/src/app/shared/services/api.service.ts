@@ -219,7 +219,8 @@ export class ApiService {
   };
 
   GET_SubInstitutionTypes = (depthLevel: number, code?: number): Promise<MainResponse<ClarisaInstitutionsSubTypes[]>> => {
-    const url = () => `tools/clarisa/institutions-types/depth-level/${depthLevel}${code ? `?code=${code}` : ''}`;
+    const codeQuery = code !== undefined ? '?code=' + code : '';
+    const url = () => `tools/clarisa/institutions-types/depth-level/${depthLevel}${codeQuery}`;
     return this.TP.get(url(), {});
   };
 
