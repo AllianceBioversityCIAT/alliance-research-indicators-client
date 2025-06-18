@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { InstitutionType } from '@shared/interfaces/get-institutions-types.interface';
+import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-institutions-subtypes.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +8,7 @@ import { InstitutionType } from '@shared/interfaces/get-institutions-types.inter
 export class GetInstitutionTypesService {
   private readonly apiService = inject(ApiService);
   loading = signal(true);
-  list = signal<InstitutionType[]>([]);
+  list = signal<ClarisaInstitutionsSubTypes[]>([]);
   isOpenSearch = signal(false);
 
   constructor() {
@@ -17,7 +17,7 @@ export class GetInstitutionTypesService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.apiService.GET_InstitutionTypes();
+    const response = await this.apiService.GET_SubInstitutionTypes(1);
     this.list.set(response.data);
     this.loading.set(false);
   }
