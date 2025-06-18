@@ -53,7 +53,6 @@ import { HttpParams } from '@angular/common/http';
 import { GetInnovationDetails } from '@shared/interfaces/get-innovation-details.interface';
 import { InnovationCharacteristic, InnovationLevel, InnovationType } from '@shared/interfaces/get-innovation.interface';
 import { ActorType } from '@shared/interfaces/get-actor-types.interface';
-import { InstitutionType } from '@shared/interfaces/get-institutions-types.interface';
 import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-institutions-subtypes.interface';
 
 @Injectable({
@@ -213,7 +212,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_InstitutionTypes = (): Promise<MainResponse<InstitutionType[]>> => {
+  GET_InstitutionTypes = (): Promise<MainResponse<ClarisaInstitutionsSubTypes[]>> => {
     const url = () => `tools/clarisa/institutions-types`;
     return this.TP.get(url(), {});
   };

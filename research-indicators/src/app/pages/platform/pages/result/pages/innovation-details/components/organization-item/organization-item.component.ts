@@ -108,32 +108,18 @@ export class OrganizationItemComponent implements OnInit {
   }
 
   async onInstitutionTypeChange(event: number) {
-    if (event === 78) {
-      const updatedInstitution = {
-        ...this.body(),
-        institution_type_id: event,
-        sub_institution_type_id: undefined
-      };
-      this.body.set(updatedInstitution);
-
-      if (this.index !== null) {
-        this.bodySignal.update(current => {
-          const updatedInstitutions = [...(current.institution_types || [])];
-          updatedInstitutions[this.index!] = updatedInstitution;
-          return { ...current, institution_types: updatedInstitutions };
-        });
-      }
-      // No cargar subtipos si es 78
-      this.showSubTypeSelect.set(false);
-      return;
-    }
-
-    // Lógica para cualquier otro tipo
     const updatedInstitution = {
       ...this.body(),
       institution_type_id: event,
-      institution_type_custom_name: undefined
+      sub_institution_type_id: undefined
     };
+
+    if (event === 78) {
+      updatedInstitution.institution_type_custom_name = this.body().institution_type_custom_name;
+    } else {
+      updatedInstitution.institution_type_custom_name = undefined;
+    }
+
     this.body.set(updatedInstitution);
 
     if (this.index !== null) {
@@ -144,6 +130,10 @@ export class OrganizationItemComponent implements OnInit {
       });
     }
 
-    await this.initializeSubTypes({ ...this.body(), institution_type_id: event });
+    if (event === 78) {
+      this.showSubTypeSelect.set(false);
+    } else {
+      await this.initializeSubTypes({ ...this.body(), institution_type_id: event });
+    }
   }
 }
