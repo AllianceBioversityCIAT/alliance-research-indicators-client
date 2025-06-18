@@ -10,15 +10,16 @@
   </div>
 
   <div class="flex flex-col gap-1">
-    <h2 class="text-[16px] font-[600] text-[#153C71] pb-1">Actor type<span class="text-[15px] text-[#CF0808]">*</span></h2>
+    <h2 class="text-[18px] font-[600] text-[#153C71] pb-1">Actor type<span class="text-[15px] text-[#CF0808]">*</span></h2>
 
     <p-select
       [disabled]="!submission.isEditableStatus()"
       [scrollHeight]="'218px'"
       [optionLabel]="'name'"
+      placeholder="Select the actor type"
       class="text-[16px]"
       [(ngModel)]="body().actor_type_id"
-      [style]="actorMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' } "
+      [style]="actorMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
       [optionValue]="'code'"
       (onChange)="onActorTypeChange($event.value)"
       [options]="actorService.list()">
@@ -41,7 +42,7 @@
         type="text"></app-input>
     }
 
-    <div class="flex items-center space-x-2 text-[14px] text-sm text-gray-600 pt-1">
+    <div class="flex items-center space-x-2 text-[16px] text-sm text-gray-600 pt-3">
       <p-checkbox
         id="sex_age_disaggregation_not_apply"
         [disabled]="!submission.isEditableStatus()"
@@ -53,10 +54,10 @@
     </div>
 
     @if (!body().sex_age_disaggregation_not_apply) {
-      <div class="flex gap-15 pt-6">
+      <div class="flex gap-15 pt-3">
         <div class="flex flex-col gap-4">
-          <span class="text-[#153C71] text-[14px] leading-[17px] font-semibold">Women</span>
-          <div class="flex items-center space-x-2 text-[14px] text-sm text-gray-600">
+          <span class="text-[#153C71] text-[16px] leading-[17px] font-semibold">Women</span>
+          <div class="flex items-center space-x-2 text-[16px] text-sm text-gray-600">
             <p-checkbox
               id="women_youth"
               [disabled]="!submission.isEditableStatus()"
@@ -75,8 +76,8 @@
         </div>
 
         <div class="flex flex-col gap-4">
-          <span class="text-[#153C71] text-[14px] leading-[17px] font-semibold">Men</span>
-          <div class="flex items-center space-x-2 text-[14px] text-sm text-gray-600">
+          <span class="text-[#153C71] text-[16px] leading-[17px] font-semibold">Men</span>
+          <div class="flex items-center space-x-2 text-[16px] text-sm text-gray-600">
             <p-checkbox
               id="men_youth"
               [disabled]="!submission.isEditableStatus()"
