@@ -30,11 +30,11 @@
           <span class="text-[#345B8F]">{{ item?.project_lead_description }}</span>
           <span class="text-[#B9C0C5]">|</span>
           Start date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
-          <span class="text-[#345B8F]">{{ item?.start_date | date: 'dd/MM/yyyy' }}</span>
+          <span class="text-[#345B8F]">{{ item?.start_date | date : 'dd/MM/yyyy' }}</span>
           @if (item?.end_date) {
-            <span class="text-[#B9C0C5]">|</span>
-            End date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
-            <span class="text-[#345B8F]">{{ item?.end_date | date: 'dd/MM/yyyy' }}</span>
+          <span class="text-[#B9C0C5]">|</span>
+          End date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
+          <span class="text-[#345B8F]">{{ item?.end_date | date : 'dd/MM/yyyy' }}</span>
           }
         </p>
       </div>
@@ -42,20 +42,23 @@
     <ng-template let-selected pTemplate="selectedItem">
       <div class="flex items-center block whitespace-normal break-words gap-2">
         @if (selected?.select_label?.includes(' - ')) {
-          <span>
-            <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
-          </span>
+        <span>
+          <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
+        </span>
         } @else {
-          <span>{{ selected.select_label }}</span>
+        <span>{{ selected.select_label }}</span>
         }
       </div>
     </ng-template>
   </p-select>
+  <div class="flex items-center gap-1 mt-1 text-[#8D9299] text-[11px]">
+    <span [innerHTML]="helperText"></span>
+  </div>
 
   @if (isInvalid && showWarning) {
-    <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm test-warning">
-      <i class="material-symbols-rounded !text-[12px]">warning</i>
-      <span class="!text-[12px]">This field is required</span>
-    </div>
+  <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm test-warning">
+    <i class="material-symbols-rounded !text-[12px]">warning</i>
+    <span class="!text-[12px]">This field is required</span>
+  </div>
   }
 </div>
