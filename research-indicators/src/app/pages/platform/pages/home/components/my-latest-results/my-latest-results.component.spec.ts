@@ -106,6 +106,43 @@ describe('MyLatestResultsComponent', () => {
       });
       expect(component.calculateProgressFor(result)).toBe(0);
     });
+
+    it('should calculate progress correctly for indicator type 1 (cap_sharing, cap_sharing_ip)', () => {
+      const result = {
+        ...mockLatestResults.data[0],
+        indicator: { ...mockLatestResults.data[0].indicator, indicator_id: 1 }
+      };
+      component.greenChecksByResult.set({
+        [result.result_official_code]: {
+          general_information: 1,
+          alignment: 1,
+          cap_sharing_ip: 1,
+          partners: 1,
+          geo_location: 1,
+          evidences: 1
+        }
+      });
+      // Para tipo 1: 6/7 = 86
+      expect(component.calculateProgressFor(result)).toBe(86);
+    });
+
+    it('should calculate progress correctly for indicator type distinto de 1 y 4', () => {
+      const result = {
+        ...mockLatestResults.data[0],
+        indicator: { ...mockLatestResults.data[0].indicator, indicator_id: 2 }
+      };
+      component.greenChecksByResult.set({
+        [result.result_official_code]: {
+          general_information: 1,
+          alignment: 1,
+          partners: 1,
+          geo_location: 1,
+          evidences: 1
+        }
+      });
+      // Para tipo 2: 5/5 = 100
+      expect(component.calculateProgressFor(result)).toBe(100);
+    });
   });
 
   describe('getStatusColor', () => {
