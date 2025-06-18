@@ -13,7 +13,7 @@ import { GetActorTypesService } from '@shared/services/control-list/get-actor-ty
   selector: 'app-actor-item',
   standalone: true,
   imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, SelectModule, InputComponent],
-  templateUrl: './actor-item.component.html'
+  templateUrl: './actor-item.component.html',
 })
 export class ActorItemComponent implements OnInit {
   @Output() deleteActorEvent = new EventEmitter();

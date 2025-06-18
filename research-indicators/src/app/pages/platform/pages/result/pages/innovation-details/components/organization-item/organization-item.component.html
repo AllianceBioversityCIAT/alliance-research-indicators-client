@@ -17,11 +17,13 @@
   </div>
 
   <div class="flex flex-col gap-1">
-    <h2 class="text-[16px] font-[600] text-[#153C71] pb-1">Organization type<span class="text-[15px] text-[#CF0808]">*</span></h2>
+    <h2 class="text-[18px] font-[600] text-[#153C71] pb-1">Organization type<span class="text-[15px] text-[#CF0808]">*</span></h2>
 
     <p-select
       [disabled]="!submission.isEditableStatus()"
       [scrollHeight]="'218px'"
+      placeholder="Select the organization type"
+      class="text-[16px]"
       [optionLabel]="'name'"
       [(ngModel)]="body().institution_type_id"
       [style]="organizationMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
@@ -35,11 +37,13 @@
     }
 
     @if (showSubTypeSelect()) {
-      <h2 class="text-[16px] mt-3 font-[600] text-[#153C71] pb-1">Subtype<span class="text-[15px] text-[#CF0808]">*</span></h2>
+      <h2 class="text-[18px] mt-3 font-[600] text-[#153C71] pb-1">Subtype<span class="text-[15px] text-[#CF0808]">*</span></h2>
 
       <p-select
         [disabled]="!submission.isEditableStatus()"
+        placeholder="Select the organization subtype"
         [scrollHeight]="'218px'"
+        class="text-[16px]"
         [optionLabel]="'name'"
         [(ngModel)]="body().sub_institution_type_id"
         [style]="subTypeMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
