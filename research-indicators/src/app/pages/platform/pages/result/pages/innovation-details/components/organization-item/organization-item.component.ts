@@ -61,8 +61,12 @@ export class OrganizationItemComponent implements OnInit {
     { allowSignalWrites: true }
   );
 
-  ngOnInit() {
+  async ngOnInit() {
     this.body.set(this.organization);
+    if (this.organization.institution_type_id) {
+      await this.subTypesService.getSubTypes(2, this.organization.institution_type_id);
+      this.showSubTypeSelect.set(this.subTypesService.list().length > 0);
+    }
   }
 
   deleteOrganization() {
