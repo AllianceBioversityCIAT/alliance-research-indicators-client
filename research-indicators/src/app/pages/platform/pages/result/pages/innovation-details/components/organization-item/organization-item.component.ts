@@ -63,9 +63,11 @@ export class OrganizationItemComponent implements OnInit {
     { allowSignalWrites: true }
   );
 
-  async ngOnInit() {
+  ngOnInit() {
     this.body.set(this.organization);
-    await this.initializeSubTypes(this.organization);
+    this.initializeSubTypes(this.organization).catch(error => {
+      console.error('Error initializing subtypes:', error);
+    });
   }
 
   private async initializeSubTypes(organization: InstitutionType) {
