@@ -5,12 +5,14 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { Actor, GetInnovationDetails } from '@shared/interfaces/get-innovation-details.interface';
-import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
+import { SelectModule } from 'primeng/select';
+import { GetActorTypesService } from '@shared/services/control-list/get-actor-types.service';
 
 @Component({
   selector: 'app-actor-item',
-  imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, SelectComponent, InputComponent],
+  standalone: true,
+  imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, SelectModule, InputComponent],
   templateUrl: './actor-item.component.html'
 })
 export class ActorItemComponent implements OnInit {
@@ -22,6 +24,7 @@ export class ActorItemComponent implements OnInit {
   body = signal<Actor>(new Actor());
   submission = inject(SubmissionService);
   isPrivate = false;
+  actorService = inject(GetActorTypesService);
 
   syncBody = effect(() => {
     if (this.index === null) return;
@@ -63,10 +66,8 @@ export class ActorItemComponent implements OnInit {
     this.deleteEvidenceEvent.emit();
   }
 
-  setValue() {
-    this.body.set({
-      ...this.body()
-    });
+  get actorMissing(): boolean {
+    return !this.body()?.actor_type_id;
   }
 
   onDisaggregationChange(event: { checked: boolean }) {
@@ -78,6 +79,25 @@ export class ActorItemComponent implements OnInit {
         men_youth: false,
         men_not_youth: false
       }));
+    }
+  }
+
+  onActorTypeChange(event: number) {
+    if (event !== 5) {
+      const updatedActor = {
+        ...this.body(),
+        actor_type_id: event,
+        actor_type_custom_name: undefined
+      };
+      this.body.set(updatedActor);
+
+      if (this.index !== null) {
+        this.bodySignal.update(current => {
+          const updatedActors = [...(current.actors || [])];
+          updatedActors[this.index!] = updatedActor;
+          return { ...current, actors: updatedActors };
+        });
+      }
     }
   }
 }
