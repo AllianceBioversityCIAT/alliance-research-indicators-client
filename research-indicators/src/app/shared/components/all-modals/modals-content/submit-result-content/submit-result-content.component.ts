@@ -111,17 +111,14 @@ export class SubmitResultContentComponent {
     this.cache.liveVersionData.set(null);
     this.cache.versionsList.set([]);
 
-    // Primero navegar sin versión para forzar la recarga
     const currentPath = this.router.url.split('?')[0];
     await this.router.navigate([currentPath], {
       queryParams: {},
       replaceUrl: true
     });
 
-    // Esperar un momento para que se carguen las versiones
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    // Luego navegar con la versión si es aprobado
     if (this.submissionService.statusSelected()?.statusId === 6) {
       const versionsResponse = await this.api.GET_Versions(this.cache.currentResultId());
       const versions = Array.isArray(versionsResponse.data.versions) ? versionsResponse.data.versions : [];

@@ -5,33 +5,36 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { Actor, GetInnovationDetails } from '@shared/interfaces/get-innovation-details.interface';
-import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
+import { SelectModule } from 'primeng/select';
+import { GetActorTypesService } from '@shared/services/control-list/get-actor-types.service';
 
 @Component({
   selector: 'app-actor-item',
-  imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, SelectComponent, InputComponent],
+  standalone: true,
+  imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, SelectModule, InputComponent],
   templateUrl: './actor-item.component.html'
 })
 export class ActorItemComponent implements OnInit {
-  @Output() deleteEvidenceEvent = new EventEmitter();
-  @Input() evidence: Actor = new Actor();
+  @Output() deleteActorEvent = new EventEmitter();
+  @Input() actor: Actor = new Actor();
   @Input() index: number | null = null;
-  @Input() evidenceNumber: number | null = null;
+  @Input() actorNumber: number | null = null;
   @Input() bodySignal: WritableSignal<GetInnovationDetails> = signal(new GetInnovationDetails());
   body = signal<Actor>(new Actor());
   submission = inject(SubmissionService);
   isPrivate = false;
+  actorService = inject(GetActorTypesService);
 
   syncBody = effect(() => {
     if (this.index === null) return;
-    const parentEvidence = this.bodySignal().actors?.[this.index];
-    if (parentEvidence && JSON.stringify(parentEvidence) !== JSON.stringify(this.body())) {
-      this.body.set(parentEvidence);
+    const parentActor = this.bodySignal().actors?.[this.index];
+    if (parentActor && JSON.stringify(parentActor) !== JSON.stringify(this.body())) {
+      this.body.set(parentActor);
       return;
     }
-    if (this.evidence && JSON.stringify(this.evidence) !== JSON.stringify(this.body())) {
-      this.body.set(this.evidence);
+    if (this.actor && JSON.stringify(this.actor) !== JSON.stringify(this.body())) {
+      this.body.set(this.actor);
     }
   });
 
@@ -44,7 +47,6 @@ export class ActorItemComponent implements OnInit {
           body.actors = [];
         }
 
-        // Ensure array has enough elements
         while (body.actors.length <= this.index!) {
           body.actors.push(new Actor());
         }
@@ -56,17 +58,15 @@ export class ActorItemComponent implements OnInit {
   );
 
   ngOnInit() {
-    this.body.set(this.evidence);
+    this.body.set(this.actor);
   }
 
-  deleteEvidence() {
-    this.deleteEvidenceEvent.emit();
+  deleteActor() {
+    this.deleteActorEvent.emit();
   }
 
-  setValue() {
-    this.body.set({
-      ...this.body()
-    });
+  get actorMissing(): boolean {
+    return !this.body()?.actor_type_id;
   }
 
   onDisaggregationChange(event: { checked: boolean }) {
@@ -78,6 +78,25 @@ export class ActorItemComponent implements OnInit {
         men_youth: false,
         men_not_youth: false
       }));
+    }
+  }
+
+  onActorTypeChange(event: number) {
+    if (event !== 5) {
+      const updatedActor = {
+        ...this.body(),
+        actor_type_id: event,
+        actor_type_custom_name: undefined
+      };
+      this.body.set(updatedActor);
+
+      if (this.index !== null) {
+        this.bodySignal.update(current => {
+          const updatedActors = [...(current.actors || [])];
+          updatedActors[this.index!] = updatedActor;
+          return { ...current, actors: updatedActors };
+        });
+      }
     }
   }
 }

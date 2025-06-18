@@ -54,6 +54,7 @@ import { GetInnovationDetails } from '@shared/interfaces/get-innovation-details.
 import { InnovationCharacteristic, InnovationLevel, InnovationType } from '@shared/interfaces/get-innovation.interface';
 import { ActorType } from '@shared/interfaces/get-actor-types.interface';
 import { InstitutionType } from '@shared/interfaces/get-institutions-types.interface';
+import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-institutions-subtypes.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -214,6 +215,12 @@ export class ApiService {
 
   GET_InstitutionTypes = (): Promise<MainResponse<InstitutionType[]>> => {
     const url = () => `tools/clarisa/institutions-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SubInstitutionTypes = (depthLevel: number, code?: number): Promise<MainResponse<ClarisaInstitutionsSubTypes[]>> => {
+    const codeQuery = code !== undefined ? '?code=' + code : '';
+    const url = () => `tools/clarisa/institutions-types/depth-level/${depthLevel}${codeQuery}`;
     return this.TP.get(url(), {});
   };
 

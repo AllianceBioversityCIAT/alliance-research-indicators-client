@@ -75,10 +75,14 @@ export default class InnovationDetailsComponent {
     }
 
     if (!response.data.institution_types || response.data.institution_types.length === 0) {
-      response.data.institution_types = [new InstitutionType()];
+      const institutionType = new InstitutionType();
+      institutionType.result_id = this.cache.currentResultId();
+      response.data.institution_types = [institutionType];
     }
     if (!response.data.actors || response.data.actors.length === 0) {
-      response.data.actors = [new Actor()];
+      const actor = new Actor();
+      actor.result_id = this.cache.currentResultId();
+      response.data.actors = [actor];
     }
   }
 
@@ -94,7 +98,9 @@ export default class InnovationDetailsComponent {
 
   addActor() {
     const currentBody = this.body();
-    const updatedActors = this.updateArray<Actor>(currentBody.actors || [], new Actor(), 'add');
+    const newActor = new Actor();
+    newActor.result_id = this.cache.currentResultId();
+    const updatedActors = this.updateArray<Actor>(currentBody.actors || [], newActor, 'add');
     this.body.set({ ...currentBody, actors: updatedActors });
     this.actions.saveCurrentSection();
   }
@@ -110,7 +116,9 @@ export default class InnovationDetailsComponent {
 
   addInstitutionType() {
     const currentBody = this.body();
-    const updatedTypes = this.updateArray<InstitutionType>(currentBody.institution_types || [], new InstitutionType(), 'add');
+    const newInstitutionType = new InstitutionType();
+    newInstitutionType.result_id = this.cache.currentResultId();
+    const updatedTypes = this.updateArray<InstitutionType>(currentBody.institution_types || [], newInstitutionType, 'add');
     this.body.set({ ...currentBody, institution_types: updatedTypes });
     this.actions.saveCurrentSection();
   }
@@ -147,7 +155,6 @@ export default class InnovationDetailsComponent {
     const resultId = Number(this.cache.currentResultId());
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
-
     if (this.submission.isEditableStatus()) {
       const response = await this.apiService.PATCH_InnovationDetails(resultId, this.body());
       if (response.successfulRequest) {
