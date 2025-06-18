@@ -39,6 +39,7 @@ export class EvidenceItemComponent implements OnInit {
   body = signal<Evidence>(new Evidence());
   submission = inject(SubmissionService);
   isPrivate = false;
+  private updateTimeout: ReturnType<typeof setTimeout> | undefined;
 
   syncBody = effect(() => {
     if (this.index === null) return;
@@ -106,12 +107,22 @@ export class EvidenceItemComponent implements OnInit {
   }
 
   setValue(value: string) {
-    setTimeout(() => {
-      value = value.toLowerCase();
-      this.body.set({
-        ...this.body(),
-        evidence_url: value
-      });
-    }, 3500);
+    // Clear any existing timeout
+    if (this.updateTimeout) {
+      clearTimeout(this.updateTimeout);
+    }
+
+    // Update the value immediately for validation
+    const lowerCaseValue = value.toLowerCase();
+
+    // Update the body with debounce to prevent duplicate updates
+    this.updateTimeout = setTimeout(() => {
+      if (this.body().evidence_url !== lowerCaseValue) {
+        this.body.set({
+          ...this.body(),
+          evidence_url: lowerCaseValue
+        });
+      }
+    }, 300); // Reduced timeout to 300ms for better responsiveness
   }
 }
