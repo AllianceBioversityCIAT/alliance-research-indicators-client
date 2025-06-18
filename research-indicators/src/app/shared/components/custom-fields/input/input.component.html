@@ -43,7 +43,7 @@
       }
       @if (helperText) {
         <div class="pt-1">
-          <small class="text-[#8D9299] text-[14px]" for="username">{{ helperText }}</small>
+          <small class="text-[#8D9299] text-[14px]" for="username" [innerHTML]="helperText"></small>
         </div>
       }
 

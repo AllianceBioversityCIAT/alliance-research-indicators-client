@@ -16,6 +16,7 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   @Input() title = 'Reporting Project';
   @Input() maxLength = 117;
   @Input() showWarning = false;
+  @Input() helperText = '';
   @Input() getContractStatusClasses: (status: string) => string = () => '';
   @Output() validityChanged = new EventEmitter<boolean>();
   @Output() contractIdChange = new EventEmitter<number>();

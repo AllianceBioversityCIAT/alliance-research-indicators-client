@@ -34,6 +34,7 @@
       [showWarning]="true"
       [getContractStatusClasses]="getContractStatusClasses"
       title="Reporting Project"
+      helperText="Enter the eligible project under which you are submitting the result. Only Alliance non-pool-funded projects are allowed."
       [maxLength]="100"
       (validityChanged)="sharedFormValid = $event"
       [contractId]="contractId"
@@ -59,14 +60,14 @@
         </p-select>
 
         <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">
-          Visit
+          Select the result indicator you want to report. For more details, visit the
           <span
-            class="text-[#1689CA] hover:underline"
+            class="text-[#1689CA] hover:underline cursor-pointer"
             (keydown.enter)="this.router.navigate(['/about-indicators'])"
             (click)="this.router.navigate(['/about-indicators']); this.allModalsService.closeModal('createResult')">
             About Indicators
           </span>
-          for more details.
+          section.
         </h4>
 
         @if (isIndicatorIdMissing) {
@@ -103,30 +104,33 @@
         [(ngModel)]="body().title"
         [style]="isTitleMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }" />
       <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">
-        Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.
+        Provide a clear, informative name for the result, for a non-specialist reader and without acronyms. Avoid abbreviations or (technical)
+        jargon.<br />
+        Max. 30 words.
       </h4>
       @if (isTitleMissing) {
         <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
       }
     </div>
 
-  <div class="w-full flex justify-end">
-    <button
-      class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
-      [disabled]="loading || isDisabled"
-      (click)="createResult(true)">
-      
-      @if (loading) {
-        <div class="min-w-[191px]">
-          <i class="pi pi-spinner pi-spin text-white text-xs"></i>
-        </div>
-      } @else {
-        Create and continue
-        <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
-      }
-    </button>
-  </div>
-
+    <div class="w-full flex justify-end">
+      <button
+        class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
+        [disabled]="loading || isDisabled"
+        (click)="createResult(true)">
+        @if (loading) {
+          <div class="min-w-[191px]">
+            <i class="pi pi-spinner pi-spin text-white text-xs"></i>
+          </div>
+        } @else {
+          Create and continue
+          <i
+            class="pi pi-arrow-right !text-[10px] pl-1"
+            [class.text-white]="!loading && !isDisabled"
+            [class.text-[#A2A9AF]]="loading || isDisabled"></i>
+        }
+      </button>
+    </div>
   </div>
 
   <div class="flex items-center my-6">
@@ -146,7 +150,7 @@
       <div class="flex text-justify flex-col pr-9 pl-5">
         <p class="text-[14px] font-[700] text-[#173F6F]">REUSE INFORMATION WITHOUT DUPLICATING EFFORT</p>
         <p class="text-[14px] text-[#777C83] leading-4.5 pt-1 font-[400]">
-          Our AI will scan your file to identify results and extract the relevant data to help complete the result forms, so you don’t have to
+          Our AI will scan your file to identify results and extract the relevant data to help complete the result forms, so you don't have to
           re-enter the same information multiple times.
         </p>
       </div>
