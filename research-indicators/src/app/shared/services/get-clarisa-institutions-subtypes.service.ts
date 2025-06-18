@@ -7,24 +7,38 @@ import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-inst
 })
 export class GetClarisaInstitutionsSubTypesService {
   api = inject(ApiService);
-  list = signal<ClarisaInstitutionsSubTypes[]>([]);
+  private subTypesMap = new Map<number, ClarisaInstitutionsSubTypes[]>();
   loading = signal(false);
   isOpenSearch = signal(false);
 
   async getSubTypes(depthLevel: number, code?: number) {
+    if (!code) return;
+
     this.loading.set(true);
     try {
+      // Limpiar la lista anterior para este código
+      this.subTypesMap.delete(code);
+
       const response = await this.api.GET_SubInstitutionTypes(depthLevel, code);
-      this.list.set(response.data);
+      this.subTypesMap.set(code, response.data);
     } catch (error) {
       console.error('Error fetching institution subtypes:', error);
-      this.list.set([]);
+      this.subTypesMap.set(code, []);
     } finally {
       this.loading.set(false);
     }
   }
 
-  clearList() {
-    this.list.set([]);
+  list(code?: number): ClarisaInstitutionsSubTypes[] {
+    if (!code) return [];
+    return this.subTypesMap.get(code) || [];
+  }
+
+  clearList(code?: number) {
+    if (code) {
+      this.subTypesMap.delete(code);
+    } else {
+      this.subTypesMap.clear();
+    }
   }
 }

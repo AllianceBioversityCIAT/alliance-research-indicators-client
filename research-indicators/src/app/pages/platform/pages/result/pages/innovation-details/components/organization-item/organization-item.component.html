@@ -48,7 +48,7 @@
         [(ngModel)]="body().sub_institution_type_id"
         [style]="subTypeMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
         [optionValue]="'code'"
-        [options]="subTypesService.list()">
+        [options]="subTypesService.list(body().institution_type_id)">
       </p-select>
 
       @if (subTypeMissing) {

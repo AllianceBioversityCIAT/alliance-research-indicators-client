@@ -34,10 +34,12 @@ export class OrganizationItemComponent implements OnInit {
     const parentOrganization = this.bodySignal().institution_types?.[this.index];
     if (parentOrganization && JSON.stringify(parentOrganization) !== JSON.stringify(this.body())) {
       this.body.set(parentOrganization);
+      this.initializeSubTypes(parentOrganization);
       return;
     }
     if (this.organization && JSON.stringify(this.organization) !== JSON.stringify(this.body())) {
       this.body.set(this.organization);
+      this.initializeSubTypes(this.organization);
     }
   });
 
@@ -61,12 +63,32 @@ export class OrganizationItemComponent implements OnInit {
     { allowSignalWrites: true }
   );
 
-  ngOnInit() {
+  async ngOnInit() {
     this.body.set(this.organization);
-    if (this.organization.institution_type_id) {
-      this.subTypesService.getSubTypes(2, this.organization.institution_type_id).then(() => {
-        this.showSubTypeSelect.set(this.subTypesService.list().length > 0);
-      });
+    await this.initializeSubTypes(this.organization);
+  }
+
+  private async initializeSubTypes(organization: InstitutionType) {
+    if (organization.institution_type_id) {
+      await this.subTypesService.getSubTypes(2, organization.institution_type_id);
+      const hasSubTypes = this.subTypesService.list(organization.institution_type_id).length > 0;
+      this.showSubTypeSelect.set(hasSubTypes);
+
+      if (hasSubTypes && organization.sub_institution_type_id) {
+        // Asegurarnos de que el sub_institution_type_id se mantenga
+        this.body.update(body => ({
+          ...body,
+          sub_institution_type_id: organization.sub_institution_type_id
+        }));
+      } else if (!hasSubTypes) {
+        // Si no hay subtipos, limpiar el sub_institution_type_id
+        this.body.update(body => ({
+          ...body,
+          sub_institution_type_id: undefined
+        }));
+      }
+    } else {
+      this.showSubTypeSelect.set(false);
     }
   }
 
@@ -104,23 +126,7 @@ export class OrganizationItemComponent implements OnInit {
         });
       }
     }
-    if (event) {
-      await this.subTypesService.getSubTypes(2, event);
-      this.showSubTypeSelect.set(this.subTypesService.list().length > 0);
 
-      if (!this.showSubTypeSelect()) {
-        this.body.update(body => ({
-          ...body,
-          sub_institution_type_id: undefined
-        }));
-      }
-    } else {
-      this.showSubTypeSelect.set(false);
-      this.subTypesService.clearList();
-      this.body.update(body => ({
-        ...body,
-        sub_institution_type_id: undefined
-      }));
-    }
+    await this.initializeSubTypes({ ...this.body(), institution_type_id: event });
   }
 }
