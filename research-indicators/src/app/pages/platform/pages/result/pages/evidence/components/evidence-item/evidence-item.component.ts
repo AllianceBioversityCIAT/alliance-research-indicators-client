@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Evidence, PatchResultEvidences } from '../../../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { InputTextModule } from 'primeng/inputtext';
@@ -11,7 +11,24 @@ import { NgTemplateOutlet } from '@angular/common';
   selector: 'app-evidence-item',
   standalone: true,
   imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, NgTemplateOutlet],
-  templateUrl: './evidence-item.component.html'
+  templateUrl: './evidence-item.component.html',
+  encapsulation: ViewEncapsulation.None,
+  styles: [
+    `
+      app-evidence-item input:-webkit-autofill,
+      app-evidence-item input:-webkit-autofill:hover,
+      app-evidence-item input:-webkit-autofill:focus,
+      app-evidence-item input:-webkit-autofill:active {
+        -webkit-text-fill-color: #1689ca !important;
+        -webkit-box-shadow: 0 0 0 30px white inset !important;
+        transition: background-color 5000s ease-in-out 0s;
+      }
+
+      app-evidence-item input {
+        color: #1689ca !important;
+      }
+    `
+  ]
 })
 export class EvidenceItemComponent implements OnInit {
   @Output() deleteEvidenceEvent = new EventEmitter();
@@ -95,6 +112,6 @@ export class EvidenceItemComponent implements OnInit {
         ...this.body(),
         evidence_url: value
       });
-    }, 1500);
+    }, 3500);
   }
 }
