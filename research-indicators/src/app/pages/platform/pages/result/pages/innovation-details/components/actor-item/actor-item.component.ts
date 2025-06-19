@@ -13,7 +13,7 @@ import { GetActorTypesService } from '@shared/services/control-list/get-actor-ty
   selector: 'app-actor-item',
   standalone: true,
   imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, SelectModule, InputComponent],
-  templateUrl: './actor-item.component.html',
+  templateUrl: './actor-item.component.html'
 })
 export class ActorItemComponent implements OnInit {
   @Output() deleteActorEvent = new EventEmitter();
@@ -38,25 +38,6 @@ export class ActorItemComponent implements OnInit {
     }
   });
 
-  onChange = effect(
-    () => {
-      if (this.index === null) return;
-
-      this.bodySignal.update((body: GetInnovationDetails) => {
-        if (!body.actors) {
-          body.actors = [];
-        }
-
-        while (body.actors.length <= this.index!) {
-          body.actors.push(new Actor());
-        }
-
-        return { ...body };
-      });
-    },
-    { allowSignalWrites: true }
-  );
-
   ngOnInit() {
     this.body.set(this.actor);
   }
@@ -69,6 +50,19 @@ export class ActorItemComponent implements OnInit {
     return !this.body()?.actor_type_id;
   }
 
+  private syncActorToParent() {
+    if (this.index === null) return;
+
+    this.bodySignal.update(current => {
+      const updatedActors = [...(current.actors || [])];
+      while (updatedActors.length <= this.index!) {
+        updatedActors.push(new Actor());
+      }
+      updatedActors[this.index!] = { ...this.body() };
+      return { ...current, actors: updatedActors };
+    });
+  }
+
   onDisaggregationChange(event: { checked: boolean }) {
     if (event.checked) {
       this.body.update(current => ({
@@ -79,6 +73,7 @@ export class ActorItemComponent implements OnInit {
         men_not_youth: false
       }));
     }
+    this.syncActorToParent();
   }
 
   onActorTypeChange(event: number) {
@@ -89,14 +84,11 @@ export class ActorItemComponent implements OnInit {
         actor_type_custom_name: undefined
       };
       this.body.set(updatedActor);
-
-      if (this.index !== null) {
-        this.bodySignal.update(current => {
-          const updatedActors = [...(current.actors || [])];
-          updatedActors[this.index!] = updatedActor;
-          return { ...current, actors: updatedActors };
-        });
-      }
+      this.syncActorToParent();
     }
+  }
+
+  onCheckboxChange() {
+    this.syncActorToParent();
   }
 }
