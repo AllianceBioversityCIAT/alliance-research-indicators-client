@@ -100,6 +100,7 @@
         pInputText
         id="username"
         class="!text-[12px]"
+        (keydown)="shouldPreventInput($event, body().title || null) ? $event.preventDefault() : null"
         aria-describedby="username-help"
         [(ngModel)]="body().title"
         [style]="isTitleMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }" />

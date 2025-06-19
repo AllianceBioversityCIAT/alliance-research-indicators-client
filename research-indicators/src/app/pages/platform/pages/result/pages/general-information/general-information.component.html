@@ -12,6 +12,7 @@
               [isRequired]="true"
               [disabled]="!submission.isEditableStatus()"
               [validateEmpty]="true"
+              [maxWords]="30"
               description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon."
               [signal]="this.body"
               optionValue="title"></app-input>
