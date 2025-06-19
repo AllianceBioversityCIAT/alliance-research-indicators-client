@@ -8,6 +8,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { CacheService } from '../../../services/cache/cache.service';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { UtilsService } from '../../../services/utils.service';
+import { WordCountService } from '../../../services/word-count.service';
 
 type InputValueType = string | number | null;
 
@@ -20,6 +21,7 @@ type InputValueType = string | number | null;
 export class InputComponent {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;
   utils = inject(UtilsService);
+  wordCountService = inject(WordCountService);
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionValue = '';
   @Input() pattern: 'email' | 'url' | '' = '';
@@ -39,16 +41,10 @@ export class InputComponent {
   body = signal<{ value: InputValueType }>({ value: null });
   firstTime = signal(true);
 
-  getWordCount(value: InputValueType): number {
-    if (!value) return 0;
-    const str = value.toString().trim();
-    return str.split(/\s+/).filter(word => word.length > 0).length;
-  }
-
   shouldPreventInput(event: KeyboardEvent, currentValue: InputValueType): boolean {
     if (!this.maxWords || !currentValue) return false;
 
-    const wordCount = this.getWordCount(currentValue);
+    const wordCount = this.wordCountService.getWordCount(currentValue);
     if (wordCount < this.maxWords) return false;
 
     if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '].includes(event.key)) return false;
@@ -91,7 +87,8 @@ export class InputComponent {
       return { valid: false, class: 'ng-invalid ng-dirty', message: 'Field cannot be empty' };
     }
     if (this.maxWords && value) {
-      const wordCount = this.getWordCount(value);
+      const wordCount = this.wordCountService.getWordCount(value);
+
       if (wordCount > this.maxWords) {
         return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${this.maxWords} words allowed` };
       }
