@@ -144,11 +144,23 @@ export default class InnovationDetailsComponent {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
+    const cleanedBody = { ...this.body() };
+    if (Array.isArray(cleanedBody.institution_types)) {
+      cleanedBody.institution_types = cleanedBody.institution_types.filter(
+        i =>
+          i &&
+          (i.result_institution_type_id !== undefined ||
+            i.result_id !== undefined ||
+            i.institution_type_id !== undefined ||
+            i.sub_institution_type_id !== undefined ||
+            (i.institution_type_custom_name !== undefined && i.institution_type_custom_name !== ''))
+      );
+    }
     const resultId = Number(this.cache.currentResultId());
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
     if (this.submission.isEditableStatus()) {
-      const response = await this.apiService.PATCH_InnovationDetails(resultId, this.body());
+      const response = await this.apiService.PATCH_InnovationDetails(resultId, cleanedBody);
       if (response.successfulRequest) {
         this.actions.showToast({
           severity: 'success',
