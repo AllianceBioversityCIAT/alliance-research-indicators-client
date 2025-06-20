@@ -5,14 +5,14 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { Actor, GetInnovationDetails } from '@shared/interfaces/get-innovation-details.interface';
-import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { SelectModule } from 'primeng/select';
 import { GetActorTypesService } from '@shared/services/control-list/get-actor-types.service';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-actor-item',
   standalone: true,
-  imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, SelectModule, InputComponent],
+  imports: [CheckboxModule, NgTemplateOutlet, FormsModule, InputTextModule, TextareaModule, SelectModule, InputTextModule],
   templateUrl: './actor-item.component.html'
 })
 export class ActorItemComponent implements OnInit {
@@ -48,6 +48,10 @@ export class ActorItemComponent implements OnInit {
 
   get actorMissing(): boolean {
     return !this.body()?.actor_type_id;
+  }
+
+  get otherMissing(): boolean {
+    return !this.body()?.actor_type_custom_name;
   }
 
   private syncActorToParent() {
