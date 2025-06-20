@@ -46,6 +46,22 @@
                           }}</span>
                         </div>
                       </div>
+                      <div class="flex items-center py-2">
+                        <span class="text-[13px] text-[#4C5158] font-['Barlow'] font-[700]">
+                          @if (contract.lever === 'Not available') {
+                            Lever - <span class="text-[14px] leading-[18px] text-[#777c83] font-['Barlow'] font-normal">{{ contract.lever }}</span>
+                          } @else {
+                            @if (contract.lever?.includes(':')) {
+                              {{ contract.lever?.split(':')[0] }} -
+                              <span class="text-[14px] leading-[18px] text-[#777c83] font-['Barlow'] font-normal">{{
+                                contract.lever?.split(':')[1]
+                              }}</span>
+                            } @else {
+                              {{ contract.lever }}
+                            }
+                          }
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <button
