@@ -61,6 +61,9 @@ export class ResultAiItemComponent {
   }
 
   createResult(item: AIAssistantResult) {
+    if (this.isEditingTitle()) {
+      this.finishEditingTitle();
+    }
     this.api
       .POST_CreateResult({ ...item })
       .then(response => {
@@ -82,7 +85,6 @@ export class ResultAiItemComponent {
   openResult(item: AIAssistantResult) {
     const url = `/result/${item.result_official_code}/general-information`;
     window.open(url, '_blank');
-
   }
 
   isAIAssistantResult(item: AIAssistantResult | GetOsResult): item is AIAssistantResult {
