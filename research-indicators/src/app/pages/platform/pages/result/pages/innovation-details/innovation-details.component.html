@@ -99,20 +99,25 @@
         </div>
       }
 
-      <div class="flex items-center justify-between w-full max-w-4xl mx-auto my-3 xl:px-5 select-none">
+      <div class="flex items-center justify-between w-full max-w-4xl mx-auto mt-3 xl:px-5 select-none">
         @for (n of stepNumbers; track $index) {
-          <button
-            pButton
-            type="button"
-            class="!rounded-full !border-2 !font-['Space_Grotesk'] !border-[#1689CA] !text-[16px] !w-8 !h-8 !flex !items-center !justify-center !text-lg !font-[400] transition-all duration-200
-                  {{ selectedStep() === n ? '!bg-[#1689CA] !text-white' : '!bg-white !text-[#1689CA]' }}"
-            (click)="selectStep(n)"
-            [pTooltip]="getStepTooltip(n)"
-            escape="false"
-            tooltipPosition="top"
-            [attr.aria-label]="'Seleccionar nivel ' + n">
-            {{ n }}
-          </button>
+          <div class="flex flex-col items-center">
+            <button
+              pButton
+              type="button"
+              class="!rounded-full !border-2 !font-['Space_Grotesk'] !border-[#1689CA] !text-[16px] !w-8 !h-8 !flex !items-center !justify-center !text-lg !font-[400] transition-all duration-200
+                    {{ selectedStep() === n ? '!bg-[#1689CA] !text-white' : '!bg-white !text-[#1689CA]' }}"
+              (click)="selectStep(n)"
+              [pTooltip]="getStepTooltip(n)"
+              escape="false"
+              tooltipPosition="top"
+              [attr.aria-label]="'Seleccionar nivel ' + n">
+              {{ n }}
+            </button>
+            @if (selectedStep() === n) {
+              <div class="w-0.5 h-10 bg-[#1689CA]"></div>
+            }
+          </div>
           @if (n < 9) {
             <div class="flex-1 h-[2.5px] !bg-[#E8EBED]" style="min-width: 24px"></div>
           }
@@ -120,7 +125,7 @@
       </div>
 
       @if (selectedStep() !== null && selectedLevel) {
-        <div class="flex bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5 mb-2">
+        <div class="flex bg-[#F4F7F9] border-3 rounded-lg border-[#1689CA] flex-col -mt-4.5 p-5 mb-2">
           <h3 class="text-[#4C5158] font-['Barlow'] text-[14px] leading-[17px] font-bold pb-2">
             {{ selectedLevel.level }} - {{ selectedLevel.name }}
           </h3>
