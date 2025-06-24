@@ -51,9 +51,7 @@
                         @if (contract.lever === 'Not available') {
                           Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ contract.lever }}</span>
                         } @else {
-                          @if (getLeverImageUrl(contract.lever)) {
-                            <img [src]="getLeverImageUrl(contract.lever)" alt="Lever" class="w-[22px] h-[22px] mr-1" />
-                          }
+                          <img [src]="contract.leverUrl" alt="Lever" class="w-[22px] h-[22px] mr-1" />
                           @if (contract.lever?.includes(':')) {
                             {{ contract.lever?.split(':')[0] }} -
                             <span class="text-[13px] leading-[18px] text-[#777c83] font-['Barlow'] font-normal">{{
