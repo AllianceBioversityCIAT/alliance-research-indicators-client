@@ -93,4 +93,20 @@ export default class AllianceAlignmentComponent {
     item.is_primary = !item.is_primary;
     this.actions.saveCurrentSection();
   }
+
+  getLeverImageUrl(lever: string | undefined): string {
+    if (!lever) return '';
+    const leverNumber = lever.split(':')[0].replace('Lever ', '');
+    const leverMap: Record<string, string> = {
+      '1': 'L1-Food-environment_COLOR.png',
+      '2': 'L2-Multifuntional-Landscapes_COLOR.png',
+      '3': 'L3-Climate-Action_COLOR.png',
+      '4': 'L4-Agrobiodiversity_COLOR.png',
+      '5': 'L5-Digital-Inclusion_COLOR.png',
+      '6': 'L6-Crops-for-Nutrition_COLOR.png',
+      '7': 'L7-Gender-Youth-and-Inclusion_COLOR.png'
+    };
+    const file = leverMap[leverNumber];
+    return file ? `https://alliance-files-storage.s3.us-east-1.amazonaws.com/images/levers/${file}` : '';
+  }
 }
