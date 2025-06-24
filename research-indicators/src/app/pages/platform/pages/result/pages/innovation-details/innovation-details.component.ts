@@ -134,6 +134,10 @@ export default class InnovationDetailsComponent {
     return this.getInnovationReadinessLevelsService.list();
   }
 
+  get selectedLevel() {
+    return this.stepLevels.find(l => l.level === this.selectedStep());
+  }
+
   selectStep(n: number) {
     this.selectedStep.set(n);
     const levelObj = this.getInnovationReadinessLevelsService.list().find(l => l.level === n);

@@ -80,7 +80,7 @@
         <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
           At the output level, a single readiness score is given for the innovation, irrespective of the specific geo-location where the innovation is
           being designed, tested and/or scaled. for example, if it is level 7 in Kenya, level 3 in Peru and level 5 in India, only the highest score
-          for the generic rank is retained. If you need help, use the
+          for the generic rank is retained. If you need help, use the
           <a
             href="https://www.scalingreadiness.org/calculator-readiness-headless/"
             target="_blank"
@@ -116,19 +116,16 @@
         }
       </div>
 
-      <div class="flex bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5 mb-2">
-        <h3 class="text-[#4C5158] font-['Barlow'] text-[14px] leading-[17px] font-bold pb-2">7 - Prototype</h3>
-        <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
-          The innovation is validated for its ability to achieve a specific impact under semi-controlled conditions. 
-        </h3>
-        <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
-          Level 7 is a validation stage, where evidence from prior testing is used to confirm that the innovation can achieve the desired impact under
-          a semi-controlled environment.  
-        </h3>
-        <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
-          Evidence for Level 7 needs documentation, like a summary of pilot results, showing validation in semi-controlled settings. 
-        </h3>
-      </div>
+      @if (selectedStep() !== null && selectedLevel) {
+        <div class="flex bg-[#F4F7F9] border border-[#E8EBED] flex-col p-5 mb-2">
+          <h3 class="text-[#4C5158] font-['Barlow'] text-[14px] leading-[17px] font-bold pb-2">
+            {{ selectedLevel.level }} - {{ selectedLevel.name }}
+          </h3>
+          <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
+            {{ selectedLevel.definition }}
+          </h3>
+        </div>
+      }
 
       <app-radio-button
         label="Who would be the anticipated user(s) of this Innovation?"
