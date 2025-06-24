@@ -17,6 +17,7 @@ import { TextareaComponent } from '@shared/components/custom-fields/textarea/tex
 import { OrganizationItemComponent } from './components/organization-item/organization-item.component';
 import { ActorItemComponent } from './components/actor-item/actor-item.component';
 import { GetInnovationReadinessLevelsService } from '@shared/services/control-list/get-innovation-readiness-levels.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-innovation-details',
@@ -30,7 +31,8 @@ import { GetInnovationReadinessLevelsService } from '@shared/services/control-li
     NavigationButtonsComponent,
     SelectComponent,
     OrganizationItemComponent,
-    ActorItemComponent
+    ActorItemComponent,
+    TooltipModule
   ],
   templateUrl: './innovation-details.component.html'
 })
@@ -149,11 +151,27 @@ export default class InnovationDetailsComponent {
     return this.stepLevels.find(l => l.level === this.selectedStep());
   }
 
+  getStepTooltip(level: number): string {
+    const step = this.stepLevels.find(l => l.level === level);
+    return step ? `<strong>${step.name}</strong> - ${step.definition}` : '';
+  }
+
   selectStep(n: number) {
     this.selectedStep.set(n);
     const levelObj = this.getInnovationReadinessLevelsService.list().find(l => l.level === n);
     if (levelObj) {
       this.body.update(b => ({ ...b, innovation_readiness_id: levelObj.id }));
+    }
+  }
+
+  onAnticipatedUsersChange() {
+    if (this.body().anticipated_users_id === 2) {
+      setTimeout(() => {
+        const el = document.getElementById('anticipated-section');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     }
   }
 

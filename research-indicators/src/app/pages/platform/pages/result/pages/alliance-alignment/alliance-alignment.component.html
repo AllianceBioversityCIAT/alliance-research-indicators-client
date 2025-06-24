@@ -16,71 +16,72 @@
               [removeCondition]="canRemove"
               [isRequired]="true"
               serviceName="contracts">
+              <ng-template #selectedItems let-value>
+                <div class="flex items-center gap-2">
+                  <span>{{ value?.length }} projects selected</span>
+                </div>
+              </ng-template>
               <ng-template #rows let-contract>
-                <div class="grid grid-cols-[1fr_auto] items-center w-full gap-5">
-                  <div class="information">
-                    <div class="grid grid-cols-1">
-                      <div class="mb-[5px] text-[15px] text-[#4C5158] font-[600]">{{ contract.agreement_id }} - {{ contract.description }}</div>
+                <div class="flex-col flex w-full">
+                  <div class="text-[15px] text-[#4C5158] font-[600]">{{ contract.agreement_id }} - {{ contract.description }}</div>
 
-                      <div class="flex text-[#4c5158] font-['Barlow'] text-[15px] font-normal leading-4">
-                        <div class="flex items-center pr-10 lg:pr-[15px]">
-                          <h4 class="m-0 font-normal text-[13px] text-[#777c83] font-['Space_Grotesk']">Principal investigator</h4>
-                          <i class="material-symbols-rounded !text-[13px] text-[#8d9299] mx-1">arrow_forward</i>
-                          <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
-                            contract.project_lead_description
-                          }}</span>
-                        </div>
-
-                        <div class="flex items-center px-10 lg:px-[15px]">
-                          <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">Start date</span>
-                          <i class="material-symbols-rounded !text-[13px] text-[#8d9299] mx-1">arrow_forward</i>
-                          <span class="text-[13px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
-                            contract.start_date | date: 'dd/MM/yyyy'
-                          }}</span>
-                        </div>
-
-                        <div class="flex items-center px-10 lg:px-[15px]">
-                          <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">End date</span>
-                          <i class="material-symbols-rounded !text-[13px] text-[#8d9299] mx-1">arrow_forward</i>
-                          <span class="text-[13px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
-                            contract.endDateGlobal | date: 'dd/MM/yyyy'
-                          }}</span>
-                        </div>
+                  <div class="flex justify-between">
+                    <div class="flex gap-x-5 justify-between">
+                      <div class="flex items-center">
+                        <span class="font-normal text-[13px] text-[#777c83] font-['Space_Grotesk']">Principal investigator</span>
+                        <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+                        <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                          contract.project_lead_description
+                        }}</span>
                       </div>
-                      <div class="flex items-center pt-1.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
-                        @if (contract.lever === 'Not available') {
-                          Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ contract.lever }}</span>
-                        } @else {
-                          @if (getLeverImageUrl(contract.lever)) {
-                            <img [src]="getLeverImageUrl(contract.lever)" alt="Lever" class="w-[22px] h-[22px] mr-1" />
-                          }
-                          @if (contract.lever?.includes(':')) {
-                            {{ contract.lever?.split(':')[0] }} -
-                            <span class="text-[13px] leading-[18px] text-[#777c83] font-['Barlow'] font-normal">{{
-                              contract.lever?.split(':')[1]
-                            }}</span>
-                          } @else {
-                            {{ contract.lever }}
-                          }
-                        }
+
+                      <div class="flex items-center">
+                        <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">Start date</span>
+                        <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+                        <span class="text-[13px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                          contract.start_date | date: 'dd/MM/yyyy'
+                        }}</span>
+                      </div>
+
+                      <div class="flex items-center">
+                        <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">End date</span>
+                        <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+                        <span class="text-[13px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                          contract.endDateGlobal | date: 'dd/MM/yyyy'
+                        }}</span>
                       </div>
                     </div>
+                    <div>
+                      <button
+                        [disabled]="!submission.isEditableStatus()"
+                        class="px-3 py-[5px] disabled:cursor-not-allowed rounded-full text-[14px] whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
+                        [class]="
+                          contract.is_primary
+                            ? 'bg-[var(--ac-primary-blue-300)] text-white disabled:bg-[#8D9299] disabled:border-[#8D9299]'
+                            : 'disabled:bg-[#E8EBED] disabled:!text-[#8D9299] disabled:border-[#8D9299] bg-transparent text-[var(--ac-primary-blue-300)]'
+                        "
+                        (click)="markAsPrimary(contract, 'contract')">
+                        @if (contract.is_primary) {
+                          <i class="pi pi-star-fill pr-2 !text-[12px] !text-white"></i>
+                        }
+                        {{ contract.is_primary ? 'Primary' : 'Select as Primary' }}
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    [disabled]="!submission.isEditableStatus()"
-                    class="px-3 py-[3px] disabled:cursor-not-allowed rounded-full text-[14px] whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
-                    [class]="
-                      contract.is_primary
-                        ? 'bg-[var(--ac-primary-blue-300)] text-white disabled:bg-[#8D9299] disabled:border-[#8D9299]'
-                        : 'disabled:bg-[#E8EBED] disabled:!text-[#8D9299] disabled:border-[#8D9299] bg-transparent text-[var(--ac-primary-blue-300)]'
-                    "
-                    (click)="markAsPrimary(contract, 'contract')">
-                    {{ contract.is_primary ? 'Primary' : 'Select as Primary' }}
-                    <i
-                      class="material-symbols-rounded w-0 overflow-hidden transition-all duration-300 pl-0 opacity-0 group-[.bg-[var(--ac-primary-blue-300)]]:w-[30px] group-[.bg-[var(--ac-primary-blue-300)]]:pl-[10px] group-[.bg-[var(--ac-primary-blue-300)]]:opacity-100"
-                      >star</i
-                    >
-                  </button>
+
+                  <div class="flex items-center pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                    @if (contract.lever === 'Not available') {
+                      Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ contract.lever }}</span>
+                    } @else {
+                      <img [src]="contract.leverUrl" alt="Lever" class="w-[22px] h-[22px] mr-1" />
+                      @if (contract.lever?.includes(':')) {
+                        {{ contract.lever?.split(':')[0] }} -
+                        <span class="text-[13px] leading-[18px] text-[#777c83] font-['Barlow'] font-normal">{{ contract.lever?.split(':')[1] }}</span>
+                      } @else {
+                        {{ contract.lever }}
+                      }
+                    }
+                  </div>
                 </div>
               </ng-template>
             </app-multiselect>
