@@ -1,4 +1,4 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, effect, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -61,6 +61,17 @@ export default class InnovationDetailsComponent {
 
   constructor() {
     this.versionWatcher.onVersionChange(() => this.getData());
+
+    effect(() => {
+      const levels = this.getInnovationReadinessLevelsService.list();
+      const readinessId = this.body().innovation_readiness_id;
+      if (levels.length && readinessId) {
+        const levelObj = levels.find(l => l.id === readinessId);
+        if (levelObj) {
+          this.selectedStep.set(levelObj.level);
+        }
+      }
+    });
   }
 
   async getData() {
