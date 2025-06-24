@@ -7,7 +7,7 @@
         <div class="flex flex-col gap-[25px]">
           <div>
             <app-multiselect
-              label="Projects"
+              label="Contributing projects"
               [signal]="body"
               optionLabel="select_label"
               optionValue="contract_id"
@@ -20,31 +20,49 @@
                 <div class="grid grid-cols-[1fr_auto] items-center w-full gap-5">
                   <div class="information">
                     <div class="grid grid-cols-1">
-                      <div class="mb-[10px] text-[15px]">
-                        <strong>{{ contract.agreement_id }}</strong> - {{ contract.description }}
-                      </div>
+                      <div class="mb-[5px] text-[15px] text-[#4C5158] font-[600]">{{ contract.agreement_id }} - {{ contract.description }}</div>
+
                       <div class="flex text-[#4c5158] font-['Barlow'] text-[15px] font-normal leading-4">
                         <div class="flex items-center pr-10 lg:pr-[15px]">
-                          <h4 class="m-0 font-normal text-[13px] text-[#777c83] font-['Space_Grotesk']">Project lead</h4>
-                          <i class="material-symbols-rounded !text-[16px] text-[#8d9299] mx-1 lg:mx-0">arrow_forward</i>
-                          <span class="text-[14px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                          <h4 class="m-0 font-normal text-[13px] text-[#777c83] font-['Space_Grotesk']">Principal investigator</h4>
+                          <i class="material-symbols-rounded !text-[13px] text-[#8d9299] mx-1">arrow_forward</i>
+                          <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
                             contract.project_lead_description
                           }}</span>
                         </div>
-                        <div class="flex items-center px-10 lg:px-[15px] border-l border-r border-[#b9c0c5] border-opacity-40">
-                          <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">Start Date</span>
-                          <i class="material-symbols-rounded !text-[16px] text-[#8d9299] mx-1 lg:mx-0">arrow_forward</i>
-                          <span class="text-[14px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
-                            contract.start_date | date : 'dd/MM/yyyy'
-                          }}</span>
-                        </div>
+
                         <div class="flex items-center px-10 lg:px-[15px]">
-                          <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">End Date</span>
-                          <i class="material-symbols-rounded !text-[16px] text-[#8d9299] mx-1 lg:mx-0">arrow_forward</i>
-                          <span class="text-[14px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
-                            contract.endDateGlobal | date : 'dd/MM/yyyy'
+                          <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">Start date</span>
+                          <i class="material-symbols-rounded !text-[13px] text-[#8d9299] mx-1">arrow_forward</i>
+                          <span class="text-[13px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                            contract.start_date | date: 'dd/MM/yyyy'
                           }}</span>
                         </div>
+
+                        <div class="flex items-center px-10 lg:px-[15px]">
+                          <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">End date</span>
+                          <i class="material-symbols-rounded !text-[13px] text-[#8d9299] mx-1">arrow_forward</i>
+                          <span class="text-[13px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                            contract.endDateGlobal | date: 'dd/MM/yyyy'
+                          }}</span>
+                        </div>
+                      </div>
+                      <div class="flex items-center pt-1.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                        @if (contract.lever === 'Not available') {
+                          Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ contract.lever }}</span>
+                        } @else {
+                          @if (getLeverImageUrl(contract.lever)) {
+                            <img [src]="getLeverImageUrl(contract.lever)" alt="Lever" class="w-[22px] h-[22px] mr-1" />
+                          }
+                          @if (contract.lever?.includes(':')) {
+                            {{ contract.lever?.split(':')[0] }} -
+                            <span class="text-[13px] leading-[18px] text-[#777c83] font-['Barlow'] font-normal">{{
+                              contract.lever?.split(':')[1]
+                            }}</span>
+                          } @else {
+                            {{ contract.lever }}
+                          }
+                        }
                       </div>
                     </div>
                   </div>
