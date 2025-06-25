@@ -8,12 +8,9 @@ import { ApiService } from '@shared/services/api.service';
 import { Router } from '@angular/router';
 import { ActionsService } from '@shared/services/actions.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
-import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
-import { EXPANDED_ITEM_DETAILS, getIndicatorTypeIcon, INDICATOR_TYPE_ICONS } from '@shared/constants/result-ai.constants';
 import { FormsModule } from '@angular/forms';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
-
-type DetailValue = 'total_participants' | 'non_binary_participants' | 'female_participants' | 'male_participants';
+import { EXPANDED_ITEM_DETAILS, getIndicatorTypeIcon, INDICATOR_TYPE_ICONS } from '@shared/constants/result-ai.constants';
 
 @Component({
   selector: 'app-result-ai-item',
@@ -55,10 +52,6 @@ export class ResultAiItemComponent {
     return getIndicatorTypeIcon(type);
   }
 
-  isAIAssistantResult(item: AIAssistantResult | GetOsResult): item is AIAssistantResult {
-    return 'training_type' in item;
-  }
-
   toggleExpand(item: AIAssistantResult) {
     this.createResultManagementService.expandedItem.set(this.createResultManagementService.expandedItem() === item ? null : item);
   }
@@ -68,6 +61,9 @@ export class ResultAiItemComponent {
   }
 
   createResult(item: AIAssistantResult) {
+    if (this.isEditingTitle()) {
+      this.finishEditingTitle();
+    }
     this.api
       .POST_CreateResult({ ...item })
       .then(response => {
@@ -89,7 +85,6 @@ export class ResultAiItemComponent {
   openResult(item: AIAssistantResult) {
     const url = `/result/${item.result_official_code}/general-information`;
     window.open(url, '_blank');
-
   }
 
   isAIAssistantResult(item: AIAssistantResult | GetOsResult): item is AIAssistantResult {
