@@ -368,7 +368,13 @@ export class ResultAiAssistantComponent {
 
   toggleFeedback(type: 'good' | 'bad') {
     if (this.showFeedbackPanel()) {
-      this.closeFeedbackPanel();
+      if (this.feedbackType() !== type) {
+        this.feedbackType.set(type);
+        this.feedbackText = '';
+        this.selectedType = '';
+      } else {
+        this.closeFeedbackPanel();
+      }
     } else {
       this.feedbackType.set(type);
       this.showFeedbackPanel.set(true);
