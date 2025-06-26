@@ -24,7 +24,8 @@
       @if (!isEditingTitle()) {
         <div class="result-item-title-flex">
           <p class="result-item-title" #titleText>
-            {{ item.title }}<i class="pi pi-pencil edit-pencil" (click)="startEditingTitle()" (keydown.enter)="startEditingTitle()"></i>
+            {{ item.title }}
+            <i class="pi pi-pencil edit-pencil" (click)="startEditingTitle()" (keydown.enter)="startEditingTitle()"></i>
           </p>
         </div>
       } @else {
