@@ -17,12 +17,13 @@ import { GetContracts } from '@shared/interfaces/get-contracts.interface';
 import { Step } from '@shared/interfaces/step.interface';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
+import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
 
 GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 @Component({
   selector: 'app-result-ai-assistant',
-  imports: [CommonModule, SharedResultFormComponent, ButtonModule, PaginatorModule, FormsModule, ResultAiItemComponent],
+  imports: [CommonModule, SharedResultFormComponent, ButtonModule, PaginatorModule, FormsModule, ResultAiItemComponent, TextareaComponent],
   templateUrl: './result-ai-assistant.component.html',
   styleUrl: './result-ai-assistant.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -49,6 +50,7 @@ export class ResultAiAssistantComponent {
   textMiningService = inject(TextMiningService);
   cache = inject(CacheService);
 
+  badTypes = ['Code was incorrect', "Don't like the personality", 'UI Bug', "Don't like the style", 'Other'];
   activeIndex = signal(0);
 
   steps = signal<Step[]>([
@@ -358,4 +360,46 @@ export class ResultAiAssistantComponent {
   getRandomInterval(): number {
     return Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
   }
+
+  showFeedbackPanel = signal(false);
+  feedbackType = signal<'good' | 'bad' | null>(null);
+  feedbackText = '';
+  selectedType = '';
+
+  toggleFeedback(type: 'good' | 'bad') {
+    if (this.showFeedbackPanel()) {
+      this.closeFeedbackPanel();
+    } else {
+      this.feedbackType.set(type);
+      this.showFeedbackPanel.set(true);
+      this.feedbackText = '';
+      this.selectedType = '';
+      setTimeout(() => {
+        document.addEventListener('click', this.handleOutsideClick);
+      });
+    }
+  }
+
+  closeFeedbackPanel() {
+    this.showFeedbackPanel.set(false);
+    this.feedbackType.set(null);
+    document.removeEventListener('click', this.handleOutsideClick);
+  }
+
+  selectType(type: string) {
+    this.selectedType = type;
+  }
+
+  submitFeedback() {
+    // Envía el feedback
+    this.closeFeedbackPanel();
+  }
+
+  // Cierra el panel si se hace click fuera
+  handleOutsideClick = (event: MouseEvent) => {
+    const panel = document.querySelector('#feedbackPanelRef');
+    if (panel && !panel.contains(event.target as Node)) {
+      this.closeFeedbackPanel();
+    }
+  };
 }
