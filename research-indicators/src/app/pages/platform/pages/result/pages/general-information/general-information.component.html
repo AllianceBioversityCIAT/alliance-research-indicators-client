@@ -8,6 +8,7 @@
           <div class="flex flex-col">
             <app-input
               label="Title"
+              helperText="Provide a clear, informative name for the result, for a non-specialist reader and without acronyms. Avoid abbreviations or (technical) jargon. Max. 30 words."
               [isRequired]="true"
               [disabled]="!submission.isEditableStatus()"
               [validateEmpty]="true"
@@ -21,6 +22,7 @@
             <app-textarea
               [isRequired]="true"
               [disabled]="!submission.isEditableStatus()"
+              helperText="Max. # Words"
               [rows]="5"
               label="Description"
               description="Offer a detailed, understandable explanation, without repeating the title."
@@ -32,6 +34,7 @@
             <div class="flex-1 xl:max-w-[144px]">
               <app-select
                 label="Reporting year"
+                helperText="Choose the year you are reporting data for."
                 [isRequired]="true"
                 [disabled]="!submission.isEditableStatus()"
                 [signal]="this.body"
@@ -43,6 +46,7 @@
             <div class="flex-1">
               <app-select
                 label="Main contact person"
+                helperText="Pick a contact person from the Alliance staff database who is associated with the result and can provide information as needed. Only one person can be selected. "
                 [isRequired]="true"
                 [disabled]="!submission.isEditableStatus()"
                 [signal]="this.body"
@@ -66,6 +70,9 @@
                 multiple
                 fluid
                 [typeahead]="false" />
+              <small class="text-[#8D9299] text-[14px] pt-1 block">
+                Add relevant keywords to describe your result, making it easier to find and categorize. Max. 4 keywords.
+              </small>
             </div>
           </div>
         </div>
