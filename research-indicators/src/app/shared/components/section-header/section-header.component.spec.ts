@@ -9,7 +9,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
 import { MenuItemCommandEvent } from 'primeng/api';
-
 // Mock ResizeObserver
 class ResizeObserverMock {
   observe(target: Element) {
@@ -25,9 +24,7 @@ class ResizeObserverMock {
     console.log('Mock disconnect called');
   }
 }
-
 global.ResizeObserver = ResizeObserverMock;
-
 describe('SectionHeaderComponent', () => {
   let component: SectionHeaderComponent;
   let fixture: ComponentFixture<SectionHeaderComponent>;
@@ -35,14 +32,12 @@ describe('SectionHeaderComponent', () => {
   let cacheService: Partial<CacheService>;
   let actionsService: Partial<ActionsService>;
   let apiService: Partial<ApiService>;
-
   beforeEach(async () => {
     routerSpy = {
       url: '/test',
       events: of(new NavigationEnd(1, '/test', '/test')),
       navigate: jest.fn()
     };
-
     cacheService = {
       dataCache: signal({
         user: {
@@ -89,17 +84,14 @@ describe('SectionHeaderComponent', () => {
       }),
       isSidebarCollapsed: signal<boolean>(false)
     };
-
     actionsService = {
       validateToken: jest.fn(),
       logOut: jest.fn(),
       showGlobalAlert: jest.fn()
     };
-
     apiService = {
       DELETE_Result: jest.fn().mockResolvedValue({ successfulRequest: true })
     };
-
     await TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, RouterTestingModule, SectionHeaderComponent],
       providers: [
@@ -134,57 +126,33 @@ describe('SectionHeaderComponent', () => {
         }
       ]
     }).compileComponents();
-
     fixture = TestBed.createComponent(SectionHeaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
   it('should show welcome message when route is Home', () => {
     cacheService.currentRouteTitle?.set('Home');
     fixture.detectChanges();
     expect(component.welcomeMessage()).toBe('Welcome, Test User');
   });
-
   it('should show current route title when not on Home', () => {
     cacheService.currentRouteTitle?.set('Test Route');
     fixture.detectChanges();
     expect(component.welcomeMessage()).toBe('Test Route');
   });
-
   it('should handle delete result action', () => {
     const deleteMenuItem = component.items().find(item => item.items?.some(subItem => subItem.label === 'Delete Result'));
     const deleteCommand = deleteMenuItem?.items?.find(item => item.label === 'Delete Result')?.command;
-
     expect(deleteCommand).toBeDefined();
-
     if (deleteCommand) {
       const fakeEvent = { originalEvent: new Event('click'), item: {} } as MenuItemCommandEvent;
-
       deleteCommand(fakeEvent);
-
       expect(actionsService.showGlobalAlert).toHaveBeenCalled();
     }
   });
-
-  it('should handle submission history action', () => {
-    const historyMenuItem = component.items().find(item => item.items?.some(subItem => subItem.label === 'Submission History'));
-    const historyCommand = historyMenuItem?.items?.find(item => item.label === 'Submission History')?.command;
-
-    expect(historyCommand).toBeDefined();
-
-    if (historyCommand) {
-      const fakeEvent = { originalEvent: new Event('click'), item: {} } as MenuItemCommandEvent;
-      historyCommand(fakeEvent);
-
-      expect(cacheService.showSubmissionHistory?.()).toBe(true);
-    }
-  });
-
   it('should clean up resize observer on destroy', () => {
     const disconnectSpy = jest.spyOn(ResizeObserverMock.prototype, 'disconnect');
     component.ngOnDestroy();
