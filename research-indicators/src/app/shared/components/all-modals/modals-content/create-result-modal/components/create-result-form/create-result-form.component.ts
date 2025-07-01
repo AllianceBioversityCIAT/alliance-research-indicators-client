@@ -22,7 +22,7 @@ import localeEs from '@angular/common/locales/es';
 import { NgTemplateOutlet, registerLocaleData } from '@angular/common';
 import { GetYearsService } from '@shared/services/control-list/get-years.service';
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
-import { WordCountService, InputValueType } from '@shared/services/word-count.service';
+import { WordCountService } from '@shared/services/word-count.service';
 
 registerLocaleData(localeEs);
 
@@ -84,29 +84,6 @@ export class CreateResultFormComponent {
 
   get isYearMissing(): boolean {
     return !this.body()?.year;
-  }
-
-  shouldPreventInput(event: KeyboardEvent, currentValue: InputValueType): boolean {
-    if (!currentValue) return false;
-
-    const wordCount = this.wordCountService.getWordCount(currentValue);
-    if (wordCount < 30) return false;
-
-    if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '].includes(event.key)) return false;
-
-    if (event.ctrlKey || event.metaKey) return false;
-
-    const input = event.target as HTMLInputElement;
-    const cursorPosition = input.selectionStart;
-    if (cursorPosition === null) return true;
-
-    const textBeforeCursor = currentValue.toString().substring(0, cursorPosition);
-    const words = textBeforeCursor.trim().split(/\s+/);
-    const currentWordIndex = words.length - 1;
-
-    if (currentWordIndex < 30) return false;
-
-    return true;
   }
 
   get isTitleMissing(): boolean {
