@@ -28,8 +28,8 @@ GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiAssistantComponent {
-  acceptedFormats: string[] = ['.pdf', '.docx', '.txt', '.xlsx', '.pptx'];
-  maxSizeMB = 10;
+  acceptedFormats: string[] = ['.pdf', '.docx', '.txt'];
+  maxSizeMB = 300;
   pageLimit = 100;
   isDragging = false;
   selectedFile: File | null = null;

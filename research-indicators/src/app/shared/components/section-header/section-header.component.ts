@@ -50,15 +50,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
 
     const items: MenuItem[] = [
       {
-        items: [
-          {
-            label: 'Submission History',
-            icon: 'pi pi-clock',
-            command: () => {
-              this.cache.showSubmissionHistory.set(true);
-            }
-          }
-        ]
+        items: []
       }
     ];
 

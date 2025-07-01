@@ -80,7 +80,7 @@
     @if (analyzingDocument() && !documentAnalyzed()) {
       <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[14px] font-[700] flex text-[#173F6F]">
-          PROCESSING STATUS
+          UPLOAD YOUR FILE
           <img src="/icons/star-blue-icon.svg" alt="upload-ai" class="w-4.5 pl-1" />
         </p>
 
@@ -138,12 +138,18 @@
             </div>
           } @else {
             @for (item of createResultManagementService.items() | slice: first() : first() + rows(); track $index) {
-              <app-result-ai-item [item]="item" style="width: 100%"></app-result-ai-item>
+              <app-result-ai-item
+                [item]="item"
+                [isFirstItem]="$index === 0"
+                [isLastItem]="$index === rows() - 1 || $index === createResultManagementService.items().length - 1 - first()"
+                style="width: 100%">
+              </app-result-ai-item>
             }
           }
         </div>
         @if (createResultManagementService.items().length > 0) {
-          <div class="flex justify-end w-full bg-white">
+          <div
+            class="flex justify-end w-full bg-white border-left border-right border-bottom border-[#E8EBED] border-b-[1px] border-l-[1px] border-r-[1px] rounded-b-[4px]">
             <p-paginator
               (onPageChange)="onPageChange($event)"
               [first]="first()"
@@ -160,7 +166,7 @@
     @if (noResults()) {
       <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[14px] font-[700] flex text-[#173F6F]">
-          PROCESSING STATUS
+          UPLOAD YOUR FILE
           <img src="/icons/star-blue-icon.svg" alt="upload-ai" class="w-4.5 pl-1" />
         </p>
 

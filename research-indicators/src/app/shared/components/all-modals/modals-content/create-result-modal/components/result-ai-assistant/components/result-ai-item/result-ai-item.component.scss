@@ -13,6 +13,18 @@ p {
   border-bottom-right-radius: 0;
   width: 100%;
   min-width: 0;
+  border-top: 1px solid #e8ebed;
+  border-left: 1px solid #e8ebed;
+  border-right: 1px solid #e8ebed;
+}
+
+.result-item.first-item {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.result-item.last-item {
+  border-bottom: 1px solid #e8ebed;
 }
 
 .result-item-expand-icon {

@@ -22,6 +22,8 @@ import { EXPANDED_ITEM_DETAILS, getIndicatorTypeIcon, INDICATOR_TYPE_ICONS } fro
 export class ResultAiItemComponent {
   @Input() item!: AIAssistantResult | GetOsResult;
   @Input() hideButtons = false;
+  @Input() isLastItem = false;
+  @Input() isFirstItem = false;
   @ViewChild('titleInput') titleInput!: ElementRef;
   @ViewChild('titleText') titleText!: ElementRef;
   @ViewChild('editTitleContainer') editTitleContainer!: ElementRef;

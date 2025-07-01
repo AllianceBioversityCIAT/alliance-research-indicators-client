@@ -7,8 +7,8 @@ export interface Result {
   description: null | string;
   indicator_id: number;
   geo_scope_id: null;
-  indicators?: { name: string};
-  result_status?: { name: string,  result_status_id: number; };
+  indicators?: { name: string };
+  result_status?: { name: string; result_status_id: number };
   result_contracts?: { contract_id: string };
   result_levers?: { lever: { short_name: string } };
   report_year_id?: number;
