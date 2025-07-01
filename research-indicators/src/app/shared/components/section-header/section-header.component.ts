@@ -25,6 +25,11 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
   actions = inject(ActionsService);
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
+  showDeleteOption = computed(() => {
+    const statusId = this.cache.currentMetadata()?.status_id;
+    return statusId === 5 || statusId === 7 || (statusId === 4 && this.cache.isMyResult());
+  });
+
   items = computed((): MenuItem[] => {
     const deleteOption: MenuItem = {
       label: 'Delete Result',
@@ -54,12 +59,9 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
       }
     ];
 
-    if (
-      this.cache.currentMetadata()?.status_id == 5 ||
-      this.cache.currentMetadata()?.status_id == 7 ||
-      (this.cache.currentMetadata()?.status_id == 4 && this.cache.isMyResult())
-    )
+    if (this.showDeleteOption()) {
       items[0].items?.push(deleteOption);
+    }
     return items;
   });
 
