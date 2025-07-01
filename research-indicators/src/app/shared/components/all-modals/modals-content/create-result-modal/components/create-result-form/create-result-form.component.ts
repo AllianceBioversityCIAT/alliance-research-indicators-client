@@ -22,7 +22,7 @@ import localeEs from '@angular/common/locales/es';
 import { NgTemplateOutlet, registerLocaleData } from '@angular/common';
 import { GetYearsService } from '@shared/services/control-list/get-years.service';
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
-import { WordCountService, InputValueType } from '@shared/services/word-count.service';
+import { WordCountService } from '@shared/services/word-count.service';
 
 registerLocaleData(localeEs);
 
