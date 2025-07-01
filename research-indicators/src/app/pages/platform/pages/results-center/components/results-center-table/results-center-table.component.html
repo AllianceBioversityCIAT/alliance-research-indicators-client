@@ -93,10 +93,10 @@
               class="{{ column.minWidth }} {{ column.maxWidth }}   !text-[#173F6F]"
               [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path"
               scope="col">
-              <div class="flex items-center font-[500] leading-4.5 gap-2">
+              <div class="flex items-center font-[500] leading-4.5 gap-2 text-[12px] xl:text-[16px]">
                 {{ column.header }}
                 @if (!column?.hideFilterIf?.()) {
-                  <p-sortIcon class="pr-5" field="{{ column.path }}"></p-sortIcon>
+                  <p-sortIcon field="{{ column.path }}"></p-sortIcon>
                 }
               </div>
             </th>
@@ -113,7 +113,8 @@
           @if (!column.hideIf || !column.hideIf()) {
             @if (column.field === 'status') {
               <td>
-                <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status?.name"> </app-custom-tag>
+                <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true" [statusName]="result.result_status?.name">
+                </app-custom-tag>
               </td>
             } @else if (column.field === 'versions') {
               <td>
