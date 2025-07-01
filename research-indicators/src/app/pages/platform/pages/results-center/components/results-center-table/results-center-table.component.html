@@ -93,7 +93,7 @@
               class="{{ column.minWidth }} {{ column.maxWidth }}   !text-[#173F6F]"
               [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path"
               scope="col">
-              <div class="flex items-center font-[500] leading-4.5 gap-2 text-[12px] xl:text-[16px]">
+              <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                 {{ column.header }}
                 @if (!column?.hideFilterIf?.()) {
                   <p-sortIcon field="{{ column.path }}"></p-sortIcon>
@@ -108,7 +108,7 @@
       <tr
         (keydown.enter)="openResult(result)"
         (click)="openResult(result)"
-        class="cursor-pointer hover:surface-ground transition-colors duration-150">
+        class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
         @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
             @if (column.field === 'status') {
