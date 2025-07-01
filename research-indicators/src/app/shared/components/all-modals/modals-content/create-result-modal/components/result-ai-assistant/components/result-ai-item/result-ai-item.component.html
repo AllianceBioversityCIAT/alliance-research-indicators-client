@@ -1,6 +1,6 @@
 @let expandedItem = createResultManagementService.expandedItem();
 
-<div class="result-item" [class.expanded]="expandedItem === item">
+<div class="result-item" [class.expanded]="expandedItem === item" [class.last-item]="isLastItem" [class.first-item]="isFirstItem">
   @if (isAIAssistantResult(item) && (item.training_type !== undefined || item.indicator === 'Policy Change')) {
     <div class="result-item-expand-icon" (keydown.enter)="toggleExpand(item)" (click)="toggleExpand(item)">
       <i class="pi" [ngClass]="expandedItem === item ? 'pi-angle-down' : 'pi-angle-right'" style="font-size: 10px"></i>
@@ -12,40 +12,40 @@
   <div class="result-item-content">
     <div class="result-item-header">
       <i
-      class="material-symbols-rounded"
-      [class]="getIndicatorTypeIcon(isAIAssistantResult(item) ? item.indicator : item.indicator.name).class"
-      style="font-size: 22px"
-      >{{ getIndicatorTypeIcon(isAIAssistantResult(item) ? item.indicator : item.indicator.name).icon }}</i
-    >
+        class="material-symbols-rounded"
+        [class]="getIndicatorTypeIcon(isAIAssistantResult(item) ? item.indicator : item.indicator.name).class"
+        style="font-size: 22px"
+        >{{ getIndicatorTypeIcon(isAIAssistantResult(item) ? item.indicator : item.indicator.name).icon }}</i
+      >
       <p class="result-item-category">{{ (isAIAssistantResult(item) ? item.indicator : item.indicator.name) | uppercase }}</p>
     </div>
 
     <div class="result-item-title-container">
       @if (!isEditingTitle()) {
         <div class="result-item-title-flex">
-          <p class="result-item-title" #titleText>{{ item.title }}<i class="pi pi-pencil edit-pencil" (click)="startEditingTitle()" (keydown.enter)="startEditingTitle()"></i></p>
+          <p class="result-item-title" #titleText>
+            {{ item.title }}
+            <i class="pi pi-pencil edit-pencil" (click)="startEditingTitle()" (keydown.enter)="startEditingTitle()"></i>
+          </p>
         </div>
       } @else {
         <div class="edit-title-container" #editTitleContainer>
-          <textarea
-            class="result-item-title-input"
-            [(ngModel)]="tempTitle"
-            #titleInput
-            (input)="autoGrow()"
-            rows="1"></textarea>
+          <textarea class="result-item-title-input" [(ngModel)]="tempTitle" #titleInput (input)="autoGrow()" rows="1"></textarea>
           <div class="flex">
-            <i class="pi pi-check save-icon"
-               pTooltip="Save title"
-               tooltipPosition="top"
-               style="font-size: 14px; cursor: pointer;"
-               (click)="finishEditingTitle()"
-               (keydown.enter)="finishEditingTitle()"></i>
-            <i class="pi pi-times cancel-icon"
-               pTooltip="Cancel"
-               tooltipPosition="top"
-               style="font-size: 14px; cursor: pointer; margin-left: 5px;"
-               (click)="cancelEditingTitle()"
-               (keydown.enter)="cancelEditingTitle()"></i>
+            <i
+              class="pi pi-check save-icon"
+              pTooltip="Save title"
+              tooltipPosition="top"
+              style="font-size: 14px; cursor: pointer"
+              (click)="finishEditingTitle()"
+              (keydown.enter)="finishEditingTitle()"></i>
+            <i
+              class="pi pi-times cancel-icon"
+              pTooltip="Cancel"
+              tooltipPosition="top"
+              style="font-size: 14px; cursor: pointer; margin-left: 5px"
+              (click)="cancelEditingTitle()"
+              (keydown.enter)="cancelEditingTitle()"></i>
           </div>
         </div>
       }
@@ -130,13 +130,12 @@
             <p class="result-item-keywords-arrow">&rarr;</p>
             <p class="result-item-details-value-training-type">{{ item.stage_in_policy_process || 'NOT COLLECTED' }}</p>
           </div>
-
         </div>
-          <div class="result-item-keywords">
-            <p class="result-item-keywords-title">Evidence for stage</p>
-            <p class="result-item-keywords-arrow">&rarr;</p>
-            <p class="result-item-details-value-training-type">{{ item.evidence_for_stage || 'NOT COLLECTED' }}</p>
-          </div>
+        <div class="result-item-keywords">
+          <p class="result-item-keywords-title">Evidence for stage</p>
+          <p class="result-item-keywords-arrow">&rarr;</p>
+          <p class="result-item-details-value-training-type">{{ item.evidence_for_stage || 'NOT COLLECTED' }}</p>
+        </div>
       }
     }
   </div>

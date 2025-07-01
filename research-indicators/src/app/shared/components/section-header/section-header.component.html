@@ -12,10 +12,17 @@
   </div>
 
   @if (this.cache.showSectionHeaderActions()) {
-    <div class="buttons-container rs-gap-x-[15] gap-3">
-      <div>
-        <p-menu #menu [model]="items()" [popup]="true" [appendTo]="'body'" />
-        <p-button (onClick)="menu.toggle($event)" [text]="true" size="small" icon="pi pi-ellipsis-v" />
+    <div class="buttons-container rs-gap-x-[15]">
+      <div class="flex items-center">
+        <p-button variant="text" pTooltip="Submission history" tooltipPosition="left" (onClick)="cache.showSubmissionHistory.set(true)">
+          <ng-template pTemplate="icon">
+            <i class="material-symbols-rounded text-[#035BA9]">overview</i>
+          </ng-template>
+        </p-button>
+        @if (showDeleteOption()) {
+          <p-menu #menu [model]="items()" [popup]="true" [appendTo]="'body'" />
+          <p-button (onClick)="menu.toggle($event)" [text]="true" size="small" icon="pi pi-ellipsis-v" [style]="{ color: '#8D9299' }" />
+        }
       </div>
     </div>
   }
