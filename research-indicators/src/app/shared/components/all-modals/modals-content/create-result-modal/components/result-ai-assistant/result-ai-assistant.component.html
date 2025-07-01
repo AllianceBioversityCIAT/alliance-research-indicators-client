@@ -111,14 +111,77 @@
     }
     @if (documentAnalyzed()) {
       <section class="analyze-result-container">
-        <div class="-mt-4 pb-6">
-          <h1 class="text-[16px] font-[700] text-[#173F6F]">
-            THE AI IDENTIFIED
-            <span class="analyze-result-title-number">{{ createResultManagementService.items().length }}</span>
-            RESULTS
-          </h1>
+        <div class="flex w-full justify-between items-center">
+          <div class="-mt-4 pb-6">
+            <h1 class="text-[16px] font-[700] text-[#173F6F]">
+              THE AI IDENTIFIED
+              <span class="analyze-result-title-number">{{ createResultManagementService.items().length }}</span>
+              RESULTS
+            </h1>
 
-          <p class="text-[14px] font-[400] text-[#4C5158]">Select the ones you want to create.</p>
+            <p class="text-[14px] font-[400] text-[#4C5158]">Select the ones you want to create.</p>
+          </div>
+          <div class="flex justify-end items-center hidden gap-2.5 mb-4 relative">
+            <span class="text-[12px] font-[400] px-2 text-[#8D9299]">Was this response helpful?</span>
+            <button
+              dropdown-button
+              class="text-[#035BA9] !text-[16px] rounded-[6px] p-2 pi pi-thumbs-up {{ feedbackType() === 'good' ? 'bg-[#D9E1EB]' : '' }}"
+              aria-label="Like"
+              (click)="toggleFeedback('good')"
+              #feedbackBtn></button>
+            <button
+              dropdown-button
+              class="text-[#035BA9] !text-[16px] rounded-[6px] p-2 pi pi-thumbs-down {{ feedbackType() === 'bad' ? 'bg-[#D9E1EB]' : '' }}"
+              aria-label="Dislike"
+              (click)="toggleFeedback('bad')"
+              #feedbackBtn></button>
+
+            @if (showFeedbackPanel()) {
+              <div
+                #dropdownRef
+                class="absolute right-0 top-full mt-2 z-[9999] bg-white shadow-lg rounded-[4px] w-[400px] p-5"
+                (click)="$event.stopPropagation()"
+                (keydown.enter)="$event.stopPropagation()">
+                <div dropdown-content>
+                  <h2
+                    class="text-[14px] font-[space_grotesk] mb-6"
+                    [ngClass]="{
+                      'text-[#CF0808]': feedbackType() === 'bad',
+                      'text-[#509C55]': feedbackType() === 'good'
+                    }">
+                    {{ feedbackType() === 'good' ? 'What Is Working Well?' : 'What Is Not Working Well?' }}
+                  </h2>
+                  @if (feedbackType() === 'bad') {
+                    <div class="mb-5">
+                      <span class="block text-[12px] text-[#153C71] font-[500] font-[space_grotesk] mb-1">Type of issue</span>
+                      <div class="flex flex-wrap gap-2">
+                        <button
+                          class="bg-[#F4F7F9] border-1 px-2 py-1 !rounded-[10px] text-[#1689CA] text-[13px] font-[400] {{
+                            selectedType === type ? ' font-[500] border-[#1689CA]' : 'border-[#E8EBED]'
+                          }}"
+                          *ngFor="let type of badTypes"
+                          (click)="selectType(type)">
+                          {{ type }}
+                        </button>
+                      </div>
+                    </div>
+                  }
+                  <div class="mb-4">
+                    <span class="block text-[12px] text-[#153C71] font-[500] font-[space_grotesk] mb-1">Feedback details</span>
+                    <app-textarea [styleClass]="'!text-[12px]'" [rows]="3" [signal]="this.body" [optionValue]="'description'"></app-textarea>
+                  </div>
+                  <div class="flex gap-2">
+                    <p-button
+                      label="Cancel"
+                      styleClass="!rounded-[12px] !text-[12px] !px-4"
+                      [outlined]="true"
+                      (onClick)="closeFeedbackPanel()"></p-button>
+                    <p-button label="Confirm" styleClass="!rounded-[12px] !text-[12px] !px-4" (onClick)="submitFeedback()"></p-button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
         </div>
 
         <div class="w-full analyze-result-content">

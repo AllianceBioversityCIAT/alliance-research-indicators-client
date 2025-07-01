@@ -143,6 +143,18 @@ describe('MyLatestResultsComponent', () => {
       // Para tipo 2: 5/5 = 100
       expect(component.calculateProgressFor(result)).toBe(100);
     });
+
+    it('should return 0 if result.indicator is undefined', () => {
+      const result: any = { ...mockLatestResults.data[0], indicator: undefined };
+      component.greenChecksByResult.set({
+        [result.result_official_code]: {}
+      });
+      expect(component.calculateProgressFor(result)).toBe(0);
+    });
+
+    it('should return 0 if result is undefined', () => {
+      expect(component.calculateProgressFor(undefined as any)).toBe(0);
+    });
   });
 
   describe('getStatusColor', () => {
@@ -179,6 +191,19 @@ describe('MyLatestResultsComponent', () => {
         }
       };
       expect(component.getStatusColor(result)).toBeDefined();
+    });
+
+    it('should return default color if result_status is undefined', () => {
+      const result: any = { ...mockLatestResults.data[0], result_status: undefined };
+      expect(component.getStatusColor(result)).toBe(STATUS_COLOR_MAP[''].text);
+    });
+
+    it('should return default color if result_status_id is undefined', () => {
+      const result: any = {
+        ...mockLatestResults.data[0],
+        result_status: { ...mockLatestResults.data[0].result_status, result_status_id: undefined }
+      };
+      expect(component.getStatusColor(result)).toBe(STATUS_COLOR_MAP[''].text);
     });
 
     it('should return default color when statusId is not in STATUS_COLOR_MAP', () => {
