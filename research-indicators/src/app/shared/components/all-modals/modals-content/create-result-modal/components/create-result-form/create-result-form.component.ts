@@ -86,29 +86,6 @@ export class CreateResultFormComponent {
     return !this.body()?.year;
   }
 
-  shouldPreventInput(event: KeyboardEvent, currentValue: InputValueType): boolean {
-    if (!currentValue) return false;
-
-    const wordCount = this.wordCountService.getWordCount(currentValue);
-    if (wordCount < 30) return false;
-
-    if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '].includes(event.key)) return false;
-
-    if (event.ctrlKey || event.metaKey) return false;
-
-    const input = event.target as HTMLInputElement;
-    const cursorPosition = input.selectionStart;
-    if (cursorPosition === null) return true;
-
-    const textBeforeCursor = currentValue.toString().substring(0, cursorPosition);
-    const words = textBeforeCursor.trim().split(/\s+/);
-    const currentWordIndex = words.length - 1;
-
-    if (currentWordIndex < 30) return false;
-
-    return true;
-  }
-
   get isTitleMissing(): boolean {
     return !this.body()?.title;
   }
