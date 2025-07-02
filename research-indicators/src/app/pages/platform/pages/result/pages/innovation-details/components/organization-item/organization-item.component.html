@@ -57,14 +57,20 @@
     }
 
     @if (body().institution_type_id === 78) {
-      <app-input
-        class="mt-3"
+      <input
+        pInputText
+        id="institution_type_custom_name"
+        aria-describedby="institution_type_custom_name"
+        [(ngModel)]="body().institution_type_custom_name"
         placeholder="Specify other"
-        [signal]="body"
-        [isRequired]="true"
-        optionValue="institution_type_custom_name"
         [disabled]="!submission.isEditableStatus()"
-        type="text"></app-input>
+        (ngModelChange)="setValue($event)"
+        class="w-full mt-3 !text-base"
+        [style]="isFieldInvalid() && submission.isEditableStatus() ? { border: '2px solid #E69F00' } : {}"
+        [class.ng-invalid]="isFieldInvalid()" />
+      @if (isFieldInvalid()) {
+        <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
+      }
     }
   </div>
 </div>
