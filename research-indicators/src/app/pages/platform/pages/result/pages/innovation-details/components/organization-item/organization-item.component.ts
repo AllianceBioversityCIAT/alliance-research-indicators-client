@@ -1,18 +1,18 @@
 import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SubmissionService } from '@shared/services/submission.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { GetInnovationDetails, InstitutionType } from '@shared/interfaces/get-innovation-details.interface';
-import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { NgTemplateOutlet } from '@angular/common';
 import { SelectModule } from 'primeng/select';
 import { GetInstitutionTypesService } from '@shared/services/control-list/get-institution-types.service';
 import { GetClarisaInstitutionsSubTypesService } from '@shared/services/get-clarisa-institutions-subtypes.service';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-organization-item',
-  imports: [CheckboxModule, FormsModule, InputComponent, TextareaModule, NgTemplateOutlet, SelectModule],
+  imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, NgTemplateOutlet, ReactiveFormsModule, SelectModule],
   templateUrl: './organization-item.component.html'
 })
 export class OrganizationItemComponent implements OnInit {
@@ -24,6 +24,7 @@ export class OrganizationItemComponent implements OnInit {
   body = signal<InstitutionType>(new InstitutionType());
   submission = inject(SubmissionService);
   isPrivate = false;
+  private updateTimeout: ReturnType<typeof setTimeout> | undefined;
 
   institutionService = inject(GetInstitutionTypesService);
   subTypesService = inject(GetClarisaInstitutionsSubTypesService);
@@ -95,11 +96,25 @@ export class OrganizationItemComponent implements OnInit {
   deleteOrganization() {
     this.deleteOrganizationEvent.emit();
   }
+  isFieldInvalid(): boolean {
+    const institution_type_custom_name = this.body().institution_type_custom_name;
+    return !institution_type_custom_name || institution_type_custom_name.trim() === '';
+  }
 
-  setValue() {
-    this.body.set({
-      ...this.body()
-    });
+  setValue(value: string) {
+    if (this.updateTimeout) {
+      clearTimeout(this.updateTimeout);
+    }
+
+    const lowerCaseValue = value;
+    this.updateTimeout = setTimeout(() => {
+      if (this.body().institution_type_custom_name !== lowerCaseValue) {
+        this.body.set({
+          ...this.body(),
+          institution_type_custom_name: lowerCaseValue
+        });
+      }
+    }, 300);
   }
 
   get organizationMissing(): boolean {
