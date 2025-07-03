@@ -6,6 +6,7 @@ import { CacheService } from '../services/cache/cache.service';
 import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
 import { httpErrorInterceptor } from './http-error.interceptor';
+import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('httpErrorInterceptor', () => {
   const interceptor: HttpInterceptorFn = (req, next) => TestBed.runInInjectionContext(() => httpErrorInterceptor(req, next));
@@ -74,7 +75,7 @@ describe('httpErrorInterceptor', () => {
     });
   });
 
-  it('should handle HTTP error and show toast when user is logged in and error is not 409, 401, or refresh-token', done => {
+  it('should handle HTTP error and show toast when user is logged in and error is not 409, 401, or refresh-token', fakeAsync(() => {
     const errorResponse = new HttpErrorResponse({
       error: { errors: 'Test error message' },
       status: 500,
@@ -93,20 +94,25 @@ describe('httpErrorInterceptor', () => {
     });
     mockApiService.saveErrors.mockResolvedValue(undefined);
 
+    let errorCaught: any;
     interceptor(mockRequest, mockHandler).subscribe({
-      next: () => done.fail('Should have thrown an error'),
+      next: () => {},
       error: error => {
-        expect(error).toBe(errorResponse);
-        expect(mockApiService.saveErrors).toHaveBeenCalled();
-        expect(mockActionsService.showToast).toHaveBeenCalledWith({
-          detail: 'Test error message',
-          severity: 'error',
-          summary: 'Error'
-        });
-        done();
+        errorCaught = error;
       }
     });
-  });
+
+    tick();
+
+    expect(errorCaught).toBe(errorResponse);
+    expect(mockApiService.saveErrors).toHaveBeenCalled();
+    expect(mockActionsService.showToast).toHaveBeenCalledWith({
+      detail: 'Test error message',
+      severity: 'error',
+      summary: 'Error',
+      sticky: true
+    });
+  }));
 
   it('should handle HTTP error but not show toast when user is not logged in', done => {
     const errorResponse = new HttpErrorResponse({
