@@ -311,3 +311,9 @@ export const mockIndicatorsResults = {
     }
   ]
 };
+
+export const getMetadataServiceMock = {
+  update: jest.fn(),
+  formatText: jest.fn(() => ''),
+  clearMetadata: jest.fn()
+};
