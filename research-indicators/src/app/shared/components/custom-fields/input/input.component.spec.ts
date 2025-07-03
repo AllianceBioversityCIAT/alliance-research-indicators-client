@@ -376,4 +376,127 @@ describe('InputComponent', () => {
       }, 0);
     });
   });
+
+  // Cobertura directa de getPattern
+  describe('getPattern', () => {
+    it('should return email pattern', () => {
+      component.pattern = 'email';
+      expect(component.getPattern()).toEqual({
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+        message: 'Please enter a valid email address.'
+      });
+    });
+    it('should return url pattern', () => {
+      component.pattern = 'url';
+      expect(component.getPattern()).toEqual({
+        pattern: "^(https?:\\/\\/)?([\\w-]+(\\.[\\w-]+)*\\.([a-z]{2,}))(\\/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=%-]*)?$",
+        message: 'Please enter a valid URL.'
+      });
+    });
+    it('should return empty pattern for unknown', () => {
+      component.pattern = 'other' as any;
+      expect(component.getPattern()).toEqual({ pattern: '', message: '' });
+    });
+  });
+
+  // Edge cases para setValue y shouldPreventInput
+  describe('setValue edge cases', () => {
+    it('should handle number value', () => {
+      const num = 123;
+      component.setValue(num);
+      expect(component.body().value).toBe(num);
+      expect(utilsService.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(component.signal, component.optionValue, num);
+    });
+    it('should handle null value', () => {
+      component.setValue(null);
+      expect(component.body().value).toBe(null);
+      expect(utilsService.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(component.signal, component.optionValue, null);
+    });
+    it('should handle undefined value', () => {
+      component.setValue(undefined);
+      expect(component.body().value).toBe(undefined);
+      expect(utilsService.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(component.signal, component.optionValue, undefined);
+    });
+    it('should handle value with multiple spaces and tabs', () => {
+      component.maxWords = 2;
+      const input = document.createElement('input');
+      document.body.appendChild(input);
+      input.focus();
+      Object.defineProperty(document, 'activeElement', { value: input, configurable: true });
+      input.selectionStart = 10;
+      const setSelectionRangeSpy = jest.spyOn(input, 'setSelectionRange');
+      const value = 'one    \t\ttwo   three';
+      component.optionValue = 'testField';
+      component.signal = signal({ testField: '' });
+      component.setValue(value);
+      setTimeout(() => {
+        expect(setSelectionRangeSpy).toHaveBeenCalled();
+        document.body.removeChild(input);
+      }, 0);
+    });
+    it('should handle value with only spaces', () => {
+      component.setValue('     ');
+      expect(component.body().value).toBe('     ');
+    });
+    it('should handle value with newlines', () => {
+      component.maxWords = 2;
+      const value = 'one\ntwo\nthree';
+      component.setValue(value);
+      expect(component.body().value).toContain('one two');
+    });
+  });
+
+  describe('shouldPreventInput edge cases', () => {
+    it('should return false for number value', () => {
+      component.maxWords = 2;
+      expect(component.shouldPreventInput({} as KeyboardEvent, 123)).toBe(false);
+    });
+    it('should return false for empty string', () => {
+      component.maxWords = 2;
+      expect(component.shouldPreventInput({} as KeyboardEvent, '')).toBe(false);
+    });
+    it('should handle value with multiple spaces and tabs', () => {
+      component.maxWords = 2;
+      wordCountService.getWordCount.mockReturnValue(3);
+      const event = { key: 'a', target: { selectionStart: 10 } } as any;
+      expect(component.shouldPreventInput(event, 'one    \t\ttwo   three')).toBe(true);
+    });
+  });
+
+  // Combinaciones de inputs
+  describe('combinaciones de inputs', () => {
+    it('should handle onlyLowerCase with number', () => {
+      component.onlyLowerCase = true;
+      component.setValue(123);
+      expect(component.body().value).toBe(123);
+    });
+    it('should handle maxWords and maxLength together', () => {
+      component.maxWords = 2;
+      component.maxLength = 5;
+      wordCountService.getWordCount.mockReturnValue(3);
+      component.signal = signal({ testField: 'one two three' });
+      expect(component.inputValid().valid).toBe(false);
+      component.signal = signal({ testField: '123456' });
+      expect(component.inputValid().valid).toBe(false);
+    });
+    it('should handle validateEmpty and isRequired together', () => {
+      component.isRequired = true;
+      component.validateEmpty = true;
+      component.signal = signal({ testField: '' });
+      expect(component.inputValid().valid).toBe(false);
+      expect(component.inputValid().message).toBe('This field is required');
+    });
+    it('should handle value with exactly maxWords', () => {
+      component.maxWords = 3;
+      wordCountService.getWordCount.mockReturnValue(3);
+      component.signal = signal({ testField: 'one two three' });
+      expect(component.inputValid().valid).toBe(true);
+    });
+    it('should handle value with more than maxWords and extra spaces', () => {
+      component.maxWords = 2;
+      wordCountService.getWordCount.mockReturnValue(3);
+      component.signal = signal({ testField: 'one    two   three' });
+      expect(component.inputValid().valid).toBe(false);
+    });
+  });
 });
