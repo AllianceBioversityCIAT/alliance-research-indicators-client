@@ -33,15 +33,18 @@ export default class ResultComponent {
 
     // Controla el update de metadata solo si cambia id o version
     this.versionChangeEffect = effect(() => {
-      const version = this.versionWatcher.version();
-      const id = this.cache.currentResultId();
-      this.metadata.update(id);
-
-      if (id > 0 && (this.lastVersion !== version || this.lastId !== id)) {
-        this.metadata.update(id);
-        this.lastVersion = version;
-        this.lastId = id;
-      }
+      this.checkAndUpdateMetadata();
     });
+  }
+
+  checkAndUpdateMetadata() {
+    const version = this.versionWatcher.version();
+    const id = this.cache.currentResultId();
+    this.metadata.update(id);
+    if (id > 0 && (this.lastVersion !== version || this.lastId !== id)) {
+      this.metadata.update(id);
+      this.lastVersion = version;
+      this.lastId = id;
+    }
   }
 }
