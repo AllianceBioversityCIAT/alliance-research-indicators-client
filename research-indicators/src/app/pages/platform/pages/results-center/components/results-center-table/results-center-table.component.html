@@ -160,8 +160,10 @@
                 }
               </td>
             } @else {
-              <td [class.w-[25rem]]="column.field === 'title'">
-                {{ column.getValue ? column.getValue(result) : '-' }}
+              <td [class.break-words]="column.field === 'title'" [class.hyphens-auto]="column.field === 'title'" lang="es">
+                <div class="overflow-hidden line-clamp-3 xl:line-clamp-2">
+                  {{ cleanDash(toStringValue(column.getValue ? column.getValue(result) : '-')) }}
+                </div>
               </td>
             }
           }

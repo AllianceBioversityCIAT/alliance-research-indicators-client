@@ -101,8 +101,7 @@ describe('httpErrorInterceptor', () => {
         expect(mockActionsService.showToast).toHaveBeenCalledWith({
           detail: 'Test error message',
           severity: 'error',
-          summary: 'Error',
-          sticky: true
+          summary: 'Error'
         });
         done();
       }
