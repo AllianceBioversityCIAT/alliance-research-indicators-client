@@ -15,7 +15,7 @@ describe('browser.util', () => {
   });
 
   describe('getBrowserInfo', () => {
-    it('debe detectar Opera correctamente', () => {
+    it('should detect Opera correctly', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value:
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 OPR/77.0.4054.254',
@@ -28,7 +28,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(77);
     });
 
-    it('debe detectar Opera con Version en userAgent', () => {
+    it('should detect Opera with Version in userAgent', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value:
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 OPR/77.0.4054.254 Version/77.0.4054.254',
@@ -41,7 +41,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(77);
     });
 
-    it('debe detectar Microsoft Edge correctamente', () => {
+    it('should detect Microsoft Edge correctly', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59',
         configurable: true
@@ -53,7 +53,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(91);
     });
 
-    it('debe detectar Internet Explorer correctamente', () => {
+    it('should detect Internet Explorer correctly', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko MSIE 11.0',
         configurable: true
@@ -65,7 +65,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(11);
     });
 
-    it('debe detectar Chrome correctamente', () => {
+    it('should detect Chrome correctly', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         configurable: true
@@ -77,7 +77,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(91);
     });
 
-    it('debe detectar Safari correctamente', () => {
+    it('should detect Safari correctly', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
         configurable: true
@@ -89,7 +89,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(14);
     });
 
-    it('debe detectar Safari con Version en userAgent', () => {
+    it('should detect Safari with Version in userAgent', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
         configurable: true
@@ -101,7 +101,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(14);
     });
 
-    it('debe detectar Firefox correctamente', () => {
+    it('should detect Firefox correctly', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0',
         configurable: true
@@ -113,7 +113,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(89);
     });
 
-    it('debe detectar navegador genérico con formato name/version', () => {
+    it('should detect generic browser with name/version format', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'CustomBrowser/1.2.3',
         configurable: true
@@ -125,7 +125,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(1);
     });
 
-    it('debe manejar navegador genérico con nombre en mayúsculas (debe ser Unknown)', () => {
+    it('should handle generic browser with uppercase name (should be Unknown)', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'ABCDEF/1.2.3',
         configurable: true
@@ -137,7 +137,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(1);
     });
 
-    it('debe manejar versión con punto y coma', () => {
+    it('should handle version with semicolon', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124; Safari/537.36',
         configurable: true
@@ -149,7 +149,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(91);
     });
 
-    it('debe manejar versión con espacio', () => {
+    it('should handle version with space', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         configurable: true
@@ -161,7 +161,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(91);
     });
 
-    it('debe manejar versión inválida (NaN)', () => {
+    it('should handle invalid version (NaN)', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/invalid Safari/537.36',
         configurable: true
@@ -173,7 +173,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(0);
     });
 
-    it('debe manejar userAgent completamente desconocido', () => {
+    it('should handle completely unknown userAgent', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'UnknownBrowser',
         configurable: true
@@ -185,7 +185,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(0);
     });
 
-    it('debe manejar userAgent vacío', () => {
+    it('should handle empty userAgent', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: '',
         configurable: true
@@ -197,7 +197,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(0);
     });
 
-    it('debe manejar versión con múltiples espacios', () => {
+    it('should handle version with multiple spaces', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124   Safari/537.36',
         configurable: true
@@ -209,7 +209,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(91);
     });
 
-    it('debe manejar versión con múltiples puntos y coma', () => {
+    it('should handle version with multiple semicolons', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124;; Safari/537.36',
         configurable: true
@@ -221,7 +221,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(91);
     });
 
-    it('debe manejar caso donde no hay navegador conocido', () => {
+    it('should handle case where no known browser is present', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'SomeRandomString',
         configurable: true
@@ -233,7 +233,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(0);
     });
 
-    it('debe manejar caso donde el formato name/version no se encuentra', () => {
+    it('should handle case where name/version format is not found', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'NoSlashHere',
         configurable: true
@@ -245,7 +245,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(0);
     });
 
-    it('debe manejar caso donde el formato name/version no se encuentra (sin slash)', () => {
+    it('should handle case where name/version format is not found (no slash)', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'NoSlashHere',
         configurable: true
@@ -257,7 +257,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(0);
     });
 
-    it('debe manejar caso donde el formato name/version no se encuentra (condición no cumplida)', () => {
+    it('should handle case where name/version format is not found (condition not met)', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Test Test',
         configurable: true
@@ -269,7 +269,7 @@ describe('browser.util', () => {
       expect(result.majorVersion).toBe(0);
     });
 
-    it('debe manejar navegador con nombre solo numérico como Unknown', () => {
+    it('should handle browser with only numeric name as Unknown', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: '12345/6.7.8',
         configurable: true

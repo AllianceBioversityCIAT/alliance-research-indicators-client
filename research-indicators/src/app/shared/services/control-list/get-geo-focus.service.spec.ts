@@ -23,7 +23,7 @@ describe('GetGeoFocusService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('debe inicializar loading en false y la lista con los valores esperados', () => {
+  it('should initialize loading as false and list with expected values', () => {
     expect(service.loading()).toBe(false);
     expect(service.list()).toEqual([
       { value: '1', label: 'Global' },
@@ -34,12 +34,12 @@ describe('GetGeoFocusService', () => {
     ]);
   });
 
-  it('main debe setear loading en false y la lista correctamente', async () => {
+  it('main should set loading as false and list correctly', async () => {
     await service.main();
     expect(service.main).toHaveBeenCalled();
   });
 
-  it('isOpenSearch debe ser false', () => {
+  it('isOpenSearch should be false', () => {
     expect(service.isOpenSearch()).toBe(false);
   });
 });

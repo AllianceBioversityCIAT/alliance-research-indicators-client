@@ -41,7 +41,7 @@ describe('GetRegionsService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('main transforma y setea datos correctamente', async () => {
+  it('main should transform and set data correctly', async () => {
     await service.main();
     expect(apiMock.GET_Regions).toHaveBeenCalled();
     expect(listMock.set).toHaveBeenCalledWith([
@@ -51,15 +51,15 @@ describe('GetRegionsService', () => {
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('list signal inicial', () => {
+  it('initial list signal', () => {
     expect(service.list()).toEqual([]);
   });
 
-  it('loading signal inicial', () => {
+  it('initial loading signal', () => {
     expect(service.loading()).toBe(true);
   });
 
-  it('isOpenSearch signal inicial', () => {
+  it('initial isOpenSearch signal', () => {
     expect(service.isOpenSearch()).toBe(false);
   });
 });

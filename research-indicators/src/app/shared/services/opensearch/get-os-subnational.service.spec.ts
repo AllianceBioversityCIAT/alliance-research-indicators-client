@@ -27,7 +27,6 @@ describe('GetOsSubnationalService', () => {
     service.loading = loadingMock;
     service.isOpenSearch = isOpenSearchMock;
 
-    // Asignar manualmente getInstance
     service.getInstance = async (query: string, openSearchFilters?: any) => {
       const { signal } = await import('@angular/core');
       const newSignal = signal<any[]>([]);
@@ -44,7 +43,7 @@ describe('GetOsSubnationalService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('update debe setear loading, llamar API y setear list correctamente', async () => {
+  it('update should set loading, call API and set list correctly', async () => {
     await service.update('test');
     expect(loadingMock.set).toHaveBeenCalledWith(true);
     expect(apiMock.GET_OpenSearchSubNationals).toHaveBeenCalledWith('test');
@@ -52,18 +51,18 @@ describe('GetOsSubnationalService', () => {
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('update debe manejar errores correctamente', async () => {
+  it('update should handle errors correctly', async () => {
     apiMock.GET_OpenSearchSubNationals = jest.fn().mockRejectedValue(new Error('fail'));
     try {
       await service.update('test');
     } catch (error) {
-      // El error se propaga, pero loading.set(false) debe haberse ejecutado
+      // The error is propagated, but loading.set(false) should have been called
     }
     expect(loadingMock.set).toHaveBeenCalledWith(true);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('getInstance debe retornar signal con datos transformados sin filtros', async () => {
+  it('getInstance should return signal with transformed data without filters', async () => {
     const result = await service.getInstance('test');
     expect(apiMock.GET_OpenSearchSubNationals).toHaveBeenCalledWith('test', undefined);
     expect(result()).toEqual([
@@ -72,7 +71,7 @@ describe('GetOsSubnationalService', () => {
     ]);
   });
 
-  it('getInstance debe retornar signal con datos transformados con filtros', async () => {
+  it('getInstance should return signal with transformed data with filters', async () => {
     const filters = { country: 'test' };
     const result = await service.getInstance('test', filters);
     expect(apiMock.GET_OpenSearchSubNationals).toHaveBeenCalledWith('test', filters);
@@ -82,7 +81,7 @@ describe('GetOsSubnationalService', () => {
     ]);
   });
 
-  it('getInstance debe manejar errores correctamente', async () => {
+  it('getInstance should handle errors correctly', async () => {
     apiMock.GET_OpenSearchSubNationals = jest.fn().mockRejectedValue(new Error('fail'));
     await expect(service.getInstance('test')).rejects.toThrow('fail');
   });

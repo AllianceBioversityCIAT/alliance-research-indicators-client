@@ -97,7 +97,7 @@ describe('IndicatorsService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('main setea loading y indicators correctamente', async () => {
+  it('main should set loading and indicators correctly', async () => {
     await service.main();
     expect(loadingMock.set).toHaveBeenCalledWith(true);
     expect(apiMock.GET_IndicatorTypes).toHaveBeenCalled();
@@ -105,7 +105,7 @@ describe('IndicatorsService', () => {
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('generateGroupedIndicators filtra y agrupa correctamente', () => {
+  it('generateGroupedIndicators should filter and group correctly', () => {
     const result = service.generateGroupedIndicators(mockIndicatorTypes, 'name', 'indicator_type_id', 'name', 'indicator_id');
 
     expect(result).toEqual([
@@ -125,12 +125,12 @@ describe('IndicatorsService', () => {
     ]);
   });
 
-  it('generateGroupedIndicators retorna array vacío si no hay datos', () => {
+  it('generateGroupedIndicators should return empty array if no data', () => {
     const result = service.generateGroupedIndicators([], 'name', 'indicator_type_id', 'name', 'indicator_id');
     expect(result).toEqual([]);
   });
 
-  it('generateGroupedIndicators filtra solo tipos con indicadores válidos', () => {
+  it('generateGroupedIndicators should filter only types with valid indicators', () => {
     const dataWithInvalidIndicators: any[] = [
       {
         indicator_type_id: 1,
@@ -177,7 +177,7 @@ describe('IndicatorsService', () => {
     ]);
   });
 
-  it('indicators, loading, isOpenSearch signals iniciales', () => {
+  it('initial indicators, loading, isOpenSearch signals', () => {
     expect(indicatorsMock()).toEqual([]);
     expect(loadingMock()).toBe(false);
     expect(isOpenSearchMock()).toBe(false);

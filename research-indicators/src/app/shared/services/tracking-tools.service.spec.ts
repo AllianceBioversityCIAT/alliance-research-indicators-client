@@ -54,7 +54,7 @@ describe('TrackingToolsService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('init llama a initAllTools y suscribe a eventos de navegación', async () => {
+  it('init calls initAllTools and subscribes to navigation events', async () => {
     const url = '/test';
     const navEvent = { urlAfterRedirects: url, constructor: { name: 'NavigationEnd' } } as any;
     const cache = { ...cacheMock, hasSmallScreen: jest.fn().mockReturnValue(true), collapseSidebar: jest.fn() };
@@ -69,37 +69,37 @@ describe('TrackingToolsService', () => {
     expect(cache.currentRouteTitle.set).toHaveBeenCalled();
   });
 
-  it('getCurrentTitle navega hijos y setea showSectionHeaderActions y currentRouteTitle', () => {
-    const child = createRouteMock({ title: 'Hijo', showSectionHeaderActions: true });
+  it('getCurrentTitle navigates children and sets showSectionHeaderActions and currentRouteTitle', () => {
+    const child = createRouteMock({ title: 'Child', showSectionHeaderActions: true });
     const route = createRouteMock({}, [child]);
     const cache = { ...cacheMock, showSectionHeaderActions: { set: jest.fn() }, currentRouteTitle: { set: jest.fn() } };
     const service = createService({ cache, route });
     // @ts-ignore
     service['getCurrentTitle']();
     expect(cache.showSectionHeaderActions.set).toHaveBeenCalledWith(true);
-    expect(cache.currentRouteTitle.set).toHaveBeenCalledWith('Hijo');
+    expect(cache.currentRouteTitle.set).toHaveBeenCalledWith('Child');
   });
 
-  it('isTester retorna true si localStorage tiene isTester', () => {
+  it('isTester returns true if localStorage has isTester', () => {
     localStorage.setItem('isTester', 'true');
     const service = createService();
     expect(service.isTester()).toBe(true);
   });
 
-  it('isTester retorna true si user tiene role_id 8 y recarga', () => {
+  it('isTester returns true if user has role_id 8 and reloads', () => {
     localStorage.setItem('data', JSON.stringify({ user: { user_role_list: [{ role_id: 8 }] } }));
     const service = createService();
     expect(service.isTester()).toBe(true);
     expect(localStorage.getItem('isTester')).toBe('true');
   });
 
-  it('isTester retorna false si no es tester', () => {
+  it('isTester returns false if not tester', () => {
     localStorage.setItem('data', JSON.stringify({ user: { user_role_list: [{ role_id: 1 }] } }));
     const service = createService();
     expect(service.isTester()).toBe(false);
   });
 
-  it('initAllTools no llama a nada si es tester', () => {
+  it('initAllTools does not call anything if isTester', () => {
     const service = createService();
     jest.spyOn(service, 'isTester').mockReturnValue(true);
     service.initAllTools();
@@ -108,7 +108,7 @@ describe('TrackingToolsService', () => {
     expect(service.hotjar.init).not.toHaveBeenCalled();
   });
 
-  it('initAllTools llama a todos los inits si no es tester', () => {
+  it('initAllTools calls all inits if not tester', () => {
     const service = createService();
     jest.spyOn(service, 'isTester').mockReturnValue(false);
     service.initAllTools();
@@ -117,7 +117,7 @@ describe('TrackingToolsService', () => {
     expect(service.hotjar.init).toHaveBeenCalled();
   });
 
-  it('updateAllTools no llama a nada si es tester', () => {
+  it('updateAllTools does not call anything if isTester', () => {
     const service = createService();
     jest.spyOn(service, 'isTester').mockReturnValue(true);
     service.updateAllTools('/url');
@@ -126,7 +126,7 @@ describe('TrackingToolsService', () => {
     expect(service.googleAnalytics.updateState).not.toHaveBeenCalled();
   });
 
-  it('updateAllTools llama a todos los updates si no es tester', () => {
+  it('updateAllTools calls all updates if not tester', () => {
     const service = createService();
     jest.spyOn(service, 'isTester').mockReturnValue(false);
     service.updateAllTools('/url');

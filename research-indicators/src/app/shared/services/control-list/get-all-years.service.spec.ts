@@ -22,7 +22,7 @@ describe('GetAllYearsService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('main debe setear loading y la lista correctamente', async () => {
+  it('main should set loading and list correctly', async () => {
     await service.main();
     expect(service.loading.set).toHaveBeenCalledWith(true);
     expect(service.list.set).toHaveBeenCalledWith([
@@ -32,7 +32,7 @@ describe('GetAllYearsService', () => {
     expect(service.loading.set).toHaveBeenCalledWith(false);
   });
 
-  it('isOpenSearch debe ser false', () => {
+  it('isOpenSearch should be false', () => {
     expect(service.isOpenSearch()).toBe(false);
   });
 });

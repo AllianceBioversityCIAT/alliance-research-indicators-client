@@ -28,13 +28,13 @@ describe('GetOsResultService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('debe inicializar con valores por defecto', () => {
+  it('should initialize with default values', () => {
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
     expect(service.isOpenSearch()).toBe(true);
   });
 
-  it('update debe cargar datos correctamente con parámetros por defecto', async () => {
+  it('update should load data correctly with default parameters', async () => {
     const search = 'test search';
 
     await service.update(search);
@@ -44,7 +44,7 @@ describe('GetOsResultService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  it('update debe cargar datos con sampleSize personalizado', async () => {
+  it('update should load data with custom sampleSize', async () => {
     const search = 'test search';
     const sampleSize = 10;
 
@@ -55,7 +55,7 @@ describe('GetOsResultService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  it('update debe manejar errores correctamente', async () => {
+  it('update should handle errors correctly', async () => {
     const search = 'test search';
 
     apiMock.GET_OpenSearchResult = jest.fn().mockRejectedValue(new Error('API Error'));
@@ -66,22 +66,17 @@ describe('GetOsResultService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  it('update debe setear loading a true al inicio y false al final', async () => {
+  it('update should set loading to true at start and false at end', async () => {
     const search = 'test search';
 
-    // Verificar que loading inicia en false
     expect(service.loading()).toBe(false);
 
-    // Iniciar update
     const updatePromise = service.update(search);
 
-    // Verificar que loading se setea a true inmediatamente
     expect(service.loading()).toBe(true);
 
-    // Esperar a que termine
     await updatePromise;
 
-    // Verificar que loading vuelve a false
     expect(service.loading()).toBe(false);
   });
 });

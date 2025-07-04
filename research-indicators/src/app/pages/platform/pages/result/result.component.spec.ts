@@ -47,7 +47,7 @@ describe('ResultComponent', () => {
   });
 });
 
-describe('Efectos y lógica de ResultComponent', () => {
+describe('Effects and logic of ResultComponent', () => {
   let component: ResultComponent;
   let fixture: ComponentFixture<ResultComponent>;
 
@@ -79,24 +79,22 @@ describe('Efectos y lógica de ResultComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('debe sincronizar el id global si el id es válido (>0)', () => {
+  it('should sync global id if id is valid (>0)', () => {
     const setSpy = jest.spyOn(cacheServiceMock.currentResultId, 'set');
-    // Simula el efecto del constructor
     cacheServiceMock.currentResultId.set(123);
     expect(setSpy).toHaveBeenCalledWith(123);
   });
 
-  it('no debe sincronizar el id global si el id es 0 o negativo', () => {
+  it('should not sync global id if id is 0 or negative', () => {
     const setSpy = jest.spyOn(cacheServiceMock.currentResultId, 'set');
     fixture.componentInstance.route.snapshot.params['id'] = '0';
-    // Simula el efecto del constructor
     if (Number(fixture.componentInstance.route.snapshot.params['id']) > 0) {
       cacheServiceMock.currentResultId.set(Number(fixture.componentInstance.route.snapshot.params['id']));
     }
     expect(setSpy).not.toHaveBeenCalledWith(0);
   });
 
-  it('debe actualizar metadata si cambia id o version (forzando llamada manual)', () => {
+  it('should update metadata if id or version changes (forcing manual call)', () => {
     const updateSpy = jest.spyOn(metadataMock, 'update');
     cacheServiceMock.currentResultId.set(124);
     versionWatcherMock.version.mockReturnValue('1.1');
@@ -104,12 +102,11 @@ describe('Efectos y lógica de ResultComponent', () => {
     component = fixture.componentInstance;
     component.lastId = 123;
     component.lastVersion = '1.0';
-    // Forzar llamada manual
     metadataMock.update(124);
     expect(updateSpy).toHaveBeenCalledWith(124);
   });
 
-  it('debe ejecutar checkAndUpdateMetadata sin lanzar error', () => {
+  it('should execute checkAndUpdateMetadata without throwing error', () => {
     cacheServiceMock.currentResultId.set(124);
     versionWatcherMock.version.mockReturnValue('1.1');
     fixture = TestBed.createComponent(ResultComponent);
@@ -120,11 +117,10 @@ describe('Efectos y lógica de ResultComponent', () => {
   });
 });
 
-describe('Cobertura de branches en checkAndUpdateMetadata', () => {
+describe('Branch coverage in checkAndUpdateMetadata', () => {
   let component: ResultComponent;
   beforeEach(() => {
     jest.clearAllMocks();
-    // Instancia manual sin TestBed para aislar la lógica
     component = Object.create(ResultComponent.prototype);
     component.metadata = getMetadataServiceMock as any;
     component.versionWatcher = { version: jest.fn() } as any;
@@ -133,7 +129,7 @@ describe('Cobertura de branches en checkAndUpdateMetadata', () => {
     component.lastVersion = null;
   });
 
-  it('debe llamar a update solo una vez si id <= 0', () => {
+  it('should call update only once if id <= 0', () => {
     const updateSpy = jest.spyOn(getMetadataServiceMock, 'update');
     component.cache.currentResultId = (() => 0) as any;
     component.versionWatcher.version = (() => '1.0') as any;
@@ -146,7 +142,7 @@ describe('Cobertura de branches en checkAndUpdateMetadata', () => {
     expect(component.lastVersion).toBe(null);
   });
 
-  it('debe llamar a update solo una vez si id > 0 y lastVersion/lastId son iguales', () => {
+  it('should call update only once if id > 0 and lastVersion/lastId are equal', () => {
     const updateSpy = jest.spyOn(getMetadataServiceMock, 'update');
     component.cache.currentResultId = (() => 200) as any;
     component.versionWatcher.version = (() => '2.0') as any;
@@ -159,7 +155,7 @@ describe('Cobertura de branches en checkAndUpdateMetadata', () => {
     expect(component.lastVersion).toBe('2.0');
   });
 
-  it('debe llamar a update dos veces si id > 0 y lastVersion o lastId son distintos', () => {
+  it('should call update twice if id > 0 and lastVersion or lastId are different', () => {
     const updateSpy = jest.spyOn(getMetadataServiceMock, 'update');
     component.cache.currentResultId = (() => 201) as any;
     component.versionWatcher.version = (() => '2.1') as any;
@@ -173,7 +169,7 @@ describe('Cobertura de branches en checkAndUpdateMetadata', () => {
     expect(component.lastVersion).toBe('2.1');
   });
 
-  it('debe llamar a update solo una vez si id <= 0 y lastVersion/lastId son distintos', () => {
+  it('should call update only once if id <= 0 and lastVersion/lastId are different', () => {
     const updateSpy = jest.spyOn(getMetadataServiceMock, 'update');
     component.cache.currentResultId = (() => 0) as any;
     component.versionWatcher.version = (() => '3.0') as any;
@@ -186,7 +182,7 @@ describe('Cobertura de branches en checkAndUpdateMetadata', () => {
     expect(component.lastVersion).toBe('2.0');
   });
 
-  it('debe llamar a update solo una vez si id <= 0 y lastVersion/lastId son iguales', () => {
+  it('should call update only once if id <= 0 and lastVersion/lastId are equal', () => {
     const updateSpy = jest.spyOn(getMetadataServiceMock, 'update');
     component.cache.currentResultId = (() => 0) as any;
     component.versionWatcher.version = (() => '3.0') as any;

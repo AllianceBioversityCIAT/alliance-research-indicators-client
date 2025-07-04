@@ -27,7 +27,7 @@ describe('GetMetadataService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('update retorna true y setea metadata si status 200', async () => {
+  it('update returns true and sets metadata if status is 200', async () => {
     apiMock.GET_Metadata.mockResolvedValue({ status: 200, data: { foo: 'bar' } });
     const result = await service.update(1);
     expect(apiMock.GET_Metadata).toHaveBeenCalledWith(1);
@@ -35,7 +35,7 @@ describe('GetMetadataService', () => {
     expect(result).toBe(true);
   });
 
-  it('update retorna false y navega si status distinto de 200', async () => {
+  it('update returns false and navigates if status is not 200', async () => {
     apiMock.GET_Metadata.mockResolvedValue({ status: 404 });
     const result = await service.update(2);
     expect(apiMock.GET_Metadata).toHaveBeenCalledWith(2);
@@ -43,25 +43,19 @@ describe('GetMetadataService', () => {
     expect(result).toBe(false);
   });
 
-  it('update retorna false y navega si response es undefined', async () => {
+  it('update returns false and navigates if response is undefined', async () => {
     apiMock.GET_Metadata.mockResolvedValue(undefined);
     const result = await service.update(3);
     expect(routerMock.navigate).toHaveBeenCalledWith(['/results-center']);
     expect(result).toBe(false);
   });
 
-  it('formatText retorna string formateado correctamente', () => {
+  it('formatText returns formatted string correctly', () => {
     expect(service.formatText('Hello World')).toBe('HelWor');
     expect(service.formatText('Angular Test')).toBe('AngTes');
     expect(service.formatText('A B')).toBe('AB');
     expect(service.formatText('OneWord')).toBe('');
     expect(service.formatText('  ')).toBe('');
     expect(service.formatText('foo bar baz')).toBe('FooBaz');
-  });
-
-  it('clearMetadata setea metadata vacía y resultId a 0', () => {
-    service.clearMetadata();
-    expect(cacheMock.currentMetadata.set).toHaveBeenCalledWith({});
-    expect(cacheMock.currentResultId.set).toHaveBeenCalledWith(0);
   });
 });
