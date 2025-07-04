@@ -140,7 +140,7 @@
                           +{{ showMoreCount }} more
                         </a>
 
-                        <p-popover #popover [baseZIndex]="10000" styleClass="rounded-lg p-1 text-center">
+                        <p-popover #popover [baseZIndex]="10000" [appendTo]="'self'" styleClass="rounded-lg p-1 -ml-4 text-center">
                           <div class="mb-3 text-[14px] text-[#173F6F]">Approved Versions</div>
                           <div class="grid grid-cols-2 gap-2">
                             @for (year of versions; track year) {

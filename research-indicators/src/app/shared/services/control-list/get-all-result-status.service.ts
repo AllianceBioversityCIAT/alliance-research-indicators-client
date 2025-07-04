@@ -26,7 +26,7 @@ export class GetAllResultStatusService {
     this.loading.set(true);
     try {
       const response = await this.apiService.GET_AllResultStatus();
-      if (response && response.data) {
+      if (response?.data) {
         this.list.set(response.data);
       } else {
         this.list.set([]);
