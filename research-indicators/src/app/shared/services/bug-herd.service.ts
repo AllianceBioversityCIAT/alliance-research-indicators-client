@@ -8,8 +8,6 @@ export class BugHerdService {
   private readonly bugHerdScriptId = 'bugherd-script';
   private readonly bugHerdApiKey = 'xjszm5izs5xh4u3vdnwqna';
 
-  constructor() {}
-
   public init(environmentProduction: boolean = environment.production): void {
     if (!environmentProduction) {
       this.loadBugHerdScript();
