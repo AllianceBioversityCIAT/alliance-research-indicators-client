@@ -13,8 +13,11 @@ export class GetOsCountriesService {
   useInstance = signal(false);
   async update(search: string) {
     this.loading.set(true);
-    const response = await this.api.GET_OpenSearchCountries(search);
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_OpenSearchCountries(search);
+      this.list.set(response.data);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }
