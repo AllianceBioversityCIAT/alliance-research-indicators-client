@@ -18,8 +18,7 @@ export class GetClarisaInstitutionsTypesService {
   async main() {
     this.loading.set(true);
     const response = await this.api.GET_InstitutionsTypes();
-
-    this.list.set(response.data);
+    this.list.set(response.data ?? []);
     this.loading.set(false);
   }
 }
