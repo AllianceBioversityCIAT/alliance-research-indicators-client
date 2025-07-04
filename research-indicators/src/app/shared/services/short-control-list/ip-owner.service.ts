@@ -15,8 +15,14 @@ export class IpOwnerService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_IpOwners();
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_IpOwners();
+      this.list.set(response.data);
+    } catch (e) {
+      console.error('Failed to fetch IP owners:', e);
+      this.list.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }
