@@ -13,8 +13,14 @@ export class GetOsResultService {
 
   async update(search: string, sampleSize = 5) {
     this.loading.set(true);
-    const response = await this.api.GET_OpenSearchResult(search, sampleSize);
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_OpenSearchResult(search, sampleSize);
+      this.list.set(response.data);
+    } catch (e) {
+      console.error('Failed to fetch OS result:', e);
+      this.list.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

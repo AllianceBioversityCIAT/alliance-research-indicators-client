@@ -6,17 +6,23 @@ import { SessionType } from '../../interfaces/get-cap-sharing.interface';
   providedIn: 'root'
 })
 export class CapSharingTypesService {
-  api = inject(ApiService);
+  private api = inject(ApiService);
   list = signal<SessionType[]>([]);
-  loading = signal(false);
+  loading = signal<boolean>(false);
   constructor() {
     this.main();
   }
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_SessionType();
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_SessionType();
+      this.list.set(response?.data ?? []);
+    } catch (error) {
+      console.error('Error loading session types:', error);
+      this.list.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

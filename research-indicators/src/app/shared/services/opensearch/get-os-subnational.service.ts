@@ -12,9 +12,12 @@ export class GetOsSubnationalService {
 
   async update(search: string) {
     this.loading.set(true);
-    const response = await this.api.GET_OpenSearchSubNationals(search);
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_OpenSearchSubNationals(search);
+      this.list.set(response.data);
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   getInstance = async (query: string, openSearchFilters?: OpenSearchFilters): Promise<WritableSignal<GetOsSubNationals[]>> => {

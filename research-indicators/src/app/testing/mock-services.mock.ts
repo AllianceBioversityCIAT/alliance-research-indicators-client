@@ -251,16 +251,257 @@ export const mockGreenChecks = {
   }
 };
 
+export const mockInstitutions = {
+  status: 200,
+  description: 'Success',
+  timestamp: new Date().toISOString(),
+  path: '/api/institutions',
+  successfulRequest: true,
+  errorDetail: {
+    errors: '',
+    detail: '',
+    description: ''
+  },
+  data: [
+    {
+      description: 'Test Institution 1',
+      code: 1,
+      acronym: 'TI1',
+      name: 'Test Institution 1',
+      is_active: true,
+      websiteLink: 'https://test1.com',
+      added: '2024-01-01',
+      institution_type_id: 1,
+      institution_locations: [
+        {
+          code: 1,
+          name: 'Test Location 1',
+          institution_id: 1,
+          isoAlpha2: 'US',
+          isHeadquarter: true
+        }
+      ],
+      institution_type: {
+        is_active: true,
+        code: 1,
+        name: 'Test Type',
+        description: 'Test Type Description',
+        parent_code: null
+      },
+      disabled: false
+    },
+    {
+      description: 'Test Institution 2',
+      code: 2,
+      acronym: null,
+      name: 'Test Institution 2',
+      is_active: true,
+      websiteLink: 'https://test2.com',
+      added: '2024-01-02',
+      institution_type_id: 1,
+      institution_locations: [
+        {
+          code: 2,
+          name: 'Test Location 2',
+          institution_id: 2,
+          isoAlpha2: 'CA',
+          isHeadquarter: false
+        }
+      ],
+      institution_type: {
+        is_active: true,
+        code: 1,
+        name: 'Test Type',
+        description: 'Test Type Description',
+        parent_code: null
+      },
+      disabled: false
+    }
+  ]
+};
+
+export const mockResults = {
+  status: 200,
+  description: 'Success',
+  timestamp: new Date().toISOString(),
+  path: '/api/results',
+  successfulRequest: true,
+  errorDetail: {
+    errors: '',
+    detail: '',
+    description: ''
+  },
+  data: [
+    {
+      is_active: true,
+      result_id: 1,
+      result_official_code: 'R001',
+      version_id: null,
+      title: 'Innovación 1',
+      description: 'Desc 1',
+      indicator_id: 2,
+      geo_scope_id: null
+    },
+    {
+      is_active: false,
+      result_id: 2,
+      result_official_code: 'R002',
+      version_id: null,
+      title: 'Innovación 2',
+      description: null,
+      indicator_id: 2,
+      geo_scope_id: null
+    }
+  ]
+};
+
+export const mockInstitutionsTypes = {
+  status: 200,
+  description: 'Success',
+  timestamp: new Date().toISOString(),
+  path: '/api/institutions-types',
+  successfulRequest: true,
+  errorDetail: {
+    errors: '',
+    detail: '',
+    description: ''
+  },
+  data: [
+    {
+      code: 1,
+      created_at: '2024-01-01',
+      description: 'Tipo 1',
+      is_active: true,
+      name: 'Institución Tipo 1',
+      parent_code: null,
+      updated_at: '2024-01-02'
+    },
+    {
+      code: 2,
+      created_at: '2024-01-03',
+      description: null,
+      is_active: false,
+      name: 'Institución Tipo 2',
+      parent_code: '1',
+      updated_at: '2024-01-04'
+    }
+  ]
+};
+
+export const mockLanguages = {
+  status: 200,
+  description: 'Success',
+  timestamp: new Date().toISOString(),
+  path: '/api/languages',
+  successfulRequest: true,
+  errorDetail: {
+    errors: '',
+    detail: '',
+    description: ''
+  },
+  data: [
+    {
+      is_active: true,
+      id: 1,
+      name: 'English',
+      iso_alpha_2: 'en',
+      iso_alpha_3: 'eng'
+    },
+    {
+      is_active: true,
+      id: 2,
+      name: 'Spanish',
+      iso_alpha_2: 'es',
+      iso_alpha_3: 'spa'
+    },
+    {
+      is_active: false,
+      id: 3,
+      name: null,
+      iso_alpha_2: null,
+      iso_alpha_3: 'fra'
+    }
+  ]
+};
+
+export const mockSessionPurpose = {
+  status: 200,
+  description: 'Success',
+  timestamp: new Date().toISOString(),
+  path: '/api/session-purpose',
+  successfulRequest: true,
+  errorDetail: {
+    errors: '',
+    detail: '',
+    description: ''
+  },
+  data: [
+    {
+      is_active: true,
+      session_purpose_id: 1,
+      name: 'Purpose 1'
+    },
+    {
+      is_active: true,
+      session_purpose_id: 2,
+      name: 'Purpose 2'
+    },
+    {
+      is_active: false,
+      session_purpose_id: 3,
+      name: 'Purpose 3'
+    }
+  ]
+};
+
+export const mockSessionTypes = {
+  status: 200,
+  description: 'Success',
+  timestamp: new Date().toISOString(),
+  path: '/api/session-types',
+  successfulRequest: true,
+  errorDetail: {
+    errors: '',
+    detail: '',
+    description: ''
+  },
+  data: [
+    {
+      session_type_id: 1,
+      name: 'Type 1',
+      is_active: true
+    },
+    {
+      session_type_id: 2,
+      name: 'Type 2',
+      is_active: false
+    },
+    {
+      session_type_id: 3,
+      name: 'Type 3',
+      is_active: true
+    }
+  ]
+};
+
 export const apiServiceMock = {
   GET_LatestResults: jest.fn().mockImplementation(() => Promise.resolve(mockLatestResults)),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   GET_GreenChecks: jest.fn().mockImplementation((_resultCode: number) => Promise.resolve(mockGreenChecks)),
+  GET_Institutions: jest.fn().mockImplementation(() => Promise.resolve(mockInstitutions)),
   GET_InstitutionsTypesChildless: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_Countries: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_IndicatorTypes: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_Years: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_Contracts: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
-  GET_Results: jest.fn().mockImplementation(() => Promise.resolve({ data: [] }))
+  GET_Results: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
+  GET_InstitutionsTypes: jest.fn().mockImplementation(() => Promise.resolve(mockInstitutionsTypes)),
+  GET_Languages: jest.fn().mockImplementation(() => Promise.resolve(mockLanguages)),
+  GET_SessionPurpose: jest.fn().mockImplementation(() => Promise.resolve(mockSessionPurpose)),
+  GET_SessionType: jest.fn().mockImplementation(() => Promise.resolve(mockSessionTypes)),
+  login: jest.fn(),
+  GET_SessionLength: jest.fn(),
+  GET_AllResultStatus: jest.fn()
 } as unknown as jest.Mocked<ApiService>;
 
 export const httpClientMock = {
@@ -316,4 +557,8 @@ export const getMetadataServiceMock = {
   update: jest.fn(),
   formatText: jest.fn(() => ''),
   clearMetadata: jest.fn()
+};
+
+export const clarityServiceMock = {
+  updateUserInfo: jest.fn()
 };

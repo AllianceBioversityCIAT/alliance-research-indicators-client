@@ -15,8 +15,11 @@ export class CapSharingFormatsService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_SessionFormat();
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_SessionFormat();
+      this.list.set(response.data);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

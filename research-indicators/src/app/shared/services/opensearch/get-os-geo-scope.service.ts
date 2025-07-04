@@ -11,10 +11,13 @@ export class GetOsGeoScopeService {
   loading = signal(false);
   isOpenSearch = signal(true);
 
-  async update(search: string) {
+  async update(scope: string, search: string) {
     this.loading.set(true);
-    const response = await this.api.GET_GeoSearch('geo-scope', search);
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_GeoSearch(scope, search);
+      this.list.set(response.data);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }
