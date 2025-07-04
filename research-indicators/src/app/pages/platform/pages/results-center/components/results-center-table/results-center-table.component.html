@@ -161,7 +161,7 @@
                 }
               </td>
             } @else {
-              <td [class.break-words]="column.field === 'title'" [class.hyphens-auto]="column.field === 'title'" lang="es">
+              <td [class]="column.minWidth + ' ' + column.maxWidth" [class.break-words]="column.field === 'title'" lang="es">
                 <div class="overflow-hidden line-clamp-3 xl:line-clamp-2">
                   {{ column.getValue ? column.getValue(result) : '-' }}
                 </div>
