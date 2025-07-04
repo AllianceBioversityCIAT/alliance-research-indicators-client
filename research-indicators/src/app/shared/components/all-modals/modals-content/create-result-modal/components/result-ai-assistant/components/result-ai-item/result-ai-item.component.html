@@ -53,11 +53,13 @@
     <p class="result-item-description">{{ item.description }}</p>
 
     <div class="result-item-keywords">
-      <p class="result-item-keywords-title">Keywords</p>
-      <p class="result-item-keywords-arrow">&rarr;</p>
-      @for (keyword of item.keywords; track $index) {
-        <span class="keyword">{{ keyword }}</span>
-      }
+      <div class="flex items-center flex-wrap gap-[10px]">
+        <p class="result-item-keywords-title">Keywords</p>
+        <p class="result-item-keywords-arrow">&rarr;</p>
+        @for (keyword of item.keywords; track $index) {
+          <span class="keyword">{{ keyword }}</span>
+        }
+      </div>
     </div>
 
     @if (expandedItem === item) {

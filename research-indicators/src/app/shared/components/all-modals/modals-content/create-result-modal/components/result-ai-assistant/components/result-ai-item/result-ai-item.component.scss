@@ -152,6 +152,15 @@ p {
   border-radius: 10px;
   background-color: var(--grey-200);
   text-transform: capitalize;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.result-item-keywords {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .result-item-actions {
