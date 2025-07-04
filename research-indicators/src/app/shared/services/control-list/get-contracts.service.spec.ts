@@ -25,7 +25,7 @@ describe('GetContractsService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('debe cargar contratos exitosamente', async () => {
+  it('should load contracts successfully', async () => {
     const apiMock = { ...apiServiceMock, GET_Contracts: jest.fn().mockResolvedValue({ data: mockData }) };
     const service = createService(apiMock);
     await service.main();
@@ -34,7 +34,7 @@ describe('GetContractsService', () => {
     expect(service.loading.set).toHaveBeenLastCalledWith(false);
   });
 
-  it('debe manejar respuesta sin datos', async () => {
+  it('should handle response with no data', async () => {
     const apiMock = { ...apiServiceMock, GET_Contracts: jest.fn().mockResolvedValue({ data: null }) };
     const service = createService(apiMock);
     await service.main();
@@ -42,7 +42,7 @@ describe('GetContractsService', () => {
     expect(service.loading.set).toHaveBeenLastCalledWith(false);
   });
 
-  it('debe manejar respuesta undefined', async () => {
+  it('should handle undefined response', async () => {
     const apiMock = { ...apiServiceMock, GET_Contracts: jest.fn().mockResolvedValue(undefined) };
     const service = createService(apiMock);
     await service.main();
@@ -50,7 +50,7 @@ describe('GetContractsService', () => {
     expect(service.loading.set).toHaveBeenLastCalledWith(false);
   });
 
-  it('debe manejar errores de API', async () => {
+  it('should handle API errors', async () => {
     const apiMock = { ...apiServiceMock, GET_Contracts: jest.fn().mockRejectedValue(new Error('API Error')) };
     const service = createService(apiMock);
     await service.main();
@@ -58,7 +58,7 @@ describe('GetContractsService', () => {
     expect(service.loading.set).toHaveBeenLastCalledWith(false);
   });
 
-  it('debe ejecutar initialize correctamente', () => {
+  it('should execute initialize correctly', () => {
     const service = createService(apiServiceMock);
     const mainSpy = jest.spyOn(service, 'main').mockImplementation();
     service.initialize();

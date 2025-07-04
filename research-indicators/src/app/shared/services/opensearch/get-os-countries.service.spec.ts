@@ -24,7 +24,7 @@ describe('GetOsCountriesService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('update debe setear loading, llamar API y setear list correctamente', async () => {
+  it('update should set loading, call API and set list correctly', async () => {
     await service.update('test');
     expect(loadingMock.set).toHaveBeenCalledWith(true);
     expect(apiMock.GET_OpenSearchCountries).toHaveBeenCalledWith('test');
@@ -32,12 +32,12 @@ describe('GetOsCountriesService', () => {
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('update debe manejar errores correctamente', async () => {
+  it('update should handle errors correctly', async () => {
     apiMock.GET_OpenSearchCountries = jest.fn().mockRejectedValue(new Error('fail'));
     try {
       await service.update('test');
     } catch (error) {
-      // El error se propaga, pero loading.set(false) debe haberse ejecutado
+      // The error is propagated, but loading.set(false) should have been called
     }
     expect(loadingMock.set).toHaveBeenCalledWith(true);
     expect(loadingMock.set).toHaveBeenCalledWith(false);

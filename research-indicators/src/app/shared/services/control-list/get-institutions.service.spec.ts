@@ -166,7 +166,6 @@ describe('GetInstitutionsService', () => {
 
       // Act & Assert
       await expect(service.main()).rejects.toThrow('API Error');
-      // El loading debería seguir en true porque el error no se maneja en el servicio
       expect(service.loading()).toBe(true);
     });
 

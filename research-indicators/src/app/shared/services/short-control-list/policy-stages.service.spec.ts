@@ -19,7 +19,7 @@ describe('PolicyStagesService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('main debe setear loading y list correctamente', async () => {
+  it('main should set loading and list correctly', async () => {
     await service.main();
     expect(loadingMock.set).toHaveBeenCalledWith(true);
     expect(listMock.set).toHaveBeenCalledWith([
@@ -30,12 +30,11 @@ describe('PolicyStagesService', () => {
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main debe dejar loading en false aunque falle el set de list', async () => {
+  it('main should set loading to false even if list.set fails', async () => {
     listMock.set = jest.fn(() => {
       throw new Error('fail');
     });
     await expect(service.main()).rejects.toThrow('fail');
-    // loading.set(false) debe llamarse aunque falle list.set
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 });

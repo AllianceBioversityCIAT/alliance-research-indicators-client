@@ -29,7 +29,7 @@ describe('CapSharingDeliveryModalitiesService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('main debe setear loading, llamar API y setear list correctamente', async () => {
+  it('main should set loading, call API and set list correctly', async () => {
     await service.main();
     expect(loadingMock.set).toHaveBeenCalledWith(true);
     expect(apiMock.GET_DeliveryModalities).toHaveBeenCalled();
@@ -37,12 +37,12 @@ describe('CapSharingDeliveryModalitiesService', () => {
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main debe manejar errores correctamente', async () => {
+  it('main should handle errors correctly', async () => {
     apiMock.GET_DeliveryModalities = jest.fn().mockRejectedValue(new Error('fail'));
     try {
       await service.main();
     } catch (error) {
-      // El error se propaga, pero loading.set(false) debe haberse ejecutado
+      // The error is propagated, but loading.set(false) should have been called
     }
     expect(loadingMock.set).toHaveBeenCalledWith(true);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
