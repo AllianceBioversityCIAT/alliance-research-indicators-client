@@ -14,14 +14,26 @@ export class GetResultsService {
   }
   updateList = async () => {
     this.loading.set(true);
-    this.results.set((await this.api.GET_Results({})).data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_Results({});
+      const data = Array.isArray(response?.data) ? response.data : [];
+      this.results.set(data);
+    } catch {
+      this.results.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   };
 
   getInstance = async (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<WritableSignal<Result[]>> => {
     const newSignal = signal<Result[]>([]);
-    const response = await this.api.GET_Results(resultFilter, resultConfig);
-    newSignal.set(response.data);
+    try {
+      const response = await this.api.GET_Results(resultFilter, resultConfig);
+      const data = Array.isArray(response?.data) ? response.data : [];
+      newSignal.set(data);
+    } catch {
+      newSignal.set([]);
+    }
     return newSignal;
   };
 }
