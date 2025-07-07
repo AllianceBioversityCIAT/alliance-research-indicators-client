@@ -24,7 +24,6 @@ export class ActionsService {
   constructor() {
     this.validateToken();
     this.listenToWindowHeight();
-    this.api.GET_AreVersionsEquals();
   }
 
   saveCurrentSection() {

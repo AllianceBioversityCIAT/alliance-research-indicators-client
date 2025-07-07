@@ -459,13 +459,8 @@ export class ApiService {
     return this.TP.patch(url(), body);
   };
 
-  GET_AreVersionsEquals = async () => {
-    const githubVersion = (await this.TP.get('', { isAuth: environment.packageJsonUrl })) as unknown as { version: string };
-    const frontVersion = (await this.TP.get('', { isAuth: environment.frontBaseUrl + 'config/version.json' })) as unknown as {
-      version: string;
-    };
-
-    const areVersionsEquals = githubVersion.version === frontVersion.version;
+  GET_GithubVersion = () => {
+    return this.TP.get('', { isAuth: environment.packageJsonUrl });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
