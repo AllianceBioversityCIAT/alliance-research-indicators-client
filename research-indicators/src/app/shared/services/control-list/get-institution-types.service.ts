@@ -18,7 +18,8 @@ export class GetInstitutionTypesService {
   async main() {
     this.loading.set(true);
     const response = await this.apiService.GET_SubInstitutionTypes(1);
-    this.list.set(response.data);
+    const data = Array.isArray(response?.data) ? response.data : [];
+    this.list.set(data);
     this.loading.set(false);
   }
 }
