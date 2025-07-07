@@ -51,6 +51,7 @@ import { GetVersions } from '@shared/interfaces/get-versions.interface';
 import { AskForHelp } from '../components/all-modals/modals-content/ask-for-help-modal/interfaces/ask-for-help.interface';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { HttpParams } from '@angular/common/http';
+import { PackageJson } from '@shared/interfaces/package-json.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -457,6 +458,11 @@ export class ApiService {
   PATCH_Feedback = (body: AskForHelp) => {
     const url = () => `reporting-feedback/send`;
     return this.TP.patch(url(), body);
+  };
+
+  // Get Package.json from GitHub
+  GET_PackageJson = (): Promise<MainResponse<PackageJson>> => {
+    return this.TP.get('', { isAuth: environment.packageJsonUrl });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
