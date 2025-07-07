@@ -15,7 +15,8 @@ export class GetOsGeoScopeService {
     this.loading.set(true);
     try {
       const response = await this.api.GET_GeoSearch(scope, search);
-      this.list.set(response.data);
+      const data = Array.isArray(response?.data) ? response.data : [];
+      this.list.set(data);
     } finally {
       this.loading.set(false);
     }
