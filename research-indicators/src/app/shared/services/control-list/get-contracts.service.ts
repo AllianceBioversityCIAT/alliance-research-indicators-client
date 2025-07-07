@@ -23,7 +23,7 @@ export class GetContractsService {
     try {
       const response = await this.api.GET_Contracts();
 
-      if (response?.data) {
+      if (response?.data && Array.isArray(response.data)) {
         this.list.set(response.data);
 
         this.list.update(current =>

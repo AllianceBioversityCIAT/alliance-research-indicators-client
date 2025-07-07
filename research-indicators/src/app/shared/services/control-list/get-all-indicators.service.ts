@@ -15,15 +15,26 @@ export class GetAllIndicatorsService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.apiService.GET_AllIndicators();
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.apiService.GET_AllIndicators();
+      const data = Array.isArray(response?.data) ? response.data : [];
+      this.list.set(data);
+    } catch {
+      this.list.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   getInstance = async (): Promise<WritableSignal<GetAllIndicators[]>> => {
     const newSignal = signal<GetAllIndicators[]>([]);
-    const response = await this.apiService.GET_AllIndicators();
-    newSignal.set(response.data);
+    try {
+      const response = await this.apiService.GET_AllIndicators();
+      const data = Array.isArray(response?.data) ? response.data : [];
+      newSignal.set(data);
+    } catch {
+      newSignal.set([]);
+    }
     return newSignal;
   };
 }

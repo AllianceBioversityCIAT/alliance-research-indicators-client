@@ -1,98 +1,172 @@
 import { TestBed } from '@angular/core/testing';
-
 import { GetResultsService } from './get-results.service';
 import { ResultFilter, ResultConfig, Result } from '@interfaces/result/result.interface';
-import { WritableSignal } from '@angular/core';
+import { ApiService } from '@services/api.service';
+import { signal } from '@angular/core';
 
 describe('GetResultsService', () => {
   let service: GetResultsService;
-  let apiMock: any;
-  let resultsMock: any;
-  let loadingMock: any;
-  let isOpenSearchMock: any;
+  let apiService: any;
+
+  const mockData = [
+    { id: 1, name: 'Result 1' },
+    { id: 2, name: 'Result 2' }
+  ];
 
   beforeEach(() => {
-    apiMock = {
-      GET_Results: jest.fn().mockResolvedValue({ data: [{ id: 1 }, { id: 2 }] })
+    apiService = {
+      GET_Results: jest.fn().mockResolvedValue({ data: mockData })
     };
-    resultsMock = Object.assign(() => [], { set: jest.fn() });
-    loadingMock = Object.assign(() => false, { set: jest.fn() });
-    isOpenSearchMock = Object.assign(() => false, { set: jest.fn() });
-    // Instancia sin constructor
-    service = Object.create(GetResultsService.prototype);
-    service.api = apiMock;
-    service.results = resultsMock;
-    service.loading = loadingMock;
-    service.isOpenSearch = isOpenSearchMock;
-    // Definir manualmente los métodos como funciones normales
-    service.updateList = async function () {
-      this.loading.set(true);
-      this.results.set((await this.api.GET_Results({})).data);
-      this.loading.set(false);
-    };
-    service.getInstance = async function (resultFilter: ResultFilter, resultConfig?: ResultConfig) {
-      const newSignal = Object.assign(() => [], { set: jest.fn() }) as unknown as WritableSignal<Result[]>;
-      const response = await this.api.GET_Results(resultFilter, resultConfig);
-      newSignal.set(response.data);
-      return newSignal;
-    };
+
+    TestBed.configureTestingModule({
+      providers: [GetResultsService, { provide: ApiService, useValue: apiService }]
+    });
+
+    service = TestBed.inject(GetResultsService);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
+  it('constructor llama updateList y setea valores iniciales', () => {
+    expect(service.results()).toEqual(mockData);
+    expect(service.loading()).toBe(false);
+    expect(service.isOpenSearch()).toBe(false);
+  });
+
   it('updateList setea loading y results correctamente', async () => {
     await service.updateList();
-    expect(loadingMock.set).toHaveBeenNthCalledWith(1, true);
-    expect(apiMock.GET_Results).toHaveBeenCalledWith({});
-    expect(resultsMock.set).toHaveBeenCalledWith([{ id: 1 }, { id: 2 }]);
-    expect(loadingMock.set).toHaveBeenNthCalledWith(2, false);
+    expect(apiService.GET_Results).toHaveBeenCalledWith({});
+    expect(service.results()).toEqual(mockData);
+    expect(service.loading()).toBe(false);
+  });
+
+  it('updateList maneja respuesta vacía', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: [] });
+    await service.updateList();
+    expect(service.results()).toEqual([]);
+    expect(service.loading()).toBe(false);
+  });
+
+  it('updateList maneja respuesta null', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: null });
+    await service.updateList();
+    expect(service.results()).toEqual([]);
+    expect(service.loading()).toBe(false);
+  });
+
+  it('updateList maneja respuesta undefined', async () => {
+    apiService.GET_Results.mockResolvedValueOnce(undefined);
+    await service.updateList();
+    expect(service.results()).toEqual([]);
+    expect(service.loading()).toBe(false);
+  });
+
+  it('updateList maneja respuesta sin data', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ status: 200 });
+    await service.updateList();
+    expect(service.results()).toEqual([]);
+    expect(service.loading()).toBe(false);
+  });
+
+  it('updateList maneja respuesta con data no array', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: 'not an array' });
+    await service.updateList();
+    expect(service.results()).toEqual([]);
+    expect(service.loading()).toBe(false);
+  });
+
+  it('updateList maneja respuesta con data como objeto', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: { id: 1 } });
+    await service.updateList();
+    expect(service.results()).toEqual([]);
+    expect(service.loading()).toBe(false);
   });
 
   it('getInstance retorna un signal con los datos', async () => {
-    const setFn = jest.fn();
-    const newSignal = Object.assign(() => [], { set: setFn }) as unknown as WritableSignal<Result[]>;
-    const origSignal = (global as any).signal;
-    (global as any).signal = () => newSignal;
     const filter: ResultFilter = {} as any;
     const config: ResultConfig = {} as any;
-    apiMock.GET_Results.mockResolvedValueOnce({ data: [{ id: 99 }] });
-    // Redefinir getInstance para usar el mock de signal
-    service.getInstance = async function (resultFilter: ResultFilter, resultConfig?: ResultConfig) {
-      const response = await this.api.GET_Results(resultFilter, resultConfig);
-      newSignal.set(response.data);
-      return newSignal;
-    };
+    apiService.GET_Results.mockResolvedValueOnce({ data: [{ id: 99 }] });
+
     const result = await service.getInstance(filter, config);
-    expect(apiMock.GET_Results).toHaveBeenCalledWith(filter, config);
-    expect(setFn).toHaveBeenCalledWith([{ id: 99 }]);
-    expect(result).toBe(newSignal);
-    (global as any).signal = origSignal;
+
+    expect(apiService.GET_Results).toHaveBeenCalledWith(filter, config);
+    expect(result()).toEqual([{ id: 99 }]);
   });
 
   it('getInstance funciona sin resultConfig', async () => {
-    const setFn = jest.fn();
-    const newSignal = Object.assign(() => [], { set: setFn }) as unknown as WritableSignal<Result[]>;
-    const origSignal = (global as any).signal;
-    (global as any).signal = () => newSignal;
     const filter: ResultFilter = {} as any;
-    apiMock.GET_Results.mockResolvedValueOnce({ data: [{ id: 77 }] });
-    service.getInstance = async function (resultFilter: ResultFilter, resultConfig?: ResultConfig) {
-      const response = await this.api.GET_Results(resultFilter, resultConfig);
-      newSignal.set(response.data);
-      return newSignal;
-    };
+    apiService.GET_Results.mockResolvedValueOnce({ data: [{ id: 77 }] });
+
     const result = await service.getInstance(filter);
-    expect(apiMock.GET_Results).toHaveBeenCalledWith(filter, undefined);
-    expect(setFn).toHaveBeenCalledWith([{ id: 77 }]);
-    expect(result).toBe(newSignal);
-    (global as any).signal = origSignal;
+
+    expect(apiService.GET_Results).toHaveBeenCalledWith(filter, undefined);
+    expect(result()).toEqual([{ id: 77 }]);
   });
 
-  it('results, loading, isOpenSearch signals iniciales', () => {
-    expect(service.results()).toEqual([]);
+  it('getInstance maneja respuesta vacía', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: [] });
+
+    const result = await service.getInstance({} as any);
+
+    expect(result()).toEqual([]);
+  });
+
+  it('getInstance maneja respuesta null', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: null });
+
+    const result = await service.getInstance({} as any);
+
+    expect(result()).toEqual([]);
+  });
+
+  it('getInstance maneja respuesta undefined', async () => {
+    apiService.GET_Results.mockResolvedValueOnce(undefined);
+
+    const result = await service.getInstance({} as any);
+
+    expect(result()).toEqual([]);
+  });
+
+  it('getInstance maneja respuesta sin data', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ status: 200 });
+
+    const result = await service.getInstance({} as any);
+
+    expect(result()).toEqual([]);
+  });
+
+  it('getInstance maneja respuesta con data no array', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: 'not an array' });
+
+    const result = await service.getInstance({} as any);
+
+    expect(result()).toEqual([]);
+  });
+
+  it('getInstance maneja respuesta con data como objeto', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: { id: 1 } });
+
+    const result = await service.getInstance({} as any);
+
+    expect(result()).toEqual([]);
+  });
+
+  it('updateList maneja error en la API', async () => {
+    apiService.GET_Results.mockRejectedValueOnce(new Error('API Error'));
+
+    await service.updateList();
+
     expect(service.loading()).toBe(false);
-    expect(service.isOpenSearch()).toBe(false);
+    expect(service.results()).toEqual([]);
+  });
+
+  it('getInstance maneja error en la API', async () => {
+    apiService.GET_Results.mockRejectedValueOnce(new Error('API Error'));
+
+    const result = await service.getInstance({} as any);
+
+    expect(result()).toEqual([]);
   });
 });

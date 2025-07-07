@@ -11,7 +11,17 @@ export class CacheService {
   //user
   isLoggedIn = signal(false);
   isValidatingToken = signal(false);
-  dataCache: WritableSignal<DataCache> = signal(localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data') ?? '') : {});
+  dataCache: WritableSignal<DataCache> = signal(
+    (() => {
+      const raw = localStorage.getItem('data');
+      if (!raw) return {};
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return {};
+      }
+    })()
+  );
   showMetadataPanel = signal(localStorage.getItem('showMetadataPanel') === 'true');
   currentSectionHeaderName = signal('');
   currentResultId: WritableSignal<number> = signal(0);
