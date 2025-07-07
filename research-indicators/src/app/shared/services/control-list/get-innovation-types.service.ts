@@ -18,7 +18,8 @@ export class GetInnovationTypesService {
   async main() {
     this.loading.set(true);
     const response = await this.apiService.GET_InnovationTypes();
-    this.list.set(response.data);
+    const data = Array.isArray(response?.data) ? response.data : [];
+    this.list.set(data);
     this.loading.set(false);
   }
 }

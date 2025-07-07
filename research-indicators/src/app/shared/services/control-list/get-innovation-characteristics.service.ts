@@ -17,8 +17,14 @@ export class GetInnovationCharacteristicsService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.apiService.GET_InnovationCharacteristics();
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.apiService.GET_InnovationCharacteristics();
+      const data = Array.isArray(response?.data) ? response.data : [];
+      this.list.set(data);
+    } catch {
+      this.list.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }
