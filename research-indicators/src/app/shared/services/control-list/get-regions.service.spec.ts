@@ -62,4 +62,56 @@ describe('GetRegionsService', () => {
   it('initial isOpenSearch signal', () => {
     expect(service.isOpenSearch()).toBe(false);
   });
+
+  it('main maneja respuesta vacía', async () => {
+    apiMock.GET_Regions.mockResolvedValueOnce({ data: [] });
+    await service.main();
+    expect(listMock.set).toHaveBeenCalledWith([]);
+    expect(loadingMock.set).toHaveBeenCalledWith(false);
+  });
+
+  it('main maneja respuesta null', async () => {
+    apiMock.GET_Regions.mockResolvedValueOnce({ data: null });
+    await service.main();
+    expect(listMock.set).toHaveBeenCalledWith([]);
+    expect(loadingMock.set).toHaveBeenCalledWith(false);
+  });
+
+  it('main maneja respuesta undefined', async () => {
+    apiMock.GET_Regions.mockResolvedValueOnce(undefined);
+    await service.main();
+    expect(listMock.set).toHaveBeenCalledWith([]);
+    expect(loadingMock.set).toHaveBeenCalledWith(false);
+  });
+
+  it('main maneja respuesta sin data', async () => {
+    apiMock.GET_Regions.mockResolvedValueOnce({ status: 200 });
+    await service.main();
+    expect(listMock.set).toHaveBeenCalledWith([]);
+    expect(loadingMock.set).toHaveBeenCalledWith(false);
+  });
+
+  it('main maneja error en la API', async () => {
+    apiMock.GET_Regions.mockRejectedValueOnce(new Error('API Error'));
+    await service.main();
+    expect(listMock.set).toHaveBeenCalledWith([]);
+    expect(loadingMock.set).toHaveBeenCalledWith(false);
+  });
+
+  it('constructor llama main y setea signals correctamente', async () => {
+    const apiService = {
+      GET_Regions: jest.fn().mockResolvedValue({
+        data: [{ um49Code: '003', name: 'Region 3' }]
+      })
+    };
+    TestBed.configureTestingModule({
+      providers: [GetRegionsService, { provide: require('./../api.service').ApiService, useValue: apiService }]
+    });
+    const realService = TestBed.inject(GetRegionsService);
+    // Esperar a que main termine
+    await new Promise(res => setTimeout(res, 0));
+    expect(realService.list()).toEqual([{ um49Code: '003', name: 'Region 3', region_id: '003', sub_national_id: '003' }]);
+    expect(realService.loading()).toBe(false);
+    expect(realService.isOpenSearch()).toBe(false);
+  });
 });
