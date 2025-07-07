@@ -253,12 +253,16 @@ describe('CacheService', () => {
     service.currentMetadata.set({ indicator_id: 1 });
     expect(service.currentResultIndicatorSectionPath()).toBe('capacity-sharing');
 
+    // Test indicator_id = 2
+    service.currentMetadata.set({ indicator_id: 2 });
+    expect(service.currentResultIndicatorSectionPath()).toBe('innovation-details');
+
     // Test indicator_id = 4
     service.currentMetadata.set({ indicator_id: 4 });
     expect(service.currentResultIndicatorSectionPath()).toBe('policy-change');
 
     // Test other indicator_id
-    service.currentMetadata.set({ indicator_id: 2 });
+    service.currentMetadata.set({ indicator_id: 3 });
     expect(service.currentResultIndicatorSectionPath()).toBe('');
 
     // Test with no indicator_id

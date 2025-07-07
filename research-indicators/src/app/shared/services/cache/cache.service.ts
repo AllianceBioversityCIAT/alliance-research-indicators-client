@@ -50,6 +50,8 @@ export class CacheService {
     switch (this.currentMetadata().indicator_id) {
       case 1:
         return 'capacity-sharing';
+      case 2:
+        return 'innovation-details';
       case 4:
         return 'policy-change';
       default:
