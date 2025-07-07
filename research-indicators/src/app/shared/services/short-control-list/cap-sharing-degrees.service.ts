@@ -17,7 +17,7 @@ export class CapSharingDegreesService {
     this.loading.set(true);
     try {
       const response = await this.api.GET_Degrees();
-      this.list.set(response.data);
+      this.list.set(response && 'data' in response ? response.data : []);
     } finally {
       this.loading.set(false);
     }
