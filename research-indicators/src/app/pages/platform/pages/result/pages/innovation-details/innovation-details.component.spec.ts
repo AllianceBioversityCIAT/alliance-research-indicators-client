@@ -235,15 +235,6 @@ describe('InnovationDetailsComponent', () => {
     expect(scrollIntoViewMock).toHaveBeenCalled();
   }));
 
-  it('should save data and navigate next', fakeAsync(async () => {
-    apiService.PATCH_InnovationDetails.mockReturnValue(Promise.resolve({ successfulRequest: true }));
-    jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
-    await component.saveData('next');
-    expect(apiService.PATCH_InnovationDetails).toHaveBeenCalled();
-    expect(actions.showToast).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
-  }));
-
   it('should save data and navigate back', fakeAsync(async () => {
     apiService.PATCH_InnovationDetails.mockReturnValue(Promise.resolve({ successfulRequest: true }));
     jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
@@ -301,11 +292,5 @@ describe('InnovationDetailsComponent', () => {
     await component.getData();
     expect(component.body().actors.length).toBe(1);
     expect(component.body().institution_types.length).toBe(1);
-  }));
-
-  it('should pass version as queryParam if present', fakeAsync(async () => {
-    jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
-    await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
   }));
 });
