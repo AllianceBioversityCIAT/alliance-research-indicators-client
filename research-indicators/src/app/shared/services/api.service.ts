@@ -51,7 +51,6 @@ import { GetVersions } from '@shared/interfaces/get-versions.interface';
 import { AskForHelp } from '../components/all-modals/modals-content/ask-for-help-modal/interfaces/ask-for-help.interface';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { HttpParams } from '@angular/common/http';
-import { PackageJson } from '@shared/interfaces/package-json.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -460,9 +459,13 @@ export class ApiService {
     return this.TP.patch(url(), body);
   };
 
-  // Get Package.json from GitHub
-  GET_PackageJson = (): Promise<MainResponse<PackageJson>> => {
-    return this.TP.get('', { isAuth: environment.packageJsonUrl });
+  GET_AreVersionsEquals = async () => {
+    const githubVersion = (await this.TP.get('', { isAuth: environment.packageJsonUrl })) as unknown as { version: string };
+    const frontVersion = (await this.TP.get('', { isAuth: environment.frontBaseUrl + 'config/version.json' })) as unknown as {
+      version: string;
+    };
+
+    const areVersionsEquals = githubVersion.version === frontVersion.version;
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

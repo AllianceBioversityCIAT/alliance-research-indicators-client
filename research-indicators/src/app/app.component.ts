@@ -19,15 +19,7 @@ export class AppComponent implements OnInit {
   cache = inject(CacheService);
   actions = inject(ActionsService);
   bugHerd = inject(BugHerdService);
-  api = inject(ApiService);
   title = 'research-indicators';
   name = environment.name;
   route = inject(ActivatedRoute);
-
-  async ngOnInit() {
-    const packageJsonResponse = await this.api.GET_PackageJson();
-    if (packageJsonResponse.successfulRequest) {
-      console.warn('Package.json data:', packageJsonResponse);
-    }
-  }
 }

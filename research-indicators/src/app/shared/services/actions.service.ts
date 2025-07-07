@@ -24,6 +24,7 @@ export class ActionsService {
   constructor() {
     this.validateToken();
     this.listenToWindowHeight();
+    this.api.GET_AreVersionsEquals();
   }
 
   saveCurrentSection() {
@@ -52,7 +53,7 @@ export class ActionsService {
     const [boldText, ...regularParts] = existingResult.split('-').map(s => s.trim());
 
     const detailHtml = `
-      ${initialText}: 
+      ${initialText}:
       <a href="${linkUrl}" target="_blank" class="alert-link-custom">
         <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
       </a>
