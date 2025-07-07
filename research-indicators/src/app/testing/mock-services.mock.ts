@@ -47,9 +47,7 @@ export const cacheServiceMock = {
     exp: 3600
   }),
   isLoggedIn: signal<boolean>(false),
-  currentMetadata: signal({
-    status_id: 5
-  }),
+  currentMetadata: jest.fn(() => ({ result_title: 'Test Title' })),
   currentResultId: signal(123),
   currentRouteTitle: jest.fn().mockReturnValue('Home'),
   showSectionHeaderActions: signal(false),
@@ -59,7 +57,8 @@ export const cacheServiceMock = {
   get: jest.fn(),
   set: jest.fn(),
   remove: jest.fn(),
-  clear: jest.fn()
+  clear: jest.fn(),
+  currentResultIsLoading: jest.fn().mockReturnValue(false)
 } as unknown as CacheService;
 
 const paramMapMock: ParamMap = {
@@ -501,7 +500,8 @@ export const apiServiceMock = {
   GET_SessionType: jest.fn().mockImplementation(() => Promise.resolve(mockSessionTypes)),
   login: jest.fn(),
   GET_SessionLength: jest.fn(),
-  GET_AllResultStatus: jest.fn()
+  GET_AllResultStatus: jest.fn(),
+  GET_IpOwners: jest.fn().mockResolvedValue({ data: [] })
 } as unknown as jest.Mocked<ApiService>;
 
 export const httpClientMock = {
