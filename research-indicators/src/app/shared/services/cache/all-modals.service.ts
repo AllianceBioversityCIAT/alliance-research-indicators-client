@@ -121,7 +121,7 @@ export class AllModalsService {
   }
 
   isAnyModalOpen(): boolean {
-    return Object.values(this.modalConfig()).some(value => value);
+    return Object.values(this.modalConfig()).some(value => value.isOpen);
   }
 
   closeAllModals(): void {
