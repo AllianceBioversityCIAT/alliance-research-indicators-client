@@ -54,6 +54,8 @@ import { GetInnovationDetails } from '@shared/interfaces/get-innovation-details.
 import { InnovationCharacteristic, InnovationLevel, InnovationType } from '@shared/interfaces/get-innovation.interface';
 import { ActorType } from '@shared/interfaces/get-actor-types.interface';
 import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-institutions-subtypes.interface';
+import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
+import { IssueCategory } from '../interfaces/issue-category.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -167,6 +169,22 @@ export class ApiService {
   POST_CreateResult = (result: AIAssistantResult): Promise<MainResponse<CreateResultResponse | ExtendedHttpErrorResponse>> => {
     const url = () => `results/ai/formalize`;
     return this.TP.post(url(), result, {});
+  };
+
+  // dynamo feedback
+  POST_DynamoFeedback = <T>(body: T): Promise<MainResponse<DynamoFeedback>> => {
+    const url = () => `dynamo-feedback/save-data`;
+    return this.TP.post(url(), body, {});
+  };
+
+  GET_DynamoFeedback = (): Promise<MainResponse<DynamoFeedback>> => {
+    const url = () => `dynamo-feedback/test-data`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IssueCategories = (): Promise<MainResponse<IssueCategory[]>> => {
+    const url = () => `issue-categories`;
+    return this.TP.get(url(), {});
   };
 
   // create partner request

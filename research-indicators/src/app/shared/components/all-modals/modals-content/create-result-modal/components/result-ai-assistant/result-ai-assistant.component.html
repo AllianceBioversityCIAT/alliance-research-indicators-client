@@ -8,7 +8,7 @@
     </div>
   }
 
-  <section class="mx-auto w-full result-ai-container flex flex-col gap-6 justify-start rounded-b-[27px] px-14 py-6 lg:py-12 xl:py-12">
+  <section class="mx-auto w-full container flex flex-col gap-6 justify-start min-h-[450px] rounded-b-[27px] px-14 py-6 xl:pt-12 xl:pb-20">
     @if (!analyzingDocument() && !documentAnalyzed() && !noResults()) {
       <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[14px] font-[700] flex text-[#173F6F]">
@@ -121,7 +121,7 @@
 
             <p class="text-[14px] font-[400] text-[#4C5158]">Select the ones you want to create.</p>
           </div>
-          <div class="flex justify-end items-center hidden gap-2.5 mb-4 relative">
+          <div class="flex justify-end items-center gap-2.5 mb-4 relative">
             <span class="text-[12px] font-[400] px-2 text-[#8D9299]">Was this response helpful?</span>
             <button
               dropdown-button
@@ -157,18 +157,18 @@
                       <div class="flex flex-wrap gap-2">
                         <button
                           class="bg-[#F4F7F9] border-1 px-2 py-1 !rounded-[10px] text-[#1689CA] text-[13px] font-[400] {{
-                            selectedType === type ? ' font-[500] border-[#1689CA]' : 'border-[#E8EBED]'
+                            selectedType === type.id.toString() ? ' font-[500] border-[#1689CA]' : 'border-[#E8EBED]'
                           }}"
                           *ngFor="let type of badTypes"
-                          (click)="selectType(type)">
-                          {{ type }}
+                          (click)="selectType(type.id.toString())">
+                          {{ type.name }}
                         </button>
                       </div>
                     </div>
                   }
                   <div class="mb-4">
                     <span class="block text-[12px] text-[#153C71] font-[500] font-[space_grotesk] mb-1">Feedback details</span>
-                    <app-textarea [styleClass]="'!text-[12px]'" [rows]="3" [signal]="this.body" [optionValue]="'description'"></app-textarea>
+                    <app-textarea [styleClass]="'!text-[12px]'" [rows]="3" [signal]="this.body" [optionValue]="'feedbackText'"></app-textarea>
                   </div>
                   <div class="flex gap-2">
                     <p-button
