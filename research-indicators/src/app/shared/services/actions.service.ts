@@ -168,7 +168,7 @@ export class ActionsService {
             }
           })
           .catch(error => {
-            resolve(Promise.reject(error));
+            resolve(Promise.reject(new Error(error instanceof Error ? error.message : String(error))));
           });
       } else {
         // El token aún es válido (la comparación fue en UTC)

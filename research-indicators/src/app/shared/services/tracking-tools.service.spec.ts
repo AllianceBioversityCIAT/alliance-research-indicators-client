@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import { of } from 'rxjs';
 
 import { TrackingToolsService } from './tracking-tools.service';
 
@@ -61,6 +63,17 @@ describe('TrackingToolsService', () => {
   it('should be created', () => {
     const service = createService();
     expect(service).toBeTruthy();
+  });
+
+  it('should assign all injected dependencies in constructor', () => {
+    const service = createService();
+    expect(service.cache).toBeDefined();
+    expect(service.clarity).toBeDefined();
+    expect(service.hotjar).toBeDefined();
+    expect(service.bugherd).toBeDefined();
+    expect(service.googleAnalytics).toBeDefined();
+    expect(service.route).toBeDefined();
+    expect(service['router']).toBeDefined();
   });
 
   it('init calls initAllTools and subscribes to navigation events', async () => {
@@ -185,5 +198,29 @@ describe('TrackingToolsService', () => {
     expect(service.hotjar.updateState).toHaveBeenCalledWith('/url');
     expect(service.clarity.updateState).toHaveBeenCalledWith('/url');
     expect(service.googleAnalytics.updateState).toHaveBeenCalledWith('/url');
+  });
+
+  it('should cover inject assignments with TestBed', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        TrackingToolsService,
+        { provide: 'CacheService', useValue: cacheMock },
+        { provide: 'ClarityService', useValue: clarityMock },
+        { provide: 'HotjarService', useValue: hotjarMock },
+        { provide: 'BugHerdService', useValue: bugherdMock },
+        { provide: 'GoogleAnalyticsService', useValue: googleAnalyticsMock },
+        { provide: ActivatedRoute, useValue: createRouteMock() },
+        { provide: Router, useValue: { events: { pipe: jest.fn(() => ({ subscribe: jest.fn() })) } } }
+      ]
+    });
+    const service = TestBed.inject(TrackingToolsService);
+    expect(service).toBeTruthy();
+    expect(service.cache).toBeDefined();
+    expect(service.clarity).toBeDefined();
+    expect(service.hotjar).toBeDefined();
+    expect(service.bugherd).toBeDefined();
+    expect(service.googleAnalytics).toBeDefined();
+    expect(service.route).toBeDefined();
+    expect(service['router']).toBeDefined();
   });
 });
