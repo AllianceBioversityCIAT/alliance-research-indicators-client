@@ -518,7 +518,9 @@ export class ApiService {
   };
 
   GET_GithubVersion = () => {
-    return this.TP.get('', { isAuth: environment.frontVersionUrl });
+    const timestamp = new Date().getTime();
+    const urlWithTimestamp = `${environment.frontVersionUrl}?t=${timestamp}`;
+    return this.TP.get('', { isAuth: urlWithTimestamp });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
