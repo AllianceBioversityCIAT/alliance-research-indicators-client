@@ -27,6 +27,16 @@
         "maxSize": 100,
         "maxAge": "1d"
       }
+    },
+    {
+      "name": "dynamic-data",
+      "urls": ["AllianceBioversityCIAT/alliance-research-indicators-client/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 10,
+        "maxAge": "0s",
+        "timeout": "1s"
+      }
     }
   ]
 }
