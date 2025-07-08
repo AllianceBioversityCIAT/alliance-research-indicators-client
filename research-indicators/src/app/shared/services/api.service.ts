@@ -518,7 +518,7 @@ export class ApiService {
   };
 
   GET_GithubVersion = () => {
-    return this.TP.get('', { isAuth: environment.packageJsonUrl });
+    return this.TP.get('', { isAuth: environment.frontVersionUrl });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
