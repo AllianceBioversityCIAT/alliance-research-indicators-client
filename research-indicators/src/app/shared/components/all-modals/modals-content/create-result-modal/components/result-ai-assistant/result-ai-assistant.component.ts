@@ -21,6 +21,10 @@ import { TextareaComponent } from '@shared/components/custom-fields/textarea/tex
 import { ApiService } from '@shared/services/api.service';
 import { IssueCategory } from '@shared/interfaces/issue-category.interface';
 
+export interface TextMiningResponse {
+  text: string;
+}
+
 GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 @Component({
@@ -52,7 +56,7 @@ export class ResultAiAssistantComponent {
   fileManagerService = inject(FileManagerService);
   textMiningService = inject(TextMiningService);
   cache = inject(CacheService);
-  miningResponse: any;
+  miningResponse: TextMiningResponse[] = [];
   badTypes: IssueCategory[] = [];
   activeIndex = signal(0);
 
