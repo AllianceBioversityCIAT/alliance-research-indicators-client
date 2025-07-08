@@ -153,18 +153,23 @@ export class ActionsService {
 
       // Comparamos directamente ya que ambos están en UTC
       if (this.isCacheEmpty() || tokenExp < currentTimeInSeconds) {
-        this.api.refreshToken(this.cache.dataCache().refresh_token).then(response => {
-          if (response.successfulRequest) {
-            this.updateLocalStorage(response, true);
-            resolve({ token_data: response.data, isTokenExpired: true });
-          } else {
-            this.cache.isLoggedIn.set(false);
-            this.cache.dataCache.set(new DataCache());
-            localStorage.removeItem('data');
-            this.router.navigate(['/']);
-            resolve({ token_data: response.data, isTokenExpired: true });
-          }
-        });
+        this.api
+          .refreshToken(this.cache.dataCache().refresh_token)
+          .then(response => {
+            if (response.successfulRequest) {
+              this.updateLocalStorage(response, true);
+              resolve({ token_data: response.data, isTokenExpired: true });
+            } else {
+              this.cache.isLoggedIn.set(false);
+              this.cache.dataCache.set(new DataCache());
+              localStorage.removeItem('data');
+              this.router.navigate(['/']);
+              resolve({ token_data: response.data, isTokenExpired: true });
+            }
+          })
+          .catch(error => {
+            resolve(Promise.reject(error));
+          });
       } else {
         // El token aún es válido (la comparación fue en UTC)
         resolve({ isTokenExpired: false });
