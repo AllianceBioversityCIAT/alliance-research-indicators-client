@@ -1,14 +1,15 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { GetLevers } from '../../interfaces/get-levers.interface';
+import { InnovationType } from '@shared/interfaces/get-innovation.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GetLeversService {
+export class GetInnovationTypesService {
   apiService = inject(ApiService);
   loading = signal(true);
-  list = signal<GetLevers[]>([]);
+
+  list = signal<InnovationType[]>([]);
   isOpenSearch = signal(false);
   constructor() {
     this.main();
@@ -16,9 +17,9 @@ export class GetLeversService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.apiService.GET_Levers();
-    this.list.set(response.data);
-    this.list.update(current => current.map(item => ({ ...item, lever_id: item.id })));
+    const response = await this.apiService.GET_InnovationTypes();
+    const data = Array.isArray(response?.data) ? response.data : [];
+    this.list.set(data);
     this.loading.set(false);
   }
 }

@@ -105,12 +105,11 @@ export class MyLatestResultsComponent implements OnInit {
     }
   }
 
-
-  
   calculateProgressFor(result: LatestResult): number {
+    if (!result) return 0;
     const greenChecks = this.greenChecksByResult()[result.result_official_code];
     if (!greenChecks) return 0;
-
+    if (!result.indicator) return 0;
     const indicatorId = result.indicator.indicator_id;
 
     const steps = [
@@ -131,6 +130,6 @@ export class MyLatestResultsComponent implements OnInit {
 
   getStatusColor(result: LatestResult) {
     const statusId = String(result.result_status?.result_status_id ?? '');
-    return STATUS_COLOR_MAP[statusId].text || STATUS_COLOR_MAP[''];
+    return STATUS_COLOR_MAP[statusId]?.text || STATUS_COLOR_MAP[''].text;
   }
 }

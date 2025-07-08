@@ -1,15 +1,34 @@
-import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
-import { TextareaComponent } from '../../../../../../../../shared/components/custom-fields/textarea/textarea.component';
+import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Evidence, PatchResultEvidences } from '../../../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { InputTextModule } from 'primeng/inputtext';
 import { SubmissionService } from '@shared/services/submission.service';
 import { CheckboxModule } from 'primeng/checkbox';
+import { TextareaModule } from 'primeng/textarea';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-evidence-item',
-  imports: [TextareaComponent, CheckboxModule, FormsModule, InputTextModule],
-  templateUrl: './evidence-item.component.html'
+  standalone: true,
+  imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, NgTemplateOutlet],
+  templateUrl: './evidence-item.component.html',
+  encapsulation: ViewEncapsulation.None,
+  styles: [
+    `
+      app-evidence-item input:-webkit-autofill,
+      app-evidence-item input:-webkit-autofill:hover,
+      app-evidence-item input:-webkit-autofill:focus,
+      app-evidence-item input:-webkit-autofill:active {
+        -webkit-text-fill-color: #1689ca !important;
+        -webkit-box-shadow: 0 0 0 30px white inset !important;
+        transition: background-color 5000s ease-in-out 0s;
+      }
+
+      app-evidence-item input {
+        color: #1689ca !important;
+      }
+    `
+  ]
 })
 export class EvidenceItemComponent implements OnInit {
   @Output() deleteEvidenceEvent = new EventEmitter();
@@ -20,6 +39,7 @@ export class EvidenceItemComponent implements OnInit {
   body = signal<Evidence>(new Evidence());
   submission = inject(SubmissionService);
   isPrivate = false;
+  private updateTimeout: ReturnType<typeof setTimeout> | undefined;
 
   syncBody = effect(() => {
     if (this.index === null) return;
@@ -42,7 +62,6 @@ export class EvidenceItemComponent implements OnInit {
           body.evidence = [];
         }
 
-        // Ensure array has enough elements
         while (body.evidence.length <= this.index!) {
           body.evidence.push(new Evidence());
         }
@@ -69,6 +88,10 @@ export class EvidenceItemComponent implements OnInit {
     this.deleteEvidenceEvent.emit();
   }
 
+  get isDescriptionMissing(): boolean {
+    return !this.body()?.evidence_description;
+  }
+
   validateWebsite = (website: string): boolean => {
     if (!website || website.trim() === '') {
       return true;
@@ -83,10 +106,19 @@ export class EvidenceItemComponent implements OnInit {
   }
 
   setValue(value: string) {
-    value = value.toLowerCase();
-    this.body.set({
-      ...this.body(),
-      evidence_url: value
-    });
+    if (this.updateTimeout) {
+      clearTimeout(this.updateTimeout);
+    }
+
+    const lowerCaseValue = value.toLowerCase();
+
+    this.updateTimeout = setTimeout(() => {
+      if (this.body().evidence_url !== lowerCaseValue) {
+        this.body.set({
+          ...this.body(),
+          evidence_url: lowerCaseValue
+        });
+      }
+    }, 300);
   }
 }

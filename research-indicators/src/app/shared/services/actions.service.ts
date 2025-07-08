@@ -9,6 +9,7 @@ import { DataCache } from '../interfaces/cache.interface';
 import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
+import { ServiceLocatorService } from './service-locator.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,7 @@ export class ActionsService {
   cache = inject(CacheService);
   router = inject(Router);
   api = inject(ApiService);
+  serviceLocator = inject(ServiceLocatorService);
   toastMessage = signal<ToastMessage>({ severity: 'info', summary: '', detail: '' });
   saveCurrentSectionValue = signal(false);
   globalAlertsStatus = signal<GlobalAlert[]>([]);
@@ -76,6 +78,9 @@ export class ActionsService {
   }
 
   showGlobalAlert(globalAlert: GlobalAlert) {
+    if (globalAlert.serviceName) {
+      this.serviceLocator.clearService(globalAlert.serviceName);
+    }
     this.globalAlertsStatus.update(prev => [...prev, globalAlert]);
   }
 

@@ -23,6 +23,7 @@ export class TextareaComponent {
   @Input() isRequired = false;
   @Input() disabled = false;
   @Input() rows = 10;
+  @Input() styleClass = '';
 
   body = signal({ value: null });
 

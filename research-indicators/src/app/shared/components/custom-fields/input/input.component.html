@@ -27,6 +27,7 @@
           [disabled]="disabled"
           [(ngModel)]="this.body().value"
           [autocomplete]="autoComplete"
+          (keydown)="shouldPreventInput($event, body().value || null) ? $event.preventDefault() : null"
           (ngModelChange)="setValue($event)" />
       } @else if (type === 'number') {
         <p-inputNumber
@@ -45,6 +46,7 @@
           <small class="text-[#8D9299] text-[14px]" for="username">{{ helperText }}</small>
         </div>
       }
+
       @if (!this.inputValid().valid) {
         @if (isInvalid()) {
           <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">

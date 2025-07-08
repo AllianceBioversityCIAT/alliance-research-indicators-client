@@ -16,12 +16,15 @@ export class GetUserStaffService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_UserStaff();
-    response.data.forEach(item => {
-      item.full_name = `${item.last_name}, ${item.first_name}  - ${item.email}`;
-      item.user_id = item.carnet;
-    });
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_UserStaff();
+      response.data.forEach(item => {
+        item.full_name = `${item.last_name}, ${item.first_name}  - ${item.email}`;
+        item.user_id = item.carnet;
+      });
+      this.list.set(response.data);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

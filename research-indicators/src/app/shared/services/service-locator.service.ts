@@ -1,6 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
 import { GetContractsService } from './control-list/get-contracts.service';
-import { GetLeversService } from './control-list/get-levers.service';
 import { GetInstitutionsService } from './control-list/get-institutions.service';
 import { ControlListServices } from '../interfaces/services.interface';
 import { GetUserStaffService } from './control-list/get-user-staff.service';
@@ -33,6 +32,12 @@ import { GetClarisaInstitutionsTypesService } from './get-clarisa-institutions-t
 import { IpOwnerService } from './short-control-list/ip-owner.service';
 import { GetYearsService } from './control-list/get-years.service';
 import { GetYearsByCodeService } from './control-list/get-years-by-code.service';
+import { GetInnovationTypesService } from './control-list/get-innovation-types.service';
+import { GetInnovationCharacteristicsService } from './control-list/get-innovation-characteristics.service';
+import { GetInnovationReadinessLevelsService } from './control-list/get-innovation-readiness-levels.service';
+import { GetAnticipatedUsersService } from './short-control-list/get-anticipated-users.service';
+import { GetActorTypesService } from './control-list/get-actor-types.service';
+import { GetInstitutionTypesService } from './control-list/get-institution-types.service';
 
 @Injectable({
   providedIn: 'root'
@@ -50,12 +55,34 @@ export class ServiceLocatorService {
     );
   }
 
+  clearService(serviceName: ControlListServices) {
+    const service = this.getService(serviceName);
+    if (service) {
+      if (typeof (service as { list?: unknown }).list !== 'undefined') {
+        (service as { list: { set: (v: unknown[]) => void } }).list.set([]);
+      }
+      if (typeof (service as { main?: () => void }).main === 'function') {
+        (service as { main: () => void }).main();
+      }
+    }
+  }
+
   private getPrimaryServices(serviceName: ControlListServices) {
     switch (serviceName) {
+      case 'actorTypes':
+        return this.injector.get(GetActorTypesService);
+      case 'institutionTypes':
+        return this.injector.get(GetInstitutionTypesService);
+      case 'anticipatedUsers':
+        return this.injector.get(GetAnticipatedUsersService);
+      case 'innovationTypes':
+        return this.injector.get(GetInnovationTypesService);
+      case 'innovationCharacteristics':
+        return this.injector.get(GetInnovationCharacteristicsService);
+      case 'innovationReadinessLevels':
+        return this.injector.get(GetInnovationReadinessLevelsService);
       case 'contracts':
         return this.injector.get(GetContractsService);
-      case 'levers':
-        return this.injector.get(GetLeversService);
       case 'institutions':
         return this.injector.get(GetInstitutionsService);
       case 'userStaff':

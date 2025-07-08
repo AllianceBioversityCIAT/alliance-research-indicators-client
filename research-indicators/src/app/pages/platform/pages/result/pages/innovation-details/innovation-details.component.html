@@ -1,0 +1,235 @@
+<div class="app-page-wrapper">
+  <app-form-header />
+  <div class="flex flex-col gap-5">
+    <!-- Innovation Details -->
+    <div class="flex flex-col bg-[#fcfcfc] gap-[18px] rounded-[10px] p-[30px] pb-4 mb-2">
+      <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[12px] mt-0">INNOVATIONS DETAILS</div>
+      <app-input
+        label="Short title"
+        [signal]="body"
+        helperText="Max. 10 words"
+        [isRequired]="true"
+        optionValue="short_title"
+        [disabled]="!submission.isEditableStatus()"
+        type="text"></app-input>
+
+      <app-select
+        label="Innovation nature"
+        [disabled]="!submission.isEditableStatus()"
+        placeholder="Select an option"
+        [signal]="body"
+        [scrollHeight]="'190px'"
+        [isRequired]="true"
+        [optionLabel]="'name'"
+        [optionValue]="{ body: 'innovation_nature_id', option: 'id' }"
+        [serviceName]="'innovationCharacteristics'">
+        <ng-template #itemTemplate let-item>
+          <div class="flex items-center block whitespace-normal break-words">
+            <p class="text-[#4C5158] text-[15px] font-[400]">
+              <b>{{ item?.name }} -</b>
+              {{ item?.definition }}
+            </p>
+          </div>
+        </ng-template>
+        <ng-template #selectedItemTemplate let-selected>
+          <div class="flex items-center block whitespace-normal !text-[16px] break-words">
+            <p class="text-[#4C5158] font-[400]">
+              <b>{{ selected?.name }} -</b>
+              {{ selected?.definition }}
+            </p>
+          </div>
+        </ng-template>
+      </app-select>
+
+      <app-select
+        label="Innovation type"
+        [disabled]="!submission.isEditableStatus()"
+        placeholder="Select an option"
+        [signal]="body"
+        [isRequired]="true"
+        [scrollHeight]="'240px'"
+        [optionLabel]="'name'"
+        [optionValue]="{ body: 'innovation_type_id', option: 'code' }"
+        [serviceName]="'innovationTypes'">
+        <ng-template #itemTemplate let-item>
+          <div class="flex items-center block whitespace-normal break-words">
+            <p class="text-[#4C5158] text-[15px] font-[400]">
+              <b>{{ item?.name }} -</b>
+              {{ item?.definition }}
+            </p>
+          </div>
+        </ng-template>
+        <ng-template #selectedItemTemplate let-selected>
+          <div class="flex items-center block whitespace-normal text-[16px] break-words">
+            <p class="text-[#4C5158] font-[400]">
+              <b>{{ selected?.name }} -</b>
+              {{ selected?.definition }}
+            </p>
+          </div>
+        </ng-template>
+      </app-select>
+
+      <label class="label inline-block flex items-center" for="username">
+        How would you assess the current readiness of this innovation?
+        <span class="text-red-500">*</span>
+      </label>
+
+      <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5">
+        <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
+        <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+          At the output level, a single readiness score is given for the innovation, irrespective of the specific geo-location where the innovation is
+          being designed, tested and/or scaled. for example, if it is level 7 in Kenya, level 3 in Peru and level 5 in India, only the highest score
+          for the generic rank is retained. If you need help, use the
+          <a
+            href="https://www.scalingreadiness.org/calculator-readiness-headless/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[#1689CA] cursor-pointer underline">
+            Scaling Readiness Calculator</a
+          >
+          for guidance.
+        </h3>
+      </div>
+
+      @if (selectedStep() === null) {
+        <div class="flex items-center gap-1 -mt-2 text-[#E69F00]">
+          <i class="material-symbols-rounded !text-[14px]">warning</i>
+          <span class="!text-[14px]">This field is required</span>
+        </div>
+      }
+
+      <div class="flex items-center justify-between w-full max-w-4xl mx-auto mt-3 xl:px-5 select-none">
+        @for (n of stepNumbers; track $index) {
+          <div class="flex flex-col items-center">
+            <button
+              pButton
+              type="button"
+              class="!rounded-full !border-2 !font-['Space_Grotesk'] !border-[#1689CA] !text-[16px] !w-8 !h-8 !flex !items-center !justify-center !text-lg !font-[400] transition-all duration-200
+                    {{ selectedStep() === n ? '!bg-[#1689CA] !text-white' : '!bg-white !text-[#1689CA]' }}"
+              (click)="selectStep(n)"
+              [pTooltip]="getStepTooltip(n)"
+              escape="false"
+              tooltipPosition="top"
+              [attr.aria-label]="'Seleccionar nivel ' + n">
+              {{ n }}
+            </button>
+            @if (selectedStep() === n) {
+              <div class="w-0.5 h-10 bg-[#1689CA]"></div>
+            }
+          </div>
+          @if (n < 9) {
+            <div class="flex-1 h-[2.5px] !bg-[#E8EBED]" style="min-width: 24px"></div>
+          }
+        }
+      </div>
+
+      @if (selectedStep() !== null && selectedLevel) {
+        <div class="flex bg-[#F4F7F9] border-3 rounded-lg border-[#1689CA] flex-col -mt-4.5 p-5 mb-2">
+          <h3 class="text-[#4C5158] font-['Barlow'] text-[14px] leading-[17px] font-bold pb-2">
+            {{ selectedLevel.level }} - {{ selectedLevel.name }}
+          </h3>
+          <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px]">
+            {{ selectedLevel.definition }}
+          </h3>
+        </div>
+      }
+
+      <app-radio-button
+        label="Who would be the anticipated user(s) of this Innovation?"
+        [isRequired]="true"
+        [signal]="body"
+        direction="horizontal"
+        [disabled]="!submission.isEditableStatus()"
+        [serviceName]="'anticipatedUsers'"
+        [optionLabel]="'name'"
+        (change)="onAnticipatedUsersChange()"
+        [optionValue]="{ body: 'anticipated_users_id', option: 'value' }"></app-radio-button>
+      <div id="anticipated-section" class="-mt-4.5 h-0"></div>
+    </div>
+    <!-- Anticipated Users -->
+    @if (body().anticipated_users_id === 2) {
+      <div id="anticipated-section" class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-6">
+        <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">ANTICIPATED USERS</div>
+        <div class="flex flex-col gap-[18px]">
+          <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold">Actors</span>
+          <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5">
+            <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
+            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+              In the context of One CGIAR, youth are those between 15 and 24 years old, considered key to innovation and transformation in
+              agricultural systems. If applicable, optionally report the number of users who are currently making use of the innovation.
+            </h3>
+          </div>
+
+          @for (actor of body().actors; track $index) {
+            <app-actor-item
+              [actor]="actor"
+              [bodySignal]="body"
+              [index]="$index"
+              [actorNumber]="$index + 1"
+              (deleteActorEvent)="deleteActor($index)"></app-actor-item>
+          }
+          @if (submission.isEditableStatus()) {
+            <div class="flex w-full">
+              <button
+                type="button"
+                (click)="addActor()"
+                class="flex cursor-pointer w-full items-center gap-2 border-2 justify-center font-medium border-[#1689CA] text-[#1689CA] px-4 py-3 rounded-[7px] text-[15px]">
+                Add other actor
+                <i class="pi pi-plus !text-[12px]"></i>
+              </button>
+            </div>
+          }
+
+          <span class="text-[#1689CA] text-[16px] leading-[17px] pt-3 font-semibold">Organizations</span>
+
+          @for (organization of body().institution_types; track $index) {
+            <app-organization-item
+              [organization]="organization"
+              [bodySignal]="body"
+              [index]="$index"
+              [organizationNumber]="$index + 1"
+              (deleteOrganizationEvent)="deleteInstitutionType($index)"></app-organization-item>
+          }
+
+          @if (submission.isEditableStatus()) {
+            <div class="flex w-full">
+              <button
+                type="button"
+                (click)="addInstitutionType()"
+                class="flex cursor-pointer w-full items-center gap-2 border-2 justify-center font-medium border-[#1689CA] text-[#1689CA] px-4 py-3 rounded-[7px] text-[15px]">
+                Add other organization
+                <i class="pi pi-plus !text-[12px]"></i>
+              </button>
+            </div>
+          }
+
+          <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5 mt-4 mb-3">
+            <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
+            <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+              Is the innovation compatible with local needs, circumstances and preferences of the communities? Are there additional, complementary
+              solutions necessary to allow for use of the innovation?
+            </h3>
+          </div>
+
+          <app-textarea
+            [isRequired]="true"
+            [disabled]="!submission.isEditableStatus()"
+            [rows]="5"
+            label="Please elaborate on the intended beneficiaries/users. Who is likely to benefit?"
+            [signal]="this.body"
+            [optionValue]="'intended_beneficiaries_description'"></app-textarea>
+
+          <app-textarea
+            class="-mt-2"
+            [isRequired]="true"
+            [disabled]="!submission.isEditableStatus()"
+            [rows]="5"
+            label="Expected outcomes"
+            [signal]="this.body"
+            [optionValue]="'expected_outcome'"></app-textarea>
+        </div>
+      </div>
+    }
+    <app-navigation-buttons (back)="saveData('back')" (next)="saveData('next')" (save)="saveData()" />
+  </div>
+</div>

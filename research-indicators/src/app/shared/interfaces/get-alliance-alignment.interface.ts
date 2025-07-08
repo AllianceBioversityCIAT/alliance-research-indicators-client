@@ -1,15 +1,5 @@
 export interface GetAllianceAlignment {
   contracts: Contract[];
-  levers: Lever[];
-}
-
-interface Lever {
-  is_active: boolean;
-  result_lever_id: number;
-  result_id: number;
-  lever_id: number;
-  lever_role_id: number;
-  is_primary: boolean;
 }
 
 interface Contract {

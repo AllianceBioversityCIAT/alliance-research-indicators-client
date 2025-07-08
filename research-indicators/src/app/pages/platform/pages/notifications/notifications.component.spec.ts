@@ -20,4 +20,13 @@ describe('NotificationsComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should set selectedFilter to the provided value', () => {
+    component.selectFilter('read');
+    expect(component.selectedFilter).toBe('read');
+    component.selectFilter('all');
+    expect(component.selectedFilter).toBe('all');
+    component.selectFilter('unread');
+    expect(component.selectedFilter).toBe('unread');
+  });
 });

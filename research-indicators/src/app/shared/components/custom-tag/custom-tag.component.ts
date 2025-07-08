@@ -9,6 +9,7 @@ import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 export class CustomTagComponent {
   @Input() statusId: string | number = '';
   @Input() statusName = '';
+  @Input() tiny = false;
 
   getColors() {
     const status = String(this.statusId);

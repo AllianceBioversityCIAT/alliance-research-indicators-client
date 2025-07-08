@@ -17,10 +17,14 @@ export class GetCountriesService {
 
   async main(isSubNational = false) {
     this.loading.set(true);
-      const response = await this.api.GET_Countries(
-      isSubNational ? { 'is-sub-national': true } : {'is-sub-national': false}
-    );
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_Countries(isSubNational ? { 'is-sub-national': true } : { 'is-sub-national': false });
+      this.list.set(response.data);
+    } catch (e) {
+      console.error('Failed to fetch countries:', e);
+      this.list.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

@@ -17,12 +17,19 @@ import { GetContracts } from '@shared/interfaces/get-contracts.interface';
 import { Step } from '@shared/interfaces/step.interface';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
+import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
+import { ApiService } from '@shared/services/api.service';
+import { IssueCategory } from '@shared/interfaces/issue-category.interface';
+
+export interface TextMiningResponse {
+  text: string;
+}
 
 GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 @Component({
   selector: 'app-result-ai-assistant',
-  imports: [CommonModule, SharedResultFormComponent, ButtonModule, PaginatorModule, FormsModule, ResultAiItemComponent],
+  imports: [CommonModule, SharedResultFormComponent, ButtonModule, PaginatorModule, FormsModule, ResultAiItemComponent, TextareaComponent],
   templateUrl: './result-ai-assistant.component.html',
   styleUrl: './result-ai-assistant.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -41,6 +48,7 @@ export class ResultAiAssistantComponent {
   expandedItem = signal<AIAssistantResult | null>(null);
   getContractsService = inject(GetContractsService);
   filteredPrimaryContracts = signal<GetContracts[]>([]);
+  api = inject(ApiService);
   TP = inject(ToPromiseService);
   actions = inject(ActionsService);
   createResultManagementService = inject(CreateResultManagementService);
@@ -48,7 +56,8 @@ export class ResultAiAssistantComponent {
   fileManagerService = inject(FileManagerService);
   textMiningService = inject(TextMiningService);
   cache = inject(CacheService);
-
+  miningResponse: TextMiningResponse[] = [];
+  badTypes: IssueCategory[] = [];
   activeIndex = signal(0);
 
   steps = signal<Step[]>([
@@ -59,12 +68,15 @@ export class ResultAiAssistantComponent {
     { label: 'Generating response', completed: false, inProgress: false, progress: 0 }
   ]);
 
-  body = signal<{ contract_id: number | null }>({ contract_id: null });
+  body = signal<{ contract_id: number | null; feedbackText: string }>({ contract_id: null, feedbackText: '' });
   sharedFormValid = false;
   contractId: string | null = null;
 
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
+    this.api.GET_IssueCategories().then(res => {
+      this.badTypes = res.data;
+    });
   }
 
   onContractIdChange(newContractId: number | null) {
@@ -237,15 +249,15 @@ export class ResultAiAssistantComponent {
         throw new Error('No se pudo obtener el nombre del archivo subido.');
       }
 
-      const miningResponse = (await this.textMiningService.executeTextMining(filename)).content;
+      this.miningResponse = (await this.textMiningService.executeTextMining(filename)).content;
 
-      if (!miningResponse?.length) {
+      if (!this.miningResponse?.length) {
         this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
         return;
       }
 
       let combinedResults: AIAssistantResult[] = [];
-      for (const item of miningResponse) {
+      for (const item of this.miningResponse) {
         if (item?.text) {
           try {
             const parsedText = JSON.parse(item.text);
@@ -358,4 +370,59 @@ export class ResultAiAssistantComponent {
   getRandomInterval(): number {
     return Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
   }
+
+  showFeedbackPanel = signal(false);
+  feedbackType = signal<'good' | 'bad' | null>(null);
+  feedbackText = '';
+  selectedType = '';
+
+  toggleFeedback(type: 'good' | 'bad') {
+    if (this.showFeedbackPanel()) {
+      if (this.feedbackType() !== type) {
+        this.feedbackType.set(type);
+        this.feedbackText = '';
+        this.selectedType = '';
+      } else {
+        this.closeFeedbackPanel();
+      }
+    } else {
+      this.feedbackType.set(type);
+      this.showFeedbackPanel.set(true);
+      this.feedbackText = '';
+      this.selectedType = '';
+      setTimeout(() => {
+        document.addEventListener('click', this.handleOutsideClick);
+      });
+    }
+  }
+
+  closeFeedbackPanel() {
+    this.showFeedbackPanel.set(false);
+    this.feedbackType.set(null);
+    document.removeEventListener('click', this.handleOutsideClick);
+  }
+
+  selectType(type: string) {
+    this.selectedType = type;
+  }
+
+  submitFeedback() {
+    const body = {
+      user: this.cache.dataCache().user,
+      issueType: this.selectedType,
+      description: this.body().feedbackText,
+      feedbackType: this.feedbackType(),
+      text: this.miningResponse[0].text
+    };
+    this.api.POST_DynamoFeedback(body);
+    this.closeFeedbackPanel();
+  }
+
+  // Cierra el panel si se hace click fuera
+  handleOutsideClick = (event: MouseEvent) => {
+    const panel = document.querySelector('#feedbackPanelRef');
+    if (panel && !panel.contains(event.target as Node)) {
+      this.closeFeedbackPanel();
+    }
+  };
 }
