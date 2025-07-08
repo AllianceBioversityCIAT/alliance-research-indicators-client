@@ -424,7 +424,7 @@ export class ResultAiAssistantComponent {
     this.selectedType = type;
   }
 
-  submitFeedback() {
+  async submitFeedback() {
     const body = {
       user: this.cache.dataCache().user,
       issueType: this.selectedType,
@@ -432,7 +432,8 @@ export class ResultAiAssistantComponent {
       feedbackType: this.feedbackType(),
       text: this.miningResponse[0].text
     };
-    this.api.POST_DynamoFeedback(body);
+    await this.api.POST_DynamoFeedback(body);
+    this.actions.showToast({ severity: 'success', summary: 'Feedback', detail: 'Feedback sent successfully' });
     this.closeFeedbackPanel();
   }
 
