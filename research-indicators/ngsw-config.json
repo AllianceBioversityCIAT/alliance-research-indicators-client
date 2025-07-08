@@ -6,13 +6,7 @@
       "name": "app",
       "installMode": "prefetch",
       "resources": {
-        "files": [
-          "/favicon.ico",
-          "/index.html",
-          "/manifest.webmanifest",
-          "/*.css",
-          "/*.js"
-        ]
+        "files": ["/favicon.ico", "/index.html", "/manifest.webmanifest", "/*.css", "/*.js"]
       }
     },
     {
@@ -20,21 +14,14 @@
       "installMode": "lazy",
       "updateMode": "prefetch",
       "resources": {
-        "files": [
-          "/assets/**",
-          "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
-        ]
+        "files": ["/assets/**", "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"]
       }
     }
   ],
   "dataGroups": [
     {
       "name": "static-data",
-      "urls": [
-        "/api/indicators",
-        "/api/results/status",
-        "/api/indicator-types"
-      ],
+      "urls": ["/api/indicators", "/api/results/status", "/api/indicator-types"],
       "cacheConfig": {
         "strategy": "performance",
         "maxSize": 100,
@@ -42,11 +29,11 @@
       }
     },
     {
-      "name": "dynamic-data",
-      "urls": ["AllianceBioversityCIAT/alliance-research-indicators-client/**"],
+      "name": "version",
+      "urls": ["/config/version.json"],
       "cacheConfig": {
         "strategy": "freshness",
-        "maxSize": 10,
+        "maxSize": 1,
         "maxAge": "0s",
         "timeout": "1s"
       }
