@@ -24,7 +24,7 @@ export class ValidateCacheService {
     const areVersionsEquals = response.version === frontVersion.version;
 
     //#5 - if the versions are equal, request update front version
-    if (areVersionsEquals) this.requeestUpdateFrontVersion();
+    if (!areVersionsEquals) this.requeestUpdateFrontVersion();
 
     //#6 - save the last version validated
     this.saveLastVersionValidated(response.version);
