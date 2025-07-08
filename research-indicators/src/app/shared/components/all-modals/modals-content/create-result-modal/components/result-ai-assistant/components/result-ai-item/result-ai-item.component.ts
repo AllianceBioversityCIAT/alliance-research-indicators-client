@@ -129,4 +129,16 @@ export class ResultAiItemComponent {
       this.finishEditingTitle();
     }
   }
+
+  getOrganizationType(item: AIAssistantResult): string[] {
+    return Array.isArray(item.organization_type) ? item.organization_type : [];
+  }
+
+  getOrganizations(item: AIAssistantResult): string[] {
+    return Array.isArray(item.organizations) ? item.organizations : [];
+  }
+
+  getInnovationActorsDetailed(item: AIAssistantResult): import('../../../../models/AIAssistantResult').InnovationActorDetailed[] {
+    return Array.isArray(item.innovation_actors_detailed) ? item.innovation_actors_detailed : [];
+  }
 }

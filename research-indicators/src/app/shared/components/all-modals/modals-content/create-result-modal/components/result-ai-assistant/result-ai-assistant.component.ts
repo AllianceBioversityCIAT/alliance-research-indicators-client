@@ -319,7 +319,16 @@ export class ResultAiAssistantComponent {
       male_participants: result.male_participants ?? 0,
       female_participants: result.female_participants ?? 0,
       non_binary_participants: result.non_binary_participants ?? '0',
-      contract_code: this.body().contract_id !== null ? String(this.body().contract_id) : undefined
+      contract_code: this.body().contract_id !== null ? String(this.body().contract_id) : undefined,
+      // Innovation Development fields
+      innovation_nature: result.innovation_nature,
+      innovation_type: result.innovation_type,
+      assess_readiness: result.assess_readiness,
+      anticipated_users: result.anticipated_users,
+      organization_type: result.organization_type,
+      organization_sub_type: result.organization_sub_type,
+      organizations: result.organizations,
+      innovation_actors_detailed: result.innovation_actors_detailed
     }));
   }
 
