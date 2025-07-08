@@ -29,26 +29,6 @@
   ],
   "dataGroups": [
     {
-      "name": "dynamic-data",
-      "urls": [],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 100,
-        "maxAge": "1h",
-        "timeout": "10s"
-      }
-    },
-    {
-      "name": "semi-dynamic-data",
-      "urls": [],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 50,
-        "maxAge": "1h",
-        "timeout": "5s"
-      }
-    },
-    {
       "name": "static-data",
       "urls": [
         "/api/indicators",
