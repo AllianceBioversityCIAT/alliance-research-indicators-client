@@ -30,7 +30,7 @@
         <small class="text-[#8D9299] text-[14px]" for="username">{{ helperText }}</small>
       }
       @if (isInvalid()) {
-        <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+        <div class="flex items-center gap-1 text-[#E69F00]  {{ size ?? 'text-sm  mt-1' }}">
           <i class="material-symbols-rounded !text-base">warning</i>
           <span>This field is required</span>
         </div>
