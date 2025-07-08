@@ -29,11 +29,11 @@
       }
     },
     {
-      "name": "dynamic-data",
-      "urls": ["AllianceBioversityCIAT/alliance-research-indicators-client/**"],
+      "name": "version",
+      "urls": ["/config/version.json"],
       "cacheConfig": {
         "strategy": "freshness",
-        "maxSize": 10,
+        "maxSize": 1,
         "maxAge": "0s",
         "timeout": "1s"
       }
