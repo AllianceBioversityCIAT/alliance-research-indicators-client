@@ -165,8 +165,16 @@
                     </div>
                   }
                   <div class="mb-4">
-                    <span class="block text-[12px] text-[#153C71] font-[500] font-[space_grotesk] mb-1">Feedback details</span>
-                    <app-textarea [styleClass]="'!text-[12px]'" [rows]="3" [signal]="this.body" [optionValue]="'feedbackText'"></app-textarea>
+                    <span class="block text-[12px] text-[#153C71] font-[500] font-[space_grotesk] mb-1"
+                      >Feedback details <span class="text-red-500">*</span></span
+                    >
+                    <app-textarea
+                      [styleClass]="'!text-[12px]'"
+                      [isRequired]="true"
+                      [rows]="3"
+                      [size]="'!text-[12.5px]'"
+                      [signal]="this.body"
+                      [optionValue]="'feedbackText'"></app-textarea>
                   </div>
                   <div class="flex gap-2">
                     <p-button
@@ -174,7 +182,11 @@
                       styleClass="!rounded-[12px] !text-[12px] !px-4"
                       [outlined]="true"
                       (onClick)="closeFeedbackPanel()"></p-button>
-                    <p-button label="Confirm" styleClass="!rounded-[12px] !text-[12px] !px-4" (onClick)="submitFeedback()"></p-button>
+                    <p-button
+                      label="Confirm"
+                      styleClass="!rounded-[12px] !text-[12px] !px-4"
+                      (onClick)="submitFeedback()"
+                      [disabled]="(feedbackType() === 'bad' && (!selectedType || !body().feedbackText)) || !body().feedbackText"></p-button>
                   </div>
                 </div>
               </div>
