@@ -399,6 +399,7 @@ export class ResultAiAssistantComponent {
   closeFeedbackPanel() {
     this.showFeedbackPanel.set(false);
     this.feedbackType.set(null);
+    this.body.update(b => ({ ...b, feedbackText: '' }));
     document.removeEventListener('click', this.handleOutsideClick);
   }
 
