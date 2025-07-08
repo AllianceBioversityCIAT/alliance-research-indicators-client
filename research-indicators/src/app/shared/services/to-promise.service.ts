@@ -83,7 +83,8 @@ export class ToPromiseService {
     return this.TP(
       this.http.get<T>(fullUrl, {
         headers,
-        params: config?.params
+        params: config?.params,
+        ...(config?.noCache && { cache: 'no-store' })
       }),
       config?.loadingTrigger
     );
@@ -126,4 +127,5 @@ interface Config {
   loadingTrigger?: boolean;
   params?: HttpParams;
   useYearInterceptor?: boolean;
+  noCache?: boolean;
 }

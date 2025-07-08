@@ -520,7 +520,7 @@ export class ApiService {
   GET_GithubVersion = () => {
     const timestamp = new Date().getTime();
     const urlWithTimestamp = `${environment.frontVersionUrl}?t=${timestamp}`;
-    return this.TP.get('', { isAuth: urlWithTimestamp });
+    return this.TP.get('', { isAuth: urlWithTimestamp, noCache: true });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

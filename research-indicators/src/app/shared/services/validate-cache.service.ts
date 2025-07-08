@@ -11,10 +11,6 @@ export class ValidateCacheService {
   swUpdate = inject(SwUpdate);
 
   async validateVersions() {
-    await fetch('/config/version.json?test=true', {
-      cache: 'no-store'
-    });
-
     //#1 - get current version from github
     const response = (await this.api.GET_GithubVersion()) as unknown as { version: string };
 
