@@ -59,6 +59,7 @@ export class ResultAiAssistantComponent {
   miningResponse: TextMiningResponse[] = [];
   badTypes: IssueCategory[] = [];
   activeIndex = signal(0);
+  loading = signal(false);
 
   steps = signal<Step[]>([
     { label: 'Uploading document', completed: false, inProgress: false, progress: 0 },
@@ -379,9 +380,21 @@ export class ResultAiAssistantComponent {
   toggleFeedback(type: 'good' | 'bad') {
     if (this.showFeedbackPanel()) {
       if (this.feedbackType() !== type) {
-        this.feedbackType.set(type);
+        this.showFeedbackPanel.set(false);
+        this.feedbackType.set(null);
         this.feedbackText = '';
         this.selectedType = '';
+        document.removeEventListener('click', this.handleOutsideClick);
+
+        setTimeout(() => {
+          this.feedbackType.set(type);
+          this.showFeedbackPanel.set(true);
+          this.feedbackText = '';
+          this.selectedType = '';
+          setTimeout(() => {
+            document.addEventListener('click', this.handleOutsideClick);
+          });
+        }, 100);
       } else {
         this.closeFeedbackPanel();
       }
@@ -408,6 +421,7 @@ export class ResultAiAssistantComponent {
   }
 
   async submitFeedback() {
+    this.loading.set(true);
     const body = {
       user: this.cache.dataCache().user,
       issueType: this.selectedType,
@@ -418,6 +432,7 @@ export class ResultAiAssistantComponent {
     await this.api.POST_DynamoFeedback(body);
     this.actions.showToast({ severity: 'success', summary: 'Feedback', detail: 'Feedback sent successfully' });
     this.closeFeedbackPanel();
+    this.loading.set(false);
   }
 
   // Cierra el panel si se hace click fuera
@@ -427,4 +442,8 @@ export class ResultAiAssistantComponent {
       this.closeFeedbackPanel();
     }
   };
+
+  isRequired() {
+    return this.feedbackType() === 'bad';
+  }
 }

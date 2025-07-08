@@ -166,11 +166,14 @@
                   }
                   <div class="mb-4">
                     <span class="block text-[12px] text-[#153C71] font-[500] font-[space_grotesk] mb-1"
-                      >Feedback details <span class="text-red-500">*</span></span
-                    >
+                      >Feedback details
+                      @if (isRequired()) {
+                        <span class="text-red-500">*</span>
+                      }
+                    </span>
                     <app-textarea
                       [styleClass]="'!text-[12px]'"
-                      [isRequired]="true"
+                      [isRequired]="isRequired()"
                       [rows]="3"
                       [size]="'!text-[12.5px]'"
                       [signal]="this.body"
@@ -186,7 +189,7 @@
                       label="Confirm"
                       styleClass="!rounded-[12px] !text-[12px] !px-4"
                       (onClick)="submitFeedback()"
-                      [disabled]="(feedbackType() === 'bad' && (!selectedType || !body().feedbackText)) || !body().feedbackText"></p-button>
+                      [disabled]="feedbackType() === 'bad' && (!selectedType || !body().feedbackText)"></p-button>
                   </div>
                 </div>
               </div>
