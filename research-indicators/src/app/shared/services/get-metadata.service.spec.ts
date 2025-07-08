@@ -58,4 +58,16 @@ describe('GetMetadataService', () => {
     expect(service.formatText('  ')).toBe('');
     expect(service.formatText('foo bar baz')).toBe('FooBaz');
   });
+
+  it('clearMetadata should reset metadata and resultId', () => {
+    service.clearMetadata();
+    expect(cacheMock.currentMetadata.set).toHaveBeenCalledWith({});
+    expect(cacheMock.currentResultId.set).toHaveBeenCalledWith(0);
+  });
+
+  it('clearMetadata should not throw if signals are undefined', () => {
+    service.cache.currentMetadata = undefined as any;
+    service.cache.currentResultId = undefined as any;
+    expect(() => service.clearMetadata()).not.toThrow();
+  });
 });

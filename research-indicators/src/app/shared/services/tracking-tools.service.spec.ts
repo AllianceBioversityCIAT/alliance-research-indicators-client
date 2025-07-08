@@ -2,6 +2,14 @@ import { TestBed } from '@angular/core/testing';
 
 import { TrackingToolsService } from './tracking-tools.service';
 
+// Mock location.reload
+Object.defineProperty(window, 'location', {
+  value: {
+    reload: jest.fn()
+  },
+  writable: true
+});
+
 const cacheMock = {
   currentUrlPath: { set: jest.fn() },
   showSectionHeaderActions: { set: jest.fn() },
@@ -47,6 +55,7 @@ describe('TrackingToolsService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
+    (window.location.reload as jest.Mock).mockClear();
   });
 
   it('should be created', () => {
@@ -69,6 +78,13 @@ describe('TrackingToolsService', () => {
     expect(cache.currentRouteTitle.set).toHaveBeenCalled();
   });
 
+  it('init works without navigation events', async () => {
+    const service = createService({ routerEvents: [] });
+    jest.spyOn(service, 'initAllTools');
+    await service.init();
+    expect(service.initAllTools).toHaveBeenCalled();
+  });
+
   it('getCurrentTitle navigates children and sets showSectionHeaderActions and currentRouteTitle', () => {
     const child = createRouteMock({ title: 'Child', showSectionHeaderActions: true });
     const route = createRouteMock({}, [child]);
@@ -78,6 +94,26 @@ describe('TrackingToolsService', () => {
     service['getCurrentTitle']();
     expect(cache.showSectionHeaderActions.set).toHaveBeenCalledWith(true);
     expect(cache.currentRouteTitle.set).toHaveBeenCalledWith('Child');
+  });
+
+  it('getCurrentTitle works without children and sets base title', () => {
+    const route = createRouteMock({ title: 'Base Title' });
+    const cache = { ...cacheMock, showSectionHeaderActions: { set: jest.fn() }, currentRouteTitle: { set: jest.fn() } };
+    const service = createService({ cache, route });
+    // @ts-ignore
+    service['getCurrentTitle']();
+    expect(cache.showSectionHeaderActions.set).toHaveBeenCalledWith(false);
+    expect(cache.currentRouteTitle.set).toHaveBeenCalledWith('Base Title');
+  });
+
+  it('getCurrentTitle works with null title', () => {
+    const route = createRouteMock({ title: null });
+    const cache = { ...cacheMock, showSectionHeaderActions: { set: jest.fn() }, currentRouteTitle: { set: jest.fn() } };
+    const service = createService({ cache, route });
+    // @ts-ignore
+    service['getCurrentTitle']();
+    expect(cache.showSectionHeaderActions.set).toHaveBeenCalledWith(false);
+    expect(cache.currentRouteTitle.set).toHaveBeenCalledWith('');
   });
 
   it('isTester returns true if localStorage has isTester', () => {
@@ -91,12 +127,28 @@ describe('TrackingToolsService', () => {
     const service = createService();
     expect(service.isTester()).toBe(true);
     expect(localStorage.getItem('isTester')).toBe('true');
+    expect(window.location.reload).toHaveBeenCalled();
   });
 
   it('isTester returns false if not tester', () => {
     localStorage.setItem('data', JSON.stringify({ user: { user_role_list: [{ role_id: 1 }] } }));
     const service = createService();
     expect(service.isTester()).toBe(false);
+  });
+
+  it('isTester returns false if no data in localStorage', () => {
+    const service = createService();
+    expect(service.isTester()).toBe(false);
+  });
+
+  it('getCurrentTitle works without showSectionHeaderActions in data', () => {
+    const route = createRouteMock({ title: 'Test Title' });
+    const cache = { ...cacheMock, showSectionHeaderActions: { set: jest.fn() }, currentRouteTitle: { set: jest.fn() } };
+    const service = createService({ cache, route });
+    // @ts-ignore
+    service['getCurrentTitle']();
+    expect(cache.showSectionHeaderActions.set).toHaveBeenCalledWith(false);
+    expect(cache.currentRouteTitle.set).toHaveBeenCalledWith('Test Title');
   });
 
   it('initAllTools does not call anything if isTester', () => {

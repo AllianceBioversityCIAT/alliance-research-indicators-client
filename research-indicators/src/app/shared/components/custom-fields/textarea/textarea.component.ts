@@ -24,6 +24,7 @@ export class TextareaComponent {
   @Input() disabled = false;
   @Input() rows = 10;
   @Input() styleClass = '';
+  @Input() size = '';
 
   body = signal({ value: null });
 
