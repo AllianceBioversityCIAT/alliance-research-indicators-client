@@ -2,9 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { ApiService } from '@services/api.service';
-import { environment } from '@envs/environment';
 import { ActionsService } from '@services/actions.service';
 import { ClarityService } from './clarity.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,13 @@ export class CognitoService {
   clarity = inject(ClarityService);
 
   redirectToCognito() {
-    window.location.href = environment.cognitoUrl;
+    window.location.href =
+      `${environment.cognitoDomain}oauth2/authorize` +
+      `?response_type=code` +
+      `&client_id=${environment.cognitoClientId}` +
+      `&redirect_uri=${environment.cognitoRedirectUri}` +
+      `&scope=openid+email+profile` +
+      `&identity_provider=${environment.cognitoIdentityProvider}`;
   }
 
   async validateCognitoCode() {
@@ -31,6 +37,10 @@ export class CognitoService {
         severity: 'error',
         summary: 'Error authenticating',
         detail: loginResponse.errorDetail.errors,
+        cancelCallback: {
+          label: 'Cancel',
+          event: () => void this.router.navigate(['/login'])
+        },
         confirmCallback: {
           label: 'Retry Log in',
           event: () => this.redirectToCognito()

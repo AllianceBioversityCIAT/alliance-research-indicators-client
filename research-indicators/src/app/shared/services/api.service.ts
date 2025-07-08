@@ -517,6 +517,10 @@ export class ApiService {
     return this.TP.patch(url(), body);
   };
 
+  GET_GithubVersion = () => {
+    return this.TP.get('', { isAuth: environment.frontVersionUrl });
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {
