@@ -58,7 +58,8 @@ export const cacheServiceMock = {
   set: jest.fn(),
   remove: jest.fn(),
   clear: jest.fn(),
-  currentResultIsLoading: jest.fn().mockReturnValue(false)
+  currentResultIsLoading: jest.fn().mockReturnValue(false),
+  loading: jest.fn().mockReturnValue(false)
 } as unknown as CacheService;
 
 const paramMapMock: ParamMap = {
@@ -94,7 +95,9 @@ export const actionsServiceMock = {
   createAction: jest.fn(),
   updateAction: jest.fn(),
   deleteAction: jest.fn(),
-  getInitials: jest.fn().mockReturnValue('JD')
+  getInitials: jest.fn().mockReturnValue('JD'),
+  updateList: jest.fn(),
+  showToast: jest.fn()
 } as unknown as ActionsService;
 
 export const mockLatestResults = {
@@ -316,4 +319,20 @@ export const getMetadataServiceMock = {
   update: jest.fn(),
   formatText: jest.fn(() => ''),
   clearMetadata: jest.fn()
+};
+
+export const clarityServiceMock = {
+  updateUserInfo: jest.fn()
+};
+
+export const getResultsServiceMock = {
+  updateList: jest.fn()
+};
+
+export const getUserStaffServiceMock = {
+  getData: jest.fn().mockResolvedValue({ data: [] })
+};
+
+export const versionWatcherServiceMock = {
+  onVersionChange: jest.fn()
 };
