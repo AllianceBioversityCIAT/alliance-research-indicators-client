@@ -166,8 +166,8 @@ export class ResultAiAssistantComponent {
         this.actions.showGlobalAlert({
           severity: 'error',
           hasNoButton: true,
-          summary: 'DOCUMENTO PROTEGIDO',
-          detail: 'El documento está protegido por contraseña. Por favor, sube un archivo sin protección.'
+          summary: 'PROTECTED DOCUMENT',
+          detail: 'The document is password protected. Please upload a file without protection.'
         });
         return;
       } else if (pageCheck === false) {
