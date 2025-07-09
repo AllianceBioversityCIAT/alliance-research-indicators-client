@@ -401,7 +401,7 @@ export class ResultAiAssistantComponent {
   showFeedbackPanel = signal(false);
   feedbackType = signal<'good' | 'bad' | null>(null);
   feedbackText = '';
-  selectedType = '';
+  selectedType: string[] = [];
 
   toggleFeedback(type: 'good' | 'bad') {
     if (this.showFeedbackPanel()) {
@@ -409,14 +409,14 @@ export class ResultAiAssistantComponent {
         this.showFeedbackPanel.set(false);
         this.feedbackType.set(null);
         this.feedbackText = '';
-        this.selectedType = '';
+        this.selectedType = [];
         document.removeEventListener('click', this.handleOutsideClick);
 
         setTimeout(() => {
           this.feedbackType.set(type);
           this.showFeedbackPanel.set(true);
           this.feedbackText = '';
-          this.selectedType = '';
+          this.selectedType = [];
           setTimeout(() => {
             document.addEventListener('click', this.handleOutsideClick);
           });
@@ -428,7 +428,7 @@ export class ResultAiAssistantComponent {
       this.feedbackType.set(type);
       this.showFeedbackPanel.set(true);
       this.feedbackText = '';
-      this.selectedType = '';
+      this.selectedType = [];
       setTimeout(() => {
         document.addEventListener('click', this.handleOutsideClick);
       });
@@ -443,7 +443,11 @@ export class ResultAiAssistantComponent {
   }
 
   selectType(type: string) {
-    this.selectedType = type;
+    if (this.selectedType.includes(type)) {
+      this.selectedType = this.selectedType.filter(t => t !== type);
+    } else {
+      this.selectedType = [...this.selectedType, type];
+    }
   }
 
   async submitFeedback() {

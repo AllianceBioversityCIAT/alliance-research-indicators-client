@@ -157,7 +157,7 @@
                       <div class="flex flex-wrap gap-2">
                         <button
                           class="bg-[#F4F7F9] border-1 px-2 py-1 !rounded-[10px] text-[#1689CA] text-[13px] font-[400] {{
-                            selectedType === type.id.toString() ? ' font-[500] border-[#1689CA]' : 'border-[#E8EBED]'
+                            selectedType.includes(type.id.toString()) ? ' font-[500] border-[#1689CA]' : 'border-[#E8EBED]'
                           }}"
                           *ngFor="let type of badTypes"
                           (click)="selectType(type.id.toString())">
@@ -191,7 +191,7 @@
                       label="Confirm"
                       styleClass="!rounded-[12px] !text-[12px] !px-4"
                       (onClick)="submitFeedback()"
-                      [disabled]="feedbackType() === 'bad' && (!selectedType || !body().feedbackText)"></p-button>
+                      [disabled]="(feedbackType() === 'bad' && (!selectedType || !body().feedbackText)) || loading()"></p-button>
                   </div>
                 </div>
               </div>
