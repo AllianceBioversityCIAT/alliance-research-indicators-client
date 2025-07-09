@@ -1,7 +1,7 @@
 import { GetInnovationDetails, Actor, InstitutionType } from './get-innovation-details.interface';
 
 describe('GetInnovationDetails', () => {
-  it('debe crear una instancia con valores por defecto', () => {
+  it('should create an instance with default values', () => {
     const details = new GetInnovationDetails();
     expect(details.short_title).toBe('');
     expect(details.innovation_nature_id).toBeUndefined();
@@ -14,7 +14,7 @@ describe('GetInnovationDetails', () => {
     expect(details.institution_types).toEqual([]);
   });
 
-  it('debe permitir asignar valores a las propiedades', () => {
+  it('should allow assigning values to properties', () => {
     const details = new GetInnovationDetails();
     details.short_title = 'Test';
     details.innovation_nature_id = 1;
@@ -38,7 +38,7 @@ describe('GetInnovationDetails', () => {
 });
 
 describe('Actor', () => {
-  it('debe crear una instancia con valores por defecto', () => {
+  it('should create an instance with default values', () => {
     const actor = new Actor();
     expect(actor.result_actors_id).toBeUndefined();
     expect(actor.result_id).toBeUndefined();
@@ -52,7 +52,7 @@ describe('Actor', () => {
     expect(actor.actor_type_custom_name).toBeUndefined();
   });
 
-  it('debe permitir asignar valores a las propiedades', () => {
+  it('should allow assigning values to properties', () => {
     const actor = new Actor();
     actor.result_actors_id = 1;
     actor.result_id = 2;
@@ -78,7 +78,7 @@ describe('Actor', () => {
 });
 
 describe('InstitutionType', () => {
-  it('debe crear una instancia con valores por defecto', () => {
+  it('should create an instance with default values', () => {
     const inst = new InstitutionType();
     expect(inst.result_institution_type_id).toBeUndefined();
     expect(inst.result_id).toBeUndefined();
@@ -87,7 +87,7 @@ describe('InstitutionType', () => {
     expect(inst.institution_type_custom_name).toBeUndefined();
   });
 
-  it('debe permitir asignar valores a las propiedades', () => {
+  it('should allow assigning values to properties', () => {
     const inst = new InstitutionType();
     inst.result_institution_type_id = 1;
     inst.result_id = 2;

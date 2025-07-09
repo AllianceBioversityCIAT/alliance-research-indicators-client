@@ -1,13 +1,13 @@
 import { MultiControlListResponse, User } from './responses.interface';
 
 describe('MultiControlListResponse', () => {
-  it('debe crear una instancia con valores por defecto', () => {
+  it('should create an instance with default values', () => {
     const res = new MultiControlListResponse<number>();
     expect(res.list).toEqual([]);
     expect(res.loading).toBe(true);
   });
 
-  it('debe permitir asignar valores a las propiedades', () => {
+  it('should allow assigning values to properties', () => {
     const res = new MultiControlListResponse<string>();
     res.list = ['a', 'b'];
     res.loading = false;
@@ -17,7 +17,7 @@ describe('MultiControlListResponse', () => {
 });
 
 describe('User', () => {
-  it('debe crear una instancia con valores por defecto', () => {
+  it('should create an instance with default values', () => {
     const user = new User();
     expect(user.is_active).toBe(false);
     expect(user.sec_user_id).toBe(0);
@@ -29,7 +29,7 @@ describe('User', () => {
     expect(user.user_role_list).toEqual([]);
   });
 
-  it('debe permitir asignar valores a las propiedades', () => {
+  it('should allow assigning values to properties', () => {
     const user = new User();
     user.is_active = true;
     user.sec_user_id = 123;
