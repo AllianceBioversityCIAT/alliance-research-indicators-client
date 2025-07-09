@@ -25,6 +25,11 @@ export interface TextMiningResponse {
   text: string;
 }
 
+interface PdfError {
+  message?: string;
+  name?: string;
+}
+
 GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 @Component({
@@ -156,8 +161,16 @@ export class ResultAiAssistantComponent {
     }
 
     if (isPdf) {
-      const isValid = await this.isValidPageCount(file);
-      if (!isValid) {
+      const pageCheck = await this.isValidPageCount(file);
+      if (pageCheck === 'password') {
+        this.actions.showGlobalAlert({
+          severity: 'error',
+          hasNoButton: true,
+          summary: 'DOCUMENTO PROTEGIDO',
+          detail: 'El documento está protegido por contraseña. Por favor, sube un archivo sin protección.'
+        });
+        return;
+      } else if (pageCheck === false) {
         this.actions.showGlobalAlert({
           severity: 'error',
           hasNoButton: true,
@@ -172,12 +185,16 @@ export class ResultAiAssistantComponent {
     this.cdr.detectChanges();
   }
 
-  async isValidPageCount(file: File): Promise<boolean> {
+  async isValidPageCount(file: File): Promise<boolean | 'password'> {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
       return pdf.numPages <= this.pageLimit;
-    } catch (err) {
+    } catch (err: unknown) {
+      const pdfError = err as PdfError;
+      if (pdfError && (pdfError.message?.includes('Password') || pdfError.name === 'PasswordException')) {
+        return 'password';
+      }
       console.error('Error reading PDF pages:', err);
       return false;
     }
