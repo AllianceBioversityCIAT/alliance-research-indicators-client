@@ -101,7 +101,9 @@ export class EvidenceItemComponent implements OnInit {
   };
 
   isFieldInvalid(): boolean {
-    const url = this.body().evidence_url;
+    const b = this.body();
+    if (!b) return true;
+    const url = b.evidence_url;
     return !url || url.trim() === '';
   }
 
