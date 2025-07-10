@@ -66,6 +66,7 @@ export class MultiselectComponent implements OnInit {
   _isRequired = signal(false);
   @Input() helperText: string = '';
   @Input() textSpan: string = '';
+  @Input() columnsOnXl: boolean = false;
 
   selectEvent = output<any>();
   environment = environment;

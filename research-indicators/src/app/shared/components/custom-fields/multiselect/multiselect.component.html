@@ -94,12 +94,16 @@
       }
     } @else {
       @if (helperText) {
-        <span class="block text-[13px] mt-1 text-[#8D9299]">{{ helperText }}</span>
+        <span class="block text-[13px] mt-1 text-[#8D9299] {{ textSpan ? 'mb-0' : 'mb-5' }}">{{ helperText }}</span>
       }
-      <div class="mt-5 selected-items" [class.show-scroll]="!this.disabledSelectedScroll">
-        @if (textSpan) {
-          <span class="block text-[14px] pb-3 pt-1 text-[#777C83]">{{ textSpan }}</span>
-        }
+      @if (textSpan) {
+        <span class="block text-[14px] pb-3 pt-5 text-[#777C83]">{{ textSpan }}</span>
+      }
+
+      <div
+        class="selected-items {{ !helperText && !textSpan ? 'mt-6' : '' }}"
+        [class.show-scroll]="!this.disabledSelectedScroll"
+        [class.columns-xl]="columnsOnXl">
         @for (row of selectedOptions(); track $index) {
           <div class="item abc-grey-100">
             <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
