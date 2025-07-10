@@ -112,7 +112,10 @@
       @if (textSpan && selectedOptions()?.length) {
         <span class="block text-[14.5px] pb-3 pt-5 text-[#777C83]">{{ textSpan }}</span>
       }
-      <div class="selected-items {{ !textSpan ? 'mt-6' : '' }}" [class.show-scroll]="!this.disabledSelectedScroll" [class.columns-xl]="columnsOnXl">
+      <div
+        class="selected-items {{ !textSpan && selectedOptions()?.length ? 'mt-6' : '' }}"
+        [class.show-scroll]="!this.disabledSelectedScroll"
+        [class.columns-xl]="columnsOnXl">
         @for (row of selectedOptions(); track $index) {
           <div class="item abc-grey-100">
             <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>

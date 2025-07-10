@@ -30,7 +30,7 @@
     <span class="block text-[14px] text-[#8D9299]">{{ helperText }}</span>
   }
   @if (isInvalid()) {
-    <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+    <div class="flex items-center gap-1 {{ helperText ? '-mt-1' : 'mt-1' }} text-[#E69F00] text-sm">
       <i class="material-symbols-rounded !text-base">warning</i>
       <span>This field is required</span>
     </div>
