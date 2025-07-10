@@ -9,7 +9,6 @@
             <app-multiselect
               label="Contributing projects"
               [signal]="body"
-              helperText="helperText"
               textSpan="Select the required primary project for this result. Note that only one project can be selected."
               optionLabel="select_label"
               optionValue="contract_id"
@@ -20,7 +19,7 @@
               serviceName="contracts">
               <ng-template #selectedItems let-value>
                 <div class="flex items-center gap-2">
-                  <span>{{ value?.length }} projects selected</span>
+                  <span> {{ value?.length }} project{{ value?.length === 1 ? '' : 's' }} selected </span>
                 </div>
               </ng-template>
               <ng-template #rows let-contract>
@@ -103,7 +102,7 @@
               serviceName="sdgs">
               <ng-template #selectedItems let-value>
                 <div class="flex items-center gap-2">
-                  <span>{{ value?.length }} SDGs selected</span>
+                  <span> {{ value?.length }} SDG{{ value?.length === 1 ? '' : 's' }} selected </span>
                 </div>
               </ng-template>
               <ng-template #rows let-sdg>
