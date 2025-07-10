@@ -9,6 +9,7 @@
             <app-multiselect
               label="Contributing projects"
               [signal]="body"
+              textSpan="Select the required primary project for this result. Note that only one project can be selected."
               optionLabel="select_label"
               optionValue="contract_id"
               signalOptionValue="contracts"
@@ -18,7 +19,7 @@
               serviceName="contracts">
               <ng-template #selectedItems let-value>
                 <div class="flex items-center gap-2">
-                  <span>{{ value?.length }} projects selected</span>
+                  <span> {{ value?.length }} project{{ value?.length === 1 ? '' : 's' }} selected </span>
                 </div>
               </ng-template>
               <ng-template #rows let-contract>
@@ -80,6 +81,39 @@
                       } @else {
                         {{ contract.lever }}
                       }
+                    }
+                  </div>
+                </div>
+              </ng-template>
+            </app-multiselect>
+          </div>
+          <div>
+            <app-multiselect
+              label="Contribution to SDG targets"
+              [signal]="body"
+              helperText="Indicate the SDGs to which the result is linked."
+              optionLabel="select_label"
+              optionValue="sdg_id"
+              signalOptionValue="result_sdgs"
+              [disabled]="!submission.isEditableStatus()"
+              [removeCondition]="canRemove"
+              [isRequired]="true"
+              [columnsOnXl]="true"
+              serviceName="sdgs">
+              <ng-template #selectedItems let-value>
+                <div class="flex items-center gap-2">
+                  <span> {{ value?.length }} SDG{{ value?.length === 1 ? '' : 's' }} selected </span>
+                </div>
+              </ng-template>
+              <ng-template #rows let-sdg>
+                <div class="flex-col flex w-full">
+                  <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                    @if (sdg.icon) {
+                      <img [src]="sdg.icon" [alt]="sdg.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
+                    }
+                    @if (sdg.description) {
+                      <span class="text-[15px] text-[#4C5158] font-[600]"></span>
+                      SDG {{ sdg.short_name?.split(':')[0] }} <span class="font-normal"> - {{ sdg.short_name?.split(':')[1]?.trim() }} </span>
                     }
                   </div>
                 </div>

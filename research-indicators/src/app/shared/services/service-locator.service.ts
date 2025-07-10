@@ -38,6 +38,7 @@ import { GetInnovationReadinessLevelsService } from './control-list/get-innovati
 import { GetAnticipatedUsersService } from './short-control-list/get-anticipated-users.service';
 import { GetActorTypesService } from './control-list/get-actor-types.service';
 import { GetInstitutionTypesService } from './control-list/get-institution-types.service';
+import { GetSdgsService } from './control-list/get-sdgs.service';
 
 @Injectable({
   providedIn: 'root'
@@ -183,6 +184,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetClarisaInstitutionsTypesService);
       case 'clarisaInstitutionsTypesChildless':
         return this.injector.get(GetClarisaInstitutionsTypesChildlessService);
+      case 'sdgs':
+        return this.injector.get(GetSdgsService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;
