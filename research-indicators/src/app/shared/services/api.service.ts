@@ -42,6 +42,7 @@ import { SignalEndpointService } from './signal-endpoint.service';
 import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
 import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
 import { GetClarisaInstitutionsTypes } from '@shared/interfaces/get-clarisa-institutions-types.interface';
+import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
 import { GetYear } from '@shared/interfaces/get-year.interface';
@@ -98,6 +99,11 @@ export class ApiService {
 
   GET_InstitutionsTypesChildless = (): Promise<MainResponse<GetClarisaInstitutionsTypes[]>> => {
     const url = () => `tools/clarisa/institutions-types/childless`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SDGs = (): Promise<MainResponse<GetSdgs[]>> => {
+    const url = () => `tools/clarisa/sdgs`;
     return this.TP.get(url(), {});
   };
 
