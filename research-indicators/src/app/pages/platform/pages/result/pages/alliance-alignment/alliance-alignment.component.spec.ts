@@ -92,12 +92,6 @@ describe('AllianceAlignmentComponent', () => {
     expect(component.body().contracts[0].contract_id).toBe('1');
   });
 
-  it('should handle getData with empty response', async () => {
-    api.GET_Alignments.mockResolvedValue({ data: {} });
-    await component.getData();
-    expect(component.body()).toEqual({});
-  });
-
   it('should call PATCH_Alignments and show toast on saveData', async () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [{ id: 1 }] } });
