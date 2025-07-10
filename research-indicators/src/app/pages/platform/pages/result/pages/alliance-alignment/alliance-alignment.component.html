@@ -113,10 +113,8 @@
                       <img [src]="sdg.icon" [alt]="sdg.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
                     }
                     @if (sdg.description) {
-                      <span class="text-[15px] text-[#4C5158] font-[600]"
-                        >{{ sdg.financial_code }}
-                        <span class="font-normal"> {{ sdg.short_name?.split(':')[0] }} - {{ sdg.short_name?.split(':')[1]?.trim() }} </span></span
-                      >
+                      <span class="text-[15px] text-[#4C5158] font-[600]"></span>
+                      SDG {{ sdg.short_name?.split(':')[0] }} <span class="font-normal"> - {{ sdg.short_name?.split(':')[1]?.trim() }} </span>
                     }
                   </div>
                 </div>
