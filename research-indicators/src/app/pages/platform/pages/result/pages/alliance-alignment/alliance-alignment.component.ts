@@ -59,7 +59,6 @@ export default class AllianceAlignmentComponent {
     };
 
     this.body.set(mappedData);
-    console.log(this.body());
   }
 
   canRemove = (): boolean => {
