@@ -6,10 +6,12 @@ import { SectionHeaderComponent } from '@components/section-header/section-heade
 import { AllModalsComponent } from '../../shared/components/all-modals/all-modals.component';
 import { ScrollToTopService } from '@shared/services/scroll-top.service';
 import { filter, Subscription } from 'rxjs';
+import { CacheService } from '@shared/services/cache/cache.service';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-platform',
-  imports: [RouterOutlet, AllianceNavbarComponent, AllianceSidebarComponent, SectionHeaderComponent, AllModalsComponent],
+  imports: [RouterOutlet, NgStyle, AllianceNavbarComponent, AllianceSidebarComponent, SectionHeaderComponent, AllModalsComponent],
   templateUrl: './platform.component.html',
   styleUrl: './platform.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -18,7 +20,7 @@ export default class PlatformComponent implements OnInit, OnDestroy {
   private routerSubscription!: Subscription;
   private readonly router = inject(Router);
   private readonly scrollService = inject(ScrollToTopService);
-
+  cache = inject(CacheService);
   // Signal para manejar el estado de error
   public readonly errorState = signal<Error | null>(null);
 
