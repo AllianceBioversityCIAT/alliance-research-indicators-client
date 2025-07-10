@@ -3,6 +3,11 @@
   align-items: center;
   padding: 0 18px;
   box-shadow: 0 0 15px 0 #00000030;
+  position: fixed;
+  z-index: 3;
+  right: 0px;
+  width: 100%;
+  top: 0px;
 
   .logo {
     min-width: 72px;
