@@ -86,6 +86,39 @@
               </ng-template>
             </app-multiselect>
           </div>
+          <div>
+            <app-multiselect
+              label="Contribution to SDG targets*"
+              [signal]="body"
+              optionLabel="select_label"
+              optionValue="sdg_id"
+              signalOptionValue="result_sdgs"
+              [disabled]="!submission.isEditableStatus()"
+              [removeCondition]="canRemove"
+              [isRequired]="true"
+              serviceName="sdgs">
+              <ng-template #selectedItems let-value>
+                <div class="flex items-center gap-2">
+                  <span>{{ value?.length }} SDGs selected</span>
+                </div>
+              </ng-template>
+              <ng-template #rows let-sdg>
+                <div class="flex-col flex w-full">
+                  <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                    @if (sdg.icon) {
+                      <img [src]="sdg.icon" [alt]="sdg.short_name" class="w-[30px] h-[30px] mr-2" />
+                    }
+                    @if (sdg.description) {
+                      <span class="text-[15px] text-[#4C5158] font-[600]"
+                        >{{ sdg.financial_code }}
+                        <span class="font-normal"> {{ sdg.short_name?.split(':')[0] }} - {{ sdg.short_name?.split(':')[1]?.trim() }} </span></span
+                      >
+                    }
+                  </div>
+                </div>
+              </ng-template>
+            </app-multiselect>
+          </div>
         </div>
       </div>
     </div>
