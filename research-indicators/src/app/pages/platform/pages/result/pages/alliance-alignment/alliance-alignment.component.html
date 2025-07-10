@@ -9,6 +9,8 @@
             <app-multiselect
               label="Contributing projects"
               [signal]="body"
+              helperText="helperText"
+              textSpan="Select the required primary project for this result. Note that only one project can be selected."
               optionLabel="select_label"
               optionValue="contract_id"
               signalOptionValue="contracts"
@@ -88,8 +90,9 @@
           </div>
           <div>
             <app-multiselect
-              label="Contribution to SDG targets*"
+              label="Contribution to SDG targets"
               [signal]="body"
+              helperText="Indicate the SDGs to which the result is linked."
               optionLabel="select_label"
               optionValue="sdg_id"
               signalOptionValue="result_sdgs"

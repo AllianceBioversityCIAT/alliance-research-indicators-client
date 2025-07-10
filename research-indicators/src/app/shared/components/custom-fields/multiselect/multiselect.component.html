@@ -93,7 +93,13 @@
         <p-skeleton width="100%" height="41px" styleClass="mb-2" />
       }
     } @else {
-      <div class="selected-items" [class.show-scroll]="!this.disabledSelectedScroll">
+      @if (helperText) {
+        <span class="block text-[13px] mt-1 text-[#8D9299]">{{ helperText }}</span>
+      }
+      <div class="mt-5 selected-items" [class.show-scroll]="!this.disabledSelectedScroll">
+        @if (textSpan) {
+          <span class="block text-[14px] pb-3 pt-1 text-[#777C83]">{{ textSpan }}</span>
+        }
         @for (row of selectedOptions(); track $index) {
           <div class="item abc-grey-100">
             <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
