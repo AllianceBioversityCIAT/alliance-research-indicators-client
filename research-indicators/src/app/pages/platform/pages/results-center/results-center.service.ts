@@ -48,7 +48,7 @@ export class ResultsCenterService {
       getValue: (result: Result) => {
         const title = result.title;
         if (!title || typeof title !== 'string') return title;
-        return title.replace(/-+$/, ''); // Eliminar guiones del final
+        return title.replace(/-+$/u, '');
       }
     },
     {
