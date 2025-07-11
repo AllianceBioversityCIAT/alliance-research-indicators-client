@@ -15,8 +15,11 @@ export class CapSharingDeliveryModalitiesService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_DeliveryModalities();
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_DeliveryModalities();
+      this.list.set(response.data);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

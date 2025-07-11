@@ -17,16 +17,17 @@ export class GetInstitutionsService {
   async main() {
     this.loading.set(true);
     const response = await this.api.GET_Institutions();
-    response.data.forEach((institution: GetInstitution) => {
+    const data = response.data ?? [];
+    data.forEach((institution: GetInstitution) => {
       institution.institution_id = institution.code;
       institution.region_id = institution.code;
       institution.html_full_name = institution.acronym
-        ? `<strong>${institution.acronym}</strong> - ${institution.name} - ${institution.institution_locations[0]?.name}`
-        : `${institution.name} - ${institution.institution_locations[0]?.name}`;
-      institution.isoAlpha2 = institution.institution_locations[0]?.isoAlpha2;
-      institution.institution_location_name = institution.institution_locations[0]?.name;
+        ? `<strong>${institution.acronym}</strong> - ${institution.name} - ${institution.institution_locations?.[0]?.name}`
+        : `${institution.name} - ${institution.institution_locations?.[0]?.name}`;
+      institution.isoAlpha2 = institution.institution_locations?.[0]?.isoAlpha2;
+      institution.institution_location_name = institution.institution_locations?.[0]?.name;
     });
-    this.list.set(response.data);
+    this.list.set(data);
     this.loading.set(false);
   }
 }

@@ -214,7 +214,7 @@ export default class InnovationDetailsComponent {
     if (page === 'back') {
       navigateTo('alliance-alignment');
     } else if (page === 'next') {
-      navigateTo(this.cache.currentResultIndicatorSectionPath());
+      navigateTo('partners');
     }
 
     this.loading.set(false);

@@ -40,4 +40,5 @@ export type ControlListServices =
   | 'GetSubnationalByIsoAlpha'
   | 'clarisaInstitutionsTypes'
   | 'clarisaInstitutionsTypesChildless'
+  | 'sdgs'
   | '';

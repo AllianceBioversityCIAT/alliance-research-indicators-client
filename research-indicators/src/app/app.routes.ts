@@ -15,6 +15,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'login',
+    loadComponent: () => import('./pages/login/login.component')
+  },
+
+  {
     path: 'auth',
     loadComponent: () => import('./pages/auth/auth.component')
   },

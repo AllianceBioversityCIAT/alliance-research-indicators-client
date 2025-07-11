@@ -9,6 +9,7 @@
             <app-multiselect
               label="Contributing projects"
               [signal]="body"
+              textSpan="Select the required primary project for this result. Note that only one project can be selected."
               optionLabel="select_label"
               optionValue="contract_id"
               signalOptionValue="contracts"
@@ -18,17 +19,17 @@
               serviceName="contracts">
               <ng-template #selectedItems let-value>
                 <div class="flex items-center gap-2">
-                  <span>{{ value?.length }} projects selected</span>
+                  <span> {{ value?.length }} project{{ value?.length === 1 ? '' : 's' }} selected </span>
                 </div>
               </ng-template>
               <ng-template #rows let-contract>
                 <div class="flex-col flex w-full">
                   <div class="text-[15px] text-[#4C5158] font-[600]">{{ contract.agreement_id }} - {{ contract.description }}</div>
 
-                  <div class="flex justify-between">
+                  <div class="flex justify-between pt-2 xl:pt-0">
                     <div class="flex gap-x-5 justify-between">
                       <div class="flex items-center">
-                        <span class="font-normal text-[13px] text-[#777c83] font-['Space_Grotesk']">Principal investigator</span>
+                        <span class="font-normal text-[13px] text-[#777c83] font-['Space_Grotesk'] leading-4">Principal investigator</span>
                         <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
                         <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
                           contract.project_lead_description
@@ -36,7 +37,7 @@
                       </div>
 
                       <div class="flex items-center">
-                        <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">Start date</span>
+                        <span class="text-[13px] text-[#777c83] font-['Space_Grotesk'] leading-4">Start date</span>
                         <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
                         <span class="text-[13px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
                           contract.start_date | date: 'dd/MM/yyyy'
@@ -44,14 +45,14 @@
                       </div>
 
                       <div class="flex items-center">
-                        <span class="text-[13px] text-[#777c83] font-['Space_Grotesk']">End date</span>
+                        <span class="text-[13px] text-[#777c83] font-['Space_Grotesk'] leading-4">End date</span>
                         <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
                         <span class="text-[13px] leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
                           contract.endDateGlobal | date: 'dd/MM/yyyy'
                         }}</span>
                       </div>
                     </div>
-                    <div>
+                    <div class="pl-4">
                       <button
                         [disabled]="!submission.isEditableStatus()"
                         class="px-3 py-[5px] disabled:cursor-not-allowed rounded-full text-[14px] whitespace-nowrap flex items-center cursor-pointer transition-all duration-300 group border border-[var(--ac-primary-blue-300)]"
@@ -69,7 +70,7 @@
                     </div>
                   </div>
 
-                  <div class="flex items-center pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                  <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
                     @if (contract.lever === 'Not available') {
                       Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ contract.lever }}</span>
                     } @else {
@@ -80,6 +81,40 @@
                       } @else {
                         {{ contract.lever }}
                       }
+                    }
+                  </div>
+                </div>
+              </ng-template>
+            </app-multiselect>
+          </div>
+          <div>
+            <app-multiselect
+              label="Contribution to SDG targets"
+              [signal]="body"
+              helperText="Indicate the SDGs to which the result is linked."
+              optionLabel="select_label"
+              optionValue="sdg_id"
+              signalOptionValue="result_sdgs"
+              [disabled]="!submission.isEditableStatus()"
+              [removeCondition]="canRemove"
+              [isRequired]="true"
+              [columnsOnXl]="true"
+              serviceName="sdgs">
+              <ng-template #selectedItems let-value>
+                <div class="flex items-center gap-2">
+                  <span> {{ value?.length }} SDG{{ value?.length === 1 ? '' : 's' }} selected </span>
+                </div>
+              </ng-template>
+              <ng-template #rows let-sdg>
+                <div class="flex-col flex w-full">
+                  <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                    @if (sdg.icon) {
+                      <img [src]="sdg.icon" [alt]="sdg.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
+                    }
+                    @if (sdg.description) {
+                      <span class="text-[15px] text-[#4C5158] font-[600]">
+                        SDG {{ sdg.short_name?.split(':')[0] }} - <span class="font-normal">{{ sdg.short_name?.split(':')[1]?.trim() }} </span></span
+                      >
                     }
                   </div>
                 </div>

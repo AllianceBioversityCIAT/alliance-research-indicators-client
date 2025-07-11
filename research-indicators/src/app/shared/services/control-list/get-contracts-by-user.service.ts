@@ -17,21 +17,24 @@ export class GetContractsByUserService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_ContractsByUser();
-
-    if (response?.data) {
-      this.list.set(response.data);
-
-      this.list.update(current =>
-        current.map(item => ({
-          ...item,
-          full_name: `${item.agreement_id} ${item.projectDescription} ${item.description} ${item.project_lead_description}`
-        }))
-      );
-    } else {
+    try {
+      const response = await this.api.GET_ContractsByUser();
+      if (response?.data) {
+        this.list.set(response.data);
+        this.list.update(current =>
+          current.map(item => ({
+            ...item,
+            full_name: `${item.agreement_id} ${item.projectDescription} ${item.description} ${item.project_lead_description}`
+          }))
+        );
+      } else {
+        this.list.set([]);
+      }
+    } catch (e) {
+      console.error('Failed to fetch contracts by user:', e);
       this.list.set([]);
+    } finally {
+      this.loading.set(false);
     }
-
-    this.loading.set(false);
   }
 }

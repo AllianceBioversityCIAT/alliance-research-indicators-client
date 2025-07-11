@@ -32,7 +32,7 @@ export class GetMetadataService {
   }
 
   clearMetadata() {
-    this.cache.currentMetadata.set({});
-    this.cache.currentResultId.set(0);
+    this.cache.currentMetadata?.set?.({});
+    this.cache.currentResultId?.set?.(0);
   }
 }

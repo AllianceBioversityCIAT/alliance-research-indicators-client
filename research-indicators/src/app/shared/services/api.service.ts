@@ -42,6 +42,7 @@ import { SignalEndpointService } from './signal-endpoint.service';
 import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
 import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
 import { GetClarisaInstitutionsTypes } from '@shared/interfaces/get-clarisa-institutions-types.interface';
+import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
 import { GetYear } from '@shared/interfaces/get-year.interface';
@@ -54,6 +55,8 @@ import { GetInnovationDetails } from '@shared/interfaces/get-innovation-details.
 import { InnovationCharacteristic, InnovationLevel, InnovationType } from '@shared/interfaces/get-innovation.interface';
 import { ActorType } from '@shared/interfaces/get-actor-types.interface';
 import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-institutions-subtypes.interface';
+import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
+import { IssueCategory } from '../interfaces/issue-category.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -96,6 +99,11 @@ export class ApiService {
 
   GET_InstitutionsTypesChildless = (): Promise<MainResponse<GetClarisaInstitutionsTypes[]>> => {
     const url = () => `tools/clarisa/institutions-types/childless`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SDGs = (): Promise<MainResponse<GetSdgs[]>> => {
+    const url = () => `tools/clarisa/sdgs`;
     return this.TP.get(url(), {});
   };
 
@@ -167,6 +175,22 @@ export class ApiService {
   POST_CreateResult = (result: AIAssistantResult): Promise<MainResponse<CreateResultResponse | ExtendedHttpErrorResponse>> => {
     const url = () => `results/ai/formalize`;
     return this.TP.post(url(), result, {});
+  };
+
+  // dynamo feedback
+  POST_DynamoFeedback = <T>(body: T): Promise<MainResponse<DynamoFeedback>> => {
+    const url = () => `dynamo-feedback/save-data`;
+    return this.TP.post(url(), body, {});
+  };
+
+  GET_DynamoFeedback = (): Promise<MainResponse<DynamoFeedback>> => {
+    const url = () => `dynamo-feedback/test-data`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IssueCategories = (): Promise<MainResponse<IssueCategory[]>> => {
+    const url = () => `issue-categories`;
+    return this.TP.get(url(), {});
   };
 
   // create partner request
@@ -497,6 +521,10 @@ export class ApiService {
   PATCH_Feedback = (body: AskForHelp) => {
     const url = () => `reporting-feedback/send`;
     return this.TP.patch(url(), body);
+  };
+
+  GET_GithubVersion = () => {
+    return this.TP.get('', { isAuth: environment.frontVersionUrl });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

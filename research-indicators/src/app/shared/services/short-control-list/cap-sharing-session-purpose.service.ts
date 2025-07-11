@@ -6,17 +6,24 @@ import { SessionPurpose } from '../../interfaces/get-session-purpose.interface';
   providedIn: 'root'
 })
 export class CapSharingSessionPurposeService {
-  api = inject(ApiService);
+  private api = inject(ApiService);
   list = signal<SessionPurpose[]>([]);
-  loading = signal(false);
+  loading = signal<boolean>(false);
+
   constructor() {
     this.main();
   }
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_SessionPurpose();
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_SessionPurpose();
+      this.list.set(response.data ?? []);
+    } catch (error) {
+      console.error('Error loading session purpose:', error);
+      this.list.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

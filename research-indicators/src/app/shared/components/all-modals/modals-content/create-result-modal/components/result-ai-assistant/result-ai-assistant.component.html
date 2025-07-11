@@ -122,7 +122,7 @@
 
             <p class="text-[14px] font-[400] text-[#4C5158]">Select the ones you want to create.</p>
           </div>
-          <div class="flex justify-end items-center hidden gap-2.5 mb-4 relative">
+          <div class="flex justify-end items-center gap-2.5 mb-4 relative">
             <span class="text-[12px] font-[400] px-2 text-[#8D9299]">Was this response helpful?</span>
             <button
               dropdown-button
@@ -158,18 +158,29 @@
                       <div class="flex flex-wrap gap-2">
                         <button
                           class="bg-[#F4F7F9] border-1 px-2 py-1 !rounded-[10px] text-[#1689CA] text-[13px] font-[400] {{
-                            selectedType === type ? ' font-[500] border-[#1689CA]' : 'border-[#E8EBED]'
+                            selectedType.includes(type.id.toString()) ? ' font-[500] border-[#1689CA]' : 'border-[#E8EBED]'
                           }}"
                           *ngFor="let type of badTypes"
-                          (click)="selectType(type)">
-                          {{ type }}
+                          (click)="selectType(type.id.toString())">
+                          {{ type.name }}
                         </button>
                       </div>
                     </div>
                   }
                   <div class="mb-4">
-                    <span class="block text-[12px] text-[#153C71] font-[500] font-[space_grotesk] mb-1">Feedback details</span>
-                    <app-textarea [styleClass]="'!text-[12px]'" [rows]="3" [signal]="this.body" [optionValue]="'description'"></app-textarea>
+                    <span class="block text-[12px] text-[#153C71] font-[500] font-[space_grotesk] mb-1"
+                      >Feedback details
+                      @if (isRequired()) {
+                        <span class="text-red-500">*</span>
+                      }
+                    </span>
+                    <app-textarea
+                      [styleClass]="'!text-[12px]'"
+                      [isRequired]="isRequired()"
+                      [rows]="3"
+                      [size]="'!text-[12.5px]'"
+                      [signal]="this.body"
+                      [optionValue]="'feedbackText'"></app-textarea>
                   </div>
                   <div class="flex gap-2">
                     <p-button
@@ -177,7 +188,11 @@
                       styleClass="!rounded-[12px] !text-[12px] !px-4"
                       [outlined]="true"
                       (onClick)="closeFeedbackPanel()"></p-button>
-                    <p-button label="Confirm" styleClass="!rounded-[12px] !text-[12px] !px-4" (onClick)="submitFeedback()"></p-button>
+                    <p-button
+                      label="Confirm"
+                      styleClass="!rounded-[12px] !text-[12px] !px-4"
+                      (onClick)="submitFeedback()"
+                      [disabled]="(feedbackType() === 'bad' && (!selectedType || !body().feedbackText)) || loading()"></p-button>
                   </div>
                 </div>
               </div>

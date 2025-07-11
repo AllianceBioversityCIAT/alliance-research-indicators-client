@@ -11,10 +11,15 @@ export class GetOsCountriesService {
   loading = signal(false);
   isOpenSearch = signal(true);
   useInstance = signal(false);
+
   async update(search: string) {
     this.loading.set(true);
-    const response = await this.api.GET_OpenSearchCountries(search);
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_OpenSearchCountries(search);
+      const data = Array.isArray(response?.data) ? response.data : [];
+      this.list.set(data);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

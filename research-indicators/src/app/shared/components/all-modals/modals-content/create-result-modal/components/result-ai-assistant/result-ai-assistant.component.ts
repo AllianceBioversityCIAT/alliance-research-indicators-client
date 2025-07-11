@@ -18,6 +18,17 @@ import { Step } from '@shared/interfaces/step.interface';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
 import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
+import { ApiService } from '@shared/services/api.service';
+import { IssueCategory } from '@shared/interfaces/issue-category.interface';
+
+export interface TextMiningResponse {
+  text: string;
+}
+
+interface PdfError {
+  message?: string;
+  name?: string;
+}
 
 GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -42,6 +53,7 @@ export class ResultAiAssistantComponent {
   expandedItem = signal<AIAssistantResult | null>(null);
   getContractsService = inject(GetContractsService);
   filteredPrimaryContracts = signal<GetContracts[]>([]);
+  api = inject(ApiService);
   TP = inject(ToPromiseService);
   actions = inject(ActionsService);
   createResultManagementService = inject(CreateResultManagementService);
@@ -49,9 +61,10 @@ export class ResultAiAssistantComponent {
   fileManagerService = inject(FileManagerService);
   textMiningService = inject(TextMiningService);
   cache = inject(CacheService);
-
-  badTypes = ['Code was incorrect', "Don't like the personality", 'UI Bug', "Don't like the style", 'Other'];
+  miningResponse: TextMiningResponse[] = [];
+  badTypes: IssueCategory[] = [];
   activeIndex = signal(0);
+  loading = signal(false);
 
   steps = signal<Step[]>([
     { label: 'Uploading document', completed: false, inProgress: false, progress: 0 },
@@ -61,7 +74,7 @@ export class ResultAiAssistantComponent {
     { label: 'Generating response', completed: false, inProgress: false, progress: 0 }
   ]);
 
-  body = signal<{ contract_id: number | null }>({ contract_id: null });
+  body = signal<{ contract_id: number | null; feedbackText: string }>({ contract_id: null, feedbackText: '' });
   sharedFormValid = false;
   contractId: string | null = null;
 
@@ -73,6 +86,10 @@ export class ResultAiAssistantComponent {
       const isAnalyzed = this.documentAnalyzed();
       const hasNoResults = this.noResults();
       this.allModalsService.setModalWidth('createResult', isAnalyzed || hasNoResults);
+    });
+
+    this.api.GET_IssueCategories().then(res => {
+      this.badTypes = res.data;
     });
   }
 
@@ -144,8 +161,16 @@ export class ResultAiAssistantComponent {
     }
 
     if (isPdf) {
-      const isValid = await this.isValidPageCount(file);
-      if (!isValid) {
+      const pageCheck = await this.isValidPageCount(file);
+      if (pageCheck === 'password') {
+        this.actions.showGlobalAlert({
+          severity: 'error',
+          hasNoButton: true,
+          summary: 'PROTECTED DOCUMENT',
+          detail: 'The document is password protected. Please upload a file without protection.'
+        });
+        return;
+      } else if (pageCheck === false) {
         this.actions.showGlobalAlert({
           severity: 'error',
           hasNoButton: true,
@@ -160,12 +185,16 @@ export class ResultAiAssistantComponent {
     this.cdr.detectChanges();
   }
 
-  async isValidPageCount(file: File): Promise<boolean> {
+  async isValidPageCount(file: File): Promise<boolean | 'password'> {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
       return pdf.numPages <= this.pageLimit;
-    } catch (err) {
+    } catch (err: unknown) {
+      const pdfError = err as PdfError;
+      if (pdfError && (pdfError.message?.includes('Password') || pdfError.name === 'PasswordException')) {
+        return 'password';
+      }
       console.error('Error reading PDF pages:', err);
       return false;
     }
@@ -250,15 +279,15 @@ export class ResultAiAssistantComponent {
         throw new Error('No se pudo obtener el nombre del archivo subido.');
       }
 
-      const miningResponse = (await this.textMiningService.executeTextMining(filename)).content;
+      this.miningResponse = (await this.textMiningService.executeTextMining(filename)).content;
 
-      if (!miningResponse?.length) {
+      if (!this.miningResponse?.length) {
         this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
         return;
       }
 
       let combinedResults: AIAssistantResult[] = [];
-      for (const item of miningResponse) {
+      for (const item of this.miningResponse) {
         if (item?.text) {
           try {
             const parsedText = JSON.parse(item.text);
@@ -389,14 +418,26 @@ export class ResultAiAssistantComponent {
   showFeedbackPanel = signal(false);
   feedbackType = signal<'good' | 'bad' | null>(null);
   feedbackText = '';
-  selectedType = '';
+  selectedType: string[] = [];
 
   toggleFeedback(type: 'good' | 'bad') {
     if (this.showFeedbackPanel()) {
       if (this.feedbackType() !== type) {
-        this.feedbackType.set(type);
+        this.showFeedbackPanel.set(false);
+        this.feedbackType.set(null);
         this.feedbackText = '';
-        this.selectedType = '';
+        this.selectedType = [];
+        document.removeEventListener('click', this.handleOutsideClick);
+
+        setTimeout(() => {
+          this.feedbackType.set(type);
+          this.showFeedbackPanel.set(true);
+          this.feedbackText = '';
+          this.selectedType = [];
+          setTimeout(() => {
+            document.addEventListener('click', this.handleOutsideClick);
+          });
+        }, 100);
       } else {
         this.closeFeedbackPanel();
       }
@@ -404,7 +445,7 @@ export class ResultAiAssistantComponent {
       this.feedbackType.set(type);
       this.showFeedbackPanel.set(true);
       this.feedbackText = '';
-      this.selectedType = '';
+      this.selectedType = [];
       setTimeout(() => {
         document.addEventListener('click', this.handleOutsideClick);
       });
@@ -414,16 +455,31 @@ export class ResultAiAssistantComponent {
   closeFeedbackPanel() {
     this.showFeedbackPanel.set(false);
     this.feedbackType.set(null);
+    this.body.update(b => ({ ...b, feedbackText: '' }));
     document.removeEventListener('click', this.handleOutsideClick);
   }
 
   selectType(type: string) {
-    this.selectedType = type;
+    if (this.selectedType.includes(type)) {
+      this.selectedType = this.selectedType.filter(t => t !== type);
+    } else {
+      this.selectedType = [...this.selectedType, type];
+    }
   }
 
-  submitFeedback() {
-    // Envía el feedback
+  async submitFeedback() {
+    this.loading.set(true);
+    const body = {
+      user: this.cache.dataCache().user,
+      issueType: this.selectedType,
+      description: this.body().feedbackText,
+      feedbackType: this.feedbackType(),
+      text: this.miningResponse[0].text
+    };
+    await this.api.POST_DynamoFeedback(body);
+    this.actions.showToast({ severity: 'success', summary: 'Feedback', detail: 'Feedback sent successfully' });
     this.closeFeedbackPanel();
+    this.loading.set(false);
   }
 
   // Cierra el panel si se hace click fuera
@@ -433,4 +489,8 @@ export class ResultAiAssistantComponent {
       this.closeFeedbackPanel();
     }
   };
+
+  isRequired() {
+    return this.feedbackType() === 'bad';
+  }
 }
