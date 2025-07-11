@@ -1,6 +1,6 @@
 <div
   class="h-[calc(100%-60px)]"
-  [class]="allModalsService.modalConfig()['createResult'].isWide ? 'flex flex-col w-[95vw] max-w-[2000px]' : 'flex flex-col w-[70vw] max-w-[1300px]'">
+  [class]="allModalsService.modalConfig()['createResult'].isWide ? 'flex flex-col w-[90vw] max-w-[2000px]' : 'flex flex-col w-[70vw] max-w-[1300px]'">
   @if (documentAnalyzed() && selectedFile) {
     <div class="document-analyzed-container border-[#E8EBED] border-1">
       <i class="pi pi-file upload-icon" style="font-size: 28px; margin: 0"></i>
@@ -8,9 +8,9 @@
     </div>
   }
 
-  <section class="mx-auto w-full result-ai-container flex flex-col gap-6 justify-start rounded-b-[27px] px-14 py-6 lg:py-12 xl:py-12">
+  <section class="mx-auto w-full result-ai-container flex flex-col gap-6 justify-start rounded-b-[27px] px-14 py-6 lg:py-10 xl:py-10">
     @if (!analyzingDocument() && !documentAnalyzed() && !noResults()) {
-      <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
+      <div class="flex-col flex gap-[10px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[14px] font-[700] flex text-[#173F6F]">
           UPLOAD YOUR FILE
           <img src="/icons/star-blue-icon.svg" alt="upload-ai" class="w-4.5 pl-1" />
@@ -79,7 +79,7 @@
       </div>
     }
     @if (analyzingDocument() && !documentAnalyzed()) {
-      <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
+      <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6 lg:py-6 xl:py-6">
         <p class="text-[14px] font-[700] flex text-[#173F6F]">
           UPLOAD YOUR FILE
           <img src="/icons/star-blue-icon.svg" alt="upload-ai" class="w-4.5 pl-1" />
@@ -185,9 +185,9 @@
           </div>
         </div>
 
-        <div class="w-full analyze-result-content">
-          @if (createResultManagementService.items().length === 0) {
-            <div class="flex flex-col items-center justify-center bg-white border-[#E8EBED] border-1 rounded-[7px] py-12 px-10 w-full h-full">
+        @if (createResultManagementService.items().length === 0) {
+          <div class="w-full analyze-result-content flex !justify-center">
+            <div class="flex flex-col items-center justify-center bg-white py-12 px-10 w-full h-full">
               <h1 class="text-[20px] font-[700] text-[#173F6F] flex gap-4 py-4">ALL RESULTS DISCARDED</h1>
               <p class="text-[#4C5158] text-[16px]">You've discarded all the generated results. What would you like to do next?</p>
 
@@ -200,7 +200,9 @@
                 <p-button label="Upload a new file" styleClass="!rounded-[12px] !text-[12px]" (onClick)="goBackToUploadNewFile()"></p-button>
               </div>
             </div>
-          } @else {
+          </div>
+        } @else {
+          <div class="w-full analyze-result-content flex">
             @for (item of createResultManagementService.items() | slice: first() : first() + rows(); track $index) {
               <app-result-ai-item
                 [item]="item"
@@ -209,8 +211,8 @@
                 style="width: 100%">
               </app-result-ai-item>
             }
-          }
-        </div>
+          </div>
+        }
         @if (createResultManagementService.items().length > 0) {
           <div
             class="flex justify-end w-full bg-white border-left border-right border-bottom border-[#E8EBED] border-b-[1px] border-l-[1px] border-r-[1px] rounded-b-[4px]">
