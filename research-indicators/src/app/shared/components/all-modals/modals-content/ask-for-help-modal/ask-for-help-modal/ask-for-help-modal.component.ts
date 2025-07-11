@@ -10,6 +10,7 @@ import { ApiService } from '../../../../../services/api.service';
 import { AskForHelp } from '../interfaces/ask-for-help.interface';
 import { CacheService } from '../../../../../services/cache/cache.service';
 import { getBrowserInfo } from '../../../../../utils/browser.util';
+import { CommonModule } from '@angular/common';
 
 interface FormBody {
   type: string;
@@ -18,7 +19,7 @@ interface FormBody {
 
 @Component({
   selector: 'app-ask-for-help-modal',
-  imports: [FormsModule, SelectModule, InputTextModule, ButtonModule, TextareaModule],
+  imports: [FormsModule, SelectModule, InputTextModule, ButtonModule, TextareaModule, CommonModule],
   templateUrl: './ask-for-help-modal.component.html',
   styleUrl: './ask-for-help-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
