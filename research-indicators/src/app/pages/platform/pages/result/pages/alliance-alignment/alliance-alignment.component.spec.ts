@@ -95,7 +95,7 @@ describe('AllianceAlignmentComponent', () => {
   it('should handle getData with empty response', async () => {
     api.GET_Alignments.mockResolvedValue({ data: {} });
     await component.getData();
-    expect(component.body()).toEqual({});
+    expect(component.body()).toEqual({ contracts: [], result_sdgs: [] });
   });
 
   it('should call PATCH_Alignments and show toast on saveData', async () => {
@@ -103,7 +103,13 @@ describe('AllianceAlignmentComponent', () => {
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [{ id: 1 }] } });
     jest.spyOn(component, 'getData');
     await component.saveData();
-    expect(api.PATCH_Alignments).toHaveBeenCalledWith(1, expect.anything());
+    expect(api.PATCH_Alignments).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        contracts: expect.any(Array),
+        result_sdgs: expect.any(Array)
+      })
+    );
     expect(actions.showToast).toHaveBeenCalled();
     expect(component.getData).toHaveBeenCalled();
   });
@@ -118,21 +124,21 @@ describe('AllianceAlignmentComponent', () => {
 
   it('should navigate to back page', async () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
-    api.GET_Alignments.mockResolvedValue({ data: {} });
+    api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     await component.saveData('back');
     expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'general-information'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should navigate to next page', async () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
-    api.GET_Alignments.mockResolvedValue({ data: {} });
+    api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     await component.saveData('next');
     expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should use version in queryParams if present', async () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
-    api.GET_Alignments.mockResolvedValue({ data: {} });
+    api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     route.snapshot.queryParamMap.get = (key: string) => (key === 'version' ? 'v1' : null);
     await component.saveData('next');
     expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
@@ -140,7 +146,7 @@ describe('AllianceAlignmentComponent', () => {
 
   it('should not use version in queryParams if not present', async () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
-    api.GET_Alignments.mockResolvedValue({ data: {} });
+    api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     route.snapshot.queryParamMap.get = () => null;
     await component.saveData('next');
     expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: undefined, replaceUrl: true });
@@ -155,7 +161,7 @@ describe('AllianceAlignmentComponent', () => {
   it('should call markAsPrimary for contract', () => {
     const contract1 = { is_primary: false, is_active: true, result_contract_id: 1, result_id: 1, contract_id: '1', contract_role_id: 1 };
     const contract2 = { is_primary: true, is_active: true, result_contract_id: 2, result_id: 1, contract_id: '2', contract_role_id: 1 };
-    component.body.set({ contracts: [contract1, contract2] });
+    component.body.set({ contracts: [contract1, contract2], result_sdgs: [] });
     component.markAsPrimary(contract1, 'contract');
     expect(contract1.is_primary).toBe(true);
     expect(contract2.is_primary).toBe(false);
@@ -164,7 +170,7 @@ describe('AllianceAlignmentComponent', () => {
 
   it('should call markAsPrimary for lever', () => {
     const lever1 = { is_primary: false, is_active: true, result_contract_id: 1, result_id: 1, contract_id: '1', contract_role_id: 1 };
-    component.body.set({ contracts: [lever1] });
+    component.body.set({ contracts: [lever1], result_sdgs: [] });
     component.markAsPrimary(lever1, 'lever');
     expect(lever1.is_primary).toBe(true);
     expect(actions.saveCurrentSection).toHaveBeenCalled();

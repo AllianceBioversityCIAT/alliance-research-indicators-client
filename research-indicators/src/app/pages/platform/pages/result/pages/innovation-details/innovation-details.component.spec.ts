@@ -241,7 +241,7 @@ describe('InnovationDetailsComponent', () => {
     await component.saveData('next');
     expect(apiService.PATCH_InnovationDetails).toHaveBeenCalled();
     expect(actions.showToast).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
   }));
 
   it('should save data and navigate back', fakeAsync(async () => {
@@ -306,6 +306,6 @@ describe('InnovationDetailsComponent', () => {
   it('should pass version as queryParam if present', fakeAsync(async () => {
     jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
   }));
 });
