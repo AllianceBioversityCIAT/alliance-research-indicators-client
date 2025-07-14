@@ -81,15 +81,15 @@ export class ResultAiAssistantComponent {
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
 
-    this.api.GET_IssueCategories().then(res => {
-      this.badTypes = res.data;
-    });
-
     // Effect to control modal width based on document analysis state
     effect(() => {
       const isAnalyzed = this.documentAnalyzed();
       const hasNoResults = this.noResults();
       this.allModalsService.setModalWidth('createResult', isAnalyzed || hasNoResults);
+    });
+
+    this.api.GET_IssueCategories().then(res => {
+      this.badTypes = res.data;
     });
   }
 

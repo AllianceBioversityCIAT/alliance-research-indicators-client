@@ -12,7 +12,7 @@
     <div></div>
   }
 
-  <div class="result-item-content">
+  <div class="result-item-main-content">
     <div class="result-item-header">
       <i
         class="material-symbols-rounded"
@@ -64,8 +64,49 @@
         }
       </div>
     </div>
+  </div>
 
-    @if (expandedItem === item) {
+  @if (!hideButtons && isAIAssistantResult(item)) {
+    <div class="result-item-actions flex gap-2">
+      @if (!isCreated()) {
+        <p-button
+          type="button"
+          label="Discard"
+          styleClass="discard-button !text-[12px] !h-10 !px-3 !border-[1.5px] !border-[#CF0808] !text-[#CF0808] !rounded-[12px]"
+          size="small"
+          [outlined]="true"
+          severity="danger"
+          (keydown.enter)="discardResult(item)"
+          (click)="discardResult(item)">
+        </p-button>
+
+        <p-button
+          type="button"
+          label="Create"
+          iconPos="right"
+          icon="pi pi-plus"
+          styleClass="create-button !text-[12px] !h-10 !px-3 !bg-[#035BA9] !rounded-[12px]"
+          size="small"
+          (keydown.enter)="createResult(item)"
+          (click)="createResult(item)">
+        </p-button>
+      } @else {
+        <p-button
+          type="button"
+          label="Open Result"
+          iconPos="right"
+          icon="pi pi-arrow-right"
+          styleClass="create-button !text-[12px] !h-10 !px-3 !border-[#1689CA] !bg-[#1689CA] !rounded-[12px]"
+          size="small"
+          (keydown.enter)="openResult(item)"
+          (click)="openResult(item)">
+        </p-button>
+      }
+    </div>
+  }
+
+  @if (expandedItem === item) {
+    <div class="result-item-expanded-content">
       @if (item.total_participants !== undefined) {
         <div class="result-item-details">
           @for (detail of expandedItemDetails; track $index) {
@@ -224,44 +265,6 @@
           </div>
         </div>
       }
-    }
-  </div>
-  @if (!hideButtons && isAIAssistantResult(item)) {
-  <div class="result-item-actions flex gap-2">
-    @if (!isCreated()) {
-      <p-button
-        type="button"
-        label="Discard"
-        styleClass="discard-button !text-[12px] !h-10 !px-3 !border-[1.5px] !border-[#CF0808] !text-[#CF0808] !rounded-[12px]"
-        size="small"
-        [outlined]="true"
-        severity="danger"
-        (keydown.enter)="discardResult(item)"
-        (click)="discardResult(item)">
-      </p-button>
-
-      <p-button
-        type="button"
-        label="Create"
-        iconPos="right"
-        icon="pi pi-plus"
-        styleClass="create-button !text-[12px] !h-10 !px-3 !bg-[#035BA9] !rounded-[12px]"
-        size="small"
-        (keydown.enter)="createResult(item)"
-        (click)="createResult(item)">
-      </p-button>
-    } @else {
-      <p-button
-        type="button"
-        label="Open Result"
-        iconPos="right"
-        icon="pi pi-arrow-right"
-        styleClass="create-button !text-[12px] !h-10 !px-3 !border-[#1689CA] !bg-[#1689CA] !rounded-[12px]"
-        size="small"
-        (keydown.enter)="openResult(item)"
-        (click)="openResult(item)">
-      </p-button>
-    }
-  </div>
+    </div>
   }
 </div>

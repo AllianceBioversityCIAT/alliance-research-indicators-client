@@ -497,14 +497,14 @@ export const apiServiceMock = {
   GET_Years: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_Contracts: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_Results: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
+  GET_IpOwners: jest.fn().mockResolvedValue({ data: [] }),
   GET_InstitutionsTypes: jest.fn().mockImplementation(() => Promise.resolve(mockInstitutionsTypes)),
   GET_Languages: jest.fn().mockImplementation(() => Promise.resolve(mockLanguages)),
   GET_SessionPurpose: jest.fn().mockImplementation(() => Promise.resolve(mockSessionPurpose)),
   GET_SessionType: jest.fn().mockImplementation(() => Promise.resolve(mockSessionTypes)),
   login: jest.fn(),
   GET_SessionLength: jest.fn(),
-  GET_AllResultStatus: jest.fn(),
-  GET_IpOwners: jest.fn().mockResolvedValue({ data: [] })
+  GET_AllResultStatus: jest.fn()
 } as unknown as jest.Mocked<ApiService>;
 
 export const httpClientMock = {
