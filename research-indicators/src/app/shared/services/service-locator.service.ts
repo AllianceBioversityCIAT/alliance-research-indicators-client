@@ -39,6 +39,8 @@ import { GetAnticipatedUsersService } from './short-control-list/get-anticipated
 import { GetActorTypesService } from './control-list/get-actor-types.service';
 import { GetInstitutionTypesService } from './control-list/get-institution-types.service';
 import { GetSdgsService } from './control-list/get-sdgs.service';
+import { ScalingService } from './short-control-list/scaling.service';
+import { YesOrNotSecondaryService } from './short-control-list/yes-or-not-secondary.service';
 
 @Injectable({
   providedIn: 'root'
@@ -132,6 +134,8 @@ export class ServiceLocatorService {
         return this.injector.get(CapSharingSessionPurposeService);
       case 'yesOrNo':
         return this.injector.get(YesOrNotService);
+      case 'yesOrNoSecondary':
+        return this.injector.get(YesOrNotSecondaryService);
       case 'policyTypes':
         return this.injector.get(PolicyTypesService);
       case 'policyStages':
@@ -186,6 +190,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetClarisaInstitutionsTypesChildlessService);
       case 'sdgs':
         return this.injector.get(GetSdgsService);
+      case 'scaling':
+        return this.injector.get(ScalingService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;
