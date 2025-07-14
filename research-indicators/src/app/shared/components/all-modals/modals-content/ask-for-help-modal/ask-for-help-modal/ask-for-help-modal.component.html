@@ -22,9 +22,19 @@
     </div>
 
     <div class="flex flex-col gap-1 2xl:gap-2">
-      <h2 class="text-base font-semibold atc-primary-blue-500">
-        Provide as much detail as possible so we can assist you effectively<span class="text-red-500">*</span>
-      </h2>
+      <div class="flex justify-between flex-col md:flex-row">
+        <h2 class="text-base font-semibold atc-primary-blue-500">
+          Provide as much detail as possible so we can assist you effectively<span class="text-red-500">*</span>
+        </h2>
+        <p class="text-sm text-gray-500 font-medium">
+          Characters entered:
+          <span [ngClass]="{ 'text-green-700': body().message.length >= 25, 'text-red-700': body().message.length < 25 }">{{
+            body().message.length
+          }}</span>
+          / Minimum required: 25
+        </p>
+      </div>
+
       <textarea
         pTextarea
         id="name"
