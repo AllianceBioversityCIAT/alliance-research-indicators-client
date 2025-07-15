@@ -146,4 +146,16 @@ export class CreateResultFormComponent {
 
     return styles[normalizedStatus] || styles['DEFAULT'];
   }
+
+  getWordCount(): number {
+    const title = this.body()?.title?.trim() || '';
+    return title ? title.split(' ').filter(word => word.length > 0).length : 0;
+  }
+
+  getWordCounterColor(): string {
+    const count = this.getWordCount();
+    if (count === 0) return '#8d9299'; // gray
+    if (count > 30) return '#cf0808'; // red
+    return '#509c55'; // green
+  }
 }
