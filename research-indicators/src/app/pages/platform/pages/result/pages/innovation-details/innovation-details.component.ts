@@ -60,6 +60,8 @@ export default class InnovationDetailsComponent {
 
   loading = signal(false);
   selectedStep = signal<number | null>(null);
+  scalingHelperText = 'You may consult the Alliance’s <a class="text-[#1689CA] underline" href="" target="_blank"> Tools and Innovations list</a>.';
+  scalingHelperText2 = 'For more information please visit the following <a class="text-[#1689CA] underline" href="" target="_blank">  Resource</a>.';
 
   constructor() {
     this.versionWatcher.onVersionChange(() => this.getData());
