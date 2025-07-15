@@ -17,6 +17,12 @@
               [removeCondition]="canRemove"
               [isRequired]="true"
               serviceName="contracts">
+              <ng-template #item let-contract>
+                <span class="">
+                  <b>{{ contract.agreement_id }}</b> - {{ contract.description }}
+                </span>
+              </ng-template>
+
               <ng-template #selectedItems let-value>
                 <div class="flex items-center gap-2">
                   <span> {{ value?.length }} project{{ value?.length === 1 ? '' : 's' }} selected </span>
