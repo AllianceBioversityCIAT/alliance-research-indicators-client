@@ -8,6 +8,8 @@ export class GetInnovationDetails {
   intended_beneficiaries_description = '';
   actors: Actor[] = [];
   institution_types: InstitutionType[] = [];
+  knowledge_sharing_form: KnowledgeSharingForm = new KnowledgeSharingForm();
+  scaling_potential_form: ScalingPotentialForm = new ScalingPotentialForm();
 }
 
 export class Actor {
@@ -29,4 +31,36 @@ export class InstitutionType {
   institution_type_id: number | undefined = undefined;
   sub_institution_type_id: number | undefined = undefined;
   institution_type_custom_name: string | undefined = undefined;
+}
+
+export class KnowledgeSharingForm {
+  is_knowledge_sharing = false;
+  dissemination_qualification_id: number | undefined = undefined;
+  tool_useful_context = '';
+  results_achieved_expected = '';
+  tool_function_id: number | undefined = undefined;
+  is_used_beyond_original_context = false;
+  adoption_adaptation_context = '';
+  other_tools = '';
+  other_tools_integration = '';
+  link_to_result: LinkToResult[] = [];
+}
+
+export class LinkToResult {
+  link_result_id: number | undefined = undefined;
+  result_id: number | undefined = undefined;
+  other_result_id: number | undefined = undefined;
+  link_result_role_id: number | undefined = undefined;
+}
+
+export class ScalingPotentialForm {
+  is_cheaper_than_alternatives: number | undefined = undefined;
+  is_simpler_to_use: number | undefined = undefined;
+  does_perform_better: number | undefined = undefined;
+  is_desirable_to_users: number | undefined = undefined;
+  has_commercial_viability: number | undefined = undefined;
+  has_suitable_enabling_environment: number | undefined = undefined;
+  has_evidence_of_uptake: number | undefined = undefined;
+  expansion_potential_id: number | undefined = undefined;
+  expansion_adaptation_details = '';
 }

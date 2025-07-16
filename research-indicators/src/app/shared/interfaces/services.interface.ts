@@ -22,7 +22,7 @@ export type ControlListServices =
   | 'capSharingDeliveryModalities'
   | 'capSharingSessionPurpose'
   | 'yesOrNo'
-  | 'yesOrNoSecondary'
+  | 'expansionPotential'
   | 'policyTypes'
   | 'policyStages'
   | 'geoFocus'
@@ -43,4 +43,7 @@ export type ControlListServices =
   | 'clarisaInstitutionsTypes'
   | 'clarisaInstitutionsTypesChildless'
   | 'sdgs'
+  | 'disseminationQualifications'
+  | 'toolFunctions'
+  | 'innResults'
   | '';

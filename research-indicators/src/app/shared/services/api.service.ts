@@ -57,6 +57,7 @@ import { ActorType } from '@shared/interfaces/get-actor-types.interface';
 import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-institutions-subtypes.interface';
 import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
+import { GenericList } from '@shared/interfaces/generic-list.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -295,6 +296,21 @@ export class ApiService {
   GET_IpOwners = (): Promise<MainResponse<IpOwners[]>> => {
     const url = () => `results/capacity-sharing/ip-owners`;
     return this.TP.get(url(), { loadingTrigger: true });
+  };
+
+  GET_DisseminationQualifications = (id?: number): Promise<MainResponse<GenericList[]>> => {
+    const url = () => (id !== undefined ? `dissemination-qualifications/${id}` : 'dissemination-qualifications');
+    return this.TP.get(url(), {});
+  };
+
+  GET_ToolFunctions = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `tool-functions`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ExpansionPotentials = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `expansion-potentials`;
+    return this.TP.get(url(), {});
   };
 
   GET_IpOwner = (id: number): Promise<MainResponse<PatchIpOwner>> => {
