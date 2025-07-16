@@ -78,6 +78,9 @@ export class ResultAiAssistantComponent {
   sharedFormValid = false;
   contractId: string | null = null;
 
+  feedbackSent = false;
+  lastFeedbackType: 'good' | 'bad' | null = null;
+
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
 
@@ -100,6 +103,10 @@ export class ResultAiAssistantComponent {
 
   goBack() {
     if (this.analyzingDocument()) return;
+
+    // Reset feedback state on navigation
+    this.feedbackSent = false;
+    this.lastFeedbackType = null;
 
     if (this.documentAnalyzed()) {
       this.selectedFile = null;
@@ -237,6 +244,9 @@ export class ResultAiAssistantComponent {
     this.documentAnalyzed.set(false);
     this.noResults.set(false);
     this.allModalsService.setModalWidth('createResult', false);
+    // Reset feedback state on navigation
+    this.feedbackSent = false;
+    this.lastFeedbackType = null;
   }
 
   goBackToUploadNewFile() {
@@ -247,6 +257,9 @@ export class ResultAiAssistantComponent {
     this.noResults.set(false);
     this.allModalsService.setModalWidth('createResult', false);
     this.createResultManagementService.resultPageStep.set(1);
+    // Reset feedback state on navigation
+    this.feedbackSent = false;
+    this.lastFeedbackType = null;
   }
 
   getContractStatusClasses(status: string): string {
@@ -478,6 +491,8 @@ export class ResultAiAssistantComponent {
     };
     await this.api.POST_DynamoFeedback(body);
     this.actions.showToast({ severity: 'success', summary: 'Feedback', detail: 'Feedback sent successfully' });
+    this.feedbackSent = true;
+    this.lastFeedbackType = this.feedbackType();
     this.closeFeedbackPanel();
     this.loading.set(false);
   }
