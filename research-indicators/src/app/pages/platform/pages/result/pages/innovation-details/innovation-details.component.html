@@ -270,7 +270,7 @@
               </div>
             </div>
 
-            @if (body().knowledge_sharing_form.dissemination_qualification_id == 2) {
+            @if (body().knowledge_sharing_form.dissemination_qualification_id === 2) {
               <div class="flex-1">
                 <app-textarea
                   [disabled]="!submission.isEditableStatus()"
