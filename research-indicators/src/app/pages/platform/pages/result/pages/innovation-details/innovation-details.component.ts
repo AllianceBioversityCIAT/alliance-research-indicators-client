@@ -9,7 +9,13 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
-import { Actor, GetInnovationDetails, InstitutionType } from '@shared/interfaces/get-innovation-details.interface';
+import {
+  Actor,
+  GetInnovationDetails,
+  InstitutionType,
+  KnowledgeSharingForm,
+  ScalingPotentialForm
+} from '@shared/interfaces/get-innovation-details.interface';
 import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { RadioButtonComponent } from '@shared/components/custom-fields/radio-button/radio-button.component';
@@ -18,6 +24,7 @@ import { OrganizationItemComponent } from './components/organization-item/organi
 import { ActorItemComponent } from './components/actor-item/actor-item.component';
 import { GetInnovationReadinessLevelsService } from '@shared/services/control-list/get-innovation-readiness-levels.service';
 import { TooltipModule } from 'primeng/tooltip';
+import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
 
 @Component({
   selector: 'app-innovation-details',
@@ -32,6 +39,7 @@ import { TooltipModule } from 'primeng/tooltip';
     SelectComponent,
     OrganizationItemComponent,
     ActorItemComponent,
+    MultiselectComponent,
     TooltipModule
   ],
   templateUrl: './innovation-details.component.html'
@@ -55,13 +63,17 @@ export default class InnovationDetailsComponent {
     expected_outcome: '',
     intended_beneficiaries_description: '',
     actors: [],
-    institution_types: []
+    institution_types: [],
+    knowledge_sharing_form: new KnowledgeSharingForm(),
+    scaling_potential_form: new ScalingPotentialForm()
   });
 
   loading = signal(false);
   selectedStep = signal<number | null>(null);
-  scalingHelperText = 'You may consult the Alliance’s <a class="text-[#1689CA] underline" href="" target="_blank"> Tools and Innovations list</a>.';
-  scalingHelperText2 = 'For more information please visit the following <a class="text-[#1689CA] underline" href="" target="_blank">  Resource</a>.';
+  scalingHelperText =
+    'You may consult the Alliance’s <a class="text-[#1689CA] underline" href="https://alliancebioversityciat.org/tools-innovations" target="_blank"> Tools and Innovations list</a>.';
+  scalingHelperText2 =
+    'For more information please visit the following <a class="text-[#1689CA] underline" href="https://alliancebioversityciat.org/tools-innovations" target="_blank">  Resource</a>.';
 
   constructor() {
     this.versionWatcher.onVersionChange(() => this.getData());

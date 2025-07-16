@@ -231,45 +231,157 @@
       </div>
     }
 
-    @if (selectedLevel && selectedLevel.level >= 17 && selectedStep()) {
+    @if (selectedLevel && selectedLevel.level >= 7 && selectedStep()) {
+      <!-- Knowledge Sharing -->
       <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-2">
         <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">KNOWLEDGE SHARING</div>
 
-        <div class="flex flex-col xl:flex-row gap-[18px]">
-          <div class="flex-1 pb-5">
-            <app-radio-button
-              label="Is there potential for fellow researchers or policymakers to adapt and expand your tool or method in new contexts and for new purposes?"
-              [isRequired]="true"
-              [signal]="body"
-              [disabled]="!submission.isEditableStatus()"
-              [serviceName]="'yesOrNo'"
-              [optionLabel]="'name'"
-              [helperText]="scalingHelperText"
-              direction="horizontal"
-              [optionValue]="{ body: 'scaling_potential', option: 'value' }">
-            </app-radio-button>
+        <div class="flex flex-col gap-[18px]">
+          <div class="flex flex-col xl:flex-row">
+            <div class="flex-1">
+              <app-radio-button
+                label="Is there potential for fellow researchers or policymakers to adapt and expand your tool or method in new contexts and for new purposes?"
+                [isRequired]="true"
+                [signal]="body"
+                [disabled]="!submission.isEditableStatus()"
+                [serviceName]="'yesOrNo'"
+                [optionLabel]="'name'"
+                [helperText]="scalingHelperText"
+                direction="horizontal"
+                [optionValue]="{ body: 'knowledge_sharing_form.is_knowledge_sharing', option: 'value' }">
+              </app-radio-button>
+            </div>
           </div>
-        </div>
 
-        @if (body().anticipated_users_id) {
-        <div class="flex flex-col xl:flex-row gap-[18px]">
-          <div class="flex-1 pb-5">
+          @if (body().knowledge_sharing_form.is_knowledge_sharing) {
+            <div class="flex flex-col xl:flex-row">
+              <div class="flex-1">
+                <app-radio-button
+                  label="Your method or tool qualifies for further dissemination on the Alliance website. Please fill out the following questions to share your innovation through the Alliance website"
+                  [isRequired]="true"
+                  [signal]="body"
+                  [disabled]="!submission.isEditableStatus()"
+                  [serviceName]="'disseminationQualifications'"
+                  [optionLabel]="'name'"
+                  [helperText]="scalingHelperText2"
+                  direction="horizontal"
+                  [optionValue]="{ body: 'knowledge_sharing_form.dissemination_qualification_id', option: 'id' }">
+                </app-radio-button>
+              </div>
+            </div>
+          }
+
+          @if (body().knowledge_sharing_form.dissemination_qualification_id == 2) {
+            <app-textarea
+              [disabled]="!submission.isEditableStatus()"
+              [rows]="5"
+              label="In what context is this tool useful? "
+              [signal]="this.body"
+              [optionValue]="'knowledge_sharing_form.tool_useful_context'"></app-textarea>
+
+            <app-textarea
+              [disabled]="!submission.isEditableStatus()"
+              [rows]="5"
+              label="Results (achieved or expected): identify and detail selected examples of relevance, adding numbers, facts, figures, names, and locations."
+              [signal]="this.body"
+              [optionValue]="'knowledge_sharing_form.results_achieved_expected'"></app-textarea>
+
+            <app-select
+              label="Tool function"
+              class="pb-1"
+              [disabled]="!submission.isEditableStatus()"
+              [signal]="this.body"
+              [optionValue]="{ body: 'knowledge_sharing_form.tool_function_id', option: 'id' }"
+              optionLabel="name"
+              serviceName="toolFunctions"></app-select>
+
             <app-radio-button
-              label="Your method or tool qualifies for further dissemination on the Alliance website. Please fill out the following questions to share your innovation through the Alliance website"
-              [isRequired]="true"
+              label="Has this innovation been used beyond its original development context (for other crops, or in other geographies for example)? "
               [signal]="body"
+              class="py-1"
               [disabled]="!submission.isEditableStatus()"
               [serviceName]="'yesOrNo'"
               [optionLabel]="'name'"
               [helperText]="scalingHelperText2"
               direction="horizontal"
-              [optionValue]="{ body: 'scaling_potential', option: 'value' }">
+              [optionValue]="{ body: 'knowledge_sharing_form.is_used_beyond_original_context', option: 'value' }">
             </app-radio-button>
-          </div>
-        </div> 
+
+            @if (body().knowledge_sharing_form.is_used_beyond_original_context) {
+              <app-input
+                label="How has it been adopted and adapted in other contexts? "
+                [signal]="body"
+                optionValue="knowledge_sharing_form.adoption_adaptation_context"
+                [disabled]="!submission.isEditableStatus()"
+                type="text"></app-input>
+            }
+
+            @if (
+              !body().knowledge_sharing_form.is_used_beyond_original_context && body().knowledge_sharing_form.is_used_beyond_original_context !== null
+            ) {
+              <app-input
+                label="How might it be adopted and adapted in other contexts? "
+                [signal]="body"
+                optionValue="knowledge_sharing_form.adoption_adaptation_context"
+                [disabled]="!submission.isEditableStatus()"
+                type="text"></app-input>
+            }
+
+            <app-multiselect
+              label="Tools often used together with this tool "
+              [signal]="body"
+              helperText="You can select existing innovations from the system."
+              textSpan="Innovations selected"
+              optionLabel="select_label"
+              optionValue="result_official_code"
+              class="pb-2 pt-1.5"
+              signalOptionValue="link_to_result"
+              [disabled]="!submission.isEditableStatus()"
+              [removeCondition]="canRemove"
+              serviceName="innResults">
+              <ng-template #selectedItems let-value>
+                <div class="flex items-center gap-2">
+                  <span> {{ value?.length }} innovation{{ value?.length === 1 ? '' : 's' }} selected </span>
+                </div>
+              </ng-template>
+
+              <ng-template #item let-result>
+                <span class="text-[#4C5158]">
+                  <span class="font-[600]">{{ result.result_official_code }} -</span> {{ result.title }}
+                </span>
+              </ng-template>
+
+              <ng-template #rows let-result>
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-[5px] pb-1">
+                    <i class="text-[#7cb580] !text-[12px] pi pi-flag"></i>
+                    <label class="font-[400] font-['Space_Grotesk'] text-[12px] text-[#8d9299] uppercase">Innovation Development</label>
+                  </div>
+                  <span class="font-[500] text-[#4C5158] text-[14px]">{{ result.result_official_code }} - {{ result.title }}</span>
+                </div>
+              </ng-template>
+            </app-multiselect>
+
+            <app-input
+              label="Other tools"
+              [signal]="body"
+              placeholder="Specify the tool"
+              optionValue="knowledge_sharing_form.other_tools"
+              [disabled]="!submission.isEditableStatus()"
+              type="text"></app-input>
+
+            <app-textarea
+              [disabled]="!submission.isEditableStatus()"
+              [rows]="5"
+              class="pt-1.5"
+              label="Please provide a short description of how other tools are used with this one."
+              [signal]="this.body"
+              [optionValue]="'knowledge_sharing_form.other_tools_integration'"></app-textarea>
           }
+        </div>
       </div>
 
+      <!-- Scaling Potential -->
       <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-2">
         <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">SCALING POTENTIAL</div>
         <span class="text-[#1689CA] text-[16px] leading-[17px] pb-3 font-semibold">Formulation</span>
@@ -283,7 +395,7 @@
               serviceName="scaling"
               [optionLabel]="'name'"
               direction="horizontal"
-              [optionValue]="{ body: 'scaling_potential', option: 'value' }">
+              [optionValue]="{ body: 'scaling_potential_form.is_cheaper_than_alternatives', option: 'value' }">
             </app-radio-button>
           </div>
 
@@ -296,7 +408,7 @@
               serviceName="scaling"
               [optionLabel]="'name'"
               direction="horizontal"
-              [optionValue]="{ body: 'scaling_potential', option: 'value' }">
+              [optionValue]="{ body: 'scaling_potential_form.is_simpler_to_use', option: 'value' }">
             </app-radio-button>
           </div>
         </div>
@@ -310,7 +422,7 @@
               serviceName="scaling"
               [optionLabel]="'name'"
               direction="horizontal"
-              [optionValue]="{ body: 'scaling_potential', option: 'value' }">
+              [optionValue]="{ body: 'scaling_potential_form.does_perform_better', option: 'value' }">
             </app-radio-button>
           </div>
         </div>
@@ -326,7 +438,7 @@
               serviceName="scaling"
               [optionLabel]="'name'"
               direction="horizontal"
-              [optionValue]="{ body: 'scaling_potential', option: 'value' }">
+              [optionValue]="{ body: 'scaling_potential_form.is_desirable_to_users', option: 'value' }">
             </app-radio-button>
           </div>
 
@@ -339,7 +451,7 @@
               serviceName="scaling"
               [optionLabel]="'name'"
               direction="horizontal"
-              [optionValue]="{ body: 'scaling_potential', option: 'value' }">
+              [optionValue]="{ body: 'scaling_potential_form.has_commercial_viability', option: 'value' }">
             </app-radio-button>
           </div>
         </div>
@@ -355,7 +467,7 @@
               serviceName="scaling"
               [optionLabel]="'name'"
               direction="horizontal"
-              [optionValue]="{ body: 'scaling_potential', option: 'value' }">
+              [optionValue]="{ body: 'scaling_potential_form.has_suitable_enabling_environment', option: 'value' }">
             </app-radio-button>
           </div>
 
@@ -368,35 +480,35 @@
               serviceName="scaling"
               [optionLabel]="'name'"
               direction="horizontal"
-              [optionValue]="{ body: 'scaling_potential', option: 'value' }">
+              [optionValue]="{ body: 'scaling_potential_form.has_evidence_of_uptake', option: 'value' }">
             </app-radio-button>
           </div>
         </div>
 
         <div class="flex flex-col xl:flex-row gap-[18px]">
-          <div class="flex-1 pb-5">
+          <div class="flex-1">
             <app-radio-button
               label="Is there potential for actors, such as fellow researchers or policymakers, to expand the innovation more generally in new contexts and for new purposes?"
               [isRequired]="true"
               [signal]="body"
               [disabled]="!submission.isEditableStatus()"
-              [serviceName]="'yesOrNoSecondary'"
+              [serviceName]="'expansionPotential'"
               [optionLabel]="'name'"
               direction="horizontal"
-              [optionValue]="{ body: 'scaling_potential', option: 'value' }">
+              [optionValue]="{ body: 'scaling_potential_form.expansion_potential_id', option: 'id' }">
             </app-radio-button>
 
-           @if (body()) {
-            <div class="flex-1 pt-2">
-              <app-input
-                [signal]="body"
-                [isRequired]="true"
-                [disabled]="!submission.isEditableStatus()"
-                placeholder="Write how could it be adopted and scaled in other contexts? What would need to be adapted?"
-                optionValue="group.session_purpose_description"></app-input>
-            </div>
-            <div class="flex-1"></div>
-          } 
+            @if (body()) {
+              <div class="flex-1 pt-2">
+                <app-input
+                  [signal]="body"
+                  [isRequired]="true"
+                  [disabled]="!submission.isEditableStatus()"
+                  placeholder="Write how could it be adopted and scaled in other contexts? What would need to be adapted?"
+                  optionValue="scaling_potential_form.expansion_adaptation_details"></app-input>
+              </div>
+              <div class="flex-1"></div>
+            }
           </div>
         </div>
       </div>
