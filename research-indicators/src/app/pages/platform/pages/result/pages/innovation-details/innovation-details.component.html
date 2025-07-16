@@ -274,8 +274,9 @@
               <div class="flex-1">
                 <app-textarea
                   [disabled]="!submission.isEditableStatus()"
+                  [isRequired]="true"
                   [rows]="5"
-                  label="In what context is this tool useful? "
+                  label="In what context is this tool useful?"
                   [signal]="this.body"
                   [optionValue]="'knowledge_sharing_form.tool_useful_context'"></app-textarea>
               </div>
@@ -283,8 +284,9 @@
               <div class="flex-1 -mt-1">
                 <app-textarea
                   [disabled]="!submission.isEditableStatus()"
+                  [isRequired]="true"
                   [rows]="5"
-                  label="Results (achieved or expected): identify and detail selected examples of relevance, adding numbers, facts, figures, names, and locations."
+                  label="Results (achieved or expected): identify and detail selected examples of relevance, adding numbers, facts, figures, names, and locations"
                   [signal]="this.body"
                   [optionValue]="'knowledge_sharing_form.results_achieved_expected'"></app-textarea>
               </div>
@@ -293,6 +295,7 @@
                 <app-select
                   label="Tool function"
                   [disabled]="!submission.isEditableStatus()"
+                  [isRequired]="true"
                   [signal]="this.body"
                   [optionValue]="{ body: 'knowledge_sharing_form.tool_function_id', option: 'id' }"
                   optionLabel="name"
@@ -301,9 +304,10 @@
 
               <div class="flex-1">
                 <app-radio-button
-                  label="Has this innovation been used beyond its original development context (for other crops, or in other geographies for example)? "
+                  label="Has this innovation been used beyond its original development context (for other crops, or in other geographies for example)?"
                   [signal]="body"
                   [disabled]="!submission.isEditableStatus()"
+                  [isRequired]="true"
                   [serviceName]="'yesOrNo'"
                   [optionLabel]="'name'"
                   [helperText]="scalingHelperText2"
@@ -315,7 +319,8 @@
               <div class="flex-1">
                 @if (body().knowledge_sharing_form.is_used_beyond_original_context) {
                   <app-input
-                    label="How has it been adopted and adapted in other contexts? "
+                    label="How has it been adopted and adapted in other contexts?"
+                    [isRequired]="true"
                     [signal]="body"
                     optionValue="knowledge_sharing_form.adoption_adaptation_context"
                     [disabled]="!submission.isEditableStatus()"
@@ -327,7 +332,7 @@
                   body().knowledge_sharing_form.is_used_beyond_original_context !== null
                 ) {
                   <app-input
-                    label="How might it be adopted and adapted in other contexts? "
+                    label="How might it be adopted and adapted in other contexts?"
                     [signal]="body"
                     optionValue="knowledge_sharing_form.adoption_adaptation_context"
                     [disabled]="!submission.isEditableStatus()"
@@ -337,7 +342,7 @@
 
               <div class="flex-1">
                 <app-multiselect
-                  label="Tools often used together with this tool "
+                  label="Tools often used together with this tool"
                   [signal]="body"
                   helperText="You can select existing innovations from the system."
                   textSpan="Innovations selected"
@@ -420,7 +425,6 @@
           <div class="flex-1 pb-5 xl:max-w-1/2 pr-18">
             <app-radio-button
               label="Is it cheaper compared to alternatives?"
-              [isRequired]="true"
               [signal]="body"
               [disabled]="!submission.isEditableStatus()"
               serviceName="scaling"
@@ -433,7 +437,6 @@
           <div class="flex-1 pb-5">
             <app-radio-button
               label="Is it simpler to use?"
-              [isRequired]="true"
               [signal]="body"
               [disabled]="!submission.isEditableStatus()"
               serviceName="scaling"
@@ -447,7 +450,6 @@
           <div class="flex-1 pb-5">
             <app-radio-button
               label="Does it perform better?"
-              [isRequired]="true"
               [signal]="body"
               [disabled]="!submission.isEditableStatus()"
               serviceName="scaling"
@@ -463,7 +465,6 @@
           <div class="flex-1 xl:pb-5">
             <app-radio-button
               label="Is the innovation desirable to intended<br>users?"
-              [isRequired]="true"
               [signal]="body"
               [disabled]="!submission.isEditableStatus()"
               serviceName="scaling"
@@ -476,7 +477,6 @@
           <div class="flex-1 pb-5">
             <app-radio-button
               label="Is the innovation commercially viable/is there<br>investment potential?"
-              [isRequired]="true"
               [signal]="body"
               [disabled]="!submission.isEditableStatus()"
               serviceName="scaling"
@@ -492,7 +492,6 @@
           <div class="flex-1 xl:pb-5">
             <app-radio-button
               label="Is the innovation supported by a suitable enabling<br>environment?"
-              [isRequired]="true"
               [signal]="body"
               [disabled]="!submission.isEditableStatus()"
               serviceName="scaling"
@@ -505,7 +504,6 @@
           <div class="flex-1 pb-[18px]">
             <app-radio-button
               label="Is there already evidence of<br>uptake?"
-              [isRequired]="true"
               [signal]="body"
               [disabled]="!submission.isEditableStatus()"
               serviceName="scaling"
@@ -520,7 +518,6 @@
           <div class="flex-1">
             <app-radio-button
               label="Is there potential for actors, such as fellow researchers or policymakers, to expand the innovation more generally in new contexts and for new purposes?"
-              [isRequired]="true"
               [signal]="body"
               [disabled]="!submission.isEditableStatus()"
               [serviceName]="'expansionPotential'"
@@ -533,7 +530,6 @@
               <div class="flex-1 pt-2">
                 <app-input
                   [signal]="body"
-                  [isRequired]="true"
                   [disabled]="!submission.isEditableStatus()"
                   placeholder="Write how could it be adopted and scaled in other contexts? What would need to be adapted?"
                   optionValue="scaling_potential_form.expansion_adaptation_details"></app-input>
