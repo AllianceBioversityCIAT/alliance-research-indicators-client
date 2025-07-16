@@ -194,6 +194,7 @@ export default class InnovationDetailsComponent {
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
     const cleanedBody = { ...this.body() };
+
     if (Array.isArray(cleanedBody.institution_types)) {
       cleanedBody.institution_types = cleanedBody.institution_types.filter(
         i =>
@@ -205,6 +206,25 @@ export default class InnovationDetailsComponent {
             (i.institution_type_custom_name !== undefined && i.institution_type_custom_name !== ''))
       );
     }
+
+    if (Array.isArray(cleanedBody.knowledge_sharing_form.link_to_result)) {
+      cleanedBody.knowledge_sharing_form.link_to_result = cleanedBody.knowledge_sharing_form.link_to_result
+        .filter(link => link?.result_id)
+        .map(link => {
+          if (link.link_result_id) {
+            return {
+              link_result_id: link.link_result_id,
+              result_id: link.result_id,
+              other_result_id: link.other_result_id,
+              link_result_role_id: link.link_result_role_id
+            };
+          }
+          return {
+            other_result_id: link.result_id
+          };
+        });
+    }
+
     const resultId = Number(this.cache.currentResultId());
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;

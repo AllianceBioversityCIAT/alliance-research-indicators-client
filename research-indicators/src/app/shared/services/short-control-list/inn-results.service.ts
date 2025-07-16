@@ -33,7 +33,6 @@ export class InnResultsService {
       const response = await this.apiService.GET_Results(this.resultsFilter(), this.resultsConfig());
       const data = Array.isArray(response?.data) ? response.data : [];
       this.list.set(data);
-      console.log(data);
     } catch {
       this.list.set([]);
     } finally {

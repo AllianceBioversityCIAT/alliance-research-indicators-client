@@ -47,10 +47,10 @@ export class KnowledgeSharingForm {
 }
 
 export class LinkToResult {
-  link_result_id: number | undefined = undefined;
-  result_id: number | undefined = undefined;
-  other_result_id: number | undefined = undefined;
-  link_result_role_id: number | undefined = undefined;
+  link_result_id?: number = undefined;
+  result_id?: number = undefined;
+  other_result_id?: number = undefined;
+  link_result_role_id?: number = undefined;
 }
 
 export class ScalingPotentialForm {

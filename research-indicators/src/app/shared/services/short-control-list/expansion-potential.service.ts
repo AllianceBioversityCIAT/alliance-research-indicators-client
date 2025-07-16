@@ -17,7 +17,7 @@ export class ExpansionPotentialService {
   async main() {
     this.loading.set(true);
     try {
-      const response = await this.api.GET_DisseminationQualifications();
+      const response = await this.api.GET_ExpansionPotentials();
       this.list.set(response?.data ?? []);
     } catch (error) {
       console.error('Error loading dissemination qualifications:', error);
