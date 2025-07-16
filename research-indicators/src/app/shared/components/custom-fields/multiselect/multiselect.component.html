@@ -68,7 +68,7 @@
                     }
                     @if (item.description) {
                       <span class="text-[#4C5158] font-[600]">
-                        SDG {{ item.short_name?.split(':')[0] }} - 
+                        SDG {{ item.short_name?.split(':')[0] }} -
                         <span class="font-normal">{{ item.short_name?.split(':')[1]?.trim() }} </span></span
                       >
                     }
@@ -112,7 +112,7 @@
         </div>
       }
       @if (textSpan && selectedOptions()?.length) {
-        <span class="block text-[14.5px] pb-3 pt-5 text-[#777C83]">{{ textSpan }}</span>
+        <span class="block text-[14.5px] pb-3 pt-6 text-[#777C83]">{{ textSpan }}</span>
       }
       <div
         class="selected-items {{ !textSpan && selectedOptions()?.length ? 'mt-6' : '' }}"
