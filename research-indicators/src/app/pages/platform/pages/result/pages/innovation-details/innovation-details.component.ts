@@ -25,6 +25,7 @@ import { ActorItemComponent } from './components/actor-item/actor-item.component
 import { GetInnovationReadinessLevelsService } from '@shared/services/control-list/get-innovation-readiness-levels.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
+import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 
 @Component({
   selector: 'app-innovation-details',
@@ -40,7 +41,8 @@ import { MultiselectComponent } from '@shared/components/custom-fields/multisele
     OrganizationItemComponent,
     ActorItemComponent,
     MultiselectComponent,
-    TooltipModule
+    TooltipModule,
+    CustomTagComponent
   ],
   templateUrl: './innovation-details.component.html'
 })
