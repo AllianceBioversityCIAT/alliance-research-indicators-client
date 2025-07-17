@@ -46,7 +46,7 @@ describe('InputComponent', () => {
     utilsService = TestBed.inject(UtilsService) as jest.Mocked<UtilsService>;
     wordCountService = TestBed.inject(WordCountService) as jest.Mocked<WordCountService>;
 
-    // Configuración inicial del componente
+    // Initial component configuration
     component.signal = signal({});
     component.optionValue = 'testField';
     fixture.detectChanges();
@@ -181,7 +181,7 @@ describe('InputComponent', () => {
     expect(description.textContent).toContain('Test description');
   });
 
-  // Nuevas pruebas para mejorar la cobertura
+  // New tests to improve coverage
 
   it('should handle empty pattern validation', () => {
     component.pattern = '';
@@ -285,7 +285,7 @@ describe('InputComponent', () => {
     expect(component.isInvalid()).toBe(false);
   });
 
-  // Pruebas para shouldPreventInput y maxWords/maxLength
+  // Tests for shouldPreventInput and maxWords/maxLength
   describe('shouldPreventInput', () => {
     beforeEach(() => {
       component.maxWords = 3;
@@ -377,7 +377,7 @@ describe('InputComponent', () => {
     });
   });
 
-  // Cobertura directa de getPattern
+  // Direct coverage of getPattern
   describe('getPattern', () => {
     it('should return email pattern', () => {
       component.pattern = 'email';
@@ -399,7 +399,7 @@ describe('InputComponent', () => {
     });
   });
 
-  // Edge cases para setValue y shouldPreventInput
+  // Edge cases for setValue and shouldPreventInput
   describe('setValue edge cases', () => {
     it('should handle number value', () => {
       const num = 123;
@@ -463,8 +463,8 @@ describe('InputComponent', () => {
     });
   });
 
-  // Combinaciones de inputs
-  describe('combinaciones de inputs', () => {
+  // Combinations of inputs
+  describe('combinations of inputs', () => {
     it('should handle onlyLowerCase with number', () => {
       component.onlyLowerCase = true;
       component.setValue(123);
