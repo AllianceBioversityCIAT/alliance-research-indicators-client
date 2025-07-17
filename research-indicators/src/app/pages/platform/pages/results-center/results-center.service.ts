@@ -204,7 +204,7 @@ export class ResultsCenterService {
             },
             ...prev.map(indicator => ({
               ...indicator,
-              able: [0, 1, 4].includes(indicator.indicator_id)
+              able: [0, 1, 2, 4].includes(indicator.indicator_id)
             }))
           ];
         });
