@@ -10,7 +10,6 @@ import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
 
-// Mocks básicos para los servicios inyectados
 class MockApiService {
   GET_Versions = jest.fn().mockReturnValue(Promise.resolve({ data: { live: [], versions: [] } }));
   PATCH_ReportingCycle = jest.fn().mockReturnValue(Promise.resolve({ successfulRequest: true }));
@@ -260,7 +259,6 @@ describe('VersionSelectorComponent', () => {
     (actions.showGlobalAlert as jest.Mock).mockImplementation(arg => {
       if (arg.confirmCallback && arg.confirmCallback.event) arg.confirmCallback.event({ selected: '2023' });
     });
-    // No debe lanzar error aunque la navegación falle
     expect(() => component.updateResult()).not.toThrow();
   });
 
@@ -278,7 +276,7 @@ describe('VersionSelectorComponent', () => {
       if (arg.confirmCallback && arg.confirmCallback.event) arg.confirmCallback.event({ selected: '2023' });
     });
     expect(() => component.updateResult()).not.toThrow();
-    component['loadVersions'] = originalLoadVersions; // restaurar
+    component['loadVersions'] = originalLoadVersions;
   });
 
   it('should not fail if confirmCallback.event is not defined in updateResult', () => {

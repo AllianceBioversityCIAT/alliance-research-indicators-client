@@ -6,7 +6,6 @@ import ProjectDetailComponent from './project-detail.component';
 import { ApiService } from '@services/api.service';
 import { Component, Input } from '@angular/core';
 
-// Mock del componente hijo para evitar errores de acceso a propiedades
 @Component({ selector: 'app-project-item', template: '', standalone: false })
 class MockProjectItemComponent {
   @Input() project: any;
