@@ -60,8 +60,6 @@ describe('GetClarisaLanguagesService', () => {
   });
 
   it('should have correct initial loading state', () => {
-    // El servicio se inicializa con loading = false, pero después de main() se establece en false
-    // Como el constructor ya ejecutó main(), el loading debe ser false
     expect(service.loading()).toBe(false);
   });
 

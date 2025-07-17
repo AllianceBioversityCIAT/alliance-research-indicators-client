@@ -7,7 +7,7 @@ import { ApiService } from '../api.service';
 class MockGetContractsByUserService extends GetContractsByUserService {
   constructor() {
     super();
-    // No llamamos a main() en el constructor para las pruebas
+    // No call main() in the constructor for the tests
   }
 }
 

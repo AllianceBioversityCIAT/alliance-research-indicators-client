@@ -15,7 +15,6 @@ describe('GetYearsByCodeService', () => {
   ];
 
   beforeEach(() => {
-    // Clonar los mocks y asegurar que GET_Years siempre es un jest.fn()
     const apiMock = { ...apiServiceMock, GET_Years: jest.fn().mockResolvedValue({ data: mockData }) };
     const cacheMock = {
       ...cacheServiceMock,

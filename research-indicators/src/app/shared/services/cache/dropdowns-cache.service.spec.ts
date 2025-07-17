@@ -46,21 +46,21 @@ describe('DropdownsCacheService', () => {
   });
 
   it('should update only the specified dropdown and preserve others', () => {
-    // Primero mostrar result
+    // First show result
     service.showDropdown('result');
     let dropdowns = service.dropdown();
     expect(dropdowns.result).toBe(true);
     expect(dropdowns.profile).toBe(false);
     expect(dropdowns.notifications).toBe(false);
 
-    // Luego mostrar profile sin afectar result
+    // Then show profile without affecting result
     service.showDropdown('profile');
     dropdowns = service.dropdown();
     expect(dropdowns.result).toBe(true);
     expect(dropdowns.profile).toBe(true);
     expect(dropdowns.notifications).toBe(false);
 
-    // Finalmente mostrar notifications sin afectar los anteriores
+    // Finally show notifications without affecting the previous ones
     service.showDropdown('notifications');
     dropdowns = service.dropdown();
     expect(dropdowns.result).toBe(true);

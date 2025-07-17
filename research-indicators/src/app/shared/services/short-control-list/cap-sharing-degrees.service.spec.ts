@@ -13,7 +13,7 @@ describe('CapSharingDegreesService', () => {
   ];
 
   beforeEach(() => {
-    // Clonar el mock y asegurar que GET_Degrees siempre es un jest.fn()
+    // Clone the mock and ensure that GET_Degrees is always a jest.fn()
     const apiMock = { ...apiServiceMock, GET_Degrees: jest.fn().mockResolvedValue({ data: mockData }) };
     TestBed.configureTestingModule({
       providers: [
@@ -69,7 +69,7 @@ describe('CapSharingDegreesService', () => {
 
   it('should call main in constructor', async () => {
     const mainSpy = jest.spyOn(CapSharingDegreesService.prototype, 'main').mockImplementation(async () => {});
-    // Clonar el mock y asegurar que GET_Degrees siempre es un jest.fn()
+    // Clone the mock and ensure that GET_Degrees is always a jest.fn()
     const apiMock = { ...apiServiceMock, GET_Degrees: jest.fn() };
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({

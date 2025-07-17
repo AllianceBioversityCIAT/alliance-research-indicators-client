@@ -13,7 +13,7 @@ describe('GetOsGeoScopeService', () => {
   ];
 
   beforeEach(() => {
-    // Clonar el mock y asegurar que GET_GeoSearch siempre es un jest.fn()
+    // Clone the mock and ensure that GET_GeoSearch is always a jest.fn()
     const apiMock = { ...apiServiceMock, GET_GeoSearch: jest.fn().mockResolvedValue({ data: mockData }) };
 
     TestBed.configureTestingModule({
