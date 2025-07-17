@@ -22,7 +22,7 @@
         [class]="styleClass"
         [autoResize]="false"
         [disabled]="disabled"
-        [(ngModel)]="this.signal()[this.optionValue]"
+        [(ngModel)]="value"
         (ngModelChange)="setValue($event)"
         [style]="isInvalid() ? { border: '2px solid #E69F00', resize: 'none' } : { resize: 'none' }">
       </textarea>
