@@ -112,10 +112,7 @@ describe('IndicatorsService', () => {
       {
         label: 'Type 1',
         value: 1,
-        items: [
-          { label: 'Indicator 1', value: 1 },
-          { label: 'Indicator 2', value: 2 }
-        ]
+        items: [{ label: 'Indicator 1', value: 1 }]
       },
       {
         label: 'Type 2',
