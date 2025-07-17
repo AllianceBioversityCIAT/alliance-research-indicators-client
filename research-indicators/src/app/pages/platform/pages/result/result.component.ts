@@ -23,7 +23,7 @@ export default class ResultComponent {
   lastId: number | null = null;
 
   constructor() {
-    // Sincroniza el ID global con la ruta activa
+    // Synchronize the global ID with the active route
     effect(() => {
       const id = Number(this.route.snapshot.params['id']);
       if (id > 0) {
@@ -31,7 +31,7 @@ export default class ResultComponent {
       }
     });
 
-    // Controla el update de metadata solo si cambia id o version
+    // Control the metadata update only if id or version changes
     this.versionChangeEffect = effect(() => {
       this.checkAndUpdateMetadata();
     });

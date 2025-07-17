@@ -23,7 +23,7 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
     if (this.filtersContainer) {
       this.filtersContainer.nativeElement.addEventListener('scroll', () => this.updateArrowVisibility());
 
-      // Verificar si ResizeObserver está disponible
+      // Verify if ResizeObserver is available
       if (typeof ResizeObserver !== 'undefined') {
         this.resizeObserver = new ResizeObserver(() => {
           this.updateArrowVisibility();
@@ -35,7 +35,7 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
         window.addEventListener('resize', () => this.updateArrowVisibility());
       }
 
-      // Validación inicial
+      // Initial validation
       this.updateArrowVisibility();
     }
 
@@ -54,7 +54,7 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
-    // Limpiar el event listener de resize si se usó el fallback
+    // clear the resize event listener if the fallback was used
     if (typeof ResizeObserver === 'undefined') {
       window.removeEventListener('resize', () => this.updateArrowVisibility());
     }

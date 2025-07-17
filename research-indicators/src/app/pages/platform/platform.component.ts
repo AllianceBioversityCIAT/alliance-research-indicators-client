@@ -21,14 +21,13 @@ export default class PlatformComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly scrollService = inject(ScrollToTopService);
   cache = inject(CacheService);
-  // Signal para manejar el estado de error
   public readonly errorState = signal<Error | null>(null);
 
   ngOnInit(): void {
     this.routerSubscription = this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe({
       next: () => {
         this.scrollService.scrollContentToTop('content');
-        this.errorState.set(null); // Resetear el estado de error en navegación exitosa
+        this.errorState.set(null); // Reset the error state on successful navigation
       },
       error: (err: Error) => {
         this.errorState.set(err);

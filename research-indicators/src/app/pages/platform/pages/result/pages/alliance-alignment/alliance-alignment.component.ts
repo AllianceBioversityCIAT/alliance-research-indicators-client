@@ -47,14 +47,14 @@ export default class AllianceAlignmentComponent {
   async getData() {
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
 
-    // Mapear los datos para que coincidan con el formato esperado por el multiselect
+    // Map the data back to the format expected by the multiselect
     const mappedData = {
       contracts: response.data.contracts || [],
       result_sdgs:
         response.data.result_sdgs?.map(sdg => ({
           ...sdg,
-          sdg_id: sdg.clarisa_sdg_id, // Mapear clarisa_sdg_id a sdg_id para el multiselect
-          is_primary: false // Por defecto no es primario
+          sdg_id: sdg.clarisa_sdg_id, // Map clarisa_sdg_id to sdg_id for the multiselect
+          is_primary: false // By default it is not primary
         })) || []
     };
 
@@ -82,7 +82,7 @@ export default class AllianceAlignmentComponent {
     const nextPath = this.cache.currentResultIndicatorSectionPath();
 
     if (this.submission.isEditableStatus()) {
-      // Mapear los datos de vuelta al formato que espera el API
+      // Map the data back to the format expected by the API
       const dataToSend = {
         ...this.body(),
         result_sdgs:
