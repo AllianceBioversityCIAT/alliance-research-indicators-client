@@ -48,7 +48,9 @@ export class ResultsCenterService {
       getValue: (result: Result) => {
         const title = result.title;
         if (!title || typeof title !== 'string') return title;
-        return title.replace(/-+$/u, '');
+        let end = title.length;
+        while (end > 0 && title[end - 1] === '-') end--;
+        return title.slice(0, end);
       }
     },
     {
