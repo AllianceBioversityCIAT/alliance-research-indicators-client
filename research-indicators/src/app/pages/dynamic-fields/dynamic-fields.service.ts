@@ -35,10 +35,9 @@ export class DynamicFieldsService {
     fields.forEach(field => {
       const { fields: innerFields, ...rest } = field;
       if (types.includes(rest.type)) {
-        flattened.push(rest); // Agrega el elemento actual solo si su tipo coincide
+        flattened.push(rest); // Add the current element only if its type matches
       }
       if (innerFields) {
-        // Llamada recursiva manteniendo la filtración por tipo
         flattened = flattened.concat(this.flattenFields(innerFields, types));
       }
     });
