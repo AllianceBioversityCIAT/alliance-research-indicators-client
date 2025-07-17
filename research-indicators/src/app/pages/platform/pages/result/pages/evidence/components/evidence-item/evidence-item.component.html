@@ -6,15 +6,11 @@
 </ng-template>
 
 <div class="relative flex flex-col gap-4">
-  <div class="flex flex-col gap-1 pb-4">
+  <div class="flex flex-col gap-1">
     <div class="flex flex-col gap-1 2xl:gap-2">
-      @if (index !== 0) {
-        <div class="-mt-1 mb-[30px]"></div>
-      }
-
-      <div class="flex items-center justify-between space-x-2 text-[13px] text-sm text-gray-600">
-        <div>
-          <h3 class="font-['Space_Grotesk'] font-normal text-[12px] leading-[100%] tracking-[0.24em] align-bottom text-[#8d9299] mb-[10px] uppercase">
+      <div class="flex items-center justify-between space-x-2 text-[13px] text-sm text-gray-600 mb-[20px]">
+        <div class="flex items-center">
+          <h3 class="font-['Space_Grotesk'] font-normal text-[12px] leading-[100%] tracking-[0.24em] align-bottom text-[#8d9299] uppercase">
             Evidence #{{ evidenceNumber ?? 1 }}
           </h3>
         </div>
