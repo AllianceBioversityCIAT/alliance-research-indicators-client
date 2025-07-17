@@ -5,10 +5,9 @@ import { signal } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { AccordionModule } from 'primeng/accordion';
 
-// Mock de preguntas frecuentes
 const mockFaqList = [
-  { question: '¿Qué es la plataforma?', answer: 'Es una herramienta para reportar.' },
-  { question: '¿Cómo inicio sesión?', answer: 'Haz clic en el botón de inicio de sesión.' }
+  { question: 'what is the platform?', answer: 'It is a tool to report.' },
+  { question: 'how do I login?', answer: 'Click the login button.' }
 ];
 
 const landingTextsServiceMock = {
@@ -22,10 +21,7 @@ describe('FaqComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FaqComponent, AccordionModule],
-      providers: [
-        { provide: LandingTextsService, useValue: landingTextsServiceMock },
-        provideAnimations()
-      ]
+      providers: [{ provide: LandingTextsService, useValue: landingTextsServiceMock }, provideAnimations()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(FaqComponent);
@@ -41,13 +37,13 @@ describe('FaqComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debe renderizar el título principal y subtítulo', () => {
+  it('should render the main title and subtitle', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.faq-header-title')?.textContent).toContain('Asked Questions');
     expect(compiled.querySelector('.faq-header-subtitle')?.textContent).toContain('FRECUENTLY');
   });
 
-  it('debe renderizar todas las preguntas frecuentes', () => {
+  it('should render all FAQ questions', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const preguntas = compiled.querySelectorAll('p-accordion-header');
     expect(preguntas.length).toBe(mockFaqList.length);
@@ -56,7 +52,7 @@ describe('FaqComponent', () => {
     });
   });
 
-  it('debe renderizar todas las respuestas', () => {
+  it('should render all answers', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const respuestas = compiled.querySelectorAll('p-accordion-content p');
     expect(respuestas.length).toBe(mockFaqList.length);
@@ -65,12 +61,12 @@ describe('FaqComponent', () => {
     });
   });
 
-  it('debe actualizar las preguntas cuando cambia el servicio', () => {
+  it('should update questions when service changes', () => {
     const newFaqList = [
       { question: 'Nueva pregunta 1', answer: 'Nueva respuesta 1' },
       { question: 'Nueva pregunta 2', answer: 'Nueva respuesta 2' }
     ];
-    
+
     landingTextsServiceMock.faqList.set(newFaqList);
     fixture.detectChanges();
 
@@ -82,7 +78,7 @@ describe('FaqComponent', () => {
     });
   });
 
-  it('debe tener la estructura correcta del acordeón', () => {
+  it('should have the correct accordion structure', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const accordion = compiled.querySelector('p-accordion');
     expect(accordion).toBeTruthy();
@@ -90,7 +86,7 @@ describe('FaqComponent', () => {
     expect(accordion?.getAttribute('collapseIcon')).toBe('pi pi-minus');
   });
 
-  it('debe manejar correctamente el caso de lista vacía', () => {
+  it('should handle empty list case correctly', () => {
     landingTextsServiceMock.faqList.set([]);
     fixture.detectChanges();
 

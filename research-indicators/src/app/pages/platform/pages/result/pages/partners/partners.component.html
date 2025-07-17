@@ -2,8 +2,8 @@
   <app-form-header />
   <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">PARTNERS</div>
-    <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-5 px-5 mb-[30px]">
-      <span class="text-[#074b86] material-symbols-rounded">info</span>
+    <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-3 px-3 mb-[30px]">
+      <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
       <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
         If you do not find the partner in the dropdown menu, you can
         <span
@@ -17,10 +17,11 @@
     </div>
 
     <app-multiselect
-      label="Partners to be acknowledge"
+      label="Partner(s) that made a significant contribution to the achievement of the result that is being submitted"
       description="Partner organizations you collaborated with or are currently collaborating with to generate this result."
       [isRequired]="true"
       [signal]="body"
+      [helperText]="'Partner organizations you collaborated with or are currently collaborating with to generate this result.'"
       optionLabel="html_full_name"
       optionValue="institution_id"
       signalOptionValue="institutions"
@@ -31,6 +32,11 @@
       }}"
       [optionsDisabled]="this.optionsDisabled"
       serviceName="institutions">
+      <ng-template #selectedItems let-value>
+        <div class="flex items-center gap-2">
+          <span> {{ value?.length }} partner{{ value?.length === 1 ? '' : 's' }} selected </span>
+        </div>
+      </ng-template>
       @if (!this.loading()) {
         <ng-template #rows let-institution>
           <app-partner-selected-item [institution]="institution" />

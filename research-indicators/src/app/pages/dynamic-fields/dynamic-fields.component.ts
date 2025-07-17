@@ -17,7 +17,6 @@ export default class DynamicFieldsComponent implements OnInit {
   constructor(private readonly fb: FormBuilder) {}
 
   ngOnInit() {
-    // Datos iniciales que recibes
     this.data = {
       name: 'John',
       age: 30,
@@ -30,7 +29,6 @@ export default class DynamicFieldsComponent implements OnInit {
       }
     };
 
-    // Estructura de campos con atributos contenedores
     this.fields = [
       {
         type: 'section',
@@ -79,7 +77,6 @@ export default class DynamicFieldsComponent implements OnInit {
         validators: [Validators.required, Validators.min(18)]
       }
     ];
-    // Construir el formulario reactivo con datos iniciales
     this.form = this.buildFormGroup(this.fields, this.data);
   }
 
@@ -99,13 +96,11 @@ export default class DynamicFieldsComponent implements OnInit {
             if (field.attribute) {
               group.addControl(field.attribute, nestedGroup);
             } else {
-              // Fusionar controles si no se especifica atributo
               Object.assign(group.controls, nestedGroup.controls);
             }
           }
           break;
 
-        // Otros casos
         default:
           break;
       }
@@ -115,7 +110,7 @@ export default class DynamicFieldsComponent implements OnInit {
 
   save() {
     if (this.form.valid) {
-      // Otros casos
+      // Here you can handle the form submission, e.g., send data to a server
     }
   }
 }

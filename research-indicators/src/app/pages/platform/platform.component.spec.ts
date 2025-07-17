@@ -123,7 +123,7 @@ describe('PlatformComponent', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const testError = new Error('Test error');
 
-    // Simulamos un error en el observable
+    // Simulate an error in the observable
     mockServices.routerMock.events = throwError(() => testError);
     fixture = TestBed.createComponent(PlatformComponent);
     component = fixture.componentInstance;
@@ -139,7 +139,7 @@ describe('PlatformComponent', () => {
     fixture.detectChanges();
     tick();
 
-    // Primero simulamos un error
+    // First simulate an error
     const testError = new Error('Test error');
     mockServices.routerMock.events = throwError(() => testError);
     fixture = TestBed.createComponent(PlatformComponent);
@@ -148,7 +148,6 @@ describe('PlatformComponent', () => {
     tick();
     expect(component.errorState()).toBe(testError);
 
-    // Luego restauramos el observable normal y navegamos
     mockServices.routerMock.events = routerEventsSubject.asObservable();
     fixture = TestBed.createComponent(PlatformComponent);
     component = fixture.componentInstance;

@@ -106,16 +106,18 @@ body {
   font-style: italic;
 }
 
-.icon-color-flag,
-.icon-color-lightbulb,
-.icon-color-group {
-  color: var(--ac-green-300);
+.output-icon,
+.icon-color-pi-flag,
+.icon-color-pi-lightbulb,
+.icon-color-pi-users {
+  color: #7cb580;
 }
 
-.icon-color-folder_open,
-.icon-color-pie_chart,
-.icon-color-wb_sunny {
-  color: var(--ac-orange-1);
+.outcome-icon,
+.icon-color-pi-folder-open,
+.icon-color-pi-sun,
+.icon-color-pi-chart-pie {
+  color: #f58220;
 }
 
 .construction-icon-x1 {
@@ -143,4 +145,12 @@ body {
   body {
     font-size: 13px !important;
   }
+}
+
+.p-placeholder {
+  color: #a2a9af !important;
+}
+
+input::placeholder {
+  color: #a2a9af !important;
 }

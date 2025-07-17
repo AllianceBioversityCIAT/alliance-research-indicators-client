@@ -1,15 +1,41 @@
 <div class="container mx-auto">
-  <div class="content">
-    <div class="search-box">
-      <i class="material-symbols-rounded">search</i>
-      <input type="text" [(ngModel)]="searchValue" placeholder="Search a project by code, name or principal investigator" />
+  <div>
+    <div class="bg-white p-4 border border-[#E8EBED]">
+      <div class="relative w-[25rem] bg-white rounded-lg py-2">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <i class="pi pi-search text-[#6B7280] !text-[12px]"></i>
+        </span>
+        <input
+          pInputText
+          type="text"
+          [(ngModel)]="searchValue"
+          placeholder="Find a result by code, title or creator"
+          class="w-full !pl-9 !rounded-[8px] py-2 border !bg-[#fcfcfc] !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
+      </div>
     </div>
-    @if (getContractsByUserService.loading()) {
-      <app-custom-progress-bar></app-custom-progress-bar>
-    } @else {
-      @for (project of getContractsByUserService.list() | filterByTextWithAttr: 'full_name' : this.searchValue; track $index) {
-        <app-project-item [project]="project"></app-project-item>
+
+    <div class="w-full analyze-result-content">      @if (getContractsByUserService.loading()) {
+        <app-custom-progress-bar></app-custom-progress-bar>
+      } @else {
+        @for (
+          project of filteredProjects() | slice: first() : first() + rows();
+          track $index
+        ) {
+          <app-project-item [project]="project"></app-project-item>
+        }
       }
+    </div>
+    @if (filteredProjects().length > 0) {
+      <div class="flex justify-end w-full bg-white py-2">
+        <p-paginator
+          (onPageChange)="onPageChange($event)"
+          [first]="first()"
+          [rows]="rows()"
+          [totalRecords]="filteredProjects().length"
+          [showCurrentPageReport]="true"
+          [showJumpToPageDropdown]="false"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" />
+      </div>
     }
   </div>
 </div>

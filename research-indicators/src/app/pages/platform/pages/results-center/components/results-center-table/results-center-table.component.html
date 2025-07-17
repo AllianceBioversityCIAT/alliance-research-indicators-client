@@ -93,10 +93,10 @@
               class="{{ column.minWidth }} {{ column.maxWidth }}   !text-[#173F6F]"
               [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path"
               scope="col">
-              <div class="flex items-center font-[500] leading-4.5 gap-2">
+              <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                 {{ column.header }}
                 @if (!column?.hideFilterIf?.()) {
-                  <p-sortIcon class="pr-5" field="{{ column.path }}"></p-sortIcon>
+                  <p-sortIcon field="{{ column.path }}"></p-sortIcon>
                 }
               </div>
             </th>
@@ -108,12 +108,13 @@
       <tr
         (keydown.enter)="openResult(result)"
         (click)="openResult(result)"
-        class="cursor-pointer hover:surface-ground transition-colors duration-150">
+        class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
         @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
             @if (column.field === 'status') {
               <td>
-                <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status?.name"> </app-custom-tag>
+                <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true" [statusName]="result.result_status?.name">
+                </app-custom-tag>
               </td>
             } @else if (column.field === 'versions') {
               <td>
@@ -139,7 +140,7 @@
                           +{{ showMoreCount }} more
                         </a>
 
-                        <p-popover #popover [baseZIndex]="10000" styleClass="rounded-lg p-1 text-center">
+                        <p-popover #popover [baseZIndex]="10000" [appendTo]="'self'" styleClass="rounded-lg p-1 -ml-4 text-center">
                           <div class="mb-3 text-[14px] text-[#173F6F]">Approved Versions</div>
                           <div class="grid grid-cols-2 gap-2">
                             @for (year of versions; track year) {
@@ -160,8 +161,10 @@
                 }
               </td>
             } @else {
-              <td [class.w-[25rem]]="column.field === 'title'">
-                {{ column.getValue ? column.getValue(result) : '-' }}
+              <td [class]="column.minWidth + ' ' + column.maxWidth" [class.break-words]="column.field === 'title'" lang="es">
+                <div class="overflow-hidden line-clamp-3 xl:line-clamp-2">
+                  {{ column.getValue ? column.getValue(result) : '-' }}
+                </div>
               </td>
             }
           }

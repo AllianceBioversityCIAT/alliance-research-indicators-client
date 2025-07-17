@@ -23,14 +23,40 @@ export class TextareaComponent {
   @Input() isRequired = false;
   @Input() disabled = false;
   @Input() rows = 10;
+  @Input() styleClass = '';
+  @Input() size = '';
 
   body = signal({ value: null });
 
-  isInvalid = computed(() => {
-    return this.isRequired && (!this.signal()[this.optionValue] || this.signal()[this.optionValue].length === 0);
-  });
+  get mainKey() {
+    return this.optionValue.includes('.') ? this.optionValue.split('.')[0] : this.optionValue;
+  }
+
+  get subKey() {
+    return this.optionValue.includes('.') ? this.optionValue.split('.')[1] : null;
+  }
+
+  get value() {
+    if (this.subKey) {
+      return this.signal()[this.mainKey]?.[this.subKey] || '';
+    }
+    return this.signal()[this.mainKey] || '';
+  }
 
   setValue(value: string) {
-    this.signal.set({ ...this.signal(), [this.optionValue]: value });
+    if (this.subKey) {
+      const mainObj = { ...(this.signal()[this.mainKey] || {}) };
+      mainObj[this.subKey] = value;
+      this.signal.set({ ...this.signal(), [this.mainKey]: mainObj });
+    } else {
+      this.signal.set({ ...this.signal(), [this.mainKey]: value });
+    }
   }
+
+  isInvalid = computed(() => {
+    if (this.subKey) {
+      return this.isRequired && (!this.signal()[this.mainKey]?.[this.subKey] || this.signal()[this.mainKey][this.subKey].length === 0);
+    }
+    return this.isRequired && (!this.signal()[this.mainKey] || this.signal()[this.mainKey].length === 0);
+  });
 }

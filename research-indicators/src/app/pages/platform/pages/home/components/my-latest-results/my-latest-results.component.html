@@ -6,7 +6,7 @@
         <span class="description-text">View and track your most recent results.</span>
       </div>
       <div class="submmit-button">
-        <p-button severity="info" label="Submit Result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
+        <p-button severity="info" label="Create Result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
       </div>
     </div>
     <div class="card-container">
@@ -16,7 +16,7 @@
             <div class="project-indicators">
               <div class="indicator">
                 <div class="indicator-container">
-                  <i class="material-symbols-rounded  icon-color-{{ result.indicator.icon_src }}">{{ result.indicator.icon_src }} </i>
+                  <i class="pi {{ result.indicator.icon_src }}  icon-color-{{ result.indicator.icon_src }}"></i>
                 </div>
                 <label class="indicator-type" for="username">{{ result.indicator.name }}</label>
                 <div class="more-vert">
@@ -61,7 +61,7 @@
         >
       </div>
       <div class="submmit-button">
-        <p-button severity="info" label="Submit Result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
+        <p-button severity="info" label="Create Result" size="small" (onClick)="this.allModalsService.openModal('createResult')" />
       </div>
     </div>
     <div>

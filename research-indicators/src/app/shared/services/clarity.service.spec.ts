@@ -1,138 +1,192 @@
-import { TestBed } from '@angular/core/testing';
+const clarityMock = {
+  init: jest.fn(),
+  consent: jest.fn(),
+  setTag: jest.fn(),
+  event: jest.fn(),
+  upgrade: jest.fn()
+};
+
+global.console = { ...console, error: jest.fn() };
+
+jest.mock('@microsoft/clarity', () => clarityMock);
+
 import { ClarityService } from './clarity.service';
-import { Router, NavigationEnd } from '@angular/router';
-import { of } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { cacheServiceMock } from 'src/app/testing/mock-services.mock';
+import { signal } from '@angular/core';
+import type { DataCache } from '@shared/interfaces/cache.interface';
+
+jest.mock('@angular/core', () => {
+  const actual = jest.requireActual('@angular/core');
+  return {
+    ...actual,
+    inject: (token: any) => {
+      if (token && token.name === 'Router') return { navigate: jest.fn() };
+      if (token && token.name === 'CacheService') return cacheServiceMock;
+      return undefined;
+    }
+  };
+});
 
 describe('ClarityService', () => {
   let service: ClarityService;
-  let routerMock: Partial<Router>;
 
   beforeEach(() => {
-    routerMock = {
-      events: of(new NavigationEnd(1, '/', '/'))
-    };
+    jest.clearAllMocks();
+    service = new ClarityService();
+  });
 
-    TestBed.configureTestingModule({
-      providers: [ClarityService, { provide: Router, useValue: routerMock }]
+  describe('init', () => {
+    it('should initialize Clarity and set user info', () => {
+      service['initialized'] = false;
+      service.init();
+      expect(clarityMock.init).toHaveBeenCalled();
+      expect(clarityMock.consent).toHaveBeenCalled();
+      expect(clarityMock.setTag).toHaveBeenCalledWith('user_id', expect.any(String));
+      expect(service['initialized']).toBe(true);
     });
-    service = TestBed.inject(ClarityService);
+    it('should not initialize if already initialized', () => {
+      service['initialized'] = true;
+      service.init();
+      expect(clarityMock.init).not.toHaveBeenCalled();
+    });
+    it('should catch error in initClarity', () => {
+      service['initialized'] = false;
+      clarityMock.init.mockImplementationOnce(() => {
+        throw new Error('fail');
+      });
+      service.init();
+      expect(console.error).toHaveBeenCalledWith('Failed to initialize Clarity:', expect.any(Error));
+    });
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  describe('initClarity', () => {
+    it('should call clarity.init and consent', () => {
+      service['initClarity']();
+      expect(clarityMock.init).toHaveBeenCalled();
+      expect(clarityMock.consent).toHaveBeenCalled();
+    });
+    it('should throw and log error if clarity.init fails', () => {
+      clarityMock.init.mockImplementationOnce(() => {
+        throw new Error('fail');
+      });
+      expect(() => service['initClarity']()).toThrow();
+      expect(console.error).toHaveBeenCalledWith('Error initializing Clarity:', expect.any(Error));
+    });
   });
 
-  it('should not initialize Clarity in development mode', () => {
-    spyOn(console, 'log');
-    environment.production = false;
-    service.init();
-    expect(console.log).toHaveBeenCalledWith('Clarity tracking disabled in development mode');
+  describe('updateState', () => {
+    it('should set page tag', () => {
+      service.updateState('/test');
+      expect(clarityMock.setTag).toHaveBeenCalledWith('page', '/test');
+    });
+    it('should catch and log error', () => {
+      clarityMock.setTag.mockImplementationOnce(() => {
+        throw new Error('fail');
+      });
+      service.updateState('/fail');
+      expect(console.error).toHaveBeenCalledWith('Error updating Clarity state:', expect.any(Error));
+    });
   });
 
-  it('should initialize Clarity in production mode', () => {
-    environment.production = true;
-    const mockClarity = {
-      init: jasmine.createSpy('init'),
-      consent: jasmine.createSpy('consent'),
-      setTag: jasmine.createSpy('setTag'),
-      event: jasmine.createSpy('event'),
-      upgrade: jasmine.createSpy('upgrade')
-    };
-
-    (window as any).clarity = mockClarity;
-    service.init();
-
-    expect(mockClarity.init).toHaveBeenCalled();
-    expect(mockClarity.consent).toHaveBeenCalled();
+  describe('setUserInfo', () => {
+    it('should set user tags if user exists', () => {
+      service['setUserInfo']();
+      expect(clarityMock.setTag).toHaveBeenCalledWith('user_id', expect.any(String));
+      expect(clarityMock.setTag).toHaveBeenCalledWith('user_email', expect.any(String));
+      expect(clarityMock.setTag).toHaveBeenCalledWith('user_role', expect.any(String));
+    });
+    it('should not set tags if no user', () => {
+      const emptyCache: DataCache = {
+        access_token: '',
+        refresh_token: '',
+        user: undefined as any,
+        exp: 0
+      };
+      cacheServiceMock.dataCache = signal(emptyCache);
+      service['setUserInfo']();
+      expect(clarityMock.setTag).not.toHaveBeenCalledWith('user_id', expect.any(String));
+    });
+    it('should catch and log error', () => {
+      cacheServiceMock.dataCache = (() => {
+        throw new Error('fail');
+      }) as any;
+      service['setUserInfo']();
+      expect(console.error).toHaveBeenCalledWith('Error setting user info:', expect.any(Error));
+    });
   });
 
-  it('should track events in production mode', () => {
-    environment.production = true;
-    const mockClarity = {
-      event: jasmine.createSpy('event'),
-      setTag: jasmine.createSpy('setTag')
-    };
-
-    (window as any).clarity = mockClarity;
-    service.trackEvent('test-event', { key: 'value' });
-
-    expect(mockClarity.event).toHaveBeenCalledWith('test-event');
-    expect(mockClarity.setTag).toHaveBeenCalledWith('key', 'value');
+  describe('updateUserInfo', () => {
+    it('should call setUserInfo', () => {
+      const spy = jest.spyOn(service as any, 'setUserInfo');
+      service.updateUserInfo();
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
-  it('should not track events in development mode', () => {
-    environment.production = false;
-    const mockClarity = {
-      event: jasmine.createSpy('event'),
-      setTag: jasmine.createSpy('setTag')
-    };
-
-    (window as any).clarity = mockClarity;
-    service.trackEvent('test-event', { key: 'value' });
-
-    expect(mockClarity.event).not.toHaveBeenCalled();
-    expect(mockClarity.setTag).not.toHaveBeenCalled();
+  describe('trackEvent', () => {
+    it('should call clarity.event and set tags if data provided', () => {
+      service.trackEvent('test', { foo: 1, bar: 'baz' });
+      expect(clarityMock.event).toHaveBeenCalledWith('test');
+      expect(clarityMock.setTag).toHaveBeenCalledWith('foo', '1');
+      expect(clarityMock.setTag).toHaveBeenCalledWith('bar', 'baz');
+    });
+    it('should call clarity.event without tags if no data', () => {
+      service.trackEvent('test');
+      expect(clarityMock.event).toHaveBeenCalledWith('test');
+    });
+    it('should catch and log error', () => {
+      clarityMock.event.mockImplementationOnce(() => {
+        throw new Error('fail');
+      });
+      service.trackEvent('fail');
+      expect(console.error).toHaveBeenCalledWith('Error tracking event:', expect.any(Error));
+    });
   });
 
-  it('should set tags in production mode', () => {
-    environment.production = true;
-    const mockClarity = {
-      setTag: jasmine.createSpy('setTag')
-    };
-
-    (window as any).clarity = mockClarity;
-    service.setTags({ key: 'value' });
-
-    expect(mockClarity.setTag).toHaveBeenCalledWith('key', 'value');
+  describe('setTags', () => {
+    it('should set all tags', () => {
+      service.setTags({ a: '1', b: '2' });
+      expect(clarityMock.setTag).toHaveBeenCalledWith('a', '1');
+      expect(clarityMock.setTag).toHaveBeenCalledWith('b', '2');
+    });
+    it('should catch and log error', () => {
+      clarityMock.setTag.mockImplementationOnce(() => {
+        throw new Error('fail');
+      });
+      service.setTags({ fail: 'x' });
+      expect(console.error).toHaveBeenCalledWith('Error setting tags:', expect.any(Error));
+    });
   });
 
-  it('should not set tags in development mode', () => {
-    environment.production = false;
-    const mockClarity = {
-      setTag: jasmine.createSpy('setTag')
-    };
-
-    (window as any).clarity = mockClarity;
-    service.setTags({ key: 'value' });
-
-    expect(mockClarity.setTag).not.toHaveBeenCalled();
+  describe('upgradeSession', () => {
+    it('should call clarity.upgrade', () => {
+      service.upgradeSession('reason');
+      expect(clarityMock.upgrade).toHaveBeenCalledWith('reason');
+    });
+    it('should catch and log error', () => {
+      clarityMock.upgrade.mockImplementationOnce(() => {
+        throw new Error('fail');
+      });
+      service.upgradeSession('fail');
+      expect(console.error).toHaveBeenCalledWith('Error upgrading session:', expect.any(Error));
+    });
   });
 
-  it('should handle cookie consent in production mode', () => {
-    environment.production = true;
-    const mockClarity = {
-      consent: jasmine.createSpy('consent')
-    };
-
-    (window as any).clarity = mockClarity;
-    service.setCookieConsent(true);
-
-    expect(mockClarity.consent).toHaveBeenCalledWith(true);
-  });
-
-  it('should handle session upgrade in production mode', () => {
-    environment.production = true;
-    const mockClarity = {
-      upgrade: jasmine.createSpy('upgrade')
-    };
-
-    (window as any).clarity = mockClarity;
-    service.upgradeSession('test-reason');
-
-    expect(mockClarity.upgrade).toHaveBeenCalledWith('test-reason');
-  });
-
-  it('should handle errors gracefully', () => {
-    environment.production = true;
-    spyOn(console, 'error');
-
-    service.init();
-    service.trackEvent('test');
-    service.setTags({});
-    service.setCookieConsent(true);
-    service.upgradeSession('test');
-
-    expect(console.error).toHaveBeenCalled();
+  describe('setCookieConsent', () => {
+    it('should call clarity.consent with true', () => {
+      service.setCookieConsent(true);
+      expect(clarityMock.consent).toHaveBeenCalledWith(true);
+    });
+    it('should call clarity.consent with false', () => {
+      service.setCookieConsent(false);
+      expect(clarityMock.consent).toHaveBeenCalledWith(false);
+    });
+    it('should catch and log error', () => {
+      clarityMock.consent.mockImplementationOnce(() => {
+        throw new Error('fail');
+      });
+      service.setCookieConsent(true);
+      expect(console.error).toHaveBeenCalledWith('Error setting cookie consent:', expect.any(Error));
+    });
   });
 });

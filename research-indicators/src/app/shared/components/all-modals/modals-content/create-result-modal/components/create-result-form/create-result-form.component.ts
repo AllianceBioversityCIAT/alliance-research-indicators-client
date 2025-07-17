@@ -22,8 +22,10 @@ import localeEs from '@angular/common/locales/es';
 import { NgTemplateOutlet, registerLocaleData } from '@angular/common';
 import { GetYearsService } from '@shared/services/control-list/get-years.service';
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
+import { WordCountService } from '@shared/services/word-count.service';
 
 registerLocaleData(localeEs);
+
 @Component({
   selector: 'app-create-result-form',
   imports: [
@@ -52,6 +54,8 @@ export class CreateResultFormComponent {
   router = inject(Router);
   api = inject(ApiService);
   actions = inject(ActionsService);
+  wordCountService = inject(WordCountService);
+
   body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null; year: number | null }>({
     indicator_id: null,
     title: null,
@@ -62,6 +66,7 @@ export class CreateResultFormComponent {
   sharedFormValid = false;
   loading = false;
   contractId: number | null = null;
+
   onYearsLoaded = effect(
     () => {
       const years = this.yearsService.list();
@@ -140,5 +145,17 @@ export class CreateResultFormComponent {
     };
 
     return styles[normalizedStatus] || styles['DEFAULT'];
+  }
+
+  getWordCount(): number {
+    const title = this.body()?.title?.trim() || '';
+    return title ? title.split(' ').filter(word => word.length > 0).length : 0;
+  }
+
+  getWordCounterColor(): string {
+    const count = this.getWordCount();
+    if (count === 0) return '#8d9299'; // gray
+    if (count > 30) return '#cf0808'; // red
+    return '#509c55'; // green
   }
 }

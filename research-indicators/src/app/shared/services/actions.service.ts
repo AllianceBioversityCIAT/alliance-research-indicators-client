@@ -9,6 +9,7 @@ import { DataCache } from '../interfaces/cache.interface';
 import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
+import { ServiceLocatorService } from './service-locator.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,7 @@ export class ActionsService {
   cache = inject(CacheService);
   router = inject(Router);
   api = inject(ApiService);
+  serviceLocator = inject(ServiceLocatorService);
   toastMessage = signal<ToastMessage>({ severity: 'info', summary: '', detail: '' });
   saveCurrentSectionValue = signal(false);
   globalAlertsStatus = signal<GlobalAlert[]>([]);
@@ -52,7 +54,7 @@ export class ActionsService {
     const [boldText, ...regularParts] = existingResult.split('-').map(s => s.trim());
 
     const detailHtml = `
-      ${initialText}: 
+      ${initialText}:
       <a href="${linkUrl}" target="_blank" class="alert-link-custom">
         <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
       </a>
@@ -76,6 +78,9 @@ export class ActionsService {
   }
 
   showGlobalAlert(globalAlert: GlobalAlert) {
+    if (globalAlert.serviceName) {
+      this.serviceLocator.clearService(globalAlert.serviceName);
+    }
     this.globalAlertsStatus.update(prev => [...prev, globalAlert]);
   }
 
@@ -139,29 +144,34 @@ export class ActionsService {
 
   isTokenExpired(): Promise<TokenValidation> {
     return new Promise(resolve => {
-      // Obtener timestamp UTC actual en milisegundos y convertir a segundos
+      // Get current UTC timestamp in milliseconds and convert to seconds
       const utcNow = new Date().getTime();
       const currentTimeInSeconds = Math.floor(utcNow / 1000);
 
-      // El campo exp del JWT es un timestamp UTC en segundos
+      // The exp field of the JWT is a timestamp in UTC seconds
       const tokenExp = this.cache.dataCache().exp;
 
-      // Comparamos directamente ya que ambos están en UTC
+      // Compare directly since both are in UTC
       if (this.isCacheEmpty() || tokenExp < currentTimeInSeconds) {
-        this.api.refreshToken(this.cache.dataCache().refresh_token).then(response => {
-          if (response.successfulRequest) {
-            this.updateLocalStorage(response, true);
-            resolve({ token_data: response.data, isTokenExpired: true });
-          } else {
-            this.cache.isLoggedIn.set(false);
-            this.cache.dataCache.set(new DataCache());
-            localStorage.removeItem('data');
-            this.router.navigate(['/']);
-            resolve({ token_data: response.data, isTokenExpired: true });
-          }
-        });
+        this.api
+          .refreshToken(this.cache.dataCache().refresh_token)
+          .then(response => {
+            if (response.successfulRequest) {
+              this.updateLocalStorage(response, true);
+              resolve({ token_data: response.data, isTokenExpired: true });
+            } else {
+              this.cache.isLoggedIn.set(false);
+              this.cache.dataCache.set(new DataCache());
+              localStorage.removeItem('data');
+              this.router.navigate(['/']);
+              resolve({ token_data: response.data, isTokenExpired: true });
+            }
+          })
+          .catch(error => {
+            resolve(Promise.reject(new Error(error instanceof Error ? error.message : String(error))));
+          });
       } else {
-        // El token aún es válido (la comparación fue en UTC)
+        // The token is still valid (the comparison was in UTC)
         resolve({ isTokenExpired: false });
       }
     });
@@ -176,7 +186,7 @@ export class ActionsService {
       this.cache.dataCache.update(prev => ({
         ...prev,
         access_token: loginResponse.data.access_token,
-        exp: exp // exp ya está en UTC
+        exp: exp // exp is already in UTC
       }));
       localStorage.setItem('data', JSON.stringify(this.cache.dataCache()));
     } else {
@@ -218,10 +228,10 @@ export class ActionsService {
       this.cache.windowHeight.set(window.innerHeight);
     };
 
-    // Actualizar altura inicial
+    // Update initial height
     updateHeight();
 
-    // Suscribirse a cambios de tamaño de ventana
+    // Subscribe to window resize
     window.addEventListener('resize', updateHeight);
   }
 }

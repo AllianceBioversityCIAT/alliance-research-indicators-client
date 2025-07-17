@@ -27,7 +27,6 @@
         [optionLabel]="this.optionLabel"
         [showToggleAll]="false"
         [optionValue]="this.optionValue"
-        placeholder="Select items"
         [(ngModel)]="this.body().value"
         (ngModelChange)="this.setValue($event)"
         [disabled]="disabled"
@@ -50,30 +49,50 @@
           </ng-template>
         }
         @if (!this.hideSelected) {
-          <ng-template let-value pTemplate="selectedItems"> {{ selectedOptions()?.length }} items selected </ng-template>
+          <ng-template let-value pTemplate="selectedItems">
+            @if (selectedItems) {
+              <ng-container *ngTemplateOutlet="selectedItems; context: { $implicit: value }"></ng-container>
+            } @else {
+              {{ selectedOptions()?.length }} items selected
+            }
+          </ng-template>
           <ng-template let-item pTemplate="item">
-            <div class="flex align-items-center gap-2">
-              @if (this.flagAttributes.isoAlpha2) {
-                <img
-                  width="25"
-                  height="25"
-                  [src]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
-                  [alt]="item[this.flagAttributes.institution_location_name]"
-                  [srcset]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
-                  [pTooltip]="item[this.flagAttributes.institution_location_name]"
-                  tooltipPosition="right" />
+            @if (this.item) {
+              <ng-container *ngTemplateOutlet="this.item; context: { $implicit: item }"></ng-container>
+            } @else {
+              @if (serviceName === 'sdgs') {
+                <div class="flex-col flex w-full">
+                  <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                    @if (item.icon) {
+                      <img [src]="item.icon" [alt]="item.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
+                    }
+                    @if (item.description) {
+                      <span class="text-[#4C5158] font-[600]">
+                        SDG {{ item.short_name?.split(':')[0] }} -
+                        <span class="font-normal">{{ item.short_name?.split(':')[1]?.trim() }} </span></span
+                      >
+                    }
+                  </div>
+                </div>
+              } @else {
+                <div class="flex align-items-center gap-2">
+                  @if (this.flagAttributes.isoAlpha2) {
+                    <img
+                      width="25"
+                      height="25"
+                      [src]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
+                      [alt]="item[this.flagAttributes.institution_location_name]"
+                      [srcset]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
+                      [pTooltip]="item[this.flagAttributes.institution_location_name]"
+                      tooltipPosition="right" />
+                  }
+                  <span [innerHTML]="item[this.optionLabel]"></span>
+                </div>
               }
-              <span [innerHTML]="item[this.optionLabel]"></span>
-            </div>
+            }
           </ng-template>
         }
       </p-multiSelect>
-      @if (isInvalid()) {
-        <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
-          <i class="material-symbols-rounded !text-base">warning</i>
-          <span>This field is required</span>
-        </div>
-      }
     </div>
   }
 
@@ -83,7 +102,22 @@
         <p-skeleton width="100%" height="41px" styleClass="mb-2" />
       }
     } @else {
-      <div class="selected-items" [class.show-scroll]="!this.disabledSelectedScroll">
+      @if (helperText) {
+        <span class="block text-[14px] mt-1.5 text-[#8D9299]" [innerHTML]="helperText"></span>
+      }
+      @if (isInvalid()) {
+        <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+          <i class="material-symbols-rounded !text-base">warning</i>
+          <span>This field is required</span>
+        </div>
+      }
+      @if (textSpan && selectedOptions()?.length) {
+        <span class="block text-[14.5px] pb-3 pt-6 text-[#777C83]">{{ textSpan }}</span>
+      }
+      <div
+        class="selected-items {{ !textSpan && selectedOptions()?.length ? 'mt-6' : '' }}"
+        [class.show-scroll]="!this.disabledSelectedScroll"
+        [class.columns-xl]="columnsOnXl">
         @for (row of selectedOptions(); track $index) {
           <div class="item abc-grey-100">
             <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>

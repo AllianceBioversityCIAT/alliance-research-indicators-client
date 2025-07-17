@@ -19,7 +19,7 @@
   }
 }
 
-// Pantallas grandes (laptops y desktops)
+// screens large (laptops and desktops)
 @media screen and (width >= 1440px) {
   .content {
     padding: 2rem;
@@ -30,7 +30,7 @@
   }
 }
 
-// Pantallas medianas (laptops pequeñas)
+// screens medium (small laptops)
 @media screen and (width <= 1280px) {
   .content {
     padding: 1.5rem;
@@ -52,7 +52,7 @@
   }
 }
 
-// Pantallas pequeñas (tablets landscape y laptops muy pequeñas)
+// screens small (tablets landscape and very small laptops)
 @media screen and (width <= 1024px) {
   .content {
     padding: 1rem;
@@ -64,7 +64,7 @@
   }
 }
 
-// Tablets portrait
+// tablets portrait
 @media screen and (width <= 768px) {
   .content {
     .items {
@@ -73,7 +73,7 @@
   }
 }
 
-// Ajuste específico para alturas pequeñas
+// specific adjustment for small heights
 @media screen and (height <= 800px) {
   .content {
     gap: 1rem;

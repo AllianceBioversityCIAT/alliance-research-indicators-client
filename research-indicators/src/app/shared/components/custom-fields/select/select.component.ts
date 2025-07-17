@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, computed, effect, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, Input, OnInit, signal, WritableSignal, TemplateRef, ContentChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ControlListServices } from '../../../interfaces/services.interface';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
@@ -10,10 +10,11 @@ import { environment } from '../../../../../environments/environment';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-select',
-  imports: [FormsModule, SkeletonModule, TooltipModule, SelectModule],
+  imports: [FormsModule, SkeletonModule, TooltipModule, SelectModule, NgTemplateOutlet],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss'
 })
@@ -27,9 +28,16 @@ export class SelectComponent implements OnInit {
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
   @Input() description = '';
+  @Input() placeholder = '';
+  @Input() helperText = '';
   @Input() disabled = false;
+  @Input() scrollHeight = '270px';
   @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
+
+  @ContentChild('itemTemplate') itemTemplate?: TemplateRef<any>;
+  @ContentChild('selectedItemTemplate') selectedItemTemplate?: TemplateRef<any>;
+  @ContentChild('headerTemplate') headerTemplate?: TemplateRef<any>;
 
   allModalsService = inject(AllModalsService);
 

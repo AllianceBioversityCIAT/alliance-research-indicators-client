@@ -15,12 +15,18 @@ export class GetRegionsService {
   }
 
   async main() {
-    const response = await this.api.GET_Regions();
-    response.data.forEach((region: GetRegion) => {
-      region.region_id = region.um49Code;
-      region.sub_national_id = region.um49Code;
-    });
-    this.list.set(response.data);
-    this.loading.set(false);
+    try {
+      const response = await this.api.GET_Regions();
+      const data = Array.isArray(response?.data) ? response.data : [];
+      data.forEach((region: GetRegion) => {
+        region.region_id = region.um49Code;
+        region.sub_national_id = region.um49Code;
+      });
+      this.list.set(data);
+    } catch {
+      this.list.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

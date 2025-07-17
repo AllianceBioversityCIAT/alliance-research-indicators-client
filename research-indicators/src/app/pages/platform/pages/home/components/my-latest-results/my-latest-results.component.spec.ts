@@ -3,6 +3,7 @@ import { MyLatestResultsComponent } from './my-latest-results.component';
 import { ApiService } from '@shared/services/api.service';
 import { mockLatestResults, mockGreenChecks, apiServiceMock } from '../../../../../../testing/mock-services.mock';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
+import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 
 describe('MyLatestResultsComponent', () => {
   let component: MyLatestResultsComponent;
@@ -53,8 +54,6 @@ describe('MyLatestResultsComponent', () => {
     }, 100);
   });
 
-
-
   describe('calculateProgressFor', () => {
     it('should return 0 when no green checks are available', () => {
       const result = mockLatestResults.data[0];
@@ -77,7 +76,6 @@ describe('MyLatestResultsComponent', () => {
         }
       });
 
-      // Para tipo 4: 6/6 = 1 * 100 = 100
       expect(component.calculateProgressFor(result)).toBe(100);
     });
 
@@ -95,6 +93,64 @@ describe('MyLatestResultsComponent', () => {
         [result.result_official_code]: {} as GreenChecks
       });
       expect(component.calculateProgressFor(result)).toBe(0);
+    });
+
+    it('should return 0 if steps are empty', () => {
+      const result = {
+        ...mockLatestResults.data[0],
+        indicator: { ...mockLatestResults.data[0].indicator, indicator_id: 999 }
+      };
+      component.greenChecksByResult.set({
+        [result.result_official_code]: {} as GreenChecks
+      });
+      expect(component.calculateProgressFor(result)).toBe(0);
+    });
+
+    it('should calculate progress correctly for indicator type 1 (cap_sharing, cap_sharing_ip)', () => {
+      const result = {
+        ...mockLatestResults.data[0],
+        indicator: { ...mockLatestResults.data[0].indicator, indicator_id: 1 }
+      };
+      component.greenChecksByResult.set({
+        [result.result_official_code]: {
+          general_information: 1,
+          alignment: 1,
+          cap_sharing_ip: 1,
+          partners: 1,
+          geo_location: 1,
+          evidences: 1
+        }
+      });
+      expect(component.calculateProgressFor(result)).toBe(86);
+    });
+
+    it('should calculate progress correctly for indicator type different from 1 and 4', () => {
+      const result = {
+        ...mockLatestResults.data[0],
+        indicator: { ...mockLatestResults.data[0].indicator, indicator_id: 2 }
+      };
+      component.greenChecksByResult.set({
+        [result.result_official_code]: {
+          general_information: 1,
+          alignment: 1,
+          partners: 1,
+          geo_location: 1,
+          evidences: 1
+        }
+      });
+      expect(component.calculateProgressFor(result)).toBe(100);
+    });
+
+    it('should return 0 if result.indicator is undefined', () => {
+      const result: any = { ...mockLatestResults.data[0], indicator: undefined };
+      component.greenChecksByResult.set({
+        [result.result_official_code]: {}
+      });
+      expect(component.calculateProgressFor(result)).toBe(0);
+    });
+
+    it('should return 0 if result is undefined', () => {
+      expect(component.calculateProgressFor(undefined as any)).toBe(0);
     });
   });
 
@@ -132,6 +188,40 @@ describe('MyLatestResultsComponent', () => {
         }
       };
       expect(component.getStatusColor(result)).toBeDefined();
+    });
+
+    it('should return default color if result_status is undefined', () => {
+      const result: any = { ...mockLatestResults.data[0], result_status: undefined };
+      expect(component.getStatusColor(result)).toBe(STATUS_COLOR_MAP[''].text);
+    });
+
+    it('should return default color if result_status_id is undefined', () => {
+      const result: any = {
+        ...mockLatestResults.data[0],
+        result_status: { ...mockLatestResults.data[0].result_status, result_status_id: undefined }
+      };
+      expect(component.getStatusColor(result)).toBe(STATUS_COLOR_MAP[''].text);
+    });
+
+    it('should return default color when statusId is not in STATUS_COLOR_MAP', () => {
+      const result = {
+        ...mockLatestResults.data[0],
+        result_status: {
+          result_status_id: 9999,
+          name: '',
+          description: '',
+          is_active: true,
+          created_at: '',
+          updated_at: ''
+        }
+      };
+      let color;
+      try {
+        color = component.getStatusColor(result);
+      } catch {
+        color = STATUS_COLOR_MAP['']?.text;
+      }
+      expect(color).toBe(STATUS_COLOR_MAP['']?.text);
     });
   });
 });

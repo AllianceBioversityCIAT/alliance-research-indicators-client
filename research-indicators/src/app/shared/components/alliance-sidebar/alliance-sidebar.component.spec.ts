@@ -15,7 +15,7 @@ describe('AllianceSidebarComponent', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: { paramMap: new Map() },
-            params: of({}) // Mock de parámetros de ruta
+            params: of({})
           }
         }
       ]

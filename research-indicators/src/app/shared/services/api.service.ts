@@ -7,7 +7,6 @@ import { GetContracts } from '../interfaces/get-contracts.interface';
 import { Result, ResultConfig, ResultFilter } from '../interfaces/result/result.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
-import { GetLevers } from '../interfaces/get-levers.interface';
 import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
 import { PatchPartners } from '../interfaces/patch-partners.interface';
 import { Degree, Gender, GetCapSharing, IpOwners, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
@@ -43,6 +42,7 @@ import { SignalEndpointService } from './signal-endpoint.service';
 import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
 import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
 import { GetClarisaInstitutionsTypes } from '@shared/interfaces/get-clarisa-institutions-types.interface';
+import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
 import { GetYear } from '@shared/interfaces/get-year.interface';
@@ -51,6 +51,13 @@ import { GetVersions } from '@shared/interfaces/get-versions.interface';
 import { AskForHelp } from '../components/all-modals/modals-content/ask-for-help-modal/interfaces/ask-for-help.interface';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { HttpParams } from '@angular/common/http';
+import { GetInnovationDetails } from '@shared/interfaces/get-innovation-details.interface';
+import { InnovationCharacteristic, InnovationLevel, InnovationType } from '@shared/interfaces/get-innovation.interface';
+import { ActorType } from '@shared/interfaces/get-actor-types.interface';
+import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-institutions-subtypes.interface';
+import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
+import { IssueCategory } from '../interfaces/issue-category.interface';
+import { GenericList } from '@shared/interfaces/generic-list.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -93,6 +100,11 @@ export class ApiService {
 
   GET_InstitutionsTypesChildless = (): Promise<MainResponse<GetClarisaInstitutionsTypes[]>> => {
     const url = () => `tools/clarisa/institutions-types/childless`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SDGs = (): Promise<MainResponse<GetSdgs[]>> => {
+    const url = () => `tools/clarisa/sdgs`;
     return this.TP.get(url(), {});
   };
 
@@ -166,6 +178,22 @@ export class ApiService {
     return this.TP.post(url(), result, {});
   };
 
+  // dynamo feedback
+  POST_DynamoFeedback = <T>(body: T): Promise<MainResponse<DynamoFeedback>> => {
+    const url = () => `dynamo-feedback/save-data`;
+    return this.TP.post(url(), body, {});
+  };
+
+  GET_DynamoFeedback = (): Promise<MainResponse<DynamoFeedback>> => {
+    const url = () => `dynamo-feedback/test-data`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IssueCategories = (): Promise<MainResponse<IssueCategory[]>> => {
+    const url = () => `issue-categories`;
+    return this.TP.get(url(), {});
+  };
+
   // create partner request
   POST_PartnerRequest = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `tools/clarisa/manager/partner-request/create`;
@@ -189,18 +217,59 @@ export class ApiService {
     });
   };
 
-  GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
-    const url = () => `results/institutions/by-result-id/${id}?role=partners`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
-  };
-
   GET_Versions = (resultCode: number): Promise<MainResponse<GetVersions>> => {
     const url = () => `results/versions/${resultCode}`;
     return this.TP.get(url(), {});
   };
 
+  GET_InnovationReadinessLevels = (): Promise<MainResponse<InnovationLevel[]>> => {
+    const url = () => `tools/clarisa/innovation-readiness-levels`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InnovationCharacteristics = (): Promise<MainResponse<InnovationCharacteristic[]>> => {
+    const url = () => `tools/clarisa/innovation-characteristics`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InnovationTypes = (): Promise<MainResponse<InnovationType[]>> => {
+    const url = () => `tools/clarisa/innovation-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InstitutionTypes = (): Promise<MainResponse<ClarisaInstitutionsSubTypes[]>> => {
+    const url = () => `tools/clarisa/institutions-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SubInstitutionTypes = (depthLevel: number, code?: number): Promise<MainResponse<ClarisaInstitutionsSubTypes[]>> => {
+    const codeQuery = code !== undefined ? '?code=' + code : '';
+    const url = () => `tools/clarisa/institutions-types/depth-level/${depthLevel}${codeQuery}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ActorTypes = (): Promise<MainResponse<ActorType[]>> => {
+    const url = () => `tools/clarisa/actor-types`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
+    const url = () => `results/institutions/by-result-id/${id}?role=partners`;
+    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+  };
+
   PATCH_Partners = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/institutions/partners/by-result-id/${id}`;
+    return this.TP.patch(url(), body, { useYearInterceptor: true });
+  };
+
+  GET_InnovationDetails = (resultCode: number): Promise<MainResponse<GetInnovationDetails>> => {
+    const url = () => `results/innovation-dev/${resultCode}`;
+    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+  };
+
+  PATCH_InnovationDetails = <T>(resultCode: number, body: T): Promise<MainResponse<GetInnovationDetails>> => {
+    const url = () => `results/innovation-dev/${resultCode}`;
     return this.TP.patch(url(), body, { useYearInterceptor: true });
   };
 
@@ -214,10 +283,6 @@ export class ApiService {
     return this.TP.patch(url(), body, { useYearInterceptor: true });
   };
 
-  GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
-    const url = () => `tools/clarisa/levers`;
-    return this.TP.get(url(), {});
-  };
   GET_Years = (resultCode?: number, reportYear?: number): Promise<MainResponse<GetYear[]>> => {
     const url = 'results/year';
 
@@ -231,6 +296,21 @@ export class ApiService {
   GET_IpOwners = (): Promise<MainResponse<IpOwners[]>> => {
     const url = () => `results/capacity-sharing/ip-owners`;
     return this.TP.get(url(), { loadingTrigger: true });
+  };
+
+  GET_DisseminationQualifications = (id?: number): Promise<MainResponse<GenericList[]>> => {
+    const url = () => (id !== undefined ? `dissemination-qualifications/${id}` : 'dissemination-qualifications');
+    return this.TP.get(url(), {});
+  };
+
+  GET_ToolFunctions = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `tool-functions`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ExpansionPotentials = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `expansion-potentials`;
+    return this.TP.get(url(), {});
   };
 
   GET_IpOwner = (id: number): Promise<MainResponse<PatchIpOwner>> => {
@@ -457,6 +537,10 @@ export class ApiService {
   PATCH_Feedback = (body: AskForHelp) => {
     const url = () => `reporting-feedback/send`;
     return this.TP.patch(url(), body);
+  };
+
+  GET_GithubVersion = () => {
+    return this.TP.get('', { isAuth: environment.frontVersionUrl });
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

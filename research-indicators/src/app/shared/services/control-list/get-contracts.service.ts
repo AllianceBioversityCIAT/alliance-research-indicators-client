@@ -20,22 +20,27 @@ export class GetContractsService {
 
   async main() {
     this.loading.set(true);
-    const response = await this.api.GET_Contracts();
+    try {
+      const response = await this.api.GET_Contracts();
 
-    if (response?.data) {
-      this.list.set(response.data);
+      if (response?.data && Array.isArray(response.data)) {
+        this.list.set(response.data);
 
-      this.list.update(current =>
-        current.map(item => ({
-          ...item,
-          select_label: item.agreement_id + ' - ' + item.description,
-          contract_id: item.agreement_id
-        }))
-      );
-    } else {
+        this.list.update(current =>
+          current.map(item => ({
+            ...item,
+            select_label: item.agreement_id + ' - ' + item.description,
+            contract_id: item.agreement_id
+          }))
+        );
+      } else {
+        this.list.set([]);
+      }
+    } catch (e) {
+      console.error('Failed to fetch contracts:', e);
       this.list.set([]);
+    } finally {
+      this.loading.set(false);
     }
-
-    this.loading.set(false);
   }
 }

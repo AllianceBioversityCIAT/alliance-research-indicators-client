@@ -43,6 +43,8 @@ export class MultiselectComponent implements OnInit {
   allModalsService = inject(AllModalsService);
 
   @ContentChild('rows') rows!: TemplateRef<any>;
+  @ContentChild('selectedItems') selectedItems!: TemplateRef<any>;
+  @ContentChild('item') item!: TemplateRef<any>;
 
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
@@ -62,6 +64,9 @@ export class MultiselectComponent implements OnInit {
     this._isRequired.set(value);
   }
   _isRequired = signal(false);
+  @Input() helperText = '';
+  @Input() textSpan = '';
+  @Input() columnsOnXl = false;
 
   selectEvent = output<any>();
   environment = environment;
@@ -182,7 +187,6 @@ export class MultiselectComponent implements OnInit {
         .getNestedProperty(current, this.signalOptionValue)
         .filter((item: any) => item[this.optionValue] !== option[this.optionValue]);
 
-      // Update the body signal with the new list of option values
       this.body.set({ value: this.objectArrayToIdArray(updatedOptions, this.optionValue) });
 
       this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, updatedOptions);

@@ -56,7 +56,7 @@ export class ClarityService {
     }
   }
 
-  // Método público para actualizar la información del usuario
+  // Method to update the user info
   public updateUserInfo(): void {
     this.setUserInfo();
   }

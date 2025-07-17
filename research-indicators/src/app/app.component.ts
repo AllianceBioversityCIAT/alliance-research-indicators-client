@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { environment } from '@envs/environment';
 import { CacheService } from '@services/cache/cache.service';
 import { MetadataPanelComponent } from '@components/metadata-panel/metadata-panel.component';
@@ -21,4 +21,19 @@ export class AppComponent {
   title = 'research-indicators';
   name = environment.name;
   route = inject(ActivatedRoute);
+
+  constructor(private readonly router: Router) {
+    window.addEventListener('popstate', () => {
+      window.location.reload();
+    });
+
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        const navType = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+        if (navType.type === 'back_forward') {
+          window.location.reload();
+        }
+      }
+    });
+  }
 }

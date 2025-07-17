@@ -42,8 +42,16 @@ export class ResultsCenterService {
       field: 'title',
       path: 'title',
       header: 'Title',
+      minWidth: 'min-w-[200px]',
+      maxWidth: 'max-w-[300px]',
       filter: true,
-      getValue: (result: Result) => result.title
+      getValue: (result: Result) => {
+        const title = result.title;
+        if (!title || typeof title !== 'string') return title;
+        let end = title.length;
+        while (end > 0 && title[end - 1] === '-') end--;
+        return title.slice(0, end);
+      }
     },
     {
       field: 'indicator_id',
@@ -61,23 +69,20 @@ export class ResultsCenterService {
       field: 'status',
       path: 'result_status.name',
       header: 'Status',
-      minWidth: 'min-w-[100px]',
       maxWidth: 'max-w-[100px]',
       getValue: (result: Result) => result.result_status?.name ?? '-'
     },
     {
       field: 'project',
       path: 'result_contracts.contract_id',
-      header: 'Primary Project',
-      minWidth: 'min-w-[100px]',
-      maxWidth: 'max-w-[100px]',
+      header: 'Reporting Project',
+      maxWidth: 'max-w-[110px]',
       getValue: (result: Result) => result.result_contracts?.contract_id ?? '-'
     },
     {
       field: 'lever',
       path: 'result_levers.lever.short_name',
       header: 'Primary Lever',
-      minWidth: 'min-w-[100px]',
       maxWidth: 'max-w-[100px]',
       getValue: (result: Result) => result.result_levers?.lever?.short_name ?? '-'
     },
@@ -85,14 +90,12 @@ export class ResultsCenterService {
       field: 'year',
       path: 'report_year_id',
       header: 'Live Version',
-      minWidth: 'min-w-[100px]',
       maxWidth: 'max-w-[100px]',
       getValue: (result: Result) => result.report_year_id?.toString() ?? '-'
     },
     {
       field: 'versions',
       path: 'snapshot_years',
-      minWidth: 'min-w-[120px]',
       maxWidth: 'max-w-[120px]',
       header: 'Approved Versions',
       getValue: (result: Result) => (Array.isArray(result.snapshot_years) ? result.snapshot_years : [])
@@ -101,8 +104,7 @@ export class ResultsCenterService {
       field: 'creator',
       path: 'created_by_user.first_name',
       header: 'Creator',
-      minWidth: 'min-w-[160px]',
-
+      minWidth: 'min-w-[90px]',
       hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
@@ -110,8 +112,8 @@ export class ResultsCenterService {
     {
       field: 'creation_date',
       path: 'created_at',
-      header: 'Creation date',
-      minWidth: 'min-w-[160px]',
+      header: 'Creation Date',
+      minWidth: 'min-w-[100px]',
 
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
