@@ -9,7 +9,13 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
-import { Actor, GetInnovationDetails, InstitutionType } from '@shared/interfaces/get-innovation-details.interface';
+import {
+  Actor,
+  GetInnovationDetails,
+  InstitutionType,
+  KnowledgeSharingForm,
+  ScalingPotentialForm
+} from '@shared/interfaces/get-innovation-details.interface';
 import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { RadioButtonComponent } from '@shared/components/custom-fields/radio-button/radio-button.component';
@@ -18,6 +24,8 @@ import { OrganizationItemComponent } from './components/organization-item/organi
 import { ActorItemComponent } from './components/actor-item/actor-item.component';
 import { GetInnovationReadinessLevelsService } from '@shared/services/control-list/get-innovation-readiness-levels.service';
 import { TooltipModule } from 'primeng/tooltip';
+import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
+import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 
 @Component({
   selector: 'app-innovation-details',
@@ -32,7 +40,9 @@ import { TooltipModule } from 'primeng/tooltip';
     SelectComponent,
     OrganizationItemComponent,
     ActorItemComponent,
-    TooltipModule
+    MultiselectComponent,
+    TooltipModule,
+    CustomTagComponent
   ],
   templateUrl: './innovation-details.component.html'
 })
@@ -55,11 +65,17 @@ export default class InnovationDetailsComponent {
     expected_outcome: '',
     intended_beneficiaries_description: '',
     actors: [],
-    institution_types: []
+    institution_types: [],
+    knowledge_sharing_form: new KnowledgeSharingForm(),
+    scaling_potential_form: new ScalingPotentialForm()
   });
 
   loading = signal(false);
   selectedStep = signal<number | null>(null);
+  scalingHelperText =
+    'You may consult the Alliance’s <a class="text-[#1689CA] underline" href="https://alliancebioversityciat.org/tools-innovations" target="_blank"> Tools and Innovations list</a>.';
+  scalingHelperText2 =
+    'For more information please visit the following <a class="text-[#1689CA] underline" href="https://alliancebioversityciat.org/tools-innovations" target="_blank">  Resource</a>.';
 
   constructor() {
     this.versionWatcher.onVersionChange(() => this.getData());
@@ -178,6 +194,7 @@ export default class InnovationDetailsComponent {
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
     const cleanedBody = { ...this.body() };
+
     if (Array.isArray(cleanedBody.institution_types)) {
       cleanedBody.institution_types = cleanedBody.institution_types.filter(
         i =>
@@ -189,6 +206,25 @@ export default class InnovationDetailsComponent {
             (i.institution_type_custom_name !== undefined && i.institution_type_custom_name !== ''))
       );
     }
+
+    if (Array.isArray(cleanedBody.knowledge_sharing_form.link_to_result)) {
+      cleanedBody.knowledge_sharing_form.link_to_result = cleanedBody.knowledge_sharing_form.link_to_result
+        .filter(link => link?.result_id)
+        .map(link => {
+          if (link.link_result_id) {
+            return {
+              link_result_id: link.link_result_id,
+              result_id: link.result_id,
+              other_result_id: link.other_result_id,
+              link_result_role_id: link.link_result_role_id
+            };
+          }
+          return {
+            other_result_id: link.result_id
+          };
+        });
+    }
+
     const resultId = Number(this.cache.currentResultId());
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;

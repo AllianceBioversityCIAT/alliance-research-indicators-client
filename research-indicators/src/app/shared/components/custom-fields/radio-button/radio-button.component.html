@@ -1,7 +1,7 @@
 <div class="options input-container">
   @if (label) {
     <label class="label inline-block" for="username"
-      >{{ label }}
+      ><span [innerHTML]="label"></span>
       @if (isRequired) {
         <span class="text-red-500">*</span>
       }
@@ -27,7 +27,7 @@
     }
   </div>
   @if (helperText) {
-    <span class="block text-[14px] text-[#8D9299]">{{ helperText }}</span>
+    <span class="block text-[14px] text-[#8D9299]" [innerHTML]="helperText"></span>
   }
   @if (isInvalid()) {
     <div class="flex items-center gap-1 {{ helperText ? '-mt-1' : 'mt-1' }} text-[#E69F00] text-sm">

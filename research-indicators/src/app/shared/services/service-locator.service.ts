@@ -39,6 +39,11 @@ import { GetAnticipatedUsersService } from './short-control-list/get-anticipated
 import { GetActorTypesService } from './control-list/get-actor-types.service';
 import { GetInstitutionTypesService } from './control-list/get-institution-types.service';
 import { GetSdgsService } from './control-list/get-sdgs.service';
+import { ScalingService } from './short-control-list/scaling.service';
+import { DisseminationQualificationsService } from './short-control-list/dissemination-qualifications.service';
+import { ToolFunctionsService } from './short-control-list/tool-functions.service';
+import { ExpansionPotentialService } from './short-control-list/expansion-potential.service';
+import { InnResultsService } from './short-control-list/inn-results.service';
 
 @Injectable({
   providedIn: 'root'
@@ -119,6 +124,10 @@ export class ServiceLocatorService {
         return this.injector.get(CapSharingDegreesService);
       case 'capSharingLengths':
         return this.injector.get(CapSharingLengthsService);
+      case 'disseminationQualifications':
+        return this.injector.get(DisseminationQualificationsService);
+      case 'toolFunctions':
+        return this.injector.get(ToolFunctionsService);
       default:
         return null;
     }
@@ -132,12 +141,16 @@ export class ServiceLocatorService {
         return this.injector.get(CapSharingSessionPurposeService);
       case 'yesOrNo':
         return this.injector.get(YesOrNotService);
+      case 'expansionPotential':
+        return this.injector.get(ExpansionPotentialService);
       case 'policyTypes':
         return this.injector.get(PolicyTypesService);
       case 'policyStages':
         return this.injector.get(PolicyStagesService);
       case 'geoFocus':
         return this.injector.get(GetGeoFocusService);
+      case 'innResults':
+        return this.injector.get(InnResultsService);
       default:
         return null;
     }
@@ -186,6 +199,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetClarisaInstitutionsTypesChildlessService);
       case 'sdgs':
         return this.injector.get(GetSdgsService);
+      case 'scaling':
+        return this.injector.get(ScalingService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;
