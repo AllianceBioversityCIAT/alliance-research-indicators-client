@@ -49,7 +49,7 @@ export default class AllianceAlignmentComponent {
 
     // Mapear los datos para que coincidan con el formato esperado por el multiselect
     const mappedData = {
-      ...response.data,
+      contracts: response.data.contracts || [],
       result_sdgs:
         response.data.result_sdgs?.map(sdg => ({
           ...sdg,

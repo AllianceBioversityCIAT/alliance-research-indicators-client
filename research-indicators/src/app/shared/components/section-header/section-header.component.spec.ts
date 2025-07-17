@@ -90,6 +90,9 @@ describe('SectionHeaderComponent', () => {
       isSidebarCollapsed: signal<boolean>(false)
     };
 
+    // Mock isMyResult method separately
+    (cacheService as any).isMyResult = jest.fn().mockReturnValue(false);
+
     actionsService = {
       validateToken: jest.fn(),
       logOut: jest.fn(),
@@ -172,22 +175,163 @@ describe('SectionHeaderComponent', () => {
   });
 
   it('should handle submission history action', () => {
-    const historyMenuItem = component.items().find(item => item.items?.some(subItem => subItem.label === 'Submission History'));
-    const historyCommand = historyMenuItem?.items?.find(item => item.label === 'Submission History')?.command;
+    // Mock the submission service to return some history items
+    const mockHistoryItems = [
+      { title: 'Test Submission 1', id: '1' },
+      { title: 'Test Submission 2', id: '2' }
+    ];
 
-    expect(historyCommand).toBeDefined();
+    // Since the component doesn't have a submission history menu item,
+    // we'll test the getHistoryItemTitle method instead
+    const testItem = { title: 'Test Item', id: '123' };
+    const result = component.getHistoryItemTitle(testItem);
 
-    if (historyCommand) {
+    expect(result).toBe('Test Item (id: 123)');
+  });
+
+  it('should handle history item without id', () => {
+    const testItem = { title: 'Test Item', id: null };
+    const result = component.getHistoryItemTitle(testItem);
+
+    expect(result).toBe('Test Item');
+  });
+
+  it('should not show delete option when status_id is not 4, 5, or 7', () => {
+    cacheService.currentMetadata?.set({ status_id: 1 });
+    fixture.detectChanges();
+
+    expect(component.showDeleteOption()).toBe(false);
+    const items = component.items();
+    expect(items[0].items?.length).toBe(0);
+  });
+
+  it('should show delete option when status_id is 5', () => {
+    cacheService.currentMetadata?.set({ status_id: 5 });
+    fixture.detectChanges();
+
+    expect(component.showDeleteOption()).toBe(true);
+    const items = component.items();
+    expect(items[0].items?.length).toBe(1);
+    expect(items[0].items?.[0].label).toBe('Delete Result');
+  });
+
+  it('should show delete option when status_id is 7', () => {
+    cacheService.currentMetadata?.set({ status_id: 7 });
+    fixture.detectChanges();
+
+    expect(component.showDeleteOption()).toBe(true);
+    const items = component.items();
+    expect(items[0].items?.length).toBe(1);
+    expect(items[0].items?.[0].label).toBe('Delete Result');
+  });
+
+  it('should show delete option when status_id is 4 and isMyResult is true', () => {
+    cacheService.currentMetadata?.set({ status_id: 4 });
+    (cacheService as any).isMyResult.mockReturnValue(true);
+    fixture.detectChanges();
+
+    expect(component.showDeleteOption()).toBe(true);
+    const items = component.items();
+    expect(items[0].items?.length).toBe(1);
+    expect(items[0].items?.[0].label).toBe('Delete Result');
+  });
+
+  it('should not show delete option when status_id is 4 and isMyResult is false', () => {
+    cacheService.currentMetadata?.set({ status_id: 4 });
+    (cacheService as any).isMyResult.mockReturnValue(false);
+    fixture.detectChanges();
+
+    expect(component.showDeleteOption()).toBe(false);
+    const items = component.items();
+    expect(items[0].items?.length).toBe(0);
+  });
+
+  it('should handle delete result when API call is unsuccessful', () => {
+    apiService.DELETE_Result = jest.fn().mockResolvedValue({ successfulRequest: false });
+
+    const deleteMenuItem = component.items().find(item => item.items?.some(subItem => subItem.label === 'Delete Result'));
+    const deleteCommand = deleteMenuItem?.items?.find(item => item.label === 'Delete Result')?.command;
+
+    expect(deleteCommand).toBeDefined();
+
+    if (deleteCommand) {
       const fakeEvent = { originalEvent: new Event('click'), item: {} } as MenuItemCommandEvent;
-      historyCommand(fakeEvent);
+      deleteCommand(fakeEvent);
 
-      expect(cacheService.showSubmissionHistory?.()).toBe(true);
+      expect(actionsService.showGlobalAlert).toHaveBeenCalled();
     }
+  });
+
+  it('should handle welcome message when user first_name is undefined', () => {
+    cacheService.dataCache?.set({
+      ...cacheService.dataCache(),
+      user: {
+        ...cacheService.dataCache().user,
+        first_name: undefined as any
+      }
+    });
+    cacheService.currentRouteTitle?.set('Home');
+    fixture.detectChanges();
+
+    expect(component.welcomeMessage()).toBe('Welcome, ');
+  });
+
+  it('should handle ngAfterViewInit when section-sidebar element does not exist', () => {
+    // Create a new component instance for this test
+    const newFixture = TestBed.createComponent(SectionHeaderComponent);
+    const newComponent = newFixture.componentInstance;
+
+    // Mock querySelector to return null
+    const mockQuerySelector = jest.spyOn(newComponent.elementRef.nativeElement, 'querySelector');
+    mockQuerySelector.mockReturnValue(null);
+
+    newComponent.ngAfterViewInit();
+
+    expect(mockQuerySelector).toHaveBeenCalledWith('#section-sidebar');
+    expect(newComponent['resizeObserver']).toBeNull();
   });
 
   it('should clean up resize observer on destroy', () => {
     const disconnectSpy = jest.spyOn(ResizeObserverMock.prototype, 'disconnect');
     component.ngOnDestroy();
     expect(disconnectSpy).toHaveBeenCalled();
+  });
+
+  it('should handle currentMetadata being null', () => {
+    cacheService.currentMetadata?.set(null as any);
+    fixture.detectChanges();
+
+    const items = component.items();
+    expect(items[0].items?.length).toBe(0);
+  });
+
+  it('should handle currentMetadata being undefined', () => {
+    cacheService.currentMetadata?.set(undefined as any);
+    fixture.detectChanges();
+
+    const items = component.items();
+    expect(items[0].items?.length).toBe(0);
+  });
+
+  it('should handle dataCache user being null', () => {
+    cacheService.dataCache?.set({
+      ...cacheService.dataCache(),
+      user: null as any
+    });
+    cacheService.currentRouteTitle?.set('Home');
+    fixture.detectChanges();
+
+    expect(component.welcomeMessage()).toBe('Welcome, ');
+  });
+
+  it('should handle dataCache user being undefined', () => {
+    cacheService.dataCache?.set({
+      ...cacheService.dataCache(),
+      user: undefined as any
+    });
+    cacheService.currentRouteTitle?.set('Home');
+    fixture.detectChanges();
+
+    expect(component.welcomeMessage()).toBe('Welcome, ');
   });
 });

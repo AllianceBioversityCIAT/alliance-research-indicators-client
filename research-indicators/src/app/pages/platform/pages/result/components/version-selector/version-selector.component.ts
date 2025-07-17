@@ -107,7 +107,7 @@ export class VersionSelectorComponent implements OnDestroy {
     versionsArray
   }: {
     resultId: number;
-    liveData: TransformResultCodeResponse;
+    liveData: TransformResultCodeResponse | null;
     versionsArray: TransformResultCodeResponse[];
   }) {
     const versionParam = this.route.snapshot.queryParamMap.get('version');

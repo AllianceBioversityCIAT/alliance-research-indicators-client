@@ -166,3 +166,23 @@
   display: grid;
   place-items: center;
 }
+
+// Estilos específicos para keywords responsivos
+.keyword-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+
+  span {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+.keyword-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, effect } from '@angular/core';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -40,8 +40,8 @@ GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiAssistantComponent {
-  acceptedFormats: string[] = ['.pdf', '.docx', '.txt', '.xlsx', '.pptx'];
-  maxSizeMB = 10;
+  acceptedFormats: string[] = ['.pdf', '.docx', '.txt'];
+  maxSizeMB = 300;
   pageLimit = 100;
   isDragging = false;
   selectedFile: File | null = null;
@@ -78,8 +78,19 @@ export class ResultAiAssistantComponent {
   sharedFormValid = false;
   contractId: string | null = null;
 
+  feedbackSent = false;
+  lastFeedbackType: 'good' | 'bad' | null = null;
+
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
+
+    // Effect to control modal width based on document analysis state
+    effect(() => {
+      const isAnalyzed = this.documentAnalyzed();
+      const hasNoResults = this.noResults();
+      this.allModalsService.setModalWidth('createResult', isAnalyzed || hasNoResults);
+    });
+
     this.api.GET_IssueCategories().then(res => {
       this.badTypes = res.data;
     });
@@ -93,11 +104,16 @@ export class ResultAiAssistantComponent {
   goBack() {
     if (this.analyzingDocument()) return;
 
+    // Reset feedback state on navigation
+    this.feedbackSent = false;
+    this.lastFeedbackType = null;
+
     if (this.documentAnalyzed()) {
       this.selectedFile = null;
       this.createResultManagementService.items.set([]);
       this.documentAnalyzed.set(false);
       this.analyzingDocument.set(false);
+      this.allModalsService.setModalWidth('createResult', false);
       return;
     }
 
@@ -226,6 +242,11 @@ export class ResultAiAssistantComponent {
     this.selectedFile = null;
     this.analyzingDocument.set(false);
     this.documentAnalyzed.set(false);
+    this.noResults.set(false);
+    this.allModalsService.setModalWidth('createResult', false);
+    // Reset feedback state on navigation
+    this.feedbackSent = false;
+    this.lastFeedbackType = null;
   }
 
   goBackToUploadNewFile() {
@@ -234,7 +255,11 @@ export class ResultAiAssistantComponent {
     this.analyzingDocument.set(false);
     this.documentAnalyzed.set(false);
     this.noResults.set(false);
+    this.allModalsService.setModalWidth('createResult', false);
     this.createResultManagementService.resultPageStep.set(1);
+    // Reset feedback state on navigation
+    this.feedbackSent = false;
+    this.lastFeedbackType = null;
   }
 
   getContractStatusClasses(status: string): string {
@@ -311,6 +336,11 @@ export class ResultAiAssistantComponent {
       keywords: result.keywords,
       geoscope: result.geoscope ?? [],
       training_type: result.training_type,
+      length_of_training: result.length_of_training,
+      start_date: result.start_date,
+      end_date: result.end_date,
+      degree: result.degree,
+      delivery_modality: result.delivery_modality,
       total_participants: result.total_participants,
       evidence_for_stage: result.evidence_for_stage,
       policy_type: result.policy_type,
@@ -320,7 +350,16 @@ export class ResultAiAssistantComponent {
       male_participants: result.male_participants ?? 0,
       female_participants: result.female_participants ?? 0,
       non_binary_participants: result.non_binary_participants ?? '0',
-      contract_code: this.body().contract_id !== null ? String(this.body().contract_id) : undefined
+      contract_code: this.body().contract_id !== null ? String(this.body().contract_id) : undefined,
+      // Innovation Development fields
+      innovation_nature: result.innovation_nature,
+      innovation_type: result.innovation_type,
+      assess_readiness: result.assess_readiness,
+      anticipated_users: result.anticipated_users,
+      organization_type: result.organization_type,
+      organization_sub_type: result.organization_sub_type,
+      organizations: result.organizations,
+      innovation_actors_detailed: result.innovation_actors_detailed
     }));
   }
 
@@ -452,6 +491,8 @@ export class ResultAiAssistantComponent {
     };
     await this.api.POST_DynamoFeedback(body);
     this.actions.showToast({ severity: 'success', summary: 'Feedback', detail: 'Feedback sent successfully' });
+    this.feedbackSent = true;
+    this.lastFeedbackType = this.feedbackType();
     this.closeFeedbackPanel();
     this.loading.set(false);
   }
