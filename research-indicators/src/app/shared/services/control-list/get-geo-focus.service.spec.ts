@@ -4,7 +4,6 @@ describe('GetGeoFocusService', () => {
   let service: GetGeoFocusService;
 
   beforeEach(() => {
-    // Mock simple que evita la inyección de dependencias
     service = {
       list: jest.fn().mockReturnValue([
         { value: '1', label: 'Global' },

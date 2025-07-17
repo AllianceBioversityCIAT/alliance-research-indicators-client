@@ -16,7 +16,7 @@ export class GetClarisaInstitutionsSubTypesService {
 
     this.loading.set(true);
     try {
-      // Limpiar la lista anterior para este código
+      // clear previous list for this code
       this.subTypesMap.delete(code);
 
       const response = await this.api.GET_SubInstitutionTypes(depthLevel, code);

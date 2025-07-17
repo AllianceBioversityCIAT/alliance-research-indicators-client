@@ -76,7 +76,6 @@ describe('MyLatestResultsComponent', () => {
         }
       });
 
-      // Para tipo 4: 6/6 = 1 * 100 = 100
       expect(component.calculateProgressFor(result)).toBe(100);
     });
 
@@ -122,11 +121,10 @@ describe('MyLatestResultsComponent', () => {
           evidences: 1
         }
       });
-      // Para tipo 1: 6/7 = 86
       expect(component.calculateProgressFor(result)).toBe(86);
     });
 
-    it('should calculate progress correctly for indicator type distinto de 1 y 4', () => {
+    it('should calculate progress correctly for indicator type different from 1 and 4', () => {
       const result = {
         ...mockLatestResults.data[0],
         indicator: { ...mockLatestResults.data[0].indicator, indicator_id: 2 }
@@ -140,7 +138,6 @@ describe('MyLatestResultsComponent', () => {
           evidences: 1
         }
       });
-      // Para tipo 2: 5/5 = 100
       expect(component.calculateProgressFor(result)).toBe(100);
     });
 
@@ -210,7 +207,7 @@ describe('MyLatestResultsComponent', () => {
       const result = {
         ...mockLatestResults.data[0],
         result_status: {
-          result_status_id: 9999, // id que no existe en el mapa
+          result_status_id: 9999,
           name: '',
           description: '',
           is_active: true,
@@ -218,7 +215,6 @@ describe('MyLatestResultsComponent', () => {
           updated_at: ''
         }
       };
-      // Simula el comportamiento defensivo del código real
       let color;
       try {
         color = component.getStatusColor(result);

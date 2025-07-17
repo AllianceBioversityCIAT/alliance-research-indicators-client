@@ -23,12 +23,10 @@ export class AppComponent {
   route = inject(ActivatedRoute);
 
   constructor(private readonly router: Router) {
-    // Escuchar eventos de navegación del navegador
     window.addEventListener('popstate', () => {
       window.location.reload();
     });
 
-    // Escuchar eventos de navegación de Angular
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         const navType = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;

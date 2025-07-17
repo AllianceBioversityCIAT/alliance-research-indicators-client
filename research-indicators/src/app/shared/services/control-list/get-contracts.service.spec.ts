@@ -96,7 +96,6 @@ describe('GetContractsService', () => {
   });
 
   it('constructor calls initialize and sets up signals correctly', async () => {
-    // Esperar a que el constructor termine de ejecutar initialize
     await new Promise(resolve => setTimeout(resolve, 0));
     expect(service.list()).toEqual([
       {

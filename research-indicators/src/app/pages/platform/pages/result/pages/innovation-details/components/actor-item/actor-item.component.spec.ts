@@ -63,7 +63,6 @@ describe('ActorItemComponent', () => {
 
   it('actorMissing should return true if body is undefined', () => {
     const originalBody = component.body;
-    // Simular body() retornando undefined
     component.body = (() => undefined) as any;
     expect(component.actorMissing).toBe(true);
     component.body = originalBody;
@@ -159,12 +158,11 @@ describe('ActorItemComponent', () => {
   });
 
   it('syncActorToParent should do nothing if index is null', () => {
-    // No debe lanzar error ni modificar bodySignal
     const bodySignal: WritableSignal<GetInnovationDetails> = signal({ actors: [new Actor()] } as GetInnovationDetails);
     component.index = null;
     component.bodySignal = bodySignal;
     const before = JSON.stringify(bodySignal());
-    // @ts-expect-error: probar método privado
+    // @ts-expect-error: testing private method
     component.syncActorToParent();
     expect(JSON.stringify(bodySignal())).toBe(before);
   });
@@ -188,7 +186,6 @@ describe('ActorItemComponent', () => {
     component.bodySignal = bodySignal;
     const actor = { ...new Actor(), actor_type_id: 1, actor_type_custom_name: 'Other' };
     component.body.set(actor);
-    // Espiar syncActorToParent
     const spy = jest.spyOn<any, any>(component as any, 'syncActorToParent');
     component.onActorTypeChange(5);
     expect(component.body()).toEqual(actor);
@@ -209,7 +206,7 @@ describe('ActorItemComponent', () => {
     component.index = 0;
     component.bodySignal = bodySignal;
     component.body.set({ ...new Actor(), actor_type_id: 1 });
-    // @ts-expect-error: probar método privado
+    // @ts-expect-error: testing private method
     component.syncActorToParent();
     expect(bodySignal().actors).toBeDefined();
     expect(bodySignal().actors!.length).toBeGreaterThan(0);
@@ -220,7 +217,7 @@ describe('ActorItemComponent', () => {
     component.index = 2;
     component.bodySignal = bodySignal;
     component.body.set({ ...new Actor(), actor_type_id: 1 });
-    // @ts-expect-error: probar método privado
+    // @ts-expect-error: testing private method
     component.syncActorToParent();
     expect(bodySignal().actors!.length).toBeGreaterThan(2);
   });
@@ -233,7 +230,7 @@ describe('ActorItemComponent', () => {
     component.bodySignal = bodySignal;
     const actor = { ...new Actor(), actor_type_id: 1 };
     component.body.set(actor);
-    // @ts-expect-error: probar método privado
+    // @ts-expect-error: testing private method
     component.syncActorToParent();
     expect(bodySignal().actors![1]).toEqual(actor);
   });
@@ -245,7 +242,6 @@ describe('ActorItemComponent', () => {
     component.actor = { ...new Actor(), actor_type_id: 1 };
     component.body.set({ ...new Actor(), actor_type_id: 2 });
 
-    // Simular el efecto cambiando el actor
     component.actor = { ...new Actor(), actor_type_id: 3 };
     component.ngOnInit();
 
@@ -253,7 +249,6 @@ describe('ActorItemComponent', () => {
   });
 
   it('should handle edge cases in syncActorToParent with different array lengths', () => {
-    // Test cuando el array de actors es exactamente del tamaño del index
     const bodySignal: WritableSignal<GetInnovationDetails> = signal({
       actors: [new Actor(), new Actor()]
     } as GetInnovationDetails);
@@ -261,7 +256,7 @@ describe('ActorItemComponent', () => {
     component.bodySignal = bodySignal;
     const actor = { ...new Actor(), actor_type_id: 1 };
     component.body.set(actor);
-    // @ts-expect-error: probar método privado
+    // @ts-expect-error: testing private method
     component.syncActorToParent();
     expect(bodySignal().actors![1]).toEqual(actor);
   });
@@ -274,7 +269,7 @@ describe('ActorItemComponent', () => {
     component.bodySignal = bodySignal;
     const actor = { ...new Actor(), actor_type_id: 1 };
     component.body.set(actor);
-    // @ts-expect-error: probar método privado
+    // @ts-expect-error: testing private method
     component.syncActorToParent();
     expect(bodySignal().actors!.length).toBe(1);
     expect(bodySignal().actors![0]).toEqual(actor);
@@ -288,7 +283,7 @@ describe('ActorItemComponent', () => {
     component.bodySignal = bodySignal;
     const actor = { ...new Actor(), actor_type_id: 1 };
     component.body.set(actor);
-    // @ts-expect-error: probar método privado
+    // @ts-expect-error: testing private method
     component.syncActorToParent();
     expect(bodySignal().actors).toBeDefined();
     expect(bodySignal().actors!.length).toBe(1);
@@ -302,7 +297,7 @@ describe('ActorItemComponent', () => {
     component.bodySignal = bodySignal;
     const actor = { ...new Actor(), actor_type_id: 1 };
     component.body.set(actor);
-    // @ts-expect-error: probar método privado
+    // @ts-expect-error: testing private method
     component.syncActorToParent();
     expect(bodySignal().actors).toBeDefined();
     expect(bodySignal().actors!.length).toBe(1);

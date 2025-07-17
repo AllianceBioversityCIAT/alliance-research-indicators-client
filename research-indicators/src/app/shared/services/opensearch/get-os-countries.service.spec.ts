@@ -13,7 +13,7 @@ describe('GetOsCountriesService', () => {
   ];
 
   beforeEach(() => {
-    // Clonar el mock y asegurar que GET_OpenSearchCountries siempre es un jest.fn()
+    // Clone the mock and ensure that GET_OpenSearchCountries is always a jest.fn()
     const apiMock = { ...apiServiceMock, GET_OpenSearchCountries: jest.fn().mockResolvedValue({ data: mockData }) };
 
     TestBed.configureTestingModule({

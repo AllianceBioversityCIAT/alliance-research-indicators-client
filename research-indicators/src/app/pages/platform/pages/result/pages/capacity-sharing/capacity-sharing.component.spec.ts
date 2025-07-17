@@ -5,7 +5,6 @@ import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
 import { SubmissionService } from '@shared/services/submission.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
@@ -88,7 +87,6 @@ class CacheServiceMock {
   };
 }
 
-// Mock de ActivatedRoute con version
 const activatedRouteMock = {
   snapshot: {
     queryParamMap: {
@@ -300,28 +298,20 @@ describe('CapacitySharingComponent', () => {
   });
 
   it('should clear degree_id when long term is not selected', fakeAsync(() => {
-    // Configurar el valor inicial antes de crear el componente
     component.body.set({ session_length_id: 2, degree_id: 5 });
     tick();
-
-    // Cambiar a no long term
     component.body.set({ session_length_id: 1 });
     tick();
-
-    // El effect debería limpiar degree_id
     expect(component.body().degree_id).toBeUndefined();
   }));
 
   it('should not clear degree_id when long term is selected', fakeAsync(() => {
-    // Configurar el valor inicial antes de crear el componente
     component.body.set({ session_length_id: 1, degree_id: 5 });
     tick();
 
-    // Cambiar a long term
     component.body.set({ session_length_id: 2, degree_id: 5 });
     tick();
 
-    // El degree_id debería mantenerse
     expect(component.body().degree_id).toBe(5);
   }));
 

@@ -61,7 +61,6 @@ class GetInnovationReadinessLevelsServiceMock {
   ]);
 }
 
-// Mocks para los servicios de listas y utilidades usados por los custom fields
 class GetInnovationCharacteristicsServiceMock {
   list = jest.fn().mockReturnValue([]);
   loading = jest.fn().mockReturnValue(false);
@@ -101,7 +100,6 @@ class UtilsServiceMock {
   getNestedPropertySignal = jest.fn();
 }
 
-// Mock de ServiceLocatorService para devolver los mocks de arriba según el nombre del servicio
 class ServiceLocatorServiceMock {
   getService(serviceName: string) {
     switch (serviceName) {

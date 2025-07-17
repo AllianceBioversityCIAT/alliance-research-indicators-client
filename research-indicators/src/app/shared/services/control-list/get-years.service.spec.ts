@@ -78,7 +78,6 @@ describe('GetYearsService', () => {
   });
 
   it('constructor inicializa signals correctamente y ejecuta main', async () => {
-    // Esperar a que el constructor termine de ejecutar main
     await new Promise(resolve => setTimeout(resolve, 0));
     expect(service.list()).toEqual(mockData);
     expect(service.loading()).toBe(false);

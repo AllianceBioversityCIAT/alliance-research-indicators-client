@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, flush } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GlobalToastComponent } from './global-toast.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActionsService } from '../../services/actions.service';
@@ -14,7 +14,6 @@ describe('GlobalToastComponent', () => {
   let messageServiceMock: Partial<MessageService>;
 
   beforeEach(async () => {
-    // Mock de animate para evitar error en animaciones
     if (!window.Element.prototype.animate) {
       window.Element.prototype.animate = () =>
         ({

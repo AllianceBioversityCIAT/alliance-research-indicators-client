@@ -225,7 +225,6 @@ describe('EvidenceComponent', () => {
     fixture.detectChanges();
     const child = fixture.debugElement.nativeElement.querySelector('app-evidence-item');
     const spy = jest.spyOn(component, 'deleteEvidence');
-    // Simula el evento
     component.deleteEvidence(0);
     expect(spy).toHaveBeenCalledWith(0);
   });
