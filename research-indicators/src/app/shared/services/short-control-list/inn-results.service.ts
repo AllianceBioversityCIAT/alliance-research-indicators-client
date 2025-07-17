@@ -32,7 +32,7 @@ export class InnResultsService {
     try {
       const response = await this.apiService.GET_Results(this.resultsFilter(), this.resultsConfig());
       const data = Array.isArray(response?.data) ? response.data : [];
-      const dataWithLabel = data.map((item: any) => ({
+      const dataWithLabel = data.map((item: Result) => ({
         ...item,
         select_label: `${item.result_official_code || ''} - ${item.title || ''}`.trim()
       }));
