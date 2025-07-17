@@ -216,10 +216,13 @@ describe('EvidenceItemComponent', () => {
   it('should show remove button only if isEditableStatus is true', () => {
     jest.spyOn(submission, 'isEditableStatus').mockReturnValue(true);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Remove evidence');
+    // Buscar el botón por el ícono
+    let removeBtn = fixture.nativeElement.querySelector('.pi-times-circle');
+    expect(removeBtn).not.toBeNull();
     jest.spyOn(submission, 'isEditableStatus').mockReturnValue(false);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).not.toContain('Remove evidence');
+    removeBtn = fixture.nativeElement.querySelector('.pi-times-circle');
+    expect(removeBtn).toBeNull();
   });
 
   it('should show required message if description is missing', () => {
