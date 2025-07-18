@@ -16,28 +16,28 @@ p {
   font-weight: 400;
   line-height: 24px;
   letter-spacing: 0.24em;
+  padding-bottom: 10px;
   text-transform: uppercase;
-  color: #002d53;
+  color: #8d9299;
 }
 
 .discover-hero-header-title {
   font-size: 45px;
   font-weight: 700;
-  line-height: 57.42px;
+  line-height: 50.42px;
   text-align: left;
-  margin-top: -5px;
-  color: var(--light-blue-400);
+  color: #173f6f;
 }
 
 .discover-hero {
   background-image: url('/images/landing/discover-background.png');
   background-size: cover;
   background-repeat: no-repeat;
-  height: 1500px;
-  margin-top: 500px;
+  height: 1300px;
+  margin-top: 350px;
 
   @media (max-width: 768px) {
-    height: calc(100% - 200px);
+    height: 1450px;
   }
 }
 
@@ -46,7 +46,8 @@ p {
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 50px 75px;
+  padding: 0px 75px;
+  padding-top: 85px;
   gap: 25px;
   transform: translateY(-430px);
 
@@ -70,7 +71,7 @@ p {
 .discover-hero-images {
   position: relative;
   margin: 0 auto;
-  margin-top: 55px;
+  margin-top: 65px;
 }
 
 .discover-hero-image-1 {
@@ -148,7 +149,7 @@ p {
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
-  color: var(--grey-800);
+  color: #4c5158;
 }
 
 .discover-hero-learn-content-item-header-title {
@@ -159,7 +160,7 @@ p {
   margin-top: -5px;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
-  color: var(--grey-800);
+  color: #4c5158;
 }
 
 .discover-hero-learn-content-item-description {
@@ -173,9 +174,9 @@ p {
 }
 
 .output-icon {
-  color: #7CB580;
+  color: #7cb580;
 }
 
 .outcome-icon {
-  color: #F58220;
+  color: #f58220;
 }
