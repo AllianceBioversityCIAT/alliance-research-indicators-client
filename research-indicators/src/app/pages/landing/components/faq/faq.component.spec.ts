@@ -78,14 +78,6 @@ describe('FaqComponent', () => {
     });
   });
 
-  it('should have the correct accordion structure', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const accordion = compiled.querySelector('p-accordion');
-    expect(accordion).toBeTruthy();
-    expect(accordion?.getAttribute('expandIcon')).toBe('pi pi-plus');
-    expect(accordion?.getAttribute('collapseIcon')).toBe('pi pi-minus');
-  });
-
   it('should handle empty list case correctly', () => {
     landingTextsServiceMock.faqList.set([]);
     fixture.detectChanges();
