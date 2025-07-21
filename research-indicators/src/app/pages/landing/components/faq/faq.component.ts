@@ -9,6 +9,6 @@ import { LandingTextsService } from '@pages/landing/services/landing-texts.servi
   styleUrl: './faq.component.scss'
 })
 export class FaqComponent {
-  activePanel = signal<number>(0);
+  activePanel = signal<number | null>(null);
   faqList = inject(LandingTextsService).faqList;
 }
