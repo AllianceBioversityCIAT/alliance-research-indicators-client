@@ -12,6 +12,11 @@ p {
   padding: 50px 75px;
   margin-top: 100px;
   gap: 50px;
+  min-width: 100%;
+
+  @media (max-width: 1220px) {
+    margin-top: 30px;
+  }
 
   @media (max-width: 768px) {
     padding: 40px;
@@ -22,8 +27,6 @@ p {
 
     .accordions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      column-gap: 40px;
       width: 100%;
 
       .custom-panel {
@@ -36,14 +39,10 @@ p {
         border: none;
         background-color: #ffffff;
         padding: 32px 24px;
-        color: var(--primary-blue-500);
-        font-weight: 300;
+        color: #173f6f;
+        font-weight: 500;
+        font-size: 16px;
         text-transform: uppercase;
-      }
-
-      .custom-content {
-        border-radius: 0px;
-        border: none;
       }
 
       @media (max-width: 1024px) {
@@ -65,17 +64,17 @@ p {
   font-weight: 400;
   line-height: 24px;
   letter-spacing: 0.24em;
+  padding-bottom: 10px;
   text-transform: uppercase;
-  color: #002d53;
+  color: #8d9299;
 }
 
 .faq-header-title {
   font-size: 45px;
   font-weight: 700;
-  line-height: 57.42px;
+  line-height: 50.42px;
   text-align: left;
-  margin-top: -5px;
-  color: var(--light-blue-400);
+  color: #173f6f;
 }
 
 ::ng-deep .p-accordion-header {
