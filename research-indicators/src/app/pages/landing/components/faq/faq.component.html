@@ -5,7 +5,7 @@
   </div>
 
   <div class="content">
-    <p-accordion [value]="activePanel()">
+    <p-accordion [value]="activePanel() ?? []">
       <div class="accordions">
         @for (faqItem of faqList(); let i = $index; track faqItem.question) {
           <p-accordion-panel [value]="i">
