@@ -6,7 +6,6 @@ import { FooterComponent } from './components/footer/footer.component';
 import { FaqComponent } from './components/faq/faq.component';
 import { VersionNumberComponent } from './components/version-number/version-number.component';
 import { MyProjectsComponent } from './components/my-projects/my-projects.component';
-import frontVersion from './../../../../public/config/version.json';
 
 @Component({
   selector: 'app-landing',
@@ -14,6 +13,4 @@ import frontVersion from './../../../../public/config/version.json';
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })
-export default class LandingComponent {
-  frontVersion = frontVersion;
-}
+export default class LandingComponent {}
