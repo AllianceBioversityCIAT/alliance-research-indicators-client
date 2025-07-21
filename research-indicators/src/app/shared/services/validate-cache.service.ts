@@ -22,11 +22,6 @@ export class ValidateCacheService {
 
   async validateVersions() {
     const response = await this.getConfiguration();
-    console.log(response.data.simple_value);
-
-    console.log(response.data.simple_value);
-    console.log(localStorage.getItem('lastVersionValidated'));
-
     if (response.data.simple_value === localStorage.getItem('lastVersionValidated')) return;
 
     if (response.data.simple_value !== localStorage.getItem('lastVersionValidated') || !localStorage.getItem('lastVersionValidated')) {
