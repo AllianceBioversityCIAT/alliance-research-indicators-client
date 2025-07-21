@@ -294,7 +294,12 @@ export class ApiService {
   };
 
   GET_IpOwners = (): Promise<MainResponse<IpOwners[]>> => {
-    const url = () => `results/capacity-sharing/ip-owners`;
+    const url = () => `results/intellectual-property/owners`;
+    return this.TP.get(url(), { loadingTrigger: true });
+  };
+
+  GET_ApplicationOptions = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `results/intellectual-property/application-options`;
     return this.TP.get(url(), { loadingTrigger: true });
   };
 
@@ -314,12 +319,12 @@ export class ApiService {
   };
 
   GET_IpOwner = (id: number): Promise<MainResponse<PatchIpOwner>> => {
-    const url = () => `results/capacity-sharing/ip/${id}`;
+    const url = () => `results/intellectual-property/${id}`;
     return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
   };
 
   PATCH_IpOwners = <T>(id: number, body: T): Promise<MainResponse<PatchIpOwner>> => {
-    const url = () => `results/capacity-sharing/ip/${id}`;
+    const url = () => `results/intellectual-property/${id}`;
     return this.TP.patch(url(), body, { useYearInterceptor: true });
   };
 
