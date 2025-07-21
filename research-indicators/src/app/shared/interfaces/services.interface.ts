@@ -1,6 +1,7 @@
 /* prettier-ignore */
 export type ControlListServices =
   | 'actorTypes'
+  | 'scaling'
   | 'institutionTypes'
   | 'anticipatedUsers'
   | 'innovationTypes'
@@ -21,6 +22,7 @@ export type ControlListServices =
   | 'capSharingDeliveryModalities'
   | 'capSharingSessionPurpose'
   | 'yesOrNo'
+  | 'expansionPotential'
   | 'policyTypes'
   | 'policyStages'
   | 'geoFocus'
@@ -40,4 +42,8 @@ export type ControlListServices =
   | 'GetSubnationalByIsoAlpha'
   | 'clarisaInstitutionsTypes'
   | 'clarisaInstitutionsTypesChildless'
+  | 'sdgs'
+  | 'disseminationQualifications'
+  | 'toolFunctions'
+  | 'innResults'
   | '';

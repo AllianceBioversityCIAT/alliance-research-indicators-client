@@ -92,14 +92,14 @@ export default class GeographicScopeComponent {
         countryLabel = 'Are there any countries that you wish to specify for this Impact?';
         regionLabel = 'Are there any regions that you wish to specify for this Impact?';
         countryDescription =
-          'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard';
+          'The list of countries below follows the <a class="text-[#1689CA] underline" href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard';
         regionDescription =
-          'The list of regions below follows the <a href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
+          'The list of regions below follows the <a class="text-[#1689CA] underline" href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
         break;
       case 2:
         regionLabel = 'Select the regions';
         regionDescription =
-          'The list of regions below follows the <a href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
+          'The list of regions below follows the <a class="text-[#1689CA] underline" href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
         break;
       case 4:
         ({ countryLabel, countryDescription } = this.getCountrySelectionText());

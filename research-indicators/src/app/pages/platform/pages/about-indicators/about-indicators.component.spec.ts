@@ -9,10 +9,7 @@ describe('AboutIndicatorsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        AboutIndicatorsComponent,
-        HttpClientTestingModule // Importa el módulo de pruebas de HttpClient
-      ],
+      imports: [AboutIndicatorsComponent, HttpClientTestingModule],
       providers: [IndicatorsService]
     }).compileComponents();
 

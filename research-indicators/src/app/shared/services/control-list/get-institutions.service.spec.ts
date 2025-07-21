@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { GetInstitutionsService } from './get-institutions.service';
 import { ApiService } from '../api.service';
 import { apiServiceMock, mockInstitutions } from '../../../testing/mock-services.mock';
-import { GetInstitution } from '../../interfaces/get-institutions.interface';
 
 describe('GetInstitutionsService', () => {
   let service: GetInstitutionsService;
@@ -25,28 +24,28 @@ describe('GetInstitutionsService', () => {
   });
 
   it('should initialize with default values', () => {
-    // El servicio ya ejecuta main() en el constructor, por lo que ya tiene datos
+    // The service already executes main() in the constructor, so it already has data
     expect(service.loading()).toBe(false);
     expect(service.isOpenSearch()).toBe(false);
-    // La lista ya está poblada por el constructor
+    // The list is already populated by the constructor
     expect(service.list().length).toBeGreaterThan(0);
   });
 
   it('should call main method on constructor', () => {
-    // Verificar que el método main fue llamado durante la creación
+    // Verify that the main method was called during creation
     expect(apiService.GET_Institutions).toHaveBeenCalled();
   });
 
   describe('main method', () => {
     it('should load institutions successfully and transform data correctly', async () => {
-      // Arrange - limpiar el estado inicial
+      // Arrange - clean the initial state
       service.list.set([]);
       service.loading.set(false);
 
       // Act
       await service.main();
 
-      // Assert - se llama una vez en el constructor y otra en el test
+      // Assert - called once in the constructor and once in the test
       expect(apiService.GET_Institutions).toHaveBeenCalledTimes(2);
       expect(service.loading()).toBe(false);
       expect(service.list()).toHaveLength(2);

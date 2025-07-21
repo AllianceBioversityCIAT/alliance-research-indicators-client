@@ -6,7 +6,6 @@ describe('GetAllYearsService', () => {
   let service: GetAllYearsService;
 
   beforeEach(() => {
-    // Instancia manual sin dependencias de Angular
     service = Object.create(GetAllYearsService.prototype);
     service.list = (() => [
       { id: 2024, name: '2024' },

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, effect } from '@angular/core';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -25,6 +25,11 @@ export interface TextMiningResponse {
   text: string;
 }
 
+interface PdfError {
+  message?: string;
+  name?: string;
+}
+
 GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 @Component({
@@ -35,8 +40,8 @@ GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultAiAssistantComponent {
-  acceptedFormats: string[] = ['.pdf', '.docx', '.txt', '.xlsx', '.pptx'];
-  maxSizeMB = 10;
+  acceptedFormats: string[] = ['.pdf', '.docx', '.txt'];
+  maxSizeMB = 300;
   pageLimit = 100;
   isDragging = false;
   selectedFile: File | null = null;
@@ -59,6 +64,7 @@ export class ResultAiAssistantComponent {
   miningResponse: TextMiningResponse[] = [];
   badTypes: IssueCategory[] = [];
   activeIndex = signal(0);
+  loading = signal(false);
 
   steps = signal<Step[]>([
     { label: 'Uploading document', completed: false, inProgress: false, progress: 0 },
@@ -72,8 +78,19 @@ export class ResultAiAssistantComponent {
   sharedFormValid = false;
   contractId: string | null = null;
 
+  feedbackSent = false;
+  lastFeedbackType: 'good' | 'bad' | null = null;
+
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
+
+    // Effect to control modal width based on document analysis state
+    effect(() => {
+      const isAnalyzed = this.documentAnalyzed();
+      const hasNoResults = this.noResults();
+      this.allModalsService.setModalWidth('createResult', isAnalyzed || hasNoResults);
+    });
+
     this.api.GET_IssueCategories().then(res => {
       this.badTypes = res.data;
     });
@@ -87,11 +104,16 @@ export class ResultAiAssistantComponent {
   goBack() {
     if (this.analyzingDocument()) return;
 
+    // Reset feedback state on navigation
+    this.feedbackSent = false;
+    this.lastFeedbackType = null;
+
     if (this.documentAnalyzed()) {
       this.selectedFile = null;
       this.createResultManagementService.items.set([]);
       this.documentAnalyzed.set(false);
       this.analyzingDocument.set(false);
+      this.allModalsService.setModalWidth('createResult', false);
       return;
     }
 
@@ -146,8 +168,16 @@ export class ResultAiAssistantComponent {
     }
 
     if (isPdf) {
-      const isValid = await this.isValidPageCount(file);
-      if (!isValid) {
+      const pageCheck = await this.isValidPageCount(file);
+      if (pageCheck === 'password') {
+        this.actions.showGlobalAlert({
+          severity: 'error',
+          hasNoButton: true,
+          summary: 'PROTECTED DOCUMENT',
+          detail: 'The document is password protected. Please upload a file without protection.'
+        });
+        return;
+      } else if (pageCheck === false) {
         this.actions.showGlobalAlert({
           severity: 'error',
           hasNoButton: true,
@@ -162,12 +192,16 @@ export class ResultAiAssistantComponent {
     this.cdr.detectChanges();
   }
 
-  async isValidPageCount(file: File): Promise<boolean> {
+  async isValidPageCount(file: File): Promise<boolean | 'password'> {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
       return pdf.numPages <= this.pageLimit;
-    } catch (err) {
+    } catch (err: unknown) {
+      const pdfError = err as PdfError;
+      if (pdfError && (pdfError.message?.includes('Password') || pdfError.name === 'PasswordException')) {
+        return 'password';
+      }
       console.error('Error reading PDF pages:', err);
       return false;
     }
@@ -208,6 +242,11 @@ export class ResultAiAssistantComponent {
     this.selectedFile = null;
     this.analyzingDocument.set(false);
     this.documentAnalyzed.set(false);
+    this.noResults.set(false);
+    this.allModalsService.setModalWidth('createResult', false);
+    // Reset feedback state on navigation
+    this.feedbackSent = false;
+    this.lastFeedbackType = null;
   }
 
   goBackToUploadNewFile() {
@@ -216,7 +255,11 @@ export class ResultAiAssistantComponent {
     this.analyzingDocument.set(false);
     this.documentAnalyzed.set(false);
     this.noResults.set(false);
+    this.allModalsService.setModalWidth('createResult', false);
     this.createResultManagementService.resultPageStep.set(1);
+    // Reset feedback state on navigation
+    this.feedbackSent = false;
+    this.lastFeedbackType = null;
   }
 
   getContractStatusClasses(status: string): string {
@@ -293,6 +336,11 @@ export class ResultAiAssistantComponent {
       keywords: result.keywords,
       geoscope: result.geoscope ?? [],
       training_type: result.training_type,
+      length_of_training: result.length_of_training,
+      start_date: result.start_date,
+      end_date: result.end_date,
+      degree: result.degree,
+      delivery_modality: result.delivery_modality,
       total_participants: result.total_participants,
       evidence_for_stage: result.evidence_for_stage,
       policy_type: result.policy_type,
@@ -302,7 +350,16 @@ export class ResultAiAssistantComponent {
       male_participants: result.male_participants ?? 0,
       female_participants: result.female_participants ?? 0,
       non_binary_participants: result.non_binary_participants ?? '0',
-      contract_code: this.body().contract_id !== null ? String(this.body().contract_id) : undefined
+      contract_code: this.body().contract_id !== null ? String(this.body().contract_id) : undefined,
+      // Innovation Development fields
+      innovation_nature: result.innovation_nature,
+      innovation_type: result.innovation_type,
+      assess_readiness: result.assess_readiness,
+      anticipated_users: result.anticipated_users,
+      organization_type: result.organization_type,
+      organization_sub_type: result.organization_sub_type,
+      organizations: result.organizations,
+      innovation_actors_detailed: result.innovation_actors_detailed
     }));
   }
 
@@ -374,14 +431,26 @@ export class ResultAiAssistantComponent {
   showFeedbackPanel = signal(false);
   feedbackType = signal<'good' | 'bad' | null>(null);
   feedbackText = '';
-  selectedType = '';
+  selectedType: string[] = [];
 
   toggleFeedback(type: 'good' | 'bad') {
     if (this.showFeedbackPanel()) {
       if (this.feedbackType() !== type) {
-        this.feedbackType.set(type);
+        this.showFeedbackPanel.set(false);
+        this.feedbackType.set(null);
         this.feedbackText = '';
-        this.selectedType = '';
+        this.selectedType = [];
+        document.removeEventListener('click', this.handleOutsideClick);
+
+        setTimeout(() => {
+          this.feedbackType.set(type);
+          this.showFeedbackPanel.set(true);
+          this.feedbackText = '';
+          this.selectedType = [];
+          setTimeout(() => {
+            document.addEventListener('click', this.handleOutsideClick);
+          });
+        }, 100);
       } else {
         this.closeFeedbackPanel();
       }
@@ -389,7 +458,7 @@ export class ResultAiAssistantComponent {
       this.feedbackType.set(type);
       this.showFeedbackPanel.set(true);
       this.feedbackText = '';
-      this.selectedType = '';
+      this.selectedType = [];
       setTimeout(() => {
         document.addEventListener('click', this.handleOutsideClick);
       });
@@ -399,14 +468,20 @@ export class ResultAiAssistantComponent {
   closeFeedbackPanel() {
     this.showFeedbackPanel.set(false);
     this.feedbackType.set(null);
+    this.body.update(b => ({ ...b, feedbackText: '' }));
     document.removeEventListener('click', this.handleOutsideClick);
   }
 
   selectType(type: string) {
-    this.selectedType = type;
+    if (this.selectedType.includes(type)) {
+      this.selectedType = this.selectedType.filter(t => t !== type);
+    } else {
+      this.selectedType = [...this.selectedType, type];
+    }
   }
 
-  submitFeedback() {
+  async submitFeedback() {
+    this.loading.set(true);
     const body = {
       user: this.cache.dataCache().user,
       issueType: this.selectedType,
@@ -414,15 +489,22 @@ export class ResultAiAssistantComponent {
       feedbackType: this.feedbackType(),
       text: this.miningResponse[0].text
     };
-    this.api.POST_DynamoFeedback(body);
+    await this.api.POST_DynamoFeedback(body);
+    this.actions.showToast({ severity: 'success', summary: 'Feedback', detail: 'Feedback sent successfully' });
+    this.feedbackSent = true;
+    this.lastFeedbackType = this.feedbackType();
     this.closeFeedbackPanel();
+    this.loading.set(false);
   }
 
-  // Cierra el panel si se hace click fuera
   handleOutsideClick = (event: MouseEvent) => {
     const panel = document.querySelector('#feedbackPanelRef');
     if (panel && !panel.contains(event.target as Node)) {
       this.closeFeedbackPanel();
     }
   };
+
+  isRequired() {
+    return this.feedbackType() === 'bad';
+  }
 }

@@ -3,12 +3,10 @@ import { Injectable } from '@angular/core';
 import { IpOwnerService } from './ip-owner.service';
 import { ApiService } from '../api.service';
 
-// Mock del servicio para evitar llamadas reales en el constructor
 @Injectable()
 class MockIpOwnerService extends IpOwnerService {
   constructor() {
     super();
-    // No llamamos a main() en el constructor para las pruebas
   }
 }
 
@@ -58,14 +56,9 @@ describe('IpOwnerService', () => {
   });
 
   it('should handle API errors gracefully', async () => {
-    // Configuramos el mock para que falle
     apiMock.GET_IpOwners = jest.fn().mockRejectedValue(new Error('API Error'));
-
-    // Creamos una nueva instancia con el mock que falla
     TestBed.overrideProvider(ApiService, { useValue: apiMock });
     service = TestBed.inject(IpOwnerService) as MockIpOwnerService;
-
-    // Ejecutamos main manualmente para simular el error
     await service.main();
 
     expect(service.list()).toEqual([]);

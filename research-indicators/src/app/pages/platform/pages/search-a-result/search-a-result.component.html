@@ -74,14 +74,16 @@
                 }
 
                 @if (item.keywords.length > 0) {
-                  <div class="flex items-center justify-start flex-wrap gap-[10px]">
-                    <p class="text-[13px] font-[500] text-[#8d9299] !font-['Space_Grotesk']">Keywords</p>
-                    <i class="pi pi-arrow-right !text-[11px] !text-[#8D9299]"></i>
-                    @for (keyword of item.keywords; track $index) {
-                      <span class="text-[13px] font-normal text-[#4C5158] px-[10px] py-[5px] rounded-[14px] bg-[#E8EBED] capitalize">{{
-                        keyword
-                      }}</span>
-                    }
+                  <div class="flex items-center justify-center">
+                    <div class="flex items-center flex-wrap gap-[10px]">
+                      <p class="text-[13px] font-[500] text-[#8d9299] !font-['Space_Grotesk']">Keywords</p>
+                      <i class="pi pi-arrow-right !text-[11px] !text-[#8D9299]"></i>
+                      @for (keyword of item.keywords; track $index) {
+                        <span class="text-[13px] font-normal text-[#4C5158] px-[10px] py-[5px] rounded-[14px] bg-[#E8EBED] capitalize">{{
+                          keyword
+                        }}</span>
+                      }
+                    </div>
                   </div>
                 }
               </div>

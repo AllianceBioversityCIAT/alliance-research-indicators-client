@@ -29,6 +29,7 @@ export class RadioButtonComponent implements OnInit {
   @Input() label = '';
   @Input() spaceX = 'gap-[10px]';
   @Input() description = '';
+  @Input() helperText = '';
   @Input() isRequired = false;
   @Input() disabled = false;
 
@@ -41,15 +42,17 @@ export class RadioButtonComponent implements OnInit {
     return this.isRequired && (this.body().value === null || this.body().value === undefined);
   });
 
-  onChange = effect(() => {
-    if (!this.currentResultIsLoading() && !this.service.loading()) {
-      const externalValue = this.utils.getNestedPropertySignal(this.signal, this.optionValue.body);
-      if (this.body().value !== externalValue) {
-        this.setValue(externalValue);
+  onChange = effect(
+    () => {
+      if (!this.currentResultIsLoading() && !this.service.loading()) {
+        const externalValue = this.utils.getNestedPropertySignal(this.signal, this.optionValue.body);
+        if (this.body().value !== externalValue) {
+          this.setValue(externalValue);
+        }
       }
-    }
-  }, { allowSignalWrites: true });
-
+    },
+    { allowSignalWrites: true }
+  );
 
   constructor(private serviceLocator: ServiceLocatorService) {}
   ngOnInit(): void {

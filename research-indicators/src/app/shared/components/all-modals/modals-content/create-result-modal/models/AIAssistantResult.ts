@@ -5,6 +5,11 @@ export interface AIAssistantResult {
   keywords: string[];
   geoscope: CountryArea[];
   training_type: string;
+  length_of_training: string;
+  start_date: string;
+  end_date: string;
+  degree: string;
+  delivery_modality: string;
   contract_code?: string;
   total_participants: number;
   non_binary_participants: string;
@@ -16,6 +21,15 @@ export interface AIAssistantResult {
   result_official_code?: string;
   alliance_main_contact_person_first_name: string;
   alliance_main_contact_person_last_name: string;
+  // Innovation Development fields
+  innovation_nature?: string;
+  innovation_type?: string;
+  assess_readiness?: number;
+  anticipated_users?: string;
+  organization_type?: string[];
+  organization_sub_type?: string;
+  organizations?: string[];
+  innovation_actors_detailed?: InnovationActorDetailed[];
 }
 
 export interface CountryArea {
@@ -65,4 +79,10 @@ export interface ResultData {
   created_at: string;
   is_active: boolean;
   result_id: number;
+}
+
+export interface InnovationActorDetailed {
+  name: string;
+  type: string;
+  gender_age: string[];
 }

@@ -47,9 +47,7 @@ export const cacheServiceMock = {
     exp: 3600
   }),
   isLoggedIn: signal<boolean>(false),
-  currentMetadata: signal({
-    status_id: 5
-  }),
+  currentMetadata: jest.fn(() => ({ result_title: 'Test Title' })),
   currentResultId: signal(123),
   currentRouteTitle: jest.fn().mockReturnValue('Home'),
   showSectionHeaderActions: signal(false),
@@ -59,7 +57,9 @@ export const cacheServiceMock = {
   get: jest.fn(),
   set: jest.fn(),
   remove: jest.fn(),
-  clear: jest.fn()
+  clear: jest.fn(),
+  currentResultIsLoading: jest.fn().mockReturnValue(false),
+  loading: jest.fn().mockReturnValue(false)
 } as unknown as CacheService;
 
 const paramMapMock: ParamMap = {
@@ -95,7 +95,9 @@ export const actionsServiceMock = {
   createAction: jest.fn(),
   updateAction: jest.fn(),
   deleteAction: jest.fn(),
-  getInitials: jest.fn().mockReturnValue('JD')
+  getInitials: jest.fn().mockReturnValue('JD'),
+  updateList: jest.fn(),
+  showToast: jest.fn()
 } as unknown as ActionsService;
 
 export const mockLatestResults = {
@@ -495,6 +497,7 @@ export const apiServiceMock = {
   GET_Years: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_Contracts: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_Results: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
+  GET_IpOwners: jest.fn().mockResolvedValue({ data: [] }),
   GET_InstitutionsTypes: jest.fn().mockImplementation(() => Promise.resolve(mockInstitutionsTypes)),
   GET_Languages: jest.fn().mockImplementation(() => Promise.resolve(mockLanguages)),
   GET_SessionPurpose: jest.fn().mockImplementation(() => Promise.resolve(mockSessionPurpose)),
@@ -561,4 +564,16 @@ export const getMetadataServiceMock = {
 
 export const clarityServiceMock = {
   updateUserInfo: jest.fn()
+};
+
+export const getResultsServiceMock = {
+  updateList: jest.fn()
+};
+
+export const getUserStaffServiceMock = {
+  getData: jest.fn().mockResolvedValue({ data: [] })
+};
+
+export const versionWatcherServiceMock = {
+  onVersionChange: jest.fn()
 };

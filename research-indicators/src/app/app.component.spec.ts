@@ -68,7 +68,6 @@ describe('AppComponent', () => {
     TestBed.createComponent(AppComponent);
     window.dispatchEvent(new PopStateEvent('popstate'));
     expect(reloadSpy).toHaveBeenCalled();
-    // Limpia el mock
     Object.defineProperty(window, 'location', {
       value: { ...window.location, reload: undefined },
       writable: true
@@ -91,7 +90,6 @@ describe('AppComponent', () => {
     (router.events as any).next(new NavigationStart(1, '/test'));
     expect(reloadSpy).toHaveBeenCalled();
     spy.mockRestore();
-    // Limpia el mock
     Object.defineProperty(window, 'location', {
       value: { ...window.location, reload: undefined },
       writable: true
@@ -114,7 +112,6 @@ describe('AppComponent', () => {
     (router.events as any).next(new NavigationStart(1, '/test'));
     expect(reloadSpy).not.toHaveBeenCalled();
     spy.mockRestore();
-    // Limpia el mock
     Object.defineProperty(window, 'location', {
       value: { ...window.location, reload: undefined },
       writable: true

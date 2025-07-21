@@ -14,6 +14,7 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
+import { GetSdgsService } from '@shared/services/control-list/get-sdgs.service';
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -23,8 +24,10 @@ import { NavigationButtonsComponent } from '@shared/components/navigation-button
 export default class AllianceAlignmentComponent {
   environment = environment;
   getContractsService = inject(GetContractsService);
+  getSdgsService = inject(GetSdgsService);
   body: WritableSignal<GetAllianceAlignment> = signal({
-    contracts: []
+    contracts: [],
+    result_sdgs: []
   });
   apiService = inject(ApiService);
   cache = inject(CacheService);
@@ -43,7 +46,19 @@ export default class AllianceAlignmentComponent {
 
   async getData() {
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
-    this.body.set(response.data);
+
+    // Map the data back to the format expected by the multiselect
+    const mappedData = {
+      contracts: response.data.contracts || [],
+      result_sdgs:
+        response.data.result_sdgs?.map(sdg => ({
+          ...sdg,
+          sdg_id: sdg.clarisa_sdg_id, // Map clarisa_sdg_id to sdg_id for the multiselect
+          is_primary: false // By default it is not primary
+        })) || []
+    };
+
+    this.body.set(mappedData);
   }
 
   canRemove = (): boolean => {
@@ -67,7 +82,20 @@ export default class AllianceAlignmentComponent {
     const nextPath = this.cache.currentResultIndicatorSectionPath();
 
     if (this.submission.isEditableStatus()) {
-      const response = await this.apiService.PATCH_Alignments(resultId, this.body());
+      // Map the data back to the format expected by the API
+      const dataToSend = {
+        ...this.body(),
+        result_sdgs:
+          this.body().result_sdgs?.map(sdg => ({
+            created_at: sdg.created_at,
+            is_active: sdg.is_active,
+            updated_at: sdg.updated_at,
+            clarisa_sdg_id: sdg.id,
+            result_id: resultId
+          })) || []
+      };
+
+      const response = await this.apiService.PATCH_Alignments(resultId, dataToSend);
       if (response.successfulRequest) {
         this.actions.showToast({
           severity: 'success',
@@ -83,7 +111,7 @@ export default class AllianceAlignmentComponent {
     this.loading.set(false);
   }
 
-  markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever') {
+  markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever' | 'sdg') {
     this.body.update(current => {
       if (type === 'contract') {
         current.contracts.forEach(contract => (contract.is_primary = false));

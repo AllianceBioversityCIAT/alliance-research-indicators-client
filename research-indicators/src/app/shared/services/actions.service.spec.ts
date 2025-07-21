@@ -3,7 +3,7 @@ import { ActionsService } from './actions.service';
 import { CacheService } from './cache/cache.service';
 import { Router } from '@angular/router';
 import { ApiService } from './api.service';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { UserCache } from '../interfaces/cache.interface';
 import { ServiceLocatorService } from './service-locator.service';
 
@@ -14,7 +14,7 @@ describe('ActionsService', () => {
   let apiMock: Partial<ApiService>;
   let serviceLocatorMock: Partial<ServiceLocatorService>;
 
-  // Usuario simulado con todos los campos requeridos
+  // Mock user with all required fields
   const mockUser: UserCache = {
     sec_user_id: 1,
     is_active: true,
@@ -40,14 +40,16 @@ describe('ActionsService', () => {
   };
 
   beforeEach(() => {
+    const dataCacheSignal: WritableSignal<any> = signal({
+      access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+      refresh_token: 'refresh',
+      exp: Math.floor(Date.now() / 1000) + 1000,
+      user: mockUser
+    }) as WritableSignal<any>;
+    (dataCacheSignal as any).set = jest.fn();
     cacheMock = {
-      dataCache: signal({
-        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
-        refresh_token: 'refresh',
-        exp: Math.floor(Date.now() / 1000) + 1000,
-        user: mockUser
-      }),
-      isLoggedIn: signal(false),
+      dataCache: dataCacheSignal,
+      isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
       windowHeight: signal(0)
     };
     routerMock = {
@@ -68,6 +70,7 @@ describe('ActionsService', () => {
       ]
     });
     service = TestBed.inject(ActionsService);
+    // delete the reassignment of cacheMock.dataCache here
   });
 
   it('should be created', () => {
@@ -116,18 +119,38 @@ describe('ActionsService', () => {
     expect(service.getInitials()).toBe('AP');
   });
 
-  it('should compute user initials with missing names', () => {
-    cacheMock.dataCache!.set({
-      ...cacheMock.dataCache!(),
-      user: { ...mockUser, first_name: '', last_name: '' }
+  describe('getInitials with missing names', () => {
+    it('should compute user initials with missing names', () => {
+      const dataCacheSignal: WritableSignal<any> = signal({
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        refresh_token: 'refresh',
+        exp: Math.floor(Date.now() / 1000) + 1000,
+        user: { ...mockUser, first_name: '', last_name: '' }
+      }) as WritableSignal<any>;
+      (dataCacheSignal as any).set = jest.fn();
+      const localCacheMock = {
+        dataCache: dataCacheSignal,
+        isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
+        windowHeight: signal(0)
+      };
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          { provide: CacheService, useValue: localCacheMock },
+          { provide: Router, useValue: routerMock },
+          { provide: ApiService, useValue: apiMock },
+          { provide: ServiceLocatorService, useValue: serviceLocatorMock }
+        ]
+      });
+      const localService = TestBed.inject(ActionsService);
+      expect(localService.getInitials()).toBe('');
     });
-    expect(service.getInitials()).toBe('');
   });
 
   it('should validate token and set isLoggedIn', () => {
-    cacheMock.isLoggedIn!.set(false);
+    (cacheMock.isLoggedIn!.set as any).mockClear();
     service.validateToken();
-    expect(cacheMock.isLoggedIn!()).toBe(true);
+    expect(cacheMock.isLoggedIn!.set as any).toHaveBeenCalledWith(true);
   });
 
   it('should not set isLoggedIn when no token', () => {
@@ -140,9 +163,32 @@ describe('ActionsService', () => {
     expect(cacheMock.isLoggedIn!()).toBe(false);
   });
 
-  it('should detect empty cache', () => {
-    cacheMock.dataCache!.set({} as any);
-    expect(service.isCacheEmpty()).toBe(true);
+  describe('isCacheEmpty with empty cache', () => {
+    it('should detect empty cache', () => {
+      const dataCacheSignal: WritableSignal<any> = signal({
+        access_token: '',
+        refresh_token: '',
+        exp: 0,
+        user: undefined as any
+      }) as WritableSignal<any>;
+      (dataCacheSignal as any).set = jest.fn();
+      const localCacheMock = {
+        dataCache: dataCacheSignal,
+        isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
+        windowHeight: signal(0)
+      };
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          { provide: CacheService, useValue: localCacheMock },
+          { provide: Router, useValue: routerMock },
+          { provide: ApiService, useValue: apiMock },
+          { provide: ServiceLocatorService, useValue: serviceLocatorMock }
+        ]
+      });
+      const localService = TestBed.inject(ActionsService);
+      expect(localService.isCacheEmpty()).toBe(true);
+    });
   });
 
   it('should detect non-empty cache', () => {
@@ -150,7 +196,7 @@ describe('ActionsService', () => {
   });
 
   it('should decode a valid JWT', () => {
-    // Token generado con payload {"exp":1234}
+    // Token generated with payload {"exp":1234}
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature';
     const decoded = service.decodeToken(token);
     expect(decoded.decoded).toHaveProperty('exp', 1234);
@@ -159,6 +205,13 @@ describe('ActionsService', () => {
   it('should throw error for invalid JWT', () => {
     const invalidToken = 'invalid.token';
     expect(() => service.decodeToken(invalidToken)).toThrow('JWT not valid');
+  });
+
+  it('should throw error if decodeToken payload is not valid JSON', () => {
+    // Token with base64 string payload not JSON
+    const badPayload = btoa('notjson');
+    const token = `a.${badPayload}.b`;
+    expect(() => service.decodeToken(token)).toThrow();
   });
 
   it('should update localStorage on updateLocalStorage for new login', () => {
@@ -258,44 +311,340 @@ describe('ActionsService', () => {
     removeItemSpy.mockRestore();
   });
 
-  it('should resolve isTokenExpired as false if token is valid', async () => {
-    const result = await service.isTokenExpired();
-    expect(result.isTokenExpired).toBe(false);
+  describe('isTokenExpired branches', () => {
+    it('should resolve isTokenExpired as false if token is valid', async () => {
+      const result = await service.isTokenExpired();
+      expect(result.isTokenExpired).toBe(false);
+    });
+    it('should resolve isTokenExpired as true if token is expired', async () => {
+      jest.spyOn(service, 'isTokenExpired').mockResolvedValue({
+        token_data: { access_token: 'newtoken', refresh_token: 'refresh', user: mockUser as any },
+        isTokenExpired: true
+      });
+
+      const result = await service.isTokenExpired();
+      expect(result.isTokenExpired).toBe(true);
+      expect(service.isTokenExpired).toHaveBeenCalled();
+    });
+    it('should handle refresh token failure', async () => {
+      jest.spyOn(service, 'isTokenExpired').mockResolvedValue({
+        token_data: { access_token: 'newtoken', refresh_token: 'refresh', user: mockUser as any },
+        isTokenExpired: true
+      });
+
+      const result = await service.isTokenExpired();
+      expect(result.isTokenExpired).toBe(true);
+      expect(service.isTokenExpired).toHaveBeenCalled();
+    });
+    it('should handle empty cache in isTokenExpired', async () => {
+      jest.spyOn(service, 'isTokenExpired').mockResolvedValue({
+        token_data: { access_token: 'newtoken', refresh_token: 'refresh', user: mockUser as any },
+        isTokenExpired: true
+      });
+
+      const result = await service.isTokenExpired();
+      expect(result.isTokenExpired).toBe(true);
+      expect(service.isTokenExpired).toHaveBeenCalled();
+    });
   });
 
-  it('should resolve isTokenExpired as true if token is expired', async () => {
-    // Mock directo del método isTokenExpired
-    jest.spyOn(service, 'isTokenExpired').mockResolvedValue({
-      token_data: { access_token: 'newtoken', refresh_token: 'refresh', user: mockUser as any },
-      isTokenExpired: true
-    });
-
-    const result = await service.isTokenExpired();
-    expect(result.isTokenExpired).toBe(true);
-    expect(service.isTokenExpired).toHaveBeenCalled();
+  it('should handle navigation error in logOut', async () => {
+    (routerMock.navigate as jest.Mock).mockRejectedValueOnce(new Error('fail'));
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    await service.logOut();
+    expect(errorSpy).toHaveBeenCalledWith('Navigation error:', expect.any(Error));
+    errorSpy.mockRestore();
   });
 
-  it('should handle refresh token failure', async () => {
-    // Mock directo del método isTokenExpired
-    jest.spyOn(service, 'isTokenExpired').mockResolvedValue({
-      token_data: { access_token: 'newtoken', refresh_token: 'refresh', user: mockUser as any },
-      isTokenExpired: true
-    });
-
-    const result = await service.isTokenExpired();
-    expect(result.isTokenExpired).toBe(true);
-    expect(service.isTokenExpired).toHaveBeenCalled();
+  it('should handle service worker cache clearing and update', async () => {
+    // @ts-ignore
+    global.navigator.serviceWorker = { controller: true, ready: Promise.resolve({ update: jest.fn() }) };
+    // @ts-ignore
+    global.caches = {
+      keys: jest.fn().mockResolvedValue(['ngsw:/:dynamic-data', 'other-cache']),
+      delete: jest.fn().mockResolvedValue(true)
+    };
+    await service.logOut();
+    // Wait for caches methods to be called
+    expect(global.caches.keys).toHaveBeenCalled();
+    // Cleanup
+    // @ts-ignore
+    delete global.navigator.serviceWorker;
+    // @ts-ignore
+    delete global.caches;
   });
 
-  it('should handle empty cache in isTokenExpired', async () => {
-    // Mock directo del método isTokenExpired
-    jest.spyOn(service, 'isTokenExpired').mockResolvedValue({
-      token_data: { access_token: 'newtoken', refresh_token: 'refresh', user: mockUser as any },
-      isTokenExpired: true
-    });
+  it('should handle error in caches.keys', async () => {
+    // @ts-ignore
+    global.navigator.serviceWorker = { controller: true, ready: Promise.resolve({ update: jest.fn() }) };
+    // @ts-ignore
+    global.caches = {
+      keys: jest.fn().mockRejectedValue(new Error('fail')),
+      delete: jest.fn()
+    };
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    await service.logOut();
+    expect(errorSpy).toHaveBeenCalledWith('Cache clearing error:', expect.any(Error));
+    // Cleanup
+    // @ts-ignore
+    delete global.navigator.serviceWorker;
+    // @ts-ignore
+    delete global.caches;
+    errorSpy.mockRestore();
+  });
 
-    const result = await service.isTokenExpired();
-    expect(result.isTokenExpired).toBe(true);
-    expect(service.isTokenExpired).toHaveBeenCalled();
+  it('should handle error in service worker update', async () => {
+    // @ts-ignore
+    global.navigator.serviceWorker = { controller: true, ready: Promise.reject(new Error('sw fail')) };
+    // @ts-ignore
+    global.caches = {
+      keys: jest.fn().mockResolvedValue([]),
+      delete: jest.fn()
+    };
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    await service.logOut();
+    expect(errorSpy).toHaveBeenCalledWith('Service worker update error:', expect.any(Error));
+    // Cleanup
+    // @ts-ignore
+    delete global.navigator.serviceWorker;
+    // @ts-ignore
+    delete global.caches;
+    errorSpy.mockRestore();
+  });
+
+  describe('isTokenExpired branches', () => {
+    it('should resolve isTokenExpired as true if refreshToken fails', async () => {
+      const dataCacheSignal: WritableSignal<any> = signal({
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        refresh_token: 'refresh',
+        exp: 0,
+        user: mockUser
+      }) as WritableSignal<any>;
+      (dataCacheSignal as any).set = jest.fn();
+      const localCacheMock = {
+        dataCache: dataCacheSignal,
+        isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
+        windowHeight: signal(0)
+      };
+      const localApiMock = {
+        ...apiMock,
+        refreshToken: jest.fn().mockResolvedValueOnce({ successfulRequest: false, data: { access_token: 'fail', user: mockUser } })
+      };
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          { provide: CacheService, useValue: localCacheMock },
+          { provide: Router, useValue: routerMock },
+          { provide: ApiService, useValue: localApiMock },
+          { provide: ServiceLocatorService, useValue: serviceLocatorMock }
+        ]
+      });
+      const localService = TestBed.inject(ActionsService);
+      (localCacheMock.isLoggedIn!.set as any).mockClear();
+      (localCacheMock.dataCache!.set as any).mockClear();
+      const removeItemSpy = jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {});
+      await localService.isTokenExpired();
+      expect(localCacheMock.isLoggedIn!.set as any).toHaveBeenCalledWith(false);
+      expect(localCacheMock.dataCache!.set as any).toHaveBeenCalled();
+      expect(removeItemSpy).toHaveBeenCalledWith('data');
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/']);
+      removeItemSpy.mockRestore();
+    });
+    it('should resolve isTokenExpired as true if no service worker', async () => {
+      jest.setTimeout(15000);
+      // Delete serviceWorker from navigator and caches
+      // @ts-ignore
+      global.navigator.serviceWorker = undefined;
+      // @ts-ignore
+      global.caches = undefined;
+      const dataCacheSignal: WritableSignal<any> = signal({
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        refresh_token: 'refresh',
+        exp: 0,
+        user: mockUser
+      }) as WritableSignal<any>;
+      (dataCacheSignal as any).set = jest.fn();
+      const localCacheMock = {
+        dataCache: dataCacheSignal,
+        isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
+        windowHeight: signal(0)
+      };
+      const localApiMock = {
+        ...apiMock,
+        refreshToken: jest.fn().mockResolvedValueOnce({ successfulRequest: true, data: { access_token: 'newtoken', user: mockUser } })
+      };
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          { provide: CacheService, useValue: localCacheMock },
+          { provide: Router, useValue: routerMock },
+          { provide: ApiService, useValue: localApiMock },
+          { provide: ServiceLocatorService, useValue: serviceLocatorMock }
+        ]
+      });
+      const localService = TestBed.inject(ActionsService);
+      // Mock updateLocalStorage to avoid side effects
+      jest.spyOn(localService, 'updateLocalStorage').mockImplementation(() => {});
+      const result = await localService.isTokenExpired();
+      expect(result.isTokenExpired).toBe(true);
+      // Cleanup
+      // @ts-ignore
+      delete global.navigator.serviceWorker;
+      // @ts-ignore
+      delete global.caches;
+    });
+  });
+
+  it('should updateLocalStorage with empty user_role_list', () => {
+    const loginResponse = {
+      data: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        user: { ...mockUser, user_role_list: [] }
+      },
+      successfulRequest: true
+    };
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    service.updateLocalStorage(loginResponse as any, false);
+    expect(setItemSpy).toHaveBeenCalled();
+    setItemSpy.mockRestore();
+  });
+
+  it('should updateLocalStorage with user_role_list[0] without role', () => {
+    const loginResponse = {
+      data: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        user: { ...mockUser, user_role_list: [{ ...mockUser.user_role_list[0], role: undefined }] }
+      },
+      successfulRequest: true
+    };
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    service.updateLocalStorage(loginResponse as any, false);
+    expect(setItemSpy).toHaveBeenCalled();
+    setItemSpy.mockRestore();
+  });
+
+  it('should handle error in refreshToken in isTokenExpired', async () => {
+    const dataCacheSignal: WritableSignal<any> = signal({
+      access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+      refresh_token: 'refresh',
+      exp: 0,
+      user: mockUser
+    }) as WritableSignal<any>;
+    (dataCacheSignal as any).set = jest.fn();
+    const localCacheMock = {
+      dataCache: dataCacheSignal,
+      isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
+      windowHeight: signal(0)
+    };
+    const localApiMock = {
+      ...apiMock,
+      refreshToken: jest.fn().mockRejectedValueOnce(new Error('fail'))
+    };
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: CacheService, useValue: localCacheMock },
+        { provide: Router, useValue: routerMock },
+        { provide: ApiService, useValue: localApiMock },
+        { provide: ServiceLocatorService, useValue: serviceLocatorMock }
+      ]
+    });
+    const localService = TestBed.inject(ActionsService);
+    await expect(localService.isTokenExpired()).rejects.toThrow('fail');
+  });
+
+  describe('isCacheEmpty individual fields', () => {
+    it('should return true if access_token is falsy', () => {
+      const dataCacheSignal: WritableSignal<any> = signal({
+        ...mockUser,
+        access_token: '',
+        refresh_token: 'refresh',
+        exp: 1234,
+        user: mockUser
+      }) as WritableSignal<any>;
+      (dataCacheSignal as any).set = jest.fn();
+      const localCacheMock = {
+        dataCache: dataCacheSignal,
+        isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
+        windowHeight: signal(0)
+      };
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          { provide: CacheService, useValue: localCacheMock },
+          { provide: Router, useValue: routerMock },
+          { provide: ApiService, useValue: apiMock },
+          { provide: ServiceLocatorService, useValue: serviceLocatorMock }
+        ]
+      });
+      const localService = TestBed.inject(ActionsService);
+      expect(localService.isCacheEmpty()).toBe(true);
+    });
+    it('should return true if exp is falsy', () => {
+      const dataCacheSignal: WritableSignal<any> = signal({
+        ...mockUser,
+        access_token: 'token',
+        refresh_token: 'refresh',
+        exp: 0,
+        user: mockUser
+      }) as WritableSignal<any>;
+      (dataCacheSignal as any).set = jest.fn();
+      const localCacheMock = {
+        dataCache: dataCacheSignal,
+        isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
+        windowHeight: signal(0)
+      };
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          { provide: CacheService, useValue: localCacheMock },
+          { provide: Router, useValue: routerMock },
+          { provide: ApiService, useValue: apiMock },
+          { provide: ServiceLocatorService, useValue: serviceLocatorMock }
+        ]
+      });
+      const localService = TestBed.inject(ActionsService);
+      expect(localService.isCacheEmpty()).toBe(true);
+    });
+    it('should return true if user is falsy', () => {
+      const dataCacheSignal: WritableSignal<any> = signal({
+        ...mockUser,
+        access_token: 'token',
+        refresh_token: 'refresh',
+        exp: 1234,
+        user: undefined as any
+      }) as WritableSignal<any>;
+      (dataCacheSignal as any).set = jest.fn();
+      const localCacheMock = {
+        dataCache: dataCacheSignal,
+        isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
+        windowHeight: signal(0)
+      };
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          { provide: CacheService, useValue: localCacheMock },
+          { provide: Router, useValue: routerMock },
+          { provide: ApiService, useValue: apiMock },
+          { provide: ServiceLocatorService, useValue: serviceLocatorMock }
+        ]
+      });
+      const localService = TestBed.inject(ActionsService);
+      expect(localService.isCacheEmpty()).toBe(true);
+    });
+  });
+
+  it('should handle error in decodeToken in updateLocalStorage', () => {
+    const loginResponse = {
+      data: {
+        access_token: 'bad.token',
+        user: mockUser
+      },
+      successfulRequest: true
+    };
+    jest.spyOn(service, 'decodeToken').mockImplementation(() => {
+      throw new Error('fail');
+    });
+    expect(() => service.updateLocalStorage(loginResponse as any, false)).toThrow('fail');
   });
 });

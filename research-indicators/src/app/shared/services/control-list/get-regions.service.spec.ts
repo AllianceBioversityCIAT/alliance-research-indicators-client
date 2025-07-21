@@ -29,7 +29,7 @@ describe('GetRegionsService', () => {
     loadingMock.set = jest.fn();
     isOpenSearchMock = jest.fn(() => false);
     isOpenSearchMock.set = jest.fn();
-    // Instancia sin constructor
+    // Instance without constructor
     service = Object.create(GetRegionsService.prototype);
     service.api = apiMock;
     service.list = listMock;
@@ -108,7 +108,7 @@ describe('GetRegionsService', () => {
       providers: [GetRegionsService, { provide: require('./../api.service').ApiService, useValue: apiService }]
     });
     const realService = TestBed.inject(GetRegionsService);
-    // Esperar a que main termine
+    // wait for main to finish
     await new Promise(res => setTimeout(res, 0));
     expect(realService.list()).toEqual([{ um49Code: '003', name: 'Region 3', region_id: '003', sub_national_id: '003' }]);
     expect(realService.loading()).toBe(false);

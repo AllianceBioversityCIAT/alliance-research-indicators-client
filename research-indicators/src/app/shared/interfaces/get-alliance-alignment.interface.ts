@@ -1,5 +1,8 @@
+import { GetSdgs } from './get-sdgs.interface';
+
 export interface GetAllianceAlignment {
   contracts: Contract[];
+  result_sdgs: GetSdgs[];
 }
 
 interface Contract {

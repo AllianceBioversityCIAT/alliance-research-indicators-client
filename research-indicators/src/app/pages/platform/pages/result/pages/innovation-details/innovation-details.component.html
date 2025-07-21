@@ -74,7 +74,7 @@
         <span class="text-red-500">*</span>
       </label>
 
-      <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5">
+      <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-3 px-3">
         <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
         <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
           At the output level, a single readiness score is given for the innovation, irrespective of the specific geo-location where the innovation is
@@ -148,11 +148,11 @@
     </div>
     <!-- Anticipated Users -->
     @if (body().anticipated_users_id === 2) {
-      <div id="anticipated-section" class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-6">
+      <div id="anticipated-section" class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-2">
         <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">ANTICIPATED USERS</div>
         <div class="flex flex-col gap-[18px]">
           <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold">Actors</span>
-          <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5">
+          <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-3 px-3">
             <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
             <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
               In the context of One CGIAR, youth are those between 15 and 24 years old, considered key to innovation and transformation in
@@ -203,7 +203,7 @@
             </div>
           }
 
-          <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-5 px-5 mt-4 mb-3">
+          <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-3 px-3 mt-4 mb-3">
             <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
             <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
               Is the innovation compatible with local needs, circumstances and preferences of the communities? Are there additional, complementary
@@ -227,6 +227,316 @@
             label="Expected outcomes"
             [signal]="this.body"
             [optionValue]="'expected_outcome'"></app-textarea>
+        </div>
+      </div>
+    }
+
+    @if (selectedLevel && selectedLevel.level >= 7 && selectedStep()) {
+      <!-- Knowledge Sharing -->
+      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-2">
+        <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">KNOWLEDGE SHARING</div>
+
+        <div class="flex flex-col gap-[18px]">
+          <div class="flex flex-col xl:flex-row">
+            <div class="flex-1">
+              <app-radio-button
+                label="Is there potential for fellow researchers or policymakers to adapt and expand your tool or method in new contexts and for new purposes?"
+                [isRequired]="true"
+                [signal]="body"
+                [disabled]="!submission.isEditableStatus()"
+                [serviceName]="'yesOrNo'"
+                [optionLabel]="'name'"
+                [helperText]="scalingHelperText"
+                direction="horizontal"
+                [optionValue]="{ body: 'knowledge_sharing_form.is_knowledge_sharing', option: 'value' }">
+              </app-radio-button>
+            </div>
+          </div>
+
+          @if (body().knowledge_sharing_form.is_knowledge_sharing) {
+            <div class="flex flex-col xl:flex-row">
+              <div class="flex-1">
+                <app-radio-button
+                  label="Your method or tool qualifies for further dissemination on the Alliance website. Please fill out the following questions to share your innovation through the Alliance website"
+                  [isRequired]="true"
+                  [signal]="body"
+                  [disabled]="!submission.isEditableStatus()"
+                  [serviceName]="'disseminationQualifications'"
+                  [optionLabel]="'name'"
+                  [helperText]="scalingHelperText2"
+                  direction="horizontal"
+                  [optionValue]="{ body: 'knowledge_sharing_form.dissemination_qualification_id', option: 'id' }">
+                </app-radio-button>
+              </div>
+            </div>
+
+            @if (body().knowledge_sharing_form.dissemination_qualification_id === 2) {
+              <div class="flex-1">
+                <app-textarea
+                  [disabled]="!submission.isEditableStatus()"
+                  [isRequired]="true"
+                  [rows]="5"
+                  label="In what context is this tool useful?"
+                  [signal]="this.body"
+                  [optionValue]="'knowledge_sharing_form.tool_useful_context'"></app-textarea>
+              </div>
+
+              <div class="flex-1 -mt-1">
+                <app-textarea
+                  [disabled]="!submission.isEditableStatus()"
+                  [isRequired]="true"
+                  [rows]="5"
+                  label="Results (achieved or expected): identify and detail selected examples of relevance, adding numbers, facts, figures, names, and locations"
+                  [signal]="this.body"
+                  [optionValue]="'knowledge_sharing_form.results_achieved_expected'"></app-textarea>
+              </div>
+
+              <div class="flex-1 -mt-1">
+                <app-select
+                  label="Tool function"
+                  [disabled]="!submission.isEditableStatus()"
+                  [isRequired]="true"
+                  [signal]="this.body"
+                  [optionValue]="{ body: 'knowledge_sharing_form.tool_function_id', option: 'id' }"
+                  optionLabel="name"
+                  serviceName="toolFunctions"></app-select>
+              </div>
+
+              <div class="flex-1">
+                <app-radio-button
+                  label="Has this innovation been used beyond its original development context (for other crops, or in other geographies for example)?"
+                  [signal]="body"
+                  [disabled]="!submission.isEditableStatus()"
+                  [isRequired]="true"
+                  [serviceName]="'yesOrNo'"
+                  [optionLabel]="'name'"
+                  [helperText]="scalingHelperText2"
+                  direction="horizontal"
+                  [optionValue]="{ body: 'knowledge_sharing_form.is_used_beyond_original_context', option: 'value' }">
+                </app-radio-button>
+              </div>
+
+              <div class="flex-1">
+                @if (body().knowledge_sharing_form.is_used_beyond_original_context) {
+                  <app-input
+                    label="How has it been adopted and adapted in other contexts?"
+                    [isRequired]="true"
+                    [signal]="body"
+                    optionValue="knowledge_sharing_form.adoption_adaptation_context"
+                    [disabled]="!submission.isEditableStatus()"
+                    type="text"></app-input>
+                }
+
+                @if (
+                  !body().knowledge_sharing_form.is_used_beyond_original_context &&
+                  body().knowledge_sharing_form.is_used_beyond_original_context !== null
+                ) {
+                  <app-input
+                    label="How might it be adopted and adapted in other contexts?"
+                    [signal]="body"
+                    optionValue="knowledge_sharing_form.adoption_adaptation_context"
+                    [disabled]="!submission.isEditableStatus()"
+                    type="text"></app-input>
+                }
+              </div>
+
+              <div class="flex-1">
+                <app-multiselect
+                  label="Tools often used together with this tool"
+                  [signal]="body"
+                  helperText="You can select existing innovations from the system."
+                  textSpan="Innovations selected"
+                  optionLabel="select_label"
+                  optionValue="result_id"
+                  signalOptionValue="knowledge_sharing_form.link_to_result"
+                  [disabled]="!submission.isEditableStatus()"
+                  [removeCondition]="canRemove"
+                  serviceName="innResults">
+                  <ng-template #selectedItems let-value>
+                    <div class="flex items-center gap-2">
+                      <span> {{ value?.length }} innovation{{ value?.length === 1 ? '' : 's' }} selected </span>
+                    </div>
+                  </ng-template>
+
+                  <ng-template #item let-result>
+                    <span class="text-[#4C5158]">
+                      <span class="font-[600]">{{ result.result_official_code }} -</span> {{ result.title }}
+                    </span>
+                  </ng-template>
+
+                  <ng-template #rows let-result>
+                    <div class="flex flex-col gap-1.5 py-1">
+                      <div class="flex items-center gap-[5px]">
+                        <i class="text-[#7cb580] !text-[12px] pi pi-flag"></i>
+                        <label class="font-[400] font-['Space_Grotesk'] text-[12px] text-[#8d9299] uppercase" for="InnDev"
+                          >Innovation Development</label
+                        >
+                      </div>
+                      <span class="font-[500] text-[#4C5158] text-[15px]">{{ result.result_official_code }} - {{ result.title }}</span>
+                      <div class="flex items-center gap-2">
+                        <app-custom-tag
+                          [tiny]="true"
+                          [statusId]="result.result_status.result_status_id"
+                          [statusName]="result.result_status.name"></app-custom-tag>
+                        <div class="flex items-center">
+                          <span class="font-[400] text-[12px] text-[#777C83] font-['Space_Grotesk']">Reporting Project</span>
+                          <i class="pi pi-arrow-right !text-[9px] px-2 !text-[#777C83]"></i>
+
+                          @if (result.result_contracts) {
+                            @let agresso_contract = result.result_contracts.contract;
+                            @if (agresso_contract) {
+                              <label class="text-[12px] text-[#345B8F] font-['Space_Grotesk'] font-[400]" for="name">
+                                {{ agresso_contract.agreement_id }} - {{ agresso_contract.description }}</label
+                              >
+                            }
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </ng-template>
+                </app-multiselect>
+              </div>
+
+              <app-input
+                label="Other tools"
+                class="pt-1.5"
+                [signal]="body"
+                placeholder="Specify the tool"
+                optionValue="knowledge_sharing_form.other_tools"
+                [disabled]="!submission.isEditableStatus()"
+                type="text"></app-input>
+
+              <app-textarea
+                [disabled]="!submission.isEditableStatus()"
+                [rows]="5"
+                label="Please provide a short description of how other tools are used with this one."
+                [signal]="this.body"
+                [optionValue]="'knowledge_sharing_form.other_tools_integration'"></app-textarea>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Scaling Potential -->
+      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-2">
+        <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">SCALING POTENTIAL</div>
+        <span class="text-[#1689CA] text-[16px] leading-[17px] pb-3 font-semibold">Formulation</span>
+        <div class="flex flex-col xl:flex-row xl:gap-[18px]">
+          <div class="flex-1 pb-5 xl:max-w-1/2 pr-18">
+            <app-radio-button
+              label="Is it cheaper compared to alternatives?"
+              [signal]="body"
+              [disabled]="!submission.isEditableStatus()"
+              serviceName="scaling"
+              [optionLabel]="'name'"
+              direction="horizontal"
+              [optionValue]="{ body: 'scaling_potential_form.is_cheaper_than_alternatives', option: 'value' }">
+            </app-radio-button>
+          </div>
+
+          <div class="flex-1 pb-5">
+            <app-radio-button
+              label="Is it simpler to use?"
+              [signal]="body"
+              [disabled]="!submission.isEditableStatus()"
+              serviceName="scaling"
+              [optionLabel]="'name'"
+              direction="horizontal"
+              [optionValue]="{ body: 'scaling_potential_form.is_simpler_to_use', option: 'value' }">
+            </app-radio-button>
+          </div>
+        </div>
+        <div class="flex flex-col xl:flex-row gap-[18px]">
+          <div class="flex-1 pb-5">
+            <app-radio-button
+              label="Does it perform better?"
+              [signal]="body"
+              [disabled]="!submission.isEditableStatus()"
+              serviceName="scaling"
+              [optionLabel]="'name'"
+              direction="horizontal"
+              [optionValue]="{ body: 'scaling_potential_form.does_perform_better', option: 'value' }">
+            </app-radio-button>
+          </div>
+        </div>
+
+        <span class="text-[#1689CA] text-[16px] leading-[17px] pb-3 pt-2 font-semibold">Demand and Investment</span>
+        <div class="flex flex-col xl:flex-row gap-[18px]">
+          <div class="flex-1 xl:pb-5">
+            <app-radio-button
+              label="Is the innovation desirable to intended<br>users?"
+              [signal]="body"
+              [disabled]="!submission.isEditableStatus()"
+              serviceName="scaling"
+              [optionLabel]="'name'"
+              direction="horizontal"
+              [optionValue]="{ body: 'scaling_potential_form.is_desirable_to_users', option: 'value' }">
+            </app-radio-button>
+          </div>
+
+          <div class="flex-1 pb-5">
+            <app-radio-button
+              label="Is the innovation commercially viable/is there<br>investment potential?"
+              [signal]="body"
+              [disabled]="!submission.isEditableStatus()"
+              serviceName="scaling"
+              [optionLabel]="'name'"
+              direction="horizontal"
+              [optionValue]="{ body: 'scaling_potential_form.has_commercial_viability', option: 'value' }">
+            </app-radio-button>
+          </div>
+        </div>
+
+        <span class="text-[#1689CA] text-[16px] leading-[17px] pb-3 pt-2 font-semibold">Sustained use</span>
+        <div class="flex flex-col xl:flex-row gap-[18px]">
+          <div class="flex-1 xl:pb-5">
+            <app-radio-button
+              label="Is the innovation supported by a suitable enabling<br>environment?"
+              [signal]="body"
+              [disabled]="!submission.isEditableStatus()"
+              serviceName="scaling"
+              [optionLabel]="'name'"
+              direction="horizontal"
+              [optionValue]="{ body: 'scaling_potential_form.has_suitable_enabling_environment', option: 'value' }">
+            </app-radio-button>
+          </div>
+
+          <div class="flex-1 pb-[18px]">
+            <app-radio-button
+              label="Is there already evidence of<br>uptake?"
+              [signal]="body"
+              [disabled]="!submission.isEditableStatus()"
+              serviceName="scaling"
+              [optionLabel]="'name'"
+              direction="horizontal"
+              [optionValue]="{ body: 'scaling_potential_form.has_evidence_of_uptake', option: 'value' }">
+            </app-radio-button>
+          </div>
+        </div>
+
+        <div class="flex flex-col xl:flex-row gap-[18px]">
+          <div class="flex-1">
+            <app-radio-button
+              label="Is there potential for actors, such as fellow researchers or policymakers, to expand the innovation more generally in new contexts and for new purposes?"
+              [signal]="body"
+              [disabled]="!submission.isEditableStatus()"
+              [serviceName]="'expansionPotential'"
+              [optionLabel]="'name'"
+              direction="horizontal"
+              [optionValue]="{ body: 'scaling_potential_form.expansion_potential_id', option: 'id' }">
+            </app-radio-button>
+
+            @if (body().scaling_potential_form.expansion_potential_id === 2 || body().scaling_potential_form.expansion_potential_id === 1) {
+              <div class="flex-1 pt-2">
+                <app-input
+                  [signal]="body"
+                  [disabled]="!submission.isEditableStatus()"
+                  placeholder="Write how could it be adopted and scaled in other contexts? What would need to be adapted?"
+                  optionValue="scaling_potential_form.expansion_adaptation_details"></app-input>
+              </div>
+              <div class="flex-1"></div>
+            }
+          </div>
         </div>
       </div>
     }

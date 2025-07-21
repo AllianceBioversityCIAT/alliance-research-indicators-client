@@ -100,4 +100,34 @@ describe('BugHerdService', () => {
     service.init(false);
     expect(consoleWarnSpy).toHaveBeenCalledWith('BugHerd: Error loading script', expect.any(Error));
   });
+
+  it('should not load script when called with no argument and environment.production is true', () => {
+    jest.resetModules();
+    jest.doMock('../../../environments/environment', () => ({ environment: { production: true } }));
+    const { BugHerdService: BugHerdServiceReloaded } = require('./bug-herd.service');
+    const reloadedService = new BugHerdServiceReloaded();
+    const createElement = jest.spyOn(document, 'createElement');
+    const appendChild = jest.spyOn(document.body, 'appendChild');
+    reloadedService.init();
+    expect(createElement).not.toHaveBeenCalled();
+    expect(appendChild).not.toHaveBeenCalled();
+    createElement.mockRestore();
+    appendChild.mockRestore();
+  });
+
+  it('should load script when called with no argument and environment.production is false', () => {
+    jest.resetModules();
+    jest.doMock('../../../environments/environment', () => ({ environment: { production: false } }));
+    const { BugHerdService: BugHerdServiceReloaded } = require('./bug-herd.service');
+    const reloadedService = new BugHerdServiceReloaded();
+    const createElement = jest.spyOn(document, 'createElement');
+    const appendChild = jest.spyOn(document.body, 'appendChild');
+    const getElementById = jest.spyOn(document, 'getElementById').mockReturnValue(null);
+    reloadedService.init();
+    expect(createElement).toHaveBeenCalledWith('script');
+    expect(appendChild).toHaveBeenCalled();
+    createElement.mockRestore();
+    appendChild.mockRestore();
+    getElementById.mockRestore();
+  });
 });

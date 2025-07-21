@@ -100,7 +100,6 @@ describe('CacheService', () => {
   });
 
   it('should initialize dataCache as empty object when localStorage data is null', () => {
-    // Crear un mock específico que retorne null para 'data'
     const mockLocalStorageNull: { [key: string]: string } = {};
     Object.defineProperty(window, 'localStorage', {
       value: {

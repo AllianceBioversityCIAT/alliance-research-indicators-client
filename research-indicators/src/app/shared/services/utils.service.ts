@@ -11,7 +11,7 @@ export class UtilsService {
     if (keys.length >= 2) {
       signal.update(obj => {
         keys.slice(0, -1).reduce((acc, key) => {
-          // Crea el subobjeto si no existe
+          // Create the subobject if it doesn't exist
           acc[key] ??= {};
           return acc[key];
         }, obj)[keys[keys.length - 1]] = value;
@@ -29,7 +29,7 @@ export class UtilsService {
 
     if (keys.length >= 2) {
       keys.slice(0, -1).reduce((acc, key) => {
-        // Crea el subobjeto si no existe
+        // Create the subobject if it doesn't exist
         acc[key] ??= {};
         return acc[key];
       }, obj)[keys[keys.length - 1]] = value;

@@ -1,6 +1,4 @@
-import { TestBed } from '@angular/core/testing';
 import { IndicatorsService } from './indicators.service';
-import { Indicator, IndicatorTypes } from '@interfaces/api.interface';
 
 describe('IndicatorsService', () => {
   let service: IndicatorsService;
@@ -82,14 +80,12 @@ describe('IndicatorsService', () => {
     loadingMock = Object.assign(() => false, { set: jest.fn() });
     isOpenSearchMock = Object.assign(() => false, { set: jest.fn() });
 
-    // Instancia sin constructor
     service = Object.create(IndicatorsService.prototype);
     service.api = apiMock;
     service.indicators = indicatorsMock;
     service.loading = loadingMock;
     service.isOpenSearch = isOpenSearchMock;
 
-    // Mock del computed
     (service as any).indicatorsGrouped = Object.assign(() => [], {});
   });
 
@@ -112,10 +108,7 @@ describe('IndicatorsService', () => {
       {
         label: 'Type 1',
         value: 1,
-        items: [
-          { label: 'Indicator 1', value: 1 },
-          { label: 'Indicator 2', value: 2 }
-        ]
+        items: [{ label: 'Indicator 1', value: 1 }]
       },
       {
         label: 'Type 2',

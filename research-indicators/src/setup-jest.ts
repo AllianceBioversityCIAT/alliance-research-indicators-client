@@ -1,4 +1,6 @@
-import 'jest-preset-angular/setup-jest';
+import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
+
+setupZoneTestEnv();
 
 // Add polyfills for missing browser APIs
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,7 +50,8 @@ HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, cont
   if (contextId === '2d') {
     return new MockContext2D() as unknown as CanvasRenderingContext2D;
   }
-  return originalGetContext.call(this, contextId, options);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return originalGetContext.call(this, contextId, options) as any;
 };
 
 // Suppress specific console errors

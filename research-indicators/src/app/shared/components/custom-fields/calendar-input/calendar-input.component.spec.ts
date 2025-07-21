@@ -25,7 +25,7 @@ describe('CalendarInputComponent', () => {
     component = fixture.componentInstance;
     cacheService = TestBed.inject(CacheService) as jest.Mocked<CacheService>;
 
-    // Configuración inicial del componente
+    // Initial component configuration
     component.signal = signal({});
     component.optionValue = 'testField';
     fixture.detectChanges();

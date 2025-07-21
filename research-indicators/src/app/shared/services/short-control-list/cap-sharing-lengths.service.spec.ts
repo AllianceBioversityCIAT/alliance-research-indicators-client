@@ -66,12 +66,12 @@ describe('CapSharingLengthsService', () => {
 
     const loadingPromise = service.main();
 
-    // Verificar que loading está en true durante la carga
+    // Verify that loading is true during the load
     expect(service.loading()).toBe(true);
 
     await loadingPromise;
 
-    // Verificar que loading está en false después de la carga
+    // Verify that loading is false after the load
     expect(service.loading()).toBe(false);
   });
 
@@ -156,7 +156,6 @@ describe('CapSharingLengthsService', () => {
   });
 
   it('should initialize with empty list and loading false', () => {
-    // Crear una nueva instancia para verificar el estado inicial
     const newService = TestBed.inject(CapSharingLengthsService);
 
     expect(newService.list()).toEqual([]);
@@ -167,7 +166,7 @@ describe('CapSharingLengthsService', () => {
     expect(typeof service.list).toBe('function');
     expect(typeof service.loading).toBe('function');
 
-    // Verificar que los signals devuelven valores del tipo correcto
+    // Verify that the signals return values of the correct type
     expect(Array.isArray(service.list())).toBe(true);
     expect(typeof service.loading()).toBe('boolean');
   });

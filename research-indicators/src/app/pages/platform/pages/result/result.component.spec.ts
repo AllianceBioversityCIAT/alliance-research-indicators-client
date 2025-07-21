@@ -6,7 +6,6 @@ import { of } from 'rxjs';
 import ResultComponent from './result.component';
 import { cacheServiceMock, getMetadataServiceMock } from 'src/app/testing/mock-services.mock';
 
-// Mock de servicios usados en el constructor
 const metadataMock = getMetadataServiceMock;
 const versionWatcherMock = { version: jest.fn().mockReturnValue('1.0') };
 

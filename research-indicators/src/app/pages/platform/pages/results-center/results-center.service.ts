@@ -42,8 +42,16 @@ export class ResultsCenterService {
       field: 'title',
       path: 'title',
       header: 'Title',
+      minWidth: 'min-w-[200px]',
+      maxWidth: 'max-w-[300px]',
       filter: true,
-      getValue: (result: Result) => result.title
+      getValue: (result: Result) => {
+        const title = result.title;
+        if (!title || typeof title !== 'string') return title;
+        let end = title.length;
+        while (end > 0 && title[end - 1] === '-') end--;
+        return title.slice(0, end);
+      }
     },
     {
       field: 'indicator_id',
@@ -196,7 +204,7 @@ export class ResultsCenterService {
             },
             ...prev.map(indicator => ({
               ...indicator,
-              able: [0, 1, 2, 4].includes(indicator.indicator_id)
+              able: [0, 1, 4].includes(indicator.indicator_id)
             }))
           ];
         });

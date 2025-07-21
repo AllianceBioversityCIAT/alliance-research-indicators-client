@@ -42,7 +42,7 @@ describe('GetAllResultStatusService', () => {
     await service.main();
     expect(service.list()).toEqual(mockData);
     expect(service.loading()).toBe(false);
-    expect(apiService.GET_AllResultStatus).toHaveBeenCalledTimes(2); // constructor + manual
+    expect(apiService.GET_AllResultStatus).toHaveBeenCalledTimes(2);
   });
 
   it('should handle loading state correctly', async () => {

@@ -5,10 +5,9 @@ import { signal } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { AccordionModule } from 'primeng/accordion';
 
-// Mock de preguntas frecuentes
 const mockFaqList = [
-  { question: '¿Qué es la plataforma?', answer: 'Es una herramienta para reportar.' },
-  { question: '¿Cómo inicio sesión?', answer: 'Haz clic en el botón de inicio de sesión.' }
+  { question: 'what is the platform?', answer: 'It is a tool to report.' },
+  { question: 'how do I login?', answer: 'Click the login button.' }
 ];
 
 const landingTextsServiceMock = {

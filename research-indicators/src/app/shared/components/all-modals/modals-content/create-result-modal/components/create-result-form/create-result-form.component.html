@@ -34,6 +34,7 @@
       [showWarning]="true"
       [getContractStatusClasses]="getContractStatusClasses"
       title="Reporting Project"
+      helperText="Enter the eligible project under which you are submitting the result. Only Alliance non-pool-funded projects are allowed."
       [maxLength]="100"
       (validityChanged)="sharedFormValid = $event"
       [contractId]="contractId"
@@ -59,14 +60,14 @@
         </p-select>
 
         <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">
-          Visit
+          Select the result indicator you want to report. For more details, visit the
           <span
-            class="text-[#1689CA] hover:underline"
+            class="text-[#1689CA] hover:underline cursor-pointer"
             (keydown.enter)="this.router.navigate(['/about-indicators'])"
             (click)="this.router.navigate(['/about-indicators']); this.allModalsService.closeModal('createResult')">
             About Indicators
           </span>
-          for more details.
+          section.
         </h4>
 
         @if (isIndicatorIdMissing) {
@@ -94,7 +95,13 @@
     </div>
 
     <div class="w-full flex flex-col">
-      <h2 class="text-[14px] font-[500] text-[#173F6F] pb-1">Title<span class="text-[15px] text-[#CF0808]">*</span></h2>
+      <div class="flex justify-between items-center pb-1">
+        <h2 class="text-[14px] font-[500] text-[#173F6F]">Title<span class="text-[15px] text-[#CF0808]">*</span></h2>
+        <span style="font-size: 11px; font-weight: 500">
+          <span style="color: #8d9299">Words used: </span>
+          <span [style.color]="getWordCounterColor()">{{ getWordCount() }} / 30</span>
+        </span>
+      </div>
       <input
         pInputText
         id="username"
@@ -103,7 +110,7 @@
         [(ngModel)]="body().title"
         [style]="isTitleMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }" />
       <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">
-        Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon.
+        Provide a clear, informative name for the result, for a non-specialist reader and without acronyms. Avoid abbreviations or (technical) jargon.
       </h4>
       @if (isTitleMissing) {
         <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
@@ -147,7 +154,7 @@
       <div class="flex text-justify flex-col pr-9 pl-5">
         <p class="text-[14px] font-[700] text-[#173F6F]">REUSE INFORMATION WITHOUT DUPLICATING EFFORT</p>
         <p class="text-[14px] text-[#777C83] leading-4.5 pt-1 font-[400]">
-          Our AI will scan your file to identify results and extract the relevant data to help complete the result forms, so you don’t have to
+          Our AI will scan your file to identify results and extract the relevant data to help complete the result forms, so you don't have to
           re-enter the same information multiple times.
         </p>
       </div>

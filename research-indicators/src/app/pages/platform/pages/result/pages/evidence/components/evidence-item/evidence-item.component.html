@@ -1,5 +1,5 @@
 <ng-template #requiredMessage>
-  <div class="flex items-center gap-1 text-[#E69F00] text-sm">
+  <div class="flex items-center gap-1 text-[#E69F00]">
     <i class="material-symbols-rounded !text-base">warning</i>
     <span>This field is required</span>
   </div>
@@ -9,29 +9,42 @@
   <div class="flex flex-col gap-1 pb-4">
     <div class="flex flex-col gap-1 2xl:gap-2">
       @if (index !== 0) {
-        <div class="h-[1px] w-full -mt-1 mb-4 bg-[#e0e0e0] rounded-[10px]"></div>
+        <div class="-mt-1 mb-[30px]"></div>
       }
 
-      <div class="flex items-center justify-between">
-        <h2 class="text-base font-semibold atc-primary-blue-500 pb-1">
-          {{ evidenceNumber ?? 1 }}. Evidence link <span class="text-red-500">*</span>
-        </h2>
-        <div class="flex items-center space-x-2 text-[13px] text-sm text-gray-600">
+      <div class="flex items-center justify-between space-x-2 text-[13px] text-sm text-gray-600">
+        <div>
+          <h3 class="font-['Space_Grotesk'] font-normal text-[12px] leading-[100%] tracking-[0.24em] align-bottom text-[#8d9299] mb-[10px] uppercase">
+            Evidence #{{ evidenceNumber ?? 1 }}
+          </h3>
+        </div>
+        <div class="flex items-center gap-2">
           <p-checkbox
             id="is_private"
             [disabled]="!submission.isEditableStatus()"
             [(ngModel)]="body().is_private"
             binary="true"
             styleClass="w-4 h-4" />
-          <label for="is_private" class="cursor-pointer select-none"> Tag link as private </label>
+
+          <label
+            for="is_private"
+            class="font-['Barlow'] font-normal text-[11px] leading-[100%] tracking-[0%] text-[#4B5563] cursor-pointer select-none">
+            Tag link as private
+          </label>
 
           @if (submission.isEditableStatus()) {
-            <div class="cursor-pointer text-[#CF0808] pl-5" (click)="deleteEvidence()" (keydown.enter)="deleteEvidence()">
-              <i class="pi pi-trash block !text-[10px] pr-1"></i>
-              <span> Remove evidence</span>
+            <div
+              class="cursor-pointer text-[#CF0808] pl-8 flex items-center justify-center"
+              (click)="deleteEvidence()"
+              (keydown.enter)="deleteEvidence()">
+              <i class="pi pi-times-circle !text-[17px]"></i>
             </div>
           }
         </div>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-semibold atc-primary-blue-500 pb-1">Evidence link <span class="text-red-500">*</span></h2>
       </div>
 
       <input

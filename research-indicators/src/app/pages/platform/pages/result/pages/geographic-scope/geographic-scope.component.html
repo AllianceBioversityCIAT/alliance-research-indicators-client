@@ -2,8 +2,8 @@
   <app-form-header />
   <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">GEOGRAPHIC SCOPE</div>
-    <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-5 px-5 mb-[30px]">
-      <span class="text-[#074b86] material-symbols-rounded">info</span>
+    <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-3 px-3 mb-[30px]">
+      <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
       <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
         Select the geographic location/s where this result is taking place.
       </h3>
@@ -17,7 +17,7 @@
       <app-radio-button
         [isRequired]="true"
         label="What is the main geographic focus of the Impact?"
-        description="This should reflect where the Impact has taken place/contributed to benefit."
+        helperText="This should reflect where the Impact has taken place/contributed to benefit."
         [signal]="body"
         [optionLabel]="'label'"
         direction="horizontal"
@@ -39,7 +39,7 @@
           [disabled]="!submission.isEditableStatus()"
           serviceName="regions"
           label="{{ getMultiselectLabel().region.label }}"
-          description="{{ getMultiselectLabel().region.description }}"></app-multiselect>
+          helperText="{{ getMultiselectLabel().region.description }}"></app-multiselect>
       }
       @if (getMultiselectLabel().country.label) {
         @if (body().geo_scope_id === 5 || body().geo_scope_id === '5') {
@@ -56,7 +56,7 @@
             [signalOptionValue]="'countries'"
             serviceName="countriesWithSubnational"
             label="{{ getMultiselectLabel().country.label }}"
-            description="{{ getMultiselectLabel().country.description }}">
+            helperText="{{ getMultiselectLabel().country.description }}">
             <ng-template #rows let-country>
               @for (c of [country]; track c.isoAlpha2) {
                 <div class="flex justify-between items-start w-full">
@@ -126,7 +126,7 @@
             [signalOptionValue]="'countries'"
             serviceName="countriesWithoutSubnational"
             label="{{ getMultiselectLabel().country.label }}"
-            description="{{ getMultiselectLabel().country.description }}">
+            helperText="{{ getMultiselectLabel().country.description }}">
           </app-multiselect>
         }
       }

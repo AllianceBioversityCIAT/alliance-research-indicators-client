@@ -1,3 +1,4 @@
+@let hss = this.cache.hasSmallScreen();
 <div class="grid-container">
   <div class="navbar">
     <alliance-navbar></alliance-navbar>
@@ -7,7 +8,11 @@
   </div>
   <div id="content" class="content">
     <app-section-header></app-section-header>
-    <div class="pt-10">
+    <div
+      [ngStyle]="{
+        paddingLeft: hss ? (cache.isSidebarCollapsed() ? '64px' : '250px') : cache.isSidebarCollapsed() ? '75px' : '250px'
+      }"
+      class="{{ hss ? 'pt-[88px]' : 'pt-[118px]' }}">
       <router-outlet></router-outlet>
     </div>
   </div>
