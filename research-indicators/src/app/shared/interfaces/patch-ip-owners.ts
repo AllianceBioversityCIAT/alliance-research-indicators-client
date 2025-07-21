@@ -7,4 +7,6 @@ export interface PatchIpOwner {
   requires_futher_development_description?: string | null;
   publicity_restriction_description?: string | null;
   potential_asset?: boolean | number;
+  private_sector_engagement_id?: number;
+  formal_ip_rights_application_id?: number;
 }
