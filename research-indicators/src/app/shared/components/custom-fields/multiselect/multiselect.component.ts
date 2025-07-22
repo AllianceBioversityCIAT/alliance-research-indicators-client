@@ -67,6 +67,7 @@ export class MultiselectComponent implements OnInit {
   @Input() helperText = '';
   @Input() textSpan = '';
   @Input() columnsOnXl = false;
+  @Input() placeholder = '';
 
   selectEvent = output<any>();
   environment = environment;

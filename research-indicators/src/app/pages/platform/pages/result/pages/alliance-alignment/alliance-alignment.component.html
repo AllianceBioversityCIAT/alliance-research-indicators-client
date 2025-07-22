@@ -16,7 +16,8 @@
               [disabled]="!submission.isEditableStatus()"
               [removeCondition]="canRemove"
               [isRequired]="true"
-              serviceName="contracts">
+              serviceName="contracts"
+              helperText="Select the contributing projects.">
               <ng-template #item let-contract>
                 <span class="text-[#4C5158]">
                   <span class="font-[600]">{{ contract.agreement_id }} -</span> {{ contract.description }}

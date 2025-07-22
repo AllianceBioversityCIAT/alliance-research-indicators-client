@@ -53,7 +53,8 @@
         (ngModelChange)="setValue($event)"
         class="w-full !text-base"
         [style]="(!validateWebsite(body().evidence_url) || isFieldInvalid()) && submission.isEditableStatus() ? { border: '2px solid #E69F00' } : {}"
-        [class.ng-invalid]="!validateWebsite(body().evidence_url)" />
+        [class.ng-invalid]="!validateWebsite(body().evidence_url)"
+        placeholder="Paste the evidence link" />
     </div>
     @if (isFieldInvalid()) {
       <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
@@ -76,7 +77,8 @@
       id="evidence_description"
       [(ngModel)]="body().evidence_description"
       [style]="isDescriptionMissing ? { border: '2px solid #E69F00 !important' } : { border: '1px solid #d0d4e4 !important' }"
-      (ngModelChange)="setValue($event)"></textarea>
+      (ngModelChange)="setValue($event)"
+      placeholder="Write the evidence description"></textarea>
 
     @if (isDescriptionMissing) {
       <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
