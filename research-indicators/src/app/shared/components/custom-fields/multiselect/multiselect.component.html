@@ -30,9 +30,9 @@
         [(ngModel)]="this.body().value"
         (ngModelChange)="this.setValue($event)"
         [disabled]="disabled"
-        [scrollHeight]="this.scrollHeight"
         [virtualScroll]="true"
-        [virtualScrollItemSize]="41">
+        [virtualScrollItemSize]="this.itemHeight"
+        [scrollHeight]="this.scrollHeight">
         @if (this.service?.isOpenSearch()) {
           <ng-template pTemplate="header">
             <div class="p-dropdown-header">
