@@ -23,7 +23,7 @@ import { NgTemplateOutlet, registerLocaleData } from '@angular/common';
 import { GetYearsService } from '@shared/services/control-list/get-years.service';
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
 import { WordCountService } from '@shared/services/word-count.service';
-import { getContractStatusClasses } from 'src/app/shared/constants/status-classes.constants';
+import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 
 registerLocaleData(localeEs);
 
