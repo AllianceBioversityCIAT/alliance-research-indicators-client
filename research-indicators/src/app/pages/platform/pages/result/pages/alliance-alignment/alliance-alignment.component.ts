@@ -1,4 +1,4 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, ElementRef, inject, signal, ViewChild, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../../../shared/services/api.service';
@@ -15,10 +15,12 @@ import { FormHeaderComponent } from '@shared/components/form-header/form-header.
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 import { GetSdgsService } from '@shared/services/control-list/get-sdgs.service';
+import { TooltipModule } from 'primeng/tooltip';
+import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 
 @Component({
   selector: 'app-alliance-alignment',
-  imports: [MultiSelectModule, FormHeaderComponent, FormsModule, MultiselectComponent, NavigationButtonsComponent, DatePipe],
+  imports: [MultiSelectModule, FormHeaderComponent, FormsModule, MultiselectComponent, NavigationButtonsComponent, DatePipe, TooltipModule],
   templateUrl: './alliance-alignment.component.html'
 })
 export default class AllianceAlignmentComponent {
@@ -37,6 +39,10 @@ export default class AllianceAlignmentComponent {
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
   route = inject(ActivatedRoute);
+  getContractStatusClasses = getContractStatusClasses;
+
+  @ViewChild('containerRef') containerRef!: ElementRef;
+  containerWidth = 0;
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {
@@ -47,7 +53,6 @@ export default class AllianceAlignmentComponent {
   async getData() {
     const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
 
-    // Map the data back to the format expected by the multiselect
     const mappedData = {
       contracts: response.data.contracts || [],
       result_sdgs:
@@ -120,5 +125,19 @@ export default class AllianceAlignmentComponent {
     });
     item.is_primary = !item.is_primary;
     this.actions.saveCurrentSection();
+  }
+
+  getShortDescription(description: string): string {
+    let max: number;
+    if (this.containerWidth < 900) {
+      max = 73;
+    } else if (this.containerWidth < 1100) {
+      max = 105;
+    } else if (this.containerWidth < 1240) {
+      max = 135;
+    } else {
+      max = 155;
+    }
+    return description.length > max ? description.slice(0, max) + '...' : description;
   }
 }
