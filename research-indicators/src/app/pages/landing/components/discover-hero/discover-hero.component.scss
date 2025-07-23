@@ -19,6 +19,15 @@ p {
   padding-bottom: 10px;
   text-transform: uppercase;
   color: #8d9299;
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    font-size: 17px;
+    line-height: 22px;
+  }
+  @media (max-width: 1024px) {
+    font-size: 15px;
+    line-height: 20px;
+  }
 }
 
 .discover-hero-header-title {
@@ -27,6 +36,15 @@ p {
   line-height: 50.42px;
   text-align: left;
   color: #173f6f;
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    font-size: 35px;
+    line-height: 40px;
+  }
+  @media (max-width: 1024px) {
+    font-size: 28px;
+    line-height: 30px;
+  }
 }
 
 .discover-hero {
@@ -139,6 +157,13 @@ p {
   background-color: #fff;
   border: 2px solid var(--grey-200);
   border-radius: 12px;
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    gap: 12px;
+  }
+  @media (max-width: 1024px) {
+    gap: 10px;
+  }
 }
 
 .discover-hero-learn-content-item-header-subtitle {
@@ -150,6 +175,13 @@ p {
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
   color: #4c5158;
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    font-size: 14px;
+  }
+  @media (max-width: 1024px) {
+    font-size: 12px;
+  }
 }
 
 .discover-hero-learn-content-item-header-title {
@@ -161,6 +193,13 @@ p {
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
   color: #4c5158;
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    font-size: 23px;
+  }
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
 }
 
 .discover-hero-learn-content-item-description {
@@ -171,6 +210,13 @@ p {
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
   color: var(--grey-700);
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    font-size: 16px;
+  }
+  @media (max-width: 1024px) {
+    font-size: 15px;
+  }
 }
 
 .output-icon {
