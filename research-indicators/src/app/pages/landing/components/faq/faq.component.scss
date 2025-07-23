@@ -18,6 +18,15 @@ p {
     margin-top: 30px;
   }
 
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    padding: 50px 65px;
+    gap: 40px;
+  }
+  @media (max-width: 1024px) {
+    padding: 50px 45px;
+    gap: 35px;
+  }
+
   @media (max-width: 768px) {
     padding: 40px;
   }
@@ -43,6 +52,15 @@ p {
         font-weight: 500;
         font-size: 16px;
         text-transform: uppercase;
+
+        @media (min-width: 1024px) and (max-width: 1280px) {
+          font-size: 15px;
+          padding: 30px 22px;
+        }
+        @media (max-width: 1024px) {
+          font-size: 14px;
+          padding: 28px 20px;
+        }
       }
 
       @media (max-width: 1024px) {
@@ -67,6 +85,15 @@ p {
   padding-bottom: 10px;
   text-transform: uppercase;
   color: #8d9299;
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    font-size: 17px;
+    line-height: 22px;
+  }
+  @media (max-width: 1024px) {
+    font-size: 15px;
+    line-height: 20px;
+  }
 }
 
 .faq-header-title {
@@ -75,6 +102,15 @@ p {
   line-height: 50.42px;
   text-align: left;
   color: #173f6f;
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    font-size: 35px;
+    line-height: 40px;
+  }
+  @media (max-width: 1024px) {
+    font-size: 28px;
+    line-height: 30px;
+  }
 }
 
 ::ng-deep .p-accordion-header {

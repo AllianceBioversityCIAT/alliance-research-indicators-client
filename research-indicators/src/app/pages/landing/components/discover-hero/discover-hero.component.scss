@@ -69,8 +69,13 @@ p {
   gap: 25px;
   transform: translateY(-430px);
 
-  @media (max-width: 768px) {
-    padding: 40px;
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    padding: 0px 65px;
+    padding-top: 65px;
+  }
+  @media (max-width: 1024px) {
+    padding: 0px 45px;
+    padding-top: 60px;
   }
 }
 
