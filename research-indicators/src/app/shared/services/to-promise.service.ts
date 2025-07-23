@@ -77,6 +77,9 @@ export class ToPromiseService {
     if (config?.useYearInterceptor) {
       headers = headers.set('X-Use-Year', 'true');
     }
+    if (config?.noAuthInterceptor) {
+      headers = headers.set('no-auth-interceptor', 'true');
+    }
 
     const fullUrl = this.getEnv(config?.isAuth) + url;
 
@@ -128,4 +131,5 @@ interface Config {
   params?: HttpParams;
   useYearInterceptor?: boolean;
   noCache?: boolean;
+  noAuthInterceptor?: boolean;
 }
