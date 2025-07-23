@@ -154,3 +154,10 @@ body {
 input::placeholder {
   color: #a2a9af !important;
 }
+
+textarea.p-inputtextarea::placeholder,
+.p-inputtextarea::placeholder,
+.p-textarea-placeholder,
+textarea::placeholder {
+  color: #a2a9af !important;
+}
