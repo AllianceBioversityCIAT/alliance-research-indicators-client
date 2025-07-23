@@ -85,7 +85,7 @@ p {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (max-width: 942px) {
+  @media (max-width: 800px) {
     grid-template-columns: 1fr;
   }
 
@@ -114,7 +114,7 @@ p {
     }
   }
 
-  @media (max-width: 942px) {
+  @media (max-width: 800px) {
     &:last-child {
       grid-column: span 1;
     }
