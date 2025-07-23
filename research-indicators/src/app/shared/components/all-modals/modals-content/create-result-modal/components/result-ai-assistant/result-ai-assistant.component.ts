@@ -41,7 +41,7 @@ GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3
 })
 export class ResultAiAssistantComponent {
   acceptedFormats: string[] = ['.pdf', '.docx', '.txt'];
-  maxSizeMB = 300;
+  maxSizeMB = 10;
   pageLimit = 100;
   isDragging = false;
   selectedFile: File | null = null;

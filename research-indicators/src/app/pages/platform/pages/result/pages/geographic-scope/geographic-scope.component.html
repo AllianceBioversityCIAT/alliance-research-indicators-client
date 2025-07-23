@@ -39,7 +39,9 @@
           [disabled]="!submission.isEditableStatus()"
           serviceName="regions"
           label="{{ getMultiselectLabel().region.label }}"
-          helperText="{{ getMultiselectLabel().region.description }}"></app-multiselect>
+          helperText="{{ getMultiselectLabel().region.description }}"
+          placeholder="Select the regions">
+        </app-multiselect>
       }
       @if (getMultiselectLabel().country.label) {
         @if (body().geo_scope_id === 5 || body().geo_scope_id === '5') {
@@ -56,7 +58,8 @@
             [signalOptionValue]="'countries'"
             serviceName="countriesWithSubnational"
             label="{{ getMultiselectLabel().country.label }}"
-            helperText="{{ getMultiselectLabel().country.description }}">
+            helperText="{{ getMultiselectLabel().country.description }}"
+            placeholder="Select the countries">
             <ng-template #rows let-country>
               @for (c of [country]; track c.isoAlpha2) {
                 <div class="flex justify-between items-start w-full">

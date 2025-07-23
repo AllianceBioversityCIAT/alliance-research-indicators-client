@@ -32,7 +32,8 @@
         [disabled]="disabled"
         [virtualScroll]="true"
         [virtualScrollItemSize]="this.itemHeight"
-        [scrollHeight]="this.scrollHeight">
+        [scrollHeight]="this.scrollHeight"
+        [placeholder]="this.placeholder">
         @if (this.service?.isOpenSearch()) {
           <ng-template pTemplate="header">
             <div class="p-dropdown-header">

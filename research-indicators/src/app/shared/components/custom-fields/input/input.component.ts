@@ -38,6 +38,7 @@ export class InputComponent {
   @Input() disabled = false;
   @Input() maxLength?: number;
   @Input() maxWords?: number;
+
   body = signal<{ value: InputValueType }>({ value: null });
   firstTime = signal(true);
 

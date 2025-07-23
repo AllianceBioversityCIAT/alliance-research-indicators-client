@@ -24,7 +24,8 @@
         [disabled]="disabled"
         [(ngModel)]="value"
         (ngModelChange)="setValue($event)"
-        [style]="isInvalid() ? { border: '2px solid #E69F00', resize: 'none' } : { resize: 'none' }">
+        [style]="isInvalid() ? { border: '2px solid #E69F00', resize: 'none' } : { resize: 'none' }"
+        [placeholder]="placeholder">
       </textarea>
       @if (helperText) {
         <small class="text-[#8D9299] text-[14px]" for="username">{{ helperText }}</small>

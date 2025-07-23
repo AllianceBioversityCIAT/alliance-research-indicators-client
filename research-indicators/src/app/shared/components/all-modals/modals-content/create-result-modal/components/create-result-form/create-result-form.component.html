@@ -48,7 +48,7 @@
         <p-select
           [options]="indicatorsService.indicatorsGrouped()"
           [(ngModel)]="body().indicator_id"
-          placeholder="Select Indicator"
+          placeholder="Select the Indicator"
           [group]="true"
           [style]="isIndicatorIdMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
           class="!text-[13px] w-full indicator-select">
@@ -84,7 +84,8 @@
           [optionLabel]="'report_year'"
           [optionValue]="'report_year'"
           placeholder="Select the year"
-          class="!text-[13px] w-full">
+          class="!text-[13px] w-full"
+          placeholder="Select the year">
         </p-select>
         <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">Choose the year you are reporting data for.</h4>
 
@@ -108,6 +109,7 @@
         class="!text-[12px]"
         aria-describedby="username-help"
         [(ngModel)]="body().title"
+        placeholder="Write the title"
         [style]="isTitleMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }" />
       <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">
         Provide a clear, informative name for the result, for a non-specialist reader and without acronyms. Avoid abbreviations or (technical) jargon.

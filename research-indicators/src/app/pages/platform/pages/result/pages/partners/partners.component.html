@@ -31,12 +31,8 @@
         !submission.isEditableStatus() ? '' : 'This institution was added in the CapSharing details section and can only be removed from there.'
       }}"
       [optionsDisabled]="this.optionsDisabled"
-      serviceName="institutions">
-      <ng-template #selectedItems let-value>
-        <div class="flex items-center gap-2">
-          <span> {{ value?.length }} partner{{ value?.length === 1 ? '' : 's' }} selected </span>
-        </div>
-      </ng-template>
+      serviceName="institutions"
+      placeholder="Select the partners">
       @if (!this.loading()) {
         <ng-template #rows let-institution>
           <app-partner-selected-item [institution]="institution" />

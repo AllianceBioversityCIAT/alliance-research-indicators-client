@@ -3,16 +3,16 @@
   <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <h3 class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">EVIDENCE</h3>
     <div class="flex flex-col gap-5">
-      <div class="bg-[#F4F7F9] p-[40px] border-1 border-[#E8EBED]">
-        @for (evidence of body().evidence; track $index) {
+      @for (evidence of body().evidence; track $index) {
+        <div class="bg-[#F4F7F9] px-[25px] py-[25px] border-1 border-[#E8EBED]">
           <app-evidence-item
             [evidence]="evidence"
             [bodySignal]="body"
             [index]="$index"
             [evidenceNumber]="$index + 1"
             (deleteEvidenceEvent)="deleteEvidence($index)"></app-evidence-item>
-        }
-      </div>
+        </div>
+      }
       @if (submission.isEditableStatus()) {
         <div class="flex w-full">
           <button
