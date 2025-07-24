@@ -14,6 +14,13 @@ export const jWtInterceptor: HttpInterceptorFn = (req, next) => {
   const textMiningDomain = environment.textMiningUrl;
   const fileManagerDomain = environment.fileManagerUrl;
 
+  if (req.headers.has('no-auth-interceptor')) {
+    const cleanReq = req.clone({
+      headers: req.headers.delete('no-auth-interceptor')
+    });
+    return next(cleanReq);
+  }
+
   if (req.url.includes(targetDomain) || req.url.includes(textMiningDomain) || req.url.includes(fileManagerDomain)) {
     // Skip token refresh if this is already a refresh token request
     if (req.url.includes('refresh-token')) {
@@ -29,18 +36,17 @@ export const jWtInterceptor: HttpInterceptorFn = (req, next) => {
         if (req.url.includes(fileManagerDomain) || req.url.includes(textMiningDomain)) {
           clonedRequest = req.clone({
             setHeaders: {
-              'access-token': currentToken ?? ''  
+              'access-token': currentToken ?? ''
             }
           });
 
           if (req.url.includes(textMiningDomain)) {
-            const newFormData = req.body as FormData; 
-            newFormData.set('token', currentToken ?? ''); 
+            const newFormData = req.body as FormData;
+            newFormData.set('token', currentToken ?? '');
             clonedRequest = req.clone({
-              body: newFormData 
+              body: newFormData
             });
           }
-
         } else {
           clonedRequest = req.clone({
             setHeaders: {

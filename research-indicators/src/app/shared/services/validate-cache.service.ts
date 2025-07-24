@@ -13,7 +13,7 @@ export class ValidateCacheService {
   tp = inject(ToPromiseService);
 
   getConfiguration = () => {
-    return this.tp.get(`configuration/config-front`);
+    return this.tp.get(`configuration/config-front`, { noAuthInterceptor: true });
   };
 
   saveConfiguration = (value: string) => {
