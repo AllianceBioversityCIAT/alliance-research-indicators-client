@@ -206,6 +206,10 @@ p {
   @media (max-width: 1024px) {
     padding: 50px 45px;
   }
+
+  @media (max-width: 1220px) {
+    padding-bottom: 40px;
+  }
 }
 
 .feature-second-content-image-background {
@@ -225,8 +229,8 @@ p {
 
   @media (max-width: 1220px) {
     padding-top: 0;
-    padding-bottom: 20px;
-    flex-direction: column;
+    margin-top: -10px;
+    flex-direction: column-reverse;
     align-items: center;
   }
 }
