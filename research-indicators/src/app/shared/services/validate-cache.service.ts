@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { SwUpdate } from '@angular/service-worker';
 import { ToPromiseService } from './to-promise.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,20 +14,46 @@ export class ValidateCacheService {
   tp = inject(ToPromiseService);
 
   getConfiguration = () => {
-    return this.tp.get(`configuration/config-front`, { noAuthInterceptor: true });
-  };
-
-  saveConfiguration = (value: string) => {
-    return this.tp.patch(`configuration/config-front`, { simple_value: value });
+    return this.tp.get(`configuration/${environment.frontVersionKey}`, { noAuthInterceptor: true });
   };
 
   async validateVersions() {
     const response = await this.getConfiguration();
     if (response.data.simple_value === localStorage.getItem('lastVersionValidated')) return;
-
     if (response.data.simple_value !== localStorage.getItem('lastVersionValidated') || !localStorage.getItem('lastVersionValidated')) {
       localStorage.setItem('lastVersionValidated', response.data.simple_value);
       this.requeestUpdateFrontVersion();
+    }
+  }
+
+  private async clearImageCaches() {
+    if ('caches' in window) {
+      try {
+        const cacheNames = await caches.keys();
+        for (const cacheName of cacheNames) {
+          const cache = await caches.open(cacheName);
+          const requests = await cache.keys();
+          // Delete image resources from cache (common image extensions)
+          const imageRequests = requests.filter(request => {
+            const url = request.url.toLowerCase();
+            return (
+              url.includes('.png') ||
+              url.includes('.jpg') ||
+              url.includes('.jpeg') ||
+              url.includes('.gif') ||
+              url.includes('.svg') ||
+              url.includes('.webp') ||
+              url.includes('.ico') ||
+              url.includes('.bmp')
+            );
+          });
+          const deletePromises = imageRequests.map(request => cache.delete(request));
+          await Promise.all(deletePromises);
+        }
+        console.warn('Image caches cleared successfully');
+      } catch (error) {
+        console.error('Error clearing image caches:', error);
+      }
     }
   }
 
@@ -36,7 +63,7 @@ export class ValidateCacheService {
 
       // #1 - Clear all caches
       await this.clearAllCaches();
-
+      await this.clearImageCaches();
       // #2 - Update service worker if available
       await this.updateServiceWorker();
 
