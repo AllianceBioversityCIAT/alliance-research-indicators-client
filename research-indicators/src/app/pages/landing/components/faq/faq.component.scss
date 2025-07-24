@@ -9,16 +9,16 @@ p {
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 50px 75px;
+  padding: 100px 75px;
   gap: 50px;
   min-width: 100%;
 
   @media (min-width: 1024px) and (max-width: 1280px) {
-    padding: 50px 65px;
+    padding: 100px 65px;
     gap: 40px;
   }
   @media (max-width: 1024px) {
-    padding: 50px 45px;
+    padding: 100px 45px;
     gap: 35px;
   }
 
