@@ -285,7 +285,8 @@
                   [rows]="5"
                   label="In what context is this tool useful?"
                   [signal]="this.body"
-                  [optionValue]="'knowledge_sharing_form.tool_useful_context'"></app-textarea>
+                  [optionValue]="'knowledge_sharing_form.tool_useful_context'"
+                  [maxLength]="500"></app-textarea>
               </div>
 
               <div class="flex-1 -mt-1">
@@ -295,7 +296,8 @@
                   [rows]="5"
                   label="Results (achieved or expected): identify and detail selected examples of relevance, adding numbers, facts, figures, names, and locations"
                   [signal]="this.body"
-                  [optionValue]="'knowledge_sharing_form.results_achieved_expected'"></app-textarea>
+                  [optionValue]="'knowledge_sharing_form.results_achieved_expected'"
+                  [maxLength]="500"></app-textarea>
               </div>
 
               <div class="flex-1 -mt-1">
@@ -418,7 +420,8 @@
                 [rows]="5"
                 label="Please provide a short description of how other tools are used with this one."
                 [signal]="this.body"
-                [optionValue]="'knowledge_sharing_form.other_tools_integration'"></app-textarea>
+                [optionValue]="'knowledge_sharing_form.other_tools_integration'"
+                [maxLength]="200"></app-textarea>
             }
           }
         </div>
