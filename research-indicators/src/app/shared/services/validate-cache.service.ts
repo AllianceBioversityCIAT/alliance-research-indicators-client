@@ -26,13 +26,44 @@ export class ValidateCacheService {
     }
   }
 
+  private async clearImageCaches() {
+    if ('caches' in window) {
+      try {
+        const cacheNames = await caches.keys();
+        for (const cacheName of cacheNames) {
+          const cache = await caches.open(cacheName);
+          const requests = await cache.keys();
+          // Delete image resources from cache (common image extensions)
+          const imageRequests = requests.filter(request => {
+            const url = request.url.toLowerCase();
+            return (
+              url.includes('.png') ||
+              url.includes('.jpg') ||
+              url.includes('.jpeg') ||
+              url.includes('.gif') ||
+              url.includes('.svg') ||
+              url.includes('.webp') ||
+              url.includes('.ico') ||
+              url.includes('.bmp')
+            );
+          });
+          const deletePromises = imageRequests.map(request => cache.delete(request));
+          await Promise.all(deletePromises);
+        }
+        console.warn('Image caches cleared successfully');
+      } catch (error) {
+        console.error('Error clearing image caches:', error);
+      }
+    }
+  }
+
   async requeestUpdateFrontVersion() {
     try {
       console.warn('New version available, updating application...');
 
       // #1 - Clear all caches
       await this.clearAllCaches();
-
+      await this.clearImageCaches();
       // #2 - Update service worker if available
       await this.updateServiceWorker();
 
