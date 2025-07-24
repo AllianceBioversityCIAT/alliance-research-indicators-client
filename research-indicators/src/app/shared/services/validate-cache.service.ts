@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { SwUpdate } from '@angular/service-worker';
 import { ToPromiseService } from './to-promise.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,17 +14,12 @@ export class ValidateCacheService {
   tp = inject(ToPromiseService);
 
   getConfiguration = () => {
-    return this.tp.get(`configuration/config-front`, { noAuthInterceptor: true });
-  };
-
-  saveConfiguration = (value: string) => {
-    return this.tp.patch(`configuration/config-front`, { simple_value: value });
+    return this.tp.get(`configuration/${environment.frontVersionKey}`, { noAuthInterceptor: true });
   };
 
   async validateVersions() {
     const response = await this.getConfiguration();
     if (response.data.simple_value === localStorage.getItem('lastVersionValidated')) return;
-
     if (response.data.simple_value !== localStorage.getItem('lastVersionValidated') || !localStorage.getItem('lastVersionValidated')) {
       localStorage.setItem('lastVersionValidated', response.data.simple_value);
       this.requeestUpdateFrontVersion();
