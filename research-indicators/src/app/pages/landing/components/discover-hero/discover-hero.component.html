@@ -1,38 +1,66 @@
-<div class="discover-hero">
-  <div class="discover-hero-content">
-    <div class="discover-hero-header">
-      <h2 class="discover-hero-header-subtitle">DISCOVER MORE</h2>
-      <h1 class="discover-hero-header-title !font-[space_grotesk]">Search for Projects and Results</h1>
-    </div>
+<div class="flex flex-col items-start justify-start xl:px-[75px] lg:px-[65px] md:px-[45px] py-[50px]">
+  <h2
+    class="uppercase text-[#8d9299] font-normal tracking-[0.24em] pb-[10px] text-[15px] leading-[20px] lg:text-[17px] lg:leading-[22px] xl:text-[20px] xl:leading-[24px]">
+    DISCOVER MORE
+  </h2>
+  <h1
+    class="font-bold text-left text-[#173f6f] text-[28px] leading-[30px] lg:text-[35px] lg:leading-[40px] xl:text-[45px] xl:leading-[50.42px] !font-[space_grotesk]">
+    Search for Projects and Results
+  </h1>
 
-    <p class="text-left w-180 text-[22px] font-[400] text-[#4C5158] leading-[23px]">
-      View both your own results and those of others. Explore successful projects, gain insights, and find inspiration all in one place.
-    </p>
+  <p class="text-left text-[18px] font-[400] text-[#4C5158] leading-[28px] lg:text-[20px] py-4 xl:text-[22px] max-w-[640px]">
+    View both your own results and those of others. Explore successful projects, gain insights, and find inspiration all in one place.
+  </p>
+</div>
 
-    <div class="discover-hero-images">
-      <img src="/images/landing/platform-1.svg" alt="discover-hero-1" class="discover-hero-image-1" />
+<div class="bg-[url('/images/landing/discover-background.png')] bg-cover bg-no-repeat mt-[70px] mb-[100px]">
+  <div
+    class="flex flex-col items-start justify-start px-[20px] gap-[25px] xl:px-[75px] xl:gap-[25px] lg:px-[65px] lg:gap-[25px] md:px-[45px] md:gap-[25px]">
+    <div class="relative mx-auto -mt-[70px]">
+      <img
+        src="/images/landing/platform-1.svg"
+        alt="discover-hero-1"
+        class="w-full transition-transform duration-300 ease-in-out delay-100 hover:-translate-y-2" />
     </div>
   </div>
 
-  <div class="discover-hero-content">
-    <div class="discover-hero-header -mt-10">
-      <h2 class="discover-hero-header-subtitle" style="color: #fff">LEARN</h2>
-      <h1 class="discover-hero-header-title !font-[space_grotesk]" style="color: #fff">About Indicators</h1>
+  <div
+    class="flex flex-col items-start justify-start px-[20px] gap-[25px] xl:px-[75px] xl:gap-[25px] lg:px-[65px] lg:gap-[25px] md:px-[45px] md:gap-[25px] mt-[100px]">
+    <div class="flex flex-col items-start justify-start xl:-mt-10 -mt-6">
+      <h2
+        class="uppercase font-normal tracking-[0.24em] pb-[10px] text-[15px] leading-[20px] text-white lg:text-[17px] lg:leading-[22px] xl:text-[20px] xl:leading-[24px]">
+        LEARN
+      </h2>
+      <h1
+        class="font-bold text-left text-white text-[28px] leading-[30px] lg:text-[35px] lg:leading-[40px] xl:text-[45px] xl:leading-[50.42px] !font-[space_grotesk]">
+        About Indicators
+      </h1>
     </div>
 
-    <div class="discover-hero-learn-content">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-[25px] mt-[30px] -mb-[100px]">
       @for (indicator of indicators; track $index) {
-        <div class="discover-hero-learn-content-item">
-          <div class="discover-hero-learn-content-item-header">
-            <i class="pi {{ indicator.icon }} !text-[35px]  {{ indicator.type }}"></i>
-
-            <div>
-              <h2 class="discover-hero-learn-content-item-header-subtitle">{{ indicator.subtitle }}</h2>
-              <p class="discover-hero-learn-content-item-header-title !font-[space_grotesk]">{{ indicator.name }}</p>
+        <div class="flex flex-col gap-[10px] lg:gap-[12px] xl:gap-[15px] p-[25px] bg-white border-2 border-[#E8EBED] rounded-[12px]">
+          <div class="flex items-center gap-[15px]">
+            <i class="pi {{ indicator.icon }} !text-[35px] {{ indicator.type }}"></i>
+            <div class="gap-y-1">
+              <h2
+                class="text-[15px] lg:text-[16px] xl:text-[18px] font-light leading-[28px] tracking-[0.24em] font-[space_grotesk] text-left text-[#8D9299]">
+                {{ indicator.subtitle }}
+              </h2>
+              <p class="text-[18px] lg:text-[20px] xl:text-[22px] font-[600] leading-8 text-left text-[#112F5C] uppercase !font-[sans-serif]">
+                {{ indicator.name }}
+              </p>
             </div>
           </div>
-
-          <p class="discover-hero-learn-content-item-description">{{ indicator.description }}</p>
+          <p class="text-[15px] lg:text-[16px] xl:text-[18px] font-light leading-[20px] text-left text-[#4C5158] line-clamp-2 mb-2">
+            {{ indicator.description }}
+          </p>
+          <a
+            class="inline-flex items-center text-[13px] lg:text-[14px] xl:text-[16px] font-[400] text-left text-[#035BA9] no-underline border-b border-[#035BA9] xl:max-w-[98px] lg:max-w-[88px] max-w-[80px]"
+            href="https://www.cgiar.org/indicators"
+            target="_blank">
+            Learn more <i class="pi pi-arrow-right xl:!text-[11px] !text-[9px] pl-1.5 pt-0.5"></i>
+          </a>
         </div>
       }
     </div>
