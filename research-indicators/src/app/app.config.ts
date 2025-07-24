@@ -14,7 +14,7 @@ import { providePrimeNG } from 'primeng/config';
 import { MyPreset } from './theme/roartheme';
 import { TrackingToolsService } from './shared/services/tracking-tools.service';
 import { yearInterceptor } from '@shared/interceptors/year.interceptor';
-// import { ValidateCacheService } from './shared/services/validate-cache.service';
+import { ValidateCacheService } from '@shared/services/validate-cache.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -36,8 +36,8 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       const trackingToolsService = inject(TrackingToolsService);
       trackingToolsService.init();
-      // const validateCacheService = inject(ValidateCacheService);
-      // validateCacheService.validateVersions();
+      const validateCacheService = inject(ValidateCacheService);
+      validateCacheService.validateVersions();
     }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
