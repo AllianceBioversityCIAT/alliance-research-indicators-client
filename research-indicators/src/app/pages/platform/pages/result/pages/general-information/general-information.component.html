@@ -15,7 +15,8 @@
               description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon."
               [signal]="this.body"
               optionValue="title"
-              placeholder="Write the title"></app-input>
+              placeholder="Write the title"
+              [maxLength]="30"></app-input>
           </div>
 
           <div class="flex flex-col">
@@ -28,7 +29,8 @@
               description="Offer a detailed, understandable explanation, without repeating the title."
               [signal]="this.body"
               [optionValue]="'description'"
-              placeholder="Describe the result"></app-textarea>
+              placeholder="Describe the result"
+              [maxLength]="200"></app-textarea>
           </div>
 
           <div class="flex flex-col xl:flex-row gap-5">

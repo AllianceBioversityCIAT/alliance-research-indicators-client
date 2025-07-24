@@ -12,7 +12,8 @@
         optionValue="short_title"
         [disabled]="!submission.isEditableStatus()"
         type="text"
-        placeholder="Write the short title"></app-input>
+        placeholder="Write the short title"
+        [maxLength]="10"></app-input>
 
       <app-select
         label="Innovation nature"
