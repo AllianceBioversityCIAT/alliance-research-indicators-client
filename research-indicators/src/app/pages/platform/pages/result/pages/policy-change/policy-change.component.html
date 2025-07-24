@@ -33,7 +33,8 @@
             [disabled]="!submission.isEditableStatus()"
             [signal]="this.body"
             [optionValue]="'evidence_stage'"
-            placeholder="Write the evidence"></app-textarea>
+            placeholder="Write the evidence"
+            [maxLength]="200"></app-textarea>
         </div>
         <div class="col-span-12">
           <app-multiselect
