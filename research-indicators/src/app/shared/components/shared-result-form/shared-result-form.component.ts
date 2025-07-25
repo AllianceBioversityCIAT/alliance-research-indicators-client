@@ -8,7 +8,8 @@ import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'app-shared-result-form',
   imports: [SelectModule, TooltipModule, FormsModule, DatePipe],
-  templateUrl: './shared-result-form.component.html'
+  templateUrl: './shared-result-form.component.html',
+  styleUrls: ['./shared-result-form.component.scss']
 })
 export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   @Input() contracts: GetContracts[] = [];
@@ -34,6 +35,56 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
     });
 
     observer.observe(this.containerRef.nativeElement);
+
+    // Force select overlay width when it opens
+    this.forceSelectOverlayWidth();
+  }
+
+  private forceSelectOverlayWidth() {
+    // Observe DOM changes to detect when select opens
+    const observer = new MutationObserver(() => {
+      const selectOverlay = document.querySelector('.p-select-overlay') as HTMLElement;
+      if (selectOverlay) {
+        // Force overlay width
+        selectOverlay.style.width = '100%';
+        selectOverlay.style.minWidth = '0';
+        selectOverlay.style.maxWidth = '100vw';
+        selectOverlay.style.boxSizing = 'border-box';
+
+        // Force list width
+        const selectList = selectOverlay.querySelector('.p-select-list') as HTMLElement;
+        if (selectList) {
+          selectList.style.width = '100%';
+          selectList.style.minWidth = '0';
+          selectList.style.maxWidth = '100%';
+          selectList.style.boxSizing = 'border-box';
+        }
+
+        // Force options width
+        const selectOptions = selectOverlay.querySelectorAll('.p-select-option');
+        selectOptions.forEach(option => {
+          (option as HTMLElement).style.maxWidth = '100%';
+          (option as HTMLElement).style.minWidth = '0';
+          (option as HTMLElement).style.overflow = 'hidden';
+          (option as HTMLElement).style.textOverflow = 'ellipsis';
+          (option as HTMLElement).style.whiteSpace = 'nowrap';
+          (option as HTMLElement).style.boxSizing = 'border-box';
+        });
+
+        // Force option labels width
+        const optionLabels = selectOverlay.querySelectorAll('.p-select-option-label');
+        optionLabels.forEach(label => {
+          (label as HTMLElement).style.maxWidth = '100%';
+          (label as HTMLElement).style.minWidth = '0';
+          (label as HTMLElement).style.overflow = 'hidden';
+          (label as HTMLElement).style.textOverflow = 'ellipsis';
+          (label as HTMLElement).style.whiteSpace = 'nowrap';
+          (label as HTMLElement).style.boxSizing = 'border-box';
+        });
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
   }
 
   ngOnChanges() {
@@ -51,15 +102,13 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   }
 
   getShortDescription(description: string): string {
-    let max: number;
-    if (this.containerWidth < 900) {
-      max = 73;
-    } else if (this.containerWidth < 1100) {
-      max = 105;
-    } else if (this.containerWidth < 1240) {
-      max = 135;
-    } else {
-      max = 155;
+    const dropdown = document.querySelector('.p-dropdown-panel') as HTMLElement;
+    let max = 40;
+    if (dropdown) {
+      const width = dropdown.offsetWidth;
+      if (width > 600) max = 100;
+      else if (width > 400) max = 60;
+      else max = 40;
     }
     return description.length > max ? description.slice(0, max) + '...' : description;
   }
