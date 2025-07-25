@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { SwUpdate } from '@angular/service-worker';
-import frontVersion from './../../../../public/config/version.json';
+import { ToPromiseService } from './to-promise.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,36 +11,50 @@ export class ValidateCacheService {
   api = inject(ApiService);
   swUpdate = inject(SwUpdate);
 
+  tp = inject(ToPromiseService);
+
+  getConfiguration = () => {
+    return this.tp.get(`configuration/${environment.frontVersionKey}`, { noAuthInterceptor: true });
+  };
+
   async validateVersions() {
-    //#1 - get current version from github
-    const response = (await this.api.GET_GithubVersion()) as unknown as { version: string };
-
-    //#2 - check if exists a last version validated and if it is the same as the current version
-    if (this.getLastVersionValidated() && this.getLastVersionValidated() === response.version) return;
-
-    //#3 - clear the last version validated if the versions are different
-    this.clearLastVersionValidated();
-
-    //#4 - check if the versions are equal
-    const areVersionsEquals = response.version === frontVersion.version;
-
-    //#5 - if the versions are equal, request update front version
-    if (areVersionsEquals) this.requeestUpdateFrontVersion();
-
-    //#6 - save the last version validated
-    this.saveLastVersionValidated(response.version);
+    const response = await this.getConfiguration();
+    if (response.data.simple_value === localStorage.getItem('lastVersionValidated')) return;
+    if (response.data.simple_value !== localStorage.getItem('lastVersionValidated') || !localStorage.getItem('lastVersionValidated')) {
+      localStorage.setItem('lastVersionValidated', response.data.simple_value);
+      this.requeestUpdateFrontVersion();
+    }
   }
 
-  saveLastVersionValidated(version: string) {
-    localStorage.setItem('lastVersionValidated', version);
-  }
-
-  getLastVersionValidated() {
-    return localStorage.getItem('lastVersionValidated');
-  }
-
-  clearLastVersionValidated() {
-    localStorage.removeItem('lastVersionValidated');
+  private async clearImageCaches() {
+    if ('caches' in window) {
+      try {
+        const cacheNames = await caches.keys();
+        for (const cacheName of cacheNames) {
+          const cache = await caches.open(cacheName);
+          const requests = await cache.keys();
+          // Delete image resources from cache (common image extensions)
+          const imageRequests = requests.filter(request => {
+            const url = request.url.toLowerCase();
+            return (
+              url.includes('.png') ||
+              url.includes('.jpg') ||
+              url.includes('.jpeg') ||
+              url.includes('.gif') ||
+              url.includes('.svg') ||
+              url.includes('.webp') ||
+              url.includes('.ico') ||
+              url.includes('.bmp')
+            );
+          });
+          const deletePromises = imageRequests.map(request => cache.delete(request));
+          await Promise.all(deletePromises);
+        }
+        console.warn('Image caches cleared successfully');
+      } catch (error) {
+        console.error('Error clearing image caches:', error);
+      }
+    }
   }
 
   async requeestUpdateFrontVersion() {
@@ -48,7 +63,7 @@ export class ValidateCacheService {
 
       // #1 - Clear all caches
       await this.clearAllCaches();
-
+      await this.clearImageCaches();
       // #2 - Update service worker if available
       await this.updateServiceWorker();
 
