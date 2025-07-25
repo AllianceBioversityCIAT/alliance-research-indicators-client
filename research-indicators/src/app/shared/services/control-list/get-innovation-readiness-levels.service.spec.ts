@@ -24,7 +24,7 @@ describe('GetInnovationReadinessLevelsService', () => {
     loadingMock.set = jest.fn();
     isOpenSearchMock = jest.fn(() => false);
     isOpenSearchMock.set = jest.fn();
-    // Instancia sin constructor
+    // Instance without constructor
     service = Object.create(GetInnovationReadinessLevelsService.prototype);
     service.apiService = apiMock;
     service.list = listMock;
@@ -94,7 +94,7 @@ describe('GetInnovationReadinessLevelsService', () => {
       providers: [GetInnovationReadinessLevelsService, { provide: ApiService, useValue: apiService }]
     });
     const realService = TestBed.inject(GetInnovationReadinessLevelsService);
-    // Esperar a que main termine
+    // wait for main to finish
     await new Promise(res => setTimeout(res, 0));
     expect(realService.list()).toEqual([{ id: 3, name: 'Level 3' }]);
     expect(realService.loading()).toBe(false);

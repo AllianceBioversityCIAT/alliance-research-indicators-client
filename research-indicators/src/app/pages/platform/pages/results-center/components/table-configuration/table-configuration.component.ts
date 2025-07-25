@@ -28,23 +28,23 @@ export class TableConfigurationComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Inicializar auxiliaryColumns con el orden actual
+    // Initialize auxiliaryColumns with the current order
     this.auxiliaryColumns.set([...this.resultsCenterService.tableColumns()]);
 
-    // Intentar cargar el orden guardado
+    // Try to load the saved order
     const savedOrder = localStorage.getItem(STORAGE_KEY);
     if (savedOrder) {
       try {
         const parsedOrder = JSON.parse(savedOrder) as Pick<TableColumn, 'field' | 'header' | 'path'>[];
         const currentColumns = this.resultsCenterService.tableColumns();
 
-        // Verificar que todas las columnas actuales estén en el orden guardado
+        // Verify that all current columns are in the saved order
         const isValidOrder = currentColumns.every(col => parsedOrder.some(saved => saved.field === col.field));
 
         if (isValidOrder) {
-          // Actualizar auxiliaryColumns con el orden guardado
+          // Update auxiliaryColumns with the saved order
           this.auxiliaryColumns.set(parsedOrder);
-          // Reordenar tableColumns según el orden guardado
+          // Reorder tableColumns according to the saved order
           this.reorderByReference(parsedOrder);
         }
       } catch (e) {
@@ -58,14 +58,14 @@ export class TableConfigurationComponent implements OnInit {
   }
 
   applyConfigurations() {
-    // Guardar el orden actual en localStorage
+    // Save the current order in localStorage
     const orderToSave = this.auxiliaryColumns().map(({ field, header }) => ({
       field,
       header
     }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(orderToSave));
 
-    // Reordenar tableColumns según el orden de auxiliaryColumns
+    // Reorder tableColumns according to the order of auxiliaryColumns
     this.reorderByReference(this.auxiliaryColumns());
   }
 }

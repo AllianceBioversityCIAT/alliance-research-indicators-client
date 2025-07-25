@@ -186,16 +186,16 @@ export class VersionSelectorComponent implements OnDestroy {
             if (!response.successfulRequest) {
               this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
             } else {
-              // Limpiar el cache para forzar una recarga completa
+              // clear the cache to force a complete reload
               this.cache.lastResultId.set(null);
               this.cache.lastVersionParam.set(null);
               this.cache.liveVersionData.set(null);
               this.cache.versionsList.set([]);
 
-              // Forzar actualización de metadata
+              // Force metadata update
               this.metadata.update(this.cache.currentResultId());
 
-              // Navegar a la ruta actual sin parámetros para que quede en live version
+              // Navigate to the current route without parameters to stay in live version
               const currentPath = this.router.url.split('?')[0];
               this.router
                 .navigate([currentPath], {
@@ -203,7 +203,7 @@ export class VersionSelectorComponent implements OnDestroy {
                   replaceUrl: true
                 })
                 .then(() => {
-                  // Después de navegar, recargar las versiones
+                  // After navigating, reload the versions
                   this.loadVersions();
                 });
 
@@ -222,7 +222,7 @@ export class VersionSelectorComponent implements OnDestroy {
   }
 
   private isResultRouteActive(resultId: string | number): boolean {
-    // Verifica que la URL actual contiene /result/{id}
+    // Verify that the current URL contains /result/{id}
     return this.router.url.startsWith(`/result/${resultId}`);
   }
 }

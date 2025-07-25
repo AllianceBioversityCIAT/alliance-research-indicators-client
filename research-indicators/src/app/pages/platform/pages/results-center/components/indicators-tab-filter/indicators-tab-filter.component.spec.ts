@@ -23,7 +23,7 @@ describe('IndicatorsTabFilterComponent', () => {
   let fixture: ComponentFixture<IndicatorsTabFilterComponent>;
 
   beforeEach(async () => {
-    // Agregar ResizeObserver al objeto global
+    // Add ResizeObserver to the global object
     global.ResizeObserver = ResizeObserverMock;
 
     await TestBed.configureTestingModule({

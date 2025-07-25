@@ -81,7 +81,7 @@ describe('SubmissionService', () => {
 
   it('canSubmitResult false if greenChecks empty', () => {
     cacheMock.allGreenChecksAreTrue.mockReturnValue(true);
-    cacheMock.greenChecks.mockReturnValue({}); // Asegura objeto vacío
+    cacheMock.greenChecks.mockReturnValue({});
     cacheMock.isMyResult.mockReturnValue(true);
     cacheMock.currentMetadata.mockReturnValue({ is_principal_investigator: false });
     expect(!!service.canSubmitResult()).toBe(false);

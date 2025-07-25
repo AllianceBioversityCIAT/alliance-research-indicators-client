@@ -1,4 +1,3 @@
-import { signal } from '@angular/core';
 import { SignalEndpointService } from './signal-endpoint.service';
 
 describe('SignalEndpointService', () => {
@@ -31,7 +30,7 @@ describe('SignalEndpointService', () => {
     await new Promise(r => setTimeout(r, 0));
     expect(endpoint.lazy().list()).toEqual([1, 2, 3]);
     expect(endpoint.lazy().hasValue()).toBe(true);
-    // isLoading() no se valida por timing de signals en Jest
+    // isLoading() is not validated by signal timing in Jest
     expect(mockCache.set).toHaveBeenCalledWith('url', [1, 2, 3]);
   });
 
@@ -44,7 +43,7 @@ describe('SignalEndpointService', () => {
     await new Promise(r => setTimeout(r, 0));
     expect(endpoint.lazy().list()).toEqual({ a: 1 });
     expect(endpoint.lazy().hasValue()).toBe(true);
-    // isLoading() no se valida por timing de signals en Jest
+    // isLoading() is not validated by signal timing in Jest
   });
 
   it('fetch sets hasValue false for empty array/object', async () => {
@@ -117,7 +116,7 @@ describe('SignalEndpointService', () => {
     mockTP.get.mockResolvedValueOnce({ data: [1] });
     mockCache.has.mockReturnValue(false);
     const endpoint = setupEndpoint();
-    endpoint.lazy(); // inicializa y hace primer fetch
+    endpoint.lazy(); // initialize and make first fetch
     await new Promise(r => setTimeout(r, 0));
     mockTP.get.mockResolvedValueOnce({ data: [2] });
     endpoint.setReferenceName('newRef');
@@ -133,7 +132,7 @@ describe('SignalEndpointService', () => {
     expect(result1).toHaveProperty('isLoading');
     expect(result1).toHaveProperty('hasValue');
     expect(result1).toHaveProperty('list');
-    // Llamada repetida no vuelve a fetch
+    // call again does not fetch again
     const fetchSpy = jest.spyOn(endpoint, 'fetch');
     endpoint.lazy();
     expect(fetchSpy).not.toHaveBeenCalled();

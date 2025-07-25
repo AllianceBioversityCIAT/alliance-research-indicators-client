@@ -118,7 +118,6 @@ describe('EvidenceItemComponent', () => {
     component.index = null;
     component.body.set(new Evidence());
     component.evidence = new Evidence();
-    // Forzar el efecto
     void component.syncBody;
     expect(component.body()).toEqual(new Evidence());
   });
@@ -128,7 +127,6 @@ describe('EvidenceItemComponent', () => {
     component.index = 0;
     component.bodySignal.set({ evidence: [evidence] });
     component.body.set(evidence);
-    // Forzar el efecto
     void component.syncBody;
     expect(component.body()).toEqual(evidence);
   });
@@ -139,7 +137,6 @@ describe('EvidenceItemComponent', () => {
     component.bodySignal.set({ evidence: [undefined as any] });
     component.body.set(evidence);
     component.evidence = evidence;
-    // Forzar el efecto
     void component.syncBody;
     expect(component.body()).toEqual(evidence);
   });
@@ -150,7 +147,6 @@ describe('EvidenceItemComponent', () => {
     component.bodySignal.set({ evidence: [evidence] });
     component.body.set(evidence);
     component.evidence = evidence;
-    // Forzar el efecto
     void component.syncBody;
     expect(component.body()).toEqual(evidence);
   });
@@ -164,7 +160,6 @@ describe('EvidenceItemComponent', () => {
 
   it('should initialize body.evidence as array in onChange if not present', () => {
     component.index = 0;
-    // Usa un objeto PatchResultEvidences vacío
     component.bodySignal.set(new (require('../../../../../../../../shared/interfaces/patch-result-evidences.interface').PatchResultEvidences)());
     component.body.set({
       evidence_url: 'url',
@@ -196,8 +191,6 @@ describe('EvidenceItemComponent', () => {
     expect(component.bodySignal().evidence[0]).toEqual(evidence);
   });
 
-  // Este test es trivial y no relevante para cobertura real, se elimina
-
   it('should not update evidence_url if already lowercase and equal in setValue', done => {
     jest.useFakeTimers();
     component.body.set({ ...component.body(), evidence_url: 'lowercase' });
@@ -216,7 +209,6 @@ describe('EvidenceItemComponent', () => {
   it('should show remove button only if isEditableStatus is true', () => {
     jest.spyOn(submission, 'isEditableStatus').mockReturnValue(true);
     fixture.detectChanges();
-    // Buscar el botón por el ícono
     let removeBtn = fixture.nativeElement.querySelector('.pi-times-circle');
     expect(removeBtn).not.toBeNull();
     jest.spyOn(submission, 'isEditableStatus').mockReturnValue(false);
@@ -273,7 +265,7 @@ describe('EvidenceItemComponent', () => {
 
   it('setValue should handle null and undefined values gracefully', done => {
     jest.useFakeTimers();
-    component.body.set({ ...component.body(), evidence_url: undefined });
+    component.body.set({ ...component.body(), evidence_url: undefined as any });
     component.setValue('null');
     jest.advanceTimersByTime(300);
     expect(component.body().evidence_url).toBe('null');

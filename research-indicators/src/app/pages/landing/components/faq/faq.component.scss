@@ -9,9 +9,18 @@ p {
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 50px 75px;
-  margin-top: 100px;
+  padding: 100px 75px;
   gap: 50px;
+  min-width: 100%;
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    padding: 100px 65px;
+    gap: 40px;
+  }
+  @media (max-width: 1024px) {
+    padding: 100px 45px;
+    gap: 35px;
+  }
 
   @media (max-width: 768px) {
     padding: 40px;
@@ -22,8 +31,6 @@ p {
 
     .accordions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      column-gap: 40px;
       width: 100%;
 
       .custom-panel {
@@ -36,14 +43,19 @@ p {
         border: none;
         background-color: #ffffff;
         padding: 32px 24px;
-        color: var(--primary-blue-500);
-        font-weight: 300;
+        color: #173f6f;
+        font-weight: 500;
+        font-size: 16px;
         text-transform: uppercase;
-      }
 
-      .custom-content {
-        border-radius: 0px;
-        border: none;
+        @media (min-width: 1024px) and (max-width: 1280px) {
+          font-size: 15px;
+          padding: 30px 22px;
+        }
+        @media (max-width: 1024px) {
+          font-size: 14px;
+          padding: 28px 20px;
+        }
       }
 
       @media (max-width: 1024px) {
@@ -65,17 +77,35 @@ p {
   font-weight: 400;
   line-height: 24px;
   letter-spacing: 0.24em;
+  padding-bottom: 10px;
   text-transform: uppercase;
-  color: #002d53;
+  color: #8d9299;
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    font-size: 17px;
+    line-height: 22px;
+  }
+  @media (max-width: 1024px) {
+    font-size: 15px;
+    line-height: 20px;
+  }
 }
 
 .faq-header-title {
   font-size: 45px;
   font-weight: 700;
-  line-height: 57.42px;
+  line-height: 50.42px;
   text-align: left;
-  margin-top: -5px;
-  color: var(--light-blue-400);
+  color: #173f6f;
+
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    font-size: 35px;
+    line-height: 40px;
+  }
+  @media (max-width: 1024px) {
+    font-size: 28px;
+    line-height: 30px;
+  }
 }
 
 ::ng-deep .p-accordion-header {

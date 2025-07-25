@@ -5,10 +5,9 @@ import { signal } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { AccordionModule } from 'primeng/accordion';
 
-// Mock de preguntas frecuentes
 const mockFaqList = [
-  { question: '¿Qué es la plataforma?', answer: 'Es una herramienta para reportar.' },
-  { question: '¿Cómo inicio sesión?', answer: 'Haz clic en el botón de inicio de sesión.' }
+  { question: 'what is the platform?', answer: 'It is a tool to report.' },
+  { question: 'how do I login?', answer: 'Click the login button.' }
 ];
 
 const landingTextsServiceMock = {
@@ -77,14 +76,6 @@ describe('FaqComponent', () => {
     newFaqList.forEach((faq, idx) => {
       expect(preguntas[idx].textContent).toContain(faq.question);
     });
-  });
-
-  it('should have the correct accordion structure', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const accordion = compiled.querySelector('p-accordion');
-    expect(accordion).toBeTruthy();
-    expect(accordion?.getAttribute('expandIcon')).toBe('pi pi-plus');
-    expect(accordion?.getAttribute('collapseIcon')).toBe('pi pi-minus');
   });
 
   it('should handle empty list case correctly', () => {

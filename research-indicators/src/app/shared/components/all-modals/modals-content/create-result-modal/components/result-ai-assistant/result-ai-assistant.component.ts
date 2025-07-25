@@ -497,7 +497,6 @@ export class ResultAiAssistantComponent {
     this.loading.set(false);
   }
 
-  // Cierra el panel si se hace click fuera
   handleOutsideClick = (event: MouseEvent) => {
     const panel = document.querySelector('#feedbackPanelRef');
     if (panel && !panel.contains(event.target as Node)) {

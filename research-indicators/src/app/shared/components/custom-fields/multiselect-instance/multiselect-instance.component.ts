@@ -104,10 +104,7 @@ export class MultiselectInstanceComponent implements OnInit {
         newArray = currentArray.filter((item: any) => item[this.optionValue] !== event.itemValue[this.optionValue]);
       }
 
-      // Actualiza el array en la señal padre
       this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, newArray);
-
-      // Actualiza el body local
       this.body.set({ value: this.objectArrayToIdArray(newArray, this.optionValue) });
 
       if ('result_countries_sub_nationals_signal' in current && current.result_countries_sub_nationals_signal?.set) {
@@ -118,7 +115,7 @@ export class MultiselectInstanceComponent implements OnInit {
       return { ...current };
     });
 
-    // Emitir el evento original
+    // Emit the original event
     this.selectEvent.emit(event);
   }
 

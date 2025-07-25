@@ -14,7 +14,7 @@ describe('ActionsService', () => {
   let apiMock: Partial<ApiService>;
   let serviceLocatorMock: Partial<ServiceLocatorService>;
 
-  // Usuario simulado con todos los campos requeridos
+  // Mock user with all required fields
   const mockUser: UserCache = {
     sec_user_id: 1,
     is_active: true,
@@ -70,7 +70,7 @@ describe('ActionsService', () => {
       ]
     });
     service = TestBed.inject(ActionsService);
-    // Elimino la reasignación de cacheMock.dataCache aquí
+    // delete the reassignment of cacheMock.dataCache here
   });
 
   it('should be created', () => {
@@ -196,7 +196,7 @@ describe('ActionsService', () => {
   });
 
   it('should decode a valid JWT', () => {
-    // Token generado con payload {"exp":1234}
+    // Token generated with payload {"exp":1234}
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature';
     const decoded = service.decodeToken(token);
     expect(decoded.decoded).toHaveProperty('exp', 1234);
@@ -208,7 +208,7 @@ describe('ActionsService', () => {
   });
 
   it('should throw error if decodeToken payload is not valid JSON', () => {
-    // Token con payload base64 de string no JSON
+    // Token with base64 string payload not JSON
     const badPayload = btoa('notjson');
     const token = `a.${badPayload}.b`;
     expect(() => service.decodeToken(token)).toThrow();
@@ -317,7 +317,6 @@ describe('ActionsService', () => {
       expect(result.isTokenExpired).toBe(false);
     });
     it('should resolve isTokenExpired as true if token is expired', async () => {
-      // Mock directo del método isTokenExpired
       jest.spyOn(service, 'isTokenExpired').mockResolvedValue({
         token_data: { access_token: 'newtoken', refresh_token: 'refresh', user: mockUser as any },
         isTokenExpired: true
@@ -328,7 +327,6 @@ describe('ActionsService', () => {
       expect(service.isTokenExpired).toHaveBeenCalled();
     });
     it('should handle refresh token failure', async () => {
-      // Mock directo del método isTokenExpired
       jest.spyOn(service, 'isTokenExpired').mockResolvedValue({
         token_data: { access_token: 'newtoken', refresh_token: 'refresh', user: mockUser as any },
         isTokenExpired: true
@@ -339,7 +337,6 @@ describe('ActionsService', () => {
       expect(service.isTokenExpired).toHaveBeenCalled();
     });
     it('should handle empty cache in isTokenExpired', async () => {
-      // Mock directo del método isTokenExpired
       jest.spyOn(service, 'isTokenExpired').mockResolvedValue({
         token_data: { access_token: 'newtoken', refresh_token: 'refresh', user: mockUser as any },
         isTokenExpired: true
@@ -368,9 +365,9 @@ describe('ActionsService', () => {
       delete: jest.fn().mockResolvedValue(true)
     };
     await service.logOut();
-    // Espera que se llamen los métodos de caches
+    // Wait for caches methods to be called
     expect(global.caches.keys).toHaveBeenCalled();
-    // Limpieza
+    // Cleanup
     // @ts-ignore
     delete global.navigator.serviceWorker;
     // @ts-ignore
@@ -388,7 +385,7 @@ describe('ActionsService', () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     await service.logOut();
     expect(errorSpy).toHaveBeenCalledWith('Cache clearing error:', expect.any(Error));
-    // Limpieza
+    // Cleanup
     // @ts-ignore
     delete global.navigator.serviceWorker;
     // @ts-ignore
@@ -407,7 +404,7 @@ describe('ActionsService', () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     await service.logOut();
     expect(errorSpy).toHaveBeenCalledWith('Service worker update error:', expect.any(Error));
-    // Limpieza
+    // Cleanup
     // @ts-ignore
     delete global.navigator.serviceWorker;
     // @ts-ignore
@@ -455,7 +452,7 @@ describe('ActionsService', () => {
     });
     it('should resolve isTokenExpired as true if no service worker', async () => {
       jest.setTimeout(15000);
-      // Elimina serviceWorker de navigator y caches
+      // Delete serviceWorker from navigator and caches
       // @ts-ignore
       global.navigator.serviceWorker = undefined;
       // @ts-ignore
@@ -486,11 +483,11 @@ describe('ActionsService', () => {
         ]
       });
       const localService = TestBed.inject(ActionsService);
-      // Mock updateLocalStorage para evitar efectos colaterales
+      // Mock updateLocalStorage to avoid side effects
       jest.spyOn(localService, 'updateLocalStorage').mockImplementation(() => {});
       const result = await localService.isTokenExpired();
       expect(result.isTokenExpired).toBe(true);
-      // Limpieza
+      // Cleanup
       // @ts-ignore
       delete global.navigator.serviceWorker;
       // @ts-ignore

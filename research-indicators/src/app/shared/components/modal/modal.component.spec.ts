@@ -20,7 +20,7 @@ describe('ModalComponent', () => {
   };
 
   beforeAll(() => {
-    // Mockear animate para evitar error en animaciones
+    // Mock animate to avoid animation error
     if (!Element.prototype.animate) {
       Element.prototype.animate = () =>
         ({
