@@ -46,4 +46,5 @@ export type ControlListServices =
   | 'disseminationQualifications'
   | 'toolFunctions'
   | 'innResults'
+  | 'applicationOptions'
   | '';

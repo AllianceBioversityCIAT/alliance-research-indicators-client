@@ -5,58 +5,69 @@ interface Indicator {
   name: string;
   type: string;
   subtitle: string;
+  url: string;
   description: string;
 }
 
 @Component({
-    selector: 'app-discover-hero',
-    imports: [],
-    templateUrl: './discover-hero.component.html',
-    styleUrl: './discover-hero.component.scss'
+  selector: 'app-discover-hero',
+  imports: [],
+  templateUrl: './discover-hero.component.html'
 })
 export class DiscoverHeroComponent {
   indicators: Indicator[] = [
     {
-      icon: 'flag',
+      icon: 'pi-flag',
       name: 'Innovation Development',
       type: 'output-icon',
       subtitle: 'OUTPUT',
-      description: 'A new, improved, or adapted output such as technologies, products, services, policies, or organizational arrangements with potential.'
+      url: 'https://www.cgiar.org/indicators',
+      description:
+        'A new, improved or adapted outputs or groups of outputs such as products, technologies, services, organizational and institutional arrangements with high potential to contribute to positive impacts when used at scale.'
     },
     {
-      icon: 'sunny',
+      icon: 'pi-sun',
       name: 'Innovation Use',
       type: 'outcome-icon',
       subtitle: 'OUTCOME',
-      description: 'A metric to evaluate how widely an innovation is used, identifying user types and conditions, on a scale from no use to common use.'
+      url: 'https://www.cgiar.org/indicators',
+      description:
+        'A metric used to assess the extent to which an innovation is already being used, by which type of users and under which conditions, with a scale ranging from no use (lowest level) to common use (highest level).'
     },
     {
-      icon: 'group',
+      icon: 'pi-users',
       name: 'Capacity Sharing',
       type: 'output-icon',
       subtitle: 'OUTPUT',
-      description: 'Individuals trained or engaged by Alliance staff to foster changes in knowledge, attitudes, skills, and practices.'
+      url: 'https://www.cgiar.org/indicators',
+      description: 'Activities that develop the know-how and capacity to design, test, validate and use innovations.'
     },
     {
-      icon: 'pie_chart',
+      icon: 'pi-chart-pie',
       name: 'OICRs',
       type: 'outcome-icon',
       subtitle: 'OUTCOME',
-      description: 'A report based on evidence that details outcomes or impacts from the work of CGIAR programs, initiatives, or centers.'
+      url: 'https://www.cgiar.org/indicators',
+      description:
+        'An evidence-based report detailing any outcome or impact that has resulted from the work of one or more CGIAR programs, initiatives, or centers. Outcome impact case reports must cite robust evidence to demonstrate the contribution of the CGIAR entity’s research findings or innovations to the outcome or impact'
     },
     {
-      icon: 'lightbulb',
+      icon: 'pi-lightbulb',
       name: 'Knowledge Product',
       type: 'output-icon',
       subtitle: 'OUTPUT',
-      description: 'As defined by the CGIAR Open and FAIR Data Assets Policy, focusing on data assets integral to the Initiative/Project’s Theory of Change.'
+      url: 'https://www.cgiar.org/indicators',
+      description:
+        'Knowledge products are intellectual assets generated from research and development activities such as articles, briefs, reports, extension and training content, databases, software, and multimedia elements that contribute to behavioral changes in particular actors.'
     },
     {
-      icon: 'folder_open',
+      icon: 'pi-folder-open',
       name: 'Policy Change',
       type: 'outcome-icon',
       subtitle: 'OUTCOME',
-      description: 'Modified policies, strategies, legal instruments, programs, budgets, or investments at various scales in design or implementation.'
+      url: 'https://www.cgiar.org/indicators',
+      description:
+        'Policies, and strategies; legal instruments; programs, budgets, or investments at different scales (local to global) that have been modified in design or implementation, with evidence that the change was informed by Alliance research.'
     }
   ];
 }
