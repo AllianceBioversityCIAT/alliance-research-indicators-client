@@ -10,11 +10,24 @@
       }
     },
     {
-      "name": "assets",
+      "name": "images",
       "installMode": "lazy",
       "updateMode": "lazy",
       "resources": {
-        "files": ["/assets/**", "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"]
+        "files": [
+          "/public/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|ico|bmp)",
+          "/assets/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|ico|bmp)",
+          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|ico|bmp)",
+          "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|ico|bmp)"
+        ]
+      }
+    },
+    {
+      "name": "fonts-and-assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": ["/assets/**", "/*.(otf|ttf|woff|woff2)"]
       }
     }
   ],
@@ -26,6 +39,16 @@
         "strategy": "performance",
         "maxSize": 100,
         "maxAge": "1d"
+      }
+    },
+    {
+      "name": "dynamic-images",
+      "urls": ["/api/**/images/**", "/api/**/*.{svg,jpg,jpeg,png,gif,webp,ico,bmp}", "/**/*.{svg,jpg,jpeg,png,gif,webp,ico,bmp}"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 30,
+        "maxAge": "1h",
+        "timeout": "5s"
       }
     },
     {
