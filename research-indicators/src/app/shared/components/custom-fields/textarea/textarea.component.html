@@ -1,11 +1,16 @@
 <div class="input-container">
   @if (label) {
-    <label class="label inline-block flex items-center" for="username"
-      >{{ label }}
-      @if (isRequired) {
-        <span class="text-red-500">*</span>
+    <div class="flex items-center justify-between w-full">
+      <label class="label inline-block flex items-center" for="username">
+        {{ label }}
+        @if (isRequired) {
+          <span class="text-red-500">*</span>
+        }
+      </label>
+      @if (maxLength) {
+        <app-word-counter [value]="'' + (value || '')" [maxWords]="maxLength"></app-word-counter>
       }
-    </label>
+    </div>
   }
   @if (description) {
     <small class="description" for="username">{{ description }}</small>
@@ -24,7 +29,8 @@
         [disabled]="disabled"
         [(ngModel)]="value"
         (ngModelChange)="setValue($event)"
-        [style]="isInvalid() ? { border: '2px solid #E69F00', resize: 'none' } : { resize: 'none' }">
+        [style]="isInvalid() ? { border: '2px solid #E69F00', resize: 'none' } : { resize: 'none' }"
+        [placeholder]="placeholder">
       </textarea>
       @if (helperText) {
         <small class="text-[#8D9299] text-[14px]" for="username">{{ helperText }}</small>

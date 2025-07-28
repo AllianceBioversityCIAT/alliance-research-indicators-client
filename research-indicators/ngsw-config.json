@@ -12,7 +12,7 @@
     {
       "name": "assets",
       "installMode": "lazy",
-      "updateMode": "prefetch",
+      "updateMode": "lazy",
       "resources": {
         "files": ["/assets/**", "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"]
       }
@@ -20,32 +20,22 @@
   ],
   "dataGroups": [
     {
-      "name": "dynamic-data",
-      "urls": [],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 100,
-        "maxAge": "1h",
-        "timeout": "10s"
-      }
-    },
-    {
-      "name": "semi-dynamic-data",
-      "urls": [],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 50,
-        "maxAge": "1h",
-        "timeout": "5s"
-      }
-    },
-    {
       "name": "static-data",
       "urls": ["/api/indicators", "/api/results/status", "/api/indicator-types"],
       "cacheConfig": {
         "strategy": "performance",
         "maxSize": 100,
         "maxAge": "1d"
+      }
+    },
+    {
+      "name": "version",
+      "urls": ["/config/version.json"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 1,
+        "maxAge": "0s",
+        "timeout": "1s"
       }
     }
   ]

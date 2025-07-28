@@ -32,7 +32,9 @@
             description="Description."
             [disabled]="!submission.isEditableStatus()"
             [signal]="this.body"
-            [optionValue]="'evidence_stage'"></app-textarea>
+            [optionValue]="'evidence_stage'"
+            placeholder="Write the evidence"
+            [maxLength]="200"></app-textarea>
         </div>
         <div class="col-span-12">
           <app-multiselect
@@ -44,7 +46,8 @@
             [disabled]="!submission.isEditableStatus()"
             [removeCondition]="canRemove"
             signalOptionValue="implementing_organization"
-            serviceName="institutions">
+            serviceName="institutions"
+            placeholder="Select the organizations">
             <ng-template #rows let-institution>
               <app-partner-selected-item [institution]="institution"></app-partner-selected-item>
             </ng-template>
@@ -60,7 +63,8 @@
             [signal]="body"
             [optionLabel]="'title'"
             [optionValue]="{ body: 'innovation_development', option: 'result_id' }"
-            [serviceName]="'innoDevOutput'"></app-select>
+            [serviceName]="'innoDevOutput'"
+            placeholder="Select the Innovation Development"></app-select>
         </div>
         <div class="col-span-6">
           <app-select
@@ -71,7 +75,8 @@
             [disabled]="true"
             [optionLabel]="'title'"
             [optionValue]="{ body: 'innovation_use', option: 'result_id' }"
-            [serviceName]="'innoUseOutput'"></app-select>
+            [serviceName]="'innoUseOutput'"
+            placeholder="Select the Innovation Use"></app-select>
         </div>
       </div>
     </div>

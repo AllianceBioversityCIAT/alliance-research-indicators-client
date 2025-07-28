@@ -31,7 +31,9 @@
         (ngModelChange)="this.setValue($event)"
         [disabled]="disabled"
         [virtualScroll]="true"
-        [virtualScrollItemSize]="41">
+        [placeholder]="placeholder"
+        [virtualScrollItemSize]="this.itemHeight"
+        [scrollHeight]="this.scrollHeight">
         @if (this.service?.isOpenSearch()) {
           <ng-template pTemplate="header">
             <div class="p-dropdown-header">
@@ -53,43 +55,45 @@
             @if (selectedItems) {
               <ng-container *ngTemplateOutlet="selectedItems; context: { $implicit: value }"></ng-container>
             } @else {
-              {{ selectedOptions()?.length }} items selected
+              {{ selectedOptions()?.length > 0 ? selectedOptions()?.length + ' items selected' : '' }}
             }
           </ng-template>
           <ng-template let-item pTemplate="item">
-            @if (this.item) {
-              <ng-container *ngTemplateOutlet="this.item; context: { $implicit: item }"></ng-container>
-            } @else {
-              @if (serviceName === 'sdgs') {
-                <div class="flex-col flex w-full">
-                  <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
-                    @if (item.icon) {
-                      <img [src]="item.icon" [alt]="item.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
-                    }
-                    @if (item.description) {
-                      <span class="text-[#4C5158] font-[600]">
-                        SDG {{ item.short_name?.split(':')[0] }} -
-                        <span class="font-normal">{{ item.short_name?.split(':')[1]?.trim() }} </span></span
-                      >
-                    }
-                  </div>
-                </div>
+            <div class="flex items-center block whitespace-normal break-words gap-2">
+              @if (this.item) {
+                <ng-container *ngTemplateOutlet="this.item; context: { $implicit: item }"></ng-container>
               } @else {
-                <div class="flex align-items-center gap-2">
-                  @if (this.flagAttributes.isoAlpha2) {
-                    <img
-                      width="25"
-                      height="25"
-                      [src]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
-                      [alt]="item[this.flagAttributes.institution_location_name]"
-                      [srcset]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
-                      [pTooltip]="item[this.flagAttributes.institution_location_name]"
-                      tooltipPosition="right" />
-                  }
-                  <span [innerHTML]="item[this.optionLabel]"></span>
-                </div>
+                @if (serviceName === 'sdgs') {
+                  <div class="flex-col flex w-full">
+                    <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                      @if (item.icon) {
+                        <img [src]="item.icon" [alt]="item.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
+                      }
+                      @if (item.description) {
+                        <span class="text-[#4C5158] font-[600]">
+                          SDG {{ item.short_name?.split(':')[0] }} -
+                          <span class="font-normal">{{ item.short_name?.split(':')[1]?.trim() }} </span></span
+                        >
+                      }
+                    </div>
+                  </div>
+                } @else {
+                  <div class="flex align-items-center gap-2">
+                    @if (this.flagAttributes.isoAlpha2) {
+                      <img
+                        width="25"
+                        height="25"
+                        [src]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
+                        [alt]="item[this.flagAttributes.institution_location_name]"
+                        [srcset]="environment.flagsUrl + item[this.flagAttributes.isoAlpha2] + '.svg'"
+                        [pTooltip]="item[this.flagAttributes.institution_location_name]"
+                        tooltipPosition="right" />
+                    }
+                    <span [innerHTML]="item[this.optionLabel]"></span>
+                  </div>
+                }
               }
-            }
+            </div>
           </ng-template>
         }
       </p-multiSelect>

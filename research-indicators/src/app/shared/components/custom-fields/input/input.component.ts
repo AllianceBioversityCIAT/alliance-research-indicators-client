@@ -9,12 +9,13 @@ import { CacheService } from '../../../services/cache/cache.service';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { UtilsService } from '../../../services/utils.service';
 import { WordCountService } from '../../../services/word-count.service';
+import { WordCounterComponent } from '../word-counter/word-counter.component';
 
 type InputValueType = string | number | null;
 
 @Component({
   selector: 'app-input',
-  imports: [FormsModule, InputTextModule, SaveOnWritingDirective, SkeletonModule, InputNumberModule],
+  imports: [FormsModule, InputTextModule, SaveOnWritingDirective, SkeletonModule, InputNumberModule, WordCounterComponent],
   templateUrl: './input.component.html',
   styleUrl: './input.component.scss'
 })
@@ -38,6 +39,7 @@ export class InputComponent {
   @Input() disabled = false;
   @Input() maxLength?: number;
   @Input() maxWords?: number;
+
   body = signal<{ value: InputValueType }>({ value: null });
   firstTime = signal(true);
 

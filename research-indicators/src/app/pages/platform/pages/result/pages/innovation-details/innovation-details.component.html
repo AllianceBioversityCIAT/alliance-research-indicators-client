@@ -11,7 +11,9 @@
         [isRequired]="true"
         optionValue="short_title"
         [disabled]="!submission.isEditableStatus()"
-        type="text"></app-input>
+        type="text"
+        placeholder="Write the short title"
+        [maxLength]="10"></app-input>
 
       <app-select
         label="Innovation nature"
@@ -22,7 +24,8 @@
         [isRequired]="true"
         [optionLabel]="'name'"
         [optionValue]="{ body: 'innovation_nature_id', option: 'id' }"
-        [serviceName]="'innovationCharacteristics'">
+        [serviceName]="'innovationCharacteristics'"
+        placeholder="Select the innovation nature">
         <ng-template #itemTemplate let-item>
           <div class="flex items-center block whitespace-normal break-words">
             <p class="text-[#4C5158] text-[15px] font-[400]">
@@ -44,7 +47,7 @@
       <app-select
         label="Innovation type"
         [disabled]="!submission.isEditableStatus()"
-        placeholder="Select an option"
+        placeholder="Select the innovation type"
         [signal]="body"
         [isRequired]="true"
         [scrollHeight]="'240px'"
@@ -166,7 +169,8 @@
               [bodySignal]="body"
               [index]="$index"
               [actorNumber]="$index + 1"
-              (deleteActorEvent)="deleteActor($index)"></app-actor-item>
+              (deleteActorEvent)="deleteActor($index)"
+              placeholder="Select the actor type"></app-actor-item>
           }
           @if (submission.isEditableStatus()) {
             <div class="flex w-full">
@@ -188,7 +192,8 @@
               [bodySignal]="body"
               [index]="$index"
               [organizationNumber]="$index + 1"
-              (deleteOrganizationEvent)="deleteInstitutionType($index)"></app-organization-item>
+              (deleteOrganizationEvent)="deleteInstitutionType($index)"
+              placeholder="Select the organization type"></app-organization-item>
           }
 
           @if (submission.isEditableStatus()) {
@@ -217,7 +222,8 @@
             [rows]="5"
             label="Please elaborate on the intended beneficiaries/users. Who is likely to benefit?"
             [signal]="this.body"
-            [optionValue]="'intended_beneficiaries_description'"></app-textarea>
+            [optionValue]="'intended_beneficiaries_description'"
+            placeholder="Write the beneficiaries"></app-textarea>
 
           <app-textarea
             class="-mt-2"
@@ -226,7 +232,8 @@
             [rows]="5"
             label="Expected outcomes"
             [signal]="this.body"
-            [optionValue]="'expected_outcome'"></app-textarea>
+            [optionValue]="'expected_outcome'"
+            placeholder="Write the expected outcomes"></app-textarea>
         </div>
       </div>
     }
@@ -278,7 +285,8 @@
                   [rows]="5"
                   label="In what context is this tool useful?"
                   [signal]="this.body"
-                  [optionValue]="'knowledge_sharing_form.tool_useful_context'"></app-textarea>
+                  [optionValue]="'knowledge_sharing_form.tool_useful_context'"
+                  [maxLength]="500"></app-textarea>
               </div>
 
               <div class="flex-1 -mt-1">
@@ -288,7 +296,8 @@
                   [rows]="5"
                   label="Results (achieved or expected): identify and detail selected examples of relevance, adding numbers, facts, figures, names, and locations"
                   [signal]="this.body"
-                  [optionValue]="'knowledge_sharing_form.results_achieved_expected'"></app-textarea>
+                  [optionValue]="'knowledge_sharing_form.results_achieved_expected'"
+                  [maxLength]="500"></app-textarea>
               </div>
 
               <div class="flex-1 -mt-1">
@@ -411,7 +420,8 @@
                 [rows]="5"
                 label="Please provide a short description of how other tools are used with this one."
                 [signal]="this.body"
-                [optionValue]="'knowledge_sharing_form.other_tools_integration'"></app-textarea>
+                [optionValue]="'knowledge_sharing_form.other_tools_integration'"
+                [maxLength]="200"></app-textarea>
             }
           }
         </div>
@@ -526,7 +536,7 @@
               [optionValue]="{ body: 'scaling_potential_form.expansion_potential_id', option: 'id' }">
             </app-radio-button>
 
-            @if (body().scaling_potential_form.expansion_potential_id === 2 || body().scaling_potential_form.expansion_potential_id === 1) {
+            @if (body().scaling_potential_form.expansion_potential_id === 2) {
               <div class="flex-1 pt-2">
                 <app-input
                   [signal]="body"

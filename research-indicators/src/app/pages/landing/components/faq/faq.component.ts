@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { AccordionModule } from 'primeng/accordion';
-import { LandingTextsService } from '../../services/landing-texts.service';
+import { LandingTextsService } from '@pages/landing/services/landing-texts.service';
 
 @Component({
   selector: 'app-faq',
@@ -9,5 +9,6 @@ import { LandingTextsService } from '../../services/landing-texts.service';
   styleUrl: './faq.component.scss'
 })
 export class FaqComponent {
+  activePanel = signal<number | null>(null);
   faqList = inject(LandingTextsService).faqList;
 }

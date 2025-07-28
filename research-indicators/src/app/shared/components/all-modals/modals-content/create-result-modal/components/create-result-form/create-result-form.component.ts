@@ -23,6 +23,7 @@ import { NgTemplateOutlet, registerLocaleData } from '@angular/common';
 import { GetYearsService } from '@shared/services/control-list/get-years.service';
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
 import { WordCountService } from '@shared/services/word-count.service';
+import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 
 registerLocaleData(localeEs);
 
@@ -66,6 +67,8 @@ export class CreateResultFormComponent {
   sharedFormValid = false;
   loading = false;
   contractId: number | null = null;
+
+  public getContractStatusClasses = getContractStatusClasses;
 
   onYearsLoaded = effect(
     () => {
@@ -134,19 +137,6 @@ export class CreateResultFormComponent {
     this.getResultsService.updateList();
   };
 
-  getContractStatusClasses(status: string): string {
-    const normalizedStatus = status?.toUpperCase() ?? '';
-
-    const styles: Record<string, string> = {
-      SUSPENDED: 'text-[#F58220] border border-[#F58220]',
-      DISCONTINUED: 'text-[#777c83] border border-[#777c83]',
-      ONGOING: 'text-[#153C71] border border-[#7C9CB9]',
-      DEFAULT: 'text-[#235B2D] border border-[#7CB580]'
-    };
-
-    return styles[normalizedStatus] || styles['DEFAULT'];
-  }
-
   getWordCount(): number {
     const title = this.body()?.title?.trim() || '';
     return title ? title.split(' ').filter(word => word.length > 0).length : 0;
@@ -155,7 +145,7 @@ export class CreateResultFormComponent {
   getWordCounterColor(): string {
     const count = this.getWordCount();
     if (count === 0) return '#8d9299'; // gray
-    if (count > 30) return '#cf0808'; // red
-    return '#509c55'; // green
+    if (count > 30) return '#CF0808'; // red
+    return '#358540'; // green
   }
 }

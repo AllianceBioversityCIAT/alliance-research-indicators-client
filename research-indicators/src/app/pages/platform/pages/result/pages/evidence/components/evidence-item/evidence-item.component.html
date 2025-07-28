@@ -1,20 +1,16 @@
 <ng-template #requiredMessage>
-  <div class="flex items-center gap-1 text-[#E69F00]">
+  <div class="flex items-center gap-1 text-[#E69F00] text-[14px]">
     <i class="material-symbols-rounded !text-base">warning</i>
     <span>This field is required</span>
   </div>
 </ng-template>
 
 <div class="relative flex flex-col gap-4">
-  <div class="flex flex-col gap-1 pb-4">
+  <div class="flex flex-col gap-1">
     <div class="flex flex-col gap-1 2xl:gap-2">
-      @if (index !== 0) {
-        <div class="-mt-1 mb-[30px]"></div>
-      }
-
-      <div class="flex items-center justify-between space-x-2 text-[13px] text-sm text-gray-600">
-        <div>
-          <h3 class="font-['Space_Grotesk'] font-normal text-[12px] leading-[100%] tracking-[0.24em] align-bottom text-[#8d9299] mb-[10px] uppercase">
+      <div class="flex items-center justify-between space-x-2 text-[13px] text-sm text-gray-600 mb-[20px]">
+        <div class="flex items-center">
+          <h3 class="font-['Space_Grotesk'] font-normal text-[12px] leading-[100%] tracking-[0.24em] align-bottom text-[#8d9299] uppercase">
             Evidence #{{ evidenceNumber ?? 1 }}
           </h3>
         </div>
@@ -57,7 +53,8 @@
         (ngModelChange)="setValue($event)"
         class="w-full !text-base"
         [style]="(!validateWebsite(body().evidence_url) || isFieldInvalid()) && submission.isEditableStatus() ? { border: '2px solid #E69F00' } : {}"
-        [class.ng-invalid]="!validateWebsite(body().evidence_url)" />
+        [class.ng-invalid]="!validateWebsite(body().evidence_url)"
+        placeholder="Paste the evidence link" />
     </div>
     @if (isFieldInvalid()) {
       <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
@@ -80,7 +77,8 @@
       id="evidence_description"
       [(ngModel)]="body().evidence_description"
       [style]="isDescriptionMissing ? { border: '2px solid #E69F00 !important' } : { border: '1px solid #d0d4e4 !important' }"
-      (ngModelChange)="setValue($event)"></textarea>
+      (ngModelChange)="setValue($event)"
+      placeholder="Write the evidence description"></textarea>
 
     @if (isDescriptionMissing) {
       <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
