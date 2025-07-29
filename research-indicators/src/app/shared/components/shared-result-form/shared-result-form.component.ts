@@ -101,15 +101,10 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
     this.validityChanged.emit(!this.isInvalid);
   }
 
-  getShortDescription(description: string): string {
-    const dropdown = document.querySelector('.p-dropdown-panel') as HTMLElement;
-    let max = 40;
-    if (dropdown) {
-      const width = dropdown.offsetWidth;
-      if (width > 600) max = 100;
-      else if (width > 400) max = 60;
-      else max = 40;
+  truncateText(text: string, maxLength = 50): string {
+    if (text && text.length > maxLength) {
+      return text.substring(0, maxLength) + '...';
     }
-    return description.length > max ? description.slice(0, max) + '...' : description;
+    return text;
   }
 }
