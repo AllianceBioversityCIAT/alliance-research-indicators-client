@@ -23,7 +23,7 @@
           {{ item?.description }}
         </p>
 
-        <p class="space-x-3 text-[11px] text-[#777C83] overflow-hidden whitespace-nowrap text-ellipsis">
+        <p class="space-x-3 text-[11px] text-[#777C83]">
           <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg" [class]="getContractStatusClasses(item?.contract_status)">
             {{ item?.contract_status }}
           </button>
@@ -41,13 +41,13 @@
       </div>
     </ng-template>
     <ng-template let-selected pTemplate="selectedItem">
-      <div class="flex items-center block whitespace-normal break-words gap-2 overflow-hidden whitespace-nowrap text-ellipsis">
+      <div class="flex items-center block whitespace-normal break-words gap-2">
         @if (selected?.select_label?.includes(' - ')) {
-          <span class="overflow-hidden whitespace-nowrap text-ellipsis">
-            <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ truncateText(selected.select_label.split(' - ')[1], 120) }}
+          <span>
+            <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
           </span>
         } @else {
-          <span class="overflow-hidden whitespace-nowrap text-ellipsis">{{ truncateText(selected.select_label, 120) }}</span>
+          <span>{{ selected.select_label }}</span>
         }
       </div>
     </ng-template>
