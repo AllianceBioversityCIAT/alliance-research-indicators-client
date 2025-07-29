@@ -19,7 +19,8 @@
               [scrollHeight]="'290px'"
               [filterBy]="'select_label,project_lead_description'"
               [itemHeight]="70"
-              serviceName="contracts">
+              serviceName="contracts"
+              placeholder="Select the contributing projects">
               <ng-template #item let-item>
                 <div class="flex flex-col gap-2 h-[54px] text-[14px]" pTooltip="{{ item?.description }}">
                   <p class="text-[#4C5158] font-[400]">
@@ -48,9 +49,11 @@
               </ng-template>
 
               <ng-template #selectedItems let-value>
-                <div class="flex items-center gap-2">
-                  <span> {{ value?.length }} project{{ value?.length === 1 ? '' : 's' }} selected </span>
-                </div>
+                @if (value?.length > 0) {
+                  <div class="flex items-center gap-2">
+                    <span> {{ value?.length }} project{{ value?.length === 1 ? '' : 's' }} selected </span>
+                  </div>
+                }
               </ng-template>
               <ng-template #rows let-contract>
                 <div class="flex-col flex w-full">
@@ -129,11 +132,14 @@
               [removeCondition]="canRemove"
               [isRequired]="true"
               [columnsOnXl]="true"
-              serviceName="sdgs">
+              serviceName="sdgs"
+              placeholder="Select the SDG targets">
               <ng-template #selectedItems let-value>
-                <div class="flex items-center gap-2">
-                  <span> {{ value?.length }} SDG{{ value?.length === 1 ? '' : 's' }} selected </span>
-                </div>
+                @if (value?.length > 0) {
+                  <div class="flex items-center gap-2">
+                    <span>{{ value?.length }} SDG{{ value?.length === 1 ? '' : 's' }} selected </span>
+                  </div>
+                }
               </ng-template>
               <ng-template #rows let-sdg>
                 <div class="flex-col flex w-full">
