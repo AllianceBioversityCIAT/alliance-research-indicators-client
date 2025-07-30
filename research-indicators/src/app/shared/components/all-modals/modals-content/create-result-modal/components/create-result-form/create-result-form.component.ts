@@ -144,8 +144,8 @@ export class CreateResultFormComponent {
 
   getWordCounterColor(): string {
     const count = this.getWordCount();
-    if (count === 0) return '#8d9299'; // gray
-    if (count > 30) return '#CF0808'; // red
-    return '#358540'; // green
+    if (count === 0) return '#8d9299';
+    if (count > 30) return '#CF0808';
+    return '#358540';
   }
 }
