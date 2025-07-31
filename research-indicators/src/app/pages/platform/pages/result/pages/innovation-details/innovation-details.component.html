@@ -71,7 +71,7 @@
 
       @if (body().innovation_type_id === 12) {
         <div class="flex flex-col xl:flex-row gap-5 xl:gap-8">
-          <div class="flex-1 {{ body().anticipated_users_id === 1 ? 'max-w-full xl:max-w-[310px]' : 'max-w-full' }}">
+          <div class="flex-1 {{ body().is_new_or_improved_variety === 1 ? 'max-w-full xl:max-w-[310px]' : 'max-w-full' }}">
             <app-radio-button
               [label]="'Are you profiling a new or improved variety or breed?'"
               [isRequired]="true"
