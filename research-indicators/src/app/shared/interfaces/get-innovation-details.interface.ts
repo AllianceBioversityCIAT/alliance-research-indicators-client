@@ -25,8 +25,6 @@ export class Actor {
   men_not_youth = false;
   actor_role_id: number | undefined = undefined;
   actor_type_custom_name: string | undefined = undefined;
-  is_organization_known = false;
-  institution_id: number | undefined = undefined;
 }
 
 export class InstitutionType {
@@ -35,6 +33,8 @@ export class InstitutionType {
   institution_type_id: number | undefined = undefined;
   sub_institution_type_id: number | undefined = undefined;
   institution_type_custom_name: string | undefined = undefined;
+  is_organization_known = false;
+  institution_id: number | undefined = undefined;
 }
 
 export class KnowledgeSharingForm {

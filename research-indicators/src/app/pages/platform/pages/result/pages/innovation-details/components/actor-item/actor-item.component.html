@@ -16,147 +16,96 @@
     }
   </div>
 
-  <div class="flex items-center space-x-2 text-[16px] text-sm text-gray-600">
-    <p-checkbox
-      id="is_organization_known"
+  <div class="flex flex-col gap-1">
+    <h2 class="text-[18px] font-[600] text-[#153C71] pb-1">Actor type<span class="text-[15px] text-[#CF0808]">*</span></h2>
+
+    <p-select
       [disabled]="!submission.isEditableStatus()"
-      [(ngModel)]="body().is_organization_known"
-      (onChange)="onDisaggregationChange({ checked: $event.checked })"
-      (ngModelChange)="onCheckboxChange()"
-      binary="true"
-      styleClass="w-4 h-4" />
-    <label for="is_organization_known"> Is the organization known? </label>
-  </div>
+      [scrollHeight]="'218px'"
+      [optionLabel]="'name'"
+      placeholder="Select the actor type"
+      class="text-[16px]"
+      [(ngModel)]="body().actor_type_id"
+      [style]="actorMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
+      [optionValue]="'code'"
+      (onChange)="onActorTypeChange($event.value)"
+      [options]="actorService.list()">
+    </p-select>
 
-  @if (body().is_organization_known) {
-    <div class="flex flex-col gap-[18px] mt-3">
-      <div class="flex items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] gap-3 px-3">
-        <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
-        <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
-          Can't find the institution you need? Request to add it
-          <span
-            (keydown.enter)="setSectionAndOpenModal('Partners')"
-            (click)="setSectionAndOpenModal('Partners')"
-            class="text-[#2792ce] cursor-pointer underline"
-            >here</span
-          >.
-        </h3>
-      </div>
-    </div>
-
-    <app-multiselect
-      label="Organization"
-      [isRequired]="true"
-      [signal]="body"
-      [dark]="true"
-      optionLabel="html_full_name"
-      optionValue="institution_id"
-      signalOptionValue="institutions"
-      [disabled]="!submission.isEditableStatus()"
-      serviceName="institutions"
-      (selectEvent)="onMultiselectChange()">
-      <ng-template #selectedItems let-value>
-        <div class="flex items-center gap-2">
-          <span> {{ value?.length }} organization{{ value?.length === 1 ? '' : 's' }} selected </span>
-        </div>
-      </ng-template>
-      <ng-template #rows let-institution>
-        <app-partner-selected-item [institution]="institution" />
-      </ng-template>
-    </app-multiselect>
-  }
-  @if (!body().is_organization_known) {
-    <div class="flex flex-col gap-1">
-      <h2 class="text-[18px] font-[600] text-[#153C71] pb-1">Actor type<span class="text-[15px] text-[#CF0808]">*</span></h2>
-
-      <p-select
+    @if (actorMissing) {
+      <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
+    }
+    @if (body().actor_type_id === 5) {
+      <input
+        pInputText
+        class="mt-3"
+        placeholder="Specify other"
+        [(ngModel)]="body().actor_type_custom_name"
+        [style]="otherMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
         [disabled]="!submission.isEditableStatus()"
-        [scrollHeight]="'218px'"
-        [optionLabel]="'name'"
-        placeholder="Select the actor type"
-        class="text-[16px]"
-        [(ngModel)]="body().actor_type_id"
-        [style]="actorMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
-        [optionValue]="'code'"
-        (onChange)="onActorTypeChange($event.value)"
-        [options]="actorService.list()">
-      </p-select>
-
-      @if (actorMissing) {
+        type="text" />
+      @if (otherMissing) {
         <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
       }
-      @if (body().actor_type_id === 5) {
-        <input
-          pInputText
-          class="mt-3"
-          placeholder="Specify other"
-          [(ngModel)]="body().actor_type_custom_name"
-          [style]="otherMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
-          [disabled]="!submission.isEditableStatus()"
-          type="text" />
-        @if (otherMissing) {
-          <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
-        }
-      }
-      <div class="flex items-center space-x-2 text-[16px] text-sm text-gray-600 pt-3">
-        <p-checkbox
-          id="sex_age_disaggregation_not_apply"
-          [disabled]="!submission.isEditableStatus()"
-          [(ngModel)]="body().sex_age_disaggregation_not_apply"
-          (onChange)="onDisaggregationChange({ checked: $event.checked })"
-          (ngModelChange)="onCheckboxChange()"
-          binary="true"
-          styleClass="w-4 h-4" />
-        <label for="sex_age_disaggregation_not_apply"> Sex and age disaggregation does not apply </label>
-      </div>
+    }
+    <div class="flex items-center space-x-2 text-[16px] text-sm text-gray-600 pt-3">
+      <p-checkbox
+        id="sex_age_disaggregation_not_apply"
+        [disabled]="!submission.isEditableStatus()"
+        [(ngModel)]="body().sex_age_disaggregation_not_apply"
+        (onChange)="onDisaggregationChange({ checked: $event.checked })"
+        (ngModelChange)="onCheckboxChange()"
+        binary="true"
+        styleClass="w-4 h-4" />
+      <label for="sex_age_disaggregation_not_apply"> Sex and age disaggregation does not apply </label>
+    </div>
 
-      @if (!body().sex_age_disaggregation_not_apply) {
-        <div class="flex gap-15 pt-3">
-          <div class="flex flex-col gap-4">
-            <span class="text-[#153C71] text-[16px] leading-[17px] font-semibold">Women</span>
-            <div class="flex items-center space-x-2 text-[16px] text-sm text-gray-600">
-              <p-checkbox
-                id="women_youth"
-                [disabled]="!submission.isEditableStatus()"
-                [(ngModel)]="body().women_youth"
-                (ngModelChange)="onCheckboxChange()"
-                binary="true"
-                styleClass="w-4 h-4" />
-              <label for="women_youth"> Youth </label>
-              <p-checkbox
-                id="women_not_youth"
-                [disabled]="!submission.isEditableStatus()"
-                [(ngModel)]="body().women_not_youth"
-                (ngModelChange)="onCheckboxChange()"
-                binary="true"
-                styleClass="w-4 h-4" />
-              <label for="women_not_youth"> Non-youth </label>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-4">
-            <span class="text-[#153C71] text-[16px] leading-[17px] font-semibold">Men</span>
-            <div class="flex items-center space-x-2 text-[16px] text-sm text-gray-600">
-              <p-checkbox
-                id="men_youth"
-                [disabled]="!submission.isEditableStatus()"
-                [(ngModel)]="body().men_youth"
-                (ngModelChange)="onCheckboxChange()"
-                binary="true"
-                styleClass="w-4 h-4" />
-              <label for="men_youth"> Youth </label>
-              <p-checkbox
-                id="men_not_youth"
-                [disabled]="!submission.isEditableStatus()"
-                [(ngModel)]="body().men_not_youth"
-                (ngModelChange)="onCheckboxChange()"
-                binary="true"
-                styleClass="w-4 h-4" />
-              <label for="men_not_youth"> Non-youth </label>
-            </div>
+    @if (!body().sex_age_disaggregation_not_apply) {
+      <div class="flex gap-15 pt-3">
+        <div class="flex flex-col gap-4">
+          <span class="text-[#153C71] text-[16px] leading-[17px] font-semibold">Women</span>
+          <div class="flex items-center space-x-2 text-[16px] text-sm text-gray-600">
+            <p-checkbox
+              id="women_youth"
+              [disabled]="!submission.isEditableStatus()"
+              [(ngModel)]="body().women_youth"
+              (ngModelChange)="onCheckboxChange()"
+              binary="true"
+              styleClass="w-4 h-4" />
+            <label for="women_youth"> Youth </label>
+            <p-checkbox
+              id="women_not_youth"
+              [disabled]="!submission.isEditableStatus()"
+              [(ngModel)]="body().women_not_youth"
+              (ngModelChange)="onCheckboxChange()"
+              binary="true"
+              styleClass="w-4 h-4" />
+            <label for="women_not_youth"> Non-youth </label>
           </div>
         </div>
-      }
-    </div>
-  }
+
+        <div class="flex flex-col gap-4">
+          <span class="text-[#153C71] text-[16px] leading-[17px] font-semibold">Men</span>
+          <div class="flex items-center space-x-2 text-[16px] text-sm text-gray-600">
+            <p-checkbox
+              id="men_youth"
+              [disabled]="!submission.isEditableStatus()"
+              [(ngModel)]="body().men_youth"
+              (ngModelChange)="onCheckboxChange()"
+              binary="true"
+              styleClass="w-4 h-4" />
+            <label for="men_youth"> Youth </label>
+            <p-checkbox
+              id="men_not_youth"
+              [disabled]="!submission.isEditableStatus()"
+              [(ngModel)]="body().men_not_youth"
+              (ngModelChange)="onCheckboxChange()"
+              binary="true"
+              styleClass="w-4 h-4" />
+            <label for="men_not_youth"> Non-youth </label>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
 </div>

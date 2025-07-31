@@ -1,4 +1,5 @@
 import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
+import { CheckboxChangeEvent } from 'primeng/checkbox';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SubmissionService } from '@shared/services/submission.service';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -9,10 +10,22 @@ import { SelectModule } from 'primeng/select';
 import { GetInstitutionTypesService } from '@shared/services/control-list/get-institution-types.service';
 import { GetClarisaInstitutionsSubTypesService } from '@shared/services/get-clarisa-institutions-subtypes.service';
 import { InputTextModule } from 'primeng/inputtext';
+import { PartnerSelectedItemComponent } from '@shared/components/partner-selected-item/partner-selected-item.component';
+import { GetInstitutionsService } from '@shared/services/control-list/get-institutions.service';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 
 @Component({
   selector: 'app-organization-item',
-  imports: [CheckboxModule, FormsModule, InputTextModule, TextareaModule, NgTemplateOutlet, ReactiveFormsModule, SelectModule],
+  imports: [
+    CheckboxModule,
+    FormsModule,
+    InputTextModule,
+    PartnerSelectedItemComponent,
+    TextareaModule,
+    NgTemplateOutlet,
+    ReactiveFormsModule,
+    SelectModule
+  ],
   templateUrl: './organization-item.component.html'
 })
 export class OrganizationItemComponent implements OnInit {
@@ -25,22 +38,31 @@ export class OrganizationItemComponent implements OnInit {
   submission = inject(SubmissionService);
   isPrivate = false;
   private updateTimeout: ReturnType<typeof setTimeout> | undefined;
-
+  institutionsService = inject(GetInstitutionsService);
   institutionService = inject(GetInstitutionTypesService);
   subTypesService = inject(GetClarisaInstitutionsSubTypesService);
   showSubTypeSelect = signal(false);
+  allModalsService = inject(AllModalsService);
 
   syncBody = effect(() => {
     if (this.index === null) return;
     const parentOrganization = this.bodySignal().institution_types?.[this.index];
     const currentTypeId = this.body().institution_type_id;
     const parentTypeId = parentOrganization?.institution_type_id;
+    const parentInstitutionId = parentOrganization?.institution_id;
+    const currentInstitutionId = this.body().institution_id;
+
+    if (parentInstitutionId !== currentInstitutionId) {
+      this.body.set({ ...this.body(), institution_id: parentInstitutionId });
+    }
 
     if (parentTypeId !== currentTypeId) {
       this.body.set(parentOrganization);
       this.initializeSubTypes(parentOrganization);
     } else if (parentOrganization && JSON.stringify(parentOrganization) !== JSON.stringify(this.body())) {
-      this.body.set(parentOrganization);
+      // Preservar el valor de is_organization_known del estado actual
+      const currentIsKnown = this.body().is_organization_known;
+      this.body.set({ ...parentOrganization, is_organization_known: currentIsKnown });
     }
   });
 
@@ -96,9 +118,15 @@ export class OrganizationItemComponent implements OnInit {
   deleteOrganization() {
     this.deleteOrganizationEvent.emit();
   }
+
   isFieldInvalid(): boolean {
     const institution_type_custom_name = this.body().institution_type_custom_name;
     return !institution_type_custom_name || institution_type_custom_name.trim() === '';
+  }
+
+  setSectionAndOpenModal(section: string) {
+    this.allModalsService.setPartnerRequestSection(section);
+    this.allModalsService.openModal('requestPartner');
   }
 
   setValue(value: string) {
@@ -113,6 +141,15 @@ export class OrganizationItemComponent implements OnInit {
           ...this.body(),
           institution_type_custom_name: lowerCaseValue
         });
+
+        // Actualizar también el signal padre para sincronización
+        if (this.index !== null) {
+          this.bodySignal.update(current => {
+            const updatedInstitutions = [...(current.institution_types || [])];
+            updatedInstitutions[this.index!] = this.body();
+            return { ...current, institution_types: updatedInstitutions };
+          });
+        }
       }
     }, 300);
   }
@@ -152,5 +189,48 @@ export class OrganizationItemComponent implements OnInit {
     } else {
       await this.initializeSubTypes({ ...this.body(), institution_type_id: event });
     }
+  }
+
+  getSelectedInstitution() {
+    return this.institutionsService?.list()?.find(institution => institution.institution_id === this.body()?.institution_id);
+  }
+
+  filteredInstitutions() {
+    return this.institutionsService?.list() || [];
+  }
+
+  onInstitutionChange(institutionId: number) {
+    this.body.update(current => ({
+      ...current,
+      institution_id: institutionId
+    }));
+
+    // Actualizar también el signal padre para sincronización
+    if (this.index !== null) {
+      this.bodySignal.update(current => {
+        const updatedInstitutions = [...(current.institution_types || [])];
+        updatedInstitutions[this.index!] = this.body();
+        return { ...current, institution_types: updatedInstitutions };
+      });
+    }
+  }
+  onCheckboxChange(event: CheckboxChangeEvent) {
+    this.body.update(current => ({
+      ...current,
+      is_organization_known: event.checked
+    }));
+
+    // Actualizar también el signal padre para sincronización
+    if (this.index !== null) {
+      this.bodySignal.update(current => {
+        const updatedInstitutions = [...(current.institution_types || [])];
+        updatedInstitutions[this.index!] = this.body();
+        return { ...current, institution_types: updatedInstitutions };
+      });
+    }
+  }
+
+  get institutionMissing(): boolean {
+    return !this.body()?.institution_id;
   }
 }
