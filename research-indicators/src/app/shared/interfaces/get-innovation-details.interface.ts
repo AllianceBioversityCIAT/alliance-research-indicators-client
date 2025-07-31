@@ -4,6 +4,8 @@ export class GetInnovationDetails {
   innovation_type_id: number | undefined = undefined;
   innovation_readiness_id: number | undefined = undefined;
   anticipated_users_id: number | undefined = undefined;
+  is_new_or_improved_variety: number | undefined = undefined;
+  new_or_improved_varieties_count: number | undefined = undefined;
   expected_outcome = '';
   intended_beneficiaries_description = '';
   actors: Actor[] = [];

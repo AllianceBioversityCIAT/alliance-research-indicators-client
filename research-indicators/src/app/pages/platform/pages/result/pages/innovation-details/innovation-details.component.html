@@ -70,7 +70,7 @@
       </app-select>
 
       @if (body().innovation_type_id === 12) {
-        <div class="flex flex-col xl:flex-row gap-8">
+        <div class="flex flex-col xl:flex-row gap-5 xl:gap-8">
           <div class="flex-1 {{ body().anticipated_users_id === 1 ? 'max-w-full xl:max-w-[310px]' : 'max-w-full' }}">
             <app-radio-button
               [label]="'Are you profiling a new or improved variety or breed?'"
@@ -81,20 +81,20 @@
               [serviceName]="'yesOrNo'"
               [optionLabel]="'name'"
               (change)="onAnticipatedUsersChange()"
-              [optionValue]="{ body: 'anticipated_users_id', option: 'value' }"></app-radio-button>
+              [optionValue]="{ body: 'is_new_or_improved_variety', option: 'value' }"></app-radio-button>
           </div>
-          <div class="flex-1">
-            @if (body().anticipated_users_id === 1) {
+          @if (body().is_new_or_improved_variety === 1) {
+            <div class="flex-1">
               <app-input
                 label="Indicate the number of individual new or improved lines/varieties"
                 type="number"
                 [disabled]="!submission.isEditableStatus()"
                 [isRequired]="true"
                 [signal]="body"
-                [optionValue]="'group.session_participants_total'"
+                [optionValue]="'new_or_improved_varieties_count'"
                 placeholder="0"></app-input>
-            }
-          </div>
+            </div>
+          }
         </div>
       }
 
