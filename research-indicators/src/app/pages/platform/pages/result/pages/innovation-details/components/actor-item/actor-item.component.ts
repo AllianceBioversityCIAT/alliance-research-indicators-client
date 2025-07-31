@@ -8,11 +8,24 @@ import { Actor, GetInnovationDetails } from '@shared/interfaces/get-innovation-d
 import { SelectModule } from 'primeng/select';
 import { GetActorTypesService } from '@shared/services/control-list/get-actor-types.service';
 import { NgTemplateOutlet } from '@angular/common';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
+import { PartnerSelectedItemComponent } from '@shared/components/partner-selected-item/partner-selected-item.component';
 
 @Component({
   selector: 'app-actor-item',
   standalone: true,
-  imports: [CheckboxModule, NgTemplateOutlet, FormsModule, InputTextModule, TextareaModule, SelectModule, InputTextModule],
+  imports: [
+    CheckboxModule,
+    NgTemplateOutlet,
+    FormsModule,
+    PartnerSelectedItemComponent,
+    MultiselectComponent,
+    InputTextModule,
+    TextareaModule,
+    SelectModule,
+    InputTextModule
+  ],
   templateUrl: './actor-item.component.html'
 })
 export class ActorItemComponent implements OnInit {
@@ -25,6 +38,7 @@ export class ActorItemComponent implements OnInit {
   submission = inject(SubmissionService);
   isPrivate = false;
   actorService = inject(GetActorTypesService);
+  allModalsService = inject(AllModalsService);
 
   syncBody = effect(() => {
     if (this.index === null) return;
@@ -38,12 +52,25 @@ export class ActorItemComponent implements OnInit {
     }
   });
 
+  syncFromParent = effect(() => {
+    if (this.index === null) return;
+    const parentActor = this.bodySignal().actors?.[this.index];
+    if (parentActor) {
+      this.body.set(parentActor);
+    }
+  });
+
   ngOnInit() {
     this.body.set(this.actor);
   }
 
   deleteActor() {
     this.deleteActorEvent.emit();
+  }
+
+  setSectionAndOpenModal(section: string) {
+    this.allModalsService.setPartnerRequestSection(section);
+    this.allModalsService.openModal('requestPartner');
   }
 
   get actorMissing(): boolean {
@@ -65,6 +92,10 @@ export class ActorItemComponent implements OnInit {
       updatedActors[this.index!] = { ...this.body() };
       return { ...current, actors: updatedActors };
     });
+  }
+
+  onMultiselectChange() {
+    this.syncActorToParent();
   }
 
   onDisaggregationChange(event: { checked: boolean }) {
