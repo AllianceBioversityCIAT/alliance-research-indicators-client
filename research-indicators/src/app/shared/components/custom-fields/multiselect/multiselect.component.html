@@ -124,7 +124,7 @@
         [class.show-scroll]="!this.disabledSelectedScroll"
         [class.columns-xl]="columnsOnXl">
         @for (row of selectedOptions(); track $index) {
-          <div class="item abc-grey-100">
+          <div class="item  {{ dark ? ' !bg-[#e8ebed] !border-[#c6cdd1]/40' : 'abc-grey-100' }}">
             <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
             @if (removeCondition(row) && !this.disabled) {
               <i class="text-[#CF0808] cursor-pointer material-symbols-rounded" (click)="removeOption(row)" (keydown.enter)="removeOption(row)">

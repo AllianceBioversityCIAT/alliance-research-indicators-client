@@ -72,6 +72,7 @@ export class MultiselectComponent implements OnInit {
 
   @Input() scrollHeight = '268px';
   @Input() itemHeight = 41;
+  @Input() dark = false;
   selectEvent = output<any>();
   environment = environment;
 
