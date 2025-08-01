@@ -173,6 +173,13 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'set-up-project/:id',
+        loadComponent: () => import('@platform/pages/set-up-project/set-up-project.component'),
+        data: {
+          title: 'Set Up Project'
+        }
+      },
+      {
         path: 'about',
         loadComponent: () => import('@platform/pages/about/about.component'),
         data: {
