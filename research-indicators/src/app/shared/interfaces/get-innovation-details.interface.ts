@@ -28,13 +28,13 @@ export class Actor {
 }
 
 export class InstitutionType {
-  result_institution_type_id: number | undefined = undefined;
-  result_id: number | undefined = undefined;
-  institution_type_id: number | undefined = undefined;
-  sub_institution_type_id: number | undefined = undefined;
-  institution_type_custom_name: string | undefined = undefined;
+  result_institution_type_id: number | null = null;
+  result_id?: number | null = null;
+  institution_type_id?: number | null = null;
+  sub_institution_type_id?: number | null = null;
+  institution_type_custom_name?: string | null = null;
   is_organization_known = false;
-  institution_id: number | undefined = undefined;
+  institution_id?: number | null = null;
 }
 
 export class KnowledgeSharingForm {

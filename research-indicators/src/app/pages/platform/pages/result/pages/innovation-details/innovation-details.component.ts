@@ -206,15 +206,40 @@ export default class InnovationDetailsComponent {
     const cleanedBody = { ...this.body() };
 
     if (Array.isArray(cleanedBody.institution_types)) {
-      cleanedBody.institution_types = cleanedBody.institution_types.filter(
-        i =>
-          i &&
-          (i.result_institution_type_id !== undefined ||
-            i.result_id !== undefined ||
-            i.institution_type_id !== undefined ||
-            i.sub_institution_type_id !== undefined ||
-            (i.institution_type_custom_name !== undefined && i.institution_type_custom_name !== ''))
-      );
+      cleanedBody.institution_types = cleanedBody.institution_types
+        .filter(i => i)
+        .map(i => {
+          if (i.is_organization_known === true) {
+            return {
+              result_institution_type_id: null,
+              institution_type_id: null,
+              sub_institution_type_id: null,
+              institution_type_custom_name: null,
+              is_organization_known: true,
+              institution_id: i.institution_id
+            };
+          }
+          return {
+            result_institution_type_id: i.result_institution_type_id,
+            institution_type_id: i.institution_type_id,
+            sub_institution_type_id: i.sub_institution_type_id,
+            institution_type_custom_name: i.institution_type_custom_name,
+            is_organization_known: false,
+            institution_id: null
+          };
+        })
+        .filter(i => {
+          if (i.is_organization_known === true) {
+            return i.institution_id !== undefined;
+          }
+          return (
+            i.result_institution_type_id !== null ||
+            i.institution_type_id !== null ||
+            i.sub_institution_type_id !== null ||
+            i.institution_id !== null ||
+            (i.institution_type_custom_name !== null && i.institution_type_custom_name !== undefined && i.institution_type_custom_name.trim() !== '')
+          );
+        });
     }
 
     if (Array.isArray(cleanedBody.knowledge_sharing_form.link_to_result)) {
@@ -248,6 +273,7 @@ export default class InnovationDetailsComponent {
         });
         await this.getData();
       }
+      return;
     }
 
     const navigateTo = (path: string) => {
