@@ -205,7 +205,6 @@ export class OrganizationItemComponent implements OnInit {
       institution_id: institutionId
     }));
 
-    // Actualizar también el signal padre para sincronización
     if (this.index !== null) {
       this.bodySignal.update(current => {
         const updatedInstitutions = [...(current.institution_types || [])];
@@ -220,7 +219,6 @@ export class OrganizationItemComponent implements OnInit {
       is_organization_known: event.checked
     }));
 
-    // Actualizar también el signal padre para sincronización
     if (this.index !== null) {
       this.bodySignal.update(current => {
         const updatedInstitutions = [...(current.institution_types || [])];
