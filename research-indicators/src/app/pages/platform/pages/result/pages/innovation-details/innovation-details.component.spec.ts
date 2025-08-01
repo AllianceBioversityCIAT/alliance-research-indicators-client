@@ -239,20 +239,34 @@ describe('InnovationDetailsComponent', () => {
     await component.saveData('next');
     expect(apiService.PATCH_InnovationDetails).toHaveBeenCalled();
     expect(actions.showToast).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    // Navigation happens only when not editable, so it shouldn't be called here
+    expect(router.navigate).not.toHaveBeenCalled();
   }));
 
   it('should save data and navigate back', fakeAsync(async () => {
     apiService.PATCH_InnovationDetails.mockReturnValue(Promise.resolve({ successfulRequest: true }));
     jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
     await component.saveData('back');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'alliance-alignment'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    // Navigation happens only when not editable, so it shouldn't be called here
+    expect(router.navigate).not.toHaveBeenCalled();
   }));
 
   it('should not PATCH if not editable', fakeAsync(async () => {
     submission.isEditableStatus.mockReturnValue(false);
     await component.saveData();
     expect(apiService.PATCH_InnovationDetails).not.toHaveBeenCalled();
+  }));
+
+  it('should navigate when not editable', fakeAsync(async () => {
+    submission.isEditableStatus.mockReturnValue(false);
+    await component.saveData('next');
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
+  }));
+
+  it('should navigate back when not editable', fakeAsync(async () => {
+    submission.isEditableStatus.mockReturnValue(false);
+    await component.saveData('back');
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'alliance-alignment'], { queryParams: { version: 'v1' }, replaceUrl: true });
   }));
 
   it('canRemove should return true if editable', () => {
@@ -302,6 +316,7 @@ describe('InnovationDetailsComponent', () => {
   }));
 
   it('should pass version as queryParam if present', fakeAsync(async () => {
+    submission.isEditableStatus.mockReturnValue(false);
     jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
     await component.saveData('next');
     expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
