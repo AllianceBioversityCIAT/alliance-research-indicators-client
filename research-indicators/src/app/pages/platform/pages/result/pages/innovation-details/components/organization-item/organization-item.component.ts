@@ -1,8 +1,7 @@
 import { Component, effect, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
-import { CheckboxChangeEvent } from 'primeng/checkbox';
+import { CheckboxChangeEvent, CheckboxModule } from 'primeng/checkbox';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SubmissionService } from '@shared/services/submission.service';
-import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { GetInnovationDetails, InstitutionType } from '@shared/interfaces/get-innovation-details.interface';
 import { NgTemplateOutlet } from '@angular/common';
