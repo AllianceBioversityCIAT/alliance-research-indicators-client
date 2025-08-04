@@ -80,11 +80,13 @@ describe('Actor', () => {
 describe('InstitutionType', () => {
   it('should create an instance with default values', () => {
     const inst = new InstitutionType();
-    expect(inst.result_institution_type_id).toBeUndefined();
-    expect(inst.result_id).toBeUndefined();
-    expect(inst.institution_type_id).toBeUndefined();
-    expect(inst.sub_institution_type_id).toBeUndefined();
-    expect(inst.institution_type_custom_name).toBeUndefined();
+    expect(inst.result_institution_type_id).toBeNull();
+    expect(inst.result_id).toBeNull();
+    expect(inst.institution_type_id).toBeNull();
+    expect(inst.sub_institution_type_id).toBeNull();
+    expect(inst.institution_type_custom_name).toBeNull();
+    expect(inst.is_organization_known).toBe(false);
+    expect(inst.institution_id).toBeNull();
   });
 
   it('should allow assigning values to properties', () => {
@@ -94,10 +96,14 @@ describe('InstitutionType', () => {
     inst.institution_type_id = 3;
     inst.sub_institution_type_id = 4;
     inst.institution_type_custom_name = 'Custom';
+    inst.is_organization_known = true;
+    inst.institution_id = 5;
     expect(inst.result_institution_type_id).toBe(1);
     expect(inst.result_id).toBe(2);
     expect(inst.institution_type_id).toBe(3);
     expect(inst.sub_institution_type_id).toBe(4);
     expect(inst.institution_type_custom_name).toBe('Custom');
+    expect(inst.is_organization_known).toBe(true);
+    expect(inst.institution_id).toBe(5);
   });
 });

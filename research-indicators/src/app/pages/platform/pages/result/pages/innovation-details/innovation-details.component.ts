@@ -62,6 +62,8 @@ export default class InnovationDetailsComponent {
     innovation_type_id: undefined,
     innovation_readiness_id: undefined,
     anticipated_users_id: undefined,
+    is_new_or_improved_variety: undefined,
+    new_or_improved_varieties_count: undefined,
     expected_outcome: '',
     intended_beneficiaries_description: '',
     actors: [],
@@ -102,6 +104,14 @@ export default class InnovationDetailsComponent {
         return link;
       });
     }
+
+    if (
+      response.data.is_new_or_improved_variety &&
+      (response.data.new_or_improved_varieties_count === undefined || response.data.new_or_improved_varieties_count === null)
+    ) {
+      response.data.new_or_improved_varieties_count = 1;
+    }
+
     this.body.set(response.data);
 
     if (response.data.innovation_readiness_id) {
@@ -199,20 +209,58 @@ export default class InnovationDetailsComponent {
     }
   }
 
+  onNewOrImprovedVarietyChange() {
+    const currentBody = this.body();
+    if (
+      currentBody.is_new_or_improved_variety &&
+      (currentBody.new_or_improved_varieties_count === undefined || currentBody.new_or_improved_varieties_count === null)
+    ) {
+      this.body.set({
+        ...currentBody,
+        new_or_improved_varieties_count: 1
+      });
+    }
+  }
+
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
     const cleanedBody = { ...this.body() };
 
     if (Array.isArray(cleanedBody.institution_types)) {
-      cleanedBody.institution_types = cleanedBody.institution_types.filter(
-        i =>
-          i &&
-          (i.result_institution_type_id !== undefined ||
-            i.result_id !== undefined ||
-            i.institution_type_id !== undefined ||
-            i.sub_institution_type_id !== undefined ||
-            (i.institution_type_custom_name !== undefined && i.institution_type_custom_name !== ''))
-      );
+      cleanedBody.institution_types = cleanedBody.institution_types
+        .filter(i => i)
+        .map(i => {
+          if (i.is_organization_known === true) {
+            return {
+              result_institution_type_id: null,
+              institution_type_id: null,
+              sub_institution_type_id: null,
+              institution_type_custom_name: null,
+              is_organization_known: true,
+              institution_id: i.institution_id
+            };
+          }
+          return {
+            result_institution_type_id: i.result_institution_type_id,
+            institution_type_id: i.institution_type_id,
+            sub_institution_type_id: i.sub_institution_type_id,
+            institution_type_custom_name: i.institution_type_custom_name,
+            is_organization_known: false,
+            institution_id: null
+          };
+        })
+        .filter(i => {
+          if (i.is_organization_known === true) {
+            return i.institution_id !== undefined;
+          }
+          return (
+            i.result_institution_type_id !== null ||
+            i.institution_type_id !== null ||
+            i.sub_institution_type_id !== null ||
+            i.institution_id !== null ||
+            (i.institution_type_custom_name !== null && i.institution_type_custom_name !== undefined && i.institution_type_custom_name.trim() !== '')
+          );
+        });
     }
 
     if (Array.isArray(cleanedBody.knowledge_sharing_form.link_to_result)) {
@@ -254,7 +302,6 @@ export default class InnovationDetailsComponent {
         replaceUrl: true
       });
     };
-
     if (page === 'back') {
       navigateTo('alliance-alignment');
     } else if (page === 'next') {

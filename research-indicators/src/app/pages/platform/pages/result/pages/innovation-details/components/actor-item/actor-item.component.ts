@@ -38,6 +38,14 @@ export class ActorItemComponent implements OnInit {
     }
   });
 
+  syncFromParent = effect(() => {
+    if (this.index === null) return;
+    const parentActor = this.bodySignal().actors?.[this.index];
+    if (parentActor) {
+      this.body.set(parentActor);
+    }
+  });
+
   ngOnInit() {
     this.body.set(this.actor);
   }
