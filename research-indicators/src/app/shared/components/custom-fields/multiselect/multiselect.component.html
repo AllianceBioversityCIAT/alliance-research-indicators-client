@@ -31,8 +31,8 @@
         (ngModelChange)="this.setValue($event)"
         [disabled]="disabled"
         [virtualScroll]="true"
-        [placeholder]="placeholder"
         [filterBy]="this.filterBy"
+        [placeholder]="placeholder"
         [virtualScrollItemSize]="this.itemHeight"
         [scrollHeight]="this.scrollHeight">
         @if (this.service?.isOpenSearch()) {
