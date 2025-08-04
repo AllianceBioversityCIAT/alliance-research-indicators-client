@@ -17,11 +17,12 @@
       styleClass="w-full"
       [(ngModel)]="signal()[optionValue]"
       (ngModelChange)="setValue($event)"
-      [inputStyle]="isInvalid() ? { 'border': '2px solid #E69F00' } : {}"
+      [inputStyle]="isInvalid() ? { border: '2px solid #E69F00' } : {}"
       [minDate]="minDate"
       [maxDate]="maxDate"
       [disabled]="disabled"
-      dateFormat="dd/mm/yy" />
+      dateFormat="dd/mm/yy"
+      [placeholder]="placeholder" />
   }
 
   @if (!this.inputValid().valid) {

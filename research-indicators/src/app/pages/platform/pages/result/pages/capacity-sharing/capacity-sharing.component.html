@@ -83,7 +83,8 @@
         [isRequired]="true"
         [optionLabel]="'html_full_name'"
         [optionValue]="{ body: 'individual.affiliation.institution_id', option: 'institution_id' }"
-        serviceName="institutions"></app-select>
+        serviceName="institutions"
+        placeholder="Select the trainee affiliation"></app-select>
     </div>
 
     <div class="mb-8">
@@ -92,7 +93,8 @@
         [isRequired]="true"
         [disabled]="!submission.isEditableStatus()"
         [signal]="body"
-        optionValue="individual.trainee_name"></app-input>
+        optionValue="individual.trainee_name"
+        placeholder="Write the trainee name"></app-input>
     </div>
 
     <div class="flex flex-col xl:flex-row gap-8">
@@ -104,7 +106,8 @@
           [isRequired]="true"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'individual.nationality.isoAlpha2', option: 'isoAlpha2' }"
-          serviceName="countries"></app-select>
+          serviceName="countries"
+          placeholder="Select the trainee nationality"></app-select>
       </div>
 
       <div class="flex-1">
@@ -133,7 +136,8 @@
           [disabled]="!submission.isEditableStatus()"
           [isRequired]="true"
           [signal]="body"
-          [optionValue]="'group.session_participants_total'"></app-input>
+          [optionValue]="'group.session_participants_total'"
+          placeholder="0"></app-input>
       </div>
 
       <div class="flex-1">
@@ -142,7 +146,8 @@
           [signal]="body"
           optionValue="group.session_participants_female"
           [disabled]="!submission.isEditableStatus()"
-          type="number"></app-input>
+          type="number"
+          placeholder="0"></app-input>
       </div>
 
       <div class="flex-1">
@@ -151,7 +156,8 @@
           [signal]="body"
           optionValue="group.session_participants_male"
           [disabled]="!submission.isEditableStatus()"
-          type="number"></app-input>
+          type="number"
+          placeholder="0"></app-input>
       </div>
 
       <div class="flex-1">
@@ -182,7 +188,8 @@
               [isRequired]="true"
               [disabled]="!submission.isEditableStatus()"
               placeholder="Write the other purpose"
-              optionValue="group.session_purpose_description"></app-input>
+              optionValue="group.session_purpose_description"
+              placeholder="Write the other purpose"></app-input>
           </div>
           <div class="flex-1"></div>
         }
@@ -223,7 +230,8 @@
           optionValue="institution_id"
           signalOptionValue="group.trainee_organization_representative"
           [removeCondition]="canRemove"
-          serviceName="institutions">
+          serviceName="institutions"
+          placeholder="Select the organizations">
           @if (!this.loading()) {
             <ng-template #rows let-institution>
               <app-partner-selected-item [institution]="institution"></app-partner-selected-item>
@@ -247,7 +255,8 @@
         optionLabel2="email"
         [signal]="body"
         [optionValue]="{ body: 'training_supervisor.user_id', option: 'user_id' }"
-        serviceName="userStaff">
+        serviceName="userStaff"
+        placeholder="Select the training/engagement supervisor">
       </app-select>
     </div>
 
@@ -259,7 +268,8 @@
           [signal]="body"
           [optionLabel]="'name'"
           [optionValue]="{ body: 'training_supervisor_languages.language_id', option: 'id' }"
-          [serviceName]="'languages'">
+          [serviceName]="'languages'"
+          placeholder="Select the language">
         </app-select>
       </div>
 
@@ -270,7 +280,8 @@
           [disabled]="!submission.isEditableStatus()"
           [isRequired]="true"
           [optionValue]="'start_date'"
-          [maxDate]="body().end_date"></app-calendar-input>
+          [maxDate]="body().end_date"
+          placeholder="Select the start date"></app-calendar-input>
       </div>
 
       <div class="flex-1 xl:max-w-[160px]">
@@ -280,7 +291,8 @@
           [disabled]="!submission.isEditableStatus()"
           [isRequired]="true"
           [optionValue]="'end_date'"
-          [minDate]="body().start_date"></app-calendar-input>
+          [minDate]="body().start_date"
+          placeholder="Select the end date"></app-calendar-input>
       </div>
     </div>
 

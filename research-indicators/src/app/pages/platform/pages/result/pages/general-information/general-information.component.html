@@ -14,7 +14,9 @@
               [validateEmpty]="true"
               description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon."
               [signal]="this.body"
-              optionValue="title"></app-input>
+              optionValue="title"
+              placeholder="Write the title"
+              [maxLength]="30"></app-input>
           </div>
 
           <div class="flex flex-col">
@@ -25,7 +27,9 @@
               label="Description"
               description="Offer a detailed, understandable explanation, without repeating the title."
               [signal]="this.body"
-              [optionValue]="'description'"></app-textarea>
+              [optionValue]="'description'"
+              placeholder="Describe the result"
+              [maxLength]="200"></app-textarea>
           </div>
 
           <div class="flex flex-col xl:flex-row gap-5">
@@ -38,7 +42,8 @@
                 [signal]="this.body"
                 [optionValue]="{ body: 'year', option: 'report_year' }"
                 optionLabel="report_year"
-                serviceName="getYears"></app-select>
+                serviceName="getYears"
+                placeholder="Select the year"></app-select>
             </div>
 
             <div class="flex-1">
@@ -50,7 +55,8 @@
                 [signal]="this.body"
                 [optionValue]="{ body: 'user_id', option: 'user_id' }"
                 optionLabel="full_name"
-                serviceName="userStaff"></app-select>
+                serviceName="userStaff"
+                placeholder="Select the main contact person"></app-select>
             </div>
           </div>
 

@@ -15,9 +15,9 @@
         id="acronym"
         aria-describedby="acronym-help"
         [(ngModel)]="body().acronym"
-        placeholder="Enter acronym"
         class="w-full !text-base"
-        [disabled]="loading()" />
+        [disabled]="loading()"
+        placeholder="Write the acronym" />
     </div>
 
     <div class="flex flex-col gap-1 2xl:gap-2">
@@ -28,7 +28,7 @@
         aria-describedby="name-help"
         autocomplete="off"
         [(ngModel)]="body().name"
-        placeholder="Enter name"
+        placeholder="Write the name"
         class="w-full !text-base"
         [disabled]="loading()" />
     </div>
@@ -41,7 +41,7 @@
         optionLabel="name"
         optionValue="code"
         [(ngModel)]="body().institutionTypeCode"
-        placeholder="Select Type"
+        placeholder="Select the type"
         [filter]="true"
         filterBy="name"
         class="!text-base"
@@ -58,7 +58,7 @@
         [options]="serviceCountries.list()"
         [(ngModel)]="body().hqCountryIso"
         optionValue="isoAlpha2"
-        placeholder="Select Country"
+        placeholder="Select the headquarter country"
         [filter]="true"
         filterBy="name"
         [showClear]="true"
@@ -92,7 +92,7 @@
         id="website"
         aria-describedby="website-help"
         [(ngModel)]="body().websiteLink"
-        placeholder="Enter website"
+        placeholder="Paste the website"
         type="url"
         (ngModelChange)="setValue($event)"
         class="w-full !text-base"

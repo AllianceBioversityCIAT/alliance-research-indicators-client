@@ -68,6 +68,8 @@ export class MultiselectComponent implements OnInit {
   @Input() helperText = '';
   @Input() textSpan = '';
   @Input() columnsOnXl = false;
+  @Input() placeholder = '';
+
   @Input() scrollHeight = '268px';
   @Input() itemHeight = 41;
   @Input() dark = false;

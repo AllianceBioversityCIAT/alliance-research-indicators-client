@@ -77,13 +77,17 @@ export class ToPromiseService {
     if (config?.useYearInterceptor) {
       headers = headers.set('X-Use-Year', 'true');
     }
+    if (config?.noAuthInterceptor) {
+      headers = headers.set('no-auth-interceptor', 'true');
+    }
 
     const fullUrl = this.getEnv(config?.isAuth) + url;
 
     return this.TP(
       this.http.get<T>(fullUrl, {
         headers,
-        params: config?.params
+        params: config?.params,
+        ...(config?.noCache && { cache: 'no-store' })
       }),
       config?.loadingTrigger
     );
@@ -126,4 +130,6 @@ interface Config {
   loadingTrigger?: boolean;
   params?: HttpParams;
   useYearInterceptor?: boolean;
+  noCache?: boolean;
+  noAuthInterceptor?: boolean;
 }

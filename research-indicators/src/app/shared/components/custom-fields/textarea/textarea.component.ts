@@ -6,10 +6,11 @@ import { SaveOnWritingDirective } from '../../../directives/save-on-writing.dire
 import { FormsModule } from '@angular/forms';
 import { SkeletonModule } from 'primeng/skeleton';
 import { CacheService } from '../../../services/cache/cache.service';
+import { WordCounterComponent } from '../word-counter/word-counter.component';
 
 @Component({
   selector: 'app-textarea',
-  imports: [FormsModule, TextareaModule, SaveOnWritingDirective, SkeletonModule],
+  imports: [FormsModule, TextareaModule, SaveOnWritingDirective, SkeletonModule, WordCounterComponent],
   templateUrl: './textarea.component.html',
   styleUrl: './textarea.component.scss'
 })
@@ -25,6 +26,8 @@ export class TextareaComponent {
   @Input() rows = 10;
   @Input() styleClass = '';
   @Input() size = '';
+  @Input() placeholder = '';
+  @Input() maxLength?: number;
 
   body = signal({ value: null });
 
