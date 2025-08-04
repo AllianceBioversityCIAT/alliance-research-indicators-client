@@ -28,7 +28,7 @@
   </div>
 
   <app-navigation-buttons
-    [showNext]="cache.currentMetadata().indicator_id === 1"
+    [showNext]="cache.currentMetadata().indicator_id === 1 || cache.currentMetadata().indicator_id === 2"
     (back)="saveData('back')"
     (next)="saveData('next')"
     (save)="saveData()" />
