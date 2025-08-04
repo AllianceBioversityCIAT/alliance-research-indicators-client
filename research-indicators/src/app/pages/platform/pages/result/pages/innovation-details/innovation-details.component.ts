@@ -104,6 +104,14 @@ export default class InnovationDetailsComponent {
         return link;
       });
     }
+
+    if (
+      response.data.is_new_or_improved_variety &&
+      (response.data.new_or_improved_varieties_count === undefined || response.data.new_or_improved_varieties_count === null)
+    ) {
+      response.data.new_or_improved_varieties_count = 1;
+    }
+
     this.body.set(response.data);
 
     if (response.data.innovation_readiness_id) {
@@ -201,6 +209,19 @@ export default class InnovationDetailsComponent {
     }
   }
 
+  onNewOrImprovedVarietyChange() {
+    const currentBody = this.body();
+    if (
+      currentBody.is_new_or_improved_variety &&
+      (currentBody.new_or_improved_varieties_count === undefined || currentBody.new_or_improved_varieties_count === null)
+    ) {
+      this.body.set({
+        ...currentBody,
+        new_or_improved_varieties_count: 1
+      });
+    }
+  }
+
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
     const cleanedBody = { ...this.body() };
@@ -273,7 +294,6 @@ export default class InnovationDetailsComponent {
         });
         await this.getData();
       }
-      return;
     }
 
     const navigateTo = (path: string) => {
@@ -282,7 +302,6 @@ export default class InnovationDetailsComponent {
         replaceUrl: true
       });
     };
-
     if (page === 'back') {
       navigateTo('alliance-alignment');
     } else if (page === 'next') {

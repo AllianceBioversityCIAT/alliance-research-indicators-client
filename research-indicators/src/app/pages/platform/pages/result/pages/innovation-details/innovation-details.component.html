@@ -83,7 +83,7 @@
               [disabled]="!submission.isEditableStatus()"
               [serviceName]="'yesOrNo'"
               [optionLabel]="'name'"
-              (change)="onAnticipatedUsersChange()"
+              (change)="onNewOrImprovedVarietyChange()"
               [optionValue]="{ body: 'is_new_or_improved_variety', option: 'value' }"></app-radio-button>
           </div>
           @if (body().is_new_or_improved_variety) {
