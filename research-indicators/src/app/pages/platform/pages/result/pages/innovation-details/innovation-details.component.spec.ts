@@ -239,16 +239,16 @@ describe('InnovationDetailsComponent', () => {
     await component.saveData('next');
     expect(apiService.PATCH_InnovationDetails).toHaveBeenCalled();
     expect(actions.showToast).toHaveBeenCalled();
-    // Navigation happens only when not editable, so it shouldn't be called here
-    expect(router.navigate).not.toHaveBeenCalled();
+    // Navigation happens when editable, so it should be called here
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
   }));
 
   it('should save data and navigate back', fakeAsync(async () => {
     apiService.PATCH_InnovationDetails.mockReturnValue(Promise.resolve({ successfulRequest: true }));
     jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
     await component.saveData('back');
-    // Navigation happens only when not editable, so it shouldn't be called here
-    expect(router.navigate).not.toHaveBeenCalled();
+    // Navigation happens when editable, so it should be called here
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'alliance-alignment'], { queryParams: { version: 'v1' }, replaceUrl: true });
   }));
 
   it('should not PATCH if not editable', fakeAsync(async () => {
@@ -297,6 +297,36 @@ describe('InnovationDetailsComponent', () => {
     tick(100);
     // No error should occur
   }));
+
+  it('should set default value for new_or_improved_varieties_count when is_new_or_improved_variety is true and count is null', () => {
+    component.body.set({
+      ...component.body(),
+      is_new_or_improved_variety: 1,
+      new_or_improved_varieties_count: undefined
+    });
+    component.onNewOrImprovedVarietyChange();
+    expect(component.body().new_or_improved_varieties_count).toBe(1);
+  });
+
+  it('should not set default value when is_new_or_improved_variety is false', () => {
+    component.body.set({
+      ...component.body(),
+      is_new_or_improved_variety: 0,
+      new_or_improved_varieties_count: undefined
+    });
+    component.onNewOrImprovedVarietyChange();
+    expect(component.body().new_or_improved_varieties_count).toBe(undefined);
+  });
+
+  it('should not set default value when new_or_improved_varieties_count already has a value', () => {
+    component.body.set({
+      ...component.body(),
+      is_new_or_improved_variety: 1,
+      new_or_improved_varieties_count: 5
+    });
+    component.onNewOrImprovedVarietyChange();
+    expect(component.body().new_or_improved_varieties_count).toBe(5);
+  });
 
   it('should return empty string if getStepTooltip level does not exist', () => {
     expect(component.getStepTooltip(999)).toBe('');
