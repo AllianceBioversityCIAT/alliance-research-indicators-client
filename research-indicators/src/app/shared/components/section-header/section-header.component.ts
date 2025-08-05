@@ -1,5 +1,5 @@
-import { Component, inject, OnDestroy, ViewChild, ElementRef, computed, signal, AfterViewInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, inject, OnDestroy, ViewChild, ElementRef, computed, signal, AfterViewInit, OnInit } from '@angular/core';
+import { Router, ActivatedRoute, RouterModule, NavigationEnd } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -10,14 +10,23 @@ import { MenuItem } from 'primeng/api';
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '../../services/api.service';
 import { SubmissionService } from '../../services/submission.service';
+import { GetProjectDetail } from '../../interfaces/get-project-detail.interface';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+
+export interface BreadcrumbItem {
+  label: string;
+  route?: string;
+  tooltip?: string;
+}
 
 @Component({
   selector: 'app-section-header',
-  imports: [CommonModule, PopoverModule, ButtonModule, TooltipModule, MenuModule],
+  imports: [CommonModule, PopoverModule, ButtonModule, TooltipModule, MenuModule, RouterModule],
   templateUrl: './section-header.component.html',
   styleUrl: './section-header.component.scss'
 })
-export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
+export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit {
   router = inject(Router);
   cache = inject(CacheService);
   route = inject(ActivatedRoute);
@@ -25,6 +34,11 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
   actions = inject(ActionsService);
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
+
+  private currentProject = signal<GetProjectDetail>({});
+  private contractId = signal('');
+  private currentUrl = signal('');
+  private routerSubscription!: Subscription;
   showDeleteOption = computed(() => {
     const statusId = this.cache.currentMetadata()?.status_id;
     return statusId === 5 || statusId === 7 || (statusId === 4 && this.cache.isMyResult());
@@ -83,6 +97,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     this.resizeObserver?.disconnect();
+    this.routerSubscription?.unsubscribe();
   }
 
   getHistoryItemTitle(item: { title: string; id: string | null }): string {
@@ -96,4 +111,63 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
     }
     return this.cache.currentRouteTitle();
   });
+
+  isProjectDetailPage = computed(() => {
+    return this.currentUrl().includes('/project-detail/');
+  });
+
+  projectBreadcrumb = computed(() => {
+    if (!this.isProjectDetailPage()) return [];
+
+    const project = this.currentProject();
+    const contractId = this.contractId();
+
+    if (!contractId) return [];
+
+    return [
+      {
+        label: 'Projects',
+        route: '/my-projects'
+      },
+      {
+        label: `Project ${contractId}`,
+        tooltip: project?.projectDescription ?? project?.description
+      }
+    ] as BreadcrumbItem[];
+  });
+
+  ngOnInit(): void {
+    this.currentUrl.set(this.router.url);
+
+    this.routerSubscription = this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
+      this.currentUrl.set(event.url);
+
+      if (this.isProjectDetailPage()) {
+        this.loadProjectData();
+      } else {
+        // Limpiar datos cuando no estamos en project-detail
+        this.currentProject.set({});
+        this.contractId.set('');
+      }
+    });
+
+    if (this.isProjectDetailPage()) {
+      this.loadProjectData();
+    }
+  }
+
+  private async loadProjectData() {
+    const urlParts = this.router.url.split('/');
+    const projectId = urlParts[urlParts.length - 1];
+    this.contractId.set(projectId);
+
+    try {
+      const response = await this.api.GET_ResultsCount(projectId);
+      if (response?.data) {
+        this.currentProject.set(response.data);
+      }
+    } catch (error) {
+      console.error('Error loading project data:', error);
+    }
+  }
 }

@@ -34,9 +34,7 @@
           [autocomplete]="autoComplete"
           (keydown)="shouldPreventInput($event, body().value || null) ? $event.preventDefault() : null"
           (ngModelChange)="setValue($event)" />
-        @if (maxLength) {
-          <!-- El contador ya está arriba con el label -->
-        }
+        @if (maxLength) {}
       } @else if (type === 'number') {
         <p-inputNumber
           [min]="min"
