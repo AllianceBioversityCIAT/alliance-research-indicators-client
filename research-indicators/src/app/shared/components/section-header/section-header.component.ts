@@ -1,5 +1,5 @@
-import { Component, inject, OnDestroy, ViewChild, ElementRef, computed, signal, AfterViewInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, inject, OnDestroy, ViewChild, ElementRef, computed, signal, AfterViewInit, OnInit } from '@angular/core';
+import { Router, ActivatedRoute, RouterModule, NavigationEnd } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -10,14 +10,23 @@ import { MenuItem } from 'primeng/api';
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '../../services/api.service';
 import { SubmissionService } from '../../services/submission.service';
+import { GetProjectDetail } from '../../interfaces/get-project-detail.interface';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+
+export interface BreadcrumbItem {
+  label: string;
+  route?: string;
+  tooltip?: string;
+}
 
 @Component({
   selector: 'app-section-header',
-  imports: [CommonModule, PopoverModule, ButtonModule, TooltipModule, MenuModule],
+  imports: [CommonModule, PopoverModule, ButtonModule, TooltipModule, MenuModule, RouterModule],
   templateUrl: './section-header.component.html',
   styleUrl: './section-header.component.scss'
 })
-export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
+export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit {
   router = inject(Router);
   cache = inject(CacheService);
   route = inject(ActivatedRoute);
@@ -25,11 +34,18 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
   actions = inject(ActionsService);
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
+
+  private currentProject = signal<GetProjectDetail>({});
+  private contractId = signal('');
+  private currentUrl = signal('');
+  private routerSubscription!: Subscription;
+  private currentResult = signal<{ title?: string; project_id?: string }>({});
+  private currentResultId = signal('');
   showDeleteOption = computed(() => {
     const statusId = this.cache.currentMetadata()?.status_id;
     return statusId === 5 || statusId === 7 || (statusId === 4 && this.cache.isMyResult());
   });
-
+  resultTitle = signal('');
   items = computed((): MenuItem[] => {
     const deleteOption: MenuItem = {
       label: 'Delete Result',
@@ -83,6 +99,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     this.resizeObserver?.disconnect();
+    this.routerSubscription?.unsubscribe();
   }
 
   getHistoryItemTitle(item: { title: string; id: string | null }): string {
@@ -96,4 +113,135 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit {
     }
     return this.cache.currentRouteTitle();
   });
+
+  isProjectDetailPage = computed(() => {
+    return this.currentUrl().includes('/project-detail/');
+  });
+
+  isResultPage = computed(() => {
+    return this.currentUrl().includes('/result/') && this.currentUrl().split('/').length >= 3;
+  });
+
+  breadcrumb = computed(() => {
+    const project = this.currentProject();
+    const contractId = this.contractId();
+
+    if (!contractId) return [];
+
+    const baseItems: BreadcrumbItem[] = [
+      {
+        label: 'Projects',
+        route: '/my-projects'
+      },
+      {
+        label: `Project ${contractId}`,
+        tooltip: project?.projectDescription ?? project?.description
+      }
+    ];
+
+    if (this.isResultPage()) {
+      const urlParts = this.currentUrl().split('/');
+      const resultId = urlParts[2]; // /result/2243/any-page -> 2243
+
+      if (resultId) {
+        baseItems[1].route = `/project-detail/${contractId}`;
+
+        baseItems.push({
+          label: `Result ${resultId}`,
+          tooltip: this.resultTitle()
+        });
+      }
+    }
+
+    return baseItems;
+  });
+
+  ngOnInit(): void {
+    this.currentUrl.set(this.router.url);
+
+    this.routerSubscription = this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
+      this.currentUrl.set(event.url);
+
+      if (this.isProjectDetailPage() || this.isResultPage()) {
+        this.loadData();
+      } else {
+        this.clearData();
+      }
+    });
+
+    this.loadData();
+  }
+
+  private clearData() {
+    this.currentProject.set({});
+    this.contractId.set('');
+    this.currentResult.set({});
+    this.currentResultId.set('');
+    this.resultTitle.set('');
+  }
+
+  private async loadData() {
+    if (this.isProjectDetailPage()) {
+      await this.loadProjectData();
+    } else if (this.isResultPage()) {
+      await this.loadResultData();
+    }
+  }
+
+  private async loadProjectData() {
+    const urlParts = this.router.url.split('/');
+    const projectId = urlParts[urlParts.length - 1];
+    this.contractId.set(projectId);
+
+    try {
+      const response = await this.api.GET_ResultsCount(projectId);
+      if (response?.data) {
+        this.currentProject.set(response.data);
+      }
+    } catch (error) {
+      console.error('Error loading project data:', error);
+    }
+  }
+
+  private async loadResultData() {
+    const urlParts = this.router.url.split('/');
+    const resultId = urlParts[2]; // /result/2243/any-page -> 2243
+    this.currentResultId.set(resultId);
+
+    try {
+      const [alignmentsResponse, resultResponse] = await Promise.all([
+        this.api.GET_Alignments(parseInt(resultId)),
+        this.api.GET_GeneralInformation(parseInt(resultId))
+      ]);
+
+      if (resultResponse?.data?.title) {
+        this.resultTitle.set(resultResponse.data.title);
+      }
+
+      if (alignmentsResponse?.data?.contracts) {
+        const primaryContract = alignmentsResponse.data.contracts.find(
+          (contract: { is_primary: boolean; contract_id: string }) => contract.is_primary === true
+        );
+
+        if (primaryContract) {
+          await this.loadProjectDataById(primaryContract.contract_id);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading result data:', error);
+    }
+  }
+
+  private async loadProjectDataById(projectId: string) {
+    this.contractId.set(projectId);
+
+    try {
+      const response = await this.api.GET_ResultsCount(projectId);
+      if (response?.data) {
+        this.currentProject.set(response.data);
+      }
+    } catch (error) {
+      console.error('Error loading project data:', error);
+    }
+  }
 }

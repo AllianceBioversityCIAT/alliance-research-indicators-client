@@ -6,9 +6,29 @@
   class="section-header w-full pl-8  left-0  {{ hss ? 'p-[5px] mt-[50px]' : 'p-[10px] mt-[70px]' }} calc(100% - 65px) "
   id="section-sidebar">
   <div class="flex gap-7">
-    <div class="section-title {{ hss ? 'text-[18px]' : 'text-[18px]' }} text-slate-600 font-small">
-      {{ welcomeMessage() }}
-    </div>
+    @if (breadcrumb().length > 0) {
+      <div class="section-title {{ hss ? 'text-[18px]' : 'text-[18px]' }} text-slate-600 font-small md:py-2">
+        @for (item of breadcrumb(); track $index) {
+          @if ($index > 0) {
+            <i class="pi pi-chevron-right text-[#777C83] mx-2 !text-[12px]"></i>
+          }
+
+          @if (item.route && $index < breadcrumb().length - 1) {
+            <a [routerLink]="item.route" class="text-[#777C83] hover:underline cursor-pointer" [pTooltip]="item.tooltip" tooltipPosition="bottom">
+              {{ item.label }}
+            </a>
+          } @else {
+            <span class="text-[#035BA9]" [pTooltip]="item.tooltip" tooltipPosition="bottom">
+              {{ item.label }}
+            </span>
+          }
+        }
+      </div>
+    } @else {
+      <div class="section-title {{ hss ? 'text-[18px]' : 'text-[18px]' }} text-slate-600 font-small md:py-2">
+        {{ welcomeMessage() }}
+      </div>
+    }
   </div>
 
   @if (this.cache.showSectionHeaderActions()) {
