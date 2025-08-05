@@ -43,6 +43,7 @@ export class InputComponent {
   body = signal<{ value: InputValueType }>({ value: null });
   firstTime = signal(true);
   MAX_SAFE_INTEGER = 18;
+  showMaxReachedMessage = signal(false);
 
   shouldPreventInput(event: KeyboardEvent, currentValue: InputValueType): boolean {
     if (!this.maxWords || !currentValue) return false;
@@ -85,7 +86,10 @@ export class InputComponent {
 
     const newValue = currentValue.substring(0, cursorPosition) + event.key + currentValue.substring(cursorPosition);
     if (newValue.length > this.MAX_SAFE_INTEGER) {
+      this.showMaxReachedMessage.set(true);
       return true;
+    } else {
+      this.showMaxReachedMessage.set(false);
     }
 
     return false;
@@ -96,6 +100,19 @@ export class InputComponent {
       const externalValue = this.utils.getNestedProperty(this.signal(), this.optionValue);
       if (this.body().value !== externalValue) {
         this.body.set({ value: externalValue });
+      }
+    },
+    { allowSignalWrites: true }
+  );
+
+  updateMaxReachedMessage = effect(
+    () => {
+      const value = this.body().value;
+      if (this.type === 'number' && value !== null && value !== undefined) {
+        const valueString = value.toString();
+        this.showMaxReachedMessage.set(valueString.length >= this.MAX_SAFE_INTEGER);
+      } else {
+        this.showMaxReachedMessage.set(false);
       }
     },
     { allowSignalWrites: true }

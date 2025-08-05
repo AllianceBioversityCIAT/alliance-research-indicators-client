@@ -38,15 +38,14 @@
       } @else if (type === 'number') {
         <p-inputNumber
           [min]="min"
-          [max]="MAX_SAFE_INTEGER"
-          class="w-full {{ isInvalid() ? 'border-2 rounded-[8px] border-[#E69F00]' : '' }}"
+          class="w-full {{ isInvalid() || showMaxReachedMessage() ? 'border-2 rounded-[8px] border-[#E69F00]' : '' }}"
           [placeholder]="placeholder"
           [(ngModel)]="this.body().value"
           (ngModelChange)="setValue($event)"
           (keydown)="shouldPreventNumberInput($event) ? $event.preventDefault() : null"
           [disabled]="disabled"
           [showButtons]="true"
-          [style]="isInvalid() ? { border: '2px solid #E69F00 !important' } : {}"
+          [style]="isInvalid() || showMaxReachedMessage() ? { border: '2px solid #E69F00 !important' } : {}"
           inputId="minmax-buttons" />
       }
       @if (helperText) {
@@ -62,6 +61,12 @@
             <span>{{ this.inputValid().message }}</span>
           </div>
         }
+      }
+      @if (showMaxReachedMessage()) {
+        <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+          <i class="material-symbols-rounded !text-base">warning</i>
+          <span>Maximum reached</span>
+        </div>
       }
     </div>
   }

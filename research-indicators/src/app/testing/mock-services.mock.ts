@@ -47,7 +47,7 @@ export const cacheServiceMock = {
     exp: 3600
   }),
   isLoggedIn: signal<boolean>(false),
-  currentMetadata: jest.fn(() => ({ result_title: 'Test Title' })),
+  currentMetadata: jest.fn(() => ({ result_title: 'Test Title', status_id: 1 })),
   currentResultId: signal(123),
   currentRouteTitle: jest.fn().mockReturnValue('Home'),
   showSectionHeaderActions: signal(false),
@@ -59,7 +59,10 @@ export const cacheServiceMock = {
   remove: jest.fn(),
   clear: jest.fn(),
   currentResultIsLoading: jest.fn().mockReturnValue(false),
-  loading: jest.fn().mockReturnValue(false)
+  loading: jest.fn().mockReturnValue(false),
+  headerHeight: signal(0),
+  showSubmissionHistory: signal(false),
+  isMyResult: jest.fn().mockReturnValue(true)
 } as unknown as CacheService;
 
 const paramMapMock: ParamMap = {
@@ -97,7 +100,8 @@ export const actionsServiceMock = {
   deleteAction: jest.fn(),
   getInitials: jest.fn().mockReturnValue('JD'),
   updateList: jest.fn(),
-  showToast: jest.fn()
+  showToast: jest.fn(),
+  showGlobalAlert: jest.fn()
 } as unknown as ActionsService;
 
 export const mockLatestResults = {
@@ -502,6 +506,12 @@ export const apiServiceMock = {
   GET_Languages: jest.fn().mockImplementation(() => Promise.resolve(mockLanguages)),
   GET_SessionPurpose: jest.fn().mockImplementation(() => Promise.resolve(mockSessionPurpose)),
   GET_SessionType: jest.fn().mockImplementation(() => Promise.resolve(mockSessionTypes)),
+  GET_ResultsCount: jest
+    .fn()
+    .mockImplementation(() => Promise.resolve({ data: { projectDescription: 'Test Project', description: 'Test Description' } })),
+  GET_Alignments: jest.fn().mockImplementation(() => Promise.resolve({ data: { contracts: [{ is_primary: true, contract_id: 'A1048' }] } })),
+  GET_GeneralInformation: jest.fn().mockImplementation(() => Promise.resolve({ data: { title: 'Test Result Title' } })),
+  DELETE_Result: jest.fn().mockImplementation(() => Promise.resolve({ successfulRequest: true })),
   login: jest.fn(),
   GET_SessionLength: jest.fn(),
   GET_AllResultStatus: jest.fn()
@@ -519,7 +529,8 @@ export const routerMock = {
   events: routerEventsSubject.get().asObservable(),
   navigate: jest.fn().mockResolvedValue(true),
   createUrlTree: jest.fn().mockReturnValue({}),
-  serializeUrl: jest.fn().mockReturnValue('')
+  serializeUrl: jest.fn().mockReturnValue(''),
+  url: '/test'
 };
 
 export const submissionServiceMock = {
