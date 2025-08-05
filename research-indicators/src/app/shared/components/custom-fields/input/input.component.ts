@@ -44,9 +44,10 @@ export class InputComponent {
   body = signal<{ value: InputValueType }>({ value: null });
   firstTime = signal(true);
   MAX_SAFE_INTEGER = 18;
-  MAX_SAFE_TEXT = 4;
+  MAX_SAFE_TEXT = 400000;
   showMaxReachedMessage = signal(false);
   max = Number.MAX_SAFE_INTEGER;
+
   @HostListener('paste', ['$event'])
   onPaste(event: ClipboardEvent): void {
     if (this.type === 'text') {
@@ -160,7 +161,6 @@ export class InputComponent {
       const value = this.body().value;
       if (this.type === 'number' && value !== null && value !== undefined) {
         const valueString = value.toString();
-        // Para números, contar las comas como caracteres
         this.showMaxReachedMessage.set(valueString.length >= this.MAX_SAFE_INTEGER);
       } else if (this.type === 'text' && value !== null && value !== undefined) {
         const valueString = value.toString();
