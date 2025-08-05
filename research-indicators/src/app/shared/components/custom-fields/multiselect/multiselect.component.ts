@@ -59,6 +59,7 @@ export class MultiselectComponent implements OnInit {
   @Input() removeCondition: (item: any) => boolean = () => true;
   @Input() removeTooltip = '';
   @Input() disabled = false;
+  @Input() filterBy = '';
   @Input() optionsDisabled: WritableSignal<any[]> = signal([]);
   @Input() set isRequired(value: boolean) {
     this._isRequired.set(value);
@@ -71,6 +72,7 @@ export class MultiselectComponent implements OnInit {
 
   @Input() scrollHeight = '268px';
   @Input() itemHeight = 41;
+  @Input() dark = false;
   selectEvent = output<any>();
   environment = environment;
 

@@ -4,6 +4,8 @@ export class GetInnovationDetails {
   innovation_type_id: number | undefined = undefined;
   innovation_readiness_id: number | undefined = undefined;
   anticipated_users_id: number | undefined = undefined;
+  is_new_or_improved_variety: number | undefined = undefined;
+  new_or_improved_varieties_count: number | undefined = undefined;
   expected_outcome = '';
   intended_beneficiaries_description = '';
   actors: Actor[] = [];
@@ -26,11 +28,13 @@ export class Actor {
 }
 
 export class InstitutionType {
-  result_institution_type_id: number | undefined = undefined;
-  result_id: number | undefined = undefined;
-  institution_type_id: number | undefined = undefined;
-  sub_institution_type_id: number | undefined = undefined;
-  institution_type_custom_name: string | undefined = undefined;
+  result_institution_type_id: number | null = null;
+  result_id?: number | null = null;
+  institution_type_id?: number | null = null;
+  sub_institution_type_id?: number | null = null;
+  institution_type_custom_name?: string | null = null;
+  is_organization_known = false;
+  institution_id?: number | null = null;
 }
 
 export class KnowledgeSharingForm {
