@@ -44,7 +44,7 @@ export class InputComponent {
   body = signal<{ value: InputValueType }>({ value: null });
   firstTime = signal(true);
   MAX_SAFE_INTEGER = 18;
-  MAX_SAFE_TEXT = 400000;
+  MAX_SAFE_TEXT = 40000;
   showMaxReachedMessage = signal(false);
   max = Number.MAX_SAFE_INTEGER;
 

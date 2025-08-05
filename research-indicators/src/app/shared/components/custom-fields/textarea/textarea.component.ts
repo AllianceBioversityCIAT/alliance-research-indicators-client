@@ -29,7 +29,7 @@ export class TextareaComponent {
   @Input() styleClass = '';
   @Input() size = '';
   @Input() placeholder = '';
-  @Input() maxLength = 4;
+  @Input() maxLength = 40000;
 
   body = signal<{ value: string }>({ value: '' });
   showMaxReachedMessage = signal(false);
