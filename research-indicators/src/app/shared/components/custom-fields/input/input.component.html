@@ -41,20 +41,17 @@
           [autocomplete]="autoComplete"
           (ngModelChange)="setValue($event)" />
       } @else if (type === 'number') {
-        <input
-          #numberInput
-          type="text"
+        <p-inputNumber
+          [min]="min"
+          [max]="max"
+          class="w-full {{ isInvalid() || showMaxReachedMessage() ? 'border-2 rounded-[8px] border-[#E69F00]' : '' }}"
           [placeholder]="placeholder"
-          [class]="'w-full p-3 border rounded-lg ' + (isInvalid() || showMaxReachedMessage() ? 'border-2 border-[#E69F00]' : 'border-gray-300')"
-          [style]="isInvalid() || showMaxReachedMessage() ? { border: '2px solid #E69F00' } : {}"
           [(ngModel)]="this.body().value"
           (ngModelChange)="setValue($event)"
-          (input)="onNumberInput($event)"
-          (keydown)="shouldPreventNumberInput($event) ? $event.preventDefault() : null"
-          (paste)="handlePasteNumber($event)"
           [disabled]="disabled"
-          inputmode="numeric"
-          pattern="[0-9,]*" />
+          [showButtons]="true"
+          [style]="isInvalid() || showMaxReachedMessage() ? { border: '2px solid #E69F00 !important' } : {}"
+          inputId="minmax-buttons" />
       }
       @if (helperText) {
         <div class="pt-1">

@@ -46,13 +46,11 @@ export class InputComponent {
   MAX_SAFE_INTEGER = 18;
   MAX_SAFE_TEXT = 4;
   showMaxReachedMessage = signal(false);
-
+  max = Number.MAX_SAFE_INTEGER;
   @HostListener('paste', ['$event'])
   onPaste(event: ClipboardEvent): void {
     if (this.type === 'text') {
       this.handlePasteText(event);
-    } else if (this.type === 'number') {
-      this.handlePasteNumber(event);
     }
   }
 
@@ -120,58 +118,6 @@ export class InputComponent {
     return true;
   }
 
-  shouldPreventNumberInput(event: KeyboardEvent): boolean {
-    if (event.ctrlKey || event.metaKey) {
-      return false;
-    }
-    if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '].includes(event.key)) return false;
-    if (!/[\d,]/.test(event.key)) {
-      return true;
-    }
-
-    const input = event.target as HTMLInputElement;
-    const currentValue = input.value;
-    const cursorPosition = input.selectionStart;
-    if (cursorPosition === null) {
-      return true;
-    }
-
-    // Simular el nuevo valor con el carácter ingresado
-    const newValue = currentValue.substring(0, cursorPosition) + event.key + currentValue.substring(cursorPosition);
-
-    // Formatear el número para contar caracteres correctamente
-    const formattedValue = this.formatNumberWithCommas(newValue);
-
-    if (formattedValue.length > this.MAX_SAFE_INTEGER) {
-      this.showMaxReachedMessage.set(true);
-      return true;
-    } else {
-      this.showMaxReachedMessage.set(false);
-    }
-
-    return false;
-  }
-
-  private formatNumberWithCommas(value: string): string {
-    // Remover todas las comas existentes
-    const cleanValue = value.replace(/,/g, '');
-
-    // Si no hay números, retornar vacío
-    if (!cleanValue) return '';
-
-    // No convertir a número para evitar pérdida de precisión
-    // Solo formatear con comas cada 3 dígitos desde la derecha
-    let formatted = '';
-    for (let i = cleanValue.length - 1; i >= 0; i--) {
-      if ((cleanValue.length - 1 - i) % 3 === 0 && i !== cleanValue.length - 1) {
-        formatted = ',' + formatted;
-      }
-      formatted = cleanValue[i] + formatted;
-    }
-
-    return formatted;
-  }
-
   shouldPreventTextInput(event: KeyboardEvent): boolean {
     if (event.ctrlKey || event.metaKey) {
       return false;
@@ -197,57 +143,6 @@ export class InputComponent {
     }
 
     return false;
-  }
-
-  handlePasteNumber(event: ClipboardEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const clipboardData = event.clipboardData;
-    if (!clipboardData) return;
-
-    const pastedText = clipboardData.getData('text');
-    const input = event.target as HTMLInputElement;
-
-    const currentValue = input.value || '';
-    const cursorPosition = input.selectionStart || 0;
-    const selectionEnd = input.selectionEnd || cursorPosition;
-
-    // Filtrar solo números del texto pegado
-    const numericPastedText = pastedText.replace(/[^\d]/g, '');
-
-    const beforeCursor = currentValue.substring(0, cursorPosition);
-    const afterCursor = currentValue.substring(selectionEnd);
-    const newValue = beforeCursor + numericPastedText + afterCursor;
-
-    // Formatear el nuevo valor con comas
-    const formattedValue = this.formatNumberWithCommas(newValue);
-
-    if (formattedValue.length > this.MAX_SAFE_INTEGER) {
-      // Si el valor formateado excede el límite, truncar desde el final
-      const truncatedFormattedValue = formattedValue.substring(0, this.MAX_SAFE_INTEGER);
-
-      this.body.set({ value: truncatedFormattedValue });
-      this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, truncatedFormattedValue);
-      this.showMaxReachedMessage.set(true);
-
-      setTimeout(() => {
-        // Calcular la nueva posición del cursor
-        const newCursorPosition = Math.min(cursorPosition, truncatedFormattedValue.length);
-        input.setSelectionRange(newCursorPosition, newCursorPosition);
-      });
-    } else {
-      this.body.set({ value: formattedValue });
-      this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, formattedValue);
-      this.showMaxReachedMessage.set(false);
-
-      setTimeout(() => {
-        // Calcular la nueva posición del cursor considerando las comas agregadas
-        const beforeCursorFormatted = this.formatNumberWithCommas(beforeCursor);
-        const newCursorPosition = beforeCursorFormatted.length + numericPastedText.length;
-        input.setSelectionRange(newCursorPosition, newCursorPosition);
-      });
-    }
   }
 
   onChange = effect(
@@ -309,11 +204,6 @@ export class InputComponent {
   setValue(value: any) {
     if (this.onlyLowerCase) value = value.toLowerCase();
 
-    // Formatear números automáticamente si es tipo number
-    if (this.type === 'number' && typeof value === 'string') {
-      value = this.formatNumberWithCommas(value);
-    }
-
     if (this.maxWords && typeof value === 'string') {
       const input = document.activeElement as HTMLInputElement;
       const cursorPosition = input?.selectionStart;
@@ -341,32 +231,6 @@ export class InputComponent {
 
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, value);
-  }
-
-  onNumberInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const value = input.value;
-    const cursorPosition = input.selectionStart || 0;
-
-    // Formatear el valor
-    const formattedValue = this.formatNumberWithCommas(value);
-
-    // Solo actualizar si el valor cambió
-    if (formattedValue !== value) {
-      // Calcular la nueva posición del cursor
-      const beforeCursor = value.substring(0, cursorPosition);
-      const beforeCursorFormatted = this.formatNumberWithCommas(beforeCursor);
-      const newCursorPosition = beforeCursorFormatted.length;
-
-      // Actualizar el valor
-      this.body.set({ value: formattedValue });
-      this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, formattedValue);
-
-      // Restaurar la posición del cursor
-      setTimeout(() => {
-        input.setSelectionRange(newCursorPosition, newCursorPosition);
-      });
-    }
   }
 
   getPattern() {
