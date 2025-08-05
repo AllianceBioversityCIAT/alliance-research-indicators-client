@@ -108,7 +108,6 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
       const width = dropdown.offsetWidth;
       if (width > 600) max = 100;
       else if (width > 400) max = 60;
-      else max = 40;
     }
     return description.length > max ? description.slice(0, max) + '...' : description;
   }

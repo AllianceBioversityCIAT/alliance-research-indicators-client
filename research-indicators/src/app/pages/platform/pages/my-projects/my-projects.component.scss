@@ -1,7 +1,3 @@
-.container {
-  padding: 30px;
-}
-
 .analyze-result-content {
   display: flex;
   justify-content: flex-start;
@@ -11,9 +7,126 @@
   height: 100%;
   width: 100%;
 }
+
+// Full width styles for My Projects
+:host ::ng-deep .p-datatable {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+:host ::ng-deep .p-datatable-table {
+  width: 100% !important;
+  min-width: 100% !important;
+}
 :host ::ng-deep input:focus,
 :host ::ng-deep input:focus-visible {
   outline: none !important;
   box-shadow: none !important;
   border-color: inherit !important;
+}
+
+:host ::ng-deep .view-toggle-btn .p-button-icon {
+  color: #035ba9 !important;
+}
+
+// Card styles for results (same as project-item design)
+.card {
+  height: auto;
+  width: 100%;
+  border: 0.8px solid #e8ebed;
+  background-color: #fcfcfc;
+  padding: 40px 35px;
+  padding-bottom: 18px;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  color: inherit;
+  margin-bottom: 20px;
+
+  &:hover {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card-content {
+    display: grid;
+    gap: 20px;
+
+    .organization-identifier {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+
+      .project {
+        display: grid;
+        margin: 0;
+        gap: 0;
+
+        .project-id {
+          grid-row: 1;
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 17px;
+          color: #8d9299;
+        }
+
+        .project-name {
+          grid-row: 2;
+          font-family: Barlow, sans-serif;
+          font-size: 20px;
+          font-weight: 600;
+          padding-top: 3px;
+          line-height: 24px;
+          color: #112f5c;
+        }
+      }
+    }
+
+    .project-info {
+      display: flex;
+
+      .project-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 18px;
+        color: #8d9299;
+      }
+
+      .project-data {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 18px;
+        color: #345b8f;
+      }
+
+      .principal-investigator {
+        display: flex;
+        align-items: center;
+        padding-right: 20px;
+      }
+
+      .start-date {
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .end-date {
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+      }
+    }
+  }
+
+  label {
+    cursor: pointer;
+  }
+}
+
+label {
+  cursor: pointer;
 }
