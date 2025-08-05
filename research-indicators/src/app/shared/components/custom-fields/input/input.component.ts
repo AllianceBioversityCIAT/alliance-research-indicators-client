@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, computed, effect, inject, Input, signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, Input, signal, WritableSignal, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SaveOnWritingDirective } from '../../../directives/save-on-writing.directive';
@@ -23,6 +23,7 @@ export class InputComponent {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;
   utils = inject(UtilsService);
   wordCountService = inject(WordCountService);
+  @ViewChild('numberInput', { static: false }) numberInput!: ElementRef;
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionValue = '';
   @Input() pattern: 'email' | 'url' | '' = '';
@@ -43,7 +44,59 @@ export class InputComponent {
   body = signal<{ value: InputValueType }>({ value: null });
   firstTime = signal(true);
   MAX_SAFE_INTEGER = 18;
+  MAX_SAFE_TEXT = 4;
   showMaxReachedMessage = signal(false);
+
+  @HostListener('paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    if (this.type === 'text') {
+      this.handlePasteText(event);
+    } else if (this.type === 'number') {
+      this.handlePasteNumber(event);
+    }
+  }
+
+  handlePasteText(event: ClipboardEvent): void {
+    event.preventDefault();
+    const clipboardData = event.clipboardData;
+    if (!clipboardData) return;
+
+    const pastedText = clipboardData.getData('text');
+    const input = event.target as HTMLInputElement;
+    const currentValue = input.value;
+    const cursorPosition = input.selectionStart || 0;
+    const selectionEnd = input.selectionEnd || cursorPosition;
+
+    const beforeCursor = currentValue.substring(0, cursorPosition);
+    const afterCursor = currentValue.substring(selectionEnd);
+    const newValue = beforeCursor + pastedText + afterCursor;
+
+    if (newValue.length > this.MAX_SAFE_TEXT) {
+      const availableSpace = this.MAX_SAFE_TEXT - beforeCursor.length - afterCursor.length;
+      const truncatedPastedText = pastedText.substring(0, Math.max(0, availableSpace));
+      const finalValue = beforeCursor + truncatedPastedText + afterCursor;
+
+      this.body.set({ value: finalValue });
+      this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, finalValue);
+
+      this.showMaxReachedMessage.set(true);
+
+      setTimeout(() => {
+        const newCursorPosition = cursorPosition + truncatedPastedText.length;
+        input.setSelectionRange(newCursorPosition, newCursorPosition);
+      });
+    } else {
+      const finalValue = newValue;
+      this.body.set({ value: finalValue });
+      this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, finalValue);
+      this.showMaxReachedMessage.set(false);
+
+      setTimeout(() => {
+        const newCursorPosition = cursorPosition + pastedText.length;
+        input.setSelectionRange(newCursorPosition, newCursorPosition);
+      });
+    }
+  }
 
   shouldPreventInput(event: KeyboardEvent, currentValue: InputValueType): boolean {
     if (!this.maxWords || !currentValue) return false;
@@ -52,7 +105,6 @@ export class InputComponent {
     if (wordCount < this.maxWords) return false;
 
     if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '].includes(event.key)) return false;
-
     if (event.ctrlKey || event.metaKey) return false;
 
     const input = event.target as HTMLInputElement;
@@ -72,8 +124,8 @@ export class InputComponent {
     if (event.ctrlKey || event.metaKey) {
       return false;
     }
-
-    if (!/[\d.]/.test(event.key)) {
+    if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '].includes(event.key)) return false;
+    if (!/[\d,]/.test(event.key)) {
       return true;
     }
 
@@ -84,8 +136,13 @@ export class InputComponent {
       return true;
     }
 
+    // Simular el nuevo valor con el carácter ingresado
     const newValue = currentValue.substring(0, cursorPosition) + event.key + currentValue.substring(cursorPosition);
-    if (newValue.length > this.MAX_SAFE_INTEGER) {
+
+    // Formatear el número para contar caracteres correctamente
+    const formattedValue = this.formatNumberWithCommas(newValue);
+
+    if (formattedValue.length > this.MAX_SAFE_INTEGER) {
       this.showMaxReachedMessage.set(true);
       return true;
     } else {
@@ -93,6 +150,104 @@ export class InputComponent {
     }
 
     return false;
+  }
+
+  private formatNumberWithCommas(value: string): string {
+    // Remover todas las comas existentes
+    const cleanValue = value.replace(/,/g, '');
+
+    // Si no hay números, retornar vacío
+    if (!cleanValue) return '';
+
+    // No convertir a número para evitar pérdida de precisión
+    // Solo formatear con comas cada 3 dígitos desde la derecha
+    let formatted = '';
+    for (let i = cleanValue.length - 1; i >= 0; i--) {
+      if ((cleanValue.length - 1 - i) % 3 === 0 && i !== cleanValue.length - 1) {
+        formatted = ',' + formatted;
+      }
+      formatted = cleanValue[i] + formatted;
+    }
+
+    return formatted;
+  }
+
+  shouldPreventTextInput(event: KeyboardEvent): boolean {
+    if (event.ctrlKey || event.metaKey) {
+      return false;
+    }
+
+    if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(event.key)) {
+      return false;
+    }
+
+    const input = event.target as HTMLInputElement;
+    const currentValue = input.value;
+    const cursorPosition = input.selectionStart;
+    if (cursorPosition === null) {
+      return true;
+    }
+
+    const newValue = currentValue.substring(0, cursorPosition) + event.key + currentValue.substring(cursorPosition);
+    if (newValue.length > this.MAX_SAFE_TEXT) {
+      this.showMaxReachedMessage.set(true);
+      return true;
+    } else {
+      this.showMaxReachedMessage.set(false);
+    }
+
+    return false;
+  }
+
+  handlePasteNumber(event: ClipboardEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const clipboardData = event.clipboardData;
+    if (!clipboardData) return;
+
+    const pastedText = clipboardData.getData('text');
+    const input = event.target as HTMLInputElement;
+
+    const currentValue = input.value || '';
+    const cursorPosition = input.selectionStart || 0;
+    const selectionEnd = input.selectionEnd || cursorPosition;
+
+    // Filtrar solo números del texto pegado
+    const numericPastedText = pastedText.replace(/[^\d]/g, '');
+
+    const beforeCursor = currentValue.substring(0, cursorPosition);
+    const afterCursor = currentValue.substring(selectionEnd);
+    const newValue = beforeCursor + numericPastedText + afterCursor;
+
+    // Formatear el nuevo valor con comas
+    const formattedValue = this.formatNumberWithCommas(newValue);
+
+    if (formattedValue.length > this.MAX_SAFE_INTEGER) {
+      // Si el valor formateado excede el límite, truncar desde el final
+      const truncatedFormattedValue = formattedValue.substring(0, this.MAX_SAFE_INTEGER);
+
+      this.body.set({ value: truncatedFormattedValue });
+      this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, truncatedFormattedValue);
+      this.showMaxReachedMessage.set(true);
+
+      setTimeout(() => {
+        // Calcular la nueva posición del cursor
+        const newCursorPosition = Math.min(cursorPosition, truncatedFormattedValue.length);
+        input.setSelectionRange(newCursorPosition, newCursorPosition);
+      });
+    } else {
+      this.body.set({ value: formattedValue });
+      this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, formattedValue);
+      this.showMaxReachedMessage.set(false);
+
+      setTimeout(() => {
+        // Calcular la nueva posición del cursor considerando las comas agregadas
+        const beforeCursorFormatted = this.formatNumberWithCommas(beforeCursor);
+        const newCursorPosition = beforeCursorFormatted.length + numericPastedText.length;
+        input.setSelectionRange(newCursorPosition, newCursorPosition);
+      });
+    }
   }
 
   onChange = effect(
@@ -110,7 +265,11 @@ export class InputComponent {
       const value = this.body().value;
       if (this.type === 'number' && value !== null && value !== undefined) {
         const valueString = value.toString();
+        // Para números, contar las comas como caracteres
         this.showMaxReachedMessage.set(valueString.length >= this.MAX_SAFE_INTEGER);
+      } else if (this.type === 'text' && value !== null && value !== undefined) {
+        const valueString = value.toString();
+        this.showMaxReachedMessage.set(valueString.length >= this.MAX_SAFE_TEXT);
       } else {
         this.showMaxReachedMessage.set(false);
       }
@@ -150,6 +309,11 @@ export class InputComponent {
   setValue(value: any) {
     if (this.onlyLowerCase) value = value.toLowerCase();
 
+    // Formatear números automáticamente si es tipo number
+    if (this.type === 'number' && typeof value === 'string') {
+      value = this.formatNumberWithCommas(value);
+    }
+
     if (this.maxWords && typeof value === 'string') {
       const input = document.activeElement as HTMLInputElement;
       const cursorPosition = input?.selectionStart;
@@ -177,6 +341,32 @@ export class InputComponent {
 
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, value);
+  }
+
+  onNumberInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    const cursorPosition = input.selectionStart || 0;
+
+    // Formatear el valor
+    const formattedValue = this.formatNumberWithCommas(value);
+
+    // Solo actualizar si el valor cambió
+    if (formattedValue !== value) {
+      // Calcular la nueva posición del cursor
+      const beforeCursor = value.substring(0, cursorPosition);
+      const beforeCursorFormatted = this.formatNumberWithCommas(beforeCursor);
+      const newCursorPosition = beforeCursorFormatted.length;
+
+      // Actualizar el valor
+      this.body.set({ value: formattedValue });
+      this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, formattedValue);
+
+      // Restaurar la posición del cursor
+      setTimeout(() => {
+        input.setSelectionRange(newCursorPosition, newCursorPosition);
+      });
+    }
   }
 
   getPattern() {
