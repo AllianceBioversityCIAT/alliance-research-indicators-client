@@ -42,6 +42,7 @@ export class InputComponent {
 
   body = signal<{ value: InputValueType }>({ value: null });
   firstTime = signal(true);
+  MAX_SAFE_INTEGER = 18;
 
   shouldPreventInput(event: KeyboardEvent, currentValue: InputValueType): boolean {
     if (!this.maxWords || !currentValue) return false;
@@ -64,6 +65,30 @@ export class InputComponent {
     if (currentWordIndex < this.maxWords) return false;
 
     return true;
+  }
+
+  shouldPreventNumberInput(event: KeyboardEvent): boolean {
+    if (event.ctrlKey || event.metaKey) {
+      return false;
+    }
+
+    if (!/[\d.]/.test(event.key)) {
+      return true;
+    }
+
+    const input = event.target as HTMLInputElement;
+    const currentValue = input.value;
+    const cursorPosition = input.selectionStart;
+    if (cursorPosition === null) {
+      return true;
+    }
+
+    const newValue = currentValue.substring(0, cursorPosition) + event.key + currentValue.substring(cursorPosition);
+    if (newValue.length > this.MAX_SAFE_INTEGER) {
+      return true;
+    }
+
+    return false;
   }
 
   onChange = effect(
