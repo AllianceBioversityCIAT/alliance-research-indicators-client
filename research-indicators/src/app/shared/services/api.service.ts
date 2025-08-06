@@ -58,6 +58,7 @@ import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-inst
 import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
+import { Configuration } from '@shared/interfaces/configuration.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -192,6 +193,16 @@ export class ApiService {
   GET_IssueCategories = (): Promise<MainResponse<IssueCategory[]>> => {
     const url = () => `issue-categories`;
     return this.TP.get(url(), {});
+  };
+
+  GET_Configuration = (id: number, section: string): Promise<MainResponse<Configuration[]>> => {
+    const url = () => `configuration/${id}?section=${section}`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_Configuration = (id: number, section: string, body: Configuration): Promise<MainResponse<Configuration[]>> => {
+    const url = () => `configuration/${id}?section=${section}`;
+    return this.TP.patch(url(), body, {});
   };
 
   // create partner request
