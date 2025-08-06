@@ -22,6 +22,7 @@ import { CustomTagComponent } from '../../../../shared/components/custom-tag/cus
 import { Result } from '@shared/interfaces/result/result.interface';
 import { MultiselectComponent } from '../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
+import { CalendarInputComponent } from '../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 
 @Component({
@@ -42,7 +43,8 @@ import { FindContracts } from '@shared/interfaces/find-contracts.interface';
     MenuModule,
     CustomTagComponent,
     MultiselectComponent,
-    SectionSidebarComponent
+    SectionSidebarComponent,
+    CalendarInputComponent
   ],
   templateUrl: './my-projects.component.html',
   styleUrl: './my-projects.component.scss'

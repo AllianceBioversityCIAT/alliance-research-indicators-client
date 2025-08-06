@@ -506,9 +506,10 @@
         label="Status"
         [signal]="this.resultsCenterService.tableFilters"
         optionLabel="name"
-        optionValue="result_status_id"
+        optionValue="value"
         signalOptionValue="statusCodes"
-        serviceName="allResultStatus"
+        serviceName="projectStatus"
+        scrollHeight="140px"
         placeholder="Select statuses">
       </app-multiselect>
     </div>
@@ -518,38 +519,34 @@
         #leverSelect
         label="Lever"
         [signal]="this.resultsCenterService.tableFilters"
-        optionLabel="name"
+        optionLabel="short_name"
         optionValue="id"
         signalOptionValue="levers"
-        serviceName="getAllYears"
+        serviceName="levers"
         placeholder="Select levers">
       </app-multiselect>
     </div>
 
     <div class="mb-6">
-      <app-multiselect
+      <app-calendar-input
         #startDateSelect
         label="Start Date"
         [signal]="this.resultsCenterService.tableFilters"
-        optionLabel="name"
-        optionValue="id"
-        signalOptionValue="startDates"
-        serviceName="getAllYears"
-        placeholder="Select start dates">
-      </app-multiselect>
+        optionValue="startDate"
+        placeholder="Select start date"
+        [readonly]="true">
+      </app-calendar-input>
     </div>
 
     <div>
-      <app-multiselect
+      <app-calendar-input
         #endDateSelect
         label="End Date"
         [signal]="this.resultsCenterService.tableFilters"
-        optionLabel="name"
-        optionValue="id"
-        signalOptionValue="endDates"
-        serviceName="getAllYears"
-        placeholder="Select end dates">
-      </app-multiselect>
+        optionValue="endDate"
+        placeholder="Select end date"
+        [readonly]="true">
+      </app-calendar-input>
     </div>
   </div>
 </app-section-sidebar>
