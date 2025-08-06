@@ -22,6 +22,7 @@ export class CalendarInputComponent {
   @Input() maxDate: any = null;
   @Input() isRequired = false;
   @Input() disabled = false;
+  @Input() readonly = false;
   @Input() placeholder = '';
 
   isInvalid = computed(() => {
