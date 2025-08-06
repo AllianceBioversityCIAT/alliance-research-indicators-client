@@ -423,9 +423,31 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_FindContracts = (): Promise<MainResponse<FindContracts[]>> => {
+  GET_FindContracts = (filters?: {
+    'current-user'?: boolean;
+    'contract-code'?: string;
+    'project-name'?: string;
+    'principal-investigator'?: string;
+    lever?: number;
+    status?: string;
+    'start-date'?: string;
+    'end-date'?: string;
+  }): Promise<MainResponse<FindContracts[]>> => {
     const url = () => 'agresso/contracts/find-contracts';
-    return this.TP.get(url(), {});
+
+    let params = new HttpParams();
+    if (filters) {
+      if (filters['current-user'] != null) params = params.set('current-user', filters['current-user'].toString());
+      if (filters['contract-code']) params = params.set('contract-code', filters['contract-code']);
+      if (filters['project-name']) params = params.set('project-name', filters['project-name']);
+      if (filters['principal-investigator']) params = params.set('principal-investigator', filters['principal-investigator']);
+      if (filters.lever != null) params = params.set('lever', filters.lever.toString());
+      if (filters.status) params = params.set('status', filters.status);
+      if (filters['start-date']) params = params.set('start-date', filters['start-date']);
+      if (filters['end-date']) params = params.set('end-date', filters['end-date']);
+    }
+
+    return this.TP.get(url(), { params });
   };
 
   GET_ResultsCount = (agreementId: string): Promise<MainResponse<GetProjectDetail>> => {

@@ -498,13 +498,13 @@
   [description]="'Filter your table data by applying custom criteria.'"
   [showSignal]="this.resultsCenterService.showFiltersSidebar"
   confirmText="Apply filters"
-  (confirm)="this.resultsCenterService.applyFilters()">
+  (confirm)="this.myProjectsService.applyFilters()">
   <div class="body">
     <div class="mb-6">
       <app-multiselect
         #statusSelect
         label="Status"
-        [signal]="this.resultsCenterService.tableFilters"
+        [signal]="this.myProjectsService.tableFilters"
         optionLabel="name"
         optionValue="value"
         signalOptionValue="statusCodes"
@@ -518,7 +518,7 @@
       <app-multiselect
         #leverSelect
         label="Lever"
-        [signal]="this.resultsCenterService.tableFilters"
+        [signal]="this.myProjectsService.tableFilters"
         optionLabel="short_name"
         optionValue="id"
         signalOptionValue="levers"
@@ -531,7 +531,7 @@
       <app-calendar-input
         #startDateSelect
         label="Start Date"
-        [signal]="this.resultsCenterService.tableFilters"
+        [signal]="this.myProjectsService.tableFilters"
         optionValue="startDate"
         placeholder="Select start date"
         [readonly]="true">
@@ -542,7 +542,7 @@
       <app-calendar-input
         #endDateSelect
         label="End Date"
-        [signal]="this.resultsCenterService.tableFilters"
+        [signal]="this.myProjectsService.tableFilters"
         optionValue="endDate"
         placeholder="Select end date"
         [readonly]="true">
