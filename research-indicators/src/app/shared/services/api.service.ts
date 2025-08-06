@@ -59,6 +59,7 @@ import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { FindContracts } from '../interfaces/find-contracts.interface';
+import { GetLevers } from '@shared/interfaces/get-levers.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -106,6 +107,11 @@ export class ApiService {
 
   GET_SDGs = (): Promise<MainResponse<GetSdgs[]>> => {
     const url = () => `tools/clarisa/sdgs`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
+    const url = () => `tools/clarisa/levers`;
     return this.TP.get(url(), {});
   };
 
