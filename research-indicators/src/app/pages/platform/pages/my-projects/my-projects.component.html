@@ -116,29 +116,46 @@
                   [tableStyle]="{ 'min-width': '100%' }"
                   [rowsPerPageOptions]="[5, 10, 25, 50]"
                   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+                  [sortField]="'agreement_id'"
+                  [sortOrder]="-1"
                   styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
                   <ng-template pTemplate="header">
                     <tr>
-                      <th class="!text-[#173F6F]" scope="col">
-                        <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">Code</div>
+                      <th class="!text-[#173F6F]" scope="col" pSortableColumn="agreement_id">
+                        <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                          Code
+                          <p-sortIcon field="agreement_id"></p-sortIcon>
+                        </div>
                       </th>
-                      <th class="!text-[#173F6F]" scope="col">
-                        <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">Project Name</div>
+                      <th class="!text-[#173F6F]" scope="col" pSortableColumn="full_name">
+                        <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                          Project Name
+                          <p-sortIcon field="full_name"></p-sortIcon>
+                        </div>
                       </th>
                       <th class="!text-[#173F6F]" scope="col">
                         <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">Status</div>
                       </th>
-                      <th class="!text-[#173F6F]" scope="col">
-                        <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">Principal Investigator</div>
+                      <th class="!text-[#173F6F]" scope="col" pSortableColumn="project_lead_description">
+                        <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                          Principal Investigator
+                          <p-sortIcon field="project_lead_description"></p-sortIcon>
+                        </div>
                       </th>
                       <th class="!text-[#173F6F]" scope="col">
                         <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">Lever</div>
                       </th>
-                      <th class="!text-[#173F6F]" scope="col">
-                        <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">Start Date</div>
+                      <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date">
+                        <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                          Start Date
+                          <p-sortIcon field="start_date"></p-sortIcon>
+                        </div>
                       </th>
-                      <th class="!text-[#173F6F]" scope="col">
-                        <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">End Date</div>
+                      <th class="!text-[#173F6F]" scope="col" pSortableColumn="end_date">
+                        <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                          End Date
+                          <p-sortIcon field="end_date"></p-sortIcon>
+                        </div>
                       </th>
                     </tr>
                   </ng-template>
@@ -157,8 +174,10 @@
                         </div>
                       </td>
                       <td>
-                        <div class="overflow-hidden line-clamp-2">
-                          <app-custom-tag [statusId]="project.status_id || 1" [statusName]="project.status_name || 'Unknown'"></app-custom-tag>
+                        <div class="flex items-center justify-center min-h-[40px]">
+                          <app-custom-tag
+                            [statusId]="getStatusDisplay(project).statusId"
+                            [statusName]="getStatusDisplay(project).statusName"></app-custom-tag>
                         </div>
                       </td>
                       <td>
@@ -168,7 +187,7 @@
                       </td>
                       <td>
                         <div class="overflow-hidden line-clamp-2">
-                          {{ project.lever_name || project.lever || '-' }}
+                          {{ getLeverDisplay(project) }}
                         </div>
                       </td>
                       <td>
@@ -208,9 +227,9 @@
       <!-- All Projects -->
       <div class="flex flex-col">
         <div class="flex flex-col">
-          <div class="flex items-center justify-between w-full p-3">
-            <div class="flex gap-3 items-center">
-              <div class="relative w-[25rem]">
+          <div class="bg-white p-4 border-l border-r border-[#E8EBED]">
+            <div class="flex items-center justify-between w-full">
+              <div class="relative w-[25rem] bg-white rounded-lg py-2">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                   <i class="pi pi-search text-[#6B7280] !text-[12px]"></i>
                 </span>
@@ -220,39 +239,40 @@
                   [(ngModel)]="resultsCenterService.searchInput"
                   (input)="setSearchInputFilter($event)"
                   placeholder="Find a result by code, title or creator"
-                  class="w-full !pl-9 !rounded-[8px] py-2 border !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
+                  class="w-full !pl-9 !rounded-[8px] py-2 border !bg-[#fcfcfc] !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
               </div>
-            </div>
 
-            <div class="flex gap-3 items-center">
-              <p-button
-                styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
-                label="Apply Filters"
-                icon="pi pi-filter !text-[10px]"
-                size="small"
-                [badge]="resultsCenterService.countFiltersSelected()"
-                (click)="showFiltersSidebar()"></p-button>
-              <p-button
-                styleClass="!text-[12px]"
-                label="Clear Filters"
-                [text]="true"
-                size="small"
-                severity="secondary"
-                (click)="resultsCenterService.cleanFilters()"></p-button>
-              <p-button
-                styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
-                icon="pi pi-bars !text-[10px]"
-                size="small"
-                [text]="true"
-                severity="secondary"
-                (click)="toggleTableView()"></p-button>
-              <p-button
-                styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
-                icon="pi pi-th-large !text-[10px]"
-                size="small"
-                [text]="true"
-                severity="secondary"
-                (click)="toggleCardView()"></p-button>
+              <div class="flex gap-3 items-center">
+                <!-- View toggle buttons All Projects -->
+                <p-button
+                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
+                  label="Apply Filters"
+                  icon="pi pi-filter !text-[10px]"
+                  size="small"
+                  [badge]="resultsCenterService.countFiltersSelected()"
+                  (click)="showFiltersSidebar()"></p-button>
+                <p-button
+                  styleClass="!text-[12px]"
+                  label="Clear Filters"
+                  [text]="true"
+                  size="small"
+                  severity="secondary"
+                  (click)="resultsCenterService.cleanFilters()"></p-button>
+                <p-button
+                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
+                  icon="pi pi-bars !text-[10px]"
+                  size="small"
+                  [text]="true"
+                  severity="secondary"
+                  (click)="toggleTableView()"></p-button>
+                <p-button
+                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
+                  icon="pi pi-th-large !text-[10px]"
+                  size="small"
+                  [text]="true"
+                  severity="secondary"
+                  (click)="toggleCardView()"></p-button>
+              </div>
             </div>
           </div>
 
@@ -273,147 +293,122 @@
         </div>
 
         <!-- Conditional views for All Projects -->
-        @if (resultsCenterService.loading()) {
+        @if (myProjectsService.loading()) {
           <app-custom-progress-bar></app-custom-progress-bar>
         } @else {
           <!-- Table view All Projects -->
           @if (isTableView()) {
-            <p-table
-              [value]="resultsCenterService.list()"
-              [paginator]="true"
-              [rows]="10"
-              [loading]="resultsCenterService.loading()"
-              [scrollHeight]="getScrollHeight()"
-              [showCurrentPageReport]="true"
-              [scrollable]="true"
-              [tableStyle]="{ 'min-width': '100%' }"
-              [rowsPerPageOptions]="[5, 10, 25, 50]"
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"
-              [sortField]="'result_official_code'"
-              [sortOrder]="-1"
-              [globalFilterFields]="[
-                'result_official_code',
-                'title',
-                'result_status.name',
-                'created_by_user.first_name',
-                'lever.name',
-                'created_at',
-                'updated_at'
-              ]"
-              styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
-              <ng-template pTemplate="header">
-                <tr>
-                  <th class="!text-[#173F6F]" scope="col" pSortableColumn="result_official_code">
-                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
-                      Code
-                      <p-sortIcon field="result_official_code"></p-sortIcon>
-                    </div>
-                  </th>
-                  <th class="!text-[#173F6F]" scope="col" pSortableColumn="title">
-                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
-                      Project Name
-                      <p-sortIcon field="title"></p-sortIcon>
-                    </div>
-                  </th>
-                  <th class="!text-[#173F6F]" scope="col" pSortableColumn="result_status.name">
-                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
-                      Status
-                      <p-sortIcon field="result_status.name"></p-sortIcon>
-                    </div>
-                  </th>
-                  <th class="!text-[#173F6F]" scope="col" pSortableColumn="created_by_user.first_name">
-                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
-                      Principal Investigator
-                      <p-sortIcon field="created_by_user.first_name"></p-sortIcon>
-                    </div>
-                  </th>
-                  <th class="!text-[#173F6F]" scope="col" pSortableColumn="lever.name">
-                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
-                      Lever
-                      <p-sortIcon field="lever.name"></p-sortIcon>
-                    </div>
-                  </th>
-                  <th class="!text-[#173F6F]" scope="col" pSortableColumn="created_at">
-                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
-                      Start Date
-                      <p-sortIcon field="created_at"></p-sortIcon>
-                    </div>
-                  </th>
-                  <th class="!text-[#173F6F]" scope="col" pSortableColumn="updated_at">
-                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
-                      End Date
-                      <p-sortIcon field="updated_at"></p-sortIcon>
-                    </div>
-                  </th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-result>
-                <tr
-                  (click)="openResult(result)"
-                  class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
-                  <td>
-                    <div class="overflow-hidden line-clamp-2">
-                      {{ result.result_official_code || '-' }}
-                    </div>
-                  </td>
-                  <td>
-                    <div class="overflow-hidden line-clamp-2">
-                      {{ result.title || '-' }}
-                    </div>
-                  </td>
-                  <td>
-                    <div class="overflow-hidden line-clamp-2">
-                      <app-custom-tag
-                        [statusId]="result.result_status?.result_status_id || 1"
-                        [statusName]="result.result_status?.name || 'Unknown'"></app-custom-tag>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="overflow-hidden line-clamp-2">
-                      {{ result.created_by_user?.first_name }} {{ result.created_by_user?.last_name || '-' }}
-                    </div>
-                  </td>
-                  <td>
-                    <div class="overflow-hidden line-clamp-2">
-                      {{ result.lever?.name || result.lever_name || '-' }}
-                    </div>
-                  </td>
-                  <td>
-                    {{ result.created_at ? (result.created_at | date: 'shortDate') : '-' }}
-                  </td>
-                  <td>
-                    {{ result.updated_at ? (result.updated_at | date: 'shortDate') : '-' }}
-                  </td>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="emptymessage">
-                @if (!resultsCenterService.loading()) {
-                  @if (resultsCenterService.countFiltersSelected()) {
-                    <tr>
-                      <td colspan="7" class="text-center p-8">
-                        <div class="flex flex-col items-center gap-4 bg-surface-ground p-6 rounded-xl">
-                          <div class="flex flex-col items-center gap-2">
-                            <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-primary-50">
-                              <i class="pi pi-filter-slash text-3xl text-primary-500"></i>
-                            </div>
-                            <h2 class="text-900 font-semibold m-0">No Results Found</h2>
-                            <p class="text-600 text-center m-0 max-w-[30rem] leading-relaxed">
-                              We couldn't find any results matching your current filters. Try adjusting your search criteria or clearing the filters.
-                            </p>
-                          </div>
-                          <div class="flex gap-2">
-                            <p-button
-                              label="Clear All Filters"
-                              icon="pi pi-filter-slash"
-                              severity="primary"
-                              [outlined]="true"
-                              (click)="resultsCenterService.clearAllFilters()">
-                            </p-button>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  } @else {
+            <div class="w-full border border-[#E8EBED]">
+              <p-table
+                [value]="filteredAllProjects()"
+                [paginator]="true"
+                [rows]="10"
+                [loading]="myProjectsService.loading()"
+                [scrollHeight]="getScrollHeight()"
+                [showCurrentPageReport]="true"
+                [scrollable]="true"
+                [tableStyle]="{ 'min-width': '100%' }"
+                [rowsPerPageOptions]="[5, 10, 25, 50]"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+                [sortField]="'agreement_id'"
+                [sortOrder]="-1"
+                [globalFilterFields]="[
+                  'agreement_id',
+                  'full_name',
+                  'contract_status',
+                  'principal_investigator',
+                  'lever_name',
+                  'start_date',
+                  'end_date'
+                ]"
+                styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="agreement_id">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Code
+                        <p-sortIcon field="agreement_id"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="full_name">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Project Name
+                        <p-sortIcon field="full_name"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="contract_status">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Status
+                        <p-sortIcon field="contract_status"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="principal_investigator">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Principal Investigator
+                        <p-sortIcon field="principal_investigator"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="lever_name">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Lever
+                        <p-sortIcon field="lever_name"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Start Date
+                        <p-sortIcon field="start_date"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="end_date">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        End Date
+                        <p-sortIcon field="end_date"></p-sortIcon>
+                      </div>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-project>
+                  <tr
+                    (click)="openProject(project)"
+                    class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
+                    <td>
+                      <div class="overflow-hidden line-clamp-2">
+                        {{ project.agreement_id || '-' }}
+                      </div>
+                    </td>
+                    <td>
+                      <div class="overflow-hidden line-clamp-2">
+                        {{ project.description }}
+                      </div>
+                    </td>
+                    <td>
+                      <div class="flex items-center justify-center min-h-[40px]">
+                        <app-custom-tag
+                          [statusId]="getStatusDisplay(project).statusId"
+                          [statusName]="getStatusDisplay(project).statusName"></app-custom-tag>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="overflow-hidden line-clamp-2">
+                        {{ project.principal_investigator || project.project_lead_description || '-' }}
+                      </div>
+                    </td>
+                    <td>
+                      <div class="overflow-hidden line-clamp-2">
+                        {{ getLeverDisplay(project) }}
+                      </div>
+                    </td>
+                    <td>
+                      {{ project.start_date ? (project.start_date | date: 'shortDate') : '-' }}
+                    </td>
+                    <td>
+                      {{ project.end_date ? (project.end_date | date: 'shortDate') : '-' }}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  @if (!myProjectsService.loading()) {
                     <tr>
                       <td colspan="7" class="text-center p-8">
                         <div class="flex flex-col items-center gap-4 bg-surface-ground p-6 rounded-xl">
@@ -421,35 +416,37 @@
                             <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-50">
                               <i class="pi pi-inbox text-3xl text-blue-500"></i>
                             </div>
-                            <h2 class="text-900 font-semibold m-0">No Results Available</h2>
+                            <h2 class="text-900 font-semibold m-0">No Projects Available</h2>
                             <p class="text-600 text-center m-0 max-w-[30rem] leading-relaxed">
-                              There are currently no results in the database. New results will appear here once they are added to the system.
+                              There are currently no projects in the database. New projects will appear here once they are added to the system.
                             </p>
                           </div>
                         </div>
                       </td>
                     </tr>
                   }
-                }
-              </ng-template>
-            </p-table>
+                </ng-template>
+              </p-table>
+            </div>
           }
 
           <!-- Card view All Projects -->
           @if (!isTableView()) {
             <div class="w-full analyze-result-content">
               @for (
-                result of resultsCenterService.list() | slice: allProjectsFirst() : allProjectsFirst() + allProjectsRows();
-                track result.result_official_code
+                project of filteredAllProjects() | slice: allProjectsFirst() : allProjectsFirst() + allProjectsRows();
+                track project.agreement_id
               ) {
-                <a class="card" (click)="openResult(result)" style="cursor: pointer">
+                <a class="card" (click)="openProject(project)" style="cursor: pointer">
                   <div class="card-content">
                     <div class="organization-identifier">
                       <div class="project">
                         <div class="project-id">
-                          <label class="project-id" for="username">{{ result.result_official_code }}</label>
+                          <label class="project-id" for="username">{{ project.agreement_id }}</label>
                         </div>
-                        <label class="project-name" for="username">{{ result.title || 'No title available' }}</label>
+                        <label class="project-name" for="username">{{
+                          project.full_name || project.projectDescription || project.description || 'No title available'
+                        }}</label>
                       </div>
                     </div>
                     <div class="project-info">
@@ -457,36 +454,36 @@
                         <span class="project-title">Status</span>
                         <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
                         <app-custom-tag
-                          [statusId]="result.result_status?.result_status_id || 1"
-                          [statusName]="result.result_status?.name || 'Unknown'"></app-custom-tag>
+                          [statusId]="getStatusDisplay(project).statusId"
+                          [statusName]="getStatusDisplay(project).statusName"></app-custom-tag>
                       </div>
                       <div class="start-date">
-                        <span class="project-title">Created by</span>
+                        <span class="project-title">Principal Investigator</span>
                         <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
-                        <label class="project-data" for="username"
-                          >{{ result.created_by_user?.first_name }} {{ result.created_by_user?.last_name || 'Unknown' }}</label
-                        >
+                        <label class="project-data" for="username">{{
+                          project.principal_investigator || project.project_lead_description || 'Unknown'
+                        }}</label>
                       </div>
                       <div class="end-date">
-                        <span class="project-title">Created date</span>
+                        <span class="project-title">Start date</span>
                         <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
-                        <label class="project-data" for="username">{{ result.created_at | date: 'dd/MM/yyyy' }}</label>
+                        <label class="project-data" for="username">{{ project.start_date | date: 'dd/MM/yyyy' }}</label>
                       </div>
                     </div>
                   </div>
                 </a>
               }
             </div>
-            @if (resultsCenterService.list().length > 0) {
+            @if (filteredAllProjects().length > 0) {
               <div class="flex justify-end w-full bg-white py-2">
                 <p-paginator
                   (onPageChange)="onAllProjectsPageChange($event)"
                   [first]="allProjectsFirst()"
                   [rows]="allProjectsRows()"
-                  [totalRecords]="resultsCenterService.list().length"
+                  [totalRecords]="filteredAllProjects().length"
                   [showCurrentPageReport]="true"
                   [showJumpToPageDropdown]="false"
-                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results" />
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects" />
               </div>
             }
           }
@@ -503,48 +500,56 @@
   confirmText="Apply filters"
   (confirm)="this.resultsCenterService.applyFilters()">
   <div class="body">
-    <app-multiselect
-      #statusSelect
-      label="Status"
-      [signal]="this.resultsCenterService.tableFilters"
-      optionLabel="name"
-      optionValue="result_status_id"
-      signalOptionValue="statusCodes"
-      serviceName="allResultStatus"
-      placeholder="Select statuses">
-    </app-multiselect>
+    <div class="mb-6">
+      <app-multiselect
+        #statusSelect
+        label="Status"
+        [signal]="this.resultsCenterService.tableFilters"
+        optionLabel="name"
+        optionValue="result_status_id"
+        signalOptionValue="statusCodes"
+        serviceName="allResultStatus"
+        placeholder="Select statuses">
+      </app-multiselect>
+    </div>
 
-    <app-multiselect
-      #leverSelect
-      label="Lever"
-      [signal]="this.resultsCenterService.tableFilters"
-      optionLabel="name"
-      optionValue="id"
-      signalOptionValue="levers"
-      serviceName="getAllYears"
-      placeholder="Select levers">
-    </app-multiselect>
+    <div class="mb-6">
+      <app-multiselect
+        #leverSelect
+        label="Lever"
+        [signal]="this.resultsCenterService.tableFilters"
+        optionLabel="name"
+        optionValue="id"
+        signalOptionValue="levers"
+        serviceName="getAllYears"
+        placeholder="Select levers">
+      </app-multiselect>
+    </div>
 
-    <app-multiselect
-      #startDateSelect
-      label="Start Date"
-      [signal]="this.resultsCenterService.tableFilters"
-      optionLabel="name"
-      optionValue="id"
-      signalOptionValue="startDates"
-      serviceName="getAllYears"
-      placeholder="Select start dates">
-    </app-multiselect>
+    <div class="mb-6">
+      <app-multiselect
+        #startDateSelect
+        label="Start Date"
+        [signal]="this.resultsCenterService.tableFilters"
+        optionLabel="name"
+        optionValue="id"
+        signalOptionValue="startDates"
+        serviceName="getAllYears"
+        placeholder="Select start dates">
+      </app-multiselect>
+    </div>
 
-    <app-multiselect
-      #endDateSelect
-      label="End Date"
-      [signal]="this.resultsCenterService.tableFilters"
-      optionLabel="name"
-      optionValue="id"
-      signalOptionValue="endDates"
-      serviceName="getAllYears"
-      placeholder="Select end dates">
-    </app-multiselect>
+    <div>
+      <app-multiselect
+        #endDateSelect
+        label="End Date"
+        [signal]="this.resultsCenterService.tableFilters"
+        optionLabel="name"
+        optionValue="id"
+        signalOptionValue="endDates"
+        serviceName="getAllYears"
+        placeholder="Select end dates">
+      </app-multiselect>
+    </div>
   </div>
 </app-section-sidebar>

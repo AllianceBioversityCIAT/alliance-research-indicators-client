@@ -18,6 +18,33 @@
   width: 100% !important;
   min-width: 100% !important;
 }
+
+// Align ALL paginator content to the right edge
+:host ::ng-deep .p-paginator {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-current {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-pages {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-first,
+:host ::ng-deep .p-paginator .p-paginator-prev,
+:host ::ng-deep .p-paginator .p-paginator-next,
+:host ::ng-deep .p-paginator .p-paginator-last {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 :host ::ng-deep input:focus,
 :host ::ng-deep input:focus-visible {
   outline: none !important;

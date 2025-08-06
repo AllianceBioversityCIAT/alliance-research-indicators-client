@@ -5,6 +5,7 @@ import { ApiService } from '@shared/services/api.service';
 import { FormsModule } from '@angular/forms';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
 import { GetContractsByUserService } from '@shared/services/control-list/get-contracts-by-user.service';
+import { MyProjectsService } from '@shared/services/my-projects.service';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SlicePipe, DatePipe } from '@angular/common';
 import { TabMenu, TabMenuModule } from 'primeng/tabmenu';
@@ -21,6 +22,7 @@ import { CustomTagComponent } from '../../../../shared/components/custom-tag/cus
 import { Result } from '@shared/interfaces/result/result.interface';
 import { MultiselectComponent } from '../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
+import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 
 @Component({
   selector: 'app-my-projects',
@@ -48,6 +50,7 @@ import { SectionSidebarComponent } from '../../../../shared/components/section-s
 export default class MyProjectsComponent implements OnInit, AfterViewInit {
   api = inject(ApiService);
   getContractsByUserService = inject(GetContractsByUserService);
+  myProjectsService = inject(MyProjectsService);
   resultsCenterService = inject(ResultsCenterService);
   cache = inject(CacheService);
   private router = inject(Router);
@@ -82,6 +85,18 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   filteredProjects = computed(() => {
     return this.getContractsByUserService.list().filter(project => project.full_name?.toLowerCase().includes(this._searchValue().toLowerCase()));
+  });
+
+  filteredAllProjects = computed(() => {
+    return this.myProjectsService
+      .list()
+      .filter(
+        project =>
+          project.full_name?.toLowerCase().includes(this.resultsCenterService.searchInput().toLowerCase()) ||
+          project.agreement_id?.toLowerCase().includes(this.resultsCenterService.searchInput().toLowerCase()) ||
+          project.projectDescription?.toLowerCase().includes(this.resultsCenterService.searchInput().toLowerCase()) ||
+          project.description?.toLowerCase().includes(this.resultsCenterService.searchInput().toLowerCase())
+      );
   });
 
   onPageChange(event: PaginatorState) {
@@ -168,5 +183,86 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   getScrollHeight() {
     return `calc(100vh - ${this.cache.headerHeight() + this.cache.navbarHeight() + this.cache.tableFiltersSidebarHeight() + (this.cache.hasSmallScreen() ? 240 : 270)}px)`;
+  }
+
+  getLeverDisplay(project: FindContracts): string {
+    if (project.lever_name) {
+      return project.lever_name;
+    }
+    if (project.lever) {
+      if (typeof project.lever === 'object') {
+        return project.lever.short_name || project.lever.name || '-';
+      }
+      return project.lever;
+    }
+    return '-';
+  }
+
+  getStatusDisplay(project: FindContracts | { status_id?: number; status_name?: string; contract_status?: string }): {
+    statusId: number;
+    statusName: string;
+  } {
+    // If we have contract_status (for All Projects), use it
+    if ('contract_status' in project && project.contract_status) {
+      const statusName = project.contract_status.toLowerCase();
+
+      // Map the contract status values to their corresponding IDs and names
+      const statusMap: Record<string, { id: number; name: string }> = {
+        ongoing: { id: 1, name: 'Ongoing' },
+        completed: { id: 2, name: 'Completed' },
+        suspended: { id: 3, name: 'Suspended' },
+        approved: { id: 6, name: 'Approved' }
+      };
+
+      const status = statusMap[statusName];
+      if (status) {
+        return {
+          statusId: status.id,
+          statusName: status.name
+        };
+      }
+    }
+
+    // If we have status_name, use it
+    if (project.status_name) {
+      const statusName = project.status_name.toLowerCase();
+
+      // Map the contract status values to their corresponding IDs and names
+      const statusMap: Record<string, { id: number; name: string }> = {
+        ongoing: { id: 1, name: 'Ongoing' },
+        completed: { id: 2, name: 'Completed' },
+        suspended: { id: 3, name: 'Suspended' },
+        approved: { id: 6, name: 'Approved' }
+      };
+
+      const status = statusMap[statusName];
+      if (status) {
+        return {
+          statusId: status.id,
+          statusName: status.name
+        };
+      }
+    }
+
+    // If we only have status_id, try to map it to a name
+    if (project.status_id) {
+      const statusNameMap: Record<number, string> = {
+        1: 'Ongoing',
+        2: 'Completed',
+        3: 'Suspended',
+        6: 'Approved'
+      };
+
+      return {
+        statusId: project.status_id,
+        statusName: statusNameMap[project.status_id] || 'Unknown'
+      };
+    }
+
+    // For GetContractsByUser or any other case without status, return a default
+    return {
+      statusId: 1,
+      statusName: 'Ongoing'
+    };
   }
 }

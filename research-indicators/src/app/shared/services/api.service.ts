@@ -58,6 +58,7 @@ import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-inst
 import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
+import { FindContracts } from '../interfaces/find-contracts.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -413,6 +414,11 @@ export class ApiService {
 
   GET_ContractsByUser = (): Promise<MainResponse<GetContractsByUser[]>> => {
     const url = () => 'agresso/contracts/results/current-user';
+    return this.TP.get(url(), {});
+  };
+
+  GET_FindContracts = (): Promise<MainResponse<FindContracts[]>> => {
+    const url = () => 'agresso/contracts/find-contracts';
     return this.TP.get(url(), {});
   };
 
