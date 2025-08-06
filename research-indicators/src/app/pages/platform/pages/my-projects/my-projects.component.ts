@@ -16,7 +16,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { PopoverModule } from 'primeng/popover';
 import { MenuModule } from 'primeng/menu';
-import { ResultsCenterService } from '../results-center/results-center.service';
+
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { CustomTagComponent } from '../../../../shared/components/custom-tag/custom-tag.component';
 import { Result } from '@shared/interfaces/result/result.interface';
@@ -53,7 +53,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   api = inject(ApiService);
   getContractsByUserService = inject(GetContractsByUserService);
   myProjectsService = inject(MyProjectsService);
-  resultsCenterService = inject(ResultsCenterService);
   cache = inject(CacheService);
   private router = inject(Router);
 
@@ -67,8 +66,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   @ViewChild('tm') tm!: TabMenu;
   @ViewChild('statusSelect') statusSelect?: MultiselectComponent;
   @ViewChild('leverSelect') leverSelect?: MultiselectComponent;
-  @ViewChild('startDateSelect') startDateSelect?: MultiselectComponent;
-  @ViewChild('endDateSelect') endDateSelect?: MultiselectComponent;
 
   myProjectsFilterItems: MenuItem[] = [
     { id: 'all', label: 'All Projects' },
@@ -94,10 +91,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       .list()
       .filter(
         project =>
-          project.full_name?.toLowerCase().includes(this.resultsCenterService.searchInput().toLowerCase()) ||
-          project.agreement_id?.toLowerCase().includes(this.resultsCenterService.searchInput().toLowerCase()) ||
-          project.projectDescription?.toLowerCase().includes(this.resultsCenterService.searchInput().toLowerCase()) ||
-          project.description?.toLowerCase().includes(this.resultsCenterService.searchInput().toLowerCase())
+          project.full_name?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase()) ||
+          project.agreement_id?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase()) ||
+          project.projectDescription?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase()) ||
+          project.description?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase())
       );
   });
 
@@ -112,33 +109,31 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.resultsCenterService.clearAllFilters();
+    this.myProjectsService.clearAllFilters();
   }
 
   ngAfterViewInit() {
-    this.resultsCenterService.multiselectRefs.set({
+    this.myProjectsService.multiselectRefs.set({
       status: this.statusSelect!,
-      lever: this.leverSelect!,
-      startDate: this.startDateSelect!,
-      endDate: this.endDateSelect!
+      lever: this.leverSelect!
     });
   }
 
   onActiveItemChange = (event: MenuItem): void => {
-    this.myProjectsFilterItem.set(event);
+    this.myProjectsService.onActiveItemChange(event);
   };
 
   // Methods results table
   setSearchInputFilter($event: Event) {
-    this.resultsCenterService.searchInput.set(($event.target as HTMLInputElement).value);
+    this.myProjectsService.searchInput.set(($event.target as HTMLInputElement).value);
   }
 
   showFiltersSidebar() {
-    this.resultsCenterService.showFiltersSidebar.set(true);
+    this.myProjectsService.showFiltersSidebar.set(true);
   }
 
   showConfigurationsSidebar() {
-    this.resultsCenterService.showConfigurationsSidebar.set(true);
+    this.myProjectsService.showFiltersSidebar.set(true);
   }
 
   toggleTableView() {
@@ -204,11 +199,9 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     statusId: number;
     statusName: string;
   } {
-    // If we have contract_status (for All Projects), use it
     if ('contract_status' in project && project.contract_status) {
       const statusName = project.contract_status.toLowerCase();
 
-      // Map the contract status values to their corresponding IDs and names
       const statusMap: Record<string, { id: number; name: string }> = {
         ongoing: { id: 1, name: 'Ongoing' },
         completed: { id: 2, name: 'Completed' },
@@ -225,11 +218,9 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       }
     }
 
-    // If we have status_name, use it
     if (project.status_name) {
       const statusName = project.status_name.toLowerCase();
 
-      // Map the contract status values to their corresponding IDs and names
       const statusMap: Record<string, { id: number; name: string }> = {
         ongoing: { id: 1, name: 'Ongoing' },
         completed: { id: 2, name: 'Completed' },
@@ -246,7 +237,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       }
     }
 
-    // If we only have status_id, try to map it to a name
     if (project.status_id) {
       const statusNameMap: Record<number, string> = {
         1: 'Ongoing',
@@ -260,8 +250,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
         statusName: statusNameMap[project.status_id] || 'Unknown'
       };
     }
-
-    // For GetContractsByUser or any other case without status, return a default
     return {
       statusId: 1,
       statusName: 'Ongoing'
