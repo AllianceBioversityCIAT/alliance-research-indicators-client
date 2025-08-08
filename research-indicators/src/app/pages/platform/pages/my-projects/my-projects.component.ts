@@ -190,7 +190,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     } catch (error) {
       console.error('Error updating pinned tab:', error);
     } finally {
-      this.actions.showToast({ severity: 'success', summary: 'My Projects', detail: 'Tab pinned successfully' });
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Projects',
+        detail: `${tabId === 'all' ? 'All Projects' : 'My Projects'} tab pinned successfully`
+      });
       this.loadingPin.set(false);
       this.loadPinnedTab();
     }
