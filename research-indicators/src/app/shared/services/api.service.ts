@@ -439,7 +439,7 @@ export class ApiService {
     'contract-code'?: string;
     'project-name'?: string;
     'principal-investigator'?: string;
-    lever?: number;
+    lever?: string;
     status?: string;
     'start-date'?: string;
     'end-date'?: string;
@@ -452,7 +452,7 @@ export class ApiService {
       if (filters['contract-code']) params = params.set('contract-code', filters['contract-code']);
       if (filters['project-name']) params = params.set('project-name', filters['project-name']);
       if (filters['principal-investigator']) params = params.set('principal-investigator', filters['principal-investigator']);
-      if (filters.lever != null) params = params.set('lever', filters.lever.toString());
+      if (filters.lever) params = params.set('lever', filters.lever);
       if (filters.status) params = params.set('status', filters.status);
       if (filters['start-date']) params = params.set('start-date', filters['start-date']);
       if (filters['end-date']) params = params.set('end-date', filters['end-date']);
