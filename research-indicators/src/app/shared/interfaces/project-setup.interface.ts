@@ -1,23 +1,21 @@
 export interface ProjectSetupConfiguration {
-  components: ProjectComponent[];
-  subComponents: ProjectSubComponent[];
-  indicators: ProjectIndicator[];
+  structures: ProjectStructure[];
 }
 
-export interface ProjectComponent {
+export interface ProjectStructure {
   id: string;
   name: string;
   code: string;
-  indicators: string[]; // IDs de indicadores asignados
+  items: ProjectItem[];
+  indicators: ProjectIndicator[];
   isEditing?: boolean;
 }
 
-export interface ProjectSubComponent {
+export interface ProjectItem {
   id: string;
-  parentComponentId: string;
   name: string;
   code: string;
-  indicators: string[]; // IDs de indicadores asignados
+  indicators: ProjectIndicator[];
   isEditing?: boolean;
 }
 
@@ -25,7 +23,7 @@ export interface ProjectIndicator {
   id: string;
   name: string;
   description: string;
-  level: 1 | 2; // 1 = Componentes, 2 = Sub-componentes
+  level: 1 | 2; // 1 = Structures, 2 = Items
   numberType: NumberTypeOption;
   numberFormat: NumberFormatOption;
   years: number[];
@@ -53,15 +51,15 @@ export const NUMBER_FORMAT_OPTIONS: { label: string; value: NumberFormatOption }
 export const AVAILABLE_YEARS: number[] = [2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
 
 // Interfaces para nuevos formularios
-export interface NewComponentForm {
+export interface NewStructureForm {
   name: string;
   code: string;
 }
 
-export interface NewSubComponentForm {
+export interface NewItemForm {
   name: string;
   code: string;
-  parentComponentId: string;
+  parentStructureId: string;
 }
 
 export interface NewIndicatorForm {

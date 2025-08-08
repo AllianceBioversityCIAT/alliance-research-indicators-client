@@ -18,11 +18,11 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import {
   ProjectSetupConfiguration,
-  ProjectComponent,
-  ProjectSubComponent,
+  ProjectStructure,
+  ProjectItem,
   ProjectIndicator,
-  NewComponentForm,
-  NewSubComponentForm,
+  NewStructureForm,
+  NewItemForm,
   NewIndicatorForm,
   NUMBER_TYPE_OPTIONS,
   NUMBER_FORMAT_OPTIONS,
@@ -56,211 +56,134 @@ import {
 export default class SetUpProjectComponent {
   // Configuración principal del proyecto con datos dummy
   projectConfig = signal<ProjectSetupConfiguration>({
-    components: [
+    structures: [
       {
         id: '1',
-        name: 'Estructure A',
-        code: 'AGR001',
-        indicators: ['ind1', 'ind2', 'ind7'],
+        name: 'Materias',
+        code: 'MAT001',
+        items: [
+          {
+            id: 'item1',
+            name: 'Español',
+            code: '1.1',
+            indicators: [
+              {
+                id: 'ind4',
+                name: 'New Varieties Released',
+                description: 'Number of new crop varieties developed and released',
+                level: 2,
+                numberType: 'count',
+                numberFormat: 'number',
+                years: [2023, 2024, 2025],
+                targetUnit: 'varieties',
+                targetValue: 12,
+                baseline: 5,
+                isActive: true
+              },
+              {
+                id: 'ind5',
+                name: 'Yield Improvement',
+                description: 'Average yield increase from new varieties',
+                level: 2,
+                numberType: 'average',
+                numberFormat: 'decimal',
+                years: [2024, 2025],
+                targetUnit: '%',
+                targetValue: 30,
+                baseline: 15,
+                isActive: true
+              }
+            ],
+            isEditing: false
+          },
+          {
+            id: 'item2',
+            name: 'Matemáticas',
+            code: '1.2',
+            indicators: [],
+            isEditing: false
+          }
+        ],
+        indicators: [
+          {
+            id: 'ind1',
+            name: 'Productivity Index',
+            description: 'Measures overall agricultural productivity improvement',
+            level: 1,
+            numberType: 'sum',
+            numberFormat: 'number',
+            years: [2023, 2024, 2025],
+            targetUnit: 'tons/hectare',
+            targetValue: 5.2,
+            baseline: 3.8,
+            isActive: true
+          },
+          {
+            id: 'ind2',
+            name: 'Innovation Adoption Rate',
+            description: 'Percentage of farmers adopting new technologies',
+            level: 1,
+            numberType: 'average',
+            numberFormat: 'decimal',
+            years: [2023, 2024],
+            targetUnit: '%',
+            targetValue: 75,
+            baseline: 45,
+            isActive: true
+          }
+        ],
         isEditing: false
       },
       {
         id: '2',
-        name: 'Estructure B',
-        code: 'CLI002',
-        indicators: ['ind3', 'ind8'],
+        name: 'Ciencias',
+        code: 'CIE002',
+        items: [
+          {
+            id: 'item3',
+            name: 'Biología',
+            code: '2.1',
+            indicators: [
+              {
+                id: 'ind6',
+                name: 'Water Use Efficiency',
+                description: 'Improvement in water usage efficiency',
+                level: 2,
+                numberType: 'average',
+                numberFormat: 'decimal',
+                years: [2023, 2024],
+                targetUnit: 'L/kg',
+                targetValue: 800,
+                baseline: 1200,
+                isActive: true
+              }
+            ],
+            isEditing: false
+          }
+        ],
+        indicators: [
+          {
+            id: 'ind3',
+            name: 'Climate Resilience Score',
+            description: 'Overall climate adaptation effectiveness measure',
+            level: 1,
+            numberType: 'average',
+            numberFormat: 'number',
+            years: [2024, 2025],
+            targetUnit: 'score',
+            targetValue: 8.5,
+            baseline: 6.2,
+            isActive: true
+          }
+        ],
         isEditing: false
-      }
-    ],
-    subComponents: [
-      {
-        id: 'sub1',
-        name: 'Sub-estructure A1',
-        code: 'CVD001',
-        parentComponentId: '1',
-        indicators: ['ind4', 'ind5'],
-        isEditing: false
-      },
-      {
-        id: 'sub2',
-        name: 'Sub-estructure A2',
-        code: 'SM002',
-        parentComponentId: '1',
-        indicators: [],
-        isEditing: false
-      },
-      {
-        id: 'sub3',
-        name: 'Sub-estructure B1',
-        code: 'WC003',
-        parentComponentId: '2',
-        indicators: ['ind6'],
-        isEditing: false
-      }
-    ],
-    indicators: [
-      {
-        id: 'ind1',
-        name: 'Productivity Index',
-        description: 'Measures overall agricultural productivity improvement',
-        level: 1,
-        numberType: 'sum',
-        numberFormat: 'number',
-        years: [2023, 2024, 2025],
-        targetUnit: 'tons/hectare',
-        targetValue: 5.2,
-        baseline: 3.8,
-        isActive: true
-      },
-      {
-        id: 'ind2',
-        name: 'Innovation Adoption Rate',
-        description: 'Percentage of farmers adopting new technologies',
-        level: 1,
-        numberType: 'average',
-        numberFormat: 'decimal',
-        years: [2023, 2024],
-        targetUnit: '%',
-        targetValue: 75,
-        baseline: 45,
-        isActive: true
-      },
-      {
-        id: 'ind3',
-        name: 'Climate Resilience Score',
-        description: 'Overall climate adaptation effectiveness measure',
-        level: 1,
-        numberType: 'average',
-        numberFormat: 'number',
-        years: [2024, 2025],
-        targetUnit: 'score',
-        targetValue: 8.5,
-        baseline: 6.2,
-        isActive: true
-      },
-      {
-        id: 'ind4',
-        name: 'New Varieties Released',
-        description: 'Number of new crop varieties developed and released',
-        level: 2,
-        numberType: 'count',
-        numberFormat: 'number',
-        years: [2023, 2024, 2025],
-        targetUnit: 'varieties',
-        targetValue: 12,
-        baseline: 5,
-        isActive: true
-      },
-      {
-        id: 'ind5',
-        name: 'Yield Improvement',
-        description: 'Average yield increase from new varieties',
-        level: 2,
-        numberType: 'average',
-        numberFormat: 'decimal',
-        years: [2024, 2025],
-        targetUnit: '%',
-        targetValue: 30,
-        baseline: 15,
-        isActive: true
-      },
-      {
-        id: 'ind6',
-        name: 'Water Use Efficiency',
-        description: 'Improvement in water usage efficiency',
-        level: 2,
-        numberType: 'average',
-        numberFormat: 'decimal',
-        years: [2023, 2024],
-        targetUnit: 'L/kg',
-        targetValue: 800,
-        baseline: 1200,
-        isActive: true
-      },
-      {
-        id: 'ind7',
-        name: 'Technology Transfer Rate',
-        description: 'Rate of technology adoption across regions',
-        level: 1,
-        numberType: 'count',
-        numberFormat: 'number',
-        years: [2023, 2024, 2025],
-        targetUnit: 'regions',
-        targetValue: 25,
-        baseline: 12,
-        isActive: true
-      },
-      {
-        id: 'ind8',
-        name: 'Carbon Footprint Reduction',
-        description: 'Total reduction in CO2 emissions',
-        level: 1,
-        numberType: 'sum',
-        numberFormat: 'decimal',
-        years: [2024, 2025, 2026],
-        targetUnit: 'tons CO2',
-        targetValue: 5000,
-        baseline: 8500,
-        isActive: true
-      },
-      {
-        id: 'ind9',
-        name: 'Sustainability Score',
-        description: 'Overall sustainability performance index',
-        level: 1,
-        numberType: 'average',
-        numberFormat: 'decimal',
-        years: [2023, 2024, 2025],
-        targetUnit: 'score',
-        targetValue: 8.0,
-        baseline: 5.5,
-        isActive: true
-      },
-      {
-        id: 'ind10',
-        name: 'Community Engagement',
-        description: 'Level of community participation in sustainable practices',
-        level: 1,
-        numberType: 'yes/no',
-        numberFormat: 'number',
-        years: [2024, 2025],
-        targetUnit: 'communities',
-        targetValue: 15,
-        baseline: 8,
-        isActive: true
-      },
-      {
-        id: 'ind11',
-        name: 'Solar Panel Installation',
-        description: 'Number of solar panels installed in agricultural facilities',
-        level: 2,
-        numberType: 'count',
-        numberFormat: 'number',
-        years: [2023, 2024, 2025],
-        targetUnit: 'panels',
-        targetValue: 150,
-        baseline: 45,
-        isActive: true
-      },
-      {
-        id: 'ind12',
-        name: 'Energy Cost Savings',
-        description: 'Percentage reduction in energy costs',
-        level: 2,
-        numberType: 'average',
-        numberFormat: 'decimal',
-        years: [2024, 2025],
-        targetUnit: '%',
-        targetValue: 35,
-        baseline: 10,
-        isActive: true
       }
     ]
   });
 
   // Formularios para nuevos elementos
-  newComponentForm = signal<NewComponentForm>({ name: '', code: '' });
-  newSubComponentForm = signal<NewSubComponentForm>({ name: '', code: '', parentComponentId: '' });
+  newStructureForm = signal<NewStructureForm>({ name: '', code: '' });
+  newItemForm = signal<NewItemForm>({ name: '', code: '', parentStructureId: '' });
   newIndicatorForm = signal<NewIndicatorForm>({
     name: '',
     description: '',
@@ -276,7 +199,7 @@ export default class SetUpProjectComponent {
   // Estados de UI
   showIndicatorModal = signal<boolean>(false);
   showAssignIndicatorModal = signal<boolean>(false);
-  selectedElementForIndicators = signal<{ type: 'component' | 'subcomponent'; id: string } | null>(null);
+  selectedElementForIndicators = signal<{ type: 'structure' | 'item'; id: string } | null>(null);
   editingElementId = signal<string | null>(null);
 
   // Opciones disponibles
@@ -285,163 +208,180 @@ export default class SetUpProjectComponent {
   availableYears = AVAILABLE_YEARS.map(year => ({ label: year.toString(), value: year }));
 
   // Computed properties
-  componentsWithSubComponents = computed(() => {
+  allIndicators = computed(() => {
     const config = this.projectConfig();
-    return config.components.map(comp => ({
-      ...comp,
-      subComponents: config.subComponents.filter(sub => sub.parentComponentId === comp.id)
-    }));
+    const indicators: ProjectIndicator[] = [];
+
+    config.structures.forEach(structure => {
+      indicators.push(...structure.indicators);
+      structure.items.forEach(item => {
+        indicators.push(...item.indicators);
+      });
+    });
+
+    return indicators;
   });
 
-  level1Indicators = computed(() => this.projectConfig().indicators.filter(ind => ind.level === 1 && ind.isActive));
+  level1Indicators = computed(() => this.allIndicators().filter(ind => ind.level === 1 && ind.isActive));
 
-  level2Indicators = computed(() => this.projectConfig().indicators.filter(ind => ind.level === 2 && ind.isActive));
+  level2Indicators = computed(() => this.allIndicators().filter(ind => ind.level === 2 && ind.isActive));
 
   isProjectValid = computed(() => {
     const config = this.projectConfig();
-    return config.components.length > 0 && config.subComponents.length > 0;
+    return config.structures.length > 0 && config.structures.some(s => s.items.length > 0);
   });
 
-  // ============= MÉTODOS PARA COMPONENTES =============
-  startAddingComponent(): void {
-    this.newComponentForm.set({ name: '', code: '' });
-    this.editingElementId.set('new-component');
+  totalItems = computed(() => {
+    const config = this.projectConfig();
+    return config.structures.reduce((acc, s) => acc + s.items.length, 0);
+  });
+
+  // ============= MÉTODOS PARA ESTRUCTURAS =============
+  startAddingStructure(): void {
+    this.newStructureForm.set({ name: '', code: '' });
+    this.editingElementId.set('new-structure');
   }
 
-  saveComponent(): void {
-    const form = this.newComponentForm();
+  saveStructure(): void {
+    const form = this.newStructureForm();
     if (form.name.trim() && form.code.trim()) {
       const config = this.projectConfig();
-      const newComponent: ProjectComponent = {
-        id: `component_${Date.now()}`,
+      const newStructure: ProjectStructure = {
+        id: `structure_${Date.now()}`,
         name: form.name.trim(),
         code: form.code.trim(),
+        items: [],
         indicators: []
       };
 
       this.projectConfig.set({
         ...config,
-        components: [...config.components, newComponent]
+        structures: [...config.structures, newStructure]
       });
 
-      this.newComponentForm.set({ name: '', code: '' });
+      this.newStructureForm.set({ name: '', code: '' });
       this.editingElementId.set(null);
     }
   }
 
-  editComponent(componentId: string): void {
+  editStructure(structureId: string): void {
     const config = this.projectConfig();
-    const component = config.components.find(c => c.id === componentId);
-    if (component) {
-      this.newComponentForm.set({ name: component.name, code: component.code });
-      this.editingElementId.set(componentId);
+    const structure = config.structures.find(s => s.id === structureId);
+    if (structure) {
+      this.newStructureForm.set({ name: structure.name, code: structure.code });
+      this.editingElementId.set(structureId);
     }
   }
 
-  updateComponent(componentId: string): void {
-    const form = this.newComponentForm();
+  updateStructure(structureId: string): void {
+    const form = this.newStructureForm();
     if (form.name.trim() && form.code.trim()) {
       const config = this.projectConfig();
-      const updatedComponents = config.components.map(comp =>
-        comp.id === componentId ? { ...comp, name: form.name.trim(), code: form.code.trim() } : comp
+      const updatedStructures = config.structures.map(structure =>
+        structure.id === structureId ? { ...structure, name: form.name.trim(), code: form.code.trim() } : structure
       );
 
       this.projectConfig.set({
         ...config,
-        components: updatedComponents
+        structures: updatedStructures
       });
 
-      this.newComponentForm.set({ name: '', code: '' });
+      this.newStructureForm.set({ name: '', code: '' });
       this.editingElementId.set(null);
     }
   }
 
-  removeComponent(componentId: string): void {
+  removeStructure(structureId: string): void {
     const config = this.projectConfig();
-    // También eliminar sub-componentes relacionados
-    const updatedSubComponents = config.subComponents.filter(sub => sub.parentComponentId !== componentId);
-
     this.projectConfig.set({
       ...config,
-      components: config.components.filter(comp => comp.id !== componentId),
-      subComponents: updatedSubComponents
+      structures: config.structures.filter(structure => structure.id !== structureId)
     });
   }
 
-  cancelComponentEdit(): void {
-    this.newComponentForm.set({ name: '', code: '' });
+  cancelStructureEdit(): void {
+    this.newStructureForm.set({ name: '', code: '' });
     this.editingElementId.set(null);
   }
 
-  // ============= MÉTODOS PARA SUB-COMPONENTES =============
-  startAddingSubComponent(parentComponentId: string): void {
-    this.newSubComponentForm.set({ name: '', code: '', parentComponentId });
-    this.editingElementId.set(`new-subcomponent-${parentComponentId}`);
+  // ============= MÉTODOS PARA ITEMS =============
+  startAddingItem(parentStructureId: string): void {
+    this.newItemForm.set({ name: '', code: '', parentStructureId });
+    this.editingElementId.set(`new-item-${parentStructureId}`);
   }
 
-  saveSubComponent(): void {
-    const form = this.newSubComponentForm();
-    if (form.name.trim() && form.code.trim() && form.parentComponentId) {
+  saveItem(): void {
+    const form = this.newItemForm();
+    if (form.name.trim() && form.code.trim() && form.parentStructureId) {
       const config = this.projectConfig();
-      const newSubComponent: ProjectSubComponent = {
-        id: `subcomponent_${Date.now()}`,
-        parentComponentId: form.parentComponentId,
+      const newItem: ProjectItem = {
+        id: `item_${Date.now()}`,
         name: form.name.trim(),
         code: form.code.trim(),
         indicators: []
       };
 
-      this.projectConfig.set({
-        ...config,
-        subComponents: [...config.subComponents, newSubComponent]
-      });
-
-      this.newSubComponentForm.set({ name: '', code: '', parentComponentId: '' });
-      this.editingElementId.set(null);
-    }
-  }
-
-  editSubComponent(subComponentId: string): void {
-    const config = this.projectConfig();
-    const subComponent = config.subComponents.find(s => s.id === subComponentId);
-    if (subComponent) {
-      this.newSubComponentForm.set({
-        name: subComponent.name,
-        code: subComponent.code,
-        parentComponentId: subComponent.parentComponentId
-      });
-      this.editingElementId.set(subComponentId);
-    }
-  }
-
-  updateSubComponent(subComponentId: string): void {
-    const form = this.newSubComponentForm();
-    if (form.name.trim() && form.code.trim()) {
-      const config = this.projectConfig();
-      const updatedSubComponents = config.subComponents.map(sub =>
-        sub.id === subComponentId ? { ...sub, name: form.name.trim(), code: form.code.trim() } : sub
+      const updatedStructures = config.structures.map(structure =>
+        structure.id === form.parentStructureId ? { ...structure, items: [...structure.items, newItem] } : structure
       );
 
       this.projectConfig.set({
         ...config,
-        subComponents: updatedSubComponents
+        structures: updatedStructures
       });
 
-      this.newSubComponentForm.set({ name: '', code: '', parentComponentId: '' });
+      this.newItemForm.set({ name: '', code: '', parentStructureId: '' });
       this.editingElementId.set(null);
     }
   }
 
-  removeSubComponent(subComponentId: string): void {
+  editItem(structureId: string, itemId: string): void {
     const config = this.projectConfig();
+    const structure = config.structures.find(s => s.id === structureId);
+    const item = structure?.items.find(i => i.id === itemId);
+    if (item) {
+      this.newItemForm.set({
+        name: item.name,
+        code: item.code,
+        parentStructureId: structureId
+      });
+      this.editingElementId.set(itemId);
+    }
+  }
+
+  updateItem(itemId: string): void {
+    const form = this.newItemForm();
+    if (form.name.trim() && form.code.trim()) {
+      const config = this.projectConfig();
+      const updatedStructures = config.structures.map(structure => ({
+        ...structure,
+        items: structure.items.map(item => (item.id === itemId ? { ...item, name: form.name.trim(), code: form.code.trim() } : item))
+      }));
+
+      this.projectConfig.set({
+        ...config,
+        structures: updatedStructures
+      });
+
+      this.newItemForm.set({ name: '', code: '', parentStructureId: '' });
+      this.editingElementId.set(null);
+    }
+  }
+
+  removeItem(structureId: string, itemId: string): void {
+    const config = this.projectConfig();
+    const updatedStructures = config.structures.map(structure =>
+      structure.id === structureId ? { ...structure, items: structure.items.filter(item => item.id !== itemId) } : structure
+    );
+
     this.projectConfig.set({
       ...config,
-      subComponents: config.subComponents.filter(sub => sub.id !== subComponentId)
+      structures: updatedStructures
     });
   }
 
-  cancelSubComponentEdit(): void {
-    this.newSubComponentForm.set({ name: '', code: '', parentComponentId: '' });
+  cancelItemEdit(): void {
+    this.newItemForm.set({ name: '', code: '', parentStructureId: '' });
     this.editingElementId.set(null);
   }
 
@@ -464,7 +404,6 @@ export default class SetUpProjectComponent {
   saveIndicator(): void {
     const form = this.newIndicatorForm();
     if (form.name.trim() && form.description.trim() && form.years.length > 0 && form.targetUnit.trim()) {
-      const config = this.projectConfig();
       const newIndicator: ProjectIndicator = {
         id: `indicator_${Date.now()}`,
         name: form.name.trim(),
@@ -479,105 +418,103 @@ export default class SetUpProjectComponent {
         isActive: true
       };
 
-      this.projectConfig.set({
-        ...config,
-        indicators: [...config.indicators, newIndicator]
-      });
-
+      // Los indicadores ahora se agregan directamente a estructuras o items, no a una lista global
+      // Este método puede ser usado cuando se asigne posteriormente
       this.showIndicatorModal.set(false);
+
+      // Si hay un elemento seleccionado, asignar directamente
+      const selected = this.selectedElementForIndicators();
+      if (selected) {
+        this.assignNewIndicator(newIndicator, selected.type, selected.id);
+        this.selectedElementForIndicators.set(null);
+      }
     }
   }
 
   removeIndicator(indicatorId: string): void {
     const config = this.projectConfig();
-    // Remover el indicador de todos los componentes y sub-componentes
-    const updatedComponents = config.components.map(comp => ({
-      ...comp,
-      indicators: comp.indicators.filter(id => id !== indicatorId)
-    }));
-
-    const updatedSubComponents = config.subComponents.map(sub => ({
-      ...sub,
-      indicators: sub.indicators.filter(id => id !== indicatorId)
+    const updatedStructures = config.structures.map(structure => ({
+      ...structure,
+      indicators: structure.indicators.filter(ind => ind.id !== indicatorId),
+      items: structure.items.map(item => ({
+        ...item,
+        indicators: item.indicators.filter(ind => ind.id !== indicatorId)
+      }))
     }));
 
     this.projectConfig.set({
       ...config,
-      components: updatedComponents,
-      subComponents: updatedSubComponents,
-      indicators: config.indicators.filter(ind => ind.id !== indicatorId)
+      structures: updatedStructures
     });
   }
 
   // ============= MÉTODOS PARA ASIGNAR INDICADORES =============
-  openAssignIndicatorModal(type: 'component' | 'subcomponent', elementId: string): void {
+  openAssignIndicatorModal(type: 'structure' | 'item', elementId: string): void {
     this.selectedElementForIndicators.set({ type, id: elementId });
     this.showAssignIndicatorModal.set(true);
   }
 
-  assignIndicator(indicatorId: string): void {
-    const selected = this.selectedElementForIndicators();
-    if (!selected) return;
-
+  assignNewIndicator(indicator: ProjectIndicator, type: 'structure' | 'item', elementId: string): void {
     const config = this.projectConfig();
 
-    if (selected.type === 'component') {
-      const updatedComponents = config.components.map(comp =>
-        comp.id === selected.id ? { ...comp, indicators: [...comp.indicators, indicatorId] } : comp
+    if (type === 'structure') {
+      const updatedStructures = config.structures.map(structure =>
+        structure.id === elementId ? { ...structure, indicators: [...structure.indicators, indicator] } : structure
       );
 
       this.projectConfig.set({
         ...config,
-        components: updatedComponents
+        structures: updatedStructures
       });
     } else {
-      const updatedSubComponents = config.subComponents.map(sub =>
-        sub.id === selected.id ? { ...sub, indicators: [...sub.indicators, indicatorId] } : sub
-      );
+      const updatedStructures = config.structures.map(structure => ({
+        ...structure,
+        items: structure.items.map(item => (item.id === elementId ? { ...item, indicators: [...item.indicators, indicator] } : item))
+      }));
 
       this.projectConfig.set({
         ...config,
-        subComponents: updatedSubComponents
+        structures: updatedStructures
       });
     }
   }
 
-  removeIndicatorFromElement(elementType: 'component' | 'subcomponent', elementId: string, indicatorId: string): void {
+  removeIndicatorFromElement(elementType: 'structure' | 'item', structureId: string, elementId: string, indicatorId: string): void {
     const config = this.projectConfig();
 
-    if (elementType === 'component') {
-      const updatedComponents = config.components.map(comp =>
-        comp.id === elementId ? { ...comp, indicators: comp.indicators.filter(id => id !== indicatorId) } : comp
+    if (elementType === 'structure') {
+      const updatedStructures = config.structures.map(structure =>
+        structure.id === elementId ? { ...structure, indicators: structure.indicators.filter(ind => ind.id !== indicatorId) } : structure
       );
 
       this.projectConfig.set({
         ...config,
-        components: updatedComponents
+        structures: updatedStructures
       });
     } else {
-      const updatedSubComponents = config.subComponents.map(sub =>
-        sub.id === elementId ? { ...sub, indicators: sub.indicators.filter(id => id !== indicatorId) } : sub
-      );
+      const updatedStructures = config.structures.map(structure => ({
+        ...structure,
+        items: structure.items.map(item =>
+          item.id === elementId ? { ...item, indicators: item.indicators.filter(ind => ind.id !== indicatorId) } : item
+        )
+      }));
 
       this.projectConfig.set({
         ...config,
-        subComponents: updatedSubComponents
+        structures: updatedStructures
       });
     }
   }
 
   getIndicatorById(indicatorId: string): ProjectIndicator | undefined {
-    return this.projectConfig().indicators.find(ind => ind.id === indicatorId);
+    const allIndicators = this.allIndicators();
+    return allIndicators.find(ind => ind.id === indicatorId);
   }
 
-  getAvailableIndicatorsForElement(type: 'component' | 'subcomponent', elementId: string): ProjectIndicator[] {
-    const config = this.projectConfig();
-    const element = type === 'component' ? config.components.find(c => c.id === elementId) : config.subComponents.find(s => s.id === elementId);
-
-    if (!element) return [];
-
-    const level = type === 'component' ? 1 : 2;
-    return config.indicators.filter(ind => ind.level === level && ind.isActive && !element.indicators.includes(ind.id));
+  getAvailableIndicatorsForElement(): ProjectIndicator[] {
+    // Para la nueva estructura, los indicadores están embebidos directamente
+    // Este método ahora retorna una lista vacía ya que los indicadores se crean directamente
+    return [];
   }
 
   // ============= MÉTODOS GENERALES =============
@@ -590,12 +527,10 @@ export default class SetUpProjectComponent {
 
   resetConfiguration(): void {
     this.projectConfig.set({
-      components: [],
-      subComponents: [],
-      indicators: []
+      structures: []
     });
-    this.newComponentForm.set({ name: '', code: '' });
-    this.newSubComponentForm.set({ name: '', code: '', parentComponentId: '' });
+    this.newStructureForm.set({ name: '', code: '' });
+    this.newItemForm.set({ name: '', code: '', parentStructureId: '' });
     this.editingElementId.set(null);
   }
 
@@ -617,26 +552,31 @@ export default class SetUpProjectComponent {
     return item.id;
   }
 
-  // Helper method para verificar si un componente tiene sub-componentes
-  hasSubComponents(componentId: string): boolean {
-    return this.projectConfig().subComponents.some(sub => sub.parentComponentId === componentId);
+  // Helper method para verificar si una estructura tiene items
+  hasItems(structureId: string): boolean {
+    const config = this.projectConfig();
+    const structure = config.structures.find(s => s.id === structureId);
+    return structure ? structure.items.length > 0 : false;
   }
 
   // Obtener nombre del elemento para mostrar en UI
-  getElementName(type: 'component' | 'subcomponent', elementId: string): string {
+  getElementName(type: 'structure' | 'item', elementId: string): string {
     const config = this.projectConfig();
-    if (type === 'component') {
-      const component = config.components.find(c => c.id === elementId);
-      return component?.name || 'this component';
+    if (type === 'structure') {
+      const structure = config.structures.find(s => s.id === elementId);
+      return structure?.name || 'this structure';
     } else {
-      const subComponent = config.subComponents.find(s => s.id === elementId);
-      return subComponent?.name || 'this sub-component';
+      for (const structure of config.structures) {
+        const item = structure.items.find(i => i.id === elementId);
+        if (item) return item.name;
+      }
+      return 'this item';
     }
   }
 
   // Crear indicador directamente para un elemento específico
-  createIndicatorForElement(type: 'component' | 'subcomponent', elementId: string): void {
-    const level = type === 'component' ? 1 : 2;
+  createIndicatorForElement(type: 'structure' | 'item', elementId: string): void {
+    const level = type === 'structure' ? 1 : 2;
     this.newIndicatorForm.set({
       name: '',
       description: `Indicator for ${this.getElementName(type, elementId)}`,
