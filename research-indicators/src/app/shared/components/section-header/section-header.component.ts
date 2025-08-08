@@ -131,7 +131,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     const baseItems: BreadcrumbItem[] = [
       {
         label: 'Projects',
-        route: '/my-projects'
+        route: '/projects'
       },
       {
         label: `Project ${contractId}`,
