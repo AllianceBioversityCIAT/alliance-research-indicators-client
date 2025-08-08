@@ -54,10 +54,147 @@ import {
   styleUrl: './set-up-project.component.scss'
 })
 export default class SetUpProjectComponent {
-  // Configuración principal del proyecto - inicia vacía
+  // Configuración principal del proyecto con indicadores por defecto
   projectConfig = signal<ProjectSetupConfiguration>({
     structures: []
   });
+
+  // Indicadores predefinidos disponibles para seleccionar
+  defaultIndicators = signal<ProjectIndicator[]>([
+    // Level 1 Indicators (Structures)
+    {
+      id: 'default_ind1',
+      name: 'Academic Performance Index',
+      description: 'Overall academic performance measurement across all subjects',
+      level: 1,
+      numberType: 'average',
+      numberFormat: 'decimal',
+      years: [2024, 2025],
+      targetUnit: 'score (0-100)',
+      targetValue: 85,
+      baseline: 70,
+      isActive: true
+    },
+    {
+      id: 'default_ind2',
+      name: 'Student Engagement Rate',
+      description: 'Percentage of students actively participating in learning activities',
+      level: 1,
+      numberType: 'average',
+      numberFormat: 'decimal',
+      years: [2024, 2025],
+      targetUnit: '%',
+      targetValue: 90,
+      baseline: 75,
+      isActive: true
+    },
+    {
+      id: 'default_ind3',
+      name: 'Curriculum Completion Rate',
+      description: 'Percentage of curriculum objectives successfully completed',
+      level: 1,
+      numberType: 'average',
+      numberFormat: 'decimal',
+      years: [2024, 2025, 2026],
+      targetUnit: '%',
+      targetValue: 95,
+      baseline: 80,
+      isActive: true
+    },
+    {
+      id: 'default_ind4',
+      name: 'Teacher Satisfaction Score',
+      description: 'Overall teacher satisfaction with curriculum and resources',
+      level: 1,
+      numberType: 'average',
+      numberFormat: 'decimal',
+      years: [2024, 2025],
+      targetUnit: 'score (1-10)',
+      targetValue: 8,
+      baseline: 6.5,
+      isActive: true
+    },
+
+    // Level 2 Indicators (Items)
+    {
+      id: 'default_ind5',
+      name: 'Subject Test Scores',
+      description: 'Average test scores for specific subject areas',
+      level: 2,
+      numberType: 'average',
+      numberFormat: 'decimal',
+      years: [2024, 2025],
+      targetUnit: 'points',
+      targetValue: 80,
+      baseline: 65,
+      isActive: true
+    },
+    {
+      id: 'default_ind6',
+      name: 'Assignment Completion Rate',
+      description: 'Percentage of assignments completed on time by students',
+      level: 2,
+      numberType: 'average',
+      numberFormat: 'decimal',
+      years: [2024, 2025],
+      targetUnit: '%',
+      targetValue: 85,
+      baseline: 70,
+      isActive: true
+    },
+    {
+      id: 'default_ind7',
+      name: 'Learning Objective Mastery',
+      description: 'Percentage of students mastering specific learning objectives',
+      level: 2,
+      numberType: 'average',
+      numberFormat: 'decimal',
+      years: [2024, 2025, 2026],
+      targetUnit: '%',
+      targetValue: 90,
+      baseline: 75,
+      isActive: true
+    },
+    {
+      id: 'default_ind8',
+      name: 'Resource Utilization Rate',
+      description: 'How effectively educational resources are being used',
+      level: 2,
+      numberType: 'average',
+      numberFormat: 'decimal',
+      years: [2024, 2025],
+      targetUnit: '%',
+      targetValue: 80,
+      baseline: 60,
+      isActive: true
+    },
+    {
+      id: 'default_ind9',
+      name: 'Student Progress Tracking',
+      description: 'Individual student progress monitoring and improvement',
+      level: 2,
+      numberType: 'count',
+      numberFormat: 'number',
+      years: [2024, 2025],
+      targetUnit: 'students tracked',
+      targetValue: 100,
+      baseline: 60,
+      isActive: true
+    },
+    {
+      id: 'default_ind10',
+      name: 'Skill Development Index',
+      description: 'Development of specific skills within subject areas',
+      level: 2,
+      numberType: 'average',
+      numberFormat: 'decimal',
+      years: [2024, 2025],
+      targetUnit: 'skill level (1-5)',
+      targetValue: 4,
+      baseline: 3,
+      isActive: true
+    }
+  ]);
 
   // Formularios para nuevos elementos
   newStructureForm = signal<NewStructureForm>({ name: '', code: '' });
@@ -116,6 +253,10 @@ export default class SetUpProjectComponent {
     const config = this.projectConfig();
     return config.structures.reduce((acc, s) => acc + s.items.length, 0);
   });
+
+  // Indicadores por defecto filtrados por nivel
+  defaultLevel1Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 1));
+  defaultLevel2Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 2));
 
   // ============= MÉTODOS PARA ESTRUCTURAS =============
   startAddingStructure(): void {
@@ -500,5 +641,17 @@ export default class SetUpProjectComponent {
 
   showIndicatorsView(): void {
     this.currentView.set('indicators');
+  }
+
+  // Método para seleccionar un indicador por defecto
+  selectDefaultIndicator(defaultIndicator: ProjectIndicator, type: 'structure' | 'item', elementId: string): void {
+    // Crear una copia del indicador con nuevo ID
+    const newIndicator: ProjectIndicator = {
+      ...defaultIndicator,
+      id: `indicator_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    };
+
+    this.assignNewIndicator(newIndicator, type, elementId);
+    this.showAssignIndicatorModal.set(false);
   }
 }
