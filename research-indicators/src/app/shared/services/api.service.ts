@@ -196,12 +196,12 @@ export class ApiService {
   };
 
   GET_Configuration = (id: number, section: string): Promise<MainResponse<Configuration[]>> => {
-    const url = () => `configuration/${id}?section=${section}`;
+    const url = () => `user/configuration/${id}?section=${section}`;
     return this.TP.get(url(), {});
   };
 
   PATCH_Configuration = (id: number, section: string, body: Configuration): Promise<MainResponse<Configuration[]>> => {
-    const url = () => `configuration/${id}?section=${section}`;
+    const url = () => `user/configuration/${id}?section=${section}`;
     return this.TP.patch(url(), body, {});
   };
 
