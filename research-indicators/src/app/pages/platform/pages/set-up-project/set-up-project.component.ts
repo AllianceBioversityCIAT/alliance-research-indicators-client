@@ -54,131 +54,9 @@ import {
   styleUrl: './set-up-project.component.scss'
 })
 export default class SetUpProjectComponent {
-  // Configuración principal del proyecto con datos dummy
+  // Configuración principal del proyecto - inicia vacía
   projectConfig = signal<ProjectSetupConfiguration>({
-    structures: [
-      {
-        id: '1',
-        name: 'Materias',
-        code: 'MAT001',
-        items: [
-          {
-            id: 'item1',
-            name: 'Español',
-            code: '1.1',
-            indicators: [
-              {
-                id: 'ind4',
-                name: 'New Varieties Released',
-                description: 'Number of new crop varieties developed and released',
-                level: 2,
-                numberType: 'count',
-                numberFormat: 'number',
-                years: [2023, 2024, 2025],
-                targetUnit: 'varieties',
-                targetValue: 12,
-                baseline: 5,
-                isActive: true
-              },
-              {
-                id: 'ind5',
-                name: 'Yield Improvement',
-                description: 'Average yield increase from new varieties',
-                level: 2,
-                numberType: 'average',
-                numberFormat: 'decimal',
-                years: [2024, 2025],
-                targetUnit: '%',
-                targetValue: 30,
-                baseline: 15,
-                isActive: true
-              }
-            ],
-            isEditing: false
-          },
-          {
-            id: 'item2',
-            name: 'Matemáticas',
-            code: '1.2',
-            indicators: [],
-            isEditing: false
-          }
-        ],
-        indicators: [
-          {
-            id: 'ind1',
-            name: 'Productivity Index',
-            description: 'Measures overall agricultural productivity improvement',
-            level: 1,
-            numberType: 'sum',
-            numberFormat: 'number',
-            years: [2023, 2024, 2025],
-            targetUnit: 'tons/hectare',
-            targetValue: 5.2,
-            baseline: 3.8,
-            isActive: true
-          },
-          {
-            id: 'ind2',
-            name: 'Innovation Adoption Rate',
-            description: 'Percentage of farmers adopting new technologies',
-            level: 1,
-            numberType: 'average',
-            numberFormat: 'decimal',
-            years: [2023, 2024],
-            targetUnit: '%',
-            targetValue: 75,
-            baseline: 45,
-            isActive: true
-          }
-        ],
-        isEditing: false
-      },
-      {
-        id: '2',
-        name: 'Ciencias',
-        code: 'CIE002',
-        items: [
-          {
-            id: 'item3',
-            name: 'Biología',
-            code: '2.1',
-            indicators: [
-              {
-                id: 'ind6',
-                name: 'Water Use Efficiency',
-                description: 'Improvement in water usage efficiency',
-                level: 2,
-                numberType: 'average',
-                numberFormat: 'decimal',
-                years: [2023, 2024],
-                targetUnit: 'L/kg',
-                targetValue: 800,
-                baseline: 1200,
-                isActive: true
-              }
-            ],
-            isEditing: false
-          }
-        ],
-        indicators: [
-          {
-            id: 'ind3',
-            name: 'Climate Resilience Score',
-            description: 'Overall climate adaptation effectiveness measure',
-            level: 1,
-            numberType: 'average',
-            numberFormat: 'number',
-            years: [2024, 2025],
-            targetUnit: 'score',
-            targetValue: 8.5,
-            baseline: 6.2,
-            isActive: true
-          }
-        ],
-        isEditing: false
-      }
-    ]
+    structures: []
   });
 
   // Formularios para nuevos elementos
@@ -201,6 +79,9 @@ export default class SetUpProjectComponent {
   showAssignIndicatorModal = signal<boolean>(false);
   selectedElementForIndicators = signal<{ type: 'structure' | 'item'; id: string } | null>(null);
   editingElementId = signal<string | null>(null);
+  selectedStructureIndex = signal<number>(0);
+  showAllIndicators = signal<boolean>(false);
+  currentView = signal<'structures' | 'indicators'>('structures');
 
   // Opciones disponibles
   numberTypeOptions = NUMBER_TYPE_OPTIONS;
@@ -254,10 +135,14 @@ export default class SetUpProjectComponent {
         indicators: []
       };
 
+      const updatedStructures = [...config.structures, newStructure];
       this.projectConfig.set({
         ...config,
-        structures: [...config.structures, newStructure]
+        structures: updatedStructures
       });
+
+      // Seleccionar automáticamente el nuevo tab
+      this.selectedStructureIndex.set(updatedStructures.length - 1);
 
       this.newStructureForm.set({ name: '', code: '' });
       this.editingElementId.set(null);
@@ -293,10 +178,24 @@ export default class SetUpProjectComponent {
 
   removeStructure(structureId: string): void {
     const config = this.projectConfig();
+    const currentIndex = this.selectedStructureIndex();
+    const structureIndex = config.structures.findIndex(s => s.id === structureId);
+
+    const updatedStructures = config.structures.filter(structure => structure.id !== structureId);
+
     this.projectConfig.set({
       ...config,
-      structures: config.structures.filter(structure => structure.id !== structureId)
+      structures: updatedStructures
     });
+
+    // Ajustar el índice seleccionado si es necesario
+    if (updatedStructures.length === 0) {
+      this.selectedStructureIndex.set(0);
+    } else if (structureIndex <= currentIndex && currentIndex > 0) {
+      this.selectedStructureIndex.set(currentIndex - 1);
+    } else if (currentIndex >= updatedStructures.length) {
+      this.selectedStructureIndex.set(updatedStructures.length - 1);
+    }
   }
 
   cancelStructureEdit(): void {
@@ -393,10 +292,10 @@ export default class SetUpProjectComponent {
       level,
       numberType: 'sum',
       numberFormat: 'number',
-      years: [],
-      targetUnit: '',
-      targetValue: null,
-      baseline: null
+      years: [2024, 2025],
+      targetUnit: 'units',
+      targetValue: 100,
+      baseline: 50
     });
     this.showIndicatorModal.set(true);
   }
@@ -583,14 +482,23 @@ export default class SetUpProjectComponent {
       level,
       numberType: 'sum',
       numberFormat: 'number',
-      years: [],
-      targetUnit: '',
-      targetValue: null,
-      baseline: null
+      years: [2024, 2025],
+      targetUnit: 'units',
+      targetValue: 100,
+      baseline: 50
     });
 
     // Cerrar modal de asignación y abrir modal de creación
     this.showAssignIndicatorModal.set(false);
     this.showIndicatorModal.set(true);
+  }
+
+  // Métodos para cambiar de vista
+  showStructuresView(): void {
+    this.currentView.set('structures');
+  }
+
+  showIndicatorsView(): void {
+    this.currentView.set('indicators');
   }
 }
