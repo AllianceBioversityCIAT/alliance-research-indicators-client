@@ -182,9 +182,17 @@ export class MyProjectsService {
 
   cleanMultiselects() {
     const refs = this.multiselectRefs();
-    Object.values(refs).forEach(multiselect => {
-      multiselect.clear();
-    });
+    if (refs && Object.keys(refs).length > 0) {
+      Object.values(refs).forEach(multiselect => {
+        if (multiselect && typeof multiselect.clear === 'function') {
+          try {
+            multiselect.clear();
+          } catch (error) {
+            console.warn('Error clearing multiselect:', error);
+          }
+        }
+      });
+    }
   }
 
   clearAllFilters() {
