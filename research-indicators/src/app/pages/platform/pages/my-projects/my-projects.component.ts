@@ -238,9 +238,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     this.isTableView.set(false);
   }
 
-  openProject(project: unknown) {
-    // TODO: Implement project navigation
-    console.warn('Open project:', project);
+  openProject(project: FindContracts) {
+    if (project.agreement_id) {
+      this.router.navigate(['/project-detail', project.agreement_id]);
+    }
   }
 
   getStatusColor(result: Result): string {
@@ -258,7 +259,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   calculateProgressFor(): number {
-    // TODO: Implement progress calculation based on form completion
     return 75;
   }
 
