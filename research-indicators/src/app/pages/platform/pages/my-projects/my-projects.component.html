@@ -1,3 +1,13 @@
+<ng-template #applyFiltersButton>
+  <p-button
+    styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
+    [label]="getApplyFiltersLabel()"
+    icon="pi pi-filter !text-[10px]"
+    size="small"
+    (keydown.enter)="showFiltersSidebar()"
+    (click)="showFiltersSidebar()"></p-button>
+</ng-template>
+
 <div class="flex flex-col gap-3 px-6 pt-8">
   <!-- Projects Section -->
   <div class="flex flex-col bg-white">
@@ -8,6 +18,7 @@
           <div
             class="flex items-center gap-2 px-5 py-3 cursor-pointer border-b-1 border-transparent transition-all duration-200 relative hover:bg-gray-50"
             [class]="myProjectsFilterItem()?.id === item.id ? 'border-b-[#035BA9]' : ''"
+            (keydown.enter)="onActiveItemChange(item)"
             (click)="onActiveItemChange(item)">
             <button
               type="button"
@@ -57,6 +68,7 @@
                   label="Apply Filters"
                   icon="pi pi-filter !text-[10px]"
                   size="small"
+                  (keydown.enter)="showFiltersSidebar()"
                   [badge]="myProjectsService.countFiltersSelected()"
                   (click)="showFiltersSidebar()"></p-button>
                 <p-button
@@ -65,39 +77,32 @@
                   [text]="true"
                   size="small"
                   severity="secondary"
+                  (keydown.enter)="myProjectsService.clearFilters()"
                   (click)="myProjectsService.clearFilters()"></p-button>
                 <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
-                  icon="pi pi-bars !text-[10px]"
+                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
+                  icon="pi pi-bars"
                   size="small"
-                  [text]="true"
+                  [text]="!isTableView()"
+                  [outlined]="isTableView()"
                   severity="secondary"
+                  (keydown.enter)="toggleTableView()"
                   (click)="toggleTableView()"></p-button>
+
                 <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
-                  icon="pi pi-th-large !text-[10px]"
+                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
+                  icon="pi pi-th-large"
                   size="small"
                   [text]="true"
+                  (keydown.enter)="toggleTableView()"
+                  [text]="isTableView()"
+                  [outlined]="!isTableView()"
                   severity="secondary"
-                  (click)="toggleCardView()"></p-button>
+                  (click)="toggleCardView()">
+                </p-button>
               </div>
             </div>
           </div>
-
-          @if (myProjectsService.getActiveFilters().length > 0) {
-            <div class="flex gap-2 px-3 mt-2 mb-3 items-center">
-              <span class="font-semibold text-sm" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
-              <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>
-              @for (filter of myProjectsService.getActiveFilters(); track filter.label) {
-                <div class="flex items-center">
-                  <span class="text-primary-700 font-bold text-sm" style="font-family: 'Space Grotesk', sans-serif">{{ filter.label }}</span>
-                  @if (!$last) {
-                    <span class="text-500 text-sm">, </span>
-                  }
-                </div>
-              }
-            </div>
-          }
 
           <!-- Conditional views My Projects -->
           @if (getContractsByUserService.loading()) {
@@ -184,6 +189,7 @@
                   <ng-template pTemplate="body" let-project>
                     <tr
                       (click)="openProject(project)"
+                      (keydown.enter)="openProject(project)"
                       class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
                       <td>
                         <div class="overflow-hidden line-clamp-2">
@@ -266,33 +272,39 @@
 
               <div class="flex gap-3 items-center">
                 <!-- View toggle buttons All Projects -->
-                <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
-                  label="Apply Filters"
-                  icon="pi pi-filter !text-[10px]"
-                  size="small"
-                  [badge]="myProjectsService.countFiltersSelected()"
-                  (click)="showFiltersSidebar()"></p-button>
+                @if (myProjectsService.countFiltersSelected()) {
+                  <p-overlayBadge severity="warn">
+                    <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
+                  </p-overlayBadge>
+                } @else {
+                  <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
+                }
+
                 <p-button
                   styleClass="!text-[12px]"
                   label="Clear Filters"
                   [text]="true"
                   size="small"
                   severity="secondary"
+                  (keydown.enter)="myProjectsService.clearFilters()"
                   (click)="myProjectsService.clearFilters()"></p-button>
                 <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
-                  icon="pi pi-bars !text-[10px]"
+                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
+                  icon="pi pi-bars"
                   size="small"
-                  [text]="true"
+                  [text]="!isTableView()"
+                  [outlined]="isTableView()"
                   severity="secondary"
+                  (keydown.enter)="toggleTableView()"
                   (click)="toggleTableView()"></p-button>
                 <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
-                  icon="pi pi-th-large !text-[10px]"
+                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
+                  icon="pi pi-th-large"
                   size="small"
-                  [text]="true"
+                  [text]="isTableView()"
+                  [outlined]="!isTableView()"
                   severity="secondary"
+                  (keydown.enter)="toggleCardView()"
                   (click)="toggleCardView()"></p-button>
               </div>
             </div>
@@ -304,7 +316,9 @@
               <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>
               @for (filter of myProjectsService.getActiveFilters(); track filter.label) {
                 <div class="flex items-center">
-                  <span class="text-primary-700 font-bold text-sm" style="font-family: 'Space Grotesk', sans-serif">{{ filter.label }}</span>
+                  <span class="text-primary-700 font-bold text-sm text-[#345B8F]" style="font-family: 'Space Grotesk', sans-serif">{{
+                    filter.label
+                  }}</span>
                   @if (!$last) {
                     <span class="text-500 text-sm">, </span>
                   }
@@ -393,6 +407,7 @@
                 <ng-template pTemplate="body" let-project>
                   <tr
                     (click)="openProject(project)"
+                    (keydown.enter)="openProject(project)"
                     class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
                     <td>
                       <div class="overflow-hidden line-clamp-2">

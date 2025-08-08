@@ -52,8 +52,42 @@
   border-color: inherit !important;
 }
 
-:host ::ng-deep .view-toggle-btn .p-button-icon {
-  color: #035ba9 !important;
+:host ::ng-deep {
+  .p-button.view-toggle-btn {
+    .p-button-icon {
+      margin: 0 !important;
+      padding: 10px !important;
+      font-size: 1.2rem !important;
+    }
+
+    &.p-button-icon-only {
+      padding: 0 !important;
+      width: auto !important;
+    }
+  }
+
+  button.p-button.view-toggle-btn .p-button-icon {
+    font-size: 1.1rem !important;
+    transform: none !important;
+  }
+
+  .view-toggle-btn.p-button-outlined {
+    background-color: #d9e1eb !important;
+    color: #d9e1eb !important;
+
+    .p-button-icon {
+      color: #035ba9 !important;
+    }
+
+    &:hover {
+      background-color: #b8d4e8 !important;
+    }
+
+    &:focus,
+    &:active {
+      background-color: #d9e1eb !important;
+    }
+  }
 }
 
 // Card styles for results (same as project-item design)
