@@ -8,6 +8,44 @@
     (click)="showFiltersSidebar()"></p-button>
 </ng-template>
 
+<ng-template #viewToggleButtons>
+  <div class="flex gap-3 items-center">
+    @if (myProjectsService.countFiltersSelected()) {
+      <p-overlayBadge severity="warn">
+        <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
+      </p-overlayBadge>
+    } @else {
+      <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
+    }
+    <p-button
+      styleClass="!text-[12px]"
+      label="Clear Filters"
+      [text]="true"
+      size="small"
+      severity="secondary"
+      (keydown.enter)="myProjectsService.clearFilters()"
+      (click)="myProjectsService.clearFilters()"></p-button>
+    <p-button
+      styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
+      icon="pi pi-bars"
+      size="small"
+      [text]="!isTableView()"
+      [outlined]="isTableView()"
+      severity="secondary"
+      (keydown.enter)="toggleTableView()"
+      (click)="toggleTableView()"></p-button>
+    <p-button
+      styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
+      icon="pi pi-th-large"
+      size="small"
+      [text]="isTableView()"
+      [outlined]="!isTableView()"
+      severity="secondary"
+      (keydown.enter)="toggleCardView()"
+      (click)="toggleCardView()"></p-button>
+  </div>
+</ng-template>
+
 <div class="flex flex-col gap-3 px-6 pt-8">
   <!-- Projects Section -->
   <div class="flex flex-col bg-white">
@@ -62,45 +100,7 @@
               </div>
 
               <!-- View toggle buttons My Projects -->
-              <div class="flex gap-3 items-center">
-                <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
-                  label="Apply Filters"
-                  icon="pi pi-filter !text-[10px]"
-                  size="small"
-                  (keydown.enter)="showFiltersSidebar()"
-                  [badge]="myProjectsService.countFiltersSelected()"
-                  (click)="showFiltersSidebar()"></p-button>
-                <p-button
-                  styleClass="!text-[12px]"
-                  label="Clear Filters"
-                  [text]="true"
-                  size="small"
-                  severity="secondary"
-                  (keydown.enter)="myProjectsService.clearFilters()"
-                  (click)="myProjectsService.clearFilters()"></p-button>
-                <p-button
-                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
-                  icon="pi pi-bars"
-                  size="small"
-                  [text]="!isTableView()"
-                  [outlined]="isTableView()"
-                  severity="secondary"
-                  (keydown.enter)="toggleTableView()"
-                  (click)="toggleTableView()"></p-button>
-
-                <p-button
-                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
-                  icon="pi pi-th-large"
-                  size="small"
-                  [text]="true"
-                  (keydown.enter)="toggleTableView()"
-                  [text]="isTableView()"
-                  [outlined]="!isTableView()"
-                  severity="secondary"
-                  (click)="toggleCardView()">
-                </p-button>
-              </div>
+              <ng-container *ngTemplateOutlet="viewToggleButtons"></ng-container>
             </div>
           </div>
 
@@ -270,43 +270,8 @@
                   class="w-full !pl-9 !rounded-[8px] py-2 border !bg-[#fcfcfc] !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
               </div>
 
-              <div class="flex gap-3 items-center">
-                <!-- View toggle buttons All Projects -->
-                @if (myProjectsService.countFiltersSelected()) {
-                  <p-overlayBadge severity="warn">
-                    <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
-                  </p-overlayBadge>
-                } @else {
-                  <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
-                }
-
-                <p-button
-                  styleClass="!text-[12px]"
-                  label="Clear Filters"
-                  [text]="true"
-                  size="small"
-                  severity="secondary"
-                  (keydown.enter)="myProjectsService.clearFilters()"
-                  (click)="myProjectsService.clearFilters()"></p-button>
-                <p-button
-                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
-                  icon="pi pi-bars"
-                  size="small"
-                  [text]="!isTableView()"
-                  [outlined]="isTableView()"
-                  severity="secondary"
-                  (keydown.enter)="toggleTableView()"
-                  (click)="toggleTableView()"></p-button>
-                <p-button
-                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
-                  icon="pi pi-th-large"
-                  size="small"
-                  [text]="isTableView()"
-                  [outlined]="!isTableView()"
-                  severity="secondary"
-                  (keydown.enter)="toggleCardView()"
-                  (click)="toggleCardView()"></p-button>
-              </div>
+              <!-- View toggle buttons All Projects -->
+              <ng-container *ngTemplateOutlet="viewToggleButtons"></ng-container>
             </div>
           </div>
 
