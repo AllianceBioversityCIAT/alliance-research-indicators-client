@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, computed, inject, Input, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, Input, signal, WritableSignal, HostListener } from '@angular/core';
 import { TextareaModule } from 'primeng/textarea';
 import { SaveOnWritingDirective } from '../../../directives/save-on-writing.directive';
 import { FormsModule } from '@angular/forms';
 import { SkeletonModule } from 'primeng/skeleton';
 import { CacheService } from '../../../services/cache/cache.service';
 import { WordCounterComponent } from '../word-counter/word-counter.component';
+import { InputValueType } from '@shared/services/word-count.service';
+import { TextareaValidationService } from '@shared/services/textarea-validation.service';
 
 @Component({
   selector: 'app-textarea',
@@ -27,9 +29,24 @@ export class TextareaComponent {
   @Input() styleClass = '';
   @Input() size = '';
   @Input() placeholder = '';
-  @Input() maxLength?: number;
+  @Input() maxLength = 40000;
 
-  body = signal({ value: null });
+  body = signal<{ value: string }>({ value: '' });
+  showMaxReachedMessage = signal(false);
+  textareaValidationService = inject(TextareaValidationService);
+
+  @HostListener('paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    this.textareaValidationService.handlePasteText(event, this.signal, this.optionValue, this.body, this.showMaxReachedMessage);
+  }
+
+  shouldPreventInput(event: KeyboardEvent, currentValue: InputValueType): boolean {
+    return this.textareaValidationService.shouldPreventInput(event, currentValue);
+  }
+
+  shouldPreventTextInput(event: KeyboardEvent): boolean {
+    return this.textareaValidationService.shouldPreventTextInput(event, this.showMaxReachedMessage);
+  }
 
   get mainKey() {
     return this.optionValue.includes('.') ? this.optionValue.split('.')[0] : this.optionValue;
@@ -47,6 +64,11 @@ export class TextareaComponent {
   }
 
   setValue(value: string) {
+    // Ocultar mensaje de máximo si el valor está por debajo del límite
+    if (value.length <= this.textareaValidationService.maxLength) {
+      this.showMaxReachedMessage.set(false);
+    }
+
     if (this.subKey) {
       const mainObj = { ...(this.signal()[this.mainKey] || {}) };
       mainObj[this.subKey] = value;

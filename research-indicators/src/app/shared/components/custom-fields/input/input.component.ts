@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, computed, effect, inject, Input, signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, Input, signal, WritableSignal, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SaveOnWritingDirective } from '../../../directives/save-on-writing.directive';
@@ -23,6 +23,7 @@ export class InputComponent {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;
   utils = inject(UtilsService);
   wordCountService = inject(WordCountService);
+  @ViewChild('numberInput', { static: false }) numberInput!: ElementRef;
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionValue = '';
   @Input() pattern: 'email' | 'url' | '' = '';
@@ -42,6 +43,59 @@ export class InputComponent {
 
   body = signal<{ value: InputValueType }>({ value: null });
   firstTime = signal(true);
+  MAX_SAFE_INTEGER = 18;
+  MAX_SAFE_TEXT = 40000;
+  showMaxReachedMessage = signal(false);
+  max = Number.MAX_SAFE_INTEGER;
+
+  @HostListener('paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    if (this.type === 'text') {
+      this.handlePasteText(event);
+    }
+  }
+
+  handlePasteText(event: ClipboardEvent): void {
+    event.preventDefault();
+    const clipboardData = event.clipboardData;
+    if (!clipboardData) return;
+
+    const pastedText = clipboardData.getData('text');
+    const input = event.target as HTMLInputElement;
+    const currentValue = input.value;
+    const cursorPosition = input.selectionStart || 0;
+    const selectionEnd = input.selectionEnd || cursorPosition;
+
+    const beforeCursor = currentValue.substring(0, cursorPosition);
+    const afterCursor = currentValue.substring(selectionEnd);
+    const newValue = beforeCursor + pastedText + afterCursor;
+
+    if (newValue.length > this.MAX_SAFE_TEXT) {
+      const availableSpace = this.MAX_SAFE_TEXT - beforeCursor.length - afterCursor.length;
+      const truncatedPastedText = pastedText.substring(0, Math.max(0, availableSpace));
+      const finalValue = beforeCursor + truncatedPastedText + afterCursor;
+
+      this.body.set({ value: finalValue });
+      this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, finalValue);
+
+      this.showMaxReachedMessage.set(true);
+
+      setTimeout(() => {
+        const newCursorPosition = cursorPosition + truncatedPastedText.length;
+        input.setSelectionRange(newCursorPosition, newCursorPosition);
+      });
+    } else {
+      const finalValue = newValue;
+      this.body.set({ value: finalValue });
+      this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, finalValue);
+      this.showMaxReachedMessage.set(false);
+
+      setTimeout(() => {
+        const newCursorPosition = cursorPosition + pastedText.length;
+        input.setSelectionRange(newCursorPosition, newCursorPosition);
+      });
+    }
+  }
 
   shouldPreventInput(event: KeyboardEvent, currentValue: InputValueType): boolean {
     if (!this.maxWords || !currentValue) return false;
@@ -50,7 +104,6 @@ export class InputComponent {
     if (wordCount < this.maxWords) return false;
 
     if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '].includes(event.key)) return false;
-
     if (event.ctrlKey || event.metaKey) return false;
 
     const input = event.target as HTMLInputElement;
@@ -66,11 +119,54 @@ export class InputComponent {
     return true;
   }
 
+  shouldPreventTextInput(event: KeyboardEvent): boolean {
+    if (event.ctrlKey || event.metaKey) {
+      return false;
+    }
+
+    if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(event.key)) {
+      return false;
+    }
+
+    const input = event.target as HTMLInputElement;
+    const currentValue = input.value;
+    const cursorPosition = input.selectionStart;
+    if (cursorPosition === null) {
+      return true;
+    }
+
+    const newValue = currentValue.substring(0, cursorPosition) + event.key + currentValue.substring(cursorPosition);
+    if (newValue.length > this.MAX_SAFE_TEXT) {
+      this.showMaxReachedMessage.set(true);
+      return true;
+    } else {
+      this.showMaxReachedMessage.set(false);
+    }
+
+    return false;
+  }
+
   onChange = effect(
     () => {
       const externalValue = this.utils.getNestedProperty(this.signal(), this.optionValue);
       if (this.body().value !== externalValue) {
         this.body.set({ value: externalValue });
+      }
+    },
+    { allowSignalWrites: true }
+  );
+
+  updateMaxReachedMessage = effect(
+    () => {
+      const value = this.body().value;
+      if (this.type === 'number' && value !== null && value !== undefined) {
+        const valueString = value.toString();
+        this.showMaxReachedMessage.set(valueString.length >= this.MAX_SAFE_INTEGER);
+      } else if (this.type === 'text' && value !== null && value !== undefined) {
+        const valueString = value.toString();
+        this.showMaxReachedMessage.set(valueString.length >= this.MAX_SAFE_TEXT);
+      } else {
+        this.showMaxReachedMessage.set(false);
       }
     },
     { allowSignalWrites: true }
