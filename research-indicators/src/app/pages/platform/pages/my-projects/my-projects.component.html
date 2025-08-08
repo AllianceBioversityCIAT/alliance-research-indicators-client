@@ -1,3 +1,12 @@
+<ng-template #applyFiltersButton>
+  <p-button
+    styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
+    [label]="getApplyFiltersLabel()"
+    icon="pi pi-filter !text-[10px]"
+    size="small"
+    (click)="showFiltersSidebar()"></p-button>
+</ng-template>
+
 <div class="flex flex-col gap-3 px-6 pt-8">
   <!-- Projects Section -->
   <div class="flex flex-col bg-white">
@@ -45,37 +54,27 @@
                   severity="secondary"
                   (click)="myProjectsService.clearFilters()"></p-button>
                 <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
-                  icon="pi pi-bars !text-[10px]"
+                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
+                  icon="pi pi-bars"
                   size="small"
-                  [text]="true"
+                  [text]="!isTableView()"
+                  [outlined]="isTableView()"
                   severity="secondary"
-                  (click)="toggleTableView()"></p-button>
+                  (click)="toggleTableView()">
+                </p-button>
+
                 <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
-                  icon="pi pi-th-large !text-[10px]"
+                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
+                  icon="pi pi-th-large"
                   size="small"
-                  [text]="true"
+                  [text]="isTableView()"
+                  [outlined]="!isTableView()"
                   severity="secondary"
-                  (click)="toggleCardView()"></p-button>
+                  (click)="toggleCardView()">
+                </p-button>
               </div>
             </div>
           </div>
-
-          @if (myProjectsService.getActiveFilters().length > 0) {
-            <div class="flex gap-2 px-3 mt-2 mb-3 items-center">
-              <span class="font-semibold text-sm" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
-              <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>
-              @for (filter of myProjectsService.getActiveFilters(); track filter.label) {
-                <div class="flex items-center">
-                  <span class="text-primary-700 font-bold text-sm" style="font-family: 'Space Grotesk', sans-serif">{{ filter.label }}</span>
-                  @if (!$last) {
-                    <span class="text-500 text-sm">, </span>
-                  }
-                </div>
-              }
-            </div>
-          }
 
           <!-- Conditional views My Projects -->
           @if (getContractsByUserService.loading()) {
@@ -244,13 +243,14 @@
 
               <div class="flex gap-3 items-center">
                 <!-- View toggle buttons All Projects -->
-                <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
-                  label="Apply Filters"
-                  icon="pi pi-filter !text-[10px]"
-                  size="small"
-                  [badge]="myProjectsService.countFiltersSelected()"
-                  (click)="showFiltersSidebar()"></p-button>
+                @if (myProjectsService.countFiltersSelected()) {
+                  <p-overlayBadge severity="warn">
+                    <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
+                  </p-overlayBadge>
+                } @else {
+                  <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
+                }
+
                 <p-button
                   styleClass="!text-[12px]"
                   label="Clear Filters"
@@ -259,17 +259,19 @@
                   severity="secondary"
                   (click)="myProjectsService.clearFilters()"></p-button>
                 <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
+                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
                   icon="pi pi-bars !text-[10px]"
                   size="small"
-                  [text]="true"
+                  [text]="!isTableView()"
+                  [outlined]="isTableView()"
                   severity="secondary"
                   (click)="toggleTableView()"></p-button>
                 <p-button
-                  styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
+                  styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
                   icon="pi pi-th-large !text-[10px]"
                   size="small"
-                  [text]="true"
+                  [text]="isTableView()"
+                  [outlined]="!isTableView()"
                   severity="secondary"
                   (click)="toggleCardView()"></p-button>
               </div>
@@ -282,7 +284,9 @@
               <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>
               @for (filter of myProjectsService.getActiveFilters(); track filter.label) {
                 <div class="flex items-center">
-                  <span class="text-primary-700 font-bold text-sm" style="font-family: 'Space Grotesk', sans-serif">{{ filter.label }}</span>
+                  <span class="text-primary-700 font-bold text-sm text-[#345B8F]" style="font-family: 'Space Grotesk', sans-serif">{{
+                    filter.label
+                  }}</span>
                   @if (!$last) {
                     <span class="text-500 text-sm">, </span>
                   }
