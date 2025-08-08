@@ -25,6 +25,7 @@ import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { ActionsService } from '@shared/services/actions.service';
 import { RippleModule } from 'primeng/ripple';
+import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
 
 @Component({
   selector: 'app-my-projects',
@@ -271,7 +272,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getScrollHeight() {
-    return `calc(100vh - ${this.cache.headerHeight() + this.cache.navbarHeight() + this.cache.tableFiltersSidebarHeight() + (this.cache.hasSmallScreen() ? 240 : 270)}px)`;
+    return this.cache.hasSmallScreen() ? 'calc(100vh - 400px)' : 'calc(100vh - 500px)';
   }
 
   getLeverDisplay(project: FindContracts): string {
@@ -288,17 +289,25 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getApplyFiltersLabel(): string {
-    const count = Number(this.myProjectsService.countFiltersSelected()) || 0;
-    return count > 0 ? `Apply Filters (${count})` : 'Apply Filters';
+    return 'Apply Filters';
   }
 
-  getStatusDisplay(project: FindContracts | { status_id?: number; status_name?: string; contract_status?: string }): {
+  getStatusDisplay(project: FindContracts | GetContractsByUser | { status_id?: number; status_name?: string; contract_status?: string }): {
     statusId: number;
     statusName: string;
   } {
+    // Para My Projects (GetContractsByUser) - no tiene campos de status, usar valor por defecto
+    if ('indicators' in project) {
+      return { statusId: 1, statusName: 'Ongoing' };
+    }
+
+    // Para All Projects (FindContracts)
+    if ('status_id' in project && project.status_id) {
+      return { statusId: project.status_id, statusName: project.status_name || 'Unknown' };
+    }
+
     if ('contract_status' in project && project.contract_status) {
       const statusName = project.contract_status.toLowerCase();
-
       const statusMap: Record<string, { id: number; name: string }> = {
         ongoing: { id: 1, name: 'Ongoing' },
         completed: { id: 2, name: 'Completed' },
@@ -308,48 +317,36 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
       const status = statusMap[statusName];
       if (status) {
-        return {
-          statusId: status.id,
-          statusName: status.name
-        };
+        return { statusId: status.id, statusName: status.name };
       }
     }
 
-    if (project.status_name) {
-      const statusName = project.status_name.toLowerCase();
+    // Valor por defecto
+    return { statusId: 1, statusName: 'Ongoing' };
+  }
 
-      const statusMap: Record<string, { id: number; name: string }> = {
-        ongoing: { id: 1, name: 'Ongoing' },
-        completed: { id: 2, name: 'Completed' },
-        suspended: { id: 3, name: 'Suspended' },
-        approved: { id: 6, name: 'Approved' }
-      };
+  // Nuevos métodos para el HTML refactorizado
+  getLoadingState(): boolean {
+    return this.myProjectsFilterItem()?.id === 'my' ? this.getContractsByUserService.loading() : this.myProjectsService.loading();
+  }
 
-      const status = statusMap[statusName];
-      if (status) {
-        return {
-          statusId: status.id,
-          statusName: status.name
-        };
-      }
+  getCurrentProjects(): FindContracts[] {
+    return this.myProjectsFilterItem()?.id === 'my' ? this.filteredProjects() : this.filteredAllProjects();
+  }
+
+  getCurrentFirst(): number {
+    return this.myProjectsFilterItem()?.id === 'my' ? this.first() : this.allProjectsFirst();
+  }
+
+  getCurrentRows(): number {
+    return this.myProjectsFilterItem()?.id === 'my' ? this.rows() : this.allProjectsRows();
+  }
+
+  onCurrentPageChange(event: PaginatorState): void {
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this.onPageChange(event);
+    } else {
+      this.onAllProjectsPageChange(event);
     }
-
-    if (project.status_id) {
-      const statusNameMap: Record<number, string> = {
-        1: 'Ongoing',
-        2: 'Completed',
-        3: 'Suspended',
-        6: 'Approved'
-      };
-
-      return {
-        statusId: project.status_id,
-        statusName: statusNameMap[project.status_id] || 'Unknown'
-      };
-    }
-    return {
-      statusId: 1,
-      statusName: 'Ongoing'
-    };
   }
 }
