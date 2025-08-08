@@ -7,6 +7,8 @@ export interface GetProjectDetail {
   end_date?: string;
   full_name?: string;
   indicators?: GetProjectDetailIndicator[];
+  status_name?: string;
+  contract_status?: string;
 }
 
 export interface GetProjectDetailIndicator {

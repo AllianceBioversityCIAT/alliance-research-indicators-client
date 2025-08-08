@@ -1,3 +1,5 @@
+import { GetProjectDetailIndicator } from './get-project-detail.interface';
+
 export interface FindContracts {
   agreement_id?: string;
   projectDescription?: string | null;
@@ -33,4 +35,5 @@ export interface FindContracts {
   office?: string | null;
   display_label?: string;
   is_active?: boolean;
+  indicators?: GetProjectDetailIndicator[];
 }

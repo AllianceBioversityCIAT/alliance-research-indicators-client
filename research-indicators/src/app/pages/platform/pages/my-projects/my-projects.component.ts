@@ -23,6 +23,7 @@ import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { ActionsService } from '@shared/services/actions.service';
 import { RippleModule } from 'primeng/ripple';
+import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
 
 @Component({
   selector: 'app-my-projects',
@@ -44,7 +45,8 @@ import { RippleModule } from 'primeng/ripple';
     SectionSidebarComponent,
     CalendarInputComponent,
     OverlayBadgeModule,
-    NgTemplateOutlet
+    NgTemplateOutlet,
+    ProjectItemComponent
   ],
   templateUrl: './my-projects.component.html',
   styleUrl: './my-projects.component.scss'

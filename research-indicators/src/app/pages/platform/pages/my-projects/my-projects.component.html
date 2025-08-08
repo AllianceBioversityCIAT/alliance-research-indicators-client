@@ -165,42 +165,8 @@
           <!-- Card view -->
           @if (!isTableView()) {
             <div class="w-full analyze-result-content">
-              @for (project of getCurrentProjects() | slice: getCurrentFirst() : getCurrentFirst() + getCurrentRows(); track project.agreement_id) {
-                <a class="card" (click)="openProject(project)" style="cursor: pointer">
-                  <div class="card-content">
-                    <div class="organization-identifier">
-                      <div class="project">
-                        <div class="project-id">
-                          <label class="project-id" for="username">{{ project.agreement_id }}</label>
-                        </div>
-                        <label class="project-name" for="username">{{
-                          project.full_name || project.projectDescription || project.description || 'No title available'
-                        }}</label>
-                      </div>
-                    </div>
-                    <div class="project-info">
-                      <div class="principal-investigator">
-                        <span class="project-title">Status</span>
-                        <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
-                        <app-custom-tag
-                          [statusId]="getStatusDisplay(project).statusId"
-                          [statusName]="getStatusDisplay(project).statusName"></app-custom-tag>
-                      </div>
-                      <div class="start-date">
-                        <span class="project-title">Principal Investigator</span>
-                        <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
-                        <label class="project-data" for="username">{{
-                          project.principal_investigator || project.project_lead_description || 'Unknown'
-                        }}</label>
-                      </div>
-                      <div class="end-date">
-                        <span class="project-title">Start date</span>
-                        <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
-                        <label class="project-data" for="username">{{ project.start_date | date: 'dd/MM/yyyy' }}</label>
-                      </div>
-                    </div>
-                  </div>
-                </a>
+              @for (project of filteredProjects() | slice: first() : first() + rows(); track project.agreement_id) {
+                <app-project-item [project]="project"></app-project-item>
               }
             </div>
             @if (getCurrentProjects().length > 0) {
