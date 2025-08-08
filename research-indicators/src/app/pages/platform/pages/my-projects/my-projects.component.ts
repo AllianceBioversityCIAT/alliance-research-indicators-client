@@ -159,10 +159,16 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.myProjectsService.multiselectRefs.set({
-      status: this.statusSelect!,
-      lever: this.leverSelect!
-    });
+    if (this.statusSelect && this.leverSelect) {
+      this.myProjectsService.multiselectRefs.set({
+        status: this.statusSelect,
+        lever: this.leverSelect
+      });
+
+      setTimeout(() => {
+        this.myProjectsService.cleanMultiselects();
+      }, 100);
+    }
   }
 
   async loadPinnedTab() {
@@ -208,6 +214,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       await this.api.PATCH_Configuration(this.tableId, 'tab', pinValue);
       this.pinnedTab.set(newPinnedTab);
 
+      // Sincronizar el estado del servicio
       if (newPinnedTab === 'all') {
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
         this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
@@ -215,6 +222,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
         this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
       }
+
+      // Limpiar multiselects después del cambio de pin
+      setTimeout(() => {
+        this.myProjectsService.cleanMultiselects();
+      }, 0);
     } catch (error) {
       console.error('Error updating pinned tab:', error);
     } finally {
@@ -236,10 +248,15 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     this.myProjectsFilterItem.set(event);
     this.myProjectsService.myProjectsFilterItem.set(event);
 
+    // Limpiar filtros cuando cambie de tab
     this.myProjectsService.tableFilters.set(new MyProjectsFilters());
     this.myProjectsService.searchInput.set('');
-    this._searchValue.set('');
-    this.myProjectsService.cleanMultiselects();
+    this._searchValue.set(''); // Limpiar también el searchValue del componente
+
+    // Limpiar multiselects con un pequeño delay para asegurar que la UI se actualice
+    setTimeout(() => {
+      this.myProjectsService.cleanMultiselects();
+    }, 0);
 
     if (event.id === 'my') {
       this.loadMyProjects();

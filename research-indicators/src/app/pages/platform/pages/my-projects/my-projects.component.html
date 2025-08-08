@@ -141,13 +141,13 @@
           </div>
         </div>
 
-        @if (myProjectsFilterItem()?.id === 'all' && myProjectsService.getActiveFilters().length > 0) {
-          <div class="flex gap-2 px-3 mt-2 mb-3 items-center">
+        @if (myProjectsService.getActiveFilters().length > 0) {
+          <div class="flex gap-2 px-3 mb-5 items-center">
             <span class="font-semibold text-sm" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
             <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>
             @for (filter of myProjectsService.getActiveFilters(); track filter.label) {
               <div class="flex items-center">
-                <span class="text-primary-700 font-bold text-sm text-[#345B8F]" style="font-family: 'Space Grotesk', sans-serif">{{
+                <span class="text-primary-700 font-semibold text-sm text-[#345B8F]" style="font-family: 'Space Grotesk', sans-serif">{{
                   filter.label
                 }}</span>
                 @if (!$last) {
@@ -199,11 +199,15 @@
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
                 [sortField]="'agreement_id'"
                 [sortOrder]="-1"
-                [globalFilterFields]="
-                  myProjectsFilterItem()?.id === 'all'
-                    ? ['agreement_id', 'full_name', 'contract_status', 'principal_investigator', 'lever_name', 'start_date', 'end_date']
-                    : undefined
-                "
+                [globalFilterFields]="[
+                  'agreement_id',
+                  'full_name',
+                  'contract_status',
+                  'principal_investigator',
+                  'lever_name',
+                  'start_date',
+                  'end_date'
+                ]"
                 styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
                 <ng-template pTemplate="header">
                   <tr>
