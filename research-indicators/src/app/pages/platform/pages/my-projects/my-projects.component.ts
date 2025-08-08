@@ -8,7 +8,6 @@ import { GetContractsByUserService } from '@shared/services/control-list/get-con
 import { MyProjectsService } from '@shared/services/my-projects.service';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SlicePipe, DatePipe } from '@angular/common';
-import { TabMenu, TabMenuModule } from 'primeng/tabmenu';
 import { MenuItem } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -16,7 +15,6 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { PopoverModule } from 'primeng/popover';
 import { MenuModule } from 'primeng/menu';
-
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { CustomTagComponent } from '../../../../shared/components/custom-tag/custom-tag.component';
 import { Result } from '@shared/interfaces/result/result.interface';
@@ -24,6 +22,8 @@ import { MultiselectComponent } from '../../../../shared/components/custom-field
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 import { CalendarInputComponent } from '../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
+import { ActionsService } from '@shared/services/actions.service';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'app-my-projects',
@@ -34,11 +34,11 @@ import { FindContracts } from '@shared/interfaces/find-contracts.interface';
     FormsModule,
     CustomProgressBarComponent,
     PaginatorModule,
-    TabMenuModule,
     InputTextModule,
     ButtonModule,
     TableModule,
     TagModule,
+    RippleModule,
     PopoverModule,
     MenuModule,
     CustomTagComponent,
@@ -55,6 +55,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   myProjectsService = inject(MyProjectsService);
   cache = inject(CacheService);
   private router = inject(Router);
+  actions = inject(ActionsService);
 
   first = signal(0);
   rows = signal(5);
@@ -63,15 +64,52 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   private readonly _searchValue = signal('');
   isTableView = signal(true);
 
-  @ViewChild('tm') tm!: TabMenu;
+  // Pin functionality
+  pinnedTab = signal<string>('all');
+  loadingPin = signal(false);
+  tableId = 'contract-table';
+
   @ViewChild('statusSelect') statusSelect?: MultiselectComponent;
   @ViewChild('leverSelect') leverSelect?: MultiselectComponent;
 
   myProjectsFilterItems: MenuItem[] = [
-    { id: 'all', label: 'All Projects' },
-    { id: 'my', label: 'My Projects' }
+    {
+      id: 'all',
+      label: 'All Projects'
+    },
+    {
+      id: 'my',
+      label: 'My Projects'
+    }
   ];
   myProjectsFilterItem = signal<MenuItem | undefined>(this.myProjectsFilterItems[0]);
+
+  orderedFilterItems = computed(() => {
+    const pinnedTab = this.pinnedTab();
+    if (pinnedTab === 'my') {
+      return [
+        {
+          id: 'my',
+          label: 'My Projects'
+        },
+        {
+          id: 'all',
+          label: 'All Projects'
+        }
+      ];
+    } else {
+      return [
+        {
+          id: 'all',
+          label: 'All Projects'
+        },
+        {
+          id: 'my',
+          label: 'My Projects'
+        }
+      ];
+    }
+  });
 
   get searchValue(): string {
     return this._searchValue();
@@ -110,6 +148,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.myProjectsService.clearAllFilters();
+    this.loadPinnedTab();
   }
 
   ngAfterViewInit() {
@@ -119,9 +158,57 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // Pin functionality methods
+  async loadPinnedTab() {
+    this.loadingPin.set(true);
+    const response = await this.api.GET_Configuration(this.tableId, 'tab');
+    if (response?.data) {
+      const pinValue = response.data as unknown as { all: string; self: string };
+
+      const allPinned = pinValue.all === '1';
+      const selfPinned = pinValue.self === '1';
+
+      if (allPinned) {
+        this.pinnedTab.set('all');
+        this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+      } else if (selfPinned) {
+        this.pinnedTab.set('my');
+        this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+      }
+    }
+    this.loadingPin.set(false);
+  }
+
+  async togglePin(tabId: string) {
+    try {
+      this.loadingPin.set(true);
+      const newPinnedTab = this.pinnedTab() === tabId ? 'all' : tabId;
+      const pinValue = newPinnedTab === 'all' ? { all: true, self: false } : { all: false, self: true };
+
+      await this.api.PATCH_Configuration(this.tableId, 'tab', pinValue);
+      this.pinnedTab.set(newPinnedTab);
+    } catch (error) {
+      console.error('Error updating pinned tab:', error);
+    } finally {
+      this.actions.showToast({ severity: 'success', summary: 'My Projects', detail: 'Tab pinned successfully' });
+      this.loadingPin.set(false);
+      this.loadPinnedTab();
+    }
+  }
+
+  isPinned(tabId: string): boolean {
+    return this.pinnedTab() === tabId;
+  }
+
   onActiveItemChange = (event: MenuItem): void => {
+    this.myProjectsFilterItem.set(event);
     this.myProjectsService.onActiveItemChange(event);
   };
+
+  onPinIconClick(tabId: string, event: Event) {
+    event.stopPropagation();
+    this.togglePin(tabId);
+  }
 
   // Methods results table
   setSearchInputFilter($event: Event) {

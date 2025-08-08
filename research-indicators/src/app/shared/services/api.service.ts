@@ -202,13 +202,13 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Configuration = (id: number, section: string): Promise<MainResponse<Configuration[]>> => {
-    const url = () => `user/configuration/${id}?section=${section}`;
+  GET_Configuration = (id: string, section: string): Promise<MainResponse<Configuration>> => {
+    const url = () => `user/configuration/${id}?component=${section}`;
     return this.TP.get(url(), {});
   };
 
-  PATCH_Configuration = (id: number, section: string, body: Configuration): Promise<MainResponse<Configuration[]>> => {
-    const url = () => `user/configuration/${id}?section=${section}`;
+  PATCH_Configuration = (id: string, section: string, body: Configuration): Promise<MainResponse<Configuration>> => {
+    const url = () => `user/configuration/${id}?component=${section}`;
     return this.TP.patch(url(), body, {});
   };
 

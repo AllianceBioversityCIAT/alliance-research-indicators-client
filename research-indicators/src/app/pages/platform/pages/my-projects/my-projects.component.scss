@@ -157,3 +157,56 @@
 label {
   cursor: pointer;
 }
+
+.pin-icons-container {
+  position: absolute;
+  top: 8px;
+  left: 15px;
+  right: 0px;
+  height: 0;
+  pointer-events: none;
+
+  .pin-icon-btn {
+    position: absolute;
+    pointer-events: auto;
+    top: 0;
+    transform: translateX(-50%);
+  }
+}
+
+.pin-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  z-index: 10;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.pinned {
+    background-color: rgba(59, 130, 246, 0.1);
+
+    &:hover {
+      background-color: rgba(59, 130, 246, 0.2);
+    }
+  }
+
+  i {
+    font-size: 12px;
+    transition: color 0.2s ease;
+  }
+}
