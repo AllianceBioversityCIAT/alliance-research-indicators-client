@@ -38,7 +38,8 @@ export class MyProjectsService {
   myProjectsFilterItem = signal<MenuItem | undefined>(this.myProjectsFilterItems[0]);
 
   constructor() {
-    this.main();
+    // No llamar a main() aquí para evitar que se cargue con current-user: false por defecto
+    // Los datos se cargarán desde el componente según el tab activo
   }
 
   async main(params?: Record<string, unknown>) {
@@ -67,6 +68,14 @@ export class MyProjectsService {
   applyFilters = () => {
     const filters = this.tableFilters();
     const params: Record<string, unknown> = {};
+
+    // Agregar el parámetro current-user según el tab activo
+    const currentTab = this.myProjectsFilterItem();
+    if (currentTab?.id === 'my') {
+      params['current-user'] = true;
+    } else {
+      params['current-user'] = false;
+    }
 
     if (filters.contractCode) {
       params['contract-code'] = filters.contractCode;
@@ -162,7 +171,8 @@ export class MyProjectsService {
       const params = { 'current-user': true };
       this.main(params);
     } else {
-      this.main();
+      const params = { 'current-user': false };
+      this.main(params);
     }
   };
 
@@ -180,18 +190,37 @@ export class MyProjectsService {
   clearAllFilters() {
     this.tableFilters.set(new MyProjectsFilters());
     this.searchInput.set('');
-    this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
     this.cleanMultiselects();
-    this.main();
+
+    // Cargar datos según el tab activo
+    const currentTab = this.myProjectsFilterItem();
+    if (currentTab?.id === 'my') {
+      this.main({ 'current-user': true });
+    } else {
+      this.main({ 'current-user': false });
+    }
   }
 
   clearFilters() {
     this.tableFilters.set(new MyProjectsFilters());
     this.cleanMultiselects();
-    this.applyFilters();
+
+    // Cargar datos según el tab activo
+    const currentTab = this.myProjectsFilterItem();
+    if (currentTab?.id === 'my') {
+      this.main({ 'current-user': true });
+    } else {
+      this.main({ 'current-user': false });
+    }
   }
 
   refresh() {
-    this.main();
+    // Cargar datos según el tab activo
+    const currentTab = this.myProjectsFilterItem();
+    if (currentTab?.id === 'my') {
+      this.main({ 'current-user': true });
+    } else {
+      this.main({ 'current-user': false });
+    }
   }
 }

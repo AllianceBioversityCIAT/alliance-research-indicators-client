@@ -54,15 +54,15 @@
               <input
                 pInputText
                 type="text"
-                [ngModel]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput"
-                (input)="myProjectsFilterItem()?.id === 'my' ? null : setSearchInputFilter($event)"
-                placeholder="Find a result by code, title or creator"
+                [ngModel]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput()"
+                (input)="setSearchInputFilter($event)"
+                placeholder="Find a result by code, title or principal investigator"
                 class="w-full !pl-9 !rounded-[8px] py-2 border !bg-[#fcfcfc] !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
             </div>
 
             <!-- View toggle buttons -->
             <div class="flex gap-3 items-center">
-              @if (myProjectsFilterItem()?.id === 'all' && myProjectsService.countFiltersSelected()) {
+              @if (myProjectsService.countFiltersSelected()) {
                 <p-overlayBadge severity="warn">
                   <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
                 </p-overlayBadge>
@@ -209,18 +209,17 @@
                         <p-sortIcon field="agreement_id"></p-sortIcon>
                       </div>
                     </th>
-                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="full_name">
-                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="full_name" style="width: 40%">
+                      <div
+                        class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px] overflow-hidden line-clamp-3 xl:line-clamp-2">
                         Project Name
                         <p-sortIcon field="full_name"></p-sortIcon>
                       </div>
                     </th>
-                    <th class="!text-[#173F6F]" scope="col" [pSortableColumn]="myProjectsFilterItem()?.id === 'all' ? 'contract_status' : undefined">
-                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="contract_status">
+                      <div class="font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                         Status
-                        @if (myProjectsFilterItem()?.id === 'all') {
-                          <p-sortIcon field="contract_status"></p-sortIcon>
-                        }
+                        <p-sortIcon field="contract_status"></p-sortIcon>
                       </div>
                     </th>
                     <th class="!text-[#173F6F]" scope="col" pSortableColumn="principal_investigator">
@@ -229,21 +228,19 @@
                         <p-sortIcon field="principal_investigator"></p-sortIcon>
                       </div>
                     </th>
-                    <th class="!text-[#173F6F]" scope="col" [pSortableColumn]="myProjectsFilterItem()?.id === 'all' ? 'lever_name' : undefined">
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="lever_name">
                       <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                         Lever
-                        @if (myProjectsFilterItem()?.id === 'all') {
-                          <p-sortIcon field="lever_name"></p-sortIcon>
-                        }
+                        <p-sortIcon field="lever_name"></p-sortIcon>
                       </div>
                     </th>
-                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date">
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date" style="width: 8%">
                       <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                         Start Date
                         <p-sortIcon field="start_date"></p-sortIcon>
                       </div>
                     </th>
-                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="end_date">
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="end_date" style="width: 8%">
                       <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                         End Date
                         <p-sortIcon field="end_date"></p-sortIcon>
@@ -263,11 +260,11 @@
                     </td>
                     <td>
                       <div class="overflow-hidden line-clamp-2">
-                        {{ myProjectsFilterItem()?.id === 'all' ? project.description : project.full_name || '-' }}
+                        {{ project.description }}
                       </div>
                     </td>
                     <td>
-                      <div class="flex items-center justify-center min-h-[40px]">
+                      <div class="flex items-center min-h-[40px]">
                         <app-custom-tag
                           [statusId]="getStatusDisplay(project).statusId"
                           [statusName]="getStatusDisplay(project).statusName"></app-custom-tag>

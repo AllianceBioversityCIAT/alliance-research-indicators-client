@@ -1,11 +1,9 @@
 import { Component, computed, inject, signal, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
 import { ApiService } from '@shared/services/api.service';
 import { FormsModule } from '@angular/forms';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
-import { GetContractsByUserService } from '@shared/services/control-list/get-contracts-by-user.service';
-import { MyProjectsService } from '@shared/services/my-projects.service';
+import { MyProjectsService, MyProjectsFilters } from '@shared/services/my-projects.service';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SlicePipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { MenuItem } from 'primeng/api';
@@ -25,12 +23,10 @@ import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { ActionsService } from '@shared/services/actions.service';
 import { RippleModule } from 'primeng/ripple';
-import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
 
 @Component({
   selector: 'app-my-projects',
   imports: [
-    ProjectItemComponent,
     SlicePipe,
     DatePipe,
     FormsModule,
@@ -55,7 +51,6 @@ import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.int
 })
 export default class MyProjectsComponent implements OnInit, AfterViewInit {
   api = inject(ApiService);
-  getContractsByUserService = inject(GetContractsByUserService);
   myProjectsService = inject(MyProjectsService);
   cache = inject(CacheService);
   private router = inject(Router);
@@ -68,7 +63,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   private readonly _searchValue = signal('');
   isTableView = signal(true);
 
-  // Pin functionality
   pinnedTab = signal<string>('all');
   loadingPin = signal(false);
   tableId = 'contract-table';
@@ -125,19 +119,27 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   filteredProjects = computed(() => {
-    return this.getContractsByUserService.list().filter(project => project.full_name?.toLowerCase().includes(this._searchValue().toLowerCase()));
-  });
+    const projects = this.myProjectsService.list();
+    const searchTerm =
+      this.myProjectsFilterItem()?.id === 'my' ? this._searchValue().toLowerCase() : this.myProjectsService.searchInput().toLowerCase();
 
-  filteredAllProjects = computed(() => {
-    return this.myProjectsService
-      .list()
-      .filter(
-        project =>
-          project.full_name?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase()) ||
-          project.agreement_id?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase()) ||
-          project.projectDescription?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase()) ||
-          project.description?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase())
+    if (!searchTerm) return projects;
+
+    return projects.filter(project => {
+      const fullName = project.full_name?.toLowerCase() || '';
+      const agreementId = project.agreement_id?.toLowerCase() || '';
+      const description = project.description?.toLowerCase() || '';
+      const projectDescription = project.projectDescription?.toLowerCase() || '';
+      const principalInvestigator = project.principal_investigator?.toLowerCase() || '';
+
+      return (
+        fullName.includes(searchTerm) ||
+        agreementId.includes(searchTerm) ||
+        description.includes(searchTerm) ||
+        projectDescription.includes(searchTerm) ||
+        principalInvestigator.includes(searchTerm)
       );
+    });
   });
 
   onPageChange(event: PaginatorState) {
@@ -151,7 +153,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.myProjectsService.clearAllFilters();
     this.loadPinnedTab();
   }
 
@@ -162,7 +163,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // Pin functionality methods
   async loadPinnedTab() {
     this.loadingPin.set(true);
     const response = await this.api.GET_Configuration(this.tableId, 'tab');
@@ -175,10 +175,24 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       if (allPinned) {
         this.pinnedTab.set('all');
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.loadAllProjects();
       } else if (selfPinned) {
         this.pinnedTab.set('my');
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.loadMyProjects();
+      } else {
+        this.pinnedTab.set('all');
+        this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.loadAllProjects();
       }
+    } else {
+      this.pinnedTab.set('all');
+      this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+      this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+      this.loadAllProjects();
     }
     this.loadingPin.set(false);
   }
@@ -191,6 +205,14 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
       await this.api.PATCH_Configuration(this.tableId, 'tab', pinValue);
       this.pinnedTab.set(newPinnedTab);
+
+      if (newPinnedTab === 'all') {
+        this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+      } else {
+        this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+      }
     } catch (error) {
       console.error('Error updating pinned tab:', error);
     } finally {
@@ -210,17 +232,40 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   onActiveItemChange = (event: MenuItem): void => {
     this.myProjectsFilterItem.set(event);
-    this.myProjectsService.onActiveItemChange(event);
+    this.myProjectsService.myProjectsFilterItem.set(event);
+
+    this.myProjectsService.tableFilters.set(new MyProjectsFilters());
+    this.myProjectsService.searchInput.set('');
+    this._searchValue.set('');
+    this.myProjectsService.cleanMultiselects();
+
+    if (event.id === 'my') {
+      this.loadMyProjects();
+    } else {
+      this.loadAllProjects();
+    }
   };
+
+  loadMyProjects() {
+    this.myProjectsService.main({ 'current-user': true });
+  }
+
+  loadAllProjects() {
+    this.myProjectsService.main({ 'current-user': false });
+  }
 
   onPinIconClick(tabId: string, event: Event) {
     event.stopPropagation();
     this.togglePin(tabId);
   }
 
-  // Methods results table
   setSearchInputFilter($event: Event) {
-    this.myProjectsService.searchInput.set(($event.target as HTMLInputElement).value);
+    const value = ($event.target as HTMLInputElement).value;
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this._searchValue.set(value);
+    } else {
+      this.myProjectsService.searchInput.set(value);
+    }
   }
 
   showFiltersSidebar() {
@@ -292,16 +337,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     return 'Apply Filters';
   }
 
-  getStatusDisplay(project: FindContracts | GetContractsByUser | { status_id?: number; status_name?: string; contract_status?: string }): {
+  getStatusDisplay(project: FindContracts): {
     statusId: number;
     statusName: string;
   } {
-    // Para My Projects (GetContractsByUser) - no tiene campos de status, usar valor por defecto
-    if ('indicators' in project) {
-      return { statusId: 1, statusName: 'Ongoing' };
-    }
-
-    // Para All Projects (FindContracts)
     if ('status_id' in project && project.status_id) {
       return { statusId: project.status_id, statusName: project.status_name || 'Unknown' };
     }
@@ -321,32 +360,26 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       }
     }
 
-    // Valor por defecto
     return { statusId: 1, statusName: 'Ongoing' };
   }
 
-  // Nuevos métodos para el HTML refactorizado
   getLoadingState(): boolean {
-    return this.myProjectsFilterItem()?.id === 'my' ? this.getContractsByUserService.loading() : this.myProjectsService.loading();
+    return this.myProjectsService.loading();
   }
 
   getCurrentProjects(): FindContracts[] {
-    return this.myProjectsFilterItem()?.id === 'my' ? this.filteredProjects() : this.filteredAllProjects();
+    return this.filteredProjects();
   }
 
   getCurrentFirst(): number {
-    return this.myProjectsFilterItem()?.id === 'my' ? this.first() : this.allProjectsFirst();
+    return this.first();
   }
 
   getCurrentRows(): number {
-    return this.myProjectsFilterItem()?.id === 'my' ? this.rows() : this.allProjectsRows();
+    return this.rows();
   }
 
   onCurrentPageChange(event: PaginatorState): void {
-    if (this.myProjectsFilterItem()?.id === 'my') {
-      this.onPageChange(event);
-    } else {
-      this.onAllProjectsPageChange(event);
-    }
+    this.onPageChange(event);
   }
 }
