@@ -8,6 +8,7 @@
           <div
             class="flex items-center gap-2 px-5 py-3 cursor-pointer border-b-1 border-transparent transition-all duration-200 relative hover:bg-gray-50"
             [class]="myProjectsFilterItem()?.id === item.id ? 'border-b-[#035BA9]' : ''"
+            (keydown.enter)="onActiveItemChange(item)"
             (click)="onActiveItemChange(item)">
             <button
               type="button"
@@ -57,6 +58,7 @@
                   label="Apply Filters"
                   icon="pi pi-filter !text-[10px]"
                   size="small"
+                  (keydown.enter)="showFiltersSidebar()"
                   [badge]="myProjectsService.countFiltersSelected()"
                   (click)="showFiltersSidebar()"></p-button>
                 <p-button
@@ -65,6 +67,7 @@
                   [text]="true"
                   size="small"
                   severity="secondary"
+                  (keydown.enter)="myProjectsService.clearFilters()"
                   (click)="myProjectsService.clearFilters()"></p-button>
                 <p-button
                   styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
@@ -72,12 +75,14 @@
                   size="small"
                   [text]="true"
                   severity="secondary"
+                  (keydown.enter)="toggleTableView()"
                   (click)="toggleTableView()"></p-button>
                 <p-button
                   styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
                   icon="pi pi-th-large !text-[10px]"
                   size="small"
                   [text]="true"
+                  (keydown.enter)="toggleTableView()"
                   severity="secondary"
                   (click)="toggleCardView()"></p-button>
               </div>
@@ -184,6 +189,7 @@
                   <ng-template pTemplate="body" let-project>
                     <tr
                       (click)="openProject(project)"
+                      (keydown.enter)="openProject(project)"
                       class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
                       <td>
                         <div class="overflow-hidden line-clamp-2">
@@ -271,6 +277,7 @@
                   label="Apply Filters"
                   icon="pi pi-filter !text-[10px]"
                   size="small"
+                  (keydown.enter)="showFiltersSidebar()"
                   [badge]="myProjectsService.countFiltersSelected()"
                   (click)="showFiltersSidebar()"></p-button>
                 <p-button
@@ -279,6 +286,7 @@
                   [text]="true"
                   size="small"
                   severity="secondary"
+                  (keydown.enter)="myProjectsService.clearFilters()"
                   (click)="myProjectsService.clearFilters()"></p-button>
                 <p-button
                   styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
@@ -286,6 +294,7 @@
                   size="small"
                   [text]="true"
                   severity="secondary"
+                  (keydown.enter)="toggleTableView()"
                   (click)="toggleTableView()"></p-button>
                 <p-button
                   styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] view-toggle-btn"
@@ -293,6 +302,7 @@
                   size="small"
                   [text]="true"
                   severity="secondary"
+                  (keydown.enter)="toggleCardView()"
                   (click)="toggleCardView()"></p-button>
               </div>
             </div>
@@ -393,6 +403,7 @@
                 <ng-template pTemplate="body" let-project>
                   <tr
                     (click)="openProject(project)"
+                    (keydown.enter)="openProject(project)"
                     class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
                     <td>
                       <div class="overflow-hidden line-clamp-2">
