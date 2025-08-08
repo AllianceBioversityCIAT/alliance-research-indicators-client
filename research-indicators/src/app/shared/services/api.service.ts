@@ -60,6 +60,7 @@ import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { FindContracts } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
+import { Configuration } from '@shared/interfaces/configuration.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -199,6 +200,16 @@ export class ApiService {
   GET_IssueCategories = (): Promise<MainResponse<IssueCategory[]>> => {
     const url = () => `issue-categories`;
     return this.TP.get(url(), {});
+  };
+
+  GET_Configuration = (id: string, section: string): Promise<MainResponse<Configuration>> => {
+    const url = () => `user/configuration/${id}?component=${section}`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_Configuration = (id: string, section: string, body: Configuration): Promise<MainResponse<Configuration>> => {
+    const url = () => `user/configuration/${id}?component=${section}`;
+    return this.TP.patch(url(), body, {});
   };
 
   // create partner request
@@ -428,7 +439,7 @@ export class ApiService {
     'contract-code'?: string;
     'project-name'?: string;
     'principal-investigator'?: string;
-    lever?: number;
+    lever?: string;
     status?: string;
     'start-date'?: string;
     'end-date'?: string;
@@ -441,7 +452,7 @@ export class ApiService {
       if (filters['contract-code']) params = params.set('contract-code', filters['contract-code']);
       if (filters['project-name']) params = params.set('project-name', filters['project-name']);
       if (filters['principal-investigator']) params = params.set('principal-investigator', filters['principal-investigator']);
-      if (filters.lever != null) params = params.set('lever', filters.lever.toString());
+      if (filters.lever) params = params.set('lever', filters.lever);
       if (filters.status) params = params.set('status', filters.status);
       if (filters['start-date']) params = params.set('start-date', filters['start-date']);
       if (filters['end-date']) params = params.set('end-date', filters['end-date']);

@@ -81,7 +81,7 @@ export class MyProjectsService {
     }
 
     if (filters.levers.length > 0) {
-      params['lever'] = filters.levers[0]?.id;
+      params['lever'] = filters.levers.map(lever => lever.id).join(',');
     }
 
     if (filters.statusCodes.length > 0) {

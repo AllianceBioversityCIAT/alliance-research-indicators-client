@@ -10,13 +10,35 @@
 <div class="flex flex-col gap-3 px-6 pt-8">
   <!-- Projects Section -->
   <div class="flex flex-col bg-white">
-    <!-- Tab Menu -->
-    <p-tabMenu
-      class="!text-[14px] xl:!text-[16px]"
-      #tm
-      [model]="this.myProjectsFilterItems"
-      [activeItem]="this.myProjectsFilterItem()"
-      (activeItemChange)="this.onActiveItemChange($event)"></p-tabMenu>
+    <!-- Custom Tab Menu with Pin Icons -->
+    <div class="bg-white border-b border-[#E8EBED]">
+      <div class="flex items-center gap-0">
+        @for (item of orderedFilterItems(); track item.id) {
+          <div
+            class="flex items-center gap-2 px-5 py-3 cursor-pointer border-b-1 border-transparent transition-all duration-200 relative hover:bg-gray-50"
+            [class]="myProjectsFilterItem()?.id === item.id ? 'border-b-[#035BA9]' : ''"
+            (click)="onActiveItemChange(item)">
+            <button
+              type="button"
+              class="bg-[#E8EBED] cursor-pointer p-1 rounded-full flex items-center justify-center min-w-6 min-h-6 z-10"
+              (click)="onPinIconClick(item.id, $event)"
+              [disabled]="loadingPin()"
+              title="Pin tab">
+              @if (isPinned(item.id)) {
+                <img src="/icons/pin-outline.svg" alt="pin logo" class="w-3 h-3" />
+              } @else {
+                <img src="/icons/pin.svg" alt="pin logo" class="w-3 h-3" />
+              }
+            </button>
+            <span
+              class="text-[14px] xl:text-[16px] pl-2 transition-colors font-semibold duration-200 py-1"
+              [class]="myProjectsFilterItem()?.id === item.id ? 'text-[#035BA9]' : ' text-gray-500'">
+              {{ item.label }}
+            </span>
+          </div>
+        }
+      </div>
+    </div>
 
     <!-- Content based on active tab -->
     @if (this.myProjectsFilterItem()?.id === 'my') {
