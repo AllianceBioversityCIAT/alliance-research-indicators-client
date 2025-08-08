@@ -1,0 +1,773 @@
+.project-setup-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 1rem;
+
+  .header-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0 0 0 / 8%);
+    border: 1px solid #e8ebed;
+
+    h1 {
+      color: #112f5c;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    p {
+      color: #8d9299;
+      font-size: 0.8rem;
+      margin: 0;
+    }
+  }
+
+  // ============= TABS STYLING =============
+  ::ng-deep .p-tabview {
+    .p-tabview-nav {
+      background: white;
+      border-radius: 8px 8px 0 0;
+      border: 1px solid #e8ebed;
+      border-bottom: none;
+      margin-bottom: 0;
+
+      .p-tabview-nav-link {
+        border: none !important;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        color: #8d9299;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+        border-radius: 0 !important;
+
+        &:hover {
+          background: rgba(23 63 111 / 5%);
+          color: #173f6f;
+        }
+
+        &.p-tabview-nav-link-active {
+          background: #173f6f !important;
+          color: white !important;
+          border-radius: 6px 6px 0 0 !important;
+        }
+      }
+    }
+
+    .p-tabview-panels {
+      background: white;
+      border: 1px solid #e8ebed;
+      border-radius: 0 0 8px 8px;
+      padding: 1rem;
+      margin-top: 0;
+
+      .p-tabview-panel {
+        padding: 0;
+      }
+    }
+  }
+
+  // ============= LEVEL SECTIONS =============
+  .level-section {
+    margin-bottom: 1rem;
+
+    .level-header {
+      border-bottom: 1px solid #e8ebed;
+      padding-bottom: 0.4rem;
+      margin-bottom: 0.75rem;
+
+      h2 {
+        color: #112f5c;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        margin-bottom: 0.1rem;
+      }
+
+      p {
+        color: #8d9299;
+        font-size: 0.7rem;
+        margin: 0;
+      }
+    }
+  }
+
+  // ============= COMPONENT CARDS =============
+  .component-card {
+    border: 1px solid #e8ebed;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    background: #fcfcfc;
+    margin-bottom: 0.5rem;
+
+    &:hover {
+      border-color: #173f6f;
+      box-shadow: 0 1px 4px rgba(23 63 111 / 10%);
+    }
+
+    ::ng-deep .p-card-body {
+      padding: 0.75rem;
+    }
+
+    .component-display {
+      h3 {
+        color: #112f5c;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+      }
+
+      p {
+        color: #8d9299;
+        font-size: 0.75rem;
+        margin-bottom: 0.4rem;
+      }
+    }
+
+    .indicators-section {
+      background: rgba(23 63 111 / 4%);
+      padding: 0.4rem;
+      border-radius: 4px;
+      margin-top: 0.4rem;
+
+      span {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: #173f6f;
+      }
+
+      .indicator-item {
+        background: rgba(255 255 255 / 80%);
+        padding: 0.4rem;
+        border-radius: 4px;
+        border: 1px solid rgba(23 63 111 / 10%);
+
+        .indicator-name {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: #112f5c;
+          margin: 0;
+        }
+
+        .remove-indicator {
+          color: #cf0808;
+          font-size: 0.6rem;
+          cursor: pointer;
+          opacity: 0.7;
+          transition: opacity 0.2s ease;
+
+          &:hover {
+            opacity: 1;
+          }
+        }
+
+        .info-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.2rem;
+          background: rgba(23 63 111 / 8%);
+          color: #173f6f;
+          padding: 0.15rem 0.3rem;
+          border-radius: 4px;
+          font-size: 0.6rem;
+          font-weight: 500;
+
+          i {
+            font-size: 0.55rem;
+            opacity: 0.8;
+          }
+        }
+      }
+    }
+  }
+
+  // ============= SUB-COMPONENT CARDS =============
+  .sub-components-section {
+    background: rgba(80 156 85 / 3%);
+    border-radius: 6px;
+    padding: 0.5rem;
+    margin-top: 0.4rem;
+    border: 1px solid rgba(80 156 85 / 8%);
+
+    h4 {
+      color: #509c55;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-bottom: 0.4rem;
+    }
+  }
+
+  .sub-component-card {
+    background: white;
+    border: 1px solid #e8ebed;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    margin-bottom: 0.4rem;
+
+    &:hover {
+      border-color: #509c55;
+      box-shadow: 0 1px 3px rgba(80 156 85 / 10%);
+    }
+
+    ::ng-deep .p-card-body {
+      padding: 0.6rem;
+    }
+
+    h5 {
+      color: #112f5c;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+    }
+
+    p {
+      color: #8d9299;
+      font-size: 0.7rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .indicators-section {
+      background: rgba(80 156 85 / 4%);
+      padding: 0.3rem;
+      border-radius: 3px;
+      margin-top: 0.3rem;
+
+      span {
+        font-size: 0.6rem;
+        font-weight: 600;
+        color: #509c55;
+      }
+
+      .sub-indicator-item {
+        background: rgba(255 255 255 / 90%);
+        padding: 0.3rem;
+        border-radius: 3px;
+        border: 1px solid rgba(80 156 85 / 15%);
+
+        .sub-indicator-name {
+          font-size: 0.7rem;
+          font-weight: 600;
+          color: #112f5c;
+          margin: 0;
+        }
+
+        .remove-sub-indicator {
+          color: #cf0808;
+          font-size: 0.55rem;
+          cursor: pointer;
+          opacity: 0.7;
+          transition: opacity 0.2s ease;
+
+          &:hover {
+            opacity: 1;
+          }
+        }
+
+        .sub-info-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.15rem;
+          background: rgba(23 63 111 / 8%);
+          color: #173f6f;
+          padding: 0.1rem 0.25rem;
+          border-radius: 4px;
+          font-size: 0.55rem;
+          font-weight: 500;
+
+          i {
+            font-size: 0.5rem;
+            opacity: 0.8;
+          }
+        }
+      }
+    }
+  }
+
+  // ============= FORM CARDS =============
+  .new-component-form,
+  .new-subcomponent-form {
+    border: 1px dashed #173f6f;
+    background: rgba(23 63 111 / 2%);
+    margin-bottom: 0.5rem;
+
+    ::ng-deep .p-card-body {
+      padding: 0.75rem;
+    }
+
+    .edit-form {
+      .grid {
+        gap: 0.6rem;
+      }
+
+      label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #112f5c;
+        margin-bottom: 0.2rem;
+      }
+    }
+  }
+
+  // ============= INDICATORS TAB =============
+  .indicators-tab-content {
+    .create-indicators-section {
+      text-align: center;
+      padding: 1rem 0;
+      background: rgba(23 63 111 / 2%);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(23 63 111 / 8%);
+    }
+
+    .indicators-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+
+      @media (width <= 768px) {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+
+    .level-indicators-section {
+      h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e8ebed;
+        margin-bottom: 0.75rem;
+        color: #112f5c;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+    }
+
+    .indicator-card {
+      border: 1px solid #e8ebed;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      background: #fcfcfc;
+      margin-bottom: 0.5rem;
+
+      &:hover {
+        border-color: #173f6f;
+        box-shadow: 0 2px 6px rgba(23 63 111 / 12%);
+      }
+
+      ::ng-deep .p-card-body {
+        padding: 0.75rem;
+      }
+
+      .indicator-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+
+        .indicator-title {
+          color: #112f5c;
+          font-size: 0.9rem;
+          font-weight: 600;
+          margin: 0;
+          flex: 1;
+        }
+
+        .indicator-level-badge {
+          background: #173f6f;
+          color: white;
+          padding: 0.2rem 0.5rem;
+          border-radius: 12px;
+          font-size: 0.65rem;
+          font-weight: 600;
+        }
+      }
+
+      .indicator-description {
+        color: #8d9299;
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+      }
+
+      .indicator-metadata {
+        .metadata-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.4rem;
+          margin-bottom: 0.3rem;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .metadata-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: rgba(23 63 111 / 8%);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            color: #173f6f;
+            font-weight: 500;
+
+            i {
+              font-size: 0.6rem;
+              opacity: 0.8;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ============= BUTTONS =============
+  ::ng-deep p-button {
+    .p-button {
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+
+      &:hover {
+        box-shadow: 0 2px 6px rgba(0 0 0 / 12%);
+      }
+
+      &.p-button-secondary {
+        background: #fcfcfc;
+        color: #8d9299;
+        border-color: #e8ebed;
+
+        &:hover {
+          background: #f4f7f9;
+          border-color: #d1d6da;
+          color: #173f6f;
+        }
+      }
+
+      &.p-button-help {
+        background: #173f6f;
+        border: none;
+        color: white;
+
+        &:hover {
+          background: #112f5c;
+        }
+      }
+
+      &.p-button-danger {
+        background: #cf0808;
+        border: none;
+        color: white;
+
+        &:hover {
+          background: #b50707;
+        }
+      }
+
+      &.p-button-info {
+        background: #173f6f;
+        border: none;
+        color: white;
+
+        &:hover {
+          background: #112f5c;
+        }
+      }
+
+      &.p-button-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+      }
+    }
+
+    .p-button-text {
+      background: transparent;
+      border: none;
+      padding: 0.3rem;
+      color: #8d9299;
+
+      &:hover {
+        background: rgba(23 63 111 / 8%);
+        color: #173f6f;
+        box-shadow: none;
+      }
+    }
+  }
+
+  // ============= MODALS =============
+  ::ng-deep .p-dialog {
+    .p-dialog-header {
+      background: #173f6f;
+      color: white;
+      border-radius: 8px 8px 0 0;
+      padding: 0.75rem 1rem;
+
+      .p-dialog-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .p-dialog-header-icon {
+        color: white;
+
+        &:hover {
+          background: rgba(255 255 255 / 20%);
+        }
+      }
+    }
+
+    .p-dialog-content {
+      padding: 1rem;
+      border-radius: 0 0 8px 8px;
+    }
+  }
+
+  .indicator-option {
+    padding: 0.5rem;
+    border: 1px solid #e8ebed;
+    border-radius: 6px;
+    background: #fcfcfc;
+    transition: all 0.2s ease;
+    margin-bottom: 0.4rem;
+
+    &:hover {
+      background: rgba(23 63 111 / 4%);
+      border-color: #173f6f;
+    }
+  }
+
+  // ============= FORM ELEMENTS =============
+  ::ng-deep {
+    .p-inputtext,
+    .p-inputtextarea,
+    .p-inputnumber-input,
+    .p-select-label,
+    .p-multiselect-label {
+      border-radius: 6px;
+      border: 1px solid #e8ebed;
+      transition: all 0.2s ease;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+
+      &:focus {
+        border-color: #173f6f;
+        box-shadow: 0 0 0 2px rgba(23 63 111 / 15%);
+        outline: none;
+      }
+
+      &:hover {
+        border-color: #d1d6da;
+      }
+    }
+
+    .p-select,
+    .p-multiselect {
+      border-radius: 6px;
+
+      &:not(.p-disabled):hover {
+        border-color: #d1d6da;
+      }
+
+      &.p-focus {
+        border-color: #173f6f;
+        box-shadow: 0 0 0 2px rgba(23 63 111 / 15%);
+      }
+    }
+
+    .p-inputnumber {
+      .p-inputnumber-buttons-stacked {
+        .p-button {
+          border-radius: 0 4px 4px 0;
+        }
+      }
+    }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #112f5c;
+    }
+  }
+
+  // ============= TAGS =============
+  ::ng-deep .p-tag {
+    border-radius: 12px;
+    padding: 0.3rem 0.6rem;
+    font-weight: 600;
+    font-size: 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+
+    &.p-tag-info {
+      background: #173f6f;
+      color: white;
+    }
+
+    &.p-tag-secondary {
+      background: #509c55;
+      color: white;
+    }
+
+    .pi-times {
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  // ============= STATUS CARD =============
+  .status-card {
+    border-radius: 20px;
+    background: rgba(255 255 255 / 95%);
+    backdrop-filter: blur(6px);
+    border: 1px solid #e8ebed;
+    box-shadow: 0 3px 12px rgba(0 0 0 / 10%);
+
+    ::ng-deep .p-card-body {
+      padding: 0.6rem 1rem;
+    }
+
+    .status-info {
+      font-size: 0.75rem;
+      color: #8d9299;
+    }
+
+    .status-icon {
+      display: flex;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+  }
+
+  // ============= ANIMATIONS =============
+  .component-card,
+  .sub-component-card,
+  .indicator-card,
+  .new-component-form,
+  .new-subcomponent-form {
+    animation: slide-in-up 0.2s ease-out;
+  }
+
+  @keyframes slide-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  // ============= EMPTY STATES =============
+  .text-center.py-12,
+  .text-center.py-8,
+  .text-center.py-6,
+  .text-center.py-4 {
+    .pi {
+      color: #d1d6da;
+      margin-bottom: 0.5rem;
+    }
+
+    h3 {
+      color: #8d9299;
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    p {
+      color: #a2a9af;
+      font-size: 0.8rem;
+    }
+  }
+
+  // ============= RESPONSIVE DESIGN =============
+  @media (width <= 768px) {
+    padding: 0.75rem;
+
+    .header-section {
+      padding: 0.75rem;
+
+      .flex {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch;
+
+        .flex.gap-2 {
+          flex-direction: column;
+
+          p-button {
+            width: 100%;
+          }
+        }
+      }
+    }
+
+    ::ng-deep .p-tabview .p-tabview-panels {
+      padding: 0.75rem;
+
+      .p-tabview-panel {
+        padding: 0;
+      }
+    }
+
+    .grid {
+      &.grid-cols-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .status-card {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+      right: 1rem;
+      width: auto;
+      border-radius: 10px;
+
+      .flex {
+        flex-direction: column;
+        gap: 0.4rem;
+        text-align: center;
+      }
+    }
+  }
+
+  // ============= FOCUS STYLES =============
+  * {
+    &:focus-visible {
+      outline: 2px solid #173f6f;
+      outline-offset: 1px;
+      border-radius: 3px;
+    }
+  }
+
+  // ============= UTILITY CLASSES =============
+  .glass-effect {
+    background: rgba(255 255 255 / 90%);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(232 235 237 / 40%);
+  }
+
+  .shadow-soft {
+    box-shadow: 0 2px 6px rgba(0 0 0 / 6%);
+  }
+}

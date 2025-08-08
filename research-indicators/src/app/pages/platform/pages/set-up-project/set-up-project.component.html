@@ -1,1 +1,692 @@
-<p>set-up-project works!</p>
+<div class="project-setup-container">
+  <!-- Header Principal -->
+  <div class="header-section">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Project Setup</h1>
+        <p class="text-gray-600">Configure your project components and indicators</p>
+      </div>
+      <div class="flex gap-3"></div>
+    </div>
+  </div>
+
+  <!-- Layout principal con tabs -->
+  <p-tabView class="mb-6">
+    <p-tabPanel header="Estructure">
+      <div class="components-tab-content">
+        <!-- Sección de Componentes (Nivel 1) -->
+        <div class="level-section mb-8">
+          <!-- <div class="level-header"> -->
+          <!-- <h2> -->
+          <!-- <i class="pi pi-sitemap"></i> -->
+          <!-- Level 1 - Components -->
+          <!-- </h2> -->
+          <!-- <p>Main project components</p> -->
+          <!-- </div> -->
+
+          <!-- Lista de componentes existentes -->
+          <div class="components-list mb-4">
+            @for (component of projectConfig().components; track component.id) {
+              <p-card class="component-card mb-4">
+                <div class="component-content">
+                  <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1">
+                      @if (editingElementId() === component.id) {
+                        <!-- Modo edición -->
+                        <div class="edit-form">
+                          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                            <div>
+                              <label for="comp-name-edit" class="font-medium block mb-2">Component Name *</label>
+                              <input
+                                id="comp-name-edit"
+                                pInputText
+                                [(ngModel)]="newComponentForm().name"
+                                placeholder="Component name"
+                                class="w-full" />
+                            </div>
+                            <div>
+                              <label for="comp-code-edit" class="font-medium block mb-2">Code *</label>
+                              <input
+                                id="comp-code-edit"
+                                pInputText
+                                [(ngModel)]="newComponentForm().code"
+                                placeholder="Component code"
+                                class="w-full" />
+                            </div>
+                          </div>
+                          <div class="flex gap-2">
+                            <p-button icon="pi pi-check" label="Save" size="small" (onClick)="updateComponent(component.id)"> </p-button>
+                            <p-button icon="pi pi-times" label="Cancel" severity="secondary" size="small" (onClick)="cancelComponentEdit()">
+                            </p-button>
+                          </div>
+                        </div>
+                      } @else {
+                        <!-- Modo visualización -->
+                        <div class="component-display">
+                          <h3>{{ component.name }}</h3>
+                          <p><span class="font-medium">Code:</span> {{ component.code }}</p>
+                          <!-- Indicadores asignados -->
+                          <div class="indicators-section">
+                            <span class="block mb-2">Assigned Indicators:</span>
+                            @if (component.indicators.length > 0) {
+                              <div class="space-y-2">
+                                @for (indicatorId of component.indicators; track indicatorId) {
+                                  @if (getIndicatorById(indicatorId); as indicator) {
+                                    <div class="indicator-item">
+                                      <div class="flex justify-between items-start mb-1">
+                                        <h6 class="indicator-name">{{ indicator.name }}</h6>
+                                        <span
+                                          class="pi pi-times remove-indicator"
+                                          (click)="removeIndicatorFromElement('component', component.id, indicatorId)">
+                                        </span>
+                                      </div>
+                                      <div class="flex flex-wrap gap-1">
+                                        <span class="info-chip"> <i class="pi pi-calculator"></i>Type: {{ indicator.numberType }} </span>
+                                        <span class="info-chip"> <i class="pi pi-hashtag"></i>Format: {{ indicator.numberFormat }} </span>
+                                        <span class="info-chip"> <i class="pi pi-calendar"></i>Years: {{ indicator.years.join(', ') }} </span>
+                                        @if (indicator.targetUnit) {
+                                          <span class="info-chip"> <i class="pi pi-flag"></i>Unit: {{ indicator.targetUnit }} </span>
+                                        }
+                                        @if (indicator.targetValue) {
+                                          <span class="info-chip"> <i class="pi pi-bullseye"></i>Target: {{ indicator.targetValue }} </span>
+                                        }
+                                        @if (indicator.baseline) {
+                                          <span class="info-chip"> <i class="pi pi-chart-line"></i>Baseline: {{ indicator.baseline }} </span>
+                                        }
+                                      </div>
+                                    </div>
+                                  }
+                                }
+                              </div>
+                            } @else {
+                              <span class="text-xs text-gray-500 italic">No indicators assigned</span>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+
+                    @if (editingElementId() !== component.id) {
+                      <div class="flex gap-2">
+                        <p-button
+                          icon="pi pi-tag"
+                          pTooltip="Assign Indicators"
+                          [text]="true"
+                          severity="help"
+                          (onClick)="openAssignIndicatorModal('component', component.id)">
+                        </p-button>
+                        <p-button icon="pi pi-pencil" pTooltip="Edit Component" [text]="true" (onClick)="editComponent(component.id)"> </p-button>
+                        <p-button
+                          icon="pi pi-trash"
+                          pTooltip="Delete Component"
+                          [text]="true"
+                          severity="danger"
+                          (onClick)="removeComponent(component.id)">
+                        </p-button>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Sub-componentes de este componente -->
+                  <div class="sub-components-section">
+                    <div class="flex justify-between items-center mb-3">
+                      <p-button
+                        icon="pi pi-plus"
+                        label="Add level 2 estructure"
+                        size="small"
+                        severity="secondary"
+                        (onClick)="startAddingSubComponent(component.id)">
+                      </p-button>
+                    </div>
+
+                    <!-- Formulario para nuevo sub-componente -->
+                    @if (editingElementId() === 'new-subcomponent-' + component.id) {
+                      <p-card class="new-subcomponent-form mb-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                          <div>
+                            <label for="sub-name-new" class="font-medium block mb-2">Sub-estructure Name *</label>
+                            <input
+                              id="sub-name-new"
+                              pInputText
+                              [(ngModel)]="newSubComponentForm().name"
+                              placeholder="Sub-component name"
+                              class="w-full" />
+                          </div>
+                          <div>
+                            <label for="sub-code-new" class="font-medium block mb-2">Code *</label>
+                            <input
+                              id="sub-code-new"
+                              pInputText
+                              [(ngModel)]="newSubComponentForm().code"
+                              placeholder="Sub-component code"
+                              class="w-full" />
+                          </div>
+                        </div>
+                        <div class="flex gap-2">
+                          <p-button icon="pi pi-check" label="Save Sub-estructure" size="small" (onClick)="saveSubComponent()"> </p-button>
+                          <p-button icon="pi pi-times" label="Cancel" severity="secondary" size="small" (onClick)="cancelSubComponentEdit()">
+                          </p-button>
+                        </div>
+                      </p-card>
+                    }
+
+                    <!-- Lista de sub-componentes -->
+                    @for (sub of projectConfig().subComponents; track sub.id) {
+                      @if (sub.parentComponentId === component.id) {
+                        <p-card class="sub-component-card mb-2">
+                          <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                              @if (editingElementId() === sub.id) {
+                                <!-- Modo edición sub-componente -->
+                                <div class="edit-form">
+                                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                    <div>
+                                      <label [for]="'sub-edit-name-' + sub.id" class="font-medium block mb-2">Name *</label>
+                                      <input [id]="'sub-edit-name-' + sub.id" pInputText [(ngModel)]="newSubComponentForm().name" class="w-full" />
+                                    </div>
+                                    <div>
+                                      <label [for]="'sub-edit-code-' + sub.id" class="font-medium block mb-2">Code *</label>
+                                      <input [id]="'sub-edit-code-' + sub.id" pInputText [(ngModel)]="newSubComponentForm().code" class="w-full" />
+                                    </div>
+                                  </div>
+                                  <div class="flex gap-2">
+                                    <p-button icon="pi pi-check" label="Save" size="small" (onClick)="updateSubComponent(sub.id)"> </p-button>
+                                    <p-button
+                                      icon="pi pi-times"
+                                      label="Cancel"
+                                      severity="secondary"
+                                      size="small"
+                                      (onClick)="cancelSubComponentEdit()">
+                                    </p-button>
+                                  </div>
+                                </div>
+                              } @else {
+                                <!-- Modo visualización -->
+                                <div>
+                                  <h5>{{ sub.name }}</h5>
+                                  <p><span class="font-medium">Code:</span> {{ sub.code }}</p>
+                                  <!-- Indicadores del sub-componente -->
+                                  <div class="indicators-section">
+                                    <span class="mb-1 block">Indicators:</span>
+                                    @if (sub.indicators.length > 0) {
+                                      <div class="space-y-1">
+                                        @for (indicatorId of sub.indicators; track indicatorId) {
+                                          @if (getIndicatorById(indicatorId); as indicator) {
+                                            <div class="sub-indicator-item">
+                                              <div class="flex justify-between items-center mb-1">
+                                                <h6 class="sub-indicator-name">{{ indicator.name }}</h6>
+                                                <span
+                                                  class="pi pi-times remove-sub-indicator"
+                                                  (click)="removeIndicatorFromElement('subcomponent', sub.id, indicatorId)">
+                                                </span>
+                                              </div>
+                                              <div class="flex flex-wrap gap-1">
+                                                <span class="sub-info-chip"> <i class="pi pi-calculator"></i>Type: {{ indicator.numberType }} </span>
+                                                <span class="sub-info-chip"> <i class="pi pi-hashtag"></i>Format: {{ indicator.numberFormat }} </span>
+                                                <span class="sub-info-chip">
+                                                  <i class="pi pi-calendar"></i>Years: {{ indicator.years.join(', ') }}
+                                                </span>
+                                                @if (indicator.targetUnit) {
+                                                  <span class="sub-info-chip"> <i class="pi pi-flag"></i>Unit: {{ indicator.targetUnit }} </span>
+                                                }
+                                                @if (indicator.targetValue) {
+                                                  <span class="sub-info-chip">
+                                                    <i class="pi pi-bullseye"></i>Target: {{ indicator.targetValue }}
+                                                  </span>
+                                                }
+                                                @if (indicator.baseline) {
+                                                  <span class="sub-info-chip">
+                                                    <i class="pi pi-chart-line"></i>Baseline: {{ indicator.baseline }}
+                                                  </span>
+                                                }
+                                              </div>
+                                            </div>
+                                          }
+                                        }
+                                      </div>
+                                    } @else {
+                                      <span class="text-xs italic">None</span>
+                                    }
+                                  </div>
+                                </div>
+                              }
+                            </div>
+
+                            @if (editingElementId() !== sub.id) {
+                              <div class="flex gap-1">
+                                <p-button
+                                  icon="pi pi-tag"
+                                  pTooltip="Assign Indicators"
+                                  [text]="true"
+                                  severity="help"
+                                  size="small"
+                                  (onClick)="openAssignIndicatorModal('subcomponent', sub.id)">
+                                </p-button>
+                                <p-button icon="pi pi-pencil" pTooltip="Edit" [text]="true" size="small" (onClick)="editSubComponent(sub.id)">
+                                </p-button>
+                                <p-button
+                                  icon="pi pi-trash"
+                                  pTooltip="Delete"
+                                  [text]="true"
+                                  severity="danger"
+                                  size="small"
+                                  (onClick)="removeSubComponent(sub.id)">
+                                </p-button>
+                              </div>
+                            }
+                          </div>
+                        </p-card>
+                      }
+                    }
+
+                    @if (!hasSubComponents(component.id)) {
+                      <div class="text-center py-3">
+                        <i class="pi pi-inbox text-lg mb-1 block"></i>
+                        <p class="text-xs">No sub-components yet. Add one above.</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </p-card>
+            }
+          </div>
+
+          <!-- Formulario para nuevo componente -->
+          @if (editingElementId() === 'new-component') {
+            <p-card class="new-component-form mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label for="new-comp-name" class="font-medium block mb-2">Component Name *</label>
+                  <input id="new-comp-name" pInputText [(ngModel)]="newComponentForm().name" placeholder="e.g., Component A" class="w-full" />
+                </div>
+                <div>
+                  <label for="new-comp-code" class="font-medium block mb-2">Code *</label>
+                  <input id="new-comp-code" pInputText [(ngModel)]="newComponentForm().code" placeholder="e.g., COMP_A" class="w-full" />
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <p-button icon="pi pi-check" label="Save Component" (onClick)="saveComponent()"> </p-button>
+                <p-button icon="pi pi-times" label="Cancel" severity="secondary" (onClick)="cancelComponentEdit()"> </p-button>
+              </div>
+            </p-card>
+          }
+
+          <!-- Botón para agregar componente -->
+          <div class="add-component-section">
+            @if (editingElementId() !== 'new-component') {
+              <p-button icon="pi pi-plus" label="Add level 1 estructure" class="w-full md:w-auto" (onClick)="startAddingComponent()"> </p-button>
+            }
+          </div>
+
+          @if (projectConfig().components.length === 0 && editingElementId() !== 'new-component') {
+            <div class="text-center py-6">
+              <i class="pi pi-sitemap text-2xl mb-2 block"></i>
+              <h3 class="mb-1 text-sm">No estructure yet</h3>
+              <p class="mb-3 text-xs">Start by adding your first project estructure.</p>
+            </div>
+          }
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <p-tabPanel header="Indicators">
+      <div class="indicators-tab-content">
+        <!-- Botones para crear indicadores -->
+        <div class="create-indicators-section mb-6">
+          <div class="flex gap-4 justify-center">
+            <p-button icon="pi pi-plus" label="Create Level 1 Indicator" severity="info" (onClick)="openIndicatorModal(1)"> </p-button>
+            <p-button icon="pi pi-plus" label="Create Level 2 Indicator" severity="secondary" (onClick)="openIndicatorModal(2)"> </p-button>
+          </div>
+        </div>
+
+        <div class="indicators-grid">
+          <!-- Indicadores Nivel 1 -->
+          <div class="level-indicators-section">
+            <h3>
+              <i class="pi pi-tag"></i>
+              Level 1 Indicators (Components)
+            </h3>
+
+            @if (level1Indicators().length > 0) {
+              <div class="indicators-list">
+                @for (indicator of level1Indicators(); track indicator.id) {
+                  <p-card class="indicator-card">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="indicator-header">
+                          <h4 class="indicator-title">{{ indicator.name }}</h4>
+                          <span class="indicator-level-badge">Level {{ indicator.level }}</span>
+                        </div>
+                        <p class="indicator-description">{{ indicator.description }}</p>
+
+                        <div class="indicator-metadata">
+                          <div class="metadata-row">
+                            <span class="metadata-item">
+                              <i class="pi pi-calculator"></i>
+                              {{ indicator.numberType }}
+                            </span>
+                            <span class="metadata-item">
+                              <i class="pi pi-hashtag"></i>
+                              {{ indicator.numberFormat }}
+                            </span>
+                            @if (indicator.targetUnit) {
+                              <span class="metadata-item">
+                                <i class="pi pi-flag"></i>
+                                {{ indicator.targetUnit }}
+                              </span>
+                            }
+                          </div>
+
+                          <div class="metadata-row">
+                            <span class="metadata-item">
+                              <i class="pi pi-calendar"></i>
+                              {{ indicator.years.join(', ') }}
+                            </span>
+                            @if (indicator.targetValue) {
+                              <span class="metadata-item">
+                                <i class="pi pi-arrow-up"></i>
+                                Target: {{ indicator.targetValue }}
+                              </span>
+                            }
+                            @if (indicator.baseline) {
+                              <span class="metadata-item">
+                                <i class="pi pi-minus"></i>
+                                Base: {{ indicator.baseline }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex gap-1">
+                        <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small" pTooltip="Edit indicator"></p-button>
+                        <p-button
+                          icon="pi pi-trash"
+                          severity="danger"
+                          [text]="true"
+                          size="small"
+                          (onClick)="removeIndicator(indicator.id)"></p-button>
+                      </div>
+                    </div>
+                  </p-card>
+                }
+              </div>
+            } @else {
+              <div class="text-center py-6">
+                <i class="pi pi-tag text-2xl mb-2 block"></i>
+                <p>No Level 1 indicators created yet.</p>
+              </div>
+            }
+          </div>
+
+          <!-- Indicadores Nivel 2 -->
+          <div class="level-indicators-section">
+            <h3>
+              <i class="pi pi-tags"></i>
+              Level 2 Indicators (Sub-components)
+            </h3>
+
+            @if (level2Indicators().length > 0) {
+              <div class="indicators-list">
+                @for (indicator of level2Indicators(); track indicator.id) {
+                  <p-card class="indicator-card">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="indicator-header">
+                          <h4 class="indicator-title">{{ indicator.name }}</h4>
+                          <span class="indicator-level-badge">Level {{ indicator.level }}</span>
+                        </div>
+                        <p class="indicator-description">{{ indicator.description }}</p>
+
+                        <div class="indicator-metadata">
+                          <div class="metadata-row">
+                            <span class="metadata-item">
+                              <i class="pi pi-calculator"></i>
+                              {{ indicator.numberType }}
+                            </span>
+                            <span class="metadata-item">
+                              <i class="pi pi-hashtag"></i>
+                              {{ indicator.numberFormat }}
+                            </span>
+                            @if (indicator.targetUnit) {
+                              <span class="metadata-item">
+                                <i class="pi pi-flag"></i>
+                                {{ indicator.targetUnit }}
+                              </span>
+                            }
+                          </div>
+
+                          <div class="metadata-row">
+                            <span class="metadata-item">
+                              <i class="pi pi-calendar"></i>
+                              {{ indicator.years.join(', ') }}
+                            </span>
+                            @if (indicator.targetValue) {
+                              <span class="metadata-item">
+                                <i class="pi pi-arrow-up"></i>
+                                Target: {{ indicator.targetValue }}
+                              </span>
+                            }
+                            @if (indicator.baseline) {
+                              <span class="metadata-item">
+                                <i class="pi pi-minus"></i>
+                                Base: {{ indicator.baseline }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex gap-1">
+                        <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small" pTooltip="Edit indicator"></p-button>
+                        <p-button
+                          icon="pi pi-trash"
+                          severity="danger"
+                          [text]="true"
+                          size="small"
+                          (onClick)="removeIndicator(indicator.id)"></p-button>
+                      </div>
+                    </div>
+                  </p-card>
+                }
+              </div>
+            } @else {
+              <div class="text-center py-6">
+                <i class="pi pi-tags text-2xl mb-2 block"></i>
+                <p>No Level 2 indicators created yet.</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+
+  <!-- Modal para crear indicador -->
+  <p-dialog
+    [(visible)]="showIndicatorModal"
+    header="Create New Indicator"
+    [modal]="true"
+    [closable]="true"
+    [style]="{ width: '600px' }"
+    [draggable]="false">
+    <div class="indicator-form">
+      <div class="grid grid-cols-1 gap-4 mb-4">
+        <div>
+          <label for="ind-name" class="font-medium block mb-2">Name *</label>
+          <input id="ind-name" pInputText [(ngModel)]="newIndicatorForm().name" placeholder="Indicator name" class="w-full" />
+        </div>
+
+        <div>
+          <label for="ind-desc" class="font-medium block mb-2">Description *</label>
+          <textarea
+            id="ind-desc"
+            pInputTextarea
+            [(ngModel)]="newIndicatorForm().description"
+            placeholder="Detailed description"
+            rows="3"
+            class="w-full">
+          </textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="ind-level" class="font-medium block mb-2">Level *</label>
+            <p-select
+              id="ind-level"
+              [(ngModel)]="newIndicatorForm().level"
+              [options]="[
+                { label: 'Level 1 (Estructures)', value: 1 },
+                { label: 'Level 2 (Sub-estructures)', value: 2 }
+              ]"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div>
+            <label for="ind-type" class="font-medium block mb-2">Number Type *</label>
+            <p-select
+              id="ind-type"
+              [(ngModel)]="newIndicatorForm().numberType"
+              [options]="numberTypeOptions"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full">
+            </p-select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="ind-format" class="font-medium block mb-2">Number Format *</label>
+            <p-select
+              id="ind-format"
+              [(ngModel)]="newIndicatorForm().numberFormat"
+              [options]="numberFormatOptions"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div>
+            <label for="ind-unit" class="font-medium block mb-2">Target Unit *</label>
+            <input id="ind-unit" pInputText [(ngModel)]="newIndicatorForm().targetUnit" placeholder="e.g., kg, units, %" class="w-full" />
+          </div>
+        </div>
+
+        <div>
+          <label for="ind-years" class="font-medium block mb-2">Years *</label>
+          <p-multiSelect
+            id="ind-years"
+            [(ngModel)]="newIndicatorForm().years"
+            [options]="availableYears"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select years"
+            [showToggleAll]="true"
+            class="w-full">
+          </p-multiSelect>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="ind-target" class="font-medium block mb-2">Target Value</label>
+            <p-inputNumber id="ind-target" [(ngModel)]="newIndicatorForm().targetValue" placeholder="Target value" class="w-full"> </p-inputNumber>
+          </div>
+
+          <div>
+            <label for="ind-baseline" class="font-medium block mb-2">Baseline</label>
+            <p-inputNumber id="ind-baseline" [(ngModel)]="newIndicatorForm().baseline" placeholder="Baseline value" class="w-full"> </p-inputNumber>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+      <p-button label="Cancel" severity="secondary" size="small" (onClick)="showIndicatorModal.set(false)"> </p-button>
+      <p-button label="Create Indicator" size="small" (onClick)="saveIndicator()"> </p-button>
+    </div>
+  </p-dialog>
+
+  <!-- Modal para asignar indicadores -->
+  <p-dialog
+    [(visible)]="showAssignIndicatorModal"
+    header="Assign Indicators"
+    [modal]="true"
+    [closable]="true"
+    [style]="{ width: '500px' }"
+    [draggable]="false">
+    @if (selectedElementForIndicators(); as selected) {
+      <div class="assign-indicators">
+        <div class="mb-4">
+          <p class="text-sm text-gray-700 mb-3">
+            Select indicators to assign to this {{ selected.type === 'component' ? 'component' : 'sub-component' }}:
+          </p>
+
+          <!-- Botón para crear nuevo indicador directamente -->
+          <p-button
+            icon="pi pi-plus"
+            label="Create New Indicator for {{ getElementName(selected.type, selected.id) }}"
+            severity="secondary"
+            size="small"
+            class="w-full mb-3"
+            (onClick)="createIndicatorForElement(selected.type, selected.id)">
+          </p-button>
+        </div>
+
+        <div class="available-indicators space-y-2">
+          @for (indicator of getAvailableIndicatorsForElement(selected.type, selected.id); track indicator.id) {
+            <div class="indicator-option cursor-pointer" (click)="assignIndicator(indicator.id)">
+              <div class="flex justify-between items-center">
+                <div class="flex-1">
+                  <h5 class="font-medium text-gray-800 text-sm">{{ indicator.name }}</h5>
+                  <p class="text-xs text-gray-600">{{ indicator.description }}</p>
+                </div>
+                <i class="pi pi-plus text-blue-500 text-sm"></i>
+              </div>
+            </div>
+          } @empty {
+            <div class="text-center py-6 text-gray-500">
+              <i class="pi pi-info-circle text-lg mb-2 block"></i>
+              <p class="text-sm">No available indicators for this level.</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="flex justify-end pt-4 border-t border-gray-200">
+      <p-button label="Close" severity="secondary" size="small" (onClick)="showAssignIndicatorModal.set(false)"> </p-button>
+    </div>
+  </p-dialog>
+
+  <!-- Status footer -->
+  @if (projectConfig().components.length > 0 || projectConfig().indicators.length > 0) {
+    <div class="fixed bottom-4 right-4 z-50">
+      <p-card class="status-card shadow-xl">
+        <div class="flex items-center gap-3">
+          <div class="status-info">
+            <div class="text-sm text-gray-600">
+              <span class="font-medium">{{ projectConfig().components.length }}</span> estructures,
+              <span class="font-medium">{{ projectConfig().subComponents.length }}</span> sub-estructures,
+              <span class="font-medium">{{ projectConfig().indicators.length }}</span> indicators
+            </div>
+          </div>
+          <div class="status-icon">
+            <i
+              class="pi text-lg"
+              [class.pi-check-circle]="isProjectValid()"
+              [class.pi-exclamation-triangle]="!isProjectValid()"
+              [class.text-green-600]="isProjectValid()"
+              [class.text-orange-600]="!isProjectValid()">
+            </i>
+            <span class="text-sm font-medium ml-2">
+              {{ isProjectValid() ? 'Valid' : 'Incomplete' }}
+            </span>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  }
+</div>
