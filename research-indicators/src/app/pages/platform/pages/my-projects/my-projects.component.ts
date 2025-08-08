@@ -1,11 +1,9 @@
 import { Component, computed, inject, signal, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
 import { ApiService } from '@shared/services/api.service';
 import { FormsModule } from '@angular/forms';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
-import { GetContractsByUserService } from '@shared/services/control-list/get-contracts-by-user.service';
-import { MyProjectsService } from '@shared/services/my-projects.service';
+import { MyProjectsService, MyProjectsFilters } from '@shared/services/my-projects.service';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SlicePipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { MenuItem } from 'primeng/api';
@@ -29,7 +27,6 @@ import { RippleModule } from 'primeng/ripple';
 @Component({
   selector: 'app-my-projects',
   imports: [
-    ProjectItemComponent,
     SlicePipe,
     DatePipe,
     FormsModule,
@@ -54,7 +51,6 @@ import { RippleModule } from 'primeng/ripple';
 })
 export default class MyProjectsComponent implements OnInit, AfterViewInit {
   api = inject(ApiService);
-  getContractsByUserService = inject(GetContractsByUserService);
   myProjectsService = inject(MyProjectsService);
   cache = inject(CacheService);
   private router = inject(Router);
@@ -67,7 +63,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   private readonly _searchValue = signal('');
   isTableView = signal(true);
 
-  // Pin functionality
   pinnedTab = signal<string>('all');
   loadingPin = signal(false);
   tableId = 'contract-table';
@@ -124,19 +119,27 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   filteredProjects = computed(() => {
-    return this.getContractsByUserService.list().filter(project => project.full_name?.toLowerCase().includes(this._searchValue().toLowerCase()));
-  });
+    const projects = this.myProjectsService.list();
+    const searchTerm =
+      this.myProjectsFilterItem()?.id === 'my' ? this._searchValue().toLowerCase() : this.myProjectsService.searchInput().toLowerCase();
 
-  filteredAllProjects = computed(() => {
-    return this.myProjectsService
-      .list()
-      .filter(
-        project =>
-          project.full_name?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase()) ||
-          project.agreement_id?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase()) ||
-          project.projectDescription?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase()) ||
-          project.description?.toLowerCase().includes(this.myProjectsService.searchInput().toLowerCase())
+    if (!searchTerm) return projects;
+
+    return projects.filter(project => {
+      const fullName = project.full_name?.toLowerCase() || '';
+      const agreementId = project.agreement_id?.toLowerCase() || '';
+      const description = project.description?.toLowerCase() || '';
+      const projectDescription = project.projectDescription?.toLowerCase() || '';
+      const principalInvestigator = project.principal_investigator?.toLowerCase() || '';
+
+      return (
+        fullName.includes(searchTerm) ||
+        agreementId.includes(searchTerm) ||
+        description.includes(searchTerm) ||
+        projectDescription.includes(searchTerm) ||
+        principalInvestigator.includes(searchTerm)
       );
+    });
   });
 
   onPageChange(event: PaginatorState) {
@@ -150,18 +153,22 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.myProjectsService.clearAllFilters();
     this.loadPinnedTab();
   }
 
   ngAfterViewInit() {
-    this.myProjectsService.multiselectRefs.set({
-      status: this.statusSelect!,
-      lever: this.leverSelect!
-    });
+    if (this.statusSelect && this.leverSelect) {
+      this.myProjectsService.multiselectRefs.set({
+        status: this.statusSelect,
+        lever: this.leverSelect
+      });
+
+      setTimeout(() => {
+        this.myProjectsService.cleanMultiselects();
+      }, 100);
+    }
   }
 
-  // Pin functionality methods
   async loadPinnedTab() {
     this.loadingPin.set(true);
     const response = await this.api.GET_Configuration(this.tableId, 'tab');
@@ -174,10 +181,24 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       if (allPinned) {
         this.pinnedTab.set('all');
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.loadAllProjects();
       } else if (selfPinned) {
         this.pinnedTab.set('my');
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.loadMyProjects();
+      } else {
+        this.pinnedTab.set('all');
+        this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.loadAllProjects();
       }
+    } else {
+      this.pinnedTab.set('all');
+      this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+      this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+      this.loadAllProjects();
     }
     this.loadingPin.set(false);
   }
@@ -190,6 +211,20 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
       await this.api.PATCH_Configuration(this.tableId, 'tab', pinValue);
       this.pinnedTab.set(newPinnedTab);
+
+      // Sincronizar el estado del servicio
+      if (newPinnedTab === 'all') {
+        this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+      } else {
+        this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+      }
+
+      // Limpiar multiselects después del cambio de pin
+      setTimeout(() => {
+        this.myProjectsService.cleanMultiselects();
+      }, 0);
     } catch (error) {
       console.error('Error updating pinned tab:', error);
     } finally {
@@ -209,17 +244,45 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   onActiveItemChange = (event: MenuItem): void => {
     this.myProjectsFilterItem.set(event);
-    this.myProjectsService.onActiveItemChange(event);
+    this.myProjectsService.myProjectsFilterItem.set(event);
+
+    // Limpiar filtros cuando cambie de tab
+    this.myProjectsService.tableFilters.set(new MyProjectsFilters());
+    this.myProjectsService.searchInput.set('');
+    this._searchValue.set(''); // Limpiar también el searchValue del componente
+
+    // Limpiar multiselects con un pequeño delay para asegurar que la UI se actualice
+    setTimeout(() => {
+      this.myProjectsService.cleanMultiselects();
+    }, 0);
+
+    if (event.id === 'my') {
+      this.loadMyProjects();
+    } else {
+      this.loadAllProjects();
+    }
   };
+
+  loadMyProjects() {
+    this.myProjectsService.main({ 'current-user': true });
+  }
+
+  loadAllProjects() {
+    this.myProjectsService.main({ 'current-user': false });
+  }
 
   onPinIconClick(tabId: string, event: Event) {
     event.stopPropagation();
     this.togglePin(tabId);
   }
 
-  // Methods results table
   setSearchInputFilter($event: Event) {
-    this.myProjectsService.searchInput.set(($event.target as HTMLInputElement).value);
+    const value = ($event.target as HTMLInputElement).value;
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this._searchValue.set(value);
+    } else {
+      this.myProjectsService.searchInput.set(value);
+    }
   }
 
   showFiltersSidebar() {
@@ -271,7 +334,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getScrollHeight() {
-    return `calc(100vh - ${this.cache.headerHeight() + this.cache.navbarHeight() + this.cache.tableFiltersSidebarHeight() + (this.cache.hasSmallScreen() ? 240 : 270)}px)`;
+    return this.cache.hasSmallScreen() ? 'calc(100vh - 400px)' : 'calc(100vh - 500px)';
   }
 
   getLeverDisplay(project: FindContracts): string {
@@ -288,17 +351,19 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getApplyFiltersLabel(): string {
-    const count = Number(this.myProjectsService.countFiltersSelected()) || 0;
-    return count > 0 ? `Apply Filters (${count})` : 'Apply Filters';
+    return 'Apply Filters';
   }
 
-  getStatusDisplay(project: FindContracts | { status_id?: number; status_name?: string; contract_status?: string }): {
+  getStatusDisplay(project: FindContracts): {
     statusId: number;
     statusName: string;
   } {
+    if ('status_id' in project && project.status_id) {
+      return { statusId: project.status_id, statusName: project.status_name || 'Unknown' };
+    }
+
     if ('contract_status' in project && project.contract_status) {
       const statusName = project.contract_status.toLowerCase();
-
       const statusMap: Record<string, { id: number; name: string }> = {
         ongoing: { id: 1, name: 'Ongoing' },
         completed: { id: 2, name: 'Completed' },
@@ -308,48 +373,30 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
       const status = statusMap[statusName];
       if (status) {
-        return {
-          statusId: status.id,
-          statusName: status.name
-        };
+        return { statusId: status.id, statusName: status.name };
       }
     }
 
-    if (project.status_name) {
-      const statusName = project.status_name.toLowerCase();
+    return { statusId: 1, statusName: 'Ongoing' };
+  }
 
-      const statusMap: Record<string, { id: number; name: string }> = {
-        ongoing: { id: 1, name: 'Ongoing' },
-        completed: { id: 2, name: 'Completed' },
-        suspended: { id: 3, name: 'Suspended' },
-        approved: { id: 6, name: 'Approved' }
-      };
+  getLoadingState(): boolean {
+    return this.myProjectsService.loading();
+  }
 
-      const status = statusMap[statusName];
-      if (status) {
-        return {
-          statusId: status.id,
-          statusName: status.name
-        };
-      }
-    }
+  getCurrentProjects(): FindContracts[] {
+    return this.filteredProjects();
+  }
 
-    if (project.status_id) {
-      const statusNameMap: Record<number, string> = {
-        1: 'Ongoing',
-        2: 'Completed',
-        3: 'Suspended',
-        6: 'Approved'
-      };
+  getCurrentFirst(): number {
+    return this.first();
+  }
 
-      return {
-        statusId: project.status_id,
-        statusName: statusNameMap[project.status_id] || 'Unknown'
-      };
-    }
-    return {
-      statusId: 1,
-      statusName: 'Ongoing'
-    };
+  getCurrentRows(): number {
+    return this.rows();
+  }
+
+  onCurrentPageChange(event: PaginatorState): void {
+    this.onPageChange(event);
   }
 }
