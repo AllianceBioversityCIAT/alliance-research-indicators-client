@@ -45,6 +45,8 @@ import { ToolFunctionsService } from './short-control-list/tool-functions.servic
 import { ExpansionPotentialService } from './short-control-list/expansion-potential.service';
 import { InnResultsService } from './short-control-list/inn-results.service';
 import { ApplicationOptionsService } from './short-control-list/application-options.service';
+import { GetLeversService } from './control-list/get-levers.service';
+import { GetProjectStatusService } from './control-list/get-project-status.service';
 
 @Injectable({
   providedIn: 'root'
@@ -204,6 +206,10 @@ export class ServiceLocatorService {
         return this.injector.get(ScalingService);
       case 'applicationOptions':
         return this.injector.get(ApplicationOptionsService);
+      case 'levers':
+        return this.injector.get(GetLeversService);
+      case 'projectStatus':
+        return this.injector.get(GetProjectStatusService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;

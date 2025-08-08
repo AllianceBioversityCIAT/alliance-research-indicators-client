@@ -58,6 +58,9 @@ import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-inst
 import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
+import { FindContracts } from '../interfaces/find-contracts.interface';
+import { GetLevers } from '@shared/interfaces/get-levers.interface';
+import { Configuration } from '@shared/interfaces/configuration.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -105,6 +108,11 @@ export class ApiService {
 
   GET_SDGs = (): Promise<MainResponse<GetSdgs[]>> => {
     const url = () => `tools/clarisa/sdgs`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
+    const url = () => `tools/clarisa/levers`;
     return this.TP.get(url(), {});
   };
 
@@ -192,6 +200,16 @@ export class ApiService {
   GET_IssueCategories = (): Promise<MainResponse<IssueCategory[]>> => {
     const url = () => `issue-categories`;
     return this.TP.get(url(), {});
+  };
+
+  GET_Configuration = (id: string, section: string): Promise<MainResponse<Configuration>> => {
+    const url = () => `user/configuration/${id}?component=${section}`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_Configuration = (id: string, section: string, body: Configuration): Promise<MainResponse<Configuration>> => {
+    const url = () => `user/configuration/${id}?component=${section}`;
+    return this.TP.patch(url(), body, {});
   };
 
   // create partner request
@@ -414,6 +432,33 @@ export class ApiService {
   GET_ContractsByUser = (): Promise<MainResponse<GetContractsByUser[]>> => {
     const url = () => 'agresso/contracts/results/current-user';
     return this.TP.get(url(), {});
+  };
+
+  GET_FindContracts = (filters?: {
+    'current-user'?: boolean;
+    'contract-code'?: string;
+    'project-name'?: string;
+    'principal-investigator'?: string;
+    lever?: string;
+    status?: string;
+    'start-date'?: string;
+    'end-date'?: string;
+  }): Promise<MainResponse<FindContracts[]>> => {
+    const url = () => 'agresso/contracts/find-contracts';
+
+    let params = new HttpParams();
+    if (filters) {
+      if (filters['current-user'] != null) params = params.set('current-user', filters['current-user'].toString());
+      if (filters['contract-code']) params = params.set('contract-code', filters['contract-code']);
+      if (filters['project-name']) params = params.set('project-name', filters['project-name']);
+      if (filters['principal-investigator']) params = params.set('principal-investigator', filters['principal-investigator']);
+      if (filters.lever) params = params.set('lever', filters.lever);
+      if (filters.status) params = params.set('status', filters.status);
+      if (filters['start-date']) params = params.set('start-date', filters['start-date']);
+      if (filters['end-date']) params = params.set('end-date', filters['end-date']);
+    }
+
+    return this.TP.get(url(), { params });
   };
 
   GET_ResultsCount = (agreementId: string): Promise<MainResponse<GetProjectDetail>> => {
