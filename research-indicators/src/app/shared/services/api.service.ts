@@ -619,7 +619,7 @@ export class ApiService {
   }): HttpParams {
     let params = new HttpParams();
     if (!filters) return params;
-    const filterKeys: Array<keyof typeof filters> = [
+    const filterKeys: (keyof typeof filters)[] = [
       'current-user',
       'contract-code',
       'project-name',
