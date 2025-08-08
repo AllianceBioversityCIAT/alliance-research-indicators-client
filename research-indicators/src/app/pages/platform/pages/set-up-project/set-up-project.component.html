@@ -352,14 +352,22 @@
                       </div>
                     </div>
                     <div class="flex gap-1 ml-4">
-                      <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small" pTooltip="Edit indicator"></p-button>
+                      <p-button
+                        icon="pi pi-pencil"
+                        severity="secondary"
+                        [text]="true"
+                        size="small"
+                        pTooltip="Edit indicator"
+                        (onClick)="isDefaultIndicator(indicator.id) ? editDefaultIndicator(indicator) : null">
+                      </p-button>
                       <p-button
                         icon="pi pi-trash"
                         severity="danger"
                         [text]="true"
                         size="small"
                         pTooltip="Delete indicator"
-                        (onClick)="removeIndicator(indicator.id)"></p-button>
+                        (onClick)="removeIndicator(indicator.id)">
+                      </p-button>
                     </div>
                   </div>
                 </div>
@@ -433,14 +441,22 @@
                       </div>
                     </div>
                     <div class="flex gap-1 ml-4">
-                      <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small" pTooltip="Edit indicator"></p-button>
+                      <p-button
+                        icon="pi pi-pencil"
+                        severity="secondary"
+                        [text]="true"
+                        size="small"
+                        pTooltip="Edit indicator"
+                        (onClick)="isDefaultIndicator(indicator.id) ? editDefaultIndicator(indicator) : null">
+                      </p-button>
                       <p-button
                         icon="pi pi-trash"
                         severity="danger"
                         [text]="true"
                         size="small"
                         pTooltip="Delete indicator"
-                        (onClick)="removeIndicator(indicator.id)"></p-button>
+                        (onClick)="removeIndicator(indicator.id)">
+                      </p-button>
                     </div>
                   </div>
                 </div>
@@ -486,7 +502,11 @@
   <!-- Modal para crear indicador -->
   <p-dialog
     [(visible)]="showIndicatorModal"
-    header="Create New Indicator"
+    [header]="
+      editingElementId() && editingElementId() !== 'new-indicator' && editingElementId() !== 'new-default-indicator'
+        ? 'Edit Indicator'
+        : 'Create New Indicator'
+    "
     [modal]="true"
     [closable]="true"
     [style]="{ width: '600px' }"

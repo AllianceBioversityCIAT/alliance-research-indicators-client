@@ -240,9 +240,14 @@ export default class SetUpProjectComponent {
     return indicators;
   });
 
-  level1Indicators = computed(() => this.allIndicators().filter(ind => ind.level === 1 && ind.isActive));
+  // Combinamos indicadores por defecto con los del proyecto para la vista principal
+  allIndicatorsWithDefaults = computed(() => {
+    return [...this.defaultIndicators(), ...this.allIndicators()];
+  });
 
-  level2Indicators = computed(() => this.allIndicators().filter(ind => ind.level === 2 && ind.isActive));
+  level1Indicators = computed(() => this.allIndicatorsWithDefaults().filter(ind => ind.level === 1 && ind.isActive));
+
+  level2Indicators = computed(() => this.allIndicatorsWithDefaults().filter(ind => ind.level === 2 && ind.isActive));
 
   isProjectValid = computed(() => {
     const config = this.projectConfig();
@@ -442,6 +447,20 @@ export default class SetUpProjectComponent {
   }
 
   saveIndicator(): void {
+    const editingId = this.editingElementId();
+
+    // Si estamos editando un indicador por defecto
+    if (editingId && this.isDefaultIndicator(editingId)) {
+      this.saveDefaultIndicator();
+      return;
+    }
+
+    // Si estamos creando un nuevo indicador por defecto
+    if (editingId === 'new-default-indicator') {
+      this.saveNewDefaultIndicator();
+      return;
+    }
+
     const form = this.newIndicatorForm();
     if (form.name.trim() && form.description.trim() && form.years.length > 0 && form.targetUnit.trim()) {
       const newIndicator: ProjectIndicator = {
@@ -472,6 +491,13 @@ export default class SetUpProjectComponent {
   }
 
   removeIndicator(indicatorId: string): void {
+    // Si es un indicador por defecto, usar el método específico
+    if (this.isDefaultIndicator(indicatorId)) {
+      this.removeDefaultIndicator(indicatorId);
+      return;
+    }
+
+    // Si es un indicador del proyecto, removerlo de las estructuras/items
     const config = this.projectConfig();
     const updatedStructures = config.structures.map(structure => ({
       ...structure,
@@ -643,6 +669,21 @@ export default class SetUpProjectComponent {
     this.currentView.set('indicators');
   }
 
+  // Método para resetear el formulario de indicadores
+  resetIndicatorForm(): void {
+    this.newIndicatorForm.set({
+      name: '',
+      description: '',
+      level: 1,
+      numberType: 'sum',
+      numberFormat: 'number',
+      years: [2024, 2025],
+      targetUnit: 'units',
+      targetValue: 100,
+      baseline: 50
+    });
+  }
+
   // Método para seleccionar un indicador por defecto
   selectDefaultIndicator(defaultIndicator: ProjectIndicator, type: 'structure' | 'item', elementId: string): void {
     // Crear una copia del indicador con nuevo ID
@@ -653,5 +694,96 @@ export default class SetUpProjectComponent {
 
     this.assignNewIndicator(newIndicator, type, elementId);
     this.showAssignIndicatorModal.set(false);
+  }
+
+  // ============= MÉTODOS PARA GESTOR DE INDICADORES POR DEFECTO =============
+
+  // Verificar si un indicador es por defecto (empieza con 'default_')
+  isDefaultIndicator(indicatorId: string): boolean {
+    return indicatorId.startsWith('default_');
+  }
+
+  // Editar un indicador por defecto
+  editDefaultIndicator(indicator: ProjectIndicator): void {
+    this.newIndicatorForm.set({
+      name: indicator.name,
+      description: indicator.description,
+      level: indicator.level,
+      numberType: indicator.numberType,
+      numberFormat: indicator.numberFormat,
+      years: [...indicator.years],
+      targetUnit: indicator.targetUnit,
+      targetValue: indicator.targetValue,
+      baseline: indicator.baseline
+    });
+    this.editingElementId.set(indicator.id);
+    this.showIndicatorModal.set(true);
+  }
+
+  // Guardar cambios en un indicador por defecto
+  saveDefaultIndicator(): void {
+    const form = this.newIndicatorForm();
+    const editingId = this.editingElementId();
+
+    if (!editingId || !this.isDefaultIndicator(editingId)) return;
+
+    const defaultIndicators = this.defaultIndicators();
+    const updatedIndicators = defaultIndicators.map(indicator => (indicator.id === editingId ? { ...indicator, ...form } : indicator));
+
+    this.defaultIndicators.set(updatedIndicators);
+    this.showIndicatorModal.set(false);
+    this.editingElementId.set(null);
+    this.resetIndicatorForm();
+  }
+
+  // Eliminar un indicador por defecto
+  removeDefaultIndicator(indicatorId: string): void {
+    if (!this.isDefaultIndicator(indicatorId)) return;
+
+    const currentDefaults = this.defaultIndicators();
+    const updatedDefaults = currentDefaults.filter(ind => ind.id !== indicatorId);
+    this.defaultIndicators.set(updatedDefaults);
+  }
+
+  // Crear un nuevo indicador por defecto
+  createNewDefaultIndicator(level: 1 | 2): void {
+    this.newIndicatorForm.set({
+      name: '',
+      description: '',
+      level: level,
+      numberType: 'sum',
+      numberFormat: 'number',
+      years: [2024, 2025],
+      targetUnit: 'units',
+      targetValue: 100,
+      baseline: 50
+    });
+    this.editingElementId.set('new-default-indicator');
+    this.showIndicatorModal.set(true);
+  }
+
+  // Guardar un nuevo indicador por defecto
+  saveNewDefaultIndicator(): void {
+    const form = this.newIndicatorForm();
+    const newIndicator: ProjectIndicator = {
+      id: `default_ind${Date.now()}`,
+      name: form.name,
+      description: form.description,
+      level: form.level,
+      numberType: form.numberType,
+      numberFormat: form.numberFormat,
+      years: form.years,
+      targetUnit: form.targetUnit,
+      targetValue: form.targetValue,
+      baseline: form.baseline,
+      isActive: true
+    };
+
+    const currentDefaults = this.defaultIndicators();
+    this.defaultIndicators.set([...currentDefaults, newIndicator]);
+
+    this.showIndicatorModal.set(false);
+    this.editingElementId.set(null);
+    this.resetIndicatorForm();
   }
 }
