@@ -445,19 +445,7 @@ export class ApiService {
     'end-date'?: string;
   }): Promise<MainResponse<FindContracts[]>> => {
     const url = () => 'agresso/contracts/find-contracts';
-
-    let params = new HttpParams();
-    if (filters) {
-      if (filters['current-user'] != null) params = params.set('current-user', filters['current-user'].toString());
-      if (filters['contract-code']) params = params.set('contract-code', filters['contract-code']);
-      if (filters['project-name']) params = params.set('project-name', filters['project-name']);
-      if (filters['principal-investigator']) params = params.set('principal-investigator', filters['principal-investigator']);
-      if (filters.lever) params = params.set('lever', filters.lever);
-      if (filters.status) params = params.set('status', filters.status);
-      if (filters['start-date']) params = params.set('start-date', filters['start-date']);
-      if (filters['end-date']) params = params.set('end-date', filters['end-date']);
-    }
-
+    const params = this.buildFindContractsParams(filters);
     return this.TP.get(url(), { params });
   };
 
@@ -617,5 +605,36 @@ export class ApiService {
         body.update(prev => ({ ...prev, [key]: newBody[key] }));
       }
     }
+  }
+
+  private buildFindContractsParams(filters?: {
+    'current-user'?: boolean;
+    'contract-code'?: string;
+    'project-name'?: string;
+    'principal-investigator'?: string;
+    lever?: string;
+    status?: string;
+    'start-date'?: string;
+    'end-date'?: string;
+  }): HttpParams {
+    let params = new HttpParams();
+    if (!filters) return params;
+    const filterKeys: Array<keyof typeof filters> = [
+      'current-user',
+      'contract-code',
+      'project-name',
+      'principal-investigator',
+      'lever',
+      'status',
+      'start-date',
+      'end-date'
+    ];
+    filterKeys.forEach(key => {
+      const value = filters[key];
+      if (value != null && value !== '') {
+        params = params.set(key, value.toString());
+      }
+    });
+    return params;
   }
 }
