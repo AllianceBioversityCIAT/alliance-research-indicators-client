@@ -7,7 +7,7 @@ import { CustomProgressBarComponent } from '@shared/components/custom-progress-b
 import { GetContractsByUserService } from '@shared/services/control-list/get-contracts-by-user.service';
 import { MyProjectsService } from '@shared/services/my-projects.service';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
-import { SlicePipe, DatePipe } from '@angular/common';
+import { SlicePipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { MenuItem } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -22,6 +22,7 @@ import { MultiselectComponent } from '../../../../shared/components/custom-field
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 import { CalendarInputComponent } from '../../../../shared/components/custom-fields/calendar-input/calendar-input.component';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { ActionsService } from '@shared/services/actions.service';
 import { RippleModule } from 'primeng/ripple';
 
@@ -44,7 +45,9 @@ import { RippleModule } from 'primeng/ripple';
     CustomTagComponent,
     MultiselectComponent,
     SectionSidebarComponent,
-    CalendarInputComponent
+    CalendarInputComponent,
+    OverlayBadgeModule,
+    NgTemplateOutlet
   ],
   templateUrl: './my-projects.component.html',
   styleUrl: './my-projects.component.scss'
@@ -229,12 +232,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   toggleTableView() {
     this.isTableView.set(true);
-    console.warn('Table view activated');
   }
 
   toggleCardView() {
     this.isTableView.set(false);
-    console.warn('Card view activated');
   }
 
   openProject(project: unknown) {
@@ -284,6 +285,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       return project.lever;
     }
     return '-';
+  }
+
+  getApplyFiltersLabel(): string {
+    const count = Number(this.myProjectsService.countFiltersSelected()) || 0;
+    return count > 0 ? `Apply Filters (${count})` : 'Apply Filters';
   }
 
   getStatusDisplay(project: FindContracts | { status_id?: number; status_name?: string; contract_status?: string }): {
