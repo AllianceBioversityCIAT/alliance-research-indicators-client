@@ -697,7 +697,7 @@ export default class SetUpProjectComponent {
     // Crear una copia del indicador con nuevo ID
     const newIndicator: ProjectIndicator = {
       ...defaultIndicator,
-      id: `indicator_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      id: `indicator_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
     };
 
     this.assignNewIndicator(newIndicator, type, elementId);

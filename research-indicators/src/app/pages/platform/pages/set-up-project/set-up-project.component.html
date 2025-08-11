@@ -77,10 +77,7 @@
 
                   <!-- Header de la estructura -->
                   <div class="flex justify-between items-center mb-6">
-                    <div>
-                      <!-- <h2 class="text-2xl font-bold text-gray-800">{{ structure.name }}</h2>
-                      <p class="text-gray-600">Code: {{ structure.code }}</p> -->
-                    </div>
+                    <div></div>
                     <div class="flex gap-2">
                       <p-button
                         icon="pi pi-tag"
@@ -676,7 +673,11 @@
               @for (indicator of defaultLevel1Indicators(); track indicator.id) {
                 <div
                   class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-colors"
-                  (click)="selectDefaultIndicator(indicator, selected.type, selected.id)">
+                  role="button"
+                  tabindex="0"
+                  (click)="selectDefaultIndicator(indicator, selected.type, selected.id)"
+                  (keydown.enter)="selectDefaultIndicator(indicator, selected.type, selected.id)"
+                  (keyup.space)="selectDefaultIndicator(indicator, selected.type, selected.id)">
                   <div class="flex justify-between items-start">
                     <div class="flex-1">
                       <h5 class="font-medium text-gray-800 text-sm mb-1">{{ indicator.name }}</h5>
@@ -698,7 +699,11 @@
               @for (indicator of defaultLevel2Indicators(); track indicator.id) {
                 <div
                   class="border border-gray-200 rounded-lg p-3 hover:bg-green-50 hover:border-green-300 cursor-pointer transition-colors"
-                  (click)="selectDefaultIndicator(indicator, selected.type, selected.id)">
+                  role="button"
+                  tabindex="0"
+                  (click)="selectDefaultIndicator(indicator, selected.type, selected.id)"
+                  (keydown.enter)="selectDefaultIndicator(indicator, selected.type, selected.id)"
+                  (keyup.space)="selectDefaultIndicator(indicator, selected.type, selected.id)">
                   <div class="flex justify-between items-start">
                     <div class="flex-1">
                       <h5 class="font-medium text-gray-800 text-sm mb-1">{{ indicator.name }}</h5>
