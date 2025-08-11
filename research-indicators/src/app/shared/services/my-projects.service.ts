@@ -27,15 +27,37 @@ export class MyProjectsService {
   isOpenSearch = signal(false);
 
   tableFilters = signal(new MyProjectsFilters());
+  appliedFilters = signal(new MyProjectsFilters());
   showFiltersSidebar = signal(false);
   multiselectRefs = signal<Record<string, MultiselectComponent>>({});
   searchInput = signal('');
+  hasFilters = signal(false);
 
   myProjectsFilterItems: MenuItem[] = [
     { id: 'all', label: 'All Projects' },
     { id: 'my', label: 'My Projects' }
   ];
   myProjectsFilterItem = signal<MenuItem | undefined>(this.myProjectsFilterItems[0]);
+
+  private getBaseParams(): Record<string, unknown> {
+    const currentTab = this.myProjectsFilterItem();
+    return { 'current-user': currentTab?.id === 'my' };
+  }
+
+  private resetFilters(): void {
+    this.tableFilters.set(new MyProjectsFilters());
+    this.appliedFilters.set(new MyProjectsFilters());
+    this.searchInput.set('');
+    this.cleanMultiselects();
+    this.hasFilters.set(false);
+  }
+
+  private isFilterActive(filterValue: string | { id: number; short_name: string }[] | { name: string; value: string }[]): boolean {
+    if (Array.isArray(filterValue)) {
+      return filterValue.length > 0;
+    }
+    return !!filterValue;
+  }
 
   async main(params?: Record<string, unknown>) {
     this.loading.set(true);
@@ -62,14 +84,7 @@ export class MyProjectsService {
 
   applyFilters = () => {
     const filters = this.tableFilters();
-    const params: Record<string, unknown> = {};
-
-    const currentTab = this.myProjectsFilterItem();
-    if (currentTab?.id === 'my') {
-      params['current-user'] = true;
-    } else {
-      params['current-user'] = false;
-    }
+    const params = this.getBaseParams();
 
     if (filters.contractCode) {
       params['contract-code'] = filters.contractCode;
@@ -101,74 +116,48 @@ export class MyProjectsService {
       params['end-date'] = endDate.toISOString().slice(0, 23);
     }
 
+    this.appliedFilters.set({ ...filters });
+    const hasActiveFilters = this.countFiltersSelected() !== undefined;
+    this.hasFilters.set(hasActiveFilters);
+
     this.main(params);
   };
 
   countFiltersSelected = computed(() => {
     const filters = this.tableFilters();
-    let count = 0;
+    const filterChecks = [
+      filters.contractCode,
+      filters.projectName,
+      filters.principalInvestigator,
+      filters.levers,
+      filters.statusCodes,
+      filters.startDate,
+      filters.endDate
+    ];
 
-    if (filters.contractCode) count++;
-    if (filters.projectName) count++;
-    if (filters.principalInvestigator) count++;
-    if (filters.levers.length > 0) count++;
-    if (filters.statusCodes.length > 0) count++;
-    if (filters.startDate) count++;
-    if (filters.endDate) count++;
-
+    const count = filterChecks.filter(filter => this.isFilterActive(filter)).length;
     return count > 0 ? count.toString() : undefined;
   });
 
   getActiveFilters = computed(() => {
-    const filters: { label: string }[] = [];
-    const activeFilters = this.tableFilters();
+    const filters = this.appliedFilters();
+    const filterConfigs = [
+      { value: filters.contractCode, label: 'CONTRACT CODE' },
+      { value: filters.projectName, label: 'PROJECT NAME' },
+      { value: filters.principalInvestigator, label: 'PRINCIPAL INVESTIGATOR' },
+      { value: filters.statusCodes, label: 'STATUS' },
+      { value: filters.levers, label: 'LEVER' },
+      { value: filters.startDate, label: 'START DATE' },
+      { value: filters.endDate, label: 'END DATE' }
+    ];
 
-    if (activeFilters.contractCode) {
-      filters.push({ label: 'CONTRACT CODE' });
-    }
-
-    if (activeFilters.projectName) {
-      filters.push({ label: 'PROJECT NAME' });
-    }
-
-    if (activeFilters.principalInvestigator) {
-      filters.push({ label: 'PRINCIPAL INVESTIGATOR' });
-    }
-
-    if (activeFilters.statusCodes.length > 0) {
-      filters.push({ label: 'STATUS' });
-    }
-
-    if (activeFilters.levers.length > 0) {
-      filters.push({ label: 'LEVER' });
-    }
-
-    if (activeFilters.startDate) {
-      filters.push({ label: 'START DATE' });
-    }
-
-    if (activeFilters.endDate) {
-      filters.push({ label: 'END DATE' });
-    }
-
-    return filters;
+    return filterConfigs.filter(config => this.isFilterActive(config.value)).map(config => ({ label: config.label }));
   });
 
   onActiveItemChange = (event: MenuItem): void => {
     this.myProjectsFilterItem.set(event);
-
-    this.searchInput.set('');
-    this.tableFilters.set(new MyProjectsFilters());
-
-    this.cleanMultiselects();
-
-    if (event.id === 'my') {
-      const params = { 'current-user': true };
-      this.main(params);
-    } else {
-      const params = { 'current-user': false };
-      this.main(params);
-    }
+    this.resetFilters();
+    this.main(this.getBaseParams());
   };
 
   showFilterSidebar(): void {
@@ -191,36 +180,16 @@ export class MyProjectsService {
   }
 
   clearAllFilters() {
-    this.tableFilters.set(new MyProjectsFilters());
-    this.searchInput.set('');
-    this.cleanMultiselects();
-
-    const currentTab = this.myProjectsFilterItem();
-    if (currentTab?.id === 'my') {
-      this.main({ 'current-user': true });
-    } else {
-      this.main({ 'current-user': false });
-    }
+    this.resetFilters();
+    this.main(this.getBaseParams());
   }
 
   clearFilters() {
-    this.tableFilters.set(new MyProjectsFilters());
-    this.cleanMultiselects();
-
-    const currentTab = this.myProjectsFilterItem();
-    if (currentTab?.id === 'my') {
-      this.main({ 'current-user': true });
-    } else {
-      this.main({ 'current-user': false });
-    }
+    this.resetFilters();
+    this.main(this.getBaseParams());
   }
 
   refresh() {
-    const currentTab = this.myProjectsFilterItem();
-    if (currentTab?.id === 'my') {
-      this.main({ 'current-user': true });
-    } else {
-      this.main({ 'current-user': false });
-    }
+    this.main(this.getBaseParams());
   }
 }

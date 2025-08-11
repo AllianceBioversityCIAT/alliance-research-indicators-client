@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
+import { GetContractsByUser, IndicatorElement } from '@shared/interfaces/get-contracts-by-user.interface';
 import { GetProjectDetail } from '@shared/interfaces/get-project-detail.interface';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
-import { IndicatorElement } from '@shared/interfaces/get-contracts-by-user.interface';
 
 export type ProjectType = GetContractsByUser | GetProjectDetail | FindContracts;
 
