@@ -64,7 +64,6 @@ export class TextareaComponent {
   }
 
   setValue(value: string) {
-    // Ocultar mensaje de máximo si el valor está por debajo del límite
     if (value.length <= this.textareaValidationService.maxLength) {
       this.showMaxReachedMessage.set(false);
     }

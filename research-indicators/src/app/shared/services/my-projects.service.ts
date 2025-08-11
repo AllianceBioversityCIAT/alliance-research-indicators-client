@@ -37,11 +37,6 @@ export class MyProjectsService {
   ];
   myProjectsFilterItem = signal<MenuItem | undefined>(this.myProjectsFilterItems[0]);
 
-  constructor() {
-    // No llamar a main() aquí para evitar que se cargue con current-user: false por defecto
-    // Los datos se cargarán desde el componente según el tab activo
-  }
-
   async main(params?: Record<string, unknown>) {
     this.loading.set(true);
     try {
@@ -69,7 +64,6 @@ export class MyProjectsService {
     const filters = this.tableFilters();
     const params: Record<string, unknown> = {};
 
-    // Agregar el parámetro current-user según el tab activo
     const currentTab = this.myProjectsFilterItem();
     if (currentTab?.id === 'my') {
       params['current-user'] = true;
@@ -108,7 +102,6 @@ export class MyProjectsService {
     this.main(params);
   };
 
-  // Computed para contar filtros activos
   countFiltersSelected = computed(() => {
     const filters = this.tableFilters();
     let count = 0;
@@ -200,7 +193,6 @@ export class MyProjectsService {
     this.searchInput.set('');
     this.cleanMultiselects();
 
-    // Cargar datos según el tab activo
     const currentTab = this.myProjectsFilterItem();
     if (currentTab?.id === 'my') {
       this.main({ 'current-user': true });
@@ -213,7 +205,6 @@ export class MyProjectsService {
     this.tableFilters.set(new MyProjectsFilters());
     this.cleanMultiselects();
 
-    // Cargar datos según el tab activo
     const currentTab = this.myProjectsFilterItem();
     if (currentTab?.id === 'my') {
       this.main({ 'current-user': true });
@@ -223,7 +214,6 @@ export class MyProjectsService {
   }
 
   refresh() {
-    // Cargar datos según el tab activo
     const currentTab = this.myProjectsFilterItem();
     if (currentTab?.id === 'my') {
       this.main({ 'current-user': true });

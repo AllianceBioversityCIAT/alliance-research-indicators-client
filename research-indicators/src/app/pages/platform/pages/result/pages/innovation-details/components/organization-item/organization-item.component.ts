@@ -59,7 +59,6 @@ export class OrganizationItemComponent implements OnInit {
       this.body.set(parentOrganization);
       this.initializeSubTypes(parentOrganization);
     } else if (parentOrganization && JSON.stringify(parentOrganization) !== JSON.stringify(this.body())) {
-      // Preservar el valor de is_organization_known del estado actual
       const currentIsKnown = this.body().is_organization_known;
       this.body.set({ ...parentOrganization, is_organization_known: currentIsKnown });
     }
@@ -141,7 +140,6 @@ export class OrganizationItemComponent implements OnInit {
           institution_type_custom_name: lowerCaseValue
         });
 
-        // Actualizar también el signal padre para sincronización
         if (this.index !== null) {
           this.bodySignal.update(current => {
             const updatedInstitutions = [...(current.institution_types || [])];

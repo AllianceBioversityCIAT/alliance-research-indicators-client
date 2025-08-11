@@ -136,7 +136,6 @@ export default class GeographicScopeComponent {
         target.result_countries_sub_nationals_signal.set({ regions: newRegions });
         target.result_countries_sub_nationals = newRegions;
 
-        // 👉 sincroniza visualmente el selector
         const instance = this.multiselectInstances.find(m => m.endpointParams?.isoAlpha2 === country.isoAlpha2);
         if (region.sub_national_id !== undefined) {
           instance?.removeRegionById(region.sub_national_id);
