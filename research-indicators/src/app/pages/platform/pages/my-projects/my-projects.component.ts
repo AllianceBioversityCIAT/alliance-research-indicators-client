@@ -26,6 +26,7 @@ import { RippleModule } from 'primeng/ripple';
 import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
 import { FiltersActionButtonsComponent } from '@shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '@shared/components/search-export-controls/search-export-controls.component';
+import { ProjectUtilsService } from '@shared/services/project-utils.service';
 
 @Component({
   selector: 'app-my-projects',
@@ -60,6 +61,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   cache = inject(CacheService);
   private readonly router = inject(Router);
   actions = inject(ActionsService);
+  projectUtils = inject(ProjectUtilsService);
 
   first = signal(0);
   rows = signal(5);
@@ -120,7 +122,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   set searchValue(value: string) {
     this._searchValue.set(value);
-    this.first.set(0);
   }
 
   filteredProjects = computed(() => {
@@ -273,7 +274,9 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   setSearchInputFilter($event: Event) {
-    const value = ($event.target as HTMLInputElement).value;
+    const target = $event.target as HTMLInputElement;
+    const value = target.value;
+
     if (this.myProjectsFilterItem()?.id === 'my') {
       this._searchValue.set(value);
     } else {
@@ -282,11 +285,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   showFiltersSidebar() {
-    this.myProjectsService.showFiltersSidebar.set(true);
+    this.myProjectsService.showFilterSidebar();
   }
 
   showConfigurationsSidebar() {
-    this.myProjectsService.showFiltersSidebar.set(true);
+    // Implementation for configurations sidebar
   }
 
   toggleTableView() {
@@ -333,47 +336,8 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     return this.cache.hasSmallScreen() ? 'calc(100vh - 400px)' : 'calc(100vh - 500px)';
   }
 
-  getLeverDisplay(project: FindContracts): string {
-    if (project.lever_name) {
-      return project.lever_name;
-    }
-    if (project.lever) {
-      if (typeof project.lever === 'object') {
-        return project.lever.short_name || project.lever.name || '-';
-      }
-      return project.lever;
-    }
-    return '-';
-  }
-
   getApplyFiltersLabel(): string {
     return 'Apply Filters';
-  }
-
-  getStatusDisplay(project: FindContracts): {
-    statusId: number;
-    statusName: string;
-  } {
-    if ('status_id' in project && project.status_id) {
-      return { statusId: project.status_id, statusName: project.status_name || 'Unknown' };
-    }
-
-    if ('contract_status' in project && project.contract_status) {
-      const statusName = project.contract_status.toLowerCase();
-      const statusMap: Record<string, { id: number; name: string }> = {
-        ongoing: { id: 1, name: 'Ongoing' },
-        completed: { id: 2, name: 'Completed' },
-        suspended: { id: 3, name: 'Suspended' },
-        approved: { id: 6, name: 'Approved' }
-      };
-
-      const status = statusMap[statusName];
-      if (status) {
-        return { statusId: status.id, statusName: status.name };
-      }
-    }
-
-    return { statusId: 1, statusName: 'Ongoing' };
   }
 
   getLoadingState(): boolean {

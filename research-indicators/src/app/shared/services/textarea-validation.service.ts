@@ -6,7 +6,7 @@ import { UtilsService } from '@shared/services/utils.service';
   providedIn: 'root'
 })
 export class TextareaValidationService {
-  private readonly MAX_LENGTH = 4;
+  private readonly MAX_LENGTH = 40000;
   private wordCountService = inject(WordCountService);
   private utils = inject(UtilsService);
 

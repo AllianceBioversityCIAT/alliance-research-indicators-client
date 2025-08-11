@@ -192,8 +192,8 @@
                     <td>
                       <div class="flex items-center min-h-[40px]">
                         <app-custom-tag
-                          [statusId]="getStatusDisplay(project).statusId"
-                          [statusName]="getStatusDisplay(project).statusName"></app-custom-tag>
+                          [statusId]="projectUtils.getStatusDisplay(project).statusId"
+                          [statusName]="projectUtils.getStatusDisplay(project).statusName"></app-custom-tag>
                       </div>
                     </td>
                     <td>
@@ -203,7 +203,7 @@
                     </td>
                     <td>
                       <div class="overflow-hidden line-clamp-2">
-                        {{ getLeverDisplay(project) }}
+                        {{ projectUtils.getLeverName(project) }}
                       </div>
                     </td>
                     <td>
