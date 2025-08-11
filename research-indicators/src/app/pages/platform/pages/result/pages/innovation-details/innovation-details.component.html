@@ -72,6 +72,35 @@
         </ng-template>
       </app-select>
 
+      @if (body().innovation_type_id === 12) {
+        <div class="flex flex-col xl:flex-row gap-5 xl:gap-8">
+          <div class="flex-1 {{ body().is_new_or_improved_variety === 1 ? 'max-w-full xl:max-w-[310px]' : 'max-w-full' }}">
+            <app-radio-button
+              [label]="'Are you profiling a new or improved variety or breed?'"
+              [isRequired]="true"
+              [signal]="body"
+              direction="horizontal"
+              [disabled]="!submission.isEditableStatus()"
+              [serviceName]="'yesOrNo'"
+              [optionLabel]="'name'"
+              (change)="onNewOrImprovedVarietyChange()"
+              [optionValue]="{ body: 'is_new_or_improved_variety', option: 'value' }"></app-radio-button>
+          </div>
+          @if (body().is_new_or_improved_variety) {
+            <div class="flex-1">
+              <app-input
+                label="Indicate the number of individual new or improved lines/varieties"
+                type="number"
+                [disabled]="!submission.isEditableStatus()"
+                [isRequired]="true"
+                [signal]="body"
+                [optionValue]="'new_or_improved_varieties_count'"
+                placeholder="0"></app-input>
+            </div>
+          }
+        </div>
+      }
+
       <label class="label inline-block flex items-center" for="username">
         How would you assess the current readiness of this innovation?
         <span class="text-red-500">*</span>
@@ -136,9 +165,13 @@
           </h3>
         </div>
       }
+    </div>
+    <!-- Anticipated Users -->
+    <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-2">
+      <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">ANTICIPATED USERS</div>
 
       <app-radio-button
-        label="Who would be the anticipated user(s) of this Innovation?"
+        label="Who would be the user(s) of this Innovation?"
         [isRequired]="true"
         [signal]="body"
         direction="horizontal"
@@ -147,13 +180,9 @@
         [optionLabel]="'name'"
         (change)="onAnticipatedUsersChange()"
         [optionValue]="{ body: 'anticipated_users_id', option: 'value' }"></app-radio-button>
-      <div id="anticipated-section" class="-mt-4.5 h-0"></div>
-    </div>
-    <!-- Anticipated Users -->
-    @if (body().anticipated_users_id === 2) {
-      <div id="anticipated-section" class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-2">
-        <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">ANTICIPATED USERS</div>
-        <div class="flex flex-col gap-[18px]">
+
+      @if (body().anticipated_users_id === 2) {
+        <div class="flex flex-col gap-[18px] mt-6">
           <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold">Actors</span>
           <div class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074b86] gap-3 px-3">
             <i class="text-[#074b86] !text-[18px] pi pi-exclamation-circle"></i>
@@ -235,8 +264,8 @@
             [optionValue]="'expected_outcome'"
             placeholder="Write the expected outcomes"></app-textarea>
         </div>
-      </div>
-    }
+      }
+    </div>
 
     @if (selectedLevel && selectedLevel.level >= 7 && selectedStep()) {
       <!-- Knowledge Sharing -->
