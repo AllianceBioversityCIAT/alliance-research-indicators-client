@@ -438,10 +438,10 @@ export default class SetUpProjectComponent {
       level,
       numberType: 'sum',
       numberFormat: 'number',
-      years: [2024, 2025],
-      targetUnit: 'units',
-      targetValue: 100,
-      baseline: 50
+      years: [],
+      targetUnit: '',
+      targetValue: null,
+      baseline: null
     });
     this.showIndicatorModal.set(true);
   }
@@ -645,14 +645,14 @@ export default class SetUpProjectComponent {
     const level = type === 'structure' ? 1 : 2;
     this.newIndicatorForm.set({
       name: '',
-      description: `Indicator for ${this.getElementName(type, elementId)}`,
+      description: '',
       level,
       numberType: 'sum',
       numberFormat: 'number',
-      years: [2024, 2025],
-      targetUnit: 'units',
-      targetValue: 100,
-      baseline: 50
+      years: [],
+      targetUnit: '',
+      targetValue: null,
+      baseline: null
     });
 
     // Cerrar modal de asignación y abrir modal de creación
@@ -677,10 +677,10 @@ export default class SetUpProjectComponent {
       level: 1,
       numberType: 'sum',
       numberFormat: 'number',
-      years: [2024, 2025],
-      targetUnit: 'units',
-      targetValue: 100,
-      baseline: 50
+      years: [],
+      targetUnit: '',
+      targetValue: null,
+      baseline: null
     });
   }
 
@@ -753,13 +753,27 @@ export default class SetUpProjectComponent {
       level: level,
       numberType: 'sum',
       numberFormat: 'number',
-      years: [2024, 2025],
-      targetUnit: 'units',
-      targetValue: 100,
-      baseline: 50
+      years: [],
+      targetUnit: '',
+      targetValue: null,
+      baseline: null
     });
     this.editingElementId.set('new-default-indicator');
     this.showIndicatorModal.set(true);
+  }
+
+  // Manejar el cierre del diálogo de indicador para limpiar contexto
+  handleIndicatorDialogHide(): void {
+    this.selectedElementForIndicators.set(null);
+    // Si no estamos editando un indicador por defecto, limpiar también el id de edición
+    if (this.editingElementId() && this.editingElementId() !== 'new-default-indicator') {
+      this.editingElementId.set(null);
+    }
+  }
+
+  closeIndicatorDialog(): void {
+    this.showIndicatorModal.set(false);
+    this.handleIndicatorDialogHide();
   }
 
   // Guardar un nuevo indicador por defecto
