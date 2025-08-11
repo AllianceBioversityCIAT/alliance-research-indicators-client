@@ -37,8 +37,6 @@ export class MyProjectsService {
   ];
   myProjectsFilterItem = signal<MenuItem | undefined>(this.myProjectsFilterItems[0]);
 
-  constructor() {}
-
   async main(params?: Record<string, unknown>) {
     this.loading.set(true);
     try {
