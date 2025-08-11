@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
 import { MyProjectsService, MyProjectsFilters } from '@shared/services/my-projects.service';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
-import { SlicePipe, DatePipe, NgTemplateOutlet } from '@angular/common';
+import { SlicePipe, DatePipe } from '@angular/common';
 import { MenuItem } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -24,6 +24,8 @@ import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { ActionsService } from '@shared/services/actions.service';
 import { RippleModule } from 'primeng/ripple';
 import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
+import { FiltersActionButtonsComponent } from '@shared/components/filters-action-buttons/filters-action-buttons.component';
+import { SearchExportControlsComponent } from '@shared/components/search-export-controls/search-export-controls.component';
 
 @Component({
   selector: 'app-my-projects',
@@ -45,8 +47,9 @@ import { ProjectItemComponent } from '../../../../shared/components/project-item
     SectionSidebarComponent,
     CalendarInputComponent,
     OverlayBadgeModule,
-    NgTemplateOutlet,
-    ProjectItemComponent
+    ProjectItemComponent,
+    FiltersActionButtonsComponent,
+    SearchExportControlsComponent
   ],
   templateUrl: './my-projects.component.html',
   styleUrl: './my-projects.component.scss'

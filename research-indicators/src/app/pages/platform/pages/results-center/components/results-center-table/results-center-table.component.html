@@ -2,55 +2,26 @@
 <div class="flex flex-col">
   <div class="flex flex-col">
     <div class="flex items-center justify-between w-full p-3">
-      <div class="flex gap-3 items-center">
-        <p-button
-          icon="pi pi-file-excel !text-[12px]"
-          styleClass="!rounded-[8px] !text-[12px] !max-h-[27px] !py-1"
-          (keydown.enter)="exportTable()"
-          (click)="exportTable()"
-          label="Export Results"
-          class="p-button-outlined"
-          [outlined]="true"></p-button>
+      <app-search-export-controls
+        [showExportButton]="true"
+        [exportLabel]="'Export Results'"
+        [searchValue]="this.resultsCenterService.searchInput()"
+        [searchPlaceholder]="'Find a result by code, title or creator'"
+        (export)="exportTable()"
+        (searchChange)="setSearchInputFilter($event)">
+      </app-search-export-controls>
 
-        <div class="relative w-[25rem]">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <i class="pi pi-search text-[#6B7280] !text-[12px]"></i>
-          </span>
-          <input
-            pInputText
-            type="text"
-            [(ngModel)]="this.resultsCenterService.searchInput"
-            (input)="setSearchInputFilter($event)"
-            placeholder="Find a result by code, title or creator"
-            class="w-full !pl-9 !rounded-[8px] py-2 border !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
-        </div>
-      </div>
-
-      <div class="flex gap-3 items-center result-center-table-buttons">
-        <p-button
-          styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
-          label="Apply Filters"
-          icon="pi pi-filter !text-[10px]"
-          size="small"
-          [badge]="resultsCenterService.countFiltersSelected()"
-          (keydown.enter)="showFiltersSidebar()"
-          (click)="showFiltersSidebar()"></p-button>
-        <p-button
-          styleClass="!text-[12px]"
-          label="Clear Filters"
-          [text]="true"
-          size="small"
-          severity="secondary"
-          (keydown.enter)="this.resultsCenterService.cleanFilters()"
-          (click)="this.resultsCenterService.cleanFilters()"></p-button>
-        <p-button
-          styleClass="!rounded-[8px] !p-0 !max-w-[30px] !max-h-[27px]"
-          icon="pi pi-cog !text-[17px]"
-          size="small"
-          [outlined]="true"
-          (keydown.enter)="showConfiguratiosnSidebar()"
-          (click)="showConfiguratiosnSidebar()"></p-button>
-      </div>
+      <app-filters-action-buttons
+        [applyLabel]="'Apply Filters'"
+        [badge]="resultsCenterService.countFiltersSelected()"
+        [showOverlayDot]="!!resultsCenterService.countFiltersSelected()"
+        [showClear]="true"
+        [showViewToggleButtons]="false"
+        [showConfigButton]="true"
+        (apply)="showFiltersSidebar()"
+        (clear)="this.resultsCenterService.cleanFilters()"
+        (config)="showConfiguratiosnSidebar()">
+      </app-filters-action-buttons>
     </div>
 
     @if (resultsCenterService.getActiveFilters().length > 0) {

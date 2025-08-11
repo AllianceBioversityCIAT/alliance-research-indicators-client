@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
 import { GetProjectDetail } from '@shared/interfaces/get-project-detail.interface';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
+import { ProjectUtilsService } from '@shared/services/project-utils.service';
 
 @Component({
   selector: 'app-project-item',
@@ -16,65 +17,23 @@ export class ProjectItemComponent implements OnInit {
   @Input() isHeader = false;
   @Input() project: GetContractsByUser | GetProjectDetail | FindContracts = {};
 
+  private projectUtils = inject(ProjectUtilsService);
+
   ngOnInit(): void {
-    const order = ['Capacity Sharing for Development', 'Innovation Development', 'Knowledge Product', 'Innovation Use', 'OICRS', 'Policy Change'];
-
     if (this.project.indicators && this.project.indicators.length > 0) {
-      const uniqueIndicatorsMap = new Map();
-
-      this.project.indicators.forEach(indicator => {
-        const indicatorId = indicator.indicator?.indicator_id;
-        if (indicatorId && !uniqueIndicatorsMap.has(indicatorId)) {
-          uniqueIndicatorsMap.set(indicatorId, {
-            ...indicator,
-            indicator_id: indicatorId
-          });
-        }
-      });
-
-      this.project.indicators = Array.from(uniqueIndicatorsMap.values()).sort(
-        (a, b) => order.indexOf(a.indicator.name) - order.indexOf(b.indicator.name)
-      );
+      this.project.indicators = this.projectUtils.sortIndicators(this.project.indicators);
     }
   }
 
-  getStatusDisplay(): {
-    statusId: number;
-    statusName: string;
-  } {
-    if ('status_id' in this.project && this.project.status_id) {
-      return { statusId: this.project.status_id, statusName: this.project.status_name || 'Unknown' };
-    }
-
-    if ('contract_status' in this.project && this.project.contract_status) {
-      const statusName = this.project.contract_status.toLowerCase();
-      const statusMap: Record<string, { id: number; name: string }> = {
-        ongoing: { id: 1, name: 'Ongoing' },
-        completed: { id: 2, name: 'Completed' },
-        suspended: { id: 3, name: 'Suspended' },
-        approved: { id: 6, name: 'Approved' }
-      };
-
-      const status = statusMap[statusName];
-      if (status) {
-        return { statusId: status.id, statusName: status.name };
-      }
-    }
-
-    return { statusId: 1, statusName: 'Ongoing' };
+  getStatusDisplay() {
+    return this.projectUtils.getStatusDisplay(this.project);
   }
 
   getLeverName(): string {
-    if ('lever' in this.project && this.project.lever) {
-      if (typeof this.project.lever === 'string') {
-        return this.project.lever;
-      }
-      return this.project.lever.short_name || this.project.lever.name || '-';
-    }
-    return '-';
+    return this.projectUtils.getLeverName(this.project);
   }
 
   hasField(fieldName: string): boolean {
-    return fieldName in this.project && !!this.project[fieldName as keyof typeof this.project];
+    return this.projectUtils.hasField(this.project, fieldName);
   }
 }
