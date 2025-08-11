@@ -20,7 +20,6 @@ export class ProjectItemComponent implements OnInit {
     const order = ['Capacity Sharing for Development', 'Innovation Development', 'Knowledge Product', 'Innovation Use', 'OICRS', 'Policy Change'];
 
     if (this.project.indicators && this.project.indicators.length > 0) {
-      // Crear un mapa para eliminar duplicados de manera más eficiente
       const uniqueIndicatorsMap = new Map();
 
       this.project.indicators.forEach(indicator => {
@@ -33,7 +32,6 @@ export class ProjectItemComponent implements OnInit {
         }
       });
 
-      // Convertir el mapa de vuelta a array y ordenar
       this.project.indicators = Array.from(uniqueIndicatorsMap.values()).sort(
         (a, b) => order.indexOf(a.indicator.name) - order.indexOf(b.indicator.name)
       );
@@ -66,10 +64,6 @@ export class ProjectItemComponent implements OnInit {
     return { statusId: 1, statusName: 'Ongoing' };
   }
 
-  hasLever(): boolean {
-    return 'lever' in this.project && !!this.project.lever;
-  }
-
   getLeverName(): string {
     if ('lever' in this.project && this.project.lever) {
       if (typeof this.project.lever === 'string') {
@@ -78,5 +72,9 @@ export class ProjectItemComponent implements OnInit {
       return this.project.lever.short_name || this.project.lever.name || '-';
     }
     return '-';
+  }
+
+  hasField(fieldName: string): boolean {
+    return fieldName in this.project && !!this.project[fieldName as keyof typeof this.project];
   }
 }

@@ -17,28 +17,34 @@
       <div class="principal-investigator">
         <app-custom-tag [statusId]="getStatusDisplay().statusId" [statusName]="getStatusDisplay().statusName" [tiny]="true"> </app-custom-tag>
       </div>
-      <div class="principal-investigator">
-        <span class="project-title">Principal investigator</span>
-        <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
-        <label class="project-data" for="username">{{ project.project_lead_description }}</label>
-      </div>
-      @if (hasLever()) {
+      @if (hasField('project_lead_description')) {
+        <div class="principal-investigator">
+          <span class="project-title">Principal investigator</span>
+          <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
+          <label class="project-data" for="username">{{ project.project_lead_description }}</label>
+        </div>
+      }
+      @if (hasField('lever')) {
         <div class="principal-investigator">
           <span class="project-title">Lever</span>
           <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
           <label class="project-data" for="username">{{ getLeverName() }}</label>
         </div>
       }
-      <div class="start-date">
-        <span class="project-title">Start date</span>
-        <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
-        <label class="project-data" for="username">{{ project.start_date | date: 'dd/MM/yyyy' }}</label>
-      </div>
-      <div class="end-date">
-        <span class="project-title">End date</span>
-        <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
-        <label class="project-data" for="username">{{ project.end_date | date: 'dd/MM/yyyy' }}</label>
-      </div>
+      @if (hasField('start_date')) {
+        <div class="start-date">
+          <span class="project-title">Start date</span>
+          <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
+          <label class="project-data" for="username">{{ project.start_date | date: 'dd/MM/yyyy' }}</label>
+        </div>
+      }
+      @if (hasField('end_date')) {
+        <div class="end-date">
+          <span class="project-title">End date</span>
+          <i class="pi pi-arrow-right !text-[12px] px-2 !text-[#8D9299]"></i>
+          <label class="project-data" for="username">{{ project.end_date | date: 'dd/MM/yyyy' }}</label>
+        </div>
+      }
     </div>
     <div class="project-indicators w-full flex flex-wrap gap-16 gap-y-6">
       @for (indicator of project.indicators; track indicator.indicator?.indicator_id) {
