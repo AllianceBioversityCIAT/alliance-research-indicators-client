@@ -7,6 +7,8 @@ export interface GetContractsByUser {
   end_date?: Date;
   indicators?: IndicatorElement[];
   full_name?: string;
+  status_name?: string;
+  contract_status?: string;
 }
 
 interface IndicatorElement {
