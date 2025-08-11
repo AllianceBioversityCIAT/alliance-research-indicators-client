@@ -92,11 +92,13 @@ export class MyProjectsService {
     }
 
     if (filters.startDate) {
-      params['start-date'] = filters.startDate;
+      const startDate = new Date(filters.startDate);
+      params['start-date'] = startDate.toISOString().slice(0, 23);
     }
 
     if (filters.endDate) {
-      params['end-date'] = filters.endDate;
+      const endDate = new Date(filters.endDate);
+      params['end-date'] = endDate.toISOString().slice(0, 23);
     }
 
     this.main(params);

@@ -11,7 +11,7 @@ export interface GetContractsByUser {
   contract_status?: string;
 }
 
-interface IndicatorElement {
+export interface IndicatorElement {
   indicator: IndicatorIndicator;
   count_results: number;
   indicator_id: number;
