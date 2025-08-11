@@ -1,51 +1,3 @@
-<ng-template #applyFiltersButton>
-  <p-button
-    styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
-    [label]="getApplyFiltersLabel()"
-    icon="pi pi-filter !text-[10px]"
-    size="small"
-    (keydown.enter)="showFiltersSidebar()"
-    (click)="showFiltersSidebar()"></p-button>
-</ng-template>
-
-<ng-template #viewToggleButtons>
-  <div class="flex gap-3 items-center">
-    @if (myProjectsService.countFiltersSelected()) {
-      <p-overlayBadge severity="warn">
-        <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
-      </p-overlayBadge>
-    } @else {
-      <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
-    }
-    <p-button
-      styleClass="!text-[12px]"
-      label="Clear Filters"
-      [text]="true"
-      size="small"
-      severity="secondary"
-      (keydown.enter)="myProjectsService.clearFilters()"
-      (click)="myProjectsService.clearFilters()"></p-button>
-    <p-button
-      styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
-      icon="pi pi-bars"
-      size="small"
-      [text]="!isTableView()"
-      [outlined]="isTableView()"
-      severity="secondary"
-      (keydown.enter)="toggleTableView()"
-      (click)="toggleTableView()"></p-button>
-    <p-button
-      styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
-      icon="pi pi-th-large"
-      size="small"
-      [text]="isTableView()"
-      [outlined]="!isTableView()"
-      severity="secondary"
-      (keydown.enter)="toggleCardView()"
-      (click)="toggleCardView()"></p-button>
-  </div>
-</ng-template>
-
 <div class="flex flex-col gap-3 px-6 pt-8">
   <!-- Projects Section -->
   <div class="flex flex-col bg-white">
@@ -85,59 +37,25 @@
       <div>
         <div class="bg-white p-4 border-l border-r border-[#E8EBED]">
           <div class="flex items-center justify-between w-full">
-            <div class="relative w-[25rem] bg-white rounded-lg py-2">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <i class="pi pi-search text-[#6B7280] !text-[12px]"></i>
-              </span>
-              <input
-                pInputText
-                type="text"
-                [ngModel]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput()"
-                (input)="setSearchInputFilter($event)"
-                placeholder="Find a result by code, title or principal investigator"
-                class="w-full !pl-9 !rounded-[8px] py-2 border !bg-[#fcfcfc] !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
-            </div>
+            <app-search-export-controls
+              [showExportButton]="false"
+              [searchValue]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput()"
+              [searchPlaceholder]="'Find a result by code, title or principal investigator'"
+              (searchChange)="setSearchInputFilter($event)">
+            </app-search-export-controls>
 
-            <!-- View toggle buttons -->
-            <div class="flex gap-3 items-center">
-              @if (myProjectsService.countFiltersSelected()) {
-                <p-overlayBadge severity="warn">
-                  <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
-                </p-overlayBadge>
-              } @else {
-                <ng-container *ngTemplateOutlet="applyFiltersButton"></ng-container>
-              }
-
-              <p-button
-                styleClass="!text-[12px]"
-                label="Clear Filters"
-                [text]="true"
-                size="small"
-                severity="secondary"
-                (keydown.enter)="myProjectsService.clearFilters()"
-                (click)="myProjectsService.clearFilters()"></p-button>
-              <p-button
-                styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
-                icon="pi pi-bars"
-                size="small"
-                [text]="!isTableView()"
-                [outlined]="isTableView()"
-                severity="secondary"
-                (keydown.enter)="toggleTableView()"
-                (click)="toggleTableView()"></p-button>
-
-              <p-button
-                styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
-                icon="pi pi-th-large"
-                size="small"
-                [text]="true"
-                (keydown.enter)="toggleTableView()"
-                [text]="isTableView()"
-                [outlined]="!isTableView()"
-                severity="secondary"
-                (click)="toggleCardView()">
-              </p-button>
-            </div>
+            <app-filters-action-buttons
+              [applyLabel]="getApplyFiltersLabel()"
+              [badge]="myProjectsService.countFiltersSelected()"
+              [showOverlayDot]="!!myProjectsService.countFiltersSelected()"
+              [showClear]="true"
+              [showViewToggleButtons]="true"
+              [isTableView]="isTableView()"
+              (apply)="showFiltersSidebar()"
+              (clear)="myProjectsService.clearFilters()"
+              (tableView)="toggleTableView()"
+              (cardView)="toggleCardView()">
+            </app-filters-action-buttons>
           </div>
         </div>
 
