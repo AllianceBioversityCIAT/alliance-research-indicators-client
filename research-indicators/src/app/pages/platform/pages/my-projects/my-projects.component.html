@@ -59,7 +59,7 @@
           </div>
         </div>
 
-        @if (myProjectsService.getActiveFilters().length > 0) {
+        @if (myProjectsService.hasFilters()) {
           <div class="flex gap-2 px-3 mb-5 items-center">
             <span class="font-semibold text-sm" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
             <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>

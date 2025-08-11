@@ -27,9 +27,11 @@ export class MyProjectsService {
   isOpenSearch = signal(false);
 
   tableFilters = signal(new MyProjectsFilters());
+  appliedFilters = signal(new MyProjectsFilters());
   showFiltersSidebar = signal(false);
   multiselectRefs = signal<Record<string, MultiselectComponent>>({});
   searchInput = signal('');
+  hasFilters = signal(false);
 
   myProjectsFilterItems: MenuItem[] = [
     { id: 'all', label: 'All Projects' },
@@ -44,8 +46,10 @@ export class MyProjectsService {
 
   private resetFilters(): void {
     this.tableFilters.set(new MyProjectsFilters());
+    this.appliedFilters.set(new MyProjectsFilters());
     this.searchInput.set('');
     this.cleanMultiselects();
+    this.hasFilters.set(false);
   }
 
   private isFilterActive(filterValue: string | { id: number; short_name: string }[] | { name: string; value: string }[]): boolean {
@@ -112,6 +116,10 @@ export class MyProjectsService {
       params['end-date'] = endDate.toISOString().slice(0, 23);
     }
 
+    this.appliedFilters.set({ ...filters });
+    const hasActiveFilters = this.countFiltersSelected() !== undefined;
+    this.hasFilters.set(hasActiveFilters);
+
     this.main(params);
   };
 
@@ -132,7 +140,7 @@ export class MyProjectsService {
   });
 
   getActiveFilters = computed(() => {
-    const filters = this.tableFilters();
+    const filters = this.appliedFilters();
     const filterConfigs = [
       { value: filters.contractCode, label: 'CONTRACT CODE' },
       { value: filters.projectName, label: 'PROJECT NAME' },
