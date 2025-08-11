@@ -1,5 +1,4 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
-import { environment } from '../../../environments/environment';
 import { CacheService } from '@services/cache/cache.service';
 import { Router } from '@angular/router';
 import { GlobalAlert } from '../interfaces/global-alert.interface';
@@ -239,8 +238,6 @@ export class ActionsService {
 
   // Dev-only keyboard shortcut to enable MVP users flag and reload
   private registerDevMvpShortcut(): void {
-    if (environment.production) return;
-
     const isMacOS = (() => {
       if ('userAgentData' in navigator) {
         const userAgentData = (navigator as unknown as { userAgentData?: { platform?: string } }).userAgentData;
