@@ -289,7 +289,7 @@ export class ResultAiAssistantComponent {
       const filename = uploadResponse.data.filename;
 
       if (!filename) {
-        throw new Error('No se pudo obtener el nombre del archivo subido.');
+        throw new Error('Could not get the name of the uploaded file.');
       }
 
       this.miningResponse = (await this.textMiningService.executeTextMining(filename)).content;

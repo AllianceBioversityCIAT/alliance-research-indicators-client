@@ -38,7 +38,7 @@ export class FileManagerService {
       );
       return response;
     } catch (error) {
-      console.error('Error en el procesamiento del archivo:', error);
+      console.error('Error in the file processing:', error);
       throw error;
     }
   }
