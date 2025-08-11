@@ -1,0 +1,89 @@
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+
+@Component({
+  selector: 'app-filters-action-buttons',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule],
+  template: `
+    <div class="flex gap-3 items-center">
+      <div class="relative">
+        <p-button
+          styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
+          [label]="badge ? applyLabel + ' (' + badge + ')' : applyLabel"
+          icon="pi pi-filter !text-[10px]"
+          size="small"
+          (keydown.enter)="apply.emit()"
+          (click)="apply.emit()"></p-button>
+
+        @if (showOverlayDot) {
+          <div class="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-white"></div>
+        }
+      </div>
+
+      @if (showClear) {
+        <p-button
+          styleClass="!text-[12px]"
+          label="Clear Filters"
+          [text]="true"
+          size="small"
+          severity="secondary"
+          (keydown.enter)="clear.emit()"
+          (click)="clear.emit()"></p-button>
+      }
+
+      @if (showViewToggleButtons) {
+        <p-button
+          styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
+          icon="pi pi-bars"
+          size="small"
+          [text]="!isTableView"
+          [outlined]="isTableView"
+          severity="secondary"
+          (keydown.enter)="tableView.emit()"
+          (click)="tableView.emit()"></p-button>
+
+        <p-button
+          styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
+          icon="pi pi-th-large"
+          size="small"
+          [text]="isTableView"
+          [outlined]="!isTableView"
+          severity="secondary"
+          (keydown.enter)="cardView.emit()"
+          (click)="cardView.emit()"></p-button>
+      }
+
+      @if (showConfigButton) {
+        <p-button
+          styleClass="!rounded-[8px] !p-0 !max-w-[30px] !max-h-[27px]"
+          icon="pi pi-cog !text-[17px]"
+          size="small"
+          [outlined]="true"
+          (keydown.enter)="config.emit()"
+          (click)="config.emit()"></p-button>
+      }
+    </div>
+  `
+})
+export class FiltersActionButtonsComponent {
+  @Input() applyLabel = 'Apply Filters';
+  @Input() badge?: string | number;
+  @Input() showOverlayDot = false;
+
+  @Input() showClear = true;
+
+  @Input() showViewToggleButtons = false;
+  @Input() isTableView = false;
+
+  @Input() showConfigButton = false;
+
+  @Output() apply = new EventEmitter<void>();
+  @Output() clear = new EventEmitter<void>();
+  @Output() tableView = new EventEmitter<void>();
+  @Output() cardView = new EventEmitter<void>();
+  @Output() config = new EventEmitter<void>();
+}

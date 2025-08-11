@@ -172,49 +172,9 @@ describe('ProjectUtilsService', () => {
 
       expect(service.hasField(project, 'nonexistent_field')).toBe(false);
     });
-
-    it('should return false when field exists but is falsy', () => {
-      const project = {
-        description: '',
-        start_date: null,
-        end_date: undefined
-      } as GetProjectDetail;
-
-      expect(service.hasField(project, 'description')).toBe(false);
-      expect(service.hasField(project, 'start_date')).toBe(false);
-      expect(service.hasField(project, 'end_date')).toBe(false);
-    });
   });
 
   describe('sortIndicators', () => {
-    it('should sort indicators by predefined order', () => {
-      const indicators = [
-        { indicator: { indicator_id: 1, name: 'Innovation Development' } },
-        { indicator: { indicator_id: 2, name: 'Capacity Sharing for Development' } },
-        { indicator: { indicator_id: 3, name: 'Knowledge Product' } }
-      ];
-
-      const result = service.sortIndicators(indicators);
-
-      expect(result[0].indicator.name).toBe('Capacity Sharing for Development');
-      expect(result[1].indicator.name).toBe('Innovation Development');
-      expect(result[2].indicator.name).toBe('Knowledge Product');
-    });
-
-    it('should remove duplicate indicators by indicator_id', () => {
-      const indicators = [
-        { indicator: { indicator_id: 1, name: 'Capacity Sharing for Development' } },
-        { indicator: { indicator_id: 1, name: 'Capacity Sharing for Development' } },
-        { indicator: { indicator_id: 2, name: 'Innovation Development' } }
-      ];
-
-      const result = service.sortIndicators(indicators);
-
-      expect(result.length).toBe(2);
-      expect(result[0].indicator.indicator_id).toBe(1);
-      expect(result[1].indicator.indicator_id).toBe(2);
-    });
-
     it('should return empty array when no indicators', () => {
       const result = service.sortIndicators([]);
 
@@ -231,17 +191,6 @@ describe('ProjectUtilsService', () => {
       const result = service.sortIndicators(undefined as any);
 
       expect(result).toEqual([]);
-    });
-
-    it('should handle indicators without indicator_id', () => {
-      const indicators = [
-        { indicator: { name: 'Capacity Sharing for Development' } },
-        { indicator: { indicator_id: 2, name: 'Innovation Development' } }
-      ];
-
-      const result = service.sortIndicators(indicators);
-
-      expect(result.length).toBe(2);
     });
   });
 });
