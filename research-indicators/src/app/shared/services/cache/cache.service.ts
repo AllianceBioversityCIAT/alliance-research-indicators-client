@@ -37,7 +37,7 @@ export class CacheService {
   liveVersionData = signal<TransformResultCodeResponse | null>(null);
   allGreenChecksAreTrue = computed(() => Object.values(this.greenChecks()).every(check => check));
   isMyResult = computed(() => Number(this.currentMetadata().created_by) === Number(this.dataCache().user.sec_user_id));
-
+  onlyMvpUsers = signal(localStorage.getItem('onlyMvpUsers') === 'true');
   loadingCurrentResult = signal(false);
   navbarHeight = signal(0);
   headerHeight = signal(0);

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { rolesGuard } from '@guards/roles.guard';
 import { resultExistsResolver } from '@pages/platform/pages/result/resolvers/result-exists.resolver';
+import { mvpGuard } from '@guards/mvp.guard';
 
 const RESULT_INFORMATION_TITLE = 'Result Information';
 
@@ -170,6 +171,14 @@ export const routes: Routes = [
         loadComponent: () => import('@platform/pages/project-detail/project-detail.component'),
         data: {
           title: 'Project Detail'
+        }
+      },
+      {
+        path: 'set-up-project/:id',
+        loadComponent: () => import('@platform/pages/set-up-project/set-up-project.component'),
+        canMatch: [mvpGuard],
+        data: {
+          title: 'Set Up Project'
         }
       },
       {

@@ -1,4 +1,4 @@
-<a class="card" [routerLink]="['/project-detail', project.agreement_id]" [class.header-project-details]="isHeader">
+<a class="card" [routerLink]="isHeader ? null : ['/project-detail', project.agreement_id]" [class.header-project-details]="isHeader">
   <div class="card-content">
     <div class="organization-identifier">
       <div class="project">
@@ -46,18 +46,25 @@
         </div>
       }
     </div>
-    <div class="project-indicators w-full flex flex-wrap gap-16 gap-y-6">
-      @for (indicator of project.indicators; track indicator.indicator?.indicator_id) {
-        <div class="indicator {{ indicator.indicator.name === 'Capacity Sharing for Development' ? 'max-w-[126px]' : 'max-w-[178px]' }}">
-          <div class="indicator-number-container">
-            <i
-              class="pi {{ indicator.indicator.icon_src }} !text-[18px] {{
-                (indicator.indicator.indicator_type_id === 1 ? 'output' : 'outcome') + '-icon'
-              }}">
-            </i>
-            <label class="indicator-number" for="username">{{ indicator.count_results }}</label>
+    <div class="flex justify-between items-center">
+      <div class="project-indicators w-full flex flex-wrap gap-16 gap-y-6">
+        @for (indicator of project.indicators; track indicator.indicator?.indicator_id) {
+          <div class="indicator {{ indicator.indicator.name === 'Capacity Sharing for Development' ? 'max-w-[126px]' : 'max-w-[178px]' }}">
+            <div class="indicator-number-container">
+              <i
+                class="pi {{ indicator.indicator.icon_src }} !text-[18px] {{
+                  (indicator.indicator.indicator_type_id === 1 ? 'output' : 'outcome') + '-icon'
+                }}">
+              </i>
+              <label class="indicator-number" for="username">{{ indicator.count_results }}</label>
+            </div>
+            <label class="indicator-type" for="username">{{ indicator.indicator.name }}</label>
           </div>
-          <label class="indicator-type" for="username">{{ indicator.indicator.name }}</label>
+        }
+      </div>
+      @if (cache.onlyMvpUsers() && isHeader) {
+        <div class="min-w-[150px] flex justify-end">
+          <p-button label="Set up project" icon="pi pi-cog" size="small" [routerLink]="['/set-up-project', project.agreement_id]" />
         </div>
       }
     </div>
