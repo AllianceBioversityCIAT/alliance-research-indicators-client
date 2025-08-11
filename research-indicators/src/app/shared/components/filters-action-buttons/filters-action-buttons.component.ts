@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -7,7 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 @Component({
   selector: 'app-filters-action-buttons',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule],
+  imports: [FormsModule, ButtonModule, InputTextModule],
   templateUrl: './filters-action-buttons.component.html'
 })
 export class FiltersActionButtonsComponent {
