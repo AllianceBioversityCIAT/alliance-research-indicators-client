@@ -1,4 +1,5 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { CacheService } from '@services/cache/cache.service';
 import { Router } from '@angular/router';
 import { GlobalAlert } from '../interfaces/global-alert.interface';
@@ -26,6 +27,7 @@ export class ActionsService {
   constructor() {
     this.validateToken();
     this.listenToWindowHeight();
+    this.registerDevMvpShortcut();
   }
 
   saveCurrentSection() {
@@ -233,5 +235,42 @@ export class ActionsService {
 
     // Subscribe to window resize
     window.addEventListener('resize', updateHeight);
+  }
+
+  // Dev-only keyboard shortcut to enable MVP users flag and reload
+  private registerDevMvpShortcut(): void {
+    if (environment.production) return;
+
+    const isMacOS = (() => {
+      if ('userAgentData' in navigator) {
+        const userAgentData = (navigator as unknown as { userAgentData?: { platform?: string } }).userAgentData;
+        return userAgentData?.platform?.includes('Mac') ?? false;
+      }
+      return /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+    })();
+
+    const handler = (event: KeyboardEvent) => {
+      // Primary: Ctrl + M on all platforms
+      const isCtrlM = event.ctrlKey && (event.key === 'm' || event.key === 'M');
+      // Fallback for Windows: Ctrl + Alt + M (some environments reserve Ctrl+M)
+      const isWindowsFallback = !isMacOS && event.ctrlKey && event.altKey && (event.key === 'm' || event.key === 'M');
+
+      if (isCtrlM || isWindowsFallback) {
+        try {
+          const current = localStorage.getItem('onlyMvpUsers');
+          if (current) {
+            localStorage.removeItem('onlyMvpUsers');
+          } else {
+            localStorage.setItem('onlyMvpUsers', 'true');
+          }
+        } catch {
+          // noop
+        }
+        event.preventDefault();
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener('keydown', handler);
   }
 }

@@ -65,9 +65,9 @@ export interface NewItemForm {
 export interface NewIndicatorForm {
   name: string;
   description: string;
-  level: 1 | 2;
-  numberType: NumberTypeOption;
-  numberFormat: NumberFormatOption;
+  level: 1 | 2 | null;
+  numberType: NumberTypeOption | null;
+  numberFormat: NumberFormatOption | null;
   years: number[];
   targetUnit: string;
   targetValue: number | null;

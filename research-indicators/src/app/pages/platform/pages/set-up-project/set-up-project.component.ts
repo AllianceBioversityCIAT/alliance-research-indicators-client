@@ -202,9 +202,9 @@ export default class SetUpProjectComponent {
   newIndicatorForm = signal<NewIndicatorForm>({
     name: '',
     description: '',
-    level: 1,
-    numberType: 'sum',
-    numberFormat: 'number',
+    level: null,
+    numberType: null,
+    numberFormat: null,
     years: [],
     targetUnit: '',
     targetValue: null,
@@ -431,13 +431,13 @@ export default class SetUpProjectComponent {
   }
 
   // ============= MÉTODOS PARA INDICADORES =============
-  openIndicatorModal(level: 1 | 2 = 1): void {
+  openIndicatorModal(level?: 1 | 2): void {
     this.newIndicatorForm.set({
       name: '',
       description: '',
-      level,
-      numberType: 'sum',
-      numberFormat: 'number',
+      level: level ?? null,
+      numberType: null,
+      numberFormat: null,
       years: [],
       targetUnit: '',
       targetValue: null,
@@ -462,7 +462,15 @@ export default class SetUpProjectComponent {
     }
 
     const form = this.newIndicatorForm();
-    if (form.name.trim() && form.description.trim() && form.years.length > 0 && form.targetUnit.trim()) {
+    if (
+      form.name.trim() &&
+      form.description.trim() &&
+      form.years.length > 0 &&
+      form.targetUnit.trim() &&
+      form.level !== null &&
+      form.numberType !== null &&
+      form.numberFormat !== null
+    ) {
       const newIndicator: ProjectIndicator = {
         id: `indicator_${Date.now()}`,
         name: form.name.trim(),
@@ -641,14 +649,14 @@ export default class SetUpProjectComponent {
   }
 
   // Crear indicador directamente para un elemento específico
-  createIndicatorForElement(type: 'structure' | 'item', elementId: string): void {
+  createIndicatorForElement(type: 'structure' | 'item'): void {
     const level = type === 'structure' ? 1 : 2;
     this.newIndicatorForm.set({
       name: '',
       description: '',
       level,
-      numberType: 'sum',
-      numberFormat: 'number',
+      numberType: null,
+      numberFormat: null,
       years: [],
       targetUnit: '',
       targetValue: null,
@@ -674,9 +682,9 @@ export default class SetUpProjectComponent {
     this.newIndicatorForm.set({
       name: '',
       description: '',
-      level: 1,
-      numberType: 'sum',
-      numberFormat: 'number',
+      level: null,
+      numberType: null,
+      numberFormat: null,
       years: [],
       targetUnit: '',
       targetValue: null,
@@ -728,7 +736,22 @@ export default class SetUpProjectComponent {
     if (!editingId || !this.isDefaultIndicator(editingId)) return;
 
     const defaultIndicators = this.defaultIndicators();
-    const updatedIndicators = defaultIndicators.map(indicator => (indicator.id === editingId ? { ...indicator, ...form } : indicator));
+    const updatedIndicators = defaultIndicators.map(indicator => {
+      if (indicator.id !== editingId) return indicator;
+      if (form.level === null || form.numberType === null || form.numberFormat === null) return indicator;
+      return {
+        ...indicator,
+        name: form.name.trim(),
+        description: form.description.trim(),
+        level: form.level,
+        numberType: form.numberType,
+        numberFormat: form.numberFormat,
+        years: form.years,
+        targetUnit: form.targetUnit,
+        targetValue: form.targetValue,
+        baseline: form.baseline
+      } as ProjectIndicator;
+    });
 
     this.defaultIndicators.set(updatedIndicators);
     this.showIndicatorModal.set(false);
@@ -751,8 +774,8 @@ export default class SetUpProjectComponent {
       name: '',
       description: '',
       level: level,
-      numberType: 'sum',
-      numberFormat: 'number',
+      numberType: null,
+      numberFormat: null,
       years: [],
       targetUnit: '',
       targetValue: null,
@@ -779,10 +802,11 @@ export default class SetUpProjectComponent {
   // Guardar un nuevo indicador por defecto
   saveNewDefaultIndicator(): void {
     const form = this.newIndicatorForm();
+    if (form.level === null || form.numberType === null || form.numberFormat === null) return;
     const newIndicator: ProjectIndicator = {
       id: `default_ind${Date.now()}`,
-      name: form.name,
-      description: form.description,
+      name: form.name.trim(),
+      description: form.description.trim(),
       level: form.level,
       numberType: form.numberType,
       numberFormat: form.numberFormat,
