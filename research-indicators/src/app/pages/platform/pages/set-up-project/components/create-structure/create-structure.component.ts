@@ -14,7 +14,7 @@ import { IndicatorsStructure } from '../../../../../../shared/interfaces/get-str
 export class CreateStructureComponent {
   setUpProjectService = inject(SetUpProjectService);
   signalUtils = inject(SignalUtilsService);
-  newStructureForm = signal<IndicatorsStructure>({ name: '', code: '' });
+  newStructureForm = signal<IndicatorsStructure>({ name: '', code: '', items: [] });
   onAddStructure = () => {
     this.signalUtils.pushToSignal(this.setUpProjectService.structures, this.newStructureForm());
     this.setUpProjectService.showCreateStructure.set(false);

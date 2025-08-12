@@ -15,7 +15,7 @@ import { SetUpProjectService } from '../../set-up-project.service';
 export class CreateItemComponent {
   @Input() structure!: IndicatorsStructure;
   @Input() index = 0;
-  newItemForm = signal<NewItemForm>({ name: '', code: '', parentStructureId: '' });
+  newItemForm = signal<NewItemForm>({ name: '', code: '' });
 
   setUpProjectService = inject(SetUpProjectService);
 
