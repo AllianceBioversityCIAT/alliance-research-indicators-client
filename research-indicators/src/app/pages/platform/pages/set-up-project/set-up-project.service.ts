@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../../../../shared/services/api.service';
 import { IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
+import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -13,11 +14,17 @@ export class SetUpProjectService {
   structures = signal<IndicatorsStructure[]>([]);
   showCreateStructure = signal<boolean>(false);
   assignIndicatorsModal = signal<{ show: boolean; data: IndicatorsStructure | null }>({ show: false, data: null });
+  indicatorList = signal<GetIndicators[]>([]);
 
   api = inject(ApiService);
 
   constructor() {
     this.getStructures();
+    this.getIndicators();
+  }
+  async getIndicators() {
+    const res = await this.api.GET_Indicators();
+    this.indicatorList.set(res.data);
   }
 
   deleteStructureByIndex(index: number) {
