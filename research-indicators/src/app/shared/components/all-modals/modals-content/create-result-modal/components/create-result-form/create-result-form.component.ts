@@ -128,12 +128,21 @@ export class CreateResultFormComponent {
       summary: 'Success',
       detail: `Result "${this.body().title}" created successfully`
     });
-    this.allModalsService.closeModal('createResult');
+
     this.body.set({ indicator_id: null, title: null, contract_id: null, year: currentYear });
     this.contractId = null;
     this.sharedFormValid = false;
 
-    if (openresult) this.actions.changeResultRoute(Number(result.data.result_official_code));
+    if (openresult) {
+      this.cache.currentResultId.set(Number(result.data.result_official_code));
+
+      this.router.navigate(['result', result.data.result_official_code], {
+        replaceUrl: true
+      });
+
+      this.allModalsService.closeModal('createResult');
+    }
+
     this.getResultsService.updateList();
   };
 
