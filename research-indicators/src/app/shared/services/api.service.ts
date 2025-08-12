@@ -550,6 +550,12 @@ export class ApiService {
     return this.TP.get('', { isAuth: urlWithTimestamp, noCache: true });
   };
 
+  // https://main-allianceindicatorstest.ciat.cgiar.org/api/groups-items/items-list
+  GET_Structures = () => {
+    const url = () => `groups-items/items-list`;
+    return this.TP.get(url(), {});
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {

@@ -17,7 +17,6 @@ import { TagModule } from 'primeng/tag';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import {
-  ProjectSetupConfiguration,
   ProjectIndicator,
   NewItemForm,
   NewIndicatorForm,
@@ -25,7 +24,6 @@ import {
   NUMBER_FORMAT_OPTIONS,
   AVAILABLE_YEARS
 } from '../../../../shared/interfaces/project-setup.interface';
-import { CurrentView } from './interfaces/set-up-project.interface';
 import { CreateStructureComponent } from './components/create-structure/create-structure.component';
 import { UpdateStructureComponent } from './components/update-structure/update-structure.component';
 import { SetUpProjectService } from './set-up-project.service';
@@ -58,65 +56,7 @@ import { SetUpProjectService } from './set-up-project.service';
 })
 export default class SetUpProjectComponent {
   // Configuración principal del proyecto con indicadores por defecto
-  projectConfig = signal<ProjectSetupConfiguration>({
-    structures: [
-      {
-        id: 'structure_1755006353652',
-        name: 'Example',
-        code: '1',
-        items: [
-          {
-            id: 'item_1755006362867',
-            name: 'Item example',
-            code: '2',
-            indicators: [
-              {
-                id: 'indicator_1755006388233_t48yzb6he',
-                name: 'Subject Test Scores',
-                description: 'Average test scores for specific subject areas',
-                level: 2,
-                numberType: 'average',
-                numberFormat: 'decimal',
-                years: [2024, 2025],
-                targetUnit: 'points',
-                targetValue: 80,
-                baseline: 65,
-                isActive: true
-              }
-            ]
-          },
-          {
-            id: 'item_1755006378534',
-            name: 'item 2',
-            code: '3',
-            indicators: []
-          }
-        ],
-        indicators: [
-          {
-            id: 'indicator_1755006383217_0rbvp23pn',
-            name: 'Academic Performance Index',
-            description: 'Overall academic performance measurement across all subjects',
-            level: 1,
-            numberType: 'average',
-            numberFormat: 'decimal',
-            years: [2024, 2025],
-            targetUnit: 'score (0-100)',
-            targetValue: 85,
-            baseline: 70,
-            isActive: true
-          }
-        ]
-      },
-      {
-        id: 'structure_1755006370134',
-        name: 'example 2',
-        code: '1',
-        items: [],
-        indicators: []
-      }
-    ]
-  });
+
   setUpProjectService = inject(SetUpProjectService);
 
   // Indicadores predefinidos disponibles para seleccionar
@@ -274,45 +214,19 @@ export default class SetUpProjectComponent {
 
   selectedElementForIndicators = signal<{ type: 'structure' | 'item'; id: string } | null>(null);
   selectedStructureIndex = signal<number>(0);
-  currentView = signal<CurrentView>('structures');
 
   // Opciones disponibles
   numberTypeOptions = NUMBER_TYPE_OPTIONS;
   numberFormatOptions = NUMBER_FORMAT_OPTIONS;
   availableYears = AVAILABLE_YEARS.map(year => ({ label: year.toString(), value: year }));
 
-  // Computed properties
-  allIndicators = computed(() => {
-    const config = this.projectConfig();
-    const indicators: ProjectIndicator[] = [];
-
-    config.structures.forEach(structure => {
-      indicators.push(...structure.indicators);
-      structure.items.forEach(item => {
-        indicators.push(...item.indicators);
-      });
-    });
-
-    return indicators;
-  });
-
-  // Combinamos indicadores por defecto con los del proyecto para la vista principal
-  allIndicatorsWithDefaults = computed(() => {
-    return [...this.defaultIndicators(), ...this.allIndicators()];
-  });
-
-  level1Indicators = computed(() => this.allIndicatorsWithDefaults().filter(ind => ind.level === 1 && ind.isActive));
-
-  level2Indicators = computed(() => this.allIndicatorsWithDefaults().filter(ind => ind.level === 2 && ind.isActive));
-
   isProjectValid = computed(() => {
-    const config = this.projectConfig();
-    return config.structures.length > 0 && config.structures.some(s => s.items.length > 0);
+    return this.setUpProjectService.structures().length > 0 && this.setUpProjectService.structures().some(s => s.items.length > 0);
   });
 
   totalItems = computed(() => {
-    const config = this.projectConfig();
-    return config.structures.reduce((acc, s) => acc + s.items.length, 0);
+    const config = this.setUpProjectService.structures();
+    return config.reduce((acc, s) => acc + s.items.length, 0);
   });
 
   defaultLevel1Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 1));
