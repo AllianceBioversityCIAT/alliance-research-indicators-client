@@ -194,6 +194,8 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
         this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
         this.loadMyProjects();
+      } else {
+        this.loadAllProjects();
       }
     } else {
       this.pinnedTab.set('all');
