@@ -9,10 +9,10 @@
       <!-- Botones de acción en el header -->
       <div class="flex gap-3">
         @if (currentView() === 'structures') {
-          <p-button icon="pi pi-plus" label="Create Structure" (onClick)="startAddingStructure()"> </p-button>
-          <p-button icon="pi pi-chart-bar" label="View All Indicators" severity="secondary" (onClick)="showIndicatorsView()"> </p-button>
+          <p-button icon="pi pi-plus" label="Create Structure"> </p-button>
+          <p-button icon="pi pi-chart-bar" label="View All Indicators" severity="secondary"> </p-button>
         } @else {
-          <p-button icon="pi pi-sitemap" label="Back to Structures" severity="secondary" (onClick)="showStructuresView()"> </p-button>
+          <p-button icon="pi pi-sitemap" label="Back to Structures" severity="secondary"> </p-button>
         }
       </div>
     </div>
@@ -36,8 +36,8 @@
         </div>
       </div>
       <div class="flex gap-2">
-        <p-button icon="pi pi-check" label="Create Structure" (onClick)="saveStructure()"></p-button>
-        <p-button icon="pi pi-times" label="Cancel" severity="secondary" (onClick)="cancelStructureEdit()"></p-button>
+        <p-button icon="pi pi-check" label="Create Structure"></p-button>
+        <p-button icon="pi pi-times" label="Cancel" severity="secondary"></p-button>
       </div>
     </div>
   }
@@ -69,8 +69,8 @@
                         </div>
                       </div>
                       <div class="flex gap-2">
-                        <p-button icon="pi pi-check" label="Save" size="small" (onClick)="updateStructure(structure.id)"></p-button>
-                        <p-button icon="pi pi-times" label="Cancel" severity="secondary" size="small" (onClick)="cancelStructureEdit()"></p-button>
+                        <p-button icon="pi pi-check" label="Save" size="small"></p-button>
+                        <p-button icon="pi pi-times" label="Cancel" severity="secondary" size="small"></p-button>
                       </div>
                     </div>
                   }
@@ -79,17 +79,9 @@
                   <div class="flex justify-between items-center mb-6">
                     <div></div>
                     <div class="flex gap-2">
-                      <p-button
-                        icon="pi pi-tag"
-                        label="Add Indicators"
-                        severity="help"
-                        size="small"
-                        (onClick)="openAssignIndicatorModal('structure', structure.id)">
-                      </p-button>
-                      <p-button icon="pi pi-pencil" label="Edit" severity="secondary" size="small" (onClick)="editStructure(structure.id)">
-                      </p-button>
-                      <p-button icon="pi pi-trash" label="Delete" severity="danger" size="small" (onClick)="removeStructure(structure.id)">
-                      </p-button>
+                      <p-button icon="pi pi-tag" label="Add Indicators" severity="help" size="small"> </p-button>
+                      <p-button icon="pi pi-pencil" label="Edit" severity="secondary" size="small"> </p-button>
+                      <p-button icon="pi pi-trash" label="Delete" severity="danger" size="small"> </p-button>
                     </div>
                   </div>
 
@@ -102,9 +94,7 @@
                           <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                             <div class="flex justify-between items-start mb-2">
                               <h4 class="font-medium text-gray-800">{{ indicator.name }}</h4>
-                              <button
-                                class="text-red-500 hover:text-red-700 text-sm"
-                                (click)="removeIndicatorFromElement('structure', '', structure.id, indicator.id)">
+                              <button class="text-red-500 hover:text-red-700 text-sm">
                                 <i class="pi pi-times"></i>
                               </button>
                             </div>
@@ -127,8 +117,7 @@
                   <div class="items-section">
                     <div class="flex justify-between items-center mb-6">
                       <h3 class="text-lg font-semibold text-gray-800">{{ structure.name }} Items</h3>
-                      <p-button icon="pi pi-plus" label="Add {{ structure.name }} Item" size="small" (onClick)="startAddingItem(structure.id)">
-                      </p-button>
+                      <p-button icon="pi pi-plus" label="Add {{ structure.name }} Item" size="small"> </p-button>
                     </div>
 
                     <!-- Formulario para nuevo item -->
@@ -146,8 +135,8 @@
                           </div>
                         </div>
                         <div class="flex gap-2">
-                          <p-button icon="pi pi-check" label="Save Item" size="small" (onClick)="saveItem()"></p-button>
-                          <p-button icon="pi pi-times" label="Cancel" severity="secondary" size="small" (onClick)="cancelItemEdit()"></p-button>
+                          <p-button icon="pi pi-check" label="Save Item" size="small"></p-button>
+                          <p-button icon="pi pi-times" label="Cancel" severity="secondary" size="small"></p-button>
                         </div>
                       </div>
                     }
@@ -172,13 +161,8 @@
                                   </div>
                                 </div>
                                 <div class="flex gap-2">
-                                  <p-button icon="pi pi-check" label="Save" size="small" (onClick)="updateItem(item.id)"></p-button>
-                                  <p-button
-                                    icon="pi pi-times"
-                                    label="Cancel"
-                                    severity="secondary"
-                                    size="small"
-                                    (onClick)="cancelItemEdit()"></p-button>
+                                  <p-button icon="pi pi-check" label="Save" size="small"></p-button>
+                                  <p-button icon="pi pi-times" label="Cancel" severity="secondary" size="small"></p-button>
                                 </div>
                               </div>
                             } @else {
@@ -189,29 +173,9 @@
                                   <p class="text-sm text-gray-600">Code: {{ item.code }}</p>
                                 </div>
                                 <div class="flex gap-1">
-                                  <p-button
-                                    icon="pi pi-tag"
-                                    pTooltip="Add Indicators"
-                                    [text]="true"
-                                    severity="help"
-                                    size="small"
-                                    (onClick)="openAssignIndicatorModal('item', item.id)">
-                                  </p-button>
-                                  <p-button
-                                    icon="pi pi-pencil"
-                                    pTooltip="Edit"
-                                    [text]="true"
-                                    size="small"
-                                    (onClick)="editItem(structure.id, item.id)">
-                                  </p-button>
-                                  <p-button
-                                    icon="pi pi-trash"
-                                    pTooltip="Delete"
-                                    [text]="true"
-                                    severity="danger"
-                                    size="small"
-                                    (onClick)="removeItem(structure.id, item.id)">
-                                  </p-button>
+                                  <p-button icon="pi pi-tag" pTooltip="Add Indicators" [text]="true" severity="help" size="small"> </p-button>
+                                  <p-button icon="pi pi-pencil" pTooltip="Edit" [text]="true" size="small"> </p-button>
+                                  <p-button icon="pi pi-trash" pTooltip="Delete" [text]="true" severity="danger" size="small"> </p-button>
                                 </div>
                               </div>
 
@@ -224,9 +188,7 @@
                                       <div class="bg-gray-50 p-3 rounded">
                                         <div class="flex justify-between items-start mb-2">
                                           <h6 class="font-medium text-gray-800 text-sm">{{ indicator.name }}</h6>
-                                          <button
-                                            class="text-red-500 hover:text-red-700 text-xs"
-                                            (click)="removeIndicatorFromElement('item', structure.id, item.id, indicator.id)">
+                                          <button class="text-red-500 hover:text-red-700 text-xs">
                                             <i class="pi pi-times"></i>
                                           </button>
                                         </div>
@@ -260,15 +222,7 @@
           </p-tabView>
 
           <!-- Botón agregar estructura junto a los tabs -->
-          <p-button
-            icon="pi pi-plus"
-            pTooltip="Add Structure"
-            [text]="true"
-            severity="secondary"
-            size="small"
-            class="mb-2"
-            (onClick)="startAddingStructure()">
-          </p-button>
+          <p-button icon="pi pi-plus" pTooltip="Add Structure" [text]="true" severity="secondary" size="small" class="mb-2"> </p-button>
         </div>
       }
 
@@ -289,8 +243,8 @@
       <!-- Botones para crear indicadores -->
       <div class="create-indicators-section mb-8">
         <div class="flex gap-4 justify-center">
-          <p-button icon="pi pi-plus" label="Create Level 1 Indicator" severity="info" (onClick)="openIndicatorModal(1)"></p-button>
-          <p-button icon="pi pi-plus" label="Create Level 2 Indicator" severity="secondary" (onClick)="openIndicatorModal(2)"></p-button>
+          <p-button icon="pi pi-plus" label="Create Level 1 Indicator" severity="info"></p-button>
+          <p-button icon="pi pi-plus" label="Create Level 2 Indicator" severity="secondary"></p-button>
         </div>
       </div>
 
@@ -353,22 +307,8 @@
                       </div>
                     </div>
                     <div class="flex gap-1 ml-4">
-                      <p-button
-                        icon="pi pi-pencil"
-                        severity="secondary"
-                        [text]="true"
-                        size="small"
-                        pTooltip="Edit indicator"
-                        (onClick)="isDefaultIndicator(indicator.id) ? editDefaultIndicator(indicator) : null">
-                      </p-button>
-                      <p-button
-                        icon="pi pi-trash"
-                        severity="danger"
-                        [text]="true"
-                        size="small"
-                        pTooltip="Delete indicator"
-                        (onClick)="removeIndicator(indicator.id)">
-                      </p-button>
+                      <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small" pTooltip="Edit indicator"> </p-button>
+                      <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small" pTooltip="Delete indicator"> </p-button>
                     </div>
                   </div>
                 </div>
@@ -379,7 +319,7 @@
               <i class="pi pi-tag text-4xl mb-4 block text-gray-300"></i>
               <h4 class="text-lg font-semibold text-gray-700 mb-2">No Level 1 indicators yet</h4>
               <p class="text-gray-500 mb-4">Create indicators that apply to entire structures.</p>
-              <p-button icon="pi pi-plus" label="Create Level 1 Indicator" severity="info" (onClick)="openIndicatorModal(1)"></p-button>
+              <p-button icon="pi pi-plus" label="Create Level 1 Indicator" severity="info"></p-button>
             </div>
           }
         </div>
@@ -442,22 +382,8 @@
                       </div>
                     </div>
                     <div class="flex gap-1 ml-4">
-                      <p-button
-                        icon="pi pi-pencil"
-                        severity="secondary"
-                        [text]="true"
-                        size="small"
-                        pTooltip="Edit indicator"
-                        (onClick)="isDefaultIndicator(indicator.id) ? editDefaultIndicator(indicator) : null">
-                      </p-button>
-                      <p-button
-                        icon="pi pi-trash"
-                        severity="danger"
-                        [text]="true"
-                        size="small"
-                        pTooltip="Delete indicator"
-                        (onClick)="removeIndicator(indicator.id)">
-                      </p-button>
+                      <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small" pTooltip="Edit indicator"> </p-button>
+                      <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small" pTooltip="Delete indicator"> </p-button>
                     </div>
                   </div>
                 </div>
@@ -468,7 +394,7 @@
               <i class="pi pi-tags text-4xl mb-4 block text-gray-300"></i>
               <h4 class="text-lg font-semibold text-gray-700 mb-2">No Level 2 indicators yet</h4>
               <p class="text-gray-500 mb-4">Create indicators that apply to specific items.</p>
-              <p-button icon="pi pi-plus" label="Create Level 2 Indicator" severity="secondary" (onClick)="openIndicatorModal(2)"></p-button>
+              <p-button icon="pi pi-plus" label="Create Level 2 Indicator" severity="secondary"></p-button>
             </div>
           }
         </div>
