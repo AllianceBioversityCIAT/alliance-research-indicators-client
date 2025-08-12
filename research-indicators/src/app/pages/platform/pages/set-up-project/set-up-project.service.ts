@@ -13,7 +13,10 @@ export class SetUpProjectService {
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
   showCreateStructure = signal<boolean>(false);
-  assignIndicatorsModal = signal<{ show: boolean; data: IndicatorsStructure | null }>({ show: false, data: null });
+  assignIndicatorsModal = signal<{
+    show: boolean;
+    target: { type: 'structure'; structureIndex: number } | { type: 'item'; structureIndex: number; itemIndex: number } | null;
+  }>({ show: false, target: null });
   indicatorList = signal<GetIndicators[]>([]);
 
   api = inject(ApiService);

@@ -25,7 +25,7 @@
                       label="Add Indicators"
                       severity="help"
                       size="small"
-                      (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, data: structure })">
+                      (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, target: { type: 'structure', structureIndex: i } })">
                     </p-button>
                     <p-button
                       icon="pi pi-pencil"
@@ -99,7 +99,19 @@
                                 <p class="text-sm text-gray-600">Code: {{ item.code }}</p>
                               </div>
                               <div class="flex gap-1">
-                                <p-button icon="pi pi-tag" pTooltip="Add Indicators" [text]="true" severity="help" size="small"> </p-button>
+                                <p-button
+                                  icon="pi pi-tag"
+                                  pTooltip="Add Indicators"
+                                  [text]="true"
+                                  severity="help"
+                                  size="small"
+                                  (click)="
+                                    setUpProjectService.assignIndicatorsModal.set({
+                                      show: true,
+                                      target: { type: 'item', structureIndex: i, itemIndex: j }
+                                    })
+                                  ">
+                                </p-button>
                                 <p-button
                                   icon="pi pi-pencil"
                                   pTooltip="Edit"
