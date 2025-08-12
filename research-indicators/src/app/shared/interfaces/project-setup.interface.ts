@@ -53,7 +53,7 @@ export const AVAILABLE_YEARS: number[] = [2021, 2022, 2023, 2024, 2025, 2026, 20
 export interface NewItemForm {
   name: string;
   code: string;
-  parentStructureId: string;
+  parentStructureId?: string;
 }
 
 export interface NewIndicatorForm {

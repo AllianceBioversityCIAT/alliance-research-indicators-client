@@ -6,16 +6,16 @@ export interface IndicatorsStructure {
   id?: string;
   name: string;
   code: string;
-  items?: Item[];
+  items?: IndicatorItem[];
   indicators?: Indicator[];
 }
 
-interface Item {
-  id: string;
+export interface IndicatorItem {
+  id?: string;
   name: string;
   code: string;
-  items: any[];
-  indicators: Indicator[];
+  items?: any[];
+  indicators?: Indicator[];
 }
 
 interface Indicator {

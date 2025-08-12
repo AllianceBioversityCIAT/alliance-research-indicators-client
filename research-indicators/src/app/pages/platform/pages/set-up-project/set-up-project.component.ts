@@ -18,7 +18,6 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import {
   ProjectIndicator,
-  NewItemForm,
   NewIndicatorForm,
   NUMBER_TYPE_OPTIONS,
   NUMBER_FORMAT_OPTIONS,
@@ -27,6 +26,8 @@ import {
 import { CreateStructureComponent } from './components/create-structure/create-structure.component';
 import { UpdateStructureComponent } from './components/update-structure/update-structure.component';
 import { SetUpProjectService } from './set-up-project.service';
+import { CreateItemComponent } from './components/create-item/create-item.component';
+import { UpdateItemComponent } from './components/update-item/update-item.component';
 
 @Component({
   selector: 'app-set-up-project',
@@ -49,7 +50,9 @@ import { SetUpProjectService } from './set-up-project.service';
     CheckboxModule,
     TextareaModule,
     CreateStructureComponent,
-    UpdateStructureComponent
+    UpdateStructureComponent,
+    CreateItemComponent,
+    UpdateItemComponent
   ],
   templateUrl: './set-up-project.component.html',
   styleUrl: './set-up-project.component.scss'
@@ -197,7 +200,7 @@ export default class SetUpProjectComponent {
   ]);
 
   // Formularios para nuevos elementos
-  newItemForm = signal<NewItemForm>({ name: '', code: '', parentStructureId: '' });
+
   newIndicatorForm = signal<NewIndicatorForm>({
     name: '',
     description: '',
