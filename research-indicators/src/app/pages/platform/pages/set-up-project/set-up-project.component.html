@@ -8,7 +8,9 @@
       </div>
       <!-- Acciones y selector de ruta -->
       <div class="flex gap-3 items-center">
-        <p-button icon="pi pi-plus" label="Create Structure" (onClick)="setUpProjectService.showCreateStructure.set(true)"> </p-button>
+        @if (activeRoute === 'structure') {
+          <p-button icon="pi pi-plus" label="Create Structure" (onClick)="setUpProjectService.showCreateStructure.set(true)"> </p-button>
+        }
         <p-selectbutton
           [options]="routeOptions"
           [(ngModel)]="activeRoute"
