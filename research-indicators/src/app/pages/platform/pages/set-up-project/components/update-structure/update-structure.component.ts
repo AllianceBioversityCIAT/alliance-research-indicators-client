@@ -17,7 +17,7 @@ export class UpdateStructureComponent implements OnInit {
   @Input() structure!: IndicatorsStructure;
   setUpProjectService = inject(SetUpProjectService);
   signalUtils = inject(SignalUtilsService);
-  newStructureForm = signal<IndicatorsStructure>({ name: '', code: '' });
+  newStructureForm = signal<IndicatorsStructure>({ name: '', code: '', items: [], indicators: [] });
 
   ngOnInit() {
     this.newStructureForm.set(this.structure);

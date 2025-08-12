@@ -7,7 +7,7 @@ export interface IndicatorsStructure {
   name: string;
   code: string;
   items?: IndicatorItem[];
-  indicators?: Indicator[];
+  indicators: Indicator[];
 }
 
 export interface IndicatorItem {
@@ -18,7 +18,7 @@ export interface IndicatorItem {
   indicators?: Indicator[];
 }
 
-interface Indicator {
+export interface Indicator {
   id: string;
   name: string;
   description: string;

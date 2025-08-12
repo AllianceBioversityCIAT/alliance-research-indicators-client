@@ -32,7 +32,9 @@
         @if (setUpProjectService.indicatorList().length > 0) {
           <div class="space-y-3 max-h-80 overflow-y-auto">
             @for (indicator of setUpProjectService.indicatorList(); track indicator.id) {
-              <div class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-colors">
+              <div
+                class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-colors"
+                (click)="setUpProjectService.assignIndicator(indicator)">
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
                     <h5 class="font-medium text-gray-800 text-sm mb-1">{{ indicator.name }}</h5>

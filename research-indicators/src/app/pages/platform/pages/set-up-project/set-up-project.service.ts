@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../../../../shared/services/api.service';
-import { IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
+import { Indicator, IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
 
 @Injectable({
@@ -15,7 +15,7 @@ export class SetUpProjectService {
   showCreateStructure = signal<boolean>(false);
   assignIndicatorsModal = signal<{
     show: boolean;
-    target: { type: 'structure'; structureIndex: number } | { type: 'item'; structureIndex: number; itemIndex: number } | null;
+    target: { type: 'structure'; structureIndex: number; itemIndex?: null } | { type: 'item'; structureIndex: number; itemIndex: number } | null;
   }>({ show: false, target: null });
   indicatorList = signal<GetIndicators[]>([]);
 
@@ -56,5 +56,19 @@ export class SetUpProjectService {
   async getStructures() {
     const res = await this.api.GET_Structures();
     this.structures.set(res.data.structures);
+  }
+
+  assignIndicator(indicator: Indicator | GetIndicators) {
+    console.log(indicator);
+    this.structures.update(prev => {
+      const structureIndex = this.assignIndicatorsModal().target?.structureIndex;
+      const itemIndex = this.assignIndicatorsModal().target?.itemIndex;
+      if (this.assignIndicatorsModal().target?.type === 'structure' && structureIndex !== undefined) {
+        prev[structureIndex].indicators.push(indicator as Indicator);
+      } else if (this.assignIndicatorsModal().target?.type === 'item') {
+        // prev[structureIndex].items[itemIndex].indicators.push(indicator);
+      }
+      return [...prev];
+    });
   }
 }
