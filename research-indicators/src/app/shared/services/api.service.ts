@@ -58,7 +58,7 @@ import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-inst
 import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
-import { GetStructures, IndicatorsStructure } from '../interfaces/get-structures.interface';
+import { GetStructures } from '../interfaces/get-structures.interface';
 import { PostIndicator } from '../interfaces/post-indicator.interface';
 
 @Injectable({

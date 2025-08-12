@@ -10,6 +10,12 @@
       <div class="flex gap-3 items-center">
         @if (activeRoute === 'structure') {
           <p-button icon="pi pi-plus" label="Create Structure" (onClick)="setUpProjectService.showCreateStructure.set(true)"> </p-button>
+        } @else {
+          <p-button
+            icon="pi pi-plus"
+            label="Create Indicator"
+            severity="info"
+            (onClick)="setUpProjectService.showIndicatorModal.set(true)"></p-button>
         }
         <p-selectbutton
           [options]="routeOptions"
@@ -27,3 +33,5 @@
     <p-button icon="pi pi-save" label="Save" severity="primary" (onClick)="saveStructures()"> </p-button>
   </div>
 </div>
+
+<app-assign-indicators-modal />

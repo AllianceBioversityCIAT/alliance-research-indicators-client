@@ -1,31 +1,16 @@
-<!-- Modal para crear indicador
 <p-dialog
-  [(visible)]="this.setUpProjectService.showIndicatorModal"
-  (onHide)="handleIndicatorDialogHide()"
-  [header]="
-    editingElementId() && editingElementId() !== 'new-indicator' && editingElementId() !== 'new-default-indicator'
-      ? 'Edit Indicator'
-      : 'Create New Indicator'
-  "
+  [visible]="this.setUpProjectService.showIndicatorModal()"
+  (onHide)="close()"
+  [header]="'Create New Indicator'"
   [modal]="true"
   [closable]="true"
   [style]="{ width: '600px' }"
   [draggable]="false">
   <div class="indicator-form">
-    @if (selectedElementForIndicators(); as selected) {
-      <div class="mb-3 p-3 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-between">
-        <div class="flex items-center gap-2 text-blue-900">
-          <i class="pi" [ngClass]="selected.type === 'structure' ? 'pi-sitemap' : 'pi-list'"></i>
-          <span class="text-sm">Creating indicator for</span>
-          <span class="font-medium">{{ getElementName(selected.type, selected.id) }}</span>
-        </div>
-        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Level {{ newIndicatorForm().level }}</span>
-      </div>
-    }
     <div class="grid grid-cols-1 gap-4 mb-4">
       <div>
         <label for="ind-name" class="block text-sm font-medium text-gray-700 mb-2">Name *</label>
-        <input id="ind-name" pInputText [(ngModel)]="newIndicatorForm().name" placeholder="Indicator name" class="w-full" />
+        <input id="ind-name" pInputText [(ngModel)]="form().name" placeholder="Indicator name" class="w-full" />
       </div>
 
       <div>
@@ -33,7 +18,7 @@
         <textarea
           id="ind-desc"
           pTextarea
-          [(ngModel)]="newIndicatorForm().description"
+          [(ngModel)]="form().description"
           placeholder="Detailed description"
           autoResize="false"
           rows="3"
@@ -43,27 +28,10 @@
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label for="ind-level" class="block text-sm font-medium text-gray-700 mb-2">Level *</label>
-          <p-select
-            id="ind-level"
-            [(ngModel)]="newIndicatorForm().level"
-            [options]="[
-              { label: 'Level 1 (Structures)', value: 1 },
-              { label: 'Level 2 (Items)', value: 2 }
-            ]"
-            optionLabel="label"
-            optionValue="value"
-            [disabled]="selectedElementForIndicators() !== null"
-            placeholder="Select level"
-            class="w-full">
-          </p-select>
-        </div>
-
-        <div>
           <label for="ind-type" class="block text-sm font-medium text-gray-700 mb-2">Number Type *</label>
           <p-select
             id="ind-type"
-            [(ngModel)]="newIndicatorForm().numberType"
+            [(ngModel)]="form().numberType"
             [options]="numberTypeOptions"
             optionLabel="label"
             optionValue="value"
@@ -71,14 +39,12 @@
             class="w-full">
           </p-select>
         </div>
-      </div>
 
-      <div class="grid grid-cols-2 gap-4">
         <div>
           <label for="ind-format" class="block text-sm font-medium text-gray-700 mb-2">Number Format *</label>
           <p-select
             id="ind-format"
-            [(ngModel)]="newIndicatorForm().numberFormat"
+            [(ngModel)]="form().numberFormat"
             [options]="numberFormatOptions"
             optionLabel="label"
             optionValue="value"
@@ -86,25 +52,26 @@
             class="w-full">
           </p-select>
         </div>
-
-        <div>
-          <label for="ind-unit" class="block text-sm font-medium text-gray-700 mb-2">Target Unit *</label>
-          <input id="ind-unit" pInputText [(ngModel)]="newIndicatorForm().targetUnit" placeholder="e.g., kg, units, %" class="w-full" />
-        </div>
       </div>
 
-      <div>
-        <label for="ind-years" class="block text-sm font-medium text-gray-700 mb-2">Years *</label>
-        <p-multiSelect
-          id="ind-years"
-          [(ngModel)]="newIndicatorForm().years"
-          [options]="availableYears"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select years"
-          [showToggleAll]="true"
-          class="w-full">
-        </p-multiSelect>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="ind-unit" class="block text-sm font-medium text-gray-700 mb-2">Target Unit *</label>
+          <input id="ind-unit" pInputText [(ngModel)]="form().targetUnit" placeholder="e.g., kg, units, %" class="w-full" />
+        </div>
+        <div>
+          <label for="ind-years" class="block text-sm font-medium text-gray-700 mb-2">Years *</label>
+          <p-multiSelect
+            id="ind-years"
+            [(ngModel)]="form().years"
+            [options]="availableYears"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select years"
+            [showToggleAll]="true"
+            class="w-full">
+          </p-multiSelect>
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
@@ -112,9 +79,9 @@
           <label for="ind-baseline" class="block text-sm font-medium text-gray-700 mb-2">Baseline</label>
           <p-inputNumber
             id="ind-baseline"
-            [(ngModel)]="newIndicatorForm().baseline"
-            [minFractionDigits]="newIndicatorForm().numberFormat === 'decimal' ? 1 : 0"
-            [maxFractionDigits]="newIndicatorForm().numberFormat === 'decimal' ? 6 : 0"
+            [(ngModel)]="form().baseline"
+            [minFractionDigits]="form().numberFormat === 'decimal' ? 1 : 0"
+            [maxFractionDigits]="form().numberFormat === 'decimal' ? 6 : 0"
             placeholder="Baseline value"
             class="w-full"></p-inputNumber>
         </div>
@@ -122,9 +89,9 @@
           <label for="ind-target" class="block text-sm font-medium text-gray-700 mb-2">Target Value</label>
           <p-inputNumber
             id="ind-target"
-            [(ngModel)]="newIndicatorForm().targetValue"
-            [minFractionDigits]="newIndicatorForm().numberFormat === 'decimal' ? 1 : 0"
-            [maxFractionDigits]="newIndicatorForm().numberFormat === 'decimal' ? 6 : 0"
+            [(ngModel)]="form().targetValue"
+            [minFractionDigits]="form().numberFormat === 'decimal' ? 1 : 0"
+            [maxFractionDigits]="form().numberFormat === 'decimal' ? 6 : 0"
             placeholder="Target value"
             class="w-full"></p-inputNumber>
         </div>
@@ -133,7 +100,7 @@
   </div>
 
   <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-    <p-button label="Cancel" severity="secondary" size="small" (onClick)="closeIndicatorDialog()"></p-button>
-    <p-button label="Create Indicator" size="small" (onClick)="saveIndicator()"></p-button>
+    <p-button label="Cancel" severity="secondary" size="small" (onClick)="close()"></p-button>
+    <p-button label="Create Indicator" size="small" (onClick)="save()"></p-button>
   </div>
-</p-dialog> -->
+</p-dialog>
