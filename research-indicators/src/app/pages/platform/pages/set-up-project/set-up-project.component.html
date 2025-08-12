@@ -46,7 +46,13 @@
                       severity="secondary"
                       size="small">
                     </p-button>
-                    <p-button icon="pi pi-trash" label="Delete" severity="danger" size="small"> </p-button>
+                    <p-button
+                      icon="pi pi-trash"
+                      label="Delete"
+                      severity="danger"
+                      size="small"
+                      (onClick)="setUpProjectService.deleteStructureByIndex(i)">
+                    </p-button>
                   </div>
                 </div>
 
@@ -185,9 +191,6 @@
             </p-tabPanel>
           }
         </p-tabView>
-
-        <!-- Botón agregar estructura junto a los tabs -->
-        <p-button icon="pi pi-plus" pTooltip="Add Structure" [text]="true" severity="secondary" size="small" class="mb-2"> </p-button>
       </div>
     }
 

@@ -19,8 +19,20 @@ export class SetUpProjectService {
     this.getStructures();
   }
 
+  deleteStructureByIndex(index: number) {
+    this.structures.update(prev => [...prev.slice(0, index), ...prev.slice(index + 1)]);
+  }
+
+  // deleteStructureItemByIndex(structureIndex: number, itemIndex: number) {
+  //   this.structures.update(prev => {
+  //     prev[structureIndex].items = prev[structureIndex].items?.filter(item => item.id !== this.editingElementId());
+  //     return [...prev];
+  //   });
+  // }
+
   async getStructures() {
     const res = await this.api.GET_Structures();
+    console.log('Load structures: ');
     console.log(res.data.structures);
     this.structures.set(res.data.structures);
   }
