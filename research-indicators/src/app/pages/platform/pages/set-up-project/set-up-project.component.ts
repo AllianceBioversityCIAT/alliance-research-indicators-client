@@ -56,7 +56,63 @@ import {
 export default class SetUpProjectComponent {
   // Configuración principal del proyecto con indicadores por defecto
   projectConfig = signal<ProjectSetupConfiguration>({
-    structures: []
+    structures: [
+      {
+        id: 'structure_1755006353652',
+        name: 'Example',
+        code: '1',
+        items: [
+          {
+            id: 'item_1755006362867',
+            name: 'Item example',
+            code: '2',
+            indicators: [
+              {
+                id: 'indicator_1755006388233_t48yzb6he',
+                name: 'Subject Test Scores',
+                description: 'Average test scores for specific subject areas',
+                level: 2,
+                numberType: 'average',
+                numberFormat: 'decimal',
+                years: [2024, 2025],
+                targetUnit: 'points',
+                targetValue: 80,
+                baseline: 65,
+                isActive: true
+              }
+            ]
+          },
+          {
+            id: 'item_1755006378534',
+            name: 'item 2',
+            code: '3',
+            indicators: []
+          }
+        ],
+        indicators: [
+          {
+            id: 'indicator_1755006383217_0rbvp23pn',
+            name: 'Academic Performance Index',
+            description: 'Overall academic performance measurement across all subjects',
+            level: 1,
+            numberType: 'average',
+            numberFormat: 'decimal',
+            years: [2024, 2025],
+            targetUnit: 'score (0-100)',
+            targetValue: 85,
+            baseline: 70,
+            isActive: true
+          }
+        ]
+      },
+      {
+        id: 'structure_1755006370134',
+        name: 'example 2',
+        code: '1',
+        items: [],
+        indicators: []
+      }
+    ]
   });
 
   // Indicadores predefinidos disponibles para seleccionar
@@ -212,12 +268,10 @@ export default class SetUpProjectComponent {
   });
 
   // Estados de UI
-  showIndicatorModal = signal<boolean>(false);
-  showAssignIndicatorModal = signal<boolean>(false);
+
   selectedElementForIndicators = signal<{ type: 'structure' | 'item'; id: string } | null>(null);
   editingElementId = signal<string | null>(null);
   selectedStructureIndex = signal<number>(0);
-  showAllIndicators = signal<boolean>(false);
   currentView = signal<'structures' | 'indicators'>('structures');
 
   // Opciones disponibles
@@ -443,7 +497,7 @@ export default class SetUpProjectComponent {
       targetValue: null,
       baseline: null
     });
-    this.showIndicatorModal.set(true);
+    // this.showIndicatorModal.set(true);
   }
 
   saveIndicator(): void {
@@ -487,7 +541,7 @@ export default class SetUpProjectComponent {
 
       // Los indicadores ahora se agregan directamente a estructuras o items, no a una lista global
       // Este método puede ser usado cuando se asigne posteriormente
-      this.showIndicatorModal.set(false);
+      // this.showIndicatorModal.set(false);
 
       // Si hay un elemento seleccionado, asignar directamente
       const selected = this.selectedElementForIndicators();
@@ -525,7 +579,7 @@ export default class SetUpProjectComponent {
   // ============= MÉTODOS PARA ASIGNAR INDICADORES =============
   openAssignIndicatorModal(type: 'structure' | 'item', elementId: string): void {
     this.selectedElementForIndicators.set({ type, id: elementId });
-    this.showAssignIndicatorModal.set(true);
+    // this.showAssignIndicatorModal.set(true);
   }
 
   assignNewIndicator(indicator: ProjectIndicator, type: 'structure' | 'item', elementId: string): void {
@@ -664,8 +718,8 @@ export default class SetUpProjectComponent {
     });
 
     // Cerrar modal de asignación y abrir modal de creación
-    this.showAssignIndicatorModal.set(false);
-    this.showIndicatorModal.set(true);
+    // this.showAssignIndicatorModal.set(false);
+    // this.showIndicatorModal.set(true);
   }
 
   // Métodos para cambiar de vista
@@ -692,18 +746,6 @@ export default class SetUpProjectComponent {
     });
   }
 
-  // Método para seleccionar un indicador por defecto
-  selectDefaultIndicator(defaultIndicator: ProjectIndicator, type: 'structure' | 'item', elementId: string): void {
-    // Crear una copia del indicador con nuevo ID
-    const newIndicator: ProjectIndicator = {
-      ...defaultIndicator,
-      id: `indicator_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
-    };
-
-    this.assignNewIndicator(newIndicator, type, elementId);
-    this.showAssignIndicatorModal.set(false);
-  }
-
   // ============= MÉTODOS PARA GESTOR DE INDICADORES POR DEFECTO =============
 
   // Verificar si un indicador es por defecto (empieza con 'default_')
@@ -725,7 +767,7 @@ export default class SetUpProjectComponent {
       baseline: indicator.baseline
     });
     this.editingElementId.set(indicator.id);
-    this.showIndicatorModal.set(true);
+    // this.showIndicatorModal.set(true);
   }
 
   // Guardar cambios en un indicador por defecto
@@ -754,7 +796,7 @@ export default class SetUpProjectComponent {
     });
 
     this.defaultIndicators.set(updatedIndicators);
-    this.showIndicatorModal.set(false);
+    // this.showIndicatorModal.set(false);
     this.editingElementId.set(null);
     this.resetIndicatorForm();
   }
@@ -782,7 +824,7 @@ export default class SetUpProjectComponent {
       baseline: null
     });
     this.editingElementId.set('new-default-indicator');
-    this.showIndicatorModal.set(true);
+    // this.showIndicatorModal.set(true);
   }
 
   // Manejar el cierre del diálogo de indicador para limpiar contexto
@@ -795,7 +837,7 @@ export default class SetUpProjectComponent {
   }
 
   closeIndicatorDialog(): void {
-    this.showIndicatorModal.set(false);
+    // this.showIndicatorModal.set(false);
     this.handleIndicatorDialogHide();
   }
 
@@ -820,7 +862,7 @@ export default class SetUpProjectComponent {
     const currentDefaults = this.defaultIndicators();
     this.defaultIndicators.set([...currentDefaults, newIndicator]);
 
-    this.showIndicatorModal.set(false);
+    // this.showIndicatorModal.set(false);
     this.editingElementId.set(null);
     this.resetIndicatorForm();
   }

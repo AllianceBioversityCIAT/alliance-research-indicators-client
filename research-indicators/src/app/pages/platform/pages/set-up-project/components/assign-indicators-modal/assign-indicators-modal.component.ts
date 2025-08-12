@@ -4,11 +4,11 @@ import { DialogModule } from 'primeng/dialog';
 import { SetUpProjectService } from '../../set-up-project.service';
 
 @Component({
-  selector: 'app-indicator-list-modal',
+  selector: 'app-assign-indicators-modal',
   imports: [DialogModule, ButtonModule],
-  templateUrl: './indicator-list-modal.component.html',
-  styleUrl: './indicator-list-modal.component.scss'
+  templateUrl: './assign-indicators-modal.component.html',
+  styleUrl: './assign-indicators-modal.component.scss'
 })
-export class IndicatorListModalComponent {
+export class AssignIndicatorsModalComponent {
   setUpProjectService = inject(SetUpProjectService);
 }

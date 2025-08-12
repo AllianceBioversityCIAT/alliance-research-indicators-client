@@ -1,1 +1,166 @@
-<p>indicator-list-modal works!</p>
+<!-- <p-dialog
+  [(visible)]="this.setUpProjectService.showAllIndicators"
+  header="All Indicators"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '80vw', maxWidth: '1200px' }"
+  [draggable]="false">
+  <div class="indicators-overview">
+    <div class="create-indicators-section mb-6">
+      <div class="flex gap-4 justify-center">
+        <p-button icon="pi pi-plus" label="Create Level 1 Indicator" severity="info" (onClick)="openIndicatorModal(1)"></p-button>
+        <p-button icon="pi pi-plus" label="Create Level 2 Indicator" severity="secondary" (onClick)="openIndicatorModal(2)"></p-button>
+      </div>
+    </div>
+
+    <div class="indicators-grid grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="level-indicators-section">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <i class="pi pi-tag"></i>
+          Level 1 Indicators (Structures)
+        </h3>
+
+        @if (level1Indicators().length > 0) {
+          <div class="indicators-list space-y-4">
+            @for (indicator of level1Indicators(); track indicator.id) {
+              <div class="bg-white border border-gray-200 rounded-lg p-4">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <div class="indicator-header mb-2">
+                      <h4 class="font-semibold text-gray-800">{{ indicator.name }}</h4>
+                      <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Level {{ indicator.level }}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">{{ indicator.description }}</p>
+
+                    <div class="indicator-metadata">
+                      <div class="flex flex-wrap gap-1 text-xs mb-2">
+                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                          <i class="pi pi-calculator mr-1"></i>
+                          {{ indicator.numberType }}
+                        </span>
+                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                          <i class="pi pi-hashtag mr-1"></i>
+                          {{ indicator.numberFormat }}
+                        </span>
+                        @if (indicator.targetUnit) {
+                          <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                            <i class="pi pi-flag mr-1"></i>
+                            {{ indicator.targetUnit }}
+                          </span>
+                        }
+                      </div>
+
+                      <div class="flex flex-wrap gap-1 text-xs">
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                          <i class="pi pi-calendar mr-1"></i>
+                          {{ indicator.years.join(', ') }}
+                        </span>
+                        @if (indicator.targetValue) {
+                          <span class="bg-green-100 text-green-800 px-2 py-1 rounded">
+                            <i class="pi pi-arrow-up mr-1"></i>
+                            Target: {{ indicator.targetValue }}
+                          </span>
+                        }
+                        @if (indicator.baseline) {
+                          <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                            <i class="pi pi-minus mr-1"></i>
+                            Base: {{ indicator.baseline }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex gap-1">
+                    <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small" pTooltip="Edit indicator"></p-button>
+                    <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small" (onClick)="removeIndicator(indicator.id)"></p-button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-center py-6">
+            <i class="pi pi-tag text-2xl mb-2 block text-gray-300"></i>
+            <p class="text-gray-500">No Level 1 indicators created yet.</p>
+          </div>
+        }
+      </div>
+
+      <div class="level-indicators-section">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <i class="pi pi-tags"></i>
+          Level 2 Indicators (Items)
+        </h3>
+
+        @if (level2Indicators().length > 0) {
+          <div class="indicators-list space-y-4">
+            @for (indicator of level2Indicators(); track indicator.id) {
+              <div class="bg-white border border-gray-200 rounded-lg p-4">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <div class="indicator-header mb-2">
+                      <h4 class="font-semibold text-gray-800">{{ indicator.name }}</h4>
+                      <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Level {{ indicator.level }}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">{{ indicator.description }}</p>
+
+                    <div class="indicator-metadata">
+                      <div class="flex flex-wrap gap-1 text-xs mb-2">
+                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                          <i class="pi pi-calculator mr-1"></i>
+                          {{ indicator.numberType }}
+                        </span>
+                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                          <i class="pi pi-hashtag mr-1"></i>
+                          {{ indicator.numberFormat }}
+                        </span>
+                        @if (indicator.targetUnit) {
+                          <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                            <i class="pi pi-flag mr-1"></i>
+                            {{ indicator.targetUnit }}
+                          </span>
+                        }
+                      </div>
+
+                      <div class="flex flex-wrap gap-1 text-xs">
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                          <i class="pi pi-calendar mr-1"></i>
+                          {{ indicator.years.join(', ') }}
+                        </span>
+                        @if (indicator.targetValue) {
+                          <span class="bg-green-100 text-green-800 px-2 py-1 rounded">
+                            <i class="pi pi-arrow-up mr-1"></i>
+                            Target: {{ indicator.targetValue }}
+                          </span>
+                        }
+                        @if (indicator.baseline) {
+                          <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                            <i class="pi pi-minus mr-1"></i>
+                            Base: {{ indicator.baseline }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex gap-1">
+                    <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small" pTooltip="Edit indicator"></p-button>
+                    <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small" (onClick)="removeIndicator(indicator.id)"></p-button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-center py-6">
+            <i class="pi pi-tags text-2xl mb-2 block text-gray-300"></i>
+            <p class="text-gray-500">No Level 2 indicators created yet.</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end pt-4 border-t border-gray-200">
+    <p-button label="Close" severity="secondary" size="small" (onClick)="showAllIndicators.set(false)"></p-button>
+  </div>
+</p-dialog> -->
