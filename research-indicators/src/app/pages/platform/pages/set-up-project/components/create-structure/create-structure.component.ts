@@ -1,16 +1,22 @@
 import { Component, inject, signal } from '@angular/core';
 import { SetUpProjectService } from '../../set-up-project.service';
 import { ButtonModule } from 'primeng/button';
-import { FormsModule } from '@angular/forms';
-import { NewStructureForm } from '../../../../../../shared/interfaces/project-setup.interface';
+import { InputTextModule } from 'primeng/inputtext';
+import { SignalUtilsService } from '../../../../../../shared/services/signal-utils.service';
+import { IndicatorsStructure } from '../../../../../../shared/interfaces/get-structures.interface';
 
 @Component({
   selector: 'app-create-structure',
-  imports: [ButtonModule, FormsModule],
+  imports: [ButtonModule, InputTextModule],
   templateUrl: './create-structure.component.html',
   styleUrl: './create-structure.component.scss'
 })
 export class CreateStructureComponent {
   setUpProjectService = inject(SetUpProjectService);
-  newStructureForm = signal<NewStructureForm>({ name: '', code: '' });
+  signalUtils = inject(SignalUtilsService);
+  newStructureForm = signal<IndicatorsStructure>({ name: '', code: '' });
+  onAddStructure = () => {
+    this.signalUtils.pushToSignal(this.setUpProjectService.structures, this.newStructureForm());
+    this.setUpProjectService.showCreateStructure.set(false);
+  };
 }

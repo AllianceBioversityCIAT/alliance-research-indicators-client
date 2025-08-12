@@ -221,14 +221,19 @@ export default class SetUpProjectComponent {
   availableYears = AVAILABLE_YEARS.map(year => ({ label: year.toString(), value: year }));
 
   isProjectValid = computed(() => {
-    return this.setUpProjectService.structures().length > 0 && this.setUpProjectService.structures().some(s => s.items.length > 0);
+    return this.setUpProjectService.structures().length > 0 && this.setUpProjectService.structures().some(s => s.items && s.items.length);
   });
 
   totalItems = computed(() => {
     const config = this.setUpProjectService.structures();
-    return config.reduce((acc, s) => acc + s.items.length, 0);
+    return config.reduce((acc, s) => acc + (s.items?.length || 0), 0);
   });
 
   defaultLevel1Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 1));
   defaultLevel2Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 2));
+
+  async saveStructures() {
+    await this.setUpProjectService.api.POST_SyncStructures(this.setUpProjectService.structures());
+    await this.setUpProjectService.getStructures();
+  }
 }

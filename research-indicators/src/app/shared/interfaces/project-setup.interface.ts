@@ -50,12 +50,6 @@ export const NUMBER_FORMAT_OPTIONS: { label: string; value: NumberFormatOption }
 
 export const AVAILABLE_YEARS: number[] = [2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
 
-// Interfaces para nuevos formularios
-export interface NewStructureForm {
-  name: string;
-  code: string;
-}
-
 export interface NewItemForm {
   name: string;
   code: string;

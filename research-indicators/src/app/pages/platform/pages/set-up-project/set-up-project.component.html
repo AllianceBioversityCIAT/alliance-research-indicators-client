@@ -8,8 +8,9 @@
       </div>
       <!-- Botones de acción en el header -->
       <div class="flex gap-3">
-        <p-button icon="pi pi-plus" label="Create Structure"> </p-button>
+        <p-button icon="pi pi-plus" label="Create Structure" (onClick)="setUpProjectService.showCreateStructure.set(true)"> </p-button>
         <p-button icon="pi pi-chart-bar" label="View All Indicators" severity="secondary"> </p-button>
+        <p-button icon="pi pi-save" label="Save" (onClick)="saveStructures()"> </p-button>
 
         <!-- <p-button icon="pi pi-sitemap" label="Back to Structures" severity="secondary"> </p-button> -->
       </div>
@@ -44,7 +45,7 @@
                 </div>
 
                 <!-- Indicadores de la estructura -->
-                @if (structure.indicators.length > 0) {
+                @if (structure.indicators && structure.indicators.length) {
                   <div class="mb-8">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ structure.name }} Indicators</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -100,7 +101,7 @@
                   }
 
                   <!-- Lista de items -->
-                  @if (structure.items.length > 0) {
+                  @if (structure.items && structure.items.length) {
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       @for (item of structure.items; track item.id) {
                         <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">

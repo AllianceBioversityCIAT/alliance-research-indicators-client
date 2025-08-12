@@ -3,11 +3,11 @@ export interface GetStructures {
 }
 
 export interface IndicatorsStructure {
-  id: string;
+  id?: string;
   name: string;
   code: string;
-  items: Item[];
-  indicators: Indicator[];
+  items?: Item[];
+  indicators?: Indicator[];
 }
 
 interface Item {

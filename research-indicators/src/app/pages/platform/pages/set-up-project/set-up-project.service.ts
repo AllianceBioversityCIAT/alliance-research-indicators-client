@@ -11,6 +11,7 @@ export class SetUpProjectService {
   showAllIndicators = signal<boolean>(false);
   editingElementId = signal<string | null>(null);
   structures = signal<IndicatorsStructure[]>([]);
+  showCreateStructure = signal<boolean>(false);
 
   api = inject(ApiService);
 

@@ -58,6 +58,7 @@ import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-inst
 import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
+import { IndicatorsStructure } from '../interfaces/get-structures.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -550,10 +551,14 @@ export class ApiService {
     return this.TP.get('', { isAuth: urlWithTimestamp, noCache: true });
   };
 
-  // https://main-allianceindicatorstest.ciat.cgiar.org/api/groups-items/items-list
   GET_Structures = () => {
     const url = () => `groups-items/items-list`;
     return this.TP.get(url(), {});
+  };
+
+  POST_SyncStructures = (body: IndicatorsStructure[]) => {
+    const url = () => `groups-items/sync`;
+    return this.TP.post(url(), body);
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

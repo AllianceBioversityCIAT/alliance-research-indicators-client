@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
-import { NewStructureForm } from '../../../../../../shared/interfaces/project-setup.interface';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
+import { IndicatorsStructure } from '../../../../../../shared/interfaces/get-structures.interface';
 
 @Component({
   selector: 'app-update-structure',
@@ -10,5 +10,5 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './update-structure.component.scss'
 })
 export class UpdateStructureComponent {
-  newStructureForm = signal<NewStructureForm>({ name: '', code: '' });
+  newStructureForm = signal<IndicatorsStructure>({ name: '', code: '' });
 }
