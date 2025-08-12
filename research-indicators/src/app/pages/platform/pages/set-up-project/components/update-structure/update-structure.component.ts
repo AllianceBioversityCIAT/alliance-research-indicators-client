@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { IndicatorsStructure } from '../../../../../../shared/interfaces/get-structures.interface';
@@ -12,15 +12,14 @@ import { SetUpProjectService } from '../../set-up-project.service';
   templateUrl: './update-structure.component.html',
   styleUrl: './update-structure.component.scss'
 })
-export class UpdateStructureComponent {
+export class UpdateStructureComponent implements OnInit {
   @Input() index = 0;
   @Input() structure!: IndicatorsStructure;
   setUpProjectService = inject(SetUpProjectService);
   signalUtils = inject(SignalUtilsService);
   newStructureForm = signal<IndicatorsStructure>({ name: '', code: '' });
-  constructor() {
-    console.log('index', this.index);
-    console.log(this.structure);
+
+  ngOnInit() {
     this.newStructureForm.set(this.structure);
   }
   onUpdateStructure = () => {
