@@ -179,7 +179,28 @@ export const routes: Routes = [
         canMatch: [mvpGuard],
         data: {
           title: 'Set Up Project'
-        }
+        },
+        children: [
+          {
+            path: '',
+            redirectTo: 'structure',
+            pathMatch: 'full'
+          },
+          {
+            path: 'structure',
+            loadComponent: () => import('@platform/pages/set-up-project/pages/structure/structure.component'),
+            data: {
+              title: 'Structure'
+            }
+          },
+          {
+            path: 'indicators',
+            loadComponent: () => import('@platform/pages/set-up-project/pages/indicators/indicators.component'),
+            data: {
+              title: 'Indicators'
+            }
+          }
+        ]
       },
       {
         path: 'about',

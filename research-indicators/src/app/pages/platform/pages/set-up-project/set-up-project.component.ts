@@ -23,11 +23,8 @@ import {
   NUMBER_FORMAT_OPTIONS,
   AVAILABLE_YEARS
 } from '../../../../shared/interfaces/project-setup.interface';
-import { CreateStructureComponent } from './components/create-structure/create-structure.component';
-import { UpdateStructureComponent } from './components/update-structure/update-structure.component';
 import { SetUpProjectService } from './set-up-project.service';
-import { CreateItemComponent } from './components/create-item/create-item.component';
-import { UpdateItemComponent } from './components/update-item/update-item.component';
+import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-set-up-project',
@@ -49,10 +46,8 @@ import { UpdateItemComponent } from './components/update-item/update-item.compon
     TagModule,
     CheckboxModule,
     TextareaModule,
-    CreateStructureComponent,
-    UpdateStructureComponent,
-    CreateItemComponent,
-    UpdateItemComponent
+    RouterOutlet,
+    RouterLink
   ],
   templateUrl: './set-up-project.component.html',
   styleUrl: './set-up-project.component.scss'
@@ -216,7 +211,6 @@ export default class SetUpProjectComponent {
   // Estados de UI
 
   selectedElementForIndicators = signal<{ type: 'structure' | 'item'; id: string } | null>(null);
-  selectedStructureIndex = signal<number>(0);
 
   // Opciones disponibles
   numberTypeOptions = NUMBER_TYPE_OPTIONS;
