@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +28,7 @@ import {
 import { CurrentView } from './interfaces/set-up-project.interface';
 import { CreateStructureComponent } from './components/create-structure/create-structure.component';
 import { UpdateStructureComponent } from './components/update-structure/update-structure.component';
+import { SetUpProjectService } from './set-up-project.service';
 
 @Component({
   selector: 'app-set-up-project',
@@ -116,6 +117,7 @@ export default class SetUpProjectComponent {
       }
     ]
   });
+  setUpProjectService = inject(SetUpProjectService);
 
   // Indicadores predefinidos disponibles para seleccionar
   defaultIndicators = signal<ProjectIndicator[]>([
