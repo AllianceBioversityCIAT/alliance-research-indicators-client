@@ -23,17 +23,27 @@ export class SetUpProjectService {
     this.structures.update(prev => [...prev.slice(0, index), ...prev.slice(index + 1)]);
   }
 
-  // deleteStructureItemByIndex(structureIndex: number, itemIndex: number) {
-  //   this.structures.update(prev => {
-  //     prev[structureIndex].items = prev[structureIndex].items?.filter(item => item.id !== this.editingElementId());
-  //     return [...prev];
-  //   });
-  // }
+  deleteStructureItemByIndex(structureIndex: number, itemIndex: number) {
+    this.structures.update(previousStructures => {
+      const structuresCopy = [...previousStructures];
+      const targetStructure = structuresCopy[structureIndex];
+
+      if (!targetStructure || !targetStructure.items || targetStructure.items.length === 0) {
+        return structuresCopy;
+      }
+
+      if (itemIndex < 0 || itemIndex >= targetStructure.items.length) {
+        return structuresCopy;
+      }
+
+      targetStructure.items = [...targetStructure.items.slice(0, itemIndex), ...targetStructure.items.slice(itemIndex + 1)];
+
+      return structuresCopy;
+    });
+  }
 
   async getStructures() {
     const res = await this.api.GET_Structures();
-    console.log('Load structures: ');
-    console.log(res.data.structures);
     this.structures.set(res.data.structures);
   }
 }

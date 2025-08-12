@@ -125,7 +125,14 @@
                                   size="small"
                                   (click)="setUpProjectService.editingElementId.set('update-item-' + item.id)">
                                 </p-button>
-                                <p-button icon="pi pi-trash" pTooltip="Delete" [text]="true" severity="danger" size="small"> </p-button>
+                                <p-button
+                                  icon="pi pi-trash"
+                                  pTooltip="Delete"
+                                  [text]="true"
+                                  severity="danger"
+                                  size="small"
+                                  (click)="setUpProjectService.deleteStructureItemByIndex(i, j)">
+                                </p-button>
                               </div>
                             </div>
 
