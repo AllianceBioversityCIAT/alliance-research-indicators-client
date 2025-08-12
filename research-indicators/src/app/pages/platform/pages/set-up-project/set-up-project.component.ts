@@ -1,10 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { AccordionModule } from 'primeng/accordion';
@@ -24,7 +25,7 @@ import {
   AVAILABLE_YEARS
 } from '../../../../shared/interfaces/project-setup.interface';
 import { SetUpProjectService } from './set-up-project.service';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-set-up-project',
@@ -46,17 +47,33 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
     TagModule,
     CheckboxModule,
     TextareaModule,
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive
+    SelectButtonModule,
+    RouterOutlet
   ],
   templateUrl: './set-up-project.component.html',
   styleUrl: './set-up-project.component.scss'
 })
-export default class SetUpProjectComponent {
+export default class SetUpProjectComponent implements OnInit {
   // Configuración principal del proyecto con indicadores por defecto
 
   setUpProjectService = inject(SetUpProjectService);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+
+  routeOptions = [
+    { label: 'Structures', value: 'structure' },
+    { label: 'Indicators', value: 'indicators' }
+  ];
+  activeRoute: 'structure' | 'indicators' = 'structure';
+
+  ngOnInit(): void {
+    const firstChildPath = this.activatedRoute.firstChild?.snapshot.routeConfig?.path;
+    if (firstChildPath === 'indicators') {
+      this.activeRoute = 'indicators';
+    } else {
+      this.activeRoute = 'structure';
+    }
+  }
 
   // Indicadores predefinidos disponibles para seleccionar
   defaultIndicators = signal<ProjectIndicator[]>([
@@ -233,5 +250,9 @@ export default class SetUpProjectComponent {
   async saveStructures() {
     await this.setUpProjectService.api.POST_SyncStructures({ structures: this.setUpProjectService.structures() });
     await this.setUpProjectService.getStructures();
+  }
+
+  onRouteChange(value: 'structure' | 'indicators') {
+    this.router.navigate([value], { relativeTo: this.activatedRoute });
   }
 }

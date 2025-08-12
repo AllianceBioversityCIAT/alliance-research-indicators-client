@@ -6,29 +6,22 @@
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Project Setup</h1>
         <p class="text-gray-600">Configure your project structures and indicators</p>
       </div>
-      <!-- Botones de acción en el header -->
-      <div class="flex gap-3">
+      <!-- Acciones y selector de ruta -->
+      <div class="flex gap-3 items-center">
         <p-button icon="pi pi-plus" label="Create Structure" (onClick)="setUpProjectService.showCreateStructure.set(true)"> </p-button>
-        <p-button
-          icon="pi pi-sitemap"
-          label="Structures"
-          [severity]="rlaStructure.isActive ? 'primary' : 'secondary'"
-          routerLinkActive="active"
-          #rlaStructure="routerLinkActive"
-          routerLink="structure">
-        </p-button>
-        <p-button
-          icon="pi pi-chart-bar"
-          label="Indicators"
-          [severity]="rlaIndicators.isActive ? 'primary' : 'secondary'"
-          routerLinkActive="active"
-          #rlaIndicators="routerLinkActive"
-          routerLink="indicators">
-        </p-button>
-        <p-button icon="pi pi-save" label="Save" (onClick)="saveStructures()"> </p-button>
+        <p-selectbutton
+          [options]="routeOptions"
+          [(ngModel)]="activeRoute"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onRouteChange($event.value)" />
       </div>
     </div>
   </div>
 
   <router-outlet />
+  <!-- Floating Save Button -->
+  <div class="fixed bottom-6 right-6 z-50">
+    <p-button icon="pi pi-save" label="Save" severity="primary" (onClick)="saveStructures()"> </p-button>
+  </div>
 </div>
