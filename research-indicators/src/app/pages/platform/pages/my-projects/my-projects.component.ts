@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '@shared/services/api.service';
 import { FormsModule } from '@angular/forms';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
-import { MyProjectsService, MyProjectsFilters } from '@shared/services/my-projects.service';
+import { MyProjectsService } from '@shared/services/my-projects.service';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SlicePipe, DatePipe } from '@angular/common';
 import { MenuItem } from 'primeng/api';
@@ -247,13 +247,8 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     this.myProjectsFilterItem.set(event);
     this.myProjectsService.myProjectsFilterItem.set(event);
 
-    this.myProjectsService.tableFilters.set(new MyProjectsFilters());
-    this.myProjectsService.searchInput.set('');
+    this.myProjectsService.clearFilters();
     this._searchValue.set('');
-
-    setTimeout(() => {
-      this.myProjectsService.cleanMultiselects();
-    }, 0);
 
     if (event.id === 'my') {
       this.loadMyProjects();
