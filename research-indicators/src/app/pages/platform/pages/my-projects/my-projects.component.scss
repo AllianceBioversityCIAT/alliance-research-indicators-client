@@ -1,30 +1,54 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .analyze-result-content {
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
-  max-height: 60vh;
+  height: calc(100vh - 400px);
   overflow-y: auto;
-  height: 100%;
   width: 100%;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
-// Full width styles for My Projects
 :host ::ng-deep .p-datatable {
   width: 100% !important;
   max-width: 100% !important;
+  height: calc(100vh - 325px) !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 :host ::ng-deep .p-datatable-table {
   width: 100% !important;
   min-width: 100% !important;
+  flex: 1 !important;
+  min-height: 0 !important;
 }
 
-// Align ALL paginator content to the right edge
+:host ::ng-deep .p-datatable-wrapper {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+}
+
 :host ::ng-deep .p-paginator {
   display: flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
   width: 100% !important;
+  background: white !important;
+  padding: 10px 20px !important;
+  margin-top: auto !important;
+}
+
+// Borde superior solo para el paginador de la tabla
+:host ::ng-deep .p-datatable .p-paginator {
+  border-top: 1px solid #e8ebed !important;
 }
 
 :host ::ng-deep .p-paginator .p-paginator-current {
@@ -102,7 +126,7 @@
   text-decoration: none;
   display: block;
   color: inherit;
-  margin-bottom: 20px;
+  margin-bottom: 10px; // Reducido de 20px a 10px
 
   &:hover {
     text-decoration: none;

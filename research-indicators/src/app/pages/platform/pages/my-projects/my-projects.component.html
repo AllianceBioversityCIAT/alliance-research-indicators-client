@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-3 px-6 pt-8">
+<div class="content flex flex-col gap-3 px-6 pt-8">
   <!-- Projects Section -->
   <div class="flex flex-col bg-white">
     <!-- Custom Tab Menu with Pin Icons -->
@@ -82,20 +82,20 @@
         } @else {
           <!-- Card view -->
           @if (!isTableView()) {
-            <div class="w-full analyze-result-content">
+            <div class="analyze-result-content">
               @for (project of filteredProjects() | slice: first() : first() + rows(); track project.agreement_id) {
                 <app-project-item [project]="project"></app-project-item>
               }
             </div>
             @if (getCurrentProjects().length > 0) {
-              <div class="flex justify-end w-full bg-white py-2">
+              <div class="flex justify-end w-full bg-white py-2 border border-[#E8EBED]">
                 <p-paginator
                   (onPageChange)="onCurrentPageChange($event)"
                   [first]="getCurrentFirst()"
                   [rows]="getCurrentRows()"
                   [totalRecords]="getCurrentProjects().length"
                   [showCurrentPageReport]="true"
-                  [showJumpToPageDropdown]="false"
+                  [rowsPerPageOptions]="[5, 10, 25, 50]"
                   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects" />
               </div>
             }
