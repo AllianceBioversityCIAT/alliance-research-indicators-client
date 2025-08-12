@@ -64,7 +64,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   projectUtils = inject(ProjectUtilsService);
 
   first = signal(0);
-  rows = signal(5);
+  rows = signal(10);
   allProjectsFirst = signal(0);
   allProjectsRows = signal(10);
   private readonly _searchValue = signal('');
@@ -330,7 +330,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getScrollHeight() {
-    return this.cache.hasSmallScreen() ? 'calc(100vh - 400px)' : 'calc(100vh - 500px)';
+    return this.cache.hasSmallScreen() ? 'calc(100vh - 300px)' : 'calc(100vh - 350px)';
   }
 
   getApplyFiltersLabel(): string {
