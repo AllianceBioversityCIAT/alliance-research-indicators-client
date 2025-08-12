@@ -9,8 +9,22 @@
       <!-- Botones de acción en el header -->
       <div class="flex gap-3">
         <p-button icon="pi pi-plus" label="Create Structure" (onClick)="setUpProjectService.showCreateStructure.set(true)"> </p-button>
-        <p-button icon="pi pi-sitemap" label="Structures" severity="secondary" routerLink="structure"> </p-button>
-        <p-button icon="pi pi-chart-bar" label="Indicators" severity="secondary" routerLink="indicators"> </p-button>
+        <p-button
+          icon="pi pi-sitemap"
+          label="Structures"
+          [severity]="rlaStructure.isActive ? 'primary' : 'secondary'"
+          routerLinkActive="active"
+          #rlaStructure="routerLinkActive"
+          routerLink="structure">
+        </p-button>
+        <p-button
+          icon="pi pi-chart-bar"
+          label="Indicators"
+          [severity]="rlaIndicators.isActive ? 'primary' : 'secondary'"
+          routerLinkActive="active"
+          #rlaIndicators="routerLinkActive"
+          routerLink="indicators">
+        </p-button>
         <p-button icon="pi pi-save" label="Save" (onClick)="saveStructures()"> </p-button>
       </div>
     </div>

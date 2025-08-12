@@ -24,7 +24,7 @@ import {
   AVAILABLE_YEARS
 } from '../../../../shared/interfaces/project-setup.interface';
 import { SetUpProjectService } from './set-up-project.service';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-set-up-project',
@@ -47,7 +47,8 @@ import { RouterLink, RouterOutlet } from '@angular/router';
     CheckboxModule,
     TextareaModule,
     RouterOutlet,
-    RouterLink
+    RouterLink,
+    RouterLinkActive
   ],
   templateUrl: './set-up-project.component.html',
   styleUrl: './set-up-project.component.scss'
