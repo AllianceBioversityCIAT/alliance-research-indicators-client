@@ -9,7 +9,7 @@ export class SetUpProjectService {
   showAssignIndicatorModal = signal<boolean>(false);
   showIndicatorModal = signal<boolean>(false);
   showAllIndicators = signal<boolean>(false);
-  editingElementId = signal<string | null>(null);
+  editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
   showCreateStructure = signal<boolean>(false);
 

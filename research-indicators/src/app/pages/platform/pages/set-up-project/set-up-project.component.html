@@ -31,7 +31,7 @@
               <div class="structure-tab-content mt-6">
                 <!-- Formulario de edición de estructura -->
                 @if (setUpProjectService.editingElementId() === structure.id) {
-                  <app-update-structure></app-update-structure>
+                  <app-update-structure [index]="i" [structure]="structure"></app-update-structure>
                 }
 
                 <!-- Header de la estructura -->
@@ -39,7 +39,13 @@
                   <div></div>
                   <div class="flex gap-2">
                     <p-button icon="pi pi-tag" label="Add Indicators" severity="help" size="small"> </p-button>
-                    <p-button icon="pi pi-pencil" label="Edit" severity="secondary" size="small"> </p-button>
+                    <p-button
+                      icon="pi pi-pencil"
+                      (onClick)="setUpProjectService.editingElementId.set(structure.id)"
+                      label="Edit"
+                      severity="secondary"
+                      size="small">
+                    </p-button>
                     <p-button icon="pi pi-trash" label="Delete" severity="danger" size="small"> </p-button>
                   </div>
                 </div>
@@ -186,7 +192,7 @@
     }
 
     <!-- Estado vacío -->
-    @if (setUpProjectService.structures().length === 0 && setUpProjectService.editingElementId() !== 'new-structure') {
+    @if (setUpProjectService.structures().length === 0 && !setUpProjectService.showCreateStructure()) {
       <div class="text-center py-12">
         <i class="pi pi-sitemap text-6xl text-gray-300 mb-4 block"></i>
         <h3 class="text-xl font-semibold text-gray-800 mb-2">No structures yet</h3>

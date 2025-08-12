@@ -58,7 +58,7 @@ import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-inst
 import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
-import { IndicatorsStructure } from '../interfaces/get-structures.interface';
+import { GetStructures, IndicatorsStructure } from '../interfaces/get-structures.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -556,7 +556,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  POST_SyncStructures = (body: IndicatorsStructure[]) => {
+  POST_SyncStructures = (body: GetStructures) => {
     const url = () => `groups-items/sync`;
     return this.TP.post(url(), body);
   };

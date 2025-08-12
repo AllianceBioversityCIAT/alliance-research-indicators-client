@@ -233,7 +233,7 @@ export default class SetUpProjectComponent {
   defaultLevel2Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 2));
 
   async saveStructures() {
-    await this.setUpProjectService.api.POST_SyncStructures(this.setUpProjectService.structures());
+    await this.setUpProjectService.api.POST_SyncStructures({ structures: this.setUpProjectService.structures() });
     await this.setUpProjectService.getStructures();
   }
 }
