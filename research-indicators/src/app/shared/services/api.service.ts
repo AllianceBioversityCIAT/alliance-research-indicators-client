@@ -561,6 +561,11 @@ export class ApiService {
     return this.TP.post(url(), body);
   };
 
+  GET_Indicators = () => {
+    const url = () => `project-indicators/get-list`;
+    return this.TP.get(url(), {});
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {
