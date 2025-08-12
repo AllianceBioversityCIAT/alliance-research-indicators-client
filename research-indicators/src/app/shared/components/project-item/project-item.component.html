@@ -47,7 +47,7 @@
       }
     </div>
     <div class="project-indicators w-full flex flex-wrap gap-16 gap-y-6">
-      @for (indicator of project.indicators; track indicator.indicator?.indicator_id) {
+      @for (indicator of processedIndicators; track indicator.indicator?.indicator_id) {
         <div class="indicator {{ indicator.indicator.name === 'Capacity Sharing for Development' ? 'max-w-[126px]' : 'max-w-[178px]' }}">
           <div class="indicator-number-container">
             <i

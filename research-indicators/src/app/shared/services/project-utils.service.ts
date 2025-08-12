@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { GetContractsByUser, IndicatorElement } from '@shared/interfaces/get-contracts-by-user.interface';
-import { GetProjectDetail } from '@shared/interfaces/get-project-detail.interface';
+import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/get-project-detail.interface';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 
 export type ProjectType = GetContractsByUser | GetProjectDetail | FindContracts;
+export type IndicatorType = IndicatorElement | GetProjectDetailIndicator;
 
 @Injectable({
   providedIn: 'root'
@@ -54,23 +55,31 @@ export class ProjectUtilsService {
     return fieldName in project && !!project[fieldName as keyof typeof project];
   }
 
-  sortIndicators(indicators: IndicatorElement[]): IndicatorElement[] {
+  sortIndicators(indicators: IndicatorType[]): IndicatorType[] {
     const order = ['Capacity Sharing for Development', 'Innovation Development', 'Knowledge Product', 'Innovation Use', 'OICRS', 'Policy Change'];
 
     if (indicators && indicators.length > 0) {
-      const uniqueIndicatorsMap = new Map<number, IndicatorElement>();
+      const uniqueIndicatorsMap = new Map<string, IndicatorType>();
 
       indicators.forEach(indicator => {
-        const indicatorId = indicator.indicator?.indicator_id;
-        if (indicatorId && !uniqueIndicatorsMap.has(indicatorId)) {
-          uniqueIndicatorsMap.set(indicatorId, {
-            ...indicator,
-            indicator_id: indicatorId
-          });
+        const indicatorName = indicator.indicator?.name;
+        if (indicatorName) {
+          if (uniqueIndicatorsMap.has(indicatorName)) {
+            // If already exists, sum the count_results
+            const existing = uniqueIndicatorsMap.get(indicatorName)!;
+            existing.count_results += indicator.count_results;
+          } else {
+            // If doesn't exist, add it to the map
+            uniqueIndicatorsMap.set(indicatorName, { ...indicator });
+          }
         }
       });
 
-      return Array.from(uniqueIndicatorsMap.values()).sort((a, b) => order.indexOf(a.indicator.name) - order.indexOf(b.indicator.name));
+      return Array.from(uniqueIndicatorsMap.values()).sort((a, b) => {
+        const aIndex = order.indexOf(a.indicator.name);
+        const bIndex = order.indexOf(b.indicator.name);
+        return aIndex - bIndex;
+      });
     }
 
     return indicators || [];
