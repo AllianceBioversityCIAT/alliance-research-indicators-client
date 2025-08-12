@@ -19,13 +19,15 @@ import { TextareaModule } from 'primeng/textarea';
 import {
   ProjectSetupConfiguration,
   ProjectIndicator,
-  NewStructureForm,
   NewItemForm,
   NewIndicatorForm,
   NUMBER_TYPE_OPTIONS,
   NUMBER_FORMAT_OPTIONS,
   AVAILABLE_YEARS
 } from '../../../../shared/interfaces/project-setup.interface';
+import { CurrentView } from './interfaces/set-up-project.interface';
+import { CreateStructureComponent } from './components/create-structure/create-structure.component';
+import { UpdateStructureComponent } from './components/update-structure/update-structure.component';
 
 @Component({
   selector: 'app-set-up-project',
@@ -46,7 +48,9 @@ import {
     TabViewModule,
     TagModule,
     CheckboxModule,
-    TextareaModule
+    TextareaModule,
+    CreateStructureComponent,
+    UpdateStructureComponent
   ],
   templateUrl: './set-up-project.component.html',
   styleUrl: './set-up-project.component.scss'
@@ -251,7 +255,6 @@ export default class SetUpProjectComponent {
   ]);
 
   // Formularios para nuevos elementos
-  newStructureForm = signal<NewStructureForm>({ name: '', code: '' });
   newItemForm = signal<NewItemForm>({ name: '', code: '', parentStructureId: '' });
   newIndicatorForm = signal<NewIndicatorForm>({
     name: '',
@@ -268,9 +271,8 @@ export default class SetUpProjectComponent {
   // Estados de UI
 
   selectedElementForIndicators = signal<{ type: 'structure' | 'item'; id: string } | null>(null);
-  editingElementId = signal<string | null>(null);
   selectedStructureIndex = signal<number>(0);
-  currentView = signal<'structures' | 'indicators'>('structures');
+  currentView = signal<CurrentView>('structures');
 
   // Opciones disponibles
   numberTypeOptions = NUMBER_TYPE_OPTIONS;
