@@ -1,18 +1,34 @@
-<div class="project-setup-container max-w-7xl mx-auto p-6">
+<div class="project-setup-container max-w-6xl mx-auto px-4 py-4">
   <!-- Header Principal -->
-  <div class="header-section border-b border-gray-200 pb-6 mb-8">
-    <div class="flex justify-between items-center">
+  <div class="header-section border-b border-gray-200 pb-4 mb-6">
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Project Setup</h1>
-        <p class="text-gray-600">Configure your project structures and indicators</p>
+        <h1 class="text-2xl font-bold text-gray-800 mb-1">Project Setup</h1>
+        <p class="text-sm text-gray-600">Configure your project structures and indicators</p>
       </div>
       <!-- Acciones y selector de ruta -->
-      <div class="flex gap-3 items-center">
-        @if (activeRoute === 'structure') {
-          <p-button icon="pi pi-plus" label="Create Structure" (onClick)="setUpProjectService.showCreateStructure.set(true)"> </p-button>
-        } @else {
-          <p-button icon="pi pi-plus" label="Create Indicator" (onClick)="setUpProjectService.manageIndicatorModal.set({ show: true })"></p-button>
-        }
+      <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 items-start sm:items-center">
+        <div class="flex gap-2">
+          @if (activeRoute === 'structure') {
+            <p-button icon="pi pi-plus" label="Structure" size="small" (onClick)="setUpProjectService.showCreateStructure.set(true)"> </p-button>
+          } @else {
+            <p-button
+              icon="pi pi-plus"
+              label="Indicator"
+              size="small"
+              (onClick)="setUpProjectService.manageIndicatorModal.set({ show: true })"></p-button>
+          }
+          <!-- Save Button (moved here for better UX) -->
+          <p-button
+            icon="pi pi-save"
+            label="Save"
+            severity="primary"
+            size="small"
+            [loading]="setUpProjectService.loadingStructures()"
+            [disabled]="setUpProjectService.loadingStructures()"
+            (onClick)="saveStructures()">
+          </p-button>
+        </div>
         <p-selectbutton
           [options]="routeOptions"
           [(ngModel)]="activeRoute"
@@ -23,17 +39,9 @@
     </div>
   </div>
 
-  <router-outlet />
-  <!-- Floating Save Button -->
-  <div class="fixed bottom-6 right-6 z-50">
-    <p-button
-      icon="pi pi-save"
-      label="Save"
-      severity="primary"
-      [loading]="setUpProjectService.loadingStructures()"
-      [disabled]="setUpProjectService.loadingStructures()"
-      (onClick)="saveStructures()">
-    </p-button>
+  <!-- Content Area with relative positioning for floating save button -->
+  <div class="relative">
+    <router-outlet />
   </div>
 </div>
 

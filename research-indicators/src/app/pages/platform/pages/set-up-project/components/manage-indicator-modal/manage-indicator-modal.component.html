@@ -4,10 +4,10 @@
   [header]="'Create New Indicator'"
   [modal]="true"
   [closable]="true"
-  [style]="{ width: '600px' }"
+  [style]="{ width: '550px', maxHeight: '85vh' }"
   [draggable]="false">
   <div class="indicator-form">
-    <div class="grid grid-cols-1 gap-4 mb-4">
+    <div class="grid grid-cols-1 gap-3 mb-4">
       <div>
         <label for="ind-name" class="block text-sm font-medium text-gray-700 mb-2">Name *</label>
         <input id="ind-name" pInputText [(ngModel)]="form().name" placeholder="Indicator name" class="w-full" />
@@ -26,41 +26,41 @@
         </textarea>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-2 gap-3">
         <div>
-          <label for="ind-type" class="block text-sm font-medium text-gray-700 mb-2">Number Type *</label>
+          <label for="ind-type" class="block text-xs font-medium text-gray-700 mb-1">Number Type *</label>
           <p-select
             id="ind-type"
             [(ngModel)]="form().numberType"
             [options]="numberTypeOptions"
             optionLabel="label"
             optionValue="value"
-            placeholder="Select number type"
+            placeholder="Select type"
             class="w-full">
           </p-select>
         </div>
 
         <div>
-          <label for="ind-format" class="block text-sm font-medium text-gray-700 mb-2">Number Format *</label>
+          <label for="ind-format" class="block text-xs font-medium text-gray-700 mb-1">Number Format *</label>
           <p-select
             id="ind-format"
             [(ngModel)]="form().numberFormat"
             [options]="numberFormatOptions"
             optionLabel="label"
             optionValue="value"
-            placeholder="Select number format"
+            placeholder="Select format"
             class="w-full">
           </p-select>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-2 gap-3">
         <div>
-          <label for="ind-unit" class="block text-sm font-medium text-gray-700 mb-2">Target Unit *</label>
+          <label for="ind-unit" class="block text-xs font-medium text-gray-700 mb-1">Target Unit *</label>
           <input id="ind-unit" pInputText [(ngModel)]="form().targetUnit" placeholder="e.g., kg, units, %" class="w-full" />
         </div>
         <div>
-          <label for="ind-years" class="block text-sm font-medium text-gray-700 mb-2">Years *</label>
+          <label for="ind-years" class="block text-xs font-medium text-gray-700 mb-1">Years *</label>
           <p-multiSelect
             id="ind-years"
             [(ngModel)]="form().years"
@@ -74,9 +74,9 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-2 gap-3">
         <div>
-          <label for="ind-baseline" class="block text-sm font-medium text-gray-700 mb-2">Baseline</label>
+          <label for="ind-baseline" class="block text-xs font-medium text-gray-700 mb-1">Baseline</label>
           <p-inputNumber
             id="ind-baseline"
             [(ngModel)]="form().baseline"
@@ -86,7 +86,7 @@
             class="w-full"></p-inputNumber>
         </div>
         <div>
-          <label for="ind-target" class="block text-sm font-medium text-gray-700 mb-2">Target Value</label>
+          <label for="ind-target" class="block text-xs font-medium text-gray-700 mb-1">Target Value</label>
           <p-inputNumber
             id="ind-target"
             [(ngModel)]="form().targetValue"
@@ -99,8 +99,8 @@
     </div>
   </div>
 
-  <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-    <p-button label="Cancel" severity="secondary" size="small" (onClick)="close()"></p-button>
-    <p-button label="Create Indicator" size="small" (onClick)="save()"></p-button>
+  <div class="flex justify-end gap-2 pt-3 border-t border-gray-200">
+    <p-button label="Cancel" severity="secondary" size="small" pTooltip="Cancel indicator creation" (onClick)="close()"> </p-button>
+    <p-button label="Create Indicator" size="small" pTooltip="Save and create new indicator" (onClick)="save()"> </p-button>
   </div>
 </p-dialog>
