@@ -3,7 +3,6 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SetUpProjectService } from '../../set-up-project.service';
 import { CommonModule } from '@angular/common';
-import { GetIndicators } from '../../../../../../shared/interfaces/get-indicators.interface';
 
 @Component({
   selector: 'app-assign-indicators-modal',

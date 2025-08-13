@@ -25,7 +25,9 @@
                       label="Add Indicators"
                       severity="help"
                       size="small"
-                      (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, target: { type: 'structure', structureIndex: i } })">
+                      (onClick)="
+                        setUpProjectService.assignIndicatorsModal.set({ show: true, target: { type: 'structure', structureIndex: i, itemIndex: -1 } })
+                      ">
                     </p-button>
                     <p-button
                       icon="pi pi-pencil"

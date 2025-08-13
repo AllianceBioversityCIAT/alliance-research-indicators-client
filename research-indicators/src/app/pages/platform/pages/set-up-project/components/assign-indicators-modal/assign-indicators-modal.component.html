@@ -1,6 +1,6 @@
 <p-dialog
   [visible]="visible()"
-  (onHide)="setUpProjectService.assignIndicatorsModal.set({ show: false, target: null })"
+  (onHide)="setUpProjectService.assignIndicatorsModal.set({ show: false, target: { type: 'item', structureIndex: -1, itemIndex: -1 } })"
   header="Add Indicators"
   [modal]="true"
   [closable]="true"
@@ -66,6 +66,8 @@
       label="Close"
       severity="secondary"
       size="small"
-      (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: false, target: null })"></p-button>
+      (onClick)="
+        setUpProjectService.assignIndicatorsModal.set({ show: false, target: { type: 'item', structureIndex: -1, itemIndex: -1 } })
+      "></p-button>
   </div>
 </p-dialog>

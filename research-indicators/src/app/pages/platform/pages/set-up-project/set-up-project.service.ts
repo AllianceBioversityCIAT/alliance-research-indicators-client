@@ -15,8 +15,8 @@ export class SetUpProjectService {
   showCreateStructure = signal<boolean>(false);
   assignIndicatorsModal = signal<{
     show: boolean;
-    target: { type: 'structure'; structureIndex: number; itemIndex?: null } | { type: 'item'; structureIndex: number; itemIndex: number } | null;
-  }>({ show: false, target: null });
+    target: { type: 'structure' | 'item'; structureIndex: number; itemIndex: number };
+  }>({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } });
   indicatorList = signal<GetIndicators[]>([]);
 
   api = inject(ApiService);
@@ -60,13 +60,20 @@ export class SetUpProjectService {
 
   assignIndicator(indicator: Indicator | GetIndicators) {
     console.log(indicator);
+    console.log(this.structures());
     this.structures.update(prev => {
-      const structureIndex = this.assignIndicatorsModal().target?.structureIndex;
-      const itemIndex = this.assignIndicatorsModal().target?.itemIndex;
-      if (this.assignIndicatorsModal().target?.type === 'structure' && structureIndex !== undefined) {
+      const { structureIndex, itemIndex } = this.assignIndicatorsModal().target;
+      if (structureIndex === undefined) return [...prev];
+      if (this.assignIndicatorsModal().target?.type === 'structure') {
         prev[structureIndex].indicators.push(indicator as Indicator);
-      } else if (this.assignIndicatorsModal().target?.type === 'item') {
-        // prev[structureIndex].items[itemIndex].indicators.push(indicator);
+      } else if (this.assignIndicatorsModal().target?.type === 'item' && prev[structureIndex].items?.length) {
+        console.log(prev[structureIndex]);
+        console.log(prev[structureIndex].items);
+        console.log(prev[structureIndex].items[itemIndex]);
+        console.log(prev[structureIndex].items[itemIndex].indicators);
+        console.log(structureIndex);
+        console.log(itemIndex);
+        prev[structureIndex].items[itemIndex].indicators = [...(prev[structureIndex].items[itemIndex].indicators || []), indicator as Indicator];
       }
       return [...prev];
     });
