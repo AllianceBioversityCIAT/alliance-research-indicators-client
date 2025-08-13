@@ -44,7 +44,6 @@
   margin-top: auto !important;
 }
 
-// Borde superior solo para el paginador de la tabla
 :host ::ng-deep .p-datatable .p-paginator {
   border-top: 1px solid #e8ebed !important;
 }
@@ -128,7 +127,7 @@
   text-decoration: none;
   display: block;
   color: inherit;
-  margin-bottom: 10px; // Reducido de 20px a 10px
+  margin-bottom: 10px;
 
   &:hover {
     text-decoration: none;
