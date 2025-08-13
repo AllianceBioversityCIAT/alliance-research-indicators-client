@@ -15,4 +15,18 @@ export class AssignIndicatorsModalComponent {
 
   visible = computed(() => this.setUpProjectService.assignIndicatorsModal().show);
   targetInfo = computed(() => this.setUpProjectService.assignIndicatorsModal().target);
+
+  getIndicatorsFiltered = computed(() => {
+    console.log(this.setUpProjectService.assignIndicatorsModal());
+    const { structureIndex, itemIndex, type } = this.setUpProjectService.assignIndicatorsModal().target;
+    console.log(type);
+    if (type === 'structure') {
+      return this.setUpProjectService
+        .indicatorList()
+        .filter(indicator => !this.setUpProjectService.structures()[structureIndex].indicators.some(i => i.id === indicator.id));
+    } else if (type === 'item') {
+      // return this.setUpProjectService.indicatorList().filter(indicator => !this.setUpProjectService.structures()[structureIndex].items[itemIndex].indicators.includes(indicator));
+    }
+    return this.setUpProjectService.indicatorList();
+  });
 }
