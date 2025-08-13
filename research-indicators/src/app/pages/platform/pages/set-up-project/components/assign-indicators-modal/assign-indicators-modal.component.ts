@@ -25,7 +25,11 @@ export class AssignIndicatorsModalComponent {
         .indicatorList()
         .filter(indicator => !this.setUpProjectService.structures()[structureIndex].indicators.some(i => i.id === indicator.id));
     } else if (type === 'item') {
-      // return this.setUpProjectService.indicatorList().filter(indicator => !this.setUpProjectService.structures()[structureIndex].items[itemIndex].indicators.includes(indicator));
+      return this.setUpProjectService
+        .indicatorList()
+        .filter(
+          indicator => !this.setUpProjectService.structures()[structureIndex]?.items?.[itemIndex]?.indicators?.some(i => i.id === indicator.id)
+        );
     }
     return this.setUpProjectService.indicatorList();
   });
