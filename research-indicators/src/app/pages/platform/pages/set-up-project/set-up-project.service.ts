@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../../../../shared/services/api.service';
 import { Indicator, IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
+import { ActionsService } from '../../../../shared/services/actions.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class SetUpProjectService {
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
   showCreateStructure = signal<boolean>(false);
+  loadingStructures = signal<boolean>(false);
   assignIndicatorsModal = signal<{
     show: boolean;
     target: { type: 'structure' | 'item'; structureIndex: number; itemIndex: number };
@@ -20,7 +22,7 @@ export class SetUpProjectService {
   indicatorList = signal<GetIndicators[]>([]);
 
   api = inject(ApiService);
-
+  actions = inject(ActionsService);
   constructor() {
     this.getStructures();
     this.getIndicators();
@@ -76,8 +78,16 @@ export class SetUpProjectService {
   }
 
   async getStructures() {
-    const res = await this.api.GET_Structures();
-    this.structures.set(res.data.structures);
+    this.loadingStructures.set(true);
+    try {
+      const res = await this.api.GET_Structures();
+      this.structures.set(res.data.structures);
+    } catch {
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });
+      this.structures.set([]);
+    } finally {
+      this.loadingStructures.set(false);
+    }
   }
 
   assignIndicator(indicator: Indicator | GetIndicators) {

@@ -63,7 +63,6 @@ export default class SetUpProjectComponent implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   actions = inject(ActionsService);
-  saving = signal(false);
 
   routeOptions = [
     { label: 'Structures', value: 'structure' },
@@ -119,7 +118,7 @@ export default class SetUpProjectComponent implements OnInit {
   defaultLevel2Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 2));
 
   async saveStructures() {
-    this.saving.set(true);
+    this.setUpProjectService.loadingStructures.set(true);
     try {
       await this.setUpProjectService.api.POST_SyncStructures({ structures: this.setUpProjectService.structures() });
       await this.setUpProjectService.getStructures();
@@ -127,7 +126,7 @@ export default class SetUpProjectComponent implements OnInit {
     } catch {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to save structures' });
     } finally {
-      this.saving.set(false);
+      this.setUpProjectService.loadingStructures.set(false);
     }
   }
 
