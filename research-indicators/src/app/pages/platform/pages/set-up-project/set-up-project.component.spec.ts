@@ -24,7 +24,9 @@ describe('SetUpProjectComponent', () => {
       editingElementId: signal(null),
       assignIndicatorsModal: signal({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } }),
       indicatorList: signal([]),
-      loadingStructures: signal(false)
+      loadingStructures: signal(false),
+      getStructures: jest.fn().mockResolvedValue(undefined),
+      getIndicators: jest.fn().mockResolvedValue(undefined)
     };
 
     mockActionsService = {
