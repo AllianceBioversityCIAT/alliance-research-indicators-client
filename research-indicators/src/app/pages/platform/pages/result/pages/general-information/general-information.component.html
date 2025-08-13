@@ -8,11 +8,10 @@
           <div class="flex flex-col">
             <app-input
               label="Title"
-              helperText="Provide a clear, informative name for the result, for a non-specialist reader and without acronyms. Avoid abbreviations or (technical) jargon. Max. 30 words."
+              helperText="Provide a clear, informative name for the result, for a non-specialist reader and without acronyms. Avoid abbreviations or (technical) jargon."
               [isRequired]="true"
               [disabled]="!submission.isEditableStatus()"
               [validateEmpty]="true"
-              description="Provide a clear and descriptive name for the result, avoiding acronyms or technical jargon."
               [signal]="this.body"
               optionValue="title"
               placeholder="Write the title"
@@ -26,7 +25,6 @@
               [rows]="5"
               label="Description"
               [maxLength]="400"
-              description="Offer a detailed, understandable explanation, without repeating the title."
               [signal]="this.body"
               [optionValue]="'description'"
               placeholder="Describe the result"></app-textarea>
