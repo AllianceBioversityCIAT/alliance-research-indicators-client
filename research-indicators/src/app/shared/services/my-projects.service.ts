@@ -70,6 +70,19 @@ export class MyProjectsService {
     return !!filterValue;
   }
 
+  private getLeverDisplayName(item: any): string {
+    if (item.lever_name) {
+      return item.lever_name;
+    }
+    if (item.lever && typeof item.lever === 'object') {
+      return item.lever.short_name || item.lever.name || '';
+    }
+    if (typeof item.lever === 'string') {
+      return item.lever;
+    }
+    return '';
+  }
+
   async main(params?: Record<string, unknown>) {
     this.loading.set(true);
     try {
@@ -79,7 +92,9 @@ export class MyProjectsService {
         this.list.update(current =>
           current.map(item => ({
             ...item,
-            full_name: `${item.agreement_id} ${item.projectDescription} ${item.description} ${item.project_lead_description}`
+            full_name: `${item.agreement_id} ${item.projectDescription} ${item.description} ${item.project_lead_description}`,
+            display_principal_investigator: item.principal_investigator || item.project_lead_description || '',
+            display_lever_name: this.getLeverDisplayName(item)
           }))
         );
       } else {
