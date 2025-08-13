@@ -259,6 +259,7 @@
         label="Status"
         [signal]="this.myProjectsService.tableFilters"
         optionLabel="name"
+        appendTo="body"
         optionValue="value"
         signalOptionValue="statusCodes"
         serviceName="projectStatus"
@@ -287,7 +288,8 @@
         [signal]="this.myProjectsService.tableFilters"
         optionValue="startDate"
         placeholder="Select start date"
-        [readonly]="true">
+        [readonly]="true"
+        appendTo="body">
       </app-calendar-input>
     </div>
 
@@ -297,6 +299,7 @@
         label="End Date"
         [signal]="this.myProjectsService.tableFilters"
         optionValue="endDate"
+        appendTo="body"
         placeholder="Select end date"
         [readonly]="true">
       </app-calendar-input>
