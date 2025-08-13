@@ -40,8 +40,11 @@ describe('SetUpProjectComponent', () => {
         snapshot: {
           routeConfig: { path: 'structure' }
         }
-      } as any
-    };
+      },
+      snapshot: {
+        params: { id: 'test-project-id' }
+      }
+    } as any;
 
     await TestBed.configureTestingModule({
       imports: [SetUpProjectComponent],
