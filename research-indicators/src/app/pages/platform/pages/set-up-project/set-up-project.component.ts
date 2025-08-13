@@ -63,6 +63,7 @@ export default class SetUpProjectComponent implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   actions = inject(ActionsService);
+  routeid = signal<string | null>(null);
 
   routeOptions = [
     { label: 'Structures', value: 'structure' },
@@ -72,6 +73,7 @@ export default class SetUpProjectComponent implements OnInit {
 
   ngOnInit(): void {
     const firstChildPath = this.activatedRoute.firstChild?.snapshot.routeConfig?.path;
+    this.routeid.set(this.activatedRoute.snapshot.params['id']);
     if (firstChildPath === 'indicators') {
       this.activeRoute = 'indicators';
     } else {
@@ -120,7 +122,7 @@ export default class SetUpProjectComponent implements OnInit {
   async saveStructures() {
     this.setUpProjectService.loadingStructures.set(true);
     try {
-      await this.setUpProjectService.api.POST_SyncStructures({ structures: this.setUpProjectService.structures() });
+      await this.setUpProjectService.api.POST_SyncStructures({ structures: this.setUpProjectService.structures(), agreement_id: this.routeid() });
       await this.setUpProjectService.getStructures();
       this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Structures saved successfully' });
     } catch {
