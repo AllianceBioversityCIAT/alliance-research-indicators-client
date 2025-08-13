@@ -50,11 +50,13 @@
                   <div class="mb-8">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ structure.name }} Indicators</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      @for (indicator of structure.indicators; track indicator.id) {
+                      @for (indicator of structure.indicators; track indicator.id; let ks = $index) {
                         <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                           <div class="flex justify-between items-start mb-2">
                             <h4 class="font-medium text-gray-800">{{ indicator.name }}</h4>
-                            <button class="text-red-500 hover:text-red-700 text-sm">
+                            <button
+                              class="text-red-500 hover:text-red-700 text-sm"
+                              (click)="setUpProjectService.deleteStructureItemIndicatorByIndex(i, ks)">
                               <i class="pi pi-times"></i>
                             </button>
                           </div>
@@ -136,11 +138,13 @@
                               <div>
                                 <h5 class="font-medium text-gray-800 mb-3">Item Indicators</h5>
                                 <div class="space-y-3">
-                                  @for (indicator of item.indicators; track indicator.id) {
+                                  @for (indicator of item.indicators; track indicator.id; let k = $index) {
                                     <div class="bg-gray-50 p-3 rounded">
                                       <div class="flex justify-between items-start mb-2">
                                         <h6 class="font-medium text-gray-800 text-sm">{{ indicator.name }}</h6>
-                                        <button class="text-red-500 hover:text-red-700 text-xs">
+                                        <button
+                                          class="text-red-500 hover:text-red-700 text-xs"
+                                          (click)="setUpProjectService.deleteStructureItemIndicatorByIndex(i, k, j)">
                                           <i class="pi pi-times"></i>
                                         </button>
                                       </div>

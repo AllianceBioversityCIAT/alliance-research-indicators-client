@@ -53,26 +53,40 @@ export class SetUpProjectService {
     });
   }
 
+  deleteStructureItemIndicatorByIndex(structureIndex: number, indicatorIndex: number, itemIndex?: number) {
+    this.structures.update(previousStructures => {
+      const structuresCopy = [...previousStructures];
+      const targetStructure = structuresCopy[structureIndex];
+
+      if (!targetStructure) return structuresCopy;
+
+      if (typeof itemIndex === 'number') {
+        if (!targetStructure.items || itemIndex < 0 || itemIndex >= targetStructure.items.length) return structuresCopy;
+        const targetItem = targetStructure.items[itemIndex];
+        if (!targetItem || !targetItem.indicators || indicatorIndex < 0 || indicatorIndex >= targetItem.indicators.length) return structuresCopy;
+        targetItem.indicators = [...targetItem.indicators.slice(0, indicatorIndex), ...targetItem.indicators.slice(indicatorIndex + 1)];
+        return structuresCopy;
+      }
+
+      const structureIndicators = targetStructure.indicators || [];
+      if (indicatorIndex < 0 || indicatorIndex >= structureIndicators.length) return structuresCopy;
+      targetStructure.indicators = [...structureIndicators.slice(0, indicatorIndex), ...structureIndicators.slice(indicatorIndex + 1)];
+      return structuresCopy;
+    });
+  }
+
   async getStructures() {
     const res = await this.api.GET_Structures();
     this.structures.set(res.data.structures);
   }
 
   assignIndicator(indicator: Indicator | GetIndicators) {
-    console.log(indicator);
-    console.log(this.structures());
     this.structures.update(prev => {
       const { structureIndex, itemIndex } = this.assignIndicatorsModal().target;
       if (structureIndex === undefined) return [...prev];
       if (this.assignIndicatorsModal().target?.type === 'structure') {
         prev[structureIndex].indicators.push(indicator as Indicator);
       } else if (this.assignIndicatorsModal().target?.type === 'item' && prev[structureIndex].items?.length) {
-        console.log(prev[structureIndex]);
-        console.log(prev[structureIndex].items);
-        console.log(prev[structureIndex].items[itemIndex]);
-        console.log(prev[structureIndex].items[itemIndex].indicators);
-        console.log(structureIndex);
-        console.log(itemIndex);
         prev[structureIndex].items[itemIndex].indicators = [...(prev[structureIndex].items[itemIndex].indicators || []), indicator as Indicator];
       }
       return [...prev];
