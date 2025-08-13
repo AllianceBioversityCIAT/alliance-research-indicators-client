@@ -44,7 +44,7 @@ export class ManageIndicatorModalComponent {
   });
 
   close() {
-    this.setUpProjectService.showIndicatorModal.set(false);
+    this.setUpProjectService.manageIndicatorModal.set({ show: false });
   }
 
   async save() {

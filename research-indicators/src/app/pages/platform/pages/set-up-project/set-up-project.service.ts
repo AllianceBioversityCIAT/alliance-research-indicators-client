@@ -8,7 +8,7 @@ import { GetIndicators } from '../../../../shared/interfaces/get-indicators.inte
 })
 export class SetUpProjectService {
   showAssignIndicatorModal = signal<boolean>(false);
-  showIndicatorModal = signal<boolean>(false);
+  manageIndicatorModal = signal<{ show: boolean; indicator?: GetIndicators }>({ show: false });
   showAllIndicators = signal<boolean>(false);
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);

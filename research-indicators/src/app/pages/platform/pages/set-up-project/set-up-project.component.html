@@ -11,11 +11,7 @@
         @if (activeRoute === 'structure') {
           <p-button icon="pi pi-plus" label="Create Structure" (onClick)="setUpProjectService.showCreateStructure.set(true)"> </p-button>
         } @else {
-          <p-button
-            icon="pi pi-plus"
-            label="Create Indicator"
-            severity="info"
-            (onClick)="setUpProjectService.showIndicatorModal.set(true)"></p-button>
+          <p-button icon="pi pi-plus" label="Create Indicator" (onClick)="setUpProjectService.manageIndicatorModal.set({ show: true })"></p-button>
         }
         <p-selectbutton
           [options]="routeOptions"
