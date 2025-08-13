@@ -13,7 +13,6 @@ import { CommonModule } from '@angular/common';
 export class AssignIndicatorsModalComponent {
   setUpProjectService = inject(SetUpProjectService);
 
-  visible = computed(() => this.setUpProjectService.assignIndicatorsModal().show);
   targetInfo = computed(() => this.setUpProjectService.assignIndicatorsModal().target);
 
   getIndicatorsFiltered = computed(() => {

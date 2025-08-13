@@ -1,5 +1,5 @@
 <p-dialog
-  [visible]="this.setUpProjectService.manageIndicatorModal().show"
+  [(visible)]="this.setUpProjectService.manageIndicatorModal().show"
   (onHide)="close()"
   [header]="'Create New Indicator'"
   [modal]="true"

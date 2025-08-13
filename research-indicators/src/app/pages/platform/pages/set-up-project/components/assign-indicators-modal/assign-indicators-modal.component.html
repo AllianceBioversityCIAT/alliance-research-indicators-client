@@ -1,5 +1,5 @@
 <p-dialog
-  [visible]="visible()"
+  [visible]="setUpProjectService.assignIndicatorsModal().show"
   (onHide)="setUpProjectService.assignIndicatorsModal.set({ show: false, target: { type: 'item', structureIndex: -1, itemIndex: -1 } })"
   header="Add Indicators"
   [modal]="true"
