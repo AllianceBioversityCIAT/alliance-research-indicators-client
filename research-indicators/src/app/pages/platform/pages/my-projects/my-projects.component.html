@@ -90,7 +90,7 @@
               }
             </div>
             @if (getCurrentProjects().length > 0) {
-              <div class="flex justify-end w-full bg-white py-2 border border-[#E8EBED]">
+              <div #cardRppScope class="rpp-dropup flex justify-end w-full bg-white py-2 border border-[#E8EBED]">
                 <p-paginator
                   (onPageChange)="onCurrentPageChange($event)"
                   [first]="getCurrentFirst()"
@@ -98,14 +98,15 @@
                   [totalRecords]="getCurrentProjects().length"
                   [showCurrentPageReport]="true"
                   [rowsPerPageOptions]="[5, 10, 25, 50]"
-                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects" />
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+                  [dropdownAppendTo]="cardRppScope" />
               </div>
             }
           }
 
           <!-- Table view -->
           @if (isTableView()) {
-            <div class="w-full border border-[#E8EBED]">
+            <div #tableRppScope class="rpp-dropup w-full border border-[#E8EBED]">
               <p-table
                 [value]="getCurrentProjects()"
                 [paginator]="true"
@@ -116,6 +117,7 @@
                 [scrollable]="true"
                 [tableStyle]="{ 'min-width': '100%' }"
                 [rowsPerPageOptions]="[5, 10, 25, 50]"
+                [paginatorDropdownAppendTo]="tableRppScope"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
                 [sortField]="'agreement_id'"
                 [sortOrder]="-1"
