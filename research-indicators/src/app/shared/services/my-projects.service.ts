@@ -31,7 +31,19 @@ export class MyProjectsService {
   showFiltersSidebar = signal(false);
   multiselectRefs = signal<Record<string, MultiselectComponent>>({});
   searchInput = signal('');
-  hasFilters = signal(false);
+  hasFilters = computed(() => {
+    const filters = this.appliedFilters();
+    const filterChecks = [
+      filters.contractCode,
+      filters.projectName,
+      filters.principalInvestigator,
+      filters.levers,
+      filters.statusCodes,
+      filters.startDate,
+      filters.endDate
+    ];
+    return filterChecks.some(filter => this.isFilterActive(filter));
+  });
 
   myProjectsFilterItems: MenuItem[] = [
     { id: 'all', label: 'All Projects' },
@@ -49,7 +61,6 @@ export class MyProjectsService {
     this.appliedFilters.set(new MyProjectsFilters());
     this.searchInput.set('');
     this.cleanMultiselects();
-    this.hasFilters.set(false);
   }
 
   private isFilterActive(filterValue: string | { id: number; short_name: string }[] | { name: string; value: string }[]): boolean {
@@ -117,8 +128,6 @@ export class MyProjectsService {
     }
 
     this.appliedFilters.set({ ...filters });
-    const hasActiveFilters = this.countFiltersSelected() !== undefined;
-    this.hasFilters.set(hasActiveFilters);
 
     this.main(params);
   };
@@ -191,5 +200,15 @@ export class MyProjectsService {
 
   refresh() {
     this.main(this.getBaseParams());
+  }
+
+  resetState() {
+    this.resetFilters();
+    this.list.set([]);
+    this.loading.set(true);
+    this.isOpenSearch.set(false);
+    this.showFiltersSidebar.set(false);
+    this.multiselectRefs.set({});
+    this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
   }
 }
