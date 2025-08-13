@@ -32,6 +32,7 @@
                     <p-button
                       icon="pi pi-tag"
                       pTooltip="Add indicators to this structure"
+                      tooltipPosition="left"
                       severity="help"
                       [text]="true"
                       size="small"
@@ -42,6 +43,7 @@
                     <p-button
                       icon="pi pi-pencil"
                       pTooltip="Edit structure details"
+                      tooltipPosition="left"
                       (onClick)="setUpProjectService.editingElementId.set(structure.id)"
                       severity="secondary"
                       [text]="true"
@@ -50,6 +52,7 @@
                     <p-button
                       icon="pi pi-trash"
                       pTooltip="Delete this structure"
+                      tooltipPosition="left"
                       severity="danger"
                       [text]="true"
                       size="small"
@@ -115,6 +118,7 @@
                                 <p-button
                                   icon="pi pi-tag"
                                   pTooltip="Add indicators to this item"
+                                  tooltipPosition="left"
                                   [text]="true"
                                   severity="help"
                                   size="small"
@@ -128,6 +132,7 @@
                                 <p-button
                                   icon="pi pi-pencil"
                                   pTooltip="Edit item details"
+                                  tooltipPosition="left"
                                   [text]="true"
                                   size="small"
                                   (click)="setUpProjectService.editingElementId.set('update-item-' + item.id)">
@@ -135,6 +140,7 @@
                                 <p-button
                                   icon="pi pi-trash"
                                   pTooltip="Delete this item"
+                                  tooltipPosition="left"
                                   [text]="true"
                                   severity="danger"
                                   size="small"
