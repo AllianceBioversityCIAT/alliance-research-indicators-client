@@ -27,6 +27,9 @@ export class UpdateStructureComponent implements OnInit {
       prev[this.index] = this.newStructureForm();
       return [...prev];
     });
-    this.setUpProjectService.showCreateStructure.set(false);
+    this.onCancel();
+  };
+  onCancel = () => {
+    this.setUpProjectService.editingElementId.set(null);
   };
 }
