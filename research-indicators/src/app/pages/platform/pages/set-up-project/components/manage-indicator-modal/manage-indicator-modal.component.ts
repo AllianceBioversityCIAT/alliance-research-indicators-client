@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -17,6 +17,7 @@ import {
   NumberTypeOption
 } from '../../../../../../shared/interfaces/project-setup.interface';
 import { PostIndicator } from '../../../../../../shared/interfaces/post-indicator.interface';
+import { ActionsService } from '../../../../../../shared/services/actions.service';
 
 @Component({
   selector: 'app-manage-indicator-modal',
@@ -27,7 +28,7 @@ import { PostIndicator } from '../../../../../../shared/interfaces/post-indicato
 export class ManageIndicatorModalComponent {
   setUpProjectService = inject(SetUpProjectService);
   api = inject(ApiService);
-
+  actions = inject(ActionsService);
   numberTypeOptions = NUMBER_TYPE_OPTIONS;
   numberFormatOptions = NUMBER_FORMAT_OPTIONS;
   availableYears = AVAILABLE_YEARS.map(year => ({ label: String(year), value: year }));
@@ -52,7 +53,13 @@ export class ManageIndicatorModalComponent {
     if (!value.name || !value.description || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit) {
       return;
     }
-    await this.api.POST_Indicator(value);
+    const response = await this.api.POST_Indicator(value);
+    if (!response.successfulRequest) {
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to create indicator' });
+      return;
+    }
+    this.setUpProjectService.getIndicators();
+    this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Indicator created successfully' });
     this.close();
   }
 }
