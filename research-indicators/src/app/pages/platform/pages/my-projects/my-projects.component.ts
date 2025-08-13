@@ -159,6 +159,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.myProjectsService.resetState();
     this.loadPinnedTab();
   }
 
