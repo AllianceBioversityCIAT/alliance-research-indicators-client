@@ -25,6 +25,7 @@
               [disabled]="!submission.isEditableStatus()"
               [rows]="5"
               label="Description"
+              [maxLength]="400"
               description="Offer a detailed, understandable explanation, without repeating the title."
               [signal]="this.body"
               [optionValue]="'description'"
