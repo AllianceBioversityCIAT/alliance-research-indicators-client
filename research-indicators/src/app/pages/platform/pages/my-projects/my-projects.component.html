@@ -1,4 +1,4 @@
-<div class="content flex flex-col gap-3 px-6 pt-8 mb-5">
+<div class="content flex flex-col gap-3 px-6 pt-8">
   <!-- Projects Section -->
   <div class="flex flex-col bg-white">
     <!-- Custom Tab Menu with Pin Icons -->
@@ -34,10 +34,11 @@
 
     <!-- Content based on active tab -->
     <div class="w-full">
-      <div>
-        <div class="bg-white p-4 border-l border-r border-[#E8EBED]">
+      <div class="flex flex-col">
+        <div class="flex flex-col">
           <div class="flex items-center justify-between w-full">
             <app-search-export-controls
+              class="p-3"
               [showExportButton]="false"
               [searchValue]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput()"
               [searchPlaceholder]="'Find a result by code, title or principal investigator'"
@@ -45,6 +46,7 @@
             </app-search-export-controls>
 
             <app-filters-action-buttons
+              class="p-3"
               [applyLabel]="getApplyFiltersLabel()"
               [badge]="myProjectsService.countFiltersSelected()"
               [showOverlayDot]="!!myProjectsService.countFiltersSelected()"
@@ -82,7 +84,7 @@
         } @else {
           <!-- Card view -->
           @if (!isTableView()) {
-            <div class="analyze-result-content">
+            <div class="analyze-result-content max-h-[calc(90vh-300px)] overflow-y-auto">
               @for (project of filteredProjects() | slice: first() : first() + rows(); track project.agreement_id) {
                 <app-project-item [project]="project"></app-project-item>
               }

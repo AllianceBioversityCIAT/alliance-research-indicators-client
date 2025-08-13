@@ -1,8 +1,9 @@
 <!-- Results Table -->
 <div class="flex flex-col">
   <div class="flex flex-col">
-    <div class="flex items-center justify-between w-full p-3">
+    <div class="flex items-center justify-between w-full">
       <app-search-export-controls
+        class="p-3"
         [showExportButton]="true"
         [exportLabel]="'Export Results'"
         [searchValue]="this.resultsCenterService.searchInput()"

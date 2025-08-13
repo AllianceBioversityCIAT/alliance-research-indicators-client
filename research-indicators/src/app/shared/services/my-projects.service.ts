@@ -70,7 +70,7 @@ export class MyProjectsService {
     return !!filterValue;
   }
 
-  private getLeverDisplayName(item: any): string {
+  private getLeverDisplayName(item: FindContracts): string {
     if (item.lever_name) {
       return item.lever_name;
     }

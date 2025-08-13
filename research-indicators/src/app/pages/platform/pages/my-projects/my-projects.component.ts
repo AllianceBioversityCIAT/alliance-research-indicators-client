@@ -67,6 +67,8 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   rows = signal(10);
   allProjectsFirst = signal(0);
   allProjectsRows = signal(10);
+  myProjectsFirst = signal(0);
+  myProjectsRows = signal(10);
   private readonly _searchValue = signal('');
   isTableView = signal(true);
 
@@ -149,8 +151,13 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   });
 
   onPageChange(event: PaginatorState) {
-    this.first.set(event.first ?? 0);
-    this.rows.set(event.rows ?? 5);
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this.myProjectsFirst.set(event.first ?? 0);
+      this.myProjectsRows.set(event.rows ?? 10);
+    } else {
+      this.allProjectsFirst.set(event.first ?? 0);
+      this.allProjectsRows.set(event.rows ?? 10);
+    }
   }
 
   onAllProjectsPageChange(event: PaginatorState) {
@@ -252,8 +259,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     this._searchValue.set('');
 
     if (event.id === 'my') {
+      this.myProjectsFirst.set(0);
       this.loadMyProjects();
     } else {
+      this.allProjectsFirst.set(0);
       this.loadAllProjects();
     }
   };
@@ -347,11 +356,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentFirst(): number {
-    return this.first();
+    return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsFirst() : this.allProjectsFirst();
   }
 
   getCurrentRows(): number {
-    return this.rows();
+    return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsRows() : this.allProjectsRows();
   }
 
   onCurrentPageChange(event: PaginatorState): void {
