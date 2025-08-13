@@ -1,0 +1,17 @@
+<div class="bg-blue-50 p-4 rounded-lg mb-6">
+  <h3 class="text-lg font-semibold mb-4">Edit Structure</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div>
+      <label for="struct-name-edit" class="block text-sm font-medium text-gray-700 mb-2">Structure Name *</label>
+      <input id="struct-name-edit" pInputText [(ngModel)]="newStructureForm().name" placeholder="Structure name" class="w-full" />
+    </div>
+    <div>
+      <label for="struct-code-edit" class="block text-sm font-medium text-gray-700 mb-2">Code *</label>
+      <input id="struct-code-edit" pInputText [(ngModel)]="newStructureForm().code" placeholder="Structure code" class="w-full" />
+    </div>
+  </div>
+  <div class="flex gap-2">
+    <p-button icon="pi pi-check" label="Confirm" size="small" (onClick)="onUpdateStructure()"></p-button>
+    <p-button icon="pi pi-times" label="Cancel" severity="secondary" size="small" (onClick)="onCancel()"></p-button>
+  </div>
+</div>

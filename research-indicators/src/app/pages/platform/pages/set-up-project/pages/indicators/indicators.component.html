@@ -1,0 +1,84 @@
+<div class="indicators-view">
+  <div class="indicators-grid grid grid-cols-1 gap-8">
+    <div class="indicators-section">
+      <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+        <i class="pi pi-tags text-blue-600"></i>
+        Indicators
+      </h3>
+
+      @if (setUpProjectService.indicatorList().length > 0) {
+        <div class="indicators-list space-y-6">
+          @for (indicator of setUpProjectService.indicatorList(); track indicator.id) {
+            <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex justify-between items-start mb-4">
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-3">
+                    <h4 class="text-lg font-semibold text-gray-800">{{ indicator.name }}</h4>
+                  </div>
+                  <p class="text-gray-600 mb-4 leading-relaxed">{{ indicator.description }}</p>
+
+                  <div class="indicator-metadata space-y-3">
+                    <div class="flex flex-wrap gap-2">
+                      <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                        <i class="pi pi-calculator text-xs"></i>
+                        {{ indicator.numberType }}
+                      </span>
+                      <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                        <i class="pi pi-hashtag text-xs"></i>
+                        {{ indicator.numberFormat }}
+                      </span>
+                      @if (indicator.targetUnit) {
+                        <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                          <i class="pi pi-flag text-xs"></i>
+                          {{ indicator.targetUnit }}
+                        </span>
+                      }
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                      <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                        <i class="pi pi-calendar text-xs"></i>
+                        {{ indicator.years.join(', ') }}
+                      </span>
+                      @if (indicator.targetValue) {
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                          <i class="pi pi-arrow-up text-xs"></i>
+                          Target: {{ indicator.targetValue }}
+                        </span>
+                      }
+                      @if (indicator.baseline) {
+                        <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                          <i class="pi pi-minus text-xs"></i>
+                          Base: {{ indicator.baseline }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="flex gap-1 ml-4">
+                  <!-- <p-button
+                    icon="pi pi-pencil"
+                    severity="secondary"
+                    [text]="true"
+                    size="small"
+                    pTooltip="Edit indicator"
+                    (onClick)="setUpProjectService.manageIndicatorModal.set({ show: true, indicator: indicator })">
+                  </p-button> -->
+                  <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small" pTooltip="Delete indicator"> </p-button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="text-center py-12 bg-gray-50 rounded-lg">
+          <i class="pi pi-tags text-4xl mb-4 block text-gray-300"></i>
+          <h4 class="text-lg font-semibold text-gray-700 mb-2">No indicators yet</h4>
+          <p class="text-gray-500 mb-4">Create indicators to start tracking metrics.</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<app-manage-indicator-modal />

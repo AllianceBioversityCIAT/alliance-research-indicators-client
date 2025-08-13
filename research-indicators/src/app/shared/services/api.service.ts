@@ -61,6 +61,8 @@ import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { FindContracts } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
+import { GetStructures } from '../interfaces/get-structures.interface';
+import { PostIndicator } from '../interfaces/post-indicator.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -581,6 +583,26 @@ export class ApiService {
     const timestamp = new Date().getTime();
     const urlWithTimestamp = `${environment.frontVersionUrl}?t=${timestamp}`;
     return this.TP.get('', { isAuth: urlWithTimestamp, noCache: true });
+  };
+
+  GET_Structures = () => {
+    const url = () => `groups-items/items-list`;
+    return this.TP.get(url(), {});
+  };
+
+  POST_SyncStructures = (body: GetStructures) => {
+    const url = () => `groups-items/sync`;
+    return this.TP.post(url(), body);
+  };
+
+  GET_Indicators = () => {
+    const url = () => `project-indicators/get-list`;
+    return this.TP.get(url(), {});
+  };
+
+  POST_Indicator = (body: PostIndicator) => {
+    const url = () => `project-indicators/create`;
+    return this.TP.post(url(), body);
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
