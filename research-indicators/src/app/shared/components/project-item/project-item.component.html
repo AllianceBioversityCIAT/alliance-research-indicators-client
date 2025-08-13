@@ -2,12 +2,20 @@
   <div class="card-content">
     <div class="organization-identifier">
       <div class="project">
-        <div class="project-id">
-          @if (isHeader) {
-            <span class="project-id">PROJECT CODE:&nbsp;</span>
+        <div class="project-id flex justify-between items-center">
+          <div>
+            @if (isHeader) {
+              <span class="project-id">PROJECT CODE:&nbsp;</span>
+            }
+            <label class="project-id" for="username">{{ project.agreement_id }}</label>
+          </div>
+          @if (cache.onlyMvpUsers() && isHeader) {
+            <div class="min-w-[150px] flex justify-end">
+              <p-button label="Set up project" icon="pi pi-cog" size="small" [routerLink]="['/set-up-project', project.agreement_id]" />
+            </div>
           }
-          <label class="project-id" for="username">{{ project.agreement_id }}</label>
         </div>
+
         <label class="project-name" for="username"
           >{{ project.projectDescription && project.projectDescription + ' - ' }} {{ project.description }}</label
         >
@@ -30,6 +38,7 @@
         <label class="project-data" for="username">{{ project.end_date | date: 'dd/MM/yyyy' }}</label>
       </div>
     </div>
+
     <div class="flex justify-between items-center">
       <div class="project-indicators w-full flex flex-wrap gap-16 gap-y-6">
         @for (indicator of project.indicators; track $index) {
@@ -46,11 +55,6 @@
           </div>
         }
       </div>
-      @if (cache.onlyMvpUsers() && isHeader) {
-        <div class="min-w-[150px] flex justify-end">
-          <p-button label="Set up project" icon="pi pi-cog" size="small" [routerLink]="['/set-up-project', project.agreement_id]" />
-        </div>
-      }
     </div>
   </div>
 </a>
