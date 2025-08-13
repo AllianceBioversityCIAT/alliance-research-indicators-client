@@ -4,12 +4,14 @@ import { signal } from '@angular/core';
 import { ManageIndicatorModalComponent } from './manage-indicator-modal.component';
 import { SetUpProjectService } from '../../set-up-project.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
+import { ApiService } from '../../../../../../shared/services/api.service';
 
 describe('ManageIndicatorModalComponent', () => {
   let component: ManageIndicatorModalComponent;
   let fixture: ComponentFixture<ManageIndicatorModalComponent>;
   let mockSetUpProjectService: Partial<SetUpProjectService>;
   let mockActionsService: Partial<ActionsService>;
+  let mockApiService: Partial<ApiService>;
 
   beforeEach(async () => {
     mockSetUpProjectService = {
@@ -26,14 +28,18 @@ describe('ManageIndicatorModalComponent', () => {
       showToast: jest.fn()
     };
 
+    mockApiService = {
+      POST_Indicator: jest.fn().mockResolvedValue({ successfulRequest: true, data: {} })
+    };
+
     await TestBed.configureTestingModule({
       imports: [ManageIndicatorModalComponent],
       providers: [
         { provide: SetUpProjectService, useValue: mockSetUpProjectService },
-        { provide: ActionsService, useValue: mockActionsService }
+        { provide: ActionsService, useValue: mockActionsService },
+        { provide: ApiService, useValue: mockApiService }
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ManageIndicatorModalComponent);
     component = fixture.componentInstance;
