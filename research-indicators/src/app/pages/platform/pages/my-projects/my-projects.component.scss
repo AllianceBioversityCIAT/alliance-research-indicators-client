@@ -8,7 +8,6 @@
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
-  height: calc(100vh - 400px);
   overflow-y: auto;
   width: 100%;
   padding-bottom: 0;
@@ -18,7 +17,6 @@
 :host ::ng-deep .p-datatable {
   width: 100% !important;
   max-width: 100% !important;
-  height: calc(100vh - 325px) !important;
   display: flex !important;
   flex-direction: column !important;
 }

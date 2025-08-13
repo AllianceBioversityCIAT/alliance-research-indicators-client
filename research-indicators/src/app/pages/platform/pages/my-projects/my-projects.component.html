@@ -1,4 +1,4 @@
-<div class="content flex flex-col gap-3 px-6 pt-8">
+<div class="content flex flex-col gap-3 px-6 pt-8 mb-5">
   <!-- Projects Section -->
   <div class="flex flex-col bg-white">
     <!-- Custom Tab Menu with Pin Icons -->
@@ -12,7 +12,7 @@
             (click)="onActiveItemChange(item)">
             <button
               type="button"
-              class="bg-[#E8EBED] cursor-pointer p-1 rounded-full flex items-center justify-center min-w-6 min-h-6 z-10"
+              class="bg-[#E8EBED] cursor-pointer p-1 rounded-full flex items-center justify-center min-w-6 min-h-6"
               (click)="onPinIconClick(item.id, $event)"
               [disabled]="loadingPin()"
               title="Pin tab">
@@ -287,6 +287,7 @@
         label="Start Date"
         [signal]="this.myProjectsService.tableFilters"
         optionValue="startDate"
+        [dateFormat]="'MM dd/yy'"
         placeholder="Select start date"
         appendTo="body">
       </app-calendar-input>
@@ -298,6 +299,7 @@
         label="End Date"
         [signal]="this.myProjectsService.tableFilters"
         optionValue="endDate"
+        dateFormat="MM dd/yy"
         appendTo="body"
         placeholder="Select end date">
       </app-calendar-input>
