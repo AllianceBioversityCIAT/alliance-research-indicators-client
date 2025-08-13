@@ -1,5 +1,6 @@
 export interface GetStructures {
   structures: IndicatorsStructure[];
+  agreement_id: string | number | null;
 }
 
 export interface IndicatorsStructure {

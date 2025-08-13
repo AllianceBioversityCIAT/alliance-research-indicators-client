@@ -6,10 +6,11 @@ import { SetUpProjectService } from '../../set-up-project.service';
 import { CreateItemComponent } from '../../components/create-item/create-item.component';
 import { UpdateItemComponent } from '../../components/update-item/update-item.component';
 import { TabsModule } from 'primeng/tabs';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-structure',
-  imports: [CreateStructureComponent, UpdateStructureComponent, CreateItemComponent, UpdateItemComponent, ButtonModule, TabsModule],
+  imports: [CreateStructureComponent, UpdateStructureComponent, CreateItemComponent, UpdateItemComponent, ButtonModule, TabsModule, TooltipModule],
   templateUrl: './structure.component.html',
   styleUrl: './structure.component.scss'
 })
