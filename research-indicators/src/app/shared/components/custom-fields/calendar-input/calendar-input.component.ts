@@ -24,6 +24,7 @@ export class CalendarInputComponent {
   @Input() disabled = false;
   @Input() readonly = false;
   @Input() placeholder = '';
+  @Input() dateFormat = 'dd/mm/yy';
 
   isInvalid = computed(() => {
     const value = this.signal()[this.optionValue];
