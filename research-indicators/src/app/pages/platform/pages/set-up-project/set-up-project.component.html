@@ -10,24 +10,30 @@
       <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 items-start sm:items-center">
         <div class="flex gap-2">
           @if (activeRoute === 'structure') {
-            <p-button icon="pi pi-plus" label="Structure" size="small" (onClick)="setUpProjectService.showCreateStructure.set(true)"> </p-button>
+            <p-button
+              icon="pi pi-save"
+              label="Save"
+              size="small"
+              [loading]="setUpProjectService.loadingStructures()"
+              [disabled]="setUpProjectService.loadingStructures()"
+              (onClick)="saveStructures()">
+            </p-button>
+            <p-button
+              severity="contrast"
+              icon="pi pi-plus"
+              label="Structure"
+              size="small"
+              (onClick)="setUpProjectService.showCreateStructure.set(true)">
+            </p-button>
           } @else {
+            <!-- Save Button (moved here for better UX) -->
             <p-button
               icon="pi pi-plus"
               label="Indicator"
               size="small"
+              severity="contrast"
               (onClick)="setUpProjectService.manageIndicatorModal.set({ show: true })"></p-button>
           }
-          <!-- Save Button (moved here for better UX) -->
-          <p-button
-            icon="pi pi-save"
-            label="Save"
-            severity="primary"
-            size="small"
-            [loading]="setUpProjectService.loadingStructures()"
-            [disabled]="setUpProjectService.loadingStructures()"
-            (onClick)="saveStructures()">
-          </p-button>
         </div>
         <p-selectbutton
           [options]="routeOptions"
