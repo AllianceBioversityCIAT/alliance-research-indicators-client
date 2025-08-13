@@ -27,6 +27,7 @@ import {
 import { SetUpProjectService } from './set-up-project.service';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { AssignIndicatorsModalComponent } from './components/assign-indicators-modal/assign-indicators-modal.component';
+import { ActionsService } from '../../../../shared/services/actions.service';
 
 @Component({
   selector: 'app-set-up-project',
@@ -61,6 +62,8 @@ export default class SetUpProjectComponent implements OnInit {
   setUpProjectService = inject(SetUpProjectService);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
+  actions = inject(ActionsService);
+  saving = signal(false);
 
   routeOptions = [
     { label: 'Structures', value: 'structure' },
@@ -116,8 +119,16 @@ export default class SetUpProjectComponent implements OnInit {
   defaultLevel2Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 2));
 
   async saveStructures() {
-    await this.setUpProjectService.api.POST_SyncStructures({ structures: this.setUpProjectService.structures() });
-    await this.setUpProjectService.getStructures();
+    this.saving.set(true);
+    try {
+      await this.setUpProjectService.api.POST_SyncStructures({ structures: this.setUpProjectService.structures() });
+      await this.setUpProjectService.getStructures();
+      this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Structures saved successfully' });
+    } catch {
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to save structures' });
+    } finally {
+      this.saving.set(false);
+    }
   }
 
   onRouteChange(value: 'structure' | 'indicators') {
