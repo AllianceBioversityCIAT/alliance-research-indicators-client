@@ -22,9 +22,7 @@ describe('StructureComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [StructureComponent],
-      providers: [
-        { provide: SetUpProjectService, useValue: mockSetUpProjectService }
-      ]
+      providers: [{ provide: SetUpProjectService, useValue: mockSetUpProjectService }]
     }).compileComponents();
 
     fixture = TestBed.createComponent(StructureComponent);
