@@ -14,7 +14,6 @@ export interface IndicatorItem {
   id?: string;
   name: string;
   code: string;
-  items?: any[];
   indicators?: Indicator[];
 }
 

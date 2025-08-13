@@ -17,9 +17,7 @@ export class AssignIndicatorsModalComponent {
   targetInfo = computed(() => this.setUpProjectService.assignIndicatorsModal().target);
 
   getIndicatorsFiltered = computed(() => {
-    console.log(this.setUpProjectService.assignIndicatorsModal());
     const { structureIndex, itemIndex, type } = this.setUpProjectService.assignIndicatorsModal().target;
-    console.log(type);
     if (type === 'structure') {
       return this.setUpProjectService
         .indicatorList()
