@@ -79,6 +79,8 @@ export default class SetUpProjectComponent implements OnInit {
     } else {
       this.activeRoute = 'structure';
     }
+    this.setUpProjectService.getStructures();
+    this.setUpProjectService.getIndicators();
   }
 
   // Indicadores predefinidos disponibles para seleccionar

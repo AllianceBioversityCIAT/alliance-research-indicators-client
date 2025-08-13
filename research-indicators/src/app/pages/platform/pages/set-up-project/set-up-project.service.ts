@@ -23,10 +23,7 @@ export class SetUpProjectService {
 
   api = inject(ApiService);
   actions = inject(ActionsService);
-  constructor() {
-    this.getStructures();
-    this.getIndicators();
-  }
+
   async getIndicators() {
     const res = await this.api.GET_Indicators();
     this.indicatorList.set(res.data);
