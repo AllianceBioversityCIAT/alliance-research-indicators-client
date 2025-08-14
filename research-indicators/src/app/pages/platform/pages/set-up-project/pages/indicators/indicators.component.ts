@@ -35,5 +35,15 @@ export default class IndicatorsComponent {
   };
   onEditIndicator = (indicator: GetIndicators) => {
     this.setUpProjectService.manageIndicatorModal.set({ show: true, editingMode: true, indicator });
+    this.setUpProjectService.manageIndicatorform.set({
+      name: indicator.name,
+      description: indicator.description,
+      numberType: indicator.numberType,
+      numberFormat: indicator.numberFormat,
+      years: indicator.years,
+      targetUnit: indicator.targetUnit,
+      targetValue: Number(indicator.targetValue),
+      baseline: Number(indicator.baseline)
+    });
   };
 }
