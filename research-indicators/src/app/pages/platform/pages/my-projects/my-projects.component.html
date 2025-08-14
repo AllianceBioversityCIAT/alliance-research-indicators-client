@@ -85,7 +85,7 @@
           <!-- Card view -->
           @if (!isTableView()) {
             <div class="analyze-result-content max-h-[calc(90vh-300px)] overflow-y-auto">
-              @for (project of filteredProjects() | slice: first() : first() + rows(); track project.agreement_id) {
+              @for (project of filteredProjects() | slice: getCurrentFirst() : getCurrentFirst() + getCurrentRows(); track project.agreement_id) {
                 <app-project-item [project]="project"></app-project-item>
               }
             </div>
