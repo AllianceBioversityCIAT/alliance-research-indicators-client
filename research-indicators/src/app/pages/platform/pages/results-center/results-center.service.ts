@@ -252,8 +252,6 @@ export class ResultsCenterService {
       table.sortOrder = -1;
       table.first = 0;
     }
-
-    this.applyFilters();
   };
 
   showFilterSidebar(): void {
@@ -265,13 +263,19 @@ export class ResultsCenterService {
   }
 
   applyFilters = () => {
+    const currentTableFilters = this.tableFilters();
+
+    if (!currentTableFilters) {
+      return;
+    }
+
     this.resultsFilter.update(prev => ({
       ...prev,
-      'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id),
-      'status-codes': this.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id),
-      years: this.tableFilters().years.map((year: { id: number; name: string }) => year.id),
-      'contract-codes': this.tableFilters().contracts.map((contract: GetContracts) => contract.agreement_id),
-      'indicator-codes-filter': this.tableFilters().indicators.map((indicator: GetAllIndicators) => indicator.indicator_id)
+      'lever-codes': (currentTableFilters.levers || []).map((lever: GetLevers) => lever.id),
+      'status-codes': (currentTableFilters.statusCodes || []).map((status: GetAllResultStatus) => status.result_status_id),
+      years: (currentTableFilters.years || []).map((year: { id: number; name: string }) => year.id),
+      'contract-codes': (currentTableFilters.contracts || []).map((contract: GetContracts) => contract.agreement_id),
+      'indicator-codes-filter': (currentTableFilters.indicators || []).map((indicator: GetAllIndicators) => indicator.indicator_id)
     }));
   };
 
@@ -284,9 +288,9 @@ export class ResultsCenterService {
     );
     this.resultsFilter.update(prev => ({
       ...prev,
-      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId]
+      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId],
+      'indicator-codes-filter': []
     }));
-    this.resultsFilter()['indicator-codes-filter'] = [];
     this.tableFilters.update(prev => ({
       ...prev,
       indicators: []
@@ -295,18 +299,15 @@ export class ResultsCenterService {
 
   cleanFilters() {
     this.cleanMultiselects();
-    //? clear table filters and reset sort
     const table = this.tableRef();
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
-    this.applyFilters();
   }
 
   clearAllFilters() {
-    //? Clear all filters and apply them again
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
@@ -315,19 +316,14 @@ export class ResultsCenterService {
       years: [],
       contracts: []
     }));
-    this.applyFilters();
-    //? clear search input
     this.searchInput.set('');
-    //? clear table filters and reset sort
     const table = this.tableRef();
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
-    //? clear indicators tab filter, keeping first one active
     this.onSelectFilterTab(0);
-    //? clear my results filter item
     this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
   }
 
