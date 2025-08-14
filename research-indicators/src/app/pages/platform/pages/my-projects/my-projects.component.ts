@@ -327,10 +327,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  calculateProgressFor(): number {
-    return 75;
-  }
-
   openResult(result: Result) {
     this.router.navigate(['/result', result.result_official_code]);
   }
