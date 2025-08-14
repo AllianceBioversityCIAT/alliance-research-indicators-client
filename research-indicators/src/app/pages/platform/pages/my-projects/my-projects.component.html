@@ -47,7 +47,7 @@
 
             <app-filters-action-buttons
               class="p-3"
-              [applyLabel]="getApplyFiltersLabel()"
+              [applyLabel]="applyFiltersLabel"
               [badge]="myProjectsService.countFiltersSelected()"
               [showOverlayDot]="!!myProjectsService.countFiltersSelected()"
               [showClear]="true"
