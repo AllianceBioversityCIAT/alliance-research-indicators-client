@@ -2,6 +2,7 @@ import { Component, effect, inject, signal, WritableSignal } from '@angular/core
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { AccordionModule } from 'primeng/accordion';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,6 +32,7 @@ import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.com
   selector: 'app-innovation-details',
   imports: [
     MultiSelectModule,
+    AccordionModule,
     TextareaComponent,
     FormHeaderComponent,
     RadioButtonComponent,
