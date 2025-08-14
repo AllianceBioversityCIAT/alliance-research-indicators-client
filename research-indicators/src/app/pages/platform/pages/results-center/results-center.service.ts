@@ -324,7 +324,6 @@ export class ResultsCenterService {
       table.sortOrder = -1;
     }
     this.onSelectFilterTab(0);
-    this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
   }
 
   cleanMultiselects() {
