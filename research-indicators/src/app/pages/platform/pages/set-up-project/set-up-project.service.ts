@@ -9,7 +9,7 @@ import { ActionsService } from '../../../../shared/services/actions.service';
 })
 export class SetUpProjectService {
   showAssignIndicatorModal = signal<boolean>(false);
-  manageIndicatorModal = signal<{ show: boolean; indicator?: GetIndicators }>({ show: false });
+  manageIndicatorModal = signal<{ show: boolean; indicator?: GetIndicators; editingMode?: boolean }>({ show: false });
   showAllIndicators = signal<boolean>(false);
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
