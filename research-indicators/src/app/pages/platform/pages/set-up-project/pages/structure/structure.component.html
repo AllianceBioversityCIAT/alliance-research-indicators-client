@@ -6,7 +6,14 @@
       <p-tabs [value]="0" scrollable class="w-full">
         <p-tablist>
           @for (tab of setUpProjectService.structures(); track tab.id; let i = $index) {
-            <p-tab [value]="i"> {{ tab.name }} </p-tab>
+            <p-tab [value]="i"
+              ><i class="pi pi-sitemap"></i> <span>{{ tab.name }} </span>
+              @if (setUpProjectService.structures().length - 1 === i && !setUpProjectService.showCreateStructure()) {
+                <div class="flex gap-1 pl-2">
+                  <p-button size="small" icon="pi pi-plus" aria-label="Add item" (click)="setUpProjectService.showCreateStructure.set(true)" />
+                </div>
+              }
+            </p-tab>
           }
         </p-tablist>
         <p-tabpanels>
@@ -19,7 +26,7 @@
 
                 <!-- Structure Actions - More compact -->
                 <div class="flex justify-end items-center mb-4">
-                  <div class="flex gap-1">
+                  <div class="flex gap-1 bg-gray-50 shadow-md p-2 rounded-lg">
                     <p-button
                       icon="pi pi-plus"
                       pTooltip="Add new item to this structure"
@@ -31,7 +38,7 @@
                     </p-button>
                     <p-button
                       icon="pi pi-tag"
-                      pTooltip="Add indicators to this structure"
+                      pTooltip="Add indicators to &quot;{{ structure.name }}&quot; structure"
                       tooltipPosition="left"
                       severity="help"
                       [text]="true"
@@ -42,7 +49,7 @@
                     </p-button>
                     <p-button
                       icon="pi pi-pencil"
-                      pTooltip="Edit structure details"
+                      pTooltip="Edit &quot;{{ structure.name }}&quot; structure details"
                       tooltipPosition="left"
                       (onClick)="setUpProjectService.editingElementId.set(structure.id)"
                       severity="secondary"
@@ -51,7 +58,7 @@
                     </p-button>
                     <p-button
                       icon="pi pi-trash"
-                      pTooltip="Delete this structure"
+                      pTooltip="Delete &quot;{{ structure.name }}&quot; structure"
                       tooltipPosition="left"
                       severity="danger"
                       [text]="true"
