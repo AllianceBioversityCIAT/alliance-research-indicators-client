@@ -9,7 +9,13 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SetUpProjectService } from '../../set-up-project.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
-import { AVAILABLE_YEARS, NUMBER_FORMAT_OPTIONS, NUMBER_TYPE_OPTIONS } from '../../../../../../shared/interfaces/project-setup.interface';
+import {
+  AVAILABLE_YEARS,
+  NUMBER_FORMAT_OPTIONS,
+  NUMBER_TYPE_OPTIONS,
+  NumberFormatOption,
+  NumberTypeOption
+} from '../../../../../../shared/interfaces/project-setup.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 
 @Component({
@@ -28,6 +34,20 @@ export class ManageIndicatorModalComponent {
 
   close() {
     this.setUpProjectService.manageIndicatorModal.set({ show: false });
+    this.cleanForm();
+  }
+
+  cleanForm() {
+    this.setUpProjectService.manageIndicatorform.set({
+      name: '',
+      description: '',
+      numberType: '' as unknown as NumberTypeOption,
+      numberFormat: '' as unknown as NumberFormatOption,
+      years: [],
+      targetUnit: '',
+      targetValue: 0,
+      baseline: 0
+    });
   }
 
   async save() {
