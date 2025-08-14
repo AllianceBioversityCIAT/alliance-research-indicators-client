@@ -61,7 +61,7 @@ export default class ResultsCenterComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.resultsCenterService.clearAllFilters();
+    this.resultsCenterService.resetState();
     this.loadPinnedTab();
   }
 
@@ -88,38 +88,59 @@ export default class ResultsCenterComponent implements OnInit {
       if (allPinned) {
         this.pinnedTab.set('all');
         this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
-        this.resultsCenterService.resultsFilter.update(() => ({
-          'create-user-codes': [],
-          'indicator-codes': [],
-          'status-codes': [],
-          'contract-codes': [],
-          'lever-codes': [],
-          years: [],
-          'indicator-codes-filter': [],
-          'indicator-codes-tabs': []
-        }));
+        this.loadAllResults();
       } else if (selfPinned) {
         this.pinnedTab.set('my');
         this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
-        this.resultsCenterService.resultsFilter.update(() => ({
-          'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
-          'indicator-codes': [],
-          'status-codes': [],
-          'contract-codes': [],
-          'lever-codes': [],
-          years: [],
-          'indicator-codes-filter': [],
-          'indicator-codes-tabs': []
-        }));
+        this.loadMyResults();
+      } else {
+        this.loadAllResults();
       }
+    } else {
+      this.pinnedTab.set('all');
+      this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+      this.loadAllResults();
     }
     this.loadingPin.set(false);
   }
 
   onActiveItemChange = (event: MenuItem): void => {
     this.resultsCenterService.myResultsFilterItem.set(event);
-    this.resultsCenterService.onActiveItemChange(event);
+    this.resultsCenterService.clearAllFilters();
+    if (event.id === 'my') {
+      this.loadMyResults();
+    } else {
+      this.loadAllResults();
+    }
   };
+
+  loadMyResults() {
+    this.resultsCenterService.resultsFilter.update(() => ({
+      'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
+      'indicator-codes': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+    this.resultsCenterService.main();
+  }
+
+  loadAllResults() {
+    this.resultsCenterService.resultsFilter.update(() => ({
+      'create-user-codes': [],
+      'indicator-codes': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+    this.resultsCenterService.main();
+  }
 
   async togglePin(tabId: string) {
     try {
@@ -129,6 +150,16 @@ export default class ResultsCenterComponent implements OnInit {
 
       await this.api.PATCH_Configuration(this.tableId, 'tab', pinValue);
       this.pinnedTab.set(newPinnedTab);
+
+      if (newPinnedTab === 'all') {
+        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+      } else {
+        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
+      }
+
+      setTimeout(() => {
+        this.resultsCenterService.cleanMultiselects();
+      }, 0);
     } catch (error) {
       console.error('Error updating pinned tab:', error);
     } finally {
