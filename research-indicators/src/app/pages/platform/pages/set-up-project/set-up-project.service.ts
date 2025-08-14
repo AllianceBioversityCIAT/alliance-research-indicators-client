@@ -3,6 +3,8 @@ import { ApiService } from '../../../../shared/services/api.service';
 import { Indicator, IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
 import { ActionsService } from '../../../../shared/services/actions.service';
+import { NumberFormatOption, NumberTypeOption } from '../../../../shared/interfaces/project-setup.interface';
+import { PostIndicator } from '../../../../shared/interfaces/post-indicator.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +22,17 @@ export class SetUpProjectService {
     target: { type: 'structure' | 'item'; structureIndex: number; itemIndex: number };
   }>({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } });
   indicatorList = signal<GetIndicators[]>([]);
+
+  manageIndicatorform = signal<PostIndicator>({
+    name: '',
+    description: '',
+    numberType: '' as unknown as NumberTypeOption,
+    numberFormat: '' as unknown as NumberFormatOption,
+    years: [],
+    targetUnit: '',
+    targetValue: 0,
+    baseline: 0
+  });
 
   api = inject(ApiService);
   actions = inject(ActionsService);

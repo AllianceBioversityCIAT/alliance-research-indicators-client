@@ -59,7 +59,7 @@
                   [text]="true"
                   size="small"
                   pTooltip="Edit indicator"
-                  (onClick)="setUpProjectService.manageIndicatorModal.set({ show: true, editingMode: true, indicator })">
+                  (onClick)="onEditIndicator(indicator)">
                 </p-button>
                 <p-button
                   icon="pi pi-trash"
