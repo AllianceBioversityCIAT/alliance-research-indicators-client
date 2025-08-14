@@ -61,7 +61,14 @@
                   pTooltip="Edit indicator"
                   (onClick)="setUpProjectService.manageIndicatorModal.set({ show: true, indicator: indicator })">
                 </p-button> -->
-                <!-- <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small" pTooltip="Delete this indicator"> </p-button> -->
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  size="small"
+                  pTooltip="Delete this indicator"
+                  (onClick)="onDeleteIndicator(indicator.id)">
+                </p-button>
               </div>
             </div>
           </div>
