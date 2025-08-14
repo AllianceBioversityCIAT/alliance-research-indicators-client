@@ -171,18 +171,6 @@ export class ResultsCenterService {
     return filters;
   });
 
-  onChangeFilters = effect(
-    async () => {
-      this.loading.set(true);
-      const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
-      this.list.set(response());
-      this.loading.set(false);
-    },
-    {
-      allowSignalWrites: true
-    }
-  );
-
   countFiltersSelected = computed(() => {
     const activeFilters = Object.entries(this.resultsFilter()).filter(
       ([key, arr]) => !['create-user-codes', 'indicator-codes-tabs'].includes(key) && Array.isArray(arr) && arr.length > 0
@@ -225,6 +213,19 @@ export class ResultsCenterService {
     return severityMap[status];
   }
 
+  async main() {
+    this.loading.set(true);
+    try {
+      const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
+      this.list.set(response());
+    } catch (error) {
+      console.error('Error loading results:', error);
+      this.list.set([]);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
   onActiveItemChange = (event: MenuItem): void => {
     this.myResultsFilterItem.set(event);
 
@@ -253,7 +254,8 @@ export class ResultsCenterService {
       table.first = 0;
     }
 
-    this.applyFilters();
+    // Cargar datos manualmente
+    this.main();
   };
 
   showFilterSidebar(): void {
@@ -265,14 +267,23 @@ export class ResultsCenterService {
   }
 
   applyFilters = () => {
+    const currentTableFilters = this.tableFilters();
+
+    if (!currentTableFilters) {
+      return;
+    }
+
     this.resultsFilter.update(prev => ({
       ...prev,
-      'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id),
-      'status-codes': this.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id),
-      years: this.tableFilters().years.map((year: { id: number; name: string }) => year.id),
-      'contract-codes': this.tableFilters().contracts.map((contract: GetContracts) => contract.agreement_id),
-      'indicator-codes-filter': this.tableFilters().indicators.map((indicator: GetAllIndicators) => indicator.indicator_id)
+      'lever-codes': (currentTableFilters.levers || []).map((lever: GetLevers) => lever.id),
+      'status-codes': (currentTableFilters.statusCodes || []).map((status: GetAllResultStatus) => status.result_status_id),
+      years: (currentTableFilters.years || []).map((year: { id: number; name: string }) => year.id),
+      'contract-codes': (currentTableFilters.contracts || []).map((contract: GetContracts) => contract.agreement_id),
+      'indicator-codes-filter': (currentTableFilters.indicators || []).map((indicator: GetAllIndicators) => indicator.indicator_id)
     }));
+
+    // Cargar datos manualmente después de aplicar filtros
+    this.main();
   };
 
   onSelectFilterTab(indicatorId: number) {
@@ -284,9 +295,9 @@ export class ResultsCenterService {
     );
     this.resultsFilter.update(prev => ({
       ...prev,
-      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId]
+      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId],
+      'indicator-codes-filter': []
     }));
-    this.resultsFilter()['indicator-codes-filter'] = [];
     this.tableFilters.update(prev => ({
       ...prev,
       indicators: []
@@ -295,46 +306,52 @@ export class ResultsCenterService {
 
   cleanFilters() {
     this.cleanMultiselects();
-    //? clear table filters and reset sort
+
+    this.tableFilters.set(new TableFilters());
+
+    this.searchInput.set('');
+
     const table = this.tableRef();
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
-    this.applyFilters();
   }
 
   clearAllFilters() {
-    //? Clear all filters and apply them again
+    this.cleanMultiselects();
+
     this.tableFilters.set(new TableFilters());
-    this.tableFilters.update(prev => ({
-      ...prev,
-      indicators: [],
-      statusCodes: [],
-      years: [],
-      contracts: []
-    }));
-    this.applyFilters();
-    //? clear search input
+
     this.searchInput.set('');
-    //? clear table filters and reset sort
+
     const table = this.tableRef();
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
-    //? clear indicators tab filter, keeping first one active
+
     this.onSelectFilterTab(0);
-    //? clear my results filter item
-    this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
   }
 
   cleanMultiselects() {
     const refs = this.multiselectRefs();
     Object.values(refs).forEach(multiselect => {
-      multiselect.clear();
+      if (multiselect && typeof multiselect.clear === 'function') {
+        multiselect.clear();
+      }
     });
+  }
+
+  resetState() {
+    this.clearAllFilters();
+    this.list.set([]);
+    this.loading.set(true);
+    this.showFiltersSidebar.set(false);
+    this.showConfigurationSidebar.set(false);
+    this.multiselectRefs.set({});
+    this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
   }
 }
