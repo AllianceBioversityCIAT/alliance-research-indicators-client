@@ -79,7 +79,7 @@
       width: 113px;
     }
 
-    .option.active[data-route='/my-projects']::after {
+    .option.active[data-route='/projects']::after {
       width: 97px;
     }
 
@@ -127,6 +127,14 @@
 
     @media (max-width: 1200px) {
       gap: 15px;
+    }
+  }
+
+  p-button {
+    ::ng-deep .p-button {
+      .p-button-label {
+        line-height: 1;
+      }
     }
   }
 

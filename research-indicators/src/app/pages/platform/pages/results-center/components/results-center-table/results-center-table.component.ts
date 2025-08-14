@@ -14,9 +14,23 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 import { PopoverModule } from 'primeng/popover';
 import { Result } from '@shared/interfaces/result/result.interface';
+import { FiltersActionButtonsComponent } from '../../../../../../shared/components/filters-action-buttons/filters-action-buttons.component';
+import { SearchExportControlsComponent } from '../../../../../../shared/components/search-export-controls/search-export-controls.component';
 @Component({
   selector: 'app-results-center-table',
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, PopoverModule, InputTextModule, TagModule, MenuModule, CustomTagComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TableModule,
+    ButtonModule,
+    PopoverModule,
+    InputTextModule,
+    TagModule,
+    MenuModule,
+    CustomTagComponent,
+    FiltersActionButtonsComponent,
+    SearchExportControlsComponent
+  ],
   templateUrl: './results-center-table.component.html'
 })
 export class ResultsCenterTableComponent implements AfterViewInit {

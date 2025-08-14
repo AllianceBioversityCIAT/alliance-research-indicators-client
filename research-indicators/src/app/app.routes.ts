@@ -144,10 +144,10 @@ export const routes: Routes = [
         }
       },
       {
-        path: 'my-projects',
+        path: 'projects',
         loadComponent: () => import('@platform/pages/my-projects/my-projects.component'),
         data: {
-          title: 'My Projects',
+          title: 'Projects',
           hideBackButton: true
         }
       },

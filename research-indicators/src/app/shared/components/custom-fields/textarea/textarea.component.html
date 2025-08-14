@@ -29,7 +29,10 @@
         [disabled]="disabled"
         [(ngModel)]="value"
         (ngModelChange)="setValue($event)"
-        [style]="isInvalid() ? { border: '2px solid #E69F00', resize: 'none' } : { resize: 'none' }"
+        (keydown)="
+          shouldPreventInput($event, body().value || null) ? $event.preventDefault() : shouldPreventTextInput($event) ? $event.preventDefault() : null
+        "
+        [style]="isInvalid() || showMaxReachedMessage() ? { border: '2px solid #E69F00', resize: 'none' } : { resize: 'none' }"
         [placeholder]="placeholder">
       </textarea>
       @if (helperText) {
@@ -39,6 +42,12 @@
         <div class="flex items-center gap-1 text-[#E69F00]  {{ size || 'text-sm  mt-1' }}">
           <i class="material-symbols-rounded !text-base">warning</i>
           <span>This field is required</span>
+        </div>
+      }
+      @if (showMaxReachedMessage()) {
+        <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+          <i class="material-symbols-rounded !text-base">warning</i>
+          <span>Maximum reached</span>
         </div>
       }
     </div>

@@ -47,4 +47,6 @@ export type ControlListServices =
   | 'toolFunctions'
   | 'innResults'
   | 'applicationOptions'
+  | 'levers'
+  | 'projectStatus'
   | '';

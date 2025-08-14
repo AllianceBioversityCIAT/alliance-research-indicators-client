@@ -1,27 +1,45 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
-import { GetProjectDetail } from '@shared/interfaces/get-project-detail.interface';
+import { GetContractsByUser, IndicatorElement } from '@shared/interfaces/get-contracts-by-user.interface';
+import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/get-project-detail.interface';
+import { FindContracts } from '@shared/interfaces/find-contracts.interface';
+import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
+import { ProjectUtilsService } from '@shared/services/project-utils.service';
 
 @Component({
   selector: 'app-project-item',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, CustomTagComponent],
   templateUrl: './project-item.component.html',
   styleUrl: './project-item.component.scss'
 })
 export class ProjectItemComponent implements OnInit {
   @Input() isHeader = false;
-  @Input() project: GetContractsByUser | GetProjectDetail = {};
+  @Input() project: GetContractsByUser | GetProjectDetail | FindContracts = {};
+
+  private projectUtils = inject(ProjectUtilsService);
+
+  // Local property for processed indicators
+  processedIndicators: (IndicatorElement | GetProjectDetailIndicator)[] = [];
 
   ngOnInit(): void {
-    const order = ['Capacity Sharing for Development', 'Innovation Development', 'Knowledge Product', 'Innovation Use', 'OICRS', 'Policy Change'];
+    if (this.project.indicators && this.project.indicators.length > 0) {
+      // Create a local copy of indicators and process them
+      this.processedIndicators = this.projectUtils.sortIndicators([...this.project.indicators]);
+    } else {
+      this.processedIndicators = [];
+    }
+  }
 
-    this.project.indicators = this.project.indicators
-      ?.map(indicator => ({
-        ...indicator,
-        indicator_id: indicator.indicator.indicator_id
-      }))
-      .sort((a, b) => order.indexOf(a.indicator.name) - order.indexOf(b.indicator.name));
+  getStatusDisplay() {
+    return this.projectUtils.getStatusDisplay(this.project);
+  }
+
+  getLeverName(): string {
+    return this.projectUtils.getLeverName(this.project);
+  }
+
+  hasField(fieldName: string): boolean {
+    return this.projectUtils.hasField(this.project, fieldName);
   }
 }

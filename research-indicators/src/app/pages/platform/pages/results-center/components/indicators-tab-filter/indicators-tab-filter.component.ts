@@ -31,7 +31,6 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
 
         this.resizeObserver.observe(this.filtersContainer.nativeElement);
       } else {
-        // Fallback para navegadores que no soportan ResizeObserver
         window.addEventListener('resize', () => this.updateArrowVisibility());
       }
 
