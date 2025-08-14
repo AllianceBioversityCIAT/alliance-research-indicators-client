@@ -1,6 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import ContributionsToIndicatorsComponent from './contributions-to-indicators.component';
+import {
+  cacheServiceMock,
+  submissionServiceMock
+} from 'src/app/testing/mock-services.mock';
 
-import { ContributionsToIndicatorsComponent } from './contributions-to-indicators.component';
+const versionWatcherServiceMock = {
+  onVersionChange: jest.fn()
+};
+
+import { CacheService } from '@shared/services/cache/cache.service';
+import { SubmissionService } from '@shared/services/submission.service';
+import { VersionWatcherService } from '@shared/services/version-watcher.service';
 
 describe('ContributionsToIndicatorsComponent', () => {
   let component: ContributionsToIndicatorsComponent;
@@ -8,13 +19,16 @@ describe('ContributionsToIndicatorsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ContributionsToIndicatorsComponent]
-    })
-    .compileComponents();
+      imports: [ContributionsToIndicatorsComponent],
+      providers: [
+        { provide: CacheService, useValue: cacheServiceMock },
+        { provide: SubmissionService, useValue: submissionServiceMock },
+        { provide: VersionWatcherService, useValue: versionWatcherServiceMock }
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ContributionsToIndicatorsComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
