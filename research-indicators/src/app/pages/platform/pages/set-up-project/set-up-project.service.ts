@@ -23,6 +23,19 @@ export class SetUpProjectService {
 
   api = inject(ApiService);
   actions = inject(ActionsService);
+  mvpSidebarSections = signal<
+    {
+      label: string;
+      path: string;
+      greenCheckKey: string;
+    }[]
+  >([
+    {
+      label: 'Contributions to indicators',
+      path: 'contributions-to-indicators',
+      greenCheckKey: ''
+    }
+  ]);
 
   async getIndicators() {
     const res = await this.api.GET_Indicators();

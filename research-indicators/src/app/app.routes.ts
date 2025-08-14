@@ -133,6 +133,14 @@ export const routes: Routes = [
             data: {
               title: RESULT_INFORMATION_TITLE
             }
+          },
+          {
+            path: 'contributions-to-indicators',
+            loadComponent: () => import('@platform/pages/result/pages/contributions-to-indicators/contributions-to-indicators.component'),
+            canMatch: [mvpGuard],
+            data: {
+              title: RESULT_INFORMATION_TITLE
+            }
           }
         ]
       },

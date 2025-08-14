@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
@@ -11,6 +11,7 @@ import { ApiService } from '../../services/api.service';
 import { GetMetadataService } from '../../services/get-metadata.service';
 import { SubmissionService } from '../../services/submission.service';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
+import { SetUpProjectService } from '../../../pages/platform/pages/set-up-project/set-up-project.service';
 
 interface SubmissionAlertData {
   severity: 'success' | 'warning';
@@ -35,11 +36,12 @@ interface SidebarOption {
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })
-export class ResultSidebarComponent {
+export class ResultSidebarComponent implements OnInit {
   cache = inject(CacheService);
   actions = inject(ActionsService);
   allModalsService = inject(AllModalsService);
   api = inject(ApiService);
+  setUpProjectService = inject(SetUpProjectService);
   metadata = inject(GetMetadataService);
   router = inject(Router);
   route = inject(ActivatedRoute);
@@ -112,6 +114,10 @@ export class ResultSidebarComponent {
       greenCheckKey: 'ip_rights'
     }
   ]);
+
+  ngOnInit() {
+    if (this.cache.onlyMvpUsers()) this.allOptions.update(prev => [...prev, ...this.setUpProjectService.mvpSidebarSections()]);
+  }
 
   submissionAlertData = computed(
     (): SubmissionAlertData => ({
