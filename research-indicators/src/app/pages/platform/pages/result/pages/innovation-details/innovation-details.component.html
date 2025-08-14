@@ -4,9 +4,12 @@
     <p-accordion [value]="0">
       <!-- Innovation Details -->
       <p-accordion-panel value="0" class="!border-none">
-        <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !py-6 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0"
-          >INNOVATIONS DETAILS</p-accordion-header
-        >
+        <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+            <span>INNOVATIONS DETAILS</span>
+          </div>
+        </p-accordion-header>
         <p-accordion-content>
           <div class="flex flex-col bg-[#fcfcfc] gap-[18px] rounded-[10px] p-[10px]">
             <app-input
@@ -178,11 +181,14 @@
 
       <!-- Anticipated Users -->
       <p-accordion-panel value="1" class="!pt-4 !border-none">
-        <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !py-6 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0"
-          >ANTICIPATED USERS</p-accordion-header
-        >
+        <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+            <span>ANTICIPATED USERS</span>
+          </div>
+        </p-accordion-header>
         <p-accordion-content>
-          <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px] pb-4 mb-2">
+          <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px]">
             <app-radio-button
               label="Who would be the user(s) of this Innovation?"
               [isRequired]="true"
@@ -285,11 +291,14 @@
       @if (selectedLevel && selectedLevel.level >= 7 && selectedStep()) {
         <!-- Knowledge Sharing -->
         <p-accordion-panel value="2" class="!pt-4 !border-none">
-          <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !py-6 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0"
-            >KNOWLEDGE SHARING</p-accordion-header
-          >
+          <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
+            <div class="flex items-center gap-3">
+              <div class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+              <span>KNOWLEDGE SHARING</span>
+            </div>
+          </p-accordion-header>
           <p-accordion-content>
-            <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-4 mb-2">
+            <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px]">
               <div class="flex flex-col gap-[18px]">
                 <div class="flex flex-col xl:flex-row">
                   <div class="flex-1">
@@ -490,11 +499,14 @@
 
         <!-- Scaling Potential -->
         <p-accordion-panel value="3" class="!pt-4 !border-none">
-          <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !py-6 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0"
-            >SCALING POTENTIAL</p-accordion-header
-          >
+          <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
+            <div class="flex items-center gap-3">
+              <div class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+              <span>SCALING POTENTIAL</span>
+            </div>
+          </p-accordion-header>
           <p-accordion-content>
-            <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px] pb-4 mb-2">
+            <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px]">
               <span class="text-[#1689CA] text-[16px] leading-[17px] pb-3 font-semibold">Formulation</span>
               <div class="flex flex-col xl:flex-row xl:gap-[18px]">
                 <div class="flex-1 pb-5 xl:max-w-1/2 pr-18">

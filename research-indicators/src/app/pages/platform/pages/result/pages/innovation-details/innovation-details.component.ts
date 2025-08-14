@@ -76,6 +76,7 @@ export default class InnovationDetailsComponent {
 
   loading = signal(false);
   selectedStep = signal<number | null>(null);
+  flag = signal<boolean>(true);
   scalingHelperText =
     'You may consult the Alliance’s <a class="text-[#1689CA] underline" href="https://alliancebioversityciat.org/tools-innovations" target="_blank"> Tools and Innovations list</a>.';
   scalingHelperText2 =
