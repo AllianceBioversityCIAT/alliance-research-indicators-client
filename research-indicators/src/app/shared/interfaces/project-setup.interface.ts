@@ -34,7 +34,7 @@ export interface ProjectIndicator {
 }
 
 export type NumberTypeOption = 'sum' | 'average' | 'count' | 'yes/no';
-export type NumberFormatOption = 'number' | 'decimal';
+export type NumberFormatOption = 'number (Integer)' | 'decimal';
 
 export const NUMBER_TYPE_OPTIONS: { label: string; value: NumberTypeOption }[] = [
   { label: 'Sum', value: 'sum' },
@@ -44,7 +44,7 @@ export const NUMBER_TYPE_OPTIONS: { label: string; value: NumberTypeOption }[] =
 ];
 
 export const NUMBER_FORMAT_OPTIONS: { label: string; value: NumberFormatOption }[] = [
-  { label: 'Number', value: 'number' },
+  { label: 'Number', value: 'number (Integer)' },
   { label: 'Decimal', value: 'decimal' }
 ];
 
