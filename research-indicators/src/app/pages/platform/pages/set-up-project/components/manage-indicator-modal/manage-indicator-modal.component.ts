@@ -55,7 +55,7 @@ export class ManageIndicatorModalComponent {
 
   async save() {
     const value = this.setUpProjectService.manageIndicatorform();
-    if (!value.name || !value.description || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit) {
+    if (!value.name || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit) {
       return;
     }
     const response = await this.api.POST_Indicator({ ...value, agreement_id: this.setUpProjectService.currentAgreementId() as number });
