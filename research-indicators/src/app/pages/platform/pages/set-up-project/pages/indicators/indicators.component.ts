@@ -42,7 +42,8 @@ export default class IndicatorsComponent {
       targetValue: Number(indicator.targetValue),
       baseline: Number(indicator.baseline),
       agreement_id: this.setUpProjectService.currentAgreementId() as number,
-      code: indicator.code
+      code: indicator.code,
+      id: indicator.id
     });
   };
 }

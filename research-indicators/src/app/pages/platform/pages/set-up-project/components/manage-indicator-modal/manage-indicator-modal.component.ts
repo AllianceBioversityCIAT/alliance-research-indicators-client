@@ -48,7 +48,8 @@ export class ManageIndicatorModalComponent {
       targetValue: 0,
       baseline: 0,
       agreement_id: this.setUpProjectService.currentAgreementId() as number,
-      code: ''
+      code: '',
+      id: null
     });
   }
 
