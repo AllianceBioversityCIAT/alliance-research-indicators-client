@@ -6,7 +6,9 @@
       <p-accordion-panel value="0" class="!border-none">
         <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
           <div class="flex items-center gap-3">
-            <div class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+            @if (flag()) {
+              <div class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+            }
             <span>INNOVATIONS DETAILS</span>
           </div>
         </p-accordion-header>
@@ -183,7 +185,9 @@
       <p-accordion-panel value="1" class="!pt-8 !border-none">
         <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
           <div class="flex items-center gap-3">
-            <div class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+            @if (flag()) {
+              <div class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+            }
             <span>ANTICIPATED USERS</span>
           </div>
         </p-accordion-header>
@@ -293,7 +297,10 @@
         <p-accordion-panel value="2" class="!pt-8 !border-none">
           <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
             <div class="flex items-center gap-3">
-              <div class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+              @if (flag()) {
+                <div
+                  class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+              }
               <span>KNOWLEDGE SHARING</span>
             </div>
           </p-accordion-header>
@@ -501,7 +508,10 @@
         <p-accordion-panel value="3" class="!pt-8 !border-none">
           <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
             <div class="flex items-center gap-3">
-              <div class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+              @if (flag()) {
+                <div
+                  class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}"></div>
+              }
               <span>SCALING POTENTIAL</span>
             </div>
           </p-accordion-header>
