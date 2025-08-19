@@ -302,6 +302,8 @@ export class ResultsCenterService {
       ...prev,
       indicators: []
     }));
+
+    this.applyFilters();
   }
 
   cleanFilters() {
