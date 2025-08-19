@@ -34,6 +34,7 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
 
   onProjectChange(event: AllianceAlignmentContract) {
     this.currentProject.set(event);
+    this.selectedProjects.set([]);
     this.getIndicators();
   }
 

@@ -3,25 +3,29 @@
   <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">CONTRIBUTIONS TO INDICATORS</div>
 
-    <p-tabs [value]="currentProject()?.contract_id ?? ''" scrollable>
+    <p-tabs [value]="currentProject()?.contract_id ?? ''" scrollable class="mb-6">
       <p-tablist>
         @for (tab of projects(); track tab.contract_id) {
-          <p-tab [value]="tab.contract_id" (click)="onProjectChange(tab)" (keydown.enter)="onProjectChange(tab)">
+          <p-tab [value]="tab.contract_id" (click)="onProjectChange(tab)" (keydown.enter)="onProjectChange(tab)" class="mx-1">
             {{ tab.contract_id }}
           </p-tab>
         }
       </p-tablist>
     </p-tabs>
 
-    <div class="flex flex-col gap-4">Select indicators</div>
-
-    <p-multiSelect
-      [options]="currentIndicators()"
-      [(ngModel)]="selectedProjects"
-      optionLabel="name"
-      optionValue="id"
-      [filter]="true"
-      [filterBy]="'name'" />
+    <div class="flex flex-col gap-4 mb-4">
+      <label for="indicators-multiselect" class="block text-sm font-medium text-gray-700">Select indicators</label>
+      <p-multiSelect
+        id="indicators-multiselect"
+        placeholder="Select indicators"
+        [options]="currentIndicators()"
+        [(ngModel)]="selectedProjects"
+        optionLabel="name"
+        optionValue="id"
+        [filter]="true"
+        [filterBy]="'name'"
+        class="w-full" />
+    </div>
   </div>
 
   <app-navigation-buttons (back)="saveData('back')" (next)="saveData('next')" (save)="saveData()" />
