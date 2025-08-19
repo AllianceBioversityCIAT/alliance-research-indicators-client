@@ -6,7 +6,7 @@
   [header]="editingMode ? 'Edit Indicator' : 'Create New Indicator'"
   [modal]="true"
   [closable]="true"
-  [style]="{ width: '550px', maxHeight: '85vh' }"
+  [style]="{ width: '800px', maxHeight: '90vh' }"
   [draggable]="false">
   <div class="indicator-form">
     <div class="grid grid-cols-1 gap-3 mb-4">
@@ -76,6 +76,8 @@
             optionValue="value"
             placeholder="Select years"
             [showToggleAll]="true"
+            appendTo="body"
+            panelClass="dropdown-up"
             class="w-full">
           </p-multiSelect>
         </div>
