@@ -1,7 +1,7 @@
 <div class="app-page-wrapper">
   <app-form-header />
   <div class="flex flex-col gap-5">
-    <p-accordion [value]="'0'">
+    <p-accordion [value]="['0']" multiple="true">
       <ng-template #globalToggleIcon let-active="active">
         @if (active) {
           <i class="pi pi-angle-up text-[#112F5C] bg-[#E8EBED] rounded-full p-1 !text-[18px]"></i>
