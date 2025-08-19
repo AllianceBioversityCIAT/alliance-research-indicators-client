@@ -1,11 +1,11 @@
 import { GetSdgs } from './get-sdgs.interface';
 
 export interface GetAllianceAlignment {
-  contracts: Contract[];
+  contracts: AllianceAlignmentContract[];
   result_sdgs: GetSdgs[];
 }
 
-interface Contract {
+export interface AllianceAlignmentContract {
   is_active: boolean;
   result_contract_id: number;
   result_id: number;
