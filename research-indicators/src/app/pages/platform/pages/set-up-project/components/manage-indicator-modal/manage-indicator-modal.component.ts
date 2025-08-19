@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -16,7 +16,6 @@ import {
   NumberFormatOption,
   NumberTypeOption
 } from '../../../../../../shared/interfaces/project-setup.interface';
-import { PostIndicator } from '../../../../../../shared/interfaces/post-indicator.interface';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 
 @Component({
@@ -33,27 +32,33 @@ export class ManageIndicatorModalComponent {
   numberFormatOptions = NUMBER_FORMAT_OPTIONS;
   availableYears = AVAILABLE_YEARS.map(year => ({ label: String(year), value: year }));
 
-  form = signal<PostIndicator>({
-    name: '',
-    description: '',
-    numberType: '' as unknown as NumberTypeOption,
-    numberFormat: '' as unknown as NumberFormatOption,
-    years: [],
-    targetUnit: '',
-    targetValue: 0,
-    baseline: 0
-  });
-
   close() {
     this.setUpProjectService.manageIndicatorModal.set({ show: false });
+    this.cleanForm();
+  }
+
+  cleanForm() {
+    this.setUpProjectService.manageIndicatorform.set({
+      name: '',
+      description: '',
+      numberType: '' as unknown as NumberTypeOption,
+      numberFormat: '' as unknown as NumberFormatOption,
+      years: [],
+      targetUnit: '',
+      targetValue: 0,
+      baseline: 0,
+      agreement_id: this.setUpProjectService.currentAgreementId() as number,
+      code: '',
+      id: null
+    });
   }
 
   async save() {
-    const value = this.form();
+    const value = this.setUpProjectService.manageIndicatorform();
     if (!value.name || !value.description || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit) {
       return;
     }
-    const response = await this.api.POST_Indicator(value);
+    const response = await this.api.POST_Indicator({ ...value, agreement_id: this.setUpProjectService.currentAgreementId() as number });
     if (!response.successfulRequest) {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to create indicator' });
       return;

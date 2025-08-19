@@ -74,6 +74,7 @@ export default class SetUpProjectComponent implements OnInit {
   ngOnInit(): void {
     const firstChildPath = this.activatedRoute.firstChild?.snapshot.routeConfig?.path;
     this.routeid.set(this.activatedRoute.snapshot.params['id']);
+    this.setUpProjectService.currentAgreementId.set(this.activatedRoute.snapshot.params['id']);
     if (firstChildPath === 'indicators') {
       this.activeRoute = 'indicators';
     } else {
@@ -97,7 +98,8 @@ export default class SetUpProjectComponent implements OnInit {
     years: [],
     targetUnit: '',
     targetValue: null,
-    baseline: null
+    baseline: null,
+    agreement_id: this.routeid() as unknown as number
   });
 
   // Estados de UI

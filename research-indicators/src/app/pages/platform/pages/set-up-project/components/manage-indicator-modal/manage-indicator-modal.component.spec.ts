@@ -21,7 +21,18 @@ describe('ManageIndicatorModalComponent', () => {
       showAllIndicators: signal(false),
       editingElementId: signal(null),
       assignIndicatorsModal: signal({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } }),
-      indicatorList: signal([])
+      indicatorList: signal([]),
+      manageIndicatorform: signal({
+        name: '',
+        description: '',
+        numberType: '',
+        numberFormat: '',
+        years: [],
+        targetUnit: '',
+        targetValue: 0,
+        baseline: 0
+      }),
+      getIndicators: jest.fn()
     };
 
     mockActionsService = {

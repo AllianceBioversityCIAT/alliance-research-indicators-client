@@ -53,15 +53,22 @@
                 </div>
               </div>
               <div class="flex gap-1 flex-shrink-0">
-                <!-- <p-button
+                <p-button
                   icon="pi pi-pencil"
                   severity="secondary"
                   [text]="true"
                   size="small"
                   pTooltip="Edit indicator"
-                  (onClick)="setUpProjectService.manageIndicatorModal.set({ show: true, indicator: indicator })">
-                </p-button> -->
-                <!-- <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small" pTooltip="Delete this indicator"> </p-button> -->
+                  (onClick)="onEditIndicator(indicator)">
+                </p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  size="small"
+                  pTooltip="Delete this indicator ({{ indicator.name }})"
+                  (onClick)="onDeleteIndicator(indicator.id)">
+                </p-button>
               </div>
             </div>
           </div>

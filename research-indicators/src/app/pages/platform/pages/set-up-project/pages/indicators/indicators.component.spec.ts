@@ -23,11 +23,24 @@ describe('IndicatorsComponent', () => {
       editingElementId: signal(null),
       assignIndicatorsModal: signal({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } }),
       indicatorList: signal([]),
-      loadingStructures: signal(false)
+      loadingStructures: signal(false),
+      manageIndicatorform: signal({
+        name: '',
+        description: '',
+        numberType: '',
+        numberFormat: '',
+        years: [],
+        targetUnit: '',
+        targetValue: 0,
+        baseline: 0
+      }),
+      getIndicators: jest.fn(),
+      getStructures: jest.fn()
     };
 
     mockApiService = {
-      POST_Indicator: jest.fn().mockResolvedValue({ successfulRequest: true, data: {} })
+      POST_Indicator: jest.fn().mockResolvedValue({ successfulRequest: true, data: {} }),
+      DELETE_Indicator: jest.fn().mockResolvedValue({ successfulRequest: true, data: {} })
     };
 
     mockActionsService = {

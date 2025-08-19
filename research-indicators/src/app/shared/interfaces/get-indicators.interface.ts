@@ -8,4 +8,5 @@ export interface GetIndicators {
   targetValue: string;
   baseline: string;
   years: number[];
+  code: string;
 }

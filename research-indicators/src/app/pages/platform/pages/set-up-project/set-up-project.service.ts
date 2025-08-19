@@ -3,29 +3,58 @@ import { ApiService } from '../../../../shared/services/api.service';
 import { Indicator, IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
 import { ActionsService } from '../../../../shared/services/actions.service';
+import { NumberFormatOption, NumberTypeOption } from '../../../../shared/interfaces/project-setup.interface';
+import { PostIndicator } from '../../../../shared/interfaces/post-indicator.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SetUpProjectService {
   showAssignIndicatorModal = signal<boolean>(false);
-  manageIndicatorModal = signal<{ show: boolean; indicator?: GetIndicators }>({ show: false });
+  manageIndicatorModal = signal<{ show: boolean; indicator?: GetIndicators; editingMode?: boolean }>({ show: false });
   showAllIndicators = signal<boolean>(false);
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
   showCreateStructure = signal<boolean>(false);
   loadingStructures = signal<boolean>(false);
+  currentAgreementId = signal<number | string | null>(null);
   assignIndicatorsModal = signal<{
     show: boolean;
     target: { type: 'structure' | 'item'; structureIndex: number; itemIndex: number };
   }>({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } });
   indicatorList = signal<GetIndicators[]>([]);
 
+  manageIndicatorform = signal<PostIndicator>({
+    name: '',
+    description: '',
+    numberType: '' as unknown as NumberTypeOption,
+    numberFormat: '' as unknown as NumberFormatOption,
+    years: [],
+    targetUnit: '',
+    targetValue: 0,
+    baseline: 0,
+    agreement_id: this.currentAgreementId() as number,
+    code: ''
+  });
+
   api = inject(ApiService);
   actions = inject(ActionsService);
+  mvpSidebarSections = signal<
+    {
+      label: string;
+      path: string;
+      greenCheckKey: string;
+    }[]
+  >([
+    {
+      label: 'Contributions to indicators',
+      path: 'contributions-to-indicators',
+      greenCheckKey: ''
+    }
+  ]);
 
   async getIndicators() {
-    const res = await this.api.GET_Indicators();
+    const res = await this.api.GET_Indicators(this.currentAgreementId() as number);
     this.indicatorList.set(res.data);
   }
 
@@ -77,7 +106,7 @@ export class SetUpProjectService {
   async getStructures() {
     this.loadingStructures.set(true);
     try {
-      const res = await this.api.GET_Structures();
+      const res = await this.api.GET_Structures(this.currentAgreementId() as number);
       this.structures.set(res.data.structures);
     } catch {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });

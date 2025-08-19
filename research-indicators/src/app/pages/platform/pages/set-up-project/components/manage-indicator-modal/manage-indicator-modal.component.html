@@ -1,16 +1,23 @@
+@let editingMode = this.setUpProjectService.manageIndicatorModal().editingMode;
+@let form = this.setUpProjectService.manageIndicatorform;
 <p-dialog
   [(visible)]="this.setUpProjectService.manageIndicatorModal().show"
   (onHide)="close()"
-  [header]="'Create New Indicator'"
+  [header]="editingMode ? 'Edit Indicator' : 'Create New Indicator'"
   [modal]="true"
   [closable]="true"
-  [style]="{ width: '550px', maxHeight: '85vh' }"
+  [style]="{ width: '800px', maxHeight: '90vh' }"
   [draggable]="false">
   <div class="indicator-form">
     <div class="grid grid-cols-1 gap-3 mb-4">
       <div>
         <label for="ind-name" class="block text-sm font-medium text-gray-700 mb-2">Name *</label>
         <input id="ind-name" pInputText [(ngModel)]="form().name" placeholder="Indicator name" class="w-full" />
+      </div>
+
+      <div>
+        <label for="ind-code" class="block text-sm font-medium text-gray-700 mb-2">Code *</label>
+        <input id="ind-code" pInputText [(ngModel)]="form().code" placeholder="Indicator code" class="w-full" />
       </div>
 
       <div>
@@ -69,6 +76,7 @@
             optionValue="value"
             placeholder="Select years"
             [showToggleAll]="true"
+            appendTo="body"
             class="w-full">
           </p-multiSelect>
         </div>
@@ -101,6 +109,7 @@
 
   <div class="flex justify-end gap-2 pt-3 border-t border-gray-200">
     <p-button label="Cancel" severity="secondary" size="small" pTooltip="Cancel indicator creation" (onClick)="close()"> </p-button>
-    <p-button label="Create Indicator" size="small" pTooltip="Save and create new indicator" (onClick)="save()"> </p-button>
+    <p-button [label]="(editingMode ? 'Update' : 'Create') + ' Indicator'" size="small" pTooltip="Save and create new indicator" (onClick)="save()">
+    </p-button>
   </div>
 </p-dialog>
