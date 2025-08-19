@@ -572,10 +572,8 @@ export class ApiService {
     return this.TP.post(url(), body);
   };
 
-  //TODO >>>>>>>>>>>> not created yet <<<<<<<<<<<<<<<<<
-
   DELETE_Indicator = (id: number) => {
-    const url = () => `project-indicators/delete/${id}`;
+    const url = () => `project-indicators/${id}/delete`;
     return this.TP.delete(url(), {});
   };
 

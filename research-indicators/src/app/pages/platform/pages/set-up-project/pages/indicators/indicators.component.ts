@@ -19,17 +19,14 @@ export default class IndicatorsComponent {
   actions = inject(ActionsService);
   onDeleteIndicator = async (indicatorId: number | string) => {
     const response = await this.api.DELETE_Indicator(Number(indicatorId));
-    if (!response.successfulRequest)
-      return this.actions.showToast({
-        severity: 'error',
-        summary: 'Indicator deleted',
-        detail: 'Indicator deleted successfully'
-      });
+
     this.actions.showToast({
-      severity: 'success',
-      summary: 'Indicator deleted',
-      detail: 'Indicator deleted successfully'
+      severity: response.successfulRequest ? 'success' : 'error',
+      summary: response.successfulRequest ? 'Success' : 'Error',
+      detail: response.successfulRequest ? 'Indicator deleted successfully' : 'Failed to delete indicator'
     });
+
+    if (!response.successfulRequest) return;
     this.setUpProjectService.getIndicators();
     this.setUpProjectService.getStructures();
   };
