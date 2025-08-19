@@ -25,6 +25,7 @@ describe('SetUpProjectComponent', () => {
       assignIndicatorsModal: signal({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } }),
       indicatorList: signal([]),
       loadingStructures: signal(false),
+      currentAgreementId: signal(null),
       getStructures: jest.fn().mockResolvedValue(undefined),
       getIndicators: jest.fn().mockResolvedValue(undefined)
     };
@@ -44,7 +45,8 @@ describe('SetUpProjectComponent', () => {
         }
       },
       snapshot: {
-        params: { id: 'test-project-id' }
+        params: { id: 'test-project-id' },
+        routeConfig: { path: 'structure' }
       }
     } as any;
 
