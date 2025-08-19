@@ -6,7 +6,7 @@
     <p-tabs [value]="currentProject()?.contract_id ?? ''" scrollable>
       <p-tablist>
         @for (tab of projects(); track tab.contract_id) {
-          <p-tab [value]="tab.contract_id">
+          <p-tab [value]="tab.contract_id" (click)="onProjectChange(tab)">
             {{ tab.contract_id }}
           </p-tab>
         }

@@ -32,6 +32,10 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
     return option;
   };
 
+  onProjectChange(event: any) {
+    console.log(event);
+  }
+
   async getData() {
     const response = await this.api.GET_Alignments(this.cache.currentResultId());
     this.projects.set(response.data.contracts);
