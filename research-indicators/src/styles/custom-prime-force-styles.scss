@@ -27,12 +27,6 @@
   padding: 0.5rem !important;
 }
 
-// Dropdown expansion upward styles
-.dropdown-up .p-multiselect-panel {
-  transform: translateY(-100%);
-  margin-top: -10px !important;
-}
-
 @media (orientation: landscape) and (height <= 768px) {
   body {
     font-size: 13px !important;
