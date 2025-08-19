@@ -30,6 +30,16 @@ export default class IndicatorsComponent {
     this.setUpProjectService.getIndicators();
     this.setUpProjectService.getStructures();
   };
+
+  showConfirmDeleteIndicator = (indicator: GetIndicators) => {
+    this.actions.showGlobalAlert({
+      summary: 'Delete Indicator',
+      detail: 'Are you sure you want to delete this indicator?',
+      callbacks: [{ label: 'Delete', event: () => this.onDeleteIndicator(indicator.id) }],
+      severity: 'confirm'
+    });
+  };
+
   onEditIndicator = (indicator: GetIndicators) => {
     this.setUpProjectService.manageIndicatorModal.set({ show: true, editingMode: true, indicator });
     this.setUpProjectService.manageIndicatorform.set({
