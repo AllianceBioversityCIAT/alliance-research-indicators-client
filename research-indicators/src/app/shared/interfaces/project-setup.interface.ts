@@ -66,4 +66,5 @@ export interface NewIndicatorForm {
   targetUnit: string;
   targetValue: number | null;
   baseline: number | null;
+  agreement_id: number;
 }

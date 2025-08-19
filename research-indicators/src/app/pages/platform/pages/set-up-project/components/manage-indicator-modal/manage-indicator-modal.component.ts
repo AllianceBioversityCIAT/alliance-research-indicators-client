@@ -46,7 +46,9 @@ export class ManageIndicatorModalComponent {
       years: [],
       targetUnit: '',
       targetValue: 0,
-      baseline: 0
+      baseline: 0,
+      agreement_id: this.setUpProjectService.currentAgreementId() as number,
+      code: ''
     });
   }
 
@@ -55,7 +57,7 @@ export class ManageIndicatorModalComponent {
     if (!value.name || !value.description || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit) {
       return;
     }
-    const response = await this.api.POST_Indicator(value);
+    const response = await this.api.POST_Indicator({ ...value, agreement_id: this.setUpProjectService.currentAgreementId() as number });
     if (!response.successfulRequest) {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to create indicator' });
       return;

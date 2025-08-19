@@ -552,8 +552,8 @@ export class ApiService {
     return this.TP.get('', { isAuth: urlWithTimestamp, noCache: true });
   };
 
-  GET_Structures = () => {
-    const url = () => `groups-items/items-list`;
+  GET_Structures = (agreementId: number | string) => {
+    const url = () => `groups-items/items-list/${agreementId}`;
     return this.TP.get(url(), {});
   };
 
@@ -562,8 +562,8 @@ export class ApiService {
     return this.TP.post(url(), body);
   };
 
-  GET_Indicators = () => {
-    const url = () => `project-indicators/get-list`;
+  GET_Indicators = (agreement_id: number | string) => {
+    const url = () => `project-indicators/get-list/${agreement_id}}`;
     return this.TP.get(url(), {});
   };
 

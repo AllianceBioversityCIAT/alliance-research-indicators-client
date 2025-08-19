@@ -43,7 +43,9 @@ export default class IndicatorsComponent {
       years: indicator.years,
       targetUnit: indicator.targetUnit,
       targetValue: Number(indicator.targetValue),
-      baseline: Number(indicator.baseline)
+      baseline: Number(indicator.baseline),
+      agreement_id: this.setUpProjectService.currentAgreementId() as number,
+      code: indicator.code
     });
   };
 }

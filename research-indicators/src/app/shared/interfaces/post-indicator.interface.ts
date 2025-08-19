@@ -7,4 +7,6 @@ export interface PostIndicator {
   targetUnit: string;
   targetValue: number;
   baseline: number;
+  agreement_id: number;
+  code: string;
 }

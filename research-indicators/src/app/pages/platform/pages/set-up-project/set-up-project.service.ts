@@ -17,6 +17,7 @@ export class SetUpProjectService {
   structures = signal<IndicatorsStructure[]>([]);
   showCreateStructure = signal<boolean>(false);
   loadingStructures = signal<boolean>(false);
+  currentAgreementId = signal<number | string | null>(null);
   assignIndicatorsModal = signal<{
     show: boolean;
     target: { type: 'structure' | 'item'; structureIndex: number; itemIndex: number };
@@ -31,7 +32,9 @@ export class SetUpProjectService {
     years: [],
     targetUnit: '',
     targetValue: 0,
-    baseline: 0
+    baseline: 0,
+    agreement_id: this.currentAgreementId() as number,
+    code: ''
   });
 
   api = inject(ApiService);
@@ -51,7 +54,7 @@ export class SetUpProjectService {
   ]);
 
   async getIndicators() {
-    const res = await this.api.GET_Indicators();
+    const res = await this.api.GET_Indicators(this.currentAgreementId() as number);
     this.indicatorList.set(res.data);
   }
 
@@ -103,7 +106,7 @@ export class SetUpProjectService {
   async getStructures() {
     this.loadingStructures.set(true);
     try {
-      const res = await this.api.GET_Structures();
+      const res = await this.api.GET_Structures(this.currentAgreementId() as number);
       this.structures.set(res.data.structures);
     } catch {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });
