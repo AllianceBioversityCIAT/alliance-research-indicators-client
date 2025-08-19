@@ -27,6 +27,7 @@ import { GetInnovationReadinessLevelsService } from '@shared/services/control-li
 import { TooltipModule } from 'primeng/tooltip';
 import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-innovation-details',
@@ -44,7 +45,8 @@ import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.com
     ActorItemComponent,
     MultiselectComponent,
     TooltipModule,
-    CustomTagComponent
+    CustomTagComponent,
+    NgTemplateOutlet
   ],
   templateUrl: './innovation-details.component.html'
 })
