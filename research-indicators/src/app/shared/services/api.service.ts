@@ -563,7 +563,7 @@ export class ApiService {
   };
 
   GET_Indicators = (agreement_id: number | string) => {
-    const url = () => `project-indicators/get-list/${agreement_id}}`;
+    const url = () => `project-indicators/get-list/${agreement_id}`;
     return this.TP.get(url(), {});
   };
 
