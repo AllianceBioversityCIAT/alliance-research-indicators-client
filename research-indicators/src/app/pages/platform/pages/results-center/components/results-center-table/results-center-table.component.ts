@@ -9,7 +9,7 @@ import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ResultsCenterService } from '../../results-center.service';
 import * as ExcelJS from 'exceljs';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 import { PopoverModule } from 'primeng/popover';
@@ -27,6 +27,7 @@ import { SearchExportControlsComponent } from '../../../../../../shared/componen
     InputTextModule,
     TagModule,
     MenuModule,
+    RouterLink,
     CustomTagComponent,
     FiltersActionButtonsComponent,
     SearchExportControlsComponent
@@ -227,6 +228,14 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     this.router.navigate(['/result', result_official_code], {
       queryParams: { version: year }
     });
+  }
+
+  getResultHref(result: Result): string {
+    if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
+      const latestYear = Math.max(...result.snapshot_years);
+      return `/result/${result.result_official_code}/general-information?version=${latestYear}`;
+    }
+    return `/result/${result.result_official_code}`;
   }
 
   ngAfterViewInit() {
