@@ -51,6 +51,10 @@ export class AllModalsService {
       title: 'Partners Request'
       // disabledConfirmAction: () => this.disabledConfirmPartner?.() ?? false
     },
+    createOicrResult: {
+      isOpen: false,
+      title: 'OICR Result'
+    },
     askForHelp: {
       isOpen: false,
       title: 'Ask for Help'
@@ -133,6 +137,7 @@ export class AllModalsService {
       createResult: { ...this.modalConfig().createResult, isOpen: false, isWide: false },
       submitResult: { ...this.modalConfig().submitResult, isOpen: false, isWide: false },
       requestPartner: { ...this.modalConfig().requestPartner, isOpen: false, isWide: false },
+      createOicrResult: { ...this.modalConfig().createOicrResult, isOpen: false, isWide: false },
       askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false }
     });
 
