@@ -45,6 +45,10 @@ describe('AllModalsService', () => {
         isOpen: false,
         title: 'Partners Request'
       },
+      createOicrResult: {
+        isOpen: false,
+        title: 'OICR Result'
+      },
       askForHelp: {
         isOpen: false,
         title: 'Ask for Help'
@@ -175,6 +179,7 @@ describe('AllModalsService', () => {
     expect(service.modalConfig().createResult.isOpen).toBe(false);
     expect(service.modalConfig().submitResult.isOpen).toBe(false);
     expect(service.modalConfig().requestPartner.isOpen).toBe(false);
+    expect(service.modalConfig().createOicrResult.isOpen).toBe(false);
     expect(service.modalConfig().askForHelp.isOpen).toBe(false);
     expect(mockCreateResultManagementService.resultPageStep.set).toHaveBeenCalledWith(0);
   });
