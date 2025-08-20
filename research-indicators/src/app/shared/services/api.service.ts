@@ -91,8 +91,8 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Contracts = (): Promise<MainResponse<GetContracts[]>> => {
-    const url = () => `agresso/contracts`;
+  GET_Contracts = (projectId?: number): Promise<MainResponse<GetContracts[]>> => {
+    const url = () => `agresso/contracts${projectId ? `?projectId=${projectId}` : ''}`;
     return this.TP.get(url(), {});
   };
 
