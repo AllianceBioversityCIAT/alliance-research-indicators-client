@@ -123,13 +123,13 @@
       <button
         class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
         [disabled]="loading || isDisabled"
-        (click)="createResult(true)">
+        (click)="body().indicator_id === 5 ? this.allModalsService.openModal('createOicrResult') : createResult(true)">
         @if (loading) {
           <div class="min-w-[191px]">
             <i class="pi pi-spinner pi-spin text-white text-xs"></i>
           </div>
         } @else {
-          Create and continue
+          {{ body().indicator_id === 5 ? 'Continue' : 'Create and continue' }}
           <i
             class="pi pi-arrow-right !text-[10px] pl-1"
             [class.text-white]="!loading && !isDisabled"
