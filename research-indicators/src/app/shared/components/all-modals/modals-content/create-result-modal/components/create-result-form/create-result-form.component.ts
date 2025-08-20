@@ -107,6 +107,13 @@ export class CreateResultFormComponent {
     this.body.update(b => ({ ...b, contract_id: newContractId }));
   }
 
+  navigateToOicr() {
+    this.createResultManagementService.setContractId(this.body().contract_id);
+    this.createResultManagementService.setResultTitle(this.body().title);
+    this.createResultManagementService.setModalTitle('OICR result');
+    this.createResultManagementService.resultPageStep.set(2);
+  }
+
   async createResult(openresult?: boolean) {
     this.loading = true;
     try {
