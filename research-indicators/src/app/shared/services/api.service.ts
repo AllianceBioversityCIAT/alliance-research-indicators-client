@@ -60,6 +60,7 @@ import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { GetStructures } from '../interfaces/get-structures.interface';
 import { PostIndicator } from '../interfaces/post-indicator.interface';
+import { GetProjectIndicators } from '../interfaces/get-project-indicators.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -575,6 +576,16 @@ export class ApiService {
   DELETE_Indicator = (id: number) => {
     const url = () => `project-indicators/${id}/delete`;
     return this.TP.delete(url(), {});
+  };
+
+  GET_Hierarchy = (id: number) => {
+    const url = () => `project-indicators/hierarchy/${id}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IndicatorsByResult = (id: number): Promise<MainResponse<GetProjectIndicators>> => {
+    const url = () => `project-indicators/indicators/by-result/${id}`;
+    return this.TP.get(url(), {});
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

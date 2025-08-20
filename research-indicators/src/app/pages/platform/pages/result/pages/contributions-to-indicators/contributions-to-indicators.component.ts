@@ -8,6 +8,7 @@ import { TabsModule } from 'primeng/tabs';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
 import { Indicator } from '../../../../../../shared/interfaces/get-structures.interface';
+import { GetProjectIndicators, ProjectIndicatorContract } from '../../../../../../shared/interfaces/get-project-indicators.interface';
 
 @Component({
   selector: 'app-contributions-to-indicators',
@@ -18,7 +19,7 @@ import { Indicator } from '../../../../../../shared/interfaces/get-structures.in
 export default class ContributionsToIndicatorsComponent implements OnInit {
   api = inject(ApiService);
   cache = inject(CacheService);
-  projects = signal<AllianceAlignmentContract[]>([]);
+  projects = signal<ProjectIndicatorContract[]>([]);
   currentIndicators = signal<Indicator[]>([]);
   selectedProjects = signal<AllianceAlignmentContract[]>([]);
 
@@ -26,21 +27,24 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
     this.getData();
   }
 
-  currentProject = signal<AllianceAlignmentContract | null>(null);
+  currentProject = signal<ProjectIndicatorContract | null>(null);
 
   saveData = (option?: 'back' | 'next' | 'save') => {
     return option;
   };
 
-  onProjectChange(event: AllianceAlignmentContract) {
+  onProjectChange(event: ProjectIndicatorContract) {
     this.currentProject.set(event);
     this.selectedProjects.set([]);
     this.getIndicators();
   }
 
   async getData() {
-    const response = await this.api.GET_Alignments(this.cache.currentResultId());
-    this.projects.set(response.data.contracts);
+    const resultId = Number(this.cache.currentMetadata().result_id);
+    console.log(resultId);
+    const response = await this.api.GET_IndicatorsByResult(resultId);
+    console.log(response.data.contracts);
+    this.projects.set(response.data.contracts ?? []);
     if (this.projects().length) {
       this.currentProject.set(this.projects()[0]);
       this.getIndicators();
@@ -48,7 +52,7 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
   }
 
   async getIndicators() {
-    const response = await this.api.GET_Indicators(this.currentProject()?.contract_id ?? '');
+    const response = await this.api.GET_Indicators(this.currentProject()?.agreement_id ?? '');
     this.currentIndicators.set(response.data);
   }
 }
