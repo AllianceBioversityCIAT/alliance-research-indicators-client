@@ -1,0 +1,379 @@
+<ng-template #next>
+  <button
+    type="button"
+    (click)="goNext()"
+    class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:border-[#E8EBED] disabled:text-[#A2A9AF]">
+    Next <i class="pi pi-arrow-right !text-[12px]"></i>
+  </button>
+</ng-template>
+
+<ng-template #previous>
+  <button
+    type="button"
+    (click)="goBack()"
+    class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] text-[#035BA9] px-4 py-2 rounded-[13px] text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:border-[#E8EBED] disabled:text-[#A2A9AF]">
+    <i class="pi pi-arrow-left !text-[12px]"></i> Back
+  </button>
+</ng-template>
+
+<ng-template #createButton>
+  <button
+    class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
+    [disabled]="loading || isDisabled"
+    (click)="createResult()">
+    @if (loading) {
+      <div class="min-w-[191px]">
+        <i class="pi pi-spinner pi-spin text-white text-xs"></i>
+      </div>
+    } @else {
+      Create preliminary OICR submission
+      <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
+    }
+  </button>
+</ng-template>
+
+<div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px]">
+  <!-- OICR header -->
+  @if (currentContract()) {
+    <div class="flex justify-between items-center bg-[#f4f7f9] border-y border-[#E8EBED] px-15 py-7">
+      <div class="flex-col flex w-full">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
+          <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
+        </div>
+        <div class="text-[17px] text-[#173F6F] font-[600] pb-1">{{ createResultManagementService.resultTitle() || 'Enter OICR title' }}</div>
+        <div class="text-[15px] text-[#4C5158] font-[600]">{{ currentContract()?.agreement_id }} - {{ currentContract()?.description }}</div>
+
+        <div class="flex justify-between pt-2 xl:pt-1">
+          <div class="flex gap-x-5 justify-between">
+            <div class="flex items-center">
+              <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Principal investigator</span>
+              <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+              <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                currentContract()?.project_lead_description
+              }}</span>
+            </div>
+
+            <div class="flex items-center">
+              <span class="text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Start date</span>
+              <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+              <span class="text-[13px] leading-[18px] text-[#345b8f] !font-['Space_Grotesk']">{{
+                currentContract()?.start_date | date: 'dd/MM/yyyy'
+              }}</span>
+            </div>
+
+            <div class="flex items-center">
+              <span class="text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">End date</span>
+              <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+              <span class="text-[13px] leading-[18px] text-[#345b8f] !font-['Space_Grotesk']">{{
+                currentContract()?.endDateGlobal | date: 'dd/MM/yyyy'
+              }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center pt-1 xl:pt-1.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+          @if (currentContract()?.lever === 'Not available') {
+            Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ currentContract()?.lever }}</span>
+          } @else {
+            <img [src]="currentContract()?.leverUrl" alt="Lever" class="w-[22px] h-[22px] mr-1" />
+            @if (currentContract()?.lever?.includes(':')) {
+              @if (leverParts().first) {
+                {{ leverParts().first }} -
+              }
+              @if (leverParts().second) {
+                <span class="text-[13px] leading-[18px] text-[#77c83] font-['Barlow'] font-normal">{{ leverParts().second }}</span>
+              }
+            } @else {
+              {{ currentContract()?.lever }}
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="px-5 flex flex-col mx-10 mb-8">
+    <p-steps
+      [model]="stepItems()"
+      [readonly]="false"
+      [activeIndex]="activeIndex"
+      (activeIndexChange)="onActiveIndexChange($event)"
+      [styleClass]="'completed-' + activeIndex"
+      class="my-8">
+    </p-steps>
+
+    @if (activeIndex === 0) {
+      <div id="general-information" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
+        <p class="text-[14px] font-[800] text-[#173F6F]">GENERAL INFORMATION</p>
+
+        <div class="grid gap-[10px]">
+          <div class="flex flex-col">
+            <app-select
+              label="Main contact person"
+              helperText="Pick a contact person from the Alliance staff database who is associated with the result and can provide information as needed. Only one person can be selected."
+              [isRequired]="true"
+              [signal]="this.body"
+              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              optionLabel="full_name"
+              serviceName="userStaff"
+              placeholder="Select the main contact person"></app-select>
+          </div>
+
+          <div class="flex flex-col">
+            <app-select
+              label="Tagging"
+              helperText="You can find some examples how the ‘Tag as’ were used in previous OICRs here."
+              [isRequired]="true"
+              [signal]="this.body"
+              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              optionLabel="full_name"
+              serviceName="userStaff"
+              placeholder="Select the tagging"></app-select>
+          </div>
+
+          <div class="flex flex-col">
+            <app-select
+              label="Select existing OICR"
+              helperText="Select an OICR previously reported in the Alliance."
+              [signal]="this.body"
+              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              optionLabel="full_name"
+              serviceName="userStaff"
+              placeholder="Select OICR"></app-select>
+          </div>
+
+          <div class="flex flex-col">
+            <app-textarea
+              [isRequired]="true"
+              [rows]="5"
+              label="Elaboration of outcome/impact statement"
+              helperText="You can find good examples from previous OICRs here."
+              [maxLength]="400"
+              [signal]="this.body"
+              [optionValue]="'description'"
+              placeholder="Please briefly elaborate on the Outcome Impact Case you want to report"></app-textarea>
+          </div>
+        </div>
+
+        <div class="w-full flex justify-between">
+          <ng-container *ngTemplateOutlet="next"></ng-container>
+          <ng-container *ngTemplateOutlet="createButton"></ng-container>
+        </div>
+      </div>
+    }
+
+    @if (activeIndex === 1) {
+      <div id="contributors" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
+        <p class="text-[14px] font-[800] text-[#173F6F]">CONTRIBUTORS</p>
+
+        <div class="grid gap-[10px]">
+          <div class="flex flex-col">
+            <app-select
+              label="Initiative"
+              [signal]="this.body"
+              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              optionLabel="full_name"
+              serviceName="userStaff"
+              placeholder="Select an option"></app-select>
+          </div>
+
+          <div class="flex flex-col">
+            <app-select
+              label="Primary Levers"
+              [isRequired]="true"
+              [signal]="this.body"
+              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              optionLabel="full_name"
+              serviceName="userStaff"
+              placeholder="Select the levers"></app-select>
+          </div>
+
+          <div class="flex flex-col">
+            <app-select
+              label="Other Contributing Levers"
+              [signal]="this.body"
+              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              optionLabel="full_name"
+              serviceName="userStaff"
+              placeholder="Select the levers"></app-select>
+          </div>
+        </div>
+
+        <div class="w-full flex justify-between">
+          <div class="flex gap-3">
+            <ng-container *ngTemplateOutlet="previous"></ng-container>
+            <ng-container *ngTemplateOutlet="next"></ng-container>
+          </div>
+          <ng-container *ngTemplateOutlet="createButton"></ng-container>
+        </div>
+      </div>
+    }
+
+    @if (activeIndex === 2) {
+      <div id="geographic-scope" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
+        <p class="text-[14px] font-[800] text-[#173F6F]">GEOGRAPHIC SCOPE</p>
+
+        <div class="grid gap-[10px]">
+          <div class="flex flex-col gap-8">
+            <app-radio-button
+              [isRequired]="true"
+              label="What is the main geographic focus of the Impact?"
+              helperText="This should reflect where the Impact has taken place/contributed to benefit."
+              [signal]="body"
+              [optionLabel]="'label'"
+              direction="horizontal"
+              spaceX="gap-10"
+              serviceName="geoFocus"
+              (selectEvent)="onSelect()"
+              [optionValue]="{ body: 'geo_scope_id', option: 'value' }"></app-radio-button>
+
+            @if (getMultiselectLabel().region.label) {
+              <app-multiselect
+                [signal]="body"
+                [optionLabel]="'name'"
+                class="-mt-4"
+                [optionValue]="'region_id'"
+                [signalOptionValue]="'regions'"
+                [isRequired]="isRegionsRequired()"
+                serviceName="regions"
+                label="{{ getMultiselectLabel().region.label }}"
+                helperText="{{ getMultiselectLabel().region.description }}"
+                placeholder="Select the regions">
+              </app-multiselect>
+            }
+            @if (getMultiselectLabel().country.label) {
+              @if (body().geo_scope_id === 5) {
+                <app-multiselect
+                  (selectEvent)="onSelect()"
+                  [signal]="body"
+                  [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
+                  [disabledSelectedScroll]="body().geo_scope_id === 5"
+                  [optionLabel]="'name'"
+                  class="-mt-4"
+                  [isRequired]="isCountriesRequired()"
+                  [optionValue]="'isoAlpha2'"
+                  [signalOptionValue]="'countries'"
+                  serviceName="countriesWithSubnational"
+                  label="{{ getMultiselectLabel().country.label }}"
+                  helperText="{{ getMultiselectLabel().country.description }}"
+                  placeholder="Select the countries">
+                  <ng-template #rows let-country>
+                    @for (c of [country]; track c.isoAlpha2) {
+                      <div class="flex justify-between items-start w-full">
+                        <div class="flex flex-col gap-3 max-w-[70%]">
+                          <div class="flex items-center gap-3">
+                            <img [src]="environment.flagsUrl + c.isoAlpha2 + '.svg'" [alt]="c.name" class="w-6 h-4 object-cover" />
+                            <span class="font-medium text-[var(--text-color)]">{{ c.name }}</span>
+                          </div>
+                          <div class="sub-national-section">
+                            <div class="flex flex-wrap gap-2 items-center">
+                              <span class="text-[#777c83] text-[13px]">Sub-national levels</span>
+                              <i class="pi pi-arrow-right !text-[12px] text-[#8d9299] cursor-pointer"></i>
+                              @if (c.result_countries_sub_nationals_signal()?.regions?.length > 0) {
+                                @for (region of c.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
+                                  <div class="bg-[#e5e7eb] rounded-full px-3 py-1 flex items-center gap-2 text-[13px] text-[#4c5158]">
+                                    {{ region.name }}
+                                    <i
+                                      class="pi pi-times !text-[12px] text-[#8d9299] hover:text-[#4c5158] cursor-pointer"
+                                      (keydown.enter)="removeSubnationalRegion(c, region)"
+                                      (click)="removeSubnationalRegion(c, region)">
+                                    </i>
+                                  </div>
+                                }
+                              }
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Right column: Multiselect -->
+                        <div class="w-[300px]">
+                          <app-multiselect-instance
+                            [signal]="c.result_countries_sub_nationals_signal"
+                            [optionLabel]="'name'"
+                            (valueChange)="updateCountryRegions(c.isoAlpha2, $event)"
+                            [optionValue]="'sub_national_id'"
+                            [signalOptionValue]="'regions'"
+                            serviceName="GetSubnationalByIsoAlpha"
+                            [hideSelected]="true"
+                            [endpointParams]="{ isoAlpha2: c.isoAlpha2 }">
+                          </app-multiselect-instance>
+                        </div>
+                      </div>
+                    }
+                  </ng-template>
+                </app-multiselect>
+
+                @if (showSubnationalError()) {
+                  <div class="flex items-center gap-1 -mt-4 text-[#E69F00] text-sm">
+                    <i class="material-symbols-rounded !text-base">warning</i>
+                    <span>Please select at least one sub-national level per country.</span>
+                  </div>
+                }
+              } @else {
+                <app-multiselect
+                  (selectEvent)="onSelect()"
+                  [signal]="body"
+                  class="-mt-3"
+                  [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
+                  [disabledSelectedScroll]="body().geo_scope_id === 5"
+                  [optionLabel]="'name'"
+                  [isRequired]="isCountriesRequired()"
+                  [optionValue]="'isoAlpha2'"
+                  [signalOptionValue]="'countries'"
+                  serviceName="countriesWithoutSubnational"
+                  label="{{ getMultiselectLabel().country.label }}"
+                  helperText="{{ getMultiselectLabel().country.description }}"
+                  placeholder="Select the countries">
+                </app-multiselect>
+              }
+            }
+          </div>
+
+          <div class="flex flex-col pt-2">
+            <app-textarea
+              [rows]="5"
+              label="Comments Geographic Scope"
+              helperText="Provide additional information about the geographic scope, if necessary."
+              [maxLength]="400"
+              [signal]="this.body"
+              [optionValue]="'description'"
+              placeholder="Write the comments"></app-textarea>
+          </div>
+        </div>
+
+        <div class="w-full flex justify-between">
+          <div class="flex gap-3">
+            <ng-container *ngTemplateOutlet="previous"></ng-container>
+            <ng-container *ngTemplateOutlet="next"></ng-container>
+          </div>
+          <ng-container *ngTemplateOutlet="createButton"></ng-container>
+        </div>
+      </div>
+    }
+
+    @if (activeIndex === 3) {
+      <div id="general-comments" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
+        <p class="text-[14px] font-[800] text-[#173F6F]">GENERAL COMMENTS</p>
+
+        <div class="grid gap-[10px]">
+          <div class="flex flex-col">
+            <app-textarea
+              [rows]="5"
+              label="Comments, questions or anything else?"
+              [maxLength]="400"
+              [signal]="this.body"
+              [maxLength]="3000"
+              [optionValue]="'description'"
+              placeholder="Write the comments"></app-textarea>
+          </div>
+        </div>
+
+        <div class="w-full flex justify-between">
+          <ng-container *ngTemplateOutlet="previous"></ng-container>
+          <ng-container *ngTemplateOutlet="createButton"></ng-container>
+        </div>
+      </div>
+    }
+  </div>
+</div>
