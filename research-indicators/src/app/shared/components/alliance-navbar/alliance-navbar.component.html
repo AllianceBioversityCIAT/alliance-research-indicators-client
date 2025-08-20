@@ -7,7 +7,7 @@
     @for (option of this.options; track $index) {
       @if (!option.hide) {
         <a
-          class="option atc-white-1 {{ hss ? 'py-[15px] px-[15px]' : 'py-[25px] px-[25px]' }}"
+          class="option atc-white-1 {{ hss ? 'py-[15px] px-[15px] xl:px-[10px]' : 'py-[25px] px-[15px] xl:px-[25px]' }} "
           [routerLink]="option.disabled ? null : option.path"
           routerLinkActive="active atc-light-blue-200-i"
           [routerLinkActiveOptions]="{ exact: true }"

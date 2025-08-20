@@ -75,6 +75,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   pinnedTab = signal<string>('all');
   loadingPin = signal(false);
   tableId = 'contract-table';
+  applyFiltersLabel = 'Apply Filters';
 
   @ViewChild('statusSelect') statusSelect?: MultiselectComponent;
   @ViewChild('leverSelect') leverSelect?: MultiselectComponent;
@@ -339,10 +340,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     return this.cache.hasSmallScreen() ? 'calc(100vh - 300px)' : 'calc(100vh - 350px)';
   }
 
-  getApplyFiltersLabel(): string {
-    return 'Apply Filters';
-  }
-
   getLoadingState(): boolean {
     return this.myProjectsService.loading();
   }
@@ -352,7 +349,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentFirst(): number {
-    return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsFirst() : this.allProjectsFirst();
+    return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsFirst() : this.allProjectsRows();
   }
 
   getCurrentRows(): number {
