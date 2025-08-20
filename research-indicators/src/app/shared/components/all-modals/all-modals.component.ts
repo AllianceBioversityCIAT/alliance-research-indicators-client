@@ -6,18 +6,10 @@ import { SubmitResultContentComponent } from './modals-content/submit-result-con
 import { SubmissionService } from '../../services/submission.service';
 import { RequestPartnerModalComponent } from './modals-content/request-partner-modal/request-partner-modal.component';
 import { AskForHelpModalComponent } from './modals-content/ask-for-help-modal/ask-for-help-modal/ask-for-help-modal.component';
-import { CreateOicrResultComponent } from './modals-content/create-oicr-result/create-oicr-result.component';
 
 @Component({
   selector: 'app-all-modals',
-  imports: [
-    ModalComponent,
-    CreateResultModalComponent,
-    RequestPartnerModalComponent,
-    SubmitResultContentComponent,
-    AskForHelpModalComponent,
-    CreateOicrResultComponent
-  ],
+  imports: [ModalComponent, CreateResultModalComponent, RequestPartnerModalComponent, SubmitResultContentComponent, AskForHelpModalComponent],
   templateUrl: './all-modals.component.html'
 })
 export class AllModalsComponent {
