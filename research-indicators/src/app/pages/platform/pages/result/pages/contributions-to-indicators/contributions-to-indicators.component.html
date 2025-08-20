@@ -57,14 +57,14 @@
           <h1>Selected</h1>
         </ng-template>
         <ng-template #rows let-indicator>
-          <div>
+          <div class="w-full">
             <app-input
               [label]="indicator.targetUnit"
               [isRequired]="false"
               [validateEmpty]="true"
               [signal]="this.body"
               optionValue="title"
-              [placeholder]="'Enter the value for ' + indicator.targetUnit"></app-input>
+              [placeholder]="'Enter the value for: ' + indicator.targetUnit"></app-input>
           </div>
         </ng-template>
       </app-multiselect>

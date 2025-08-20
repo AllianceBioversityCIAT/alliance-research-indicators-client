@@ -1,13 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { CacheService } from '../cache/cache.service';
+import { GetIndicatorsHierarchy } from '../../interfaces/get-indicators-hierarchy.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GetProjectIndicatorsHierarchyService {
   api = inject(ApiService);
-  list = signal<any[]>([]);
+  list = signal<GetIndicatorsHierarchy[]>([]);
   loading = signal(false);
   isOpenSearch = signal(false);
 
