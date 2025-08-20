@@ -47,4 +47,5 @@ export type ControlListServices =
   | 'toolFunctions'
   | 'innResults'
   | 'applicationOptions'
+  | 'getProjectIndicatorsHierarchy'
   | '';

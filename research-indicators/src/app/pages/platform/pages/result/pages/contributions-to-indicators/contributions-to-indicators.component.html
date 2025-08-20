@@ -26,7 +26,7 @@
 
     <div class="flex flex-col gap-4 mb-4">
       <label for="indicators-multiselect" class="block text-sm font-medium text-gray-700">Select indicators</label>
-      <p-multiSelect
+      <!-- <p-multiSelect
         id="indicators-multiselect"
         placeholder="Select indicators"
         [options]="currentIndicators()"
@@ -35,7 +35,39 @@
         optionValue="id"
         [filter]="true"
         [filterBy]="'name'"
-        class="w-full" />
+        class="w-full" /> -->
+
+      <app-multiselect
+        label="Contributing projects"
+        [signal]="body"
+        textSpan="Select the required primary project for this result. Note that only one project can be selected."
+        optionLabel="name"
+        optionValue="id"
+        signalOptionValue="selectedIndicators"
+        [isRequired]="false"
+        [scrollHeight]="'290px'"
+        [filterBy]="'select_label,project_lead_description'"
+        [itemHeight]="70"
+        serviceName="getProjectIndicatorsHierarchy">
+        <ng-template #item let-item>
+          <div>{{ item.name }}</div>
+        </ng-template>
+
+        <ng-template #selectedItems let-value>
+          <h1>Selected</h1>
+        </ng-template>
+        <ng-template #rows let-indicator>
+          <div>
+            <app-input
+              [label]="indicator.targetUnit"
+              [isRequired]="false"
+              [validateEmpty]="true"
+              [signal]="this.body"
+              optionValue="title"
+              [placeholder]="'Enter the value for ' + indicator.targetUnit"></app-input>
+          </div>
+        </ng-template>
+      </app-multiselect>
     </div>
   </div>
 
