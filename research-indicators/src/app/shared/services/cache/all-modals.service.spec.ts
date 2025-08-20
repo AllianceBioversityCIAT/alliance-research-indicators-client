@@ -248,4 +248,13 @@ describe('AllModalsService', () => {
     expect(service.modalConfig().submitResult.isOpen).toBe(true);
     expect(service.modalConfig().createResult.isOpen).toBe(false);
   });
+
+  it('should set modal width', () => {
+    const modalName: ModalName = 'createResult';
+    service.setModalWidth(modalName, true);
+    expect(service.modalConfig()[modalName].isWide).toBe(true);
+
+    service.setModalWidth(modalName, false);
+    expect(service.modalConfig()[modalName].isWide).toBe(false);
+  });
 });
