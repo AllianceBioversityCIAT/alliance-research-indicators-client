@@ -8,11 +8,12 @@ import { TabsModule } from 'primeng/tabs';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
 import { Indicator } from '../../../../../../shared/interfaces/get-structures.interface';
-import { GetProjectIndicators, ProjectIndicatorContract } from '../../../../../../shared/interfaces/get-project-indicators.interface';
+import { ProjectIndicatorContract } from '../../../../../../shared/interfaces/get-project-indicators.interface';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-contributions-to-indicators',
-  imports: [FormHeaderComponent, NavigationButtonsComponent, TabsModule, MultiSelectModule, FormsModule],
+  imports: [FormHeaderComponent, NavigationButtonsComponent, TabsModule, MultiSelectModule, FormsModule, TooltipModule],
   templateUrl: './contributions-to-indicators.component.html',
   styleUrl: './contributions-to-indicators.component.scss'
 })
@@ -40,9 +41,7 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
   }
 
   async getData() {
-    const resultId = Number(this.cache.currentMetadata().result_id);
-    console.log(resultId);
-    const response = await this.api.GET_IndicatorsByResult(resultId);
+    const response = await this.api.GET_IndicatorsByResult(this.cache.currentMetadata().result_id?.toString() || '');
     console.log(response.data.contracts);
     this.projects.set(response.data.contracts ?? []);
     if (this.projects().length) {
@@ -52,7 +51,9 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
   }
 
   async getIndicators() {
-    const response = await this.api.GET_Indicators(this.currentProject()?.agreement_id ?? '');
+    console.log(this.currentProject()?.agreement_id);
+    const response = await this.api.GET_Hierarchy(this.currentProject()?.agreement_id ?? '');
+    console.log(response.data);
     this.currentIndicators.set(response.data);
   }
 }

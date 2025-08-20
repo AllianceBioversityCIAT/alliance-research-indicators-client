@@ -578,13 +578,13 @@ export class ApiService {
     return this.TP.delete(url(), {});
   };
 
-  GET_Hierarchy = (id: number) => {
-    const url = () => `project-indicators/hierarchy/${id}`;
+  GET_Hierarchy = (agreement_id: string) => {
+    const url = () => `project-indicators/hierarchy/${agreement_id}`;
     return this.TP.get(url(), {});
   };
 
-  GET_IndicatorsByResult = (id: number): Promise<MainResponse<GetProjectIndicators>> => {
-    const url = () => `project-indicators/indicators/by-result/${id}`;
+  GET_IndicatorsByResult = (agreement_id: string): Promise<MainResponse<GetProjectIndicators>> => {
+    const url = () => `project-indicators/indicators/by-result/${agreement_id}`;
     return this.TP.get(url(), {});
   };
 
