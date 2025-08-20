@@ -14,7 +14,7 @@
     transition: all ease-in-out 0.3s;
 
     @media (max-width: 1250px) {
-      min-width: 100px;
+      min-width: 46px;
     }
 
     @media (max-height: 768px) {
@@ -116,6 +116,10 @@
       input::placeholder {
         color: var(--ac-grey-500);
       }
+    }
+
+    @media (max-width: 1145px) {
+      padding: 0px;
     }
   }
 
