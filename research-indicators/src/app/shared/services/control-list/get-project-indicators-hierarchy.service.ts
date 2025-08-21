@@ -15,7 +15,6 @@ export class GetProjectIndicatorsHierarchyService {
     this.clear();
     this.loading.set(true);
     const response = await this.api.GET_Hierarchy(agreementId);
-    console.log(response.data);
     this.list.set(response.data);
     this.loading.set(false);
   }

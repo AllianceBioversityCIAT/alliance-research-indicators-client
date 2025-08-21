@@ -59,10 +59,7 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
 
       return obj;
     });
-    console.log(selectedIndicators);
-    return;
-    const response = await this.api.POST_SyncContribution(this.body().selectedIndicators);
-    console.log(response.data);
+    await this.api.POST_SyncContribution(selectedIndicators as PostSyncContributor[]);
     return option;
   };
 
@@ -73,8 +70,6 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
 
   async getData() {
     const response = await this.api.GET_IndicatorsByResult(this.cache.currentMetadata().result_id?.toString() || '');
-    console.log(response.data);
-    console.log(response.data.contracts);
     this.projects.set(response.data.contracts ?? []);
     if (this.projects().length) {
       this.currentProject.set(this.projects()[0]);
@@ -83,15 +78,17 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
   }
 
   async getIndicators() {
-    console.log(this.currentProject()?.agreement_id);
     this.body.set({ selectedIndicators: [] });
     this.getProjectIndicatorsHierarchy.update(this.currentProject()?.agreement_id ?? '');
-    // this.currentIndicators.set(this.getProjectIndicatorsHierarchy.list());
   }
 
   async getContributions() {
     const response = await this.api.GET_ContributionsByResult();
-    console.log(response.data);
-    this.body.set({ selectedIndicators: response.data });
+    this.body.set({
+      selectedIndicators: response.data.map((item: PostSyncContributor) => ({
+        ...item,
+        id: item.indicator_id
+      }))
+    });
   }
 }
