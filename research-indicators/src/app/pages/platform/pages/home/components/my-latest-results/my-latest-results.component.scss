@@ -59,6 +59,7 @@
     padding: 20px;
     box-shadow: 0px 1.49px 8.18px 0px rgba(0, 182, 255, 0.1);
     cursor: pointer;
+    min-width: 0;
 
     .card-content {
       gap: 20px;
@@ -106,6 +107,9 @@
             font-weight: 600;
             line-height: 20px;
             color: #112f5c;
+            overflow-wrap: anywhere; /* Rompe palabras muy largas */
+            word-break: break-word; /* Compatibilidad adicional */
+            white-space: normal; /* Asegura saltos de línea */
           }
         }
       }

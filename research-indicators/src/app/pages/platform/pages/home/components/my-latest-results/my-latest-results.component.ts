@@ -132,4 +132,12 @@ export class MyLatestResultsComponent implements OnInit {
     const statusId = String(result.result_status?.result_status_id ?? '');
     return STATUS_COLOR_MAP[statusId]?.text || STATUS_COLOR_MAP[''].text;
   }
+
+  truncateTitle(title: string | null | undefined): string {
+    const text = (title ?? '').trim();
+    if (text === '') return '';
+    const words = text.split(/\s+/);
+    if (words.length <= 30) return text;
+    return words.slice(0, 30).join(' ') + '...';
+  }
 }
