@@ -36,71 +36,72 @@
         [filter]="true"
         [filterBy]="'name'"
         class="w-full" /> -->
-
-      <app-multiselect
-        label="Contributing indicators"
-        [signal]="body"
-        textSpan="Select the required contributing indicators for this result."
-        optionLabel="name"
-        optionValue="id"
-        signalOptionValue="selectedIndicators"
-        [isRequired]="false"
-        [scrollHeight]="'290px'"
-        [filterBy]="'select_label,project_lead_description'"
-        [itemHeight]="70"
-        serviceName="getProjectIndicatorsHierarchy">
-        <ng-template #item let-item>
-          <div class="flex flex-col gap-2 pl-2">
-            <div class="flex items-center gap-2">
-              <strong>{{ item.name }} </strong> - target unit: {{ item.targetUnit }}
-            </div>
-            <div class="flex items-center gap-2">
-              Parent:
-              <div class="bg-[#f0f0f0] rounded-[6px] p-0 px-3">{{ item.group_item?.name }}</div>
-              @if (item.group_item?.parent_item?.name) {
-                <i class="pi pi-angle-left"></i><span class="bg-[#f0f0f0] rounded-[6px] p-0 px-3"> {{ item.group_item?.parent_item?.name }} </span>
-              }
-            </div>
-          </div>
-        </ng-template>
-
-        <ng-template #selectedItems let-value>
-          <h1>Selected ({{ this.body().selectedIndicators.length }})</h1>
-        </ng-template>
-        <ng-template #rows let-indicator>
-          <div class="w-full">
-            <div class="flex flex-col gap-2">
+      @if (!loading()) {
+        <app-multiselect
+          label="Contributing indicators"
+          [signal]="body"
+          textSpan="Select the required contributing indicators for this result."
+          optionLabel="name"
+          optionValue="id"
+          signalOptionValue="selectedIndicators"
+          [isRequired]="false"
+          [scrollHeight]="'290px'"
+          [filterBy]="'select_label,project_lead_description'"
+          [itemHeight]="70"
+          serviceName="getProjectIndicatorsHierarchy">
+          <ng-template #item let-item>
+            <div class="flex flex-col gap-2 pl-2">
               <div class="flex items-center gap-2">
-                <strong>{{ indicator.name }} </strong> - target unit: {{ indicator.targetUnit }}
+                <strong>{{ item.name }} </strong> - target unit: {{ item.targetUnit }}
               </div>
               <div class="flex items-center gap-2">
                 Parent:
-                <div class="bg-[#f0f0f0] rounded-[6px] p-0 px-3">{{ indicator.group_item?.name }}</div>
-                @if (indicator.group_item?.parent_item?.name) {
-                  <i class="pi pi-angle-left"></i
-                  ><span class="bg-[#f0f0f0] rounded-[6px] p-0 px-3"> {{ indicator.group_item?.parent_item?.name }} </span>
+                <div class="bg-[#f0f0f0] rounded-[6px] p-0 px-3">{{ item.group_item?.name }}</div>
+                @if (item.group_item?.parent_item?.name) {
+                  <i class="pi pi-angle-left"></i><span class="bg-[#f0f0f0] rounded-[6px] p-0 px-3"> {{ item.group_item?.parent_item?.name }} </span>
                 }
               </div>
             </div>
-            <br />
-            <div class="flex items-center gap-2 mb-2">
-              <label for="contribution-value">{{ indicator.targetUnit }}</label>
-              <p-inputNumber
-                [style]="{ width: '300px' }"
-                id="contribution-value"
-                [(ngModel)]="indicator.contribution_value"
-                [placeholder]="indicator.targetUnit"></p-inputNumber>
-            </div>
-            <!-- <app-input
+          </ng-template>
+
+          <ng-template #selectedItems let-value>
+            <h1>Selected ({{ this.body().selectedIndicators.length }})</h1>
+          </ng-template>
+          <ng-template #rows let-indicator>
+            <div class="w-full">
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                  <strong>{{ indicator.name }} </strong> - target unit: {{ indicator.targetUnit }}
+                </div>
+                <div class="flex items-center gap-2">
+                  Parent:
+                  <div class="bg-[#f0f0f0] rounded-[6px] p-0 px-3">{{ indicator.group_item?.name }}</div>
+                  @if (indicator.group_item?.parent_item?.name) {
+                    <i class="pi pi-angle-left"></i
+                    ><span class="bg-[#f0f0f0] rounded-[6px] p-0 px-3"> {{ indicator.group_item?.parent_item?.name }} </span>
+                  }
+                </div>
+              </div>
+              <br />
+              <div class="flex items-center gap-2 mb-2">
+                <label for="contribution-value">{{ indicator.targetUnit }}</label>
+                <p-inputNumber
+                  [style]="{ width: '300px' }"
+                  id="contribution-value"
+                  [(ngModel)]="indicator.contribution_value"
+                  [placeholder]="indicator.targetUnit"></p-inputNumber>
+              </div>
+              <!-- <app-input
               [label]="indicator.targetUnit"
               [isRequired]="false"
               [validateEmpty]="true"
               [signal]="this.body"
               optionValue="title"
               [placeholder]="'Enter the value for: ' + indicator.targetUnit"></app-input> -->
-          </div>
-        </ng-template>
-      </app-multiselect>
+            </div>
+          </ng-template>
+        </app-multiselect>
+      }
     </div>
   </div>
 

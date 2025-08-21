@@ -14,6 +14,7 @@ import { GetProjectIndicatorsHierarchyService } from '../../../../../../shared/s
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { PostSyncContributor } from '../../../../../../shared/interfaces/post-sync-contributor.interface';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { ActionsService } from '../../../../../../shared/services/actions.service';
 
 @Component({
   selector: 'app-contributions-to-indicators',
@@ -32,6 +33,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
   styleUrl: './contributions-to-indicators.component.scss'
 })
 export default class ContributionsToIndicatorsComponent implements OnInit {
+  actions = inject(ActionsService);
+  loading = signal(false);
   api = inject(ApiService);
   cache = inject(CacheService);
   projects = signal<ProjectIndicatorContract[]>([]);
@@ -43,7 +46,6 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
 
   ngOnInit() {
     this.getData();
-    this.getContributions();
   }
 
   currentProject = signal<ProjectIndicatorContract | null>(null);
@@ -60,12 +62,15 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
       return obj;
     });
     await this.api.POST_SyncContribution(selectedIndicators as PostSyncContributor[]);
+    this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Contributions saved successfully' });
+
     return option;
   };
 
-  onProjectChange(event: ProjectIndicatorContract) {
+  async onProjectChange(event: ProjectIndicatorContract) {
     this.currentProject.set(event);
-    this.getIndicators();
+    await this.getIndicators();
+    await this.getContributions();
   }
 
   async getData() {
@@ -73,8 +78,9 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
     this.projects.set(response.data.contracts ?? []);
     if (this.projects().length) {
       this.currentProject.set(this.projects()[0]);
-      this.getIndicators();
+      await this.getIndicators();
     }
+    await this.getContributions();
   }
 
   async getIndicators() {
@@ -83,6 +89,8 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
   }
 
   async getContributions() {
+    this.loading.set(true);
+    this.body.set({ selectedIndicators: [] });
     const response = await this.api.GET_ContributionsByResult();
     this.body.set({
       selectedIndicators: response.data.map((item: PostSyncContributor) => ({
@@ -90,5 +98,6 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
         id: item.indicator_id
       }))
     });
+    this.loading.set(false);
   }
 }
