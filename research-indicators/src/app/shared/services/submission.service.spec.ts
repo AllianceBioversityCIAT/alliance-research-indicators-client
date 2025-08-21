@@ -30,6 +30,12 @@ describe('SubmissionService', () => {
     expect(service.getStatusNameById(99)).toBe('');
   });
 
+  it('getStatusNameById returns empty string for non-existent status', () => {
+    expect(service.getStatusNameById(999)).toBe('');
+    expect(service.getStatusNameById(0)).toBe('');
+    expect(service.getStatusNameById(-1)).toBe('');
+  });
+
   it('isEditableStatus true for status_id 4', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 4 });
     expect(service.isEditableStatus()).toBe(true);
@@ -45,6 +51,16 @@ describe('SubmissionService', () => {
     expect(service.isEditableStatus()).toBe(false);
   });
 
+  it('isEditableStatus false for null status_id', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: null });
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
+  it('isEditableStatus false for undefined status_id', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: undefined });
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
   it('isSubmitted true for status_id 2', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 2 });
     expect(service.isSubmitted()).toBe(true);
@@ -52,6 +68,16 @@ describe('SubmissionService', () => {
 
   it('isSubmitted false for status_id 4', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 4 });
+    expect(service.isSubmitted()).toBe(false);
+  });
+
+  it('isSubmitted false for null status_id', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: null });
+    expect(service.isSubmitted()).toBe(false);
+  });
+
+  it('isSubmitted false for undefined status_id', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: undefined });
     expect(service.isSubmitted()).toBe(false);
   });
 
