@@ -1,2 +1,40 @@
-<app-structure-cards-view></app-structure-cards-view>
-<app-structure-table-view></app-structure-table-view>
+<!-- View Toggle Controls -->
+<div class="view-toggle-container mb-6">
+  <div class="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+    <div class="flex items-center gap-2">
+      <h3 class="text-lg font-semibold text-gray-800">Project Structures</h3>
+    </div>
+
+    <!-- View Toggle -->
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-medium text-gray-700">Display Mode</span>
+      <div class="flex bg-gray-100 rounded-lg p-1">
+        <button
+          [class]="!isCardsView() ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'"
+          class="flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 text-sm font-medium"
+          pTooltip="Organized table layout"
+          tooltipPosition="top"
+          (click)="isCardsView.set(false)">
+          <i class="pi pi-table text-base"></i>
+          <span>Table</span>
+        </button>
+        <button
+          [class]="isCardsView() ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'"
+          class="flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 text-sm font-medium"
+          pTooltip="Card-based layout"
+          tooltipPosition="top"
+          (click)="isCardsView.set(true)">
+          <i class="pi pi-th-large text-base"></i>
+          <span>Cards</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Conditional View Rendering -->
+@if (isCardsView()) {
+  <app-structure-cards-view></app-structure-cards-view>
+} @else {
+  <app-structure-table-view></app-structure-table-view>
+}
