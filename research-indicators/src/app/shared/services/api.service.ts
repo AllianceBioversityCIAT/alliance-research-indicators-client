@@ -61,6 +61,8 @@ import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { FindContracts } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
+import { OicrCreation } from '@shared/interfaces/oicr-creation.interface';
+import { GetTags } from '@shared/interfaces/get-tags.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -126,6 +128,16 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_Tags = (): Promise<MainResponse<GetTags[]>> => {
+    const url = () => `tags`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Initiatives = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `tools/clarisa/initiatives`;
+    return this.TP.get(url(), {});
+  };
+
   GET_IndicatorTypeById = (id: number): Promise<MainResponse<Indicator>> => {
     const url = () => `indicator-types/${id}`;
     return this.TP.get(url(), {});
@@ -173,6 +185,11 @@ export class ApiService {
     const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
     const url = () => `results${queryString}`;
     return this.TP.get(url(), {});
+  };
+
+  POST_CreateOicr = <T>(body: T): Promise<MainResponse<OicrCreation>> => {
+    const url = () => `result-oicr`;
+    return this.TP.post(url(), body, {});
   };
 
   // create result
