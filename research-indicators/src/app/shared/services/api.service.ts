@@ -58,6 +58,7 @@ import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-inst
 import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
+import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContracts } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
@@ -133,7 +134,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Initiatives = (): Promise<MainResponse<GenericList[]>> => {
+  GET_Initiatives = (): Promise<MainResponse<Initiative[]>> => {
     const url = () => `tools/clarisa/initiatives`;
     return this.TP.get(url(), {});
   };

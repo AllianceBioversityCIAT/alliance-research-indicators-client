@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { GenericList } from '@shared/interfaces/generic-list.interface';
+import { Initiative } from '@shared/interfaces/initiative.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +9,7 @@ export class GetInitiativesService {
   apiService = inject(ApiService);
   loading = signal(true);
 
-  list = signal<GenericList[]>([]);
+  list = signal<Initiative[]>([]);
   isOpenSearch = signal(false);
 
   constructor() {
