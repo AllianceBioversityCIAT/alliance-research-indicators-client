@@ -19,8 +19,8 @@
 <ng-template #createButton>
   <button
     class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
-    [disabled]="loading || isDisabled"
-    (click)="createResult()">
+    (click)="createResult()"
+    [disabled]="loading || isDisabled">
     @if (loading) {
       <div class="min-w-[191px]">
         <i class="pi pi-spinner pi-spin text-white text-xs"></i>
@@ -35,7 +35,7 @@
 <div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px]">
   <!-- OICR header -->
   @if (currentContract()) {
-    <div class="flex justify-between items-center bg-[#f4f7f9] border-y border-[#E8EBED] px-15 py-7">
+    <div class="flex justify-between items-center bg-[#f4f7f9] border-y border-[#E8EBED] px-15 pb-7 pt-6">
       <div class="flex-col flex w-full">
         <div class="flex items-center gap-2">
           <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
@@ -105,7 +105,7 @@
 
     @if (activeIndex === 0) {
       <div id="general-information" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
-        <p class="text-[14px] font-[800] text-[#173F6F]">GENERAL INFORMATION</p>
+        <p class="text-[15px] font-[800] text-[#173F6F]">GENERAL INFORMATION</p>
 
         <div class="grid gap-[10px]">
           <div class="flex flex-col">
@@ -114,7 +114,7 @@
               helperText="Pick a contact person from the Alliance staff database who is associated with the result and can provide information as needed. Only one person can be selected."
               [isRequired]="true"
               [signal]="this.body"
-              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              [optionValue]="{ body: 'step_one.main_contact_person.user_id', option: 'user_id' }"
               optionLabel="full_name"
               serviceName="userStaff"
               placeholder="Select the main contact person"></app-select>
@@ -126,22 +126,52 @@
               helperText="You can find some examples how the ‘Tag as’ were used in previous OICRs here."
               [isRequired]="true"
               [signal]="this.body"
-              [optionValue]="{ body: 'user_id', option: 'user_id' }"
-              optionLabel="full_name"
-              serviceName="userStaff"
+              [optionValue]="{ body: 'step_one.tagging.tag_id', option: 'id' }"
+              optionLabel="name"
+              serviceName="tags"
+              scrollHeight="132px"
               placeholder="Select the tagging"></app-select>
           </div>
 
-          <div class="flex flex-col">
-            <app-select
-              label="Select existing OICR"
-              helperText="Select an OICR previously reported in the Alliance."
-              [signal]="this.body"
-              [optionValue]="{ body: 'user_id', option: 'user_id' }"
-              optionLabel="full_name"
-              serviceName="userStaff"
-              placeholder="Select OICR"></app-select>
-          </div>
+          @if (body().step_one.tagging?.tag_id === 2) {
+            <div class="flex flex-col">
+              <app-select
+                label="Select existing OICR"
+                helperText="Select an OICR previously reported in the Alliance."
+                [signal]="this.body"
+                [optionValue]="{ body: 'step_one.linked_result.link_result_id', option: 'link_result_id' }"
+                optionLabel="select_label"
+                serviceName="oicrResults"
+                placeholder="Select OICR">
+                <ng-template #item let-item>
+                  <div class="flex flex-col gap-2 h-[54px] text-[14px]" pTooltip="{{ item?.description }}">
+                    <p class="text-[#4C5158] font-[400]">
+                      <b>{{ item?.agreement_id }} -</b>
+                      {{ item?.description }}
+                    </p>
+
+                    <p class="space-x-3 text-[11px] text-[#777C83]">
+                      <button
+                        class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg"
+                        [class]="getContractStatusClasses(item?.contract_status)">
+                        {{ item?.contract_status }}
+                      </button>
+                      Principal investigator <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
+                      <span class="text-[#345B8F]">{{ item?.project_lead_description }}</span>
+                      <span class="text-[#B9C0C5]">|</span>
+                      Start date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
+                      <span class="text-[#345B8F]">{{ item?.start_date | date: 'dd/MM/yyyy' }}</span>
+                      @if (item?.end_date) {
+                        <span class="text-[#B9C0C5]">|</span>
+                        End date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
+                        <span class="text-[#345B8F]">{{ item?.end_date | date: 'dd/MM/yyyy' }}</span>
+                      }
+                    </p>
+                  </div>
+                </ng-template>
+              </app-select>
+            </div>
+          }
 
           <div class="flex flex-col">
             <app-textarea
@@ -151,7 +181,7 @@
               helperText="You can find good examples from previous OICRs here."
               [maxLength]="400"
               [signal]="this.body"
-              [optionValue]="'description'"
+              [optionValue]="'step_one.outcome_impact_statement'"
               placeholder="Please briefly elaborate on the Outcome Impact Case you want to report"></app-textarea>
           </div>
         </div>
@@ -165,16 +195,16 @@
 
     @if (activeIndex === 1) {
       <div id="contributors" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
-        <p class="text-[14px] font-[800] text-[#173F6F]">CONTRIBUTORS</p>
+        <p class="text-[15px] font-[800] text-[#173F6F]">CONTRIBUTORS</p>
 
         <div class="grid gap-[10px]">
           <div class="flex flex-col">
             <app-select
               label="Initiative"
               [signal]="this.body"
-              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              [optionValue]="{ body: 'step_two.initiatives.clarisa_initiative_id', option: 'clarisa_initiative_id' }"
               optionLabel="full_name"
-              serviceName="userStaff"
+              serviceName="initiatives"
               placeholder="Select an option"></app-select>
           </div>
 
@@ -183,7 +213,7 @@
               label="Primary Levers"
               [isRequired]="true"
               [signal]="this.body"
-              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              [optionValue]="{ body: 'step_two.primary_lever.lever_id', option: 'lever_id' }"
               optionLabel="full_name"
               serviceName="userStaff"
               placeholder="Select the levers"></app-select>
@@ -193,7 +223,7 @@
             <app-select
               label="Other Contributing Levers"
               [signal]="this.body"
-              [optionValue]="{ body: 'user_id', option: 'user_id' }"
+              [optionValue]="{ body: 'step_two.contributor_lever.lever_id', option: 'lever_id' }"
               optionLabel="full_name"
               serviceName="userStaff"
               placeholder="Select the levers"></app-select>
@@ -212,7 +242,7 @@
 
     @if (activeIndex === 2) {
       <div id="geographic-scope" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
-        <p class="text-[14px] font-[800] text-[#173F6F]">GEOGRAPHIC SCOPE</p>
+        <p class="text-[15px] font-[800] text-[#173F6F]">GEOGRAPHIC SCOPE</p>
 
         <div class="grid gap-[10px]">
           <div class="flex flex-col gap-8">
@@ -226,7 +256,7 @@
               spaceX="gap-10"
               serviceName="geoFocus"
               (selectEvent)="onSelect()"
-              [optionValue]="{ body: 'geo_scope_id', option: 'value' }"></app-radio-button>
+              [optionValue]="{ body: 'step_three.geo_scope_id', option: 'value' }"></app-radio-button>
 
             @if (getMultiselectLabel().region.label) {
               <app-multiselect
@@ -234,7 +264,7 @@
                 [optionLabel]="'name'"
                 class="-mt-4"
                 [optionValue]="'region_id'"
-                [signalOptionValue]="'regions'"
+                [signalOptionValue]="'step_three.regions'"
                 [isRequired]="isRegionsRequired()"
                 serviceName="regions"
                 label="{{ getMultiselectLabel().region.label }}"
@@ -243,16 +273,16 @@
               </app-multiselect>
             }
             @if (getMultiselectLabel().country.label) {
-              @if (body().geo_scope_id === 5) {
+              @if (body().step_three.geo_scope_id === 5) {
                 <app-multiselect
                   (selectEvent)="onSelect()"
                   [signal]="body"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
-                  [disabledSelectedScroll]="body().geo_scope_id === 5"
+                  [disabledSelectedScroll]="body().step_three.geo_scope_id === 5"
                   [optionLabel]="'name'"
                   class="-mt-4"
                   [isRequired]="isCountriesRequired()"
-                  [optionValue]="'isoAlpha2'"
+                  [optionValue]="'step_three.countries.isoAlpha2'"
                   [signalOptionValue]="'countries'"
                   serviceName="countriesWithSubnational"
                   label="{{ getMultiselectLabel().country.label }}"
@@ -316,11 +346,11 @@
                   [signal]="body"
                   class="-mt-3"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
-                  [disabledSelectedScroll]="body().geo_scope_id === 5"
+                  [disabledSelectedScroll]="body().step_three.geo_scope_id === 5"
                   [optionLabel]="'name'"
                   [isRequired]="isCountriesRequired()"
                   [optionValue]="'isoAlpha2'"
-                  [signalOptionValue]="'countries'"
+                  [signalOptionValue]="'step_three.countries'"
                   serviceName="countriesWithoutSubnational"
                   label="{{ getMultiselectLabel().country.label }}"
                   helperText="{{ getMultiselectLabel().country.description }}"
@@ -337,7 +367,7 @@
               helperText="Provide additional information about the geographic scope, if necessary."
               [maxLength]="400"
               [signal]="this.body"
-              [optionValue]="'description'"
+              [optionValue]="'step_three.comment_geo_scope'"
               placeholder="Write the comments"></app-textarea>
           </div>
         </div>
@@ -354,7 +384,7 @@
 
     @if (activeIndex === 3) {
       <div id="general-comments" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
-        <p class="text-[14px] font-[800] text-[#173F6F]">GENERAL COMMENTS</p>
+        <p class="text-[15px] font-[800] text-[#173F6F]">GENERAL COMMENTS</p>
 
         <div class="grid gap-[10px]">
           <div class="flex flex-col">
@@ -364,7 +394,7 @@
               [maxLength]="400"
               [signal]="this.body"
               [maxLength]="3000"
-              [optionValue]="'description'"
+              [optionValue]="'step_four.general_comment.comment_geo_scope'"
               placeholder="Write the comments"></app-textarea>
           </div>
         </div>
