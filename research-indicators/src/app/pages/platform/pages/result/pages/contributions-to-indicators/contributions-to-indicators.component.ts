@@ -91,7 +91,7 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
   async getContributions() {
     this.loading.set(true);
     this.body.set({ selectedIndicators: [] });
-    const response = await this.api.GET_ContributionsByResult();
+    const response = await this.api.GET_ContributionsByResult(this.currentProject()?.agreement_id ?? '');
     this.body.set({
       selectedIndicators: response.data.map((item: PostSyncContributor) => ({
         ...item,

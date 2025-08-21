@@ -627,8 +627,8 @@ export class ApiService {
     return this.TP.post(url(), body);
   };
 
-  GET_ContributionsByResult = () => {
-    const url = () => `contributions/by-result/${this.cache.currentMetadata().result_id}`;
+  GET_ContributionsByResult = (agreementId: string) => {
+    const url = () => `contributions/by-result/${this.cache.currentMetadata().result_id}/${agreementId}`;
     return this.TP.get(url(), {});
   };
 
