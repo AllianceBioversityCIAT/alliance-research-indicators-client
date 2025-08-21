@@ -189,7 +189,7 @@ export class ApiService {
   };
 
   POST_CreateOicr = <T>(body: T): Promise<MainResponse<OicrCreation>> => {
-    const url = () => `result-oicr`;
+    const url = () => `results/oicr`;
     return this.TP.post(url(), body, {});
   };
 
