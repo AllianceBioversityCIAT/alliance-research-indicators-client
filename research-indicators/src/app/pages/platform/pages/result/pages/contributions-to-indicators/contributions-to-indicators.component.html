@@ -69,13 +69,27 @@
         </ng-template>
         <ng-template #rows let-indicator>
           <div class="w-full">
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                <strong>{{ indicator.name }} </strong> - target unit: {{ indicator.targetUnit }}
+              </div>
+              <div class="flex items-center gap-2">
+                Parent:
+                <div class="bg-[#f0f0f0] rounded-[6px] p-0 px-3">{{ indicator.group_item?.name }}</div>
+                @if (indicator.group_item?.parent_item?.name) {
+                  <i class="pi pi-angle-left"></i
+                  ><span class="bg-[#f0f0f0] rounded-[6px] p-0 px-3"> {{ indicator.group_item?.parent_item?.name }} </span>
+                }
+              </div>
+            </div>
+            <br />
             <div class="flex items-center gap-2 mb-2">
               <label for="contribution-value">{{ indicator.targetUnit }}</label>
               <p-inputNumber
                 [style]="{ width: '300px' }"
                 id="contribution-value"
                 [(ngModel)]="indicator.contribution_value"
-                [placeholder]="'Enter the value for: ' + indicator.targetUnit"></p-inputNumber>
+                [placeholder]="indicator.targetUnit"></p-inputNumber>
             </div>
             <!-- <app-input
               [label]="indicator.targetUnit"
