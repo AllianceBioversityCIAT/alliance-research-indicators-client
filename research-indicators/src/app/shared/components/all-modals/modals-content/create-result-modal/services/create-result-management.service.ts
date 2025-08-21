@@ -10,6 +10,7 @@ export class CreateResultManagementService {
   items = signal<AIAssistantResult[]>([]);
   contractId = signal<number | null>(null);
   resultTitle = signal<string | null>(null);
+  year = signal<number | null>(null);
   modalTitle = signal<string>('Create A Result');
 
   // Step constants for better readability
@@ -34,6 +35,10 @@ export class CreateResultManagementService {
 
   setResultTitle(title: string | null) {
     this.resultTitle.set(title);
+  }
+
+  setYear(year: number | null) {
+    this.year.set(year);
   }
 
   setModalTitle(title: string) {

@@ -110,6 +110,7 @@ export class CreateResultFormComponent {
   navigateToOicr() {
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);
+    this.createResultManagementService.setYear(this.body().year);
     this.createResultManagementService.setModalTitle('OICR result');
     this.createResultManagementService.resultPageStep.set(2);
   }
