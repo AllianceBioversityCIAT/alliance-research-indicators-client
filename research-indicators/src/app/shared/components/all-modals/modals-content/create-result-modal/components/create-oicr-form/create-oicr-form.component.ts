@@ -46,7 +46,10 @@ import {
 import { Country, Region } from '@shared/interfaces/get-geo-location.interface';
 import { environment } from '@envs/environment';
 import { OicrCreation } from '@shared/interfaces/oicr-creation.interface';
+import { Initiative } from '@shared/interfaces/initiative.interface';
 import { TooltipModule } from 'primeng/tooltip';
+import { ServiceLocatorService } from '@shared/services/service-locator.service';
+import { GetInitiativesService } from '@shared/services/control-list/get-initiatives.service';
 
 // Interfaz extendida para incluir contract_id
 interface GetContractsExtended extends GetContracts {
@@ -82,6 +85,7 @@ export class CreateOicrFormComponent {
   elementRef = inject(ElementRef);
   cache = inject(CacheService);
   api = inject(ApiService);
+  serviceLocator = inject(ServiceLocatorService);
 
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
@@ -323,8 +327,19 @@ export class CreateOicrFormComponent {
     this.isFirstSelect = false;
   };
 
-  createResult() {
+  async createResult() {
     console.warn(this.body());
+    const response = await this.api.POST_CreateOicr(this.body());
+    if (!response.successfulRequest) {
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
+    } else {
+      this.actions.showGlobalAlert({
+        severity: 'success',
+        summary: 'Thank you for your submission',
+        detail:
+          'Your OICR will be reviewed by PISA-SPRM and the assigned regional MEL specialist will reach out to support you in finalizing the next steps of the OICR development process.'
+      });
+    }
   }
 
   goNext() {
@@ -349,5 +364,23 @@ export class CreateOicrFormComponent {
   goBackToCreateResult() {
     this.createResultManagementService.setModalTitle('Create A Result');
     this.createResultManagementService.resultPageStep.set(0);
+  }
+
+  isGeoScopeId(value: number | string): boolean {
+    return Number(this.body().step_three.geo_scope_id) === value;
+  }
+
+  formatSelectedInitiatives(value: string[]): string {
+    if (!value || value.length === 0) return '';
+
+    const initiativesService = this.serviceLocator.getService('initiatives') as GetInitiativesService;
+    const allInitiatives = initiativesService?.list() || [];
+
+    const selectedInitiatives = value.map(code => allInitiatives.find((initiative: Initiative) => initiative.official_code === code)).filter(Boolean);
+
+    return selectedInitiatives
+      .map((item: Initiative | undefined) => (item ? `${item.official_code} - ${item.short_name}` : ''))
+      .filter(Boolean)
+      .join(', ');
   }
 }

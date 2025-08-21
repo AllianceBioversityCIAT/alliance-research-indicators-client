@@ -199,38 +199,110 @@
 
         <div class="grid gap-[10px]">
           <div class="flex flex-col">
-            <app-select
-              label="Initiative"
-              [signal]="this.body"
-              [optionValue]="{ body: 'step_two.initiatives.clarisa_initiative_id', option: 'clarisa_initiative_id' }"
-              optionLabel="full_name"
+            <app-multiselect
+              label="Initiatives"
+              [signal]="body"
+              optionValue="official_code"
+              signalOptionValue="step_two.initiatives"
+              [hideTemplate]="true"
+              [columnsOnXl]="true"
+              scrollHeight="260px"
               serviceName="initiatives"
-              placeholder="Select an option"></app-select>
+              placeholder="Select the initiatives">
+              <ng-template #selectedItems let-value>
+                @if (value?.length > 0) {
+                  <div class="flex items-center gap-2">
+                    <span>{{ formatSelectedInitiatives(value) }}</span>
+                  </div>
+                }
+              </ng-template>
+              <ng-template #item let-item>
+                <div class="flex items-center gap-2 text-[##4C5158]">
+                  <span>
+                    {{ item?.official_code }} - <span class="font-[600]">{{ item?.short_name }}</span></span
+                  >
+                </div>
+              </ng-template>
+            </app-multiselect>
           </div>
 
-          <div class="flex flex-col">
-            <app-select
+          <div class="flex flex-col pt-2">
+            <app-multiselect
               label="Primary Levers"
+              [signal]="body"
+              optionValue="id"
+              signalOptionValue="step_two.primary_lever"
               [isRequired]="true"
-              [signal]="this.body"
-              [optionValue]="{ body: 'step_two.primary_lever.lever_id', option: 'lever_id' }"
-              optionLabel="full_name"
-              serviceName="userStaff"
-              placeholder="Select the levers"></app-select>
+              [columnsOnXl]="true"
+              scrollHeight="260px"
+              serviceName="levers"
+              placeholder="Select the levers">
+              <ng-template #selectedItems let-value>
+                @if (value?.length > 0) {
+                  <div class="flex items-center gap-2">
+                    <span>{{ value?.length }} Lever{{ value?.length === 1 ? '' : 's' }} selected </span>
+                  </div>
+                }
+              </ng-template>
+              <ng-template #item let-item>
+                <div class="flex items-center gap-2 text-[##4C5158]">
+                  <span class="font-[600]">
+                    {{ item?.short_name }}: <span class="font-['Barlow'] font-normal">{{ item?.other_names }}</span></span
+                  >
+                </div>
+              </ng-template>
+              <ng-template #rows let-lever>
+                <div class="flex-col flex w-full">
+                  <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                    <img [src]="lever.icon" [alt]="lever.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
+                    <span class="text-[15px] text-[#4C5158] font-[600]">
+                      {{ lever?.short_name }}: <span class="font-['Barlow'] font-normal">{{ lever?.other_names }}</span></span
+                    >
+                  </div>
+                </div>
+              </ng-template>
+            </app-multiselect>
           </div>
 
-          <div class="flex flex-col">
-            <app-select
+          <div class="flex flex-col pt-2">
+            <app-multiselect
               label="Other Contributing Levers"
-              [signal]="this.body"
-              [optionValue]="{ body: 'step_two.contributor_lever.lever_id', option: 'lever_id' }"
-              optionLabel="full_name"
-              serviceName="userStaff"
-              placeholder="Select the levers"></app-select>
+              [signal]="body"
+              optionValue="id"
+              signalOptionValue="step_two.contributor_lever"
+              [columnsOnXl]="true"
+              scrollHeight="260px"
+              serviceName="levers"
+              placeholder="Select the levers">
+              <ng-template #selectedItems let-value>
+                @if (value?.length > 0) {
+                  <div class="flex items-center gap-2">
+                    <span>{{ value?.length }} Lever{{ value?.length === 1 ? '' : 's' }} selected </span>
+                  </div>
+                }
+              </ng-template>
+              <ng-template #item let-item>
+                <div class="flex items-center gap-2">
+                  <span class="font-[600] text-[##4C5158]">
+                    {{ item?.short_name }}: <span class="font-['Barlow'] font-normal">{{ item?.other_names }}</span></span
+                  >
+                </div>
+              </ng-template>
+              <ng-template #rows let-lever>
+                <div class="flex-col flex w-full">
+                  <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                    <img [src]="lever.icon" [alt]="lever.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
+                    <span class="text-[15px] text-[#4C5158] font-[600]">
+                      {{ lever?.short_name }}: <span class="font-['Barlow'] font-normal">{{ lever?.other_names }}</span></span
+                    >
+                  </div>
+                </div>
+              </ng-template>
+            </app-multiselect>
           </div>
         </div>
 
-        <div class="w-full flex justify-between">
+        <div class="w-full flex justify-between pt-4">
           <div class="flex gap-3">
             <ng-container *ngTemplateOutlet="previous"></ng-container>
             <ng-container *ngTemplateOutlet="next"></ng-container>
@@ -262,7 +334,7 @@
               <app-multiselect
                 [signal]="body"
                 [optionLabel]="'name'"
-                class="-mt-4"
+                class="-mt-5"
                 [optionValue]="'region_id'"
                 [signalOptionValue]="'step_three.regions'"
                 [isRequired]="isRegionsRequired()"
@@ -273,17 +345,17 @@
               </app-multiselect>
             }
             @if (getMultiselectLabel().country.label) {
-              @if (body().step_three.geo_scope_id === 5) {
+              @if (isGeoScopeId(5)) {
                 <app-multiselect
                   (selectEvent)="onSelect()"
                   [signal]="body"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
-                  [disabledSelectedScroll]="body().step_three.geo_scope_id === 5"
+                  [disabledSelectedScroll]="isGeoScopeId(5)"
                   [optionLabel]="'name'"
                   class="-mt-4"
                   [isRequired]="isCountriesRequired()"
-                  [optionValue]="'step_three.countries.isoAlpha2'"
-                  [signalOptionValue]="'countries'"
+                  [optionValue]="'isoAlpha2'"
+                  [signalOptionValue]="'step_three.countries'"
                   serviceName="countriesWithSubnational"
                   label="{{ getMultiselectLabel().country.label }}"
                   helperText="{{ getMultiselectLabel().country.description }}"
@@ -335,9 +407,9 @@
                 </app-multiselect>
 
                 @if (showSubnationalError()) {
-                  <div class="flex items-center gap-1 -mt-4 text-[#E69F00] text-sm">
-                    <i class="material-symbols-rounded !text-base">warning</i>
-                    <span>Please select at least one sub-national level per country.</span>
+                  <div class="flex items-center gap-1 -mt-6 text-[#E69F00]">
+                    <i class="material-symbols-rounded !text-[14px]">warning</i>
+                    <span class="!text-[14px]">Please select at least one sub-national level per country.</span>
                   </div>
                 }
               } @else {
@@ -346,7 +418,7 @@
                   [signal]="body"
                   class="-mt-3"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
-                  [disabledSelectedScroll]="body().step_three.geo_scope_id === 5"
+                  [disabledSelectedScroll]="isGeoScopeId(5)"
                   [optionLabel]="'name'"
                   [isRequired]="isCountriesRequired()"
                   [optionValue]="'isoAlpha2'"
