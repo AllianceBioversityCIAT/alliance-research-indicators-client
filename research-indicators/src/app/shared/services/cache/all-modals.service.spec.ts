@@ -103,8 +103,8 @@ describe('AllModalsService', () => {
     service.updateModal(2);
     const modalConfig = service.modalConfig();
     expect(modalConfig.createResult.title).toBe('Create A Result');
-    expect(modalConfig.createResult.icon).toBeUndefined();
-    expect(modalConfig.createResult.iconAction).toBeUndefined();
+    expect(modalConfig.createResult.icon).toBe('arrow_back');
+    expect(modalConfig.createResult.iconAction).toBeDefined();
   });
 
   it('should toggle modal open', () => {

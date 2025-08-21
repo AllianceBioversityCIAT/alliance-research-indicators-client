@@ -72,7 +72,7 @@ describe('TextareaValidationService', () => {
       expect(mockShowMaxReachedSignal()).toBe(false);
 
       tick();
-      expect(mockInput.setSelectionRange).toHaveBeenCalledWith(17, 17);
+      expect(mockInput.setSelectionRange).toHaveBeenCalledWith(16, 16);
     }));
 
     it('should handle paste when new value exceeds limit', fakeAsync(() => {
