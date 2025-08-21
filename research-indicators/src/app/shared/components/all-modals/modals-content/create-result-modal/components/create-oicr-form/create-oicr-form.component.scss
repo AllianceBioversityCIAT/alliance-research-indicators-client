@@ -24,10 +24,59 @@
   font-weight: 600 !important;
   min-width: 38px !important;
   min-height: 38px !important;
+  box-shadow: none !important;
 }
 
 :host ::ng-deep .p-steps-item-label {
   font-weight: 400 !important;
   color: #a2a9af !important;
   font-size: 14px !important;
+}
+
+// Step 1 completed: apply styles whether active or not
+:host ::ng-deep .p-steps-item.oicr-step1-complete .p-steps-item-number {
+  border-color: #1689ca !important;
+  border-width: 2px !important;
+  background-color: #1689ca !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+}
+
+// Step 2 completed: apply styles whether active or not
+:host ::ng-deep .p-steps-item.oicr-step2-complete .p-steps-item-number {
+  border-color: #1689ca !important;
+  border-width: 2px !important;
+  background-color: #1689ca !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+}
+
+// Step 3 completed: apply styles whether active or not
+:host ::ng-deep .p-steps-item.oicr-step3-complete .p-steps-item-number {
+  border-color: #1689ca !important;
+  border-width: 2px !important;
+  background-color: #1689ca !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+}
+
+// Step 4 completed: apply styles whether active or not
+:host ::ng-deep .p-steps-item.oicr-step4-complete .p-steps-item-number {
+  border-color: #1689ca !important;
+  border-width: 2px !important;
+  background-color: #1689ca !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
 }

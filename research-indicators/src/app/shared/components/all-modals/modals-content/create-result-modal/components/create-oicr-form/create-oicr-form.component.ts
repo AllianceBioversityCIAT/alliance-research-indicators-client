@@ -92,6 +92,9 @@ export class CreateOicrFormComponent {
   loading = false;
   activeIndex = 0;
 
+  // Signal to track if step 4 has been visited at least once
+  stepFourVisited = signal(false);
+
   public getContractStatusClasses = getContractStatusClasses;
   private stepSectionIds = [...CREATE_OICR_STEPPER_SECTIONS];
 
@@ -106,6 +109,30 @@ export class CreateOicrFormComponent {
       ...item,
       command: () => this.onStepClick(idx, CREATE_OICR_STEPPER_SECTIONS[idx])
     }))
+  );
+
+  stepOneCompletionEffect = effect(
+    () => {
+      const completed = this.isCompleteStepOne;
+      this.stepItems.update(items => items.map((item, idx) => (idx === 0 ? { ...item, styleClass: completed ? 'oicr-step1-complete' : '' } : item)));
+    },
+    { allowSignalWrites: true }
+  );
+
+  stepTwoCompletionEffect = effect(
+    () => {
+      const completed = this.isCompleteStepTwo;
+      this.stepItems.update(items => items.map((item, idx) => (idx === 1 ? { ...item, styleClass: completed ? 'oicr-step2-complete' : '' } : item)));
+    },
+    { allowSignalWrites: true }
+  );
+
+  stepThreeCompletionEffect = effect(
+    () => {
+      const completed = this.isCompleteStepThree;
+      this.stepItems.update(items => items.map((item, idx) => (idx === 2 ? { ...item, styleClass: completed ? 'oicr-step3-complete' : '' } : item)));
+    },
+    { allowSignalWrites: true }
   );
 
   body: WritableSignal<OicrCreation> = signal({
@@ -169,6 +196,9 @@ export class CreateOicrFormComponent {
 
   onActiveIndexChange(event: number) {
     this.activeIndex = event;
+    if (event === 3) {
+      this.stepFourVisited.set(true);
+    }
   }
   removeSubnationalRegion(country: Country, region: Region) {
     this.body.update(current => {
@@ -243,6 +273,18 @@ export class CreateOicrFormComponent {
     );
   }
 
+  get isCompleteStepFour(): boolean {
+    return this.stepFourVisited();
+  }
+
+  stepFourCompletionEffect = effect(
+    () => {
+      const completed = this.isCompleteStepFour;
+      this.stepItems.update(items => items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item)));
+    },
+    { allowSignalWrites: true }
+  );
+
   onContractIdChange(newContractId: number | null) {
     this.contractId = newContractId;
     this.body.update(b => ({ ...b, contract_id: newContractId }));
@@ -282,7 +324,7 @@ export class CreateOicrFormComponent {
   };
 
   createResult() {
-    console.log(this.body());
+    console.warn(this.body());
   }
 
   goNext() {
