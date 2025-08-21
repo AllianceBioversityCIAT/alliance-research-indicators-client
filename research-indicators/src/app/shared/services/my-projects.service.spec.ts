@@ -394,6 +394,160 @@ describe('MyProjectsService', () => {
 
       expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(customParams);
     });
+
+    it('should handle item with no principal_investigator and no project_lead_description', async () => {
+      const mockResponse = {
+        data: [
+          {
+            agreement_id: 'A003',
+            projectDescription: 'Test Project 3',
+            description: 'Test Description 3',
+            project_lead_description: null,
+            principal_investigator: null,
+            lever_name: 'Test Lever 3'
+          }
+        ]
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.list()).toHaveLength(1);
+      const item = service.list()[0];
+      expect(item.display_principal_investigator).toBe('');
+    });
+
+    it('should handle item with empty principal_investigator but valid project_lead_description', async () => {
+      const mockResponse = {
+        data: [
+          {
+            agreement_id: 'A004',
+            projectDescription: 'Test Project 4',
+            description: 'Test Description 4',
+            project_lead_description: 'Valid Lead Description',
+            principal_investigator: '',
+            lever_name: 'Test Lever 4'
+          }
+        ]
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.list()).toHaveLength(1);
+      const item = service.list()[0];
+      expect(item.display_principal_investigator).toBe('Valid Lead Description');
+    });
+
+    it('should handle item with undefined principal_investigator but valid project_lead_description', async () => {
+      const mockResponse = {
+        data: [
+          {
+            agreement_id: 'A005',
+            projectDescription: 'Test Project 5',
+            description: 'Test Description 5',
+            project_lead_description: 'Valid Lead Description',
+            principal_investigator: undefined,
+            lever_name: 'Test Lever 5'
+          }
+        ]
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.list()).toHaveLength(1);
+      const item = service.list()[0];
+      expect(item.display_principal_investigator).toBe('Valid Lead Description');
+    });
+
+    it('should handle item with valid principal_investigator', async () => {
+      const mockResponse = {
+        data: [
+          {
+            agreement_id: 'A006',
+            projectDescription: 'Test Project 6',
+            description: 'Test Description 6',
+            project_lead_description: 'Lead Description',
+            principal_investigator: 'Valid Principal Investigator',
+            lever_name: 'Test Lever 6'
+          }
+        ]
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.list()).toHaveLength(1);
+      const item = service.list()[0];
+      expect(item.display_principal_investigator).toBe('Valid Principal Investigator');
+    });
+
+    it('should handle item with empty principal_investigator and empty project_lead_description', async () => {
+      const mockResponse = {
+        data: [
+          {
+            agreement_id: 'A007',
+            projectDescription: 'Test Project 7',
+            description: 'Test Description 7',
+            project_lead_description: '',
+            principal_investigator: '',
+            lever_name: 'Test Lever 7'
+          }
+        ]
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.list()).toHaveLength(1);
+      const item = service.list()[0];
+      expect(item.display_principal_investigator).toBe('');
+    });
+
+    it('should handle item with false principal_investigator but valid project_lead_description', async () => {
+      const mockResponse = {
+        data: [
+          {
+            agreement_id: 'A008',
+            projectDescription: 'Test Project 8',
+            description: 'Test Description 8',
+            project_lead_description: 'Valid Lead Description',
+            principal_investigator: false,
+            lever_name: 'Test Lever 8'
+          }
+        ]
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.list()).toHaveLength(1);
+      const item = service.list()[0];
+      expect(item.display_principal_investigator).toBe('Valid Lead Description');
+    });
+
+    it('should handle item with 0 principal_investigator but valid project_lead_description', async () => {
+      const mockResponse = {
+        data: [
+          {
+            agreement_id: 'A009',
+            projectDescription: 'Test Project 9',
+            description: 'Test Description 9',
+            project_lead_description: 'Valid Lead Description',
+            principal_investigator: 0,
+            lever_name: 'Test Lever 9'
+          }
+        ]
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.list()).toHaveLength(1);
+      const item = service.list()[0];
+      expect(item.display_principal_investigator).toBe('Valid Lead Description');
+    });
   });
 
   describe('applyFilters', () => {
