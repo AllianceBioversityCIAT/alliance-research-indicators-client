@@ -3,7 +3,6 @@ import { FormHeaderComponent } from '@shared/components/form-header/form-header.
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
-import { AllianceAlignmentContract } from '../../../../../../shared/interfaces/get-alliance-alignment.interface';
 import { TabsModule } from 'primeng/tabs';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +12,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { GetProjectIndicatorsHierarchyService } from '../../../../../../shared/services/control-list/get-project-indicators-hierarchy.service';
 import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
+import { PostSyncContributor } from '../../../../../../shared/interfaces/post-sync-contributor.interface';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'app-contributions-to-indicators',
@@ -24,7 +25,8 @@ import { InputComponent } from '../../../../../../shared/components/custom-field
     FormsModule,
     TooltipModule,
     MultiselectComponent,
-    InputComponent
+    InputComponent,
+    InputNumberModule
   ],
   templateUrl: './contributions-to-indicators.component.html',
   styleUrl: './contributions-to-indicators.component.scss'
@@ -34,18 +36,33 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
   cache = inject(CacheService);
   projects = signal<ProjectIndicatorContract[]>([]);
   currentIndicators = signal<Indicator[]>([]);
-  body = signal<{ selectedIndicators: any[] }>({
+  body = signal<{ selectedIndicators: PostSyncContributor[] }>({
     selectedIndicators: []
   });
   getProjectIndicatorsHierarchy = inject(GetProjectIndicatorsHierarchyService);
 
   ngOnInit() {
     this.getData();
+    this.getContributions();
   }
 
   currentProject = signal<ProjectIndicatorContract | null>(null);
 
-  saveData = (option?: 'back' | 'next' | 'save') => {
+  saveData = async (option?: 'back' | 'next' | 'save') => {
+    const selectedIndicators = this.body().selectedIndicators.map(item => {
+      const obj = {
+        result_id: this.cache.currentMetadata().result_id,
+        indicator_id: item.id,
+        contribution_value: item.contribution_value,
+        contribution_id: item.contribution_id
+      };
+
+      return obj;
+    });
+    console.log(selectedIndicators);
+    return;
+    const response = await this.api.POST_SyncContribution(this.body().selectedIndicators);
+    console.log(response.data);
     return option;
   };
 
@@ -70,5 +87,11 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
     this.body.set({ selectedIndicators: [] });
     this.getProjectIndicatorsHierarchy.update(this.currentProject()?.agreement_id ?? '');
     // this.currentIndicators.set(this.getProjectIndicatorsHierarchy.list());
+  }
+
+  async getContributions() {
+    const response = await this.api.GET_ContributionsByResult();
+    console.log(response.data);
+    this.body.set({ selectedIndicators: response.data });
   }
 }

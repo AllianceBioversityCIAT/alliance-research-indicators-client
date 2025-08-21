@@ -38,9 +38,9 @@
         class="w-full" /> -->
 
       <app-multiselect
-        label="Contributing projects"
+        label="Contributing indicators"
         [signal]="body"
-        textSpan="Select the required primary project for this result. Note that only one project can be selected."
+        textSpan="Select the required contributing indicators for this result."
         optionLabel="name"
         optionValue="id"
         signalOptionValue="selectedIndicators"
@@ -58,13 +58,21 @@
         </ng-template>
         <ng-template #rows let-indicator>
           <div class="w-full">
-            <app-input
+            <div class="flex items-center gap-2 mb-2">
+              <label for="contribution-value">{{ indicator.targetUnit }}</label>
+              <p-inputNumber
+                [style]="{ width: '300px' }"
+                id="contribution-value"
+                [(ngModel)]="indicator.contribution_value"
+                [placeholder]="'Enter the value for: ' + indicator.targetUnit"></p-inputNumber>
+            </div>
+            <!-- <app-input
               [label]="indicator.targetUnit"
               [isRequired]="false"
               [validateEmpty]="true"
               [signal]="this.body"
               optionValue="title"
-              [placeholder]="'Enter the value for: ' + indicator.targetUnit"></app-input>
+              [placeholder]="'Enter the value for: ' + indicator.targetUnit"></app-input> -->
           </div>
         </ng-template>
       </app-multiselect>

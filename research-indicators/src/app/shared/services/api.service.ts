@@ -61,6 +61,7 @@ import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { GetStructures } from '../interfaces/get-structures.interface';
 import { PostIndicator } from '../interfaces/post-indicator.interface';
 import { GetProjectIndicators } from '../interfaces/get-project-indicators.interface';
+import { PostSyncContributor } from '../interfaces/post-sync-contributor.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -585,6 +586,16 @@ export class ApiService {
 
   GET_IndicatorsByResult = (agreement_id: string): Promise<MainResponse<GetProjectIndicators>> => {
     const url = () => `project-indicators/indicators/by-result/${agreement_id}`;
+    return this.TP.get(url(), {});
+  };
+
+  POST_SyncContribution = (body: PostSyncContributor[]) => {
+    const url = () => `contributions/sync-contribution`;
+    return this.TP.post(url(), body);
+  };
+
+  GET_ContributionsByResult = () => {
+    const url = () => `contributions/by-result/${this.cache.currentMetadata().result_id}`;
     return this.TP.get(url(), {});
   };
 
