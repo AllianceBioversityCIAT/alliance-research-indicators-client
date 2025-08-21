@@ -3,11 +3,22 @@
   <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
     <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">CONTRIBUTIONS TO INDICATORS</div>
 
-    <p-tabs [value]="currentProject()?.contract_id ?? ''" scrollable class="mb-6">
+    <div class="text-[12px] text-[#8D9299] mb-6">
+      This section needs to be completed because this result is mapped to one or more projects with configured indicators.
+    </div>
+
+    <p-tabs [value]="currentProject()?.agreement_id ?? ''" scrollable class="mb-6">
       <p-tablist>
-        @for (tab of projects(); track tab.contract_id) {
-          <p-tab [value]="tab.contract_id" (click)="onProjectChange(tab)" (keydown.enter)="onProjectChange(tab)" class="mx-1">
-            {{ tab.contract_id }}
+        @for (tab of projects(); track tab.agreement_id) {
+          <p-tab
+            pInputText
+            [pTooltip]="tab.description"
+            tooltipPosition="right"
+            [value]="tab.agreement_id"
+            (click)="onProjectChange(tab)"
+            (keydown.enter)="onProjectChange(tab)"
+            class="mx-1">
+            {{ tab.agreement_id }}
           </p-tab>
         }
       </p-tablist>
@@ -15,7 +26,7 @@
 
     <div class="flex flex-col gap-4 mb-4">
       <label for="indicators-multiselect" class="block text-sm font-medium text-gray-700">Select indicators</label>
-      <p-multiSelect
+      <!-- <p-multiSelect
         id="indicators-multiselect"
         placeholder="Select indicators"
         [options]="currentIndicators()"
@@ -24,7 +35,73 @@
         optionValue="id"
         [filter]="true"
         [filterBy]="'name'"
-        class="w-full" />
+        class="w-full" /> -->
+      @if (!loading()) {
+        <app-multiselect
+          label="Contributing indicators"
+          [signal]="body"
+          textSpan="Select the required contributing indicators for this result."
+          optionLabel="name"
+          optionValue="id"
+          signalOptionValue="selectedIndicators"
+          [isRequired]="false"
+          [scrollHeight]="'290px'"
+          [filterBy]="'select_label,project_lead_description'"
+          [itemHeight]="70"
+          serviceName="getProjectIndicatorsHierarchy">
+          <ng-template #item let-item>
+            <div class="flex flex-col gap-2 pl-2">
+              <div class="flex items-center gap-2">
+                <strong>{{ item.name }} </strong> - target unit: {{ item.targetUnit }}
+              </div>
+              <div class="flex items-center gap-2">
+                Parent:
+                <div class="bg-[#f0f0f0] rounded-[6px] p-0 px-3">{{ item.group_item?.name }}</div>
+                @if (item.group_item?.parent_item?.name) {
+                  <i class="pi pi-angle-left"></i><span class="bg-[#f0f0f0] rounded-[6px] p-0 px-3"> {{ item.group_item?.parent_item?.name }} </span>
+                }
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #selectedItems let-value>
+            <h1>Selected ({{ this.body().selectedIndicators.length }})</h1>
+          </ng-template>
+          <ng-template #rows let-indicator>
+            <div class="w-full">
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                  <strong>{{ indicator.name }} </strong> - target unit: {{ indicator.targetUnit }}
+                </div>
+                <div class="flex items-center gap-2">
+                  Parent:
+                  <div class="bg-[#f0f0f0] rounded-[6px] p-0 px-3">{{ indicator.group_item?.name }}</div>
+                  @if (indicator.group_item?.parent_item?.name) {
+                    <i class="pi pi-angle-left"></i
+                    ><span class="bg-[#f0f0f0] rounded-[6px] p-0 px-3"> {{ indicator.group_item?.parent_item?.name }} </span>
+                  }
+                </div>
+              </div>
+              <br />
+              <div class="flex items-center gap-2 mb-2">
+                <label for="contribution-value">{{ indicator.targetUnit }}</label>
+                <p-inputNumber
+                  [style]="{ width: '300px' }"
+                  id="contribution-value"
+                  [(ngModel)]="indicator.contribution_value"
+                  [placeholder]="indicator.targetUnit"></p-inputNumber>
+              </div>
+              <!-- <app-input
+              [label]="indicator.targetUnit"
+              [isRequired]="false"
+              [validateEmpty]="true"
+              [signal]="this.body"
+              optionValue="title"
+              [placeholder]="'Enter the value for: ' + indicator.targetUnit"></app-input> -->
+            </div>
+          </ng-template>
+        </app-multiselect>
+      }
     </div>
   </div>
 

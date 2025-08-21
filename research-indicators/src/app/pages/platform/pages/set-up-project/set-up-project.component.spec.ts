@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { signal } from '@angular/core';
+import { of } from 'rxjs';
 
 import SetUpProjectComponent from './set-up-project.component';
 import { SetUpProjectService } from './set-up-project.service';
@@ -27,7 +28,20 @@ describe('SetUpProjectComponent', () => {
       loadingStructures: signal(false),
       currentAgreementId: signal(null),
       getStructures: jest.fn().mockResolvedValue(undefined),
-      getIndicators: jest.fn().mockResolvedValue(undefined)
+      getIndicators: jest.fn().mockResolvedValue(undefined),
+      // Add missing signals and methods
+      level1Name: signal('Structure'),
+      level2Name: signal('Item'),
+      editingLevel1: signal(false),
+      editingLevel2: signal(false),
+      startEditingLevel1: jest.fn(),
+      startEditingLevel2: jest.fn(),
+      saveLevel1Name: jest.fn(),
+      saveLevel2Name: jest.fn(),
+      cancelEditingLevel1: jest.fn(),
+      cancelEditingLevel2: jest.fn(),
+      loadFromLocalStorage: jest.fn(),
+      clearLocalStorageForCurrentProject: jest.fn()
     };
 
     mockActionsService = {
@@ -47,7 +61,8 @@ describe('SetUpProjectComponent', () => {
       snapshot: {
         params: { id: 'test-project-id' },
         routeConfig: { path: 'structure' }
-      }
+      },
+      params: of({ id: 'test-project-id' })
     } as any;
 
     await TestBed.configureTestingModule({

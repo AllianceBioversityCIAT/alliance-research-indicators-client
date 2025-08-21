@@ -24,6 +24,12 @@ export class SetUpProjectService {
   }>({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } });
   indicatorList = signal<GetIndicators[]>([]);
 
+  // Tree hierarchy signals
+  level1Name = signal<string>('Structure');
+  level2Name = signal<string>('Item');
+  editingLevel1 = signal<boolean>(false);
+  editingLevel2 = signal<boolean>(false);
+
   manageIndicatorform = signal<PostIndicator>({
     name: '',
     description: '',
@@ -127,5 +133,94 @@ export class SetUpProjectService {
       }
       return [...prev];
     });
+  }
+
+  // Tree hierarchy editing methods
+  startEditingLevel1() {
+    this.editingLevel1.set(true);
+  }
+
+  startEditingLevel2() {
+    this.editingLevel2.set(true);
+  }
+
+  saveLevel1Name(newName: string) {
+    this.level1Name.set(newName);
+    this.editingLevel1.set(false);
+    this.saveToLocalStorage();
+  }
+
+  saveLevel2Name(newName: string) {
+    this.level2Name.set(newName);
+    this.editingLevel2.set(false);
+    this.saveToLocalStorage();
+  }
+
+  cancelEditingLevel1() {
+    this.editingLevel1.set(false);
+  }
+
+  cancelEditingLevel2() {
+    this.editingLevel2.set(false);
+  }
+
+  // LocalStorage methods with routeid validation
+  private getStorageKey(): string {
+    const routeId = this.currentAgreementId();
+    return `project-hierarchy-names-${routeId}`;
+  }
+
+  private saveToLocalStorage() {
+    try {
+      const storageKey = this.getStorageKey();
+      const data = {
+        level1Name: this.level1Name(),
+        level2Name: this.level2Name(),
+        routeId: this.currentAgreementId()
+      };
+      localStorage.setItem(storageKey, JSON.stringify(data));
+    } catch (error) {
+      console.warn('Failed to save hierarchy names to localStorage:', error);
+    }
+  }
+
+  loadFromLocalStorage() {
+    try {
+      const storageKey = this.getStorageKey();
+      const stored = localStorage.getItem(storageKey);
+
+      if (stored) {
+        const data = JSON.parse(stored);
+
+        // Validate that the stored data belongs to the current routeId
+        if (data.routeId === this.currentAgreementId()) {
+          this.level1Name.set(data.level1Name || 'Structure');
+          this.level2Name.set(data.level2Name || 'Item');
+        } else {
+          // If routeId doesn't match, reset to defaults
+          this.level1Name.set('Structure');
+          this.level2Name.set('Item');
+        }
+      } else {
+        // No stored data, use defaults
+        this.level1Name.set('Structure');
+        this.level2Name.set('Item');
+      }
+    } catch (error) {
+      console.warn('Failed to load hierarchy names from localStorage:', error);
+      // Fallback to defaults
+      this.level1Name.set('Structure');
+      this.level2Name.set('Item');
+    }
+  }
+
+  // Method to clear localStorage for current routeId
+  clearLocalStorageForCurrentProject() {
+    try {
+      const storageKey = this.getStorageKey();
+      localStorage.removeItem(storageKey);
+    } catch (error) {
+      console.warn('Failed to clear localStorage for current project:', error);
+    }
   }
 }

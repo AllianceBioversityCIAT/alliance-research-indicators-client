@@ -49,4 +49,5 @@ export type ControlListServices =
   | 'applicationOptions'
   | 'levers'
   | 'projectStatus'
+  | 'getProjectIndicatorsHierarchy'
   | '';

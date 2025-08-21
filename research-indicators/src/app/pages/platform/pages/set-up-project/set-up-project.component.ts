@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +28,7 @@ import { SetUpProjectService } from './set-up-project.service';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { AssignIndicatorsModalComponent } from './components/assign-indicators-modal/assign-indicators-modal.component';
 import { ActionsService } from '../../../../shared/services/actions.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-set-up-project',
@@ -56,7 +57,7 @@ import { ActionsService } from '../../../../shared/services/actions.service';
   templateUrl: './set-up-project.component.html',
   styleUrl: './set-up-project.component.scss'
 })
-export default class SetUpProjectComponent implements OnInit {
+export default class SetUpProjectComponent implements OnInit, OnDestroy {
   // Configuración principal del proyecto con indicadores por defecto
 
   setUpProjectService = inject(SetUpProjectService);
@@ -64,6 +65,7 @@ export default class SetUpProjectComponent implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
   actions = inject(ActionsService);
   routeid = signal<string | null>(null);
+  private routeSubscription?: Subscription;
 
   routeOptions = [
     { label: 'Structures', value: 'structure' },
@@ -75,6 +77,18 @@ export default class SetUpProjectComponent implements OnInit {
     const firstChildPath = this.activatedRoute.firstChild?.snapshot.routeConfig?.path;
     this.routeid.set(this.activatedRoute.snapshot.params['id']);
     this.setUpProjectService.currentAgreementId.set(this.activatedRoute.snapshot.params['id']);
+
+    // Load hierarchy names from localStorage for current project
+    this.setUpProjectService.loadFromLocalStorage();
+
+    // Subscribe to route parameter changes
+    this.routeSubscription = this.activatedRoute.params.subscribe(params => {
+      const newRouteId = params['id'];
+      if (newRouteId && newRouteId !== this.routeid()) {
+        this.onRouteIdChange(newRouteId);
+      }
+    });
+
     if (firstChildPath === 'indicators') {
       this.activeRoute = 'indicators';
     } else {
@@ -82,6 +96,12 @@ export default class SetUpProjectComponent implements OnInit {
     }
     this.setUpProjectService.getStructures();
     this.setUpProjectService.getIndicators();
+  }
+
+  ngOnDestroy(): void {
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
   }
 
   // Indicadores predefinidos disponibles para seleccionar
@@ -138,5 +158,12 @@ export default class SetUpProjectComponent implements OnInit {
 
   onRouteChange(value: 'structure' | 'indicators') {
     this.router.navigate([value], { relativeTo: this.activatedRoute });
+  }
+
+  // Method to handle route parameter changes
+  onRouteIdChange(newRouteId: string) {
+    this.routeid.set(newRouteId);
+    this.setUpProjectService.currentAgreementId.set(newRouteId);
+    this.setUpProjectService.loadFromLocalStorage();
   }
 }
