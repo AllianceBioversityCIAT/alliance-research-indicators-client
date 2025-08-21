@@ -213,8 +213,11 @@
   @if (setUpProjectService.structures().length === 0 && !setUpProjectService.showCreateStructure()) {
     <div class="text-center py-8">
       <i class="pi pi-sitemap text-4xl text-gray-300 mb-3 block"></i>
-      <h3 class="text-lg font-semibold text-gray-800 mb-2">No structures yet</h3>
-      <p class="text-sm text-gray-600 mb-4">Start by creating your first project structure using the "Structure" button above.</p>
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">No {{ setUpProjectService.level1Name() }} yet</h3>
+      <p class="text-sm text-gray-600 mb-4">
+        Start by creating your first project {{ setUpProjectService.level1Name() }} using the "Add {{ setUpProjectService.level1Name() }}" button
+        above.
+      </p>
     </div>
   }
 </div>
