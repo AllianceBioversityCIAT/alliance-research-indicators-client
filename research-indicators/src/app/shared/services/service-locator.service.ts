@@ -49,6 +49,7 @@ import { GetLeversService } from './control-list/get-levers.service';
 import { GetProjectStatusService } from './control-list/get-project-status.service';
 import { GetInitiativesService } from './control-list/get-initiatives.service';
 import { GetTagsService } from './control-list/get-tags.service';
+import { OicrResultsService } from './short-control-list/oicr-results.service';
 
 @Injectable({
   providedIn: 'root'
@@ -137,6 +138,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetInitiativesService);
       case 'tags':
         return this.injector.get(GetTagsService);
+      case 'oicrResults':
+        return this.injector.get(OicrResultsService);
       default:
         return null;
     }
