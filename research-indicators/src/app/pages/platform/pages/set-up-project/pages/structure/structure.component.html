@@ -29,7 +29,8 @@
                   <div class="flex gap-1 bg-gray-50 shadow-md p-2 rounded-lg">
                     <p-button
                       icon="pi pi-plus"
-                      pTooltip="Add new item to this structure"
+                      [label]="'Add new ' + setUpProjectService.level2Name()"
+                      pTooltip="Add new {{ setUpProjectService.level2Name() }} to this structure"
                       tooltipPosition="left"
                       severity="primary"
                       [text]="true"
