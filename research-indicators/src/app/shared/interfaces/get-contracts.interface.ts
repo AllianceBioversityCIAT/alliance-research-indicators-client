@@ -31,4 +31,6 @@ export interface GetContracts {
   office: null | string;
   officeId: null | string;
   display_label: string;
+  lever?: string;
+  leverUrl?: string;
 }

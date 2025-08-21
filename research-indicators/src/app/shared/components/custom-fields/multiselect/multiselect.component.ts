@@ -54,6 +54,7 @@ export class MultiselectComponent implements OnInit {
   @Input() label = '';
   @Input() description = '';
   @Input() hideSelected = false;
+  @Input() hideTemplate = false;
   @Input() disabledSelectedScroll = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
   @Input() removeCondition: (item: any) => boolean = () => true;

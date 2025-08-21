@@ -647,4 +647,178 @@ describe('ActionsService', () => {
     });
     expect(() => service.updateLocalStorage(loginResponse as any, false)).toThrow('fail');
   });
+
+  it('should handle base64 padding in decodeToken', () => {
+    // Create a base64url payload that needs padding (length % 4 !== 0)
+    // This will force the while loop in base64UrlToBase64 to execute
+    const payloadObject = { exp: 1234, iat: 1000 };
+    let base64UrlPayload = btoa(JSON.stringify(payloadObject)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+    // Ensure the payload length is not divisible by 4 to trigger padding
+    if (base64UrlPayload.length % 4 === 0) {
+      base64UrlPayload = base64UrlPayload.slice(0, -1); // Remove one character to make it need padding
+    }
+
+    const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${base64UrlPayload}.signature`;
+
+    const decoded = service.decodeToken(token);
+    expect(decoded.decoded).toHaveProperty('exp', 1234);
+  });
+
+  it('should handle bad request with errors as string', () => {
+    const spy = jest.spyOn(service, 'showGlobalAlert');
+    service.handleBadRequest({
+      status: 409,
+      errorDetail: {
+        description: 'Ya existe: 1234 - Título',
+        errors: 'string error'
+      }
+    } as any);
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'secondary',
+        summary: 'Title Already Exists'
+      })
+    );
+  });
+
+  it('should handle bad request with errors as null', () => {
+    const spy = jest.spyOn(service, 'showGlobalAlert');
+    service.handleBadRequest({
+      status: 409,
+      errorDetail: {
+        description: 'Ya existe: 1234 - Título',
+        errors: null
+      }
+    } as any);
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'secondary',
+        summary: 'Title Already Exists'
+      })
+    );
+  });
+
+  it('should handle description without colon in handleBadRequest', () => {
+    const spy = jest.spyOn(service, 'showGlobalAlert');
+    service.handleBadRequest({
+      status: 409,
+      errorDetail: {
+        description: 'Error sin dos puntos',
+        errors: { result_official_code: 1234 }
+      }
+    } as any);
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'secondary',
+        summary: 'Title Already Exists'
+      })
+    );
+  });
+
+  it('should handle description with empty existingResult in handleBadRequest', () => {
+    const spy = jest.spyOn(service, 'showGlobalAlert');
+    service.handleBadRequest({
+      status: 409,
+      errorDetail: {
+        description: 'Error: ',
+        errors: { result_official_code: 1234 }
+      }
+    } as any);
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'secondary',
+        summary: 'Title Already Exists'
+      })
+    );
+  });
+
+  it('should reject with error message in isTokenExpired catch block', async () => {
+    const dataCacheSignal: WritableSignal<any> = signal({
+      access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+      refresh_token: 'refresh',
+      exp: 0,
+      user: mockUser
+    }) as WritableSignal<any>;
+    (dataCacheSignal as any).set = jest.fn();
+    const localCacheMock = {
+      dataCache: dataCacheSignal,
+      isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
+      windowHeight: signal(0)
+    };
+    const localApiMock = {
+      ...apiMock,
+      refreshToken: jest.fn().mockRejectedValueOnce('string error')
+    };
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: CacheService, useValue: localCacheMock },
+        { provide: Router, useValue: routerMock },
+        { provide: ApiService, useValue: localApiMock },
+        { provide: ServiceLocatorService, useValue: serviceLocatorMock }
+      ]
+    });
+    const localService = TestBed.inject(ActionsService);
+    await expect(localService.isTokenExpired()).rejects.toThrow('string error');
+  });
+
+  it('should handle localStorage.setItem error in updateLocalStorage for refresh token', () => {
+    const loginResponse = {
+      data: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        user: mockUser
+      },
+      successfulRequest: true
+    };
+
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('localStorage error');
+    });
+
+    expect(() => service.updateLocalStorage(loginResponse as any, true)).toThrow('localStorage error');
+
+    setItemSpy.mockRestore();
+  });
+
+  it('should handle JSON.stringify error in updateLocalStorage for refresh token', () => {
+    const loginResponse = {
+      data: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        user: mockUser
+      },
+      successfulRequest: true
+    };
+
+    const originalStringify = JSON.stringify;
+    JSON.stringify = jest.fn().mockImplementation(() => {
+      throw new Error('JSON error');
+    });
+
+    expect(() => service.updateLocalStorage(loginResponse as any, true)).toThrow('JSON error');
+
+    JSON.stringify = originalStringify;
+  });
+
+  it('should successfully complete updateLocalStorage for refresh token with all branches', () => {
+    const loginResponse = {
+      data: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        user: mockUser
+      },
+      successfulRequest: true
+    };
+
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    const updateSpy = jest.spyOn(cacheMock.dataCache!, 'update');
+
+    // This should execute all branches in the refresh token path
+    service.updateLocalStorage(loginResponse as any, true);
+
+    expect(updateSpy).toHaveBeenCalled();
+    expect(setItemSpy).toHaveBeenCalledWith('data', expect.any(String));
+
+    setItemSpy.mockRestore();
+    updateSpy.mockRestore();
+  });
 });

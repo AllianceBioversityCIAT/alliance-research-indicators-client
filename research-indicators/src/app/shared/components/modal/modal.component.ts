@@ -2,6 +2,7 @@ import { Component, inject, Input, computed, Signal } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { ModalName } from '@ts-types/modal.types';
+import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 
 @Component({
   selector: 'app-modal',
@@ -23,6 +24,7 @@ import { ModalName } from '@ts-types/modal.types';
 })
 export class ModalComponent {
   allModalsService = inject(AllModalsService);
+  createResultManagementService = inject(CreateResultManagementService);
   @Input() modalName!: ModalName;
   @Input() disabledConfirmIf: Signal<boolean> = computed(() => false);
   @Input() clearModal: () => void = () => {
@@ -35,5 +37,13 @@ export class ModalComponent {
 
   getConfig() {
     return this.allModalsService.modalConfig()[this.modalName] ?? {};
+  }
+
+  getModalTitle() {
+    // Si es el modal createResult y estamos en el paso OICR, usar el título del servicio
+    if (this.modalName === 'createResult' && this.createResultManagementService.resultPageStep() === 2) {
+      return this.createResultManagementService.modalTitle();
+    }
+    return this.getConfig().title;
   }
 }

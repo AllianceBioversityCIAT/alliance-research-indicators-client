@@ -1,5 +1,5 @@
 <div #containerRef class="w-full flex flex-col">
-  <h2 class="text-[14px] font-[500] text-[#173F6F] pb-1">Reporting Project<span class="text-[15px] text-[#CF0808]">*</span></h2>
+  <h2 class="text-[16px] font-[500] text-[#173F6F] pb-1">Reporting Project<span class="text-[15px] text-[#CF0808]">*</span></h2>
   <p-select
     [options]="contracts"
     [(ngModel)]="contractId"
@@ -15,7 +15,7 @@
     [filter]="true"
     [scrollHeight]="'290px'"
     [filterBy]="'select_label,project_lead_description'"
-    class="!text-[13px]">
+    class="!text-[16px]">
     <ng-template let-item pTemplate="item">
       <div class="flex flex-col gap-2 h-[54px] text-[14px] w-full min-w-0" pTooltip="{{ item?.description }}">
         <p class="text-[#4C5158] font-[400] w-full overflow-hidden whitespace-nowrap text-ellipsis">
@@ -52,14 +52,14 @@
       </div>
     </ng-template>
   </p-select>
-  <div class="flex items-center gap-1 mt-1 text-[#8D9299] text-[11px]">
+  <div class="flex items-center gap-1 mt-1 text-[#8D9299] text-[14px]">
     <span [innerHTML]="helperText"></span>
   </div>
 
   @if (isInvalid && showWarning) {
     <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm test-warning">
-      <i class="material-symbols-rounded !text-[12px]">warning</i>
-      <span class="!text-[12px]">This field is required</span>
+      <i class="material-symbols-rounded !text-[14px]">warning</i>
+      <span class="!text-[14px]">This field is required</span>
     </div>
   }
 </div>

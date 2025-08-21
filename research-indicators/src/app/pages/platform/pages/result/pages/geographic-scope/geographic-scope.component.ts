@@ -12,6 +12,17 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
+import {
+  getGeoScopeMultiselectTexts,
+  isRegionsRequiredByScope,
+  isCountriesRequiredByScope,
+  isSubNationalRequiredByScope,
+  mapCountriesToSubnationalSignals,
+  removeSubnationalRegionFromCountries,
+  syncSubnationalArrayFromSignals,
+  updateCountryRegions,
+  shouldShowSubnationalError
+} from '@shared/utils/geographic-scope.util';
 
 @Component({
   selector: 'app-geographic-scope',
@@ -41,8 +52,11 @@ export default class GeographicScopeComponent {
   }
 
   onSelect = () => {
-    this.mapSignal();
-    this.mapArray();
+    this.body.update(current => {
+      mapCountriesToSubnationalSignals(current.countries);
+      syncSubnationalArrayFromSignals(current.countries);
+      return current;
+    });
     const currentId = Number(this.body().geo_scope_id);
 
     if (!this.isFirstSelect && currentId === 5) {
@@ -59,66 +73,15 @@ export default class GeographicScopeComponent {
     return this.submission.isEditableStatus();
   };
 
-  isRegionsRequired = computed(() => Number(this.body().geo_scope_id) === 2);
-  isCountriesRequired = computed(() => [4, 5].includes(Number(this.body().geo_scope_id)));
-  isSubNationalRequired = computed(() => Number(this.body().geo_scope_id) === 5);
-
-  showSubnationalError = computed(() => {
-    const scopeId = Number(this.body().geo_scope_id);
-    if (scopeId !== 5) return false;
-
-    const countries = this.body().countries ?? [];
-
-    return countries.some(
-      country => !country.result_countries_sub_nationals_signal?.() || (country.result_countries_sub_nationals_signal()?.regions?.length ?? 0) === 0
-    );
-  });
-
-  private getCountrySelectionText() {
-    return {
-      countryLabel: 'Select the countries',
-      countryDescription:
-        'The list of countries below follows the <a href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard'
-    };
-  }
-
-  getMultiselectLabel = computed(() => {
-    let countryLabel = '';
-    let regionLabel = '';
-    let countryDescription = '';
-    let regionDescription = '';
-    switch (Number(this.body().geo_scope_id)) {
-      case 1:
-        countryLabel = 'Are there any countries that you wish to specify for this Impact?';
-        regionLabel = 'Are there any regions that you wish to specify for this Impact?';
-        countryDescription =
-          'The list of countries below follows the <a class="text-[#1689CA] underline" href="https://www.iso.org/iso-3166-country-codes.html" target="_blank">ISO 3166</a> standard';
-        regionDescription =
-          'The list of regions below follows the <a class="text-[#1689CA] underline" href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
-        break;
-      case 2:
-        regionLabel = 'Select the regions';
-        regionDescription =
-          'The list of regions below follows the <a class="text-[#1689CA] underline" href="https://unstats.un.org/unsd/methodology/m49/" target="_blank">UN (M.49)</a> standard';
-        break;
-      case 4:
-        ({ countryLabel, countryDescription } = this.getCountrySelectionText());
-        break;
-      case 5:
-        ({ countryLabel, countryDescription } = this.getCountrySelectionText());
-        break;
-      default:
-        break;
-    }
-    return { country: { label: countryLabel, description: countryDescription }, region: { label: regionLabel, description: regionDescription } };
-  });
+  isRegionsRequired = computed(() => isRegionsRequiredByScope(Number(this.body().geo_scope_id)));
+  isCountriesRequired = computed(() => isCountriesRequiredByScope(Number(this.body().geo_scope_id)));
+  isSubNationalRequired = computed(() => isSubNationalRequiredByScope(Number(this.body().geo_scope_id)));
+  showSubnationalError = computed(() => shouldShowSubnationalError(Number(this.body().geo_scope_id), this.body().countries));
+  getMultiselectLabel = computed(() => getGeoScopeMultiselectTexts(Number(this.body().geo_scope_id)));
 
   updateCountryRegions = (isoAlpha2: string, newRegions: Region[]) => {
     this.body.update(current => {
-      const country = current.countries?.find(c => c.isoAlpha2 === isoAlpha2);
-      if (country) {
-        country.result_countries_sub_nationals = newRegions;
-      }
+      updateCountryRegions(current.countries, isoAlpha2, newRegions);
       return current;
     });
   };
@@ -129,47 +92,12 @@ export default class GeographicScopeComponent {
 
   removeSubnationalRegion(country: Country, region: Region) {
     this.body.update(current => {
-      const target = current.countries?.find(c => c.isoAlpha2 === country.isoAlpha2);
-      if (target?.result_countries_sub_nationals_signal?.set) {
-        const newRegions = (target.result_countries_sub_nationals_signal().regions ?? []).filter(r => r.sub_national_id !== region.sub_national_id);
-
-        target.result_countries_sub_nationals_signal.set({ regions: newRegions });
-        target.result_countries_sub_nationals = newRegions;
-
-        const instance = this.multiselectInstances.find(m => m.endpointParams?.isoAlpha2 === country.isoAlpha2);
-        if (region.sub_national_id !== undefined) {
-          instance?.removeRegionById(region.sub_national_id);
-        }
-      }
-
+      const removedId = removeSubnationalRegionFromCountries(current.countries, country.isoAlpha2, region.sub_national_id);
+      const instance = this.multiselectInstances.find(m => m.endpointParams?.isoAlpha2 === country.isoAlpha2);
+      if (removedId !== undefined) instance?.removeRegionById(removedId);
       return current;
     });
   }
-
-  mapSignal = () => {
-    this.body.update(currentBody => {
-      currentBody.countries?.forEach((country: Country) => {
-        const regions = Array.isArray(country.result_countries_sub_nationals) ? country.result_countries_sub_nationals : [];
-
-        if ('result_countries_sub_nationals_signal' in country && country.result_countries_sub_nationals_signal?.set) {
-          country.result_countries_sub_nationals_signal.set({ regions });
-        } else {
-          country.result_countries_sub_nationals_signal = signal({ regions });
-        }
-      });
-
-      return currentBody;
-    });
-  };
-
-  mapArray = () => {
-    this.body.update(currentBody => {
-      currentBody.countries?.forEach((country: Country) => {
-        country.result_countries_sub_nationals = country.result_countries_sub_nationals_signal().regions ?? [];
-      });
-      return currentBody;
-    });
-  };
 
   async getData() {
     this.loading.set(true);
@@ -181,7 +109,10 @@ export default class GeographicScopeComponent {
     });
 
     this.body.set(response.data);
-    this.mapSignal();
+    this.body.update(currentBody => {
+      mapCountriesToSubnationalSignals(currentBody.countries);
+      return currentBody;
+    });
     this.loading.set(false);
   }
 
@@ -200,7 +131,10 @@ export default class GeographicScopeComponent {
     };
 
     if (this.submission.isEditableStatus()) {
-      this.mapArray();
+      this.body.update(currentBody => {
+        syncSubnationalArrayFromSignals(currentBody.countries);
+        return currentBody;
+      });
       const response = await this.api.PATCH_GeoLocation(resultId, this.body());
       if (!response.successfulRequest) {
         this.loading.set(false);

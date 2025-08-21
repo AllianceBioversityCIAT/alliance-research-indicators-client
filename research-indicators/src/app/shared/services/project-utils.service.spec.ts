@@ -192,5 +192,72 @@ describe('ProjectUtilsService', () => {
 
       expect(result).toEqual([]);
     });
+
+    it('should filter out indicators without indicator.name', () => {
+      const indicators = [
+        { indicator: { name: 'Capacity Sharing for Development' }, count_results: 5 },
+        { indicator: null, count_results: 3 },
+        { indicator: { name: 'Innovation Development' }, count_results: 2 }
+      ] as any[];
+
+      const result = service.sortIndicators(indicators);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].indicator.name).toBe('Capacity Sharing for Development');
+      expect(result[1].indicator.name).toBe('Innovation Development');
+    });
+
+    it('should sum count_results for duplicate indicator names', () => {
+      const indicators = [
+        { indicator: { name: 'Capacity Sharing for Development' }, count_results: 5 },
+        { indicator: { name: 'Capacity Sharing for Development' }, count_results: 3 },
+        { indicator: { name: 'Innovation Development' }, count_results: 2 }
+      ] as any[];
+
+      const result = service.sortIndicators(indicators);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].indicator.name).toBe('Capacity Sharing for Development');
+      expect(result[0].count_results).toBe(8);
+      expect(result[1].indicator.name).toBe('Innovation Development');
+      expect(result[1].count_results).toBe(2);
+    });
+
+    it('should sort indicators according to predefined order', () => {
+      const indicators = [
+        { indicator: { name: 'Innovation Development' }, count_results: 2 },
+        { indicator: { name: 'Capacity Sharing for Development' }, count_results: 5 },
+        { indicator: { name: 'Policy Change' }, count_results: 1 }
+      ] as any[];
+
+      const result = service.sortIndicators(indicators);
+
+      expect(result).toHaveLength(3);
+      expect(result[0].indicator.name).toBe('Capacity Sharing for Development');
+      expect(result[1].indicator.name).toBe('Innovation Development');
+      expect(result[2].indicator.name).toBe('Policy Change');
+    });
+
+    it('should handle indicators not in predefined order', () => {
+      const indicators = [
+        { indicator: { name: 'Unknown Indicator' }, count_results: 1 },
+        { indicator: { name: 'Capacity Sharing for Development' }, count_results: 5 }
+      ] as any[];
+
+      const result = service.sortIndicators(indicators);
+
+      expect(result).toHaveLength(2);
+      // Unknown Indicator comes first because indexOf returns -1 (before any valid index)
+      expect(result[0].indicator.name).toBe('Unknown Indicator');
+      expect(result[1].indicator.name).toBe('Capacity Sharing for Development');
+    });
+
+    it('should handle empty indicator array with length check', () => {
+      const indicators = [] as any[];
+
+      const result = service.sortIndicators(indicators);
+
+      expect(result).toEqual([]);
+    });
   });
 });
