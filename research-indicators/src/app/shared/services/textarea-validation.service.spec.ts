@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { TextareaValidationService } from './textarea-validation.service';
 import { WordCountService } from './word-count.service';
 import { UtilsService } from './utils.service';
@@ -18,11 +18,7 @@ describe('TextareaValidationService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        TextareaValidationService,
-        { provide: WordCountService, useValue: wordCountMock },
-        { provide: UtilsService, useValue: utilsMock }
-      ]
+      providers: [TextareaValidationService, { provide: WordCountService, useValue: wordCountMock }, { provide: UtilsService, useValue: utilsMock }]
     });
     service = TestBed.inject(TextareaValidationService);
   });
@@ -63,7 +59,7 @@ describe('TextareaValidationService', () => {
       mockShowMaxReachedSignal = signal(false);
     });
 
-    it('should handle paste when new value is within limit', () => {
+    it('should handle paste when new value is within limit', fakeAsync(() => {
       mockInput.value = 'Hello';
       mockInput.selectionStart = 5;
       mockInput.selectionEnd = 5;
@@ -74,9 +70,12 @@ describe('TextareaValidationService', () => {
       expect(mockBodySignal().value).toBe('Hellopasted text');
       expect(utilsMock.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(mockSignal, 'testOption', 'Hellopasted text');
       expect(mockShowMaxReachedSignal()).toBe(false);
-    });
 
-    it('should handle paste when new value exceeds limit', () => {
+      tick();
+      expect(mockInput.setSelectionRange).toHaveBeenCalledWith(17, 17);
+    }));
+
+    it('should handle paste when new value exceeds limit', fakeAsync(() => {
       const longText = 'a'.repeat(40000);
       mockInput.value = longText;
       mockInput.selectionStart = 0;
@@ -87,7 +86,10 @@ describe('TextareaValidationService', () => {
       expect(mockEvent.preventDefault).toHaveBeenCalled();
       expect(mockBodySignal().value).toBe(longText);
       expect(mockShowMaxReachedSignal()).toBe(true);
-    });
+
+      tick();
+      expect(mockInput.setSelectionRange).toHaveBeenCalledWith(0, 0);
+    }));
 
     it('should handle paste with no clipboard data', () => {
       mockEvent.clipboardData = null;
@@ -106,6 +108,26 @@ describe('TextareaValidationService', () => {
       service.handlePasteText(mockEvent, mockSignal, 'testOption', mockBodySignal, mockShowMaxReachedSignal);
 
       expect(mockBodySignal().value).toBe('pasted text World');
+    });
+
+    it('should handle paste with null selectionStart', () => {
+      mockInput.value = 'Hello World';
+      mockInput.selectionStart = null;
+      mockInput.selectionEnd = 5;
+
+      service.handlePasteText(mockEvent, mockSignal, 'testOption', mockBodySignal, mockShowMaxReachedSignal);
+
+      expect(mockBodySignal().value).toBe('pasted text World');
+    });
+
+    it('should handle paste with null selectionEnd', () => {
+      mockInput.value = 'Hello World';
+      mockInput.selectionStart = 0;
+      mockInput.selectionEnd = null;
+
+      service.handlePasteText(mockEvent, mockSignal, 'testOption', mockBodySignal, mockShowMaxReachedSignal);
+
+      expect(mockBodySignal().value).toBe('pasted textHello World');
     });
   });
 
@@ -138,7 +160,7 @@ describe('TextareaValidationService', () => {
     it('should return false for allowed keys', () => {
       wordCountMock.getWordCount.mockReturnValue(40001);
       const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', ' '];
-      
+
       allowedKeys.forEach(key => {
         mockEvent.key = key;
         expect(service.shouldPreventInput(mockEvent, 'test text')).toBe(false);
@@ -198,7 +220,7 @@ describe('TextareaValidationService', () => {
 
     it('should return false for allowed keys', () => {
       const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
-      
+
       allowedKeys.forEach(key => {
         mockEvent.key = key;
         expect(service.shouldPreventTextInput(mockEvent, mockShowMaxReachedSignal)).toBe(false);
