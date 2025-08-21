@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../../../../shared/services/api.service';
 import { Indicator, IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
@@ -29,6 +29,19 @@ export class SetUpProjectService {
   level2Name = signal<string>('Item');
   editingLevel1 = signal<boolean>(false);
   editingLevel2 = signal<boolean>(false);
+
+  strcutureGrouped = computed(() => {
+    const result = this.structures().flatMap(item => {
+      item.items?.map(stItem => {
+        stItem.representative = { name: item.name, itemsCount: item.items?.length || 0 };
+      });
+      return item.items || [];
+    });
+
+    console.log(result);
+
+    return result;
+  });
 
   manageIndicatorform = signal<PostIndicator>({
     name: '',
@@ -114,6 +127,7 @@ export class SetUpProjectService {
     try {
       const res = await this.api.GET_Structures(this.currentAgreementId() as number);
       this.structures.set(res.data.structures);
+      console.log(this.structures());
     } catch {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });
       this.structures.set([]);

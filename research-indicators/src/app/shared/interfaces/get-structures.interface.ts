@@ -16,6 +16,8 @@ export interface IndicatorItem {
   name: string;
   code: string;
   indicators?: Indicator[];
+  //auxiliary fields
+  representative?: any;
 }
 
 export interface Indicator {

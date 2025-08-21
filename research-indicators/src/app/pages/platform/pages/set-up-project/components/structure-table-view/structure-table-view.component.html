@@ -1,18 +1,57 @@
-<p-table [value]="[0]" [tableStyle]="{ 'min-width': '50rem' }">
+<p-table
+  [value]="setUpProjectService.strcutureGrouped()"
+  sortField="representative.name"
+  sortMode="single"
+  dataKey="representative.name"
+  size="small"
+  rowGroupMode="subheader"
+  groupRowsBy="representative.name"
+  [tableStyle]="{ 'min-width': '70rem' }">
   <ng-template #header>
     <tr>
-      <th>Code</th>
-      <th>Name</th>
-      <th>Category</th>
-      <th>Quantity</th>
+      <th></th>
+      <th style="width: 20%">Code</th>
+      <th style="width: 20%">name</th>
+      <th style="width: 60%">indicator</th>
     </tr>
   </ng-template>
-  <ng-template #body let-product>
+  <ng-template #groupheader let-customer let-rowIndex="rowIndex" let-expanded="expanded">
     <tr>
-      <td>{{ product.code }}</td>
-      <td>{{ product.name }}</td>
-      <td>{{ product.category }}</td>
-      <td>{{ product.quantity }}</td>
+      <td>
+        <button
+          type="button"
+          pButton
+          pRipple
+          [pRowToggler]="customer"
+          text
+          rounded
+          plain
+          class="mr-2"
+          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+      </td>
+      <td>4</td>
+      <td>
+        <p-tag [value]="customer.representative.name" severity="info" />
+      </td>
+      <td>indicator</td>
+    </tr>
+  </ng-template>
+  <ng-template #groupfooter let-customer>
+    <tr class="p-rowgroup-footer">
+      <td colspan="3" style="text-align: right">Total {{ setUpProjectService.level2Name() }}</td>
+      <td>{{ customer.representative.itemsCount }}</td>
+    </tr>
+  </ng-template>
+  <ng-template #expandedrow let-customer>
+    <tr style="background-color: #f4f7ff">
+      <td></td>
+      <td>
+        {{ customer.code }}
+      </td>
+      <td>
+        <p-tag [value]="customer.name" severity="info" />
+      </td>
+      <td>Indicator component</td>
     </tr>
   </ng-template>
 </p-table>
