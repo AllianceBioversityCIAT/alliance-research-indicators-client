@@ -50,11 +50,22 @@
         [itemHeight]="70"
         serviceName="getProjectIndicatorsHierarchy">
         <ng-template #item let-item>
-          <div>{{ item.name }}</div>
+          <div class="flex flex-col gap-2 pl-2">
+            <div class="flex items-center gap-2">
+              <strong>{{ item.name }} </strong> - target unit: {{ item.targetUnit }}
+            </div>
+            <div class="flex items-center gap-2">
+              Parent:
+              <div class="bg-[#f0f0f0] rounded-[6px] p-0 px-3">{{ item.group_item?.name }}</div>
+              @if (item.group_item?.parent_item?.name) {
+                <i class="pi pi-angle-left"></i><span class="bg-[#f0f0f0] rounded-[6px] p-0 px-3"> {{ item.group_item?.parent_item?.name }} </span>
+              }
+            </div>
+          </div>
         </ng-template>
 
         <ng-template #selectedItems let-value>
-          <h1>Selected</h1>
+          <h1>Selected ({{ this.body().selectedIndicators.length }})</h1>
         </ng-template>
         <ng-template #rows let-indicator>
           <div class="w-full">
