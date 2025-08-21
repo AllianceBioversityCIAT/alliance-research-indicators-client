@@ -63,6 +63,8 @@ import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { GetStructures } from '../interfaces/get-structures.interface';
 import { PostIndicator } from '../interfaces/post-indicator.interface';
+import { GetProjectIndicators } from '../interfaces/get-project-indicators.interface';
+import { PostSyncContributor } from '../interfaces/post-sync-contributor.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -608,6 +610,26 @@ export class ApiService {
   DELETE_Indicator = (id: number) => {
     const url = () => `project-indicators/${id}/delete`;
     return this.TP.delete(url(), {});
+  };
+
+  GET_Hierarchy = (agreement_id: string) => {
+    const url = () => `project-indicators/hierarchy/${agreement_id}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IndicatorsByResult = (agreement_id: string): Promise<MainResponse<GetProjectIndicators>> => {
+    const url = () => `project-indicators/indicators/by-result/${agreement_id}`;
+    return this.TP.get(url(), {});
+  };
+
+  POST_SyncContribution = (body: PostSyncContributor[]) => {
+    const url = () => `contributions/sync-contribution`;
+    return this.TP.post(url(), body);
+  };
+
+  GET_ContributionsByResult = () => {
+    const url = () => `contributions/by-result/${this.cache.currentMetadata().result_id}`;
+    return this.TP.get(url(), {});
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<

@@ -47,6 +47,7 @@ import { InnResultsService } from './short-control-list/inn-results.service';
 import { ApplicationOptionsService } from './short-control-list/application-options.service';
 import { GetLeversService } from './control-list/get-levers.service';
 import { GetProjectStatusService } from './control-list/get-project-status.service';
+import { GetProjectIndicatorsHierarchyService } from './control-list/get-project-indicators-hierarchy.service';
 
 @Injectable({
   providedIn: 'root'
@@ -190,6 +191,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetYearsService);
       case 'getYearsByCode':
         return this.injector.get(GetYearsByCodeService);
+      case 'getProjectIndicatorsHierarchy':
+        return this.injector.get(GetProjectIndicatorsHierarchyService);
       case 'getAllYears':
         return this.injector.get(GetAllYearsService);
       case 'ipOwners':
