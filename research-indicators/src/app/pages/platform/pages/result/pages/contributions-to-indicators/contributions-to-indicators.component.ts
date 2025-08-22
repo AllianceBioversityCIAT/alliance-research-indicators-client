@@ -11,7 +11,6 @@ import { ProjectIndicatorContract } from '../../../../../../shared/interfaces/ge
 import { TooltipModule } from 'primeng/tooltip';
 import { MultiselectComponent } from '../../../../../../shared/components/custom-fields/multiselect/multiselect.component';
 import { GetProjectIndicatorsHierarchyService } from '../../../../../../shared/services/control-list/get-project-indicators-hierarchy.service';
-import { InputComponent } from '../../../../../../shared/components/custom-fields/input/input.component';
 import { PostSyncContributor } from '../../../../../../shared/interfaces/post-sync-contributor.interface';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
@@ -26,7 +25,6 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
     FormsModule,
     TooltipModule,
     MultiselectComponent,
-    InputComponent,
     InputNumberModule
   ],
   templateUrl: './contributions-to-indicators.component.html',

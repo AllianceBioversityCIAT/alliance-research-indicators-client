@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { SetUpProjectService } from '../../set-up-project.service';
 import { TagModule } from 'primeng/tag';
@@ -7,7 +7,7 @@ import { TableIndicatorItemComponent } from '../table-indicator-item/table-indic
 import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
-import { IndicatorItem, IndicatorsStructure } from '../../../../../../shared/interfaces/get-structures.interface';
+import { IndicatorItem } from '../../../../../../shared/interfaces/get-structures.interface';
 
 @Component({
   selector: 'app-structure-table-view',
