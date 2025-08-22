@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { of } from 'rxjs';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 import SetUpProjectComponent from './set-up-project.component';
 import { SetUpProjectService } from './set-up-project.service';
@@ -17,13 +19,15 @@ describe('SetUpProjectComponent', () => {
   let mockActivatedRoute: Partial<ActivatedRoute>;
 
   beforeEach(async () => {
+    const assignIndicatorsModalSignal = signal({ show: false, targetLevel1: undefined, targetLevel2: undefined });
+
     mockSetUpProjectService = {
       structures: signal([]),
       showCreateStructure: signal(false),
       manageIndicatorModal: signal({ show: false }),
       showAllIndicators: signal(false),
       editingElementId: signal(null),
-      assignIndicatorsModal: signal({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } }),
+      assignIndicatorsModal: assignIndicatorsModalSignal,
       indicatorList: signal([]),
       loadingStructures: signal(false),
       currentAgreementId: signal(null),
@@ -35,6 +39,19 @@ describe('SetUpProjectComponent', () => {
       level2Name: signal('Item'),
       editingLevel1: signal(false),
       editingLevel2: signal(false),
+      targetInfo: computed(() => assignIndicatorsModalSignal().targetLevel1 || assignIndicatorsModalSignal().targetLevel2),
+      manageIndicatorform: signal({
+        name: '',
+        description: '',
+        numberType: '',
+        numberFormat: '',
+        years: [],
+        targetUnit: '',
+        targetValue: 0,
+        baseline: 0,
+        agreement_id: 1,
+        code: ''
+      }),
       startEditingLevel1: jest.fn(),
       startEditingLevel2: jest.fn(),
       saveLevel1Name: jest.fn(),
@@ -67,6 +84,8 @@ describe('SetUpProjectComponent', () => {
     await TestBed.configureTestingModule({
       imports: [SetUpProjectComponent],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: SetUpProjectService, useValue: mockSetUpProjectService },
         { provide: ActionsService, useValue: mockActionsService },
         { provide: Router, useValue: mockRouter },

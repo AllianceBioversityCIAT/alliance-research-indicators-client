@@ -63,6 +63,60 @@ export class ManageIndicatorModalComponent {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to create indicator' });
       return;
     }
+
+    // Si está en modo assign, asignar el indicador al elemento correspondiente
+    if (this.setUpProjectService.manageIndicatorModal().assignModal) {
+      const createdIndicator = response.data;
+
+      // Determinar si es level 1 (estructura) o level 2 (tema)
+      const targetLevel1 = this.setUpProjectService.assignIndicatorsModal().targetLevel1;
+      const targetLevel2 = this.setUpProjectService.assignIndicatorsModal().targetLevel2;
+
+      if (targetLevel1) {
+        // Asignar a estructura (level 1)
+        this.setUpProjectService.structures.update(prev => {
+          const targetStructureIndex = prev.findIndex(structure => structure.id === targetLevel1.id);
+          if (targetStructureIndex !== -1) {
+            const structuresCopy = [...prev];
+            if (!structuresCopy[targetStructureIndex].indicators) {
+              structuresCopy[targetStructureIndex].indicators = [];
+            }
+            structuresCopy[targetStructureIndex].indicators.push(createdIndicator);
+            return structuresCopy;
+          }
+          return prev;
+        });
+      } else if (targetLevel2) {
+        // Asignar a tema (level 2)
+        this.setUpProjectService.structures.update(prev => {
+          const structuresCopy = [...prev];
+          for (const structure of structuresCopy) {
+            if (structure.items) {
+              const itemIndex = structure.items.findIndex(item => item.id === targetLevel2.id);
+              if (itemIndex !== -1) {
+                const targetItem = structure.items[itemIndex];
+                if (targetItem) {
+                  if (!targetItem.indicators) {
+                    targetItem.indicators = [];
+                  }
+                  targetItem.indicators.push(createdIndicator);
+                  break;
+                }
+              }
+            }
+          }
+          return structuresCopy;
+        });
+      }
+      this.setUpProjectService.assignIndicatorsModal.set({
+        show: false,
+        targetLevel1: undefined,
+        targetLevel2: undefined
+      });
+      // Guardar las estructuras después de la asignación
+      await this.setUpProjectService.saveStructures();
+    }
+
     this.setUpProjectService.getIndicators();
     this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Indicator created successfully' });
     this.close();
