@@ -1,6 +1,6 @@
 <p-dialog
   [(visible)]="setUpProjectService.assignIndicatorsModal().show"
-  (onHide)="setUpProjectService.assignIndicatorsModal.set({ show: false, target: { type: 'item', structureIndex: -1, itemIndex: -1 } })"
+  (onHide)="setUpProjectService.assignIndicatorsModal.set({ show: false, targetLevel1: undefined, targetLevel2: undefined })"
   header="Add Indicators"
   [modal]="true"
   [closable]="true"
@@ -18,7 +18,9 @@
           <div class="space-y-2 max-h-96 overflow-y-auto pr-1">
             @for (indicator of getIndicatorsFiltered(); track indicator.id) {
               <div
-                class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-all duration-200 group"
+                class="border border-{{
+                  indicator.adding ? 'gray-200' : 'blue-400'
+                }} rounded-lg p-3 hover:bg-blue-50 hover:border-blue-500 cursor-pointer transition-all duration-200 group"
                 (click)="setUpProjectService.assignIndicator(indicator)">
                 <div class="flex justify-between items-start">
                   <div class="flex-1 min-w-0 mr-3">
@@ -34,7 +36,10 @@
                     </div>
                   </div>
                   <div class="flex-shrink-0">
-                    <i class="pi pi-plus text-blue-600 group-hover:text-blue-700 transition-colors"></i>
+                    <i
+                      class="pi {{
+                        indicator.adding ? 'pi-plus text-blue-600' : 'pi-minus text-red-600'
+                      }}  group-hover:text-blue-700 transition-colors"></i>
                   </div>
                 </div>
               </div>
@@ -56,8 +61,6 @@
       label="Close"
       severity="secondary"
       size="small"
-      (onClick)="
-        setUpProjectService.assignIndicatorsModal.set({ show: false, target: { type: 'item', structureIndex: -1, itemIndex: -1 } })
-      "></p-button>
+      (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: false, targetLevel1: undefined, targetLevel2: undefined })"></p-button>
   </div>
 </p-dialog>

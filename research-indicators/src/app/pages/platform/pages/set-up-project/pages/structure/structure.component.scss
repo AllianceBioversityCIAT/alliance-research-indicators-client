@@ -1,0 +1,19 @@
+.view-toggle-container {
+  button {
+    transition: all 0.2s ease-in-out;
+
+    &:hover:not([class*='bg-white']) {
+      background-color: #f3f4f6;
+      transform: translateY(-1px);
+    }
+
+    &[class*='bg-white'] {
+      box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+    }
+  }
+}
+
+// Animación suave para el cambio de vistas
+.view-transition {
+  transition: opacity 0.3s ease-in-out;
+}

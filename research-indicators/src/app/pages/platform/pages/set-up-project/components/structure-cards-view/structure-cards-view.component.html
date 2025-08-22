@@ -1,0 +1,227 @@
+<app-create-structure></app-create-structure>
+
+<div class="tabs-container mb-6">
+  @if (setUpProjectService.structures().length > 0) {
+    <div class="flex items-end gap-2 mb-4">
+      <p-tabs [value]="0" scrollable class="w-full">
+        <p-tablist>
+          @for (tab of setUpProjectService.structures(); track tab.id; let i = $index) {
+            <p-tab [value]="i"
+              ><i class="pi pi-sitemap"></i> <span>{{ tab.name }} </span>
+              @if (setUpProjectService.structures().length - 1 === i && !setUpProjectService.showCreateStructure()) {
+                <div class="flex gap-1 pl-2">
+                  <p-button size="small" icon="pi pi-plus" aria-label="Add item" (click)="setUpProjectService.showCreateStructure.set(true)" />
+                </div>
+              }
+            </p-tab>
+          }
+        </p-tablist>
+        <p-tabpanels>
+          @for (structure of setUpProjectService.structures(); track structure.id; let i = $index) {
+            <p-tabpanel [value]="i">
+              <div class="structure-tab-content mt-4">
+                @if (setUpProjectService.editingElementId() === structure.id) {
+                  <app-update-structure [index]="i" [structure]="structure"></app-update-structure>
+                }
+
+                <!-- Structure Actions - More compact -->
+                <div class="flex justify-end items-center mb-4">
+                  <div class="flex gap-1 bg-gray-50 shadow-md p-2 rounded-lg">
+                    <p-button
+                      icon="pi pi-plus"
+                      [label]="'Add new ' + setUpProjectService.level2Name()"
+                      pTooltip="Add new {{ setUpProjectService.level2Name() }} to this structure"
+                      tooltipPosition="left"
+                      severity="primary"
+                      [text]="true"
+                      size="small"
+                      (click)="setUpProjectService.editingElementId.set('new-item-' + structure.id)">
+                    </p-button>
+                    <p-button
+                      icon="pi pi-tag"
+                      pTooltip="Add indicators to &quot;{{ structure.name }}&quot; structure"
+                      tooltipPosition="left"
+                      severity="help"
+                      [text]="true"
+                      size="small"
+                      (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel1: structure })">
+                    </p-button>
+                    <p-button
+                      icon="pi pi-pencil"
+                      pTooltip="Edit &quot;{{ structure.name }}&quot; structure details"
+                      tooltipPosition="left"
+                      (onClick)="setUpProjectService.editingElementId.set(structure.id)"
+                      severity="secondary"
+                      [text]="true"
+                      size="small">
+                    </p-button>
+                    <p-button
+                      icon="pi pi-trash"
+                      pTooltip="Delete &quot;{{ structure.name }}&quot; structure"
+                      tooltipPosition="left"
+                      severity="danger"
+                      [text]="true"
+                      size="small"
+                      (onClick)="setUpProjectService.deleteStructureByIndex(i)">
+                    </p-button>
+                  </div>
+                </div>
+
+                @if (structure.indicators && structure.indicators.length) {
+                  <div class="mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                      <div class="flex items-center">
+                        <i class="pi pi-chart-line text-blue-500 mr-2 text-lg"></i>
+                        <h3 class="text-lg font-bold text-gray-800">{{ setUpProjectService.level1Name() }} Indicators</h3>
+                      </div>
+                      <div class="flex-1 h-px bg-gradient-to-r from-blue-200 to-transparent"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                      @for (indicator of structure.indicators; track indicator.id; let ks = $index) {
+                        <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+                          <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-medium text-gray-800 text-sm">{{ indicator.name }}</h4>
+                            <button
+                              class="text-red-500 hover:text-red-700 text-sm p-1 hover:bg-red-50 rounded"
+                              pTooltip="Remove indicator from structure"
+                              tooltipPosition="left"
+                              (click)="setUpProjectService.deleteStructureItemIndicatorByIndex(i, ks)">
+                              <i class="pi pi-times text-xs"></i>
+                            </button>
+                          </div>
+                          <p class="text-xs text-gray-600 mb-2 line-clamp-2">{{ indicator.description }}</p>
+                          <div class="flex flex-wrap gap-1 text-xs">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{{ indicator.numberType }}</span>
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full">{{ indicator.numberFormat }}</span>
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full">{{ indicator.years.join(', ') }}</span>
+                            @if (indicator.targetUnit) {
+                              <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">{{ indicator.targetUnit }}</span>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <div class="items-section">
+                  <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center">
+                      <i class="pi pi-folder text-green-500 mr-2 text-lg"></i>
+                      <h3 class="text-lg font-bold text-gray-800">{{ setUpProjectService.level2Name() }}</h3>
+                    </div>
+                    <div class="flex-1 h-px bg-gradient-to-r from-green-200 to-transparent"></div>
+                  </div>
+
+                  @if (setUpProjectService.editingElementId() === 'new-item-' + structure.id) {
+                    <div class="mb-4">
+                      <app-create-item [structure]="structure" [index]="i"></app-create-item>
+                    </div>
+                  }
+
+                  @if (structure.items && structure.items.length) {
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                      @for (item of structure.items; track item.id; let j = $index) {
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                          @if (setUpProjectService.editingElementId() === 'update-item-' + item.id) {
+                            <app-update-item [item]="item" [structureIndex]="i" [itemIndex]="j"></app-update-item>
+                          } @else {
+                            <div class="flex justify-between mb-3 align-items">
+                              <div class="min-w-0 flex-1 mr-2 items-center gap-2">
+                                <h4 class="text-sm font-semibold text-gray-800 truncate">{{ item.name }}</h4>
+                                <p class="text-xs text-gray-600">Code: {{ item.code }}</p>
+                              </div>
+                              <div class="flex gap-1 flex-shrink-0">
+                                <p-button
+                                  icon="pi pi-tag"
+                                  pTooltip="Add indicators to this item"
+                                  tooltipPosition="left"
+                                  [text]="true"
+                                  severity="help"
+                                  size="small"
+                                  (click)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel2: item })">
+                                </p-button>
+                                <p-button
+                                  icon="pi pi-pencil"
+                                  pTooltip="Edit item details"
+                                  tooltipPosition="left"
+                                  [text]="true"
+                                  size="small"
+                                  (click)="setUpProjectService.editingElementId.set('update-item-' + item.id)">
+                                </p-button>
+                                <p-button
+                                  icon="pi pi-trash"
+                                  pTooltip="Delete this item"
+                                  tooltipPosition="left"
+                                  [text]="true"
+                                  severity="danger"
+                                  size="small"
+                                  (click)="setUpProjectService.deleteStructureItemByIndex(i, j)">
+                                </p-button>
+                              </div>
+                            </div>
+
+                            @if (item.indicators && item.indicators.length) {
+                              <div>
+                                <h5 class="text-xs font-medium text-gray-700 mb-2">Indicators</h5>
+                                <div class="space-y-2">
+                                  @for (indicator of item.indicators; track indicator.id; let k = $index) {
+                                    <div class="bg-gray-50 p-2 rounded-md">
+                                      <div class="flex justify-between items-start mb-1">
+                                        <h6 class="font-medium text-gray-800 text-xs">{{ indicator.name }}</h6>
+                                        <button
+                                          class="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded"
+                                          pTooltip="Remove indicator from item"
+                                          tooltipPosition="left"
+                                          (click)="setUpProjectService.deleteStructureItemIndicatorByIndex(i, k, j)">
+                                          <i class="pi pi-times text-xs"></i>
+                                        </button>
+                                      </div>
+                                      <p class="text-xs text-gray-600 mb-1 line-clamp-1">{{ indicator.description }}</p>
+                                      <div class="flex flex-wrap gap-1">
+                                        <span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full text-xs">{{ indicator.numberType }}</span>
+                                        <span class="bg-green-100 text-green-800 px-1.5 py-0.5 rounded-full text-xs">{{
+                                          indicator.numberFormat
+                                        }}</span>
+                                        <span class="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded-full text-xs">{{
+                                          indicator.years.join(', ')
+                                        }}</span>
+                                      </div>
+                                    </div>
+                                  }
+                                </div>
+                              </div>
+                            } @else {
+                              <p class="text-xs text-gray-500 italic">No indicators yet. Use the tag button above to add some.</p>
+                            }
+                          }
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                      <i class="pi pi-inbox text-2xl mb-2 block"></i>
+                      <p class="text-sm">No items yet. Click "Add Item" above to get started.</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            </p-tabpanel>
+          }
+        </p-tabpanels>
+      </p-tabs>
+    </div>
+  }
+
+  <!-- Estado vacío -->
+  @if (setUpProjectService.structures().length === 0 && !setUpProjectService.showCreateStructure()) {
+    <div class="text-center py-8">
+      <i class="pi pi-sitemap text-4xl text-gray-300 mb-3 block"></i>
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">No {{ setUpProjectService.level1Name() }} yet</h3>
+      <p class="text-sm text-gray-600 mb-4">
+        Start by creating your first project {{ setUpProjectService.level1Name() }} using the "Add {{ setUpProjectService.level1Name() }}" button
+        above.
+      </p>
+    </div>
+  }
+</div>

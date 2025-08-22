@@ -1,20 +1,29 @@
-import { Component, inject, signal } from '@angular/core';
-import { UpdateStructureComponent } from '../../components/update-structure/update-structure.component';
-import { CreateStructureComponent } from '../../components/create-structure/create-structure.component';
+import { Component, inject } from '@angular/core';
+import { StructureCardsViewComponent } from '../../components/structure-cards-view/structure-cards-view.component';
+import { StructureTableViewComponent } from '../../components/structure-table-view/structure-table-view.component';
 import { ButtonModule } from 'primeng/button';
-import { SetUpProjectService } from '../../set-up-project.service';
-import { CreateItemComponent } from '../../components/create-item/create-item.component';
-import { UpdateItemComponent } from '../../components/update-item/update-item.component';
-import { TabsModule } from 'primeng/tabs';
 import { TooltipModule } from 'primeng/tooltip';
+import { SetUpProjectService } from '../../set-up-project.service';
 
 @Component({
   selector: 'app-structure',
-  imports: [CreateStructureComponent, UpdateStructureComponent, CreateItemComponent, UpdateItemComponent, ButtonModule, TabsModule, TooltipModule],
+  imports: [StructureCardsViewComponent, StructureTableViewComponent, ButtonModule, TooltipModule],
   templateUrl: './structure.component.html',
   styleUrl: './structure.component.scss'
 })
 export default class StructureComponent {
   setUpProjectService = inject(SetUpProjectService);
-  selectedStructureIndex = signal<number>(0);
+
+  // Vista predeterminada: tabla (false = tabla, true = tarjetas)
+
+  toggleView() {
+    this.setUpProjectService.isCardsView.update(current => !current);
+  }
+  addStructure = () => {
+    this.setUpProjectService.structures.update(structures => {
+      structures.push({ id: 's', name: '', code: '', items: [], indicators: [], editing: true, newStructure: true });
+      return [...structures];
+    });
+    this.setUpProjectService.editingFocus.set(true);
+  };
 }

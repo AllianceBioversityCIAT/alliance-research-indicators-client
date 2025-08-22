@@ -27,6 +27,7 @@ describe('SetUpProjectComponent', () => {
       indicatorList: signal([]),
       loadingStructures: signal(false),
       currentAgreementId: signal(null),
+      routeid: signal('test-project-id'),
       getStructures: jest.fn().mockResolvedValue(undefined),
       getIndicators: jest.fn().mockResolvedValue(undefined),
       // Add missing signals and methods
@@ -39,9 +40,7 @@ describe('SetUpProjectComponent', () => {
       saveLevel1Name: jest.fn(),
       saveLevel2Name: jest.fn(),
       cancelEditingLevel1: jest.fn(),
-      cancelEditingLevel2: jest.fn(),
-      loadFromLocalStorage: jest.fn(),
-      clearLocalStorageForCurrentProject: jest.fn()
+      cancelEditingLevel2: jest.fn()
     };
 
     mockActionsService = {

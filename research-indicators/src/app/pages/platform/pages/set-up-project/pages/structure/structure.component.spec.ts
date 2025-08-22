@@ -18,6 +18,9 @@ describe('StructureComponent', () => {
       editingElementId: signal(null),
       assignIndicatorsModal: signal({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } }),
       indicatorList: signal([]),
+      isCardsView: signal(false),
+      strcutureGrouped: signal([]),
+      editingFocus: signal(false),
       // Add missing signals and methods
       level1Name: signal('Structure'),
       level2Name: signal('Item'),
@@ -28,9 +31,7 @@ describe('StructureComponent', () => {
       saveLevel1Name: jest.fn(),
       saveLevel2Name: jest.fn(),
       cancelEditingLevel1: jest.fn(),
-      cancelEditingLevel2: jest.fn(),
-      loadFromLocalStorage: jest.fn(),
-      clearLocalStorageForCurrentProject: jest.fn()
+      cancelEditingLevel2: jest.fn()
     };
 
     await TestBed.configureTestingModule({

@@ -1,6 +1,8 @@
 export interface GetStructures {
   structures: IndicatorsStructure[];
   agreement_id: string | number | null;
+  name_level_1: string;
+  name_level_2: string;
 }
 
 export interface IndicatorsStructure {
@@ -9,6 +11,9 @@ export interface IndicatorsStructure {
   code: string;
   items?: IndicatorItem[];
   indicators: Indicator[];
+  //auxiliary attributes
+  editing?: boolean;
+  newStructure?: boolean;
 }
 
 export interface IndicatorItem {
@@ -16,6 +21,12 @@ export interface IndicatorItem {
   name: string;
   code: string;
   indicators?: Indicator[];
+  //auxiliary fields
+  representative?: IndicatorItem;
+  editing?: boolean;
+  newItem?: boolean;
+  ghostItem?: boolean;
+  itemsCount?: number;
 }
 
 export interface Indicator {
@@ -29,4 +40,6 @@ export interface Indicator {
   targetValue: string;
   baseline: string;
   isActive: boolean;
+  // aux
+  adding?: boolean;
 }
