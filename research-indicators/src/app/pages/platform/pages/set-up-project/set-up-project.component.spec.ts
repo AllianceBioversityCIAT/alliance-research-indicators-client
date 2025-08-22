@@ -13,6 +13,8 @@ import { ActionsService } from '../../../../shared/services/actions.service';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { ProjectUtilsService } from '../../../../shared/services/project-utils.service';
 import { ApiService } from '../../../../shared/services/api.service';
+import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
+import { CustomTagComponent } from '../../../../shared/components/custom-tag/custom-tag.component';
 
 describe('SetUpProjectComponent', () => {
   let component: SetUpProjectComponent;
@@ -72,8 +74,15 @@ describe('SetUpProjectComponent', () => {
     };
 
     mockRouter = {
-      navigate: jest.fn().mockResolvedValue(true)
-    };
+      navigate: jest.fn().mockResolvedValue(true),
+      events: of(),
+      url: '/test',
+      routerState: {
+        snapshot: {
+          url: '/test'
+        }
+      }
+    } as any;
 
     mockActivatedRoute = {
       firstChild: {
@@ -104,7 +113,7 @@ describe('SetUpProjectComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [SetUpProjectComponent, RouterTestingModule],
+      imports: [SetUpProjectComponent, ProjectItemComponent, CustomTagComponent, RouterTestingModule.withRoutes([])],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
