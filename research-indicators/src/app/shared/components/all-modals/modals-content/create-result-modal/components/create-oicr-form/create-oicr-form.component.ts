@@ -98,6 +98,7 @@ export class CreateOicrFormComponent {
 
   stepFourVisited = signal(false);
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
+  primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
 
   public getContractStatusClasses = getContractStatusClasses;
   private stepSectionIds = [...CREATE_OICR_STEPPER_SECTIONS];
@@ -209,6 +210,15 @@ export class CreateOicrFormComponent {
     () => {
       const primaryLevers = this.body().step_two?.primary_lever || [];
       this.optionsDisabled.set(primaryLevers);
+    },
+    { allowSignalWrites: true }
+  );
+
+  // Effect para actualizar primaryOptionsDisabled cuando cambien los levers en Other Contributing Levers
+  updatePrimaryOptionsDisabledEffect = effect(
+    () => {
+      const contributorLevers = this.body().step_two?.contributor_lever || [];
+      this.primaryOptionsDisabled.set(contributorLevers);
     },
     { allowSignalWrites: true }
   );

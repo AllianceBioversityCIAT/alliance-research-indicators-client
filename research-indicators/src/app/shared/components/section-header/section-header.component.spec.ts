@@ -334,4 +334,160 @@ describe('SectionHeaderComponent', () => {
 
     expect(component.welcomeMessage()).toBe('Welcome, ');
   });
+
+  describe('ngAfterViewInit', () => {
+    it('should setup ResizeObserver when section-sidebar element exists', () => {
+      // Mock querySelector to return a mock element
+      const mockElement = {
+        getBoundingClientRect: jest.fn().mockReturnValue({ height: 100 })
+      };
+      const mockQuerySelector = jest.spyOn(component.elementRef.nativeElement, 'querySelector');
+      mockQuerySelector.mockReturnValue(mockElement as any);
+
+      component.ngAfterViewInit();
+
+      expect(mockQuerySelector).toHaveBeenCalledWith('#section-sidebar');
+      expect(component['resizeObserver']).toBeDefined();
+    });
+
+    it('should trigger ResizeObserver callback and update header height', () => {
+      // Mock querySelector to return a mock element
+      const mockElement = {
+        getBoundingClientRect: jest.fn().mockReturnValue({ height: 150 })
+      };
+      const mockQuerySelector = jest.spyOn(component.elementRef.nativeElement, 'querySelector');
+      mockQuerySelector.mockReturnValue(mockElement as any);
+
+      const headerHeightSpy = jest.spyOn(component.cache.headerHeight, 'set');
+
+      component.ngAfterViewInit();
+
+      // Verify that ResizeObserver was created and observe was called
+      expect(component['resizeObserver']).toBeDefined();
+      expect(mockQuerySelector).toHaveBeenCalledWith('#section-sidebar');
+    });
+  });
+
+  describe('ngOnDestroy', () => {
+    it('should unsubscribe from router subscription when it exists', () => {
+      // Mock routerSubscription
+      const unsubscribeSpy = jest.fn();
+      (component as any).routerSubscription = { unsubscribe: unsubscribeSpy };
+
+      component.ngOnDestroy();
+
+      expect(unsubscribeSpy).toHaveBeenCalled();
+    });
+
+    it('should handle ngOnDestroy when routerSubscription does not exist', () => {
+      (component as any).routerSubscription = undefined;
+
+      expect(() => component.ngOnDestroy()).not.toThrow();
+    });
+
+    it('should handle ngOnDestroy when routerSubscription is null', () => {
+      (component as any).routerSubscription = null;
+
+      expect(() => component.ngOnDestroy()).not.toThrow();
+    });
+  });
+
+  describe('ngOnInit and Navigation', () => {
+    it('should initialize with current URL', () => {
+      component.ngOnInit();
+      expect(component['currentUrl']()).toBe('/test');
+    });
+
+    it('should handle NavigationEnd event', () => {
+      const routerEventsSubject = new (require('rxjs').Subject)();
+      (routerSpy as any).events = routerEventsSubject.asObservable();
+
+      component.ngOnInit();
+      routerEventsSubject.next(new NavigationEnd(1, '/new-url', '/new-url'));
+
+      expect(component['currentUrl']()).toBe('/new-url');
+    });
+
+    it('should clear data when navigating to non-project/result pages', () => {
+      const routerEventsSubject = new (require('rxjs').Subject)();
+      (routerSpy as any).events = routerEventsSubject.asObservable();
+
+      component.ngOnInit();
+      routerEventsSubject.next(new NavigationEnd(1, '/home', '/home'));
+
+      expect(component['currentProject']()).toEqual({});
+      expect(component['contractId']()).toBe('');
+    });
+  });
+
+  describe('Breadcrumb computation', () => {
+    it('should return empty breadcrumb when no contractId', () => {
+      component['contractId'].set('');
+      expect(component.breadcrumb()).toEqual([]);
+    });
+
+    it('should return breadcrumb for project detail page', () => {
+      component['contractId'].set('123');
+      component['currentProject'].set({ projectDescription: 'Test Project' });
+      component['currentUrl'].set('/project-detail/123');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb).toHaveLength(2);
+      expect(breadcrumb[0].label).toBe('Projects');
+      expect(breadcrumb[0].route).toBe('/projects');
+      expect(breadcrumb[1].label).toBe('Project 123');
+      expect(breadcrumb[1].tooltip).toBe('Test Project');
+    });
+
+    it('should return breadcrumb for result page', () => {
+      component['contractId'].set('123');
+      component['currentProject'].set({ projectDescription: 'Test Project' });
+      component['currentUrl'].set('/result/789/general-information');
+      component['resultTitle'].set('Test Result');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb).toHaveLength(3);
+      expect(breadcrumb[0].label).toBe('Projects');
+      expect(breadcrumb[0].route).toBe('/projects');
+      expect(breadcrumb[1].label).toBe('Project 123');
+      expect(breadcrumb[1].route).toBe('/project-detail/123');
+      expect(breadcrumb[2].label).toBe('Result 789');
+      expect(breadcrumb[2].tooltip).toBe('Test Result');
+    });
+
+    it('should handle result page without resultId in URL', () => {
+      component['contractId'].set('123');
+      component['currentProject'].set({ projectDescription: 'Test Project' });
+      component['currentUrl'].set('/result/');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb).toHaveLength(2);
+      expect(breadcrumb[1].label).toBe('Project 123');
+      expect(breadcrumb[1].route).toBeUndefined();
+    });
+  });
+
+  describe('Computed properties', () => {
+    it('should correctly identify project detail page', () => {
+      component['currentUrl'].set('/project-detail/123');
+      expect(component.isProjectDetailPage()).toBe(true);
+
+      component['currentUrl'].set('/home');
+      expect(component.isProjectDetailPage()).toBe(false);
+    });
+
+    it('should correctly identify result page', () => {
+      component['currentUrl'].set('/result/123/general-information');
+      expect(component.isResultPage()).toBe(true);
+
+      component['currentUrl'].set('/result/123');
+      expect(component.isResultPage()).toBe(true);
+
+      component['currentUrl'].set('/result');
+      expect(component.isResultPage()).toBe(false);
+
+      component['currentUrl'].set('/home');
+      expect(component.isResultPage()).toBe(false);
+    });
+  });
 });
