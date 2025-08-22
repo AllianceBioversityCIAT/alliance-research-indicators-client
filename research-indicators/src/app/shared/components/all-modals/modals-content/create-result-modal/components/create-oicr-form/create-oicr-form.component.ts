@@ -50,6 +50,7 @@ import { Initiative } from '@shared/interfaces/initiative.interface';
 import { TooltipModule } from 'primeng/tooltip';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { GetInitiativesService } from '@shared/services/control-list/get-initiatives.service';
+import { Router } from '@angular/router';
 
 // Interfaz extendida para incluir contract_id
 interface GetContractsExtended extends GetContracts {
@@ -77,6 +78,7 @@ export class CreateOicrFormComponent {
   @ViewChildren(MultiselectInstanceComponent) multiselectInstances!: QueryList<MultiselectInstanceComponent>;
 
   createResultManagementService = inject(CreateResultManagementService);
+  serviceLocator = inject(ServiceLocatorService);
   getResultsService = inject(GetResultsService);
   allModalsService = inject(AllModalsService);
   wordCountService = inject(WordCountService);
@@ -85,7 +87,7 @@ export class CreateOicrFormComponent {
   elementRef = inject(ElementRef);
   cache = inject(CacheService);
   api = inject(ApiService);
-  serviceLocator = inject(ServiceLocatorService);
+  router = inject(Router);
 
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
@@ -348,16 +350,26 @@ export class CreateOicrFormComponent {
   };
 
   async createResult() {
-    console.warn(this.body());
     const response = await this.api.POST_CreateOicr(this.body());
-    if (!response.successfulRequest) {
-      this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
+    if (response.status !== 200) {
+      this.actions.handleBadRequest(response);
     } else {
       this.actions.showGlobalAlert({
         severity: 'success',
         summary: 'Thank you for your submission',
+        hasNoCancelButton: true,
         detail:
-          'Your OICR will be reviewed by PISA-SPRM and the assigned regional MEL specialist will reach out to support you in finalizing the next steps of the OICR development process.'
+          'Your OICR will be reviewed by PISA-SPRM and the assigned regional MEL specialist will reach out to support you in finalizing the next steps of the OICR development process.',
+        confirmCallback: {
+          label: 'Done',
+          event: () => {
+            this.router.navigate(['result', response.data.result_official_code], {
+              replaceUrl: true
+            });
+            this.allModalsService.closeModal('createResult');
+            this.getResultsService.updateList();
+          }
+        }
       });
     }
   }

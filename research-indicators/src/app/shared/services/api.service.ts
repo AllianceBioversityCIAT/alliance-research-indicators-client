@@ -62,7 +62,6 @@ import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContracts } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
-import { OicrCreation } from '@shared/interfaces/oicr-creation.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 
 @Injectable({
@@ -188,7 +187,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  POST_CreateOicr = <T>(body: T): Promise<MainResponse<OicrCreation>> => {
+  POST_CreateOicr = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `results/oicr`;
     return this.TP.post(url(), body, {});
   };
