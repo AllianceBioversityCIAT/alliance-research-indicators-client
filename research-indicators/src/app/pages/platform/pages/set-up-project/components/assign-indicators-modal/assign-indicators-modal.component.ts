@@ -13,10 +13,6 @@ import { CommonModule } from '@angular/common';
 export class AssignIndicatorsModalComponent {
   setUpProjectService = inject(SetUpProjectService);
 
-  targetInfo = computed(
-    () => this.setUpProjectService.assignIndicatorsModal().targetLevel1 || this.setUpProjectService.assignIndicatorsModal().targetLevel2
-  );
-
   getIndicatorsFiltered = computed(() => {
     // Level 1 - Structure indicators
     if (this.setUpProjectService.assignIndicatorsModal().targetLevel1) {
@@ -36,4 +32,20 @@ export class AssignIndicatorsModalComponent {
 
     return this.setUpProjectService.indicatorList();
   });
+
+  openCreateIndicatorModal() {
+    // Close the current modal
+    // this.setUpProjectService.assignIndicatorsModal.set({
+    //   show: false,
+    //   targetLevel1: undefined,
+    //   targetLevel2: undefined
+    // });
+
+    // Open the create indicator modal
+    this.setUpProjectService.manageIndicatorModal.set({
+      show: true,
+      editingMode: false,
+      assignModal: true
+    });
+  }
 }
