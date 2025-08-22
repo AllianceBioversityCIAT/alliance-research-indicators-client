@@ -106,3 +106,23 @@
     }
   }
 }
+
+// Custom progress bar styling
+// stylelint-disable-next-line selector-pseudo-element-no-unknown
+::ng-deep {
+  .custom-progress-green {
+    .p-progressbar {
+      background-color: #f3f4f6;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+
+    .p-progressbar-value {
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+      border-radius: 0.5rem;
+      transition: width 0.3s ease;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
+    }
+  }
+}

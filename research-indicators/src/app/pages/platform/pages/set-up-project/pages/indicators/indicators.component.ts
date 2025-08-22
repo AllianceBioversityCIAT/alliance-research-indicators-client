@@ -3,6 +3,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { ProgressBarModule } from 'primeng/progressbar';
 import { SetUpProjectService } from '../../set-up-project.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
@@ -11,7 +12,7 @@ import { NUMBER_TYPE_OPTIONS, NUMBER_FORMAT_OPTIONS } from '../../../../../../sh
 
 @Component({
   selector: 'app-indicators',
-  imports: [ButtonModule, TooltipModule, TableModule, TagModule],
+  imports: [ButtonModule, TooltipModule, TableModule, TagModule, ProgressBarModule],
   templateUrl: './indicators.component.html',
   styleUrl: './indicators.component.scss'
 })
