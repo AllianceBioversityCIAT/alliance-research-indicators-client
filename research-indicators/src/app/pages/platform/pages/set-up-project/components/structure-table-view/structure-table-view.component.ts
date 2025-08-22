@@ -19,12 +19,14 @@ export class StructureTableViewComponent {
   setUpProjectService = inject(SetUpProjectService);
   level1NameInput = '';
   level2NameInput = '';
+
   changeEditingLevel1 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
       const structure = structures.find(s => s.id === customer.representative.id);
       if (structure) {
         structure.editing = !structure.editing;
         this.level1NameInput = structure.name;
+        if (structure.editing) this.setUpProjectService.editingFocus.set(true);
       }
       return [...structures];
     });
@@ -35,10 +37,12 @@ export class StructureTableViewComponent {
       if (structure) {
         structure.name = this.level1NameInput;
         structure.editing = false;
+        this.setUpProjectService.editingFocus.set(false);
       }
       return [...structures];
     });
     this.setUpProjectService.saveStructures();
+    this.setUpProjectService.editingFocus.set(false);
   };
   changeEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
@@ -46,6 +50,7 @@ export class StructureTableViewComponent {
       if (item) {
         item.editing = !item.editing;
         this.level2NameInput = item.name;
+        if (item.editing) this.setUpProjectService.editingFocus.set(true);
       }
       return [...structures];
     });
@@ -56,13 +61,16 @@ export class StructureTableViewComponent {
       if (item) {
         item.name = this.level2NameInput;
         item.editing = false;
+        this.setUpProjectService.editingFocus.set(false);
       }
       return [...structures];
     });
     this.setUpProjectService.saveStructures();
+    this.setUpProjectService.editingFocus.set(false);
   };
 
   addNewItem = (customer: IndicatorItem, toggleRowId: string) => {
+    this.setUpProjectService.editingFocus.set(true);
     this.setUpProjectService.structures.update(structures => {
       const structure = structures.find(s => s.id === customer.representative.id);
       if (structure?.items) {
@@ -89,6 +97,7 @@ export class StructureTableViewComponent {
     });
     this.setUpProjectService.saveStructures();
   };
+
   deleteItem = (customer: IndicatorItem, toggleRowId: string) => {
     this.setUpProjectService.structures.update(structures => {
       const structure = structures.find(s => s.id === customer.representative.id);
@@ -100,5 +109,25 @@ export class StructureTableViewComponent {
     });
 
     this.setUpProjectService.saveStructures();
+  };
+  cancelEditingLevel1 = (customer: IndicatorItem) => {
+    this.setUpProjectService.structures.update(structures => {
+      const structure = structures.find(s => s.id === customer.representative.id);
+      if (structure) {
+        structure.editing = false;
+        this.setUpProjectService.editingFocus.set(false);
+      }
+      return [...structures];
+    });
+  };
+  cancelEditingLevel2 = (customer: IndicatorItem) => {
+    this.setUpProjectService.structures.update(structures => {
+      const item = structures.find(s => s.id === customer.representative.id)?.items?.find(i => i.id === customer.id);
+      if (item) {
+        item.editing = false;
+        this.setUpProjectService.editingFocus.set(false);
+      }
+      return [...structures];
+    });
   };
 }

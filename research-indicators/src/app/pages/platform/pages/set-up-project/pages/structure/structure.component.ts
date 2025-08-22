@@ -24,5 +24,6 @@ export default class StructureComponent {
       structures.push({ id: 's', name: '', code: '', items: [], indicators: [], editing: true, newStructure: true });
       return [...structures];
     });
+    this.setUpProjectService.editingFocus.set(true);
   };
 }
