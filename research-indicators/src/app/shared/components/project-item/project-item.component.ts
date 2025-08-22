@@ -17,6 +17,7 @@ import { ButtonModule } from 'primeng/button';
 })
 export class ProjectItemComponent implements OnInit {
   @Input() isHeader = false;
+  @Input() hideSetup = false;
   @Input() project: GetContractsByUser | GetProjectDetail | FindContracts = {};
   cache = inject(CacheService);
   private projectUtils = inject(ProjectUtilsService);

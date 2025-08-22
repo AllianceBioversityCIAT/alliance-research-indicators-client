@@ -30,6 +30,9 @@ import { AssignIndicatorsModalComponent } from './components/assign-indicators-m
 import { ActionsService } from '../../../../shared/services/actions.service';
 import { Subscription } from 'rxjs';
 import { ManageIndicatorModalComponent } from './components/manage-indicator-modal/manage-indicator-modal.component';
+import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
+import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
+import { ApiService } from '../../../../shared/services/api.service';
 
 @Component({
   selector: 'app-set-up-project',
@@ -54,7 +57,8 @@ import { ManageIndicatorModalComponent } from './components/manage-indicator-mod
     SelectButtonModule,
     RouterOutlet,
     AssignIndicatorsModalComponent,
-    ManageIndicatorModalComponent
+    ManageIndicatorModalComponent,
+    ProjectItemComponent
   ],
   templateUrl: './set-up-project.component.html',
   styleUrl: './set-up-project.component.scss'
@@ -67,7 +71,8 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
   actions = inject(ActionsService);
   private routeSubscription?: Subscription;
-
+  currentProject = signal<GetProjectDetail>({});
+  api = inject(ApiService);
   routeOptions = [
     { label: 'Structures', value: 'structure' },
     { label: 'Indicators', value: 'indicators' }
@@ -96,11 +101,26 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
     }
     this.setUpProjectService.getStructures();
     this.setUpProjectService.getIndicators();
+    this.getProjectDetail();
   }
 
   ngOnDestroy(): void {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
+    }
+  }
+
+  async getProjectDetail() {
+    const response = await this.api.GET_ResultsCount(this.setUpProjectService.routeid() as string);
+    if (response?.data?.indicators?.length) {
+      response.data.indicators.forEach((indicator: GetProjectDetailIndicator) => {
+        indicator.full_name = indicator.indicator.name;
+      });
+      this.currentProject.set(response.data);
+    } else if (response?.data) {
+      this.currentProject.set(response.data);
+    } else {
+      this.currentProject.set(undefined as unknown as GetProjectDetail);
     }
   }
 

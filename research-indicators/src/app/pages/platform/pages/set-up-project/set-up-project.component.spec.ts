@@ -5,10 +5,14 @@ import { computed, signal } from '@angular/core';
 import { of } from 'rxjs';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import SetUpProjectComponent from './set-up-project.component';
 import { SetUpProjectService } from './set-up-project.service';
 import { ActionsService } from '../../../../shared/services/actions.service';
+import { CacheService } from '../../../../shared/services/cache/cache.service';
+import { ProjectUtilsService } from '../../../../shared/services/project-utils.service';
+import { ApiService } from '../../../../shared/services/api.service';
 
 describe('SetUpProjectComponent', () => {
   let component: SetUpProjectComponent;
@@ -17,6 +21,9 @@ describe('SetUpProjectComponent', () => {
   let mockActionsService: Partial<ActionsService>;
   let mockRouter: Partial<Router>;
   let mockActivatedRoute: Partial<ActivatedRoute>;
+  let mockCacheService: Partial<CacheService>;
+  let mockProjectUtilsService: Partial<ProjectUtilsService>;
+  let mockApiService: Partial<ApiService>;
 
   beforeEach(async () => {
     const assignIndicatorsModalSignal = signal({ show: false, targetLevel1: undefined, targetLevel2: undefined });
@@ -81,20 +88,44 @@ describe('SetUpProjectComponent', () => {
       params: of({ id: 'test-project-id' })
     } as any;
 
+    mockCacheService = {
+      onlyMvpUsers: signal(false)
+    };
+
+    mockProjectUtilsService = {
+      sortIndicators: jest.fn().mockReturnValue([]),
+      getStatusDisplay: jest.fn().mockReturnValue({ statusId: 1, statusName: 'Active' }),
+      getLeverName: jest.fn().mockReturnValue('Test Lever'),
+      hasField: jest.fn().mockReturnValue(true)
+    };
+
+    mockApiService = {
+      GET_ResultsCount: jest.fn().mockResolvedValue({ data: { indicators: [] } })
+    };
+
     await TestBed.configureTestingModule({
-      imports: [SetUpProjectComponent],
+      imports: [SetUpProjectComponent, RouterTestingModule],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: SetUpProjectService, useValue: mockSetUpProjectService },
         { provide: ActionsService, useValue: mockActionsService },
         { provide: Router, useValue: mockRouter },
-        { provide: ActivatedRoute, useValue: mockActivatedRoute }
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: CacheService, useValue: mockCacheService },
+        { provide: ProjectUtilsService, useValue: mockProjectUtilsService },
+        { provide: ApiService, useValue: mockApiService }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SetUpProjectComponent);
     component = fixture.componentInstance;
+    // Set a minimal project object to avoid RouterLink issues
+    component.currentProject.set({
+      agreement_id: 'test-id',
+      description: 'Test Project',
+      indicators: []
+    });
     fixture.detectChanges();
   });
 
