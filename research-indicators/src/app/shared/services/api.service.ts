@@ -589,8 +589,8 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  POST_SyncContribution = (body: PostSyncContributor[]) => {
-    const url = () => `contributions/sync-contribution`;
+  POST_SyncContribution = (body: PostSyncContributor[], resultId: number) => {
+    const url = () => `contributions/sync-contribution/${resultId}`;
     return this.TP.post(url(), body);
   };
 

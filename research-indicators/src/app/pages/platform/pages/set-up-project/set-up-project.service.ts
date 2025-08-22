@@ -93,7 +93,12 @@ export class SetUpProjectService {
     console.log(this.strcutureGrouped());
     this.loadingStructures.set(true);
     try {
-      await this.api.POST_SyncStructures({ structures: this.structures(), agreement_id: this.routeid() });
+      await this.api.POST_SyncStructures({
+        structures: this.structures(),
+        agreement_id: this.routeid(),
+        name_level_1: this.level1Name(),
+        name_level_2: this.level2Name()
+      });
       await this.getStructures();
       this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Structures saved successfully' });
     } catch {
@@ -149,7 +154,9 @@ export class SetUpProjectService {
     try {
       const res = await this.api.GET_Structures(this.currentAgreementId() as number);
       this.structures.set(res.data.structures);
-      console.log(this.structures());
+      this.level1Name.set(res.data.name_level_1);
+      this.level2Name.set(res.data.name_level_2);
+      console.log(res.data);
     } catch {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });
       this.structures.set([]);
