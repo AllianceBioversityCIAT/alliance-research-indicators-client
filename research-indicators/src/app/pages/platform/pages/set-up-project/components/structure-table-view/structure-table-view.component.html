@@ -54,7 +54,9 @@
         }
       </td>
       <td>
-        <app-table-indicator-item [indicators]="customer.representative.indicators" />
+        <app-table-indicator-item
+          [indicators]="customer.representative.indicators"
+          (showAllAction)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel1: customer.representative })" />
       </td>
       <td>
         <div class="flex gap-2 justify-end">
@@ -142,7 +144,11 @@
             <p-tag [value]="item.name" severity="info" icon="pi pi-folder" />
           }
         </td>
-        <td><app-table-indicator-item [indicators]="item.indicators" /></td>
+        <td>
+          <app-table-indicator-item
+            [indicators]="item.indicators"
+            (showAllAction)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel2: item })" />
+        </td>
         <td>
           <div class="flex gap-2 justify-end">
             @if (item.editing) {

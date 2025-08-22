@@ -7,6 +7,6 @@
     }
   </div>
   @if (indicators.length) {
-    <p-button label="Show all" severity="primary" [text]="true" size="small" />
+    <p-button label="Show all or edit" icon="pi pi-list" severity="primary" [text]="true" size="small" (onClick)="showAllAction.emit()" />
   }
 </div>
