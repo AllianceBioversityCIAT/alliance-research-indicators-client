@@ -144,6 +144,10 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
   defaultLevel2Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 2));
 
   async saveStructures() {
+    console.log(this.setUpProjectService.structures());
+    console.log(this.setUpProjectService.strcutureGrouped());
+    console.log(this.setUpProjectService.strcutureGrouped());
+    return;
     this.setUpProjectService.loadingStructures.set(true);
     try {
       await this.setUpProjectService.api.POST_SyncStructures({ structures: this.setUpProjectService.structures(), agreement_id: this.routeid() });

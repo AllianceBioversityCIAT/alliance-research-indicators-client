@@ -1,1 +1,3 @@
-<p>table-indicator-item works!</p>
+@for (indicator of indicators; track indicator.id) {
+  <p-tag [value]="indicator.name" severity="contrast" />
+}

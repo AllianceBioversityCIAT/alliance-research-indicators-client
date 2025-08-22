@@ -32,8 +32,9 @@ export class SetUpProjectService {
 
   strcutureGrouped = computed(() => {
     const result = this.structures().flatMap(item => {
+      const { items, ...itemWithoutItems } = item;
       item.items?.map(stItem => {
-        stItem.representative = { name: item.name, itemsCount: item.items?.length || 0 };
+        stItem.representative = { ...itemWithoutItems, itemsCount: items?.length || 0 };
       });
       return item.items || [];
     });
