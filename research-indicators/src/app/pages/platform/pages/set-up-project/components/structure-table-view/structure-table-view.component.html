@@ -9,11 +9,11 @@
   [tableStyle]="{ 'min-width': '70rem' }">
   <ng-template #header>
     <tr>
-      <th></th>
-      <th style="width: 20%">Code</th>
-      <th style="width: 20%">name</th>
-      <th style="width: 60%">indicators</th>
-      <th style="width: 10%">actions</th>
+      <th class="w-[10px]">{{ setUpProjectService.level2Name() }}</th>
+      <th class="w-[10%]">Code</th>
+      <th class="w-[20%]">name</th>
+      <th class="w-[40%]">indicators</th>
+      <th class="w-[20%]">actions</th>
     </tr>
   </ng-template>
   <ng-template #groupheader let-customer let-i="rowIndex" let-rowIndex="rowIndex" let-expanded="expanded">
@@ -29,6 +29,7 @@
             [pRowToggler]="customer"
             text
             rounded
+            [label]="customer.representative?.itemsCount"
             plain
             class="mr-2 cursor-pointer"
             [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
@@ -87,7 +88,7 @@
                 [text]="true"
                 size="small">
               </p-button>
-              <p-button
+              <!-- <p-button
                 (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel1: customer.representative })"
                 icon="pi pi-chart-line"
                 pTooltip="Map indicators"
@@ -95,7 +96,7 @@
                 severity="primary"
                 [text]="true"
                 size="small">
-              </p-button>
+              </p-button> -->
               <p-button
                 (click)="changeEditingLevel1(customer)"
                 icon="pi pi-pencil"
@@ -171,7 +172,7 @@
                   size="small">
                 </p-button>
               } @else {
-                <p-button
+                <!-- <p-button
                   (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel2: item })"
                   icon="pi pi-chart-line"
                   pTooltip="Map indicators"
@@ -179,7 +180,7 @@
                   severity="primary"
                   [text]="true"
                   size="small">
-                </p-button>
+                </p-button> -->
                 <p-button
                   (click)="changeEditingLevel2(item)"
                   icon="pi pi-pencil"

@@ -223,7 +223,7 @@ export class SetUpProjectService {
         return [...prev];
       });
     }
-
+    this.saveStructures();
     console.log(this.structures());
   }
 
