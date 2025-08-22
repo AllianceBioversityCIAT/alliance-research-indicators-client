@@ -133,41 +133,62 @@
               placeholder="Select the tagging"></app-select>
           </div>
 
-          @if (body().step_one.tagging?.tag_id === 2) {
+          @if (body().step_one.tagging.tag_id === 2 || body().step_one.tagging.tag_id === 3) {
             <div class="flex flex-col">
               <app-select
                 label="Select existing OICR"
                 helperText="Select an OICR previously reported in the Alliance."
                 [signal]="this.body"
-                [optionValue]="{ body: 'step_one.linked_result.link_result_id', option: 'link_result_id' }"
-                optionLabel="select_label"
+                [optionValue]="{ body: 'step_one.linked_result.link_result_id', option: 'result_official_code' }"
+                optionLabel="title"
                 serviceName="oicrResults"
-                placeholder="Select OICR">
+                placeholder="Select OICR"
+                [hideSelected]="false"
+                textSpan="OICR selected">
                 <ng-template #item let-item>
-                  <div class="flex flex-col gap-2 h-[54px] text-[14px]" pTooltip="{{ item?.description }}">
-                    <p class="text-[#4C5158] font-[400]">
-                      <b>{{ item?.agreement_id }} -</b>
-                      {{ item?.description }}
+                  <div class="flex flex-col gap-2 h-[54px] text-[14px] w-full min-w-0" pTooltip="{{ item?.title }}">
+                    <p class="text-[#4C5158] font-[400] w-full overflow-hidden whitespace-nowrap text-ellipsis">
+                      <b>{{ item?.result_official_code }} -</b>
+                      {{ item?.title }}
                     </p>
 
-                    <p class="space-x-3 text-[11px] text-[#777C83]">
-                      <button
-                        class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg"
-                        [class]="getContractStatusClasses(item?.contract_status)">
-                        {{ item?.contract_status }}
+                    <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
+                      <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
+                        Published
                       </button>
-                      Principal investigator <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
-                      <span class="text-[#345B8F]">{{ item?.project_lead_description }}</span>
+                      Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+                      <span class="text-[#345B8F]">1</span>
                       <span class="text-[#B9C0C5]">|</span>
-                      Start date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
-                      <span class="text-[#345B8F]">{{ item?.start_date | date: 'dd/MM/yyyy' }}</span>
-                      @if (item?.end_date) {
-                        <span class="text-[#B9C0C5]">|</span>
-                        End date <i class="pi pi-arrow-right !text-[7px] text-[#777C83] pl-1"></i>
-                        <span class="text-[#345B8F]">{{ item?.end_date | date: 'dd/MM/yyyy' }}</span>
-                      }
+                      Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+                      <span class="text-[#345B8F]">{{ item?.report_year_id }}</span>
                     </p>
                   </div>
+                </ng-template>
+                <ng-template #rows let-item>
+                  <div class="flex flex-col gap-2 h-[80px] text-[14px] w-full min-w-0" pTooltip="{{ item?.title }}">
+                    <div class="flex items-center gap-2">
+                      <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
+                      <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
+                    </div>
+                    <div class="text-[#4C5158] font-[600] w-full overflow-hidden whitespace-nowrap text-ellipsis">
+                      {{ item?.result_official_code }} -
+                      {{ item?.title }}
+                    </div>
+
+                    <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
+                      <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
+                        Published
+                      </button>
+                      Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+                      <span class="text-[#345B8F]">1</span>
+                      <span class="text-[#B9C0C5]">|</span>
+                      Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+                      <span class="text-[#345B8F]">{{ item?.report_year_id }}</span>
+                    </p>
+                  </div>
+                </ng-template>
+                <ng-template #selectedItemTemplate let-selected>
+                  <span>OICR selected</span>
                 </ng-template>
               </app-select>
             </div>
