@@ -92,6 +92,7 @@ export class StructureTableViewComponent {
       }
       return [...structures];
     });
+    this.setUpProjectService.saveStructures();
   };
   deleteItem = (customer: IndicatorItem, toggleRowId: string) => {
     this.setUpProjectService.structures.update(structures => {
