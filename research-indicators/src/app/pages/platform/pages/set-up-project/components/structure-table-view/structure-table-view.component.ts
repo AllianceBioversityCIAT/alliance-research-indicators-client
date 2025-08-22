@@ -22,7 +22,7 @@ export class StructureTableViewComponent {
 
   changeEditingLevel1 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative.id);
+      const structure = structures.find(s => s.id === customer.representative?.id);
       if (structure) {
         structure.editing = !structure.editing;
         this.level1NameInput = structure.name;
@@ -33,7 +33,7 @@ export class StructureTableViewComponent {
   };
   saveEditingLevel1 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative.id);
+      const structure = structures.find(s => s.id === customer.representative?.id);
       if (structure) {
         structure.name = this.level1NameInput;
         structure.editing = false;
@@ -43,10 +43,11 @@ export class StructureTableViewComponent {
     });
     this.setUpProjectService.saveStructures();
     this.setUpProjectService.editingFocus.set(false);
+    this.level1NameInput = '';
   };
   changeEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
-      const item = structures.find(s => s.id === customer.representative.id)?.items?.find(i => i.id === customer.id);
+      const item = structures.find(s => s.id === customer.representative?.id)?.items?.find(i => i.id === customer.id);
       if (item) {
         item.editing = !item.editing;
         this.level2NameInput = item.name;
@@ -57,7 +58,7 @@ export class StructureTableViewComponent {
   };
   saveEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
-      const item = structures.find(s => s.id === customer.representative.id)?.items?.find(i => i.id === customer.id);
+      const item = structures.find(s => s.id === customer.representative?.id)?.items?.find(i => i.id === customer.id);
       if (item) {
         item.name = this.level2NameInput;
         item.editing = false;
@@ -67,28 +68,26 @@ export class StructureTableViewComponent {
     });
     this.setUpProjectService.saveStructures();
     this.setUpProjectService.editingFocus.set(false);
+    this.level2NameInput = '';
   };
 
   addNewItem = (customer: IndicatorItem, toggleRowId: string) => {
     this.setUpProjectService.editingFocus.set(true);
     this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative.id);
+      const structure = structures.find(s => s.id === customer.representative?.id);
       if (structure?.items) {
         structure.items.push({ id: '', name: '', editing: true, code: '', indicators: [], newItem: true });
       }
       return [...structures];
     });
     setTimeout(() => {
-      const totalItems = customer.representative.itemsCount;
-      if (!totalItems.length) {
-        const isExpanded = Boolean(Number(document.getElementById(toggleRowId)?.getAttribute('isExpanded')));
-        if (!isExpanded) document.getElementById(toggleRowId)?.click();
-      }
+      const isExpanded = Boolean(Number(document.getElementById(toggleRowId)?.getAttribute('isExpanded')));
+      if (!isExpanded) document.getElementById(toggleRowId)?.click();
     }, 100);
   };
   deleteStructure = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative.id);
+      const structure = structures.find(s => s.id === customer.representative?.id);
       if (structure) {
         structures.splice(structures.indexOf(structure), 1);
       }
@@ -99,7 +98,7 @@ export class StructureTableViewComponent {
 
   deleteItem = (customer: IndicatorItem, toggleRowId: string) => {
     this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative.id);
+      const structure = structures.find(s => s.id === customer.representative?.id);
       if (structure) {
         structure.items?.splice(structure.items?.indexOf(customer) || 0, 1);
         if (!structure.items?.length) document.getElementById(toggleRowId)?.click();
@@ -111,7 +110,7 @@ export class StructureTableViewComponent {
   };
   cancelEditingLevel1 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative.id);
+      const structure = structures.find(s => s.id === customer.representative?.id);
       if (structure) {
         if (structure.newStructure) {
           // Si es nueva estructura, eliminarla completamente
@@ -128,7 +127,7 @@ export class StructureTableViewComponent {
   };
   cancelEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative.id);
+      const structure = structures.find(s => s.id === customer.representative?.id);
       const item = structure?.items?.find(i => i.id === customer.id);
       if (item && structure) {
         if (item.newItem) {

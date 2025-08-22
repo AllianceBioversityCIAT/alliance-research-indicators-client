@@ -22,10 +22,11 @@ export interface IndicatorItem {
   code: string;
   indicators?: Indicator[];
   //auxiliary fields
-  representative?: any;
+  representative?: IndicatorItem;
   editing?: boolean;
   newItem?: boolean;
   ghostItem?: boolean;
+  itemsCount?: number;
 }
 
 export interface Indicator {
