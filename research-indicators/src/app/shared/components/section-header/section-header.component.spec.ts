@@ -100,7 +100,10 @@ describe('SectionHeaderComponent', () => {
     };
 
     apiService = {
-      DELETE_Result: jest.fn().mockResolvedValue({ successfulRequest: true })
+      DELETE_Result: jest.fn().mockResolvedValue({ successfulRequest: true }),
+      GET_ResultsCount: jest.fn(),
+      GET_Alignments: jest.fn(),
+      GET_GeneralInformation: jest.fn()
     };
 
     await TestBed.configureTestingModule({
@@ -488,6 +491,310 @@ describe('SectionHeaderComponent', () => {
 
       component['currentUrl'].set('/home');
       expect(component.isResultPage()).toBe(false);
+    });
+  });
+
+  describe('Data loading methods', () => {
+    beforeEach(() => {
+      // Mock API methods
+      apiService.GET_ResultsCount = jest.fn();
+      apiService.GET_Alignments = jest.fn();
+      apiService.GET_GeneralInformation = jest.fn();
+    });
+
+    describe('loadProjectData', () => {
+      it('should load project data successfully', async () => {
+        const mockProjectData = { projectDescription: 'Test Project', description: 'Test Description' };
+        apiService.GET_ResultsCount = jest.fn().mockResolvedValue({ data: mockProjectData });
+
+        // Set up router URL for project detail page
+        (routerSpy as any).url = '/project-detail/123';
+        component['currentUrl'].set('/project-detail/123');
+
+        await component['loadProjectData']();
+
+        expect(apiService.GET_ResultsCount).toHaveBeenCalledWith('123');
+        expect(component['contractId']()).toBe('123');
+        expect(component['currentProject']()).toEqual(mockProjectData);
+      });
+
+      it('should handle API error in loadProjectData', async () => {
+        apiService.GET_ResultsCount = jest.fn().mockRejectedValue(new Error('API Error'));
+
+        (routerSpy as any).url = '/project-detail/123';
+        component['currentUrl'].set('/project-detail/123');
+
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+        await component['loadProjectData']();
+
+        expect(consoleSpy).toHaveBeenCalledWith('Error loading project data:', expect.any(Error));
+        consoleSpy.mockRestore();
+      });
+
+      it('should handle API response without data', async () => {
+        apiService.GET_ResultsCount = jest.fn().mockResolvedValue({ data: null });
+
+        (routerSpy as any).url = '/project-detail/123';
+        component['currentUrl'].set('/project-detail/123');
+
+        await component['loadProjectData']();
+
+        expect(component['currentProject']()).toEqual({});
+      });
+    });
+
+    describe('loadResultData', () => {
+      it('should load result data successfully', async () => {
+        const mockResultData = { title: 'Test Result Title' };
+        const mockAlignmentsData = {
+          data: {
+            contracts: [{ is_primary: true, contract_id: '456' }]
+          }
+        };
+        const mockProjectData = { projectDescription: 'Test Project' };
+
+        apiService.GET_GeneralInformation = jest.fn().mockResolvedValue({ data: mockResultData });
+        apiService.GET_Alignments = jest.fn().mockResolvedValue(mockAlignmentsData);
+        apiService.GET_ResultsCount = jest.fn().mockResolvedValue({ data: mockProjectData });
+
+        (routerSpy as any).url = '/result/789/general-information';
+        component['currentUrl'].set('/result/789/general-information');
+
+        await component['loadResultData']();
+
+        expect(apiService.GET_GeneralInformation).toHaveBeenCalledWith(789);
+        expect(apiService.GET_Alignments).toHaveBeenCalledWith(789);
+        expect(component['currentResultId']()).toBe('789');
+        expect(component['resultTitle']()).toBe('Test Result Title');
+        expect(component['contractId']()).toBe('456');
+        expect(component['currentProject']()).toEqual(mockProjectData);
+      });
+
+      it('should handle result data without title', async () => {
+        const mockResultData = { title: null };
+        const mockAlignmentsData = {
+          data: {
+            contracts: [{ is_primary: true, contract_id: '456' }]
+          }
+        };
+
+        apiService.GET_GeneralInformation = jest.fn().mockResolvedValue({ data: mockResultData });
+        apiService.GET_Alignments = jest.fn().mockResolvedValue(mockAlignmentsData);
+        apiService.GET_ResultsCount = jest.fn().mockResolvedValue({ data: {} });
+
+        (routerSpy as any).url = '/result/789/general-information';
+        component['currentUrl'].set('/result/789/general-information');
+
+        await component['loadResultData']();
+
+        expect(component['resultTitle']()).toBe('');
+      });
+
+      it('should handle alignments data without contracts', async () => {
+        const mockResultData = { title: 'Test Result Title' };
+        const mockAlignmentsData = { data: { contracts: null } };
+
+        apiService.GET_GeneralInformation = jest.fn().mockResolvedValue({ data: mockResultData });
+        apiService.GET_Alignments = jest.fn().mockResolvedValue(mockAlignmentsData);
+
+        (routerSpy as any).url = '/result/789/general-information';
+        component['currentUrl'].set('/result/789/general-information');
+
+        await component['loadResultData']();
+
+        expect(component['resultTitle']()).toBe('Test Result Title');
+        expect(component['contractId']()).toBe('');
+      });
+
+      it('should handle alignments data without primary contract', async () => {
+        const mockResultData = { title: 'Test Result Title' };
+        const mockAlignmentsData = {
+          data: {
+            contracts: [{ is_primary: false, contract_id: '456' }]
+          }
+        };
+
+        apiService.GET_GeneralInformation = jest.fn().mockResolvedValue({ data: mockResultData });
+        apiService.GET_Alignments = jest.fn().mockResolvedValue(mockAlignmentsData);
+
+        (routerSpy as any).url = '/result/789/general-information';
+        component['currentUrl'].set('/result/789/general-information');
+
+        await component['loadResultData']();
+
+        expect(component['resultTitle']()).toBe('Test Result Title');
+        expect(component['contractId']()).toBe('');
+      });
+
+      it('should handle API error in loadResultData', async () => {
+        apiService.GET_GeneralInformation = jest.fn().mockRejectedValue(new Error('API Error'));
+        apiService.GET_Alignments = jest.fn().mockRejectedValue(new Error('API Error'));
+
+        (routerSpy as any).url = '/result/789/general-information';
+        component['currentUrl'].set('/result/789/general-information');
+
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+        await component['loadResultData']();
+
+        expect(consoleSpy).toHaveBeenCalledWith('Error loading result data:', expect.any(Error));
+        consoleSpy.mockRestore();
+      });
+    });
+
+    describe('loadProjectDataById', () => {
+      it('should load project data by ID successfully', async () => {
+        const mockProjectData = { projectDescription: 'Test Project' };
+        apiService.GET_ResultsCount = jest.fn().mockResolvedValue({ data: mockProjectData });
+
+        await component['loadProjectDataById']('123');
+
+        expect(apiService.GET_ResultsCount).toHaveBeenCalledWith('123');
+        expect(component['contractId']()).toBe('123');
+        expect(component['currentProject']()).toEqual(mockProjectData);
+      });
+
+      it('should handle API error in loadProjectDataById', async () => {
+        apiService.GET_ResultsCount = jest.fn().mockRejectedValue(new Error('API Error'));
+
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+        await component['loadProjectDataById']('123');
+
+        expect(consoleSpy).toHaveBeenCalledWith('Error loading project data:', expect.any(Error));
+        consoleSpy.mockRestore();
+      });
+
+      it('should handle API response without data in loadProjectDataById', async () => {
+        apiService.GET_ResultsCount = jest.fn().mockResolvedValue({ data: null });
+
+        await component['loadProjectDataById']('123');
+
+        expect(component['currentProject']()).toEqual({});
+      });
+    });
+  });
+
+  describe('loadData method', () => {
+    beforeEach(() => {
+      // Mock the private methods
+      jest.spyOn(component as any, 'loadProjectData').mockResolvedValue(undefined);
+      jest.spyOn(component as any, 'loadResultData').mockResolvedValue(undefined);
+    });
+
+    it('should call loadProjectData when on project detail page', async () => {
+      component['currentUrl'].set('/project-detail/123');
+
+      await component['loadData']();
+
+      expect(component['loadProjectData']).toHaveBeenCalled();
+      expect(component['loadResultData']).not.toHaveBeenCalled();
+    });
+
+    it('should call loadResultData when on result page', async () => {
+      component['currentUrl'].set('/result/789/general-information');
+
+      await component['loadData']();
+
+      expect(component['loadResultData']).toHaveBeenCalled();
+      expect(component['loadProjectData']).not.toHaveBeenCalled();
+    });
+
+    it('should not call any load method when on other pages', async () => {
+      component['currentUrl'].set('/home');
+
+      await component['loadData']();
+
+      expect(component['loadProjectData']).not.toHaveBeenCalled();
+      expect(component['loadResultData']).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('clearData method', () => {
+    it('should clear all data signals', () => {
+      // Set some data first
+      component['currentProject'].set({ projectDescription: 'Test' });
+      component['contractId'].set('123');
+      component['currentResult'].set({ title: 'Test Result' });
+      component['currentResultId'].set('789');
+      component['resultTitle'].set('Test Result Title');
+
+      component['clearData']();
+
+      expect(component['currentProject']()).toEqual({});
+      expect(component['contractId']()).toBe('');
+      expect(component['currentResult']()).toEqual({});
+      expect(component['currentResultId']()).toBe('');
+      expect(component['resultTitle']()).toBe('');
+    });
+  });
+
+  describe('Navigation event handling', () => {
+    it('should load data when navigating to project detail page', () => {
+      const routerEventsSubject = new (require('rxjs').Subject)();
+      (routerSpy as any).events = routerEventsSubject.asObservable();
+
+      const loadDataSpy = jest.spyOn(component as any, 'loadData').mockResolvedValue(undefined);
+
+      component.ngOnInit();
+      routerEventsSubject.next(new NavigationEnd(1, '/project-detail/123', '/project-detail/123'));
+
+      expect(loadDataSpy).toHaveBeenCalled();
+    });
+
+    it('should load data when navigating to result page', () => {
+      const routerEventsSubject = new (require('rxjs').Subject)();
+      (routerSpy as any).events = routerEventsSubject.asObservable();
+
+      const loadDataSpy = jest.spyOn(component as any, 'loadData').mockResolvedValue(undefined);
+
+      component.ngOnInit();
+      routerEventsSubject.next(new NavigationEnd(1, '/result/789/general-information', '/result/789/general-information'));
+
+      expect(loadDataSpy).toHaveBeenCalled();
+    });
+
+    it('should clear data when navigating to other pages', () => {
+      const routerEventsSubject = new (require('rxjs').Subject)();
+      (routerSpy as any).events = routerEventsSubject.asObservable();
+
+      const clearDataSpy = jest.spyOn(component as any, 'clearData').mockImplementation(() => {});
+
+      component.ngOnInit();
+      routerEventsSubject.next(new NavigationEnd(1, '/home', '/home'));
+
+      expect(clearDataSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Breadcrumb edge cases', () => {
+    it('should handle breadcrumb with project description fallback', () => {
+      component['contractId'].set('123');
+      component['currentProject'].set({ description: 'Fallback Description' });
+      component['currentUrl'].set('/project-detail/123');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb[1].tooltip).toBe('Fallback Description');
+    });
+
+    it('should handle breadcrumb with no project description', () => {
+      component['contractId'].set('123');
+      component['currentProject'].set({});
+      component['currentUrl'].set('/project-detail/123');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb[1].tooltip).toBeUndefined();
+    });
+
+    it('should handle breadcrumb for result page with empty result title', () => {
+      component['contractId'].set('123');
+      component['currentProject'].set({ projectDescription: 'Test Project' });
+      component['currentUrl'].set('/result/789/general-information');
+      component['resultTitle'].set('');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb[2].tooltip).toBe('');
     });
   });
 });
