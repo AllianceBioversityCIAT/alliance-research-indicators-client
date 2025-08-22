@@ -67,7 +67,7 @@ export interface ResultCountrySubNational {
 }
 
 export interface StepThree {
-  geo_scope_id: number;
+  geo_scope_id?: number;
   countries: Country[];
   regions: Region[];
   comment_geo_scope: string;
