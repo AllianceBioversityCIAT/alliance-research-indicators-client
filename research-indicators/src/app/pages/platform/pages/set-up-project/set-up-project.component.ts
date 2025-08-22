@@ -111,14 +111,11 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
   }
 
   async getProjectDetail() {
-    console.log(this.setUpProjectService.routeid());
     const response = await this.api.GET_ResultsCount(this.setUpProjectService.routeid() as string);
-    console.log(response);
     if (response?.data?.indicators?.length) {
       response.data.indicators.forEach((indicator: GetProjectDetailIndicator) => {
         indicator.full_name = indicator.indicator.name;
       });
-      console.log(response.data);
       this.currentProject.set(response.data);
     } else if (response?.data) {
       this.currentProject.set(response.data);
