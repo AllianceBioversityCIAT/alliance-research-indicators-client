@@ -13,21 +13,28 @@ import { CommonModule } from '@angular/common';
 export class AssignIndicatorsModalComponent {
   setUpProjectService = inject(SetUpProjectService);
 
-  targetInfo = computed(() => this.setUpProjectService.assignIndicatorsModal().target);
+  targetInfo = computed(() => this.setUpProjectService.assignIndicatorsModal().targetLevel1);
 
   getIndicatorsFiltered = computed(() => {
-    const { structureIndex, itemIndex, type } = this.setUpProjectService.assignIndicatorsModal().target;
-    if (type === 'structure') {
+    // const { structureIndex, itemIndex, type } = this.setUpProjectService.assignIndicatorsModal().target;
+    // if (type === 'structure') {
+    //   return this.setUpProjectService
+    //     .indicatorList()
+    //     .filter(indicator => !this.setUpProjectService.structures()[structureIndex].indicators.some(i => i.id === indicator.id));
+    // } else if (type === 'item') {
+    //   return this.setUpProjectService
+    //     .indicatorList()
+    //     .filter(
+    //       indicator => !this.setUpProjectService.structures()[structureIndex]?.items?.[itemIndex]?.indicators?.some(i => i.id === indicator.id)
+    //     );
+    // }
+
+    if (this.setUpProjectService.assignIndicatorsModal().targetLevel1) {
       return this.setUpProjectService
         .indicatorList()
-        .filter(indicator => !this.setUpProjectService.structures()[structureIndex].indicators.some(i => i.id === indicator.id));
-    } else if (type === 'item') {
-      return this.setUpProjectService
-        .indicatorList()
-        .filter(
-          indicator => !this.setUpProjectService.structures()[structureIndex]?.items?.[itemIndex]?.indicators?.some(i => i.id === indicator.id)
-        );
+        .filter(indicator => !this.setUpProjectService.assignIndicatorsModal().targetLevel1?.indicators.some(i => i.id === indicator.id));
     }
+
     return this.setUpProjectService.indicatorList();
   });
 }

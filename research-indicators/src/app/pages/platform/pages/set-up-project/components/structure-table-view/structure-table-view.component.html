@@ -88,9 +88,7 @@
               size="small">
             </p-button>
             <p-button
-              (onClick)="
-                setUpProjectService.assignIndicatorsModal.set({ show: true, target: { type: 'structure', structureIndex: i, itemIndex: -1 } })
-              "
+              (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel1: customer.representative })"
               icon="pi pi-chart-line"
               pTooltip="Map indicators"
               tooltipPosition="left"

@@ -44,9 +44,7 @@
                       severity="help"
                       [text]="true"
                       size="small"
-                      (onClick)="
-                        setUpProjectService.assignIndicatorsModal.set({ show: true, target: { type: 'structure', structureIndex: i, itemIndex: -1 } })
-                      ">
+                      (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel1: structure })">
                     </p-button>
                     <p-button
                       icon="pi pi-pencil"
@@ -141,12 +139,7 @@
                                   [text]="true"
                                   severity="help"
                                   size="small"
-                                  (click)="
-                                    setUpProjectService.assignIndicatorsModal.set({
-                                      show: true,
-                                      target: { type: 'item', structureIndex: i, itemIndex: j }
-                                    })
-                                  ">
+                                  (click)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel2: item })">
                                 </p-button>
                                 <p-button
                                   icon="pi pi-pencil"

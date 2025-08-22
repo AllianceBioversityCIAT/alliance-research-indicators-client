@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../../../../shared/services/api.service';
-import { Indicator, IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
+import { Indicator, IndicatorItem, IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
 import { ActionsService } from '../../../../shared/services/actions.service';
 import { NumberFormatOption, NumberTypeOption } from '../../../../shared/interfaces/project-setup.interface';
@@ -20,8 +20,9 @@ export class SetUpProjectService {
   currentAgreementId = signal<number | string | null>(null);
   assignIndicatorsModal = signal<{
     show: boolean;
-    target: { type: 'structure' | 'item'; structureIndex: number; itemIndex: number };
-  }>({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } });
+    targetLevel1?: IndicatorsStructure;
+    targetLevel2?: IndicatorItem;
+  }>({ show: false });
   indicatorList = signal<GetIndicators[]>([]);
   routeid = signal<string | null>(null);
 
@@ -155,17 +156,31 @@ export class SetUpProjectService {
     }
   }
 
-  assignIndicator(indicator: Indicator | GetIndicators) {
-    this.structures.update(prev => {
-      const { structureIndex, itemIndex } = this.assignIndicatorsModal().target;
-      if (structureIndex === undefined) return [...prev];
-      if (this.assignIndicatorsModal().target?.type === 'structure') {
-        prev[structureIndex].indicators.push(indicator as Indicator);
-      } else if (this.assignIndicatorsModal().target?.type === 'item' && prev[structureIndex].items?.length) {
-        prev[structureIndex].items[itemIndex].indicators = [...(prev[structureIndex].items[itemIndex].indicators || []), indicator as Indicator];
-      }
-      return [...prev];
-    });
+  assignIndicator(indicator: Indicator | GetIndicators, adding: boolean) {
+    // this.structures.update(prev => {
+    //   const { structureIndex, itemIndex } = this.assignIndicatorsModal().target;
+    //   if (structureIndex === undefined) return [...prev];
+    //   if (this.assignIndicatorsModal().target?.type === 'structure') {
+    //     prev[structureIndex].indicators.push(indicator as Indicator);
+    //   } else if (this.assignIndicatorsModal().target?.type === 'item' && prev[structureIndex].items?.length) {
+    //     prev[structureIndex].items[itemIndex].indicators = [...(prev[structureIndex].items[itemIndex].indicators || []), indicator as Indicator];
+    //   }
+    //   return [...prev];
+    // });
+    if (this.assignIndicatorsModal().targetLevel1) {
+      this.structures.update(prev => {
+        const targetStructure = prev.find(structure => structure.id === this.assignIndicatorsModal().targetLevel1?.id);
+        if (targetStructure) {
+          if (adding) {
+            targetStructure.indicators.push(indicator as Indicator);
+          } else {
+            targetStructure.indicators = targetStructure.indicators.filter(i => i.id != indicator.id);
+          }
+        }
+        return [...prev];
+      });
+      console.log(this.structures());
+    }
   }
 
   // Tree hierarchy editing methods
