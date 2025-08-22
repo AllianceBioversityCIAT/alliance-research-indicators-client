@@ -9,6 +9,8 @@ export interface IndicatorsStructure {
   code: string;
   items?: IndicatorItem[];
   indicators: Indicator[];
+  //auxiliary attributes
+  editing?: boolean;
 }
 
 export interface IndicatorItem {
