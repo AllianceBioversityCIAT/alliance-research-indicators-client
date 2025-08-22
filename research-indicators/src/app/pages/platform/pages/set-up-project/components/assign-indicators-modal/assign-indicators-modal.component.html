@@ -4,178 +4,150 @@
   header="Add Indicators"
   [modal]="true"
   [closable]="true"
-  [style]="{ width: '650px', maxHeight: '90vh' }"
+  [style]="{ width: '700px', maxHeight: '85vh' }"
   [draggable]="false">
   @if (setUpProjectService.targetInfo(); as target) {
-    <div class="assign-indicators min-h-[60vh]">
-      <div class="available-indicators">
-        <!-- Header Section -->
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center space-x-2">
-            <div class="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
-              <i class="pi pi-chart-line text-white text-xs"></i>
-            </div>
-            <div>
-              <h4 class="text-sm font-semibold text-gray-900">Available Indicators</h4>
-              <p class="text-xs text-gray-500">Select indicators to assign</p>
-            </div>
-          </div>
-          <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded border"> {{ getIndicatorsFiltered().length }} available </span>
-        </div>
-
-        <!-- Create New Indicator Card -->
-        <div class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <div class="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
-                <i class="pi pi-plus text-white text-xs"></i>
-              </div>
-              <div class="flex-1">
-                <h5 class="text-sm font-medium text-gray-900 mb-1">Create New Indicator</h5>
-                <div class="flex items-center space-x-1 text-xs text-gray-600">
-                  <span>Adding to</span>
-                  <span class="px-1 py-0.5 bg-blue-100 text-blue-700 font-medium rounded text-xs">
-                    {{
-                      setUpProjectService.assignIndicatorsModal().targetLevel1 ? setUpProjectService.level1Name() : setUpProjectService.level2Name()
-                    }}
-                  </span>
-                  <span class="font-medium text-gray-800">:</span>
-                  <span class="font-semibold text-gray-900">{{ target.name }}</span>
-                </div>
-              </div>
-            </div>
-            <button
-              type="button"
-              class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded text-xs transition-colors"
-              (click)="openCreateIndicatorModal()">
-              <i class="pi pi-plus text-xs mr-1"></i>
-              <span>Create</span>
-            </button>
+    <div class="assign-indicators">
+      <!-- Target Information -->
+      <div class="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+        <div class="flex items-center space-x-2">
+          <i class="pi pi-{{ setUpProjectService.assignIndicatorsModal().targetLevel1 ? 'sitemap' : 'bookmark' }} text-gray-600 text-sm"></i>
+          <div>
+            <h4 class="font-medium text-gray-900 text-sm">
+              Adding indicators to
+              {{ setUpProjectService.assignIndicatorsModal().targetLevel1 ? setUpProjectService.level1Name() : setUpProjectService.level2Name() }}
+            </h4>
+            <p class="text-xs text-gray-600">{{ target.name }}</p>
           </div>
         </div>
+      </div>
 
-        <!-- Indicators List -->
-        @if (getIndicatorsFiltered().length) {
-          <div class="space-y-1.5 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
-            @for (indicator of getIndicatorsFiltered(); track indicator.id) {
-              <div
-                class="border rounded-lg p-2.5 cursor-pointer transition-all duration-200 group {{
-                  indicator.adding
-                    ? 'border-gray-200 hover:border-blue-300 bg-white hover:bg-blue-50'
-                    : 'border-green-300 bg-green-50 hover:bg-green-100'
-                }}"
-                (click)="setUpProjectService.assignIndicator(indicator)">
-                <!-- Header with Code and Name -->
-                <div class="flex justify-between items-start mb-1.5">
-                  <div class="flex-1 min-w-0 mr-2">
-                    <div class="flex items-center space-x-2 mb-1">
+      <!-- Actions -->
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-2">
+          <h4 class="font-medium text-gray-900 text-sm">Available Indicators</h4>
+          <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+            {{ getIndicatorsFiltered().length }}
+          </span>
+        </div>
+        <button
+          type="button"
+          class="px-3 py-1.5 bg-[#035BA9] hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center space-x-1"
+          (click)="openCreateIndicatorModal()">
+          <i class="pi pi-plus text-xs"></i>
+          <span>Create New</span>
+        </button>
+      </div>
+
+      <!-- Indicators List -->
+      @if (getIndicatorsFiltered().length) {
+        <div class="space-y-2 max-h-96 overflow-y-auto">
+          @for (indicator of getIndicatorsFiltered(); track indicator.id) {
+            <div
+              class="border rounded-lg p-3 cursor-pointer transition-all duration-200 {{
+                indicator.adding ? 'border-gray-200 hover:border-[#035BA9] bg-white hover:bg-blue-50' : 'border-green-600 bg-white hover:bg-gray-50'
+              }}"
+              (click)="setUpProjectService.assignIndicator(indicator)">
+              <!-- Header -->
+              <div class="flex justify-between items-start mb-2">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-1">
+                    <h5 class="font-medium text-gray-900 text-sm">
+                      {{ indicator.name }}
                       @if (indicator.code) {
-                        <span class="px-1.5 py-0.5 bg-gray-100 text-gray-700 text-xs font-mono rounded border">
-                          {{ indicator.code }}
-                        </span>
+                        <span class="ml-2 text-xs text-gray-500 font-mono">({{ indicator.code }})</span>
                       }
-                      <h5 class="font-medium text-gray-900 text-sm truncate">{{ indicator.name }}</h5>
-
-                      @if (!indicator.adding) {
-                        <span class="px-1 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded border border-green-200"> ASSIGNED </span>
-                      }
-                    </div>
-                    @if (indicator.description) {
-                      <p class="text-xs text-gray-600 mb-1.5 line-clamp-2">{{ indicator.description }}</p>
+                    </h5>
+                    @if (!indicator.adding) {
+                      <span class="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs font-medium rounded"> ASSIGNED </span>
                     }
                   </div>
-                  <div class="flex-shrink-0">
-                    <div
-                      class="w-5 h-5 rounded-full flex items-center justify-center {{
-                        indicator.adding ? 'bg-blue-500 group-hover:bg-blue-600' : 'bg-green-500 group-hover:bg-green-600'
-                      }}">
-                      <i class="pi {{ indicator.adding ? 'pi-plus' : 'pi-check' }} text-white text-xs"></i>
-                    </div>
+                  @if (indicator.description) {
+                    <p class="text-xs text-gray-600 mb-2 line-clamp-2">{{ indicator.description }}</p>
+                  }
+                </div>
+                <div class="ml-3">
+                  <div
+                    class="w-6 h-6 rounded-full flex items-center justify-center {{
+                      indicator.adding ? 'bg-[#035BA9] hover:bg-blue-700' : 'bg-green-500 hover:bg-green-600'
+                    }} transition-colors">
+                    <i class="pi {{ indicator.adding ? 'pi-plus' : 'pi-check' }} text-white text-xs"></i>
                   </div>
                 </div>
+              </div>
 
-                <!-- Configuration Chips -->
-                <div class="flex flex-wrap gap-1 mb-2">
-                  <span
-                    class="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium border border-blue-200 flex items-center space-x-1">
-                    <i class="pi pi-chart-line text-blue-600 text-xs"></i>
-                    <span>{{ indicator.numberType }}</span>
-                  </span>
-                  <span
-                    class="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-medium border border-gray-200 flex items-center space-x-1">
-                    <i class="pi pi-table text-gray-600 text-xs"></i>
-                    <span>{{ indicator.numberFormat }}</span>
-                  </span>
-                  @if (indicator.targetUnit) {
-                    <span
-                      class="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-medium border border-gray-200 flex items-center space-x-1">
-                      <i class="pi pi-tag text-gray-600 text-xs"></i>
-                      <span>{{ indicator.targetUnit }}</span>
-                    </span>
-                  }
-                  <span
-                    class="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-medium border border-gray-200 flex items-center space-x-1">
-                    <i class="pi pi-calendar text-gray-600 text-xs"></i>
-                    <span>{{ indicator.years.join(', ') }}</span>
-                  </span>
+              <!-- Details in horizontal layout -->
+              <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs mb-2">
+                <div class="flex items-center space-x-1">
+                  <span class="text-gray-500">Type:</span>
+                  <span class="font-medium text-gray-900">{{ indicator.numberType }}</span>
                 </div>
+                <div class="flex items-center space-x-1">
+                  <span class="text-gray-500">Format:</span>
+                  <span class="font-medium text-gray-900">{{ indicator.numberFormat }}</span>
+                </div>
+                @if (indicator.targetUnit) {
+                  <div class="flex items-center space-x-1">
+                    <span class="text-gray-500">Unit:</span>
+                    <span class="font-medium text-gray-900">{{ indicator.targetUnit }}</span>
+                  </div>
+                }
+                <div class="flex items-center space-x-1">
+                  <span class="text-gray-500">Years:</span>
+                  <span class="font-medium text-gray-900">{{ indicator.years.join(', ') }}</span>
+                </div>
+              </div>
 
-                <!-- Values Section -->
-                <div class="grid grid-cols-2 gap-1.5">
+              <!-- Values -->
+              @if (
+                (indicator.baseline !== null && indicator.baseline !== undefined && indicator.baseline !== '') ||
+                (indicator.targetValue !== null && indicator.targetValue !== undefined && indicator.targetValue !== '')
+              ) {
+                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs">
                   @if (indicator.baseline !== null && indicator.baseline !== undefined && indicator.baseline !== '') {
-                    <div class="bg-gray-50 rounded p-1.5 border border-gray-200">
-                      <div class="flex items-center space-x-1 mb-0.5">
-                        <i class="pi pi-chart-bar text-gray-500 text-xs"></i>
-                        <span class="font-medium text-gray-700 text-xs">Baseline</span>
-                      </div>
-                      <span class="text-gray-900 font-semibold text-sm">{{ indicator.baseline }}</span>
+                    <div class="flex items-center space-x-1">
+                      <span class="text-gray-500">Baseline:</span>
+                      <span class="font-semibold text-gray-900">{{ indicator.baseline }}</span>
                     </div>
                   }
                   @if (indicator.targetValue !== null && indicator.targetValue !== undefined && indicator.targetValue !== '') {
-                    <div class="bg-gray-50 rounded p-1.5 border border-gray-200">
-                      <div class="flex items-center space-x-1 mb-0.5">
-                        <i class="pi pi-target text-gray-500 text-xs"></i>
-                        <span class="font-medium text-gray-700 text-xs">Target</span>
-                      </div>
-                      <span class="text-gray-900 font-semibold text-sm">{{ indicator.targetValue }}</span>
+                    <div class="flex items-center space-x-1">
+                      <span class="text-gray-500">Target:</span>
+                      <span class="font-semibold text-gray-900">{{ indicator.targetValue }}</span>
                     </div>
                   }
                 </div>
+              }
 
-                <!-- Action Hint -->
-                @if (!indicator.adding) {
-                  <div class="mt-1.5 p-1.5 bg-green-50 border border-green-200 rounded text-xs text-green-700">
-                    <i class="pi pi-info-circle text-green-600 mr-1"></i>
-                    <span class="font-medium"
-                      >Click to remove from this
-                      {{
-                        setUpProjectService.assignIndicatorsModal().targetLevel1 ? setUpProjectService.level1Name() : setUpProjectService.level2Name()
-                      }}</span
-                    >
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        } @else {
-          <div class="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2">
-              <i class="pi pi-info-circle text-gray-500"></i>
+              <!-- Action Hint -->
+              @if (!indicator.adding) {
+                <div class="mt-2 p-1.5 bg-gray-100 border border-gray-200 rounded text-xs text-gray-600">
+                  <i class="pi pi-info-circle mr-1"></i>
+                  Click to remove from this
+                  {{ setUpProjectService.assignIndicatorsModal().targetLevel1 ? setUpProjectService.level1Name() : setUpProjectService.level2Name() }}
+                </div>
+              }
             </div>
-            <h3 class="text-sm font-semibold text-gray-700 mb-1">No indicators available</h3>
-            <p class="text-xs text-gray-500">Create new indicators using the "Create" button above.</p>
+          }
+        </div>
+      } @else {
+        <div class="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+          <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2">
+            <i class="pi pi-info-circle text-gray-500"></i>
           </div>
-        }
-      </div>
+          <h3 class="font-medium text-gray-700 mb-1">No indicators available</h3>
+          <p class="text-xs text-gray-500">Create new indicators using the "Create New" button above.</p>
+        </div>
+      }
     </div>
   }
 
-  <div class="flex justify-end pt-2 border-t border-gray-200 mt-3">
+  <div class="flex justify-end pt-3 border-t border-gray-200 mt-4">
     <p-button
       label="Close"
       severity="secondary"
       size="small"
-      class="px-3 py-1.5 rounded font-medium"
-      (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: false, targetLevel1: undefined, targetLevel2: undefined })"></p-button>
+      (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: false, targetLevel1: undefined, targetLevel2: undefined })">
+    </p-button>
   </div>
 </p-dialog>

@@ -23,38 +23,6 @@
   background: linear-gradient(to bottom, #94a3b8, #64748b);
 }
 
-/* Hover effects for indicator cards */
-.indicator-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.indicator-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 10%), 0 10px 10px -5px rgb(0 0 0 / 4%);
-}
-
-/* Gradient text effect */
-.gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Pulse animation for action buttons */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgb(59 130 246 / 70%);
-  }
-
-  50% {
-    box-shadow: 0 0 0 10px rgb(59 130 246 / 0%);
-  }
-}
-
-.pulse-glow {
-  animation: pulse-glow 2s infinite;
-}
-
 /* Smooth transitions for all interactive elements */
 * {
   transition: all 0.2s ease-in-out;
@@ -68,35 +36,23 @@ select:focus {
   outline-offset: 2px;
 }
 
-/* Glass morphism effect for modal backdrop */
-:host ::ng-deep .p-dialog-mask {
-  backdrop-filter: blur(8px);
-  background-color: rgb(0 0 0 / 40%);
-}
-
-/* Enhanced dialog styling */
-:host ::ng-deep .p-dialog {
-  border-radius: 20px;
-  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 25%);
-  border: none;
-}
-
+/* Override PrimeNG dialog header styles to make it white like other modals */
 :host ::ng-deep .p-dialog .p-dialog-header {
-  border-radius: 20px 20px 0 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
+  background: white;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 :host ::ng-deep .p-dialog .p-dialog-header .p-dialog-title {
-  font-weight: 700;
-  font-size: 1.25rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #1f2937;
 }
 
 :host ::ng-deep .p-dialog .p-dialog-header .p-dialog-header-icon {
-  color: white;
-  background: rgb(255 255 255 / 20%);
-  border-radius: 50%;
+  color: #6b7280;
+  background: transparent;
+  border-radius: 6px;
   width: 32px;
   height: 32px;
   display: flex;
@@ -106,6 +62,6 @@ select:focus {
 }
 
 :host ::ng-deep .p-dialog .p-dialog-header .p-dialog-header-icon:hover {
-  background: rgb(255 255 255 / 30%);
-  transform: scale(1.1);
+  background: #f3f4f6;
+  color: #374151;
 }
