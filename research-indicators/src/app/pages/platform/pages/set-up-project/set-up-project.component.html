@@ -76,16 +76,7 @@
       <!-- Acciones y selector de ruta -->
       <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 items-start sm:items-center">
         <div class="flex gap-2">
-          @if (activeRoute === 'structure') {
-            <p-button
-              icon="pi pi-save"
-              label="Save"
-              size="small"
-              [loading]="setUpProjectService.loadingStructures()"
-              [disabled]="setUpProjectService.loadingStructures()"
-              (onClick)="setUpProjectService.saveStructures()">
-            </p-button>
-          } @else {
+          @if (activeRoute !== 'structure') {
             <!-- Save Button (moved here for better UX) -->
             <p-button
               icon="pi pi-plus"
