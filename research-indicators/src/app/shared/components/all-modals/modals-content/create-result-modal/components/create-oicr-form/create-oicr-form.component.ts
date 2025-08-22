@@ -351,8 +351,10 @@ export class CreateOicrFormComponent {
 
   async createResult() {
     const response = await this.api.POST_CreateOicr(this.body());
-    if (response.status !== 200) {
-      this.actions.handleBadRequest(response);
+    if (response.status !== 200 && response.status !== 201) {
+      this.actions.handleBadRequest(response, () => {
+        this.createResultManagementService.resultPageStep.set(0);
+      });
     } else {
       this.actions.showGlobalAlert({
         severity: 'success',
