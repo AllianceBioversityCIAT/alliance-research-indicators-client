@@ -132,6 +132,7 @@ export class SetUpProjectService {
 
       return structuresCopy;
     });
+    this.saveStructures();
   }
 
   deleteStructureItemIndicatorByIndex(structureIndex: number, indicatorIndex: number, itemIndex?: number) {
