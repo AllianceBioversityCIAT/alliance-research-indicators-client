@@ -114,7 +114,14 @@ export class StructureTableViewComponent {
     this.setUpProjectService.structures.update(structures => {
       const structure = structures.find(s => s.id === customer.representative.id);
       if (structure) {
-        structure.editing = false;
+        if (structure.newStructure) {
+          // Si es nueva estructura, eliminarla completamente
+          const index = structures.indexOf(structure);
+          structures.splice(index, 1);
+        } else {
+          // Si es estructura existente, solo cancelar edición
+          structure.editing = false;
+        }
         this.setUpProjectService.editingFocus.set(false);
       }
       return [...structures];
@@ -122,9 +129,17 @@ export class StructureTableViewComponent {
   };
   cancelEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
-      const item = structures.find(s => s.id === customer.representative.id)?.items?.find(i => i.id === customer.id);
-      if (item) {
-        item.editing = false;
+      const structure = structures.find(s => s.id === customer.representative.id);
+      const item = structure?.items?.find(i => i.id === customer.id);
+      if (item && structure) {
+        if (item.newItem) {
+          // Si es nuevo item, eliminarlo completamente
+          const index = structure.items?.indexOf(item) || 0;
+          structure.items?.splice(index, 1);
+        } else {
+          // Si es item existente, solo cancelar edición
+          item.editing = false;
+        }
         this.setUpProjectService.editingFocus.set(false);
       }
       return [...structures];
