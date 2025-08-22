@@ -18,6 +18,8 @@ export class SetUpProjectService {
   showCreateStructure = signal<boolean>(false);
   loadingStructures = signal<boolean>(false);
   currentAgreementId = signal<number | string | null>(null);
+  isCardsView = signal<boolean>(false);
+
   assignIndicatorsModal = signal<{
     show: boolean;
     targetLevel1?: IndicatorsStructure;

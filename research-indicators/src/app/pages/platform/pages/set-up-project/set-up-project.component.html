@@ -85,13 +85,6 @@
               [disabled]="setUpProjectService.loadingStructures()"
               (onClick)="setUpProjectService.saveStructures()">
             </p-button>
-            <p-button
-              severity="contrast"
-              icon="pi pi-plus"
-              [label]="'Add ' + setUpProjectService.level1Name()"
-              size="small"
-              (onClick)="setUpProjectService.showCreateStructure.set(true)">
-            </p-button>
           } @else {
             <!-- Save Button (moved here for better UX) -->
             <p-button

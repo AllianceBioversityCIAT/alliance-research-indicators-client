@@ -61,12 +61,7 @@ export class StructureTableViewComponent {
     });
     this.setUpProjectService.saveStructures();
   };
-  addStructure = () => {
-    this.setUpProjectService.structures.update(structures => {
-      structures.push({ id: 's', name: '', code: '', items: [], indicators: [], editing: true, newStructure: true });
-      return [...structures];
-    });
-  };
+
   addNewItem = (customer: IndicatorItem, toggleRowId: string) => {
     this.setUpProjectService.structures.update(structures => {
       const structure = structures.find(s => s.id === customer.representative.id);
