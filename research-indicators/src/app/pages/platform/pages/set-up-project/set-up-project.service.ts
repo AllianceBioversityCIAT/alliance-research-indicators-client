@@ -36,12 +36,12 @@ export class SetUpProjectService {
 
   strcutureGrouped = computed(() => {
     const structuresCopy = JSON.parse(JSON.stringify(this.structures()));
-    const result = structuresCopy.flatMap((item: any) => {
+    const result = structuresCopy.flatMap((item: IndicatorsStructure) => {
       const { items, ...itemWithoutItems } = item;
       const isGhostItem = !item.items?.length;
       if (isGhostItem) item.items = [{ id: '', name: '', code: '', indicators: [], editing: true, ghostItem: true }];
-      item.items?.map((stItem: any) => {
-        stItem.representative = { ...itemWithoutItems, itemsCount: items?.filter((i: any) => !i.ghostItem).length || 0 };
+      item.items?.map((stItem: IndicatorItem) => {
+        stItem.representative = { ...itemWithoutItems, itemsCount: items?.filter((i: IndicatorItem) => !i.ghostItem).length || 0 };
       });
       return item.items || [];
     });
