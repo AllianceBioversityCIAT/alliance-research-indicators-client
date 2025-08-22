@@ -23,6 +23,7 @@ export class SetUpProjectService {
     target: { type: 'structure' | 'item'; structureIndex: number; itemIndex: number };
   }>({ show: false, target: { type: 'item', structureIndex: 0, itemIndex: 0 } });
   indicatorList = signal<GetIndicators[]>([]);
+  routeid = signal<string | null>(null);
 
   // Tree hierarchy signals
   level1Name = signal<string>('Structure');
@@ -80,6 +81,22 @@ export class SetUpProjectService {
 
   deleteStructureByIndex(index: number) {
     this.structures.update(prev => [...prev.slice(0, index), ...prev.slice(index + 1)]);
+  }
+
+  async saveStructures() {
+    console.log(this.structures());
+    console.log(this.strcutureGrouped());
+    console.log(this.strcutureGrouped());
+    this.loadingStructures.set(true);
+    try {
+      await this.api.POST_SyncStructures({ structures: this.structures(), agreement_id: this.routeid() });
+      await this.getStructures();
+      this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Structures saved successfully' });
+    } catch {
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to save structures' });
+    } finally {
+      this.loadingStructures.set(false);
+    }
   }
 
   deleteStructureItemByIndex(structureIndex: number, itemIndex: number) {

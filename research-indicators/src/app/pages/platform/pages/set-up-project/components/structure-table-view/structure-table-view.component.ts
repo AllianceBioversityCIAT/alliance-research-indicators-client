@@ -38,6 +38,7 @@ export class StructureTableViewComponent {
       }
       return [...structures];
     });
+    this.setUpProjectService.saveStructures();
   };
   changeEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
@@ -58,5 +59,6 @@ export class StructureTableViewComponent {
       }
       return [...structures];
     });
+    this.setUpProjectService.saveStructures();
   };
 }

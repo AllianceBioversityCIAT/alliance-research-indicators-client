@@ -64,7 +64,6 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   actions = inject(ActionsService);
-  routeid = signal<string | null>(null);
   private routeSubscription?: Subscription;
 
   routeOptions = [
@@ -75,7 +74,7 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const firstChildPath = this.activatedRoute.firstChild?.snapshot.routeConfig?.path;
-    this.routeid.set(this.activatedRoute.snapshot.params['id']);
+    this.setUpProjectService.routeid.set(this.activatedRoute.snapshot.params['id']);
     this.setUpProjectService.currentAgreementId.set(this.activatedRoute.snapshot.params['id']);
 
     // Load hierarchy names from localStorage for current project
@@ -84,7 +83,7 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
     // Subscribe to route parameter changes
     this.routeSubscription = this.activatedRoute.params.subscribe(params => {
       const newRouteId = params['id'];
-      if (newRouteId && newRouteId !== this.routeid()) {
+      if (newRouteId && newRouteId !== this.setUpProjectService.routeid()) {
         this.onRouteIdChange(newRouteId);
       }
     });
@@ -119,7 +118,7 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
     targetUnit: '',
     targetValue: null,
     baseline: null,
-    agreement_id: this.routeid() as unknown as number
+    agreement_id: this.setUpProjectService.routeid() as unknown as number
   });
 
   // Estados de UI
@@ -143,29 +142,13 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
   defaultLevel1Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 1));
   defaultLevel2Indicators = computed(() => this.defaultIndicators().filter(ind => ind.level === 2));
 
-  async saveStructures() {
-    console.log(this.setUpProjectService.structures());
-    console.log(this.setUpProjectService.strcutureGrouped());
-    console.log(this.setUpProjectService.strcutureGrouped());
-    this.setUpProjectService.loadingStructures.set(true);
-    try {
-      await this.setUpProjectService.api.POST_SyncStructures({ structures: this.setUpProjectService.structures(), agreement_id: this.routeid() });
-      await this.setUpProjectService.getStructures();
-      this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Structures saved successfully' });
-    } catch {
-      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to save structures' });
-    } finally {
-      this.setUpProjectService.loadingStructures.set(false);
-    }
-  }
-
   onRouteChange(value: 'structure' | 'indicators') {
     this.router.navigate([value], { relativeTo: this.activatedRoute });
   }
 
   // Method to handle route parameter changes
   onRouteIdChange(newRouteId: string) {
-    this.routeid.set(newRouteId);
+    this.setUpProjectService.routeid.set(newRouteId);
     this.setUpProjectService.currentAgreementId.set(newRouteId);
     this.setUpProjectService.loadFromLocalStorage();
   }
