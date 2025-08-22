@@ -2,7 +2,7 @@
   <div class="card-content">
     <div class="organization-identifier">
       <div class="project">
-        <div class="project-id flex justify-between items-center">
+        <div class="project-id flex justify-between items-center max-w-[100%]">
           <div>
             @if (isHeader) {
               <span class="project-id">PROJECT CODE:&nbsp;</span>
@@ -10,7 +10,7 @@
             <label class="project-id" for="username">{{ project.agreement_id }}</label>
           </div>
           @if (cache.onlyMvpUsers() && isHeader) {
-            <div class="min-w-[150px] flex justify-end">
+            <div class="absolute right-10">
               <p-button label="Set up project" icon="pi pi-cog" size="small" [routerLink]="['/set-up-project', project.agreement_id]" />
             </div>
           }

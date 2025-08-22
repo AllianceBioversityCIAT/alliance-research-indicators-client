@@ -53,4 +53,7 @@ export type ControlListServices =
   | 'initiatives'
   | 'tags'
   | 'oicrResults'
+  | 'getProjectIndicatorsHierarchy'
+  | 'levers'
+  | 'projectStatus'
   | '';

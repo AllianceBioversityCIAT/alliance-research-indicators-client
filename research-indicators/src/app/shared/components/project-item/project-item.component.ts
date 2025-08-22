@@ -6,11 +6,12 @@ import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 import { ProjectUtilsService } from '@shared/services/project-utils.service';
-import { ButtonModule } from 'primeng/button';
 import { CacheService } from '../../services/cache/cache.service';
+import { ButtonModule } from 'primeng/button';
+
 @Component({
   selector: 'app-project-item',
-  imports: [RouterLink, DatePipe, ButtonModule, CustomTagComponent],
+  imports: [RouterLink, DatePipe, CustomTagComponent, ButtonModule],
   templateUrl: './project-item.component.html',
   styleUrl: './project-item.component.scss'
 })
