@@ -18,7 +18,9 @@ import { IndicatorItem } from '../../../../../../shared/interfaces/get-structure
 export class StructureTableViewComponent {
   setUpProjectService = inject(SetUpProjectService);
   level1NameInput = '';
+  level1CodeInput = '';
   level2NameInput = '';
+  level2CodeInput = '';
 
   changeEditingLevel1 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
@@ -26,6 +28,7 @@ export class StructureTableViewComponent {
       if (structure) {
         structure.editing = !structure.editing;
         this.level1NameInput = structure.name;
+        this.level1CodeInput = structure.code;
         if (structure.editing) this.setUpProjectService.editingFocus.set(true);
       }
       return [...structures];
@@ -36,6 +39,7 @@ export class StructureTableViewComponent {
       const structure = structures.find(s => s.id === customer.representative?.id);
       if (structure) {
         structure.name = this.level1NameInput;
+        structure.code = this.level1CodeInput;
         structure.editing = false;
         this.setUpProjectService.editingFocus.set(false);
       }
@@ -44,6 +48,7 @@ export class StructureTableViewComponent {
     this.setUpProjectService.saveStructures();
     this.setUpProjectService.editingFocus.set(false);
     this.level1NameInput = '';
+    this.level1CodeInput = '';
   };
   changeEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
@@ -51,6 +56,7 @@ export class StructureTableViewComponent {
       if (item) {
         item.editing = !item.editing;
         this.level2NameInput = item.name;
+        this.level2CodeInput = item.code;
         if (item.editing) this.setUpProjectService.editingFocus.set(true);
       }
       return [...structures];
@@ -61,6 +67,7 @@ export class StructureTableViewComponent {
       const item = structures.find(s => s.id === customer.representative?.id)?.items?.find(i => i.id === customer.id);
       if (item) {
         item.name = this.level2NameInput;
+        item.code = this.level2CodeInput;
         item.editing = false;
         this.setUpProjectService.editingFocus.set(false);
       }
@@ -69,6 +76,7 @@ export class StructureTableViewComponent {
     this.setUpProjectService.saveStructures();
     this.setUpProjectService.editingFocus.set(false);
     this.level2NameInput = '';
+    this.level2CodeInput = '';
   };
 
   addNewItem = (customer: IndicatorItem, toggleRowId: string) => {
