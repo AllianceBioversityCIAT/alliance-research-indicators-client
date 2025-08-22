@@ -156,7 +156,7 @@ export class SetUpProjectService {
     }
   }
 
-  assignIndicator(indicator: Indicator | GetIndicators, adding: boolean) {
+  assignIndicator(indicator: Indicator | GetIndicators) {
     // this.structures.update(prev => {
     //   const { structureIndex, itemIndex } = this.assignIndicatorsModal().target;
     //   if (structureIndex === undefined) return [...prev];
@@ -171,10 +171,26 @@ export class SetUpProjectService {
       this.structures.update(prev => {
         const targetStructure = prev.find(structure => structure.id === this.assignIndicatorsModal().targetLevel1?.id);
         if (targetStructure) {
-          if (adding) {
+          if (indicator.adding) {
             targetStructure.indicators.push(indicator as Indicator);
+            this.assignIndicatorsModal.update(prev => {
+              const targetLevel1 = prev.targetLevel1;
+              if (targetLevel1) {
+                targetLevel1.indicators.push(indicator as Indicator);
+                return { ...prev, targetLevel1 };
+              }
+              return prev;
+            });
           } else {
             targetStructure.indicators = targetStructure.indicators.filter(i => i.id != indicator.id);
+            this.assignIndicatorsModal.update(prev => {
+              const targetLevel1 = prev.targetLevel1;
+              if (targetLevel1) {
+                targetLevel1.indicators = targetLevel1.indicators.filter(i => i.id != indicator.id);
+                return { ...prev, targetLevel1 };
+              }
+              return prev;
+            });
           }
         }
         return [...prev];

@@ -19,7 +19,7 @@
             @for (indicator of getIndicatorsFiltered(); track indicator.id) {
               <div
                 class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-all duration-200 group"
-                (click)="setUpProjectService.assignIndicator(indicator, false)">
+                (click)="setUpProjectService.assignIndicator(indicator)">
                 <div class="flex justify-between items-start">
                   <div class="flex-1 min-w-0 mr-3">
                     <h5 class="font-medium text-gray-800 text-sm mb-1 truncate">{{ indicator.name }}</h5>
@@ -34,7 +34,7 @@
                     </div>
                   </div>
                   <div class="flex-shrink-0">
-                    <i class="pi pi-plus text-blue-600 group-hover:text-blue-700 transition-colors"></i>
+                    <i class="pi {{ indicator.adding ? 'pi-plus' : 'pi-minus' }} text-blue-600 group-hover:text-blue-700 transition-colors"></i>
                   </div>
                 </div>
               </div>

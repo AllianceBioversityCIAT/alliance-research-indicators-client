@@ -30,9 +30,10 @@ export class AssignIndicatorsModalComponent {
     // }
 
     if (this.setUpProjectService.assignIndicatorsModal().targetLevel1) {
-      return this.setUpProjectService
-        .indicatorList()
-        .filter(indicator => !this.setUpProjectService.assignIndicatorsModal().targetLevel1?.indicators.some(i => i.id === indicator.id));
+      return this.setUpProjectService.indicatorList().map(indicator => ({
+        ...indicator,
+        adding: !this.setUpProjectService.assignIndicatorsModal().targetLevel1?.indicators.some(i => i.id == indicator.id)
+      }));
     }
 
     return this.setUpProjectService.indicatorList();
