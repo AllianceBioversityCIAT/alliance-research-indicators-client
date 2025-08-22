@@ -1,3 +1,6 @@
+<div class="flex justify-end">
+  <p-button (click)="addStructure()" icon="pi pi-plus" [text]="true" severity="primary" size="small"> Add Structure </p-button>
+</div>
 <p-table
   [value]="setUpProjectService.strcutureGrouped()"
   sortField="representative.name"
@@ -19,31 +22,42 @@
   <ng-template #groupheader let-customer let-rowIndex="rowIndex" let-expanded="expanded">
     <tr>
       <td>
-        <!-- eslint-disable-next-line @angular-eslint/template/button-has-content -->
-        <button
-          type="button"
-          pButton
-          pRipple
-          [pRowToggler]="customer"
-          text
-          rounded
-          plain
-          class="mr-2 cursor-pointer"
-          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+        @if (customer.representative?.itemsCount) {
+          <button
+            [attr.isExpanded]="expanded ? 1 : 0"
+            [id]="'toggle-row-' + customer.representative.id"
+            type="button"
+            pButton
+            pRipple
+            [pRowToggler]="customer"
+            text
+            rounded
+            plain
+            class="mr-2 cursor-pointer"
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+            <span class="sr-only">Toggle row</span>
+          </button>
+        }
       </td>
-      <td>{{ customer.representative.code }}</td>
+      <td>
+        @if (customer.representative.newStructure) {
+          <p-tag [value]="'New ' + setUpProjectService.level1Name()" icon="pi pi-sparkles" severity="success" />
+        } @else {
+          {{ customer.representative.code }}
+        }
+      </td>
       <td>
         @if (customer.representative.editing) {
           <input type="text" pInputText (keyup.enter)="saveEditingLevel1(customer)" [(ngModel)]="level1NameInput" />
         } @else {
-          <p-tag [value]="customer.representative.name" severity="info" />
+          <p-tag [value]="customer.representative.name" severity="secondary" icon="pi pi-sitemap" />
         }
       </td>
       <td>
         <app-table-indicator-item [indicators]="customer.indicators" />
       </td>
       <td>
-        <div class="flex gap-2">
+        <div class="flex gap-2 justify-end">
           @if (customer.representative.editing) {
             <p-button
               (click)="saveEditingLevel1(customer)"
@@ -65,6 +79,24 @@
             </p-button>
           } @else {
             <p-button
+              (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)"
+              icon="pi pi-plus"
+              [pTooltip]="'Add ' + setUpProjectService.level2Name()"
+              tooltipPosition="left"
+              severity="primary"
+              [text]="true"
+              size="small">
+            </p-button>
+            <p-button
+              (click)="changeEditingLevel1(customer)"
+              icon="pi pi-chart-line"
+              pTooltip="Map indicators"
+              tooltipPosition="left"
+              severity="primary"
+              [text]="true"
+              size="small">
+            </p-button>
+            <p-button
               (click)="changeEditingLevel1(customer)"
               icon="pi pi-pencil"
               pTooltip="Edit"
@@ -73,7 +105,15 @@
               [text]="true"
               size="small">
             </p-button>
-            <p-button icon="pi pi-trash" pTooltip="Delete" tooltipPosition="left" severity="danger" [text]="true" size="small"> </p-button>
+            <p-button
+              (click)="deleteStructure(customer)"
+              icon="pi pi-trash"
+              pTooltip="Delete"
+              tooltipPosition="left"
+              severity="danger"
+              [text]="true"
+              size="small">
+            </p-button>
           }
         </div>
       </td>
@@ -84,55 +124,69 @@
       <td colspan="5" style="text-align: center">Total {{ setUpProjectService.level2Name() }}: {{ customer.representative.itemsCount }}</td>
     </tr>
   </ng-template>
-  <ng-template #expandedrow let-customer>
-    <tr style="background-color: #f4f7ff">
-      <td></td>
-      <td>
-        {{ customer.code }}
-      </td>
-      <td>
-        @if (customer.editing) {
-          <input (keyup.enter)="saveEditingLevel2(customer)" type="text" pInputText [(ngModel)]="level2NameInput" />
-        } @else {
-          <p-tag [value]="customer.name" severity="info" />
-        }
-      </td>
-      <td><app-table-indicator-item [indicators]="customer.indicators" /></td>
-      <td>
-        <div class="flex gap-2">
-          @if (customer.editing) {
-            <p-button
-              (click)="saveEditingLevel2(customer)"
-              icon="pi pi-save"
-              pTooltip="Save"
-              tooltipPosition="left"
-              severity="primary"
-              [text]="true"
-              size="small">
-            </p-button>
-            <p-button
-              (click)="changeEditingLevel2(customer)"
-              icon="pi pi-times"
-              pTooltip="Cancel"
-              tooltipPosition="left"
-              severity="danger"
-              [text]="true"
-              size="small">
-            </p-button>
+  <ng-template #expandedrow let-item>
+    @if (!item.ghostItem) {
+      <tr style="background-color: #f4f7ff">
+        <td></td>
+        <td>
+          @if (item.newItem) {
+            <p-tag [value]="'New ' + setUpProjectService.level2Name()" severity="success" icon="pi pi-sparkles" />
           } @else {
-            <p-button
-              (click)="changeEditingLevel2(customer)"
-              icon="pi pi-pencil"
-              pTooltip="Edit"
-              tooltipPosition="left"
-              severity="primary"
-              [text]="true"
-              size="small">
-            </p-button>
-            <p-button icon="pi pi-trash" pTooltip="Delete" tooltipPosition="left" severity="danger" [text]="true" size="small"> </p-button>
+            {{ item.code }}
           }
-        </div>
-      </td>
-    </tr>
+        </td>
+        <td>
+          @if (item.editing) {
+            <input (keyup.enter)="saveEditingLevel2(item)" type="text" pInputText [(ngModel)]="level2NameInput" />
+          } @else {
+            <p-tag [value]="item.name" severity="info" icon="pi pi-folder" />
+          }
+        </td>
+        <td><app-table-indicator-item [indicators]="item.indicators" /></td>
+        <td>
+          <div class="flex gap-2">
+            @if (item.editing) {
+              <p-button
+                (click)="saveEditingLevel2(item)"
+                icon="pi pi-save"
+                pTooltip="Save"
+                tooltipPosition="left"
+                severity="primary"
+                [text]="true"
+                size="small">
+              </p-button>
+              <p-button
+                (click)="changeEditingLevel2(item)"
+                icon="pi pi-times"
+                pTooltip="Cancel"
+                tooltipPosition="left"
+                severity="danger"
+                [text]="true"
+                size="small">
+              </p-button>
+            } @else {
+              <p-button
+                (click)="changeEditingLevel2(item)"
+                icon="pi pi-pencil"
+                pTooltip="Edit"
+                tooltipPosition="left"
+                severity="primary"
+                [text]="true"
+                size="small">
+              </p-button>
+              <p-button
+                (click)="deleteItem(item, 'toggle-row-' + item.representative.id)"
+                icon="pi pi-trash"
+                pTooltip="Delete"
+                tooltipPosition="left"
+                severity="danger"
+                [text]="true"
+                size="small">
+              </p-button>
+            }
+          </div>
+        </td>
+      </tr>
+    }
   </ng-template>
 </p-table>

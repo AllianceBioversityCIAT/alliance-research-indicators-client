@@ -32,15 +32,16 @@ export class SetUpProjectService {
   editingLevel2 = signal<boolean>(false);
 
   strcutureGrouped = computed(() => {
-    const result = this.structures().flatMap(item => {
+    const structuresCopy = JSON.parse(JSON.stringify(this.structures()));
+    const result = structuresCopy.flatMap((item: any) => {
       const { items, ...itemWithoutItems } = item;
-      item.items?.map(stItem => {
-        stItem.representative = { ...itemWithoutItems, itemsCount: items?.length || 0 };
+      const isGhostItem = !item.items?.length;
+      if (isGhostItem) item.items = [{ id: '', name: '', code: '', indicators: [], editing: true, ghostItem: true }];
+      item.items?.map((stItem: any) => {
+        stItem.representative = { ...itemWithoutItems, itemsCount: items?.filter((i: any) => !i.ghostItem).length || 0 };
       });
       return item.items || [];
     });
-
-    console.log(result);
 
     return result;
   });

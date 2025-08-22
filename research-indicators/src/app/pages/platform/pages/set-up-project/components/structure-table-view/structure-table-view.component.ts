@@ -61,4 +61,48 @@ export class StructureTableViewComponent {
     });
     this.setUpProjectService.saveStructures();
   };
+  addStructure = () => {
+    this.setUpProjectService.structures.update(structures => {
+      structures.push({ id: 's', name: '', code: '', items: [], indicators: [], editing: true, newStructure: true });
+      return [...structures];
+    });
+  };
+  addNewItem = (customer: IndicatorItem, toggleRowId: string) => {
+    this.setUpProjectService.structures.update(structures => {
+      const structure = structures.find(s => s.id === customer.representative.id);
+      if (structure?.items) {
+        structure.items.push({ id: '', name: '', editing: true, code: '', indicators: [], newItem: true });
+      }
+      return [...structures];
+    });
+    setTimeout(() => {
+      const totalItems = customer.representative.itemsCount;
+      if (!totalItems.length) {
+        console.log(document.getElementById(toggleRowId));
+        const isExpanded = Boolean(Number(document.getElementById(toggleRowId)?.getAttribute('isExpanded')));
+        if (!isExpanded) document.getElementById(toggleRowId)?.click();
+      }
+    }, 100);
+  };
+  deleteStructure = (customer: IndicatorItem) => {
+    this.setUpProjectService.structures.update(structures => {
+      const structure = structures.find(s => s.id === customer.representative.id);
+      if (structure) {
+        structures.splice(structures.indexOf(structure), 1);
+      }
+      return [...structures];
+    });
+  };
+  deleteItem = (customer: IndicatorItem, toggleRowId: string) => {
+    this.setUpProjectService.structures.update(structures => {
+      const structure = structures.find(s => s.id === customer.representative.id);
+      if (structure) {
+        structure.items?.splice(structure.items?.indexOf(customer) || 0, 1);
+        if (!structure.items?.length) document.getElementById(toggleRowId)?.click();
+      }
+      return [...structures];
+    });
+
+    this.setUpProjectService.saveStructures();
+  };
 }

@@ -11,6 +11,7 @@ export interface IndicatorsStructure {
   indicators: Indicator[];
   //auxiliary attributes
   editing?: boolean;
+  newStructure?: boolean;
 }
 
 export interface IndicatorItem {
@@ -21,6 +22,8 @@ export interface IndicatorItem {
   //auxiliary fields
   representative?: any;
   editing?: boolean;
+  newItem?: boolean;
+  ghostItem?: boolean;
 }
 
 export interface Indicator {
