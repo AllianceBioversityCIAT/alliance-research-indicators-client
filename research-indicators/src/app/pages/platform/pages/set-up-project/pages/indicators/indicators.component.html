@@ -40,6 +40,12 @@
                   <span class="font-semibold text-gray-700">Values</span>
                 </div>
               </th>
+              <th class="text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="pi pi-percentage text-green-600 text-xs"></i>
+                  <span class="font-semibold text-gray-700">Progress</span>
+                </div>
+              </th>
               <th class="text-center w-24">
                 <div class="flex items-center justify-center gap-2">
                   <i class="pi pi-cog text-blue-600 text-xs"></i>
@@ -140,6 +146,13 @@
                     @if (!indicator.targetValue && !indicator.baseline) {
                       <span class="text-xs text-gray-400">-</span>
                     }
+                  </div>
+                </div>
+              </td>
+              <td class="align-top text-center">
+                <div class="py-3">
+                  <div class="flex items-center justify-center gap-3">
+                    <p-progressBar [value]="50" [style]="{ height: '12px', width: '100px' }" styleClass="custom-progress-green"> </p-progressBar>
                   </div>
                 </div>
               </td>
