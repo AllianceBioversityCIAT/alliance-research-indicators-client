@@ -39,9 +39,7 @@ describe('SetUpProjectComponent', () => {
       saveLevel1Name: jest.fn(),
       saveLevel2Name: jest.fn(),
       cancelEditingLevel1: jest.fn(),
-      cancelEditingLevel2: jest.fn(),
-      loadFromLocalStorage: jest.fn(),
-      clearLocalStorageForCurrentProject: jest.fn()
+      cancelEditingLevel2: jest.fn()
     };
 
     mockActionsService = {

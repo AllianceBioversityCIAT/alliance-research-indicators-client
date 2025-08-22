@@ -29,8 +29,8 @@ export class SetUpProjectService {
   routeid = signal<string | null>(null);
 
   // Tree hierarchy signals
-  level1Name = signal<string>('Structure');
-  level2Name = signal<string>('Item');
+  level1Name = signal<string>('Level 1');
+  level2Name = signal<string>('Level 2');
   editingLevel1 = signal<boolean>(false);
   editingLevel2 = signal<boolean>(false);
 
@@ -154,8 +154,8 @@ export class SetUpProjectService {
     try {
       const res = await this.api.GET_Structures(this.currentAgreementId() as number);
       this.structures.set(res.data.structures);
-      this.level1Name.set(res.data.name_level_1);
-      this.level2Name.set(res.data.name_level_2);
+      this.level1Name.set(res.data.name_level_1 || 'Level 1');
+      this.level2Name.set(res.data.name_level_2 || 'Level 2');
       console.log(res.data);
     } catch {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });
@@ -244,15 +244,15 @@ export class SetUpProjectService {
   }
 
   saveLevel1Name(newName: string) {
-    this.level1Name.set(newName);
+    this.level1Name.set(newName || 'Level 1');
     this.editingLevel1.set(false);
-    this.saveToLocalStorage();
+    this.saveStructures();
   }
 
   saveLevel2Name(newName: string) {
-    this.level2Name.set(newName);
+    this.level2Name.set(newName || 'Level 2');
     this.editingLevel2.set(false);
-    this.saveToLocalStorage();
+    this.saveStructures();
   }
 
   cancelEditingLevel1() {
@@ -264,62 +264,4 @@ export class SetUpProjectService {
   }
 
   // LocalStorage methods with routeid validation
-  private getStorageKey(): string {
-    const routeId = this.currentAgreementId();
-    return `project-hierarchy-names-${routeId}`;
-  }
-
-  private saveToLocalStorage() {
-    try {
-      const storageKey = this.getStorageKey();
-      const data = {
-        level1Name: this.level1Name(),
-        level2Name: this.level2Name(),
-        routeId: this.currentAgreementId()
-      };
-      localStorage.setItem(storageKey, JSON.stringify(data));
-    } catch (error) {
-      console.warn('Failed to save hierarchy names to localStorage:', error);
-    }
-  }
-
-  loadFromLocalStorage() {
-    try {
-      const storageKey = this.getStorageKey();
-      const stored = localStorage.getItem(storageKey);
-
-      if (stored) {
-        const data = JSON.parse(stored);
-
-        // Validate that the stored data belongs to the current routeId
-        if (data.routeId === this.currentAgreementId()) {
-          this.level1Name.set(data.level1Name || 'Structure');
-          this.level2Name.set(data.level2Name || 'Item');
-        } else {
-          // If routeId doesn't match, reset to defaults
-          this.level1Name.set('Structure');
-          this.level2Name.set('Item');
-        }
-      } else {
-        // No stored data, use defaults
-        this.level1Name.set('Structure');
-        this.level2Name.set('Item');
-      }
-    } catch (error) {
-      console.warn('Failed to load hierarchy names from localStorage:', error);
-      // Fallback to defaults
-      this.level1Name.set('Structure');
-      this.level2Name.set('Item');
-    }
-  }
-
-  // Method to clear localStorage for current routeId
-  clearLocalStorageForCurrentProject() {
-    try {
-      const storageKey = this.getStorageKey();
-      localStorage.removeItem(storageKey);
-    } catch (error) {
-      console.warn('Failed to clear localStorage for current project:', error);
-    }
-  }
 }

@@ -78,7 +78,6 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
     this.setUpProjectService.currentAgreementId.set(this.activatedRoute.snapshot.params['id']);
 
     // Load hierarchy names from localStorage for current project
-    this.setUpProjectService.loadFromLocalStorage();
 
     // Subscribe to route parameter changes
     this.routeSubscription = this.activatedRoute.params.subscribe(params => {
@@ -150,6 +149,5 @@ export default class SetUpProjectComponent implements OnInit, OnDestroy {
   onRouteIdChange(newRouteId: string) {
     this.setUpProjectService.routeid.set(newRouteId);
     this.setUpProjectService.currentAgreementId.set(newRouteId);
-    this.setUpProjectService.loadFromLocalStorage();
   }
 }
