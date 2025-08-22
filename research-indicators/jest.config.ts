@@ -9,7 +9,7 @@ const config: Config = {
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
     '<rootDir>/dist/',
-    '<rootDir>/src/app/shared/components/custom-fields',
+    '<rootDir>/src/app/shared/components/custom-fields/(?!word-counter)',
     '<rootDir>/src/app/shared/components/alert/alert.component.spec.ts'
   ],
   coveragePathIgnorePatterns: [
