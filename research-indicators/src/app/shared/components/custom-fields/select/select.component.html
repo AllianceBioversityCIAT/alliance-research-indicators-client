@@ -31,6 +31,7 @@
         [filterBy]="this.optionLabel"
         [optionLabel]="this.optionLabel"
         [showClear]="false">
+        <!-- Header Template -->
         @if (headerTemplate) {
           <ng-template pTemplate="header">
             <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
@@ -52,6 +53,14 @@
           </ng-template>
         }
 
+        <!-- Selected Items Template -->
+        @if (selectedItemsTemplate) {
+          <ng-template pTemplate="selectedItems" let-value>
+            <ng-container *ngTemplateOutlet="selectedItemsTemplate; context: { $implicit: value }"></ng-container>
+          </ng-template>
+        }
+
+        <!-- Selected Item Template -->
         @if (selectedItemTemplate) {
           <ng-template pTemplate="selectedItem" let-selectedOption>
             <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: selectedOption }"></ng-container>
@@ -64,9 +73,15 @@
           </ng-template>
         }
 
+        <!-- Item Template -->
         @if (itemTemplate) {
           <ng-template pTemplate="item" let-item>
             <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
+          </ng-template>
+        } @else if (optionLabel2) {
+          <ng-template let-item pTemplate="item">
+            {{ item[this.optionLabel] }} <br />
+            {{ item[this.optionLabel2] }}
           </ng-template>
         } @else {
           <ng-template pTemplate="item" let-item>
@@ -85,14 +100,8 @@
             </div>
           </ng-template>
         }
-
-        @if (optionLabel2) {
-          <ng-template let-item pTemplate="item">
-            {{ item[this.optionLabel] }} <br />
-            {{ item[this.optionLabel2] }}
-          </ng-template>
-        }
       </p-select>
+
       @if (helperText) {
         <div class="flex items-center gap-1 mt-1 text-[#8D9299] text-[14px]">
           <span class="leading-4">{{ helperText }}</span>
@@ -105,6 +114,36 @@
           <span>This field is required</span>
         </div>
       }
+    </div>
+  }
+
+  <!-- Selected Item Display Section (similar to multiselect) -->
+  @if (!this.hideSelected && selectedOption()) {
+    @if (textSpan) {
+      <span class="block text-[14.5px] pt-2 text-[#777C83]">{{ textSpan }}</span>
+    }
+    <div class="selected-items">
+      <div class="item abc-grey-100">
+        @if (rowsTemplate) {
+          <ng-container *ngTemplateOutlet="rowsTemplate; context: { $implicit: selectedOption() }"></ng-container>
+        } @else if (itemTemplate) {
+          <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: selectedOption() }"></ng-container>
+        } @else {
+          <div class="flex items-center gap-2">
+            @if (this.flagAttributes.isoAlpha2) {
+              <img
+                width="25"
+                height="25"
+                [src]="environment.flagsUrl + selectedOption()[this.flagAttributes.isoAlpha2] + '.svg'"
+                [alt]="selectedOption()[this.flagAttributes.institution_location_name]"
+                [srcset]="environment.flagsUrl + selectedOption()[this.flagAttributes.isoAlpha2] + '.svg'"
+                [pTooltip]="selectedOption()[this.flagAttributes.institution_location_name]"
+                tooltipPosition="right" />
+            }
+            <span [innerHTML]="selectedOption()[this.optionLabel]"></span>
+          </div>
+        }
+      </div>
     </div>
   }
 </div>

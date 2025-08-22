@@ -159,7 +159,7 @@ export class CreateOicrFormComponent {
       contributor_lever: []
     },
     step_three: {
-      geo_scope_id: 0,
+      geo_scope_id: undefined,
       countries: [],
       regions: [],
       comment_geo_scope: ''
@@ -271,6 +271,7 @@ export class CreateOicrFormComponent {
   get isCompleteStepThree(): boolean {
     const b = this.body();
     return (
+      b.step_three.geo_scope_id !== undefined &&
       b.step_three.geo_scope_id > 0 &&
       (this.getMultiselectLabel().region.label ? b.step_three.regions.length > 0 : true) &&
       (this.getMultiselectLabel().country.label ? b.step_three.countries.length > 0 : true)
