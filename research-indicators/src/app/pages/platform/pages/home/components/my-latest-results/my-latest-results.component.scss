@@ -107,9 +107,9 @@
             font-weight: 600;
             line-height: 20px;
             color: #112f5c;
-            overflow-wrap: anywhere; /* Rompe palabras muy largas */
-            word-break: break-word; /* Compatibilidad adicional */
-            white-space: normal; /* Asegura saltos de línea */
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            white-space: normal;
           }
         }
       }
