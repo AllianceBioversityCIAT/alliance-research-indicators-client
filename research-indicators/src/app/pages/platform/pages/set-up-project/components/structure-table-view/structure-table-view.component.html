@@ -1,160 +1,68 @@
-<p-table
-  [value]="setUpProjectService.strcutureGrouped()"
-  sortField="representative.name"
-  sortMode="single"
-  dataKey="representative.name"
-  size="small"
-  rowGroupMode="subheader"
-  groupRowsBy="representative.code"
-  [tableStyle]="{ 'min-width': '70rem' }">
-  <ng-template #header>
-    <tr>
-      <th class="w-[10px]">{{ setUpProjectService.level2Name() }}</th>
-      <th class="w-[15%]">Code</th>
-      <th class="w-[25%]">name</th>
-      <th class="w-[35%]">indicators</th>
-      <th class="w-[15%]">actions</th>
-    </tr>
-  </ng-template>
-  <ng-template #groupheader let-customer let-i="rowIndex" let-rowIndex="rowIndex" let-expanded="expanded">
-    <tr>
-      <td>
-        @if (customer.representative?.itemsCount) {
-          <button
-            [attr.isExpanded]="expanded ? 1 : 0"
-            [id]="'toggle-row-' + customer.representative.id"
-            type="button"
-            pButton
-            pRipple
-            [pRowToggler]="customer"
-            text
-            rounded
-            [label]="customer.representative?.itemsCount"
-            plain
-            class="mr-2 cursor-pointer"
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
-            <span class="sr-only">Toggle row</span>
-          </button>
-        }
-      </td>
-      <td>
-        @if (customer.representative.newStructure) {
-          <p-tag [value]="'New ' + setUpProjectService.level1Name()" icon="pi pi-sparkles" severity="success" />
-        } @else {
-          {{ customer.representative.code }}
-        }
-      </td>
-      <td>
-        @if (customer.representative.editing) {
-          <input type="text" pInputText (keyup.enter)="saveEditingLevel1(customer)" [(ngModel)]="level1NameInput" />
-        } @else {
-          <p-tag [value]="customer.representative.name" severity="secondary" icon="pi pi-sitemap" />
-        }
-      </td>
-      <td>
-        <app-table-indicator-item
-          [indicators]="customer.representative.indicators"
-          (showAllAction)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel1: customer.representative })" />
-      </td>
-      <td>
-        <div class="flex gap-2 justify-end">
-          @if (!setUpProjectService.editingFocus() || customer.representative.editing) {
-            @if (customer.representative.editing) {
-              <p-button
-                (click)="saveEditingLevel1(customer)"
-                icon="pi pi-save"
-                pTooltip="Save"
-                tooltipPosition="left"
-                severity="primary"
-                [text]="true"
-                size="small">
-              </p-button>
-              <p-button
-                (click)="cancelEditingLevel1(customer)"
-                icon="pi pi-times"
-                pTooltip="Cancel"
-                tooltipPosition="left"
-                severity="danger"
-                [text]="true"
-                size="small">
-              </p-button>
-            } @else {
-              <p-button
-                (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)"
-                icon="pi pi-plus"
-                [pTooltip]="'Add ' + setUpProjectService.level2Name()"
-                tooltipPosition="left"
-                severity="primary"
-                [text]="true"
-                size="small">
-              </p-button>
-              <!-- <p-button
-                (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel1: customer.representative })"
-                icon="pi pi-chart-line"
-                pTooltip="Map indicators"
-                tooltipPosition="left"
-                severity="primary"
-                [text]="true"
-                size="small">
-              </p-button> -->
-              <p-button
-                (click)="changeEditingLevel1(customer)"
-                icon="pi pi-pencil"
-                pTooltip="Edit"
-                tooltipPosition="left"
-                severity="primary"
-                [text]="true"
-                size="small">
-              </p-button>
-              <p-button
-                (click)="deleteStructure(customer)"
-                icon="pi pi-trash"
-                pTooltip="Delete"
-                tooltipPosition="left"
-                severity="danger"
-                [text]="true"
-                size="small">
-              </p-button>
-            }
-          }
-        </div>
-      </td>
-    </tr>
-  </ng-template>
-  <ng-template #groupfooter let-customer>
-    <tr class="p-rowgroup-footer">
-      <td colspan="5" style="text-align: center">Total {{ setUpProjectService.level2Name() }}: {{ customer.representative.itemsCount }}</td>
-    </tr>
-  </ng-template>
-  <ng-template #expandedrow let-item>
-    @if (!item.ghostItem) {
-      <tr style="background-color: #f4f7ff">
-        <td></td>
+@if (setUpProjectService.strcutureGrouped().length > 0) {
+  <p-table
+    [value]="setUpProjectService.strcutureGrouped()"
+    sortField="representative.name"
+    sortMode="single"
+    dataKey="representative.name"
+    size="small"
+    rowGroupMode="subheader"
+    groupRowsBy="representative.code"
+    [tableStyle]="{ 'min-width': '70rem' }">
+    <ng-template #header>
+      <tr>
+        <th class="w-[10px]"></th>
+        <th class="w-[15%]">Code</th>
+        <th class="w-[25%]">name</th>
+        <th class="w-[35%]">indicators</th>
+        <th class="w-[15%]">actions</th>
+      </tr>
+    </ng-template>
+    <ng-template #groupheader let-customer let-i="rowIndex" let-rowIndex="rowIndex" let-expanded="expanded">
+      <tr>
         <td>
-          @if (item.newItem) {
-            <p-tag [value]="'New ' + setUpProjectService.level2Name()" severity="success" icon="pi pi-sparkles" />
-          } @else {
-            {{ item.code }}
+          @if (customer.representative?.itemsCount) {
+            <button
+              [attr.isExpanded]="expanded ? 1 : 0"
+              [id]="'toggle-row-' + customer.representative.id"
+              type="button"
+              pButton
+              pRipple
+              [pRowToggler]="customer"
+              text
+              rounded
+              [label]="customer.representative?.itemsCount"
+              plain
+              class="mr-2 cursor-pointer"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+              <span class="sr-only">Toggle row</span>
+            </button>
           }
         </td>
         <td>
-          @if (item.editing) {
-            <input (keyup.enter)="saveEditingLevel2(item)" type="text" pInputText [(ngModel)]="level2NameInput" />
+          @if (customer.representative.newStructure) {
+            <p-tag [value]="'New ' + setUpProjectService.level1Name()" icon="pi pi-sparkles" severity="success" />
           } @else {
-            <p-tag [value]="item.name" severity="info" icon="pi pi-folder" />
+            {{ customer.representative.code }}
+          }
+        </td>
+        <td>
+          @if (customer.representative.editing) {
+            <input type="text" pInputText (keyup.enter)="saveEditingLevel1(customer)" [(ngModel)]="level1NameInput" />
+          } @else {
+            <p-tag [value]="customer.representative.name" severity="secondary" icon="pi pi-sitemap" />
           }
         </td>
         <td>
           <app-table-indicator-item
-            [indicators]="item.indicators"
-            (showAllAction)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel2: item })" />
+            [indicators]="customer.representative.indicators"
+            (showAllAction)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel1: customer.representative })" />
         </td>
         <td>
           <div class="flex gap-2 justify-end">
-            @if (!setUpProjectService.editingFocus() || item.editing) {
-              @if (item.editing) {
+            @if (!setUpProjectService.editingFocus() || customer.representative.editing) {
+              @if (customer.representative.editing) {
                 <p-button
-                  (click)="saveEditingLevel2(item)"
+                  (click)="saveEditingLevel1(customer)"
                   icon="pi pi-save"
                   pTooltip="Save"
                   tooltipPosition="left"
@@ -163,7 +71,7 @@
                   size="small">
                 </p-button>
                 <p-button
-                  (click)="cancelEditingLevel2(item)"
+                  (click)="cancelEditingLevel1(customer)"
                   icon="pi pi-times"
                   pTooltip="Cancel"
                   tooltipPosition="left"
@@ -172,17 +80,26 @@
                   size="small">
                 </p-button>
               } @else {
-                <!-- <p-button
-                  (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel2: item })"
-                  icon="pi pi-chart-line"
-                  pTooltip="Map indicators"
+                <p-button
+                  (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)"
+                  icon="pi pi-plus"
+                  [pTooltip]="'Add ' + setUpProjectService.level2Name()"
                   tooltipPosition="left"
                   severity="primary"
                   [text]="true"
                   size="small">
-                </p-button> -->
+                </p-button>
+                <!-- <p-button
+                (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel1: customer.representative })"
+                icon="pi pi-chart-line"
+                pTooltip="Map indicators"
+                tooltipPosition="left"
+                severity="primary"
+                [text]="true"
+                size="small">
+              </p-button> -->
                 <p-button
-                  (click)="changeEditingLevel2(item)"
+                  (click)="changeEditingLevel1(customer)"
                   icon="pi pi-pencil"
                   pTooltip="Edit"
                   tooltipPosition="left"
@@ -191,7 +108,7 @@
                   size="small">
                 </p-button>
                 <p-button
-                  (click)="deleteItem(item, 'toggle-row-' + item.representative.id)"
+                  (click)="deleteStructure(customer)"
                   icon="pi pi-trash"
                   pTooltip="Delete"
                   tooltipPosition="left"
@@ -204,6 +121,140 @@
           </div>
         </td>
       </tr>
-    }
-  </ng-template>
-</p-table>
+    </ng-template>
+    <ng-template #groupfooter let-customer>
+      <tr class="p-rowgroup-footer">
+        <td colspan="5" style="text-align: center">Total {{ setUpProjectService.level2Name() }}: {{ customer.representative.itemsCount }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #expandedrow let-item>
+      @if (!item.ghostItem) {
+        <tr style="background-color: #f4f7ff">
+          <td></td>
+          <td>
+            @if (item.newItem) {
+              <p-tag [value]="'New ' + setUpProjectService.level2Name()" severity="success" icon="pi pi-sparkles" />
+            } @else {
+              {{ item.code }}
+            }
+          </td>
+          <td>
+            @if (item.editing) {
+              <input (keyup.enter)="saveEditingLevel2(item)" type="text" pInputText [(ngModel)]="level2NameInput" />
+            } @else {
+              <p-tag [value]="item.name" severity="info" icon="pi pi-folder" />
+            }
+          </td>
+          <td>
+            <app-table-indicator-item
+              [indicators]="item.indicators"
+              (showAllAction)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel2: item })" />
+          </td>
+          <td>
+            <div class="flex gap-2 justify-end">
+              @if (!setUpProjectService.editingFocus() || item.editing) {
+                @if (item.editing) {
+                  <p-button
+                    (click)="saveEditingLevel2(item)"
+                    icon="pi pi-save"
+                    pTooltip="Save"
+                    tooltipPosition="left"
+                    severity="primary"
+                    [text]="true"
+                    size="small">
+                  </p-button>
+                  <p-button
+                    (click)="cancelEditingLevel2(item)"
+                    icon="pi pi-times"
+                    pTooltip="Cancel"
+                    tooltipPosition="left"
+                    severity="danger"
+                    [text]="true"
+                    size="small">
+                  </p-button>
+                } @else {
+                  <!-- <p-button
+                  (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel2: item })"
+                  icon="pi pi-chart-line"
+                  pTooltip="Map indicators"
+                  tooltipPosition="left"
+                  severity="primary"
+                  [text]="true"
+                  size="small">
+                </p-button> -->
+                  <p-button
+                    (click)="changeEditingLevel2(item)"
+                    icon="pi pi-pencil"
+                    pTooltip="Edit"
+                    tooltipPosition="left"
+                    severity="primary"
+                    [text]="true"
+                    size="small">
+                  </p-button>
+                  <p-button
+                    (click)="deleteItem(item, 'toggle-row-' + item.representative.id)"
+                    icon="pi pi-trash"
+                    pTooltip="Delete"
+                    tooltipPosition="left"
+                    severity="danger"
+                    [text]="true"
+                    size="small">
+                  </p-button>
+                }
+              }
+            </div>
+          </td>
+        </tr>
+      }
+    </ng-template>
+  </p-table>
+} @else {
+  <!-- Estado vacío llamativo -->
+  <div class="text-center py-12 px-6">
+    <div class="max-w-md mx-auto">
+      <!-- Icono principal -->
+      <div class="mb-6">
+        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center shadow-lg">
+          <i class="pi pi-table text-3xl text-blue-600"></i>
+        </div>
+      </div>
+
+      <!-- Título principal -->
+      <h3 class="text-2xl font-bold text-gray-900 mb-3">No {{ setUpProjectService.level1Name() }} Created Yet</h3>
+
+      <!-- Descripción -->
+      <p class="text-gray-600 mb-6 leading-relaxed">
+        Your project structure is empty. Start building by creating your first
+        <span class="font-semibold text-blue-600">{{ setUpProjectService.level1Name() }}</span>
+        to organize your indicators and track progress.
+      </p>
+
+      <!-- Características visuales -->
+      <div class="grid grid-cols-2 gap-4 mb-8">
+        <div class="bg-blue-50 rounded-lg p-4">
+          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+            <i class="pi pi-sitemap text-blue-600"></i>
+          </div>
+          <h4 class="text-sm font-semibold text-gray-800 mb-1">Organize</h4>
+          <p class="text-xs text-gray-600">Structure your project hierarchy</p>
+        </div>
+
+        <div class="bg-green-50 rounded-lg p-4">
+          <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+            <i class="pi pi-chart-line text-green-600"></i>
+          </div>
+          <h4 class="text-sm font-semibold text-gray-800 mb-1">Track</h4>
+          <p class="text-xs text-gray-600">Monitor with indicators</p>
+        </div>
+      </div>
+
+      <!-- Call to action -->
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+        <div class="flex items-center justify-center space-x-2 text-blue-700">
+          <i class="pi pi-lightbulb text-lg"></i>
+          <span class="text-sm font-medium"> Click the "Add {{ setUpProjectService.level1Name() }}" button above to get started </span>
+        </div>
+      </div>
+    </div>
+  </div>
+}
