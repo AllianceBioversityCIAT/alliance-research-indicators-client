@@ -6,7 +6,7 @@
   [closable]="true"
   [style]="{ width: '600px', maxHeight: '80vh' }"
   [draggable]="false">
-  @if (targetInfo(); as target) {
+  @if (setUpProjectService.targetInfo(); as target) {
     <div class="assign-indicators">
       <div class="available-indicators">
         <div class="flex items-center justify-between mb-3">

@@ -17,6 +17,7 @@ export class SetUpProjectService {
     editingMode?: boolean;
     level1Data?: IndicatorsStructure;
     level2Data?: IndicatorItem;
+    assignModal?: boolean;
   }>({
     show: false
   });
@@ -35,7 +36,7 @@ export class SetUpProjectService {
   }>({ show: false });
   indicatorList = signal<GetIndicators[]>([]);
   routeid = signal<string | null>(null);
-
+  targetInfo = computed(() => this.assignIndicatorsModal().targetLevel1 || this.assignIndicatorsModal().targetLevel2);
   // Tree hierarchy signals
   level1Name = signal<string>('Level 1');
   level2Name = signal<string>('Level 2');

@@ -33,7 +33,7 @@ export class ManageIndicatorModalComponent {
   availableYears = AVAILABLE_YEARS.map(year => ({ label: String(year), value: year }));
 
   close() {
-    this.setUpProjectService.manageIndicatorModal.set({ show: false });
+    this.setUpProjectService.manageIndicatorModal.set({ show: false, assignModal: false, editingMode: false });
     this.cleanForm();
   }
 
