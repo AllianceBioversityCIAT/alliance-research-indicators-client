@@ -10,7 +10,50 @@
   [draggable]="false">
   <div class="indicator-form">
     @if (setUpProjectService.manageIndicatorModal().assignModal) {
-      <h1>{{ setUpProjectService.targetInfo()?.code }} - {{ setUpProjectService.targetInfo()?.name }}</h1>
+      <div class="mb-6 p-4 bg-gradient-to-r from-emerald-50 via-blue-50 to-indigo-50 border border-blue-200 rounded-xl shadow-sm">
+        <div class="flex items-center space-x-4">
+          <!-- Icon Section -->
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <i class="pi pi-chart-line text-white text-lg"></i>
+            </div>
+          </div>
+
+          <!-- Content Section -->
+          <div class="flex-1">
+            <div class="flex items-center space-x-2 mb-1">
+              <h3 class="text-lg font-bold text-gray-900">Creating Indicator</h3>
+              <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">New</span>
+            </div>
+            <p class="text-sm text-gray-600 mb-2">
+              This indicator will be assigned to:
+              <span class="font-medium text-blue-700 ml-1">
+                {{ setUpProjectService.assignIndicatorsModal().targetLevel1 ? setUpProjectService.level1Name() : setUpProjectService.level2Name() }}
+              </span>
+            </p>
+
+            <!-- Target Info Card -->
+            <div class="bg-white/70 backdrop-blur-sm border border-blue-100 rounded-lg p-3 shadow-sm">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <i class="pi pi-{{ setUpProjectService.assignIndicatorsModal().targetLevel1 ? 'sitemap' : 'bookmark' }} text-blue-600 text-sm"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2">
+                    @if (setUpProjectService.targetInfo()?.code) {
+                      <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-mono rounded">{{ setUpProjectService.targetInfo()?.code }}</span>
+                    }
+                    <span class="text-sm font-semibold text-gray-900">{{ setUpProjectService.targetInfo()?.name }}</span>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">
+                    {{ setUpProjectService.assignIndicatorsModal().targetLevel1 ? 'Structure Level' : 'Item Level' }} Target
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     }
 
     <div class="grid grid-cols-1 gap-3 mb-4">
