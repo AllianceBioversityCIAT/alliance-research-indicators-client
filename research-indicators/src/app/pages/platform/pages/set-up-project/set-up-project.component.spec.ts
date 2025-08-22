@@ -27,6 +27,7 @@ describe('SetUpProjectComponent', () => {
       indicatorList: signal([]),
       loadingStructures: signal(false),
       currentAgreementId: signal(null),
+      routeid: signal('test-project-id'),
       getStructures: jest.fn().mockResolvedValue(undefined),
       getIndicators: jest.fn().mockResolvedValue(undefined),
       // Add missing signals and methods
