@@ -157,16 +157,7 @@ export class SetUpProjectService {
   }
 
   assignIndicator(indicator: Indicator | GetIndicators) {
-    // this.structures.update(prev => {
-    //   const { structureIndex, itemIndex } = this.assignIndicatorsModal().target;
-    //   if (structureIndex === undefined) return [...prev];
-    //   if (this.assignIndicatorsModal().target?.type === 'structure') {
-    //     prev[structureIndex].indicators.push(indicator as Indicator);
-    //   } else if (this.assignIndicatorsModal().target?.type === 'item' && prev[structureIndex].items?.length) {
-    //     prev[structureIndex].items[itemIndex].indicators = [...(prev[structureIndex].items[itemIndex].indicators || []), indicator as Indicator];
-    //   }
-    //   return [...prev];
-    // });
+    // Level 1 - Structure indicators
     if (this.assignIndicatorsModal().targetLevel1) {
       this.structures.update(prev => {
         const targetStructure = prev.find(structure => structure.id === this.assignIndicatorsModal().targetLevel1?.id);
@@ -195,8 +186,43 @@ export class SetUpProjectService {
         }
         return [...prev];
       });
-      console.log(this.structures());
     }
+
+    // Level 2 - Item indicators
+    if (this.assignIndicatorsModal().targetLevel2) {
+      this.structures.update(prev => {
+        const targetStructure = prev.find(structure => structure.items?.some(item => item.id === this.assignIndicatorsModal().targetLevel2?.id));
+        if (targetStructure) {
+          const targetItem = targetStructure.items?.find(item => item.id === this.assignIndicatorsModal().targetLevel2?.id);
+          if (targetItem) {
+            if (indicator.adding) {
+              targetItem.indicators = [...(targetItem.indicators || []), indicator as Indicator];
+              this.assignIndicatorsModal.update(prev => {
+                const targetLevel2 = prev.targetLevel2;
+                if (targetLevel2) {
+                  targetLevel2.indicators = [...(targetLevel2.indicators || []), indicator as Indicator];
+                  return { ...prev, targetLevel2 };
+                }
+                return prev;
+              });
+            } else {
+              targetItem.indicators = (targetItem.indicators || []).filter(i => i.id != indicator.id);
+              this.assignIndicatorsModal.update(prev => {
+                const targetLevel2 = prev.targetLevel2;
+                if (targetLevel2) {
+                  targetLevel2.indicators = (targetLevel2.indicators || []).filter(i => i.id != indicator.id);
+                  return { ...prev, targetLevel2 };
+                }
+                return prev;
+              });
+            }
+          }
+        }
+        return [...prev];
+      });
+    }
+
+    console.log(this.structures());
   }
 
   // Tree hierarchy editing methods
