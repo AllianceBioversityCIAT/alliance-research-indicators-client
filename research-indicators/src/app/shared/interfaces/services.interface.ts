@@ -48,4 +48,6 @@ export type ControlListServices =
   | 'innResults'
   | 'applicationOptions'
   | 'getProjectIndicatorsHierarchy'
+  | 'levers'
+  | 'projectStatus'
   | '';

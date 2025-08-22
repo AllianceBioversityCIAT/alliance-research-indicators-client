@@ -21,8 +21,10 @@
       [minDate]="minDate"
       [maxDate]="maxDate"
       [disabled]="disabled"
-      dateFormat="dd/mm/yy"
-      [placeholder]="placeholder" />
+      [readonlyInput]="readonly"
+      [dateFormat]="dateFormat"
+      [placeholder]="placeholder"
+      appendTo="body" />
   }
 
   @if (!this.inputValid().valid) {

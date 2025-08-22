@@ -22,7 +22,9 @@ export class CalendarInputComponent {
   @Input() maxDate: any = null;
   @Input() isRequired = false;
   @Input() disabled = false;
+  @Input() readonly = false;
   @Input() placeholder = '';
+  @Input() dateFormat = 'dd/mm/yy';
 
   isInvalid = computed(() => {
     const value = this.signal()[this.optionValue];

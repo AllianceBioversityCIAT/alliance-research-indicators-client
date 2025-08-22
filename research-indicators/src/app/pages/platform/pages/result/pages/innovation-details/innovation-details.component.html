@@ -315,7 +315,8 @@
                   label="In what context is this tool useful?"
                   [signal]="this.body"
                   [optionValue]="'knowledge_sharing_form.tool_useful_context'"
-                  [maxLength]="500"></app-textarea>
+                  [maxLength]="500"
+                  placeholder="Describe the context where this tool is useful"></app-textarea>
               </div>
 
               <div class="flex-1 -mt-1">
@@ -326,7 +327,8 @@
                   label="Results (achieved or expected): identify and detail selected examples of relevance, adding numbers, facts, figures, names, and locations"
                   [signal]="this.body"
                   [optionValue]="'knowledge_sharing_form.results_achieved_expected'"
-                  [maxLength]="500"></app-textarea>
+                  [maxLength]="500"
+                  placeholder="Describe examples of relevance, adding numbers, facts, figures, names, and locations"></app-textarea>
               </div>
 
               <div class="flex-1 -mt-1">
@@ -337,7 +339,8 @@
                   [signal]="this.body"
                   [optionValue]="{ body: 'knowledge_sharing_form.tool_function_id', option: 'id' }"
                   optionLabel="name"
-                  serviceName="toolFunctions"></app-select>
+                  serviceName="toolFunctions"
+                  placeholder="Select the tool function"></app-select>
               </div>
 
               <div class="flex-1">
@@ -389,7 +392,15 @@
                   signalOptionValue="knowledge_sharing_form.link_to_result"
                   [disabled]="!submission.isEditableStatus()"
                   [removeCondition]="canRemove"
-                  serviceName="innResults">
+                  serviceName="innResults"
+                  placeholder="Select related tools">
+                  <ng-template #selectedItems let-value>
+                    @if (value?.length > 0) {
+                      <div class="flex items-center gap-2">
+                        <span>{{ value?.length }} innovation{{ value?.length === 1 ? '' : 's' }} selected </span>
+                      </div>
+                    }
+                  </ng-template>
                   <ng-template #selectedItems let-value>
                     <div class="flex items-center gap-2">
                       <span> {{ value?.length }} innovation{{ value?.length === 1 ? '' : 's' }} selected </span>
@@ -450,7 +461,8 @@
                 label="Please provide a short description of how other tools are used with this one."
                 [signal]="this.body"
                 [optionValue]="'knowledge_sharing_form.other_tools_integration'"
-                [maxLength]="200"></app-textarea>
+                [maxLength]="200"
+                placeholder="Describe how other tools are used together with this one"></app-textarea>
             }
           }
         </div>

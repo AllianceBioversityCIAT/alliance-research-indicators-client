@@ -34,7 +34,8 @@
         [filterBy]="this.filterBy"
         [placeholder]="placeholder"
         [virtualScrollItemSize]="this.itemHeight"
-        [scrollHeight]="this.scrollHeight">
+        [scrollHeight]="this.scrollHeight"
+        appendTo="body">
         @if (this.service?.isOpenSearch()) {
           <ng-template pTemplate="header">
             <div class="p-dropdown-header">

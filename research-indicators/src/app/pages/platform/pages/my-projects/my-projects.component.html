@@ -1,41 +1,312 @@
-<div class="container mx-auto">
-  <div>
-    <div class="bg-white p-4 border border-[#E8EBED]">
-      <div class="relative w-[25rem] bg-white rounded-lg py-2">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <i class="pi pi-search text-[#6B7280] !text-[12px]"></i>
-        </span>
-        <input
-          pInputText
-          type="text"
-          [(ngModel)]="searchValue"
-          placeholder="Find a result by code, title or creator"
-          class="w-full !pl-9 !rounded-[8px] py-2 border !bg-[#fcfcfc] !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
+<div class="content flex flex-col gap-3 px-6 pt-8">
+  <!-- Projects Section -->
+  <div class="flex flex-col bg-white">
+    <!-- Custom Tab Menu with Pin Icons -->
+    <div class="bg-white border-b border-[#E8EBED]">
+      <div class="flex items-center gap-0">
+        @for (item of orderedFilterItems(); track item.id) {
+          <div
+            class="flex items-center gap-2 px-5 py-3 cursor-pointer border-b-1 border-transparent transition-all duration-200 relative hover:bg-gray-50"
+            [class]="myProjectsFilterItem()?.id === item.id ? 'border-b-[#035BA9]' : ''"
+            (keydown.enter)="onActiveItemChange(item)"
+            (click)="onActiveItemChange(item)">
+            <button
+              type="button"
+              class="bg-[#E8EBED] cursor-pointer p-1 rounded-full flex items-center justify-center min-w-6 min-h-6"
+              (click)="onPinIconClick(item.id, $event)"
+              [disabled]="loadingPin()"
+              title="Pin tab">
+              @if (isPinned(item.id)) {
+                <img src="/icons/pin-outline.svg" alt="pin logo" class="w-3 h-3" />
+              } @else {
+                <img src="/icons/pin.svg" alt="pin logo" class="w-3 h-3" />
+              }
+            </button>
+            <span
+              class="text-[14px] xl:text-[16px] pl-2 transition-colors font-semibold duration-200 py-1"
+              [class]="myProjectsFilterItem()?.id === item.id ? 'text-[#035BA9]' : ' text-gray-500'">
+              {{ item.label }}
+            </span>
+          </div>
+        }
       </div>
     </div>
 
-    <div class="w-full analyze-result-content">      @if (getContractsByUserService.loading()) {
-        <app-custom-progress-bar></app-custom-progress-bar>
-      } @else {
-        @for (
-          project of filteredProjects() | slice: first() : first() + rows();
-          track $index
-        ) {
-          <app-project-item [project]="project"></app-project-item>
+    <!-- Content based on active tab -->
+    <div class="w-full">
+      <div class="flex flex-col">
+        <div class="flex flex-col">
+          <div class="flex items-center justify-between w-full">
+            <app-search-export-controls
+              class="p-3"
+              [showExportButton]="false"
+              [searchValue]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput()"
+              [searchPlaceholder]="'Find a result by code, title or principal investigator'"
+              (searchChange)="setSearchInputFilter($event)">
+            </app-search-export-controls>
+
+            <app-filters-action-buttons
+              class="p-3"
+              [applyLabel]="applyFiltersLabel"
+              [badge]="myProjectsService.countFiltersSelected()"
+              [showOverlayDot]="!!myProjectsService.countFiltersSelected()"
+              [showClear]="true"
+              [showViewToggleButtons]="true"
+              [isTableView]="isTableView()"
+              (apply)="showFiltersSidebar()"
+              (clear)="myProjectsService.clearFilters()"
+              (tableView)="toggleTableView()"
+              (cardView)="toggleCardView()">
+            </app-filters-action-buttons>
+          </div>
+        </div>
+
+        @if (myProjectsService.hasFilters()) {
+          <div class="flex gap-2 px-3 mb-5 items-center">
+            <span class="font-semibold text-sm" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
+            <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>
+            @for (filter of myProjectsService.getActiveFilters(); track filter.label) {
+              <div class="flex items-center">
+                <span class="text-primary-700 font-semibold text-sm text-[#345B8F]" style="font-family: 'Space Grotesk', sans-serif">{{
+                  filter.label
+                }}</span>
+                @if (!$last) {
+                  <span class="text-500 text-sm">, </span>
+                }
+              </div>
+            }
+          </div>
         }
-      }
-    </div>
-    @if (filteredProjects().length > 0) {
-      <div class="flex justify-end w-full bg-white py-2">
-        <p-paginator
-          (onPageChange)="onPageChange($event)"
-          [first]="first()"
-          [rows]="rows()"
-          [totalRecords]="filteredProjects().length"
-          [showCurrentPageReport]="true"
-          [showJumpToPageDropdown]="false"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" />
+
+        <!-- Conditional views -->
+        @if (getLoadingState()) {
+          <app-custom-progress-bar></app-custom-progress-bar>
+        } @else {
+          <!-- Card view -->
+          @if (!isTableView()) {
+            <div class="analyze-result-content max-h-[calc(90vh-300px)] overflow-y-auto">
+              @for (project of filteredProjects() | slice: getCurrentFirst() : getCurrentFirst() + getCurrentRows(); track project.agreement_id) {
+                <app-project-item [project]="project"></app-project-item>
+              }
+            </div>
+            @if (getCurrentProjects().length > 0) {
+              <div #cardRppScope class="rpp-dropup flex justify-end w-full bg-white py-2 border border-[#E8EBED]">
+                <p-paginator
+                  (onPageChange)="onCurrentPageChange($event)"
+                  [first]="getCurrentFirst()"
+                  [rows]="getCurrentRows()"
+                  [totalRecords]="getCurrentProjects().length"
+                  [showCurrentPageReport]="true"
+                  [rowsPerPageOptions]="[5, 10, 25, 50]"
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+                  [dropdownAppendTo]="cardRppScope" />
+              </div>
+            }
+          }
+
+          <!-- Table view -->
+          @if (isTableView()) {
+            <div #tableRppScope class="rpp-dropup w-full border border-[#E8EBED]">
+              <p-table
+                [value]="getCurrentProjects()"
+                [paginator]="true"
+                [rows]="10"
+                [loading]="getLoadingState()"
+                [scrollHeight]="getScrollHeight()"
+                [showCurrentPageReport]="true"
+                [scrollable]="true"
+                [tableStyle]="{ 'min-width': '100%' }"
+                [rowsPerPageOptions]="[5, 10, 25, 50]"
+                [paginatorDropdownAppendTo]="tableRppScope"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+                [sortField]="'agreement_id'"
+                [sortOrder]="-1"
+                [globalFilterFields]="[
+                  'agreement_id',
+                  'full_name',
+                  'contract_status',
+                  'display_principal_investigator',
+                  'display_lever_name',
+                  'start_date',
+                  'end_date'
+                ]"
+                styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="agreement_id">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Code
+                        <p-sortIcon field="agreement_id"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="full_name" style="width: 40%">
+                      <div
+                        class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px] overflow-hidden line-clamp-3 xl:line-clamp-2">
+                        Project Name
+                        <p-sortIcon field="full_name"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="contract_status">
+                      <div class="font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Status
+                        <p-sortIcon field="contract_status"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="display_principal_investigator">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Principal Investigator
+                        <p-sortIcon field="display_principal_investigator"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="display_lever_name">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Lever
+                        <p-sortIcon field="display_lever_name"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date" style="width: 8%">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Start Date
+                        <p-sortIcon field="start_date"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="end_date" style="width: 8%">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        End Date
+                        <p-sortIcon field="end_date"></p-sortIcon>
+                      </div>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-project>
+                  <tr
+                    (click)="openProject(project)"
+                    (keydown.enter)="openProject(project)"
+                    class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
+                    <td>
+                      <div class="overflow-hidden line-clamp-2">
+                        {{ project.agreement_id || '-' }}
+                      </div>
+                    </td>
+                    <td>
+                      <div class="overflow-hidden line-clamp-2">
+                        {{ project.description }}
+                      </div>
+                    </td>
+                    <td>
+                      <div class="flex items-center min-h-[40px]">
+                        <app-custom-tag
+                          [statusId]="projectUtils.getStatusDisplay(project).statusId"
+                          [statusName]="projectUtils.getStatusDisplay(project).statusName"></app-custom-tag>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="overflow-hidden line-clamp-2">
+                        {{ project.principal_investigator || project.project_lead_description || '-' }}
+                      </div>
+                    </td>
+                    <td>
+                      <div class="overflow-hidden line-clamp-2">
+                        {{ projectUtils.getLeverName(project) }}
+                      </div>
+                    </td>
+                    <td>
+                      {{ project.start_date ? (project.start_date | date: 'shortDate') : '-' }}
+                    </td>
+                    <td>
+                      {{ project.end_date ? (project.end_date | date: 'shortDate') : '-' }}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  @if (!getLoadingState()) {
+                    <tr>
+                      <td colspan="7" class="text-center p-8">
+                        <div class="flex flex-col items-center gap-4 bg-surface-ground p-6 rounded-xl">
+                          <div class="flex flex-col items-center gap-1">
+                            <img src="/images/landing/projects.png" alt="Empty Projects" class="w-[180px] h-[180px] mb-3" />
+                            <h2 class="text-[#173F6F] text-[16px] font-bold">
+                              {{ myProjectsFilterItem()?.id === 'my' ? 'YOUR PROJECTS LIST IS EMPTY' : 'PROJECTS LIST IS EMPTY' }}
+                            </h2>
+                            <p class="text-[#4C5158] leading-4 text-center text-[14px] max-w-[600px] pt-1">
+                              {{
+                                myProjectsFilterItem()?.id === 'my'
+                                  ? "You haven't created any results for your projects yet. Once you start reporting, your projects will appear here and you will be able to access them easily."
+                                  : 'There are currently no projects in the database. New projects will appear here once they are added to the system.'
+                              }}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </ng-template>
+              </p-table>
+            </div>
+          }
+        }
       </div>
-    }
+    </div>
   </div>
 </div>
+
+<app-section-sidebar
+  [title]="'Table Filters'"
+  [description]="'Filter your table data by applying custom criteria.'"
+  [showSignal]="this.myProjectsService.showFiltersSidebar"
+  confirmText="Apply filters"
+  (confirm)="this.myProjectsService.applyFilters()">
+  <div class="body">
+    <div class="mb-6">
+      <app-multiselect
+        #statusSelect
+        label="Status"
+        [signal]="this.myProjectsService.tableFilters"
+        optionLabel="name"
+        appendTo="body"
+        optionValue="value"
+        signalOptionValue="statusCodes"
+        serviceName="projectStatus"
+        scrollHeight="140px"
+        placeholder="Select statuses">
+      </app-multiselect>
+    </div>
+
+    <div class="mb-6">
+      <app-multiselect
+        #leverSelect
+        label="Lever"
+        [signal]="this.myProjectsService.tableFilters"
+        optionLabel="short_name"
+        optionValue="id"
+        signalOptionValue="levers"
+        serviceName="levers"
+        placeholder="Select levers">
+      </app-multiselect>
+    </div>
+
+    <div class="mb-6">
+      <app-calendar-input
+        #startDateSelect
+        label="Start Date"
+        [signal]="this.myProjectsService.tableFilters"
+        optionValue="startDate"
+        [dateFormat]="'MM dd/yy'"
+        placeholder="Select start date"
+        appendTo="body">
+      </app-calendar-input>
+    </div>
+
+    <div>
+      <app-calendar-input
+        #endDateSelect
+        label="End Date"
+        [signal]="this.myProjectsService.tableFilters"
+        optionValue="endDate"
+        dateFormat="MM dd/yy"
+        appendTo="body"
+        placeholder="Select end date">
+      </app-calendar-input>
+    </div>
+  </div>
+</app-section-sidebar>

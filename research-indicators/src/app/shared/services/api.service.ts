@@ -62,6 +62,9 @@ import { GetStructures } from '../interfaces/get-structures.interface';
 import { PostIndicator } from '../interfaces/post-indicator.interface';
 import { GetProjectIndicators } from '../interfaces/get-project-indicators.interface';
 import { PostSyncContributor } from '../interfaces/post-sync-contributor.interface';
+import { FindContracts } from '../interfaces/find-contracts.interface';
+import { GetLevers } from '@shared/interfaces/get-levers.interface';
+import { Configuration } from '@shared/interfaces/configuration.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -109,6 +112,11 @@ export class ApiService {
 
   GET_SDGs = (): Promise<MainResponse<GetSdgs[]>> => {
     const url = () => `tools/clarisa/sdgs`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
+    const url = () => `tools/clarisa/levers`;
     return this.TP.get(url(), {});
   };
 
@@ -196,6 +204,16 @@ export class ApiService {
   GET_IssueCategories = (): Promise<MainResponse<IssueCategory[]>> => {
     const url = () => `issue-categories`;
     return this.TP.get(url(), {});
+  };
+
+  GET_Configuration = (id: string, section: string): Promise<MainResponse<Configuration>> => {
+    const url = () => `user/configuration/${id}?component=${section}`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_Configuration = (id: string, section: string, body: Configuration): Promise<MainResponse<Configuration>> => {
+    const url = () => `user/configuration/${id}?component=${section}`;
+    return this.TP.patch(url(), body, {});
   };
 
   // create partner request
@@ -420,6 +438,21 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_FindContracts = (filters?: {
+    'current-user'?: boolean;
+    'contract-code'?: string;
+    'project-name'?: string;
+    'principal-investigator'?: string;
+    lever?: string;
+    status?: string;
+    'start-date'?: string;
+    'end-date'?: string;
+  }): Promise<MainResponse<FindContracts[]>> => {
+    const url = () => 'agresso/contracts/find-contracts';
+    const params = this.buildFindContractsParams(filters);
+    return this.TP.get(url(), { params });
+  };
+
   GET_ResultsCount = (agreementId: string): Promise<MainResponse<GetProjectDetail>> => {
     const url = () => `agresso/contracts/${agreementId}/results/count`;
     return this.TP.get(url(), {});
@@ -621,5 +654,36 @@ export class ApiService {
         body.update(prev => ({ ...prev, [key]: newBody[key] }));
       }
     }
+  }
+
+  private buildFindContractsParams(filters?: {
+    'current-user'?: boolean;
+    'contract-code'?: string;
+    'project-name'?: string;
+    'principal-investigator'?: string;
+    lever?: string;
+    status?: string;
+    'start-date'?: string;
+    'end-date'?: string;
+  }): HttpParams {
+    let params = new HttpParams();
+    if (!filters) return params;
+    const filterKeys: (keyof typeof filters)[] = [
+      'current-user',
+      'contract-code',
+      'project-name',
+      'principal-investigator',
+      'lever',
+      'status',
+      'start-date',
+      'end-date'
+    ];
+    filterKeys.forEach(key => {
+      const value = filters[key];
+      if (value != null && value !== '') {
+        params = params.set(key, value.toString());
+      }
+    });
+    return params;
   }
 }

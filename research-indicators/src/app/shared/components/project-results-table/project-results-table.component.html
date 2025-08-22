@@ -36,7 +36,7 @@
   <ng-template pTemplate="body" let-customer>
     <tr>
       @for (col of this.columns; track $index) {
-        <td [routerLink]="['/result', customer.result_id]">
+        <td [routerLink]="['/result', customer.result_official_code]">
           @if (col.attr === 'statusName') {
             <app-custom-tag [statusId]="customer.result_status?.result_status_id" [statusName]="customer.result_status?.name"></app-custom-tag>
           } @else {
@@ -48,7 +48,7 @@
   </ng-template>
   <ng-template pTemplate="emptymessage">
     <tr>
-      <td colspan="4">No customers found.</td>
+      <td colspan="4">No results found.</td>
     </tr>
   </ng-template>
 </p-table>
