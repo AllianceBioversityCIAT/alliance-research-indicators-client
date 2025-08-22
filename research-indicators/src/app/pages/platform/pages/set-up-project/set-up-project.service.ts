@@ -94,6 +94,7 @@ export class SetUpProjectService {
 
   deleteStructureByIndex(index: number) {
     this.structures.update(prev => [...prev.slice(0, index), ...prev.slice(index + 1)]);
+    this.saveStructures();
   }
 
   async saveStructures() {
@@ -131,6 +132,7 @@ export class SetUpProjectService {
 
       return structuresCopy;
     });
+    this.saveStructures();
   }
 
   deleteStructureItemIndicatorByIndex(structureIndex: number, indicatorIndex: number, itemIndex?: number) {

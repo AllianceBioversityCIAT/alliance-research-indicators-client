@@ -1,15 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 import { SetUpProjectService } from '../../set-up-project.service';
-import { ManageIndicatorModalComponent } from '../../components/manage-indicator-modal/manage-indicator-modal.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { GetIndicators } from '../../../../../../shared/interfaces/get-indicators.interface';
+import { NUMBER_TYPE_OPTIONS, NUMBER_FORMAT_OPTIONS } from '../../../../../../shared/interfaces/project-setup.interface';
 
 @Component({
   selector: 'app-indicators',
-  imports: [ButtonModule, TooltipModule, ManageIndicatorModalComponent],
+  imports: [ButtonModule, TooltipModule, TableModule, TagModule],
   templateUrl: './indicators.component.html',
   styleUrl: './indicators.component.scss'
 })
@@ -55,5 +57,16 @@ export default class IndicatorsComponent {
       code: indicator.code,
       id: indicator.id
     });
+  };
+
+  // Helper methods to get readable labels
+  getNumberTypeLabel = (value: string): string => {
+    const option = NUMBER_TYPE_OPTIONS.find(opt => opt.value === value);
+    return option?.label || value;
+  };
+
+  getNumberFormatLabel = (value: string): string => {
+    const option = NUMBER_FORMAT_OPTIONS.find(opt => opt.value === value);
+    return option?.label || value;
   };
 }

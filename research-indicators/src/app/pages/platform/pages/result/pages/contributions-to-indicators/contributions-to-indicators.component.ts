@@ -61,7 +61,7 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
     });
     await this.api.POST_SyncContribution(selectedIndicators as PostSyncContributor[], this.cache.currentMetadata().result_id as number);
     this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Contributions saved successfully' });
-
+    this.getData();
     return option;
   };
 

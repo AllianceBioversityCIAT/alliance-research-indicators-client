@@ -28,5 +28,6 @@ export class CreateItemComponent {
       return [...prev];
     });
     this.setUpProjectService.editingElementId.set(null);
+    this.setUpProjectService.saveStructures();
   }
 }
