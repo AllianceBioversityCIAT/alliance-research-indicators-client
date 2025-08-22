@@ -6,73 +6,149 @@
     </h3>
 
     @if (setUpProjectService.indicatorList().length > 0) {
-      <div class="indicators-list grid grid-cols-1 lg:grid-cols-2 gap-4">
-        @for (indicator of setUpProjectService.indicatorList(); track indicator.id) {
-          <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex justify-between items-start mb-3">
-              <div class="flex-1 min-w-0 mr-3">
-                <h4 class="text-sm font-semibold text-gray-800 mb-1 truncate">{{ indicator.name }}</h4>
-                <p class="text-xs text-gray-600 mb-3 line-clamp-2">{{ indicator.description }}</p>
-
-                <div class="indicator-metadata space-y-2">
-                  <div class="flex flex-wrap gap-1">
-                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                      <i class="pi pi-calculator text-xs"></i>
-                      {{ indicator.numberType }}
-                    </span>
-                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                      <i class="pi pi-hashtag text-xs"></i>
-                      {{ indicator.numberFormat }}
-                    </span>
+      <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+        <p-table [value]="setUpProjectService.indicatorList()" [responsive]="true" styleClass="p-datatable-sm" [scrollable]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="text-center w-20">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="pi pi-hashtag text-blue-600 text-xs"></i>
+                  <span class="font-semibold text-gray-700">Code</span>
+                </div>
+              </th>
+              <th class="text-left">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-bookmark text-blue-600 text-xs"></i>
+                  <span class="font-semibold text-gray-700">Statement</span>
+                </div>
+              </th>
+              <th class="text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="pi pi-cog text-blue-600 text-xs"></i>
+                  <span class="font-semibold text-gray-700">Type & Format</span>
+                </div>
+              </th>
+              <th class="text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="pi pi-calendar text-blue-600 text-xs"></i>
+                  <span class="font-semibold text-gray-700">Years</span>
+                </div>
+              </th>
+              <th class="text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="pi pi-chart-line text-blue-600 text-xs"></i>
+                  <span class="font-semibold text-gray-700">Values</span>
+                </div>
+              </th>
+              <th class="text-center w-24">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="pi pi-cog text-blue-600 text-xs"></i>
+                  <span class="font-semibold text-gray-700">Actions</span>
+                </div>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-indicator>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="align-top text-center">
+                <div class="py-3">
+                  @if (indicator.code) {
+                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-mono font-medium">{{ indicator.code }}</span>
+                  } @else {
+                    <span class="text-xs text-gray-400">-</span>
+                  }
+                </div>
+              </td>
+              <td class="align-top">
+                <div class="py-3">
+                  <h4 class="text-sm font-semibold text-gray-800 mb-1 leading-tight">{{ indicator.name }}</h4>
+                  <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed">{{ indicator.description }}</p>
+                </div>
+              </td>
+              <td class="align-top text-center">
+                <div class="py-3">
+                  <div class="flex flex-wrap justify-center gap-1 max-w-xs mx-auto">
+                    <p-tag [value]="indicator.numberType" severity="secondary" styleClass="text-xs">
+                      <ng-template pTemplate>
+                        <i class="pi pi-calculator mr-1 text-xs"></i>
+                        {{ indicator.numberType }}
+                      </ng-template>
+                    </p-tag>
+                    <p-tag [value]="indicator.numberFormat" severity="secondary" styleClass="text-xs">
+                      <ng-template pTemplate>
+                        <i class="pi pi-hashtag mr-1 text-xs"></i>
+                        {{ indicator.numberFormat }}
+                      </ng-template>
+                    </p-tag>
                     @if (indicator.targetUnit) {
-                      <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                        <i class="pi pi-flag text-xs"></i>
-                        {{ indicator.targetUnit }}
-                      </span>
-                    }
-                  </div>
-
-                  <div class="flex flex-wrap gap-1">
-                    <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                      <i class="pi pi-calendar text-xs"></i>
-                      {{ indicator.years.join(', ') }}
-                    </span>
-                    @if (indicator.targetValue) {
-                      <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                        <i class="pi pi-arrow-up text-xs"></i>
-                        {{ indicator.targetValue }}
-                      </span>
-                    }
-                    @if (indicator.baseline) {
-                      <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                        <i class="pi pi-minus text-xs"></i>
-                        {{ indicator.baseline }}
-                      </span>
+                      <p-tag [value]="indicator.targetUnit" severity="secondary" styleClass="text-xs">
+                        <ng-template pTemplate>
+                          <i class="pi pi-flag mr-1 text-xs"></i>
+                          {{ indicator.targetUnit }}
+                        </ng-template>
+                      </p-tag>
                     }
                   </div>
                 </div>
-              </div>
-              <div class="flex gap-1 flex-shrink-0">
-                <p-button
-                  icon="pi pi-pencil"
-                  severity="secondary"
-                  [text]="true"
-                  size="small"
-                  pTooltip="Edit indicator"
-                  (onClick)="onEditIndicator(indicator)">
-                </p-button>
-                <p-button
-                  icon="pi pi-trash"
-                  severity="danger"
-                  [text]="true"
-                  size="small"
-                  pTooltip="Delete this indicator ({{ indicator.name }})"
-                  (onClick)="onDeleteIndicator(indicator.id)">
-                </p-button>
-              </div>
-            </div>
-          </div>
-        }
+              </td>
+              <td class="align-top text-center">
+                <div class="py-3">
+                  <p-tag [value]="indicator.years.join(', ')" severity="info" styleClass="text-xs">
+                    <ng-template pTemplate>
+                      <i class="pi pi-calendar mr-1 text-xs"></i>
+                      {{ indicator.years.join(', ') }}
+                    </ng-template>
+                  </p-tag>
+                </div>
+              </td>
+              <td class="align-top text-center">
+                <div class="py-3">
+                  <div class="flex flex-wrap justify-center gap-1 max-w-xs mx-auto">
+                    @if (indicator.targetValue) {
+                      <p-tag [value]="'Target: ' + indicator.targetValue" severity="success" styleClass="text-xs">
+                        <ng-template pTemplate>
+                          <i class="pi pi-arrow-up mr-1 text-xs"></i>
+                          {{ indicator.targetValue }}
+                        </ng-template>
+                      </p-tag>
+                    }
+                    @if (indicator.baseline) {
+                      <p-tag [value]="'Baseline: ' + indicator.baseline" severity="warn" styleClass="text-xs">
+                        <ng-template pTemplate>
+                          <i class="pi pi-minus mr-1 text-xs"></i>
+                          {{ indicator.baseline }}
+                        </ng-template>
+                      </p-tag>
+                    }
+                    @if (!indicator.targetValue && !indicator.baseline) {
+                      <span class="text-xs text-gray-400">-</span>
+                    }
+                  </div>
+                </div>
+              </td>
+              <td class="align-top text-center">
+                <div class="py-3 flex justify-center gap-1">
+                  <p-button
+                    icon="pi pi-pencil"
+                    severity="secondary"
+                    [text]="true"
+                    size="small"
+                    pTooltip="Edit indicator"
+                    (onClick)="onEditIndicator(indicator)">
+                  </p-button>
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [text]="true"
+                    size="small"
+                    pTooltip="Delete this indicator ({{ indicator.name }})"
+                    (onClick)="onDeleteIndicator(indicator.id)">
+                  </p-button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
     } @else {
       <div class="text-center py-8 bg-gray-50 rounded-lg">
