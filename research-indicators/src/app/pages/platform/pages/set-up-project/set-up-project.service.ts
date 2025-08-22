@@ -88,9 +88,6 @@ export class SetUpProjectService {
   }
 
   async saveStructures() {
-    console.log(this.structures());
-    console.log(this.strcutureGrouped());
-    console.log(this.strcutureGrouped());
     this.loadingStructures.set(true);
     try {
       await this.api.POST_SyncStructures({
@@ -156,7 +153,6 @@ export class SetUpProjectService {
       this.structures.set(res.data.structures);
       this.level1Name.set(res.data.name_level_1 || 'Level 1');
       this.level2Name.set(res.data.name_level_2 || 'Level 2');
-      console.log(res.data);
     } catch {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });
       this.structures.set([]);
@@ -231,7 +227,6 @@ export class SetUpProjectService {
       });
     }
     this.saveStructures();
-    console.log(this.structures());
   }
 
   // Tree hierarchy editing methods

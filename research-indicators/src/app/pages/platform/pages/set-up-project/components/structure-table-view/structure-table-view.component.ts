@@ -81,7 +81,6 @@ export class StructureTableViewComponent {
     setTimeout(() => {
       const totalItems = customer.representative.itemsCount;
       if (!totalItems.length) {
-        console.log(document.getElementById(toggleRowId));
         const isExpanded = Boolean(Number(document.getElementById(toggleRowId)?.getAttribute('isExpanded')));
         if (!isExpanded) document.getElementById(toggleRowId)?.click();
       }
