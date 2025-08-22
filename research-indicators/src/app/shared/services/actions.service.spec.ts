@@ -733,6 +733,37 @@ describe('ActionsService', () => {
     );
   });
 
+  it('should execute action when confirmCallback event is triggered', () => {
+    const mockAction = jest.fn();
+    const spy = jest.spyOn(service, 'showGlobalAlert');
+
+    service.handleBadRequest(
+      {
+        status: 409,
+        errorDetail: {
+          description: 'Error: 1234 - Título',
+          errors: { result_official_code: 1234 }
+        }
+      } as any,
+      mockAction
+    );
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        confirmCallback: expect.objectContaining({
+          event: expect.any(Function)
+        })
+      })
+    );
+
+    // Extract the event function and execute it
+    const alertCall = spy.mock.calls[0][0];
+    const eventFunction = alertCall.confirmCallback.event;
+    eventFunction();
+
+    expect(mockAction).toHaveBeenCalled();
+  });
+
   it('should reject with error message in isTokenExpired catch block', async () => {
     const dataCacheSignal: WritableSignal<any> = signal({
       access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
@@ -761,6 +792,33 @@ describe('ActionsService', () => {
     });
     const localService = TestBed.inject(ActionsService);
     await expect(localService.isTokenExpired()).rejects.toThrow('string error');
+  });
+
+  it('should resolve isTokenExpired as false when token is valid', async () => {
+    const dataCacheSignal: WritableSignal<any> = signal({
+      access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+      refresh_token: 'refresh',
+      exp: Math.floor(Date.now() / 1000) + 1000, // Token válido por 1000 segundos
+      user: mockUser
+    }) as WritableSignal<any>;
+    (dataCacheSignal as any).set = jest.fn();
+    const localCacheMock = {
+      dataCache: dataCacheSignal,
+      isLoggedIn: Object.assign(signal(false), { set: jest.fn() }),
+      windowHeight: signal(0)
+    };
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: CacheService, useValue: localCacheMock },
+        { provide: Router, useValue: routerMock },
+        { provide: ApiService, useValue: apiMock },
+        { provide: ServiceLocatorService, useValue: serviceLocatorMock }
+      ]
+    });
+    const localService = TestBed.inject(ActionsService);
+    const result = await localService.isTokenExpired();
+    expect(result.isTokenExpired).toBe(false);
   });
 
   it('should handle localStorage.setItem error in updateLocalStorage for refresh token', () => {

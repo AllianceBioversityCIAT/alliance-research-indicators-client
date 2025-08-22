@@ -42,7 +42,7 @@ export class ActionsService {
     });
   }
 
-  handleBadRequest(result: MainResponse<CreateResultResponse | Result | ExtendedHttpErrorResponse>) {
+  handleBadRequest(result: MainResponse<CreateResultResponse | Result | ExtendedHttpErrorResponse>, action?: () => void) {
     const isWarning = result.status === 409;
     const errorDetail = result.errorDetail;
 
@@ -67,7 +67,12 @@ export class ActionsService {
       hasNoCancelButton: true,
       generalButton: true,
       confirmCallback: {
-        label: 'Enter other title'
+        label: 'Enter other title',
+        event: () => {
+          if (action) {
+            action();
+          }
+        }
       },
       buttonColor: '#035BA9'
     });
