@@ -25,7 +25,7 @@
               <th class="text-center">
                 <div class="flex items-center justify-center gap-2">
                   <i class="pi pi-cog text-blue-600 text-xs"></i>
-                  <span class="font-semibold text-gray-700">Type & Format</span>
+                  <span class="font-semibold text-gray-700">Type, Format & Unit</span>
                 </div>
               </th>
               <th class="text-center">
@@ -68,20 +68,37 @@
               <td class="align-top text-center">
                 <div class="py-3">
                   <div class="flex flex-wrap justify-center gap-1 max-w-xs mx-auto">
-                    <p-tag [value]="indicator.numberType" severity="secondary" styleClass="text-xs">
+                    <!-- Number Type -->
+                    <p-tag
+                      [value]="getNumberTypeLabel(indicator.numberType)"
+                      severity="secondary"
+                      styleClass="text-xs"
+                      pTooltip="Number Type: {{ getNumberTypeLabel(indicator.numberType) }}">
                       <ng-template pTemplate>
                         <i class="pi pi-calculator mr-1 text-xs"></i>
-                        {{ indicator.numberType }}
+                        {{ getNumberTypeLabel(indicator.numberType) }}
                       </ng-template>
                     </p-tag>
-                    <p-tag [value]="indicator.numberFormat" severity="secondary" styleClass="text-xs">
+
+                    <!-- Number Format -->
+                    <p-tag
+                      [value]="getNumberFormatLabel(indicator.numberFormat)"
+                      severity="info"
+                      styleClass="text-xs"
+                      pTooltip="Number Format: {{ getNumberFormatLabel(indicator.numberFormat) }}">
                       <ng-template pTemplate>
                         <i class="pi pi-hashtag mr-1 text-xs"></i>
-                        {{ indicator.numberFormat }}
+                        {{ getNumberFormatLabel(indicator.numberFormat) }}
                       </ng-template>
                     </p-tag>
+
+                    <!-- Target Unit -->
                     @if (indicator.targetUnit) {
-                      <p-tag [value]="indicator.targetUnit" severity="secondary" styleClass="text-xs">
+                      <p-tag
+                        [value]="indicator.targetUnit"
+                        severity="contrast"
+                        styleClass="text-xs"
+                        pTooltip="Target Unit: {{ indicator.targetUnit }}">
                         <ng-template pTemplate>
                           <i class="pi pi-flag mr-1 text-xs"></i>
                           {{ indicator.targetUnit }}

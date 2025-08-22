@@ -7,6 +7,7 @@ import { SetUpProjectService } from '../../set-up-project.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { GetIndicators } from '../../../../../../shared/interfaces/get-indicators.interface';
+import { NUMBER_TYPE_OPTIONS, NUMBER_FORMAT_OPTIONS } from '../../../../../../shared/interfaces/project-setup.interface';
 
 @Component({
   selector: 'app-indicators',
@@ -56,5 +57,16 @@ export default class IndicatorsComponent {
       code: indicator.code,
       id: indicator.id
     });
+  };
+
+  // Helper methods to get readable labels
+  getNumberTypeLabel = (value: string): string => {
+    const option = NUMBER_TYPE_OPTIONS.find(opt => opt.value === value);
+    return option?.label || value;
+  };
+
+  getNumberFormatLabel = (value: string): string => {
+    const option = NUMBER_FORMAT_OPTIONS.find(opt => opt.value === value);
+    return option?.label || value;
   };
 }
