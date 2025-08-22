@@ -29,6 +29,7 @@ import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { AssignIndicatorsModalComponent } from './components/assign-indicators-modal/assign-indicators-modal.component';
 import { ActionsService } from '../../../../shared/services/actions.service';
 import { Subscription } from 'rxjs';
+import { ManageIndicatorModalComponent } from './components/manage-indicator-modal/manage-indicator-modal.component';
 
 @Component({
   selector: 'app-set-up-project',
@@ -52,7 +53,8 @@ import { Subscription } from 'rxjs';
     TextareaModule,
     SelectButtonModule,
     RouterOutlet,
-    AssignIndicatorsModalComponent
+    AssignIndicatorsModalComponent,
+    ManageIndicatorModalComponent
   ],
   templateUrl: './set-up-project.component.html',
   styleUrl: './set-up-project.component.scss'

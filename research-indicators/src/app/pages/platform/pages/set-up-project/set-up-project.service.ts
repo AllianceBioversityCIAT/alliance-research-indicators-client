@@ -11,7 +11,15 @@ import { PostIndicator } from '../../../../shared/interfaces/post-indicator.inte
 })
 export class SetUpProjectService {
   showAssignIndicatorModal = signal<boolean>(false);
-  manageIndicatorModal = signal<{ show: boolean; indicator?: GetIndicators; editingMode?: boolean }>({ show: false });
+  manageIndicatorModal = signal<{
+    show: boolean;
+    indicator?: GetIndicators;
+    editingMode?: boolean;
+    level1Data?: IndicatorsStructure;
+    level2Data?: IndicatorItem;
+  }>({
+    show: false
+  });
   showAllIndicators = signal<boolean>(false);
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);

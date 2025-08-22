@@ -36,4 +36,21 @@ export class AssignIndicatorsModalComponent {
 
     return this.setUpProjectService.indicatorList();
   });
+
+  openCreateIndicatorModal() {
+    // Close the current modal
+    this.setUpProjectService.assignIndicatorsModal.set({
+      show: false,
+      targetLevel1: undefined,
+      targetLevel2: undefined
+    });
+
+    // Open the create indicator modal
+    this.setUpProjectService.manageIndicatorModal.set({
+      show: true,
+      editingMode: false,
+      level1Data: this.setUpProjectService.assignIndicatorsModal().targetLevel1,
+      level2Data: this.setUpProjectService.assignIndicatorsModal().targetLevel2
+    });
+  }
 }
