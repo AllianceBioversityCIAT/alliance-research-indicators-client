@@ -32,5 +32,6 @@ export class UpdateItemComponent implements OnInit {
       return [...prev];
     });
     this.setUpProjectService.editingElementId.set(null);
+    this.setUpProjectService.saveStructures();
   }
 }

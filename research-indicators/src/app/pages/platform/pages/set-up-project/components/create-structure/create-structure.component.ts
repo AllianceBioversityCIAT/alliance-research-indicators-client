@@ -18,5 +18,6 @@ export class CreateStructureComponent {
   onAddStructure = () => {
     this.signalUtils.pushToSignal(this.setUpProjectService.structures, this.newStructureForm());
     this.setUpProjectService.showCreateStructure.set(false);
+    this.setUpProjectService.saveStructures();
   };
 }

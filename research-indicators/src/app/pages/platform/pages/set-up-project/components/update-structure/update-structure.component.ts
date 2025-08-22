@@ -28,6 +28,7 @@ export class UpdateStructureComponent implements OnInit {
       return [...prev];
     });
     this.onCancel();
+    this.setUpProjectService.saveStructures();
   };
   onCancel = () => {
     this.setUpProjectService.editingElementId.set(null);
