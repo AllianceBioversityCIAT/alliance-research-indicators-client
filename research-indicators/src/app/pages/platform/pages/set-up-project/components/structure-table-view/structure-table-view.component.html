@@ -13,6 +13,7 @@
       <th style="width: 20%">Code</th>
       <th style="width: 20%">name</th>
       <th style="width: 60%">indicator</th>
+      <th style="width: 10%">actions</th>
     </tr>
   </ng-template>
   <ng-template #groupheader let-customer let-rowIndex="rowIndex" let-expanded="expanded">
@@ -33,13 +34,20 @@
       <td>
         <p-tag [value]="customer.representative.name" severity="info" />
       </td>
-      <td>indicator</td>
+      <td>
+        <app-table-indicator-item />
+      </td>
+      <td>
+        <div class="flex gap-2">
+          <p-button icon="pi pi-pencil" pTooltip="Edit" tooltipPosition="left" severity="primary" [text]="true" size="small"> </p-button>
+          <p-button icon="pi pi-trash" pTooltip="Delete" tooltipPosition="left" severity="danger" [text]="true" size="small"> </p-button>
+        </div>
+      </td>
     </tr>
   </ng-template>
   <ng-template #groupfooter let-customer>
     <tr class="p-rowgroup-footer">
-      <td colspan="3" style="text-align: right">Total {{ setUpProjectService.level2Name() }}</td>
-      <td>{{ customer.representative.itemsCount }}</td>
+      <td colspan="5" style="text-align: center">Total {{ setUpProjectService.level2Name() }}: {{ customer.representative.itemsCount }}</td>
     </tr>
   </ng-template>
   <ng-template #expandedrow let-customer>
@@ -51,7 +59,13 @@
       <td>
         <p-tag [value]="customer.name" severity="info" />
       </td>
-      <td>Indicator component</td>
+      <td><app-table-indicator-item /></td>
+      <td>
+        <div class="flex gap-2">
+          <p-button icon="pi pi-pencil" pTooltip="Edit" tooltipPosition="left" severity="primary" [text]="true" size="small"> </p-button>
+          <p-button icon="pi pi-trash" pTooltip="Delete" tooltipPosition="left" severity="danger" [text]="true" size="small"> </p-button>
+        </div>
+      </td>
     </tr>
   </ng-template>
 </p-table>
