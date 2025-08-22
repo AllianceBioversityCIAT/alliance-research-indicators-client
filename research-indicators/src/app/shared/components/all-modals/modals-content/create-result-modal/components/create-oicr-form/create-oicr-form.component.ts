@@ -45,11 +45,12 @@ import {
 } from '@shared/utils/geographic-scope.util';
 import { Country, Region } from '@shared/interfaces/get-geo-location.interface';
 import { environment } from '@envs/environment';
-import { OicrCreation } from '@shared/interfaces/oicr-creation.interface';
+import { OicrCreation, Lever } from '@shared/interfaces/oicr-creation.interface';
 import { Initiative } from '@shared/interfaces/initiative.interface';
 import { TooltipModule } from 'primeng/tooltip';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { GetInitiativesService } from '@shared/services/control-list/get-initiatives.service';
+import { Router } from '@angular/router';
 
 // Interfaz extendida para incluir contract_id
 interface GetContractsExtended extends GetContracts {
@@ -77,6 +78,7 @@ export class CreateOicrFormComponent {
   @ViewChildren(MultiselectInstanceComponent) multiselectInstances!: QueryList<MultiselectInstanceComponent>;
 
   createResultManagementService = inject(CreateResultManagementService);
+  serviceLocator = inject(ServiceLocatorService);
   getResultsService = inject(GetResultsService);
   allModalsService = inject(AllModalsService);
   wordCountService = inject(WordCountService);
@@ -85,7 +87,7 @@ export class CreateOicrFormComponent {
   elementRef = inject(ElementRef);
   cache = inject(CacheService);
   api = inject(ApiService);
-  serviceLocator = inject(ServiceLocatorService);
+  router = inject(Router);
 
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
@@ -96,8 +98,9 @@ export class CreateOicrFormComponent {
   loading = false;
   activeIndex = 0;
 
-  // Signal to track if step 4 has been visited at least once
   stepFourVisited = signal(false);
+  optionsDisabled: WritableSignal<Lever[]> = signal([]);
+  primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
 
   public getContractStatusClasses = getContractStatusClasses;
   private stepSectionIds = [...CREATE_OICR_STEPPER_SECTIONS];
@@ -108,35 +111,24 @@ export class CreateOicrFormComponent {
   isSubNationalRequired = computed(() => isSubNationalRequiredByScope(Number(this.body().step_three.geo_scope_id)));
   showSubnationalError = computed(() => shouldShowSubnationalError(Number(this.body().step_three.geo_scope_id), this.body().step_three.countries));
 
+  currentContract = computed(() => {
+    const contractId = this.body().base_information.contract_id;
+    const contractsList = this.contracts();
+    return contractsList.find(contract => contract.contract_id === String(contractId)) || null;
+  });
+
+  leverParts = computed(() => {
+    const lever = this.currentContract()?.lever;
+    if (!lever || !lever.includes(':')) return { first: '', second: '' };
+    const parts = lever.split(':');
+    return { first: parts[0] || '', second: parts[1] || '' };
+  });
+
   stepItems = signal<MenuItem[]>(
     CREATE_OICR_STEPPER_ITEMS.map((item, idx) => ({
       ...item,
       command: () => this.onStepClick(idx, CREATE_OICR_STEPPER_SECTIONS[idx])
     }))
-  );
-
-  stepOneCompletionEffect = effect(
-    () => {
-      const completed = this.isCompleteStepOne;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 0 ? { ...item, styleClass: completed ? 'oicr-step1-complete' : '' } : item)));
-    },
-    { allowSignalWrites: true }
-  );
-
-  stepTwoCompletionEffect = effect(
-    () => {
-      const completed = this.isCompleteStepTwo;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 1 ? { ...item, styleClass: completed ? 'oicr-step2-complete' : '' } : item)));
-    },
-    { allowSignalWrites: true }
-  );
-
-  stepThreeCompletionEffect = effect(
-    () => {
-      const completed = this.isCompleteStepThree;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 2 ? { ...item, styleClass: completed ? 'oicr-step3-complete' : '' } : item)));
-    },
-    { allowSignalWrites: true }
   );
 
   body: WritableSignal<OicrCreation> = signal({
@@ -178,6 +170,29 @@ export class CreateOicrFormComponent {
       is_ai: false
     }
   });
+  stepOneCompletionEffect = effect(
+    () => {
+      const completed = this.isCompleteStepOne;
+      this.stepItems.update(items => items.map((item, idx) => (idx === 0 ? { ...item, styleClass: completed ? 'oicr-step1-complete' : '' } : item)));
+    },
+    { allowSignalWrites: true }
+  );
+
+  stepTwoCompletionEffect = effect(
+    () => {
+      const completed = this.isCompleteStepTwo;
+      this.stepItems.update(items => items.map((item, idx) => (idx === 1 ? { ...item, styleClass: completed ? 'oicr-step2-complete' : '' } : item)));
+    },
+    { allowSignalWrites: true }
+  );
+
+  stepThreeCompletionEffect = effect(
+    () => {
+      const completed = this.isCompleteStepThree;
+      this.stepItems.update(items => items.map((item, idx) => (idx === 2 ? { ...item, styleClass: completed ? 'oicr-step3-complete' : '' } : item)));
+    },
+    { allowSignalWrites: true }
+  );
 
   onInit = effect(() => {
     if (this.createResultManagementService.resultPageStep() === 2) {
@@ -185,40 +200,30 @@ export class CreateOicrFormComponent {
     }
   });
 
-  currentContract = computed(() => {
-    const contractId = this.body().base_information.contract_id;
-    const contractsList = this.contracts();
-    return contractsList.find(contract => contract.contract_id === String(contractId)) || null;
-  });
+  stepFourCompletionEffect = effect(
+    () => {
+      const completed = this.isCompleteStepFour;
+      this.stepItems.update(items => items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item)));
+    },
+    { allowSignalWrites: true }
+  );
 
-  leverParts = computed(() => {
-    const lever = this.currentContract()?.lever;
-    if (!lever || !lever.includes(':')) return { first: '', second: '' };
-    const parts = lever.split(':');
-    return { first: parts[0] || '', second: parts[1] || '' };
-  });
+  updateOptionsDisabledEffect = effect(
+    () => {
+      const primaryLevers = this.body().step_two?.primary_lever || [];
+      this.optionsDisabled.set(primaryLevers);
+    },
+    { allowSignalWrites: true }
+  );
 
-  onActiveIndexChange(event: number) {
-    this.activeIndex = event;
-    if (event === 3) {
-      this.stepFourVisited.set(true);
-    }
-  }
-  removeSubnationalRegion(country: Country, region: Region) {
-    this.body.update(current => {
-      const removedId = removeSubnationalRegionFromCountries(current.step_three.countries, country.isoAlpha2, region.sub_national_id);
-      const instance = this.multiselectInstances.find(m => m.endpointParams?.isoAlpha2 === country.isoAlpha2);
-      if (removedId !== undefined) instance?.removeRegionById(removedId);
-      return current;
-    });
-  }
-
-  updateCountryRegions = (isoAlpha2: string, newRegions: Region[]) => {
-    this.body.update(current => {
-      updateCountryRegions(current.step_three.countries, isoAlpha2, newRegions);
-      return current;
-    });
-  };
+  // Effect para actualizar primaryOptionsDisabled cuando cambien los levers en Other Contributing Levers
+  updatePrimaryOptionsDisabledEffect = effect(
+    () => {
+      const contributorLevers = this.body().step_two?.contributor_lever || [];
+      this.primaryOptionsDisabled.set(contributorLevers);
+    },
+    { allowSignalWrites: true }
+  );
 
   onContractIdSync = effect(
     async () => {
@@ -244,6 +249,28 @@ export class CreateOicrFormComponent {
     },
     { allowSignalWrites: true }
   );
+
+  onActiveIndexChange(event: number) {
+    this.activeIndex = event;
+    if (event === 3) {
+      this.stepFourVisited.set(true);
+    }
+  }
+  removeSubnationalRegion(country: Country, region: Region) {
+    this.body.update(current => {
+      const removedId = removeSubnationalRegionFromCountries(current.step_three.countries, country.isoAlpha2, region.sub_national_id);
+      const instance = this.multiselectInstances.find(m => m.endpointParams?.isoAlpha2 === country.isoAlpha2);
+      if (removedId !== undefined) instance?.removeRegionById(removedId);
+      return current;
+    });
+  }
+
+  updateCountryRegions = (isoAlpha2: string, newRegions: Region[]) => {
+    this.body.update(current => {
+      updateCountryRegions(current.step_three.countries, isoAlpha2, newRegions);
+      return current;
+    });
+  };
 
   get isDisabled(): boolean {
     const b = this.body();
@@ -273,22 +300,16 @@ export class CreateOicrFormComponent {
     return (
       b.step_three.geo_scope_id !== undefined &&
       b.step_three.geo_scope_id > 0 &&
-      (this.getMultiselectLabel().region.label ? b.step_three.regions.length > 0 : true) &&
-      (this.getMultiselectLabel().country.label ? b.step_three.countries.length > 0 : true)
+      (b.step_three.geo_scope_id > 1
+        ? (this.getMultiselectLabel().region.label ? b.step_three.regions.length > 0 : true) &&
+          (this.getMultiselectLabel().country.label ? b.step_three.countries.length > 0 : true)
+        : true)
     );
   }
 
   get isCompleteStepFour(): boolean {
     return this.stepFourVisited();
   }
-
-  stepFourCompletionEffect = effect(
-    () => {
-      const completed = this.isCompleteStepFour;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item)));
-    },
-    { allowSignalWrites: true }
-  );
 
   onContractIdChange(newContractId: number | null) {
     this.contractId = newContractId;
@@ -329,16 +350,28 @@ export class CreateOicrFormComponent {
   };
 
   async createResult() {
-    console.warn(this.body());
     const response = await this.api.POST_CreateOicr(this.body());
-    if (!response.successfulRequest) {
-      this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
+    if (response.status !== 200 && response.status !== 201) {
+      this.actions.handleBadRequest(response, () => {
+        this.createResultManagementService.resultPageStep.set(0);
+      });
     } else {
       this.actions.showGlobalAlert({
         severity: 'success',
         summary: 'Thank you for your submission',
+        hasNoCancelButton: true,
         detail:
-          'Your OICR will be reviewed by PISA-SPRM and the assigned regional MEL specialist will reach out to support you in finalizing the next steps of the OICR development process.'
+          'Your OICR will be reviewed by PISA-SPRM and the assigned regional MEL specialist will reach out to support you in finalizing the next steps of the OICR development process.',
+        confirmCallback: {
+          label: 'Done',
+          event: () => {
+            this.router.navigate(['result', response.data.result_official_code], {
+              replaceUrl: true
+            });
+            this.allModalsService.closeModal('createResult');
+            this.getResultsService.updateList();
+          }
+        }
       });
     }
   }

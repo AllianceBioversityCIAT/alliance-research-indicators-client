@@ -66,7 +66,6 @@ import { GetStructures } from '../interfaces/get-structures.interface';
 import { PostIndicator } from '../interfaces/post-indicator.interface';
 import { GetProjectIndicators } from '../interfaces/get-project-indicators.interface';
 import { PostSyncContributor } from '../interfaces/post-sync-contributor.interface';
-import { OicrCreation } from '@shared/interfaces/oicr-creation.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 
 @Injectable({
@@ -192,7 +191,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  POST_CreateOicr = <T>(body: T): Promise<MainResponse<OicrCreation>> => {
+  POST_CreateOicr = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `results/oicr`;
     return this.TP.post(url(), body, {});
   };
