@@ -7,6 +7,7 @@ import { TableIndicatorItemComponent } from '../table-indicator-item/table-indic
 import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
+import { IndicatorItem, IndicatorsStructure } from '../../../../../../shared/interfaces/get-structures.interface';
 
 @Component({
   selector: 'app-structure-table-view',
@@ -16,23 +17,44 @@ import { FormsModule } from '@angular/forms';
 })
 export class StructureTableViewComponent {
   setUpProjectService = inject(SetUpProjectService);
-  nameInput = '';
-  changeEditingLevel1 = (customer: any) => {
+  level1NameInput = '';
+  level2NameInput = '';
+  changeEditingLevel1 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
       const structure = structures.find(s => s.id === customer.representative.id);
       if (structure) {
         structure.editing = !structure.editing;
-        this.nameInput = structure.name;
+        this.level1NameInput = structure.name;
       }
       return [...structures];
     });
   };
-  saveEditingLevel1 = (customer: any) => {
+  saveEditingLevel1 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
       const structure = structures.find(s => s.id === customer.representative.id);
       if (structure) {
-        structure.name = this.nameInput;
+        structure.name = this.level1NameInput;
         structure.editing = false;
+      }
+      return [...structures];
+    });
+  };
+  changeEditingLevel2 = (customer: IndicatorItem) => {
+    this.setUpProjectService.structures.update(structures => {
+      const item = structures.find(s => s.id === customer.representative.id)?.items?.find(i => i.id === customer.id);
+      if (item) {
+        item.editing = !item.editing;
+        this.level2NameInput = item.name;
+      }
+      return [...structures];
+    });
+  };
+  saveEditingLevel2 = (customer: IndicatorItem) => {
+    this.setUpProjectService.structures.update(structures => {
+      const item = structures.find(s => s.id === customer.representative.id)?.items?.find(i => i.id === customer.id);
+      if (item) {
+        item.name = this.level2NameInput;
+        item.editing = false;
       }
       return [...structures];
     });

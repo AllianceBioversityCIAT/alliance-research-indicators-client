@@ -33,7 +33,7 @@
       <td>{{ customer.representative.code }}</td>
       <td>
         @if (customer.representative.editing) {
-          <input type="text" pInputText [(ngModel)]="nameInput" />
+          <input type="text" pInputText [(ngModel)]="level1NameInput" />
         } @else {
           <p-tag [value]="customer.representative.name" severity="info" />
         }
@@ -90,9 +90,8 @@
         {{ customer.code }}
       </td>
       <td>
-        <div>value:{{ customer.editing }}</div>
         @if (customer.editing) {
-          <input type="text" pInputText [(ngModel)]="customer.name" />
+          <input type="text" pInputText [(ngModel)]="level2NameInput" />
         } @else {
           <p-tag [value]="customer.name" severity="info" />
         }
@@ -100,8 +99,37 @@
       <td><app-table-indicator-item [indicators]="customer.indicators" /></td>
       <td>
         <div class="flex gap-2">
-          <p-button icon="pi pi-pencil" pTooltip="Edit" tooltipPosition="left" severity="primary" [text]="true" size="small"> </p-button>
-          <p-button icon="pi pi-trash" pTooltip="Delete" tooltipPosition="left" severity="danger" [text]="true" size="small"> </p-button>
+          @if (customer.editing) {
+            <p-button
+              (click)="saveEditingLevel2(customer)"
+              icon="pi pi-save"
+              pTooltip="Save"
+              tooltipPosition="left"
+              severity="primary"
+              [text]="true"
+              size="small">
+            </p-button>
+            <p-button
+              (click)="changeEditingLevel2(customer)"
+              icon="pi pi-times"
+              pTooltip="Cancel"
+              tooltipPosition="left"
+              severity="danger"
+              [text]="true"
+              size="small">
+            </p-button>
+          } @else {
+            <p-button
+              (click)="changeEditingLevel2(customer)"
+              icon="pi pi-pencil"
+              pTooltip="Edit"
+              tooltipPosition="left"
+              severity="primary"
+              [text]="true"
+              size="small">
+            </p-button>
+            <p-button icon="pi pi-trash" pTooltip="Delete" tooltipPosition="left" severity="danger" [text]="true" size="small"> </p-button>
+          }
         </div>
       </td>
     </tr>

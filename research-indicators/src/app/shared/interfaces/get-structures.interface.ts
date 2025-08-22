@@ -20,6 +20,7 @@ export interface IndicatorItem {
   indicators?: Indicator[];
   //auxiliary fields
   representative?: any;
+  editing?: boolean;
 }
 
 export interface Indicator {
