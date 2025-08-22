@@ -1,0 +1,111 @@
+/* Custom scrollbar styles */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #cbd5e1, #94a3b8);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #94a3b8, #64748b);
+}
+
+/* Hover effects for indicator cards */
+.indicator-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.indicator-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 10%), 0 10px 10px -5px rgb(0 0 0 / 4%);
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Pulse animation for action buttons */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgb(59 130 246 / 70%);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgb(59 130 246 / 0%);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Enhanced focus states */
+button:focus,
+input:focus,
+select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Glass morphism effect for modal backdrop */
+:host ::ng-deep .p-dialog-mask {
+  backdrop-filter: blur(8px);
+  background-color: rgb(0 0 0 / 40%);
+}
+
+/* Enhanced dialog styling */
+:host ::ng-deep .p-dialog {
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 25%);
+  border: none;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header {
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header .p-dialog-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header .p-dialog-header-icon {
+  color: white;
+  background: rgb(255 255 255 / 20%);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header .p-dialog-header-icon:hover {
+  background: rgb(255 255 255 / 30%);
+  transform: scale(1.1);
+}
