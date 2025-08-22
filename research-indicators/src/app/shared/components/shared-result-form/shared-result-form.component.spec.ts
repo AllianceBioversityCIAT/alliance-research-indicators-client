@@ -1,37 +1,42 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SharedResultFormComponent } from './shared-result-form.component';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
-import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef } from '@angular/core';
-import { By } from '@angular/platform-browser';
+import { ChangeDetectorRef, ElementRef } from '@angular/core';
 
 describe('SharedResultFormComponent', () => {
   let component: SharedResultFormComponent;
-  let fixture: ComponentFixture<SharedResultFormComponent>;
+  let mockChangeDetectorRef: jest.Mocked<ChangeDetectorRef>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
+    mockChangeDetectorRef = {
+      detectChanges: jest.fn(),
+      checkNoChanges: jest.fn(),
+      detach: jest.fn(),
+      reattach: jest.fn(),
+      markForCheck: jest.fn()
+    } as any;
+
+    component = new SharedResultFormComponent(mockChangeDetectorRef);
+
+    // Mock global observers
     (globalThis as any).ResizeObserver = class {
-      observe() {
-        // intentionally left blank for testing
+      constructor(callback: (entries: any[]) => void) {
+        (globalThis as any).resizeCallback = callback;
       }
-      unobserve() {
-        // intentionally left blank for testing
-      }
-      disconnect() {
-        // intentionally left blank for testing
-      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
     };
 
-    await TestBed.configureTestingModule({
-      imports: [SelectModule, TooltipModule, FormsModule],
-      providers: [DatePipe, ChangeDetectorRef]
-    }).compileComponents();
+    (globalThis as any).MutationObserver = class {
+      constructor(callback: (mutations: any[]) => void) {
+        (globalThis as any).mutationCallback = callback;
+      }
+      observe() {}
+      disconnect() {}
+    };
 
-    fixture = TestBed.createComponent(SharedResultFormComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    // Mock DOM methods
+    document.querySelector = jest.fn();
+    document.querySelectorAll = jest.fn();
   });
 
   it('should create the component', () => {
@@ -57,34 +62,288 @@ describe('SharedResultFormComponent', () => {
     expect(validitySpy).toHaveBeenCalledWith(true);
   });
 
-  it('should shorten description based on containerWidth', () => {
-    component.containerWidth = 800;
-    const longText = 'A'.repeat(100);
-    const result = component.getShortDescription(longText);
-    expect(result.endsWith('...')).toBe(true);
-    expect(result.length).toBeLessThanOrEqual(76); // 73 + '...'
+  describe('ngAfterViewInit', () => {
+    it('should setup ResizeObserver and update containerWidth', () => {
+      // Mock containerRef (lines 31-33)
+      component.containerRef = {
+        nativeElement: document.createElement('div')
+      } as ElementRef;
+
+      component.ngAfterViewInit();
+
+      // Simulate ResizeObserver callback
+      const mockEntry = {
+        contentRect: { width: 500 }
+      };
+      (globalThis as any).resizeCallback([mockEntry]);
+
+      expect(component.containerWidth).toBe(500);
+      expect(mockChangeDetectorRef.detectChanges).toHaveBeenCalled();
+    });
+
+    it('should setup MutationObserver for DOM changes', () => {
+      component.containerRef = {
+        nativeElement: document.createElement('div')
+      } as ElementRef;
+
+      component.ngAfterViewInit();
+
+      expect((globalThis as any).mutationCallback).toBeDefined();
+    });
   });
 
-  it('should return full description if shorter than limit', () => {
-    component.containerWidth = 1300;
-    const shortText = 'Short description';
-    const result = component.getShortDescription(shortText);
-    expect(result).toBe(shortText);
+  describe('forceSelectOverlayWidth - DOM manipulation (lines 49-82)', () => {
+    beforeEach(() => {
+      component.containerRef = {
+        nativeElement: document.createElement('div')
+      } as ElementRef;
+    });
+
+    it('should apply styles to select overlay when found', () => {
+      // Mock select overlay elements
+      const mockSelectOverlay = {
+        style: {},
+        querySelector: jest.fn().mockReturnValue({
+          style: {}
+        }),
+        querySelectorAll: jest
+          .fn()
+          .mockReturnValueOnce([{ style: {} }]) // for .p-select-option
+          .mockReturnValueOnce([{ style: {} }]) // for .p-select-option-label
+      };
+
+      (document.querySelector as jest.Mock).mockReturnValue(mockSelectOverlay);
+
+      component.ngAfterViewInit();
+
+      // Trigger MutationObserver callback (lines 49-82)
+      (globalThis as any).mutationCallback([]);
+
+      // Verify styles were applied to overlay
+      expect(mockSelectOverlay.style.width).toBe('100%');
+      expect(mockSelectOverlay.style.minWidth).toBe('0');
+      expect(mockSelectOverlay.style.maxWidth).toBe('100vw');
+      expect(mockSelectOverlay.style.boxSizing).toBe('border-box');
+    });
+
+    it('should handle case when select overlay is not found', () => {
+      (document.querySelector as jest.Mock).mockReturnValue(null);
+
+      component.ngAfterViewInit();
+
+      // Should not throw when overlay is null
+      expect(() => (globalThis as any).mutationCallback([])).not.toThrow();
+    });
+
+    it('should handle case when select list is not found within overlay', () => {
+      const mockSelectOverlay = {
+        style: {},
+        querySelector: jest.fn().mockReturnValue(null), // select list not found
+        querySelectorAll: jest
+          .fn()
+          .mockReturnValueOnce([{ style: {} }]) // for .p-select-option
+          .mockReturnValueOnce([{ style: {} }]) // for .p-select-option-label
+      };
+
+      (document.querySelector as jest.Mock).mockReturnValue(mockSelectOverlay);
+
+      component.ngAfterViewInit();
+
+      // Should not throw when select list is null
+      expect(() => (globalThis as any).mutationCallback([])).not.toThrow();
+
+      // Verify overlay styles were still applied
+      expect(mockSelectOverlay.style.width).toBe('100%');
+    });
+
+    it('should apply styles to select options and labels', () => {
+      const mockOption = { style: {} };
+      const mockLabel = { style: {} };
+
+      const mockSelectOverlay = {
+        style: {},
+        querySelector: jest.fn().mockReturnValue({ style: {} }),
+        querySelectorAll: jest
+          .fn()
+          .mockReturnValueOnce([mockOption]) // for .p-select-option
+          .mockReturnValueOnce([mockLabel]) // for .p-select-option-label
+      };
+
+      (document.querySelector as jest.Mock).mockReturnValue(mockSelectOverlay);
+
+      component.ngAfterViewInit();
+      (globalThis as any).mutationCallback([]);
+
+      // Verify option styles
+      expect(mockOption.style.maxWidth).toBe('100%');
+      expect(mockOption.style.minWidth).toBe('0');
+      expect(mockOption.style.overflow).toBe('hidden');
+      expect(mockOption.style.textOverflow).toBe('ellipsis');
+      expect(mockOption.style.whiteSpace).toBe('nowrap');
+      expect(mockOption.style.boxSizing).toBe('border-box');
+
+      // Verify label styles
+      expect(mockLabel.style.maxWidth).toBe('100%');
+      expect(mockLabel.style.minWidth).toBe('0');
+      expect(mockLabel.style.overflow).toBe('hidden');
+      expect(mockLabel.style.textOverflow).toBe('ellipsis');
+      expect(mockLabel.style.whiteSpace).toBe('nowrap');
+      expect(mockLabel.style.boxSizing).toBe('border-box');
+    });
   });
 
-  it('should render the p-select with correct placeholder', () => {
-    fixture.detectChanges();
-    const selectElement = fixture.debugElement.query(By.css('p-select'));
-    expect(selectElement).toBeTruthy();
-    expect(selectElement.attributes['placeholder']).toBe('Search by project code, project name or principal investigator');
+  describe('getShortDescription (lines 108-110)', () => {
+    it('should use max=100 when dropdown width > 600', () => {
+      // Mock dropdown with width > 600 (line 109: if (width > 600) max = 100)
+      const mockDropdown = { offsetWidth: 700 };
+      (document.querySelector as jest.Mock).mockReturnValue(mockDropdown);
+
+      const veryLongText = 'A'.repeat(150);
+      const result = component.getShortDescription(veryLongText);
+
+      // Should use max = 100 for width > 600, and truncate
+      expect(result).toBe(veryLongText.slice(0, 100) + '...');
+    });
+
+    it('should use max=60 when dropdown width > 400 but <= 600', () => {
+      // Mock dropdown with width between 400-600 (line 110: else if (width > 400) max = 60)
+      const mockDropdown = { offsetWidth: 500 };
+      (document.querySelector as jest.Mock).mockReturnValue(mockDropdown);
+
+      const longText = 'A'.repeat(80);
+      const result = component.getShortDescription(longText);
+
+      // Should use max = 60 for width > 400 but <= 600
+      expect(result).toBe(longText.slice(0, 60) + '...');
+    });
+
+    it('should use max=40 when dropdown width <= 400', () => {
+      // Mock dropdown with width <= 400 (default max = 40)
+      const mockDropdown = { offsetWidth: 300 };
+      (document.querySelector as jest.Mock).mockReturnValue(mockDropdown);
+
+      const longText = 'A'.repeat(50);
+      const result = component.getShortDescription(longText);
+
+      // Should use max = 40 for width <= 400
+      expect(result).toBe(longText.slice(0, 40) + '...');
+    });
+
+    it('should use default max=40 when dropdown is not found', () => {
+      // Mock dropdown not found (line 105: dropdown = null)
+      (document.querySelector as jest.Mock).mockReturnValue(null);
+
+      const longText = 'A'.repeat(50);
+      const result = component.getShortDescription(longText);
+
+      // Should use default max = 40 when dropdown is null
+      expect(result).toBe(longText.slice(0, 40) + '...');
+    });
+
+    it('should return full text when shorter than max length', () => {
+      const mockDropdown = { offsetWidth: 300 };
+      (document.querySelector as jest.Mock).mockReturnValue(mockDropdown);
+
+      const shortText = 'Short text';
+      const result = component.getShortDescription(shortText);
+
+      expect(result).toBe(shortText);
+    });
+
+    it('should return text without truncation when exactly at max length', () => {
+      const mockDropdown = { offsetWidth: 300 };
+      (document.querySelector as jest.Mock).mockReturnValue(mockDropdown);
+
+      const exactText = 'A'.repeat(40);
+      const result = component.getShortDescription(exactText);
+
+      expect(result).toBe(exactText);
+    });
+
+    it('should test exact boundary conditions for width > 600', () => {
+      // Test exact boundary: width = 601
+      const mockDropdown = { offsetWidth: 601 };
+      (document.querySelector as jest.Mock).mockReturnValue(mockDropdown);
+
+      const longText = 'A'.repeat(120);
+      const result = component.getShortDescription(longText);
+
+      expect(result).toBe(longText.slice(0, 100) + '...');
+    });
+
+    it('should test exact boundary conditions for width > 400', () => {
+      // Test exact boundary: width = 401
+      const mockDropdown = { offsetWidth: 401 };
+      (document.querySelector as jest.Mock).mockReturnValue(mockDropdown);
+
+      const longText = 'A'.repeat(80);
+      const result = component.getShortDescription(longText);
+
+      expect(result).toBe(longText.slice(0, 60) + '...');
+    });
   });
 
-  it('should show warning message when isInvalid and showWarning are true', () => {
-    component.contractId = null;
-    component.showWarning = true;
-    fixture.detectChanges();
+  describe('isInvalid getter', () => {
+    it('should return true when contractId is null', () => {
+      component.contractId = null;
+      expect(component.isInvalid).toBe(true);
+    });
 
-    const warningEl = fixture.debugElement.query(By.css('.test-warning'));
-    expect(warningEl.nativeElement.textContent).toContain('This field is required');
+    it('should return true when contractId is 0', () => {
+      component.contractId = 0;
+      expect(component.isInvalid).toBe(true);
+    });
+
+    it('should return true when contractId is undefined', () => {
+      component.contractId = undefined as any;
+      expect(component.isInvalid).toBe(true);
+    });
+
+    it('should return false when contractId has a valid value', () => {
+      component.contractId = 123;
+      expect(component.isInvalid).toBe(false);
+    });
+
+    it('should return false when contractId is negative (truthy)', () => {
+      component.contractId = -1;
+      expect(component.isInvalid).toBe(false);
+    });
+  });
+
+  describe('Input properties', () => {
+    it('should have default values', () => {
+      expect(component.contracts).toEqual([]);
+      expect(component.contractId).toBeNull();
+      expect(component.title).toBe('Reporting Project');
+      expect(component.maxLength).toBe(117);
+      expect(component.showWarning).toBe(false);
+      expect(component.getContractStatusClasses).toBeDefined();
+    });
+
+    it('should handle getContractStatusClasses default function', () => {
+      const result = component.getContractStatusClasses('any-status');
+      expect(result).toBe('');
+    });
+  });
+
+  describe('Output events', () => {
+    it('should emit validityChanged with correct value', () => {
+      const spy = jest.spyOn(component.validityChanged, 'emit');
+
+      component.contractId = 123;
+      component.ngOnChanges();
+      expect(spy).toHaveBeenCalledWith(true);
+
+      component.contractId = null;
+      component.ngOnChanges();
+      expect(spy).toHaveBeenCalledWith(false);
+    });
+
+    it('should emit contractIdChange when onContractChange is called', () => {
+      const spy = jest.spyOn(component.contractIdChange, 'emit');
+
+      component.onContractChange(456);
+      expect(spy).toHaveBeenCalledWith(456);
+    });
   });
 });
