@@ -144,7 +144,7 @@
         </td>
         <td><app-table-indicator-item [indicators]="item.indicators" /></td>
         <td>
-          <div class="flex gap-2">
+          <div class="flex gap-2 justify-end">
             @if (item.editing) {
               <p-button
                 (click)="saveEditingLevel2(item)"
@@ -165,6 +165,15 @@
                 size="small">
               </p-button>
             } @else {
+              <p-button
+                (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel2: item })"
+                icon="pi pi-chart-line"
+                pTooltip="Map indicators"
+                tooltipPosition="left"
+                severity="primary"
+                [text]="true"
+                size="small">
+              </p-button>
               <p-button
                 (click)="changeEditingLevel2(item)"
                 icon="pi pi-pencil"
