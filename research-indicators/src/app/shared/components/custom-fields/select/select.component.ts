@@ -1,5 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, computed, effect, inject, Input, OnInit, signal, WritableSignal, TemplateRef, ContentChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  Input,
+  OnInit,
+  signal,
+  WritableSignal,
+  TemplateRef,
+  ContentChild,
+  AfterContentInit
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ControlListServices } from '../../../interfaces/services.interface';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
@@ -18,7 +30,7 @@ import { NgTemplateOutlet } from '@angular/common';
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss'
 })
-export class SelectComponent implements OnInit {
+export class SelectComponent implements OnInit, AfterContentInit {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;
   utils = inject(UtilsService);
   @Input() signal: WritableSignal<any> = signal({});
@@ -34,10 +46,14 @@ export class SelectComponent implements OnInit {
   @Input() scrollHeight = '270px';
   @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
+  @Input() hideSelected = true;
+  @Input() textSpan = '';
 
-  @ContentChild('itemTemplate') itemTemplate?: TemplateRef<any>;
+  @ContentChild('item') itemTemplate?: TemplateRef<any>;
   @ContentChild('selectedItemTemplate') selectedItemTemplate?: TemplateRef<any>;
+  @ContentChild('selectedItems') selectedItemsTemplate?: TemplateRef<any>;
   @ContentChild('headerTemplate') headerTemplate?: TemplateRef<any>;
+  @ContentChild('rows') rowsTemplate?: TemplateRef<any>;
 
   allModalsService = inject(AllModalsService);
 
@@ -47,6 +63,12 @@ export class SelectComponent implements OnInit {
 
   isInvalid = computed(() => {
     return this.isRequired && !this.body()?.value;
+  });
+
+  selectedOption = computed(() => {
+    const selectedValue = this.body()?.value;
+    if (!selectedValue) return null;
+    return this.service?.list()?.find((item: any) => item[this.optionValue.option] === selectedValue);
   });
 
   constructor(private serviceLocator: ServiceLocatorService) {}
@@ -64,6 +86,16 @@ export class SelectComponent implements OnInit {
 
   ngOnInit(): void {
     this.service = this.serviceLocator.getService(this.serviceName);
+  }
+
+  ngAfterContentInit(): void {
+    console.warn('SelectComponent - Templates found:', {
+      itemTemplate: !!this.itemTemplate,
+      selectedItemTemplate: !!this.selectedItemTemplate,
+      selectedItemsTemplate: !!this.selectedItemsTemplate,
+      headerTemplate: !!this.headerTemplate,
+      rowsTemplate: !!this.rowsTemplate
+    });
   }
 
   onFilter(event: any) {
