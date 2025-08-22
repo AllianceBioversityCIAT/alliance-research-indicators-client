@@ -9,65 +9,82 @@
 
       @if (activeRoute === 'structure') {
         <!-- Tree Structure Visualization -->
-        <div class="tree-container bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-            <i class="pi pi-sitemap mr-2 text-blue-500"></i>
-            Project Hierarchy
-          </h3>
+        <div class="tree-container bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+          <div class="flex items-center">
+            <h3 class="text-sm font-medium text-gray-600 flex items-center mr-4 flex-shrink-0">
+              <i class="pi pi-sitemap mr-2 text-blue-400" style="font-size: 12px"></i>
+              Hierarchy
+            </h3>
+            <div class="flex-1 h-px bg-gray-200 mr-4"></div>
 
-          <div class="tree-structure space-y-2">
-            <!-- Level 1: Structure -->
-            <div class="level-1 flex items-center">
-              <div class="flex items-center text-blue-600 font-medium">
-                <i class="pi pi-folder mr-2 text-lg"></i>
+            <div class="tree-structure space-y-1 flex-shrink-0">
+              <!-- Level 1: Structure -->
+              <div class="level-1 flex items-center">
+                <div class="flex items-center text-blue-600 font-medium">
+                  <i class="pi pi-folder mr-2" style="font-size: 12px"></i>
 
-                @if (setUpProjectService.editingLevel1()) {
-                  <div class="flex items-center">
-                    <input
-                      #level1Input
-                      type="text"
-                      [value]="setUpProjectService.level1Name()"
-                      class="text-sm bg-white border border-blue-300 rounded px-2 py-1 mr-2 focus:outline-none focus:border-blue-500"
-                      (keyup.enter)="setUpProjectService.saveLevel1Name(level1Input.value)"
-                      (blur)="setUpProjectService.saveLevel1Name(level1Input.value)"
-                      (keyup.escape)="setUpProjectService.cancelEditingLevel1()" />
-                    <i class="pi pi-check text-green-500 cursor-pointer mr-1" (click)="setUpProjectService.saveLevel1Name(level1Input.value)"></i>
-                    <i class="pi pi-times text-red-500 cursor-pointer" (click)="setUpProjectService.cancelEditingLevel1()"></i>
-                  </div>
-                } @else {
-                  <span class="text-sm">{{ setUpProjectService.level1Name() }}</span>
-                  <i
-                    class="pi pi-pencil ml-2 text-blue-400 cursor-pointer hover:text-blue-600"
-                    (click)="setUpProjectService.startEditingLevel1()"></i>
-                }
+                  @if (setUpProjectService.editingLevel1()) {
+                    <div class="flex items-center">
+                      <input
+                        #level1Input
+                        type="text"
+                        [value]="setUpProjectService.level1Name()"
+                        class="text-sm bg-white border border-blue-300 rounded px-2 py-1 mr-2 focus:outline-none focus:border-blue-500"
+                        (keyup.enter)="setUpProjectService.saveLevel1Name(level1Input.value)"
+                        (blur)="setUpProjectService.saveLevel1Name(level1Input.value)"
+                        (keyup.escape)="setUpProjectService.cancelEditingLevel1()" />
+                      <i
+                        class="pi pi-check text-green-500 cursor-pointer mr-1"
+                        style="font-size: 12px"
+                        (click)="setUpProjectService.saveLevel1Name(level1Input.value)"></i>
+                      <i
+                        class="pi pi-times text-red-500 cursor-pointer"
+                        style="font-size: 12px"
+                        (click)="setUpProjectService.cancelEditingLevel1()"></i>
+                    </div>
+                  } @else {
+                    <span class="text-sm">{{ setUpProjectService.level1Name() }}</span>
+                    <i
+                      class="pi pi-pencil ml-2 text-blue-400 cursor-pointer hover:text-blue-600"
+                      style="font-size: 12px"
+                      (click)="setUpProjectService.startEditingLevel1()"></i>
+                  }
+                </div>
               </div>
-            </div>
 
-            <!-- Level 2: Items (nested under structure) -->
-            <div class="level-2 ml-6 flex items-center">
-              <div class="flex items-center text-gray-800">
-                <div class="tree-connector w-4 h-px bg-gray-400 mr-2"></div>
-                <i class="pi pi-folder mr-2"></i>
+              <!-- Level 2: Items (nested under structure) -->
+              <div class="level-2 ml-4 flex items-center">
+                <div class="flex items-center text-gray-800">
+                  <div class="tree-connector w-4 h-px bg-gray-400 mr-2"></div>
+                  <i class="pi pi-folder mr-2" style="font-size: 12px"></i>
 
-                @if (setUpProjectService.editingLevel2()) {
-                  <div class="flex items-center">
-                    <input
-                      #level2Input
-                      type="text"
-                      [value]="setUpProjectService.level2Name()"
-                      class="text-sm bg-white border border-gray-300 rounded px-2 py-1 mr-2 focus:outline-none focus:border-gray-500"
-                      (keyup.enter)="setUpProjectService.saveLevel2Name(level2Input.value)"
-                      (blur)="setUpProjectService.saveLevel2Name(level2Input.value)"
-                      (keyup.escape)="setUpProjectService.cancelEditingLevel2()" />
-                    <i class="pi pi-check text-green-500 cursor-pointer mr-1" (click)="setUpProjectService.saveLevel2Name(level2Input.value)"></i>
-                    <i class="pi pi-times text-red-500 cursor-pointer" (click)="setUpProjectService.cancelEditingLevel2()"></i>
-                  </div>
-                } @else {
-                  <span class="text-sm">{{ setUpProjectService.level2Name() }}</span>
-                  <i
-                    class="pi pi-pencil ml-2 text-blue-400 cursor-pointer hover:text-blue-600"
-                    (click)="setUpProjectService.startEditingLevel2()"></i>
-                }
+                  @if (setUpProjectService.editingLevel2()) {
+                    <div class="flex items-center">
+                      <input
+                        #level2Input
+                        type="text"
+                        [value]="setUpProjectService.level2Name()"
+                        class="text-sm bg-white border border-gray-300 rounded px-2 py-1 mr-2 focus:outline-none focus:border-gray-500"
+                        (keyup.enter)="setUpProjectService.saveLevel2Name(level2Input.value)"
+                        (blur)="setUpProjectService.saveLevel2Name(level2Input.value)"
+                        (keyup.escape)="setUpProjectService.cancelEditingLevel2()" />
+                      <i
+                        class="pi pi-check text-green-500 cursor-pointer mr-1"
+                        style="font-size: 12px"
+                        (click)="setUpProjectService.saveLevel2Name(level2Input.value)"></i>
+                      <i
+                        class="pi pi-times text-red-500 cursor-pointer"
+                        style="font-size: 12px"
+                        (click)="setUpProjectService.cancelEditingLevel2()"></i>
+                    </div>
+                  } @else {
+                    <span class="text-sm">{{ setUpProjectService.level2Name() }}</span>
+                    <i
+                      class="pi pi-pencil ml-2 text-blue-400 cursor-pointer hover:text-blue-600"
+                      style="font-size: 12px"
+                      (click)="setUpProjectService.startEditingLevel2()"></i>
+                  }
+                </div>
               </div>
             </div>
           </div>
