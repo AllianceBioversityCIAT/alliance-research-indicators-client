@@ -10,11 +10,31 @@
     [tableStyle]="{ 'min-width': '70rem' }">
     <ng-template #header>
       <tr>
-        <th class="w-[15%]"></th>
-        <th class="w-[15%]">Code</th>
-        <th class="w-[20%]">name</th>
-        <th class="w-[30%]">indicators</th>
-        <th class="w-[20%]">actions</th>
+        <th class="w-[15%]">{{ setUpProjectService.level2Name() }} group</th>
+        <th class="w-[15%]">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-hashtag text-blue-600 text-xs"></i>
+            <span class="text-gray-700">Code</span>
+          </div>
+        </th>
+        <th class="w-[20%]">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-bookmark text-blue-600 text-xs"></i>
+            <span class="text-gray-700">Name</span>
+          </div>
+        </th>
+        <th class="w-[30%]">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-chart-line text-blue-600 text-xs"></i>
+            <span class="text-gray-700">Indicators</span>
+          </div>
+        </th>
+        <th class="w-[30%]">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-cog text-blue-600 text-xs"></i>
+            <span class="text-gray-700">Actions</span>
+          </div>
+        </th>
       </tr>
     </ng-template>
     <ng-template #groupheader let-customer let-i="rowIndex" let-rowIndex="rowIndex" let-expanded="expanded">
@@ -24,21 +44,36 @@
             <p-tag [value]="'New ' + setUpProjectService.level1Name()" icon="pi pi-sparkles" severity="success" />
           } @else {
             @if (customer.representative?.itemsCount) {
-              <button
-                [attr.isExpanded]="expanded ? 1 : 0"
-                [id]="'toggle-row-' + customer.representative.id"
-                type="button"
-                pButton
-                pRipple
-                [pRowToggler]="customer"
-                text
-                rounded
-                [label]="customer.representative?.itemsCount"
-                plain
-                class="mr-2 cursor-pointer"
-                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
-                <span class="sr-only">Toggle row</span>
-              </button>
+              <div class="flex items-center">
+                <button
+                  [attr.isExpanded]="expanded ? 1 : 0"
+                  [id]="'toggle-row-' + customer.representative.id"
+                  type="button"
+                  pButton
+                  pRipple
+                  [pRowToggler]="customer"
+                  text
+                  rounded
+                  [label]="customer.representative?.itemsCount"
+                  plain
+                  class="mr-2 cursor-pointer"
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                  <span class="sr-only">Toggle row</span>
+                </button>
+                <!-- <div class="text-sm">{{ setUpProjectService.level2Name() }}</div> -->
+                @if (!customer.representative.editing && !setUpProjectService.editingFocus()) {
+                  <p-button
+                    (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)"
+                    icon="pi pi-plus"
+                    [pTooltip]="'Add ' + setUpProjectService.level2Name() + ' item'"
+                    tooltipPosition="right"
+                    severity="primary"
+                    label="Add"
+                    size="small"
+                    [style]="{ 'white-space': 'nowrap' }">
+                  </p-button>
+                }
+              </div>
             }
           }
         </td>
@@ -84,15 +119,6 @@
                   size="small">
                 </p-button>
               } @else {
-                <p-button
-                  (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)"
-                  icon="pi pi-plus"
-                  [pTooltip]="'Add ' + setUpProjectService.level2Name()"
-                  tooltipPosition="left"
-                  severity="primary"
-                  [text]="true"
-                  size="small">
-                </p-button>
                 <!-- <p-button
                 (onClick)="setUpProjectService.assignIndicatorsModal.set({ show: true, targetLevel1: customer.representative })"
                 icon="pi pi-chart-line"
@@ -128,7 +154,19 @@
     </ng-template>
     <ng-template #groupfooter let-customer>
       <tr class="p-rowgroup-footer">
-        <td colspan="5" style="text-align: center">Total {{ setUpProjectService.level2Name() }}: {{ customer.representative.itemsCount }}</td>
+        <td colspan="5" style="text-align: center">
+          <div class="flex justify-center items-center gap-4">
+            <span> Total {{ setUpProjectService.level2Name() }}: {{ customer.representative.itemsCount }}</span>
+            <p-button
+              (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)"
+              icon="pi pi-plus"
+              severity="primary"
+              [label]="'Add'"
+              size="small"
+              [style]="{ 'white-space': 'nowrap' }">
+            </p-button>
+          </div>
+        </td>
       </tr>
     </ng-template>
     <ng-template #expandedrow let-item>

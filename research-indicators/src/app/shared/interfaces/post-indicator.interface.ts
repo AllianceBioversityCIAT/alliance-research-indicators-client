@@ -9,5 +9,6 @@ export interface PostIndicator {
   baseline: number;
   agreement_id: number;
   code: string;
+  type?: string;
   id?: number | string | null;
 }

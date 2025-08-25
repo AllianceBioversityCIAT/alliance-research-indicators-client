@@ -6,7 +6,7 @@
   [header]="editingMode ? 'Edit Indicator' : 'Create New Indicator'"
   [modal]="true"
   [closable]="true"
-  [style]="{ width: '800px', maxHeight: '90vh' }"
+  [style]="{ minWidth: '800px', width: '1100px', maxHeight: '90vh' }"
   [draggable]="false">
   <div class="indicator-form">
     @if (setUpProjectService.manageIndicatorModal().assignModal) {
@@ -57,13 +57,27 @@
     }
 
     <div class="grid grid-cols-1 gap-3 mb-4">
-      <div>
-        <label for="ind-code" class="block text-sm font-medium text-gray-700 mb-2">Code *</label>
-        <input id="ind-code" pInputText [(ngModel)]="form().code" placeholder="Indicator code" class="w-full" />
-      </div>
-      <div>
-        <label for="ind-name" class="block text-sm font-medium text-gray-700 mb-2">Statement *</label>
-        <input id="ind-name" pInputText [(ngModel)]="form().name" placeholder="Indicator name" class="w-full" />
+      <div class="grid grid-cols-5 gap-3">
+        <div class="col-span-1">
+          <label for="ind-indicator-type" class="block text-sm font-medium text-gray-700 mb-2">Indicator Type *</label>
+          <p-select
+            id="ind-indicator-type"
+            [(ngModel)]="form().type"
+            [options]="indicatorTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select indicator type"
+            class="w-full">
+          </p-select>
+        </div>
+        <div class="col-span-1">
+          <label for="ind-code" class="block text-sm font-medium text-gray-700 mb-2">Code *</label>
+          <input id="ind-code" pInputText [(ngModel)]="form().code" placeholder="Indicator code" class="w-full" />
+        </div>
+        <div class="col-span-3">
+          <label for="ind-name" class="block text-sm font-medium text-gray-700 mb-2">Statement *</label>
+          <input id="ind-name" pInputText [(ngModel)]="form().name" placeholder="Indicator name" class="w-full" />
+        </div>
       </div>
 
       <!-- <div>
@@ -135,7 +149,7 @@
             id="ind-baseline"
             [(ngModel)]="form().baseline"
             [minFractionDigits]="form().numberFormat === 'decimal' ? 1 : 0"
-            [maxFractionDigits]="form().numberFormat === 'decimal' ? 6 : 0"
+            [maxFractionDigits]="form().numberFormat === 'decimal' ? 4 : 0"
             placeholder="Baseline value"
             class="w-full"></p-inputNumber>
         </div>
@@ -145,7 +159,7 @@
             id="ind-target"
             [(ngModel)]="form().targetValue"
             [minFractionDigits]="form().numberFormat === 'decimal' ? 1 : 0"
-            [maxFractionDigits]="form().numberFormat === 'decimal' ? 6 : 0"
+            [maxFractionDigits]="form().numberFormat === 'decimal' ? 4 : 0"
             placeholder="Target value"
             class="w-full"></p-inputNumber>
         </div>
@@ -155,7 +169,13 @@
 
   <div class="flex justify-end gap-2 pt-3 border-t border-gray-200">
     <p-button label="Cancel" severity="secondary" size="small" pTooltip="Cancel indicator creation" (onClick)="close()"> </p-button>
-    <p-button [label]="(editingMode ? 'Update' : 'Create') + ' Indicator'" size="small" pTooltip="Save and create new indicator" (onClick)="save()">
+    <p-button
+      [label]="(editingMode ? 'Update' : 'Create') + ' Indicator'"
+      size="small"
+      [loading]="loading()"
+      pTooltip="Save and create new indicator"
+      (onClick)="save()"
+      [disabled]="formIsInvalid() || loading()">
     </p-button>
   </div>
 </p-dialog>

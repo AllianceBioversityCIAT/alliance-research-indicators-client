@@ -9,6 +9,7 @@ export interface GetIndicators {
   baseline: string;
   years: number[];
   code: string;
+  type?: string;
   //auxiliary fields
   adding?: boolean;
 }

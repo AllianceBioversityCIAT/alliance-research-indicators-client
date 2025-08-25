@@ -6,21 +6,23 @@
     </div>
 
     <div class="flex items-center gap-2">
-      @if (setUpProjectService.isCardsView()) {
-        <p-button
-          severity="contrast"
-          icon="pi pi-plus"
-          [label]="'Add ' + setUpProjectService.level1Name()"
-          size="small"
-          (onClick)="setUpProjectService.showCreateStructure.set(true)">
-        </p-button>
-      } @else {
-        <p-button
-          (click)="addStructure()"
-          icon="pi pi-plus"
-          severity="contrast"
-          size="small"
-          [label]="'Add ' + this.setUpProjectService.level1Name()" />
+      @if (!setUpProjectService.editingFocus()) {
+        @if (setUpProjectService.isCardsView()) {
+          <p-button
+            severity="contrast"
+            icon="pi pi-plus"
+            [label]="'Add ' + setUpProjectService.level1Name()"
+            size="small"
+            (onClick)="setUpProjectService.showCreateStructure.set(true)">
+          </p-button>
+        } @else {
+          <p-button
+            (click)="addStructure()"
+            icon="pi pi-plus"
+            severity="contrast"
+            size="small"
+            [label]="'Add ' + this.setUpProjectService.level1Name()" />
+        }
       }
     </div>
 

@@ -42,6 +42,7 @@
           [signal]="body"
           textSpan="Select the required contributing indicators for this result."
           optionLabel="name"
+          placeholder="Select contributing indicators"
           optionValue="id"
           signalOptionValue="selectedIndicators"
           [isRequired]="false"
@@ -51,75 +52,82 @@
           [disabledSelectedScroll]="true"
           serviceName="getProjectIndicatorsHierarchy">
           <ng-template #item let-item>
-            <div class="flex gap-4 p-3 hover:bg-gray-50 border-b border-gray-100 transition-colors duration-200">
-              <!-- Left section: Main info -->
-              <div class="flex-1 min-w-0">
-                <!-- Header with name and code -->
-                <div class="flex items-center gap-2 mb-2">
-                  <h3 class="font-semibold text-gray-900 text-sm leading-tight truncate">{{ item.name }}</h3>
-                  <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-md font-medium text-xs shrink-0">{{ item.code }}</span>
-                  @if (item.type) {
-                    <span class="text-gray-400 text-xs">•</span>
-                    <span class="capitalize text-xs text-gray-500">{{ item.type }}</span>
-                  }
-                </div>
-
-                <!-- Description -->
-                @if (item.description) {
-                  <p class="text-xs text-gray-600 leading-relaxed mb-2 line-clamp-2">{{ item.description }}</p>
-                }
-
-                <!-- Hierarchy breadcrumb -->
-                <div class="flex items-center gap-1 text-xs">
-                  <span class="text-gray-500 font-medium shrink-0">Path:</span>
-                  @if (item.group_item?.parent_item?.name) {
-                    <span class="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded text-[10px] shrink-0">{{
-                      item.group_item.parent_item.name
-                    }}</span>
-                    <i class="pi pi-angle-right text-gray-400 text-[8px]"></i>
-                  }
-                  @if (item.group_item?.name) {
-                    <span class="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] shrink-0">{{ item.group_item.name }}</span>
-                    <i class="pi pi-angle-right text-gray-400 text-[8px]"></i>
-                  }
-                  <span class="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded text-[10px] truncate">{{ item.name }}</span>
-                </div>
+            <div class="p-3 hover:bg-gray-50 border-b border-gray-100 transition-colors duration-200 space-y-2">
+              <!-- Title section - full width -->
+              <div class="flex items-center gap-3">
+                <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-md font-medium text-xs shrink-0">{{ item.code }}</span>
+                <h3 class="font-semibold text-gray-900 text-sm leading-tight flex-1">{{ item.name }}</h3>
               </div>
 
-              <!-- Right section: Metadata -->
-              <div class="w-64 shrink-0 text-xs space-y-1">
-                <div class="grid grid-cols-2 gap-x-3 gap-y-1">
-                  <div class="flex justify-between">
-                    <span class="text-gray-500">Unit:</span>
-                    <span class="font-medium text-gray-900 truncate">{{ item.targetUnit || 'N/A' }}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-gray-500">Target:</span>
-                    <span class="font-medium text-gray-900">{{ item.targetValue || 'N/A' }}</span>
-                  </div>
+              <!-- Description -->
+              @if (item.description) {
+                <p class="text-xs text-gray-600 leading-relaxed line-clamp-2">{{ item.description }}</p>
+              }
+
+              <!-- Hierarchy breadcrumb -->
+              <div class="flex items-center gap-1 text-xs">
+                <span class="text-gray-500 font-medium shrink-0">Path:</span>
+                @if (item.group_item?.parent_item?.name) {
+                  <span
+                    [pTooltip]="item.group_item.parent_item.name"
+                    tooltipPosition="right"
+                    class="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded text-[10px] shrink-0"
+                    >{{ item.group_item.parent_item.code }}</span
+                  >
+                  <i class="pi pi-angle-right text-gray-400 text-[8px]"></i>
+                }
+                @if (item.group_item?.name) {
+                  <span
+                    [pTooltip]="item.group_item.name"
+                    tooltipPosition="right"
+                    class="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] shrink-0"
+                    >{{ item.group_item.code }}</span
+                  >
+                  <i class="pi pi-angle-right text-gray-400 text-[8px]"></i>
+                }
+                <span
+                  [pTooltip]="item.name"
+                  tooltipPosition="right"
+                  class="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded text-[10px] truncate"
+                  >{{ item.code }}</span
+                >
+              </div>
+
+              <!-- Metadata chips - horizontal scroll -->
+              <div class="overflow-x-auto">
+                <div class="flex gap-1 text-xs pb-1">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
+                    <strong>Unit:</strong>&nbsp;{{ item.targetUnit || 'N/A' }}
+                  </span>
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
+                    <strong>Target:</strong>&nbsp;{{ item.targetValue || 'N/A' }}
+                  </span>
                   @if (item.baseLine) {
-                    <div class="flex justify-between">
-                      <span class="text-gray-500">Baseline:</span>
-                      <span class="font-medium text-gray-900">{{ item.baseLine }}</span>
-                    </div>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
+                      <strong>Baseline:</strong>&nbsp;{{ item.baseLine }}
+                    </span>
                   }
                   @if (item.numberType) {
-                    <div class="flex justify-between">
-                      <span class="text-gray-500">Type:</span>
-                      <span class="font-medium text-gray-900 capitalize">{{ item.numberType }}</span>
-                    </div>
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap capitalize">
+                      <strong>Type:</strong>&nbsp;{{ item.numberType }}
+                    </span>
                   }
                   @if (item.numberFormat) {
-                    <div class="flex justify-between">
-                      <span class="text-gray-500">Format:</span>
-                      <span class="font-medium text-gray-900 text-[10px]">{{ item.numberFormat }}</span>
-                    </div>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
+                      <strong>Format:</strong>&nbsp;{{ item.numberFormat }}
+                    </span>
                   }
                   @if (item.year && item.year.length > 0) {
-                    <div class="flex justify-between col-span-2">
-                      <span class="text-gray-500">Years:</span>
-                      <span class="font-medium text-gray-900">{{ item.year.join(', ') }}</span>
-                    </div>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
+                      <strong>Years:</strong>&nbsp;{{ item.year.join(', ') }}
+                    </span>
+                  }
+                  @if (item.type) {
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap capitalize">
+                      <strong>Category:</strong>&nbsp;{{ item.type }}
+                    </span>
                   }
                 </div>
               </div>
@@ -127,77 +135,140 @@
           </ng-template>
 
           <ng-template #selectedItems let-value>
-            <div class="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
-              <i class="pi pi-check-circle text-blue-600 text-sm"></i>
-              <h3 class="font-medium text-blue-900 text-sm">Selected Indicators</h3>
-              <span class="bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs font-medium">
-                {{ this.body().selectedIndicators.length }}
-              </span>
-            </div>
+            <div>Selected Indicators: {{ this.body().selectedIndicators.length }}</div>
           </ng-template>
           <ng-template #rows let-indicator>
-            <div class="w-full bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-4">
-              <!-- Header section -->
-              <div class="flex flex-col gap-3 mb-4">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <h4 class="font-semibold text-gray-900 text-sm leading-tight mb-1">{{ indicator.name }}</h4>
-                    <div class="flex items-center gap-2 text-xs text-gray-500">
-                      @if (indicator.code) {
-                        <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-md font-medium">{{ indicator.code }}</span>
-                      }
-                      @if (indicator.type) {
-                        <span class="text-gray-400">•</span>
-                        <span class="capitalize">{{ indicator.type }}</span>
-                      }
-                    </div>
-                  </div>
-                </div>
+            <div class="w-full bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-4 space-y-3">
+              <!-- Title section - código a la izquierda -->
+              <div class="flex items-center gap-3">
+                <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-md font-medium text-xs shrink-0">{{ indicator.code }}</span>
+                <h4 class="font-semibold text-gray-900 text-sm leading-tight flex-1">{{ indicator.name }}</h4>
+              </div>
 
-                <!-- Description -->
-                @if (indicator.description) {
-                  <p class="text-xs text-gray-600 leading-relaxed bg-gray-50 p-2 rounded-md">{{ indicator.description }}</p>
+              <!-- Description -->
+              @if (indicator.description) {
+                <p class="text-xs text-gray-600 leading-relaxed line-clamp-2">{{ indicator.description }}</p>
+              }
+
+              <!-- Hierarchy breadcrumb -->
+              <div class="flex items-center gap-1 text-xs">
+                <span class="text-gray-500 font-medium shrink-0">Path:</span>
+                @if (indicator.group_item?.parent_item?.name) {
+                  <span
+                    [pTooltip]="indicator.group_item.parent_item.name"
+                    tooltipPosition="right"
+                    class="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded text-[10px] shrink-0"
+                    >{{ indicator.group_item.parent_item.code }}</span
+                  >
+                  <i class="pi pi-angle-right text-gray-400 text-[8px]"></i>
                 }
+                @if (indicator.group_item?.name) {
+                  <span
+                    [pTooltip]="indicator.group_item.name"
+                    tooltipPosition="right"
+                    class="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] shrink-0"
+                    >{{ indicator.group_item.code }}</span
+                  >
+                  <i class="pi pi-angle-right text-gray-400 text-[8px]"></i>
+                }
+                <span
+                  [pTooltip]="indicator.name"
+                  tooltipPosition="right"
+                  class="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded text-[10px] truncate"
+                  >{{ indicator.code }}</span
+                >
+              </div>
 
-                <!-- Hierarchy breadcrumb -->
-                <div class="flex items-center gap-2 pb-3 border-b border-gray-100">
-                  <span class="text-xs text-gray-500 font-medium">Hierarchy:</span>
-                  <div class="flex items-center gap-1 text-xs">
-                    @if (indicator.group_item?.parent_item?.name) {
-                      <span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md font-medium">{{ indicator.group_item.parent_item.name }}</span>
-                      <i class="pi pi-angle-right text-gray-400 text-[10px]"></i>
-                    }
-                    @if (indicator.group_item?.name) {
-                      <span class="bg-green-50 text-green-700 px-2 py-1 rounded-md font-medium">{{ indicator.group_item.name }}</span>
-                      <i class="pi pi-angle-right text-gray-400 text-[10px]"></i>
-                    }
-                    <span class="bg-orange-50 text-orange-700 px-2 py-1 rounded-md font-medium">{{ indicator.name }}</span>
-                  </div>
+              <!-- Metadata chips - horizontal scroll -->
+              <div class="overflow-x-auto">
+                <div class="flex gap-1 text-xs pb-1">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
+                    <strong>Unit:</strong>&nbsp;{{ indicator.targetUnit || 'N/A' }}
+                  </span>
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
+                    <strong>Target:</strong>&nbsp;{{ indicator.targetValue || 'N/A' }}
+                  </span>
+                  @if (indicator.baseLine) {
+                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
+                      <strong>Baseline:</strong>&nbsp;{{ indicator.baseLine }}
+                    </span>
+                  }
+                  @if (indicator.numberType) {
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap capitalize">
+                      <strong>Type:</strong>&nbsp;{{ indicator.numberType }}
+                    </span>
+                  }
+                  @if (indicator.numberFormat) {
+                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
+                      <strong>Format:</strong>&nbsp;{{ indicator.numberFormat }}
+                    </span>
+                  }
+                  @if (indicator.year && indicator.year.length > 0) {
+                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
+                      <strong>Years:</strong>&nbsp;{{ indicator.year.join(', ') }}
+                    </span>
+                  }
+                  @if (indicator.type) {
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap capitalize">
+                      <strong>Category:</strong>&nbsp;{{ indicator.type }}
+                    </span>
+                  }
                 </div>
               </div>
 
               <!-- Contribution input section -->
-              <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="flex items-center gap-4">
-                  <div class="flex-1">
-                    <label for="contribution-value-{{ indicator.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-                      Contribution Value
-                      <span class="text-gray-500 font-normal">({{ indicator.targetUnit || 'units' }})</span>
+              <div class="bg-gray-50 p-4 rounded-lg border-t border-gray-200">
+                <div class="mb-4">
+                  <p class="text-sm text-gray-600 mb-3">
+                    If this reported result does not contribute directly to the indicator, please enter the number 0. Otherwise, indicate the
+                    contribution of this result to the target.
+                  </p>
+
+                  <div class="flex items-center gap-3 mb-4">
+                    <input
+                      type="checkbox"
+                      [id]="'no-contribution-' + indicator.id"
+                      [checked]="indicator.contribution_value === 0"
+                      (change)="toggleContribution(indicator, $event)"
+                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
+                    <label [for]="'no-contribution-' + indicator.id" class="text-sm font-medium text-gray-700">
+                      This result does not contribute directly to this indicator
                     </label>
-                    <p-inputNumber
-                      [style]="{ width: '100%', maxWidth: '300px' }"
-                      [id]="'contribution-value-' + indicator.id"
-                      [(ngModel)]="indicator.contribution_value"
-                      [placeholder]="'Enter value in ' + (indicator.targetUnit || 'units')"
-                      class="w-full">
-                    </p-inputNumber>
                   </div>
-                  <div class="text-xs text-gray-500 space-y-1">
+                </div>
+
+                <div class="flex items-start gap-4">
+                  @if (indicator.contribution_value !== 0) {
+                    <div class="flex-1">
+                      <label for="contribution-value-{{ indicator.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Contribution Value
+                        <span class="text-gray-500 font-normal">({{ indicator.targetUnit || 'units' }})</span>
+                      </label>
+                      <p-inputNumber
+                        [style]="{ width: '100%', maxWidth: '300px' }"
+                        [id]="'contribution-value-' + indicator.id"
+                        [(ngModel)]="indicator.contribution_value"
+                        [minFractionDigits]="indicator.numberFormat === 'decimal' ? 1 : 0"
+                        [maxFractionDigits]="indicator.numberFormat === 'decimal' ? 4 : 0"
+                        [placeholder]="'Enter value in ' + (indicator.targetUnit || 'units')"
+                        class="w-full">
+                      </p-inputNumber>
+                    </div>
+                  }
+                  <div class="flex gap-2" [class.mt-8]="indicator.contribution_value !== 0">
                     @if (indicator.targetValue) {
-                      <div><span class="font-medium">Target:</span> {{ indicator.targetValue }}</div>
+                      <div class="bg-green-50 border border-green-200 px-3 py-2 rounded-md flex items-center gap-2">
+                        <span class="text-xs text-green-600 font-medium">Target:</span>
+                        <span class="text-sm font-semibold text-green-700">{{ indicator.targetValue }}</span>
+                      </div>
                     }
                     @if (indicator.baseLine) {
-                      <div><span class="font-medium">Baseline:</span> {{ indicator.baseLine }}</div>
+                      <div class="bg-blue-50 border border-blue-200 px-3 py-2 rounded-md flex items-center gap-2">
+                        <span class="text-xs text-blue-600 font-medium">Baseline:</span>
+                        <span class="text-sm font-semibold text-blue-700">{{ indicator.baseLine }}</span>
+                      </div>
                     }
                   </div>
                 </div>

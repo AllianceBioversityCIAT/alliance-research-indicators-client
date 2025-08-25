@@ -7,55 +7,61 @@
 
     @if (setUpProjectService.indicatorList().length > 0) {
       <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-        <p-table [value]="setUpProjectService.indicatorList()" [responsive]="true" styleClass="p-datatable-sm" [scrollable]="true">
+        <p-table
+          [value]="setUpProjectService.indicatorList()"
+          [responsive]="true"
+          styleClass="p-datatable-sm"
+          [scrollable]="true"
+          [tableStyle]="{ 'min-width': '70rem' }"
+          size="small">
           <ng-template pTemplate="header">
             <tr>
               <th class="text-center w-20">
                 <div class="flex items-center justify-center gap-2">
                   <i class="pi pi-hashtag text-blue-600 text-xs"></i>
-                  <span class="font-semibold text-gray-700">Code</span>
+                  <span class="text-gray-700">Code</span>
                 </div>
               </th>
-              <th class="text-left">
+              <th class="text-left max-w-[50%]">
                 <div class="flex items-center gap-2">
                   <i class="pi pi-bookmark text-blue-600 text-xs"></i>
-                  <span class="font-semibold text-gray-700">Statement</span>
+                  <span class="text-gray-700">Statement</span>
                 </div>
               </th>
               <th class="text-center">
                 <div class="flex items-center justify-center gap-2">
                   <i class="pi pi-cog text-blue-600 text-xs"></i>
-                  <span class="font-semibold text-gray-700">Type, Format & Unit</span>
+                  <span class="text-gray-700">Target Unit</span>
                 </div>
               </th>
               <th class="text-center">
                 <div class="flex items-center justify-center gap-2">
                   <i class="pi pi-calendar text-blue-600 text-xs"></i>
-                  <span class="font-semibold text-gray-700">Years</span>
+                  <span class="text-gray-700">Years</span>
                 </div>
               </th>
               <th class="text-center">
                 <div class="flex items-center justify-center gap-2">
                   <i class="pi pi-chart-line text-blue-600 text-xs"></i>
-                  <span class="font-semibold text-gray-700">Values</span>
+                  <span class="text-gray-700">Values</span>
                 </div>
               </th>
               <th class="text-center">
                 <div class="flex items-center justify-center gap-2">
                   <i class="pi pi-percentage text-green-600 text-xs"></i>
-                  <span class="font-semibold text-gray-700">Progress</span>
+                  <span class="text-gray-700">Progress</span>
                 </div>
               </th>
               <th class="text-center w-24">
                 <div class="flex items-center justify-center gap-2">
                   <i class="pi pi-cog text-blue-600 text-xs"></i>
-                  <span class="font-semibold text-gray-700">Actions</span>
+                  <span class="text-gray-700">Actions</span>
                 </div>
               </th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-indicator>
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr class="hover:bg-gray-50 transition-colors border-b border-gray-200">
               <td class="align-top text-center">
                 <div class="py-3">
                   @if (indicator.code) {
@@ -67,37 +73,13 @@
               </td>
               <td class="align-top">
                 <div class="py-3">
-                  <h4 class="text-sm font-semibold text-gray-800 mb-1 leading-tight">{{ indicator.name }}</h4>
+                  <h4 class="text-sm text-gray-800 mb-1 leading-tight">{{ indicator.name }}</h4>
                   <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed">{{ indicator.description }}</p>
                 </div>
               </td>
               <td class="align-top text-center">
                 <div class="py-3">
                   <div class="flex flex-wrap justify-center gap-1 max-w-xs mx-auto">
-                    <!-- Number Type -->
-                    <p-tag
-                      [value]="getNumberTypeLabel(indicator.numberType)"
-                      severity="secondary"
-                      styleClass="text-xs"
-                      pTooltip="Number Type: {{ getNumberTypeLabel(indicator.numberType) }}">
-                      <ng-template pTemplate>
-                        <i class="pi pi-calculator mr-1 text-xs"></i>
-                        {{ getNumberTypeLabel(indicator.numberType) }}
-                      </ng-template>
-                    </p-tag>
-
-                    <!-- Number Format -->
-                    <p-tag
-                      [value]="getNumberFormatLabel(indicator.numberFormat)"
-                      severity="info"
-                      styleClass="text-xs"
-                      pTooltip="Number Format: {{ getNumberFormatLabel(indicator.numberFormat) }}">
-                      <ng-template pTemplate>
-                        <i class="pi pi-hashtag mr-1 text-xs"></i>
-                        {{ getNumberFormatLabel(indicator.numberFormat) }}
-                      </ng-template>
-                    </p-tag>
-
                     <!-- Target Unit -->
                     @if (indicator.targetUnit) {
                       <p-tag
