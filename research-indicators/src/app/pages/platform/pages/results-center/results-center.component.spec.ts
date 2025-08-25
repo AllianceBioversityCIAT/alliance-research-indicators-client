@@ -1,253 +1,185 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterModule, ActivatedRoute } from '@angular/router';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { TabMenuModule } from 'primeng/tabmenu';
-import { Table, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { MenuModule } from 'primeng/menu';
-import { FormsModule } from '@angular/forms';
-import { signal, computed, Component } from '@angular/core';
-import { MultiSelectModule } from 'primeng/multiselect';
-
-import ResultsCenterComponent from './results-center.component';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
+import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
+import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
+import { ResultsCenterTableComponent } from './components/results-center-table/results-center-table.component';
 import { ResultsCenterService } from './results-center.service';
-import { GetResultsService } from '../../../../shared/services/control-list/get-results.service';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
+import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 import { ApiService } from '../../../../shared/services/api.service';
 import { ActionsService } from '../../../../shared/services/actions.service';
-
-// Mock components
-@Component({
-  selector: 'app-results-center-table',
-  template: '<div>Mock Results Center Table</div>'
-})
-class MockResultsCenterTableComponent {}
+import { MenuItem } from 'primeng/api';
 
 @Component({
-  selector: 'app-indicators-tab-filter',
-  template: '<div>Mock Indicators Tab Filter</div>'
+  selector: 'app-results-center',
+  imports: [
+    IndicatorsTabFilterComponent,
+    ResultsCenterTableComponent,
+    TableFiltersSidebarComponent,
+    TableConfigurationComponent,
+    SectionSidebarComponent
+  ],
+  templateUrl: './results-center.component.html',
+  styleUrls: ['./results-center.component.scss']
 })
-class MockIndicatorsTabFilterComponent {}
+export default class ResultsCenterComponent implements OnInit {
+  api = inject(ApiService);
+  resultsCenterService = inject(ResultsCenterService);
+  cache = inject(CacheService);
+  actions = inject(ActionsService);
 
-@Component({
-  selector: 'app-table-filters-sidebar',
-  template: '<div>Mock Table Filters Sidebar</div>'
-})
-class MockTableFiltersSidebarComponent {}
+  // Pin functionality
+  pinnedTab = signal<string>('all');
+  loadingPin = signal(false);
+  tableId = 'result-table';
 
-@Component({
-  selector: 'app-table-configuration',
-  template: '<div>Mock Table Configuration</div>'
-})
-class MockTableConfigurationComponent {}
-
-@Component({
-  selector: 'app-section-sidebar',
-  template: '<div>Mock Section Sidebar</div>'
-})
-class MockSectionSidebarComponent {}
-
-describe('ResultsComponent', () => {
-  let component: ResultsCenterComponent;
-  let fixture: ComponentFixture<ResultsCenterComponent>;
-  let resultsCenterService: ResultsCenterService;
-  let getResultsService: GetResultsService;
-
-  beforeEach(async () => {
-    const mockCacheService = {
-      windowHeight: signal(window.innerHeight),
-      hasSmallScreen: computed(() => window.innerHeight < 768),
-      headerHeight: signal(50),
-      navbarHeight: signal(50),
-      tableFiltersSidebarHeight: signal(50),
-      dataCache: signal({
-        access_token: 'mock_token',
-        user: { sec_user_id: 123 }
-      }),
-      isLoggedIn: signal(true),
-      currentResultIsLoading: signal(false),
-      currentResultIndicatorSectionPath: computed(() => ''),
-      toggleSidebar: jest.fn()
-    };
-
-    const mockApiService = {
-      GET_Configuration: jest.fn().mockResolvedValue({ data: { all: '1', self: '0' } }),
-      PATCH_Configuration: jest.fn().mockResolvedValue({}),
-      indicatorTabs: {
-        lazy: () => ({
-          list: signal([]),
-          isLoading: signal(false),
-          hasValue: signal(false)
-        })
-      }
-    };
-
-    const mockActionsService = {
-      showToast: jest.fn()
-    };
-
-    const mockResultsCenterService = {
-      api: mockApiService,
-      multiselectRefs: signal<Record<string, any>>({}),
-      resultsFilter: signal({
-        'indicator-codes': [],
-        'indicator-codes-filter': [],
-        'indicator-codes-tabs': [],
-        'lever-codes': [],
-        'create-user-codes': [],
-        'status-codes': [],
-        'contract-codes': [],
-        years: []
-      }),
-      showFiltersSidebar: signal(false),
-      showConfigurationsSidebar: signal(false),
-      applyFilters: jest.fn(),
-      clearAllFilters: jest.fn(),
-      cleanFilters: jest.fn(),
-      resetState: jest.fn(),
-      main: jest.fn(),
-      list: signal([]),
-      onActiveItemChange: jest.fn(),
-      myResultsFilterItem: signal(undefined),
-      myResultsFilterItems: [
-        { id: 'all', label: 'All Results' },
-        { id: 'my', label: 'My Results' }
-      ],
-      indicatorsTabFilterList: signal([]),
-      countFiltersSelected: computed(() => undefined),
-      countTableFiltersSelected: computed(() => undefined),
-      loading: signal(false),
-      tableColumns: signal([
+  orderedFilterItems = computed(() => {
+    const pinnedTab = this.pinnedTab();
+    if (pinnedTab === 'my') {
+      return [
         {
-          field: 'result_official_code',
-          header: 'Code',
-          path: 'result_official_code',
-          getValue: (result: any) => result.result_official_code,
-          hideIf: () => false,
-          hideFilterIf: () => false
+          id: 'my',
+          label: 'My Results'
         },
         {
-          field: 'title',
-          header: 'Title',
-          path: 'title',
-          getValue: (result: any) => result.title,
-          hideIf: () => false,
-          hideFilterIf: () => false
+          id: 'all',
+          label: 'All Results'
         }
-      ]),
-      getAllPathsAsArray: computed(() => ['result_official_code', 'title']),
-      tableFilters: signal({
-        indicators: []
-      }),
-      searchInput: signal(''),
-      tableRef: signal<Table | undefined>(undefined),
-      onSelectFilterTab: jest.fn(),
-      getActiveFilters: computed(() => []),
-      showFilterSidebar: jest.fn(),
-      showConfigSidebar: jest.fn(),
-      cleanMultiselects: jest.fn(),
-      resultsConfig: signal({}),
-      getResultsService: {
-        getInstance: jest.fn().mockResolvedValue(signal([]))
-      }
-    };
-
-    await TestBed.configureTestingModule({
-      imports: [
-        ResultsCenterComponent,
-        HttpClientTestingModule,
-        RouterModule,
-        BrowserAnimationsModule,
-        TabMenuModule,
-        TableModule,
-        ButtonModule,
-        InputTextModule,
-        TagModule,
-        MenuModule,
-        FormsModule,
-        MultiSelectModule,
-        MockResultsCenterTableComponent,
-        MockIndicatorsTabFilterComponent,
-        MockTableFiltersSidebarComponent,
-        MockTableConfigurationComponent,
-        MockSectionSidebarComponent
-      ],
-      providers: [
-        { provide: ResultsCenterService, useValue: mockResultsCenterService },
-        { provide: GetResultsService, useValue: {} },
-        { provide: CacheService, useValue: mockCacheService },
-        { provide: ApiService, useValue: mockApiService },
-        { provide: ActionsService, useValue: mockActionsService },
+      ];
+    } else {
+      return [
         {
-          provide: RouterModule,
-          useValue: {
-            navigate: jest.fn()
-          }
+          id: 'all',
+          label: 'All Results'
         },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              paramMap: {
-                get: jest.fn()
-              }
-            }
-          }
-        },
-        {
-          provide: MockSectionSidebarComponent,
-          useValue: {
-            showSignal: signal(false)
-          }
+          id: 'my',
+          label: 'My Results'
         }
-      ]
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(ResultsCenterComponent);
-    component = fixture.componentInstance;
-    resultsCenterService = TestBed.inject(ResultsCenterService);
-    fixture.detectChanges();
+      ];
+    }
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  ngOnInit(): void {
+    this.resultsCenterService.resetState();
+    this.loadPinnedTab();
+  }
 
-  it('should toggle sidebar', () => {
-    const initialValue = component.showSignal();
-    component.toggleSidebar();
-    expect(component.showSignal()).toBe(!initialValue);
-  });
+  showSignal = signal(false);
 
-  it('should apply filters', () => {
-    const spy = jest.spyOn(resultsCenterService, 'applyFilters');
-    component.applyFilters();
-    expect(spy).toHaveBeenCalled();
-  });
+  toggleSidebar() {
+    this.showSignal.update(value => !value);
+  }
 
-  it('should have showSignal initialized as false', () => {
-    expect(component.showSignal()).toBe(false);
-  });
+  applyFilters() {
+    this.resultsCenterService.applyFilters();
+  }
 
-  it('should toggle showSignal from false to true', () => {
-    expect(component.showSignal()).toBe(false);
-    component.toggleSidebar();
-    expect(component.showSignal()).toBe(true);
-  });
+  // Pin functionality methods
+  async loadPinnedTab() {
+    this.loadingPin.set(true);
+    const response = await this.api.GET_Configuration(this.tableId, 'tab');
+    if (response?.data) {
+      const pinValue = response.data as unknown as { all: string; self: string };
 
-  it('should toggle showSignal from true to false', () => {
-    component.showSignal.set(true);
-    expect(component.showSignal()).toBe(true);
-    component.toggleSidebar();
-    expect(component.showSignal()).toBe(false);
-  });
+      const allPinned = pinValue.all === '1';
+      const selfPinned = pinValue.self === '1';
 
-  it('should have injected services', () => {
-    expect(component.api).toBeDefined();
-    expect(component.resultsCenterService).toBeDefined();
-    expect(component.cache).toBeDefined();
-  });
-});
+      if (allPinned) {
+        this.pinnedTab.set('all');
+        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+        this.loadAllResults();
+      } else if (selfPinned) {
+        this.pinnedTab.set('my');
+        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
+        this.loadMyResults();
+      } else {
+        this.loadAllResults();
+      }
+    } else {
+      this.pinnedTab.set('all');
+      this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+      this.loadAllResults();
+    }
+    this.loadingPin.set(false);
+  }
+
+  onActiveItemChange = (event: MenuItem): void => {
+    this.resultsCenterService.myResultsFilterItem.set(event);
+    this.resultsCenterService.clearAllFilters();
+
+    if (event.id === 'my') {
+      this.loadMyResults();
+    } else {
+      this.loadAllResults();
+    }
+  };
+
+  loadMyResults() {
+    this.resultsCenterService.resultsFilter.update(() => ({
+      'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
+      'indicator-codes': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+    this.resultsCenterService.main();
+  }
+
+  loadAllResults() {
+    this.resultsCenterService.resultsFilter.update(() => ({
+      'create-user-codes': [],
+      'indicator-codes': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+    this.resultsCenterService.main();
+  }
+
+  async togglePin(tabId: string) {
+    try {
+      this.loadingPin.set(true);
+      const newPinnedTab = this.pinnedTab() === tabId ? 'all' : tabId;
+      const pinValue = newPinnedTab === 'all' ? { all: true, self: false } : { all: false, self: true };
+
+      await this.api.PATCH_Configuration(this.tableId, 'tab', pinValue);
+      this.pinnedTab.set(newPinnedTab);
+
+      if (newPinnedTab === 'all') {
+        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+      } else {
+        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
+      }
+
+      setTimeout(() => {
+        this.resultsCenterService.cleanMultiselects();
+      }, 0);
+    } catch (error) {
+      console.error('Error updating pinned tab:', error);
+    } finally {
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Results',
+        detail: `${tabId === 'all' ? 'All Results' : 'My Results'} tab pinned successfully`
+      });
+      this.loadingPin.set(false);
+      this.loadPinnedTab();
+    }
+  }
+
+  isPinned(tabId: string): boolean {
+    return this.pinnedTab() === tabId;
+  }
+
+  onPinIconClick(tabId: string, event: Event) {
+    event.stopPropagation();
+    this.togglePin(tabId);
+  }
+}

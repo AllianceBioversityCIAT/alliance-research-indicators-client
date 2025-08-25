@@ -107,6 +107,7 @@ export default class ResultsCenterComponent implements OnInit {
   onActiveItemChange = (event: MenuItem): void => {
     this.resultsCenterService.myResultsFilterItem.set(event);
     this.resultsCenterService.clearAllFilters();
+
     if (event.id === 'my') {
       this.loadMyResults();
     } else {
