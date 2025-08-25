@@ -35,6 +35,7 @@ export class StructureTableViewComponent {
     });
   };
   saveEditingLevel1 = (customer: IndicatorItem) => {
+    if (!this.level1NameInput || !this.level1CodeInput) return;
     this.setUpProjectService.structures.update(structures => {
       const structure = structures.find(s => s.id === customer.representative?.id);
       if (structure) {
@@ -63,6 +64,7 @@ export class StructureTableViewComponent {
     });
   };
   saveEditingLevel2 = (customer: IndicatorItem) => {
+    if (!this.level2NameInput || !this.level2CodeInput) return;
     this.setUpProjectService.structures.update(structures => {
       const item = structures.find(s => s.id === customer.representative?.id)?.items?.find(i => i.id === customer.id);
       if (item) {
@@ -132,6 +134,7 @@ export class StructureTableViewComponent {
       }
       return [...structures];
     });
+    this.cleanInputs();
   };
   cancelEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
@@ -150,5 +153,13 @@ export class StructureTableViewComponent {
       }
       return [...structures];
     });
+    this.cleanInputs();
+  };
+
+  cleanInputs = () => {
+    this.level1NameInput = '';
+    this.level1CodeInput = '';
+    this.level2NameInput = '';
+    this.level2CodeInput = '';
   };
 }
