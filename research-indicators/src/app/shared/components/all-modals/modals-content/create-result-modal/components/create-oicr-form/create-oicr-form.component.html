@@ -236,7 +236,7 @@
               placeholder="Select the initiatives">
               <ng-template #selectedItems let-value>
                 @if (value?.length > 0) {
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 block whitespace-normal break-words">
                     <span>{{ formatSelectedInitiatives(value) }}</span>
                   </div>
                 }
