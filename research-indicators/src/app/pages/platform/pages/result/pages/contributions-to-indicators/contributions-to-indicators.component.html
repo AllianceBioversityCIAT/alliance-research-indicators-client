@@ -42,6 +42,7 @@
           [signal]="body"
           textSpan="Select the required contributing indicators for this result."
           optionLabel="name"
+          placeholder="Select contributing indicators"
           optionValue="id"
           signalOptionValue="selectedIndicators"
           [isRequired]="false"
@@ -100,39 +101,33 @@
               </div>
 
               <!-- Right section: Metadata -->
-              <div class="w-60 shrink-0 text-xs space-y-1">
-                <div class="grid grid-cols-2 gap-x-3 gap-y-1">
-                  <div class="flex justify-between">
-                    <span class="text-gray-500">Unit:</span>
-                    <span class="font-medium text-gray-900 truncate">{{ item.targetUnit || 'N/A' }}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-gray-500">Target:</span>
-                    <span class="font-medium text-gray-900">{{ item.targetValue || 'N/A' }}</span>
-                  </div>
+              <div class="w-60 shrink-0 text-xs max-h-24 overflow-y-auto">
+                <div class="flex flex-wrap gap-1">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200">
+                    <strong>Unit:</strong>&nbsp;{{ item.targetUnit || 'N/A' }}
+                  </span>
+                  <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200">
+                    <strong>Target:</strong>&nbsp;{{ item.targetValue || 'N/A' }}
+                  </span>
                   @if (item.baseLine) {
-                    <div class="flex justify-between">
-                      <span class="text-gray-500">Baseline:</span>
-                      <span class="font-medium text-gray-900">{{ item.baseLine }}</span>
-                    </div>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200">
+                      <strong>Baseline:</strong>&nbsp;{{ item.baseLine }}
+                    </span>
                   }
                   @if (item.numberType) {
-                    <div class="flex justify-between">
-                      <span class="text-gray-500">Type:</span>
-                      <span class="font-medium text-gray-900 capitalize">{{ item.numberType }}</span>
-                    </div>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200 capitalize">
+                      <strong>Type:</strong>&nbsp;{{ item.numberType }}
+                    </span>
                   }
                   @if (item.numberFormat) {
-                    <div class="flex justify-between">
-                      <span class="text-gray-500">Format:</span>
-                      <span class="font-medium text-gray-900 text-[10px]">{{ item.numberFormat }}</span>
-                    </div>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200">
+                      <strong>Format:</strong>&nbsp;{{ item.numberFormat }}
+                    </span>
                   }
                   @if (item.year && item.year.length > 0) {
-                    <div class="flex justify-between col-span-2">
-                      <span class="text-gray-500">Years:</span>
-                      <span class="font-medium text-gray-900">{{ item.year.join(', ') }}</span>
-                    </div>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200">
+                      <strong>Years:</strong>&nbsp;{{ item.year.join(', ') }}
+                    </span>
                   }
                 </div>
               </div>
@@ -140,13 +135,7 @@
           </ng-template>
 
           <ng-template #selectedItems let-value>
-            <div class="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
-              <i class="pi pi-check-circle text-blue-600 text-sm"></i>
-              <h3 class="font-medium text-blue-900 text-sm">Selected Indicators</h3>
-              <span class="bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs font-medium">
-                {{ this.body().selectedIndicators.length }}
-              </span>
-            </div>
+            <div>Selected Indicators: {{ this.body().selectedIndicators.length }}</div>
           </ng-template>
           <ng-template #rows let-indicator>
             <div class="w-full bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-4">
