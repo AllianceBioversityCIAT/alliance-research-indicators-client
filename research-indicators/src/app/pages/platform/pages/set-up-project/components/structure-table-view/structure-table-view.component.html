@@ -11,10 +11,30 @@
     <ng-template #header>
       <tr>
         <th class="w-[15%]"></th>
-        <th class="w-[15%]">Code</th>
-        <th class="w-[20%]">name</th>
-        <th class="w-[30%]">indicators</th>
-        <th class="w-[20%]">actions</th>
+        <th class="w-[15%]">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-hashtag text-blue-600 text-xs"></i>
+            <span class="text-gray-700">Code</span>
+          </div>
+        </th>
+        <th class="w-[20%]">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-bookmark text-blue-600 text-xs"></i>
+            <span class="text-gray-700">Name</span>
+          </div>
+        </th>
+        <th class="w-[30%]">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-chart-line text-blue-600 text-xs"></i>
+            <span class="text-gray-700">Indicators</span>
+          </div>
+        </th>
+        <th class="w-[20%]">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-cog text-blue-600 text-xs"></i>
+            <span class="text-gray-700">Actions</span>
+          </div>
+        </th>
       </tr>
     </ng-template>
     <ng-template #groupheader let-customer let-i="rowIndex" let-rowIndex="rowIndex" let-expanded="expanded">
