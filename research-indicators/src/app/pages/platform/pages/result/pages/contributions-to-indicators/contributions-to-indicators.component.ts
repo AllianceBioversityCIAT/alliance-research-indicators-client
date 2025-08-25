@@ -93,9 +93,20 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
     this.body.set({
       selectedIndicators: response.data.map((item: PostSyncContributor) => ({
         ...item,
-        id: item.indicator_id
+        id: item.indicator_id,
+        contribution_value: Number(item.contribution_value)
       }))
     });
     this.loading.set(false);
+  }
+
+  toggleContribution(indicator: any, event: any) {
+    if (event.target.checked) {
+      // Si marca el checkbox, poner valor en 0
+      indicator.contribution_value = 0;
+    } else {
+      // Si desmarca el checkbox, limpiar el valor para que pueda ingresar uno nuevo
+      indicator.contribution_value = null;
+    }
   }
 }

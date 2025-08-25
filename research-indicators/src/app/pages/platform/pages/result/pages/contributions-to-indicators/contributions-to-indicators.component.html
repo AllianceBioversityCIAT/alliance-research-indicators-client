@@ -220,21 +220,44 @@
 
               <!-- Contribution input section -->
               <div class="bg-gray-50 p-4 rounded-lg border-t border-gray-200">
-                <div class="flex items-start gap-4">
-                  <div class="flex-1">
-                    <label for="contribution-value-{{ indicator.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-                      Contribution Value
-                      <span class="text-gray-500 font-normal">({{ indicator.targetUnit || 'units' }})</span>
+                <div class="mb-4">
+                  <p class="text-sm text-gray-600 mb-3">
+                    If this reported result does not contribute directly to the indicator, please enter the number 0. Otherwise, indicate the
+                    contribution of this result to the target.
+                  </p>
+
+                  <div class="flex items-center gap-3 mb-4">
+                    <input
+                      type="checkbox"
+                      [id]="'no-contribution-' + indicator.id"
+                      [checked]="indicator.contribution_value === 0"
+                      (change)="toggleContribution(indicator, $event)"
+                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
+                    <label [for]="'no-contribution-' + indicator.id" class="text-sm font-medium text-gray-700">
+                      This result does not contribute directly to this indicator
                     </label>
-                    <p-inputNumber
-                      [style]="{ width: '100%', maxWidth: '300px' }"
-                      [id]="'contribution-value-' + indicator.id"
-                      [(ngModel)]="indicator.contribution_value"
-                      [placeholder]="'Enter value in ' + (indicator.targetUnit || 'units')"
-                      class="w-full">
-                    </p-inputNumber>
                   </div>
-                  <div class="flex gap-2 mt-8">
+                </div>
+
+                <div class="flex items-start gap-4">
+                  @if (indicator.contribution_value !== 0) {
+                    <div class="flex-1">
+                      <label for="contribution-value-{{ indicator.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Contribution Value
+                        <span class="text-gray-500 font-normal">({{ indicator.targetUnit || 'units' }})</span>
+                      </label>
+                      <p-inputNumber
+                        [style]="{ width: '100%', maxWidth: '300px' }"
+                        [id]="'contribution-value-' + indicator.id"
+                        [(ngModel)]="indicator.contribution_value"
+                        [minFractionDigits]="indicator.numberFormat === 'decimal' ? 1 : 0"
+                        [maxFractionDigits]="indicator.numberFormat === 'decimal' ? 4 : 0"
+                        [placeholder]="'Enter value in ' + (indicator.targetUnit || 'units')"
+                        class="w-full">
+                      </p-inputNumber>
+                    </div>
+                  }
+                  <div class="flex gap-2" [class.mt-8]="indicator.contribution_value !== 0">
                     @if (indicator.targetValue) {
                       <div class="bg-green-50 border border-green-200 px-3 py-2 rounded-md flex items-center gap-2">
                         <span class="text-xs text-green-600 font-medium">Target:</span>

@@ -147,7 +147,7 @@
             id="ind-baseline"
             [(ngModel)]="form().baseline"
             [minFractionDigits]="form().numberFormat === 'decimal' ? 1 : 0"
-            [maxFractionDigits]="form().numberFormat === 'decimal' ? 6 : 0"
+            [maxFractionDigits]="form().numberFormat === 'decimal' ? 4 : 0"
             placeholder="Baseline value"
             class="w-full"></p-inputNumber>
         </div>
@@ -157,7 +157,7 @@
             id="ind-target"
             [(ngModel)]="form().targetValue"
             [minFractionDigits]="form().numberFormat === 'decimal' ? 1 : 0"
-            [maxFractionDigits]="form().numberFormat === 'decimal' ? 6 : 0"
+            [maxFractionDigits]="form().numberFormat === 'decimal' ? 4 : 0"
             placeholder="Target value"
             class="w-full"></p-inputNumber>
         </div>
