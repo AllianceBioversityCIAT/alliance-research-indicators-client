@@ -185,37 +185,79 @@
                     (keydown.enter)="openProject(project)"
                     class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
                     <td>
-                      <div class="overflow-hidden line-clamp-2">
-                        {{ project.agreement_id || '-' }}
-                      </div>
+                      <a
+                        [routerLink]="['/project-detail', project.agreement_id]"
+                        (click)="$event.stopPropagation()"
+                        class="block"
+                        style="color: inherit; text-decoration: none">
+                        <div class="overflow-hidden line-clamp-2">
+                          {{ project.agreement_id || '-' }}
+                        </div>
+                      </a>
                     </td>
                     <td>
-                      <div class="overflow-hidden line-clamp-2">
-                        {{ project.description }}
-                      </div>
+                      <a
+                        [routerLink]="['/project-detail', project.agreement_id]"
+                        (click)="$event.stopPropagation()"
+                        class="block"
+                        style="color: inherit; text-decoration: none">
+                        <div class="overflow-hidden line-clamp-2">
+                          {{ project.description }}
+                        </div>
+                      </a>
                     </td>
                     <td>
-                      <div class="flex items-center min-h-[40px]">
-                        <app-custom-tag
-                          [statusId]="projectUtils.getStatusDisplay(project).statusId"
-                          [statusName]="projectUtils.getStatusDisplay(project).statusName"></app-custom-tag>
-                      </div>
+                      <a
+                        [routerLink]="['/project-detail', project.agreement_id]"
+                        (click)="$event.stopPropagation()"
+                        class="block"
+                        style="color: inherit; text-decoration: none">
+                        <div class="flex items-center min-h-[40px]">
+                          <app-custom-tag
+                            [statusId]="projectUtils.getStatusDisplay(project).statusId"
+                            [statusName]="projectUtils.getStatusDisplay(project).statusName"></app-custom-tag>
+                        </div>
+                      </a>
                     </td>
                     <td>
-                      <div class="overflow-hidden line-clamp-2">
-                        {{ project.principal_investigator || project.project_lead_description || '-' }}
-                      </div>
+                      <a
+                        [routerLink]="['/project-detail', project.agreement_id]"
+                        (click)="$event.stopPropagation()"
+                        class="block"
+                        style="color: inherit; text-decoration: none">
+                        <div class="overflow-hidden line-clamp-2">
+                          {{ project.principal_investigator || project.project_lead_description || '-' }}
+                        </div>
+                      </a>
                     </td>
                     <td>
-                      <div class="overflow-hidden line-clamp-2">
-                        {{ projectUtils.getLeverName(project) }}
-                      </div>
+                      <a
+                        [routerLink]="['/project-detail', project.agreement_id]"
+                        (click)="$event.stopPropagation()"
+                        class="block"
+                        style="color: inherit; text-decoration: none">
+                        <div class="overflow-hidden line-clamp-2">
+                          {{ projectUtils.getLeverName(project) }}
+                        </div>
+                      </a>
                     </td>
                     <td>
-                      {{ project.start_date ? (project.start_date | date: 'shortDate') : '-' }}
+                      <a
+                        [routerLink]="['/project-detail', project.agreement_id]"
+                        (click)="$event.stopPropagation()"
+                        class="block"
+                        style="color: inherit; text-decoration: none">
+                        {{ project.start_date ? (project.start_date | date: 'shortDate') : '-' }}
+                      </a>
                     </td>
                     <td>
-                      {{ project.end_date ? (project.end_date | date: 'shortDate') : '-' }}
+                      <a
+                        [routerLink]="['/project-detail', project.agreement_id]"
+                        (click)="$event.stopPropagation()"
+                        class="block"
+                        style="color: inherit; text-decoration: none">
+                        {{ project.end_date ? (project.end_date | date: 'shortDate') : '-' }}
+                      </a>
                     </td>
                   </tr>
                 </ng-template>

@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal, ViewChild, OnInit, AfterViewInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '@shared/services/api.service';
 import { FormsModule } from '@angular/forms';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
@@ -44,6 +44,7 @@ import { Tooltip } from 'primeng/tooltip';
     RippleModule,
     PopoverModule,
     MenuModule,
+    RouterLink,
     CustomTagComponent,
     MultiselectComponent,
     SectionSidebarComponent,
