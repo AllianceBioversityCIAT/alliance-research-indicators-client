@@ -1,0 +1,28 @@
+// Custom progress bar styles
+:host ::ng-deep {
+  .custom-progress-primary .p-progressbar-value {
+    background: linear-gradient(to right, #3b82f6, #2563eb);
+  }
+
+  .custom-progress-complete .p-progressbar-value {
+    background: linear-gradient(to right, #10b981, #059669);
+  }
+
+  .p-progressbar {
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #e5e7eb;
+  }
+
+  .p-progressbar-value {
+    transition: width 0.3s ease-in-out;
+  }
+}
+
+// Line clamp utility
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

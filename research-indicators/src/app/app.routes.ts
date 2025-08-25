@@ -182,6 +182,14 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'project-detail/:id/indicators-progress',
+        loadComponent: () => import('@platform/pages/set-up-project/indicators-progress/indicators-progress.component'),
+        canMatch: [mvpGuard],
+        data: {
+          title: 'Indicators Progress'
+        }
+      },
+      {
         path: 'project-detail/:id/set-up-project',
         loadComponent: () => import('@platform/pages/set-up-project/set-up-project.component'),
         canMatch: [mvpGuard],
