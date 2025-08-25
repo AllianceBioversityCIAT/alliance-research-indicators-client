@@ -419,7 +419,6 @@ export class CreateOicrFormComponent {
   }
 
   clearOicrSelection(): void {
-    console.log('clearOicrSelection');
     this.body.update(current => ({
       ...current,
       step_one: {
