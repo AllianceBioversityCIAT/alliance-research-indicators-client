@@ -78,6 +78,18 @@
           class="w-full">
         </textarea>
       </div> -->
+      <div>
+        <label for="ind-indicator-type" class="block text-sm font-medium text-gray-700 mb-2">Indicator Type *</label>
+        <p-select
+          id="ind-indicator-type"
+          [(ngModel)]="form().indicatorType"
+          [options]="indicatorTypeOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select indicator type"
+          class="w-full">
+        </p-select>
+      </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>

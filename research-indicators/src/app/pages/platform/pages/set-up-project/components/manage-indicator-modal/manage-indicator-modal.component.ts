@@ -16,6 +16,15 @@ import {
   NumberFormatOption,
   NumberTypeOption
 } from '../../../../../../shared/interfaces/project-setup.interface';
+
+export type IndicatorTypeOption = 'Output' | 'Outcome' | 'Impacts' | 'Others';
+
+export const INDICATOR_TYPE_OPTIONS: { label: string; value: IndicatorTypeOption }[] = [
+  { label: 'Output', value: 'Output' },
+  { label: 'Outcome', value: 'Outcome' },
+  { label: 'Impacts', value: 'Impacts' },
+  { label: 'Others', value: 'Others' }
+];
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 
 @Component({
@@ -30,6 +39,7 @@ export class ManageIndicatorModalComponent {
   actions = inject(ActionsService);
   numberTypeOptions = NUMBER_TYPE_OPTIONS;
   numberFormatOptions = NUMBER_FORMAT_OPTIONS;
+  indicatorTypeOptions = INDICATOR_TYPE_OPTIONS;
   availableYears = AVAILABLE_YEARS.map(year => ({ label: String(year), value: year }));
 
   close() {
@@ -49,13 +59,14 @@ export class ManageIndicatorModalComponent {
       baseline: 0,
       agreement_id: this.setUpProjectService.currentAgreementId() as number,
       code: '',
+      indicatorType: '',
       id: null
     });
   }
 
   async save() {
     const value = this.setUpProjectService.manageIndicatorform();
-    if (!value.name || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit) {
+    if (!value.name || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit || !value.indicatorType) {
       return;
     }
     const response = await this.api.POST_Indicator({ ...value, agreement_id: this.setUpProjectService.currentAgreementId() as number });
