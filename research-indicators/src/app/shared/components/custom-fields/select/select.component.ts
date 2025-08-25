@@ -1,17 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  Input,
-  OnInit,
-  signal,
-  WritableSignal,
-  TemplateRef,
-  ContentChild,
-  AfterContentInit
-} from '@angular/core';
+import { Component, computed, effect, inject, Input, OnInit, signal, WritableSignal, TemplateRef, ContentChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ControlListServices } from '../../../interfaces/services.interface';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
@@ -30,7 +18,7 @@ import { NgTemplateOutlet } from '@angular/common';
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss'
 })
-export class SelectComponent implements OnInit, AfterContentInit {
+export class SelectComponent implements OnInit {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;
   utils = inject(UtilsService);
   @Input() signal: WritableSignal<any> = signal({});
@@ -84,21 +72,11 @@ export class SelectComponent implements OnInit, AfterContentInit {
     { allowSignalWrites: true }
   );
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
-  ngAfterContentInit(): void {
-    console.warn('SelectComponent - Templates found:', {
-      itemTemplate: !!this.itemTemplate,
-      selectedItemTemplate: !!this.selectedItemTemplate,
-      selectedItemsTemplate: !!this.selectedItemsTemplate,
-      headerTemplate: !!this.headerTemplate,
-      rowsTemplate: !!this.rowsTemplate
-    });
-  }
-
-  onFilter(event: any) {
+  onFilter(event: any): void {
     if (this.service?.isOpenSearch()) this.service.update(event.filter);
   }
 

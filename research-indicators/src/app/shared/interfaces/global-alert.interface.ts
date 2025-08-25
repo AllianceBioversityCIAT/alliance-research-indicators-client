@@ -1,7 +1,7 @@
 import { ControlListServices } from './services.interface';
 
 export interface GlobalAlert {
-  severity: 'success' | 'confirm' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast' | 'delete';
+  severity: 'success' | 'confirm' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast' | 'delete' | 'processing';
   summary: string;
   detail: string;
   callbacks?: Callback[];
@@ -21,6 +21,7 @@ export interface GlobalAlert {
   serviceName?: ControlListServices;
   autoHideDuration?: number;
   hideCancelButton?: boolean;
+  hideCloseButton?: boolean;
 }
 
 interface Callback {

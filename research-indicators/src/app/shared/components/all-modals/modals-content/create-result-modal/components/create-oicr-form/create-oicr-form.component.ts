@@ -417,4 +417,14 @@ export class CreateOicrFormComponent {
       .filter(Boolean)
       .join(', ');
   }
+
+  clearOicrSelection(): void {
+    this.body.update(current => ({
+      ...current,
+      step_one: {
+        ...current.step_one,
+        linked_result: []
+      }
+    }));
+  }
 }

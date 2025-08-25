@@ -113,7 +113,7 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
     this.body.update(body => ({ ...body, commentValue: '', selectValue: null }));
   }
 
-  getIcon(severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast' | 'confirm' | 'delete'): {
+  getIcon(severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast' | 'confirm' | 'delete' | 'processing'): {
     icon: string;
     color: string;
     buttonColor?: string;
@@ -130,7 +130,9 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
       case 'error':
         return { icon: 'pi pi-times-circle', color: 'red' };
       case 'delete':
-        return { icon: 'pi pi-trash', color: '#CF0808' };
+        return { icon: 'pi pi-trash', color: '#CF0808', buttonColor: '#CF0808' };
+      case 'processing':
+        return { icon: 'pi pi-info-circle', color: '#CF0808' };
       case 'info':
         return { icon: 'pi pi-info-circle', color: '#035BA9' };
       default:
