@@ -14,8 +14,8 @@
 
       <app-filters-action-buttons
         [applyLabel]="'Apply Filters'"
-        [badge]="resultsCenterService.countFiltersSelected()"
-        [showOverlayDot]="!!resultsCenterService.countFiltersSelected()"
+        [badge]="resultsCenterService.countTableFiltersSelected()"
+        [showOverlayDot]="!!resultsCenterService.countTableFiltersSelected()"
         [showClear]="true"
         [showViewToggleButtons]="false"
         [showConfigButton]="true"
@@ -25,11 +25,11 @@
       </app-filters-action-buttons>
     </div>
 
-    @if (resultsCenterService.getActiveFilters().length > 0) {
+    @if (shouldShowFilterMessage()) {
       <div class="flex gap-2 px-3 mt-2 mb-3 items-center">
         <span class="font-semibold text-sm" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
         <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>
-        @for (filter of resultsCenterService.getActiveFilters(); track filter.label) {
+        @for (filter of getActiveFiltersExcludingIndicatorTab(); track filter.label) {
           <div class="flex items-center">
             <span class="text-primary-700 font-bold text-sm" style="font-family: 'Space Grotesk', sans-serif">{{ filter.label }}</span>
             @if (!$last) {
@@ -85,8 +85,14 @@
           @if (!column.hideIf || !column.hideIf()) {
             @if (column.field === 'status') {
               <td>
-                <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true" [statusName]="result.result_status?.name">
-                </app-custom-tag>
+                <a
+                  [routerLink]="getResultHref(result)"
+                  (click)="$event.stopPropagation()"
+                  class="block"
+                  style="color: inherit; text-decoration: none">
+                  <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true" [statusName]="result.result_status?.name">
+                  </app-custom-tag>
+                </a>
               </td>
             } @else if (column.field === 'versions') {
               <td>
@@ -134,9 +140,15 @@
               </td>
             } @else {
               <td [class]="column.minWidth + ' ' + column.maxWidth" [class.break-words]="column.field === 'title'" lang="es">
-                <div class="overflow-hidden line-clamp-3 xl:line-clamp-2">
-                  {{ column.getValue ? column.getValue(result) : '-' }}
-                </div>
+                <a
+                  [routerLink]="getResultHref(result)"
+                  (click)="$event.stopPropagation()"
+                  class="block w-full h-full"
+                  style="color: inherit; text-decoration: none">
+                  <div class="overflow-hidden line-clamp-3 xl:line-clamp-2">
+                    {{ column.getValue ? column.getValue(result) : '-' }}
+                  </div>
+                </a>
               </td>
             }
           }
