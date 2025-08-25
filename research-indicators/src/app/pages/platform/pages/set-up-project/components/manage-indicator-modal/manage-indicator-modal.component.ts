@@ -59,14 +59,14 @@ export class ManageIndicatorModalComponent {
       baseline: 0,
       agreement_id: this.setUpProjectService.currentAgreementId() as number,
       code: '',
-      indicatorType: '',
+      type: '',
       id: null
     });
   }
 
   async save() {
     const value = this.setUpProjectService.manageIndicatorform();
-    if (!value.name || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit || !value.indicatorType) {
+    if (!value.name || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit || !value.type) {
       return;
     }
     const response = await this.api.POST_Indicator({ ...value, agreement_id: this.setUpProjectService.currentAgreementId() as number });

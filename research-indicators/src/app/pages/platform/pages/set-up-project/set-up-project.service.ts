@@ -69,7 +69,7 @@ export class SetUpProjectService {
     baseline: 0,
     agreement_id: this.currentAgreementId() as number,
     code: '',
-    indicatorType: ''
+    type: ''
   });
 
   api = inject(ApiService);

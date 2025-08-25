@@ -9,7 +9,7 @@ export interface GetIndicators {
   baseline: string;
   years: number[];
   code: string;
-  indicatorType?: string;
+  type?: string;
   //auxiliary fields
   adding?: boolean;
 }
