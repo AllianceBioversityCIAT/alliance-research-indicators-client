@@ -27,6 +27,7 @@ import { ProjectItemComponent } from '../../../../shared/components/project-item
 import { FiltersActionButtonsComponent } from '@shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '@shared/components/search-export-controls/search-export-controls.component';
 import { ProjectUtilsService } from '@shared/services/project-utils.service';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-my-projects',
@@ -51,7 +52,8 @@ import { ProjectUtilsService } from '@shared/services/project-utils.service';
     OverlayBadgeModule,
     ProjectItemComponent,
     FiltersActionButtonsComponent,
-    SearchExportControlsComponent
+    SearchExportControlsComponent,
+    Tooltip
   ],
   templateUrl: './my-projects.component.html',
   styleUrl: './my-projects.component.scss'
@@ -99,7 +101,9 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       return [
         {
           id: 'my',
-          label: 'My Projects'
+          label: 'My Projects',
+          tooltip:
+            'Projects will appear here when you are assigned as the Principal Investigator of the project contract in Agresso, or if you have contributed at least one result to the project.'
         },
         {
           id: 'all',

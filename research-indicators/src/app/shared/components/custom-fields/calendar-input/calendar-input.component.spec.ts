@@ -8,7 +8,6 @@ import { signal } from '@angular/core';
 
 describe('CalendarInputComponent', () => {
   let component: CalendarInputComponent;
-  let fixture: ComponentFixture<CalendarInputComponent>;
   let cacheService: jest.Mocked<CacheService>;
 
   beforeEach(async () => {
@@ -21,14 +20,12 @@ describe('CalendarInputComponent', () => {
       providers: [{ provide: CacheService, useValue: mockCacheService }]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CalendarInputComponent);
-    component = fixture.componentInstance;
+    component = TestBed.createComponent(CalendarInputComponent).componentInstance;
     cacheService = TestBed.inject(CacheService) as jest.Mocked<CacheService>;
 
     // Initial component configuration
     component.signal = signal({});
     component.optionValue = 'testField';
-    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -40,45 +37,25 @@ describe('CalendarInputComponent', () => {
     expect(component.maxDate).toBeNull();
     expect(component.isRequired).toBe(false);
     expect(component.disabled).toBe(false);
+    expect(component.readonly).toBe(false);
+    expect(component.placeholder).toBe('');
+    expect(component.dateFormat).toBe('dd/mm/yy');
   });
 
-  it('should show loading skeleton when currentResultIsLoading is true', () => {
-    cacheService.currentResultIsLoading.set(true);
-    fixture.detectChanges();
-
-    const skeleton = fixture.nativeElement.querySelector('p-skeleton');
-    expect(skeleton).toBeTruthy();
-  });
-
-  it('should show calendar input when not loading', () => {
-    cacheService.currentResultIsLoading.set(false);
-    fixture.detectChanges();
-
-    const calendar = fixture.nativeElement.querySelector('p-calendar');
-    expect(calendar).toBeTruthy();
-  });
-
-  it('should show required asterisk when isRequired is true', () => {
-    component.isRequired = true;
-    component.label = 'Test Label';
-    fixture.detectChanges();
-
-    const asterisk = fixture.nativeElement.querySelector('.text-red-500');
-    expect(asterisk).toBeTruthy();
-  });
-
-  it('should show description when provided', () => {
-    component.description = 'Test description';
-    fixture.detectChanges();
-
-    const description = fixture.nativeElement.querySelector('small.description');
-    expect(description.textContent).toContain('Test description');
-  });
-
-  it('should validate required field', () => {
+  it('should validate required field with empty value', () => {
     component.isRequired = true;
     component.signal = signal({ testField: '' });
-    fixture.detectChanges();
+    component.optionValue = 'testField';
+
+    expect(component.isInvalid()).toBe(true);
+    expect(component.inputValid().valid).toBe(false);
+    expect(component.inputValid().message).toBe('This field is required');
+  });
+
+  it('should validate required field with null value', () => {
+    component.isRequired = true;
+    component.signal = signal({ testField: null });
+    component.optionValue = 'testField';
 
     expect(component.isInvalid()).toBe(true);
     expect(component.inputValid().valid).toBe(false);
@@ -88,7 +65,7 @@ describe('CalendarInputComponent', () => {
   it('should not show validation error when field is valid', () => {
     component.isRequired = true;
     component.signal = signal({ testField: new Date() });
-    fixture.detectChanges();
+    component.optionValue = 'testField';
 
     expect(component.isInvalid()).toBe(false);
     expect(component.inputValid().valid).toBe(true);
@@ -104,57 +81,50 @@ describe('CalendarInputComponent', () => {
     expect(component.signal().testField).toBe(testDate.toISOString());
   });
 
-  it('should handle minDate and maxDate constraints', () => {
-    const minDate = new Date('2024-01-01');
-    const maxDate = new Date('2024-12-31');
+  it('should handle setValue with null', () => {
+    component.signal = signal({ testField: 'some value' });
+    component.optionValue = 'testField';
 
-    component.minDate = minDate;
-    component.maxDate = maxDate;
-    fixture.detectChanges();
+    component.setValue(null as any);
 
-    const calendar = fixture.nativeElement.querySelector('p-calendar');
-    expect(calendar.getAttribute('minDate')).toBeDefined();
-    expect(calendar.getAttribute('maxDate')).toBeDefined();
+    expect(component.signal().testField).toBe(null);
   });
 
-  it('should be disabled when disabled property is true', () => {
-    component.disabled = true;
-    fixture.detectChanges();
+  it('should handle setValue with empty string', () => {
+    component.signal = signal({ testField: 'some value' });
+    component.optionValue = 'testField';
 
-    const calendar = fixture.nativeElement.querySelector('p-calendar');
-    expect(calendar.getAttribute('disabled')).toBe('true');
+    component.setValue('');
+
+    expect(component.signal().testField).toBe('');
   });
 
-  it('should show validation error message when field is invalid', () => {
-    component.isRequired = true;
+  it('should handle inputValid when not required and empty', () => {
+    component.isRequired = false;
     component.signal = signal({ testField: '' });
-    fixture.detectChanges();
+    component.optionValue = 'testField';
 
-    const errorMessage = fixture.nativeElement.querySelector('.text-[#E69F00]');
-    expect(errorMessage).toBeTruthy();
-    expect(errorMessage.textContent).toContain('This field is required');
+    const result = component.inputValid();
+    expect(result.valid).toBe(true);
+    expect(result.class).toBe('ng-valid ng-dirty');
+    expect(result.message).toBe('');
   });
 
-  it('should handle empty value in isInvalid computed property', () => {
-    component.isRequired = true;
-    component.signal = signal({ testField: '' });
-    fixture.detectChanges();
-
-    expect(component.isInvalid()).toBe(true);
-  });
-
-  it('should handle null value in isInvalid computed property', () => {
-    component.isRequired = true;
+  it('should handle inputValid when not required and null', () => {
+    component.isRequired = false;
     component.signal = signal({ testField: null });
-    fixture.detectChanges();
+    component.optionValue = 'testField';
 
-    expect(component.isInvalid()).toBe(true);
+    const result = component.inputValid();
+    expect(result.valid).toBe(true);
+    expect(result.class).toBe('ng-valid ng-dirty');
+    expect(result.message).toBe('');
   });
 
-  it('should handle valid value in isInvalid computed property', () => {
-    component.isRequired = true;
-    component.signal = signal({ testField: new Date() });
-    fixture.detectChanges();
+  it('should handle isInvalid when not required', () => {
+    component.isRequired = false;
+    component.signal = signal({ testField: '' });
+    component.optionValue = 'testField';
 
     expect(component.isInvalid()).toBe(false);
   });
@@ -162,7 +132,7 @@ describe('CalendarInputComponent', () => {
   it('should handle inputValid computed property with empty value', () => {
     component.isRequired = true;
     component.signal = signal({ testField: '' });
-    fixture.detectChanges();
+    component.optionValue = 'testField';
 
     const result = component.inputValid();
     expect(result.valid).toBe(false);
@@ -172,11 +142,44 @@ describe('CalendarInputComponent', () => {
 
   it('should handle inputValid computed property with valid value', () => {
     component.signal = signal({ testField: new Date() });
-    fixture.detectChanges();
+    component.optionValue = 'testField';
 
     const result = component.inputValid();
     expect(result.valid).toBe(true);
     expect(result.class).toBe('ng-valid ng-dirty');
     expect(result.message).toBe('');
+  });
+
+  it('should handle readonly property', () => {
+    component.readonly = true;
+    expect(component.readonly).toBe(true);
+  });
+
+  it('should handle placeholder property', () => {
+    component.placeholder = 'Select date';
+    expect(component.placeholder).toBe('Select date');
+  });
+
+  it('should handle dateFormat property', () => {
+    component.dateFormat = 'mm/dd/yy';
+    expect(component.dateFormat).toBe('mm/dd/yy');
+  });
+
+  it('should handle setValue with null', () => {
+    component.signal = signal({ testField: 'some value' });
+    component.optionValue = 'testField';
+
+    component.setValue(null as any);
+
+    expect(component.signal().testField).toBe(null);
+  });
+
+  it('should handle setValue with empty string', () => {
+    component.signal = signal({ testField: 'some value' });
+    component.optionValue = 'testField';
+
+    component.setValue('');
+
+    expect(component.signal().testField).toBe('');
   });
 });

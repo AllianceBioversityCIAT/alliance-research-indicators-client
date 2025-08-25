@@ -60,6 +60,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
             label: 'Delete result',
             event: () => {
               (async () => {
+                this.router.navigate(['/results-center']);
                 const res = await this.api.DELETE_Result(this.cache.currentResultId());
                 if (res.successfulRequest) this.router.navigate(['/results-center']);
               })();
