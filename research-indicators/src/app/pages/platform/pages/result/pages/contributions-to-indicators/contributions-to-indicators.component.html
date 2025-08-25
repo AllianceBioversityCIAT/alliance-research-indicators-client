@@ -52,81 +52,81 @@
           [disabledSelectedScroll]="true"
           serviceName="getProjectIndicatorsHierarchy">
           <ng-template #item let-item>
-            <div class="flex gap-4 p-3 hover:bg-gray-50 border-b border-gray-100 transition-colors duration-200">
-              <!-- Left section: Main info -->
-              <div class="flex-1 min-w-0">
-                <!-- Header with name and code -->
-                <div class="flex items-center gap-2 mb-2">
-                  <h3 class="font-semibold text-gray-900 text-sm leading-tight truncate max-w-[10vw]">{{ item.name }}</h3>
-                  <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-md font-medium text-xs shrink-0">{{ item.code }}</span>
-                  @if (item.type) {
-                    <span class="text-gray-400 text-xs">•</span>
-                    <span class="capitalize text-xs text-gray-500">{{ item.type }}</span>
-                  }
-                </div>
-
-                <!-- Description -->
-                @if (item.description) {
-                  <p class="text-xs text-gray-600 leading-relaxed mb-2 line-clamp-2">{{ item.description }}</p>
-                }
-
-                <!-- Hierarchy breadcrumb -->
-                <div class="flex items-center gap-1 text-xs">
-                  <span class="text-gray-500 font-medium shrink-0">Path:</span>
-                  @if (item.group_item?.parent_item?.name) {
-                    <span
-                      [pTooltip]="item.group_item.parent_item.name"
-                      tooltipPosition="right"
-                      class="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded text-[10px] shrink-0"
-                      >{{ item.group_item.parent_item.code }}</span
-                    >
-                    <i class="pi pi-angle-right text-gray-400 text-[8px]"></i>
-                  }
-                  @if (item.group_item?.name) {
-                    <span
-                      [pTooltip]="item.group_item.name"
-                      tooltipPosition="right"
-                      class="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] shrink-0"
-                      >{{ item.group_item.code }}</span
-                    >
-                    <i class="pi pi-angle-right text-gray-400 text-[8px]"></i>
-                  }
-                  <span
-                    [pTooltip]="item.name"
-                    tooltipPosition="right"
-                    class="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded text-[10px] truncate"
-                    >{{ item.code }}</span
-                  >
-                </div>
+            <div class="p-3 hover:bg-gray-50 border-b border-gray-100 transition-colors duration-200 space-y-2">
+              <!-- Title section - full width -->
+              <div class="flex items-center gap-3">
+                <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-md font-medium text-xs shrink-0">{{ item.code }}</span>
+                <h3 class="font-semibold text-gray-900 text-sm leading-tight flex-1">{{ item.name }}</h3>
               </div>
 
-              <!-- Right section: Metadata -->
-              <div class="w-60 shrink-0 text-xs max-h-24 overflow-y-auto">
-                <div class="flex flex-wrap gap-1">
-                  <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200">
+              <!-- Description -->
+              @if (item.description) {
+                <p class="text-xs text-gray-600 leading-relaxed line-clamp-2">{{ item.description }}</p>
+              }
+
+              <!-- Hierarchy breadcrumb -->
+              <div class="flex items-center gap-1 text-xs">
+                <span class="text-gray-500 font-medium shrink-0">Path:</span>
+                @if (item.group_item?.parent_item?.name) {
+                  <span
+                    [pTooltip]="item.group_item.parent_item.name"
+                    tooltipPosition="right"
+                    class="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded text-[10px] shrink-0"
+                    >{{ item.group_item.parent_item.code }}</span
+                  >
+                  <i class="pi pi-angle-right text-gray-400 text-[8px]"></i>
+                }
+                @if (item.group_item?.name) {
+                  <span
+                    [pTooltip]="item.group_item.name"
+                    tooltipPosition="right"
+                    class="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] shrink-0"
+                    >{{ item.group_item.code }}</span
+                  >
+                  <i class="pi pi-angle-right text-gray-400 text-[8px]"></i>
+                }
+                <span
+                  [pTooltip]="item.name"
+                  tooltipPosition="right"
+                  class="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded text-[10px] truncate"
+                  >{{ item.code }}</span
+                >
+              </div>
+
+              <!-- Metadata chips - horizontal scroll -->
+              <div class="overflow-x-auto">
+                <div class="flex gap-1 text-xs pb-1">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
                     <strong>Unit:</strong>&nbsp;{{ item.targetUnit || 'N/A' }}
                   </span>
-                  <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
                     <strong>Target:</strong>&nbsp;{{ item.targetValue || 'N/A' }}
                   </span>
                   @if (item.baseLine) {
-                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200">
+                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
                       <strong>Baseline:</strong>&nbsp;{{ item.baseLine }}
                     </span>
                   }
                   @if (item.numberType) {
-                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200 capitalize">
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap capitalize">
                       <strong>Type:</strong>&nbsp;{{ item.numberType }}
                     </span>
                   }
                   @if (item.numberFormat) {
-                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200">
+                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
                       <strong>Format:</strong>&nbsp;{{ item.numberFormat }}
                     </span>
                   }
                   @if (item.year && item.year.length > 0) {
-                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200">
+                    <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap">
                       <strong>Years:</strong>&nbsp;{{ item.year.join(', ') }}
+                    </span>
+                  }
+                  @if (item.type) {
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap capitalize">
+                      <strong>Category:</strong>&nbsp;{{ item.type }}
                     </span>
                   }
                 </div>
