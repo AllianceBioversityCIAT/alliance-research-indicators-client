@@ -40,11 +40,11 @@ export class TextMiningService {
 
   constructor(private readonly http: HttpClient) {}
 
-  async executeTextMining(key: string): Promise<ResponseAiRoarDto> {
+  async executeTextMining(documentName: string): Promise<ResponseAiRoarDto> {
     const formData = new FormData();
     formData.append('token', this.cache.dataCache().access_token);
-    formData.append('key', key);
-    formData.append('bucketName', 'ai-services-ibd');
+    formData.append('key', documentName);
+    formData.append('bucketName', 'microservice-mining');
     formData.append('environmentUrl', environment.managementApiUrl);
 
     const headers = new HttpHeaders({

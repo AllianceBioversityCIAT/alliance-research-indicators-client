@@ -5,7 +5,7 @@ import { CacheService } from './cache/cache.service';
 import { environment } from '@envs/environment';
 
 export interface FileUploadResponse {
-  data: { key: string };
+  data: { filename: string };
 }
 @Injectable({
   providedIn: 'root'
@@ -19,9 +19,8 @@ export class FileManagerService {
     const formData = new FormData();
     formData.append('file', file, file.name);
 
-    formData.append('bucketName', 'ai-services-ibd');
+    formData.append('bucketName', 'microservice-mining');
     formData.append('fileName', file.name);
-    formData.append('key', 'star/text-mining/files');
 
     const weightLimitBytes = weightLimit * 1024 * 1024;
     formData.append('weightLimit', weightLimitBytes.toString());
