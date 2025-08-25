@@ -21,6 +21,7 @@ export class FileManagerService {
 
     formData.append('bucketName', 'ai-services-ibd');
     formData.append('fileName', file.name);
+    formData.append('key', 'star/text-mining/files');
 
     const weightLimitBytes = weightLimit * 1024 * 1024;
     formData.append('weightLimit', weightLimitBytes.toString());
