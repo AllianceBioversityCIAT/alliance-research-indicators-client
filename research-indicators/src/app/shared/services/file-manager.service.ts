@@ -5,7 +5,7 @@ import { CacheService } from './cache/cache.service';
 import { environment } from '@envs/environment';
 
 export interface FileUploadResponse {
-  data: { filename: string };
+  data: { key: string };
 }
 @Injectable({
   providedIn: 'root'
