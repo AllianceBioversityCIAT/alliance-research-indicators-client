@@ -78,19 +78,16 @@ export class ManageIndicatorModalComponent {
 
   async save() {
     this.loading.set(true);
-    console.log('save');
     const value = this.setUpProjectService.manageIndicatorform();
     if (!value.name || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit || !value.type) {
       return;
     }
-    console.log('pasa dos');
     const response = await this.api.POST_Indicator({ ...value, agreement_id: this.setUpProjectService.currentAgreementId() as number });
     if (!response.successfulRequest) {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to create indicator' });
       return;
     }
 
-    console.log('pasa');
 
     // Si está en modo assign, asignar el indicador al elemento correspondiente
     if (this.setUpProjectService.manageIndicatorModal().assignModal) {

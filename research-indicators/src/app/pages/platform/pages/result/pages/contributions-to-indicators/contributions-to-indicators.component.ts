@@ -100,8 +100,9 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
     this.loading.set(false);
   }
 
-  toggleContribution(indicator: any, event: any) {
-    if (event.target.checked) {
+  toggleContribution(indicator: PostSyncContributor, event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.checked) {
       // Si marca el checkbox, poner valor en 0
       indicator.contribution_value = 0;
     } else {
