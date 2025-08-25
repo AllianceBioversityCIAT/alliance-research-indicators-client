@@ -9,18 +9,44 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { MenuModule } from 'primeng/menu';
 import { FormsModule } from '@angular/forms';
-import { signal, computed } from '@angular/core';
+import { signal, computed, Component } from '@angular/core';
 import { MultiSelectModule } from 'primeng/multiselect';
 
 import ResultsCenterComponent from './results-center.component';
 import { ResultsCenterService } from './results-center.service';
 import { GetResultsService } from '../../../../shared/services/control-list/get-results.service';
-import { ResultsCenterTableComponent } from './components/results-center-table/results-center-table.component';
-import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
-import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
-import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
-import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
+
+// Mock components
+@Component({
+  selector: 'app-results-center-table',
+  template: '<div>Mock Results Center Table</div>'
+})
+class MockResultsCenterTableComponent {}
+
+@Component({
+  selector: 'app-indicators-tab-filter',
+  template: '<div>Mock Indicators Tab Filter</div>'
+})
+class MockIndicatorsTabFilterComponent {}
+
+@Component({
+  selector: 'app-table-filters-sidebar',
+  template: '<div>Mock Table Filters Sidebar</div>'
+})
+class MockTableFiltersSidebarComponent {}
+
+@Component({
+  selector: 'app-table-configuration',
+  template: '<div>Mock Table Configuration</div>'
+})
+class MockTableConfigurationComponent {}
+
+@Component({
+  selector: 'app-section-sidebar',
+  template: '<div>Mock Section Sidebar</div>'
+})
+class MockSectionSidebarComponent {}
 
 describe('ResultsComponent', () => {
   let component: ResultsCenterComponent;
@@ -57,12 +83,17 @@ describe('ResultsComponent', () => {
         'indicator-codes': [],
         'indicator-codes-filter': [],
         'indicator-codes-tabs': [],
-        'lever-codes': []
+        'lever-codes': [],
+        'create-user-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        years: []
       }),
       showFiltersSidebar: signal(false),
       showConfigurationsSidebar: signal(false),
       applyFilters: jest.fn(),
       clearAllFilters: jest.fn(),
+      cleanFilters: jest.fn(),
       list: signal([]),
       onActiveItemChange: jest.fn(),
       myResultsFilterItem: signal(undefined),
@@ -71,18 +102,25 @@ describe('ResultsComponent', () => {
         { id: 'my', label: 'My Results' }
       ],
       indicatorsTabFilterList: signal([]),
-      countFiltersSelected: signal(undefined),
+      countFiltersSelected: computed(() => undefined),
+      countTableFiltersSelected: computed(() => undefined),
       loading: signal(false),
       tableColumns: signal([
         {
           field: 'result_official_code',
           header: 'Code',
-          getValue: (result: any) => result.result_official_code
+          path: 'result_official_code',
+          getValue: (result: any) => result.result_official_code,
+          hideIf: () => false,
+          hideFilterIf: () => false
         },
         {
           field: 'title',
           header: 'Title',
-          getValue: (result: any) => result.title
+          path: 'title',
+          getValue: (result: any) => result.title,
+          hideIf: () => false,
+          hideFilterIf: () => false
         }
       ]),
       getAllPathsAsArray: computed(() => ['result_official_code', 'title']),
@@ -92,7 +130,14 @@ describe('ResultsComponent', () => {
       searchInput: signal(''),
       tableRef: signal<Table | undefined>(undefined),
       onSelectFilterTab: jest.fn(),
-      getActiveFilters: computed(() => [])
+      getActiveFilters: computed(() => []),
+      showFilterSidebar: jest.fn(),
+      showConfigSidebar: jest.fn(),
+      cleanMultiselects: jest.fn(),
+      resultsConfig: signal({}),
+      getResultsService: {
+        getInstance: jest.fn().mockResolvedValue(signal([]))
+      }
     };
 
     await TestBed.configureTestingModule({
@@ -109,11 +154,11 @@ describe('ResultsComponent', () => {
         MenuModule,
         FormsModule,
         MultiSelectModule,
-        ResultsCenterTableComponent,
-        IndicatorsTabFilterComponent,
-        TableFiltersSidebarComponent,
-        TableConfigurationComponent,
-        SectionSidebarComponent
+        MockResultsCenterTableComponent,
+        MockIndicatorsTabFilterComponent,
+        MockTableFiltersSidebarComponent,
+        MockTableConfigurationComponent,
+        MockSectionSidebarComponent
       ],
       providers: [
         { provide: ResultsCenterService, useValue: mockResultsCenterService },
@@ -136,7 +181,7 @@ describe('ResultsComponent', () => {
           }
         },
         {
-          provide: SectionSidebarComponent,
+          provide: MockSectionSidebarComponent,
           useValue: {
             showSignal: signal(false)
           }
@@ -164,5 +209,38 @@ describe('ResultsComponent', () => {
     const spy = jest.spyOn(resultsCenterService, 'applyFilters');
     component.applyFilters();
     expect(spy).toHaveBeenCalled();
+  });
+
+  it('should initialize component and clear all filters', () => {
+    const clearAllFiltersSpy = jest.spyOn(resultsCenterService, 'clearAllFilters');
+    component.ngOnInit();
+    expect(clearAllFiltersSpy).toHaveBeenCalled();
+  });
+
+  it('should have showSignal initialized as false', () => {
+    expect(component.showSignal()).toBe(false);
+  });
+
+  it('should toggle showSignal from false to true', () => {
+    expect(component.showSignal()).toBe(false);
+    component.toggleSidebar();
+    expect(component.showSignal()).toBe(true);
+  });
+
+  it('should toggle showSignal from true to false', () => {
+    component.showSignal.set(true);
+    expect(component.showSignal()).toBe(true);
+    component.toggleSidebar();
+    expect(component.showSignal()).toBe(false);
+  });
+
+  it('should have ViewChild tm property', () => {
+    expect(component.tm).toBeDefined();
+  });
+
+  it('should have injected services', () => {
+    expect(component.api).toBeDefined();
+    expect(component.resultsCenterService).toBeDefined();
+    expect(component.cache).toBeDefined();
   });
 });
