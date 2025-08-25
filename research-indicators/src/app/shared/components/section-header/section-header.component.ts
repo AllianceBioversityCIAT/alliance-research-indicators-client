@@ -61,11 +61,12 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
             event: () => {
               (async () => {
                 this.actions.showGlobalAlert({
-                  severity: 'info',
-                  summary: 'Processing...',
+                  severity: 'processing',
+                  summary: 'Processing',
                   detail: 'Deleting result, please wait.',
                   hasNoButton: true,
-                  autoHideDuration: 0
+                  autoHideDuration: 0,
+                  hideCloseButton: true
                 });
 
                 try {
