@@ -24,6 +24,7 @@
             </button>
             <span
               class="text-[14px] xl:text-[16px] pl-2 transition-colors font-semibold duration-200 py-1"
+              [pTooltip]="item.tooltip"
               [class]="myProjectsFilterItem()?.id === item.id ? 'text-[#035BA9]' : ' text-gray-500'">
               {{ item.label }}
             </span>
