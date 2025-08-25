@@ -118,6 +118,10 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     return this.currentUrl().includes('/project-detail/');
   });
 
+  isSetUpProjectPage = computed(() => {
+    return this.currentUrl().includes('/set-up-project');
+  });
+
   isResultPage = computed(() => {
     return this.currentUrl().includes('/result/') && this.currentUrl().split('/').length >= 3;
   });
@@ -128,7 +132,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
 
     if (!contractId) return [];
 
-    const baseItems: BreadcrumbItem[] = [
+    let baseItems: BreadcrumbItem[] = [
       {
         label: 'Projects',
         route: '/projects'
@@ -138,6 +142,23 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
         tooltip: project?.projectDescription ?? project?.description
       }
     ];
+
+    if (this.isSetUpProjectPage()) {
+      const urlParts = this.currentUrl().split('/');
+      const agreementId = urlParts[2]; // /result/2243/any-page -> 2243
+
+      if (agreementId) {
+        baseItems[1].route = `/project-detail/${agreementId}`;
+        baseItems[1].label = `Project ${agreementId}`;
+        baseItems = [
+          ...baseItems,
+          {
+            label: `Set up project`,
+            tooltip: 'Set up project'
+          }
+        ];
+      }
+    }
 
     if (this.isResultPage()) {
       const urlParts = this.currentUrl().split('/');
@@ -162,7 +183,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     this.routerSubscription = this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
       this.currentUrl.set(event.url);
 
-      if (this.isProjectDetailPage() || this.isResultPage()) {
+      if (this.isProjectDetailPage() || this.isResultPage() || this.isSetUpProjectPage()) {
         this.loadData();
       } else {
         this.clearData();
