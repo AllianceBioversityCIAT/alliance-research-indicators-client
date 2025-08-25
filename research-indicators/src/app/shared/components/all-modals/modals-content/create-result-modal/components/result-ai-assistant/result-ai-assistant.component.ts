@@ -286,7 +286,7 @@ export class ResultAiAssistantComponent {
 
     try {
       const uploadResponse = await this.fileManagerService.uploadFile(this.selectedFile, this.maxSizeMB, this.pageLimit);
-      const filename = uploadResponse.data.key;
+      const filename = uploadResponse.data.filename;
 
       if (!filename) {
         throw new Error('Could not get the name of the uploaded file.');
