@@ -118,7 +118,9 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
         },
         {
           id: 'my',
-          label: 'My Projects'
+          label: 'My Projects',
+          tooltip:
+            'Projects will appear here when you are assigned as the Principal Investigator of the project contract in Agresso, or if you have contributed at least one result to the project.'
         }
       ];
     }
