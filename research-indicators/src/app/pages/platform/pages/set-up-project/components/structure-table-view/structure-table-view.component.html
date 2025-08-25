@@ -43,8 +43,8 @@
           @if (customer.representative.newStructure) {
             <p-tag [value]="'New ' + setUpProjectService.level1Name()" icon="pi pi-sparkles" severity="success" />
           } @else {
-            @if (customer.representative?.itemsCount) {
-              <div class="flex items-center">
+            <div class="flex items-center">
+              @if (customer.representative?.itemsCount) {
                 <button
                   [attr.isExpanded]="expanded ? 1 : 0"
                   [id]="'toggle-row-' + customer.representative.id"
@@ -60,21 +60,24 @@
                   [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
                   <span class="sr-only">Toggle row</span>
                 </button>
-                <!-- <div class="text-sm">{{ setUpProjectService.level2Name() }}</div> -->
-                @if (!customer.representative.editing && !setUpProjectService.editingFocus()) {
-                  <p-button
-                    (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)"
-                    icon="pi pi-plus"
-                    [pTooltip]="'Add ' + setUpProjectService.level2Name() + ' item'"
-                    tooltipPosition="right"
-                    severity="primary"
-                    label="Add"
-                    size="small"
-                    [style]="{ 'white-space': 'nowrap' }">
-                  </p-button>
-                }
-              </div>
-            }
+              } @else {
+                <div class="ml-17"></div>
+              }
+
+              <!-- <div class="text-sm">{{ setUpProjectService.level2Name() }}</div> -->
+              @if (!customer.representative.editing && !setUpProjectService.editingFocus()) {
+                <p-button
+                  (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)"
+                  icon="pi pi-plus"
+                  [pTooltip]="'Add ' + setUpProjectService.level2Name() + ' item'"
+                  tooltipPosition="right"
+                  severity="primary"
+                  label="Add"
+                  size="small"
+                  [style]="{ 'white-space': 'nowrap' }">
+                </p-button>
+              }
+            </div>
           }
         </td>
         <td>

@@ -632,6 +632,8 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  // get https://main-allianceindicatorstest.ciat.cgiar.org/api/project-indicators/contributions/:agreementId
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {
