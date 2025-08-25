@@ -1,17 +1,25 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '@shared/services/api.service';
 import { GetIndicatorsProgress } from '../../../../../shared/interfaces/get-indicators-progress.interface';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { ButtonModule } from 'primeng/button';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-indicators-progress',
-  imports: [],
+  imports: [TableModule, TagModule, ButtonModule, ProgressBarModule, TooltipModule],
   templateUrl: './indicators-progress.component.html',
   styleUrl: './indicators-progress.component.scss'
 })
 export default class IndicatorsProgressComponent implements OnInit {
   api = inject(ApiService);
   route = inject(ActivatedRoute);
+
+  indicators = signal<GetIndicatorsProgress[]>([]);
+  expandedRows: Record<number, boolean> = {};
 
   ngOnInit() {
     this.GET_IndicatorsProgress();
@@ -36,18 +44,58 @@ export default class IndicatorsProgressComponent implements OnInit {
           }
         });
       });
-      /* TODO:
-       - contribution_value to number
-       - base_line to number
-       - target_value to number
-       - baseline 10 target value 20 entonces faltan 10
-       - dependiendo de number_type, se hace sum, average, count, yes, no
 
-
-
-      */
-
+      this.indicators.set(res.data);
       console.log(res.data);
     });
+  }
+
+  calculateProgress(indicator: GetIndicatorsProgress): number {
+    if (!indicator.target_value || indicator.target_value === 0) {
+      return 0;
+    }
+
+    // Calcular progreso basado en baseline y target
+    let progress = 0;
+    if (indicator.base_line && indicator.base_line > 0) {
+      // Si hay baseline, calcular progreso desde baseline hasta target
+      const range = indicator.target_value - indicator.base_line;
+      const current = indicator.total_contributions - indicator.base_line;
+      progress = (current / range) * 100;
+    } else {
+      // Si no hay baseline, calcular progreso directo al target
+      progress = (indicator.total_contributions / indicator.target_value) * 100;
+    }
+
+    // Limitar entre 0 y 100%
+    return Math.max(0, Math.min(100, Math.round(progress)));
+  }
+
+  getProgressBarClass(indicator: GetIndicatorsProgress): string {
+    const progress = this.calculateProgress(indicator);
+    if (progress >= 100) return 'custom-progress-success';
+    if (progress >= 75) return 'custom-progress-good';
+    if (progress >= 50) return 'custom-progress-warning';
+    return 'custom-progress-danger';
+  }
+
+  getProgressTextClass(indicator: GetIndicatorsProgress): string {
+    const progress = this.calculateProgress(indicator);
+    if (progress >= 100) return 'text-green-600';
+    if (progress >= 75) return 'text-blue-600';
+    if (progress >= 50) return 'text-yellow-600';
+    return 'text-red-600';
+  }
+
+  getRemainingText(indicator: GetIndicatorsProgress): string {
+    const remaining = indicator.target_value - indicator.total_contributions;
+    if (remaining <= 0) {
+      return 'Target achieved!';
+    }
+    return `${remaining} remaining`;
+  }
+
+  toggleRow(rowIndex: number): void {
+    this.expandedRows[rowIndex] = !this.expandedRows[rowIndex];
   }
 }

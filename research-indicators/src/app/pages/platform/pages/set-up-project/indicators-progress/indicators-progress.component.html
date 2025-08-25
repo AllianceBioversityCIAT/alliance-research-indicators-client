@@ -1,1 +1,179 @@
-<div class="project-setup-container max-w-7xl mx-auto px-4 py-4">test</div>
+<div class="project-setup-container mt-5 max-w-7xl mx-auto px-4 py-4 indicators-progress-view">
+  <div class="indicators-section">
+    <h3 class="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+      <i class="pi pi-chart-line text-blue-600 text-sm"></i>
+      Indicators Progress ({{ indicators().length }})
+    </h3>
+
+    @if (indicators().length > 0) {
+      <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+        <p-table
+          [value]="indicators()"
+          [responsive]="true"
+          styleClass="p-datatable-sm"
+          [scrollable]="true"
+          [tableStyle]="{ 'min-width': '70rem' }"
+          size="small">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="text-center w-20">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="pi pi-hashtag text-blue-600 text-xs"></i>
+                  <span class="text-gray-700">Code</span>
+                </div>
+              </th>
+              <th class="text-left max-w-[30%]">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-bookmark text-blue-600 text-xs"></i>
+                  <span class="text-gray-700">Statement</span>
+                </div>
+              </th>
+              <th class="text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="pi pi-chart-line text-blue-600 text-xs"></i>
+                  <span class="text-gray-700">Values</span>
+                </div>
+              </th>
+              <th class="text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="pi pi-percentage text-green-600 text-xs"></i>
+                  <span class="text-gray-700">Progress</span>
+                </div>
+              </th>
+              <th class="text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="pi pi-list text-blue-600 text-xs"></i>
+                  <span class="text-gray-700">Contributions</span>
+                </div>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-indicator let-expanded="expanded" let-rowIndex="rowIndex">
+            <tr class="hover:bg-gray-50 transition-colors border-b border-gray-200">
+              <td class="align-top text-center">
+                <div class="py-3">
+                  @if (indicator.code) {
+                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-mono font-medium">{{ indicator.code }}</span>
+                  } @else {
+                    <span class="text-xs text-gray-400">-</span>
+                  }
+                </div>
+              </td>
+              <td class="align-top">
+                <div class="py-3">
+                  <h4 class="text-sm text-gray-800 mb-1 leading-tight">{{ indicator.name }}</h4>
+                  <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed">{{ indicator.description }}</p>
+                  <div class="flex flex-wrap gap-1 mt-2">
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap text-xs">
+                      <strong>Unit:</strong>&nbsp;{{ indicator.target_unit || 'N/A' }}
+                    </span>
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap text-xs capitalize">
+                      <strong>Type:</strong>&nbsp;{{ indicator.number_type }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="align-top text-center">
+                <div class="py-3">
+                  <div class="flex flex-wrap justify-center gap-1 max-w-xs mx-auto">
+                    @if (indicator.target_value) {
+                      <div class="bg-green-50 border border-green-200 px-3 py-2 rounded-md flex items-center gap-2">
+                        <span class="text-xs text-green-600 font-medium">Target:</span>
+                        <span class="text-sm font-semibold text-green-700">{{ indicator.target_value }}</span>
+                      </div>
+                    }
+                    @if (indicator.base_line) {
+                      <div class="bg-blue-50 border border-blue-200 px-3 py-2 rounded-md flex items-center gap-2">
+                        <span class="text-xs text-blue-600 font-medium">Baseline:</span>
+                        <span class="text-sm font-semibold text-blue-700">{{ indicator.base_line }}</span>
+                      </div>
+                    }
+                    <div class="bg-orange-50 border border-orange-200 px-3 py-2 rounded-md flex items-center gap-2">
+                      <span class="text-xs text-orange-600 font-medium">Current:</span>
+                      <span class="text-sm font-semibold text-orange-700">{{ indicator.total_contributions }}</span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="align-top text-center">
+                <div class="py-3">
+                  <div class="flex flex-col items-center gap-2">
+                    <p-progressBar
+                      [value]="calculateProgress(indicator)"
+                      [style]="{ height: '12px', width: '120px' }"
+                      [styleClass]="getProgressBarClass(indicator)">
+                    </p-progressBar>
+                    <span class="text-xs font-medium" [class]="getProgressTextClass(indicator)"> {{ calculateProgress(indicator) }}% </span>
+                    @if (indicator.target_value) {
+                      <span class="text-xs text-gray-500">
+                        {{ getRemainingText(indicator) }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              </td>
+              <td class="align-top text-center">
+                <div class="py-3">
+                  <div class="flex flex-col items-center gap-2">
+                    <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
+                      {{ indicator.contributions.length }} contributions
+                    </span>
+                    @if (indicator.contributions.length > 0) {
+                      <p-button
+                        [icon]="expandedRows[rowIndex] ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                        [label]="expandedRows[rowIndex] ? 'Ver menos' : 'Ver más'"
+                        severity="secondary"
+                        [text]="true"
+                        size="small"
+                        (onClick)="toggleRow(rowIndex)"
+                        class="text-xs">
+                      </p-button>
+                    }
+                  </div>
+                </div>
+              </td>
+            </tr>
+            @if (expandedRows[rowIndex] && indicator.contributions.length > 0) {
+              <tr class="bg-gray-50">
+                <td colspan="5" class="p-4">
+                  <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <i class="pi pi-list text-blue-600 text-xs"></i>
+                      Contributions Details
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      @for (contribution of indicator.contributions; track contribution.result_id) {
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                          <div class="flex items-start justify-between gap-2 mb-2">
+                            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-mono font-medium">
+                              {{ contribution.result_official_code }}
+                            </span>
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">
+                              {{ contribution.contribution_value }}
+                            </span>
+                          </div>
+                          <h6 class="text-sm font-medium text-gray-800 mb-1 line-clamp-2">{{ contribution.title }}</h6>
+                          @if (contribution.description) {
+                            <p class="text-xs text-gray-600 line-clamp-2">{{ contribution.description }}</p>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          </ng-template>
+        </p-table>
+      </div>
+    } @else {
+      <div class="text-center py-8 bg-gray-50 rounded-lg">
+        <i class="pi pi-chart-line text-3xl mb-3 block text-gray-300"></i>
+        <h4 class="text-base font-semibold text-gray-700 mb-2">No indicators progress data</h4>
+        <p class="text-sm text-gray-500 mb-4">Indicators progress will appear here once contributions are made.</p>
+      </div>
+    }
+  </div>
+</div>
