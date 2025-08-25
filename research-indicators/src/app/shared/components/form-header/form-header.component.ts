@@ -10,5 +10,18 @@ import { CacheService } from '@shared/services/cache/cache.service';
 export class FormHeaderComponent {
   cache = inject(CacheService);
 
-  sectionTitle = computed(() => this.cache.currentMetadata().result_title);
+  sectionTitle = computed(() => {
+    const title = this.cache.currentMetadata().result_title || '';
+    const words = title.split(' ');
+
+    if (words.length > 30) {
+      return words.slice(0, 30).join(' ') + '...';
+    }
+
+    if (title.length > 200) {
+      return title.slice(0, 200) + '...';
+    }
+
+    return title;
+  });
 }

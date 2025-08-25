@@ -33,7 +33,7 @@
       (onClick)="this.allModalsService.openModal('createResult')"
       [style]="{ 'margin-left': '20px', 'min-width': '105px !important' }" />
     <div class="icons-container">
-      <div class="search-box">
+      <div class="search-box {{ hss ? '!w-60' : '' }} !w-60 xl:!w-75 ml-3">
         <i class="pi pi-search !text-[12px] px-2"></i>
         <input
           id="search-result-input"

@@ -148,6 +148,10 @@ export class ResultsCenterService {
     const filters: { label: string }[] = [];
     const activeFilters = this.resultsFilter();
 
+    if ((activeFilters['indicator-codes-tabs'] ?? []).length > 0) {
+      filters.push({ label: 'INDICATOR TAB' });
+    }
+
     if ((activeFilters['indicator-codes-filter'] ?? []).length > 0) {
       filters.push({ label: 'INDICATOR' });
     }
@@ -184,6 +188,14 @@ export class ResultsCenterService {
   );
 
   countFiltersSelected = computed(() => {
+    const activeFilters = Object.entries(this.resultsFilter()).filter(
+      ([key, arr]) => !['create-user-codes', 'indicator-codes-tabs'].includes(key) && Array.isArray(arr) && arr.length > 0
+    ).length;
+    const totalFilters = activeFilters;
+    return totalFilters > 0 ? totalFilters.toString() : undefined;
+  });
+
+  countTableFiltersSelected = computed(() => {
     const activeFilters = Object.entries(this.resultsFilter()).filter(
       ([key, arr]) => !['create-user-codes', 'indicator-codes-tabs'].includes(key) && Array.isArray(arr) && arr.length > 0
     ).length;
@@ -252,8 +264,6 @@ export class ResultsCenterService {
       table.sortOrder = -1;
       table.first = 0;
     }
-
-    this.applyFilters();
   };
 
   showFilterSidebar(): void {
@@ -282,17 +292,17 @@ export class ResultsCenterService {
         active: item.indicator_id === indicatorId
       }))
     );
+
     this.resultsFilter.update(prev => ({
       ...prev,
-      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId]
+      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId],
+      'indicator-codes-filter': []
     }));
-    this.resultsFilter()['indicator-codes-filter'] = [];
+
     this.tableFilters.update(prev => ({
       ...prev,
       indicators: []
     }));
-
-    this.applyFilters();
   }
 
   cleanFilters() {
@@ -304,21 +314,36 @@ export class ResultsCenterService {
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
-    this.applyFilters();
+
+    this.tableFilters.update(prev => ({
+      ...prev,
+      indicators: [],
+      statusCodes: [],
+      years: [],
+      contracts: [],
+      levers: []
+    }));
   }
 
   clearAllFilters() {
-    //? Clear all filters and apply them again
+    //? Clear all filters and reset sort
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
       indicators: [],
       statusCodes: [],
       years: [],
-      contracts: []
+      contracts: [],
+      levers: []
     }));
-    this.applyFilters();
-    //? clear search input
+
+    this.resultsFilter.update(prev => ({
+      ...prev,
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+
+    // clear search input
     this.searchInput.set('');
     //? clear table filters and reset sort
     const table = this.tableRef();
