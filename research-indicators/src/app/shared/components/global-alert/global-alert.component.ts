@@ -130,7 +130,7 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
       case 'error':
         return { icon: 'pi pi-times-circle', color: 'red' };
       default:
-        return { icon: 'info', color: 'blue' };
+        return { icon: 'pi pi-info-circle', color: '#035BA9' };
     }
   }
 
