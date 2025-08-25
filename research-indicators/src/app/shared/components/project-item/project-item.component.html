@@ -11,7 +11,11 @@
           </div>
           @if (cache.onlyMvpUsers() && isHeader && !hideSetup) {
             <div class="absolute right-10">
-              <p-button label="Set up project" icon="pi pi-cog" size="small" [routerLink]="['/set-up-project', project.agreement_id]" />
+              <p-button
+                label="Set up project"
+                icon="pi pi-cog"
+                size="small"
+                [routerLink]="['/project-detail', project.agreement_id, 'set-up-project']" />
             </div>
           }
         </div>

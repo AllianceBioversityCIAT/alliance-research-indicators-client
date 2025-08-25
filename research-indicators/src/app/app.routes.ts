@@ -182,7 +182,7 @@ export const routes: Routes = [
         }
       },
       {
-        path: 'set-up-project/:id',
+        path: 'project-detail/:id/set-up-project',
         loadComponent: () => import('@platform/pages/set-up-project/set-up-project.component'),
         canMatch: [mvpGuard],
         data: {
