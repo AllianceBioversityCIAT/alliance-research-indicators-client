@@ -156,8 +156,8 @@
                       <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
                         Published
                       </button>
-                      Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                      <span class="text-[#345B8F]">1</span>
+                      Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i> <span class="text-[#345B8F]">1</span
+                      ><!-- no data coming from the backend -->
                       <span class="text-[#B9C0C5]">|</span>
                       Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
                       <span class="text-[#345B8F]">{{ item?.report_year_id }}</span>
@@ -165,26 +165,30 @@
                   </div>
                 </ng-template>
                 <ng-template #rows let-item>
-                  <div class="flex flex-col gap-2 h-[80px] text-[14px] w-full min-w-0" pTooltip="{{ item?.title }}">
-                    <div class="flex items-center gap-2">
-                      <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
-                      <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
+                  <div class="flex h-[82px] text-[14px] w-full min-w-0 px-2 py-0.5">
+                    <div class="w-[90%] flex flex-col gap-2">
+                      <div class="flex items-center gap-2">
+                        <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
+                        <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
+                      </div>
+                      <div class="text-[#4C5158] font-[600] w-full overflow-hidden whitespace-nowrap text-ellipsis" pTooltip="{{ item?.title }}">
+                        {{ item?.result_official_code }} -
+                        {{ item?.title }}
+                      </div>
+                      <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
+                        <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
+                          Published
+                        </button>
+                        Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i> <span class="text-[#345B8F]">1</span>
+                        <!-- no data coming from the backend -->
+                        <span class="text-[#B9C0C5]">|</span>
+                        Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+                        <span class="text-[#345B8F]">{{ item?.report_year_id }}</span>
+                      </p>
                     </div>
-                    <div class="text-[#4C5158] font-[600] w-full overflow-hidden whitespace-nowrap text-ellipsis">
-                      {{ item?.result_official_code }} -
-                      {{ item?.title }}
+                    <div class="flex w-[10%] justify-end items-center">
+                      <i class="pi pi-times-circle !text-[18px] text-[#CF0808] pl-1" (click)="clearOicrSelection()"></i>
                     </div>
-
-                    <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
-                      <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
-                        Published
-                      </button>
-                      Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                      <span class="text-[#345B8F]">1</span>
-                      <span class="text-[#B9C0C5]">|</span>
-                      Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                      <span class="text-[#345B8F]">{{ item?.report_year_id }}</span>
-                    </p>
                   </div>
                 </ng-template>
                 <ng-template #selectedItemTemplate let-selected>
