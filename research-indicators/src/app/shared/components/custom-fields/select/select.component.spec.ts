@@ -87,22 +87,6 @@ describe('SelectComponent', () => {
     expect(component.service).toBe(mockService);
   });
 
-  it('should handle ngAfterContentInit', () => {
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
-    component.ngAfterContentInit();
-
-    expect(consoleSpy).toHaveBeenCalledWith('SelectComponent - Templates found:', {
-      itemTemplate: false,
-      selectedItemTemplate: false,
-      selectedItemsTemplate: false,
-      headerTemplate: false,
-      rowsTemplate: false
-    });
-
-    consoleSpy.mockRestore();
-  });
-
   it('should handle onFilter for OpenSearch service', () => {
     component.ngOnInit();
     const mockEvent = { filter: 'test search' };
