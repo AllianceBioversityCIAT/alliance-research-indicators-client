@@ -338,7 +338,6 @@ export class ResultsCenterService {
   }
 
   clearAllFilters() {
-    //? Clear all filters and reset sort
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
@@ -357,16 +356,12 @@ export class ResultsCenterService {
 
     // clear search input
     this.searchInput.set('');
-    //? clear table filters and reset sort
     const table = this.tableRef();
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
-    //? clear indicators tab filter, keeping first one active
-    this.onSelectFilterTab(0);
-    //? NO resetear myResultsFilterItem aquí - mantener el tab seleccionado
   }
 
   cleanMultiselects() {

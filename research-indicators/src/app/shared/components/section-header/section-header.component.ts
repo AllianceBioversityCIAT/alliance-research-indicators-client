@@ -53,7 +53,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
       styleClass: 'delete-result',
       command: () => {
         this.actions.showGlobalAlert({
-          severity: 'warning',
+          severity: 'delete',
           summary: 'Are you sure you want to delete this result? ',
           detail: 'Once deleted, it cannot be recovered.',
           confirmCallback: {
