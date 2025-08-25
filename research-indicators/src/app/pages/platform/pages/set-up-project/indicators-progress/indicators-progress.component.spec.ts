@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { IndicatorsProgressComponent } from './indicators-progress.component';
+import IndicatorsProgressComponent from './indicators-progress.component';
 
 describe('IndicatorsProgressComponent', () => {
   let component: IndicatorsProgressComponent;
@@ -9,8 +9,7 @@ describe('IndicatorsProgressComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [IndicatorsProgressComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(IndicatorsProgressComponent);
     component = fixture.componentInstance;

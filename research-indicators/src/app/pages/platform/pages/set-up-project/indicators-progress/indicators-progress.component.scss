@@ -1,19 +1,11 @@
 // Custom progress bar styles
 :host ::ng-deep {
-  .custom-progress-success .p-progressbar-value {
-    background: linear-gradient(to right, #10b981, #059669);
-  }
-
-  .custom-progress-good .p-progressbar-value {
+  .custom-progress-primary .p-progressbar-value {
     background: linear-gradient(to right, #3b82f6, #2563eb);
   }
 
-  .custom-progress-warning .p-progressbar-value {
-    background: linear-gradient(to right, #f59e0b, #d97706);
-  }
-
-  .custom-progress-danger .p-progressbar-value {
-    background: linear-gradient(to right, #ef4444, #dc2626);
+  .custom-progress-complete .p-progressbar-value {
+    background: linear-gradient(to right, #10b981, #059669);
   }
 
   .p-progressbar {
