@@ -65,6 +65,7 @@ import { PostSyncContributor } from '../interfaces/post-sync-contributor.interfa
 import { FindContracts } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
+import { GetIndicatorsProgress } from '../interfaces/get-indicators-progress.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -629,6 +630,11 @@ export class ApiService {
 
   GET_ContributionsByResult = (agreementId: string) => {
     const url = () => `contributions/by-result/${this.cache.currentMetadata().result_id}/${agreementId}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_IndicatorsProgress = (agreementId: string): Promise<MainResponse<GetIndicatorsProgress[]>> => {
+    const url = () => `project-indicators/contributions/${agreementId}`;
     return this.TP.get(url(), {});
   };
 

@@ -36,11 +36,11 @@ export interface ProjectIndicator {
 export type NumberTypeOption = 'sum' | 'average' | 'count' | 'yes/no';
 export type NumberFormatOption = 'number (Integer)' | 'decimal';
 
-export const NUMBER_TYPE_OPTIONS: { label: string; value: NumberTypeOption }[] = [
+export const NUMBER_TYPE_OPTIONS: { label: string; value: NumberTypeOption; disabled?: boolean }[] = [
   { label: 'Sum', value: 'sum' },
-  { label: 'Average', value: 'average' },
   { label: 'Count', value: 'count' },
-  { label: 'Yes/No', value: 'yes/no' }
+  { label: 'Average', value: 'average', disabled: true },
+  { label: 'Yes/No', value: 'yes/no', disabled: true }
 ];
 
 export const NUMBER_FORMAT_OPTIONS: { label: string; value: NumberFormatOption }[] = [
