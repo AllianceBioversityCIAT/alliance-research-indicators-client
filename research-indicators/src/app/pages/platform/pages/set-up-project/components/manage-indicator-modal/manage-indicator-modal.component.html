@@ -167,7 +167,12 @@
 
   <div class="flex justify-end gap-2 pt-3 border-t border-gray-200">
     <p-button label="Cancel" severity="secondary" size="small" pTooltip="Cancel indicator creation" (onClick)="close()"> </p-button>
-    <p-button [label]="(editingMode ? 'Update' : 'Create') + ' Indicator'" size="small" pTooltip="Save and create new indicator" (onClick)="save()">
+    <p-button
+      [label]="(editingMode ? 'Update' : 'Create') + ' Indicator'"
+      size="small"
+      pTooltip="Save and create new indicator"
+      (onClick)="save()"
+      [disabled]="formIsInvalid()">
     </p-button>
   </div>
 </p-dialog>

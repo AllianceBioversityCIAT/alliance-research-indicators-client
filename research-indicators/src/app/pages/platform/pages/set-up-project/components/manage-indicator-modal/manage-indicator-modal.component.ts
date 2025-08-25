@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -26,6 +26,7 @@ export const INDICATOR_TYPE_OPTIONS: { label: string; value: IndicatorTypeOption
   { label: 'Others', value: 'Others' }
 ];
 import { ActionsService } from '../../../../../../shared/services/actions.service';
+import { SignalUtilsService } from '../../../../../../shared/services/signal-utils.service';
 
 @Component({
   selector: 'app-manage-indicator-modal',
@@ -36,11 +37,16 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 export class ManageIndicatorModalComponent {
   setUpProjectService = inject(SetUpProjectService);
   api = inject(ApiService);
+  signalUtils = inject(SignalUtilsService);
   actions = inject(ActionsService);
   numberTypeOptions = NUMBER_TYPE_OPTIONS;
   numberFormatOptions = NUMBER_FORMAT_OPTIONS;
   indicatorTypeOptions = INDICATOR_TYPE_OPTIONS;
   availableYears = AVAILABLE_YEARS.map(year => ({ label: String(year), value: year }));
+  invalidForm = computed(() => {
+    const value = this.setUpProjectService.manageIndicatorform();
+    return !value.name || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit || !value.type;
+  });
 
   close() {
     this.setUpProjectService.manageIndicatorModal.set({ show: false, assignModal: false, editingMode: false });
@@ -64,16 +70,25 @@ export class ManageIndicatorModalComponent {
     });
   }
 
+  formIsInvalid() {
+    const value = this.setUpProjectService.manageIndicatorform();
+    return !value.name || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit || !value.type;
+  }
+
   async save() {
+    console.log('save');
     const value = this.setUpProjectService.manageIndicatorform();
     if (!value.name || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit || !value.type) {
       return;
     }
+    console.log('pasa dos');
     const response = await this.api.POST_Indicator({ ...value, agreement_id: this.setUpProjectService.currentAgreementId() as number });
     if (!response.successfulRequest) {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to create indicator' });
       return;
     }
+
+    console.log('pasa');
 
     // Si está en modo assign, asignar el indicador al elemento correspondiente
     if (this.setUpProjectService.manageIndicatorModal().assignModal) {

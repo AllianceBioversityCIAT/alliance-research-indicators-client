@@ -5,7 +5,7 @@ import { Injectable, WritableSignal } from '@angular/core';
   providedIn: 'root'
 })
 export class SignalUtilsService {
-  updateSignalByKey(signal: WritableSignal<Record<string, unknown>>, key: string, value: unknown) {
+  updateSignalByKey(signal: WritableSignal<Record<any, any>>, key: string, value: any) {
     signal.update(prev => ({ ...prev, [key]: value }));
   }
 
