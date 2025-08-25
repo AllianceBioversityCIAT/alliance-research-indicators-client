@@ -62,7 +62,10 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
               (async () => {
                 this.router.navigate(['/results-center']);
                 const res = await this.api.DELETE_Result(this.cache.currentResultId());
-                if (res.successfulRequest) this.router.navigate(['/results-center']);
+                if (res.successfulRequest) {
+                  this.actions.showToast({ severity: 'success', summary: 'Result deleted', detail: 'Result deleted successfully' });
+                  this.router.navigate(['/results-center']);
+                }
               })();
             }
           }
