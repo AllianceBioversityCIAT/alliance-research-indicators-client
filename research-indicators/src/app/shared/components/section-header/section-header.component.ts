@@ -60,11 +60,47 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
             label: 'Delete result',
             event: () => {
               (async () => {
-                this.router.navigate(['/results-center']);
-                const res = await this.api.DELETE_Result(this.cache.currentResultId());
-                if (res.successfulRequest) {
-                  this.actions.showToast({ severity: 'success', summary: 'Result deleted', detail: 'Result deleted successfully' });
-                  this.router.navigate(['/results-center']);
+                this.actions.showGlobalAlert({
+                  severity: 'info',
+                  summary: 'Processing...',
+                  detail: 'Deleting result, please wait.',
+                  hasNoButton: true,
+                  autoHideDuration: 0
+                });
+
+                try {
+                  const res = await this.api.DELETE_Result(this.cache.currentResultId());
+                  if (res.successfulRequest) {
+                    this.actions.hideGlobalAlert(0);
+                    this.actions.showToast({ severity: 'success', summary: 'Result deleted', detail: 'Result deleted successfully' });
+                    this.router.navigate(['/results-center']);
+                  } else {
+                    this.actions.hideGlobalAlert(0);
+                    this.actions.showGlobalAlert({
+                      severity: 'error',
+                      summary: 'Error',
+                      detail: 'Failed to delete result. Please try again.',
+                      confirmCallback: {
+                        label: 'OK',
+                        event: () => {
+                          this.actions.hideGlobalAlert(0);
+                        }
+                      }
+                    });
+                  }
+                } catch {
+                  this.actions.hideGlobalAlert(0);
+                  this.actions.showGlobalAlert({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'An error occurred while deleting the result. Please try again.',
+                    confirmCallback: {
+                      label: 'OK',
+                      event: () => {
+                        this.actions.hideGlobalAlert(0);
+                      }
+                    }
+                  });
                 }
               })();
             }
