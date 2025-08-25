@@ -148,6 +148,10 @@ export class ResultsCenterService {
     const filters: { label: string }[] = [];
     const activeFilters = this.resultsFilter();
 
+    if ((activeFilters['indicator-codes-tabs'] ?? []).length > 0) {
+      filters.push({ label: 'INDICATOR TAB' });
+    }
+
     if ((activeFilters['indicator-codes-filter'] ?? []).length > 0) {
       filters.push({ label: 'INDICATOR' });
     }
@@ -171,7 +175,27 @@ export class ResultsCenterService {
     return filters;
   });
 
+  onChangeFilters = effect(
+    async () => {
+      this.loading.set(true);
+      const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
+      this.list.set(response());
+      this.loading.set(false);
+    },
+    {
+      allowSignalWrites: true
+    }
+  );
+
   countFiltersSelected = computed(() => {
+    const activeFilters = Object.entries(this.resultsFilter()).filter(
+      ([key, arr]) => !['create-user-codes', 'indicator-codes-tabs'].includes(key) && Array.isArray(arr) && arr.length > 0
+    ).length;
+    const totalFilters = activeFilters;
+    return totalFilters > 0 ? totalFilters.toString() : undefined;
+  });
+
+  countTableFiltersSelected = computed(() => {
     const activeFilters = Object.entries(this.resultsFilter()).filter(
       ([key, arr]) => !['create-user-codes', 'indicator-codes-tabs'].includes(key) && Array.isArray(arr) && arr.length > 0
     ).length;
@@ -192,7 +216,7 @@ export class ResultsCenterService {
             },
             ...prev.map(indicator => ({
               ...indicator,
-              able: [0, 1, 2, 4, 5].includes(indicator.indicator_id)
+              able: [0, 1, 2, 4].includes(indicator.indicator_id)
             }))
           ];
         });
@@ -203,15 +227,6 @@ export class ResultsCenterService {
       allowSignalWrites: true
     }
   );
-
-  getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
-    const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
-      SUBMITTED: 'info',
-      ACCEPTED: 'success',
-      EDITING: 'warning'
-    };
-    return severityMap[status];
-  }
 
   async main() {
     this.loading.set(true);
@@ -224,6 +239,14 @@ export class ResultsCenterService {
     } finally {
       this.loading.set(false);
     }
+  }
+  getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
+    const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
+      SUBMITTED: 'info',
+      ACCEPTED: 'success',
+      EDITING: 'warning'
+    };
+    return severityMap[status];
   }
 
   onActiveItemChange = (event: MenuItem): void => {
@@ -253,9 +276,6 @@ export class ResultsCenterService {
       table.sortOrder = -1;
       table.first = 0;
     }
-
-    // Cargar datos manualmente
-    this.main();
   };
 
   showFilterSidebar(): void {
@@ -267,23 +287,14 @@ export class ResultsCenterService {
   }
 
   applyFilters = () => {
-    const currentTableFilters = this.tableFilters();
-
-    if (!currentTableFilters) {
-      return;
-    }
-
     this.resultsFilter.update(prev => ({
       ...prev,
-      'lever-codes': (currentTableFilters.levers || []).map((lever: GetLevers) => lever.id),
-      'status-codes': (currentTableFilters.statusCodes || []).map((status: GetAllResultStatus) => status.result_status_id),
-      years: (currentTableFilters.years || []).map((year: { id: number; name: string }) => year.id),
-      'contract-codes': (currentTableFilters.contracts || []).map((contract: GetContracts) => contract.agreement_id),
-      'indicator-codes-filter': (currentTableFilters.indicators || []).map((indicator: GetAllIndicators) => indicator.indicator_id)
+      'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id),
+      'status-codes': this.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id),
+      years: this.tableFilters().years.map((year: { id: number; name: string }) => year.id),
+      'contract-codes': this.tableFilters().contracts.map((contract: GetContracts) => contract.agreement_id),
+      'indicator-codes-filter': this.tableFilters().indicators.map((indicator: GetAllIndicators) => indicator.indicator_id)
     }));
-
-    // Cargar datos manualmente después de aplicar filtros
-    this.main();
   };
 
   onSelectFilterTab(indicatorId: number) {
@@ -293,11 +304,13 @@ export class ResultsCenterService {
         active: item.indicator_id === indicatorId
       }))
     );
+
     this.resultsFilter.update(prev => ({
       ...prev,
       'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId],
       'indicator-codes-filter': []
     }));
+
     this.tableFilters.update(prev => ({
       ...prev,
       indicators: []
@@ -306,42 +319,60 @@ export class ResultsCenterService {
 
   cleanFilters() {
     this.cleanMultiselects();
-
-    this.tableFilters.set(new TableFilters());
-
-    this.searchInput.set('');
-
+    //? clear table filters and reset sort
     const table = this.tableRef();
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
+
+    this.tableFilters.update(prev => ({
+      ...prev,
+      indicators: [],
+      statusCodes: [],
+      years: [],
+      contracts: [],
+      levers: []
+    }));
   }
 
   clearAllFilters() {
-    this.cleanMultiselects();
-
+    //? Clear all filters and reset sort
     this.tableFilters.set(new TableFilters());
+    this.tableFilters.update(prev => ({
+      ...prev,
+      indicators: [],
+      statusCodes: [],
+      years: [],
+      contracts: [],
+      levers: []
+    }));
 
+    this.resultsFilter.update(prev => ({
+      ...prev,
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+
+    // clear search input
     this.searchInput.set('');
-
+    //? clear table filters and reset sort
     const table = this.tableRef();
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
-
+    //? clear indicators tab filter, keeping first one active
     this.onSelectFilterTab(0);
+    //? NO resetear myResultsFilterItem aquí - mantener el tab seleccionado
   }
 
   cleanMultiselects() {
     const refs = this.multiselectRefs();
     Object.values(refs).forEach(multiselect => {
-      if (multiselect && typeof multiselect.clear === 'function') {
-        multiselect.clear();
-      }
+      multiselect.clear();
     });
   }
 

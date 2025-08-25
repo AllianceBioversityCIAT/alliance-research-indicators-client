@@ -63,16 +63,24 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 240 : 270)}px)`
   );
 
+  getActiveFiltersExcludingIndicatorTab = computed(() => {
+    const activeFilters = this.resultsCenterService.getActiveFilters();
+    return activeFilters.filter(filter => filter.label !== 'INDICATOR TAB');
+  });
+
+  shouldShowFilterMessage = computed(() => {
+    const activeFilters = this.resultsCenterService.getActiveFilters();
+    const filtersExcludingIndicatorTab = activeFilters.filter(filter => filter.label !== 'INDICATOR TAB');
+    return filtersExcludingIndicatorTab.length > 0;
+  });
+
   private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70, minWidth = 15) {
     const column = worksheet.getColumn(columnNumber);
     if (column) {
-      // Initialize maxLength with header length
       let maxLength = column.header?.toString().length ?? 0;
 
-      // Check all cell contents
       column.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
         if (rowNumber > 1) {
-          // Skip header since we already considered it
           const cellText = cell.text ?? '';
           const textLength = cellText.toString().length;
           maxLength = Math.max(maxLength, textLength);
@@ -84,9 +92,6 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   private styleHeaderColumns(worksheet: ExcelJS.Worksheet, totalColumns: number) {
-    // Style each header cell and hide unused columns
-
-    // Set print area and view to only show used columns
     worksheet.views = [
       {
         state: 'frozen',
