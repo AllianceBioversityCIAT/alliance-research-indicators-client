@@ -25,11 +25,11 @@
       </app-filters-action-buttons>
     </div>
 
-    @if (resultsCenterService.getActiveFilters().length > 0) {
+    @if (shouldShowFilterMessage()) {
       <div class="flex gap-2 px-3 mt-2 mb-3 items-center">
         <span class="font-semibold text-sm" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
         <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>
-        @for (filter of resultsCenterService.getActiveFilters(); track filter.label) {
+        @for (filter of getActiveFiltersExcludingIndicatorTab(); track filter.label) {
           <div class="flex items-center">
             <span class="text-primary-700 font-bold text-sm" style="font-family: 'Space Grotesk', sans-serif">{{ filter.label }}</span>
             @if (!$last) {
