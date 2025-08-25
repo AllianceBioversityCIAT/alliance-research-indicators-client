@@ -19,7 +19,7 @@ export class FileManagerService {
     const formData = new FormData();
     formData.append('file', file, file.name);
 
-    formData.append('bucketName', 'microservice-mining');
+    formData.append('bucketName', 'ai-services-ibd');
     formData.append('fileName', file.name);
 
     const weightLimitBytes = weightLimit * 1024 * 1024;
