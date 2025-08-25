@@ -6,7 +6,7 @@
   [header]="editingMode ? 'Edit Indicator' : 'Create New Indicator'"
   [modal]="true"
   [closable]="true"
-  [style]="{ width: '800px', maxHeight: '90vh' }"
+  [style]="{ minWidth: '800px', width: '1100px', maxHeight: '90vh' }"
   [draggable]="false">
   <div class="indicator-form">
     @if (setUpProjectService.manageIndicatorModal().assignModal) {
@@ -57,13 +57,27 @@
     }
 
     <div class="grid grid-cols-1 gap-3 mb-4">
-      <div>
-        <label for="ind-code" class="block text-sm font-medium text-gray-700 mb-2">Code *</label>
-        <input id="ind-code" pInputText [(ngModel)]="form().code" placeholder="Indicator code" class="w-full" />
-      </div>
-      <div>
-        <label for="ind-name" class="block text-sm font-medium text-gray-700 mb-2">Statement *</label>
-        <input id="ind-name" pInputText [(ngModel)]="form().name" placeholder="Indicator name" class="w-full" />
+      <div class="grid grid-cols-5 gap-3">
+        <div class="col-span-1">
+          <label for="ind-indicator-type" class="block text-sm font-medium text-gray-700 mb-2">Indicator Type *</label>
+          <p-select
+            id="ind-indicator-type"
+            [(ngModel)]="form().type"
+            [options]="indicatorTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select indicator type"
+            class="w-full">
+          </p-select>
+        </div>
+        <div class="col-span-1">
+          <label for="ind-code" class="block text-sm font-medium text-gray-700 mb-2">Code *</label>
+          <input id="ind-code" pInputText [(ngModel)]="form().code" placeholder="Indicator code" class="w-full" />
+        </div>
+        <div class="col-span-3">
+          <label for="ind-name" class="block text-sm font-medium text-gray-700 mb-2">Statement *</label>
+          <input id="ind-name" pInputText [(ngModel)]="form().name" placeholder="Indicator name" class="w-full" />
+        </div>
       </div>
 
       <!-- <div>
@@ -78,18 +92,6 @@
           class="w-full">
         </textarea>
       </div> -->
-      <div>
-        <label for="ind-indicator-type" class="block text-sm font-medium text-gray-700 mb-2">Indicator Type *</label>
-        <p-select
-          id="ind-indicator-type"
-          [(ngModel)]="form().type"
-          [options]="indicatorTypeOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select indicator type"
-          class="w-full">
-        </p-select>
-      </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
@@ -170,9 +172,10 @@
     <p-button
       [label]="(editingMode ? 'Update' : 'Create') + ' Indicator'"
       size="small"
+      [loading]="loading()"
       pTooltip="Save and create new indicator"
       (onClick)="save()"
-      [disabled]="formIsInvalid()">
+      [disabled]="formIsInvalid() || loading()">
     </p-button>
   </div>
 </p-dialog>

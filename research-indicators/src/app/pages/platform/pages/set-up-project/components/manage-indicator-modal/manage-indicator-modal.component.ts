@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -39,6 +39,7 @@ export class ManageIndicatorModalComponent {
   api = inject(ApiService);
   signalUtils = inject(SignalUtilsService);
   actions = inject(ActionsService);
+  loading = signal(false);
   numberTypeOptions = NUMBER_TYPE_OPTIONS;
   numberFormatOptions = NUMBER_FORMAT_OPTIONS;
   indicatorTypeOptions = INDICATOR_TYPE_OPTIONS;
@@ -76,6 +77,7 @@ export class ManageIndicatorModalComponent {
   }
 
   async save() {
+    this.loading.set(true);
     console.log('save');
     const value = this.setUpProjectService.manageIndicatorform();
     if (!value.name || !value.numberType || !value.numberFormat || !value.years.length || !value.targetUnit || !value.type) {
@@ -146,5 +148,6 @@ export class ManageIndicatorModalComponent {
     this.setUpProjectService.getIndicators();
     this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Indicator created successfully' });
     this.close();
+    this.loading.set(false);
   }
 }
