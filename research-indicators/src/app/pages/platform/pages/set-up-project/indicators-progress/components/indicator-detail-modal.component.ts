@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -45,6 +45,7 @@ type ECOption = ComposeOption<
       (onHide)="onClose()"
       [modal]="true"
       [closable]="true"
+      [closeOnEscape]="true"
       [style]="{ width: '90vw', maxWidth: '1000px' }"
       [contentStyle]="{ padding: '0' }"
       styleClass="indicator-detail-modal">
@@ -142,9 +143,9 @@ type ECOption = ComposeOption<
     `
   ]
 })
-export class IndicatorDetailModalComponent implements OnInit, OnDestroy {
+export class IndicatorDetailModalComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
-  @Input() visible: boolean = false;
+  @Input() visible = false;
   @Input() indicator: GetIndicatorsProgress | null = null;
   @Output() visibleChange = new EventEmitter<boolean>();
 
@@ -206,7 +207,7 @@ export class IndicatorDetailModalComponent implements OnInit, OnDestroy {
     if (!this.chart || !this.indicator) return;
 
     const contributions = this.indicator.contributions || [];
-    const contributionNames = contributions.map(c => (c.title.length > 20 ? c.title.substring(0, 20) + '...' : c.title));
+    const contributionNames = contributions.map(c => c.result_official_code.toString());
     const contributionValues = contributions.map(c => c.contribution_value);
 
     // Add baseline and target as reference lines
@@ -215,7 +216,7 @@ export class IndicatorDetailModalComponent implements OnInit, OnDestroy {
 
     const option: ECOption = {
       title: {
-        text: 'Individual Contributions',
+        text: 'Contributions by Result Code',
         subtext: `Target: ${targetValue} ${this.indicator.target_unit} | Baseline: ${baselineValue} ${this.indicator.target_unit}`,
         left: 'center',
         textStyle: {

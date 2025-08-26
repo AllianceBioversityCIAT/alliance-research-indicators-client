@@ -1,9 +1,4 @@
 <div class="project-setup-container mt-5 max-w-7xl mx-auto px-4 py-4 indicators-progress-view">
-  <!-- Chart Section -->
-  <div class="chart-section mb-6">
-    <app-indicators-chart [indicators]="indicators()"></app-indicators-chart>
-  </div>
-
   <div class="indicators-section">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-base font-semibold text-gray-800 flex items-center gap-2">
@@ -11,15 +6,28 @@
         Indicators Progress ({{ indicators().length }})
       </h3>
       @if (indicators().length > 0) {
-        <p-button
-          [icon]="allExpanded() ? 'pi pi-minus' : 'pi pi-plus'"
-          [label]="allExpanded() ? 'Collapse All' : 'Expand All'"
-          severity="secondary"
-          [outlined]="true"
-          size="small"
-          (onClick)="toggleAllRows()"
-          class="text-xs">
-        </p-button>
+        <div class="flex items-center gap-2">
+          <p-button
+            icon="pi pi-chart-bar"
+            label="View all indicators chart"
+            severity="info"
+            [outlined]="true"
+            size="small"
+            (onClick)="openMainChartModal()"
+            pTooltip="View indicators progress chart"
+            tooltipPosition="left"
+            class="text-xs">
+          </p-button>
+          <p-button
+            [icon]="allExpanded() ? 'pi pi-minus' : 'pi pi-plus'"
+            [label]="allExpanded() ? 'Collapse All' : 'Expand All'"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            (onClick)="toggleAllRows()"
+            class="text-xs">
+          </p-button>
+        </div>
       }
     </div>
 
@@ -122,7 +130,7 @@
                   <div class="mt-2">
                     <p-button
                       icon="pi pi-chart-bar"
-                      label="View Chart"
+                      label="View indicator chart details"
                       size="small"
                       severity="info"
                       [outlined]="true"
@@ -239,3 +247,7 @@
 <!-- Detail Modal -->
 <app-indicator-detail-modal [visible]="showDetailModal" [indicator]="selectedIndicator" (visibleChange)="showDetailModal = $event">
 </app-indicator-detail-modal>
+
+<!-- Main Chart Modal -->
+<app-main-chart-modal [visible]="showMainChartModal" [indicators]="indicators()" (visibleChange)="showMainChartModal = $event">
+</app-main-chart-modal>

@@ -1,5 +1,6 @@
-import { Component, OnInit, OnChanges, ElementRef, ViewChild, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnChanges, ElementRef, ViewChild, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart, PieChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent, DatasetComponent, TransformComponent } from 'echarts/components';
@@ -46,15 +47,28 @@ type ECOption = ComposeOption<
 @Component({
   selector: 'app-indicators-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonModule],
   template: `
     <div class="chart-container bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-      <div class="mb-4">
-        <h4 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-          <i class="pi pi-chart-bar text-blue-600"></i>
-          Indicators Progress Overview
-        </h4>
-        <p class="text-sm text-gray-600">Visual representation of indicators performance vs targets</p>
+      <div class="mb-4 flex justify-between items-start">
+        <div>
+          <h4 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <i class="pi pi-chart-bar text-blue-600"></i>
+            Indicators Progress Overview
+          </h4>
+          <p class="text-sm text-gray-600">Visual representation of indicators performance vs targets</p>
+        </div>
+        <p-button
+          icon="pi pi-external-link"
+          label="View Chart"
+          size="small"
+          severity="info"
+          [outlined]="true"
+          (onClick)="onViewChart()"
+          pTooltip="View detailed chart with individual indicators"
+          tooltipPosition="left"
+          class="text-xs">
+        </p-button>
       </div>
       <div #chartContainer class="chart-element" style="width: 100%; height: 400px;"></div>
     </div>
@@ -73,6 +87,7 @@ type ECOption = ComposeOption<
 export class IndicatorsChartComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
   @Input() indicators: GetIndicatorsProgress[] = [];
+  @Output() viewChart = new EventEmitter<void>();
 
   private chart: echarts.ECharts | null = null;
 
@@ -137,8 +152,8 @@ export class IndicatorsChartComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    // Use full names instead of codes for better readability
-    const indicatorNames = indicators.map(ind => (ind.name.length > 30 ? ind.name.substring(0, 30) + '...' : ind.name));
+    // Use codes for better space efficiency in main chart
+    const indicatorNames = indicators.map(ind => ind.code);
     const progressData = indicators.map(ind => this.calculateProgress(ind));
     const currentValues = indicators.map(ind => ind.total_contributions);
     const targetValues = indicators.map(ind => ind.target_value);
@@ -242,6 +257,10 @@ export class IndicatorsChartComponent implements OnInit, OnChanges, OnDestroy {
     };
 
     this.chart.setOption(option);
+  }
+
+  onViewChart() {
+    this.viewChart.emit();
   }
 
   ngOnDestroy() {
