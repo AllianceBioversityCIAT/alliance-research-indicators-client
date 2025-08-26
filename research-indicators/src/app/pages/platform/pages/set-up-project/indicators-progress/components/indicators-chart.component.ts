@@ -17,6 +17,10 @@ import type {
 import type { ComposeOption } from 'echarts/core';
 import { GetIndicatorsProgress } from '../../../../../../shared/interfaces/get-indicators-progress.interface';
 
+interface EChartsItemStyleParams {
+  dataIndex: number;
+}
+
 // Register ECharts components
 echarts.use([
   BarChart,
@@ -172,8 +176,8 @@ export class IndicatorsChartComponent implements OnInit, OnChanges, OnDestroy {
         axisPointer: {
           type: 'shadow'
         },
-        formatter: (params: any) => {
-          const dataIndex = params[0].dataIndex;
+        formatter: (params: unknown) => {
+          const dataIndex = (params as { dataIndex: number }[])[0].dataIndex;
           const indicator = indicators[dataIndex];
           const progress = this.calculateProgress(indicator);
 
@@ -231,7 +235,7 @@ export class IndicatorsChartComponent implements OnInit, OnChanges, OnDestroy {
           type: 'bar',
           data: currentValues,
           itemStyle: {
-            color: (params: any) => {
+            color: (params: EChartsItemStyleParams) => {
               const progress = progressData[params.dataIndex];
               if (progress >= 100) return '#22c55e'; // Green for completed
               if (progress >= 75) return '#3b82f6'; // Blue for good progress
