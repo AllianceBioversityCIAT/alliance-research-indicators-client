@@ -138,4 +138,20 @@ export default class IndicatorsProgressComponent implements OnInit {
   toggleRow(rowIndex: number): void {
     this.expandedRows[rowIndex] = !this.expandedRows[rowIndex];
   }
+
+  allExpanded(): boolean {
+    const totalRows = this.indicators().length;
+    if (totalRows === 0) return false;
+
+    const expandedCount = Object.values(this.expandedRows).filter(expanded => expanded).length;
+    return expandedCount === totalRows;
+  }
+
+  toggleAllRows(): void {
+    const shouldExpand = !this.allExpanded();
+
+    this.indicators().forEach((_, index) => {
+      this.expandedRows[index] = shouldExpand;
+    });
+  }
 }
