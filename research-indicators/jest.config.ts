@@ -29,6 +29,13 @@ const config: Config = {
   },
   moduleNameMapper: {
     '@microsoft/clarity': '<rootDir>/tests/mocks/clarityMock.ts',
+    'driver.js': '<rootDir>/tests/mocks/driverMock.ts',
+    'driver.js/dist/driver.css': 'identity-obj-proxy',
+    'echarts/core': '<rootDir>/tests/mocks/echartsMock.ts',
+    'echarts/charts': '<rootDir>/tests/mocks/echartsMock.ts',
+    'echarts/components': '<rootDir>/tests/mocks/echartsMock.ts',
+    'echarts/features': '<rootDir>/tests/mocks/echartsMock.ts',
+    'echarts/renderers': '<rootDir>/tests/mocks/echartsMock.ts',
     '^@public/(.*)$': '<rootDir>/public/$1',
     '^@shared/(.*)$': '<rootDir>/src/app/shared/$1',
     '^@pages/(.*)$': '<rootDir>/src/app/pages/$1',

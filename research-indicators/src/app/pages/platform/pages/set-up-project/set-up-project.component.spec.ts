@@ -13,8 +13,10 @@ import { ActionsService } from '../../../../shared/services/actions.service';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { ProjectUtilsService } from '../../../../shared/services/project-utils.service';
 import { ApiService } from '../../../../shared/services/api.service';
+import { DriverjsService } from '../../../../shared/services/driverjs.service';
 import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
 import { CustomTagComponent } from '../../../../shared/components/custom-tag/custom-tag.component';
+import { mockDriverjsService } from '../../../../../../tests/mocks/driverjsServiceMock';
 
 describe('SetUpProjectComponent', () => {
   let component: SetUpProjectComponent;
@@ -123,7 +125,8 @@ describe('SetUpProjectComponent', () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: CacheService, useValue: mockCacheService },
         { provide: ProjectUtilsService, useValue: mockProjectUtilsService },
-        { provide: ApiService, useValue: mockApiService }
+        { provide: ApiService, useValue: mockApiService },
+        { provide: DriverjsService, useValue: mockDriverjsService }
       ]
     }).compileComponents();
 

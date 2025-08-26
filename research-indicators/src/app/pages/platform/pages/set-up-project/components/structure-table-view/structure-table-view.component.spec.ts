@@ -4,6 +4,8 @@ import { signal } from '@angular/core';
 
 import { StructureTableViewComponent } from './structure-table-view.component';
 import { SetUpProjectService } from '../../set-up-project.service';
+import { DriverjsService } from '../../../../../../shared/services/driverjs.service';
+import { mockDriverjsService } from '../../../../../../../../tests/mocks/driverjsServiceMock';
 
 describe('StructureTableViewComponent', () => {
   let component: StructureTableViewComponent;
@@ -17,16 +19,17 @@ describe('StructureTableViewComponent', () => {
       level2Name: signal('Level 2'),
       editingFocus: signal(false),
       assignIndicatorsModal: signal({ show: false }),
+      allStructuresExpanded: signal(false),
       saveStructures: jest.fn()
     };
 
     await TestBed.configureTestingModule({
       imports: [StructureTableViewComponent, HttpClientTestingModule],
       providers: [
-        { provide: SetUpProjectService, useValue: mockSetUpProjectService }
+        { provide: SetUpProjectService, useValue: mockSetUpProjectService },
+        { provide: DriverjsService, useValue: mockDriverjsService }
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(StructureTableViewComponent);
     component = fixture.componentInstance;

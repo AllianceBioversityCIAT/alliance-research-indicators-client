@@ -3,6 +3,8 @@ import { signal } from '@angular/core';
 
 import StructureComponent from './structure.component';
 import { SetUpProjectService } from '../../set-up-project.service';
+import { DriverjsService } from '../../../../../../shared/services/driverjs.service';
+import { mockDriverjsService } from '../../../../../../../../tests/mocks/driverjsServiceMock';
 
 describe('StructureComponent', () => {
   let component: StructureComponent;
@@ -25,6 +27,7 @@ describe('StructureComponent', () => {
       level2Name: signal('Item'),
       editingLevel1: signal(false),
       editingLevel2: signal(false),
+      allStructuresExpanded: signal(false),
       startEditingLevel1: jest.fn(),
       startEditingLevel2: jest.fn(),
       saveLevel1Name: jest.fn(),
@@ -35,7 +38,10 @@ describe('StructureComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [StructureComponent],
-      providers: [{ provide: SetUpProjectService, useValue: mockSetUpProjectService }]
+      providers: [
+        { provide: SetUpProjectService, useValue: mockSetUpProjectService },
+        { provide: DriverjsService, useValue: mockDriverjsService }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(StructureComponent);
