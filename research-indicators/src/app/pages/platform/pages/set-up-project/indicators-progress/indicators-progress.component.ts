@@ -48,8 +48,8 @@ export default class IndicatorsProgressComponent implements OnInit {
             indicator.total_contributions += 1;
           }
         });
-        console.log(indicator);
-        indicator.percentageProgress = (indicator.total_contributions / indicator.target_value) * 100;
+        const percentageProgress = (indicator.total_contributions / indicator.target_value) * 100;
+        indicator.percentageProgress = percentageProgress > 100 ? 100 : percentageProgress;
       });
 
       this.indicators.set(res.data);
