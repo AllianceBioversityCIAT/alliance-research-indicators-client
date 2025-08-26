@@ -40,6 +40,7 @@ export interface Indicator {
   targetValue: string;
   baseline: string;
   isActive: boolean;
+  code: string;
   // aux
   adding?: boolean;
 }

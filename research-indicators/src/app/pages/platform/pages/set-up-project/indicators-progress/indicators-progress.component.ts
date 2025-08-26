@@ -34,20 +34,30 @@ export default class IndicatorsProgressComponent implements OnInit {
 
   GET_IndicatorsProgress() {
     this.api.GET_IndicatorsProgress(this.route.snapshot.params['id']).then(res => {
+      console.log(res.data);
       res.data.map(indicator => {
         indicator.base_line = Number(indicator.base_line);
         indicator.target_value = Number(indicator.target_value);
         indicator.total_contributions = 0;
+        indicator.total_average_contributions = 0;
+
+        console.log(indicator.name);
+
         indicator.contributions.map(contribution => {
-          contribution.contribution_value = Number(contribution.contribution_value);
-          if (indicator.number_type === 'sum') {
-            indicator.total_contributions += contribution.contribution_value;
-          } else if (indicator.number_type === 'average') {
-            indicator.total_contributions += contribution.contribution_value / indicator.contributions.length;
-          } else if (indicator.number_type === 'count') {
-            indicator.total_contributions += 1;
+          contribution.is_no_contribution = contribution.contribution_value === null;
+          contribution.contribution_value = contribution.is_no_contribution ? null : Number(contribution.contribution_value);
+
+          if (!contribution.is_no_contribution) {
+            indicator.total_contributions += contribution.contribution_value!;
+            // } else if (indicator.number_type === 'average') {
+            //   console.log(indicator.contributions.filter(c => !c.is_no_contribution).length);
+            //   indicator.total_contributions += contribution.contribution_value! / indicator.contributions.filter(c => !c.is_no_contribution).length;
+            // }
           }
         });
+
+        indicator.total_average_contributions = indicator.total_contributions / indicator.contributions.filter(c => !c.is_no_contribution).length;
+
         const percentageProgress = (indicator.total_contributions / indicator.target_value) * 100;
         indicator.percentageProgress = percentageProgress > 100 ? 100 : percentageProgress;
       });

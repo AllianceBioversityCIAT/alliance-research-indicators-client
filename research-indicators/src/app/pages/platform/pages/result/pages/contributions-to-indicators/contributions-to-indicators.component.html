@@ -230,7 +230,7 @@
                     <input
                       type="checkbox"
                       [id]="'no-contribution-' + indicator.id"
-                      [checked]="indicator.contribution_value === 0"
+                      [checked]="indicator.contribution_value === null"
                       (change)="toggleContribution(indicator, $event)"
                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
                     <label [for]="'no-contribution-' + indicator.id" class="text-sm font-medium text-gray-700">
@@ -240,7 +240,7 @@
                 </div>
 
                 <div class="flex items-start gap-4">
-                  @if (indicator.contribution_value !== 0) {
+                  @if (indicator.contribution_value !== null) {
                     <div class="flex-1">
                       <label for="contribution-value-{{ indicator.id }}" class="block text-sm font-medium text-gray-700 mb-2">
                         Contribution Value
