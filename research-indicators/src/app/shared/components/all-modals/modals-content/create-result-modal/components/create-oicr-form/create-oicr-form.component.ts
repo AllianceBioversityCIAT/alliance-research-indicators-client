@@ -52,7 +52,6 @@ import { ServiceLocatorService } from '@shared/services/service-locator.service'
 import { GetInitiativesService } from '@shared/services/control-list/get-initiatives.service';
 import { Router } from '@angular/router';
 
-// Interfaz extendida para incluir contract_id
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
 }
@@ -216,7 +215,6 @@ export class CreateOicrFormComponent {
     { allowSignalWrites: true }
   );
 
-  // Effect para actualizar primaryOptionsDisabled cuando cambien los levers en Other Contributing Levers
   updatePrimaryOptionsDisabledEffect = effect(
     () => {
       const contributorLevers = this.body().step_two?.contributor_lever || [];

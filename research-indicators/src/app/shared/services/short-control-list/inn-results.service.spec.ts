@@ -83,7 +83,7 @@ describe('InnResultsService', () => {
 
   it('uses default filter and config on manual main call', async () => {
     await setup({ data: [] });
-    
+
     apiMock.GET_Results.mockResolvedValueOnce({ data: [] });
     await service.main();
     expect(apiMock.GET_Results).toHaveBeenCalledWith(defaultFilter, defaultConfig);

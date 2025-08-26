@@ -30,7 +30,7 @@ describe('GetTagsService', () => {
     api = { GET_Tags: jest.fn() };
   });
 
-  test('éxito con array: setea lista y desactiva loading', async () => {
+  test('success with array: sets list and disables loading', async () => {
     const tags: GetTags[] = [
       { id: 1, name: 't1', is_active: true, created_at: 'c1', updated_at: 'u1' },
       { id: 2, name: 't2', is_active: false, created_at: 'c2', updated_at: 'u2' }
@@ -46,7 +46,7 @@ describe('GetTagsService', () => {
     expect(service.list()).toEqual(tags);
   });
 
-  test('éxito sin array: setea lista vacía y desactiva loading', async () => {
+  test('success without array: sets empty list and disables loading', async () => {
     api.GET_Tags.mockResolvedValue({ data: null });
 
     makeService();
@@ -57,7 +57,7 @@ describe('GetTagsService', () => {
     expect(service.list()).toEqual([]);
   });
 
-  test('error: captura, setea lista vacía y desactiva loading', async () => {
+  test('error: captures, sets empty list and disables loading', async () => {
     api.GET_Tags.mockRejectedValue(new Error('fail'));
 
     makeService();
@@ -68,7 +68,7 @@ describe('GetTagsService', () => {
     expect(service.list()).toEqual([]);
   });
 
-  test('loading true mientras la petición está pendiente', async () => {
+  test('loading true while the request is pending', async () => {
     const deferred = new Deferred<{ data: GetTags[] }>();
     api.GET_Tags.mockReturnValue(deferred.promise);
 

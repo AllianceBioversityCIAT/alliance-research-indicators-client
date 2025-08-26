@@ -37,7 +37,7 @@ describe('GetInitiativesService', () => {
     expect(service).toBeTruthy();
   });
 
-  test('éxito con array: mapea iniciativas y desactiva loading', async () => {
+  test('success with array: maps initiatives and disables loading', async () => {
     const data: Initiative[] = [
       { initiative_id: 1, name: 'Initiative 1', description: 'Desc 1', is_active: true },
       { initiative_id: 2, name: 'Initiative 2', description: 'Desc 2', is_active: true }
@@ -49,7 +49,7 @@ describe('GetInitiativesService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  test('éxito sin array: desactiva loading y vacía señal', async () => {
+  test('success without array: disables loading and clears signal', async () => {
     api.GET_Initiatives.mockResolvedValue({ data: null });
     makeService();
     await Promise.resolve();
@@ -57,7 +57,7 @@ describe('GetInitiativesService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  test('éxito con respuesta sin data: desactiva loading y vacía señal', async () => {
+  test('success with response without data: disables loading and clears signal', async () => {
     api.GET_Initiatives.mockResolvedValue({});
     makeService();
     await Promise.resolve();
@@ -65,7 +65,7 @@ describe('GetInitiativesService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  test('éxito con data no array: desactiva loading y vacía señal', async () => {
+  test('success with data not an array: disables loading and clears signal', async () => {
     api.GET_Initiatives.mockResolvedValue({ data: 'not an array' });
     makeService();
     await Promise.resolve();
@@ -73,7 +73,7 @@ describe('GetInitiativesService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  test('error: desactiva loading y vacía señal', async () => {
+  test('error: disables loading and clears signal', async () => {
     api.GET_Initiatives.mockRejectedValue(new Error('API Error'));
     makeService();
     await Promise.resolve();
@@ -81,7 +81,7 @@ describe('GetInitiativesService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  test('constructor llama main automáticamente', async () => {
+  test('constructor calls main automatically', async () => {
     const data: Initiative[] = [{ initiative_id: 1, name: 'Test Initiative', description: 'Test Desc', is_active: true }];
     api.GET_Initiatives.mockResolvedValue({ data });
 
@@ -93,7 +93,7 @@ describe('GetInitiativesService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  test('loading inicia en true y cambia a false', async () => {
+  test('loading initializes in true and changes to false', async () => {
     const deferred = new Deferred<{ data: Initiative[] }>();
     api.GET_Initiatives.mockReturnValue(deferred.promise);
 
@@ -106,7 +106,7 @@ describe('GetInitiativesService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  test('isOpenSearch inicia en false', () => {
+  test('isOpenSearch initializes in false', () => {
     makeService();
     expect(service.isOpenSearch()).toBe(false);
   });

@@ -31,7 +31,7 @@ export default class PlatformComponent implements OnInit, OnDestroy {
       },
       error: (err: Error) => {
         this.errorState.set(err);
-        console.error('Error en la suscripción del router:', err);
+        console.error('Error in the router subscription:', err);
       }
     });
   }

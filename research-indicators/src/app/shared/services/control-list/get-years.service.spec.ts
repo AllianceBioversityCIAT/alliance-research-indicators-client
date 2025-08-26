@@ -28,56 +28,56 @@ describe('GetYearsService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('main setea loading y list correctamente con datos válidos', async () => {
+  it('main sets loading and list correctly with valid data', async () => {
     await service.main();
     expect(apiMock.GET_Years).toHaveBeenCalled();
     expect(service.list()).toEqual(mockData);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta vacía', async () => {
+  it('main handles empty response', async () => {
     apiMock.GET_Years.mockResolvedValueOnce({ data: [] });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta null', async () => {
+  it('main handles response null', async () => {
     apiMock.GET_Years.mockResolvedValueOnce({ data: null });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta undefined', async () => {
+  it('main handles response undefined', async () => {
     apiMock.GET_Years.mockResolvedValueOnce(undefined);
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta sin data', async () => {
+  it('main handles response without data', async () => {
     apiMock.GET_Years.mockResolvedValueOnce({ status: 200 });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta con data no array', async () => {
+  it('main handles response with data not an array', async () => {
     apiMock.GET_Years.mockResolvedValueOnce({ data: 'not an array' });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja error en la API', async () => {
+  it('main handles API error', async () => {
     apiMock.GET_Years.mockRejectedValueOnce(new Error('API Error'));
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('constructor inicializa signals correctamente y ejecuta main', async () => {
+  it('constructor initializes signals correctly and executes main', async () => {
     await new Promise(resolve => setTimeout(resolve, 0));
     expect(service.list()).toEqual(mockData);
     expect(service.loading()).toBe(false);
