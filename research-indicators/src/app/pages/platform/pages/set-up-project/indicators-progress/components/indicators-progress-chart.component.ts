@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, ElementRef, ViewChild, Input, signal } from '@angular/core';
+import { Component, OnInit, OnChanges, ElementRef, ViewChild, Input, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as echarts from 'echarts/core';
 import { PieChart } from 'echarts/charts';
@@ -42,7 +42,7 @@ type ECOption = ComposeOption<PieSeriesOption | TitleComponentOption | TooltipCo
     `
   ]
 })
-export class IndicatorsProgressChartComponent implements OnInit, OnChanges {
+export class IndicatorsProgressChartComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
   @Input() indicators = signal<GetIndicatorsProgress[]>([]);
 
@@ -57,71 +57,6 @@ export class IndicatorsProgressChartComponent implements OnInit, OnChanges {
     if (this.chart && this.indicators().length >= 0) {
       this.updateChart(this.indicators());
     }
-  }
-
-  private getDummyData(): GetIndicatorsProgress[] {
-    return [
-      {
-        indicator_id: 1,
-        code: 'IND-001',
-        name: 'Climate Resilient Crops',
-        description: 'Farmers adopting climate-resilient varieties',
-        target_unit: 'farmers',
-        number_type: 'sum',
-        number_format: 'number',
-        target_value: 1000,
-        base_line: 100,
-        year: [2024],
-        type: 'outcome',
-        contributions: [],
-        total_contributions: 850 // 85% progress
-      },
-      {
-        indicator_id: 2,
-        code: 'IND-002',
-        name: 'Water Efficiency',
-        description: 'Water use efficiency improvement',
-        target_unit: '%',
-        number_type: 'average',
-        number_format: 'percentage',
-        target_value: 25,
-        base_line: 5,
-        year: [2024],
-        type: 'output',
-        contributions: [],
-        total_contributions: 20 // 75% progress
-      },
-      {
-        indicator_id: 3,
-        code: 'IND-003',
-        name: 'Research Publications',
-        description: 'Peer-reviewed publications',
-        target_unit: 'publications',
-        number_type: 'count',
-        number_format: 'number',
-        target_value: 15,
-        base_line: 2,
-        year: [2024],
-        type: 'output',
-        contributions: [],
-        total_contributions: 8 // 46% progress
-      },
-      {
-        indicator_id: 4,
-        code: 'IND-004',
-        name: 'Food Security Index',
-        description: 'Regional food security improvement',
-        target_unit: 'points',
-        number_type: 'average',
-        number_format: 'decimal',
-        target_value: 7.5,
-        base_line: 4.2,
-        year: [2024],
-        type: 'impact',
-        contributions: [],
-        total_contributions: 6.8 // 79% progress
-      }
-    ];
   }
 
   private initChart() {
