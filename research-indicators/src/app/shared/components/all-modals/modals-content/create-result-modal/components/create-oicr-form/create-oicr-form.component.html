@@ -123,7 +123,7 @@
           <div class="flex flex-col">
             <app-select
               label="Tagging"
-              helperText="You can find some examples how the ‘Tag as’ were used in previous OICRs here."
+              [helperText]="taggingHelperText"
               [isRequired]="true"
               [signal]="this.body"
               [optionValue]="{ body: 'step_one.tagging.tag_id', option: 'id' }"
@@ -203,7 +203,7 @@
               [isRequired]="true"
               [rows]="5"
               label="Elaboration of outcome/impact statement"
-              helperText="You can find good examples from previous OICRs here."
+              [helperText]="outcomeImpactStatementHelperText"
               [maxLength]="400"
               [signal]="this.body"
               [optionValue]="'step_one.outcome_impact_statement'"

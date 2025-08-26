@@ -250,6 +250,12 @@ export class CreateOicrFormComponent {
     { allowSignalWrites: true }
   );
 
+  taggingHelperText =
+    'You can find some examples how the ‘Tag as’ were used in previous OICRs <a class="text-[#1689CA] underline" href="https://cgiar.sharepoint.com/sites/Alliance-SPRM/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FAlliance%2DSPRM%2FShared%20Documents%2F2%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%2F2%2E5%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%20%2D%20Projects%2F2%2E5%2E1%20Outcomes%2F2024%20Outcomes%2F00%2DTag%2DNew%20or%20Updated%20OICR%20%2D%20Examples%20%28Version%2016%2E07%2E24%29%2Epdf&parent=%2Fsites%2FAlliance%2DSPRM%2FShared%20Documents%2F2%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%2F2%2E5%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%20%2D%20Projects%2F2%2E5%2E1%20Outcomes%2F2024%20Outcomes" target="_blank">here</a>.';
+
+  outcomeImpactStatementHelperText =
+    'You can find good examples from previous OICRs <a class="text-[#1689CA] underline" href="https://cgiar.sharepoint.com/sites/Alliance-SPRM/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FAlliance%2DSPRM%2FShared%20Documents%2F2%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%2F2%2E5%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%20%2D%20Projects%2F2%2E5%2E1%20Outcomes%2F2024%20Outcomes%2F00%2DTag%2DNew%20or%20Updated%20OICR%20%2D%20Examples%20%28Version%2016%2E07%2E24%29%2Epdf&parent=%2Fsites%2FAlliance%2DSPRM%2FShared%20Documents%2F2%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%2F2%2E5%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%20%2D%20Projects%2F2%2E5%2E1%20Outcomes%2F2024%20Outcomes" target="_blank">here</a>.';
+
   onActiveIndexChange(event: number) {
     this.activeIndex = event;
     if (event === 3) {
