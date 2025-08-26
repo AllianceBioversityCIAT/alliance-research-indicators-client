@@ -229,8 +229,8 @@ export class IndicatorDetailModalComponent implements OnInit, OnDestroy, OnChang
         axisPointer: {
           type: 'shadow'
         },
-        formatter: (params: any) => {
-          const dataIndex = params[0].dataIndex;
+        formatter: (params: unknown) => {
+          const dataIndex = (params as { dataIndex: number }[])[0].dataIndex;
           const contribution = contributions[dataIndex];
 
           return `
@@ -278,8 +278,7 @@ export class IndicatorDetailModalComponent implements OnInit, OnDestroy, OnChang
           type: 'bar',
           data: contributionValues,
           itemStyle: {
-            color: (params: any) => {
-              const value = params.value;
+            color: () => {
               const progress = this.getProgressPercentage();
               if (progress >= 100) return '#22c55e'; // Green for completed
               if (progress >= 75) return '#3b82f6'; // Blue for good progress
