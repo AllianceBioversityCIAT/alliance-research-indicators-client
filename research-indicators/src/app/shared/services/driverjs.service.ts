@@ -20,14 +20,12 @@ export class DriverjsService {
     {
       label: 'How to Create Level 2 Structure',
       icon: 'pi pi-folder-open',
-      disabled: true,
-      command: () => this.showLevel2StructureTutorial()
+      disabled: true
     },
     {
       label: 'How to Create an Indicator',
       icon: 'pi pi-chart-line',
-      disabled: true,
-      command: () => this.showCreateIndicatorTutorial()
+      disabled: true
     }
   ];
 
@@ -63,15 +61,5 @@ export class DriverjsService {
     setTimeout(() => {
       this.driverObj.moveNext();
     }, delay);
-  }
-
-  showLevel2StructureTutorial() {
-    // TODO: Implement Level 2 Structure tutorial
-    console.log('Level 2 Structure tutorial');
-  }
-
-  showCreateIndicatorTutorial() {
-    // TODO: Implement Create Indicator tutorial
-    console.log('Create Indicator tutorial');
   }
 }
