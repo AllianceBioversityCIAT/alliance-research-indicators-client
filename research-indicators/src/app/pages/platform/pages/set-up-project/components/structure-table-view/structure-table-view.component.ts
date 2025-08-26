@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, effect } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { SetUpProjectService } from '../../set-up-project.service';
 import { TagModule } from 'primeng/tag';
@@ -15,12 +15,38 @@ import { IndicatorItem } from '../../../../../../shared/interfaces/get-structure
   templateUrl: './structure-table-view.component.html',
   styleUrl: './structure-table-view.component.scss'
 })
-export class StructureTableViewComponent {
+export class StructureTableViewComponent implements OnInit {
   setUpProjectService = inject(SetUpProjectService);
   level1NameInput = '';
   level1CodeInput = '';
   level2NameInput = '';
   level2CodeInput = '';
+  expandedRowKeys: Record<string, boolean> = {};
+
+  constructor() {
+    // Effect para escuchar cambios en allStructuresExpanded
+    effect(() => {
+      // Referenciar el signal para que el effect se reactive
+      this.setUpProjectService.allStructuresExpanded();
+      this.updateExpandedRows();
+    });
+  }
+
+  ngOnInit() {
+    // Inicializar todas las filas como expandidas
+    this.updateExpandedRows();
+  }
+
+  updateExpandedRows() {
+    this.expandedRowKeys = {};
+    if (this.setUpProjectService.allStructuresExpanded()) {
+      this.setUpProjectService.strcutureGrouped().forEach((item: IndicatorItem) => {
+        if (item.representative?.code) {
+          this.expandedRowKeys[item.representative.code] = true;
+        }
+      });
+    }
+  }
 
   changeEditingLevel1 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {

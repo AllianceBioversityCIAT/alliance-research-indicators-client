@@ -7,7 +7,8 @@
     size="small"
     rowGroupMode="subheader"
     groupRowsBy="representative.code"
-    [tableStyle]="{ 'min-width': '70rem' }">
+    [tableStyle]="{ 'min-width': '70rem' }"
+    [expandedRowKeys]="expandedRowKeys">
     <ng-template #header>
       <tr>
         <th class="w-[15%]">{{ setUpProjectService.level2Name() }} group</th>

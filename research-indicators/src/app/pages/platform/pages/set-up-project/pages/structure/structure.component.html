@@ -22,6 +22,17 @@
             severity="contrast"
             size="small"
             [label]="'Add ' + this.setUpProjectService.level1Name()" />
+          @if (setUpProjectService.structures().length > 0) {
+            <p-button
+              [icon]="setUpProjectService.allStructuresExpanded() ? 'pi pi-minus' : 'pi pi-plus'"
+              [label]="setUpProjectService.allStructuresExpanded() ? 'Collapse All' : 'Expand All'"
+              severity="secondary"
+              [outlined]="true"
+              size="small"
+              (onClick)="setUpProjectService.toggleAllStructures()"
+              class="text-xs">
+            </p-button>
+          }
         }
       }
     </div>
