@@ -78,9 +78,7 @@ export class StructureTableViewComponent implements OnInit {
     this.setUpProjectService.editingFocus.set(false);
     this.level1NameInput = '';
     this.level1CodeInput = '';
-    setTimeout(() => {
-      this.driverjs.nextStep();
-    }, 100);
+    this.driverjs.nextStep();
   };
   changeEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
@@ -166,6 +164,7 @@ export class StructureTableViewComponent implements OnInit {
       return [...structures];
     });
     this.cleanInputs();
+    this.driverjs.nextStep();
   };
   cancelEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {

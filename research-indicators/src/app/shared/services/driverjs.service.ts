@@ -59,8 +59,10 @@ export class DriverjsService {
     this.driverObj.drive();
   }
 
-  nextStep() {
-    this.driverObj.moveNext();
+  nextStep(delay = 0) {
+    setTimeout(() => {
+      this.driverObj.moveNext();
+    }, delay);
   }
 
   showLevel2StructureTutorial() {
