@@ -39,7 +39,7 @@
       </tr>
     </ng-template>
     <ng-template #groupheader let-customer let-i="rowIndex" let-rowIndex="rowIndex" let-expanded="expanded">
-      <tr>
+      <tr class="{{ customer.representative.newStructure ? 'new-structure' : '' }}">
         <td>
           @if (customer.representative.newStructure) {
             <p-tag [value]="'New ' + setUpProjectService.level1Name()" icon="pi pi-sparkles" severity="success" />

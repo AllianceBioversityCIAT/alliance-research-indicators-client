@@ -27,7 +27,7 @@ export class SetUpProjectService {
   showCreateStructure = signal<boolean>(false);
   loadingStructures = signal<boolean>(false);
   currentAgreementId = signal<number | string | null>(null);
-  isCardsView = signal<boolean>(false);
+  // isCardsView = signal<boolean>(false);
   editingFocus = signal<boolean>(false);
   assignIndicatorsModal = signal<{
     show: boolean;
@@ -275,6 +275,10 @@ export class SetUpProjectService {
   // Structure table expand/collapse methods
   toggleAllStructures() {
     this.allStructuresExpanded.set(!this.allStructuresExpanded());
+  }
+
+  collapseAllStructures() {
+    this.allStructuresExpanded.set(false);
   }
 
   // LocalStorage methods with routeid validation

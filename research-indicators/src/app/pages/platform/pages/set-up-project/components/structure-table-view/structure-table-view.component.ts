@@ -8,6 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { IndicatorItem } from '../../../../../../shared/interfaces/get-structures.interface';
+import { DriverjsService } from '@shared/services/driverjs.service';
 
 @Component({
   selector: 'app-structure-table-view',
@@ -16,6 +17,7 @@ import { IndicatorItem } from '../../../../../../shared/interfaces/get-structure
   styleUrl: './structure-table-view.component.scss'
 })
 export class StructureTableViewComponent implements OnInit {
+  driverjs = inject(DriverjsService);
   setUpProjectService = inject(SetUpProjectService);
   level1NameInput = '';
   level1CodeInput = '';
@@ -76,6 +78,9 @@ export class StructureTableViewComponent implements OnInit {
     this.setUpProjectService.editingFocus.set(false);
     this.level1NameInput = '';
     this.level1CodeInput = '';
+    setTimeout(() => {
+      this.driverjs.nextStep();
+    }, 100);
   };
   changeEditingLevel2 = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
