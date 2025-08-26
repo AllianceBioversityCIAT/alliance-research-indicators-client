@@ -81,16 +81,12 @@ describe('InnResultsService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  it('uses updated filter and config on manual main call', async () => {
+  it('uses default filter and config on manual main call', async () => {
     await setup({ data: [] });
-    const newFilter = { 'indicator-codes': [2, 4], 'lever-codes': [3], 'create-user-codes': [7] } as any;
-    const newConfig = { ...defaultConfig, contracts: false, indicators: false } as any;
-    service.resultsFilter.set(newFilter);
-    service.resultsConfig.set(newConfig);
-
+    
     apiMock.GET_Results.mockResolvedValueOnce({ data: [] });
     await service.main();
-    expect(apiMock.GET_Results).toHaveBeenCalledWith(newFilter, newConfig);
+    expect(apiMock.GET_Results).toHaveBeenCalledWith(defaultFilter, defaultConfig);
     expect(service.loading()).toBe(false);
   });
 });

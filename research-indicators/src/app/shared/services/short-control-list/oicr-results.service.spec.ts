@@ -49,9 +49,9 @@ describe('OicrResultsService', () => {
 
     await Promise.resolve();
 
-    expect(api.GET_Results).toHaveBeenCalledWith(service.resultsFilter(), service.resultsConfig());
+    expect(api.GET_Results).toHaveBeenCalledWith(service.resultsFilter, service.resultsConfig);
     expect(service.loading()).toBe(false);
-    expect(service.list()[0].select_label).toBe('R1 - Title 1');
+    expect((service.list()[0] as any).select_label).toBe('R1 - Title 1');
   });
 
   test('éxito con array: cubre ramas de label con valores vacíos', async () => {
@@ -92,7 +92,7 @@ describe('OicrResultsService', () => {
     makeService();
     await Promise.resolve();
 
-    const labels = service.list().map(x => x.select_label);
+    const labels = service.list().map(x => (x as any).select_label);
     expect(labels).toEqual(['-', 'R2 -', '- T3']);
   });
 
