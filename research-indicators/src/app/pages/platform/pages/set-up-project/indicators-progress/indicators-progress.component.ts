@@ -7,10 +7,11 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
+import { IndicatorsChartComponent } from './components/indicators-chart.component';
 
 @Component({
   selector: 'app-indicators-progress',
-  imports: [TableModule, TagModule, ButtonModule, ProgressBarModule, TooltipModule],
+  imports: [TableModule, TagModule, ButtonModule, ProgressBarModule, TooltipModule, IndicatorsChartComponent],
   templateUrl: './indicators-progress.component.html',
   styleUrl: './indicators-progress.component.scss'
 })
