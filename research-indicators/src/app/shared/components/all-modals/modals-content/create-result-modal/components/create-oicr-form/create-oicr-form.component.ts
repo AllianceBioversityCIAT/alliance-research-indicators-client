@@ -119,7 +119,7 @@ export class CreateOicrFormComponent {
 
   leverParts = computed(() => {
     const lever = this.currentContract()?.lever;
-    if (!lever || !lever.includes(':')) return { first: '', second: '' };
+    if (!lever?.includes(':')) return { first: '', second: '' };
     const parts = lever.split(':');
     return { first: parts[0] || '', second: parts[1] || '' };
   });
@@ -303,14 +303,23 @@ export class CreateOicrFormComponent {
 
   get isCompleteStepThree(): boolean {
     const b = this.body();
-    return (
-      b.step_three.geo_scope_id !== undefined &&
-      b.step_three.geo_scope_id > 0 &&
-      (b.step_three.geo_scope_id > 1
-        ? (this.getMultiselectLabel().region.label ? b.step_three.regions.length > 0 : true) &&
-          (this.getMultiselectLabel().country.label ? b.step_three.countries.length > 0 : true)
-        : true)
-    );
+    const geoScopeId = b.step_three.geo_scope_id;
+    const multiselectLabels = this.getMultiselectLabel();
+
+    const hasValidGeoScope = geoScopeId !== undefined && geoScopeId > 0;
+
+    if (!hasValidGeoScope) {
+      return false;
+    }
+
+    if (geoScopeId <= 1) {
+      return true;
+    }
+
+    const hasValidRegions = !multiselectLabels.region.label || b.step_three.regions.length > 0;
+    const hasValidCountries = !multiselectLabels.country.label || b.step_three.countries.length > 0;
+
+    return hasValidRegions && hasValidCountries;
   }
 
   get isCompleteStepFour(): boolean {

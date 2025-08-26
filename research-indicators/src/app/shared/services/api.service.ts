@@ -94,7 +94,11 @@ export class ApiService {
   };
 
   GET_Contracts = (projectId?: number): Promise<MainResponse<GetContracts[]>> => {
-    const url = () => `agresso/contracts${projectId ? `?projectId=${projectId}` : ''}`;
+    const url = () => {
+      const baseUrl = 'agresso/contracts';
+      const queryParam = projectId ? `?projectId=${projectId}` : '';
+      return `${baseUrl}${queryParam}`;
+    };
     return this.TP.get(url(), {});
   };
 
