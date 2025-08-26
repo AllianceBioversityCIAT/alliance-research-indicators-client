@@ -43,34 +43,21 @@
           <ng-template pTemplate="header">
             <tr>
               <th class="text-center w-20">
-                <div class="flex items-center justify-center gap-2">
-                  <i class="pi pi-hashtag text-blue-600 text-xs"></i>
-                  <span class="text-gray-700">Code</span>
-                </div>
+                <span class="text-gray-700">Code</span>
               </th>
               <th class="text-left max-w-[40%]">
-                <div class="flex items-center gap-2">
-                  <i class="pi pi-bookmark text-blue-600 text-xs"></i>
-                  <span class="text-gray-700">Statement</span>
-                </div>
+                <span class="text-gray-700">Statement</span>
               </th>
               <th class="text-center">
-                <div class="flex items-center justify-center gap-2">
-                  <i class="pi pi-chart-line text-blue-600 text-xs"></i>
+                <div class="flex items-center justify-center">
                   <span class="text-gray-700">Values</span>
                 </div>
               </th>
               <th class="text-center">
-                <div class="flex items-center justify-center gap-2">
-                  <i class="pi pi-percentage text-green-600 text-xs"></i>
-                  <span class="text-gray-700">Progress</span>
-                </div>
+                <span class="text-gray-700">Progress</span>
               </th>
               <th class="text-center">
-                <div class="flex items-center justify-center gap-2">
-                  <i class="pi pi-list text-blue-600 text-xs"></i>
-                  <span class="text-gray-700">Contributions</span>
-                </div>
+                <span class="text-gray-700">Contributions</span>
               </th>
             </tr>
           </ng-template>
@@ -177,25 +164,25 @@
               </td>
             </tr>
             @if (expandedRows[rowIndex] && indicator.contributions.length > 0) {
-              <tr class="bg-gray-50">
+              <tr class="bg-slate-50">
                 <td colspan="5" class="p-0">
-                  <div class="bg-white border-t border-gray-200">
-                    <div class="px-4 py-2 bg-gray-100 border-b border-gray-200">
-                      <h5 class="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                        <i class="pi pi-list text-blue-600 text-xs"></i>
+                  <div class="bg-slate-50 border-2 border-blue-100 rounded-lg m-2">
+                    <div class="px-4 py-2 bg-blue-50 border-b border-blue-100 rounded-t-lg">
+                      <h5 class="text-sm font-semibold text-blue-700 flex items-center gap-2">
+                        <i class="pi pi-list text-blue-500 text-xs"></i>
                         Contributions Details ({{ indicator.contributions.length }})
                       </h5>
                     </div>
                     <div class="overflow-x-auto">
                       <table class="w-full text-sm">
-                        <thead class="bg-gray-50 border-b border-gray-200">
+                        <thead class="bg-blue-50 border-b border-blue-100">
                           <tr>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Code</th>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Value</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-blue-500 uppercase tracking-wider w-24">Code</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-blue-500 uppercase tracking-wider">Title</th>
+                            <th class="px-3 py-2 text-right text-xs font-medium text-blue-500 uppercase tracking-wider w-20">Value</th>
                           </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
+                        <tbody class="divide-y divide-blue-100 bg-white">
                           @for (contribution of indicator.contributions; track contribution.result_id) {
                             <tr class="hover:bg-gray-50">
                               <td class="px-3 py-2">
