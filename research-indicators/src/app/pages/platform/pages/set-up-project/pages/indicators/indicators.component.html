@@ -18,43 +18,32 @@
             <tr>
               <th class="text-center w-20">
                 <div class="flex items-center justify-center gap-2">
-                  <i class="pi pi-hashtag text-blue-600 text-xs"></i>
                   <span class="text-gray-700">Code</span>
                 </div>
               </th>
               <th class="text-left max-w-[50%]">
                 <div class="flex items-center gap-2">
-                  <i class="pi pi-bookmark text-blue-600 text-xs"></i>
                   <span class="text-gray-700">Statement</span>
                 </div>
               </th>
               <th class="text-center">
                 <div class="flex items-center justify-center gap-2">
-                  <i class="pi pi-cog text-blue-600 text-xs"></i>
                   <span class="text-gray-700">Target Unit</span>
                 </div>
               </th>
               <th class="text-center">
                 <div class="flex items-center justify-center gap-2">
-                  <i class="pi pi-calendar text-blue-600 text-xs"></i>
                   <span class="text-gray-700">Years</span>
                 </div>
               </th>
               <th class="text-center">
                 <div class="flex items-center justify-center gap-2">
-                  <i class="pi pi-chart-line text-blue-600 text-xs"></i>
                   <span class="text-gray-700">Values</span>
                 </div>
               </th>
-              <th class="text-center">
-                <div class="flex items-center justify-center gap-2">
-                  <i class="pi pi-percentage text-green-600 text-xs"></i>
-                  <span class="text-gray-700">Progress</span>
-                </div>
-              </th>
+
               <th class="text-center w-24">
                 <div class="flex items-center justify-center gap-2">
-                  <i class="pi pi-cog text-blue-600 text-xs"></i>
                   <span class="text-gray-700">Actions</span>
                 </div>
               </th>
@@ -62,8 +51,8 @@
           </ng-template>
           <ng-template pTemplate="body" let-indicator>
             <tr class="hover:bg-gray-50 transition-colors border-b border-gray-200">
-              <td class="align-top text-center">
-                <div class="py-3">
+              <td>
+                <div class="text-center align-middle h-[35px] flex items-center justify-center">
                   @if (indicator.code) {
                     <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-mono font-medium">{{ indicator.code }}</span>
                   } @else {
@@ -71,57 +60,39 @@
                   }
                 </div>
               </td>
-              <td class="align-top">
-                <div class="py-3">
+              <td class="flex items-center">
+                <div class="flex items-center h-[35px]">
                   <h4 class="text-sm text-gray-800 mb-1 leading-tight">{{ indicator.name }}</h4>
-                  <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed">{{ indicator.description }}</p>
                 </div>
               </td>
-              <td class="align-top text-center">
-                <div class="py-3">
-                  <div class="flex flex-wrap justify-center gap-1 max-w-xs mx-auto">
-                    <!-- Target Unit -->
-                    @if (indicator.targetUnit) {
-                      <p-tag
-                        [value]="indicator.targetUnit"
-                        severity="contrast"
-                        styleClass="text-xs"
-                        pTooltip="Target Unit: {{ indicator.targetUnit }}">
-                        <ng-template pTemplate>
-                          <i class="pi pi-flag mr-1 text-xs"></i>
-                          {{ indicator.targetUnit }}
-                        </ng-template>
-                      </p-tag>
-                    }
+              <td>
+                <div class="flex items-center h-[35px]">
+                  <div class="flex flex-wrap justify-center gap-1 max-w-xs mx-auto text-sm">
+                    {{ indicator.targetUnit }}
                   </div>
                 </div>
               </td>
               <td class="align-top text-center">
-                <div class="py-3">
-                  <p-tag [value]="indicator.years.join(', ')" severity="info" styleClass="text-xs">
-                    <ng-template pTemplate>
-                      <i class="pi pi-calendar mr-1 text-xs"></i>
-                      {{ indicator.years.join(', ') }}
-                    </ng-template>
-                  </p-tag>
+                <div class="flex items-center h-[35px]">
+                  {{ indicator.years.join(', ') }}
                 </div>
               </td>
               <td class="align-top text-center">
-                <div class="py-3">
+                <div class="flex items-center h-[35px]">
                   <div class="flex flex-wrap justify-center gap-1 max-w-xs mx-auto">
-                    @if (indicator.targetValue) {
-                      <p-tag [value]="'Target: ' + indicator.targetValue" severity="success" styleClass="text-xs">
-                        <ng-template pTemplate>
-                          <i class="pi pi-arrow-up mr-1 text-xs"></i>
-                          {{ indicator.targetValue }}
-                        </ng-template>
-                      </p-tag>
-                    }
                     @if (indicator.baseline) {
                       <p-tag [value]="'Baseline: ' + indicator.baseline" severity="warn" styleClass="text-xs">
                         <ng-template pTemplate>
                           <i class="pi pi-minus mr-1 text-xs"></i>
                           {{ indicator.baseline }}
+                        </ng-template>
+                      </p-tag>
+                    }
+                    @if (indicator.targetValue) {
+                      <p-tag [value]="'Target: ' + indicator.targetValue" severity="success" styleClass="text-xs">
+                        <ng-template pTemplate>
+                          <i class="pi pi-arrow-up mr-1 text-xs"></i>
+                          {{ indicator.targetValue }}
                         </ng-template>
                       </p-tag>
                     }
@@ -132,14 +103,7 @@
                 </div>
               </td>
               <td class="align-top text-center">
-                <div class="py-3">
-                  <div class="flex items-center justify-center gap-3">
-                    <p-progressBar [value]="50" [style]="{ height: '12px', width: '100px' }" styleClass="custom-progress-green"> </p-progressBar>
-                  </div>
-                </div>
-              </td>
-              <td class="align-top text-center">
-                <div class="py-3 flex justify-center gap-1">
+                <div class="flex justify-center items-center gap-1">
                   <p-button
                     icon="pi pi-pencil"
                     severity="secondary"

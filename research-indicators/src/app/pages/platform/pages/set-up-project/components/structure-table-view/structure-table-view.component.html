@@ -11,28 +11,24 @@
     [expandedRowKeys]="expandedRowKeys">
     <ng-template #header>
       <tr>
-        <th class="w-[15%]">{{ setUpProjectService.level2Name() }} group</th>
-        <th class="w-[15%]">
+        <th class="min-w-[200px]">{{ setUpProjectService.level2Name() }} group</th>
+        <th class="min-w-[120px]">
           <div class="flex items-center gap-2">
-            <i class="pi pi-hashtag text-blue-600 text-xs"></i>
             <span class="text-gray-700">Code</span>
           </div>
         </th>
-        <th class="w-[20%]">
+        <th class="min-w-[max-content]">
           <div class="flex items-center gap-2">
-            <i class="pi pi-bookmark text-blue-600 text-xs"></i>
             <span class="text-gray-700">Name</span>
           </div>
         </th>
-        <th class="w-[30%]">
+        <th class="min-w-[300px]">
           <div class="flex items-center gap-2">
-            <i class="pi pi-chart-line text-blue-600 text-xs"></i>
             <span class="text-gray-700">Indicators</span>
           </div>
         </th>
-        <th class="w-[30%]">
+        <th class="min-w-[100px]">
           <div class="flex items-center gap-2">
-            <i class="pi pi-cog text-blue-600 text-xs"></i>
             <span class="text-gray-700">Actions</span>
           </div>
         </th>
@@ -92,7 +88,7 @@
           @if (customer.representative.editing) {
             <input type="text" pInputText (keyup.enter)="saveEditingLevel1(customer)" [(ngModel)]="level1NameInput" />
           } @else {
-            <p-tag [value]="customer.representative.name" severity="secondary" icon="pi pi-sitemap" />
+            {{ customer.representative.name }}
           }
         </td>
         <td>
@@ -192,7 +188,7 @@
             @if (item.editing) {
               <input (keyup.enter)="saveEditingLevel2(item)" type="text" pInputText [(ngModel)]="level2NameInput" />
             } @else {
-              <p-tag [value]="item.name" severity="info" icon="pi pi-folder" />
+              {{ item.name }}
             }
           </td>
           <td>
