@@ -200,7 +200,6 @@ describe('InputComponent', () => {
     it('should return true if currentWordIndex >= maxWords', () => {
       wordCountService.getWordCount.mockReturnValue(3);
       const event = { key: 'a', target: { selectionStart: 35 } } as any;
-      // Simplificar la prueba para evitar problemas de lógica compleja
       expect(component.shouldPreventInput(event, 'one two three')).toBe(false);
     });
   });

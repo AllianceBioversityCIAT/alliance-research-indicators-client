@@ -30,7 +30,7 @@ describe('OicrResultsService', () => {
     api = { GET_Results: jest.fn() };
   });
 
-  test('éxito con array: mapea select_label y desactiva loading', async () => {
+  test('success with array: maps select_label and disables loading', async () => {
     const data: Result[] = [
       {
         is_active: true,
@@ -49,12 +49,12 @@ describe('OicrResultsService', () => {
 
     await Promise.resolve();
 
-    expect(api.GET_Results).toHaveBeenCalledWith(service.resultsFilter(), service.resultsConfig());
+    expect(api.GET_Results).toHaveBeenCalledWith(service.resultsFilter, service.resultsConfig);
     expect(service.loading()).toBe(false);
-    expect(service.list()[0].select_label).toBe('R1 - Title 1');
+    expect((service.list()[0] as any).select_label).toBe('R1 - Title 1');
   });
 
-  test('éxito con array: cubre ramas de label con valores vacíos', async () => {
+  test('success with array: covers label branches with empty values', async () => {
     const data: Result[] = [
       {
         is_active: true,
@@ -92,11 +92,11 @@ describe('OicrResultsService', () => {
     makeService();
     await Promise.resolve();
 
-    const labels = service.list().map(x => x.select_label);
+    const labels = service.list().map(x => (x as any).select_label);
     expect(labels).toEqual(['-', 'R2 -', '- T3']);
   });
 
-  test('éxito sin array: lista vacía y loading false', async () => {
+  test('success without array: empty list and loading false', async () => {
     api.GET_Results.mockResolvedValue({ data: null });
 
     makeService();
@@ -107,7 +107,7 @@ describe('OicrResultsService', () => {
     expect(service.list()).toEqual([]);
   });
 
-  test('error: captura y lista vacía, loading false', async () => {
+  test('error: captures and lists empty, loading false', async () => {
     api.GET_Results.mockRejectedValue(new Error('fail'));
 
     makeService();
@@ -118,7 +118,7 @@ describe('OicrResultsService', () => {
     expect(service.list()).toEqual([]);
   });
 
-  test('loading true mientras la petición está pendiente', async () => {
+  test('loading true while the request is pending', async () => {
     const deferred = new Deferred<{ data: Result[] }>();
     api.GET_Results.mockReturnValue(deferred.promise);
 

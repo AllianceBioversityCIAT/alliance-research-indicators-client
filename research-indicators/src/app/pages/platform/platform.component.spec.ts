@@ -130,7 +130,7 @@ describe('PlatformComponent', () => {
     fixture.detectChanges();
     tick();
 
-    expect(consoleSpy).toHaveBeenCalledWith('Error en la suscripción del router:', testError);
+    expect(consoleSpy).toHaveBeenCalledWith('Error in the router subscription:', testError);
     expect(component.errorState()).toBe(testError);
     consoleSpy.mockRestore();
   }));

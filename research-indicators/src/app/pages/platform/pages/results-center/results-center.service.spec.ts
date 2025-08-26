@@ -1,18 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { signal, computed } from '@angular/core';
+import { signal } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 
 import { ResultsCenterService } from './results-center.service';
 import { ApiService } from '../../../../shared/services/api.service';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { GetResultsService } from '../../../../shared/services/control-list/get-results.service';
-import { TableFilters } from './class/table.filters.class';
-import { Result, ResultConfig, ResultFilter } from '../../../../shared/interfaces/result/result.interface';
+import { Result } from '../../../../shared/interfaces/result/result.interface';
 import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicators.interface';
-import { GetLevers } from '../../../../shared/interfaces/get-levers.interface';
-import { GetAllResultStatus } from '../../../../shared/interfaces/get-all-result-status.interface';
-import { GetContracts } from '../../../../shared/interfaces/get-contracts.interface';
 
 describe('ResultsCenterService', () => {
   let service: ResultsCenterService;
@@ -434,7 +430,6 @@ describe('ResultsCenterService', () => {
     it('should update indicator tabs and set active indicator', () => {
       service.onSelectFilterTab(1);
 
-      // Simular la actualización del indicator tabs
       const mockIndicatorTabsList = mockApiService.indicatorTabs.lazy().list();
       expect(mockIndicatorTabsList).toBeDefined();
     });

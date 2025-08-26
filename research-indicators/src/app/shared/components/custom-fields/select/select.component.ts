@@ -72,11 +72,11 @@ export class SelectComponent implements OnInit {
     { allowSignalWrites: true }
   );
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
-  onFilter(event: any): void {
+  onFilter(event: any) {
     if (this.service?.isOpenSearch()) this.service.update(event.filter);
   }
 

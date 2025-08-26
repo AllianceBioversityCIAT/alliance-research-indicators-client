@@ -40,7 +40,6 @@ export class ModalComponent {
   }
 
   getModalTitle() {
-    // Si es el modal createResult y estamos en el paso OICR, usar el título del servicio
     if (this.modalName === 'createResult' && this.createResultManagementService.resultPageStep() === 2) {
       return this.createResultManagementService.modalTitle();
     }

@@ -27,98 +27,98 @@ describe('GetAllIndicatorsService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('main setea loading y list correctamente con datos válidos', async () => {
+  it('main sets loading and list correctly with valid data', async () => {
     await service.main();
     expect(apiMock.GET_AllIndicators).toHaveBeenCalled();
     expect(service.list()).toEqual(mockData);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta vacía', async () => {
+  it('main handles empty response', async () => {
     apiMock.GET_AllIndicators.mockResolvedValueOnce({ data: [] });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta null', async () => {
+  it('main handles response null', async () => {
     apiMock.GET_AllIndicators.mockResolvedValueOnce({ data: null });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta undefined', async () => {
+  it('main handles response undefined', async () => {
     apiMock.GET_AllIndicators.mockResolvedValueOnce(undefined);
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta sin data', async () => {
+  it('main handles response without data', async () => {
     apiMock.GET_AllIndicators.mockResolvedValueOnce({ status: 200 });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta con data no array', async () => {
+  it('main handles response with data not an array', async () => {
     apiMock.GET_AllIndicators.mockResolvedValueOnce({ data: 'not an array' });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja error en la API', async () => {
+  it('main handles API error', async () => {
     apiMock.GET_AllIndicators.mockRejectedValueOnce(new Error('API Error'));
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('getInstance retorna signal con datos válidos', async () => {
+  it('getInstance returns signal with valid data', async () => {
     const resultSignal = await service.getInstance();
     expect(apiMock.GET_AllIndicators).toHaveBeenCalled();
     expect(resultSignal()).toEqual(mockData);
   });
 
-  it('getInstance maneja respuesta vacía', async () => {
+  it('getInstance handles empty response', async () => {
     apiMock.GET_AllIndicators.mockResolvedValueOnce({ data: [] });
     const resultSignal = await service.getInstance();
     expect(resultSignal()).toEqual([]);
   });
 
-  it('getInstance maneja respuesta null', async () => {
+  it('getInstance handles response null', async () => {
     apiMock.GET_AllIndicators.mockResolvedValueOnce({ data: null });
     const resultSignal = await service.getInstance();
     expect(resultSignal()).toEqual([]);
   });
 
-  it('getInstance maneja respuesta undefined', async () => {
+  it('getInstance handles response undefined', async () => {
     apiMock.GET_AllIndicators.mockResolvedValueOnce(undefined);
     const resultSignal = await service.getInstance();
     expect(resultSignal()).toEqual([]);
   });
 
-  it('getInstance maneja respuesta sin data', async () => {
+  it('getInstance handles response without data', async () => {
     apiMock.GET_AllIndicators.mockResolvedValueOnce({ status: 200 });
     const resultSignal = await service.getInstance();
     expect(resultSignal()).toEqual([]);
   });
 
-  it('getInstance maneja respuesta con data no array', async () => {
+  it('getInstance handles response with data not an array', async () => {
     apiMock.GET_AllIndicators.mockResolvedValueOnce({ data: 'not an array' });
     const resultSignal = await service.getInstance();
     expect(resultSignal()).toEqual([]);
   });
 
-  it('getInstance maneja error en la API', async () => {
+  it('getInstance handles API error', async () => {
     apiMock.GET_AllIndicators.mockRejectedValueOnce(new Error('API Error'));
     const resultSignal = await service.getInstance();
     expect(resultSignal()).toEqual([]);
   });
 
-  it('constructor inicializa signals correctamente y ejecuta main', async () => {
+  it('constructor initializes signals correctly and executes main', async () => {
     await new Promise(resolve => setTimeout(resolve, 0));
     expect(service.list()).toEqual(mockData);
     expect(service.loading()).toBe(false);

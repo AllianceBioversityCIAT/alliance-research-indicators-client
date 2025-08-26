@@ -17,7 +17,7 @@ describe('ToolFunctionsService', () => {
     };
     TestBed.configureTestingModule({ providers: [ToolFunctionsService, { provide: ApiService, useValue: apiMock }] });
     service = TestBed.inject(ToolFunctionsService);
-    // Esperar a que termine la promesa del constructor (main)
+    // wait a that the constructor promise (main) is resolved
     await Promise.resolve();
   };
 

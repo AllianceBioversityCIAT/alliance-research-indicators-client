@@ -29,62 +29,62 @@ describe('GetResultsService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('constructor llama updateList y setea valores iniciales', () => {
+  it('constructor calls updateList and sets initial values', () => {
     expect(service.results()).toEqual(mockData);
     expect(service.loading()).toBe(false);
     expect(service.isOpenSearch()).toBe(false);
   });
 
-  it('updateList setea loading y results correctamente', async () => {
+  it('updateList sets loading and results correctly', async () => {
     await service.updateList();
     expect(apiService.GET_Results).toHaveBeenCalledWith({});
     expect(service.results()).toEqual(mockData);
     expect(service.loading()).toBe(false);
   });
 
-  it('updateList maneja respuesta vacía', async () => {
+  it('updateList handles empty response', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: [] });
     await service.updateList();
     expect(service.results()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('updateList maneja respuesta null', async () => {
+  it('updateList handles response null', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: null });
     await service.updateList();
     expect(service.results()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('updateList maneja respuesta undefined', async () => {
+  it('updateList handles response undefined', async () => {
     apiService.GET_Results.mockResolvedValueOnce(undefined);
     await service.updateList();
     expect(service.results()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('updateList maneja respuesta sin data', async () => {
+  it('updateList handles response without data', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ status: 200 });
     await service.updateList();
     expect(service.results()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('updateList maneja respuesta con data no array', async () => {
+  it('updateList handles response with data not an array', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: 'not an array' });
     await service.updateList();
     expect(service.results()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('updateList maneja respuesta con data como objeto', async () => {
+  it('updateList handles response with data as an object', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: { id: 1 } });
     await service.updateList();
     expect(service.results()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('getInstance retorna un signal con los datos', async () => {
+  it('getInstance returns a signal with the data', async () => {
     const filter: ResultFilter = {} as any;
     const config: ResultConfig = {} as any;
     apiService.GET_Results.mockResolvedValueOnce({ data: [{ id: 99 }] });
@@ -95,7 +95,7 @@ describe('GetResultsService', () => {
     expect(result()).toEqual([{ id: 99 }]);
   });
 
-  it('getInstance funciona sin resultConfig', async () => {
+  it('getInstance without resultConfig', async () => {
     const filter: ResultFilter = {} as any;
     apiService.GET_Results.mockResolvedValueOnce({ data: [{ id: 77 }] });
 
@@ -105,7 +105,7 @@ describe('GetResultsService', () => {
     expect(result()).toEqual([{ id: 77 }]);
   });
 
-  it('getInstance maneja respuesta vacía', async () => {
+  it('getInstance handles empty response', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: [] });
 
     const result = await service.getInstance({} as any);
@@ -113,7 +113,7 @@ describe('GetResultsService', () => {
     expect(result()).toEqual([]);
   });
 
-  it('getInstance maneja respuesta null', async () => {
+  it('getInstance handles response null', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: null });
 
     const result = await service.getInstance({} as any);
@@ -121,7 +121,7 @@ describe('GetResultsService', () => {
     expect(result()).toEqual([]);
   });
 
-  it('getInstance maneja respuesta undefined', async () => {
+  it('getInstance handles response undefined', async () => {
     apiService.GET_Results.mockResolvedValueOnce(undefined);
 
     const result = await service.getInstance({} as any);
@@ -129,7 +129,7 @@ describe('GetResultsService', () => {
     expect(result()).toEqual([]);
   });
 
-  it('getInstance maneja respuesta sin data', async () => {
+  it('getInstance handles response without data', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ status: 200 });
 
     const result = await service.getInstance({} as any);
@@ -137,7 +137,7 @@ describe('GetResultsService', () => {
     expect(result()).toEqual([]);
   });
 
-  it('getInstance maneja respuesta con data no array', async () => {
+  it('getInstance handles response with data not an array', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: 'not an array' });
 
     const result = await service.getInstance({} as any);
@@ -145,7 +145,7 @@ describe('GetResultsService', () => {
     expect(result()).toEqual([]);
   });
 
-  it('getInstance maneja respuesta con data como objeto', async () => {
+  it('getInstance handles response with data as an object', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: { id: 1 } });
 
     const result = await service.getInstance({} as any);
@@ -153,7 +153,7 @@ describe('GetResultsService', () => {
     expect(result()).toEqual([]);
   });
 
-  it('updateList maneja error en la API', async () => {
+  it('updateList handles API error', async () => {
     apiService.GET_Results.mockRejectedValueOnce(new Error('API Error'));
 
     await service.updateList();
@@ -162,7 +162,7 @@ describe('GetResultsService', () => {
     expect(service.results()).toEqual([]);
   });
 
-  it('getInstance maneja error en la API', async () => {
+  it('getInstance handles API error', async () => {
     apiService.GET_Results.mockRejectedValueOnce(new Error('API Error'));
 
     const result = await service.getInstance({} as any);
