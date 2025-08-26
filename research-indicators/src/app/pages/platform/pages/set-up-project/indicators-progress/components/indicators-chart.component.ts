@@ -137,7 +137,8 @@ export class IndicatorsChartComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    const indicatorNames = indicators.map(ind => ind.code);
+    // Use full names instead of codes for better readability
+    const indicatorNames = indicators.map(ind => (ind.name.length > 30 ? ind.name.substring(0, 30) + '...' : ind.name));
     const progressData = indicators.map(ind => this.calculateProgress(ind));
     const currentValues = indicators.map(ind => ind.total_contributions);
     const targetValues = indicators.map(ind => ind.target_value);

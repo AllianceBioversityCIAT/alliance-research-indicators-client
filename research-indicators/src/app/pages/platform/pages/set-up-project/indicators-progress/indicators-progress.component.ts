@@ -8,10 +8,11 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { IndicatorsChartComponent } from './components/indicators-chart.component';
+import { IndicatorDetailModalComponent } from './components/indicator-detail-modal.component';
 
 @Component({
   selector: 'app-indicators-progress',
-  imports: [TableModule, TagModule, ButtonModule, ProgressBarModule, TooltipModule, IndicatorsChartComponent],
+  imports: [TableModule, TagModule, ButtonModule, ProgressBarModule, TooltipModule, IndicatorsChartComponent, IndicatorDetailModalComponent],
   templateUrl: './indicators-progress.component.html',
   styleUrl: './indicators-progress.component.scss'
 })
@@ -21,6 +22,10 @@ export default class IndicatorsProgressComponent implements OnInit {
 
   indicators = signal<GetIndicatorsProgress[]>([]);
   expandedRows: Record<number, boolean> = {};
+
+  // Modal properties
+  showDetailModal = false;
+  selectedIndicator: GetIndicatorsProgress | null = null;
 
   ngOnInit() {
     this.GET_IndicatorsProgress();
@@ -154,5 +159,10 @@ export default class IndicatorsProgressComponent implements OnInit {
     this.indicators().forEach((_, index) => {
       this.expandedRows[index] = shouldExpand;
     });
+  }
+
+  openDetailModal(indicator: GetIndicatorsProgress): void {
+    this.selectedIndicator = indicator;
+    this.showDetailModal = true;
   }
 }
