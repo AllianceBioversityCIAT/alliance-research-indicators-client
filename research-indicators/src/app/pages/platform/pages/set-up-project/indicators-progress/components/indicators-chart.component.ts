@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, Input, signal } from '@angular/core';
+import { Component, OnInit, OnChanges, ElementRef, ViewChild, Input, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart, PieChart } from 'echarts/charts';
@@ -70,134 +70,23 @@ type ECOption = ComposeOption<
     `
   ]
 })
-export class IndicatorsChartComponent implements OnInit {
+export class IndicatorsChartComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
-  @Input() indicators = signal<GetIndicatorsProgress[]>([]);
+  @Input() indicators: GetIndicatorsProgress[] = [];
 
   private chart: echarts.ECharts | null = null;
 
-  // Dummy data for demonstration
-  private dummyData: GetIndicatorsProgress[] = [
-    {
-      indicator_id: 1,
-      code: 'IND-001',
-      name: 'Climate Resilient Crops Adopted',
-      description: 'Number of farmers adopting climate-resilient crop varieties',
-      target_unit: 'farmers',
-      number_type: 'sum',
-      number_format: 'number',
-      target_value: 1000,
-      base_line: 100,
-      year: [2024, 2025],
-      type: 'outcome',
-      contributions: [
-        {
-          result_id: 1,
-          result_official_code: 101,
-          title: 'Training Program A',
-          description: 'Farmer training on drought-resistant varieties',
-          contribution_value: 350
-        },
-        {
-          result_id: 2,
-          result_official_code: 102,
-          title: 'Seed Distribution Initiative',
-          description: 'Distribution of improved seed varieties',
-          contribution_value: 280
-        }
-      ],
-      total_contributions: 630
-    },
-    {
-      indicator_id: 2,
-      code: 'IND-002',
-      name: 'Water Use Efficiency Improved',
-      description: 'Percentage improvement in water use efficiency',
-      target_unit: '%',
-      number_type: 'average',
-      number_format: 'percentage',
-      target_value: 25,
-      base_line: 5,
-      year: [2024],
-      type: 'output',
-      contributions: [
-        {
-          result_id: 3,
-          result_official_code: 201,
-          title: 'Irrigation Technology',
-          description: 'Implementation of drip irrigation systems',
-          contribution_value: 18
-        }
-      ],
-      total_contributions: 18
-    },
-    {
-      indicator_id: 3,
-      code: 'IND-003',
-      name: 'Research Publications',
-      description: 'Number of peer-reviewed publications on sustainable agriculture',
-      target_unit: 'publications',
-      number_type: 'count',
-      number_format: 'number',
-      target_value: 15,
-      base_line: 2,
-      year: [2024, 2025],
-      type: 'output',
-      contributions: [
-        {
-          result_id: 4,
-          result_official_code: 301,
-          title: 'Research Study 1',
-          description: 'Impact of climate change on crop yields',
-          contribution_value: 1
-        },
-        {
-          result_id: 5,
-          result_official_code: 302,
-          title: 'Research Study 2',
-          description: 'Sustainable farming practices evaluation',
-          contribution_value: 1
-        },
-        {
-          result_id: 6,
-          result_official_code: 303,
-          title: 'Research Study 3',
-          description: 'Water management techniques',
-          contribution_value: 1
-        }
-      ],
-      total_contributions: 8
-    },
-    {
-      indicator_id: 4,
-      code: 'IND-004',
-      name: 'Food Security Index',
-      description: 'Improvement in regional food security index',
-      target_unit: 'index points',
-      number_type: 'average',
-      number_format: 'decimal',
-      target_value: 7.5,
-      base_line: 4.2,
-      year: [2024],
-      type: 'impact',
-      contributions: [
-        {
-          result_id: 7,
-          result_official_code: 401,
-          title: 'Community Program',
-          description: 'Community-based food security initiatives',
-          contribution_value: 6.1
-        }
-      ],
-      total_contributions: 6.1
-    }
-  ];
-
   ngOnInit() {
     this.initChart();
-    // Use dummy data if no real data is provided
-    const dataToUse = this.indicators().length > 0 ? this.indicators() : this.dummyData;
-    this.updateChart(dataToUse);
+    console.log('Chart initialized with indicators:', this.indicators); // Debug log
+    this.updateChart(this.indicators);
+  }
+
+  ngOnChanges() {
+    console.log('Chart indicators changed:', this.indicators); // Debug log
+    if (this.chart) {
+      this.updateChart(this.indicators);
+    }
   }
 
   private initChart() {
@@ -225,6 +114,28 @@ export class IndicatorsChartComponent implements OnInit {
 
   private updateChart(indicators: GetIndicatorsProgress[]) {
     if (!this.chart) return;
+
+    // Show empty state if no data
+    if (!indicators || indicators.length === 0) {
+      const emptyOption: ECOption = {
+        title: {
+          text: 'No Indicators Data Available',
+          subtext: 'Add indicators to view progress visualization',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            fontSize: 16,
+            color: '#666'
+          },
+          subtextStyle: {
+            fontSize: 12,
+            color: '#999'
+          }
+        }
+      };
+      this.chart.setOption(emptyOption);
+      return;
+    }
 
     const indicatorNames = indicators.map(ind => ind.code);
     const progressData = indicators.map(ind => this.calculateProgress(ind));

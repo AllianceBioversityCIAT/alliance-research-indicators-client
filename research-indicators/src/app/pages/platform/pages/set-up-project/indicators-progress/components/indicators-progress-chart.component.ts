@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, Input, signal } from '@angular/core';
+import { Component, OnInit, OnChanges, ElementRef, ViewChild, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as echarts from 'echarts/core';
 import { PieChart } from 'echarts/charts';
@@ -42,7 +42,7 @@ type ECOption = ComposeOption<PieSeriesOption | TitleComponentOption | TooltipCo
     `
   ]
 })
-export class IndicatorsProgressChartComponent implements OnInit {
+export class IndicatorsProgressChartComponent implements OnInit, OnChanges {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
   @Input() indicators = signal<GetIndicatorsProgress[]>([]);
 
@@ -50,9 +50,13 @@ export class IndicatorsProgressChartComponent implements OnInit {
 
   ngOnInit() {
     this.initChart();
-    // Use dummy data if no real data is provided
-    const dataToUse = this.indicators().length > 0 ? this.indicators() : this.getDummyData();
-    this.updateChart(dataToUse);
+    this.updateChart(this.indicators());
+  }
+
+  ngOnChanges() {
+    if (this.chart && this.indicators().length >= 0) {
+      this.updateChart(this.indicators());
+    }
   }
 
   private getDummyData(): GetIndicatorsProgress[] {
@@ -145,6 +149,28 @@ export class IndicatorsProgressChartComponent implements OnInit {
 
   private updateChart(indicators: GetIndicatorsProgress[]) {
     if (!this.chart) return;
+
+    // Show empty state if no data
+    if (!indicators || indicators.length === 0) {
+      const emptyOption: ECOption = {
+        title: {
+          text: 'No Progress Data Available',
+          subtext: 'Add indicators with contributions to view progress distribution',
+          left: 'center',
+          top: 'center',
+          textStyle: {
+            fontSize: 16,
+            color: '#666'
+          },
+          subtextStyle: {
+            fontSize: 12,
+            color: '#999'
+          }
+        }
+      };
+      this.chart.setOption(emptyOption);
+      return;
+    }
 
     // Categorize indicators by progress level
     const progressCategories = {
