@@ -76,6 +76,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   isTableView = signal(true);
 
   pinnedTab = signal<string>('all');
+  selectedTab = signal<string>('all');
   loadingPin = signal(false);
   tableId = 'contract-table';
   applyFiltersLabel = 'Apply Filters';
@@ -268,9 +269,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
     if (event.id === 'my') {
       this.myProjectsFirst.set(0);
+      this.selectedTab.set('my');
       this.loadMyProjects();
     } else {
       this.allProjectsFirst.set(0);
+      this.selectedTab.set('all');
       this.loadAllProjects();
     }
   };
@@ -344,7 +347,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getScrollHeight() {
-    return this.cache.hasSmallScreen() ? 'calc(100vh - 300px)' : 'calc(100vh - 350px)';
+    return this.cache.hasSmallScreen() ? 'calc(100vh - 300px)' : 'calc(100vh - 380px)';
   }
 
   getLoadingState(): boolean {
