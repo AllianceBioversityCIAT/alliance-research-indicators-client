@@ -93,12 +93,10 @@ export class IndicatorsChartComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit() {
     this.initChart();
-    console.log('Chart initialized with indicators:', this.indicators); // Debug log
     this.updateChart(this.indicators);
   }
 
   ngOnChanges() {
-    console.log('Chart indicators changed:', this.indicators); // Debug log
     if (this.chart) {
       this.updateChart(this.indicators);
     }

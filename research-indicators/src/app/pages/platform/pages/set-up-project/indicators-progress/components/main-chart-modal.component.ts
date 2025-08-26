@@ -191,8 +191,8 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
         axisPointer: {
           type: 'shadow'
         },
-        formatter: (params: any) => {
-          const dataIndex = params[0].dataIndex;
+        formatter: (params: unknown) => {
+          const dataIndex = (params as { dataIndex: number }[])[0].dataIndex;
           const indicator = this.indicators[dataIndex];
           const progress = this.calculateProgress(indicator);
 
@@ -263,7 +263,7 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
           type: 'bar',
           data: currentValues,
           itemStyle: {
-            color: (params: any) => {
+            color: (params: { dataIndex: number }) => {
               const progress = progressData[params.dataIndex];
               if (progress >= 100) return '#22c55e'; // Green for completed
               if (progress >= 75) return '#3b82f6'; // Blue for good progress

@@ -38,9 +38,7 @@ export type NumberFormatOption = 'number (Integer)' | 'decimal';
 
 export const NUMBER_TYPE_OPTIONS: { label: string; value: NumberTypeOption; disabled?: boolean }[] = [
   { label: 'Sum', value: 'sum' },
-  { label: 'Count', value: 'count' },
-  { label: 'Average', value: 'average', disabled: true },
-  { label: 'Yes/No', value: 'yes/no', disabled: true }
+  { label: 'Average', value: 'average' }
 ];
 
 export const NUMBER_FORMAT_OPTIONS: { label: string; value: NumberFormatOption }[] = [

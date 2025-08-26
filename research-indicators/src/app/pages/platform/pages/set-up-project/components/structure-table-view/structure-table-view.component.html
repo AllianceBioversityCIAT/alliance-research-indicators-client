@@ -69,7 +69,7 @@
                   [pTooltip]="'Add ' + setUpProjectService.level2Name() + ' item'"
                   tooltipPosition="right"
                   severity="primary"
-                  label="Add"
+                  [label]="'Add ' + setUpProjectService.level2Name() + ' item'"
                   size="small"
                   [style]="{ 'white-space': 'nowrap' }">
                 </p-button>
@@ -157,14 +157,14 @@
         <td colspan="5" style="text-align: center">
           <div class="flex justify-center items-center gap-4">
             <span> Total {{ setUpProjectService.level2Name() }}: {{ customer.representative.itemsCount }}</span>
-            <p-button
+            <!-- <p-button
               (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)"
               icon="pi pi-plus"
               severity="primary"
               [label]="'Add'"
               size="small"
               [style]="{ 'white-space': 'nowrap' }">
-            </p-button>
+            </p-button> -->
           </div>
         </td>
       </tr>
