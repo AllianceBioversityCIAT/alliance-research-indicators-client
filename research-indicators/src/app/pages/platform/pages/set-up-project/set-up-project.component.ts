@@ -17,6 +17,7 @@ import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
+import { MenuModule } from 'primeng/menu';
 import {
   ProjectIndicator,
   NewIndicatorForm,
@@ -33,6 +34,7 @@ import { ManageIndicatorModalComponent } from './components/manage-indicator-mod
 import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 import { ApiService } from '../../../../shared/services/api.service';
+import { DriverjsService } from '@shared/services/driverjs.service';
 
 @Component({
   selector: 'app-set-up-project',
@@ -58,14 +60,15 @@ import { ApiService } from '../../../../shared/services/api.service';
     RouterOutlet,
     AssignIndicatorsModalComponent,
     ManageIndicatorModalComponent,
-    ProjectItemComponent
+    ProjectItemComponent,
+    MenuModule
   ],
   templateUrl: './set-up-project.component.html',
   styleUrl: './set-up-project.component.scss'
 })
 export default class SetUpProjectComponent implements OnInit, OnDestroy {
   // Configuración principal del proyecto con indicadores por defecto
-
+  driverjs = inject(DriverjsService);
   setUpProjectService = inject(SetUpProjectService);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
