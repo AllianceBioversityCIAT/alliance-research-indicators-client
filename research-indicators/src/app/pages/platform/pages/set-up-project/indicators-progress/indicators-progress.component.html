@@ -34,6 +34,9 @@
     @if (indicators().length > 0) {
       <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <p-table
+          showGridlines
+          stripedRows
+          [resizableColumns]="true"
           [value]="indicators()"
           [responsive]="true"
           styleClass="p-datatable-sm"
