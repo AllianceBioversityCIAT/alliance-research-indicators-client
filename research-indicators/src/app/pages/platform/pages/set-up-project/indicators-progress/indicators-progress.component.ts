@@ -44,6 +44,11 @@ export default class IndicatorsProgressComponent implements OnInit {
       });
 
       this.indicators.set(res.data);
+
+      // Expandir todas las filas por defecto
+      res.data.forEach((_, index) => {
+        this.expandedRows[index] = true;
+      });
     });
   }
 
