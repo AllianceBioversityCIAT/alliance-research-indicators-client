@@ -144,13 +144,16 @@
               </td>
               <td class="align-top text-center">
                 <div class="py-3">
-                  <div class="flex flex-col items-center gap-2">
+                  <div class="flex flex-col items-center gap-1">
                     <p-progressBar
-                      [value]="calculateProgress(indicator)"
+                      [value]="indicator.percentageProgress"
+                      [showValue]="false"
                       [style]="{ height: '12px', width: '120px' }"
-                      [styleClass]="getProgressBarClass(indicator)">
+                      [styleClass]="indicator.percentageProgress >= 100 ? 'custom-progress-complete' : 'custom-progress-primary'">
                     </p-progressBar>
-                    <!-- <span class="text-xs font-medium" [class]="getProgressTextClass(indicator)"> {{ calculateProgress(indicator) }}% </span> -->
+                    <span class="text-xs font-medium" [class]="indicator.percentageProgress >= 100 ? 'text-green-600' : 'text-blue-600'">
+                      {{ indicator.percentageProgress.toFixed(1) }}%
+                    </span>
                   </div>
                 </div>
               </td>

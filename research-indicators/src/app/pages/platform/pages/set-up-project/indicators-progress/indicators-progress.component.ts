@@ -48,6 +48,8 @@ export default class IndicatorsProgressComponent implements OnInit {
             indicator.total_contributions += 1;
           }
         });
+        console.log(indicator);
+        indicator.percentageProgress = (indicator.total_contributions / indicator.target_value) * 100;
       });
 
       this.indicators.set(res.data);
@@ -57,39 +59,6 @@ export default class IndicatorsProgressComponent implements OnInit {
         this.expandedRows[index] = true;
       });
     });
-  }
-
-  calculateProgress(indicator: GetIndicatorsProgress): number {
-    if (!indicator.target_value || indicator.target_value === 0) {
-      return 0;
-    }
-
-    // Calcular progreso basado en baseline y target
-    let progress = 0;
-    if (indicator.base_line && indicator.base_line > 0) {
-      // Si hay baseline, calcular progreso desde baseline hasta target
-      const range = indicator.target_value - indicator.base_line;
-      const current = indicator.total_contributions - indicator.base_line;
-      progress = (current / range) * 100;
-    } else {
-      // Si no hay baseline, calcular progreso directo al target
-      progress = (indicator.total_contributions / indicator.target_value) * 100;
-    }
-
-    // Limitar entre 0 y 100%
-    return Math.max(0, Math.min(100, Math.round(progress)));
-  }
-
-  getProgressBarClass(indicator: GetIndicatorsProgress): string {
-    const progress = this.calculateProgress(indicator);
-    if (progress >= 100) return 'custom-progress-complete';
-    return 'custom-progress-primary';
-  }
-
-  getProgressTextClass(indicator: GetIndicatorsProgress): string {
-    const progress = this.calculateProgress(indicator);
-    if (progress >= 100) return 'text-green-600';
-    return 'text-blue-600';
   }
 
   getRemainingStatus(indicator: GetIndicatorsProgress): 'remaining' | 'exceeded' | 'exact' {

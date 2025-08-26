@@ -267,8 +267,8 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
               const progress = progressData[params.dataIndex];
               if (progress >= 100) return '#22c55e'; // Green for completed
               if (progress >= 75) return '#3b82f6'; // Blue for good progress
-              if (progress >= 50) return '#f59e0b'; // Orange for moderate progress
-              return '#ef4444'; // Red for low progress
+              if (progress >= 50) return '#6366f1'; // Indigo for moderate progress
+              return '#3b82f6'; // Blue for low progress (changed from red)
             }
           },
           barWidth: '20%'
