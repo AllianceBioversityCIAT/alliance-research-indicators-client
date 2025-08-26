@@ -13,6 +13,7 @@ export interface GetIndicatorsProgress {
   contributions: Contribution[];
   //auxiliary fields
   total_contributions: number;
+  percentageProgress: number;
 }
 
 export interface Contribution {

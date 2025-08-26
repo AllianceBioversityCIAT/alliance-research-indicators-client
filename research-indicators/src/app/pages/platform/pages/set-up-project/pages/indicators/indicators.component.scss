@@ -4,20 +4,6 @@
     // stylelint-disable-next-line selector-pseudo-element-no-unknown
     ::ng-deep {
       .p-datatable {
-        .p-datatable-header {
-          background: #f8fafc;
-          border-bottom: 1px solid #e2e8f0;
-        }
-
-        .p-datatable-thead > tr > th {
-          background: #f8fafc;
-          border-bottom: 2px solid #e2e8f0;
-          padding: 0.75rem 0.5rem;
-          font-weight: 600;
-          color: #374151;
-          font-size: 0.875rem;
-        }
-
         .p-datatable-tbody > tr {
           border-bottom: 2px solid #e2e8f0;
 

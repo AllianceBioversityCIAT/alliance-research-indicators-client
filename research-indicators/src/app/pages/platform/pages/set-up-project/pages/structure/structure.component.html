@@ -7,55 +7,33 @@
 
     <div class="flex items-center gap-2">
       @if (!setUpProjectService.editingFocus()) {
-        @if (setUpProjectService.isCardsView()) {
-          <p-button
-            severity="contrast"
-            icon="pi pi-plus"
-            [label]="'Add ' + setUpProjectService.level1Name()"
-            size="small"
-            (onClick)="setUpProjectService.showCreateStructure.set(true)">
-          </p-button>
-        } @else {
+        <div class="create-structure-button">
           <p-button
             (click)="addStructure()"
             icon="pi pi-plus"
             severity="contrast"
             size="small"
             [label]="'Add ' + this.setUpProjectService.level1Name()" />
-        }
+        </div>
       }
-    </div>
-
-    <!-- View Toggle -->
-    <div class="flex items-center gap-2">
-      <span class="text-sm font-medium text-gray-700">Display Mode</span>
-      <div class="flex bg-gray-100 rounded-lg p-1">
-        <button
-          [class]="!setUpProjectService.isCardsView() ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'"
-          class="flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 text-sm font-medium"
-          pTooltip="Organized table layout"
-          tooltipPosition="top"
-          (click)="setUpProjectService.isCardsView.set(false)">
-          <i class="pi pi-table text-base"></i>
-          <span>Table</span>
-        </button>
-        <button
-          [class]="setUpProjectService.isCardsView() ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'"
-          class="flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 text-sm font-medium"
-          pTooltip="Card-based layout"
-          tooltipPosition="top"
-          (click)="setUpProjectService.isCardsView.set(true)">
-          <i class="pi pi-th-large text-base"></i>
-          <span>Cards</span>
-        </button>
-      </div>
+      @if (setUpProjectService.structures().length > 0) {
+        <p-button
+          [icon]="setUpProjectService.allStructuresExpanded() ? 'pi pi-minus' : 'pi pi-plus'"
+          [label]="setUpProjectService.allStructuresExpanded() ? 'Collapse All' : 'Expand All'"
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+          (onClick)="setUpProjectService.toggleAllStructures()"
+          class="text-xs">
+        </p-button>
+      }
     </div>
   </div>
 </div>
 
 <!-- Conditional View Rendering -->
-@if (setUpProjectService.isCardsView()) {
-  <app-structure-cards-view></app-structure-cards-view>
-} @else {
-  <app-structure-table-view></app-structure-table-view>
-}
+<!-- @if (setUpProjectService.isCardsView()) { -->
+<!-- <app-structure-cards-view></app-structure-cards-view> -->
+<!-- } @else { -->
+<app-structure-table-view></app-structure-table-view>
+<!-- } -->

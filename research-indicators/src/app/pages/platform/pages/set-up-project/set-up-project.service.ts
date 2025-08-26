@@ -27,7 +27,7 @@ export class SetUpProjectService {
   showCreateStructure = signal<boolean>(false);
   loadingStructures = signal<boolean>(false);
   currentAgreementId = signal<number | string | null>(null);
-  isCardsView = signal<boolean>(false);
+  // isCardsView = signal<boolean>(false);
   editingFocus = signal<boolean>(false);
   assignIndicatorsModal = signal<{
     show: boolean;
@@ -42,6 +42,8 @@ export class SetUpProjectService {
   level2Name = signal<string>('Level 2');
   editingLevel1 = signal<boolean>(false);
   editingLevel2 = signal<boolean>(false);
+  // Structure table expand/collapse control
+  allStructuresExpanded = signal<boolean>(true);
 
   strcutureGrouped = computed(() => {
     const structuresCopy = JSON.parse(JSON.stringify(this.structures()));
@@ -268,6 +270,15 @@ export class SetUpProjectService {
 
   cancelEditingLevel2() {
     this.editingLevel2.set(false);
+  }
+
+  // Structure table expand/collapse methods
+  toggleAllStructures() {
+    this.allStructuresExpanded.set(!this.allStructuresExpanded());
+  }
+
+  collapseAllStructures() {
+    this.allStructuresExpanded.set(false);
   }
 
   // LocalStorage methods with routeid validation

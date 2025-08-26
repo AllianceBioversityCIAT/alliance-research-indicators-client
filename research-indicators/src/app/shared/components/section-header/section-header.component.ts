@@ -163,6 +163,10 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     return this.currentUrl().includes('/set-up-project');
   });
 
+  isIndicatorsProgressPage = computed(() => {
+    return this.currentUrl().includes('/indicators-progress');
+  });
+
   isResultPage = computed(() => {
     return this.currentUrl().includes('/result/') && this.currentUrl().split('/').length >= 3;
   });
@@ -184,7 +188,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
       }
     ];
 
-    if (this.isSetUpProjectPage()) {
+    if (this.isSetUpProjectPage() || this.isIndicatorsProgressPage()) {
       const urlParts = this.currentUrl().split('/');
       const agreementId = urlParts[2]; // /result/2243/any-page -> 2243
 
@@ -194,8 +198,8 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
         baseItems = [
           ...baseItems,
           {
-            label: `Set up project`,
-            tooltip: 'Set up project'
+            label: this.isSetUpProjectPage() ? `Set up project` : `Indicators progress`,
+            tooltip: this.isSetUpProjectPage() ? 'Set up project' : 'Indicators progress'
           }
         ];
       }

@@ -7,10 +7,12 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
+import { IndicatorDetailModalComponent } from './components/indicator-detail-modal.component';
+import { MainChartModalComponent } from './components/main-chart-modal.component';
 
 @Component({
   selector: 'app-indicators-progress',
-  imports: [TableModule, TagModule, ButtonModule, ProgressBarModule, TooltipModule],
+  imports: [TableModule, TagModule, ButtonModule, ProgressBarModule, TooltipModule, IndicatorDetailModalComponent, MainChartModalComponent],
   templateUrl: './indicators-progress.component.html',
   styleUrl: './indicators-progress.component.scss'
 })
@@ -20,6 +22,11 @@ export default class IndicatorsProgressComponent implements OnInit {
 
   indicators = signal<GetIndicatorsProgress[]>([]);
   expandedRows: Record<number, boolean> = {};
+
+  // Modal properties
+  showDetailModal = false;
+  selectedIndicator: GetIndicatorsProgress | null = null;
+  showMainChartModal = false;
 
   ngOnInit() {
     this.GET_IndicatorsProgress();
@@ -41,43 +48,17 @@ export default class IndicatorsProgressComponent implements OnInit {
             indicator.total_contributions += 1;
           }
         });
+        const percentageProgress = (indicator.total_contributions / indicator.target_value) * 100;
+        indicator.percentageProgress = percentageProgress > 100 ? 100 : percentageProgress;
       });
 
       this.indicators.set(res.data);
+
+      // Expandir todas las filas por defecto
+      res.data.forEach((_, index) => {
+        this.expandedRows[index] = true;
+      });
     });
-  }
-
-  calculateProgress(indicator: GetIndicatorsProgress): number {
-    if (!indicator.target_value || indicator.target_value === 0) {
-      return 0;
-    }
-
-    // Calcular progreso basado en baseline y target
-    let progress = 0;
-    if (indicator.base_line && indicator.base_line > 0) {
-      // Si hay baseline, calcular progreso desde baseline hasta target
-      const range = indicator.target_value - indicator.base_line;
-      const current = indicator.total_contributions - indicator.base_line;
-      progress = (current / range) * 100;
-    } else {
-      // Si no hay baseline, calcular progreso directo al target
-      progress = (indicator.total_contributions / indicator.target_value) * 100;
-    }
-
-    // Limitar entre 0 y 100%
-    return Math.max(0, Math.min(100, Math.round(progress)));
-  }
-
-  getProgressBarClass(indicator: GetIndicatorsProgress): string {
-    const progress = this.calculateProgress(indicator);
-    if (progress >= 100) return 'custom-progress-complete';
-    return 'custom-progress-primary';
-  }
-
-  getProgressTextClass(indicator: GetIndicatorsProgress): string {
-    const progress = this.calculateProgress(indicator);
-    if (progress >= 100) return 'text-green-600';
-    return 'text-blue-600';
   }
 
   getRemainingStatus(indicator: GetIndicatorsProgress): 'remaining' | 'exceeded' | 'exact' {
@@ -132,5 +113,30 @@ export default class IndicatorsProgressComponent implements OnInit {
 
   toggleRow(rowIndex: number): void {
     this.expandedRows[rowIndex] = !this.expandedRows[rowIndex];
+  }
+
+  allExpanded(): boolean {
+    const totalRows = this.indicators().length;
+    if (totalRows === 0) return false;
+
+    const expandedCount = Object.values(this.expandedRows).filter(expanded => expanded).length;
+    return expandedCount === totalRows;
+  }
+
+  toggleAllRows(): void {
+    const shouldExpand = !this.allExpanded();
+
+    this.indicators().forEach((_, index) => {
+      this.expandedRows[index] = shouldExpand;
+    });
+  }
+
+  openDetailModal(indicator: GetIndicatorsProgress): void {
+    this.selectedIndicator = indicator;
+    this.showDetailModal = true;
+  }
+
+  openMainChartModal(): void {
+    this.showMainChartModal = true;
   }
 }

@@ -7,38 +7,35 @@
     size="small"
     rowGroupMode="subheader"
     groupRowsBy="representative.code"
-    [tableStyle]="{ 'min-width': '70rem' }">
+    [tableStyle]="{ 'min-width': '70rem' }"
+    [expandedRowKeys]="expandedRowKeys">
     <ng-template #header>
       <tr>
-        <th class="w-[15%]">{{ setUpProjectService.level2Name() }} group</th>
-        <th class="w-[15%]">
+        <th class="min-w-[200px]">{{ setUpProjectService.level2Name() }} group</th>
+        <th class="min-w-[120px]">
           <div class="flex items-center gap-2">
-            <i class="pi pi-hashtag text-blue-600 text-xs"></i>
             <span class="text-gray-700">Code</span>
           </div>
         </th>
-        <th class="w-[20%]">
+        <th class="min-w-[max-content]">
           <div class="flex items-center gap-2">
-            <i class="pi pi-bookmark text-blue-600 text-xs"></i>
             <span class="text-gray-700">Name</span>
           </div>
         </th>
-        <th class="w-[30%]">
+        <th class="min-w-[300px]">
           <div class="flex items-center gap-2">
-            <i class="pi pi-chart-line text-blue-600 text-xs"></i>
             <span class="text-gray-700">Indicators</span>
           </div>
         </th>
-        <th class="w-[30%]">
+        <th class="min-w-[100px]">
           <div class="flex items-center gap-2">
-            <i class="pi pi-cog text-blue-600 text-xs"></i>
             <span class="text-gray-700">Actions</span>
           </div>
         </th>
       </tr>
     </ng-template>
     <ng-template #groupheader let-customer let-i="rowIndex" let-rowIndex="rowIndex" let-expanded="expanded">
-      <tr>
+      <tr class="{{ customer.representative.newStructure ? 'new-structure' : '' }}">
         <td>
           @if (customer.representative.newStructure) {
             <p-tag [value]="'New ' + setUpProjectService.level1Name()" icon="pi pi-sparkles" severity="success" />
@@ -72,7 +69,7 @@
                   [pTooltip]="'Add ' + setUpProjectService.level2Name() + ' item'"
                   tooltipPosition="right"
                   severity="primary"
-                  label="Add"
+                  [label]="'Add ' + setUpProjectService.level2Name() + ' item'"
                   size="small"
                   [style]="{ 'white-space': 'nowrap' }">
                 </p-button>
@@ -91,7 +88,7 @@
           @if (customer.representative.editing) {
             <input type="text" pInputText (keyup.enter)="saveEditingLevel1(customer)" [(ngModel)]="level1NameInput" />
           } @else {
-            <p-tag [value]="customer.representative.name" severity="secondary" icon="pi pi-sitemap" />
+            {{ customer.representative.name }}
           }
         </td>
         <td>
@@ -160,14 +157,14 @@
         <td colspan="5" style="text-align: center">
           <div class="flex justify-center items-center gap-4">
             <span> Total {{ setUpProjectService.level2Name() }}: {{ customer.representative.itemsCount }}</span>
-            <p-button
+            <!-- <p-button
               (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)"
               icon="pi pi-plus"
               severity="primary"
               [label]="'Add'"
               size="small"
               [style]="{ 'white-space': 'nowrap' }">
-            </p-button>
+            </p-button> -->
           </div>
         </td>
       </tr>
@@ -191,7 +188,7 @@
             @if (item.editing) {
               <input (keyup.enter)="saveEditingLevel2(item)" type="text" pInputText [(ngModel)]="level2NameInput" />
             } @else {
-              <p-tag [value]="item.name" severity="info" icon="pi pi-folder" />
+              {{ item.name }}
             }
           </td>
           <td>

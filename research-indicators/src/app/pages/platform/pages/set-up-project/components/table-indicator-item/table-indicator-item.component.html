@@ -1,8 +1,8 @@
 <div class="flex flex gap-2 items-center">
   <p-button
-    label="Show all or edit"
+    label="Manage indicators"
     [badge]="indicators.length.toString()"
-    icon="pi pi-list"
+    icon="pi pi-cog"
     severity="primary"
     [text]="true"
     size="small"
@@ -11,7 +11,7 @@
     @for (indicator of indicators; track indicator.id; let i = $index) {
       @if (i < 3) {
         <div
-          class="bg-purple-100 text-purple-800 px-2 h-6 text-sm rounded-md flex items-center justify-center"
+          class="bg-blue-100 text-blue-800 px-2 h-6 text-sm rounded-md flex items-center justify-center"
           [pTooltip]="indicator.name"
           tooltipPosition="left">
           {{ indicator.id }}

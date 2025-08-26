@@ -4,6 +4,7 @@ import { StructureTableViewComponent } from '../../components/structure-table-vi
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { SetUpProjectService } from '../../set-up-project.service';
+import { DriverjsService } from '@shared/services/driverjs.service';
 
 @Component({
   selector: 'app-structure',
@@ -13,17 +14,19 @@ import { SetUpProjectService } from '../../set-up-project.service';
 })
 export default class StructureComponent {
   setUpProjectService = inject(SetUpProjectService);
-
+  driverjs = inject(DriverjsService);
   // Vista predeterminada: tabla (false = tabla, true = tarjetas)
 
-  toggleView() {
-    this.setUpProjectService.isCardsView.update(current => !current);
-  }
   addStructure = () => {
     this.setUpProjectService.structures.update(structures => {
       structures.push({ id: 's', name: '', code: '', items: [], indicators: [], editing: true, newStructure: true });
       return [...structures];
     });
     this.setUpProjectService.editingFocus.set(true);
+
+    this.setUpProjectService.collapseAllStructures();
+    setTimeout(() => {
+      this.driverjs.nextStep();
+    }, 100);
   };
 }
