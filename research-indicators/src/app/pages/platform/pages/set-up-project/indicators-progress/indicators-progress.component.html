@@ -49,6 +49,9 @@
               <th class="text-center w-24">
                 <span class="atc-grey-700">Current</span>
               </th>
+              <th class="text-center w-24">
+                <span class="atc-grey-700">Type</span>
+              </th>
               <th class="text-center w-32">
                 <span class="atc-grey-700">Progress</span>
               </th>
@@ -90,15 +93,22 @@
                 }}</span>
               </td>
               <td class="text-center">
-                <div class="flex flex-col items-center gap-1">
-                  <p-progressBar
-                    [value]="indicator.percentageProgress"
-                    [showValue]="false"
-                    [style]="{ height: '8px', width: '100px' }"
-                    styleClass="custom-progress-primary">
-                  </p-progressBar>
-                  <span class="text-xs font-medium atc-primary-blue-500"> {{ indicator.percentageProgress.toFixed(1) }}% </span>
-                </div>
+                <span class="abc-grey-100 atc-grey-800 px-2 py-1 rounded text-xs font-medium capitalize">{{ indicator.number_type }}</span>
+              </td>
+              <td class="text-center">
+                @if (indicator.number_type !== 'average') {
+                  <div class="flex flex-col items-center gap-1">
+                    <p-progressBar
+                      [value]="indicator.percentageProgress"
+                      [showValue]="false"
+                      [style]="{ height: '8px', width: '100px' }"
+                      styleClass="custom-progress-primary">
+                    </p-progressBar>
+                    <span class="text-xs font-medium atc-primary-blue-500"> {{ indicator.percentageProgress.toFixed(1) }}% </span>
+                  </div>
+                } @else {
+                  <span class="text-xs atc-grey-500">N/A</span>
+                }
               </td>
               <td class="text-center">
                 @if (indicator.contributions.length > 0) {
