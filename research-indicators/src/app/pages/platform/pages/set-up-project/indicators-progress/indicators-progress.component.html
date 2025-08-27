@@ -1,8 +1,8 @@
 <div class="project-setup-container mt-5 max-w-7xl mx-auto px-4 py-4 indicators-progress-view">
   <div class="indicators-section">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-base font-semibold text-gray-800 flex items-center gap-2">
-        <i class="pi pi-chart-line text-blue-600 text-sm"></i>
+      <h3 class="text-base font-semibold atc-grey-800 flex items-center gap-2">
+        <i class="pi pi-chart-line atc-primary-blue-500 text-sm"></i>
         Indicators Progress ({{ indicators().length }})
       </h3>
       @if (indicators().length > 0) {
@@ -18,202 +18,110 @@
             tooltipPosition="left"
             class="text-xs">
           </p-button>
-          <p-button
-            [icon]="allExpanded() ? 'pi pi-minus' : 'pi pi-plus'"
-            [label]="allExpanded() ? 'Collapse All' : 'Expand All'"
-            severity="secondary"
-            [outlined]="true"
-            size="small"
-            (onClick)="toggleAllRows()"
-            class="text-xs">
-          </p-button>
         </div>
       }
     </div>
 
     @if (indicators().length > 0) {
-      <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
         <p-table
-          showGridlines
-          stripedRows
           [resizableColumns]="true"
           [value]="indicators()"
           [responsive]="true"
-          styleClass="p-datatable-sm"
+          styleClass="p-datatable-sm indicators-table"
           [scrollable]="true"
           [tableStyle]="{ 'min-width': '70rem' }"
           size="small">
           <ng-template pTemplate="header">
             <tr>
               <th class="text-center w-20">
-                <span class="text-gray-700">Code</span>
+                <span class="atc-grey-700">Code</span>
               </th>
-              <th class="text-left max-w-[40%]">
-                <span class="text-gray-700">Statement</span>
+              <th class="text-left max-w-[35%]">
+                <span class="atc-grey-700">Statement</span>
               </th>
-              <th class="text-center">
-                <div class="flex items-center justify-center">
-                  <span class="text-gray-700">Values</span>
-                </div>
+              <th class="text-center w-24">
+                <span class="atc-grey-700">Base</span>
               </th>
-              <th class="text-center">
-                <span class="text-gray-700">Progress</span>
+              <th class="text-center w-24">
+                <span class="atc-grey-700">Target</span>
               </th>
-              <th class="text-center">
-                <span class="text-gray-700">Contributions</span>
+              <th class="text-center w-24">
+                <span class="atc-grey-700">Current</span>
+              </th>
+              <th class="text-center w-32">
+                <span class="atc-grey-700">Progress</span>
+              </th>
+              <th class="text-center w-32">
+                <span class="atc-grey-700">Contributors</span>
+              </th>
+              <th class="text-center w-24">
+                <span class="atc-grey-700">Actions</span>
               </th>
             </tr>
           </ng-template>
-          <ng-template pTemplate="body" let-indicator let-expanded="expanded" let-rowIndex="rowIndex">
-            <tr class="hover:bg-gray-50 transition-colors border-b border-gray-200">
-              <td class="align-top text-center">
-                <div class="py-3">
-                  @if (indicator.code) {
-                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-mono font-medium">{{ indicator.code }}</span>
-                  } @else {
-                    <span class="text-xs text-gray-400">-</span>
-                  }
+          <ng-template pTemplate="body" let-indicator let-rowIndex="rowIndex">
+            <tr class="hover:abc-grey-100 transition-colors">
+              <td class="text-center">
+                @if (indicator.code) {
+                  <span class="abc-primary-blue-100 atc-primary-blue-600 px-2 py-1 rounded text-xs font-mono font-medium">{{ indicator.code }}</span>
+                } @else {
+                  <span class="text-xs atc-grey-400">-</span>
+                }
+              </td>
+              <td class="text-left">
+                <div class="py-2">
+                  <h4 class="text-sm atc-grey-800 mb-1 leading-tight font-medium">{{ indicator.name }}</h4>
+                  <p class="text-xs atc-grey-600 line-clamp-2 leading-relaxed">{{ indicator.description }}</p>
                 </div>
               </td>
-              <td class="align-top">
-                <div class="py-3">
-                  <h4 class="text-sm text-gray-800 mb-1 leading-tight">{{ indicator.name }}</h4>
-                  <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed">{{ indicator.description }}</p>
-                  <div class="flex flex-wrap gap-1 mt-2">
-                    <span
-                      class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap text-xs">
-                      <strong>Unit:</strong>&nbsp;{{ indicator.target_unit || 'N/A' }}
-                    </span>
-                    <span
-                      class="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 text-gray-600 border border-gray-200 whitespace-nowrap text-xs capitalize">
-                      <strong>Type:</strong>&nbsp;{{ indicator.number_type }}
-                    </span>
-                  </div>
+              <td class="text-center">
+                <span class="text-sm font-semibold atc-grey-700">{{ indicator.base_line || 0 }}</span>
+              </td>
+              <td class="text-center">
+                @if (indicator.target_value) {
+                  <span class="text-sm font-semibold atc-primary-blue-500">{{ indicator.target_value }}</span>
+                } @else {
+                  <span class="text-xs atc-grey-400">-</span>
+                }
+              </td>
+              <td class="text-center">
+                <span class="text-sm font-semibold atc-green-600">{{
+                  indicator.number_type === 'sum' ? indicator.total_contributions : indicator.total_average_contributions
+                }}</span>
+              </td>
+              <td class="text-center">
+                <div class="flex flex-col items-center gap-1">
+                  <p-progressBar
+                    [value]="indicator.percentageProgress"
+                    [showValue]="false"
+                    [style]="{ height: '8px', width: '100px' }"
+                    styleClass="custom-progress-primary">
+                  </p-progressBar>
+                  <span class="text-xs font-medium atc-primary-blue-500"> {{ indicator.percentageProgress.toFixed(1) }}% </span>
                 </div>
               </td>
-              <td class="align-top text-center">
-                <div class="py-3">
-                  <div class="flex flex-wrap justify-center gap-1 max-w-sm mx-auto">
-                    <div class="bg-gray-50 border border-gray-200 px-1.5 py-0.5 rounded flex items-center gap-1">
-                      <span class="text-xs text-gray-600 font-medium">Base:</span>
-                      <span class="text-xs font-semibold text-gray-700">{{ indicator.base_line || 0 }}</span>
-                    </div>
-                    @if (indicator.target_value) {
-                      <div class="bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded flex items-center gap-1">
-                        <span class="text-xs text-blue-600 font-medium">Target:</span>
-                        <span class="text-xs font-semibold text-blue-700">{{ indicator.target_value }}</span>
-                      </div>
-                    }
-                    <div class="bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded flex items-center gap-1">
-                      <span class="text-xs text-indigo-600 font-medium">Current:</span>
-                      <span class="text-xs font-semibold text-indigo-700">{{
-                        indicator.number_type === 'sum' ? indicator.total_contributions : indicator.total_average_contributions
-                      }}</span>
-                    </div>
-                    @if (getRemainingStatus(indicator) !== 'exact') {
-                      <div [class]="getRemainingChipClass(indicator)">
-                        <span class="text-xs font-medium" [class]="getRemainingTextClass(indicator)">{{ getRemainingStatusText(indicator) }}</span>
-                      </div>
-                    }
-                  </div>
-                  <!-- View Chart Button -->
-                  <div class="mt-2 flex justify-center">
-                    <p-button
-                      icon="pi pi-chart-bar"
-                      label="View indicator chart details"
-                      size="small"
-                      severity="info"
-                      [outlined]="true"
-                      (onClick)="openDetailModal(indicator)"
-                      pTooltip="View detailed chart with contributions breakdown"
-                      tooltipPosition="top"
-                      class="text-xs">
-                    </p-button>
-                  </div>
-                </div>
+              <td class="text-center">
+                @if (indicator.contributions.length > 0) {
+                  <app-contributors-overlay [contributions]="indicator.contributions" [contributorsCount]="indicator.contributions.length">
+                  </app-contributors-overlay>
+                } @else {
+                  <span class="text-xs atc-grey-400">No contributors</span>
+                }
               </td>
-              <td class="align-top text-center">
-                <div class="py-3">
-                  <div class="flex flex-col items-center gap-1">
-                    <p-progressBar
-                      [value]="indicator.percentageProgress"
-                      [showValue]="false"
-                      [style]="{ height: '12px', width: '120px' }"
-                      [styleClass]="indicator.percentageProgress >= 100 ? 'custom-progress-complete' : 'custom-progress-primary'">
-                    </p-progressBar>
-                    <span class="text-xs font-medium" [class]="indicator.percentageProgress >= 100 ? 'text-green-600' : 'text-blue-600'">
-                      {{ indicator.percentageProgress.toFixed(1) }}%
-                    </span>
-                  </div>
-                </div>
-              </td>
-              <td class="align-top text-center">
-                <div class="py-3">
-                  <div class="flex flex-col items-center gap-2">
-                    <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                      {{ indicator.contributions.length }} contributions
-                    </span>
-                    @if (indicator.contributions.length > 0) {
-                      <p-button
-                        [icon]="expandedRows[rowIndex] ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-                        [label]="expandedRows[rowIndex] ? 'Hide' : 'Show'"
-                        severity="secondary"
-                        [text]="true"
-                        size="small"
-                        (onClick)="toggleRow(rowIndex)"
-                        class="text-xs">
-                      </p-button>
-                    }
-                  </div>
-                </div>
+              <td class="text-center">
+                <p-button
+                  icon="pi pi-chart-bar"
+                  severity="secondary"
+                  [text]="true"
+                  size="small"
+                  (onClick)="openDetailModal(indicator)"
+                  pTooltip="View detailed chart"
+                  tooltipPosition="top"
+                  class="text-xs">
+                </p-button>
               </td>
             </tr>
-            @if (expandedRows[rowIndex] && indicator.contributions.length > 0) {
-              <tr class="bg-slate-50">
-                <td colspan="5" class="p-0">
-                  <div class="bg-slate-50 border-2 border-blue-100 rounded-lg m-2">
-                    <div class="px-4 py-2 bg-blue-50 border-b border-blue-100 rounded-t-lg">
-                      <h5 class="text-sm font-semibold text-blue-700 flex items-center gap-2">
-                        <i class="pi pi-list text-blue-500 text-xs"></i>
-                        Contributions Details ({{ indicator.contributions.length }})
-                      </h5>
-                    </div>
-                    <div class="overflow-x-auto">
-                      <table class="w-full text-sm">
-                        <thead class="bg-blue-50 border-b border-blue-100">
-                          <tr>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-blue-500 uppercase tracking-wider w-24">Code</th>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-blue-500 uppercase tracking-wider">Title</th>
-                            <th class="px-3 py-2 text-right text-xs font-medium text-blue-500 uppercase tracking-wider w-20">Value</th>
-                          </tr>
-                        </thead>
-                        <tbody class="divide-y divide-blue-100 bg-white">
-                          @for (contribution of indicator.contributions; track contribution.result_id) {
-                            <tr class="hover:bg-gray-50">
-                              <td class="px-3 py-2">
-                                <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-mono font-medium">
-                                  {{ contribution.result_official_code }}
-                                </span>
-                              </td>
-                              <td class="px-3 py-2">
-                                <div class="text-sm font-medium text-gray-900">
-                                  {{ contribution.title }}
-                                </div>
-                              </td>
-                              <td class="px-3 py-2 text-right">
-                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">
-                                  {{ contribution.contribution_value === null ? 'N/A' : contribution.contribution_value }}
-                                </span>
-                              </td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            }
           </ng-template>
         </p-table>
       </div>

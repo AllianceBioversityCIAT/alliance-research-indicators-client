@@ -9,10 +9,20 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { IndicatorDetailModalComponent } from './components/indicator-detail-modal.component';
 import { MainChartModalComponent } from './components/main-chart-modal.component';
+import { ContributorsOverlayComponent } from './components/contributors-overlay.component';
 
 @Component({
   selector: 'app-indicators-progress',
-  imports: [TableModule, TagModule, ButtonModule, ProgressBarModule, TooltipModule, IndicatorDetailModalComponent, MainChartModalComponent],
+  imports: [
+    TableModule,
+    TagModule,
+    ButtonModule,
+    ProgressBarModule,
+    TooltipModule,
+    IndicatorDetailModalComponent,
+    MainChartModalComponent,
+    ContributorsOverlayComponent
+  ],
   templateUrl: './indicators-progress.component.html',
   styleUrl: './indicators-progress.component.scss'
 })
@@ -21,7 +31,6 @@ export default class IndicatorsProgressComponent implements OnInit {
   route = inject(ActivatedRoute);
 
   indicators = signal<GetIndicatorsProgress[]>([]);
-  expandedRows: Record<number, boolean> = {};
 
   // Modal properties
   showDetailModal = false;
@@ -34,14 +43,11 @@ export default class IndicatorsProgressComponent implements OnInit {
 
   GET_IndicatorsProgress() {
     this.api.GET_IndicatorsProgress(this.route.snapshot.params['id']).then(res => {
-      console.log(res.data);
       res.data.map(indicator => {
         indicator.base_line = Number(indicator.base_line);
         indicator.target_value = Number(indicator.target_value);
         indicator.total_contributions = 0;
         indicator.total_average_contributions = 0;
-
-        console.log(indicator.name);
 
         indicator.contributions.map(contribution => {
           contribution.is_no_contribution = contribution.contribution_value === null;
@@ -64,11 +70,6 @@ export default class IndicatorsProgressComponent implements OnInit {
       });
 
       this.indicators.set(res.data);
-
-      // Expandir todas las filas por defecto
-      res.data.forEach((_, index) => {
-        this.expandedRows[index] = true;
-      });
     });
   }
 
@@ -120,26 +121,6 @@ export default class IndicatorsProgressComponent implements OnInit {
       default:
         return 'text-gray-600';
     }
-  }
-
-  toggleRow(rowIndex: number): void {
-    this.expandedRows[rowIndex] = !this.expandedRows[rowIndex];
-  }
-
-  allExpanded(): boolean {
-    const totalRows = this.indicators().length;
-    if (totalRows === 0) return false;
-
-    const expandedCount = Object.values(this.expandedRows).filter(expanded => expanded).length;
-    return expandedCount === totalRows;
-  }
-
-  toggleAllRows(): void {
-    const shouldExpand = !this.allExpanded();
-
-    this.indicators().forEach((_, index) => {
-      this.expandedRows[index] = shouldExpand;
-    });
   }
 
   openDetailModal(indicator: GetIndicatorsProgress): void {
