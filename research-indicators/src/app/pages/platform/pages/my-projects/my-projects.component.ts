@@ -205,19 +205,23 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
         this.pinnedTab.set('all');
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
         this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.selectedTab.set('all');
         this.loadAllProjects();
       } else if (selfPinned) {
         this.pinnedTab.set('my');
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
         this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.selectedTab.set('my');
         this.loadMyProjects();
       } else {
+        this.selectedTab.set('all');
         this.loadAllProjects();
       }
     } else {
       this.pinnedTab.set('all');
       this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
       this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+      this.selectedTab.set('all');
       this.loadAllProjects();
     }
     this.loadingPin.set(false);
