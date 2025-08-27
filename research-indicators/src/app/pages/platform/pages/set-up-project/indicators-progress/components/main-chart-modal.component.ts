@@ -50,30 +50,67 @@ type ECOption = ComposeOption<
       styleClass="main-chart-modal">
       <ng-template pTemplate="header">
         <div class="flex items-center gap-3">
-          <i class="pi pi-chart-bar text-blue-600 text-xl"></i>
+          <i class="pi pi-chart-bar atc-primary-blue-500 text-xl"></i>
           <div>
-            <h3 class="text-lg font-bold text-gray-800 m-0">Indicators Progress Overview</h3>
-            <p class="text-sm text-gray-600 m-0">Detailed view of all indicators progress</p>
+            <h3 class="text-lg font-semibold atc-grey-800 m-0">Completed Sum Indicators</h3>
+            <p class="text-sm atc-grey-600 m-0">Progress overview of completed sum indicators</p>
           </div>
         </div>
       </ng-template>
 
-      <div class="p-6">
+      <div class="p-4">
         <!-- Chart Container -->
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-          <div #chartContainer class="chart-element" style="width: 100%; height: 600px;"></div>
+        <div class="bg-white rounded-lg p-4 shadow-sm">
+          <div #chartContainer class="chart-element" style="width: 100%; height: 400px;"></div>
         </div>
 
         <!-- Summary Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 max-w-md mx-auto">
-          <div class="bg-blue-50 rounded-lg p-4 text-center">
-            <div class="text-2xl font-bold text-blue-600">{{ indicators.length }}</div>
-            <div class="text-sm text-blue-500">Total Indicators</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 max-w-md mx-auto">
+          <div class="abc-primary-blue-100 rounded-lg p-4 text-center">
+            <div class="text-2xl font-semibold atc-primary-blue-500">{{ indicators.length }}</div>
+            <div class="text-sm atc-primary-blue-500 font-medium">Total Indicators</div>
           </div>
-          <div class="bg-green-50 rounded-lg p-4 text-center">
-            <div class="text-2xl font-bold text-green-600">{{ getCompletedCount() }}</div>
-            <div class="text-sm text-green-500">Completed (≥100%)</div>
+          <div class="abc-green-100 rounded-lg p-4 text-center">
+            <div class="text-2xl font-semibold atc-green-600">{{ getCompletedCount() }}</div>
+            <div class="text-sm atc-green-600 font-medium">Completed Sum (100%)</div>
           </div>
+        </div>
+
+        <!-- Indicators List -->
+        <div class="mt-6">
+          <h4 class="text-lg font-semibold atc-grey-800 mb-4 flex items-center gap-2">
+            <i class="pi pi-list atc-primary-blue-500"></i>
+            Completed Sum Indicators ({{ getCompletedCount() }})
+          </h4>
+          @if (getFilteredIndicators().length > 0) {
+            <div class="space-y-3 max-h-80 overflow-y-auto">
+              @for (indicator of getFilteredIndicators(); track indicator.code) {
+                <div class="bg-white rounded-lg p-4 flex justify-between items-center shadow-sm">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="abc-primary-blue-500 atc-white-1 px-2 py-1 rounded text-xs font-mono font-medium">
+                        {{ indicator.code }}
+                      </span>
+                      <span class="abc-grey-100 atc-grey-800 px-2 py-1 rounded text-xs font-medium capitalize">{{ indicator.number_type }}</span>
+                    </div>
+                    <div class="font-medium atc-grey-800">{{ indicator.name }}</div>
+                    <div class="text-xs atc-grey-600 mt-1">{{ indicator.description }}</div>
+                  </div>
+                  <div class="text-right ml-4">
+                    <div class="text-lg font-semibold atc-green-600">{{ indicator.total_contributions }}</div>
+                    <div class="text-xs atc-grey-500">{{ indicator.target_unit }}</div>
+                    <div class="text-xs atc-primary-blue-500 font-medium mt-1">100% Complete</div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="text-center py-8 abc-grey-100 rounded-lg">
+              <i class="pi pi-chart-line text-3xl mb-3 block atc-grey-400"></i>
+              <h4 class="text-base font-semibold atc-grey-700 mb-2">No Completed Sum Indicators</h4>
+              <p class="text-sm atc-grey-500">Complete some sum indicators to see them here.</p>
+            </div>
+          }
         </div>
       </div>
 
@@ -87,16 +124,35 @@ type ECOption = ComposeOption<
   styles: [
     `
       .chart-element {
-        min-height: 600px;
+        min-height: 400px;
       }
 
       :host ::ng-deep .main-chart-modal .p-dialog-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        border-bottom: 1px solid #e2e8f0;
+        background: var(--ac-grey-100);
+        border-bottom: 1px solid var(--ac-grey-200);
+        padding: 1.5rem;
       }
 
       :host ::ng-deep .main-chart-modal .p-dialog-content {
-        background: #f8fafc;
+        background: var(--ac-grey-100);
+      }
+
+      :host ::ng-deep .main-chart-modal .p-dialog {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow:
+          0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        border: none;
+      }
+
+      :host ::ng-deep .main-chart-modal .p-dialog-header-close {
+        color: var(--ac-grey-600);
+      }
+
+      :host ::ng-deep .main-chart-modal .p-dialog-header-close:hover {
+        color: var(--ac-primary-blue-500);
+        background: var(--ac-grey-200);
       }
     `
   ]
@@ -140,7 +196,17 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   getCompletedCount(): number {
-    return this.indicators.filter(ind => this.calculateProgress(ind) >= 100).length;
+    return this.indicators.filter(ind => {
+      const progress = this.calculateProgress(ind);
+      return progress >= 100 && ind.number_type !== 'average';
+    }).length;
+  }
+
+  getFilteredIndicators(): GetIndicatorsProgress[] {
+    return this.indicators.filter(indicator => {
+      const progress = this.calculateProgress(indicator);
+      return progress >= 100 && indicator.number_type !== 'average';
+    });
   }
 
   private calculateProgress(indicator: GetIndicatorsProgress): number {
@@ -169,17 +235,39 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
   private updateChart() {
     if (!this.chart || !this.indicators.length) return;
 
+    // Filter indicators: 100% progress and not average type
+    const filteredIndicators = this.indicators.filter(indicator => {
+      const progress = this.calculateProgress(indicator);
+      return progress >= 100 && indicator.number_type !== 'average';
+    });
+
+    if (filteredIndicators.length === 0) {
+      // Show empty state message
+      const option = {
+        title: {
+          text: 'No Completed Sum Indicators',
+          subtext: 'Only completed indicators with sum type are shown here',
+          left: 'center',
+          top: 'center',
+          textStyle: { fontSize: 16, color: '#666' },
+          subtextStyle: { fontSize: 12, color: '#999' }
+        }
+      };
+      this.chart.setOption(option);
+      return;
+    }
+
     // Use codes for consistency with main chart
-    const indicatorNames = this.indicators.map(ind => ind.code);
-    const progressData = this.indicators.map(ind => this.calculateProgress(ind));
-    const currentValues = this.indicators.map(ind => ind.total_contributions);
-    const targetValues = this.indicators.map(ind => ind.target_value);
-    const baselineValues = this.indicators.map(ind => ind.base_line || 0);
+    const indicatorNames = filteredIndicators.map(ind => ind.code);
+    const progressData = filteredIndicators.map(ind => this.calculateProgress(ind));
+    const currentValues = filteredIndicators.map(ind => ind.total_contributions);
+    const targetValues = filteredIndicators.map(ind => ind.target_value);
+    const baselineValues = filteredIndicators.map(ind => ind.base_line || 0);
 
     const option: ECOption = {
       title: {
-        text: 'Indicators Progress Dashboard - Detailed View',
-        subtext: `Total Indicators: ${this.indicators.length}`,
+        text: 'Completed Sum Indicators Dashboard',
+        subtext: `Showing ${filteredIndicators.length} completed sum indicators (${this.indicators.length} total)`,
         left: 'center',
         textStyle: {
           fontSize: 18,
@@ -193,14 +281,14 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
         },
         formatter: (params: unknown) => {
           const dataIndex = (params as { dataIndex: number }[])[0].dataIndex;
-          const indicator = this.indicators[dataIndex];
+          const indicator = filteredIndicators[dataIndex];
           const progress = this.calculateProgress(indicator);
 
           return `
             <div style="padding: 12px; max-width: 300px;">
               <strong style="font-size: 14px;">${indicator.name}</strong><br/>
               <span style="color: #666; font-size: 12px;">Code: ${indicator.code}</span><br/>
-              <span style="color: #666; font-size: 12px;">Type: ${indicator.type}</span><br/>
+              <span style="color: #666; font-size: 12px;">Type: ${indicator.number_type}</span><br/>
               <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;"/>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
                 <div>Baseline: <strong>${indicator.base_line || 0}</strong></div>
@@ -216,13 +304,7 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
           `;
         }
       },
-      legend: {
-        data: ['Baseline', 'Current Value', 'Target Value'],
-        bottom: 10,
-        textStyle: {
-          fontSize: 12
-        }
-      },
+
       grid: {
         left: '3%',
         right: '4%',
@@ -241,47 +323,24 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Values',
+        name: 'Progress (%)',
         nameLocation: 'middle',
         nameGap: 50,
         nameTextStyle: {
           fontSize: 12
-        }
+        },
+        max: 100,
+        min: 0
       },
       series: [
         {
-          name: 'Baseline',
+          name: 'Progress',
           type: 'bar',
-          data: baselineValues,
+          data: progressData,
           itemStyle: {
-            color: '#94a3b8'
+            color: '#173f6f' // Primary blue 500 from design system
           },
-          barWidth: '20%'
-        },
-        {
-          name: 'Current Value',
-          type: 'bar',
-          data: currentValues,
-          itemStyle: {
-            color: (params: { dataIndex: number }) => {
-              const progress = progressData[params.dataIndex];
-              if (progress >= 100) return '#22c55e'; // Green for completed
-              if (progress >= 75) return '#3b82f6'; // Blue for good progress
-              if (progress >= 50) return '#6366f1'; // Indigo for moderate progress
-              return '#3b82f6'; // Blue for low progress (changed from red)
-            }
-          },
-          barWidth: '20%'
-        },
-        {
-          name: 'Target Value',
-          type: 'bar',
-          data: targetValues,
-          itemStyle: {
-            color: '#1f2937',
-            opacity: 0.3
-          },
-          barWidth: '20%'
+          barWidth: '60%'
         }
       ]
     };

@@ -50,10 +50,16 @@ import { PopoverModule } from 'primeng/popover';
                   {{ contribution.title }}
                 </div>
               </div>
-              <div class="ml-3">
+              <div class="flex items-center gap-2 ml-3">
                 <span class="abc-green-100 atc-green-700 px-3 py-1 rounded-full text-sm font-semibold">
                   {{ contribution.contribution_value === null ? 'N/A' : contribution.contribution_value }}
                 </span>
+                <button
+                  (click)="openResult(contribution.result_official_code)"
+                  class="flex items-center justify-center w-6 h-6 hover:scale-110 transition-transform cursor-pointer"
+                  title="Open result details">
+                  <i class="pi pi-arrow-up-right text-sm atc-primary-blue-500 hover:atc-primary-blue-400"></i>
+                </button>
               </div>
             </div>
           }
@@ -86,5 +92,10 @@ export class ContributorsOverlayComponent {
 
   get buttonLabel(): string {
     return this.contributorsCount > 0 ? `Show Contributors (${this.contributorsCount})` : 'No Contributors';
+  }
+
+  openResult(resultCode: string): void {
+    const url = `/result/${resultCode}/general-information`;
+    window.open(url, '_blank');
   }
 }
