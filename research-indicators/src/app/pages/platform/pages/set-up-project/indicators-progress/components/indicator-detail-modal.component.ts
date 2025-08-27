@@ -259,7 +259,7 @@ export class IndicatorDetailModalComponent implements OnInit, OnDestroy, OnChang
 
           return `
             <div style="padding: 12px; min-width: 200px;">
-              <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #173f6f;">
+              <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #173f6f; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                 ${contribution.title}
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -272,21 +272,11 @@ export class IndicatorDetailModalComponent implements OnInit, OnDestroy, OnChang
                 <span style="color: #666; font-size: 12px;">Value:</span>
 
                 <span style="color: #358540; font-weight: bold; font-size: 14px;">
-                  ${this.indicator?.target_unit}: ${contribution.contribution_value}
+                  ${this.indicator?.target_unit}: ${contribution.contribution_value === null ? contribution.contribution_value : 'N/A'}
                 </span>
 
               </div>
-              ${
-                contribution.description
-                  ? `
-                <div style="border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 8px;">
-                  <span style="color: #888; font-size: 11px; line-height: 1.4;">
-                    ${contribution.description}
-                  </span>
-                </div>
-              `
-                  : ''
-              }
+
             </div>
           `;
         }
