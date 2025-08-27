@@ -260,9 +260,6 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
     // Use codes for consistency with main chart
     const indicatorNames = filteredIndicators.map(ind => ind.code);
     const progressData = filteredIndicators.map(ind => this.calculateProgress(ind));
-    const currentValues = filteredIndicators.map(ind => ind.total_contributions);
-    const targetValues = filteredIndicators.map(ind => ind.target_value);
-    const baselineValues = filteredIndicators.map(ind => ind.base_line || 0);
 
     const option: ECOption = {
       title: {

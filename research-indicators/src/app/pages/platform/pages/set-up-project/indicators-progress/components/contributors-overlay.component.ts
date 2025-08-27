@@ -3,6 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { PopoverModule } from 'primeng/popover';
 
+interface Contribution {
+  result_id: string;
+  result_official_code: string;
+  title: string;
+  contribution_value: number | null;
+}
+
 @Component({
   selector: 'app-contributors-overlay',
   standalone: true,
@@ -85,10 +92,10 @@ import { PopoverModule } from 'primeng/popover';
   ]
 })
 export class ContributorsOverlayComponent {
-  @Input() contributions: any[] = [];
-  @Input() contributorsCount: number = 0;
-  @Input() indicatorType: string = '';
-  @Input() currentValue: number = 0;
+  @Input() contributions: Contribution[] = [];
+  @Input() contributorsCount = 0;
+  @Input() indicatorType = '';
+  @Input() currentValue = 0;
 
   get buttonLabel(): string {
     return this.contributorsCount > 0 ? `Show Contributors (${this.contributorsCount})` : 'No Contributors';

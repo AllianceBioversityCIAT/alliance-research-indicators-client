@@ -59,7 +59,7 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
 
       return obj;
     });
-    console.log(selectedIndicators);
+
     await this.api.POST_SyncContribution(selectedIndicators as PostSyncContributor[], this.cache.currentMetadata().result_id as number);
     this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Contributions saved successfully' });
     this.getData();
@@ -91,7 +91,6 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
     this.loading.set(true);
     this.body.set({ selectedIndicators: [] });
     const response = await this.api.GET_ContributionsByResult(this.currentProject()?.agreement_id ?? '');
-    console.log(response.data);
     this.body.set({
       selectedIndicators: response.data.map((item: PostSyncContributor) => ({
         ...item,
@@ -103,16 +102,12 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
 
   toggleContribution(indicator: PostSyncContributor, event: Event) {
     const target = event.target as HTMLInputElement;
-    console.log(target.checked);
     if (target.checked) {
-      console.log('checked');
       // Si marca el checkbox, poner valor en 0
       indicator.contribution_value = null;
     } else {
-      console.log('unchecked');
       // Si desmarca el checkbox, limpiar el valor para que pueda ingresar uno nuevo
       indicator.contribution_value = 0;
     }
-    console.log(indicator);
   }
 }
