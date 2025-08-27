@@ -59,6 +59,7 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
 
       return obj;
     });
+
     await this.api.POST_SyncContribution(selectedIndicators as PostSyncContributor[], this.cache.currentMetadata().result_id as number);
     this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Contributions saved successfully' });
     this.getData();
@@ -93,8 +94,7 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
     this.body.set({
       selectedIndicators: response.data.map((item: PostSyncContributor) => ({
         ...item,
-        id: item.indicator_id,
-        contribution_value: Number(item.contribution_value)
+        id: item.indicator_id
       }))
     });
     this.loading.set(false);
@@ -104,10 +104,10 @@ export default class ContributionsToIndicatorsComponent implements OnInit {
     const target = event.target as HTMLInputElement;
     if (target.checked) {
       // Si marca el checkbox, poner valor en 0
-      indicator.contribution_value = 0;
+      indicator.contribution_value = null;
     } else {
       // Si desmarca el checkbox, limpiar el valor para que pueda ingresar uno nuevo
-      indicator.contribution_value = null;
+      indicator.contribution_value = 0;
     }
   }
 }

@@ -13,6 +13,7 @@ export interface GetIndicatorsProgress {
   contributions: Contribution[];
   //auxiliary fields
   total_contributions: number;
+  total_average_contributions: number;
   percentageProgress: number;
 }
 
@@ -21,5 +22,7 @@ export interface Contribution {
   result_official_code: number;
   title: string;
   description: string;
-  contribution_value: number;
+  contribution_value: number | null;
+  //auxiliary fields
+  is_no_contribution: boolean;
 }

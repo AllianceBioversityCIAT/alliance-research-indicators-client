@@ -9,10 +9,20 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { IndicatorDetailModalComponent } from './components/indicator-detail-modal.component';
 import { MainChartModalComponent } from './components/main-chart-modal.component';
+import { ContributorsOverlayComponent } from './components/contributors-overlay.component';
 
 @Component({
   selector: 'app-indicators-progress',
-  imports: [TableModule, TagModule, ButtonModule, ProgressBarModule, TooltipModule, IndicatorDetailModalComponent, MainChartModalComponent],
+  imports: [
+    TableModule,
+    TagModule,
+    ButtonModule,
+    ProgressBarModule,
+    TooltipModule,
+    IndicatorDetailModalComponent,
+    MainChartModalComponent,
+    ContributorsOverlayComponent
+  ],
   templateUrl: './indicators-progress.component.html',
   styleUrl: './indicators-progress.component.scss'
 })
@@ -21,7 +31,6 @@ export default class IndicatorsProgressComponent implements OnInit {
   route = inject(ActivatedRoute);
 
   indicators = signal<GetIndicatorsProgress[]>([]);
-  expandedRows: Record<number, boolean> = {};
 
   // Modal properties
   showDetailModal = false;
@@ -38,26 +47,29 @@ export default class IndicatorsProgressComponent implements OnInit {
         indicator.base_line = Number(indicator.base_line);
         indicator.target_value = Number(indicator.target_value);
         indicator.total_contributions = 0;
+        indicator.total_average_contributions = 0;
+
         indicator.contributions.map(contribution => {
-          contribution.contribution_value = Number(contribution.contribution_value);
-          if (indicator.number_type === 'sum') {
-            indicator.total_contributions += contribution.contribution_value;
-          } else if (indicator.number_type === 'average') {
-            indicator.total_contributions += contribution.contribution_value / indicator.contributions.length;
-          } else if (indicator.number_type === 'count') {
-            indicator.total_contributions += 1;
+          contribution.is_no_contribution = contribution.contribution_value === null;
+          contribution.contribution_value = contribution.is_no_contribution ? null : Number(contribution.contribution_value);
+
+          if (!contribution.is_no_contribution) {
+            indicator.total_contributions += contribution.contribution_value!;
+            // } else if (indicator.number_type === 'average') {
+            //   console.log(indicator.contributions.filter(c => !c.is_no_contribution).length);
+            //   indicator.total_contributions += contribution.contribution_value! / indicator.contributions.filter(c => !c.is_no_contribution).length;
+            // }
           }
         });
+
+        indicator.total_average_contributions =
+          Math.round((indicator.total_contributions / indicator.contributions.filter(c => !c.is_no_contribution).length) * 100) / 100;
+
         const percentageProgress = (indicator.total_contributions / indicator.target_value) * 100;
         indicator.percentageProgress = percentageProgress > 100 ? 100 : percentageProgress;
       });
 
       this.indicators.set(res.data);
-
-      // Expandir todas las filas por defecto
-      res.data.forEach((_, index) => {
-        this.expandedRows[index] = true;
-      });
     });
   }
 
@@ -109,26 +121,6 @@ export default class IndicatorsProgressComponent implements OnInit {
       default:
         return 'text-gray-600';
     }
-  }
-
-  toggleRow(rowIndex: number): void {
-    this.expandedRows[rowIndex] = !this.expandedRows[rowIndex];
-  }
-
-  allExpanded(): boolean {
-    const totalRows = this.indicators().length;
-    if (totalRows === 0) return false;
-
-    const expandedCount = Object.values(this.expandedRows).filter(expanded => expanded).length;
-    return expandedCount === totalRows;
-  }
-
-  toggleAllRows(): void {
-    const shouldExpand = !this.allExpanded();
-
-    this.indicators().forEach((_, index) => {
-      this.expandedRows[index] = shouldExpand;
-    });
   }
 
   openDetailModal(indicator: GetIndicatorsProgress): void {

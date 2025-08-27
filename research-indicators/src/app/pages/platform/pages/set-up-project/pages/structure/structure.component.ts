@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { StructureCardsViewComponent } from '../../components/structure-cards-view/structure-cards-view.component';
 import { StructureTableViewComponent } from '../../components/structure-table-view/structure-table-view.component';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
@@ -8,7 +7,7 @@ import { DriverjsService } from '@shared/services/driverjs.service';
 
 @Component({
   selector: 'app-structure',
-  imports: [StructureCardsViewComponent, StructureTableViewComponent, ButtonModule, TooltipModule],
+  imports: [StructureTableViewComponent, ButtonModule, TooltipModule],
   templateUrl: './structure.component.html',
   styleUrl: './structure.component.scss'
 })
