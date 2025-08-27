@@ -216,7 +216,7 @@ export class ResultsCenterService {
             },
             ...prev.map(indicator => ({
               ...indicator,
-              able: [0, 1, 2, 4].includes(indicator.indicator_id)
+              able: [0, 1, 2, 4, 5].includes(indicator.indicator_id)
             }))
           ];
         });
@@ -362,6 +362,7 @@ export class ResultsCenterService {
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
+    this.onSelectFilterTab(0);
   }
 
   cleanMultiselects() {
