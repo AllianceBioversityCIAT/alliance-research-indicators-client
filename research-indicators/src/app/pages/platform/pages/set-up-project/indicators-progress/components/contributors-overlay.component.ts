@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { PopoverModule } from 'primeng/popover';
 
 @Component({
   selector: 'app-contributors-overlay',
   standalone: true,
-  imports: [CommonModule, ButtonModule, OverlayPanelModule],
+  imports: [CommonModule, ButtonModule, PopoverModule],
   template: `
     <p-button
       [label]="buttonLabel"
@@ -14,24 +14,35 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
       severity="secondary"
       [text]="true"
       size="small"
-      (onClick)="op.toggle($event)"
+      (onClick)="popover.toggle($event)"
       class="text-xs" />
 
-    <p-overlayPanel #op [showCloseIcon]="true" [style]="{ width: '400px' }">
+    <p-popover #popover [style]="{ width: '450px' }">
       <div class="contributors-overlay">
-        <div class="mb-3">
-          <h6 class="text-sm font-semibold atc-primary-blue-500 flex items-center gap-2">
+        <div class="mb-4 pb-3 border-b border-gray-200">
+          <h6 class="text-sm font-semibold atc-primary-blue-500 flex items-center gap-2 mb-3">
             <i class="pi pi-users text-xs"></i>
             Contributors ({{ contributions.length }})
           </h6>
+          <div class="flex items-center gap-3 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="atc-grey-600 font-medium">Type:</span>
+              <span class="atc-primary-blue-500 px-2 py-1 abc-primary-blue-100 rounded font-medium capitalize">{{ indicatorType }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="atc-grey-600 font-medium">Total:</span>
+              <span class="atc-green-600 px-2 py-1 abc-green-100 rounded font-semibold">{{ currentValue }}</span>
+            </div>
+          </div>
         </div>
 
-        <div class="space-y-2 max-h-64 overflow-y-auto">
+        <div class="space-y-3 max-h-64 overflow-y-auto">
           @for (contribution of contributions; track contribution.result_id) {
-            <div class="flex items-center justify-between p-2 abc-grey-100 rounded border border-gray-200 hover:abc-grey-200 transition-colors">
+            <div
+              class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors shadow-sm">
               <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="abc-primary-blue-500 atc-white-1 px-2 py-0.5 rounded text-xs font-mono font-medium">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="abc-primary-blue-500 atc-white-1 px-2 py-1 rounded text-xs font-mono font-medium">
                     {{ contribution.result_official_code }}
                   </span>
                 </div>
@@ -39,8 +50,8 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
                   {{ contribution.title }}
                 </div>
               </div>
-              <div class="ml-2">
-                <span class="abc-green-100 atc-green-700 px-2 py-1 rounded-full text-xs font-semibold">
+              <div class="ml-3">
+                <span class="abc-green-100 atc-green-700 px-3 py-1 rounded-full text-sm font-semibold">
                   {{ contribution.contribution_value === null ? 'N/A' : contribution.contribution_value }}
                 </span>
               </div>
@@ -48,12 +59,21 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
           }
         </div>
       </div>
-    </p-overlayPanel>
+    </p-popover>
   `,
   styles: [
     `
       .contributors-overlay {
-        padding: 4px;
+        padding: 16px;
+        background: white;
+      }
+
+      :host ::ng-deep .p-popover-content {
+        padding: 0;
+        border-radius: 8px;
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
       }
     `
   ]
@@ -61,6 +81,8 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 export class ContributorsOverlayComponent {
   @Input() contributions: any[] = [];
   @Input() contributorsCount: number = 0;
+  @Input() indicatorType: string = '';
+  @Input() currentValue: number = 0;
 
   get buttonLabel(): string {
     return this.contributorsCount > 0 ? `Show Contributors (${this.contributorsCount})` : 'No Contributors';

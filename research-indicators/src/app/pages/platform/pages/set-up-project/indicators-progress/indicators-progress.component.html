@@ -102,7 +102,11 @@
               </td>
               <td class="text-center">
                 @if (indicator.contributions.length > 0) {
-                  <app-contributors-overlay [contributions]="indicator.contributions" [contributorsCount]="indicator.contributions.length">
+                  <app-contributors-overlay
+                    [contributions]="indicator.contributions"
+                    [contributorsCount]="indicator.contributions.length"
+                    [indicatorType]="indicator.number_type"
+                    [currentValue]="indicator.number_type === 'sum' ? indicator.total_contributions : indicator.total_average_contributions">
                   </app-contributors-overlay>
                 } @else {
                   <span class="text-xs atc-grey-400">No contributors</span>
