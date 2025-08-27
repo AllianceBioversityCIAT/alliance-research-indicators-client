@@ -64,15 +64,14 @@
             <tr class="hover:abc-grey-100 transition-colors">
               <td class="text-center">
                 @if (indicator.code) {
-                  <span class="abc-primary-blue-100 atc-primary-blue-600 px-2 py-1 rounded text-xs font-mono font-medium">{{ indicator.code }}</span>
+                  <span class="abc-primary-blue-500 atc-white-1 px-2 py-1 rounded text-xs font-mono font-medium">{{ indicator.code }}</span>
                 } @else {
                   <span class="text-xs atc-grey-400">-</span>
                 }
               </td>
               <td class="text-left">
                 <div class="py-2">
-                  <h4 class="text-sm atc-grey-800 mb-1 leading-tight font-medium">{{ indicator.name }}</h4>
-                  <p class="text-xs atc-grey-600 line-clamp-2 leading-relaxed">{{ indicator.description }}</p>
+                  <h4 class="text-sm atc-grey-800 leading-tight font-medium">{{ indicator.name }}</h4>
                 </div>
               </td>
               <td class="text-center">
@@ -112,6 +111,7 @@
               <td class="text-center">
                 <p-button
                   icon="pi pi-chart-bar"
+                  label="View Chart"
                   severity="secondary"
                   [text]="true"
                   size="small"

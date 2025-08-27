@@ -31,7 +31,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
             <div class="flex items-center justify-between p-2 abc-grey-100 rounded border border-gray-200 hover:abc-grey-200 transition-colors">
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-1">
-                  <span class="abc-primary-blue-100 atc-primary-blue-600 px-2 py-0.5 rounded text-xs font-mono font-medium">
+                  <span class="abc-primary-blue-500 atc-white-1 px-2 py-0.5 rounded text-xs font-mono font-medium">
                     {{ contribution.result_official_code }}
                   </span>
                 </div>
