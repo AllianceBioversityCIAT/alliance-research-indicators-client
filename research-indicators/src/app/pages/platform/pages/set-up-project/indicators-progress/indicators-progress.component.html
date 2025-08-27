@@ -23,7 +23,7 @@
     </div>
 
     @if (indicators().length > 0) {
-      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden indicators-table-container">
         <p-table
           [resizableColumns]="true"
           [value]="indicators()"
@@ -34,32 +34,52 @@
           size="small">
           <ng-template pTemplate="header">
             <tr>
-              <th class="text-center w-20">
-                <span class="atc-grey-700">Code</span>
+              <th pSortableColumn="code" class="text-center w-20">
+                <div class="flex items-center gap-2">
+                  Code
+                  <p-sortIcon class="mt-1" field="code" />
+                </div>
               </th>
               <th class="text-left w-200">
-                <span class="atc-grey-700">Statement</span>
+                <p-columnFilter type="text" field="name" placeholder="Enter key to search" ariaLabel="Filter Country"></p-columnFilter>
+
+                <!-- <span class="atc-grey-700">Statement</span> -->
               </th>
               <th class="text-center w-24">
-                <span class="atc-grey-700">Base</span>
+                <div class="flex items-center gap-2">
+                  Base
+                  <p-sortIcon class="mt-1" field="base_line" />
+                </div>
               </th>
               <th class="text-center w-24">
-                <span class="atc-grey-700">Target</span>
+                <div class="flex items-center gap-2">
+                  Target
+                  <p-sortIcon class="mt-1" field="target_value" />
+                </div>
               </th>
               <th class="text-center w-24">
-                <span class="atc-grey-700">Current</span>
+                <div class="flex items-center gap-2">
+                  Current
+                  <p-sortIcon class="mt-1" field="total_contributions" />
+                </div>
               </th>
               <th class="text-center w-24">
-                <span class="atc-grey-700">Type</span>
+                <div class="flex items-center gap-2">
+                  Type
+                  <p-sortIcon class="mt-1" field="number_type" />
+                </div>
               </th>
               <th class="text-center w-32">
-                <span class="atc-grey-700">Progress</span>
+                <div class="flex items-center gap-2">
+                  Progress
+                  <p-sortIcon class="mt-1" field="percentageProgress" />
+                </div>
               </th>
               <th class="text-center w-32">
-                <span class="atc-grey-700">Contributors</span>
+                <span>Contributors</span>
               </th>
               <th class="text-center w-24">
-                <span class="atc-grey-700">Actions</span>
+                <span>Actions</span>
               </th>
             </tr>
           </ng-template>
