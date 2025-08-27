@@ -42,7 +42,7 @@ type ECOption = ComposeOption<
   imports: [CommonModule, DialogModule, ButtonModule],
   template: `
     <p-dialog
-      [visible]="visible"
+      [(visible)]="visible"
       (onHide)="onClose()"
       [modal]="true"
       [closable]="true"
