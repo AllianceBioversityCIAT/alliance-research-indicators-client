@@ -258,11 +258,35 @@ export class IndicatorDetailModalComponent implements OnInit, OnDestroy, OnChang
           const contribution = contributions[dataIndex];
 
           return `
-            <div style="padding: 8px;">
-              <strong>${contribution.title}</strong><br/>
-              <span style="color: #666;">Code: ${contribution.result_official_code}</span><br/>
-              <span style="color: #666;">Value: ${contribution.contribution_value} ${this.indicator?.target_unit}</span><br/>
-              ${contribution.description ? `<hr style="margin: 4px 0;"/><span style="color: #888; font-size: 12px;">${contribution.description}</span>` : ''}
+            <div style="padding: 12px; min-width: 200px;">
+              <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #173f6f;">
+                ${contribution.title}
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span style="color: #666; font-size: 12px;">Code:</span>
+                <span style="color: #173f6f; font-weight: 600; font-family: monospace; background: #f0f4f8; padding: 2px 6px; border-radius: 4px;">
+                  ${contribution.result_official_code}
+                </span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="color: #666; font-size: 12px;">Value:</span>
+
+                <span style="color: #358540; font-weight: bold; font-size: 14px;">
+                  ${this.indicator?.target_unit}: ${contribution.contribution_value}
+                </span>
+
+              </div>
+              ${
+                contribution.description
+                  ? `
+                <div style="border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 8px;">
+                  <span style="color: #888; font-size: 11px; line-height: 1.4;">
+                    ${contribution.description}
+                  </span>
+                </div>
+              `
+                  : ''
+              }
             </div>
           `;
         }
