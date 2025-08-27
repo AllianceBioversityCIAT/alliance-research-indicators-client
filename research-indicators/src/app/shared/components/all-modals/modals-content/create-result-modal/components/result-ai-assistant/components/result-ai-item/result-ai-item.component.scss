@@ -211,7 +211,6 @@ p {
   box-sizing: border-box;
   background: white;
   outline: none;
-  text-transform: uppercase;
   resize: none;
   overflow: hidden;
   transition: height 0.2s;
@@ -223,7 +222,6 @@ p {
 .input-width-measurer {
   font-size: 19px;
   font-weight: 600;
-  text-transform: uppercase;
   padding: 0px 8px;
   font-family: inherit;
   position: absolute;

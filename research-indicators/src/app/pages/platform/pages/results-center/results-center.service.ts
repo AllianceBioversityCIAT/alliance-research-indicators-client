@@ -216,7 +216,7 @@ export class ResultsCenterService {
             },
             ...prev.map(indicator => ({
               ...indicator,
-              able: [0, 1, 2, 4].includes(indicator.indicator_id)
+              able: [0, 1, 2, 4, 5].includes(indicator.indicator_id)
             }))
           ];
         });
@@ -228,6 +228,18 @@ export class ResultsCenterService {
     }
   );
 
+  async main() {
+    this.loading.set(true);
+    try {
+      const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
+      this.list.set(response());
+    } catch (error) {
+      console.error('Error loading results:', error);
+      this.list.set([]);
+    } finally {
+      this.loading.set(false);
+    }
+  }
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
     const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
       SUBMITTED: 'info',
@@ -326,7 +338,6 @@ export class ResultsCenterService {
   }
 
   clearAllFilters() {
-    //? Clear all filters and reset sort
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
@@ -345,17 +356,13 @@ export class ResultsCenterService {
 
     // clear search input
     this.searchInput.set('');
-    //? clear table filters and reset sort
     const table = this.tableRef();
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
-    //? clear indicators tab filter, keeping first one active
     this.onSelectFilterTab(0);
-    //? clear my results filter item
-    this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
   }
 
   cleanMultiselects() {
@@ -363,5 +370,15 @@ export class ResultsCenterService {
     Object.values(refs).forEach(multiselect => {
       multiselect.clear();
     });
+  }
+
+  resetState() {
+    this.clearAllFilters();
+    this.list.set([]);
+    this.loading.set(true);
+    this.showFiltersSidebar.set(false);
+    this.showConfigurationSidebar.set(false);
+    this.multiselectRefs.set({});
+    this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
   }
 }

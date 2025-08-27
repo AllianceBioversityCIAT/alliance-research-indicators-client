@@ -1,172 +1,176 @@
 <ng-template #requiredMessage>
-  <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
-    <i class="material-symbols-rounded !text-[12px]">warning</i>
-    <span class="!text-[12px]">This field is required</span>
+  <div class="flex items-center gap-1 mt-1 text-[#E69F00]">
+    <i class="material-symbols-rounded !text-[14px]">warning</i>
+    <span class="!text-[14px]">This field is required</span>
   </div>
 </ng-template>
 
 <div class="grid mx-10 my-8 h-[calc(100%-60px)] w-[70vw] max-w-[1300px]">
-  <div class="flex-wrap w-full px-6 items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] mb-[30px]">
-    <div class="flex gap-3 mt-[15px] mb-2.5 items-center">
-      <img src="/images/prms-reporting-tool.svg" alt="PRMS Reporting Tool" class="w-6" />
-      <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left">
-        For results from <strong>Pooled Projects</strong>, please report in <strong>PRMS</strong>.
-        <a href="https://prtest.ciat.cgiar.org/result/results-outlet/results-list" class="text-[#1689CA] hover:underline">
-          https://prtest.ciat.cgiar.org/result/results-outlet/results-list
-        </a>
-      </h3>
+  <div class="mx-7">
+    <div class="flex-wrap w-full px-6 items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] mb-[30px]">
+      <div class="flex gap-3 pt-[15px] mb-2.5 items-center">
+        <img src="/images/prms-reporting-tool.svg" alt="PRMS Reporting Tool" class="w-6" />
+        <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left">
+          For results from <strong>Pooled Projects</strong>, please report in <strong>PRMS</strong>.
+          <a href="https://prtest.ciat.cgiar.org/result/results-outlet/results-list" class="text-[#1689CA] hover:underline">
+            https://prtest.ciat.cgiar.org/result/results-outlet/results-list
+          </a>
+        </h3>
+      </div>
+
+      <div class="flex gap-3 pb-[15px] items-center">
+        <img src="/images/tracking.svg" alt="TIP" class="w-6" />
+        <h3 class="text-[#777C83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left">
+          For Knowledge <strong>Product Results</strong> from non-pooled projects, please report in <strong>TIP</strong>.
+          <a href="https://tiptst.ciat.cgiar.org/login" class="text-[#1689CA] hover:underline"> https://tiptst.ciat.cgiar.org/login </a>
+        </h3>
+      </div>
     </div>
 
-    <div class="flex gap-3 mb-[15px] items-center">
-      <img src="/images/tracking.svg" alt="TIP" class="w-6" />
-      <h3 class="text-[#777C83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left">
-        For Knowledge <strong>Product Results</strong> from non-pooled projects, please report in <strong>TIP</strong>.
-        <a href="https://tiptst.ciat.cgiar.org/login" class="text-[#1689CA] hover:underline"> https://tiptst.ciat.cgiar.org/login </a>
-      </h3>
-    </div>
-  </div>
+    <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
+      <p class="text-[15px] font-[800] text-[#173F6F]">NEW RESULT</p>
 
-  <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
-    <p class="text-[14px] font-[700] text-[#173F6F]">NEW RESULT</p>
+      <app-shared-result-form
+        [contracts]="getContractsService.list()"
+        [showWarning]="true"
+        [getContractStatusClasses]="getContractStatusClasses"
+        title="Reporting Project"
+        helperText="Enter the eligible project under which you are submitting the result. Only Alliance non-pool-funded projects are allowed."
+        [maxLength]="100"
+        (validityChanged)="sharedFormValid = $event"
+        [contractId]="contractId"
+        (contractIdChange)="onContractIdChange($event)">
+      </app-shared-result-form>
 
-    <app-shared-result-form
-      [contracts]="getContractsService.list()"
-      [showWarning]="true"
-      [getContractStatusClasses]="getContractStatusClasses"
-      title="Reporting Project"
-      helperText="Enter the eligible project under which you are submitting the result. Only Alliance non-pool-funded projects are allowed."
-      [maxLength]="100"
-      (validityChanged)="sharedFormValid = $event"
-      [contractId]="contractId"
-      (contractIdChange)="onContractIdChange($event)">
-    </app-shared-result-form>
+      <div class="flex flex-col xl:flex-row gap-5">
+        <div class="flex-1">
+          <h2 class="text-[16px] font-[500] text-[#173F6F] pb-1">Indicator<span class="text-[15px] text-[#CF0808]">*</span></h2>
 
-    <div class="flex flex-col xl:flex-row gap-5">
-      <div class="flex-1">
-        <h2 class="text-[14px] font-[500] text-[#173F6F] pb-1">Indicator<span class="text-[15px] text-[#CF0808]">*</span></h2>
+          <p-select
+            [options]="indicatorsService.indicatorsGrouped()"
+            [(ngModel)]="body().indicator_id"
+            placeholder="Select the Indicator"
+            [group]="true"
+            [scrollHeight]="'290px'"
+            [style]="isIndicatorIdMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
+            class="!text-[16px] w-full indicator-select">
+            <ng-template let-group pTemplate="group">
+              <div class="flex align-items-center py-2 px-3 bg-[#F4F7F9] text-[#A2A9AF] uppercase">
+                <span>{{ group.label }}S</span>
+              </div>
+            </ng-template>
+          </p-select>
 
-        <p-select
-          [options]="indicatorsService.indicatorsGrouped()"
-          [(ngModel)]="body().indicator_id"
-          placeholder="Select the Indicator"
-          [group]="true"
-          [style]="isIndicatorIdMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
-          class="!text-[13px] w-full indicator-select">
-          <ng-template let-group pTemplate="group">
-            <div class="flex align-items-center py-2 px-3 bg-[#F4F7F9] text-[#A2A9AF] uppercase">
-              <span>{{ group.label }}S</span>
-            </div>
-          </ng-template>
-        </p-select>
+          <h4 class="text-[14px] text-[#8D9299] font-[400] leading-4 pt-1">
+            Select the result indicator you want to report. For more details, visit the
+            <span
+              class="text-[#1689CA] hover:underline cursor-pointer"
+              (keydown.enter)="this.router.navigate(['/about-indicators'])"
+              (click)="this.router.navigate(['/about-indicators']); this.allModalsService.closeModal('createResult')">
+              About Indicators
+            </span>
+            section.
+          </h4>
 
-        <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">
-          Select the result indicator you want to report. For more details, visit the
-          <span
-            class="text-[#1689CA] hover:underline cursor-pointer"
-            (keydown.enter)="this.router.navigate(['/about-indicators'])"
-            (click)="this.router.navigate(['/about-indicators']); this.allModalsService.closeModal('createResult')">
-            About Indicators
+          @if (isIndicatorIdMissing) {
+            <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
+          }
+        </div>
+
+        <div class="flex-1 xl:max-w-[260px]">
+          <h2 class="text-[16px] font-[500] text-[#173F6F] pb-1">Reporting year<span class="text-[15px] text-[#CF0808]">*</span></h2>
+          <p-select
+            [options]="yearsService.list()"
+            [(ngModel)]="body().year"
+            [style]="isYearMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
+            [optionLabel]="'report_year'"
+            [optionValue]="'report_year'"
+            placeholder="Select the year"
+            class="!text-[16px] w-full"
+            placeholder="Select the year">
+          </p-select>
+          <h4 class="text-[14px] text-[#8D9299] font-[400] leading-4 pt-1">Choose the year you are reporting data for.</h4>
+
+          @if (isYearMissing) {
+            <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
+          }
+        </div>
+      </div>
+
+      <div class="w-full flex flex-col">
+        <div class="flex justify-between items-center pb-1">
+          <h2 class="text-[16px] font-[500] text-[#173F6F]">Title<span class="text-[15px] text-[#CF0808]">*</span></h2>
+          <span style="font-size: 12px; font-weight: 500">
+            <span style="color: #8d9299">Words used: </span>
+            <span [style.color]="getWordCounterColor()">{{ getWordCount() }}/30</span>
           </span>
-          section.
+        </div>
+        <input
+          pInputText
+          id="username"
+          class="!text-[16px]"
+          aria-describedby="username-help"
+          [(ngModel)]="body().title"
+          placeholder="Write the title"
+          [style]="isTitleMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }" />
+        <h4 class="text-[14px] text-[#8D9299] font-[400] leading-4 pt-1">
+          Provide a clear, informative name for the result, for a non-specialist reader and without acronyms. Avoid abbreviations or (technical)
+          jargon.
         </h4>
-
-        @if (isIndicatorIdMissing) {
+        @if (isTitleMissing) {
           <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
         }
       </div>
 
-      <div class="flex-1 xl:max-w-[260px]">
-        <h2 class="text-[14px] font-[500] text-[#173F6F] pb-1">Reporting year<span class="text-[15px] text-[#CF0808]">*</span></h2>
-        <p-select
-          [options]="yearsService.list()"
-          [(ngModel)]="body().year"
-          [style]="isYearMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
-          [optionLabel]="'report_year'"
-          [optionValue]="'report_year'"
-          placeholder="Select the year"
-          class="!text-[13px] w-full"
-          placeholder="Select the year">
-        </p-select>
-        <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">Choose the year you are reporting data for.</h4>
-
-        @if (isYearMissing) {
-          <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
-        }
-      </div>
-    </div>
-
-    <div class="w-full flex flex-col">
-      <div class="flex justify-between items-center pb-1">
-        <h2 class="text-[14px] font-[500] text-[#173F6F]">Title<span class="text-[15px] text-[#CF0808]">*</span></h2>
-        <span style="font-size: 12px; font-weight: 500">
-          <span style="color: #8d9299">Words used: </span>
-          <span [style.color]="getWordCounterColor()">{{ getWordCount() }}/30</span>
-        </span>
-      </div>
-      <input
-        pInputText
-        id="username"
-        class="!text-[12px]"
-        aria-describedby="username-help"
-        [(ngModel)]="body().title"
-        placeholder="Write the title"
-        [style]="isTitleMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }" />
-      <h4 class="text-[11px] text-[#8D9299] font-[400] leading-4 pt-1">
-        Provide a clear, informative name for the result, for a non-specialist reader and without acronyms. Avoid abbreviations or (technical) jargon.
-      </h4>
-      @if (isTitleMissing) {
-        <ng-container *ngTemplateOutlet="requiredMessage"></ng-container>
-      }
-    </div>
-
-    <div class="w-full flex justify-end">
-      <button
-        class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
-        [disabled]="loading || isDisabled"
-        (click)="createResult(true)">
-        @if (loading) {
-          <div class="min-w-[191px]">
-            <i class="pi pi-spinner pi-spin text-white text-xs"></i>
-          </div>
-        } @else {
-          Create and continue
-          <i
-            class="pi pi-arrow-right !text-[10px] pl-1"
-            [class.text-white]="!loading && !isDisabled"
-            [class.text-[#A2A9AF]]="loading || isDisabled"></i>
-        }
-      </button>
-    </div>
-  </div>
-
-  <div class="flex items-center my-6">
-    <div class="flex-grow h-0.5 bg-[#E8EBED]"></div>
-    <span class="mx-3 text-[#8D9299] text-[14px] flex items-center gap-1">
-      Alternative
-      <img src="/icons/star-icon.svg" alt="upload-ai" class="w-4" />
-    </span>
-    <div class="flex-grow h-0.5 bg-[#E8EBED]"></div>
-  </div>
-
-  <div class="bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
-    <div class="flex items-center">
-      <div class="w-[90px]">
-        <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
-      </div>
-      <div class="flex text-justify flex-col pr-9 pl-5">
-        <p class="text-[14px] font-[700] text-[#173F6F]">REUSE INFORMATION WITHOUT DUPLICATING EFFORT</p>
-        <p class="text-[14px] text-[#777C83] leading-4.5 pt-1 font-[400]">
-          Our AI will scan your file to identify results and extract the relevant data to help complete the result forms, so you don't have to
-          re-enter the same information multiple times.
-        </p>
-      </div>
-      <div class="flex max-w-[135px] min-w-[135px]">
+      <div class="w-full flex justify-end">
         <button
-          class="font-medium cursor-pointer font-[500] text-[13px] bg-gradient-to-r from-[#035BA9] to-[#039CE0] text-white px-6 py-3 gap-2 justify-center w-full flex rounded-[15px]"
-          (click)="this.createResultManagementService.resultPageStep.set(1)">
-          Upload file
-          <img src="/icons/upload-icon.svg" alt="upload-ai" class="w-4" />
+          class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
+          [disabled]="loading || isDisabled"
+          (click)="body().indicator_id === 5 ? navigateToOicr() : createResult(true)">
+          @if (loading) {
+            <div class="min-w-[191px]">
+              <i class="pi pi-spinner pi-spin text-white text-xs"></i>
+            </div>
+          } @else {
+            {{ body().indicator_id === 5 ? 'Continue' : 'Create and continue' }}
+            <i
+              class="pi pi-arrow-right !text-[10px] pl-1"
+              [class.text-white]="!loading && !isDisabled"
+              [class.text-[#A2A9AF]]="loading || isDisabled"></i>
+          }
         </button>
+      </div>
+    </div>
+
+    <div class="flex items-center my-6">
+      <div class="flex-grow h-0.5 bg-[#E8EBED]"></div>
+      <span class="mx-3 text-[#8D9299] text-[14px] flex items-center gap-1">
+        Alternative
+        <img src="/icons/star-icon.svg" alt="upload-ai" class="w-4" />
+      </span>
+      <div class="flex-grow h-0.5 bg-[#E8EBED]"></div>
+    </div>
+
+    <div class="bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
+      <div class="flex items-center">
+        <div class="w-[90px]">
+          <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
+        </div>
+        <div class="flex text-justify flex-col pr-9 pl-5">
+          <p class="text-[14px] font-[700] text-[#173F6F]">REUSE INFORMATION WITHOUT DUPLICATING EFFORT</p>
+          <p class="text-[14px] text-[#777C83] leading-4.5 pt-1 font-[400]">
+            Our AI will scan your file to identify results and extract the relevant data to help complete the result forms, so you don't have to
+            re-enter the same information multiple times.
+          </p>
+        </div>
+        <div class="flex max-w-[135px] min-w-[135px]">
+          <button
+            class="font-medium cursor-pointer font-[500] text-[13px] bg-gradient-to-r from-[#035BA9] to-[#039CE0] text-white px-6 py-3 gap-2 justify-center w-full flex rounded-[15px]"
+            (click)="this.createResultManagementService.resultPageStep.set(1)">
+            Upload file
+            <img src="/icons/upload-icon.svg" alt="upload-ai" class="w-4" />
+          </button>
+        </div>
       </div>
     </div>
   </div>

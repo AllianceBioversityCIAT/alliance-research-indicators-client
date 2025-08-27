@@ -187,13 +187,14 @@ describe('GeographicScopeComponent', () => {
     expect((component as any).isFirstSelect).toBe(false);
   });
 
-  it('should call mapSignal and mapArray', () => {
+  it('should map subnational data between signals and arrays via onSelect', () => {
     const signalMock = Object.assign(() => ({ regions: [{ sub_national_id: 1, region_id: 10 }] }), {
       set: jest.fn(),
       update: jest.fn(),
       asReadonly: jest.fn()
     });
     component.body.set({
+      geo_scope_id: 4,
       countries: [
         {
           isoAlpha2: 'CO',
@@ -202,8 +203,7 @@ describe('GeographicScopeComponent', () => {
         }
       ]
     });
-    component.mapSignal();
-    component.mapArray();
+    component.onSelect();
     expect(component.body().countries?.[0].result_countries_sub_nationals).toBeDefined();
   });
 
@@ -269,28 +269,28 @@ describe('GeographicScopeComponent', () => {
     expect(() => component.removeSubnationalRegion(country, region)).not.toThrow();
   });
 
-  it('should handle mapSignal with non-array result_countries_sub_nationals', () => {
+  it('should handle onSelect with non-array result_countries_sub_nationals', () => {
     const signalMock = Object.assign(() => ({ regions: [] }), { set: jest.fn(), update: jest.fn(), asReadonly: jest.fn() });
     component.body.set({
       countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: undefined as any, result_countries_sub_nationals_signal: signalMock as any }]
     });
-    expect(() => component.mapSignal()).not.toThrow();
+    expect(() => component.onSelect()).not.toThrow();
   });
 
-  it('should handle mapSignal with no signal property', () => {
+  it('should handle onSelect with no signal property', () => {
     const signalMock = Object.assign(() => ({ regions: [] }), { set: jest.fn(), update: jest.fn(), asReadonly: jest.fn() });
     component.body.set({
       countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: signalMock as any }]
     });
-    expect(() => component.mapSignal()).not.toThrow();
+    expect(() => component.onSelect()).not.toThrow();
   });
 
-  it('should handle mapArray with empty regions', () => {
+  it('should handle onSelect with empty regions', () => {
     const signalMock = Object.assign(() => ({}), { set: jest.fn(), update: jest.fn(), asReadonly: jest.fn() });
     component.body.set({
       countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: signalMock as any }]
     });
-    expect(() => component.mapArray()).not.toThrow();
+    expect(() => component.onSelect()).not.toThrow();
   });
 
   it('should showSubnationalError return false if scope is not 5', () => {

@@ -221,6 +221,8 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResult(result: Result) {
+    this.resultsCenterService.clearAllFilters();
+
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
       this.router.navigate(['/result', result.result_official_code, 'general-information'], { queryParams: { version: latestYear } });
@@ -230,6 +232,8 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResultByYear(result_official_code: string, year: string | number) {
+    this.resultsCenterService.clearAllFilters();
+
     this.router.navigate(['/result', result_official_code], {
       queryParams: { version: year }
     });

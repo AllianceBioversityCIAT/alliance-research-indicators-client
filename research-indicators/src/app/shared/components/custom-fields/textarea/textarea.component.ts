@@ -9,6 +9,7 @@ import { CacheService } from '../../../services/cache/cache.service';
 import { WordCounterComponent } from '../word-counter/word-counter.component';
 import { InputValueType } from '@shared/services/word-count.service';
 import { TextareaValidationService } from '@shared/services/textarea-validation.service';
+import { UtilsService } from '@shared/services/utils.service';
 
 @Component({
   selector: 'app-textarea',
@@ -34,6 +35,7 @@ export class TextareaComponent {
   body = signal<{ value: string }>({ value: '' });
   showMaxReachedMessage = signal(false);
   textareaValidationService = inject(TextareaValidationService);
+  utils = inject(UtilsService);
 
   @HostListener('paste', ['$event'])
   onPaste(event: ClipboardEvent): void {
@@ -48,19 +50,10 @@ export class TextareaComponent {
     return this.textareaValidationService.shouldPreventTextInput(event, this.showMaxReachedMessage);
   }
 
-  get mainKey() {
-    return this.optionValue.includes('.') ? this.optionValue.split('.')[0] : this.optionValue;
-  }
-
-  get subKey() {
-    return this.optionValue.includes('.') ? this.optionValue.split('.')[1] : null;
-  }
-
   get value() {
-    if (this.subKey) {
-      return this.signal()[this.mainKey]?.[this.subKey] || '';
-    }
-    return this.signal()[this.mainKey] || '';
+    const nested = this.utils.getNestedPropertySignal(this.signal, this.optionValue);
+    if (nested === undefined || nested === null) return '';
+    return typeof nested === 'string' ? nested : String(nested);
   }
 
   setValue(value: string) {
@@ -68,19 +61,14 @@ export class TextareaComponent {
       this.showMaxReachedMessage.set(false);
     }
 
-    if (this.subKey) {
-      const mainObj = { ...(this.signal()[this.mainKey] || {}) };
-      mainObj[this.subKey] = value;
-      this.signal.set({ ...this.signal(), [this.mainKey]: mainObj });
-    } else {
-      this.signal.set({ ...this.signal(), [this.mainKey]: value });
-    }
+    this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue, value);
   }
 
   isInvalid = computed(() => {
-    if (this.subKey) {
-      return this.isRequired && (!this.signal()[this.mainKey]?.[this.subKey] || this.signal()[this.mainKey][this.subKey].length === 0);
-    }
-    return this.isRequired && (!this.signal()[this.mainKey] || this.signal()[this.mainKey].length === 0);
+    const nested = this.utils.getNestedPropertySignal(this.signal, this.optionValue);
+    if (!this.isRequired) return false;
+    if (nested === undefined || nested === null) return true;
+    const str = typeof nested === 'string' ? nested : String(nested);
+    return str.length === 0;
   });
 }

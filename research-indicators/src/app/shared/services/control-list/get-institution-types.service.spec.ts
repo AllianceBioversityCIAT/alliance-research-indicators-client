@@ -25,42 +25,42 @@ describe('GetInstitutionTypesService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('main setea loading y list correctamente', async () => {
+  it('main sets loading and list correctly', async () => {
     await service.main();
     expect(apiService.GET_SubInstitutionTypes).toHaveBeenCalledWith(1);
     expect(service.list()).toEqual(mockData);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta vacía', async () => {
+  it('main handles empty response', async () => {
     apiService.GET_SubInstitutionTypes.mockResolvedValueOnce({ data: [] });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta null', async () => {
+  it('main handles response null', async () => {
     apiService.GET_SubInstitutionTypes.mockResolvedValueOnce({ data: null });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta undefined', async () => {
+  it('main handles response undefined', async () => {
     apiService.GET_SubInstitutionTypes.mockResolvedValueOnce(undefined);
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('main maneja respuesta sin data', async () => {
+  it('main handles response without data', async () => {
     apiService.GET_SubInstitutionTypes.mockResolvedValueOnce({ status: 200 });
     await service.main();
     expect(service.list()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('signals iniciales', () => {
+  it('initial signals', () => {
     expect(service.list()).toEqual(mockData);
     expect(service.loading()).toBe(false);
     expect(service.isOpenSearch()).toBe(false);

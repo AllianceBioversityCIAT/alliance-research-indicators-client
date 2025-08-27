@@ -34,10 +34,14 @@ export class SelectComponent implements OnInit {
   @Input() scrollHeight = '270px';
   @Input() isRequired = false;
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
+  @Input() hideSelected = true;
+  @Input() textSpan = '';
 
-  @ContentChild('itemTemplate') itemTemplate?: TemplateRef<any>;
+  @ContentChild('item') itemTemplate?: TemplateRef<any>;
   @ContentChild('selectedItemTemplate') selectedItemTemplate?: TemplateRef<any>;
+  @ContentChild('selectedItems') selectedItemsTemplate?: TemplateRef<any>;
   @ContentChild('headerTemplate') headerTemplate?: TemplateRef<any>;
+  @ContentChild('rows') rowsTemplate?: TemplateRef<any>;
 
   allModalsService = inject(AllModalsService);
 
@@ -47,6 +51,12 @@ export class SelectComponent implements OnInit {
 
   isInvalid = computed(() => {
     return this.isRequired && !this.body()?.value;
+  });
+
+  selectedOption = computed(() => {
+    const selectedValue = this.body()?.value;
+    if (!selectedValue) return null;
+    return this.service?.list()?.find((item: any) => item[this.optionValue.option] === selectedValue);
   });
 
   constructor(private serviceLocator: ServiceLocatorService) {}

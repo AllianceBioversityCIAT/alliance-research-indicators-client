@@ -200,6 +200,59 @@ describe('TrackingToolsService', () => {
     expect(service.googleAnalytics.updateState).toHaveBeenCalledWith('/url');
   });
 
+  it('init executes rxjs filter predicate and subscribe when NavigationEnd', async () => {
+    const url = '/nav-end';
+    const router: any = { events: of(new NavigationEnd(1, url, url)) };
+    const cache = { ...cacheMock, hasSmallScreen: jest.fn().mockReturnValue(false) };
+    // @ts-ignore
+    const service = Object.create(TrackingToolsService.prototype) as TrackingToolsService;
+    // @ts-ignore
+    service.cache = cache;
+    // @ts-ignore
+    service.clarity = clarityMock;
+    // @ts-ignore
+    service.hotjar = hotjarMock;
+    // @ts-ignore
+    service.bugherd = bugherdMock;
+    // @ts-ignore
+    service.googleAnalytics = googleAnalyticsMock;
+    // @ts-ignore
+    service.route = createRouteMock({ title: 'T' });
+    // @ts-ignore
+    service.router = router;
+    await service.init();
+    expect(cache.currentUrlPath.set).toHaveBeenCalledWith(url);
+    expect(clarityMock.updateState).toHaveBeenCalledWith(url);
+    expect(googleAnalyticsMock.updateState).toHaveBeenCalledWith(url);
+    expect(hotjarMock.updateState).toHaveBeenCalledWith(url);
+  });
+
+  it('init executes rxjs filter predicate returns false for non NavigationEnd', async () => {
+    const router: any = { events: of({} as any) };
+    const cache = { ...cacheMock };
+    // @ts-ignore
+    const service = Object.create(TrackingToolsService.prototype) as TrackingToolsService;
+    // @ts-ignore
+    service.cache = cache;
+    // @ts-ignore
+    service.clarity = clarityMock;
+    // @ts-ignore
+    service.hotjar = hotjarMock;
+    // @ts-ignore
+    service.bugherd = bugherdMock;
+    // @ts-ignore
+    service.googleAnalytics = googleAnalyticsMock;
+    // @ts-ignore
+    service.route = createRouteMock({ title: 'T' });
+    // @ts-ignore
+    service.router = router;
+    await service.init();
+    expect(cache.currentUrlPath.set).not.toHaveBeenCalled();
+    expect(clarityMock.updateState).not.toHaveBeenCalled();
+    expect(googleAnalyticsMock.updateState).not.toHaveBeenCalled();
+    expect(hotjarMock.updateState).not.toHaveBeenCalled();
+  });
+
   it('should cover inject assignments with TestBed', () => {
     TestBed.configureTestingModule({
       providers: [

@@ -58,9 +58,11 @@ import { ClarisaInstitutionsSubTypes } from '@shared/interfaces/get-clarisa-inst
 import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
+import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContracts } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
+import { GetTags } from '@shared/interfaces/get-tags.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -91,8 +93,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Contracts = (): Promise<MainResponse<GetContracts[]>> => {
-    const url = () => `agresso/contracts`;
+  GET_Contracts = (projectId?: number): Promise<MainResponse<GetContracts[]>> => {
+    const url = () => {
+      const baseUrl = 'agresso/contracts';
+      const queryParam = projectId ? `?projectId=${projectId}` : '';
+      return `${baseUrl}${queryParam}`;
+    };
     return this.TP.get(url(), {});
   };
 
@@ -123,6 +129,16 @@ export class ApiService {
 
   GET_SubNationals = (isoAlpha2: string): Promise<MainResponse<GetSubnationalsByIsoAlpha[]>> => {
     const url = () => `tools/clarisa/sub-nationals/country/${isoAlpha2}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Tags = (): Promise<MainResponse<GetTags[]>> => {
+    const url = () => `tags`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Initiatives = (): Promise<MainResponse<Initiative[]>> => {
+    const url = () => `tools/clarisa/initiatives`;
     return this.TP.get(url(), {});
   };
 
@@ -173,6 +189,11 @@ export class ApiService {
     const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
     const url = () => `results${queryString}`;
     return this.TP.get(url(), {});
+  };
+
+  POST_CreateOicr = <T>(body: T): Promise<MainResponse<Result>> => {
+    const url = () => `results/oicr`;
+    return this.TP.post(url(), body, {});
   };
 
   // create result

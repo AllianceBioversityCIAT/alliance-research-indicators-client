@@ -45,6 +45,10 @@ describe('AllModalsService', () => {
         isOpen: false,
         title: 'Partners Request'
       },
+      createOicrResult: {
+        isOpen: false,
+        title: 'OICR Result'
+      },
       askForHelp: {
         isOpen: false,
         title: 'Ask for Help'
@@ -99,8 +103,8 @@ describe('AllModalsService', () => {
     service.updateModal(2);
     const modalConfig = service.modalConfig();
     expect(modalConfig.createResult.title).toBe('Create A Result');
-    expect(modalConfig.createResult.icon).toBeUndefined();
-    expect(modalConfig.createResult.iconAction).toBeUndefined();
+    expect(modalConfig.createResult.icon).toBe('arrow_back');
+    expect(modalConfig.createResult.iconAction).toBeDefined();
   });
 
   it('should toggle modal open', () => {
@@ -175,6 +179,7 @@ describe('AllModalsService', () => {
     expect(service.modalConfig().createResult.isOpen).toBe(false);
     expect(service.modalConfig().submitResult.isOpen).toBe(false);
     expect(service.modalConfig().requestPartner.isOpen).toBe(false);
+    expect(service.modalConfig().createOicrResult.isOpen).toBe(false);
     expect(service.modalConfig().askForHelp.isOpen).toBe(false);
     expect(mockCreateResultManagementService.resultPageStep.set).toHaveBeenCalledWith(0);
   });
@@ -242,5 +247,14 @@ describe('AllModalsService', () => {
 
     expect(service.modalConfig().submitResult.isOpen).toBe(true);
     expect(service.modalConfig().createResult.isOpen).toBe(false);
+  });
+
+  it('should set modal width', () => {
+    const modalName: ModalName = 'createResult';
+    service.setModalWidth(modalName, true);
+    expect(service.modalConfig()[modalName].isWide).toBe(true);
+
+    service.setModalWidth(modalName, false);
+    expect(service.modalConfig()[modalName].isWide).toBe(false);
   });
 });

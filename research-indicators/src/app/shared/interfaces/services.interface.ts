@@ -49,4 +49,7 @@ export type ControlListServices =
   | 'applicationOptions'
   | 'levers'
   | 'projectStatus'
+  | 'initiatives'
+  | 'tags'
+  | 'oicrResults'
   | '';

@@ -27,6 +27,7 @@ import { ProjectItemComponent } from '../../../../shared/components/project-item
 import { FiltersActionButtonsComponent } from '@shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '@shared/components/search-export-controls/search-export-controls.component';
 import { ProjectUtilsService } from '@shared/services/project-utils.service';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-my-projects',
@@ -51,7 +52,8 @@ import { ProjectUtilsService } from '@shared/services/project-utils.service';
     OverlayBadgeModule,
     ProjectItemComponent,
     FiltersActionButtonsComponent,
-    SearchExportControlsComponent
+    SearchExportControlsComponent,
+    Tooltip
   ],
   templateUrl: './my-projects.component.html',
   styleUrl: './my-projects.component.scss'
@@ -74,6 +76,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   isTableView = signal(true);
 
   pinnedTab = signal<string>('all');
+  selectedTab = signal<string>('all');
   loadingPin = signal(false);
   tableId = 'contract-table';
   applyFiltersLabel = 'Apply Filters';
@@ -99,7 +102,9 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       return [
         {
           id: 'my',
-          label: 'My Projects'
+          label: 'My Projects',
+          tooltip:
+            'Projects will appear here when you are assigned as the Principal Investigator of the project contract in Agresso, or if you have contributed at least one result to the project.'
         },
         {
           id: 'all',
@@ -114,7 +119,9 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
         },
         {
           id: 'my',
-          label: 'My Projects'
+          label: 'My Projects',
+          tooltip:
+            'Projects will appear here when you are assigned as the Principal Investigator of the project contract in Agresso, or if you have contributed at least one result to the project.'
         }
       ];
     }
@@ -262,9 +269,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
     if (event.id === 'my') {
       this.myProjectsFirst.set(0);
+      this.selectedTab.set('my');
       this.loadMyProjects();
     } else {
       this.allProjectsFirst.set(0);
+      this.selectedTab.set('all');
       this.loadAllProjects();
     }
   };
@@ -338,7 +347,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getScrollHeight() {
-    return this.cache.hasSmallScreen() ? 'calc(100vh - 300px)' : 'calc(100vh - 350px)';
+    return this.cache.hasSmallScreen() ? 'calc(100vh - 300px)' : 'calc(100vh - 380px)';
   }
 
   getLoadingState(): boolean {
