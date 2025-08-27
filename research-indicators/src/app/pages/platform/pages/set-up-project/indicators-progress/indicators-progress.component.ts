@@ -36,13 +36,14 @@ export default class IndicatorsProgressComponent implements OnInit {
   showDetailModal = false;
   selectedIndicator: GetIndicatorsProgress | null = null;
   showMainChartModal = false;
+  projectCode = this.route.snapshot.params['id'];
 
   ngOnInit() {
     this.GET_IndicatorsProgress();
   }
 
   GET_IndicatorsProgress() {
-    this.api.GET_IndicatorsProgress(this.route.snapshot.params['id']).then(res => {
+    this.api.GET_IndicatorsProgress(this.projectCode).then(res => {
       res.data.map(indicator => {
         indicator.base_line = Number(indicator.base_line);
         indicator.target_value = Number(indicator.target_value);
@@ -130,5 +131,10 @@ export default class IndicatorsProgressComponent implements OnInit {
 
   openMainChartModal(): void {
     this.showMainChartModal = true;
+  }
+
+  openIndicatorsInNewTab(): void {
+    const url = `/project-detail/${this.projectCode}/set-up-project/indicators`;
+    window.open(url, '_blank');
   }
 }

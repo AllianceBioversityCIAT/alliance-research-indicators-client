@@ -18,7 +18,7 @@ export default class StructureComponent {
 
   addStructure = () => {
     this.setUpProjectService.structures.update(structures => {
-      structures.push({ id: 's', name: '', code: '', items: [], indicators: [], editing: true, newStructure: true });
+      structures.push({ id: null, name: '', code: '', items: [], indicators: [], editing: true, newStructure: true });
       return [...structures];
     });
     this.setUpProjectService.editingFocus.set(true);

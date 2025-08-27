@@ -102,7 +102,7 @@ export class ContributorsOverlayComponent {
   }
 
   openResult(resultCode: string): void {
-    const url = `/result/${resultCode}/general-information`;
+    const url = `/result/${resultCode}/contributions-to-indicators`;
     window.open(url, '_blank');
   }
 }

@@ -11,7 +11,7 @@
     @for (indicator of indicators; track indicator.id; let i = $index) {
       @if (i < 3) {
         <div
-          class="bg-blue-100 text-blue-800 px-2 h-6 text-sm rounded-md flex items-center justify-center"
+          class="bg-blue-100 text-blue-800 px-2 h-6 text-sm rounded-md flex items-center justify-center whitespace-nowrap ellipsis-text overflow-hidden max-w-[50px]"
           [pTooltip]="indicator.name"
           tooltipPosition="left">
           {{ indicator.code }}

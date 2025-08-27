@@ -19,10 +19,10 @@
         </th>
         <th class="min-w-[max-content]">
           <div class="flex items-center gap-2">
-            <span class="text-gray-700">Name</span>
+            <span class="text-gray-700">Statement</span>
           </div>
         </th>
-        <th class="min-w-[300px]">
+        <th class="min-w-[350px]">
           <div class="flex items-center gap-2">
             <span class="text-gray-700">Indicators</span>
           </div>
@@ -74,7 +74,7 @@
                   [style]="{ 'white-space': 'nowrap' }">
                 </p-button> -->
                 <div
-                  class="text-[12px] bg-blue-700 text-white px-2 py-[2px] rounded-md border font-bold cursor-pointer flex items-center gap-1 pointer-events-auto whitespace-nowrap"
+                  class="text-[12px] bg-[#173F6F] text-white px-2 py-[2px] rounded-md border font-bold cursor-pointer flex items-center gap-1 pointer-events-auto whitespace-nowrap"
                   (click)="addNewItem(customer, 'toggle-row-' + customer.representative.id)">
                   <i class="pi pi-plus text-[11px]!"></i>
                   {{ 'Add ' + setUpProjectService.level2Name() + ' item' }}

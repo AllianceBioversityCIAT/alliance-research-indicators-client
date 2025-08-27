@@ -8,6 +8,17 @@
       @if (indicators().length > 0) {
         <div class="flex items-center gap-2">
           <p-button
+            (click)="openIndicatorsInNewTab()"
+            icon="pi pi-pencil"
+            label="Open edit indicators"
+            severity="info"
+            [outlined]="true"
+            size="small"
+            pTooltip="Open edit indicators in new tab"
+            tooltipPosition="left"
+            class="text-xs">
+          </p-button>
+          <p-button
             icon="pi pi-chart-bar"
             label="View all indicators chart"
             severity="info"

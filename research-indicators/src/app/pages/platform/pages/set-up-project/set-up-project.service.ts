@@ -50,7 +50,7 @@ export class SetUpProjectService {
     const result = structuresCopy.flatMap((item: IndicatorsStructure) => {
       const { items, ...itemWithoutItems } = item;
       const isGhostItem = !item.items?.length;
-      if (isGhostItem) item.items = [{ id: '', name: '', code: '', indicators: [], editing: true, ghostItem: true }];
+      if (isGhostItem) item.items = [{ id: null, name: '', code: '', indicators: [], editing: true, ghostItem: true }];
       item.items?.map((stItem: IndicatorItem) => {
         stItem.representative = { ...itemWithoutItems, itemsCount: items?.filter((i: IndicatorItem) => !i.ghostItem).length || 0 };
       });
