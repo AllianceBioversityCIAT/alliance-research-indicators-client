@@ -4,7 +4,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
-import { TitleComponent, TooltipComponent, GridComponent, LegendComponent, DatasetComponent } from 'echarts/components';
+import { TitleComponent, TooltipComponent, GridComponent, LegendComponent, DatasetComponent, GraphicComponent } from 'echarts/components';
 import { LabelLayout, UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { BarSeriesOption } from 'echarts/charts';
@@ -26,6 +26,7 @@ echarts.use([
   GridComponent,
   LegendComponent,
   DatasetComponent,
+  GraphicComponent,
   LabelLayout,
   UniversalTransition,
   CanvasRenderer
@@ -301,13 +302,7 @@ export class IndicatorDetailModalComponent implements OnInit, OnDestroy, OnChang
           type: 'bar',
           data: contributionValues,
           itemStyle: {
-            color: () => {
-              const progress = this.getProgressPercentage();
-              if (progress >= 100) return '#22c55e'; // Green for completed
-              if (progress >= 75) return '#3b82f6'; // Blue for good progress
-              if (progress >= 50) return '#6366f1'; // Indigo for moderate progress
-              return '#3b82f6'; // Blue for low progress (changed from red)
-            }
+            color: '#173f6f' // Primary blue 500 from design system
           },
           emphasis: {
             itemStyle: {
