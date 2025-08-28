@@ -67,7 +67,7 @@
           </div>
 
           @if (myProjectsService.hasFilters()) {
-            <div class="flex gap-2 mt-2 mb-1 items-center">
+            <div class="flex flex-wrap gap-2 mt-2 mb-1 items-center">
               <span class="font-[450] text-[14px]" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
               <i class="pi pi-arrow-right !text-[12px]" style="color: #8d9299"></i>
               @for (filter of myProjectsService.getActiveFilters(); track filter.label + (filter.id || '')) {
