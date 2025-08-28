@@ -53,7 +53,6 @@
               </th>
               <th class="text-left w-200">
                 <p-columnFilter type="text" field="name" placeholder="Enter key to search" ariaLabel="Filter Country"></p-columnFilter>
-
                 <!-- <span class="atc-grey-700">Statement</span> -->
               </th>
               <th class="text-center w-24">
@@ -156,17 +155,19 @@
                 }
               </td>
               <td class="text-center">
-                <p-button
-                  icon="pi pi-chart-bar"
-                  label="View Chart"
-                  severity="secondary"
-                  [text]="true"
-                  size="small"
-                  (onClick)="openDetailModal(indicator)"
-                  pTooltip="View detailed chart"
-                  tooltipPosition="top"
-                  class="text-xs">
-                </p-button>
+                @if (indicator.number_type === 'sum') {
+                  <p-button
+                    icon="pi pi-chart-bar"
+                    label="View Chart"
+                    severity="secondary"
+                    [text]="true"
+                    size="small"
+                    (onClick)="openDetailModal(indicator)"
+                    pTooltip="View detailed chart"
+                    tooltipPosition="top"
+                    class="text-xs">
+                  </p-button>
+                }
               </td>
             </tr>
           </ng-template>

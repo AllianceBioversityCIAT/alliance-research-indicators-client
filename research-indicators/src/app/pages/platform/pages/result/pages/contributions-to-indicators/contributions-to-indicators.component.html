@@ -243,8 +243,8 @@
                   @if (indicator.contribution_value !== null) {
                     <div class="flex-1">
                       <label for="contribution-value-{{ indicator.id }}" class="block text-sm font-medium text-gray-700 mb-2">
-                        Contribution Value
-                        <span class="text-gray-500 font-normal">({{ indicator.targetUnit || 'units' }})</span>
+                        {{ indicator.targetUnit || 'units' }}
+                        <span class="text-gray-500 font-normal">(Contribution Value)</span>
                       </label>
                       <p-inputNumber
                         [style]="{ width: '100%', maxWidth: '300px' }"

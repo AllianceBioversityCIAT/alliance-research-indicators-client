@@ -52,8 +52,8 @@ type ECOption = ComposeOption<
         <div class="flex items-center gap-3">
           <i class="pi pi-chart-bar atc-primary-blue-500 text-xl"></i>
           <div>
-            <h3 class="text-lg font-semibold atc-grey-800 m-0">Completed Sum Indicators</h3>
-            <p class="text-sm atc-grey-600 m-0">Progress overview of completed sum indicators</p>
+            <h3 class="text-lg font-semibold atc-grey-800 m-0">Sum Indicators Progress</h3>
+            <p class="text-sm atc-grey-600 m-0">Progress comparison of all sum indicators</p>
           </div>
         </div>
       </ng-template>
@@ -72,7 +72,7 @@ type ECOption = ComposeOption<
           </div>
           <div class="abc-green-100 rounded-lg p-4 text-center">
             <div class="text-2xl font-semibold atc-green-600">{{ getCompletedCount() }}</div>
-            <div class="text-sm atc-green-600 font-medium">Completed Sum (100%)</div>
+            <div class="text-sm atc-green-600 font-medium">Completed (100%)</div>
           </div>
         </div>
 
@@ -80,7 +80,7 @@ type ECOption = ComposeOption<
         <div class="mt-6">
           <h4 class="text-lg font-semibold atc-grey-800 mb-4 flex items-center gap-2">
             <i class="pi pi-list atc-primary-blue-500"></i>
-            Completed Sum Indicators ({{ getCompletedCount() }})
+            Sum Indicators Progress ({{ getFilteredIndicators().length }})
           </h4>
           @if (getFilteredIndicators().length > 0) {
             <div class="space-y-3 max-h-80 overflow-y-auto">
@@ -97,9 +97,13 @@ type ECOption = ComposeOption<
                     <div class="text-xs atc-grey-600 mt-1">{{ indicator.description }}</div>
                   </div>
                   <div class="text-right ml-4">
-                    <div class="text-lg font-semibold atc-green-600">{{ indicator.total_contributions }}</div>
+                    <div class="text-lg font-semibold" [ngClass]="indicator.percentageProgress >= 100 ? 'atc-green-600' : 'atc-orange-600'">
+                      {{ indicator.total_contributions }}
+                    </div>
                     <div class="text-xs atc-grey-500">{{ indicator.target_unit }}</div>
-                    <div class="text-xs atc-primary-blue-500 font-medium mt-1">100% Complete</div>
+                    <div class="text-xs font-medium mt-1" [ngClass]="indicator.percentageProgress >= 100 ? 'atc-green-600' : 'atc-orange-600'">
+                      {{ indicator.percentageProgress }}% Complete
+                    </div>
                   </div>
                 </div>
               }
@@ -107,8 +111,8 @@ type ECOption = ComposeOption<
           } @else {
             <div class="text-center py-8 abc-grey-100 rounded-lg">
               <i class="pi pi-chart-line text-3xl mb-3 block atc-grey-400"></i>
-              <h4 class="text-base font-semibold atc-grey-700 mb-2">No Completed Sum Indicators</h4>
-              <p class="text-sm atc-grey-500">Complete some sum indicators to see them here.</p>
+              <h4 class="text-base font-semibold atc-grey-700 mb-2">No Sum Indicators Found</h4>
+              <p class="text-sm atc-grey-500">No sum indicators available to display.</p>
             </div>
           }
         </div>
@@ -197,33 +201,14 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
 
   getCompletedCount(): number {
     return this.indicators.filter(ind => {
-      const progress = this.calculateProgress(ind);
-      return progress >= 100 && ind.number_type !== 'average';
+      return ind.percentageProgress >= 100 && ind.number_type !== 'average';
     }).length;
   }
 
   getFilteredIndicators(): GetIndicatorsProgress[] {
     return this.indicators.filter(indicator => {
-      const progress = this.calculateProgress(indicator);
-      return progress >= 100 && indicator.number_type !== 'average';
+      return indicator.number_type !== 'average';
     });
-  }
-
-  private calculateProgress(indicator: GetIndicatorsProgress): number {
-    if (!indicator.target_value || indicator.target_value === 0) {
-      return 0;
-    }
-
-    let progress = 0;
-    if (indicator.base_line && indicator.base_line > 0) {
-      const range = indicator.target_value - indicator.base_line;
-      const current = indicator.total_contributions - indicator.base_line;
-      progress = (current / range) * 100;
-    } else {
-      progress = (indicator.total_contributions / indicator.target_value) * 100;
-    }
-
-    return Math.max(0, Math.min(100, Math.round(progress)));
   }
 
   private initChart() {
@@ -235,18 +220,17 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
   private updateChart() {
     if (!this.chart || !this.indicators.length) return;
 
-    // Filter indicators: 100% progress and not average type
+    // Filter indicators: exclude only average type
     const filteredIndicators = this.indicators.filter(indicator => {
-      const progress = this.calculateProgress(indicator);
-      return progress >= 100 && indicator.number_type !== 'average';
+      return indicator.number_type !== 'average';
     });
 
     if (filteredIndicators.length === 0) {
       // Show empty state message
       const option = {
         title: {
-          text: 'No Completed Sum Indicators',
-          subtext: 'Only completed indicators with sum type are shown here',
+          text: 'No Sum Indicators Found',
+          subtext: 'No sum indicators available to display',
           left: 'center',
           top: 'center',
           textStyle: { fontSize: 16, color: '#666' },
@@ -259,12 +243,12 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
 
     // Use codes for consistency with main chart
     const indicatorNames = filteredIndicators.map(ind => ind.code);
-    const progressData = filteredIndicators.map(ind => this.calculateProgress(ind));
+    const progressData = filteredIndicators.map(ind => ind.percentageProgress);
 
     const option: ECOption = {
       title: {
-        text: 'Completed Sum Indicators Dashboard',
-        subtext: `Showing ${filteredIndicators.length} completed sum indicators (${this.indicators.length} total)`,
+        text: 'Sum Indicators Progress Dashboard',
+        subtext: `Showing ${filteredIndicators.length} sum indicators (${this.indicators.length} total)`,
         left: 'center',
         textStyle: {
           fontSize: 18,
@@ -279,13 +263,15 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
         formatter: (params: unknown) => {
           const dataIndex = (params as { dataIndex: number }[])[0].dataIndex;
           const indicator = filteredIndicators[dataIndex];
-          const progress = this.calculateProgress(indicator);
+          const progress = indicator.percentageProgress;
+
+          const truncatedName = indicator.name.length > 50 ? indicator.name.substring(0, 50) + '...' : indicator.name;
 
           return `
-            <div style="padding: 12px; max-width: 300px;">
-              <strong style="font-size: 14px;">${indicator.name}</strong><br/>
+            <div style="padding: 12px; max-width: 350px; word-wrap: break-word;">
+              <strong style="font-size: 14px; line-height: 1.3; display: block; margin-bottom: 4px;">${truncatedName}</strong>
               <span style="color: #666; font-size: 12px;">Code: ${indicator.code}</span><br/>
-              <span style="color: #666; font-size: 12px;">Type: ${indicator.number_type}</span><br/>
+              <span style="color: #666; font-size: 12px;">Type: ${(indicator.type || '').charAt(0).toUpperCase() + (indicator.type || '').slice(1)}</span><br/>
               <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;"/>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
                 <div>Baseline: <strong>${indicator.base_line || 0}</strong></div>
