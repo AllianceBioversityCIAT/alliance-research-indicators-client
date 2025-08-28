@@ -415,6 +415,7 @@ describe('ResultsCenterService', () => {
       expect(service.myResultsFilterItem()).toEqual(event);
       expect(service.searchInput()).toBe('');
       expect(service.resultsFilter()['create-user-codes']).toEqual(['123']);
+      expect(service.resultsFilter()['indicator-codes-tabs']).toEqual([]);
     });
 
     it('should update myResultsFilterItem and clear filters for "all" tab', () => {
@@ -425,6 +426,22 @@ describe('ResultsCenterService', () => {
       expect(service.myResultsFilterItem()).toEqual(event);
       expect(service.searchInput()).toBe('');
       expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+      expect(service.resultsFilter()['indicator-codes-tabs']).toEqual([]);
+    });
+
+    it('should clear indicator-codes-tabs when changing tabs', () => {
+      // Set up initial state with indicator tab selected
+      service.resultsFilter.update(prev => ({
+        ...prev,
+        'indicator-codes-tabs': [1]
+      }));
+
+      const event: MenuItem = { id: 'my', label: 'My Results' };
+
+      service.onActiveItemChange(event);
+
+      expect(service.resultsFilter()['indicator-codes-tabs']).toEqual([]);
+      expect(service.resultsFilter()['create-user-codes']).toEqual(['123']);
     });
   });
 
@@ -443,7 +460,7 @@ describe('ResultsCenterService', () => {
   });
 
   describe('applyFilters', () => {
-    it('should update resultsFilter with table filters', () => {
+    it('should update resultsFilter with table filters and call main', () => {
       const mockLevers = [{ id: 1, name: 'Lever 1' }] as any;
       const mockStatuses = [{ result_status_id: 1, name: 'Status 1' }] as any;
       const mockYears = [{ id: 2024, name: '2024' }] as any;
@@ -459,6 +476,8 @@ describe('ResultsCenterService', () => {
         indicators: mockIndicators
       }));
 
+      const mainSpy = jest.spyOn(service, 'main');
+
       service.applyFilters();
 
       const filter = service.resultsFilter();
@@ -467,6 +486,7 @@ describe('ResultsCenterService', () => {
       expect(filter['years']).toEqual([2024]);
       expect(filter['contract-codes']).toEqual([1]);
       expect(filter['indicator-codes-filter']).toEqual([1]);
+      expect(mainSpy).toHaveBeenCalled();
     });
   });
 
@@ -478,18 +498,24 @@ describe('ResultsCenterService', () => {
       expect(mockIndicatorTabsList).toBeDefined();
     });
 
-    it('should clear indicator-codes-tabs when indicatorId is 0', () => {
+    it('should clear indicator-codes-tabs when indicatorId is 0 and call main', () => {
+      const mainSpy = jest.spyOn(service, 'main');
+
       service.onSelectFilterTab(0);
 
       const filter = service.resultsFilter();
       expect(filter['indicator-codes-tabs']).toEqual([]);
+      expect(mainSpy).toHaveBeenCalled();
     });
 
-    it('should set indicator-codes-tabs when indicatorId is not 0', () => {
+    it('should set indicator-codes-tabs when indicatorId is not 0 and call main', () => {
+      const mainSpy = jest.spyOn(service, 'main');
+
       service.onSelectFilterTab(2);
 
       const filter = service.resultsFilter();
       expect(filter['indicator-codes-tabs']).toEqual([2]);
+      expect(mainSpy).toHaveBeenCalled();
     });
   });
 
@@ -524,12 +550,15 @@ describe('ResultsCenterService', () => {
       }));
       service.searchInput.set('test');
 
+      const mainSpy = jest.spyOn(service, 'main');
+
       service.clearAllFilters();
 
       const filter = service.resultsFilter();
       expect(filter['indicator-codes-filter']).toEqual([]);
       expect(filter['indicator-codes-tabs']).toEqual([]);
       expect(service.searchInput()).toBe('');
+      expect(mainSpy).toHaveBeenCalled();
     });
   });
 

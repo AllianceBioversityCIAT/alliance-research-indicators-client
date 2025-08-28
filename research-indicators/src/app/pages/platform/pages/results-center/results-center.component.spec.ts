@@ -10,7 +10,7 @@ import { signal } from '@angular/core';
 describe('ResultsCenterComponent', () => {
   let component: ResultsCenterComponent;
   let fixture: ComponentFixture<ResultsCenterComponent>;
-  let mockResultsCenterService: jest.Mocked<ResultsCenterService>;
+  let mockResultsCenterService: any;
   let mockCacheService: jest.Mocked<CacheService>;
   let mockApiService: jest.Mocked<ApiService>;
   let mockActionsService: jest.Mocked<ActionsService>;
@@ -36,9 +36,12 @@ describe('ResultsCenterComponent', () => {
         'indicator-codes-filter': [],
         'indicator-codes-tabs': []
       }),
+      searchInput: signal(''),
       main: jest.fn(),
       applyFilters: jest.fn(),
-      cleanMultiselects: jest.fn()
+      cleanMultiselects: jest.fn(),
+      loadMyResults: jest.fn(),
+      loadAllResults: jest.fn()
     } as any;
 
     mockCacheService = {
@@ -190,40 +193,26 @@ describe('ResultsCenterComponent', () => {
   });
 
   describe('onActiveItemChange', () => {
-    it('should load my results when my tab is selected', () => {
+    it('should handle my tab selection', () => {
       const event: MenuItem = { id: 'my', label: 'My Results' };
       const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults');
-      (mockResultsCenterService.onActiveItemChange as jest.Mock).mockImplementation((ev: MenuItem) => {
-        mockResultsCenterService.myResultsFilterItem.set(ev as any);
-        mockResultsCenterService.clearAllFilters();
-        if (ev.id === 'my') {
-          component.loadMyResults();
-        }
-      });
 
       component.onActiveItemChange(event);
 
       expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
-      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
       expect(loadMyResultsSpy).toHaveBeenCalled();
+      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
     });
 
-    it('should load all results when all tab is selected', () => {
+    it('should handle all tab selection', () => {
       const event: MenuItem = { id: 'all', label: 'All Results' };
       const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults');
-      (mockResultsCenterService.onActiveItemChange as jest.Mock).mockImplementation((ev: MenuItem) => {
-        mockResultsCenterService.myResultsFilterItem.set(ev as any);
-        mockResultsCenterService.clearAllFilters();
-        if (ev.id === 'all') {
-          component.loadAllResults();
-        }
-      });
 
       component.onActiveItemChange(event);
 
       expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
-      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
       expect(loadAllResultsSpy).toHaveBeenCalled();
+      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
     });
   });
 
@@ -231,6 +220,7 @@ describe('ResultsCenterComponent', () => {
     it('should update results filter and call main', () => {
       component.loadMyResults();
 
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[1]);
       expect(mockResultsCenterService.resultsFilter()).toEqual({
         'create-user-codes': ['123'],
         'indicator-codes': [],
@@ -249,6 +239,7 @@ describe('ResultsCenterComponent', () => {
     it('should update results filter and call main', () => {
       component.loadAllResults();
 
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
       expect(mockResultsCenterService.resultsFilter()).toEqual({
         'create-user-codes': [],
         'indicator-codes': [],

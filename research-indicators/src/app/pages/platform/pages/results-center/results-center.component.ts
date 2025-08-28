@@ -90,6 +90,9 @@ export default class ResultsCenterComponent implements OnInit {
       } else if (selfPinned) {
         this.pinnedTab.set('my');
         this.loadMyResults();
+      } else {
+        this.pinnedTab.set('all');
+        this.loadAllResults();
       }
     } else {
       this.pinnedTab.set('all');
