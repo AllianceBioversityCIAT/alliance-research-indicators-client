@@ -121,12 +121,32 @@ export default class ResultsCenterComponent implements OnInit {
       'indicator-codes-filter': [],
       'indicator-codes-tabs': []
     }));
+    this.resultsCenterService.appliedFilters.update(() => ({
+      'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
+      'indicator-codes': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
     this.resultsCenterService.main();
   }
 
   loadAllResults() {
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
     this.resultsCenterService.resultsFilter.update(() => ({
+      'create-user-codes': [],
+      'indicator-codes': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+    this.resultsCenterService.appliedFilters.update(() => ({
       'create-user-codes': [],
       'indicator-codes': [],
       'status-codes': [],

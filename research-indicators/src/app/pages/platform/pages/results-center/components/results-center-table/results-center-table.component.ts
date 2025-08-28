@@ -60,7 +60,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   getScrollHeight = computed(
     () =>
-      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 280 : 300)}px)`
+      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 280 : 350)}px)`
   );
 
   getActiveFiltersExcludingIndicatorTab = computed(() => {
@@ -73,6 +73,13 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     const filtersExcludingIndicatorTab = activeFilters.filter(filter => filter.label !== 'INDICATOR TAB');
     return filtersExcludingIndicatorTab.length > 0;
   });
+
+  getFilterDisplayText(filter: { label: string; value: string; id?: string | number }): string {
+    if (filter.label === 'PROJECT') {
+      return `Project: ${filter.value}`;
+    }
+    return filter.value || filter.label;
+  }
 
   private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70, minWidth = 15) {
     const column = worksheet.getColumn(columnNumber);

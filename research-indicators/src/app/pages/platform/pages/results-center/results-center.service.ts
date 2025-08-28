@@ -26,6 +26,7 @@ export class ResultsCenterService {
   loading = signal(false);
   list = signal<Result[]>([]);
   tableFilters = signal(new TableFilters());
+  appliedFilters = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
   searchInput = signal('');
   tableColumns = signal<TableColumn[]>([
     {
@@ -143,7 +144,7 @@ export class ResultsCenterService {
 
   getActiveFilters = computed(() => {
     const filters: { label: string; value: string; id?: string | number }[] = [];
-    const active = this.resultsFilter();
+    const active = this.appliedFilters();
 
     if ((active['indicator-codes-tabs'] ?? []).length > 0) {
       filters.push({ label: 'INDICATOR TAB', value: 'Selected' });
@@ -335,6 +336,15 @@ export class ResultsCenterService {
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
     }));
 
+    this.appliedFilters.update(prev => ({
+      ...prev,
+      'lever-codes': this.tableFilters().levers.map(lever => lever.id),
+      'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
+      years: this.tableFilters().years.map(year => year.id),
+      'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
+      'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
+    }));
+
     this.main();
   };
 
@@ -347,6 +357,12 @@ export class ResultsCenterService {
     );
 
     this.resultsFilter.update(prev => ({
+      ...prev,
+      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId],
+      'indicator-codes-filter': []
+    }));
+
+    this.appliedFilters.update(prev => ({
       ...prev,
       'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId],
       'indicator-codes-filter': []
@@ -392,6 +408,12 @@ export class ResultsCenterService {
     }));
 
     this.resultsFilter.update(prev => ({
+      ...prev,
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+
+    this.appliedFilters.update(prev => ({
       ...prev,
       'indicator-codes-filter': [],
       'indicator-codes-tabs': []
