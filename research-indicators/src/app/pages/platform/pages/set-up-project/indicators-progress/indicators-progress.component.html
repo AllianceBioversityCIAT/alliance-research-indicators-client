@@ -1,4 +1,4 @@
-<div class="project-setup-container mt-5 max-w-7xl mx-auto px-4 py-4 indicators-progress-view">
+<div class="project-setup-container mt-5 max-w-[1600px] mx-auto px-4 py-4 indicators-progress-view">
   <div class="indicators-section">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-base font-semibold atc-grey-800 flex items-center gap-2">
@@ -7,6 +7,17 @@
       </h3>
       @if (indicators().length > 0) {
         <div class="flex items-center gap-2">
+          <p-button
+            (click)="openIndicatorsInNewTab()"
+            icon="pi pi-pencil"
+            label="Open edit indicators"
+            severity="info"
+            [outlined]="true"
+            size="small"
+            pTooltip="Open edit indicators in new tab"
+            tooltipPosition="left"
+            class="text-xs">
+          </p-button>
           <p-button
             icon="pi pi-chart-bar"
             label="View all indicators chart"
