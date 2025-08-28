@@ -56,7 +56,7 @@ export default class IndicatorsComponent {
       baseline: Number(indicator.baseline),
       agreement_id: this.setUpProjectService.currentAgreementId() as number,
       code: indicator.code,
-      type: indicator.type || '',
+      type: indicator.type ? (indicator.type || '').charAt(0).toUpperCase() + (indicator.type || '').slice(1) : '',
       id: indicator.id
     });
   };

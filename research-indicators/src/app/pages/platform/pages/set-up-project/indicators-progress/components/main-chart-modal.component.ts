@@ -271,7 +271,7 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
             <div style="padding: 12px; max-width: 350px; word-wrap: break-word;">
               <strong style="font-size: 14px; line-height: 1.3; display: block; margin-bottom: 4px;">${truncatedName}</strong>
               <span style="color: #666; font-size: 12px;">Code: ${indicator.code}</span><br/>
-              <span style="color: #666; font-size: 12px;">Type: ${indicator.number_type}</span><br/>
+              <span style="color: #666; font-size: 12px;">Type: ${(indicator.type || '').charAt(0).toUpperCase() + (indicator.type || '').slice(1)}</span><br/>
               <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;"/>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
                 <div>Baseline: <strong>${indicator.base_line || 0}</strong></div>
