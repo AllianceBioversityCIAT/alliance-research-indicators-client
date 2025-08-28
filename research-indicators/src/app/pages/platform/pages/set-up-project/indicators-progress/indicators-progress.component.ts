@@ -71,7 +71,6 @@ export default class IndicatorsProgressComponent implements OnInit {
       });
 
       this.indicators.set(res.data);
-      console.log(this.indicators());
     });
   }
 
