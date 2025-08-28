@@ -224,18 +224,6 @@ export class ResultsCenterService {
     this.applyFilters();
   }
 
-  onChangeFilters = effect(
-    async () => {
-      this.loading.set(true);
-      const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
-      this.list.set(response());
-      this.loading.set(false);
-    },
-    {
-      allowSignalWrites: true
-    }
-  );
-
   countFiltersSelected = computed(() => {
     const rf = this.resultsFilter();
     const total =
@@ -346,6 +334,8 @@ export class ResultsCenterService {
       'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
     }));
+
+    this.main();
   };
 
   onSelectFilterTab(indicatorId: number) {
@@ -366,6 +356,8 @@ export class ResultsCenterService {
       ...prev,
       indicators: []
     }));
+
+    this.main();
   }
 
   cleanFilters() {
