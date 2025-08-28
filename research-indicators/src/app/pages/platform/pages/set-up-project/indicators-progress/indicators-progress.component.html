@@ -155,17 +155,19 @@
                 }
               </td>
               <td class="text-center">
-                <p-button
-                  icon="pi pi-chart-bar"
-                  label="View Chart"
-                  severity="secondary"
-                  [text]="true"
-                  size="small"
-                  (onClick)="openDetailModal(indicator)"
-                  pTooltip="View detailed chart"
-                  tooltipPosition="top"
-                  class="text-xs">
-                </p-button>
+                @if (indicator.number_type === 'sum') {
+                  <p-button
+                    icon="pi pi-chart-bar"
+                    label="View Chart"
+                    severity="secondary"
+                    [text]="true"
+                    size="small"
+                    (onClick)="openDetailModal(indicator)"
+                    pTooltip="View detailed chart"
+                    tooltipPosition="top"
+                    class="text-xs">
+                  </p-button>
+                }
               </td>
             </tr>
           </ng-template>
