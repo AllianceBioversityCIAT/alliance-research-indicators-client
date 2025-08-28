@@ -60,7 +60,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   getScrollHeight = computed(
     () =>
-      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 240 : 270)}px)`
+      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 280 : 300)}px)`
   );
 
   getActiveFiltersExcludingIndicatorTab = computed(() => {

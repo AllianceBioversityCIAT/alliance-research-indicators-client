@@ -148,35 +148,110 @@ export class MyProjectsService {
   };
 
   countFiltersSelected = computed(() => {
-    const filters = this.tableFilters();
-    const filterChecks = [
-      filters.contractCode,
-      filters.projectName,
-      filters.principalInvestigator,
-      filters.levers,
-      filters.statusCodes,
-      filters.startDate,
-      filters.endDate
-    ];
-
-    const count = filterChecks.filter(filter => this.isFilterActive(filter)).length;
-    return count > 0 ? count.toString() : undefined;
+    const f = this.tableFilters();
+    const total =
+      (f.contractCode ? 1 : 0) +
+      (f.projectName ? 1 : 0) +
+      (f.principalInvestigator ? 1 : 0) +
+      (f.levers?.length ?? 0) +
+      (f.statusCodes?.length ?? 0) +
+      (f.startDate ? 1 : 0) +
+      (f.endDate ? 1 : 0);
+    return total > 0 ? total.toString() : undefined;
   });
 
   getActiveFilters = computed(() => {
     const filters = this.appliedFilters();
-    const filterConfigs = [
-      { value: filters.contractCode, label: 'CONTRACT CODE' },
-      { value: filters.projectName, label: 'PROJECT NAME' },
-      { value: filters.principalInvestigator, label: 'PRINCIPAL INVESTIGATOR' },
-      { value: filters.statusCodes, label: 'STATUS' },
-      { value: filters.levers, label: 'LEVER' },
-      { value: filters.startDate, label: 'START DATE' },
-      { value: filters.endDate, label: 'END DATE' }
-    ];
+    const items: { label: string; value: string; id?: string | number }[] = [];
 
-    return filterConfigs.filter(config => this.isFilterActive(config.value)).map(config => ({ label: config.label }));
+    const formatDate = (iso: string): string => {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const mm = months[d.getMonth()];
+      const dd = d.getDate().toString().padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${mm}, ${dd} /${yyyy}`;
+    };
+
+    if (filters.contractCode) items.push({ label: 'CONTRACT CODE', value: filters.contractCode });
+    if (filters.projectName) items.push({ label: 'PROJECT NAME', value: filters.projectName });
+    if (filters.principalInvestigator) items.push({ label: 'PRINCIPAL INVESTIGATOR', value: filters.principalInvestigator });
+
+    if (Array.isArray(filters.statusCodes)) {
+      filters.statusCodes.forEach(s => items.push({ label: 'STATUS', value: s.name, id: s.value }));
+    }
+    if (Array.isArray(filters.levers)) {
+      filters.levers.forEach(l => items.push({ label: 'LEVER', value: l.short_name || l.id.toString(), id: l.id }));
+    }
+    if (filters.startDate) items.push({ label: 'START DATE', value: formatDate(filters.startDate) });
+    if (filters.endDate) items.push({ label: 'END DATE', value: formatDate(filters.endDate) });
+
+    return items;
   });
+
+  removeFilter(label: string, id?: string | number): void {
+    const mapping: Record<string, keyof MyProjectsFilters> = {
+      'CONTRACT CODE': 'contractCode',
+      'PROJECT NAME': 'projectName',
+      'PRINCIPAL INVESTIGATOR': 'principalInvestigator',
+      STATUS: 'statusCodes',
+      LEVER: 'levers',
+      'START DATE': 'startDate',
+      'END DATE': 'endDate'
+    };
+    const key = mapping[label as keyof typeof mapping];
+    if (!key) return;
+
+    this.tableFilters.update(prev => {
+      const next: MyProjectsFilters = { ...prev };
+      switch (key) {
+        case 'statusCodes':
+          next.statusCodes = id != null ? next.statusCodes.filter(s => s.value !== id) : [];
+          break;
+        case 'levers':
+          next.levers = id != null ? next.levers.filter(l => l.id !== id) : [];
+          break;
+        case 'contractCode':
+          next.contractCode = '';
+          break;
+        case 'projectName':
+          next.projectName = '';
+          break;
+        case 'principalInvestigator':
+          next.principalInvestigator = '';
+          break;
+        case 'startDate':
+          next.startDate = '';
+          break;
+        case 'endDate':
+          next.endDate = '';
+          break;
+      }
+      return next;
+    });
+
+    const refs = this.multiselectRefs();
+    const refKeyByLabel: Record<string, 'status' | 'lever'> = { STATUS: 'status', LEVER: 'lever' };
+    const refKey = refKeyByLabel[label];
+    const ref: MultiselectComponent | undefined = refKey ? refs[refKey] : undefined;
+    if (ref && id != null && typeof ref.removeById === 'function') {
+      try {
+        ref.removeById(id);
+      } catch {
+        // noop
+      }
+    } else if (ref && id == null && typeof ref.clear === 'function') {
+      try {
+        ref.clear();
+      } catch {
+        // do nothing
+      }
+    }
+
+    this.applyFilters();
+  }
 
   onActiveItemChange = (event: MenuItem): void => {
     this.myProjectsFilterItem.set(event);

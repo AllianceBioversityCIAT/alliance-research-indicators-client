@@ -5,9 +5,6 @@ import { MenuItem } from 'primeng/api';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { TableColumn } from './result-center.interface';
 import { TableFilters } from './class/table.filters.class';
-import { GetLevers } from '../../../../shared/interfaces/get-levers.interface';
-import { GetAllResultStatus } from '../../../../shared/interfaces/get-all-result-status.interface';
-import { GetContracts } from '../../../../shared/interfaces/get-contracts.interface';
 import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicators.interface';
 import { Table } from 'primeng/table';
 import { ApiService } from '../../../../shared/services/api.service';
@@ -145,35 +142,85 @@ export class ResultsCenterService {
   tableRef = signal<Table | undefined>(undefined);
 
   getActiveFilters = computed(() => {
-    const filters: { label: string }[] = [];
-    const activeFilters = this.resultsFilter();
+    const filters: { label: string; value: string; id?: string | number }[] = [];
+    const active = this.resultsFilter();
 
-    if ((activeFilters['indicator-codes-tabs'] ?? []).length > 0) {
-      filters.push({ label: 'INDICATOR TAB' });
+    if ((active['indicator-codes-tabs'] ?? []).length > 0) {
+      filters.push({ label: 'INDICATOR TAB', value: 'Selected' });
     }
 
-    if ((activeFilters['indicator-codes-filter'] ?? []).length > 0) {
-      filters.push({ label: 'INDICATOR' });
+    if ((active['indicator-codes-filter'] ?? []).length > 0) {
+      const selected = this.tableFilters().indicators as { indicator_id: number; name: string }[];
+      selected.forEach(i => {
+        if (i) filters.push({ label: 'INDICATOR', value: i.name ?? '', id: i.indicator_id });
+      });
     }
 
-    if ((activeFilters['status-codes'] ?? []).length > 0) {
-      filters.push({ label: 'STATUS' });
+    if ((active['status-codes'] ?? []).length > 0) {
+      const selected = this.tableFilters().statusCodes as { result_status_id: number; name: string }[];
+      selected.forEach(s => {
+        if (s) filters.push({ label: 'STATUS', value: s.name ?? '', id: s.result_status_id });
+      });
     }
 
-    if ((activeFilters['contract-codes'] ?? []).length > 0) {
-      filters.push({ label: 'PROJECT' });
+    if ((active['contract-codes'] ?? []).length > 0) {
+      const selected = this.tableFilters().contracts as { agreement_id: string; display_label?: string }[];
+      selected.forEach(c => {
+        if (c) filters.push({ label: 'PROJECT', value: c.display_label || c.agreement_id, id: c.agreement_id });
+      });
     }
 
-    if ((activeFilters['lever-codes'] ?? []).length > 0) {
-      filters.push({ label: 'LEVER' });
+    if ((active['lever-codes'] ?? []).length > 0) {
+      const selected = this.tableFilters().levers as { id: number; name?: string; short_name?: string }[];
+      selected.forEach(l => {
+        if (l) filters.push({ label: 'LEVER', value: l.short_name || l.name || '', id: l.id });
+      });
     }
 
-    if ((activeFilters['years'] ?? []).length > 0) {
-      filters.push({ label: 'YEAR' });
+    if ((active['years'] ?? []).length > 0) {
+      const selected = this.tableFilters().years as { id: number; name: string }[];
+      selected.forEach(y => {
+        if (y) filters.push({ label: 'YEAR', value: y.name ?? String(y.id), id: y.id });
+      });
     }
 
     return filters;
   });
+
+  removeFilter(label: string, id?: string | number): void {
+    this.tableFilters.update(prev => {
+      const next = { ...prev } as TableFilters;
+      switch (label) {
+        case 'INDICATOR':
+          next.indicators = Array.isArray(next.indicators) && id != null ? next.indicators.filter(i => i?.indicator_id !== id) : [];
+          if (id != null) (this.multiselectRefs()?.['indicator'] as MultiselectComponent | undefined)?.removeById?.(id);
+          break;
+        case 'STATUS':
+          next.statusCodes = Array.isArray(next.statusCodes) && id != null ? next.statusCodes.filter(s => s?.result_status_id !== id) : [];
+          if (id != null) (this.multiselectRefs()?.['status'] as MultiselectComponent | undefined)?.removeById?.(id);
+          break;
+        case 'PROJECT':
+          next.contracts = Array.isArray(next.contracts) && id != null ? next.contracts.filter(c => c?.agreement_id !== id) : [];
+          if (id != null) (this.multiselectRefs()?.['project'] as MultiselectComponent | undefined)?.removeById?.(id);
+          break;
+        case 'LEVER':
+          next.levers = Array.isArray(next.levers) && id != null ? next.levers.filter(l => l?.id !== id) : [];
+          if (id != null) (this.multiselectRefs()?.['lever'] as MultiselectComponent | undefined)?.removeById?.(id);
+          break;
+        case 'YEAR':
+          next.years = Array.isArray(next.years) && id != null ? next.years.filter(y => y?.id !== id) : [];
+          if (id != null) (this.multiselectRefs()?.['year'] as MultiselectComponent | undefined)?.removeById?.(id);
+          break;
+        case 'INDICATOR TAB':
+          // special: reset indicator tab
+          this.onSelectFilterTab(0);
+          break;
+      }
+      return next;
+    });
+
+    this.applyFilters();
+  }
 
   onChangeFilters = effect(
     async () => {
@@ -188,19 +235,21 @@ export class ResultsCenterService {
   );
 
   countFiltersSelected = computed(() => {
-    const activeFilters = Object.entries(this.resultsFilter()).filter(
-      ([key, arr]) => !['create-user-codes', 'indicator-codes-tabs'].includes(key) && Array.isArray(arr) && arr.length > 0
-    ).length;
-    const totalFilters = activeFilters;
-    return totalFilters > 0 ? totalFilters.toString() : undefined;
+    const rf = this.resultsFilter();
+    const total =
+      (rf['indicator-codes-filter']?.length ?? 0) +
+      (rf['status-codes']?.length ?? 0) +
+      (rf['contract-codes']?.length ?? 0) +
+      (rf['lever-codes']?.length ?? 0) +
+      (rf.years?.length ?? 0);
+    return total > 0 ? total.toString() : undefined;
   });
 
   countTableFiltersSelected = computed(() => {
-    const activeFilters = Object.entries(this.resultsFilter()).filter(
-      ([key, arr]) => !['create-user-codes', 'indicator-codes-tabs'].includes(key) && Array.isArray(arr) && arr.length > 0
-    ).length;
-    const totalFilters = activeFilters;
-    return totalFilters > 0 ? totalFilters.toString() : undefined;
+    const tf = this.tableFilters();
+    const total =
+      (tf.indicators?.length ?? 0) + (tf.statusCodes?.length ?? 0) + (tf.contracts?.length ?? 0) + (tf.levers?.length ?? 0) + (tf.years?.length ?? 0);
+    return total > 0 ? total.toString() : undefined;
   });
 
   onChangeList = effect(
@@ -289,11 +338,11 @@ export class ResultsCenterService {
   applyFilters = () => {
     this.resultsFilter.update(prev => ({
       ...prev,
-      'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id),
-      'status-codes': this.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id),
-      years: this.tableFilters().years.map((year: { id: number; name: string }) => year.id),
-      'contract-codes': this.tableFilters().contracts.map((contract: GetContracts) => contract.agreement_id),
-      'indicator-codes-filter': this.tableFilters().indicators.map((indicator: GetAllIndicators) => indicator.indicator_id)
+      'lever-codes': this.tableFilters().levers.map(lever => lever.id),
+      'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
+      years: this.tableFilters().years.map(year => year.id),
+      'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
+      'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
     }));
   };
 
@@ -356,6 +405,7 @@ export class ResultsCenterService {
 
     // clear search input
     this.searchInput.set('');
+    this.cleanMultiselects();
     const table = this.tableRef();
     if (table) {
       table.clear();
