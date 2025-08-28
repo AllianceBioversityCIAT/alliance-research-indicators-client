@@ -218,7 +218,7 @@ export class ResultsCenterService {
       return next;
     });
 
-    const ref = handler.ref ? this.multiselectRefs()?.[handler.ref as string] : undefined;
+    const ref = handler.ref ? this.multiselectRefs()?.[handler.ref] : undefined;
     if (ref && id != null && typeof ref.removeById === 'function') ref.removeById(id);
 
     this.applyFilters();

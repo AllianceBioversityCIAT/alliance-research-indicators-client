@@ -82,12 +82,8 @@ export default class ResultsCenterComponent implements OnInit {
     if (response?.data) {
       const pinValue = response.data as unknown as { all: string; self: string };
 
-      const allPinned = pinValue.all === '1';
       const selfPinned = pinValue.self === '1';
-      if (allPinned) {
-        this.pinnedTab.set('all');
-        this.loadAllResults();
-      } else if (selfPinned) {
+      if (selfPinned) {
         this.pinnedTab.set('my');
         this.loadMyResults();
       } else {
