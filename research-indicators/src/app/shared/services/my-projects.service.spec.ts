@@ -7,8 +7,8 @@ import { MenuItem } from 'primeng/api';
 
 describe('MyProjectsService', () => {
   let service: MyProjectsService;
-  let mockApiService: jest.Mocked<ApiService>;
-  let mockCacheService: jest.Mocked<CacheService>;
+  let mockApiService: any;
+  let mockCacheService: any;
 
   const mockFindContractsResponse = {
     data: [
@@ -38,12 +38,20 @@ describe('MyProjectsService', () => {
 
   beforeEach(() => {
     mockApiService = {
-      GET_FindContracts: jest.fn().mockResolvedValue(mockFindContractsResponse)
-    } as any;
+      GET_FindContracts: jest.fn().mockResolvedValue({
+        data: mockFindContractsResponse.data,
+        status: 200,
+        description: 'ok',
+        timestamp: new Date().toISOString(),
+        path: '/find-contracts',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      })
+    };
 
     mockCacheService = {
       dataCache: jest.fn()
-    } as any;
+    };
 
     TestBed.configureTestingModule({
       providers: [MyProjectsService, { provide: ApiService, useValue: mockApiService }, { provide: CacheService, useValue: mockCacheService }]
@@ -212,18 +220,26 @@ describe('MyProjectsService', () => {
       expect(service.list()).toHaveLength(2);
 
       const firstItem = service.list()[0];
-      expect(firstItem.full_name).toBe('A001 Test Project Test Description Test Lead');
-      expect(firstItem.display_principal_investigator).toBe('Test PI');
-      expect(firstItem.display_lever_name).toBe('Test Lever');
+      expect((firstItem as any).full_name).toBe('A001 Test Project Test Description Test Lead');
+      expect((firstItem as any).display_principal_investigator).toBe('Test PI');
+      expect((firstItem as any).display_lever_name).toBe('Test Lever');
 
       const secondItem = service.list()[1];
-      expect(secondItem.full_name).toBe('A002 Test Project 2 Test Description 2 Test Lead 2');
-      expect(secondItem.display_principal_investigator).toBe('Test Lead 2');
-      expect(secondItem.display_lever_name).toBe('Test Lever String');
+      expect((secondItem as any).full_name).toBe('A002 Test Project 2 Test Description 2 Test Lead 2');
+      expect((secondItem as any).display_principal_investigator).toBe('Test Lead 2');
+      expect((secondItem as any).display_lever_name).toBe('Test Lever String');
     });
 
     it('should handle API response without data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({});
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: undefined,
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -232,7 +248,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with null data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: null });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: null,
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -241,7 +265,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with undefined data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: undefined });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: undefined,
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -250,7 +282,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with false data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: false });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: false as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -259,7 +299,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with empty string data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: '' });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: '' as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -268,7 +316,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with empty array data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: [] });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: [],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -286,7 +342,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with non-array data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: 'not-an-array' });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: 'not-an-array' as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -295,7 +359,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with zero data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: 0 });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: 0 as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -304,7 +376,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with NaN data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: NaN });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: NaN as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -331,7 +411,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with empty object', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({});
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: undefined,
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -340,7 +428,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with data property but falsy value', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: false });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: false as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -349,7 +445,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with data property but empty string', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: '' });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: '' as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -358,7 +462,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with data property but zero', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: 0 });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: 0 as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -367,7 +479,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with data property but NaN', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce({ data: NaN });
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: NaN as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -406,14 +526,20 @@ describe('MyProjectsService', () => {
             principal_investigator: null,
             lever_name: 'Test Lever 3'
           }
-        ]
+        ],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
       };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
 
       expect(service.list()).toHaveLength(1);
-      const item = service.list()[0];
+      const item = service.list()[0] as any;
       expect(item.display_principal_investigator).toBe('');
     });
 
@@ -428,14 +554,20 @@ describe('MyProjectsService', () => {
             principal_investigator: '',
             lever_name: 'Test Lever 4'
           }
-        ]
+        ],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
       };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
 
       expect(service.list()).toHaveLength(1);
-      const item = service.list()[0];
+      const item = service.list()[0] as any;
       expect(item.display_principal_investigator).toBe('Valid Lead Description');
     });
 
@@ -450,14 +582,20 @@ describe('MyProjectsService', () => {
             principal_investigator: undefined,
             lever_name: 'Test Lever 5'
           }
-        ]
+        ],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
       };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
 
       expect(service.list()).toHaveLength(1);
-      const item = service.list()[0];
+      const item = service.list()[0] as any;
       expect(item.display_principal_investigator).toBe('Valid Lead Description');
     });
 
@@ -472,14 +610,20 @@ describe('MyProjectsService', () => {
             principal_investigator: 'Valid Principal Investigator',
             lever_name: 'Test Lever 6'
           }
-        ]
+        ],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
       };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
 
       expect(service.list()).toHaveLength(1);
-      const item = service.list()[0];
+      const item = service.list()[0] as any;
       expect(item.display_principal_investigator).toBe('Valid Principal Investigator');
     });
 
@@ -494,14 +638,20 @@ describe('MyProjectsService', () => {
             principal_investigator: '',
             lever_name: 'Test Lever 7'
           }
-        ]
+        ],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
       };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
 
       expect(service.list()).toHaveLength(1);
-      const item = service.list()[0];
+      const item = service.list()[0] as any;
       expect(item.display_principal_investigator).toBe('');
     });
 
@@ -516,14 +666,20 @@ describe('MyProjectsService', () => {
             principal_investigator: false,
             lever_name: 'Test Lever 8'
           }
-        ]
+        ],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
       };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
 
       expect(service.list()).toHaveLength(1);
-      const item = service.list()[0];
+      const item = service.list()[0] as any;
       expect(item.display_principal_investigator).toBe('Valid Lead Description');
     });
 
@@ -538,14 +694,20 @@ describe('MyProjectsService', () => {
             principal_investigator: 0,
             lever_name: 'Test Lever 9'
           }
-        ]
+        ],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
       };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
 
       expect(service.list()).toHaveLength(1);
-      const item = service.list()[0];
+      const item = service.list()[0] as any;
       expect(item.display_principal_investigator).toBe('Valid Lead Description');
     });
   });
@@ -710,10 +872,15 @@ describe('MyProjectsService', () => {
         ...new MyProjectsFilters(),
         contractCode: 'A001',
         projectName: 'Test Project',
-        levers: [{ id: 1, short_name: 'Test' }]
+        levers: [
+          { id: 1, short_name: 'Test' },
+          { id: 2, short_name: 'L2' }
+        ],
+        statusCodes: [{ name: 'Active', value: 'active' }]
       });
 
-      expect(service.countFiltersSelected()).toBe('3');
+      // contractCode (1) + projectName (1) + levers (2) + status (1) = 5
+      expect(service.countFiltersSelected()).toBe('5');
     });
   });
 
@@ -731,9 +898,13 @@ describe('MyProjectsService', () => {
       });
 
       const activeFilters = service.getActiveFilters();
-      expect(activeFilters).toContainEqual({ label: 'CONTRACT CODE' });
-      expect(activeFilters).toContainEqual({ label: 'PROJECT NAME' });
-      expect(activeFilters).toContainEqual({ label: 'LEVER' });
+      expect(activeFilters).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ label: 'CONTRACT CODE' }),
+          expect.objectContaining({ label: 'PROJECT NAME' }),
+          expect.objectContaining({ label: 'LEVER' })
+        ])
+      );
     });
   });
 

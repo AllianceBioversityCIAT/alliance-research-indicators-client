@@ -351,7 +351,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getScrollHeight() {
-    return this.cache.hasSmallScreen() ? 'calc(100vh - 300px)' : 'calc(100vh - 380px)';
+    return this.cache.hasSmallScreen() ? 'calc(100vh - 370px)' : 'calc(100vh - 420px)';
   }
 
   getLoadingState(): boolean {
