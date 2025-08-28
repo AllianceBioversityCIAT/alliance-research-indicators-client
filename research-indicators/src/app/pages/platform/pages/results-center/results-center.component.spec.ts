@@ -36,6 +36,16 @@ describe('ResultsCenterComponent', () => {
         'indicator-codes-filter': [],
         'indicator-codes-tabs': []
       }),
+      appliedFilters: signal({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      }),
       searchInput: signal(''),
       main: jest.fn(),
       applyFilters: jest.fn(),
@@ -217,11 +227,21 @@ describe('ResultsCenterComponent', () => {
   });
 
   describe('loadMyResults', () => {
-    it('should update results filter and call main', () => {
+    it('should update results filter and applied filters and call main', () => {
       component.loadMyResults();
 
       expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[1]);
       expect(mockResultsCenterService.resultsFilter()).toEqual({
+        'create-user-codes': ['123'],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(mockResultsCenterService.appliedFilters()).toEqual({
         'create-user-codes': ['123'],
         'indicator-codes': [],
         'status-codes': [],
@@ -236,11 +256,21 @@ describe('ResultsCenterComponent', () => {
   });
 
   describe('loadAllResults', () => {
-    it('should update results filter and call main', () => {
+    it('should update results filter and applied filters and call main', () => {
       component.loadAllResults();
 
       expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
       expect(mockResultsCenterService.resultsFilter()).toEqual({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(mockResultsCenterService.appliedFilters()).toEqual({
         'create-user-codes': [],
         'indicator-codes': [],
         'status-codes': [],

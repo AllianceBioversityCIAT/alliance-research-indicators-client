@@ -222,7 +222,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should return INDICATOR TAB when indicator-codes-tabs has items', () => {
-      service.resultsFilter.update(prev => ({
+      service.appliedFilters.update(prev => ({
         ...prev,
         'indicator-codes-tabs': [1, 2]
       }));
@@ -232,7 +232,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should return INDICATOR when indicator-codes-filter has items', () => {
-      service.resultsFilter.update(prev => ({
+      service.appliedFilters.update(prev => ({
         ...prev,
         'indicator-codes-filter': [1, 2]
       }));
@@ -249,7 +249,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should return STATUS when status-codes has items', () => {
-      service.resultsFilter.update(prev => ({
+      service.appliedFilters.update(prev => ({
         ...prev,
         'status-codes': [1, 2]
       }));
@@ -266,7 +266,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should return PROJECT when contract-codes has items', () => {
-      service.resultsFilter.update(prev => ({
+      service.appliedFilters.update(prev => ({
         ...prev,
         'contract-codes': ['C1', 'C2']
       }));
@@ -283,7 +283,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should return LEVER when lever-codes has items', () => {
-      service.resultsFilter.update(prev => ({
+      service.appliedFilters.update(prev => ({
         ...prev,
         'lever-codes': [1, 2]
       }));
@@ -300,7 +300,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should return YEAR when years has items', () => {
-      service.resultsFilter.update(prev => ({
+      service.appliedFilters.update(prev => ({
         ...prev,
         years: [2023, 2024]
       }));
@@ -317,7 +317,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should return multiple filters when multiple are active', () => {
-      service.resultsFilter.update(prev => ({
+      service.appliedFilters.update(prev => ({
         ...prev,
         'status-codes': [1],
         'lever-codes': [2],
@@ -460,7 +460,7 @@ describe('ResultsCenterService', () => {
   });
 
   describe('applyFilters', () => {
-    it('should update resultsFilter with table filters and call main', () => {
+    it('should update resultsFilter and appliedFilters with table filters and call main', () => {
       const mockLevers = [{ id: 1, name: 'Lever 1' }] as any;
       const mockStatuses = [{ result_status_id: 1, name: 'Status 1' }] as any;
       const mockYears = [{ id: 2024, name: '2024' }] as any;
@@ -481,11 +481,20 @@ describe('ResultsCenterService', () => {
       service.applyFilters();
 
       const filter = service.resultsFilter();
+      const appliedFilter = service.appliedFilters();
+
       expect(filter['lever-codes']).toEqual([1]);
       expect(filter['status-codes']).toEqual([1]);
       expect(filter['years']).toEqual([2024]);
       expect(filter['contract-codes']).toEqual([1]);
       expect(filter['indicator-codes-filter']).toEqual([1]);
+
+      expect(appliedFilter['lever-codes']).toEqual([1]);
+      expect(appliedFilter['status-codes']).toEqual([1]);
+      expect(appliedFilter['years']).toEqual([2024]);
+      expect(appliedFilter['contract-codes']).toEqual([1]);
+      expect(appliedFilter['indicator-codes-filter']).toEqual([1]);
+
       expect(mainSpy).toHaveBeenCalled();
     });
   });
@@ -504,7 +513,9 @@ describe('ResultsCenterService', () => {
       service.onSelectFilterTab(0);
 
       const filter = service.resultsFilter();
+      const appliedFilter = service.appliedFilters();
       expect(filter['indicator-codes-tabs']).toEqual([]);
+      expect(appliedFilter['indicator-codes-tabs']).toEqual([]);
       expect(mainSpy).toHaveBeenCalled();
     });
 
@@ -514,7 +525,9 @@ describe('ResultsCenterService', () => {
       service.onSelectFilterTab(2);
 
       const filter = service.resultsFilter();
+      const appliedFilter = service.appliedFilters();
       expect(filter['indicator-codes-tabs']).toEqual([2]);
+      expect(appliedFilter['indicator-codes-tabs']).toEqual([2]);
       expect(mainSpy).toHaveBeenCalled();
     });
   });
@@ -548,6 +561,11 @@ describe('ResultsCenterService', () => {
         'indicator-codes-filter': [1, 2],
         'indicator-codes-tabs': [3]
       }));
+      service.appliedFilters.update(prev => ({
+        ...prev,
+        'indicator-codes-filter': [1, 2],
+        'indicator-codes-tabs': [3]
+      }));
       service.searchInput.set('test');
 
       const mainSpy = jest.spyOn(service, 'main');
@@ -555,8 +573,11 @@ describe('ResultsCenterService', () => {
       service.clearAllFilters();
 
       const filter = service.resultsFilter();
+      const appliedFilter = service.appliedFilters();
       expect(filter['indicator-codes-filter']).toEqual([]);
       expect(filter['indicator-codes-tabs']).toEqual([]);
+      expect(appliedFilter['indicator-codes-filter']).toEqual([]);
+      expect(appliedFilter['indicator-codes-tabs']).toEqual([]);
       expect(service.searchInput()).toBe('');
       expect(mainSpy).toHaveBeenCalled();
     });
