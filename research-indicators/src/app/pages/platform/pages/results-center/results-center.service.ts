@@ -188,36 +188,38 @@ export class ResultsCenterService {
   });
 
   removeFilter(label: string, id?: string | number): void {
+    if (label === 'INDICATOR TAB') {
+      this.onSelectFilterTab(0);
+      return;
+    }
+
+    type Updater = (state: TableFilters) => void;
+    const mkUpdater =
+      <T>(key: keyof TableFilters, pred: (item: T) => boolean): Updater =>
+      (state: TableFilters) => {
+        const arr = (state[key] as unknown as T[]) ?? [];
+        (state as unknown as Record<string, unknown[]>)[key as string] = id != null ? arr.filter(pred) : [];
+      };
+
+    const map: Record<string, { update: Updater; ref?: keyof Record<string, MultiselectComponent> }> = {
+      INDICATOR: { update: mkUpdater<{ indicator_id: number }>('indicators', i => i?.indicator_id !== id), ref: 'indicator' },
+      STATUS: { update: mkUpdater<{ result_status_id: number }>('statusCodes', s => s?.result_status_id !== id), ref: 'status' },
+      PROJECT: { update: mkUpdater<{ agreement_id: string }>('contracts', c => c?.agreement_id !== id), ref: 'project' },
+      LEVER: { update: mkUpdater<{ id: number }>('levers', l => l?.id !== id), ref: 'lever' },
+      YEAR: { update: mkUpdater<{ id: number }>('years', y => y?.id !== id), ref: 'year' }
+    };
+
+    const handler = map[label];
+    if (!handler) return;
+
     this.tableFilters.update(prev => {
       const next = { ...prev } as TableFilters;
-      switch (label) {
-        case 'INDICATOR':
-          next.indicators = Array.isArray(next.indicators) && id != null ? next.indicators.filter(i => i?.indicator_id !== id) : [];
-          if (id != null) (this.multiselectRefs()?.['indicator'] as MultiselectComponent | undefined)?.removeById?.(id);
-          break;
-        case 'STATUS':
-          next.statusCodes = Array.isArray(next.statusCodes) && id != null ? next.statusCodes.filter(s => s?.result_status_id !== id) : [];
-          if (id != null) (this.multiselectRefs()?.['status'] as MultiselectComponent | undefined)?.removeById?.(id);
-          break;
-        case 'PROJECT':
-          next.contracts = Array.isArray(next.contracts) && id != null ? next.contracts.filter(c => c?.agreement_id !== id) : [];
-          if (id != null) (this.multiselectRefs()?.['project'] as MultiselectComponent | undefined)?.removeById?.(id);
-          break;
-        case 'LEVER':
-          next.levers = Array.isArray(next.levers) && id != null ? next.levers.filter(l => l?.id !== id) : [];
-          if (id != null) (this.multiselectRefs()?.['lever'] as MultiselectComponent | undefined)?.removeById?.(id);
-          break;
-        case 'YEAR':
-          next.years = Array.isArray(next.years) && id != null ? next.years.filter(y => y?.id !== id) : [];
-          if (id != null) (this.multiselectRefs()?.['year'] as MultiselectComponent | undefined)?.removeById?.(id);
-          break;
-        case 'INDICATOR TAB':
-          // special: reset indicator tab
-          this.onSelectFilterTab(0);
-          break;
-      }
+      handler.update(next);
       return next;
     });
+
+    const ref = handler.ref ? this.multiselectRefs()?.[handler.ref as string] : undefined;
+    if (ref && id != null && typeof ref.removeById === 'function') ref.removeById(id);
 
     this.applyFilters();
   }

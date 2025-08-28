@@ -75,6 +75,7 @@
                   <span class="text-[#4C5158] text-sm">{{ filter.value || filter.label }}</span>
                   <i
                     class="pi pi-times-circle cursor-pointer text-[#6B7280] hover:text-[#111827]"
+                    (keydown.enter)="myProjectsService.removeFilter(filter.label, filter.id)"
                     (click)="myProjectsService.removeFilter(filter.label, filter.id)"></i>
                 </div>
               }
