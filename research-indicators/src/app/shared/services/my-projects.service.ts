@@ -201,7 +201,7 @@ export class MyProjectsService {
       'START DATE': 'startDate',
       'END DATE': 'endDate'
     };
-    const key = mapping[label as keyof typeof mapping];
+    const key = mapping[label];
     if (!key) return;
 
     this.tableFilters.update(prev => {

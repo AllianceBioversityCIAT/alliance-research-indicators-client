@@ -84,31 +84,37 @@ export default class ResultsCenterComponent implements OnInit {
 
       const allPinned = pinValue.all === '1';
       const selfPinned = pinValue.self === '1';
-
       if (allPinned) {
         this.pinnedTab.set('all');
-        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
         this.loadAllResults();
       } else if (selfPinned) {
         this.pinnedTab.set('my');
-        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
         this.loadMyResults();
       } else {
+        this.pinnedTab.set('all');
         this.loadAllResults();
       }
     } else {
       this.pinnedTab.set('all');
-      this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
       this.loadAllResults();
     }
     this.loadingPin.set(false);
   }
 
   onActiveItemChange = (event: MenuItem): void => {
-    this.resultsCenterService.onActiveItemChange(event);
+    this.resultsCenterService.myResultsFilterItem.set(event);
+    if (event.id === 'my') {
+      this.loadMyResults();
+    } else {
+      this.loadAllResults();
+    }
+
+    this.resultsCenterService.clearAllFilters();
+    this.resultsCenterService.searchInput.set('');
   };
 
   loadMyResults() {
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
     this.resultsCenterService.resultsFilter.update(() => ({
       'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
       'indicator-codes': [],
@@ -123,6 +129,7 @@ export default class ResultsCenterComponent implements OnInit {
   }
 
   loadAllResults() {
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
     this.resultsCenterService.resultsFilter.update(() => ({
       'create-user-codes': [],
       'indicator-codes': [],
