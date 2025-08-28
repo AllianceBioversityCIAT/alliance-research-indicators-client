@@ -317,12 +317,10 @@ export class MainChartModalComponent implements OnInit, OnDestroy, OnChanges {
         {
           name: 'Progress',
           type: 'bar',
-          data: progressData.map((progress, index) => ({
-            value: progress,
-            itemStyle: {
-              color: progress >= 100 ? '#16a34a' : progress >= 75 ? '#eab308' : progress >= 50 ? '#f97316' : '#dc2626'
-            }
-          })),
+          data: progressData,
+          itemStyle: {
+            color: '#173f6f' // Primary blue 500 from design system
+          },
           barWidth: '60%'
         }
       ]
