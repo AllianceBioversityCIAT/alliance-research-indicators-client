@@ -298,4 +298,102 @@ describe('yearInterceptor', () => {
     expect(calledRequest.headers.has('X-Use-Year')).toBe(false);
     expect(calledRequest.url).toBe('http://test.com/api/data?reportYear=2023');
   });
+
+  describe('Platform detection', () => {
+    it('should add TP platform when URL contains TP-2804', () => {
+      const headers = new HttpHeaders().set('X-Use-Year', 'true');
+      const request = new HttpRequest('GET', 'http://test.com/api/data', null, { headers });
+
+      mockRouter.url = '/result/TP-2804/general-information';
+      mockRouter.parseUrl.mockReturnValue({
+        queryParams: { version: '2023' }
+      });
+
+      interceptor(request, mockHandler);
+
+      const calledRequest = mockHandler.mock.calls[0][0];
+      expect(calledRequest.headers.has('X-Use-Year')).toBe(false);
+      expect(calledRequest.url).toBe('http://test.com/api/data?reportYear=2023&reportingPlatforms=TP');
+    });
+
+    it('should add PRMS platform when URL contains PRMS-2804', () => {
+      const headers = new HttpHeaders().set('X-Use-Year', 'true');
+      const request = new HttpRequest('GET', 'http://test.com/api/data', null, { headers });
+
+      mockRouter.url = '/result/PRMS-2804/general-information';
+      mockRouter.parseUrl.mockReturnValue({
+        queryParams: { version: '2023' }
+      });
+
+      interceptor(request, mockHandler);
+
+      const calledRequest = mockHandler.mock.calls[0][0];
+      expect(calledRequest.headers.has('X-Use-Year')).toBe(false);
+      expect(calledRequest.url).toBe('http://test.com/api/data?reportYear=2023&reportingPlatforms=PRMS');
+    });
+
+    it('should add STAR platform when URL contains only result/2804', () => {
+      const headers = new HttpHeaders().set('X-Use-Year', 'true');
+      const request = new HttpRequest('GET', 'http://test.com/api/data', null, { headers });
+
+      mockRouter.url = '/result/2804/general-information';
+      mockRouter.parseUrl.mockReturnValue({
+        queryParams: { version: '2023' }
+      });
+
+      interceptor(request, mockHandler);
+
+      const calledRequest = mockHandler.mock.calls[0][0];
+      expect(calledRequest.headers.has('X-Use-Year')).toBe(false);
+      expect(calledRequest.url).toBe('http://test.com/api/data?reportYear=2023&reportingPlatforms=STAR');
+    });
+
+    it('should not add platform when URL does not match result pattern', () => {
+      const headers = new HttpHeaders().set('X-Use-Year', 'true');
+      const request = new HttpRequest('GET', 'http://test.com/api/data', null, { headers });
+
+      mockRouter.url = '/other-route';
+      mockRouter.parseUrl.mockReturnValue({
+        queryParams: { version: '2023' }
+      });
+
+      interceptor(request, mockHandler);
+
+      const calledRequest = mockHandler.mock.calls[0][0];
+      expect(calledRequest.headers.has('X-Use-Year')).toBe(false);
+      expect(calledRequest.url).toBe('http://test.com/api/data?reportYear=2023');
+    });
+
+    it('should add platform without year when no year is present', () => {
+      const headers = new HttpHeaders().set('X-Use-Year', 'true');
+      const request = new HttpRequest('GET', 'http://test.com/api/data', null, { headers });
+
+      mockRouter.url = '/result/TP-2804/general-information';
+      mockRouter.parseUrl.mockReturnValue({
+        queryParams: {}
+      });
+
+      interceptor(request, mockHandler);
+
+      const calledRequest = mockHandler.mock.calls[0][0];
+      expect(calledRequest.headers.has('X-Use-Year')).toBe(false);
+      expect(calledRequest.url).toBe('http://test.com/api/data?reportingPlatforms=TP');
+    });
+
+    it('should handle both year and platform with existing query parameters', () => {
+      const headers = new HttpHeaders().set('X-Use-Year', 'true');
+      const request = new HttpRequest('GET', 'http://test.com/api/data?param1=value1', null, { headers });
+
+      mockRouter.url = '/result/PRMS-2804/general-information';
+      mockRouter.parseUrl.mockReturnValue({
+        queryParams: { version: '2023' }
+      });
+
+      interceptor(request, mockHandler);
+
+      const calledRequest = mockHandler.mock.calls[0][0];
+      expect(calledRequest.headers.has('X-Use-Year')).toBe(false);
+      expect(calledRequest.url).toBe('http://test.com/api/data?param1=value1&reportYear=2023&reportingPlatforms=PRMS');
+    });
+  });
 });

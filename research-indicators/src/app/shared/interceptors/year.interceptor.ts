@@ -12,12 +12,18 @@ export const yearInterceptor: HttpInterceptorFn = (req, next) => {
 
   const headers = req.headers.delete('X-Use-Year');
   const year = getYearFromUrl(router);
+  const platform = getPlatformFromUrl(router);
 
-  if (!year) {
-    return next(req.clone({ headers }));
+  let modifiedUrl = req.url;
+
+  if (year) {
+    modifiedUrl = addParameterToUrl(modifiedUrl, 'reportYear', year);
   }
 
-  const modifiedUrl = addYearToUrl(req.url, year);
+  if (platform) {
+    modifiedUrl = addParameterToUrl(modifiedUrl, 'reportingPlatforms', platform);
+  }
+
   const clonedRequest = req.clone({
     url: modifiedUrl,
     headers
@@ -32,7 +38,25 @@ function getYearFromUrl(router: Router): string | null {
   return tree.queryParams['version'] ?? null;
 }
 
-function addYearToUrl(url: string, year: string): string {
+function getPlatformFromUrl(router: Router): string | null {
+  const url = router.url;
+
+  // Patrón para detectar TP-2804 o PRMS-2804
+  const platformMatch = url.match(/result\/(TP|PRMS)-(\d+)/);
+  if (platformMatch) {
+    return platformMatch[1]; // Retorna TP o PRMS
+  }
+
+  // Si no hay prefijo de plataforma, retorna STAR
+  const resultMatch = url.match(/result\/(\d+)/);
+  if (resultMatch) {
+    return 'STAR';
+  }
+
+  return null;
+}
+
+function addParameterToUrl(url: string, paramName: string, paramValue: string): string {
   const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}reportYear=${year}`;
+  return `${url}${separator}${paramName}=${paramValue}`;
 }
