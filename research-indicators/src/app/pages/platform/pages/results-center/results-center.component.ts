@@ -82,23 +82,16 @@ export default class ResultsCenterComponent implements OnInit {
     if (response?.data) {
       const pinValue = response.data as unknown as { all: string; self: string };
 
-      const allPinned = pinValue.all === '1';
       const selfPinned = pinValue.self === '1';
-
-      if (allPinned) {
-        this.pinnedTab.set('all');
-        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
-        this.loadAllResults();
-      } else if (selfPinned) {
+      if (selfPinned) {
         this.pinnedTab.set('my');
-        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
         this.loadMyResults();
       } else {
+        this.pinnedTab.set('all');
         this.loadAllResults();
       }
     } else {
       this.pinnedTab.set('all');
-      this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
       this.loadAllResults();
     }
     this.loadingPin.set(false);
@@ -106,17 +99,29 @@ export default class ResultsCenterComponent implements OnInit {
 
   onActiveItemChange = (event: MenuItem): void => {
     this.resultsCenterService.myResultsFilterItem.set(event);
-    this.resultsCenterService.clearAllFilters();
-
     if (event.id === 'my') {
       this.loadMyResults();
     } else {
       this.loadAllResults();
     }
+
+    this.resultsCenterService.clearAllFilters();
+    this.resultsCenterService.searchInput.set('');
   };
 
   loadMyResults() {
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
     this.resultsCenterService.resultsFilter.update(() => ({
+      'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
+      'indicator-codes': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+    this.resultsCenterService.appliedFilters.update(() => ({
       'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
       'indicator-codes': [],
       'status-codes': [],
@@ -130,7 +135,18 @@ export default class ResultsCenterComponent implements OnInit {
   }
 
   loadAllResults() {
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
     this.resultsCenterService.resultsFilter.update(() => ({
+      'create-user-codes': [],
+      'indicator-codes': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+    this.resultsCenterService.appliedFilters.update(() => ({
       'create-user-codes': [],
       'indicator-codes': [],
       'status-codes': [],

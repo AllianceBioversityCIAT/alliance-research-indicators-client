@@ -199,4 +199,9 @@ export class MultiselectComponent implements OnInit {
       return { ...current };
     });
   }
+
+  removeById(id: string | number) {
+    const option = this.service?.list()?.find((o: any) => o?.[this.optionValue] === id);
+    if (option) this.removeOption(option);
+  }
 }

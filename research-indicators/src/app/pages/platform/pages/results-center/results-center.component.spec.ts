@@ -10,12 +10,13 @@ import { signal } from '@angular/core';
 describe('ResultsCenterComponent', () => {
   let component: ResultsCenterComponent;
   let fixture: ComponentFixture<ResultsCenterComponent>;
-  let mockResultsCenterService: jest.Mocked<ResultsCenterService>;
+  let mockResultsCenterService: any;
   let mockCacheService: jest.Mocked<CacheService>;
   let mockApiService: jest.Mocked<ApiService>;
   let mockActionsService: jest.Mocked<ActionsService>;
 
   beforeEach(async () => {
+    jest.useFakeTimers();
     mockResultsCenterService = {
       resetState: jest.fn(),
       myResultsFilterItem: signal({ id: 'all', label: 'All Results' }),
@@ -24,6 +25,7 @@ describe('ResultsCenterComponent', () => {
         { id: 'my', label: 'My Results' }
       ],
       clearAllFilters: jest.fn(),
+      onActiveItemChange: jest.fn(),
       resultsFilter: signal({
         'create-user-codes': [],
         'indicator-codes': [],
@@ -34,9 +36,22 @@ describe('ResultsCenterComponent', () => {
         'indicator-codes-filter': [],
         'indicator-codes-tabs': []
       }),
+      appliedFilters: signal({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      }),
+      searchInput: signal(''),
       main: jest.fn(),
       applyFilters: jest.fn(),
-      cleanMultiselects: jest.fn()
+      cleanMultiselects: jest.fn(),
+      loadMyResults: jest.fn(),
+      loadAllResults: jest.fn()
     } as any;
 
     mockCacheService = {
@@ -68,6 +83,10 @@ describe('ResultsCenterComponent', () => {
 
     fixture = TestBed.createComponent(ResultsCenterComponent);
     component = fixture.componentInstance;
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('should create', () => {
@@ -184,34 +203,45 @@ describe('ResultsCenterComponent', () => {
   });
 
   describe('onActiveItemChange', () => {
-    it('should load my results when my tab is selected', () => {
+    it('should handle my tab selection', () => {
       const event: MenuItem = { id: 'my', label: 'My Results' };
       const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults');
 
       component.onActiveItemChange(event);
 
       expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
-      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
       expect(loadMyResultsSpy).toHaveBeenCalled();
+      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
     });
 
-    it('should load all results when all tab is selected', () => {
+    it('should handle all tab selection', () => {
       const event: MenuItem = { id: 'all', label: 'All Results' };
       const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults');
 
       component.onActiveItemChange(event);
 
       expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
-      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
       expect(loadAllResultsSpy).toHaveBeenCalled();
+      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
     });
   });
 
   describe('loadMyResults', () => {
-    it('should update results filter and call main', () => {
+    it('should update results filter and applied filters and call main', () => {
       component.loadMyResults();
 
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[1]);
       expect(mockResultsCenterService.resultsFilter()).toEqual({
+        'create-user-codes': ['123'],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(mockResultsCenterService.appliedFilters()).toEqual({
         'create-user-codes': ['123'],
         'indicator-codes': [],
         'status-codes': [],
@@ -226,10 +256,21 @@ describe('ResultsCenterComponent', () => {
   });
 
   describe('loadAllResults', () => {
-    it('should update results filter and call main', () => {
+    it('should update results filter and applied filters and call main', () => {
       component.loadAllResults();
 
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
       expect(mockResultsCenterService.resultsFilter()).toEqual({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(mockResultsCenterService.appliedFilters()).toEqual({
         'create-user-codes': [],
         'indicator-codes': [],
         'status-codes': [],
@@ -249,10 +290,12 @@ describe('ResultsCenterComponent', () => {
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
 
       await component.togglePin('all');
+      jest.runAllTimers();
 
       expect(mockApiService.PATCH_Configuration).toHaveBeenCalledWith('result-table', 'tab', { all: true, self: false });
       expect(component.pinnedTab()).toBe('all');
       expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
+      expect(mockResultsCenterService.cleanMultiselects).toHaveBeenCalled();
       expect(mockActionsService.showToast).toHaveBeenCalledWith({
         severity: 'success',
         summary: 'Results',
@@ -268,10 +311,12 @@ describe('ResultsCenterComponent', () => {
       } as any);
 
       await component.togglePin('my');
+      jest.runAllTimers();
 
       expect(mockApiService.PATCH_Configuration).toHaveBeenCalledWith('result-table', 'tab', { all: false, self: true });
       expect(component.pinnedTab()).toBe('my');
       expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[1]);
+      expect(mockResultsCenterService.cleanMultiselects).toHaveBeenCalled();
       expect(mockActionsService.showToast).toHaveBeenCalledWith({
         severity: 'success',
         summary: 'Results',
@@ -284,9 +329,11 @@ describe('ResultsCenterComponent', () => {
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
 
       await component.togglePin('all');
+      jest.runAllTimers();
 
       expect(mockApiService.PATCH_Configuration).toHaveBeenCalledWith('result-table', 'tab', { all: true, self: false });
       expect(component.pinnedTab()).toBe('all');
+      expect(mockResultsCenterService.cleanMultiselects).toHaveBeenCalled();
     });
 
     it('should handle error when API call fails', async () => {
@@ -294,6 +341,7 @@ describe('ResultsCenterComponent', () => {
       mockApiService.PATCH_Configuration.mockRejectedValue(new Error('API Error'));
 
       await component.togglePin('all');
+      jest.runAllTimers();
 
       expect(consoleSpy).toHaveBeenCalledWith('Error updating pinned tab:', expect.any(Error));
       expect(mockActionsService.showToast).toHaveBeenCalled();

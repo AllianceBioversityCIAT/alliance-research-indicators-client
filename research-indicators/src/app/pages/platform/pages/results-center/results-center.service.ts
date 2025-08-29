@@ -5,9 +5,6 @@ import { MenuItem } from 'primeng/api';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
 import { TableColumn } from './result-center.interface';
 import { TableFilters } from './class/table.filters.class';
-import { GetLevers } from '../../../../shared/interfaces/get-levers.interface';
-import { GetAllResultStatus } from '../../../../shared/interfaces/get-all-result-status.interface';
-import { GetContracts } from '../../../../shared/interfaces/get-contracts.interface';
 import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicators.interface';
 import { Table } from 'primeng/table';
 import { ApiService } from '../../../../shared/services/api.service';
@@ -29,6 +26,7 @@ export class ResultsCenterService {
   loading = signal(false);
   list = signal<Result[]>([]);
   tableFilters = signal(new TableFilters());
+  appliedFilters = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
   searchInput = signal('');
   tableColumns = signal<TableColumn[]>([
     {
@@ -145,62 +143,104 @@ export class ResultsCenterService {
   tableRef = signal<Table | undefined>(undefined);
 
   getActiveFilters = computed(() => {
-    const filters: { label: string }[] = [];
-    const activeFilters = this.resultsFilter();
+    const filters: { label: string; value: string; id?: string | number }[] = [];
+    const active = this.appliedFilters();
 
-    if ((activeFilters['indicator-codes-tabs'] ?? []).length > 0) {
-      filters.push({ label: 'INDICATOR TAB' });
+    if ((active['indicator-codes-tabs'] ?? []).length > 0) {
+      filters.push({ label: 'INDICATOR TAB', value: 'Selected' });
     }
 
-    if ((activeFilters['indicator-codes-filter'] ?? []).length > 0) {
-      filters.push({ label: 'INDICATOR' });
+    if ((active['indicator-codes-filter'] ?? []).length > 0) {
+      const selected = this.tableFilters().indicators as { indicator_id: number; name: string }[];
+      selected.forEach(i => {
+        if (i) filters.push({ label: 'INDICATOR', value: i.name ?? '', id: i.indicator_id });
+      });
     }
 
-    if ((activeFilters['status-codes'] ?? []).length > 0) {
-      filters.push({ label: 'STATUS' });
+    if ((active['status-codes'] ?? []).length > 0) {
+      const selected = this.tableFilters().statusCodes as { result_status_id: number; name: string }[];
+      selected.forEach(s => {
+        if (s) filters.push({ label: 'STATUS', value: s.name ?? '', id: s.result_status_id });
+      });
     }
 
-    if ((activeFilters['contract-codes'] ?? []).length > 0) {
-      filters.push({ label: 'PROJECT' });
+    if ((active['contract-codes'] ?? []).length > 0) {
+      const selected = this.tableFilters().contracts as { agreement_id: string; display_label?: string }[];
+      selected.forEach(c => {
+        if (c) filters.push({ label: 'PROJECT', value: c.display_label || c.agreement_id, id: c.agreement_id });
+      });
     }
 
-    if ((activeFilters['lever-codes'] ?? []).length > 0) {
-      filters.push({ label: 'LEVER' });
+    if ((active['lever-codes'] ?? []).length > 0) {
+      const selected = this.tableFilters().levers as { id: number; name?: string; short_name?: string }[];
+      selected.forEach(l => {
+        if (l) filters.push({ label: 'LEVER', value: l.short_name || l.name || '', id: l.id });
+      });
     }
 
-    if ((activeFilters['years'] ?? []).length > 0) {
-      filters.push({ label: 'YEAR' });
+    if ((active['years'] ?? []).length > 0) {
+      const selected = this.tableFilters().years as { id: number; name: string }[];
+      selected.forEach(y => {
+        if (y) filters.push({ label: 'YEAR', value: y.name ?? String(y.id), id: y.id });
+      });
     }
 
     return filters;
   });
 
-  onChangeFilters = effect(
-    async () => {
-      this.loading.set(true);
-      const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
-      this.list.set(response());
-      this.loading.set(false);
-    },
-    {
-      allowSignalWrites: true
+  removeFilter(label: string, id?: string | number): void {
+    if (label === 'INDICATOR TAB') {
+      this.onSelectFilterTab(0);
+      return;
     }
-  );
+
+    type Updater = (state: TableFilters) => void;
+    const mkUpdater =
+      <T>(key: keyof TableFilters, pred: (item: T) => boolean): Updater =>
+      (state: TableFilters) => {
+        const arr = (state[key] as unknown as T[]) ?? [];
+        (state as unknown as Record<string, unknown[]>)[key as string] = id != null ? arr.filter(pred) : [];
+      };
+
+    const map: Record<string, { update: Updater; ref?: keyof Record<string, MultiselectComponent> }> = {
+      INDICATOR: { update: mkUpdater<{ indicator_id: number }>('indicators', i => i?.indicator_id !== id), ref: 'indicator' },
+      STATUS: { update: mkUpdater<{ result_status_id: number }>('statusCodes', s => s?.result_status_id !== id), ref: 'status' },
+      PROJECT: { update: mkUpdater<{ agreement_id: string }>('contracts', c => c?.agreement_id !== id), ref: 'project' },
+      LEVER: { update: mkUpdater<{ id: number }>('levers', l => l?.id !== id), ref: 'lever' },
+      YEAR: { update: mkUpdater<{ id: number }>('years', y => y?.id !== id), ref: 'year' }
+    };
+
+    const handler = map[label];
+    if (!handler) return;
+
+    this.tableFilters.update(prev => {
+      const next = { ...prev } as TableFilters;
+      handler.update(next);
+      return next;
+    });
+
+    const ref = handler.ref ? this.multiselectRefs()?.[handler.ref] : undefined;
+    if (ref && id != null && typeof ref.removeById === 'function') ref.removeById(id);
+
+    this.applyFilters();
+  }
 
   countFiltersSelected = computed(() => {
-    const activeFilters = Object.entries(this.resultsFilter()).filter(
-      ([key, arr]) => !['create-user-codes', 'indicator-codes-tabs'].includes(key) && Array.isArray(arr) && arr.length > 0
-    ).length;
-    const totalFilters = activeFilters;
-    return totalFilters > 0 ? totalFilters.toString() : undefined;
+    const rf = this.resultsFilter();
+    const total =
+      (rf['indicator-codes-filter']?.length ?? 0) +
+      (rf['status-codes']?.length ?? 0) +
+      (rf['contract-codes']?.length ?? 0) +
+      (rf['lever-codes']?.length ?? 0) +
+      (rf.years?.length ?? 0);
+    return total > 0 ? total.toString() : undefined;
   });
 
   countTableFiltersSelected = computed(() => {
-    const activeFilters = Object.entries(this.resultsFilter()).filter(
-      ([key, arr]) => !['create-user-codes', 'indicator-codes-tabs'].includes(key) && Array.isArray(arr) && arr.length > 0
-    ).length;
-    const totalFilters = activeFilters;
-    return totalFilters > 0 ? totalFilters.toString() : undefined;
+    const tf = this.tableFilters();
+    const total =
+      (tf.indicators?.length ?? 0) + (tf.statusCodes?.length ?? 0) + (tf.contracts?.length ?? 0) + (tf.levers?.length ?? 0) + (tf.years?.length ?? 0);
+    return total > 0 ? total.toString() : undefined;
   });
 
   onChangeList = effect(
@@ -289,12 +329,23 @@ export class ResultsCenterService {
   applyFilters = () => {
     this.resultsFilter.update(prev => ({
       ...prev,
-      'lever-codes': this.tableFilters().levers.map((lever: GetLevers) => lever.id),
-      'status-codes': this.tableFilters().statusCodes.map((status: GetAllResultStatus) => status.result_status_id),
-      years: this.tableFilters().years.map((year: { id: number; name: string }) => year.id),
-      'contract-codes': this.tableFilters().contracts.map((contract: GetContracts) => contract.agreement_id),
-      'indicator-codes-filter': this.tableFilters().indicators.map((indicator: GetAllIndicators) => indicator.indicator_id)
+      'lever-codes': this.tableFilters().levers.map(lever => lever.id),
+      'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
+      years: this.tableFilters().years.map(year => year.id),
+      'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
+      'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
     }));
+
+    this.appliedFilters.update(prev => ({
+      ...prev,
+      'lever-codes': this.tableFilters().levers.map(lever => lever.id),
+      'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
+      years: this.tableFilters().years.map(year => year.id),
+      'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
+      'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
+    }));
+
+    this.main();
   };
 
   onSelectFilterTab(indicatorId: number) {
@@ -311,10 +362,18 @@ export class ResultsCenterService {
       'indicator-codes-filter': []
     }));
 
+    this.appliedFilters.update(prev => ({
+      ...prev,
+      'indicator-codes-tabs': indicatorId === 0 ? [] : [indicatorId],
+      'indicator-codes-filter': []
+    }));
+
     this.tableFilters.update(prev => ({
       ...prev,
       indicators: []
     }));
+
+    this.main();
   }
 
   cleanFilters() {
@@ -354,8 +413,15 @@ export class ResultsCenterService {
       'indicator-codes-tabs': []
     }));
 
+    this.appliedFilters.update(prev => ({
+      ...prev,
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+
     // clear search input
     this.searchInput.set('');
+    this.cleanMultiselects();
     const table = this.tableRef();
     if (table) {
       table.clear();

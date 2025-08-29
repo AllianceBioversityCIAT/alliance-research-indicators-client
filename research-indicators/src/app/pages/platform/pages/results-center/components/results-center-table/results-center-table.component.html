@@ -1,9 +1,8 @@
 <!-- Results Table -->
 <div class="flex flex-col">
-  <div class="flex flex-col">
+  <div class="flex flex-col px-5 py-4">
     <div class="flex items-center justify-between w-full">
       <app-search-export-controls
-        class="p-3"
         [showExportButton]="true"
         [exportLabel]="'Export Results'"
         [searchValue]="this.resultsCenterService.searchInput()"
@@ -26,15 +25,16 @@
     </div>
 
     @if (shouldShowFilterMessage()) {
-      <div class="flex gap-2 px-3 mt-2 mb-3 items-center">
-        <span class="font-semibold text-sm" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
-        <i class="pi pi-arrow-right text-sm" style="color: #8d9299"></i>
-        @for (filter of getActiveFiltersExcludingIndicatorTab(); track filter.label) {
-          <div class="flex items-center">
-            <span class="text-primary-700 font-bold text-sm" style="font-family: 'Space Grotesk', sans-serif">{{ filter.label }}</span>
-            @if (!$last) {
-              <span class="text-500 text-sm">, </span>
-            }
+      <div class="flex flex-wrap gap-2 mt-3 mb-1 items-center">
+        <span class="font-[450] text-[14px]" style="color: #8d9299; font-family: 'Space Grotesk', sans-serif">Results filtered by</span>
+        <i class="pi pi-arrow-right !text-[12px]" style="color: #8d9299"></i>
+        @for (filter of getActiveFiltersExcludingIndicatorTab(); track filter.label + (filter.id || '')) {
+          <div class="flex items-center bg-[#E8EBED] rounded-xl px-3 py-1 gap-2">
+            <span class="text-[#4C5158] text-sm">{{ getFilterDisplayText(filter) }}</span>
+            <i
+              class="pi pi-times-circle cursor-pointer text-[#6B7280] hover:text-[#111827]"
+              (keydown.enter)="resultsCenterService.removeFilter(filter.label, filter.id)"
+              (click)="resultsCenterService.removeFilter(filter.label, filter.id)"></i>
           </div>
         }
       </div>
