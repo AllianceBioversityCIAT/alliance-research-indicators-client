@@ -1,5 +1,4 @@
 import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -16,10 +15,10 @@ import { PopoverModule } from 'primeng/popover';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { FiltersActionButtonsComponent } from '../../../../../../shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '../../../../../../shared/components/search-export-controls/search-export-controls.component';
+import { PLATFORM_COLOR_MAP } from '../../../../../../shared/constants/platform-colors';
 @Component({
   selector: 'app-results-center-table',
   imports: [
-    CommonModule,
     FormsModule,
     TableModule,
     ButtonModule,
@@ -79,6 +78,15 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       return `Project: ${filter.value}`;
     }
     return filter.value || filter.label;
+  }
+
+  getPlatformColors(platformCode: string): { text: string; background: string } | undefined {
+    return PLATFORM_COLOR_MAP[platformCode];
+  }
+
+  formatResultCode(code: string | number): string {
+    if (!code) return String(code || '');
+    return String(code).padStart(3, '0');
   }
 
   private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70, minWidth = 15) {
