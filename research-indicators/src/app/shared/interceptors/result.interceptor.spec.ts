@@ -2,10 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpHeaders } from '@angular/common/http';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
-import { yearInterceptor } from './result.interceptor';
+import { resultInterceptor } from './result.interceptor';
 
-describe('yearInterceptor', () => {
-  const interceptor: HttpInterceptorFn = (req, next) => TestBed.runInInjectionContext(() => yearInterceptor(req, next));
+describe('resultInterceptor', () => {
+  const interceptor: HttpInterceptorFn = (req, next) => TestBed.runInInjectionContext(() => resultInterceptor(req, next));
 
   let mockRouter: any;
   let mockHandler: jest.MockedFunction<HttpHandlerFn>;
