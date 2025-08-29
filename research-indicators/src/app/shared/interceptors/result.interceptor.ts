@@ -2,7 +2,7 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 
-export const yearInterceptor: HttpInterceptorFn = (req, next) => {
+export const resultInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const shouldUseYear = req.headers.has('X-Use-Year');
 

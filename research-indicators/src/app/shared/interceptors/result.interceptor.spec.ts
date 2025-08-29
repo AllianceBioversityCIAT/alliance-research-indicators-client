@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpHeaders } from '@angular/common/http';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
-import { yearInterceptor } from './year.interceptor';
+import { yearInterceptor } from './result.interceptor';
 
 describe('yearInterceptor', () => {
   const interceptor: HttpInterceptorFn = (req, next) => TestBed.runInInjectionContext(() => yearInterceptor(req, next));
