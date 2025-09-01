@@ -108,6 +108,14 @@
                   </span>
                 </div>
               </td>
+            } @else if (column.field === 'project') {
+              <td>
+                <span
+                  class="cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"
+                  [routerLink]="['/project-detail', result.result_contracts.contract_id]">
+                  {{ result.result_contracts.contract_id }}
+                </span>
+              </td>
             } @else if (column.field === 'versions') {
               <td>
                 @if (column.getValue) {
