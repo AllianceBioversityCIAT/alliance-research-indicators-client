@@ -28,17 +28,10 @@ export interface Tagging {
   tag_id: number;
 }
 
-export interface LinkedResult {
-  link_result_id: number;
-  result_id: number;
-  other_result_id: number;
-  link_result_role_id: number;
-}
-
 export interface StepOne {
   main_contact_person: MainContactPerson;
   tagging: Tagging;
-  linked_result: LinkedResult[];
+  linked_result: LinkResult[];
   outcome_impact_statement: string;
 }
 
