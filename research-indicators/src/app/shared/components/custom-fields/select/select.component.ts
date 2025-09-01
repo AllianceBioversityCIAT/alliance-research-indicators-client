@@ -63,11 +63,23 @@ export class SelectComponent implements OnInit {
 
   onSectionLoad = effect(
     () => {
-      if (!this.currentResultIsLoading())
+      if (!this.currentResultIsLoading()) {
         this.body.update(current => {
-          this.utils.setNestedPropertyWithReduce(current, 'value', this.utils.getNestedProperty(this.signal(), this.optionValue.body));
+          let value = null;
+
+          if (this.optionValue.body === 'tagging[0].tag_id') {
+            const signalValue = this.signal();
+            if (signalValue?.tagging?.[0]?.tag_id) {
+              value = signalValue.tagging[0].tag_id;
+            }
+          } else {
+            value = this.utils.getNestedProperty(this.signal(), this.optionValue.body);
+          }
+
+          this.utils.setNestedPropertyWithReduce(current, 'value', value);
           return { ...current };
         });
+      }
     },
     { allowSignalWrites: true }
   );
@@ -82,6 +94,24 @@ export class SelectComponent implements OnInit {
 
   setValue(value: any) {
     this.body.set({ value: value });
-    this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue.body, value);
+
+    this.signal.update(currentSignal => {
+      const newSignal = { ...currentSignal };
+
+      if (this.optionValue.body === 'tagging[0].tag_id') {
+        if (!newSignal.tagging || !Array.isArray(newSignal.tagging)) {
+          newSignal.tagging = [];
+        }
+        if (newSignal.tagging.length === 0) {
+          newSignal.tagging.push({ tag_id: value });
+        } else {
+          newSignal.tagging[0].tag_id = value;
+        }
+      } else {
+        this.utils.setNestedPropertyWithReduce(newSignal, this.optionValue.body, value);
+      }
+
+      return newSignal;
+    });
   }
 }

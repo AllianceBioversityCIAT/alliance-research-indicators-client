@@ -25,9 +25,7 @@ export default class OicrDetailsComponent {
   router = inject(Router);
   body: WritableSignal<PatchOicr> = signal({
     oicr_internal_code: '',
-    tagging: {
-      tag_id: 0
-    },
+    tagging: [{ tag_id: 0 }],
     outcome_impact_statement: '',
     short_outcome_impact_statement: '',
     maturity_level_id: 0,
@@ -53,7 +51,13 @@ export default class OicrDetailsComponent {
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_Oicr(this.cache.currentResultId());
-    this.body.set(response.data);
+
+    const data = response.data || {};
+    if (!data.tagging || !Array.isArray(data.tagging)) {
+      data.tagging = [{ tag_id: 0 }];
+    }
+
+    this.body.set(data);
     this.loading.set(false);
   }
 
@@ -74,7 +78,7 @@ export default class OicrDetailsComponent {
     if (this.submission.isEditableStatus()) {
       const current = this.body();
 
-      this.body.set({ ...current });
+      this.body.set({ ...current, tagging: current.tagging });
 
       const response = await this.api.PATCH_Oicr(Number(resultId), this.body());
       if (!response.successfulRequest) {

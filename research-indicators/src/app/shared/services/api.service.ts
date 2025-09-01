@@ -63,7 +63,7 @@ import { FindContracts } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
-import { PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { Oicr, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 
 @Injectable({
@@ -141,6 +141,11 @@ export class ApiService {
 
   GET_Tags = (): Promise<MainResponse<GetTags[]>> => {
     const url = () => `tags`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_OicrResults = (): Promise<MainResponse<Oicr[]>> => {
+    const url = () => `temp/oicrs`;
     return this.TP.get(url(), {});
   };
 
