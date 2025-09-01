@@ -68,7 +68,7 @@ export class ResultSidebarComponent {
       label: 'OICR Details',
       path: 'oicr-details',
       indicator_id: 5,
-      greenCheckKey: 'oicr_details'
+      greenCheckKey: 'oicr'
     },
     {
       label: 'Innovation details',
