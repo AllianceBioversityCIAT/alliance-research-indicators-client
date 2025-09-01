@@ -99,6 +99,13 @@ export const routes: Routes = [
             }
           },
           {
+            path: 'oicr-details',
+            loadComponent: () => import('@platform/pages/result/pages/oicr-details/oicr-details.component'),
+            data: {
+              title: RESULT_INFORMATION_TITLE
+            }
+          },
+          {
             path: 'ip-rights',
             loadComponent: () => import('@platform/pages/result/pages/ip-rights/ip-rights.component'),
             data: {

@@ -65,6 +65,12 @@ export class ResultSidebarComponent {
       greenCheckKey: 'alignment'
     },
     {
+      label: 'OICR Details',
+      path: 'oicr-details',
+      indicator_id: 5,
+      greenCheckKey: 'oicr_details'
+    },
+    {
       label: 'Innovation details',
       path: 'innovation-details',
       indicator_id: 2,
