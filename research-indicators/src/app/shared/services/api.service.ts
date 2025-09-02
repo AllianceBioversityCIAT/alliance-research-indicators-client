@@ -68,6 +68,8 @@ import { GetProjectIndicators } from '../interfaces/get-project-indicators.inter
 import { PostSyncContributor } from '../interfaces/post-sync-contributor.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetIndicatorsProgress } from '../interfaces/get-indicators-progress.interface';
+import { Oicr, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -95,6 +97,11 @@ export class ApiService {
 
   GET_AllIndicators = (): Promise<MainResponse<GetAllIndicators[]>> => {
     const url = () => `indicators`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_MaturityLevels = (): Promise<MainResponse<MaturityLevel[]>> => {
+    const url = () => `maturity-levels`;
     return this.TP.get(url(), {});
   };
 
@@ -139,6 +146,11 @@ export class ApiService {
 
   GET_Tags = (): Promise<MainResponse<GetTags[]>> => {
     const url = () => `tags`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_OicrResults = (): Promise<MainResponse<Oicr[]>> => {
+    const url = () => `temp/oicrs`;
     return this.TP.get(url(), {});
   };
 
@@ -199,6 +211,16 @@ export class ApiService {
   POST_CreateOicr = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `results/oicr`;
     return this.TP.post(url(), body, {});
+  };
+
+  PATCH_Oicr = <T>(id: number, body: T): Promise<MainResponse<PatchOicr>> => {
+    const url = () => `results/oicr/${id}`;
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
+  };
+
+  GET_Oicr = (id: number): Promise<MainResponse<PatchOicr>> => {
+    const url = () => `results/oicr/${id}`;
+    return this.TP.get(url(), { useResultInterceptor: true });
   };
 
   // create result

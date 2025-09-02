@@ -28,17 +28,10 @@ export interface Tagging {
   tag_id: number;
 }
 
-export interface LinkedResult {
-  link_result_id: number;
-  result_id: number;
-  other_result_id: number;
-  link_result_role_id: number;
-}
-
 export interface StepOne {
   main_contact_person: MainContactPerson;
   tagging: Tagging;
-  linked_result: LinkedResult[];
+  link_result: LinkResult;
   outcome_impact_statement: string;
 }
 
@@ -79,4 +72,30 @@ export interface GeneralComment {
 
 export interface StepFour {
   general_comment: GeneralComment;
+}
+
+export interface LinkResult {
+  result_id?: number;
+  external_oicr_id: number;
+}
+
+export interface PatchOicr {
+  oicr_internal_code: string;
+  tagging: Tagging[];
+  outcome_impact_statement: string;
+  short_outcome_impact_statement: string;
+  general_comment?: string;
+  maturity_level_id: number;
+  link_result: LinkResult[];
+}
+
+export interface Oicr {
+  created_at: string;
+  updated_at: string;
+  is_active: boolean;
+  id: number;
+  title: string;
+  result_status: string;
+  maturity_level: string;
+  report_year: string;
 }

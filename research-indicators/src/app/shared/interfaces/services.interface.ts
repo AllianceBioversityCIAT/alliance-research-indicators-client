@@ -2,6 +2,7 @@
 export type ControlListServices =
   | 'actorTypes'
   | 'scaling'
+  | 'maturityLevels'
   | 'institutionTypes'
   | 'anticipatedUsers'
   | 'innovationTypes'

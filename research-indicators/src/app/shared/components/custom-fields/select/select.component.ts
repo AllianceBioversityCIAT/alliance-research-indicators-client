@@ -63,16 +63,35 @@ export class SelectComponent implements OnInit {
 
   onSectionLoad = effect(
     () => {
-      if (!this.currentResultIsLoading())
+      if (!this.currentResultIsLoading()) {
         this.body.update(current => {
-          this.utils.setNestedPropertyWithReduce(current, 'value', this.utils.getNestedProperty(this.signal(), this.optionValue.body));
+          let value = null;
+
+          if (this.optionValue.body.includes('.')) {
+            const parts = this.optionValue.body.split('.');
+            const signalValue = this.signal();
+
+            if (Array.isArray(signalValue[parts[0]])) {
+              const array = signalValue[parts[0]];
+              if (array.length > 0 && array[0][parts[1]]) {
+                value = array[0][parts[1]];
+              }
+            } else {
+              value = this.utils.getNestedProperty(signalValue, this.optionValue.body);
+            }
+          } else {
+            value = this.utils.getNestedProperty(this.signal(), this.optionValue.body);
+          }
+
+          this.utils.setNestedPropertyWithReduce(current, 'value', value);
           return { ...current };
         });
+      }
     },
     { allowSignalWrites: true }
   );
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
@@ -82,6 +101,34 @@ export class SelectComponent implements OnInit {
 
   setValue(value: any) {
     this.body.set({ value: value });
-    this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue.body, value);
+
+    this.signal.update(currentSignal => {
+      const newSignal = { ...currentSignal };
+
+      if (this.optionValue.body.includes('.')) {
+        const parts = this.optionValue.body.split('.');
+        if (Array.isArray(newSignal[parts[0]])) {
+          const arrayName = parts[0];
+          const propertyName = parts[1];
+
+          if (!newSignal[arrayName] || !Array.isArray(newSignal[arrayName])) {
+            newSignal[arrayName] = [];
+          }
+
+          if (newSignal[arrayName].length === 0) {
+            newSignal[arrayName].push({ [propertyName]: value });
+          } else {
+            newSignal[arrayName][0][propertyName] = value;
+          }
+        } else {
+          // Propiedad simple
+          this.utils.setNestedPropertyWithReduce(newSignal, this.optionValue.body, value);
+        }
+      } else {
+        this.utils.setNestedPropertyWithReduce(newSignal, this.optionValue.body, value);
+      }
+
+      return newSignal;
+    });
   }
 }
