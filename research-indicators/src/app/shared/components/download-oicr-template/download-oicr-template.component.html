@@ -1,4 +1,9 @@
-<p-button variant="text" pTooltip="Download OICR Template" tooltipPosition="left" (onClick)="downloadOicrTemplate()">
+<p-button
+  [disabled]="!wasmLoaded()"
+  variant="text"
+  [pTooltip]="this.wasmLoaded() ? 'Download OICR Template' : 'Is not possible to download the template'"
+  tooltipPosition="left"
+  (onClick)="downloadOicrTemplate()">
   <ng-template pTemplate="icon">
     <i class="pi pi-download"></i>
   </ng-template>

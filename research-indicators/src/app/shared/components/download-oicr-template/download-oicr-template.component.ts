@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { WasmService } from '../../services/go/wasm.service';
 export interface ProcessResult {
   success: boolean;
@@ -10,7 +11,7 @@ export interface ProcessResult {
 
 @Component({
   selector: 'app-download-oicr-template',
-  imports: [ButtonModule],
+  imports: [ButtonModule, TooltipModule],
   templateUrl: './download-oicr-template.component.html',
   styleUrl: './download-oicr-template.component.scss'
 })
@@ -32,13 +33,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
     }
   ];
   async ngOnInit() {
-    const wasmLoaded = await this.wasm.loadWasm();
-
-    if (wasmLoaded) {
-      this.wasmLoaded.set(true);
-    } else {
-      this.wasmLoaded.set(false);
-    }
+    this.wasmLoaded.set(await this.wasm.loadWasm());
   }
   async downloadOicrTemplate() {
     this.processing = true;
@@ -46,11 +41,11 @@ export class DownloadOicrTemplateComponent implements OnInit {
 
     try {
       // call the WASM service
-      const result = await this.wasm.processDocx(this.dropdownsToProcess);
-      this.result = result;
+      this.result = await this.wasm.processDocx(this.dropdownsToProcess);
+      const { success, fileData } = this.result;
       // if success and fileData, download the file
-      if (result.success && result.fileData) {
-        this.wasm.downloadFile(result.fileData, 'documento_procesado.docx');
+      if (success && fileData) {
+        this.wasm.downloadFile(fileData, 'documento_procesado.docx');
       }
     } catch (error) {
       this.result = {
