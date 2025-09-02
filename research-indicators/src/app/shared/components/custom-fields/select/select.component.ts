@@ -67,10 +67,17 @@ export class SelectComponent implements OnInit {
         this.body.update(current => {
           let value = null;
 
-          if (this.optionValue.body === 'tagging[0].tag_id') {
+          if (this.optionValue.body.includes('.')) {
+            const parts = this.optionValue.body.split('.');
             const signalValue = this.signal();
-            if (signalValue?.tagging?.[0]?.tag_id) {
-              value = signalValue.tagging[0].tag_id;
+
+            if (Array.isArray(signalValue[parts[0]])) {
+              const array = signalValue[parts[0]];
+              if (array.length > 0 && array[0][parts[1]]) {
+                value = array[0][parts[1]];
+              }
+            } else {
+              value = this.utils.getNestedProperty(signalValue, this.optionValue.body);
             }
           } else {
             value = this.utils.getNestedProperty(this.signal(), this.optionValue.body);
@@ -84,7 +91,7 @@ export class SelectComponent implements OnInit {
     { allowSignalWrites: true }
   );
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.service = this.serviceLocator.getService(this.serviceName);
   }
 
@@ -98,14 +105,24 @@ export class SelectComponent implements OnInit {
     this.signal.update(currentSignal => {
       const newSignal = { ...currentSignal };
 
-      if (this.optionValue.body === 'tagging[0].tag_id') {
-        if (!newSignal.tagging || !Array.isArray(newSignal.tagging)) {
-          newSignal.tagging = [];
-        }
-        if (newSignal.tagging.length === 0) {
-          newSignal.tagging.push({ tag_id: value });
+      if (this.optionValue.body.includes('.')) {
+        const parts = this.optionValue.body.split('.');
+        if (Array.isArray(newSignal[parts[0]])) {
+          const arrayName = parts[0];
+          const propertyName = parts[1];
+
+          if (!newSignal[arrayName] || !Array.isArray(newSignal[arrayName])) {
+            newSignal[arrayName] = [];
+          }
+
+          if (newSignal[arrayName].length === 0) {
+            newSignal[arrayName].push({ [propertyName]: value });
+          } else {
+            newSignal[arrayName][0][propertyName] = value;
+          }
         } else {
-          newSignal.tagging[0].tag_id = value;
+          // Propiedad simple
+          this.utils.setNestedPropertyWithReduce(newSignal, this.optionValue.body, value);
         }
       } else {
         this.utils.setNestedPropertyWithReduce(newSignal, this.optionValue.body, value);
