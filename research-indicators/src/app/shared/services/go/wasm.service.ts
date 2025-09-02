@@ -3,10 +3,17 @@ import { firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 
+interface GoInstance {
+  importObject: WebAssembly.Imports;
+  run(instance: WebAssembly.Instance): void;
+}
+
+type GoConstructor = new () => GoInstance;
+
 declare global {
   interface Window {
-    processDocxWasm: (templateData: Uint8Array, dropdowns: { dropdownId: string; selectedValue: string; type: string }[]) => any;
-    Go: any;
+    processDocxWasm: (templateData: Uint8Array, dropdowns: { dropdownId: string; selectedValue: string; type: string }[]) => ProcessResult;
+    Go: GoConstructor;
   }
 }
 
@@ -22,7 +29,7 @@ export interface ProcessResult {
 })
 export class WasmService {
   private wasmLoaded = false;
-  private go: any;
+  private go: GoInstance | null = null;
 
   private readonly WASM_BASE_URL = 'go/';
   private readonly TEMPLATE_URL = `${environment.frontBaseUrl}template.docx`;
@@ -55,7 +62,7 @@ export class WasmService {
       await this.waitForWasmFunctions();
       this.wasmLoaded = true;
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -88,29 +95,25 @@ export class WasmService {
   }
 
   downloadFile(data: ArrayBuffer | Uint8Array, filename: string): void {
-    try {
-      const uint8Array = data instanceof Uint8Array ? new Uint8Array(data) : new Uint8Array(data);
+    const uint8Array = data instanceof Uint8Array ? new Uint8Array(data) : new Uint8Array(data);
 
-      const blob = new Blob([uint8Array as any], {
-        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-      });
+    const blob = new Blob([uint8Array], {
+      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    });
 
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.style.display = 'none';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
 
-      document.body.appendChild(a);
-      a.click();
+    document.body.appendChild(a);
+    a.click();
 
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 100);
-    } catch (error) {
-      throw error;
-    }
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
   }
 
   private async downloadTemplate(): Promise<Uint8Array> {
