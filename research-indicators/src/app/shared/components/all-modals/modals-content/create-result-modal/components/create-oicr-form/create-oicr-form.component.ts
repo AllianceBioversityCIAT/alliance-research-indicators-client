@@ -28,7 +28,6 @@ import { GetYearsService } from '@shared/services/control-list/get-years.service
 import { WordCountService } from '@shared/services/word-count.service';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
-import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
 import { RadioButtonComponent } from '@shared/components/custom-fields/radio-button/radio-button.component';
 import { MultiselectInstanceComponent } from '@shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
@@ -52,6 +51,7 @@ import { ServiceLocatorService } from '@shared/services/service-locator.service'
 import { GetInitiativesService } from '@shared/services/control-list/get-initiatives.service';
 import { Router } from '@angular/router';
 import { OICR_HELPER_TEXTS } from '@shared/constants/oicr-helper-texts.constants';
+import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
@@ -62,11 +62,11 @@ interface GetContractsExtended extends GetContracts {
   styleUrl: './create-oicr-form.component.scss',
   imports: [
     StepsModule,
-    SelectComponent,
     TextareaComponent,
     RadioButtonComponent,
     MultiselectComponent,
     MultiselectInstanceComponent,
+    OicrFormFieldsComponent,
     DatePipe,
     NgTemplateOutlet,
     TooltipModule
@@ -159,9 +159,7 @@ export class CreateOicrFormComponent {
       comment_geo_scope: ''
     },
     step_four: {
-      general_comment: {
-        comment_geo_scope: ''
-      }
+      general_comment: ''
     },
     base_information: {
       indicator_id: 5,

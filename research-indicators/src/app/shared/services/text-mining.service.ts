@@ -52,7 +52,9 @@ export class TextMiningService {
     });
 
     try {
-      const response = await firstValueFrom(this.http.post<ResponseAiRoarDto>(`${environment.textMiningUrl}/process`, formData, { headers }));
+      const response = await firstValueFrom(
+        this.http.post<ResponseAiRoarDto>(`${environment.textMiningUrl}/star/text-mining`, formData, { headers })
+      );
       return response;
     } catch (error) {
       console.error('Error occurred during text mining:', error);

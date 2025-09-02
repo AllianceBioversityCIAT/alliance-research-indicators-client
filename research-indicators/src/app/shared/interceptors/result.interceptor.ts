@@ -32,7 +32,6 @@ export const resultInterceptor: HttpInterceptorFn = (req, next) => {
   return next(clonedRequest);
 };
 
-// Helpers
 function getYearFromUrl(router: Router): string | null {
   const tree = router.parseUrl(router.url);
   return tree.queryParams['version'] ?? null;
@@ -41,14 +40,14 @@ function getYearFromUrl(router: Router): string | null {
 function getPlatformFromUrl(router: Router): string | null {
   const url = router.url;
 
-  // Patrón para detectar TP-2804 o PRMS-2804
-  const platformMatch = url.match(/result\/(TP|PRMS)-(\d+)/);
+  const platformRegex = /result\/(TP|PRMS)-(\d+)/;
+  const platformMatch = platformRegex.exec(url);
   if (platformMatch) {
-    return platformMatch[1]; // Retorna TP o PRMS
+    return platformMatch[1];
   }
 
-  // Si no hay prefijo de plataforma, retorna STAR
-  const resultMatch = url.match(/result\/(\d+)/);
+  const resultRegex = /result\/(\d+)/;
+  const resultMatch = resultRegex.exec(url);
   if (resultMatch) {
     return 'STAR';
   }
