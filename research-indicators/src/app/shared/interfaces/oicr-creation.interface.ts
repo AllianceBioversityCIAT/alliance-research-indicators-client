@@ -31,7 +31,7 @@ export interface Tagging {
 export interface StepOne {
   main_contact_person: MainContactPerson;
   tagging: Tagging;
-  linked_result: LinkResult[];
+  link_result: LinkResult;
   outcome_impact_statement: string;
 }
 
@@ -75,7 +75,7 @@ export interface StepFour {
 }
 
 export interface LinkResult {
-  result_id: number;
+  result_id?: number;
   external_oicr_id: number;
 }
 
