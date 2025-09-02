@@ -32,7 +32,7 @@ export class WasmService {
   private go: GoInstance | null = null;
 
   private readonly WASM_BASE_URL = 'go/';
-  private readonly TEMPLATE_URL = `${environment.frontBaseUrl}template.docx`;
+  private readonly TEMPLATE_URL = `${environment.filesStorageUrl}templates/template.docx`;
 
   constructor(private http: HttpClient) {}
 
