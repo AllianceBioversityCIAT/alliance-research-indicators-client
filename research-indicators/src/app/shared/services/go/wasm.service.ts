@@ -1,0 +1,134 @@
+import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
+declare global {
+  interface Window {
+    processDocxWasm: (templateData: Uint8Array, dropdowns: { dropdownId: string; selectedValue: string; type: string }[]) => any;
+    Go: any;
+  }
+}
+
+export interface ProcessResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  fileData?: ArrayBuffer | Uint8Array;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class WasmService {
+  private wasmLoaded = false;
+  private go: any;
+
+  private readonly WASM_BASE_URL = 'go/';
+  private readonly TEMPLATE_URL = 'http://localhost:4200/template.docx';
+
+  constructor(private http: HttpClient) {}
+
+  get isWasmLoaded(): boolean {
+    return this.wasmLoaded;
+  }
+
+  async loadWasm(): Promise<boolean> {
+    try {
+      if (this.wasmLoaded) {
+        return true;
+      }
+
+      if (!window.Go) {
+        return false;
+      }
+
+      this.go = new window.Go();
+      const wasmResponse = await fetch(`${this.WASM_BASE_URL}main.wasm`);
+
+      if (!wasmResponse.ok) {
+        return false;
+      }
+
+      const result = await WebAssembly.instantiateStreaming(wasmResponse, this.go.importObject);
+      this.go.run(result.instance);
+      await this.waitForWasmFunctions();
+      this.wasmLoaded = true;
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async processDocx(dropdowns: { dropdownId: string; selectedValue: string; type: string }[]): Promise<ProcessResult> {
+    try {
+      if (!this.wasmLoaded) {
+        return {
+          success: false,
+          error: 'WASM no está cargado. Llama a loadWasm() primero.'
+        };
+      }
+
+      if (typeof window.processDocxWasm !== 'function') {
+        return {
+          success: false,
+          error: 'Función WASM no está disponible'
+        };
+      }
+
+      const templateData = await this.downloadTemplate();
+      const result = window.processDocxWasm(templateData, dropdowns);
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      };
+    }
+  }
+
+  downloadFile(data: ArrayBuffer | Uint8Array, filename: string): void {
+    try {
+      const uint8Array = data instanceof Uint8Array ? new Uint8Array(data) : new Uint8Array(data);
+
+      const blob = new Blob([uint8Array as any], {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+
+      document.body.appendChild(a);
+      a.click();
+
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private async downloadTemplate(): Promise<Uint8Array> {
+    try {
+      const response = await firstValueFrom(this.http.get(this.TEMPLATE_URL, { responseType: 'arraybuffer' }));
+
+      return new Uint8Array(response);
+    } catch (error) {
+      throw new Error(`Error descargando template: ${error}`);
+    }
+  }
+
+  private async waitForWasmFunctions(maxAttempts = 50): Promise<void> {
+    for (let i = 0; i < maxAttempts; i++) {
+      if (typeof window.processDocxWasm === 'function') {
+        return;
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    throw new Error('Timeout esperando función WASM');
+  }
+}
