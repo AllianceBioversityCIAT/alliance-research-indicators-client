@@ -6,20 +6,22 @@
       <div class="flex flex-col xl:flex-row gap-[15px]">
         <app-input
           class="xl:max-w-50"
+          [isRequired]="true"
           label="OICR No"
           helperText="Internal code assigned by SPRM."
           [signal]="body"
           [disabled]="!submission.isEditableStatus()"
-          placeholder="OICR No"
+          placeholder="e.g. LAC-2501"
           optionValue="oicr_internal_code"></app-input>
 
         <app-select
           label="Tagging"
+          [isRequired]="true"
           class="flex-1"
           [helperText]="taggingHelperText"
           [isRequired]="true"
           [signal]="this.body"
-          [optionValue]="{ body: 'tagging[0].tag_id', option: 'id' }"
+          [optionValue]="{ body: 'tagging.tag_id', option: 'id' }"
           optionLabel="name"
           serviceName="tags"
           scrollHeight="132px"
@@ -32,9 +34,10 @@
             label="Select existing OICR"
             helperText="Select an OICR previously reported in the Alliance."
             [signal]="this.body"
-            [optionValue]="{ body: 'link_result.external_oicr_id', option: 'result_official_code' }"
+            [optionValue]="{ body: 'link_result.external_oicr_id', option: 'id' }"
             optionLabel="title"
             serviceName="oicrResults"
+            [isRequired]="true"
             placeholder="Select OICR"
             scrollHeight="295px"
             [hideSelected]="false"
@@ -51,7 +54,7 @@
                     Published
                   </button>
                   Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                  <span class="text-[#345B8F]">{{ item?.maturity_level }}</span>
+                  <span class="text-[#345B8F] uppercase">{{ item?.maturity_level }}</span>
                   <span class="text-[#B9C0C5]">|</span>
                   Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
                   <span class="text-[#345B8F]">{{ item?.report_year }}</span>
@@ -59,22 +62,21 @@
               </div>
             </ng-template>
             <ng-template #rows let-item>
-              <div class="flex h-[82px] text-[14px] w-full min-w-0 px-2 py-0.5">
+              <div class="flex min-h-[82px] text-[14px] w-full min-w-0 px-2 py-0.5">
                 <div class="w-[90%] flex flex-col gap-2">
                   <div class="flex items-center gap-2">
                     <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
                     <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
                   </div>
-                  <div class="text-[#4C5158] font-[600] w-full overflow-hidden whitespace-nowrap text-ellipsis" pTooltip="{{ item?.title }}">
-                    {{ item?.id }} -
-                    {{ item?.title }}
+                  <div class="flex">
+                    <p class="text-[#4C5158] font-[500] flex leading-4">{{ item?.id }} -{{ item?.title }}</p>
                   </div>
                   <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
                     <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
                       Published
                     </button>
                     Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                    <span class="text-[#345B8F]">{{ item?.maturity_level }}</span>
+                    <span class="text-[#345B8F] uppercase">{{ item?.maturity_level }}</span>
                     <span class="text-[#B9C0C5]">|</span>
                     Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
                     <span class="text-[#345B8F]">{{ item?.report_year }}</span>
@@ -99,6 +101,7 @@
           label="Maturity of change reported"
           class="flex-1"
           [helperText]="maturityLevelHelperText"
+          [isRequired]="true"
           [signal]="this.body"
           [optionValue]="{ body: 'maturity_level_id', option: 'id' }"
           optionLabel="name"
@@ -125,6 +128,7 @@
       <div class="flex flex-col">
         <app-textarea
           [rows]="5"
+          [isRequired]="true"
           label="Elaboration of outcome/impact statement"
           [helperText]="outcomeImpactStatementHelperText"
           [maxLength]="400"
@@ -145,6 +149,16 @@
           [signal]="this.body"
           [optionValue]="'short_outcome_impact_statement'"
           placeholder="Write the short outcome"></app-textarea>
+      </div>
+
+      <div class="flex flex-col">
+        <app-textarea
+          [rows]="5"
+          label="Comments, questions or anything else?"
+          [maxLength]="3000"
+          [signal]="this.body"
+          [optionValue]="'general_comment'"
+          placeholder="Write the comments"></app-textarea>
       </div>
     </div>
   </div>

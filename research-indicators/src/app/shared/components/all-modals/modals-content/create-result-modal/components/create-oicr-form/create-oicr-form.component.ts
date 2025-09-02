@@ -142,7 +142,9 @@ export class CreateOicrFormComponent {
       tagging: {
         tag_id: 0
       },
-      linked_result: [],
+      link_result: {
+        external_oicr_id: 0
+      },
       outcome_impact_statement: ''
     },
     step_two: {
@@ -435,7 +437,7 @@ export class CreateOicrFormComponent {
       ...current,
       step_one: {
         ...current.step_one,
-        linked_result: []
+        link_result: { external_oicr_id: 0 }
       }
     }));
   }

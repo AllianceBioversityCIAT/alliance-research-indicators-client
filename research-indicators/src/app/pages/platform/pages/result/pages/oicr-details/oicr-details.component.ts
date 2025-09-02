@@ -29,7 +29,7 @@ export default class OicrDetailsComponent {
     outcome_impact_statement: '',
     short_outcome_impact_statement: '',
     maturity_level_id: 0,
-    link_result: []
+    link_result: [{ external_oicr_id: 0 }]
   });
 
   cache = inject(CacheService);
@@ -53,10 +53,6 @@ export default class OicrDetailsComponent {
     const response = await this.api.GET_Oicr(this.cache.currentResultId());
 
     const data = response.data || {};
-    if (!data.tagging || !Array.isArray(data.tagging)) {
-      data.tagging = [{ tag_id: 0 }];
-    }
-
     this.body.set(data);
     this.loading.set(false);
   }
