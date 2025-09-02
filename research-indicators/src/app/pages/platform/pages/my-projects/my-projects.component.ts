@@ -27,7 +27,6 @@ import { ProjectItemComponent } from '../../../../shared/components/project-item
 import { FiltersActionButtonsComponent } from '@shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '@shared/components/search-export-controls/search-export-controls.component';
 import { ProjectUtilsService } from '@shared/services/project-utils.service';
-import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-my-projects',
