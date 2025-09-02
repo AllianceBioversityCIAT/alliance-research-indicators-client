@@ -71,7 +71,7 @@ export interface GeneralComment {
 }
 
 export interface StepFour {
-  general_comment: GeneralComment;
+  general_comment: string;
 }
 
 export interface LinkResult {

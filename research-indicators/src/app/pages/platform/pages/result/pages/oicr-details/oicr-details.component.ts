@@ -10,6 +10,7 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
+import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 import { PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { Tooltip } from 'primeng/tooltip';
 import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
@@ -17,7 +18,16 @@ import { OICR_HELPER_TEXTS } from '@shared/constants/oicr-helper-texts.constants
 
 @Component({
   selector: 'app-oicr-details',
-  imports: [NavigationButtonsComponent, TextareaComponent, FormsModule, FormHeaderComponent, Tooltip, InputComponent, SelectComponent],
+  imports: [
+    NavigationButtonsComponent,
+    TextareaComponent,
+    FormsModule,
+    FormHeaderComponent,
+    Tooltip,
+    InputComponent,
+    SelectComponent,
+    OicrFormFieldsComponent
+  ],
   templateUrl: './oicr-details.component.html'
 })
 export default class OicrDetailsComponent {

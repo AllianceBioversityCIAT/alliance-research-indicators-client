@@ -108,110 +108,20 @@
         <p class="text-[15px] font-[800] text-[#173F6F]">GENERAL INFORMATION</p>
 
         <div class="grid gap-[10px]">
-          <div class="flex flex-col">
-            <app-select
-              label="Main contact person"
-              helperText="Pick a contact person from the Alliance staff database who is associated with the result and can provide information as needed. Only one person can be selected."
-              [isRequired]="true"
-              [signal]="this.body"
-              [optionValue]="{ body: 'step_one.main_contact_person.user_id', option: 'user_id' }"
-              optionLabel="full_name"
-              serviceName="userStaff"
-              placeholder="Select the main contact person"></app-select>
-          </div>
-
-          <div class="flex flex-col">
-            <app-select
-              label="Tagging"
-              [helperText]="taggingHelperText"
-              [isRequired]="true"
-              [signal]="this.body"
-              [optionValue]="{ body: 'step_one.tagging.tag_id', option: 'id' }"
-              optionLabel="name"
-              serviceName="tags"
-              scrollHeight="132px"
-              placeholder="Select the tagging"></app-select>
-          </div>
-
-          @if (body().step_one.tagging.tag_id === 2 || body().step_one.tagging.tag_id === 3) {
-            <div class="flex flex-col">
-              <app-select
-                label="Select existing OICR"
-                helperText="Select an OICR previously reported in the Alliance."
-                [signal]="this.body"
-                [optionValue]="{ body: 'step_one.link_result.external_oicr_id', option: 'id' }"
-                optionLabel="title"
-                serviceName="oicrResults"
-                placeholder="Select OICR"
-                scrollHeight="295px"
-                [hideSelected]="false"
-                textSpan="OICR selected">
-                <ng-template #item let-item>
-                  <div class="flex flex-col gap-2 h-[54px] text-[14px] w-full min-w-0" pTooltip="{{ item?.title }}">
-                    <p class="text-[#4C5158] font-[400] w-full overflow-hidden whitespace-nowrap text-ellipsis">
-                      <b>{{ item?.id }} -</b>
-                      {{ item?.title }}
-                    </p>
-
-                    <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
-                      <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
-                        Published
-                      </button>
-                      Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                      <span class="text-[#345B8F]">{{ item?.maturity_level }}</span>
-                      <span class="text-[#B9C0C5]">|</span>
-                      Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                      <span class="text-[#345B8F]">{{ item?.report_year }}</span>
-                    </p>
-                  </div>
-                </ng-template>
-                <ng-template #rows let-item>
-                  <div class="flex min-h-[82px] text-[14px] w-full min-w-0 px-2 py-0.5">
-                    <div class="w-[90%] flex flex-col gap-2">
-                      <div class="flex items-center gap-2">
-                        <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
-                        <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
-                      </div>
-                      <div class="flex">
-                        <p class="text-[#4C5158] font-[500] flex leading-4">{{ item?.id }} -{{ item?.title }}</p>
-                      </div>
-                      <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
-                        <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
-                          Published
-                        </button>
-                        Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                        <span class="text-[#345B8F] uppercase">{{ item?.maturity_level }}</span>
-                        <span class="text-[#B9C0C5]">|</span>
-                        Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                        <span class="text-[#345B8F]">{{ item?.report_year }}</span>
-                      </p>
-                    </div>
-                    <div class="flex w-[10%] justify-end items-center">
-                      <i
-                        class="pi pi-times-circle !text-[18px] text-[#CF0808] pl-1"
-                        (keydown.enter)="clearOicrSelection()"
-                        (click)="clearOicrSelection()"></i>
-                    </div>
-                  </div>
-                </ng-template>
-                <ng-template #selectedItemTemplate let-selected>
-                  <span>OICR selected</span>
-                </ng-template>
-              </app-select>
-            </div>
-          }
-
-          <div class="flex flex-col">
-            <app-textarea
-              [isRequired]="true"
-              [rows]="5"
-              label="Elaboration of outcome/impact statement"
-              [helperText]="outcomeImpactStatementHelperText"
-              [maxLength]="400"
-              [signal]="this.body"
-              [optionValue]="'step_one.outcome_impact_statement'"
-              placeholder="Please briefly elaborate on the Outcome Impact Case you want to report"></app-textarea>
-          </div>
+          <app-oicr-form-fields
+            [body]="body"
+            [oicrNoOptionValue]="'step_one.oicr_internal_code'"
+            [taggingOptionValue]="{ body: 'step_one.tagging.tag_id', option: 'id' }"
+            [oicrOptionValue]="{ body: 'step_one.link_result.external_oicr_id', option: 'id' }"
+            [maturityLevelOptionValue]="{ body: 'step_one.maturity_level_id', option: 'id' }"
+            [outcomeImpactOptionValue]="'step_one.outcome_impact_statement'"
+            [showMaturityLevel]="false"
+            [showShortOutcome]="false"
+            [showMainContactPerson]="true"
+            [mainContactPersonOptionValue]="{ body: 'step_one.main_contact_person.user_id', option: 'user_id' }"
+            [isOicrNoDisabled]="true"
+            [clearOicrSelection]="clearOicrSelection.bind(this)">
+          </app-oicr-form-fields>
         </div>
 
         <div class="w-full flex justify-between">
@@ -496,7 +406,7 @@
               [maxLength]="400"
               [signal]="this.body"
               [maxLength]="3000"
-              [optionValue]="'step_four.general_comment.comment_geo_scope'"
+              [optionValue]="'step_four.general_comment'"
               placeholder="Write the comments"></app-textarea>
           </div>
         </div>
