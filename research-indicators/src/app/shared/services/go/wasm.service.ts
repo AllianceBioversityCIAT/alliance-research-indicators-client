@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 declare global {
   interface Window {
@@ -24,7 +25,7 @@ export class WasmService {
   private go: any;
 
   private readonly WASM_BASE_URL = 'go/';
-  private readonly TEMPLATE_URL = 'http://localhost:4200/template.docx';
+  private readonly TEMPLATE_URL = `${environment.frontBaseUrl}template.docx`;
 
   constructor(private http: HttpClient) {}
 
