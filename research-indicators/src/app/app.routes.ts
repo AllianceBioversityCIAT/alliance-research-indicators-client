@@ -4,6 +4,10 @@ import { resultExistsResolver } from '@pages/platform/pages/result/resolvers/res
 
 const RESULT_INFORMATION_TITLE = 'Result Information';
 
+const createResultData = () => ({
+  title: RESULT_INFORMATION_TITLE
+});
+
 export const routes: Routes = [
   {
     path: 'room/:id',
@@ -73,72 +77,52 @@ export const routes: Routes = [
           {
             path: 'general-information',
             loadComponent: () => import('@platform/pages/result/pages/general-information/general-information.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'alliance-alignment',
             loadComponent: () => import('@platform/pages/result/pages/alliance-alignment/alliance-alignment.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'partners',
             loadComponent: () => import('@platform/pages/result/pages/partners/partners.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'evidence',
             loadComponent: () => import('@platform/pages/result/pages/evidence/evidence.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'oicr-details',
             loadComponent: () => import('@platform/pages/result/pages/oicr-details/oicr-details.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'ip-rights',
             loadComponent: () => import('@platform/pages/result/pages/ip-rights/ip-rights.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'capacity-sharing',
             loadComponent: () => import('@platform/pages/result/pages/capacity-sharing/capacity-sharing.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'policy-change',
             loadComponent: () => import('@platform/pages/result/pages/policy-change/policy-change.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'innovation-details',
             loadComponent: () => import('@platform/pages/result/pages/innovation-details/innovation-details.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'geographic-scope',
             loadComponent: () => import('@platform/pages/result/pages/geographic-scope/geographic-scope.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           }
         ]
       },

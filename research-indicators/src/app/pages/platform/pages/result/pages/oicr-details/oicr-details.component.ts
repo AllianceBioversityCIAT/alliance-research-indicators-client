@@ -2,32 +2,19 @@ import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ApiService } from '../../../../../../shared/services/api.service';
-import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { SubmissionService } from '@shared/services/submission.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
-import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 import { PatchOicr } from '@shared/interfaces/oicr-creation.interface';
-import { Tooltip } from 'primeng/tooltip';
-import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
-import { OICR_HELPER_TEXTS } from '@shared/constants/oicr-helper-texts.constants';
+import { OicrService } from '@shared/services/oicr.service';
 
 @Component({
   selector: 'app-oicr-details',
-  imports: [
-    NavigationButtonsComponent,
-    TextareaComponent,
-    FormsModule,
-    FormHeaderComponent,
-    Tooltip,
-    InputComponent,
-    SelectComponent,
-    OicrFormFieldsComponent
-  ],
+  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, OicrFormFieldsComponent],
   templateUrl: './oicr-details.component.html'
 })
 export default class OicrDetailsComponent {
@@ -48,10 +35,7 @@ export default class OicrDetailsComponent {
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
   route = inject(ActivatedRoute);
-
-  taggingHelperText = OICR_HELPER_TEXTS.taggingHelperText;
-  outcomeImpactStatementHelperText = OICR_HELPER_TEXTS.outcomeImpactStatementHelperText;
-  maturityLevelHelperText = OICR_HELPER_TEXTS.maturityLevelHelperText;
+  oicrService = inject(OicrService);
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {
@@ -107,9 +91,6 @@ export default class OicrDetailsComponent {
   }
 
   clearOicrSelection(): void {
-    this.body.update(current => ({
-      ...current,
-      link_result: []
-    }));
+    this.oicrService.clearOicrSelection(this.body);
   }
 }
