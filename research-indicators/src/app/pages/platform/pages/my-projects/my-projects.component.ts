@@ -52,8 +52,7 @@ import { Tooltip } from 'primeng/tooltip';
     OverlayBadgeModule,
     ProjectItemComponent,
     FiltersActionButtonsComponent,
-    SearchExportControlsComponent,
-    Tooltip
+    SearchExportControlsComponent
   ],
   templateUrl: './my-projects.component.html',
   styleUrl: './my-projects.component.scss'
