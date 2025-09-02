@@ -443,7 +443,9 @@ export class ResultsCenterService {
   cleanMultiselects() {
     const refs = this.multiselectRefs();
     Object.values(refs).forEach(multiselect => {
-      multiselect.clear();
+      if (multiselect && typeof multiselect.clear === 'function') {
+        multiselect.clear();
+      }
     });
   }
 
