@@ -14,7 +14,7 @@ function isOicrCreation(body: OicrFormBody): body is OicrCreation {
 }
 
 function isPatchOicr(body: OicrFormBody): body is PatchOicr {
-  return 'tagging' in body && Array.isArray(body.tagging);
+  return 'tagging' in body && !Array.isArray(body.tagging);
 }
 
 @Component({
@@ -59,7 +59,7 @@ export class OicrFormFieldsComponent {
     }
 
     if (isPatchOicr(body)) {
-      return body.tagging[0]?.tag_id === 2 || body.tagging[0]?.tag_id === 3;
+      return body.tagging?.tag_id === 2 || body.tagging?.tag_id === 3;
     }
 
     return false;

@@ -51,7 +51,6 @@ import { ServiceLocatorService } from '@shared/services/service-locator.service'
 import { GetInitiativesService } from '@shared/services/control-list/get-initiatives.service';
 import { Router } from '@angular/router';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
-import { OicrService } from '@shared/services/oicr.service';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
@@ -88,7 +87,6 @@ export class CreateOicrFormComponent {
   cache = inject(CacheService);
   api = inject(ApiService);
   router = inject(Router);
-  oicrService = inject(OicrService);
 
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
@@ -428,6 +426,12 @@ export class CreateOicrFormComponent {
   }
 
   clearOicrSelection(): void {
-    this.oicrService.clearOicrSelectionInForm(this.body);
+    this.body.update(current => ({
+      ...current,
+      step_one: {
+        ...current.step_one,
+        link_result: { external_oicr_id: 0 }
+      }
+    }));
   }
 }

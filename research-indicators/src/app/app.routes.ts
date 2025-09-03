@@ -3,10 +3,8 @@ import { rolesGuard } from '@guards/roles.guard';
 import { resultExistsResolver } from '@pages/platform/pages/result/resolvers/result-exists.resolver';
 import { mvpGuard } from '@guards/mvp.guard';
 
-const RESULT_INFORMATION_TITLE = 'Result Information';
-
 const createResultData = () => ({
-  title: RESULT_INFORMATION_TITLE
+  title: 'Result Information'
 });
 
 export const routes: Routes = [
