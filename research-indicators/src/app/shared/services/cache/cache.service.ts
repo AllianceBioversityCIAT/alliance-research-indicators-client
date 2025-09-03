@@ -54,6 +54,8 @@ export class CacheService {
         return 'innovation-details';
       case 4:
         return 'policy-change';
+      case 5:
+        return 'oicr-details';
       default:
         return '';
     }

@@ -4,7 +4,7 @@
 
 .table-custom-styles {
   td {
-    padding: 0.5rem !important;
+    padding: 1rem !important;
   }
 }
 
@@ -25,6 +25,7 @@
 
 .p-datatable-sortable-column {
   padding: 0.5rem !important;
+  padding-left: 1rem !important;
 }
 
 @media (orientation: landscape) and (height <= 768px) {

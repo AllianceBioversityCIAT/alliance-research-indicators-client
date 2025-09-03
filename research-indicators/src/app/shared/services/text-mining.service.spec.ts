@@ -30,7 +30,7 @@ describe('TextMiningService', () => {
     const res = await service.executeTextMining('doc.pdf');
     expect(res).toEqual(mockResponse);
     expect(httpClientMock.post).toHaveBeenCalledWith(
-      `${environment.textMiningUrl}/process`,
+      `${environment.textMiningUrl}/star/text-mining`,
       expect.any(FormData),
       expect.objectContaining({ headers: expect.anything() })
     );

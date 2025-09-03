@@ -38,7 +38,7 @@ export class ToPromiseService {
   delete = <T>(url: string, config?: Config) => {
     let headers = new HttpHeaders();
 
-    if (config?.useYearInterceptor) {
+    if (config?.useResultInterceptor) {
       headers = headers.set('X-Use-Year', 'true');
     }
 
@@ -55,7 +55,7 @@ export class ToPromiseService {
       headers = headers.set('refresh-token', `${config.token}`);
     }
 
-    if (config?.useYearInterceptor) {
+    if (config?.useResultInterceptor) {
       headers = headers.set('X-Use-Year', 'true');
     }
 
@@ -65,7 +65,7 @@ export class ToPromiseService {
   put = <T, B>(url: string, body: B, config?: Config) => {
     let headers = new HttpHeaders();
 
-    if (config?.useYearInterceptor) {
+    if (config?.useResultInterceptor) {
       headers = headers.set('X-Use-Year', 'true');
     }
     return this.TP(this.http.put<T>(this.getEnv(config?.isAuth) + url, body, { headers }));
@@ -74,7 +74,7 @@ export class ToPromiseService {
   get = <T>(url: string, config?: Config) => {
     let headers = config?.params instanceof HttpHeaders ? config.params : new HttpHeaders();
 
-    if (config?.useYearInterceptor) {
+    if (config?.useResultInterceptor) {
       headers = headers.set('X-Use-Year', 'true');
     }
     if (config?.noAuthInterceptor) {
@@ -100,7 +100,7 @@ export class ToPromiseService {
   patch = <T, B>(url: string, body: B, config?: Config) => {
     let headers = new HttpHeaders();
 
-    if (config?.useYearInterceptor) {
+    if (config?.useResultInterceptor) {
       headers = headers.set('X-Use-Year', 'true');
     }
 
@@ -114,7 +114,7 @@ export class ToPromiseService {
 
   getGreenChecks = (): Promise<MainResponse<GreenChecks>> => {
     const url = () => `results/green-checks/${this.cacheService.currentResultId()}`;
-    return this.get(url(), { useYearInterceptor: true });
+    return this.get(url(), { useResultInterceptor: true });
   };
 
   async updateGreenChecks() {
@@ -129,7 +129,7 @@ interface Config {
   isRefreshToken?: boolean;
   loadingTrigger?: boolean;
   params?: HttpParams;
-  useYearInterceptor?: boolean;
+  useResultInterceptor?: boolean;
   noCache?: boolean;
   noAuthInterceptor?: boolean;
 }

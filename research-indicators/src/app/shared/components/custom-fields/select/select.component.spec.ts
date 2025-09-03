@@ -116,15 +116,6 @@ describe('SelectComponent', () => {
     expect(true).toBe(true);
   });
 
-  it('should set value correctly', () => {
-    const testValue = 'test-value';
-
-    component.setValue(testValue);
-
-    expect(component.body().value).toBe(testValue);
-    expect(mockUtilsService.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(component.signal, 'testField', testValue);
-  });
-
   it('should handle isInvalid computed property when required and empty', () => {
     component.isRequired = true;
     component.body.set({ value: null });

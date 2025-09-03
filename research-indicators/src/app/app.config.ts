@@ -13,14 +13,14 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { MyPreset } from './theme/roartheme';
 import { TrackingToolsService } from './shared/services/tracking-tools.service';
-import { yearInterceptor } from '@shared/interceptors/year.interceptor';
+import { resultInterceptor } from '@shared/interceptors/result.interceptor';
 import { ValidateCacheService } from '@shared/services/validate-cache.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
-    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor, yearInterceptor])),
+    provideHttpClient(withInterceptors([jWtInterceptor, httpErrorInterceptor, resultInterceptor])),
     importProvidersFrom(BrowserModule, BrowserAnimationsModule),
     provideAnimationsAsync(),
     providePrimeNG({

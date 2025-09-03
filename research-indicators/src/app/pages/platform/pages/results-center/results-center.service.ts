@@ -30,6 +30,15 @@ export class ResultsCenterService {
   searchInput = signal('');
   tableColumns = signal<TableColumn[]>([
     {
+      field: 'result_platform',
+      path: 'platform_code',
+      header: 'Platform',
+      maxWidth: 'max-w-[80px]',
+      filter: true,
+      hideIf: () => true,
+      getValue: (result: Result) => result.result_platform
+    },
+    {
       field: 'result_official_code',
       path: 'result_official_code',
       header: 'Code',
@@ -434,7 +443,9 @@ export class ResultsCenterService {
   cleanMultiselects() {
     const refs = this.multiselectRefs();
     Object.values(refs).forEach(multiselect => {
-      multiselect.clear();
+      if (multiselect && typeof multiselect.clear === 'function') {
+        multiselect.clear();
+      }
     });
   }
 
