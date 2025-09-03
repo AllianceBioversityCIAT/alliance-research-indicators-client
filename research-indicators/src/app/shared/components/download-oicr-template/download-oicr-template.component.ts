@@ -12,8 +12,7 @@ export interface ProcessResult {
 @Component({
   selector: 'app-download-oicr-template',
   imports: [ButtonModule, TooltipModule],
-  templateUrl: './download-oicr-template.component.html',
-  styleUrl: './download-oicr-template.component.scss'
+  templateUrl: './download-oicr-template.component.html'
 })
 export class DownloadOicrTemplateComponent implements OnInit {
   wasm = inject(WasmService);
