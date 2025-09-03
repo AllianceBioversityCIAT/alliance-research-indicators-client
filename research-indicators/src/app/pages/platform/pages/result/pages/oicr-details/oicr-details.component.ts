@@ -10,7 +10,6 @@ import { FormHeaderComponent } from '@shared/components/form-header/form-header.
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 import { PatchOicr } from '@shared/interfaces/oicr-creation.interface';
-import { OicrService } from '@shared/services/oicr.service';
 
 @Component({
   selector: 'app-oicr-details',
@@ -22,11 +21,11 @@ export default class OicrDetailsComponent {
   router = inject(Router);
   body: WritableSignal<PatchOicr> = signal({
     oicr_internal_code: '',
-    tagging: [{ tag_id: 0 }],
+    tagging: { tag_id: 0 },
     outcome_impact_statement: '',
     short_outcome_impact_statement: '',
     maturity_level_id: 0,
-    link_result: [{ external_oicr_id: 0 }]
+    link_result: { external_oicr_id: 0 }
   });
 
   cache = inject(CacheService);
@@ -35,7 +34,6 @@ export default class OicrDetailsComponent {
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
   route = inject(ActivatedRoute);
-  oicrService = inject(OicrService);
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {
@@ -47,50 +45,49 @@ export default class OicrDetailsComponent {
     const response = await this.api.GET_Oicr(this.cache.currentResultId());
 
     const data = response.data || {};
+
     this.body.set(data);
     this.loading.set(false);
   }
 
   async saveData(page?: 'back'): Promise<void> {
-    this.loading.set(true);
+    try {
+      this.loading.set(true);
+      const resultId = this.cache.currentResultId();
+      const version = this.route.snapshot.queryParamMap.get('version');
+      const queryParams = version ? { version } : undefined;
 
-    const resultId = this.cache.currentResultId().toString();
-    const version = this.route.snapshot.queryParamMap.get('version');
-    const queryParams = version ? { version } : undefined;
+      if (this.submission.isEditableStatus()) {
+        const current = this.body();
+        const response = await this.api.PATCH_Oicr(resultId, current);
 
-    const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
-        queryParams,
-        replaceUrl: true
-      });
-    };
+        if (!response.successfulRequest) {
+          return;
+        }
 
-    if (this.submission.isEditableStatus()) {
-      const current = this.body();
-
-      this.body.set({ ...current, tagging: current.tagging });
-
-      const response = await this.api.PATCH_Oicr(Number(resultId), this.body());
-      if (!response.successfulRequest) {
-        this.loading.set(false);
-        return;
+        await this.getData();
+        this.actions.showToast({
+          severity: 'success',
+          summary: 'OICR Details',
+          detail: 'Data saved successfully'
+        });
       }
 
-      await this.getData();
-
-      this.actions.showToast({
-        severity: 'success',
-        summary: 'OICR Details',
-        detail: 'Data saved successfully'
-      });
+      if (page === 'back') {
+        this.router.navigate(['result', resultId, 'alliance-alignment'], {
+          queryParams,
+          replaceUrl: true
+        });
+      }
+    } finally {
+      this.loading.set(false);
     }
-
-    if (page === 'back') navigateTo('alliance-alignment');
-
-    this.loading.set(false);
   }
 
   clearOicrSelection(): void {
-    this.oicrService.clearOicrSelection(this.body);
+    this.body.update(current => ({
+      ...current,
+      link_result: { external_oicr_id: 0 }
+    }));
   }
 }

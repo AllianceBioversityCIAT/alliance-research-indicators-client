@@ -81,12 +81,12 @@ export interface LinkResult {
 
 export interface PatchOicr {
   oicr_internal_code: string;
-  tagging: Tagging[];
+  tagging: Tagging;
   outcome_impact_statement: string;
   short_outcome_impact_statement: string;
   general_comment?: string;
   maturity_level_id: number;
-  link_result: LinkResult[];
+  link_result: LinkResult;
 }
 
 export interface Oicr {
