@@ -13,10 +13,11 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-partners',
-  imports: [NavigationButtonsComponent, FormHeaderComponent, FormsModule, MultiselectComponent, PartnerSelectedItemComponent],
+  imports: [NavigationButtonsComponent, FormHeaderComponent, FormsModule, MultiselectComponent, PartnerSelectedItemComponent, CheckboxModule],
   templateUrl: './partners.component.html'
 })
 export default class PartnersComponent {
