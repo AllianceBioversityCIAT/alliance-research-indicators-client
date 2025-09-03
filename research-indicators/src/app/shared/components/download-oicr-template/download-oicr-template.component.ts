@@ -16,7 +16,7 @@ export interface ProcessResult {
 })
 export class DownloadOicrTemplateComponent implements OnInit {
   wasm = inject(WasmService);
-  processing = false;
+  processing = signal(false);
   result: ProcessResult | null = null;
   wasmLoaded = signal(false);
   dropdownsToProcess = [
@@ -35,7 +35,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
     this.wasmLoaded.set(await this.wasm.loadWasm());
   }
   async downloadOicrTemplate() {
-    this.processing = true;
+    this.processing.set(true);
     this.result = null;
 
     try {
@@ -52,7 +52,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
         error: `Error inesperado: ${error}`
       };
     } finally {
-      this.processing = false;
+      this.processing.set(false);
     }
   }
 }

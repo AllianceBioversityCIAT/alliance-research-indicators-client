@@ -2,6 +2,7 @@
   [disabled]="!wasmLoaded()"
   label="Download OICR Template"
   variant="outlined"
+  [loading]="this.processing()"
   size="small"
   [pTooltip]="this.wasmLoaded() ? 'Download OICR Template' : 'Is not possible to download the template'"
   tooltipPosition="left"
