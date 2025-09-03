@@ -50,7 +50,7 @@ export default class OicrDetailsComponent {
     this.loading.set(false);
   }
 
-  async saveData(page?: 'back'): Promise<void> {
+  async saveData(page?: 'back' | 'next'): Promise<void> {
     try {
       this.loading.set(true);
       const resultId = this.cache.currentResultId();
@@ -79,6 +79,11 @@ export default class OicrDetailsComponent {
           replaceUrl: true
         });
       }
+      if (page === 'next')
+        this.router.navigate(['result', resultId, 'partners'], {
+          queryParams,
+          replaceUrl: true
+        });
     } finally {
       this.loading.set(false);
     }
