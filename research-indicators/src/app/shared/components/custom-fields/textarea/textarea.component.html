@@ -36,8 +36,17 @@
         [placeholder]="placeholder">
       </textarea>
       @if (helperText) {
-        <div class="flex items-center gap-1 text-[#8D9299] text-[14px]">
+        <div class="flex gap-1 text-[#8D9299] text-[14px] justify-between w-full">
           <span class="leading-4" [innerHTML]="helperText"></span>
+
+          @if (aiAssistantFunction) {
+            <button
+              class="font-medium max-w-[180px] cursor-pointer font-[500] text-[13px] bg-gradient-to-r from-[#035BA9] to-[#039CE0] text-white px-6 py-3 gap-2 justify-center w-full flex rounded-[16px]"
+              (click)="aiAssistantFunction()">
+              Generate with AI
+              <img src="images/spark-white.svg" alt="upload-ai" class="h-4.5" />
+            </button>
+          }
         </div>
       }
       @if (isInvalid()) {
