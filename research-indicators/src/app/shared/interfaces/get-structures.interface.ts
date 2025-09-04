@@ -1,8 +1,18 @@
 export interface GetStructures {
   structures: IndicatorsStructure[];
   agreement_id: string | number | null;
-  name_level_1: string;
-  name_level_2: string;
+  levels: Level[];
+}
+
+export interface Level {
+  name_level_1?: string;
+  custom_fields: CustomField[];
+  name_level_2?: string;
+}
+
+export interface CustomField {
+  fieldID: number;
+  field_name: string;
 }
 
 export interface IndicatorsStructure {
@@ -14,6 +24,12 @@ export interface IndicatorsStructure {
   //auxiliary attributes
   editing?: boolean;
   newStructure?: boolean;
+  custom_values: levelCustomFieldValue[];
+}
+
+export interface levelCustomFieldValue {
+  field: number;
+  field_value: string;
 }
 
 export interface IndicatorItem {

@@ -588,7 +588,7 @@ export class ApiService {
     return this.TP.get('', { isAuth: urlWithTimestamp, noCache: true });
   };
 
-  GET_Structures = (agreementId: number | string) => {
+  GET_Structures = (agreementId: number | string): Promise<MainResponse<GetStructures>> => {
     const url = () => `groups-items/items-list/${agreementId}`;
     return this.TP.get(url(), {});
   };
