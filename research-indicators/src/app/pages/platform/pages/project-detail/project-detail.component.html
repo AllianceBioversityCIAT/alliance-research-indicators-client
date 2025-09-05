@@ -7,7 +7,7 @@
       @for (tab of tabs(); track tab.route) {
         @if (!tab.hidden) {
           <p-tab [value]="tab.route" [routerLink]="tab.route" class="flex items-center !gap-2 text-inherit">
-            <span>{{ tab.label }} {{ tab.route }}</span>
+            <span>{{ tab.label }}</span>
           </p-tab>
         }
       }
