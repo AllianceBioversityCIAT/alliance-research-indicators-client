@@ -6,17 +6,10 @@ import { TextareaComponent } from '../textarea/textarea.component';
 import { InputComponent } from '../input/input.component';
 import { OICR_HELPER_TEXTS } from '@shared/constants/oicr-helper-texts.constants';
 import { OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { FastResponseData } from '@shared/interfaces/fast-response.interface';
 import { PROMPT_OICR_DETAILS } from '@shared/constants/result-ai.constants';
 import { ApiService } from '@shared/services/api.service';
 import { UtilsService } from '@shared/services/utils.service';
-
-interface FastResponseData {
-  prompt: string;
-  input_text: string;
-  output: string;
-  status: string;
-  successfulRequest: boolean;
-}
 
 type OicrFormBody = OicrCreation | PatchOicr;
 
@@ -88,9 +81,7 @@ export class OicrFormFieldsComponent {
     };
 
     this.isAiLoading.set(true);
-
     const response = await this.api.fastResponse(textData);
-    console.warn('AI Response:', response);
 
     if (response && response.successfulRequest) {
       let aiText = '';
@@ -103,6 +94,7 @@ export class OicrFormFieldsComponent {
         this.typeTextEffect(aiText, this.shortOutcomeOptionValue);
       }
     }
+    this.isAiLoading.set(false);
   }
 
   private typeTextEffect(text: string, fieldPath: string) {
