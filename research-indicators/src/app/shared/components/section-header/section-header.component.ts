@@ -159,6 +159,10 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     return this.currentUrl().includes('/project-detail/');
   });
 
+  isPDetailPageStrict = computed(() => {
+    return this.currentUrl().includes('/project-detail/') && !this.currentUrl().includes('set-up-project');
+  });
+
   isSetUpProjectPage = computed(() => {
     return this.currentUrl().includes('/set-up-project');
   });
