@@ -63,42 +63,42 @@ describe('GetRegionsService', () => {
     expect(service.isOpenSearch()).toBe(false);
   });
 
-  it('main maneja respuesta vacía', async () => {
+  it('main handles empty response', async () => {
     apiMock.GET_Regions.mockResolvedValueOnce({ data: [] });
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main maneja respuesta null', async () => {
+  it('main handles response null', async () => {
     apiMock.GET_Regions.mockResolvedValueOnce({ data: null });
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main maneja respuesta undefined', async () => {
+  it('main handles response undefined', async () => {
     apiMock.GET_Regions.mockResolvedValueOnce(undefined);
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main maneja respuesta sin data', async () => {
+  it('main handles response without data', async () => {
     apiMock.GET_Regions.mockResolvedValueOnce({ status: 200 });
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main maneja error en la API', async () => {
+  it('main handles API error', async () => {
     apiMock.GET_Regions.mockRejectedValueOnce(new Error('API Error'));
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('constructor llama main y setea signals correctamente', async () => {
+  it('constructor calls main and sets signals correctly', async () => {
     const apiService = {
       GET_Regions: jest.fn().mockResolvedValue({
         data: [{ um49Code: '003', name: 'Region 3' }]

@@ -2,6 +2,7 @@
 export type ControlListServices =
   | 'actorTypes'
   | 'scaling'
+  | 'maturityLevels'
   | 'institutionTypes'
   | 'anticipatedUsers'
   | 'innovationTypes'
@@ -50,4 +51,7 @@ export type ControlListServices =
   | 'getProjectIndicatorsHierarchy'
   | 'levers'
   | 'projectStatus'
+  | 'initiatives'
+  | 'tags'
+  | 'oicrResults'
   | '';

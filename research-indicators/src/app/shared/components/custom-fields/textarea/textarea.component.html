@@ -36,7 +36,9 @@
         [placeholder]="placeholder">
       </textarea>
       @if (helperText) {
-        <small class="text-[#8D9299] text-[14px]" for="username">{{ helperText }}</small>
+        <div class="flex items-center gap-1 text-[#8D9299] text-[14px]">
+          <span class="leading-4" [innerHTML]="helperText"></span>
+        </div>
       }
       @if (isInvalid()) {
         <div class="flex items-center gap-1 text-[#E69F00]  {{ size || 'text-sm  mt-1' }}">

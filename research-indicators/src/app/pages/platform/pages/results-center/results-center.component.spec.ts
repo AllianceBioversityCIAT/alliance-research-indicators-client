@@ -1,168 +1,380 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterModule, ActivatedRoute } from '@angular/router';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { TabMenuModule } from 'primeng/tabmenu';
-import { Table, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { MenuModule } from 'primeng/menu';
-import { FormsModule } from '@angular/forms';
-import { signal, computed } from '@angular/core';
-import { MultiSelectModule } from 'primeng/multiselect';
-
 import ResultsCenterComponent from './results-center.component';
 import { ResultsCenterService } from './results-center.service';
-import { GetResultsService } from '../../../../shared/services/control-list/get-results.service';
-import { ResultsCenterTableComponent } from './components/results-center-table/results-center-table.component';
-import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
-import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
-import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
-import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
+import { ApiService } from '../../../../shared/services/api.service';
+import { ActionsService } from '../../../../shared/services/actions.service';
+import { MenuItem } from 'primeng/api';
+import { signal } from '@angular/core';
 
-describe('ResultsComponent', () => {
+describe('ResultsCenterComponent', () => {
   let component: ResultsCenterComponent;
   let fixture: ComponentFixture<ResultsCenterComponent>;
-  let resultsCenterService: ResultsCenterService;
-  let getResultsService: GetResultsService;
+  let mockResultsCenterService: any;
+  let mockCacheService: jest.Mocked<CacheService>;
+  let mockApiService: jest.Mocked<ApiService>;
+  let mockActionsService: jest.Mocked<ActionsService>;
 
   beforeEach(async () => {
-    const mockCacheService = {
-      windowHeight: signal(window.innerHeight),
-      hasSmallScreen: computed(() => window.innerHeight < 768),
-      headerHeight: signal(50),
-      navbarHeight: signal(50),
-      tableFiltersSidebarHeight: signal(50),
-      dataCache: signal({ access_token: 'mock_token' }),
-      isLoggedIn: signal(true),
-      currentResultIsLoading: signal(false),
-      currentResultIndicatorSectionPath: computed(() => ''),
-      toggleSidebar: jest.fn()
-    };
-
-    const mockResultsCenterService = {
-      api: {
-        indicatorTabs: {
-          lazy: () => ({
-            list: signal([]),
-            isLoading: signal(false),
-            hasValue: signal(false)
-          })
-        }
-      },
-      multiselectRefs: signal<Record<string, any>>({}),
-      resultsFilter: signal({
-        'indicator-codes': [],
-        'indicator-codes-filter': [],
-        'indicator-codes-tabs': [],
-        'lever-codes': []
-      }),
-      showFiltersSidebar: signal(false),
-      showConfigurationsSidebar: signal(false),
-      applyFilters: jest.fn(),
-      clearAllFilters: jest.fn(),
-      list: signal([]),
-      onActiveItemChange: jest.fn(),
-      myResultsFilterItem: signal(undefined),
+    jest.useFakeTimers();
+    mockResultsCenterService = {
+      resetState: jest.fn(),
+      myResultsFilterItem: signal({ id: 'all', label: 'All Results' }),
       myResultsFilterItems: [
         { id: 'all', label: 'All Results' },
         { id: 'my', label: 'My Results' }
       ],
-      indicatorsTabFilterList: signal([]),
-      countFiltersSelected: signal(undefined),
-      loading: signal(false),
-      tableColumns: signal([
-        {
-          field: 'result_official_code',
-          header: 'Code',
-          getValue: (result: any) => result.result_official_code
-        },
-        {
-          field: 'title',
-          header: 'Title',
-          getValue: (result: any) => result.title
-        }
-      ]),
-      getAllPathsAsArray: computed(() => ['result_official_code', 'title']),
-      tableFilters: signal({
-        indicators: []
+      clearAllFilters: jest.fn(),
+      onActiveItemChange: jest.fn(),
+      resultsFilter: signal({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      }),
+      appliedFilters: signal({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
       }),
       searchInput: signal(''),
-      tableRef: signal<Table | undefined>(undefined),
-      onSelectFilterTab: jest.fn(),
-      getActiveFilters: computed(() => [])
-    };
+      main: jest.fn(),
+      applyFilters: jest.fn(),
+      cleanMultiselects: jest.fn(),
+      loadMyResults: jest.fn(),
+      loadAllResults: jest.fn()
+    } as any;
+
+    mockCacheService = {
+      dataCache: signal({
+        user: {
+          sec_user_id: 123
+        }
+      })
+    } as any;
+
+    mockApiService = {
+      GET_Configuration: jest.fn(),
+      PATCH_Configuration: jest.fn()
+    } as any;
+
+    mockActionsService = {
+      showToast: jest.fn()
+    } as any;
 
     await TestBed.configureTestingModule({
-      imports: [
-        ResultsCenterComponent,
-        HttpClientTestingModule,
-        RouterModule,
-        BrowserAnimationsModule,
-        TabMenuModule,
-        TableModule,
-        ButtonModule,
-        InputTextModule,
-        TagModule,
-        MenuModule,
-        FormsModule,
-        MultiSelectModule,
-        ResultsCenterTableComponent,
-        IndicatorsTabFilterComponent,
-        TableFiltersSidebarComponent,
-        TableConfigurationComponent,
-        SectionSidebarComponent
-      ],
+      imports: [ResultsCenterComponent],
       providers: [
         { provide: ResultsCenterService, useValue: mockResultsCenterService },
-        { provide: GetResultsService, useValue: {} },
         { provide: CacheService, useValue: mockCacheService },
-        {
-          provide: RouterModule,
-          useValue: {
-            navigate: jest.fn()
-          }
-        },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              paramMap: {
-                get: jest.fn()
-              }
-            }
-          }
-        },
-        {
-          provide: SectionSidebarComponent,
-          useValue: {
-            showSignal: signal(false)
-          }
-        }
+        { provide: ApiService, useValue: mockApiService },
+        { provide: ActionsService, useValue: mockActionsService }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ResultsCenterComponent);
     component = fixture.componentInstance;
-    resultsCenterService = TestBed.inject(ResultsCenterService);
-    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should toggle sidebar', () => {
-    const initialValue = component.showSignal();
-    component.toggleSidebar();
-    expect(component.showSignal()).toBe(!initialValue);
+  describe('ngOnInit', () => {
+    it('should reset state and load pinned tab', () => {
+      const loadPinnedTabSpy = jest.spyOn(component, 'loadPinnedTab');
+
+      component.ngOnInit();
+
+      expect(mockResultsCenterService.resetState).toHaveBeenCalled();
+      expect(loadPinnedTabSpy).toHaveBeenCalled();
+    });
   });
 
-  it('should apply filters', () => {
-    const spy = jest.spyOn(resultsCenterService, 'applyFilters');
-    component.applyFilters();
-    expect(spy).toHaveBeenCalled();
+  describe('orderedFilterItems', () => {
+    it('should return correct order when pinned tab is my', () => {
+      component.pinnedTab.set('my');
+
+      const result = component.orderedFilterItems();
+
+      expect(result).toEqual([
+        { id: 'my', label: 'My Results' },
+        { id: 'all', label: 'All Results' }
+      ]);
+    });
+
+    it('should return correct order when pinned tab is all', () => {
+      component.pinnedTab.set('all');
+
+      const result = component.orderedFilterItems();
+
+      expect(result).toEqual([
+        { id: 'all', label: 'All Results' },
+        { id: 'my', label: 'My Results' }
+      ]);
+    });
+  });
+
+  describe('toggleSidebar', () => {
+    it('should toggle showSignal', () => {
+      const initialValue = component.showSignal();
+
+      component.toggleSidebar();
+
+      expect(component.showSignal()).toBe(!initialValue);
+    });
+  });
+
+  describe('applyFilters', () => {
+    it('should call resultsCenterService.applyFilters', () => {
+      component.applyFilters();
+
+      expect(mockResultsCenterService.applyFilters).toHaveBeenCalled();
+    });
+  });
+
+  describe('loadPinnedTab', () => {
+    it('should load all results when all is pinned', async () => {
+      mockApiService.GET_Configuration.mockResolvedValue({
+        data: { all: '1', self: '0' }
+      } as any);
+      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults');
+
+      await component.loadPinnedTab();
+
+      expect(component.pinnedTab()).toBe('all');
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
+      expect(loadAllResultsSpy).toHaveBeenCalled();
+      expect(component.loadingPin()).toBe(false);
+    });
+
+    it('should load my results when self is pinned', async () => {
+      mockApiService.GET_Configuration.mockResolvedValue({
+        data: { all: '0', self: '1' }
+      } as any);
+      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults');
+
+      await component.loadPinnedTab();
+
+      expect(component.pinnedTab()).toBe('my');
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[1]);
+      expect(loadMyResultsSpy).toHaveBeenCalled();
+      expect(component.loadingPin()).toBe(false);
+    });
+
+    it('should load all results when no tab is pinned', async () => {
+      mockApiService.GET_Configuration.mockResolvedValue({
+        data: { all: '0', self: '0' }
+      } as any);
+      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults');
+
+      await component.loadPinnedTab();
+
+      expect(component.pinnedTab()).toBe('all');
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
+      expect(loadAllResultsSpy).toHaveBeenCalled();
+      expect(component.loadingPin()).toBe(false);
+    });
+
+    it('should load all results when no response data', async () => {
+      mockApiService.GET_Configuration.mockResolvedValue({} as any);
+      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults');
+
+      await component.loadPinnedTab();
+
+      expect(component.pinnedTab()).toBe('all');
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
+      expect(loadAllResultsSpy).toHaveBeenCalled();
+      expect(component.loadingPin()).toBe(false);
+    });
+  });
+
+  describe('onActiveItemChange', () => {
+    it('should handle my tab selection', () => {
+      const event: MenuItem = { id: 'my', label: 'My Results' };
+      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults');
+
+      component.onActiveItemChange(event);
+
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
+      expect(loadMyResultsSpy).toHaveBeenCalled();
+      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
+    });
+
+    it('should handle all tab selection', () => {
+      const event: MenuItem = { id: 'all', label: 'All Results' };
+      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults');
+
+      component.onActiveItemChange(event);
+
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
+      expect(loadAllResultsSpy).toHaveBeenCalled();
+      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
+    });
+  });
+
+  describe('loadMyResults', () => {
+    it('should update results filter and applied filters and call main', () => {
+      component.loadMyResults();
+
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[1]);
+      expect(mockResultsCenterService.resultsFilter()).toEqual({
+        'create-user-codes': ['123'],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(mockResultsCenterService.appliedFilters()).toEqual({
+        'create-user-codes': ['123'],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(mockResultsCenterService.main).toHaveBeenCalled();
+    });
+  });
+
+  describe('loadAllResults', () => {
+    it('should update results filter and applied filters and call main', () => {
+      component.loadAllResults();
+
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
+      expect(mockResultsCenterService.resultsFilter()).toEqual({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(mockResultsCenterService.appliedFilters()).toEqual({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(mockResultsCenterService.main).toHaveBeenCalled();
+    });
+  });
+
+  describe('togglePin', () => {
+    it('should pin all tab when toggling from my', async () => {
+      component.pinnedTab.set('my');
+      mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
+
+      await component.togglePin('all');
+      jest.runAllTimers();
+
+      expect(mockApiService.PATCH_Configuration).toHaveBeenCalledWith('result-table', 'tab', { all: true, self: false });
+      expect(component.pinnedTab()).toBe('all');
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
+      expect(mockResultsCenterService.cleanMultiselects).toHaveBeenCalled();
+      expect(mockActionsService.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Results',
+        detail: 'All Results tab pinned successfully'
+      });
+    });
+
+    it('should pin my tab when toggling from all', async () => {
+      component.pinnedTab.set('all');
+      mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
+      mockApiService.GET_Configuration.mockResolvedValue({
+        data: { all: '0', self: '1' }
+      } as any);
+
+      await component.togglePin('my');
+      jest.runAllTimers();
+
+      expect(mockApiService.PATCH_Configuration).toHaveBeenCalledWith('result-table', 'tab', { all: false, self: true });
+      expect(component.pinnedTab()).toBe('my');
+      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[1]);
+      expect(mockResultsCenterService.cleanMultiselects).toHaveBeenCalled();
+      expect(mockActionsService.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Results',
+        detail: 'My Results tab pinned successfully'
+      });
+    });
+
+    it('should unpin tab when toggling same tab', async () => {
+      component.pinnedTab.set('all');
+      mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
+
+      await component.togglePin('all');
+      jest.runAllTimers();
+
+      expect(mockApiService.PATCH_Configuration).toHaveBeenCalledWith('result-table', 'tab', { all: true, self: false });
+      expect(component.pinnedTab()).toBe('all');
+      expect(mockResultsCenterService.cleanMultiselects).toHaveBeenCalled();
+    });
+
+    it('should handle error when API call fails', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockApiService.PATCH_Configuration.mockRejectedValue(new Error('API Error'));
+
+      await component.togglePin('all');
+      jest.runAllTimers();
+
+      expect(consoleSpy).toHaveBeenCalledWith('Error updating pinned tab:', expect.any(Error));
+      expect(mockActionsService.showToast).toHaveBeenCalled();
+      expect(component.loadingPin()).toBe(false);
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('isPinned', () => {
+    it('should return true when tab is pinned', () => {
+      component.pinnedTab.set('my');
+
+      expect(component.isPinned('my')).toBe(true);
+    });
+
+    it('should return false when tab is not pinned', () => {
+      component.pinnedTab.set('my');
+
+      expect(component.isPinned('all')).toBe(false);
+    });
+  });
+
+  describe('onPinIconClick', () => {
+    it('should stop event propagation and call togglePin', () => {
+      const event = new Event('click');
+      const stopPropagationSpy = jest.spyOn(event, 'stopPropagation');
+      const togglePinSpy = jest.spyOn(component, 'togglePin');
+
+      component.onPinIconClick('all', event);
+
+      expect(stopPropagationSpy).toHaveBeenCalled();
+      expect(togglePinSpy).toHaveBeenCalledWith('all');
+    });
   });
 });

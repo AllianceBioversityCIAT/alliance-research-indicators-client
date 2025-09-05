@@ -36,7 +36,7 @@ describe('GetInnovationReadinessLevelsService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('main setea loading y list correctamente con datos válidos', async () => {
+  it('main sets loading and list correctly with valid data', async () => {
     await service.main();
     expect(apiMock.GET_InnovationReadinessLevels).toHaveBeenCalled();
     expect(listMock.set).toHaveBeenCalledWith(mockData);
@@ -44,49 +44,49 @@ describe('GetInnovationReadinessLevelsService', () => {
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main maneja respuesta vacía', async () => {
+  it('main handles empty response', async () => {
     apiMock.GET_InnovationReadinessLevels.mockResolvedValueOnce({ data: [] });
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main maneja respuesta null', async () => {
+  it('main handles response null', async () => {
     apiMock.GET_InnovationReadinessLevels.mockResolvedValueOnce({ data: null });
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main maneja respuesta undefined', async () => {
+  it('main handles response undefined', async () => {
     apiMock.GET_InnovationReadinessLevels.mockResolvedValueOnce(undefined);
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main maneja respuesta sin data', async () => {
+  it('main handles response without data', async () => {
     apiMock.GET_InnovationReadinessLevels.mockResolvedValueOnce({ status: 200 });
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main maneja respuesta con data no array', async () => {
+  it('main handles response with data not an array', async () => {
     apiMock.GET_InnovationReadinessLevels.mockResolvedValueOnce({ data: 'not an array' });
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('main maneja error en la API', async () => {
+  it('main handles API error', async () => {
     apiMock.GET_InnovationReadinessLevels.mockRejectedValueOnce(new Error('API Error'));
     await service.main();
     expect(listMock.set).toHaveBeenCalledWith([]);
     expect(loadingMock.set).toHaveBeenCalledWith(false);
   });
 
-  it('constructor llama main y setea signals correctamente', async () => {
+  it('constructor calls main and sets signals correctly', async () => {
     const apiService = {
       GET_InnovationReadinessLevels: jest.fn().mockResolvedValue({ data: [{ id: 3, name: 'Level 3' }] })
     };

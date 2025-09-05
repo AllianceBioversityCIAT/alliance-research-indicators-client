@@ -107,6 +107,14 @@ export class CreateResultFormComponent {
     this.body.update(b => ({ ...b, contract_id: newContractId }));
   }
 
+  navigateToOicr() {
+    this.createResultManagementService.setContractId(this.body().contract_id);
+    this.createResultManagementService.setResultTitle(this.body().title);
+    this.createResultManagementService.setYear(this.body().year);
+    this.createResultManagementService.setModalTitle('OICR result');
+    this.createResultManagementService.resultPageStep.set(2);
+  }
+
   async createResult(openresult?: boolean) {
     this.loading = true;
     try {
@@ -126,7 +134,7 @@ export class CreateResultFormComponent {
     this.actions.showToast({
       severity: 'success',
       summary: 'Success',
-      detail: `Result "${this.body().title}" created successfully`
+      detail: `Result "${this.truncateTitle(this.body().title || '')}" created successfully`
     });
 
     this.body.set({ indicator_id: null, title: null, contract_id: null, year: currentYear });
@@ -156,5 +164,20 @@ export class CreateResultFormComponent {
     if (count === 0) return '#8d9299';
     if (count > 30) return '#CF0808';
     return '#358540';
+  }
+
+  truncateTitle(title: string, maxWords = 30): string {
+    if (!title) return '';
+
+    const words = title
+      .trim()
+      .split(' ')
+      .filter(word => word.length > 0);
+
+    if (words.length <= maxWords) {
+      return title;
+    }
+
+    return words.slice(0, maxWords).join(' ') + '...';
   }
 }

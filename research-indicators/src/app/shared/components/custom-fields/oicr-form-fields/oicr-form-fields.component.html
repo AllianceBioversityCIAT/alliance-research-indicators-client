@@ -1,0 +1,196 @@
+<div class="grid gap-[15px]">
+  <!-- Main Contact Person (optional) -->
+  @if (showMainContactPerson) {
+    <div class="flex flex-col">
+      <app-select
+        label="Main contact person"
+        helperText="Pick a contact person from the Alliance staff database who is associated with the result and can provide information as needed. Only one person can be selected."
+        [isRequired]="true"
+        [signal]="body"
+        [optionValue]="mainContactPersonOptionValue"
+        optionLabel="full_name"
+        serviceName="userStaff"
+        placeholder="Select the main contact person">
+      </app-select>
+    </div>
+  }
+
+  <!-- OICR No and Tagging in a row -->
+  <div class="flex flex-col xl:flex-row gap-[15px]">
+    @if (!isOicrNoDisabled) {
+      <app-input
+        class="xl:max-w-50"
+        [isRequired]="true"
+        label="OICR No"
+        helperText="Internal code assigned by SPRM."
+        [signal]="body"
+        [disabled]="isOicrNoDisabled"
+        placeholder="e.g. LAC-2501"
+        [optionValue]="oicrNoOptionValue">
+      </app-input>
+    }
+
+    <app-select
+      label="Tagging"
+      [isRequired]="true"
+      class="flex-1"
+      [helperText]="taggingHelperText"
+      [signal]="body"
+      [optionValue]="taggingOptionValue"
+      optionLabel="name"
+      serviceName="tags"
+      scrollHeight="132px"
+      placeholder="Select the tagging">
+    </app-select>
+  </div>
+
+  <!-- OICR Selection (conditional) -->
+  @if (showOicrSelection()) {
+    <div class="flex flex-col">
+      <app-select
+        label="Select existing OICR"
+        helperText="Select an OICR previously reported in the Alliance."
+        [signal]="body"
+        [optionValue]="oicrOptionValue"
+        optionLabel="title"
+        serviceName="oicrResults"
+        [isRequired]="true"
+        placeholder="Select OICR"
+        scrollHeight="295px"
+        [hideSelected]="false"
+        textSpan="OICR selected">
+        <!-- Item template -->
+        <ng-template #item let-item>
+          <div class="flex flex-col gap-2 h-[54px] text-[14px] w-full min-w-0" pTooltip="{{ item?.title }}">
+            <p class="text-[#4C5158] font-[400] w-full overflow-hidden whitespace-nowrap text-ellipsis">
+              <b>{{ item?.id }} -</b>
+              {{ item?.title }}
+            </p>
+
+            <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
+              <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
+                Published
+              </button>
+              Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+              <span class="text-[#345B8F] uppercase">{{ item?.maturity_level }}</span>
+              <span class="text-[#B9C0C5]">|</span>
+              Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+              <span class="text-[#345B8F]">{{ item?.report_year }}</span>
+            </p>
+          </div>
+        </ng-template>
+
+        <!-- Rows template -->
+        <ng-template #rows let-item>
+          <div class="flex min-h-[82px] text-[14px] w-full min-w-0 px-2 py-0.5">
+            <div class="w-[90%] flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
+                <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
+              </div>
+              <div class="flex">
+                <p class="text-[#4C5158] font-[500] flex leading-4">{{ item?.id }} -{{ item?.title }}</p>
+              </div>
+              <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
+                <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
+                  Published
+                </button>
+                Maturity level <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+                <span class="text-[#345B8F] uppercase">{{ item?.maturity_level }}</span>
+                <span class="text-[#B9C0C5]">|</span>
+                Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+                <span class="text-[#345B8F]">{{ item?.report_year }}</span>
+              </p>
+            </div>
+            <div class="flex w-[10%] justify-end items-center">
+              <i
+                class="pi pi-times-circle !text-[18px] text-[#CF0808] pl-1"
+                (keydown.enter)="clearOicrSelection()"
+                (click)="clearOicrSelection()"></i>
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- Selected item template -->
+        <ng-template #selectedItemTemplate let-selected>
+          <span>OICR selected</span>
+        </ng-template>
+      </app-select>
+    </div>
+  }
+
+  <!-- Maturity Level -->
+  @if (showMaturityLevel) {
+    <div class="flex flex-col">
+      <app-select
+        label="Maturity of change reported"
+        class="flex-1"
+        [helperText]="maturityLevelHelperText"
+        [isRequired]="true"
+        [signal]="body"
+        [optionValue]="maturityLevelOptionValue"
+        optionLabel="name"
+        serviceName="maturityLevels"
+        scrollHeight="132px"
+        placeholder="Select an option">
+        <!-- Selected item template -->
+        <ng-template #selectedItemTemplate let-value>
+          <div class="flex items-center gap-2 text-[##4C5158]">
+            <span class="font-[600]">
+              {{ value?.name }}: <span class="font-['Barlow'] font-normal">{{ value?.description }}</span></span
+            >
+          </div>
+        </ng-template>
+
+        <!-- Item template -->
+        <ng-template #item let-item>
+          <div class="flex items-center gap-2 text-[##4C5158]">
+            <span class="font-[600]">
+              {{ item?.name }}: <span class="font-['Barlow'] font-normal">{{ item?.description }}</span></span
+            >
+          </div>
+        </ng-template>
+      </app-select>
+    </div>
+  }
+
+  <!-- Outcome/Impact Statement -->
+  <div class="flex flex-col">
+    <app-textarea
+      [rows]="5"
+      [isRequired]="true"
+      label="Elaboration of outcome/impact statement"
+      [helperText]="outcomeImpactStatementHelperText"
+      [maxLength]="400"
+      [signal]="body"
+      [optionValue]="outcomeImpactOptionValue"
+      placeholder="Write the elaboration of outcome / impact statement"></app-textarea>
+  </div>
+
+  <!-- Short Outcome/Impact Statement -->
+  @if (showShortOutcome) {
+    <div class="flex flex-col">
+      <app-textarea
+        [isRequired]="true"
+        [rows]="5"
+        label="Short Outcome/Impact Statement"
+        [helperText]="shortOutcomeHelperText"
+        [maxLength]="80"
+        [signal]="body"
+        [optionValue]="shortOutcomeOptionValue"
+        placeholder="Write the short outcome"></app-textarea>
+    </div>
+  }
+
+  @if (!isOicrNoDisabled) {
+    <div class="flex flex-col">
+      <app-textarea
+        [rows]="5"
+        label="Comments, questions or anything else?"
+        [maxLength]="3000"
+        [signal]="body"
+        [optionValue]="generalCommentOptionValue"
+        placeholder="Write the comments"></app-textarea>
+    </div>
+  }
+</div>

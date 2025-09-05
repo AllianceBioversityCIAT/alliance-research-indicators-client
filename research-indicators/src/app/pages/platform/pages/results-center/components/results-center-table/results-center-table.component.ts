@@ -1,5 +1,4 @@
 import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -9,17 +8,17 @@ import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ResultsCenterService } from '../../results-center.service';
 import * as ExcelJS from 'exceljs';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 import { PopoverModule } from 'primeng/popover';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { FiltersActionButtonsComponent } from '../../../../../../shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '../../../../../../shared/components/search-export-controls/search-export-controls.component';
+import { PLATFORM_COLOR_MAP } from '../../../../../../shared/constants/platform-colors';
 @Component({
   selector: 'app-results-center-table',
   imports: [
-    CommonModule,
     FormsModule,
     TableModule,
     ButtonModule,
@@ -27,6 +26,7 @@ import { SearchExportControlsComponent } from '../../../../../../shared/componen
     InputTextModule,
     TagModule,
     MenuModule,
+    RouterLink,
     CustomTagComponent,
     FiltersActionButtonsComponent,
     SearchExportControlsComponent
@@ -59,19 +59,43 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   getScrollHeight = computed(
     () =>
-      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 240 : 270)}px)`
+      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 280 : 350)}px)`
   );
+
+  getActiveFiltersExcludingIndicatorTab = computed(() => {
+    const activeFilters = this.resultsCenterService.getActiveFilters();
+    return activeFilters.filter(filter => filter.label !== 'INDICATOR TAB');
+  });
+
+  shouldShowFilterMessage = computed(() => {
+    const activeFilters = this.resultsCenterService.getActiveFilters();
+    const filtersExcludingIndicatorTab = activeFilters.filter(filter => filter.label !== 'INDICATOR TAB');
+    return filtersExcludingIndicatorTab.length > 0;
+  });
+
+  getFilterDisplayText(filter: { label: string; value: string; id?: string | number }): string {
+    if (filter.label === 'PROJECT') {
+      return `Project: ${filter.value}`;
+    }
+    return filter.value || filter.label;
+  }
+
+  getPlatformColors(platformCode: string): { text: string; background: string } | undefined {
+    return PLATFORM_COLOR_MAP[platformCode];
+  }
+
+  formatResultCode(code: string | number): string {
+    if (!code) return String(code || '');
+    return String(code).padStart(3, '0');
+  }
 
   private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70, minWidth = 15) {
     const column = worksheet.getColumn(columnNumber);
     if (column) {
-      // Initialize maxLength with header length
       let maxLength = column.header?.toString().length ?? 0;
 
-      // Check all cell contents
       column.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
         if (rowNumber > 1) {
-          // Skip header since we already considered it
           const cellText = cell.text ?? '';
           const textLength = cellText.toString().length;
           maxLength = Math.max(maxLength, textLength);
@@ -83,9 +107,6 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   private styleHeaderColumns(worksheet: ExcelJS.Worksheet, totalColumns: number) {
-    // Style each header cell and hide unused columns
-
-    // Set print area and view to only show used columns
     worksheet.views = [
       {
         state: 'frozen',
@@ -215,6 +236,8 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResult(result: Result) {
+    this.resultsCenterService.clearAllFilters();
+
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
       this.router.navigate(['/result', result.result_official_code, 'general-information'], { queryParams: { version: latestYear } });
@@ -224,9 +247,19 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResultByYear(result_official_code: string, year: string | number) {
+    this.resultsCenterService.clearAllFilters();
+
     this.router.navigate(['/result', result_official_code], {
       queryParams: { version: year }
     });
+  }
+
+  getResultHref(result: Result): string {
+    if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
+      const latestYear = Math.max(...result.snapshot_years);
+      return `/result/${result.result_official_code}/general-information?version=${latestYear}`;
+    }
+    return `/result/${result.result_official_code}`;
   }
 
   ngAfterViewInit() {

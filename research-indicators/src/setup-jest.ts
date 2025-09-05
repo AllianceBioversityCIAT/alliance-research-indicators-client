@@ -1,6 +1,15 @@
 import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
+import { TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 setupZoneTestEnv();
+
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    providers: [provideNoopAnimations(), provideHttpClientTesting()]
+  });
+});
 
 // Add polyfills for missing browser APIs
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

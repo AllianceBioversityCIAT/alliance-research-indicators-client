@@ -3,7 +3,9 @@ import { rolesGuard } from '@guards/roles.guard';
 import { resultExistsResolver } from '@pages/platform/pages/result/resolvers/result-exists.resolver';
 import { mvpGuard } from '@guards/mvp.guard';
 
-const RESULT_INFORMATION_TITLE = 'Result Information';
+const createResultData = () => ({
+  title: 'Result Information'
+});
 
 export const routes: Routes = [
   {
@@ -74,64 +76,53 @@ export const routes: Routes = [
           {
             path: 'general-information',
             loadComponent: () => import('@platform/pages/result/pages/general-information/general-information.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'alliance-alignment',
             loadComponent: () => import('@platform/pages/result/pages/alliance-alignment/alliance-alignment.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'partners',
             loadComponent: () => import('@platform/pages/result/pages/partners/partners.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'evidence',
             loadComponent: () => import('@platform/pages/result/pages/evidence/evidence.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
+          },
+          {
+            path: 'oicr-details',
+            loadComponent: () => import('@platform/pages/result/pages/oicr-details/oicr-details.component'),
+            data: createResultData()
           },
           {
             path: 'ip-rights',
             loadComponent: () => import('@platform/pages/result/pages/ip-rights/ip-rights.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'capacity-sharing',
             loadComponent: () => import('@platform/pages/result/pages/capacity-sharing/capacity-sharing.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'policy-change',
             loadComponent: () => import('@platform/pages/result/pages/policy-change/policy-change.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'innovation-details',
             loadComponent: () => import('@platform/pages/result/pages/innovation-details/innovation-details.component'),
-            data: {
-              title: RESULT_INFORMATION_TITLE
-            }
+            data: createResultData()
           },
           {
             path: 'geographic-scope',
             loadComponent: () => import('@platform/pages/result/pages/geographic-scope/geographic-scope.component'),
             data: {
-              title: RESULT_INFORMATION_TITLE
+              title: createResultData()
             }
           },
           {
@@ -139,7 +130,7 @@ export const routes: Routes = [
             loadComponent: () => import('@platform/pages/result/pages/contributions-to-indicators/contributions-to-indicators.component'),
             canMatch: [mvpGuard],
             data: {
-              title: RESULT_INFORMATION_TITLE
+              title: createResultData()
             }
           }
         ]
@@ -179,7 +170,35 @@ export const routes: Routes = [
         loadComponent: () => import('@platform/pages/project-detail/project-detail.component'),
         data: {
           title: 'Project Detail'
-        }
+        },
+        children: [
+          {
+            path: '',
+            redirectTo: 'project-results',
+            pathMatch: 'full'
+          },
+          {
+            path: 'project-results',
+            loadComponent: () => import('@platform/pages/project-detail/pages/project-results-table/project-results-table.component'),
+            data: {
+              title: 'Project Results'
+            }
+          },
+          {
+            path: 'project-members',
+            loadComponent: () => import('@platform/pages/project-detail/pages/project-members/project-members.component'),
+            data: {
+              title: 'Project Members'
+            }
+          },
+          {
+            path: 'progress-towards-indicators',
+            loadComponent: () => import('@platform/pages/project-detail/pages/progress-towards-indicators/progress-towards-indicators.component'),
+            data: {
+              title: 'Progress towards indicators'
+            }
+          }
+        ]
       },
       {
         path: 'project-detail/:id/indicators-progress',

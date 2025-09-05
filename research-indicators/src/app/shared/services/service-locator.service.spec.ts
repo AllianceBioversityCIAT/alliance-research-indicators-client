@@ -103,6 +103,60 @@ describe('ServiceLocatorService', () => {
   });
 
   describe('getPrimaryServices', () => {
+    it('returns actorTypes service', () => {
+      const result = (service as any).getPrimaryServices('actorTypes');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns institutionTypes service', () => {
+      const result = (service as any).getPrimaryServices('institutionTypes');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns anticipatedUsers service', () => {
+      const result = (service as any).getPrimaryServices('anticipatedUsers');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns innovationTypes service', () => {
+      const result = (service as any).getPrimaryServices('innovationTypes');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns innovationCharacteristics service', () => {
+      const result = (service as any).getPrimaryServices('innovationCharacteristics');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns innovationReadinessLevels service', () => {
+      const result = (service as any).getPrimaryServices('innovationReadinessLevels');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns contracts service', () => {
+      const result = (service as any).getPrimaryServices('contracts');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns institutions service', () => {
+      const result = (service as any).getPrimaryServices('institutions');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns userStaff service', () => {
+      const result = (service as any).getPrimaryServices('userStaff');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('calls main(true) for countriesWithSubnational', () => {
       const svc = { main: jest.fn() };
       injectorMock.get.mockReturnValue(svc);
@@ -110,6 +164,7 @@ describe('ServiceLocatorService', () => {
       expect(svc.main).toHaveBeenCalledWith(true);
       expect(result).toBe(svc);
     });
+
     it('calls main(false) for countriesWithoutSubnational', () => {
       const svc = { main: jest.fn() };
       injectorMock.get.mockReturnValue(svc);
@@ -117,30 +172,277 @@ describe('ServiceLocatorService', () => {
       expect(svc.main).toHaveBeenCalledWith(false);
       expect(result).toBe(svc);
     });
+
     it('returns null for unknown', () => {
       expect((service as any).getPrimaryServices('unknown')).toBeNull();
     });
   });
 
   describe('getSecondaryServices', () => {
+    it('returns countries service', () => {
+      const result = (service as any).getSecondaryServices('countries');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns languages service', () => {
+      const result = (service as any).getSecondaryServices('languages');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns capSharingGenders service', () => {
+      const result = (service as any).getSecondaryServices('capSharingGenders');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns capSharingFormats service', () => {
+      const result = (service as any).getSecondaryServices('capSharingFormats');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns capSharingTypes service', () => {
+      const result = (service as any).getSecondaryServices('capSharingTypes');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns capSharingDegrees service', () => {
+      const result = (service as any).getSecondaryServices('capSharingDegrees');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns capSharingLengths service', () => {
+      const result = (service as any).getSecondaryServices('capSharingLengths');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns disseminationQualifications service', () => {
+      const result = (service as any).getSecondaryServices('disseminationQualifications');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns toolFunctions service', () => {
+      const result = (service as any).getSecondaryServices('toolFunctions');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns initiatives service', () => {
+      const result = (service as any).getSecondaryServices('initiatives');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns tags service', () => {
+      const result = (service as any).getSecondaryServices('tags');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns oicrResults service', () => {
+      const result = (service as any).getSecondaryServices('oicrResults');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('returns null for unknown', () => {
       expect((service as any).getSecondaryServices('unknown')).toBeNull();
     });
   });
 
   describe('getTertiaryServices', () => {
+    it('returns capSharingDeliveryModalities service', () => {
+      const result = (service as any).getTertiaryServices('capSharingDeliveryModalities');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns capSharingSessionPurpose service', () => {
+      const result = (service as any).getTertiaryServices('capSharingSessionPurpose');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns yesOrNo service', () => {
+      const result = (service as any).getTertiaryServices('yesOrNo');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns expansionPotential service', () => {
+      const result = (service as any).getTertiaryServices('expansionPotential');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns policyTypes service', () => {
+      const result = (service as any).getTertiaryServices('policyTypes');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns policyStages service', () => {
+      const result = (service as any).getTertiaryServices('policyStages');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns geoFocus service', () => {
+      const result = (service as any).getTertiaryServices('geoFocus');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns innResults service', () => {
+      const result = (service as any).getTertiaryServices('innResults');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('returns null for unknown', () => {
       expect((service as any).getTertiaryServices('unknown')).toBeNull();
     });
   });
 
   describe('getQuaternaryServices', () => {
+    it('returns regions service', () => {
+      const result = (service as any).getQuaternaryServices('regions');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns geoScopeOpenSearch service', () => {
+      const result = (service as any).getQuaternaryServices('geoScopeOpenSearch');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns openSearchCountries service', () => {
+      const result = (service as any).getQuaternaryServices('openSearchCountries');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns openSearchResult service', () => {
+      const result = (service as any).getQuaternaryServices('openSearchResult');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns innoDevOutput service', () => {
+      const result = (service as any).getQuaternaryServices('innoDevOutput');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns innoUseOutput service', () => {
+      const result = (service as any).getQuaternaryServices('innoUseOutput');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('returns null for unknown', () => {
       expect((service as any).getQuaternaryServices('unknown')).toBeNull();
     });
   });
 
   describe('getOtherServices', () => {
+    it('returns openSearchSubNationals service', () => {
+      const result = (service as any).getOtherServices('openSearchSubNationals');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns getAllIndicators service', () => {
+      const result = (service as any).getOtherServices('getAllIndicators');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns allResultStatus service', () => {
+      const result = (service as any).getOtherServices('allResultStatus');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns getYears service', () => {
+      const result = (service as any).getOtherServices('getYears');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns getYearsByCode service', () => {
+      const result = (service as any).getOtherServices('getYearsByCode');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns getAllYears service', () => {
+      const result = (service as any).getOtherServices('getAllYears');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns ipOwners service', () => {
+      const result = (service as any).getOtherServices('ipOwners');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns GetSubnationalByIsoAlpha service', () => {
+      const result = (service as any).getOtherServices('GetSubnationalByIsoAlpha');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns clarisaInstitutionsTypes service', () => {
+      const result = (service as any).getOtherServices('clarisaInstitutionsTypes');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns clarisaInstitutionsTypesChildless service', () => {
+      const result = (service as any).getOtherServices('clarisaInstitutionsTypesChildless');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns sdgs service', () => {
+      const result = (service as any).getOtherServices('sdgs');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns scaling service', () => {
+      const result = (service as any).getOtherServices('scaling');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns applicationOptions service', () => {
+      const result = (service as any).getOtherServices('applicationOptions');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns levers service', () => {
+      const result = (service as any).getOtherServices('levers');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns projectStatus service', () => {
+      const result = (service as any).getOtherServices('projectStatus');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('returns null and warns for unknown', () => {
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
       expect((service as any).getOtherServices('unknown')).toBeNull();

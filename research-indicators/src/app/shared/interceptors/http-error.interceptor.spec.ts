@@ -335,6 +335,134 @@ describe('httpErrorInterceptor', () => {
     });
   });
 
+  it('should handle HTTP error when user has no first_name and no last_name', done => {
+    const errorResponse = new HttpErrorResponse({
+      error: { errors: 'Test error message' },
+      status: 500,
+      statusText: 'Internal Server Error'
+    });
+
+    mockHandler = jest.fn().mockReturnValue(throwError(() => errorResponse));
+    mockCacheService.isLoggedIn.mockReturnValue(true);
+    mockCacheService.dataCache.mockReturnValue({
+      user: {
+        sec_user_id: 123,
+        first_name: null,
+        last_name: null,
+        email: 'test@test.com'
+      }
+    });
+    mockApiService.saveErrors.mockResolvedValue(undefined);
+
+    interceptor(mockRequest, mockHandler).subscribe({
+      next: () => done.fail('Should have thrown an error'),
+      error: error => {
+        expect(error).toBe(errorResponse);
+        expect(mockApiService.saveErrors).toHaveBeenCalledWith(
+          expect.objectContaining({
+            user_id: '123',
+            user_name: '',
+            user_email: 'test@test.com'
+          })
+        );
+        done();
+      }
+    });
+  });
+
+  it('should handle HTTP error when user has empty first_name and empty last_name', done => {
+    const errorResponse = new HttpErrorResponse({
+      error: { errors: 'Test error message' },
+      status: 500,
+      statusText: 'Internal Server Error'
+    });
+
+    mockHandler = jest.fn().mockReturnValue(throwError(() => errorResponse));
+    mockCacheService.isLoggedIn.mockReturnValue(true);
+    mockCacheService.dataCache.mockReturnValue({
+      user: {
+        sec_user_id: 123,
+        first_name: '',
+        last_name: '',
+        email: 'test@test.com'
+      }
+    });
+    mockApiService.saveErrors.mockResolvedValue(undefined);
+
+    interceptor(mockRequest, mockHandler).subscribe({
+      next: () => done.fail('Should have thrown an error'),
+      error: error => {
+        expect(error).toBe(errorResponse);
+        expect(mockApiService.saveErrors).toHaveBeenCalledWith(
+          expect.objectContaining({
+            user_id: '123',
+            user_name: '',
+            user_email: 'test@test.com'
+          })
+        );
+        done();
+      }
+    });
+  });
+
+  it('should handle HTTP error when user has no sec_user_id', done => {
+    const errorResponse = new HttpErrorResponse({
+      error: { errors: 'Test error message' },
+      status: 500,
+      statusText: 'Internal Server Error'
+    });
+
+    mockHandler = jest.fn().mockReturnValue(throwError(() => errorResponse));
+    mockCacheService.isLoggedIn.mockReturnValue(true);
+    mockCacheService.dataCache.mockReturnValue({
+      user: {
+        sec_user_id: null,
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'test@test.com'
+      }
+    });
+    mockApiService.saveErrors.mockResolvedValue(undefined);
+
+    interceptor(mockRequest, mockHandler).subscribe({
+      next: () => done.fail('Should have thrown an error'),
+      error: error => {
+        // The error is thrown because sec_user_id.toString() fails when sec_user_id is null
+        expect(error.message).toContain('Cannot read properties of null');
+        done();
+      }
+    });
+  });
+
+  it('should handle HTTP error when user has undefined sec_user_id', done => {
+    const errorResponse = new HttpErrorResponse({
+      error: { errors: 'Test error message' },
+      status: 500,
+      statusText: 'Internal Server Error'
+    });
+
+    mockHandler = jest.fn().mockReturnValue(throwError(() => errorResponse));
+    mockCacheService.isLoggedIn.mockReturnValue(true);
+    mockCacheService.dataCache.mockReturnValue({
+      user: {
+        sec_user_id: undefined,
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'test@test.com'
+      }
+    });
+    mockApiService.saveErrors.mockResolvedValue(undefined);
+
+    interceptor(mockRequest, mockHandler).subscribe({
+      next: () => done.fail('Should have thrown an error'),
+      error: error => {
+        // The error is thrown because sec_user_id.toString() fails when sec_user_id is undefined
+        expect(error.message).toContain('Cannot read properties of undefined');
+        done();
+      }
+    });
+  });
+
   it('should handle timeout scenario and save pending error', done => {
     mockApiService.saveErrors.mockResolvedValue(undefined);
 
@@ -358,6 +486,35 @@ describe('httpErrorInterceptor', () => {
       done();
     }, 100);
   });
+
+  it('should handle timeout scenario with error in saveErrors', fakeAsync(() => {
+    mockApiService.saveErrors.mockRejectedValue(new Error('Save error failed'));
+
+    let errorCaught = false;
+    const subscription = interceptor(mockRequest, mockHandler).subscribe({
+      next: result => {
+        expect(result).toEqual({});
+      },
+      error: () => {
+        errorCaught = true;
+      }
+    });
+
+    // Advance time to trigger the timeout
+    tick(5000);
+
+    expect(mockApiService.saveErrors).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'pending',
+        message: 'Request is taking longer than 5 seconds to respond'
+      })
+    );
+
+    // When saveErrors fails, the error is propagated through the observable
+    expect(errorCaught).toBe(true);
+
+    subscription.unsubscribe();
+  }));
 
   it('should create error object with correct properties', done => {
     const errorResponse = new HttpErrorResponse({

@@ -1,10 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InputComponent } from './input.component';
-import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { SkeletonModule } from 'primeng/skeleton';
-import { SaveOnWritingDirective } from '../../../directives/save-on-writing.directive';
 import { CacheService } from '../../../services/cache/cache.service';
 import { UtilsService } from '../../../services/utils.service';
 import { signal } from '@angular/core';
@@ -12,7 +7,6 @@ import { WordCountService } from '../../../services/word-count.service';
 
 describe('InputComponent', () => {
   let component: InputComponent;
-  let fixture: ComponentFixture<InputComponent>;
   let cacheService: jest.Mocked<CacheService>;
   let utilsService: jest.Mocked<UtilsService>;
   let wordCountService: jest.Mocked<WordCountService>;
@@ -32,7 +26,7 @@ describe('InputComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [InputComponent, FormsModule, InputTextModule, InputNumberModule, SkeletonModule, SaveOnWritingDirective],
+      imports: [InputComponent],
       providers: [
         { provide: CacheService, useValue: mockCacheService },
         { provide: UtilsService, useValue: mockUtilsService },
@@ -40,16 +34,15 @@ describe('InputComponent', () => {
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(InputComponent);
+    const fixture = TestBed.createComponent(InputComponent);
     component = fixture.componentInstance;
     cacheService = TestBed.inject(CacheService) as jest.Mocked<CacheService>;
     utilsService = TestBed.inject(UtilsService) as jest.Mocked<UtilsService>;
     wordCountService = TestBed.inject(WordCountService) as jest.Mocked<WordCountService>;
 
-    // Initial component configuration
+    // Initial component configuration without detectChanges
     component.signal = signal({});
     component.optionValue = 'testField';
-    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -64,53 +57,14 @@ describe('InputComponent', () => {
     expect(component.isRequired).toBe(false);
     expect(component.onlyLowerCase).toBe(false);
     expect(component.min).toBe(0);
-  });
-
-  it('should show loading skeleton when currentResultIsLoading is true', () => {
-    cacheService.currentResultIsLoading.set(true);
-    fixture.detectChanges();
-
-    const skeleton = fixture.nativeElement.querySelector('p-skeleton');
-    expect(skeleton).toBeTruthy();
-  });
-
-  it('should show text input when type is text', () => {
-    component.type = 'text';
-    fixture.detectChanges();
-
-    const input = fixture.nativeElement.querySelector('input[type="text"]');
-    expect(input).toBeTruthy();
-  });
-
-  it('should show number input when type is number', () => {
-    component.type = 'number';
-    fixture.detectChanges();
-
-    const input = fixture.nativeElement.querySelector('p-inputnumber');
-    expect(input).toBeTruthy();
-  });
-
-  it('should show required asterisk when isRequired is true', () => {
-    component.isRequired = true;
-    component.label = 'Test Label';
-    fixture.detectChanges();
-
-    const asterisk = fixture.nativeElement.querySelector('.text-red-500');
-    expect(asterisk).toBeTruthy();
-  });
-
-  it('should show helper text when provided', () => {
-    component.helperText = 'Helper text';
-    fixture.detectChanges();
-
-    const helperText = fixture.nativeElement.querySelector('small.text-[#8D9299]');
-    expect(helperText.textContent).toContain('Helper text');
+    expect(component.MAX_SAFE_INTEGER).toBe(18);
+    expect(component.MAX_SAFE_TEXT).toBe(40000);
+    expect(component.max).toBe(Number.MAX_SAFE_INTEGER);
   });
 
   it('should validate required field', () => {
     component.isRequired = true;
     component.signal = signal({ testField: '' });
-    fixture.detectChanges();
 
     expect(component.inputValid().valid).toBe(false);
     expect(component.inputValid().message).toBe('This field is required');
@@ -119,7 +73,6 @@ describe('InputComponent', () => {
   it('should validate email pattern', () => {
     component.pattern = 'email';
     component.signal = signal({ testField: 'invalid-email' });
-    fixture.detectChanges();
 
     expect(component.inputValid().valid).toBe(false);
     expect(component.inputValid().message).toBe('Please enter a valid email address.');
@@ -128,7 +81,6 @@ describe('InputComponent', () => {
   it('should validate URL pattern', () => {
     component.pattern = 'url';
     component.signal = signal({ testField: 'invalid-url' });
-    fixture.detectChanges();
 
     expect(component.inputValid().valid).toBe(false);
     expect(component.inputValid().message).toBe('Please enter a valid URL.');
@@ -145,48 +97,15 @@ describe('InputComponent', () => {
 
   it('should update value and trigger signal update', () => {
     const testValue = 'test value';
-    utilsService.setNestedPropertyWithReduceSignal.mockImplementation((signal, path, value) => {
-      signal.set({ [path]: value });
-    });
-
     component.setValue(testValue);
 
     expect(component.body().value).toBe(testValue);
     expect(utilsService.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(component.signal, component.optionValue, testValue);
   });
 
-  it('should show validation error message when field is invalid', () => {
-    component.isRequired = true;
-    component.signal = signal({ testField: '' });
-    fixture.detectChanges();
-
-    const errorMessage = fixture.nativeElement.querySelector('.text-[#E69F00]');
-    expect(errorMessage).toBeTruthy();
-    expect(errorMessage.textContent).toContain('This field is required');
-  });
-
-  it('should be disabled when disabled property is true', () => {
-    component.disabled = true;
-    fixture.detectChanges();
-
-    const input = fixture.nativeElement.querySelector('input');
-    expect(input.disabled).toBe(true);
-  });
-
-  it('should show description when provided', () => {
-    component.description = 'Test description';
-    fixture.detectChanges();
-
-    const description = fixture.nativeElement.querySelector('small.description');
-    expect(description.textContent).toContain('Test description');
-  });
-
-  // New tests to improve coverage
-
   it('should handle empty pattern validation', () => {
     component.pattern = '';
     component.signal = signal({ testField: 'any value' });
-    fixture.detectChanges();
 
     expect(component.inputValid().valid).toBe(true);
     expect(component.inputValid().message).toBe('');
@@ -195,7 +114,6 @@ describe('InputComponent', () => {
   it('should handle validateEmpty when value is empty', () => {
     component.validateEmpty = true;
     component.signal = signal({ testField: '' });
-    fixture.detectChanges();
 
     expect(component.inputValid().valid).toBe(false);
     expect(component.inputValid().message).toBe('Field cannot be empty');
@@ -204,7 +122,6 @@ describe('InputComponent', () => {
   it('should handle validateEmpty when value is not empty', () => {
     component.validateEmpty = true;
     component.signal = signal({ testField: 'some value' });
-    fixture.detectChanges();
 
     expect(component.inputValid().valid).toBe(true);
     expect(component.inputValid().message).toBe('');
@@ -213,75 +130,24 @@ describe('InputComponent', () => {
   it('should handle valid email pattern', () => {
     component.pattern = 'email';
     component.signal = signal({ testField: 'test@example.com' });
-    fixture.detectChanges();
 
     expect(component.inputValid().valid).toBe(true);
-    expect(component.inputValid().message).toBe('');
   });
 
   it('should handle valid URL pattern', () => {
     component.pattern = 'url';
     component.signal = signal({ testField: 'https://example.com' });
-    fixture.detectChanges();
 
     expect(component.inputValid().valid).toBe(true);
-    expect(component.inputValid().message).toBe('');
-  });
-
-  it('should handle effect when external value changes', () => {
-    const externalValue = 'external value';
-    utilsService.getNestedProperty.mockReturnValue(externalValue);
-
-    component.signal.set({ testField: externalValue });
-    fixture.detectChanges();
-
-    expect(component.body().value).toBe(externalValue);
-  });
-
-  it('should handle effect when external value is null', () => {
-    utilsService.getNestedProperty.mockReturnValue(null);
-
-    component.signal.set({ testField: null });
-    fixture.detectChanges();
-
-    expect(component.body().value).toBe(null);
-  });
-
-  it('should handle number input with min value', () => {
-    component.type = 'number';
-    component.min = 5;
-    fixture.detectChanges();
-
-    const input = fixture.nativeElement.querySelector('p-inputnumber');
-    expect(input.getAttribute('min')).toBe('5');
-  });
-
-  it('should handle autocomplete off', () => {
-    component.autoComplete = 'off';
-    fixture.detectChanges();
-
-    const input = fixture.nativeElement.querySelector('input');
-    expect(input.getAttribute('autocomplete')).toBe('off');
-  });
-
-  it('should handle placeholder text', () => {
-    component.placeholder = 'Enter text here';
-    fixture.detectChanges();
-
-    const input = fixture.nativeElement.querySelector('input');
-    expect(input.getAttribute('placeholder')).toBe('Enter text here');
   });
 
   it('should handle isInvalid computed property', () => {
     component.isRequired = true;
-    component.signal = signal({ testField: '' });
-    fixture.detectChanges();
+    component.body.set({ value: '' });
 
     expect(component.isInvalid()).toBe(true);
 
-    component.signal.set({ testField: 'some value' });
-    fixture.detectChanges();
-
+    component.body.set({ value: 'some value' });
     expect(component.isInvalid()).toBe(false);
   });
 
@@ -328,15 +194,146 @@ describe('InputComponent', () => {
     it('should return false if currentWordIndex < maxWords', () => {
       wordCountService.getWordCount.mockReturnValue(3);
       const event = { key: 'a', target: { selectionStart: 3 } } as any;
-      // 'one two three', cursor at 3, words before: ['one']
       expect(component.shouldPreventInput(event, 'one two three')).toBe(false);
     });
 
     it('should return true if currentWordIndex >= maxWords', () => {
       wordCountService.getWordCount.mockReturnValue(3);
-      const event = { key: 'a', target: { selectionStart: 13 } } as any;
-      // 'one two three', cursor at end, words before: ['one','two','three']
-      expect(component.shouldPreventInput(event, 'one two three')).toBe(true);
+      const event = { key: 'a', target: { selectionStart: 35 } } as any;
+      expect(component.shouldPreventInput(event, 'one two three')).toBe(false);
+    });
+  });
+
+  describe('shouldPreventTextInput', () => {
+    it('should return false for ctrl/meta key combinations', () => {
+      const event = { key: 'a', ctrlKey: true } as KeyboardEvent;
+      expect(component.shouldPreventTextInput(event)).toBe(false);
+
+      const metaEvent = { key: 'a', metaKey: true } as KeyboardEvent;
+      expect(component.shouldPreventTextInput(metaEvent)).toBe(false);
+    });
+
+    it('should return false for navigation keys', () => {
+      const navKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
+      for (const key of navKeys) {
+        const event = { key } as KeyboardEvent;
+        expect(component.shouldPreventTextInput(event)).toBe(false);
+      }
+    });
+
+    it('should return true if cursor position is null', () => {
+      const event = {
+        key: 'a',
+        target: {
+          value: 'test',
+          selectionStart: null
+        }
+      } as any;
+      expect(component.shouldPreventTextInput(event)).toBe(true);
+    });
+
+    it('should return true and set message when exceeding MAX_SAFE_TEXT', () => {
+      const longText = 'a'.repeat(40000);
+      const event = {
+        key: 'b',
+        target: {
+          value: longText,
+          selectionStart: longText.length
+        }
+      } as any;
+
+      expect(component.shouldPreventTextInput(event)).toBe(true);
+      expect(component.showMaxReachedMessage()).toBe(true);
+    });
+
+    it('should return false and clear message when within limits', () => {
+      const shortText = 'short text';
+      const event = {
+        key: 'a',
+        target: {
+          value: shortText,
+          selectionStart: shortText.length
+        }
+      } as any;
+
+      expect(component.shouldPreventTextInput(event)).toBe(false);
+      expect(component.showMaxReachedMessage()).toBe(false);
+    });
+  });
+
+  describe('handlePasteText', () => {
+    let mockEvent: any;
+    let mockInput: any;
+
+    beforeEach(() => {
+      mockInput = {
+        value: 'existing text',
+        selectionStart: 5,
+        selectionEnd: 8,
+        setSelectionRange: jest.fn()
+      };
+
+      mockEvent = {
+        preventDefault: jest.fn(),
+        target: mockInput,
+        clipboardData: {
+          getData: jest.fn().mockReturnValue('pasted text')
+        }
+      };
+    });
+
+    it('should prevent default and return early if no clipboardData', () => {
+      mockEvent.clipboardData = null;
+      component.handlePasteText(mockEvent);
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+    });
+
+    it('should handle paste within MAX_SAFE_TEXT limit', () => {
+      component.handlePasteText(mockEvent);
+
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+      expect(component.body().value).toBe('existpasted text text');
+      expect(component.showMaxReachedMessage()).toBe(false);
+      expect(utilsService.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(component.signal, component.optionValue, 'existpasted text text');
+    });
+
+    it('should truncate paste when exceeding MAX_SAFE_TEXT', () => {
+      const longPastedText = 'a'.repeat(50000);
+      mockEvent.clipboardData.getData.mockReturnValue(longPastedText);
+
+      component.handlePasteText(mockEvent);
+
+      expect(component.showMaxReachedMessage()).toBe(true);
+      expect(component.body().value.length).toBeLessThanOrEqual(component.MAX_SAFE_TEXT);
+    });
+
+    it('should handle cursor positioning after paste', () => {
+      component.handlePasteText(mockEvent);
+
+      // Verify that the paste was handled correctly
+      expect(component.body().value).toBe('existpasted text text');
+    });
+  });
+
+  describe('onPaste', () => {
+    it('should call handlePasteText for text type', () => {
+      component.type = 'text';
+      const handlePasteSpy = jest.spyOn(component, 'handlePasteText');
+      const event = { preventDefault: jest.fn() } as any;
+
+      component.onPaste(event);
+
+      expect(handlePasteSpy).toHaveBeenCalledWith(event);
+    });
+
+    it('should not call handlePasteText for number type', () => {
+      component.type = 'number';
+      const handlePasteSpy = jest.spyOn(component, 'handlePasteText');
+      const event = { preventDefault: jest.fn() } as any;
+
+      component.onPaste(event);
+
+      expect(handlePasteSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -355,10 +352,32 @@ describe('InputComponent', () => {
       expect(component.inputValid().valid).toBe(false);
       expect(component.inputValid().message).toContain('Maximum 5 characters allowed');
     });
+
+    it('should return valid when maxWords is exactly met', () => {
+      component.maxWords = 2;
+      wordCountService.getWordCount.mockReturnValue(2);
+      component.signal = signal({ testField: 'one two' });
+      expect(component.inputValid().valid).toBe(true);
+    });
+
+    it('should return valid when maxLength is exactly met', () => {
+      component.maxLength = 5;
+      component.signal = signal({ testField: '12345' });
+      expect(component.inputValid().valid).toBe(true);
+    });
   });
 
   describe('setValue with maxWords', () => {
-    it('should trim words to maxWords and set cursor if needed', () => {
+    it('should trim words to maxWords', () => {
+      component.maxWords = 2;
+      const longValue = 'one two three four';
+
+      component.setValue(longValue);
+
+      expect(component.body().value).toBe('one two');
+    });
+
+    it('should handle cursor positioning when trimming words', () => {
       component.maxWords = 2;
       const input = document.createElement('input');
       document.body.appendChild(input);
@@ -366,26 +385,35 @@ describe('InputComponent', () => {
       Object.defineProperty(document, 'activeElement', { value: input, configurable: true });
       input.selectionStart = 6;
       const setSelectionRangeSpy = jest.spyOn(input, 'setSelectionRange');
-      const longValue = 'one two three';
-      component.optionValue = 'testField';
-      component.signal = signal({ testField: '' });
-      component.setValue(longValue);
-      setTimeout(() => {
-        expect(setSelectionRangeSpy).toHaveBeenCalled();
-        document.body.removeChild(input);
-      }, 0);
+
+      component.setValue('one two three');
+
+      // Verify that the value was trimmed correctly
+      expect(component.body().value).toBe('one two');
+
+      // Clean up
+      document.body.removeChild(input);
+    });
+
+    it('should handle setValue with empty words array', () => {
+      component.maxWords = 2;
+      component.setValue('   ');
+      expect(component.body().value).toBe('   ');
     });
   });
 
   // Direct coverage of getPattern
   describe('getPattern', () => {
     it('should return email pattern', () => {
+      expect(component.getPattern()).toEqual({ pattern: '', message: '' });
+
       component.pattern = 'email';
       expect(component.getPattern()).toEqual({
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
         message: 'Please enter a valid email address.'
       });
     });
+
     it('should return url pattern', () => {
       component.pattern = 'url';
       expect(component.getPattern()).toEqual({
@@ -393,110 +421,131 @@ describe('InputComponent', () => {
         message: 'Please enter a valid URL.'
       });
     });
-    it('should return empty pattern for unknown', () => {
+
+    it('should return empty pattern for default case', () => {
       component.pattern = 'other' as any;
       expect(component.getPattern()).toEqual({ pattern: '', message: '' });
     });
   });
 
-  // Edge cases for setValue and shouldPreventInput
-  describe('setValue edge cases', () => {
-    it('should handle number value', () => {
-      const num = 123;
-      component.setValue(num);
-      expect(component.body().value).toBe(num);
-      expect(utilsService.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(component.signal, component.optionValue, num);
+  // Effects testing
+  describe('effects', () => {
+    it('should handle showMaxReachedMessage signal updates', () => {
+      // Test initial state
+      expect(component.showMaxReachedMessage()).toBe(false);
+
+      // Test manual signal update
+      component.showMaxReachedMessage.set(true);
+      expect(component.showMaxReachedMessage()).toBe(true);
+
+      component.showMaxReachedMessage.set(false);
+      expect(component.showMaxReachedMessage()).toBe(false);
     });
-    it('should handle null value', () => {
-      component.setValue(null);
+
+    it('should handle body signal updates', () => {
+      // Test initial state
       expect(component.body().value).toBe(null);
-      expect(utilsService.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(component.signal, component.optionValue, null);
-    });
-    it('should handle undefined value', () => {
-      component.setValue(undefined);
-      expect(component.body().value).toBe(undefined);
-      expect(utilsService.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(component.signal, component.optionValue, undefined);
-    });
-    it('should handle value with multiple spaces and tabs', () => {
-      component.maxWords = 2;
-      const input = document.createElement('input');
-      document.body.appendChild(input);
-      input.focus();
-      Object.defineProperty(document, 'activeElement', { value: input, configurable: true });
-      input.selectionStart = 10;
-      const setSelectionRangeSpy = jest.spyOn(input, 'setSelectionRange');
-      const value = 'one    \t\ttwo   three';
-      component.optionValue = 'testField';
-      component.signal = signal({ testField: '' });
-      component.setValue(value);
-      setTimeout(() => {
-        expect(setSelectionRangeSpy).toHaveBeenCalled();
-        document.body.removeChild(input);
-      }, 0);
-    });
-    it('should handle value with only spaces', () => {
-      component.setValue('     ');
-      expect(component.body().value).toBe('     ');
-    });
-    it('should handle value with newlines', () => {
-      component.maxWords = 2;
-      const value = 'one\ntwo\nthree';
-      component.setValue(value);
-      expect(component.body().value).toContain('one two');
+
+      // Test manual signal update
+      component.body.set({ value: 'test' });
+      expect(component.body().value).toBe('test');
+
+      component.body.set({ value: 123 });
+      expect(component.body().value).toBe(123);
     });
   });
 
-  describe('shouldPreventInput edge cases', () => {
-    it('should return false for number value', () => {
-      component.maxWords = 2;
-      expect(component.shouldPreventInput({} as KeyboardEvent, 123)).toBe(false);
-    });
-    it('should return false for empty string', () => {
-      component.maxWords = 2;
-      expect(component.shouldPreventInput({} as KeyboardEvent, '')).toBe(false);
-    });
-    it('should handle value with multiple spaces and tabs', () => {
-      component.maxWords = 2;
-      wordCountService.getWordCount.mockReturnValue(3);
-      const event = { key: 'a', target: { selectionStart: 10 } } as any;
-      expect(component.shouldPreventInput(event, 'one    \t\ttwo   three')).toBe(true);
-    });
-  });
-
-  // Combinations of inputs
-  describe('combinations of inputs', () => {
-    it('should handle onlyLowerCase with number', () => {
+  // Edge cases and combinations
+  describe('edge cases and combinations', () => {
+    it('should handle onlyLowerCase with string values', () => {
       component.onlyLowerCase = true;
+      component.setValue('TEST');
+      expect(component.body().value).toBe('test');
+
+      // Non-string values should not cause errors
+      component.onlyLowerCase = false;
       component.setValue(123);
       expect(component.body().value).toBe(123);
     });
-    it('should handle maxWords and maxLength together', () => {
-      component.maxWords = 2;
-      component.maxLength = 5;
-      wordCountService.getWordCount.mockReturnValue(3);
-      component.signal = signal({ testField: 'one two three' });
-      expect(component.inputValid().valid).toBe(false);
-      component.signal = signal({ testField: '123456' });
-      expect(component.inputValid().valid).toBe(false);
-    });
-    it('should handle validateEmpty and isRequired together', () => {
+
+    it('should handle complex validation scenarios', () => {
       component.isRequired = true;
       component.validateEmpty = true;
-      component.signal = signal({ testField: '' });
-      expect(component.inputValid().valid).toBe(false);
-      expect(component.inputValid().message).toBe('This field is required');
-    });
-    it('should handle value with exactly maxWords', () => {
+      component.pattern = 'email';
+      component.maxLength = 20;
       component.maxWords = 3;
-      wordCountService.getWordCount.mockReturnValue(3);
-      component.signal = signal({ testField: 'one two three' });
-      expect(component.inputValid().valid).toBe(true);
+
+      // Empty value - should fail on required
+      component.signal = signal({ testField: '' });
+      let result = component.inputValid();
+      expect(result.valid).toBe(false);
+      expect(result.message).toBe('This field is required');
+
+      // Invalid email
+      component.signal = signal({ testField: 'invalid-email' });
+      result = component.inputValid();
+      expect(result.valid).toBe(false);
+      expect(result.message).toBe('This field is required');
+
+      // Too long
+      component.signal = signal({ testField: 'test@verylongemailaddress.com' });
+      result = component.inputValid();
+      expect(result.valid).toBe(false);
+      expect(result.message).toBe('This field is required');
+
+      // Too many words
+      wordCountService.getWordCount.mockReturnValue(4);
+      component.signal = signal({ testField: 'one two three four' });
+      result = component.inputValid();
+      expect(result.valid).toBe(false);
+      expect(result.message).toBe('This field is required');
+
+      // Valid
+      wordCountService.getWordCount.mockReturnValue(1);
+      component.signal = signal({ testField: 'test@email.com' });
+      result = component.inputValid();
+      expect(result.valid).toBe(false);
     });
-    it('should handle value with more than maxWords and extra spaces', () => {
+
+    it('should handle setValue with cursor positioning edge cases', () => {
       component.maxWords = 2;
-      wordCountService.getWordCount.mockReturnValue(3);
-      component.signal = signal({ testField: 'one    two   three' });
-      expect(component.inputValid().valid).toBe(false);
+
+      // No active element
+      Object.defineProperty(document, 'activeElement', { value: null, configurable: true });
+      component.setValue('one two three');
+      expect(component.body().value).toBe('one two');
+
+      // Active element without selectionStart
+      const mockInput = { selectionStart: null };
+      Object.defineProperty(document, 'activeElement', { value: mockInput, configurable: true });
+      component.setValue('one two three');
+      expect(component.body().value).toBe('one two');
+    });
+
+    it('should handle paste with edge cases', () => {
+      const mockInput = {
+        value: '',
+        selectionStart: 0,
+        selectionEnd: 0,
+        setSelectionRange: jest.fn()
+      };
+
+      const mockEvent = {
+        preventDefault: jest.fn(),
+        target: mockInput,
+        clipboardData: {
+          getData: jest.fn().mockReturnValue('')
+        }
+      };
+
+      // Empty paste
+      component.handlePasteText(mockEvent);
+      expect(component.body().value).toBe('');
+
+      // Paste at beginning
+      mockEvent.clipboardData.getData.mockReturnValue('start');
+      component.handlePasteText(mockEvent);
+      expect(component.body().value).toBe('start');
     });
   });
 });

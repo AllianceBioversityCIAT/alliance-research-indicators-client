@@ -2,8 +2,10 @@
   <div class="alert-overlay">
     <div class="alert flex w-full" [style]="{ borderColor: alert.color }">
       <div class="w-full flex justify-end -mt-4 -mr-5">
-        <i class="pi pi-times top-2 right-2 text-[#777C83] !text-[15px] cursor-pointer" (click)="closeAlert($index)" (keydown)="closeAlert($index)">
-        </i>
+        @if (!alert.hideCloseButton) {
+          <i class="pi pi-times top-2 right-2 text-[#777C83] !text-[15px] cursor-pointer" (click)="closeAlert($index)" (keydown)="closeAlert($index)">
+          </i>
+        }
       </div>
 
       <div class="w-full flex justify-center -mt-5">

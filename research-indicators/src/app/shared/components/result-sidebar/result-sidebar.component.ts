@@ -67,6 +67,12 @@ export class ResultSidebarComponent implements OnInit {
       greenCheckKey: 'alignment'
     },
     {
+      label: 'OICR Details',
+      path: 'oicr-details',
+      indicator_id: 5,
+      greenCheckKey: 'oicr'
+    },
+    {
       label: 'Innovation details',
       path: 'innovation-details',
       indicator_id: 2,

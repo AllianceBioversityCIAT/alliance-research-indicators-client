@@ -95,6 +95,38 @@ describe('ClarityService', () => {
       expect(clarityMock.setTag).toHaveBeenCalledWith('user_email', expect.any(String));
       expect(clarityMock.setTag).toHaveBeenCalledWith('user_role', expect.any(String));
     });
+    it('should set empty string for email when user.email is null', () => {
+      const cacheWithNullEmail: DataCache = {
+        access_token: '',
+        refresh_token: '',
+        user: {
+          first_name: 'John',
+          last_name: 'Doe',
+          email: null as any,
+          roleName: 'admin'
+        } as any,
+        exp: 0
+      };
+      cacheServiceMock.dataCache = signal(cacheWithNullEmail);
+      service['setUserInfo']();
+      expect(clarityMock.setTag).toHaveBeenCalledWith('user_email', '');
+    });
+    it('should set empty string for role when user.roleName is null', () => {
+      const cacheWithNullRole: DataCache = {
+        access_token: '',
+        refresh_token: '',
+        user: {
+          first_name: 'John',
+          last_name: 'Doe',
+          email: 'john@test.com',
+          roleName: null as any
+        } as any,
+        exp: 0
+      };
+      cacheServiceMock.dataCache = signal(cacheWithNullRole);
+      service['setUserInfo']();
+      expect(clarityMock.setTag).toHaveBeenCalledWith('user_role', '');
+    });
     it('should not set tags if no user', () => {
       const emptyCache: DataCache = {
         access_token: '',

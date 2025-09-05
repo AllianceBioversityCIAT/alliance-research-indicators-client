@@ -1,6 +1,7 @@
 export interface Result {
   is_active: boolean;
   result_id: number;
+  result_platform: string;
   result_official_code: string;
   version_id: null;
   title: string;

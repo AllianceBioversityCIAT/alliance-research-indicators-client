@@ -68,6 +68,17 @@ describe('jWtInterceptor', () => {
     });
   });
 
+  it('should skip auth for requests with no-auth-interceptor header', done => {
+    const headers = new HttpHeaders().set('no-auth-interceptor', 'true');
+    const req = new HttpRequest('GET', mainApiUrl + 'data', { headers });
+    interceptor(req, mockHandler).subscribe(() => {
+      const calledReq = mockHandler.mock.calls[0][0];
+      expect(calledReq.headers.has('no-auth-interceptor')).toBeFalsy();
+      expect(calledReq.headers.has('Authorization')).toBeFalsy();
+      done();
+    });
+  });
+
   it('should skip token refresh for refresh-token requests', done => {
     const req = new HttpRequest('GET', mainApiUrl + 'refresh-token');
     interceptor(req, mockHandler).subscribe(() => {
@@ -162,6 +173,48 @@ describe('jWtInterceptor', () => {
         expect(err.status).toBe(500);
         done();
       }
+    });
+  });
+
+  it('should handle null currentToken for fileManagerDomain requests', done => {
+    mockActionsService.isTokenExpired.mockResolvedValueOnce({ isTokenExpired: true, token_data: { access_token: null } });
+    const req = new HttpRequest('GET', fileManagerUrl + 'file');
+    interceptor(req, mockHandler).subscribe(() => {
+      const calledReq = mockHandler.mock.calls[0][0];
+      expect(calledReq.headers.get('access-token')).toBe('');
+      done();
+    });
+  });
+
+  it('should handle undefined currentToken for fileManagerDomain requests', done => {
+    mockActionsService.isTokenExpired.mockResolvedValueOnce({ isTokenExpired: true, token_data: { access_token: undefined } });
+    const req = new HttpRequest('GET', fileManagerUrl + 'file');
+    interceptor(req, mockHandler).subscribe(() => {
+      const calledReq = mockHandler.mock.calls[0][0];
+      expect(calledReq.headers.get('access-token')).toBe('');
+      done();
+    });
+  });
+
+  it('should handle null currentToken for textMiningDomain requests', done => {
+    mockActionsService.isTokenExpired.mockResolvedValueOnce({ isTokenExpired: true, token_data: { access_token: null } });
+    const formData = new FormData();
+    const req = new HttpRequest('POST', textMiningUrl + 'analyze', formData);
+    interceptor(req, mockHandler).subscribe(() => {
+      const calledReq = mockHandler.mock.calls[0][0];
+      expect((calledReq.body as FormData).get('token')).toBe('');
+      done();
+    });
+  });
+
+  it('should handle undefined currentToken for textMiningDomain requests', done => {
+    mockActionsService.isTokenExpired.mockResolvedValueOnce({ isTokenExpired: true, token_data: { access_token: undefined } });
+    const formData = new FormData();
+    const req = new HttpRequest('POST', textMiningUrl + 'analyze', formData);
+    interceptor(req, mockHandler).subscribe(() => {
+      const calledReq = mockHandler.mock.calls[0][0];
+      expect((calledReq.body as FormData).get('token')).toBe('');
+      done();
     });
   });
 });

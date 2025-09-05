@@ -66,6 +66,10 @@ import { FindContracts } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { GetIndicatorsProgress } from '../interfaces/get-indicators-progress.interface';
+import { Initiative } from '@shared/interfaces/initiative.interface';
+import { GetTags } from '@shared/interfaces/get-tags.interface';
+import { Oicr, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -96,8 +100,17 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Contracts = (): Promise<MainResponse<GetContracts[]>> => {
-    const url = () => `agresso/contracts`;
+  GET_MaturityLevels = (): Promise<MainResponse<MaturityLevel[]>> => {
+    const url = () => `maturity-levels`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Contracts = (projectId?: number): Promise<MainResponse<GetContracts[]>> => {
+    const url = () => {
+      const baseUrl = 'agresso/contracts';
+      const queryParam = projectId ? `?projectId=${projectId}` : '';
+      return `${baseUrl}${queryParam}`;
+    };
     return this.TP.get(url(), {});
   };
 
@@ -128,6 +141,21 @@ export class ApiService {
 
   GET_SubNationals = (isoAlpha2: string): Promise<MainResponse<GetSubnationalsByIsoAlpha[]>> => {
     const url = () => `tools/clarisa/sub-nationals/country/${isoAlpha2}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Tags = (): Promise<MainResponse<GetTags[]>> => {
+    const url = () => `tags`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_OicrResults = (): Promise<MainResponse<Oicr[]>> => {
+    const url = () => `temp/oicrs`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_Initiatives = (): Promise<MainResponse<Initiative[]>> => {
+    const url = () => `tools/clarisa/initiatives`;
     return this.TP.get(url(), {});
   };
 
@@ -180,6 +208,21 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  POST_CreateOicr = <T>(body: T): Promise<MainResponse<Result>> => {
+    const url = () => `results/oicr`;
+    return this.TP.post(url(), body, {});
+  };
+
+  PATCH_Oicr = <T>(id: number, body: T): Promise<MainResponse<PatchOicr>> => {
+    const url = () => `results/oicr/${id}`;
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
+  };
+
+  GET_Oicr = (id: number): Promise<MainResponse<PatchOicr>> => {
+    const url = () => `results/oicr/${id}`;
+    return this.TP.get(url(), { useResultInterceptor: true });
+  };
+
   // create result
   POST_Result = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `results`;
@@ -230,13 +273,13 @@ export class ApiService {
 
   GET_GeneralInformation = (id: number): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/${id}/general-information`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_GeneralInformation = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/${id}/general-information`;
     return this.TP.patch(url(), body, {
-      useYearInterceptor: true
+      useResultInterceptor: true
     });
   };
 
@@ -278,32 +321,32 @@ export class ApiService {
 
   GET_Partners = (id: number): Promise<MainResponse<PatchPartners>> => {
     const url = () => `results/institutions/by-result-id/${id}?role=partners`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_Partners = <T>(id: number, body: T): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/institutions/partners/by-result-id/${id}`;
-    return this.TP.patch(url(), body, { useYearInterceptor: true });
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
   GET_InnovationDetails = (resultCode: number): Promise<MainResponse<GetInnovationDetails>> => {
     const url = () => `results/innovation-dev/${resultCode}`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_InnovationDetails = <T>(resultCode: number, body: T): Promise<MainResponse<GetInnovationDetails>> => {
     const url = () => `results/innovation-dev/${resultCode}`;
-    return this.TP.patch(url(), body, { useYearInterceptor: true });
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
   GET_ResultEvidences = (resultId: number): Promise<MainResponse<PatchResultEvidences>> => {
     const url = () => `results/evidences/principal/${resultId}`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_ResultEvidences = <T>(resultId: number, body: T): Promise<MainResponse<PatchResultEvidences>> => {
     const url = () => `results/evidences/by-result-id/${resultId}`;
-    return this.TP.patch(url(), body, { useYearInterceptor: true });
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
   GET_Years = (resultCode?: number, reportYear?: number): Promise<MainResponse<GetYear[]>> => {
@@ -343,42 +386,42 @@ export class ApiService {
 
   GET_IpOwner = (id: number): Promise<MainResponse<PatchIpOwner>> => {
     const url = () => `results/intellectual-property/${id}`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_IpOwners = <T>(id: number, body: T): Promise<MainResponse<PatchIpOwner>> => {
     const url = () => `results/intellectual-property/${id}`;
-    return this.TP.patch(url(), body, { useYearInterceptor: true });
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
   GET_CapacitySharing = (): Promise<MainResponse<GetCapSharing>> => {
     const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_CapacitySharing = <T>(body: T): Promise<MainResponse<GetCapSharing>> => {
     const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
-    return this.TP.patch(url(), body, { useYearInterceptor: true });
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
   GET_PolicyChange = (id: number): Promise<MainResponse<GetPolicyChange>> => {
     const url = () => `results/policy-change/by-result-id/${id}`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_PolicyChange = <T>(id: number, body: T): Promise<MainResponse<GetPolicyChange>> => {
     const url = () => `results/policy-change/by-result-id/${id}`;
-    return this.TP.patch(url(), body, { useYearInterceptor: true });
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
   GET_Alignments = (id: number): Promise<MainResponse<GetAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_Alignments = <T>(id: number, body: T): Promise<MainResponse<PatchAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
-    return this.TP.patch(url(), body, { useYearInterceptor: true });
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
   GET_SessionFormat = (): Promise<MainResponse<SessionFormat[]>> => {
@@ -409,7 +452,7 @@ export class ApiService {
   GET_Metadata = (id: number): Promise<MainResponse<GetMetadata>> => {
     const url = () => `results/${id}/metadata`;
     return this.TP.get(url(), {
-      useYearInterceptor: true
+      useResultInterceptor: true
     });
   };
 
@@ -486,12 +529,12 @@ export class ApiService {
 
   GET_GeoLocation = (id: number): Promise<MainResponse<GetGeoLocation>> => {
     const url = () => `results/${id}/geo-location`;
-    return this.TP.get(url(), { loadingTrigger: true, useYearInterceptor: true });
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_GeoLocation = <T>(id: number, body: T): Promise<MainResponse<GetGeoLocation>> => {
     const url = () => `results/${id}/geo-location`;
-    return this.TP.patch(url(), body, { useYearInterceptor: true });
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
   GET_Regions = (): Promise<MainResponse<GetRegion[]>> => {
@@ -553,7 +596,7 @@ export class ApiService {
   PATCH_SubmitResult = ({ resultCode, comment, status }: PatchSubmitResult): Promise<MainResponse<PatchSubmitResult | ExtendedHttpErrorResponse>> => {
     const commentQuery = comment ? `&comment=${comment}` : '';
     const url = () => `results/green-checks/change/status?resultCode=${resultCode}${commentQuery}&status=${status}`;
-    return this.TP.patch(url(), { useYearInterceptor: true });
+    return this.TP.patch(url(), { useResultInterceptor: true });
   };
 
   GET_ReviewStatuses = () => {
@@ -563,17 +606,17 @@ export class ApiService {
 
   GET_GreenChecks = (resultCode: number): Promise<MainResponse<GreenChecks>> => {
     const url = () => `results/green-checks/${resultCode}`;
-    return this.TP.get(url(), { useYearInterceptor: true });
+    return this.TP.get(url(), { useResultInterceptor: true });
   };
 
   GET_SubmitionHistory = (resultCode: number) => {
     const url = () => `results/green-checks/history/${resultCode}`;
-    return this.TP.get(url(), { useYearInterceptor: true });
+    return this.TP.get(url(), { useResultInterceptor: true });
   };
 
   DELETE_Result = (resultCode: number) => {
     const url = () => `results/${resultCode}/delete`;
-    return this.TP.delete(url(), { useYearInterceptor: true });
+    return this.TP.delete(url(), { useResultInterceptor: true });
   };
 
   // Feedback | Ask for help

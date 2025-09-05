@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { ToPromiseService } from './to-promise.service';
 import { cacheServiceMock, mockGreenChecks } from 'src/app/testing/mock-services.mock';
@@ -102,9 +102,9 @@ describe('ToPromiseService', () => {
     expect(greenChecksSpy).toHaveBeenCalled();
   });
 
-  it('delete sets X-Use-Year header if useYearInterceptor', async () => {
+  it('delete sets X-Use-Year header if useResultInterceptor', async () => {
     httpClientMock.delete = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
-    await service.delete('/test-url', { useYearInterceptor: true });
+    await service.delete('/test-url', { useResultInterceptor: true });
     expect((httpClientMock.delete as jest.Mock).mock.calls[0][1].headers.get('X-Use-Year')).toBe('true');
   });
 
@@ -118,21 +118,21 @@ describe('ToPromiseService', () => {
 
   it('post sets X-Use-Year header', async () => {
     httpClientMock.post = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
-    await service.post('/test-url', { a: 1 }, { useYearInterceptor: true });
+    await service.post('/test-url', { a: 1 }, { useResultInterceptor: true });
     const headers = (httpClientMock.post as jest.Mock).mock.calls[0][2].headers;
     expect(headers.get('X-Use-Year')).toBe('true');
   });
 
   it('put sets X-Use-Year header', async () => {
     httpClientMock.put = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
-    await service.put('/test-url', { a: 1 }, { useYearInterceptor: true });
+    await service.put('/test-url', { a: 1 }, { useResultInterceptor: true });
     const headers = (httpClientMock.put as jest.Mock).mock.calls[0][2].headers;
     expect(headers.get('X-Use-Year')).toBe('true');
   });
 
   it('get sets X-Use-Year header', async () => {
     httpClientMock.get = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
-    await service.get('/test-url', { useYearInterceptor: true });
+    await service.get('/test-url', { useResultInterceptor: true });
     const headers = (httpClientMock.get as jest.Mock).mock.calls[0][1].headers;
     expect(headers.get('X-Use-Year')).toBe('true');
   });
@@ -145,7 +145,7 @@ describe('ToPromiseService', () => {
 
   it('patch sets X-Use-Year header', async () => {
     httpClientMock.patch = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
-    await service.patch('/test-url', { a: 1 }, { useYearInterceptor: true });
+    await service.patch('/test-url', { a: 1 }, { useResultInterceptor: true });
     const headers = (httpClientMock.patch as jest.Mock).mock.calls[0][2].headers;
     expect(headers.get('X-Use-Year')).toBe('true');
   });
@@ -190,5 +190,50 @@ describe('ToPromiseService', () => {
     jest.spyOn(service, 'getGreenChecks').mockResolvedValue({ data: { test: 1 } } as any);
     await service.updateGreenChecks();
     expect(setSpy).toHaveBeenCalledWith({ test: 1 });
+  });
+
+  it('get sets noAuthInterceptor header', async () => {
+    httpClientMock.get = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
+    await service.get('/test-url', { noAuthInterceptor: true });
+    const headers = (httpClientMock.get as jest.Mock).mock.calls[0][1].headers;
+    expect(headers.get('no-auth-interceptor')).toBe('true');
+  });
+
+  it('get sets noCache option', async () => {
+    httpClientMock.get = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
+    await service.get('/test-url', { noCache: true });
+    const options = (httpClientMock.get as jest.Mock).mock.calls[0][1];
+    expect(options.cache).toBe('no-store');
+  });
+
+  it('get uses existing HttpHeaders when params is HttpHeaders instance', async () => {
+    const existingHeaders = new HttpHeaders({ 'Custom-Header': 'value' });
+    httpClientMock.get = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
+    await service.get('/test-url', { params: existingHeaders });
+    const headers = (httpClientMock.get as jest.Mock).mock.calls[0][1].headers;
+    expect(headers.get('Custom-Header')).toBe('value');
+  });
+
+  it('get combines existing headers with X-Use-Year', async () => {
+    const existingHeaders = new HttpHeaders({ 'Custom-Header': 'value' });
+    httpClientMock.get = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
+    await service.get('/test-url', { params: existingHeaders, useResultInterceptor: true });
+    const headers = (httpClientMock.get as jest.Mock).mock.calls[0][1].headers;
+    expect(headers.get('Custom-Header')).toBe('value');
+    expect(headers.get('X-Use-Year')).toBe('true');
+  });
+
+  it('TP handles error without error.error property', async () => {
+    httpClientMock.get = jest.fn().mockReturnValue(throwError(() => ({ message: 'Network error' })));
+    const res = await service.get('/test-url');
+    expect(res.successfulRequest).toBe(false);
+    expect(res.errorDetail).toBeUndefined();
+  });
+
+  it('TP handles error with null error object', async () => {
+    httpClientMock.get = jest.fn().mockReturnValue(throwError(() => null));
+    const res = await service.get('/test-url');
+    expect(res.successfulRequest).toBe(false);
+    expect(res.errorDetail).toBeUndefined();
   });
 });
