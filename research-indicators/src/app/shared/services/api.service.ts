@@ -687,7 +687,7 @@ export class ApiService {
   }
 
   fastResponse = (body: { prompt: string; input_text: string }) => {
-    const url = () => `${environment.fastResponseUrl}/fast-response`;
-    return this.TP.post(url(), body);
+    const url = () => `fast-response`;
+    return this.TP.post(url(), body, { isAuth: environment.fastResponseUrl });
   };
 }
