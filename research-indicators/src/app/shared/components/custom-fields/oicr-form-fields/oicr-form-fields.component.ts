@@ -83,7 +83,7 @@ export class OicrFormFieldsComponent {
     this.isAiLoading.set(true);
     const response = await this.api.fastResponse(textData);
 
-    if (response && response.successfulRequest) {
+    if (response.successfulRequest) {
       let aiText = '';
       const fastResponse = response as unknown as FastResponseData;
       if (fastResponse.output) {
