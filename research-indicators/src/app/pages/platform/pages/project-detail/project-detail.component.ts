@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
 import { ApiService } from '../../../../shared/services/api.service';
-import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, PRIMARY_OUTLET, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 import { TabsModule } from 'primeng/tabs';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
@@ -22,7 +22,9 @@ export default class ProjectDetailComponent implements OnInit {
   activatedRoute = inject(ActivatedRoute);
   api = inject(ApiService);
   cache = inject(CacheService);
+  router = inject(Router);
   contractId = signal('');
+  lastSegment = signal('');
   currentProject = signal<GetProjectDetail>({});
   tabs = signal<ViewTab[]>([
     {
@@ -44,6 +46,13 @@ export default class ProjectDetailComponent implements OnInit {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
     this.getProjectDetail();
     this.cache.currentProjectId.set(this.contractId());
+    this.getLastSegment();
+  }
+
+  getLastSegment() {
+    const tree = this.router.parseUrl(this.router.url);
+    const segments = tree.root.children[PRIMARY_OUTLET]?.segments ?? [];
+    this.lastSegment.set(segments.at(-1)?.path ?? '');
   }
 
   async getProjectDetail() {
