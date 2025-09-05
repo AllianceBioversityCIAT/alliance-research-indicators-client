@@ -159,7 +159,35 @@ export const routes: Routes = [
         loadComponent: () => import('@platform/pages/project-detail/project-detail.component'),
         data: {
           title: 'Project Detail'
-        }
+        },
+        children: [
+          {
+            path: '',
+            redirectTo: 'project-results',
+            pathMatch: 'full'
+          },
+          {
+            path: 'project-results',
+            loadComponent: () => import('@platform/pages/project-detail/pages/project-results-table/project-results-table.component'),
+            data: {
+              title: 'Project Results'
+            }
+          },
+          {
+            path: 'project-members',
+            loadComponent: () => import('@platform/pages/project-detail/pages/project-members/project-members.component'),
+            data: {
+              title: 'Project Members'
+            }
+          },
+          {
+            path: 'progress-towards-indicators',
+            loadComponent: () => import('@platform/pages/project-detail/pages/progress-towards-indicators/progress-towards-indicators.component'),
+            data: {
+              title: 'Progress towards indicators'
+            }
+          }
+        ]
       },
       {
         path: 'about',
