@@ -27,17 +27,16 @@ export default class ProjectDetailComponent implements OnInit {
   tabs = signal<ViewTab[]>([
     {
       label: 'Project Results',
-      route: '/'
+      route: 'project-results'
     },
     {
       label: 'Project Members',
-      route: '/project-members',
+      route: 'project-members',
       hidden: true
     },
     {
       label: 'Progress towards indicators',
-      route: '/progress-towards-indicators',
-      hidden: true
+      route: 'progress-towards-indicators'
     }
   ]);
 
