@@ -2,7 +2,7 @@
   <app-project-item [project]="currentProject()" [isHeader]="true"></app-project-item>
 </div>
 <div class="py-[30px] px-[40px] w-full">
-  <p-tabs value="/">
+  <p-tabs [value]="lastSegment()">
     <p-tablist>
       @for (tab of tabs(); track tab.route) {
         @if (!tab.hidden) {
