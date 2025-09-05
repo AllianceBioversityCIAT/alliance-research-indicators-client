@@ -176,6 +176,8 @@
         label="Short Outcome/Impact Statement"
         [helperText]="shortOutcomeHelperText"
         [maxLength]="80"
+        [aiAssistantFunction]="aiAssistantFunctionForShortOutcome.bind(this)"
+        [isAiDisabled]="isShortOutcomeAiDisabled()"
         [signal]="body"
         [optionValue]="shortOutcomeOptionValue"
         placeholder="Write the short outcome"></app-textarea>

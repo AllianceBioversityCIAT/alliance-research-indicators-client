@@ -680,4 +680,9 @@ export class ApiService {
     });
     return params;
   }
+
+  fastResponse = (body: { prompt: string; input_text: string }) => {
+    const url = () => `${environment.fastResponseUrl}/fast-response`;
+    return this.TP.post(url(), body);
+  };
 }
