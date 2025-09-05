@@ -16,11 +16,11 @@ describe('ProgressTowardsIndicatorsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IndicatorsProgressComponent, HttpClientTestingModule],
+      imports: [ProgressTowardsIndicatorsComponent, HttpClientTestingModule],
       providers: [{ provide: ActivatedRoute, useValue: mockActivatedRoute }]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(IndicatorsProgressComponent);
+    fixture = TestBed.createComponent(ProgressTowardsIndicatorsComponent);
     component = fixture.componentInstance;
 
     // Mock the API call to avoid actual HTTP requests

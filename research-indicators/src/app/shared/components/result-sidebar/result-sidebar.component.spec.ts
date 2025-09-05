@@ -44,7 +44,8 @@ describe('ResultSidebarComponent', () => {
         evidences: 0,
         ip_rights: 1
       } as GreenChecks),
-      allGreenChecksAreTrue: jest.fn().mockReturnValue(true) as any
+      allGreenChecksAreTrue: jest.fn().mockReturnValue(true) as any,
+      onlyMvpUsers: signal(false)
     };
 
     actionsService = {
