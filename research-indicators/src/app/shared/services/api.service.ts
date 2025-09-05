@@ -472,9 +472,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_ContractsByUser = (): Promise<MainResponse<GetContractsByUser[]>> => {
+  GET_ContractsByUser = (orderField?: string, direction?: string): Promise<MainResponse<GetContractsByUser[]>> => {
+    const orderFieldQuery = orderField ? `&order-field=${orderField}` : '';
+    const directionQuery = direction ? `&direction=${direction}` : '';
     const url = () => 'agresso/contracts/results/current-user';
-    return this.TP.get(url(), {});
+    const fullUrl = `${url()}${orderFieldQuery}${directionQuery}`;
+    return this.TP.get(fullUrl, {});
   };
 
   GET_FindContracts = (filters?: {
@@ -485,6 +488,8 @@ export class ApiService {
     lever?: string;
     status?: string;
     'start-date'?: string;
+    'order-field'?: string;
+    direction?: string;
     'end-date'?: string;
   }): Promise<MainResponse<FindContracts[]>> => {
     const url = () => 'agresso/contracts/find-contracts';
@@ -680,4 +685,9 @@ export class ApiService {
     });
     return params;
   }
+
+  fastResponse = (body: { prompt: string; input_text: string }) => {
+    const url = () => `fast-response`;
+    return this.TP.post(url(), body, { isAuth: environment.fastResponseUrl });
+  };
 }

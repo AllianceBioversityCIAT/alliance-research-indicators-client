@@ -21,6 +21,10 @@
   display: block;
   transform: translateZ(0);
   filter: drop-shadow(0 0 20px rgb(0 0 0 / 20%));
+
+  @media (width <= 1200px) {
+    height: 240px;
+  }
 }
 
 .character-image {
@@ -34,6 +38,26 @@
   object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 10px 15px rgb(0 0 0 / 30%)) drop-shadow(0 20px 30px rgb(0 0 0 / 20%)) drop-shadow(0 30px 45px rgb(0 0 0 / 10%));
+
+  @media (width <= 1200px) {
+    top: 0;
+    left: 50%;
+    transform: translateX(-55%) translateZ(120px);
+    max-height: 212.7px;
+    width: auto;
+    object-fit: cover;
+    object-position: bottom;
+  }
+
+  @media (width <= 900px) {
+    top: 0;
+    left: 50%;
+    transform: translateX(-56.8%) translateZ(120px);
+    max-height: 212.7px;
+    width: auto;
+    object-fit: cover;
+    object-position: bottom;
+  }
 }
 
 .logo {
@@ -75,6 +99,15 @@
       0 8px 16px rgb(0 0 0 / 12%),
       0 16px 32px rgb(0 0 0 / 8%),
       0 32px 64px rgb(0 0 0 / 5%);
+
+    @media (width <= 1200px) {
+      font-size: 24px;
+      max-width: 450px;
+      line-height: 26px;
+    }
+    @media (width <= 900px) {
+      max-width: 350px;
+    }
   }
 
   .description {
@@ -88,15 +121,18 @@
       0 4px 8px rgb(0 0 0 / 12%),
       0 8px 16px rgb(0 0 0 / 8%),
       0 16px 32px rgb(0 0 0 / 5%);
+
+    @media (width <= 900px) {
+      max-width: 350px;
+    }
+  }
+
+  @media (width <= 900px) {
+    top: 40%;
   }
 }
 
 @media (width <= 768px) {
-  .character-image {
-    height: 60%;
-    max-height: 280px;
-  }
-
   .text-content {
     .title {
       font-size: 24px;
