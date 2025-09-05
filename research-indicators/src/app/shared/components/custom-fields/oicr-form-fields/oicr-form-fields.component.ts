@@ -1,4 +1,4 @@
-import { Component, inject, Input, WritableSignal } from '@angular/core';
+import { Component, inject, Input, WritableSignal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectComponent } from '../select/select.component';
@@ -6,6 +6,7 @@ import { TextareaComponent } from '../textarea/textarea.component';
 import { InputComponent } from '../input/input.component';
 import { OICR_HELPER_TEXTS } from '@shared/constants/oicr-helper-texts.constants';
 import { OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { FastResponseData } from '@shared/interfaces/fast-response.interface';
 import { PROMPT_OICR_DETAILS } from '@shared/constants/result-ai.constants';
 import { ApiService } from '@shared/services/api.service';
 import { UtilsService } from '@shared/services/utils.service';
@@ -46,6 +47,7 @@ export class OicrFormFieldsComponent {
 
   api = inject(ApiService);
   utils = inject(UtilsService);
+  isAiLoading = signal(false);
 
   taggingHelperText = OICR_HELPER_TEXTS.taggingHelperText;
   outcomeImpactStatementHelperText = OICR_HELPER_TEXTS.outcomeImpactStatementHelperText;
@@ -78,28 +80,21 @@ export class OicrFormFieldsComponent {
       input_text: elaborationText
     };
 
-    try {
-      const response = await this.api.fastResponse(textData);
-      if (response && response.successfulRequest && response.data) {
-        // Handle different possible response structures
-        let aiText = '';
-        if (typeof response.data === 'string') {
-          aiText = response.data;
-        } else if (response.data.text) {
-          aiText = response.data.text;
-        } else if (response.data.response) {
-          aiText = response.data.response;
-        } else if (response.data.content) {
-          aiText = response.data.content;
-        }
+    this.isAiLoading.set(true);
+    const response = await this.api.fastResponse(textData);
 
-        if (aiText) {
-          this.typeTextEffect(aiText, this.shortOutcomeOptionValue);
-        }
+    if (response && response.successfulRequest) {
+      let aiText = '';
+      const fastResponse = response as unknown as FastResponseData;
+      if (fastResponse.output) {
+        aiText = fastResponse.output;
       }
-    } catch (error) {
-      console.error('Error generating AI response:', error);
+
+      if (aiText) {
+        this.typeTextEffect(aiText, this.shortOutcomeOptionValue);
+      }
     }
+    this.isAiLoading.set(false);
   }
 
   private typeTextEffect(text: string, fieldPath: string) {
@@ -124,6 +119,6 @@ export class OicrFormFieldsComponent {
 
   isShortOutcomeAiDisabled(): boolean {
     const elaborationText = this.utils.getNestedPropertySignal(this.body, this.outcomeImpactOptionValue) || '';
-    return elaborationText.trim().length === 0;
+    return elaborationText.trim().length === 0 || this.isAiLoading();
   }
 }
