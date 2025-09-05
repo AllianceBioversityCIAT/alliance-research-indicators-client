@@ -36,24 +36,46 @@
         [placeholder]="placeholder">
       </textarea>
       @if (helperText) {
-        <div class="flex gap-1 text-[#8D9299] text-[14px] justify-between w-full">
-          <span class="leading-4" [innerHTML]="helperText"></span>
+        <div class="flex gap-1 text-[#8D9299] text-[14px] justify-between w-full items-start">
+          <div class="flex-1">
+            <span class="leading-4" [innerHTML]="helperText"></span>
+            @if (isInvalid()) {
+              <div class="flex items-center gap-1 text-[#E69F00] {{ size || 'text-sm' }} mt-1">
+                <i class="material-symbols-rounded !text-base">warning</i>
+                <span>This field is required</span>
+              </div>
+            }
+          </div>
 
           @if (aiAssistantFunction) {
             <button
-              class="font-medium max-w-[180px] cursor-pointer font-[500] text-[13px] bg-gradient-to-r from-[#035BA9] to-[#039CE0] text-white px-6 py-3 gap-2 justify-center w-full flex rounded-[16px]"
-              (click)="aiAssistantFunction()">
+              class="font-medium max-w-[180px] max-h-[42px] font-[500] text-[13px] px-6 py-3 gap-2 justify-center w-full flex rounded-[16px] {{
+                isAiDisabled
+                  ? 'cursor-not-allowed bg-[#E8EBED] text-[#8D9299]'
+                  : 'cursor-pointer bg-gradient-to-r from-[#035BA9] to-[#039CE0] text-white'
+              }}"
+              [disabled]="isAiDisabled"
+              (click)="!isAiDisabled && aiAssistantFunction()">
               Generate with AI
-              <img src="images/spark-white.svg" alt="upload-ai" class="h-4.5" />
+              <img
+                src="images/spark-white.svg"
+                alt="upload-ai"
+                class="h-4.5"
+                [style.filter]="
+                  isAiDisabled
+                    ? 'brightness(0) saturate(100%) invert(54%) sepia(8%) saturate(464%) hue-rotate(202deg) brightness(95%) contrast(89%)'
+                    : 'none'
+                " />
             </button>
           }
         </div>
-      }
-      @if (isInvalid()) {
-        <div class="flex items-center gap-1 text-[#E69F00]  {{ size || 'text-sm  mt-1' }}">
-          <i class="material-symbols-rounded !text-base">warning</i>
-          <span>This field is required</span>
-        </div>
+      } @else {
+        @if (isInvalid()) {
+          <div class="flex items-center gap-1 text-[#E69F00] {{ size || 'text-sm' }} mt-1">
+            <i class="material-symbols-rounded !text-base">warning</i>
+            <span>This field is required</span>
+          </div>
+        }
       }
       @if (showMaxReachedMessage()) {
         <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">

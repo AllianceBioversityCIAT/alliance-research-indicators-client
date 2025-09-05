@@ -32,6 +32,7 @@ export class TextareaComponent {
   @Input() placeholder = '';
   @Input() maxLength = 40000;
   @Input() aiAssistantFunction?: () => void;
+  @Input() isAiDisabled = false;
 
   body = signal<{ value: string }>({ value: '' });
   showMaxReachedMessage = signal(false);
@@ -55,6 +56,10 @@ export class TextareaComponent {
     const nested = this.utils.getNestedPropertySignal(this.signal, this.optionValue);
     if (nested === undefined || nested === null) return '';
     return typeof nested === 'string' ? nested : String(nested);
+  }
+
+  set value(val: string) {
+    this.setValue(val);
   }
 
   setValue(value: string) {
