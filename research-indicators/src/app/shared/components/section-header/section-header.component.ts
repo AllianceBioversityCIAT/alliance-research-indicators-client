@@ -159,12 +159,12 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     return this.currentUrl().includes('/project-detail/');
   });
 
-  isSetUpProjectPage = computed(() => {
-    return this.currentUrl().includes('/set-up-project');
+  isPDetailPageStrict = computed(() => {
+    return this.currentUrl().includes('/project-detail/') && !this.currentUrl().includes('set-up-project');
   });
 
-  isIndicatorsProgressPage = computed(() => {
-    return this.currentUrl().includes('/indicators-progress');
+  isSetUpProjectPage = computed(() => {
+    return this.currentUrl().includes('/set-up-project');
   });
 
   isResultPage = computed(() => {
@@ -188,7 +188,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
       }
     ];
 
-    if (this.isSetUpProjectPage() || this.isIndicatorsProgressPage()) {
+    if (this.isSetUpProjectPage()) {
       const urlParts = this.currentUrl().split('/');
       const agreementId = urlParts[2]; // /result/2243/any-page -> 2243
 
@@ -198,8 +198,8 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
         baseItems = [
           ...baseItems,
           {
-            label: this.isSetUpProjectPage() ? `Set up project` : `Indicators progress`,
-            tooltip: this.isSetUpProjectPage() ? 'Set up project' : 'Indicators progress'
+            label: 'Set up project',
+            tooltip: 'Set up project'
           }
         ];
       }

@@ -66,8 +66,8 @@ import { GetStructures } from '../interfaces/get-structures.interface';
 import { PostIndicator } from '../interfaces/post-indicator.interface';
 import { GetProjectIndicators } from '../interfaces/get-project-indicators.interface';
 import { PostSyncContributor } from '../interfaces/post-sync-contributor.interface';
-import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetIndicatorsProgress } from '../interfaces/get-indicators-progress.interface';
+import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { Oicr, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 
@@ -631,7 +631,7 @@ export class ApiService {
     return this.TP.get('', { isAuth: urlWithTimestamp, noCache: true });
   };
 
-  GET_Structures = (agreementId: number | string) => {
+  GET_Structures = (agreementId: number | string): Promise<MainResponse<GetStructures>> => {
     const url = () => `groups-items/items-list/${agreementId}`;
     return this.TP.get(url(), {});
   };

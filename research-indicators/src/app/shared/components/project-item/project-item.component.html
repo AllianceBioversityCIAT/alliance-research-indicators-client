@@ -9,21 +9,6 @@
             }
             <label class="project-id" for="username">{{ project.agreement_id }}</label>
           </div>
-          @if (cache.onlyMvpUsers() && isHeader && !hideSetup) {
-            <div class="absolute right-10 flex gap-2">
-              <p-button
-                label="Show indicators progress"
-                icon="pi pi-chart-line"
-                severity="contrast"
-                size="small"
-                [routerLink]="['/project-detail', project.agreement_id, 'indicators-progress']" />
-              <p-button
-                label="Set up project"
-                icon="pi pi-cog"
-                size="small"
-                [routerLink]="['/project-detail', project.agreement_id, 'set-up-project']" />
-            </div>
-          }
         </div>
 
         <label class="project-name" for="username"

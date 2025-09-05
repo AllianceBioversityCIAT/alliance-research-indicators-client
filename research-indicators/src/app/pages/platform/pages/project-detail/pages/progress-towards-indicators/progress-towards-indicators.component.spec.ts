@@ -1,13 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import ProgressTowardsIndicatorsComponent from './progress-towards-indicators.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
 
-import IndicatorsProgressComponent from './indicators-progress.component';
-
-describe('IndicatorsProgressComponent', () => {
-  let component: IndicatorsProgressComponent;
-  let fixture: ComponentFixture<IndicatorsProgressComponent>;
+describe('ProgressTowardsIndicatorsComponent', () => {
+  let component: ProgressTowardsIndicatorsComponent;
+  let fixture: ComponentFixture<ProgressTowardsIndicatorsComponent>;
 
   const mockActivatedRoute = {
     snapshot: {
@@ -17,11 +16,11 @@ describe('IndicatorsProgressComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IndicatorsProgressComponent, HttpClientTestingModule],
+      imports: [ProgressTowardsIndicatorsComponent, HttpClientTestingModule],
       providers: [{ provide: ActivatedRoute, useValue: mockActivatedRoute }]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(IndicatorsProgressComponent);
+    fixture = TestBed.createComponent(ProgressTowardsIndicatorsComponent);
     component = fixture.componentInstance;
 
     // Mock the API call to avoid actual HTTP requests

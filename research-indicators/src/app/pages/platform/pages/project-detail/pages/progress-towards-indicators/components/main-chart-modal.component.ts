@@ -16,7 +16,7 @@ import type {
   DatasetComponentOption
 } from 'echarts/components';
 import type { ComposeOption } from 'echarts/core';
-import { GetIndicatorsProgress } from '../../../../../../shared/interfaces/get-indicators-progress.interface';
+import { GetIndicatorsProgress } from '../../../../../../../shared/interfaces/get-indicators-progress.interface';
 
 // Register ECharts components
 echarts.use([

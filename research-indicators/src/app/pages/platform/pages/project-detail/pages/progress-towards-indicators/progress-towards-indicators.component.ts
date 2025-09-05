@@ -1,18 +1,19 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ApiService } from '@shared/services/api.service';
-import { GetIndicatorsProgress } from '../../../../../shared/interfaces/get-indicators-progress.interface';
+import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { IndicatorDetailModalComponent } from './components/indicator-detail-modal.component';
 import { MainChartModalComponent } from './components/main-chart-modal.component';
 import { ContributorsOverlayComponent } from './components/contributors-overlay.component';
+import { ApiService } from '../../../../../../shared/services/api.service';
+import { GetIndicatorsProgress } from '../../../../../../shared/interfaces/get-indicators-progress.interface';
+import { ActivatedRoute } from '@angular/router';
+import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 
 @Component({
-  selector: 'app-indicators-progress',
+  selector: 'app-progress-towards-indicators',
   imports: [
     TableModule,
     TagModule,
@@ -23,12 +24,13 @@ import { ContributorsOverlayComponent } from './components/contributors-overlay.
     MainChartModalComponent,
     ContributorsOverlayComponent
   ],
-  templateUrl: './indicators-progress.component.html',
-  styleUrl: './indicators-progress.component.scss'
+  templateUrl: './progress-towards-indicators.component.html',
+  styleUrl: './progress-towards-indicators.component.scss'
 })
-export default class IndicatorsProgressComponent implements OnInit {
+export default class ProgressTowardsIndicatorsComponent implements OnInit {
   api = inject(ApiService);
   route = inject(ActivatedRoute);
+  cache = inject(CacheService);
 
   indicators = signal<GetIndicatorsProgress[]>([]);
 
@@ -36,14 +38,13 @@ export default class IndicatorsProgressComponent implements OnInit {
   showDetailModal = false;
   selectedIndicator: GetIndicatorsProgress | null = null;
   showMainChartModal = false;
-  projectCode = this.route.snapshot.params['id'];
 
   ngOnInit() {
     this.GET_IndicatorsProgress();
   }
 
   GET_IndicatorsProgress() {
-    this.api.GET_IndicatorsProgress(this.projectCode).then(res => {
+    this.api.GET_IndicatorsProgress(this.cache.currentProjectId()).then(res => {
       res.data.map(indicator => {
         indicator.base_line = Number(indicator.base_line);
         indicator.target_value = Number(indicator.target_value);
@@ -134,7 +135,7 @@ export default class IndicatorsProgressComponent implements OnInit {
   }
 
   openIndicatorsInNewTab(): void {
-    const url = `/project-detail/${this.projectCode}/set-up-project/indicators`;
+    const url = `/project-detail/${this.cache.currentProjectId()}/set-up-project/indicators`;
     window.open(url, '_blank');
   }
 }

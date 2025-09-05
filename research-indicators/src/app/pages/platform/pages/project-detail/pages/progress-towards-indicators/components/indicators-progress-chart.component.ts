@@ -8,7 +8,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 import type { PieSeriesOption } from 'echarts/charts';
 import type { TitleComponentOption, TooltipComponentOption, LegendComponentOption } from 'echarts/components';
 import type { ComposeOption } from 'echarts/core';
-import { GetIndicatorsProgress } from '../../../../../../shared/interfaces/get-indicators-progress.interface';
+import { GetIndicatorsProgress } from '../../../../../../../shared/interfaces/get-indicators-progress.interface';
 
 // Register ECharts components
 echarts.use([PieChart, TitleComponent, TooltipComponent, LegendComponent, LabelLayout, CanvasRenderer]);

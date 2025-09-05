@@ -8,6 +8,7 @@
       "@shared/*": ["src/app/shared/*"],
       "@pages/*": ["src/app/pages/*"],
       "@services/*": ["src/app/shared/services/*"],
+      "@pipes/*": ["src/app/shared/pipes/*"],
       "@interfaces/*": ["src/app/shared/interfaces/*"],
       "@envs/*": ["src/environments/*"],
       "@interceptors/*": ["src/app/shared/interceptors/*"],
