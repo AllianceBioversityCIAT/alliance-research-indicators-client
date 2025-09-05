@@ -160,19 +160,21 @@ export class SetUpProjectService {
   }
 
   async getStructures() {
+    console.log('getStructures');
     this.loadingStructures.set(true);
-    try {
-      const res = await this.api.GET_Structures(this.currentAgreementId() as number);
-      this.structures.set(res.data.structures);
-      console.log(res.data.levels);
-      // this.level1Name.set(res.data.levels[0].name_level_1 || 'Level 1');
-      // this.level2Name.set(res.data.levels[1].name_level_2 || 'Level 2');
-    } catch {
-      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });
-      this.structures.set([]);
-    } finally {
-      this.loadingStructures.set(false);
-    }
+
+    const res = await this.api.GET_Structures(this.currentAgreementId() as number);
+    this.structures.set(res.data.structures);
+    console.log(res.data);
+    this.level1Name.set(res.data.levels[0]?.name_level_1 || 'Level 1');
+    this.level2Name.set(res.data.levels[1]?.name_level_2 || 'Level 2');
+
+    if (res.successfulRequest) return;
+
+    this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });
+    this.structures.set([]);
+
+    this.loadingStructures.set(false);
   }
 
   assignIndicator(indicator: Indicator | GetIndicators) {

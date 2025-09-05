@@ -44,7 +44,6 @@ export default class ProgressTowardsIndicatorsComponent implements OnInit {
   }
 
   GET_IndicatorsProgress() {
-    console.log(this.cache.currentProjectId());
     this.api.GET_IndicatorsProgress(this.cache.currentProjectId()).then(res => {
       res.data.map(indicator => {
         indicator.base_line = Number(indicator.base_line);
