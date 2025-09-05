@@ -28,6 +28,7 @@ const config: Config = {
     '^@shared/(.*)$': '<rootDir>/src/app/shared/$1',
     '^@pages/(.*)$': '<rootDir>/src/app/pages/$1',
     '^@services/(.*)$': '<rootDir>/src/app/shared/services/$1',
+    '^@pipes/(.*)$': '<rootDir>/src/app/shared/pipes/$1',
     '^@interfaces/(.*)$': '<rootDir>/src/app/shared/interfaces/$1',
     '^@interceptors/(.*)$': '<rootDir>/src/app/shared/interceptors/$1',
     '^@components/(.*)$': '<rootDir>/src/app/shared/components/$1',
