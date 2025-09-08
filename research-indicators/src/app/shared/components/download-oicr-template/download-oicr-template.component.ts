@@ -27,19 +27,19 @@ export class DownloadOicrTemplateComponent implements OnInit {
 
   fieldsToProcess = [
     {
-      dropdownId: '-1815635536',
-      selectedValue: '',
-      attribute: 'main_project',
-      type: 'text'
-    },
-    {
       dropdownId: '-1191449392',
       selectedValue: '',
       attribute: 'title',
       type: 'text'
     },
     {
-      dropdownId: '-1005152857',
+      dropdownId: '-1815635536',
+      selectedValue: '',
+      attribute: 'main_project',
+      type: 'text'
+    },
+    {
+      dropdownId: '1376114886',
       selectedValue: '',
       attribute: 'outcome_impact_statement',
       type: 'text'
