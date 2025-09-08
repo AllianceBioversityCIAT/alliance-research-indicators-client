@@ -1,0 +1,21 @@
+<div class="w-full h-full px-4">
+  <div class="flex items-center justify-between mt-8">
+    <div class="text-base font-medium">
+      {{ setupProjectService.progressIndicatorsData().indicator?.code }}
+    </div>
+    <div class="flex items-center gap-3">
+      <i class="pi pi-window-maximize cursor-pointer"></i>
+      <i class="pi pi-times cursor-pointer" (click)="setupProjectService.progressIndicatorsData.set({ showSplitter: false, indicator: null })"></i>
+    </div>
+  </div>
+
+  <span>{{ setupProjectService.progressIndicatorsData().indicator?.name }}</span>
+  <span>Indicator Details</span>
+  <div>baseline: {{ setupProjectService.progressIndicatorsData().indicator?.base_line }}</div>
+  <div>target: {{ setupProjectService.progressIndicatorsData().indicator?.target_value }}</div>
+  <div>current: {{ setupProjectService.progressIndicatorsData().indicator?.total_contributions }}</div>
+  <!-- <div>Strucuture Parent: {{ setupProjectService.progressIndicatorsData().indicator?.structure_parent }}</div> -->
+  <div>year: {{ setupProjectService.progressIndicatorsData().indicator?.year }}</div>
+  <div>contributors: {{ setupProjectService.progressIndicatorsData().indicator?.contributions?.length }}</div>
+  <div>progress: {{ setupProjectService.progressIndicatorsData().indicator?.percentageProgress }}</div>
+</div>

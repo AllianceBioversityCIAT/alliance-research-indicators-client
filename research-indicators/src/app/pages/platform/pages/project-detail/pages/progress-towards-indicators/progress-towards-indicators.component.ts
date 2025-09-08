@@ -11,6 +11,7 @@ import { ApiService } from '../../../../../../shared/services/api.service';
 import { GetIndicatorsProgress } from '../../../../../../shared/interfaces/get-indicators-progress.interface';
 import { ActivatedRoute } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
+import { SetUpProjectService } from '../../../set-up-project/set-up-project.service';
 
 @Component({
   selector: 'app-progress-towards-indicators',
@@ -31,6 +32,7 @@ export default class ProgressTowardsIndicatorsComponent implements OnInit {
   api = inject(ApiService);
   route = inject(ActivatedRoute);
   cache = inject(CacheService);
+  setupProjectService = inject(SetUpProjectService);
 
   indicators = signal<GetIndicatorsProgress[]>([]);
 
@@ -96,6 +98,10 @@ export default class ProgressTowardsIndicatorsComponent implements OnInit {
       default:
         return '';
     }
+  }
+
+  openDetail(indicator: GetIndicatorsProgress) {
+    this.setupProjectService.progressIndicatorsData.set({ showSplitter: true, indicator });
   }
 
   getRemainingChipClass(indicator: GetIndicatorsProgress): string {

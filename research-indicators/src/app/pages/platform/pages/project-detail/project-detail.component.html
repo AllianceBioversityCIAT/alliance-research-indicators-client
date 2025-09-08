@@ -1,18 +1,41 @@
-<div class="w-full">
-  <app-project-item [project]="currentProject()" [isHeader]="true"></app-project-item>
-</div>
-<div class="py-[30px] px-[40px] w-full">
-  <p-tabs [value]="lastSegment()">
-    <p-tablist>
-      @for (tab of tabs(); track tab.route) {
-        @if (!tab.hidden) {
-          <p-tab [value]="tab.route" [routerLink]="tab.route" class="flex items-center !gap-2 text-inherit">
-            <span>{{ tab.label }}</span>
-          </p-tab>
-        }
-      }
-    </p-tablist>
-  </p-tabs>
-  <router-outlet />
-  <!-- <app-project-results-table [contractId]="contractId()"></app-project-results-table> -->
-</div>
+<ng-template #tableView>
+  <div class="flex flex-col h-full min-w-0">
+    @if (!setupProjectService.progressIndicatorsData().showSplitter) {
+      <div class="w-full">
+        <app-project-item [project]="currentProject()" [isHeader]="true"></app-project-item>
+      </div>
+    }
+    <div class="w-full min-w-0 py-[8px] px-[8px] sm:py-[12px] sm:px-[12px] md:py-[20px] md:px-[24px]">
+      <p-tabs [value]="lastSegment()">
+        <p-tablist>
+          @for (tab of tabs(); track tab.route) {
+            @if (!tab.hidden) {
+              <p-tab [value]="tab.route" [routerLink]="tab.route" class="flex items-center !gap-2 text-inherit">
+                <span>{{ tab.label }}</span>
+              </p-tab>
+            }
+          }
+        </p-tablist>
+      </p-tabs>
+      <div class="w-full overflow-x-auto">
+        <router-outlet />
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+@if (setupProjectService.progressIndicatorsData().showSplitter) {
+  <p-splitter [panelSizes]="[70, 30]" [minSizes]="[30, 20]" [style]="{ height: 'calc(100vh - 150px)' }" class="mb-8">
+    <ng-template #panel>
+      <ng-container *ngTemplateOutlet="tableView"></ng-container>
+    </ng-template>
+
+    <ng-template #panel>
+      <div class="w-full h-full">
+        <app-progress-detail-content></app-progress-detail-content>
+      </div>
+    </ng-template>
+  </p-splitter>
+} @else {
+  <ng-container *ngTemplateOutlet="tableView"> </ng-container>
+}

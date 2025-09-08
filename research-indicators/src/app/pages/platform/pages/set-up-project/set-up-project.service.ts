@@ -5,6 +5,7 @@ import { GetIndicators } from '../../../../shared/interfaces/get-indicators.inte
 import { ActionsService } from '../../../../shared/services/actions.service';
 import { NumberFormatOption, NumberTypeOption } from '../../../../shared/interfaces/project-setup.interface';
 import { PostIndicator } from '../../../../shared/interfaces/post-indicator.interface';
+import { GetIndicatorsProgress } from '../../../../shared/interfaces/get-indicators-progress.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +45,7 @@ export class SetUpProjectService {
   editingLevel2 = signal<boolean>(false);
   // Structure table expand/collapse control
   allStructuresExpanded = signal<boolean>(true);
+  progressIndicatorsData = signal<{ showSplitter: boolean; indicator: GetIndicatorsProgress | null }>({ showSplitter: false, indicator: null });
 
   strcutureGrouped = computed(() => {
     const structuresCopy = JSON.parse(JSON.stringify(this.structures()));
