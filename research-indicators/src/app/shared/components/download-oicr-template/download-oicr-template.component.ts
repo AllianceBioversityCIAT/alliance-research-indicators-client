@@ -63,9 +63,9 @@ export class DownloadOicrTemplateComponent implements OnInit {
   // •	Other contributing projects → 1964384726 → Texto (Repetible: contenedor=1972143100, item=1915110532)
   // •	Tagging (Tag as) → 1527089857 → DropDown
   //! •	OICR handle (solo para actualizaciones) → 1079386482 → Texto
-  //* •	Elaboration of outcome/impact statement → -1005152857 → Texto
+  //? •	Elaboration of outcome/impact statement → -1005152857 → Texto
   // •	Primary Levers → 771681199 → DropDown
-  // •	Other Contributing Levers → -63980865 → DropDown
+  //! •	Other Contributing Levers → -63980865 → DropDown
   // •	Geographic scope → -750698587 → DropDown
   // •	Regions / Countries (campo de texto único) → -1355309710 → Texto
   //? •	Geographic Scope comments → -515767717 → Texto
