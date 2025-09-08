@@ -50,6 +50,7 @@ import { GetProjectStatusService } from './control-list/get-project-status.servi
 import { GetInitiativesService } from './control-list/get-initiatives.service';
 import { GetTagsService } from './control-list/get-tags.service';
 import { OicrResultsService } from './short-control-list/oicr-results.service';
+import { GetMaturityLevelsService } from './control-list/get-maturity-levels.service';
 
 @Injectable({
   providedIn: 'root'
@@ -99,6 +100,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetInstitutionsService);
       case 'userStaff':
         return this.injector.get(GetUserStaffService);
+      case 'maturityLevels':
+        return this.injector.get(GetMaturityLevelsService);
       case 'countriesWithSubnational': {
         const svc = this.injector.get(GetCountriesService);
         svc.main(true);

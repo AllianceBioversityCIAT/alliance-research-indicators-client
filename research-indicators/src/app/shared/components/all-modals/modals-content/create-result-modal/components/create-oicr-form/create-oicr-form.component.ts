@@ -28,7 +28,6 @@ import { GetYearsService } from '@shared/services/control-list/get-years.service
 import { WordCountService } from '@shared/services/word-count.service';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
-import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
 import { RadioButtonComponent } from '@shared/components/custom-fields/radio-button/radio-button.component';
 import { MultiselectInstanceComponent } from '@shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
@@ -51,6 +50,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { GetInitiativesService } from '@shared/services/control-list/get-initiatives.service';
 import { Router } from '@angular/router';
+import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
@@ -61,11 +61,11 @@ interface GetContractsExtended extends GetContracts {
   styleUrl: './create-oicr-form.component.scss',
   imports: [
     StepsModule,
-    SelectComponent,
     TextareaComponent,
     RadioButtonComponent,
     MultiselectComponent,
     MultiselectInstanceComponent,
+    OicrFormFieldsComponent,
     DatePipe,
     NgTemplateOutlet,
     TooltipModule
@@ -141,7 +141,9 @@ export class CreateOicrFormComponent {
       tagging: {
         tag_id: 0
       },
-      linked_result: [],
+      link_result: {
+        external_oicr_id: 0
+      },
       outcome_impact_statement: ''
     },
     step_two: {
@@ -156,9 +158,7 @@ export class CreateOicrFormComponent {
       comment_geo_scope: ''
     },
     step_four: {
-      general_comment: {
-        comment_geo_scope: ''
-      }
+      general_comment: ''
     },
     base_information: {
       indicator_id: 5,
@@ -247,12 +247,6 @@ export class CreateOicrFormComponent {
     },
     { allowSignalWrites: true }
   );
-
-  taggingHelperText =
-    'You can find some examples how the ‘Tag as’ were used in previous OICRs <a class="text-[#1689CA] underline" href="https://cgiar.sharepoint.com/sites/Alliance-SPRM/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FAlliance%2DSPRM%2FShared%20Documents%2F2%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%2F2%2E5%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%20%2D%20Projects%2F2%2E5%2E1%20Outcomes%2F2024%20Outcomes%2F00%2DTag%2DNew%20or%20Updated%20OICR%20%2D%20Examples%20%28Version%2016%2E07%2E24%29%2Epdf&parent=%2Fsites%2FAlliance%2DSPRM%2FShared%20Documents%2F2%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%2F2%2E5%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%20%2D%20Projects%2F2%2E5%2E1%20Outcomes%2F2024%20Outcomes" target="_blank">here</a>.';
-
-  outcomeImpactStatementHelperText =
-    'You can find good examples from previous OICRs <a class="text-[#1689CA] underline" href="https://cgiar.sharepoint.com/sites/Alliance-SPRM/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FAlliance%2DSPRM%2FShared%20Documents%2F2%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%2F2%2E5%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%20%2D%20Projects%2F2%2E5%2E1%20Outcomes%2F2024%20Outcomes%2F00%2DTag%2DNew%20or%20Updated%20OICR%20%2D%20Examples%20%28Version%2016%2E07%2E24%29%2Epdf&parent=%2Fsites%2FAlliance%2DSPRM%2FShared%20Documents%2F2%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%2F2%2E5%20Project%20Monitoring%2C%20Evaluation%20and%20Learning%20%2D%20Projects%2F2%2E5%2E1%20Outcomes%2F2024%20Outcomes" target="_blank">here</a>.';
 
   onActiveIndexChange(event: number) {
     this.activeIndex = event;
@@ -436,7 +430,7 @@ export class CreateOicrFormComponent {
       ...current,
       step_one: {
         ...current.step_one,
-        linked_result: []
+        link_result: { external_oicr_id: 0 }
       }
     }));
   }

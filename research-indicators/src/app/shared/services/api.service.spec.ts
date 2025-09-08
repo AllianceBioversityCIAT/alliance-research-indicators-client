@@ -284,7 +284,7 @@ describe('ApiService', () => {
 
       service.PATCH_GeneralInformation(id, body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/123/general-information', body, { useYearInterceptor: true });
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/123/general-information', body, { useResultInterceptor: true });
     });
 
     it('should call PATCH_Partners', () => {
@@ -294,7 +294,7 @@ describe('ApiService', () => {
 
       service.PATCH_Partners(id, body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/institutions/partners/by-result-id/123', body, { useYearInterceptor: true });
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/institutions/partners/by-result-id/123', body, { useResultInterceptor: true });
     });
 
     it('should call PATCH_InnovationDetails', () => {
@@ -304,7 +304,7 @@ describe('ApiService', () => {
 
       service.PATCH_InnovationDetails(resultCode, body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/innovation-dev/123', body, { useYearInterceptor: true });
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/innovation-dev/123', body, { useResultInterceptor: true });
     });
 
     it('should call PATCH_ResultEvidences', () => {
@@ -314,7 +314,7 @@ describe('ApiService', () => {
 
       service.PATCH_ResultEvidences(resultId, body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/evidences/by-result-id/123', body, { useYearInterceptor: true });
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/evidences/by-result-id/123', body, { useResultInterceptor: true });
     });
 
     it('should call PATCH_IpOwners', () => {
@@ -324,7 +324,7 @@ describe('ApiService', () => {
 
       service.PATCH_IpOwners(id, body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/intellectual-property/123', body, { useYearInterceptor: true });
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/intellectual-property/123', body, { useResultInterceptor: true });
     });
 
     it('should call PATCH_CapacitySharing', () => {
@@ -333,7 +333,7 @@ describe('ApiService', () => {
 
       service.PATCH_CapacitySharing(body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/capacity-sharing/by-result-id/123', body, { useYearInterceptor: true });
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/capacity-sharing/by-result-id/123', body, { useResultInterceptor: true });
     });
 
     it('should call PATCH_PolicyChange', () => {
@@ -343,7 +343,7 @@ describe('ApiService', () => {
 
       service.PATCH_PolicyChange(id, body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/policy-change/by-result-id/123', body, { useYearInterceptor: true });
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/policy-change/by-result-id/123', body, { useResultInterceptor: true });
     });
 
     it('should call PATCH_Alignments', () => {
@@ -353,7 +353,7 @@ describe('ApiService', () => {
 
       service.PATCH_Alignments(id, body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/123/alignments', body, { useYearInterceptor: true });
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/123/alignments', body, { useResultInterceptor: true });
     });
 
     it('should call PATCH_ReportingCycle', () => {
@@ -374,7 +374,7 @@ describe('ApiService', () => {
 
       expect(mockToPromiseService.patch).toHaveBeenCalledWith(
         'results/green-checks/change/status?resultCode=123&comment=test comment&status=submitted',
-        { useYearInterceptor: true }
+        { useResultInterceptor: true }
       );
     });
 
@@ -385,7 +385,7 @@ describe('ApiService', () => {
       service.PATCH_SubmitResult(params);
 
       expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&status=submitted', {
-        useYearInterceptor: true
+        useResultInterceptor: true
       });
     });
 
@@ -406,7 +406,7 @@ describe('ApiService', () => {
 
       service.DELETE_Result(resultCode);
 
-      expect(mockToPromiseService.delete).toHaveBeenCalledWith('results/123/delete', { useYearInterceptor: true });
+      expect(mockToPromiseService.delete).toHaveBeenCalledWith('results/123/delete', { useResultInterceptor: true });
     });
   });
 
@@ -539,7 +539,7 @@ describe('ApiService', () => {
 
       service.GET_GeneralInformation(id);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/general-information', { loadingTrigger: true, useYearInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/general-information', { loadingTrigger: true, useResultInterceptor: true });
     });
 
     it('should call GET_Versions', () => {
@@ -618,7 +618,7 @@ describe('ApiService', () => {
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results/institutions/by-result-id/123?role=partners', {
         loadingTrigger: true,
-        useYearInterceptor: true
+        useResultInterceptor: true
       });
     });
 
@@ -628,7 +628,7 @@ describe('ApiService', () => {
 
       service.GET_InnovationDetails(resultCode);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/innovation-dev/123', { loadingTrigger: true, useYearInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/innovation-dev/123', { loadingTrigger: true, useResultInterceptor: true });
     });
 
     it('should call GET_ResultEvidences', () => {
@@ -637,7 +637,7 @@ describe('ApiService', () => {
 
       service.GET_ResultEvidences(resultId);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/evidences/principal/123', { loadingTrigger: true, useYearInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/evidences/principal/123', { loadingTrigger: true, useResultInterceptor: true });
     });
 
     it('should call GET_Years without parameters', () => {
@@ -724,7 +724,10 @@ describe('ApiService', () => {
 
       service.GET_IpOwner(id);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/intellectual-property/123', { loadingTrigger: true, useYearInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/intellectual-property/123', {
+        loadingTrigger: true,
+        useResultInterceptor: true
+      });
     });
 
     it('should call GET_CapacitySharing', () => {
@@ -734,7 +737,7 @@ describe('ApiService', () => {
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results/capacity-sharing/by-result-id/123', {
         loadingTrigger: true,
-        useYearInterceptor: true
+        useResultInterceptor: true
       });
     });
 
@@ -746,7 +749,7 @@ describe('ApiService', () => {
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results/policy-change/by-result-id/123', {
         loadingTrigger: true,
-        useYearInterceptor: true
+        useResultInterceptor: true
       });
     });
 
@@ -756,7 +759,7 @@ describe('ApiService', () => {
 
       service.GET_Alignments(id);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/alignments', { loadingTrigger: true, useYearInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/alignments', { loadingTrigger: true, useResultInterceptor: true });
     });
 
     it('should call GET_SessionFormat', () => {
@@ -806,7 +809,7 @@ describe('ApiService', () => {
       service.GET_Metadata(id);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/metadata', {
-        useYearInterceptor: true
+        useResultInterceptor: true
       });
     });
 
@@ -940,7 +943,7 @@ describe('ApiService', () => {
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/geo-location', {
         loadingTrigger: true,
-        useYearInterceptor: true
+        useResultInterceptor: true
       });
     });
 
@@ -1031,7 +1034,7 @@ describe('ApiService', () => {
       service.GET_GreenChecks(resultCode);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results/green-checks/123', {
-        useYearInterceptor: true
+        useResultInterceptor: true
       });
     });
 
@@ -1042,7 +1045,7 @@ describe('ApiService', () => {
       service.GET_SubmitionHistory(resultCode);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results/green-checks/history/123', {
-        useYearInterceptor: true
+        useResultInterceptor: true
       });
     });
   });
@@ -1055,7 +1058,7 @@ describe('ApiService', () => {
 
       service.PATCH_GeoLocation(id, body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/123/geo-location', body, { useYearInterceptor: true });
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/123/geo-location', body, { useResultInterceptor: true });
     });
   });
 

@@ -94,6 +94,28 @@
                   </app-custom-tag>
                 </a>
               </td>
+            } @else if (column.field === 'result_official_code') {
+              <td>
+                <div class="flex items-center text-[13px]">
+                  <span
+                    class="py-1 px-2 rounded-l-lg font-[600] min-w-[50px] max-w-[50px] text-center"
+                    [style.color]="getPlatformColors(result.platform_code)?.text"
+                    [style.background-color]="getPlatformColors(result.platform_code)?.background">
+                    {{ result.platform_code }}
+                  </span>
+                  <span class="text-[#4C5158] bg-[#E8EBED] py-1 px-2 rounded-r-lg min-w-[43px] text-center">
+                    {{ formatResultCode(result.result_official_code) }}
+                  </span>
+                </div>
+              </td>
+            } @else if (column.field === 'project') {
+              <td>
+                <span
+                  class="cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"
+                  [routerLink]="['/project-detail', result.result_contracts.contract_id]">
+                  {{ result.result_contracts.contract_id }}
+                </span>
+              </td>
             } @else if (column.field === 'versions') {
               <td>
                 @if (column.getValue) {
