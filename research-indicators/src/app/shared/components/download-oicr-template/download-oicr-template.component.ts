@@ -37,8 +37,38 @@ export class DownloadOicrTemplateComponent implements OnInit {
       selectedValue: '',
       attribute: 'title',
       type: 'text'
+    },
+    {
+      dropdownId: '-1005152857',
+      selectedValue: '',
+      attribute: 'outcome_impact_statement',
+      type: 'text'
+    },
+    {
+      dropdownId: '-1355309710', // TODO: Update this field
+      selectedValue: '',
+      attribute: 'title',
+      type: 'text'
+    },
+    {
+      dropdownId: '-515767717',
+      selectedValue: '',
+      attribute: 'geographic_scope_comments',
+      type: 'text'
     }
   ];
+
+  //? •	Title → -1461958722 → Texto
+  //? •	Main project → -1815635536 → Texto
+  // •	Other contributing projects → 1964384726 → Texto (Repetible: contenedor=1972143100, item=1915110532)
+  // •	Tagging (Tag as) → 1527089857 → DropDown
+  //! •	OICR handle (solo para actualizaciones) → 1079386482 → Texto
+  //* •	Elaboration of outcome/impact statement → -1005152857 → Texto
+  // •	Primary Levers → 771681199 → DropDown
+  // •	Other Contributing Levers → -63980865 → DropDown
+  // •	Geographic scope → -750698587 → DropDown
+  // •	Regions / Countries (campo de texto único) → -1355309710 → Texto
+  //? •	Geographic Scope comments → -515767717 → Texto
 
   mapFieldsToProcess(oicrDetails: GetOICRDetails) {
     this.fieldsToProcess.forEach(field => {
