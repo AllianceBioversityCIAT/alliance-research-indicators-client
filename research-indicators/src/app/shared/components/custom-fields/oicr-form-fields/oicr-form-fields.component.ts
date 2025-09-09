@@ -10,6 +10,8 @@ import { FastResponseData } from '@shared/interfaces/fast-response.interface';
 import { PROMPT_OICR_DETAILS } from '@shared/constants/result-ai.constants';
 import { ApiService } from '@shared/services/api.service';
 import { UtilsService } from '@shared/services/utils.service';
+import { WordCountService } from '@shared/services/word-count.service';
+import { ActionsService } from '@shared/services/actions.service';
 
 type OicrFormBody = OicrCreation | PatchOicr;
 
@@ -47,7 +49,11 @@ export class OicrFormFieldsComponent {
 
   api = inject(ApiService);
   utils = inject(UtilsService);
+  wordCountService = inject(WordCountService);
+  actions = inject(ActionsService);
   isAiLoading = signal(false);
+  aiError = signal('');
+  private aiTimeoutId: number | null = null;
 
   taggingHelperText = OICR_HELPER_TEXTS.taggingHelperText;
   outcomeImpactStatementHelperText = OICR_HELPER_TEXTS.outcomeImpactStatementHelperText;
@@ -80,21 +86,76 @@ export class OicrFormFieldsComponent {
       input_text: elaborationText
     };
 
+    this.aiError.set('');
     this.isAiLoading.set(true);
-    const response = await this.api.fastResponse(textData);
 
-    if (response.successfulRequest) {
-      let aiText = '';
-      const fastResponse = response as unknown as FastResponseData;
-      if (fastResponse.output) {
-        aiText = fastResponse.output;
-      }
+    this.aiTimeoutId = window.setTimeout(() => {
+      this.handleAiError('Request timed out. Please try again.');
+    }, 30000);
 
-      if (aiText) {
-        this.typeTextEffect(aiText, this.shortOutcomeOptionValue);
+    try {
+      const response = await this.api.fastResponse(textData);
+
+      if (response.successfulRequest) {
+        let aiText = '';
+        const fastResponse = response as unknown as FastResponseData;
+        if (fastResponse.output) {
+          aiText = fastResponse.output;
+        }
+
+        if (aiText) {
+          const existingContent = this.utils.getNestedPropertySignal(this.body, this.shortOutcomeOptionValue) || '';
+          const hadExistingContent = existingContent.trim().length > 0;
+
+          if (hadExistingContent) {
+            this.actions.showToast({
+              severity: 'info',
+              summary: 'AI Generation',
+              detail: 'Generated with AI – please review and edit'
+            });
+          } else {
+            this.actions.showToast({
+              severity: 'success',
+              summary: 'AI Generation',
+              detail: 'Short outcome generated successfully'
+            });
+          }
+
+          this.typeTextEffect(aiText, this.shortOutcomeOptionValue);
+        } else {
+          this.handleAiError('No content generated. Please try again.');
+        }
+      } else {
+        this.handleAiError('Generation failed. Please try again.');
       }
+    } catch {
+      this.handleAiError('Generation failed. Please try again.');
+    } finally {
+      this.clearAiTimeout();
+      this.isAiLoading.set(false);
     }
+  }
+
+  private handleAiError(message: string) {
+    this.aiError.set(message);
+    this.actions.showToast({
+      severity: 'error',
+      summary: 'AI Generation Failed',
+      detail: message
+    });
     this.isAiLoading.set(false);
+  }
+
+  private clearAiTimeout() {
+    if (this.aiTimeoutId) {
+      clearTimeout(this.aiTimeoutId);
+      this.aiTimeoutId = null;
+    }
+  }
+
+  onRetryAi() {
+    this.aiError.set('');
+    this.aiAssistantFunctionForShortOutcome();
   }
 
   private typeTextEffect(text: string, fieldPath: string) {
@@ -119,6 +180,16 @@ export class OicrFormFieldsComponent {
 
   isShortOutcomeAiDisabled(): boolean {
     const elaborationText = this.utils.getNestedPropertySignal(this.body, this.outcomeImpactOptionValue) || '';
-    return elaborationText.trim().length === 0 || this.isAiLoading();
+    return elaborationText.trim().length === 0 || this.isAiLoading() || this.isElaborationTextExceedingLimit();
+  }
+
+  isElaborationTextExceedingLimit(): boolean {
+    const elaborationText = this.utils.getNestedPropertySignal(this.body, this.outcomeImpactOptionValue) || '';
+    const wordCount = this.wordCountService.getWordCount(elaborationText);
+    return wordCount > 400;
+  }
+
+  getElaborationLimitMessage(): string {
+    return 'It is not possible to generate the Short Outcome/Impact Statement because the Elaboration of Outcome/Impact Statement field exceeds the allowed limit. Please adjust the text to continue.';
   }
 }
