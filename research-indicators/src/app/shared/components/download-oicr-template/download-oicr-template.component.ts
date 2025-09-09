@@ -73,6 +73,18 @@ export class DownloadOicrTemplateComponent implements OnInit {
       selectedValue: '',
       attribute: 'regions_countries_text',
       type: 'text'
+    },
+    {
+      dropdownId: '1308358992',
+      selectedValue: '',
+      attribute: 'regions_countries_text',
+      type: 'text'
+    },
+    {
+      dropdownId: '539860219',
+      selectedValue: '',
+      attribute: 'regions_countries_text',
+      type: 'text'
     }
   ];
 
@@ -102,7 +114,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
   //? •	Title → -1461958722 → Texto
   //? •	Main project → -1815635536 → Texto
   //? •	Other contributing projects → 1964384726 → Texto (Repetible: contenedor=1972143100, item=1915110532) ALLIANCE ALIGNMENT
-  //TODO •	Tagging (Tag as) → 1527089857 → DropDown map ids
+  //? •	Tagging (Tag as) → 1527089857 → DropDown map ids
   //! •	OICR handle (solo para actualizaciones) → 1079386482 → Texto
   //? •	Elaboration of outcome/impact statement → -1005152857 → Texto
   //* •	Primary Levers → 771681199 → DropDown BUG no guarda en la creación esta en el inicio
@@ -174,7 +186,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
 
     try {
       // call the WASM service
-      this.result = await this.wasm.processDocx(this.fieldsToProcess);
+      this.result = await this.wasm.processDocx(this.fieldsToProcess.filter(field => field.selectedValue));
       const { success, fileData } = this.result;
       // if success and fileData, download the file
       if (success && fileData) {
