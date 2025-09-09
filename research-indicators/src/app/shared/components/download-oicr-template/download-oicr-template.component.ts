@@ -61,6 +61,12 @@ export class DownloadOicrTemplateComponent implements OnInit {
       selectedValue: '',
       attribute: 'geographic_scope_comments',
       type: 'text'
+    },
+    {
+      dropdownId: '1209379648',
+      selectedValue: '',
+      attribute: 'other_projects_text',
+      type: 'text'
     }
   ];
 
@@ -112,11 +118,17 @@ export class DownloadOicrTemplateComponent implements OnInit {
   }
   async getOicrDetails(resultCode: number) {
     const response = await this.api.GET_OICRDetails(resultCode);
+    response.data.other_projects_text = response.data.other_projects
+      .map(project => project.project_title + ' - ' + project.project_title + '')
+      .join(', ');
     this.mapFieldsToProcess(response.data);
+
     console.log(response.data);
   }
   async downloadOicrTemplate() {
     await this.getOicrDetails(this.cache.currentResultId());
+
+    console.log(this.fieldsToProcess);
 
     this.processing.set(true);
     this.result = null;
