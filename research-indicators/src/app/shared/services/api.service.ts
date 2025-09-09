@@ -68,6 +68,7 @@ import { GetProjectIndicators } from '../interfaces/get-project-indicators.inter
 import { PostSyncContributor } from '../interfaces/post-sync-contributor.interface';
 import { GetIndicatorsProgress } from '../interfaces/get-indicators-progress.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
+import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { Oicr, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 
@@ -687,6 +688,11 @@ export class ApiService {
   };
 
   // get https://main-allianceindicatorstest.ciat.cgiar.org/api/project-indicators/contributions/:agreementId
+
+  GET_OICRDetails = (resultCode: number): Promise<MainResponse<GetOICRDetails>> => {
+    const url = () => `results/oicr/details/${resultCode}`;
+    return this.TP.get(url(), {});
+  };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 

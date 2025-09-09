@@ -38,7 +38,9 @@
               "src/styles/custom-fields.scss",
               "src/styles/custom-prime-force-styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "./public/go/wasm_exec.js"
+            ]
           },
           "configurations": {
             "production": {
