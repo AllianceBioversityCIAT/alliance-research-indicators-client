@@ -158,7 +158,6 @@ export class DownloadOicrTemplateComponent implements OnInit {
       field.selectedValue = oicrDetails[field.attribute as keyof GetOICRDetails] as string;
     });
 
-    // console.log(this.fieldsToProcess);
   }
 
   async ngOnInit() {
@@ -172,7 +171,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
     response.data.regions_countries_text = this.formatRegionsAndCountries(response.data.regions, response.data.countries);
     response.data.tag_name_text = this.getTagAsText(response.data.tag_id.toString());
     response.data.others_levers_text = response.data.other_levers?.map(lever => lever.lever_full).join('\n\n');
-    response.data.main_levers_text = response.data.main_levers?.map(lever => lever.lever_full).join('\n\n');
+    response.data.main_levers_text = response.data.main_levers?.map(lever => lever.main_lever_name).join('\n\n');
 
     this.mapFieldsToProcess(response.data);
 
