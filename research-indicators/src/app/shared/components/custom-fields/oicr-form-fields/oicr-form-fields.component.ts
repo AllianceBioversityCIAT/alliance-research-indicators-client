@@ -111,7 +111,7 @@ export class OicrFormFieldsComponent {
             this.actions.showToast({
               severity: 'info',
               summary: 'AI Generation',
-              detail: 'Generated with AI – please review and edit'
+              detail: 'Short outcome generated successfully, please review and edit'
             });
           } else {
             this.actions.showToast({
