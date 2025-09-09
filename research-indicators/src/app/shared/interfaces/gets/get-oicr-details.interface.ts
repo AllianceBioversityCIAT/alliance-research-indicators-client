@@ -15,6 +15,8 @@ export interface GetOICRDetails {
   regions: Region[];
   countries: Country[];
   geographic_scope_comments: string;
+  tag_id: number;
+  tag_name_text: string;
   // auxiliars
   other_projects_text: string;
   regions_countries_text: string;
