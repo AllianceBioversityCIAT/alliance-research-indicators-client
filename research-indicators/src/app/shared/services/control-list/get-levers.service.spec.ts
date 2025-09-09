@@ -34,9 +34,13 @@ describe('GetLeversService', () => {
       { id: 1, name: 'Lever 1' },
       { id: 2, name: 'Lever 2' }
     ];
+    const expectedData = [
+      { id: 1, name: 'Lever 1', lever_id: 1 },
+      { id: 2, name: 'Lever 2', lever_id: 2 }
+    ];
     await setup({ data: mockData });
     expect(apiMock.GET_Levers).toHaveBeenCalled();
-    expect(service.list()).toEqual(mockData);
+    expect(service.list()).toEqual(expectedData);
     expect(service.loading()).toBe(false);
   });
 
@@ -55,10 +59,11 @@ describe('GetLeversService', () => {
   it('should allow manual main call with updated data', async () => {
     await setup({ data: [] });
     const newData = [{ id: 3, name: 'New Lever' }];
+    const expectedData = [{ id: 3, name: 'New Lever', lever_id: 3 }];
     apiMock.GET_Levers.mockResolvedValueOnce({ data: newData });
-    
+
     await service.main();
-    expect(service.list()).toEqual(newData);
+    expect(service.list()).toEqual(expectedData);
     expect(service.loading()).toBe(false);
   });
 });

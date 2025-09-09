@@ -4,6 +4,7 @@ export interface GetLevers {
   is_active: boolean;
   name: string;
   id: number;
+  lever_id?: number;
   short_name: string;
   full_name: string;
   other_names: string;

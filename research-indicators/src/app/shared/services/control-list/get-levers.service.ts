@@ -19,7 +19,7 @@ export class GetLeversService {
     this.loading.set(true);
     try {
       const response = await this.apiService.GET_Levers();
-      const data = Array.isArray(response?.data) ? response.data : [];
+      const data = Array.isArray(response?.data) ? response.data.map((lever: GetLevers) => ({ ...lever, lever_id: lever?.id })) : [];
       this.list.set(data);
     } catch {
       this.list.set([]);
