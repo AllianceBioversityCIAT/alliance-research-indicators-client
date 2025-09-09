@@ -4,13 +4,13 @@ export interface GetOICRDetails {
   title: string;
   main_project_id: string;
   main_project: string;
-  other_projects: OtherProject[];
   tags: Tag[];
   outcome_impact_statement: string;
   // main_lever_id: any;
   // main_lever_short: any;
   // main_lever_full: any;
-  // other_levers: any[];
+  other_projects: OtherProject[];
+  other_levers: LeverItem[];
   geographic_scope: string;
   regions: Region[];
   countries: Country[];
@@ -20,6 +20,12 @@ export interface GetOICRDetails {
   // auxiliars
   other_projects_text: string;
   regions_countries_text: string;
+}
+
+export interface LeverItem {
+  lever_id: number | string;
+  lever_short: string;
+  lever_full: string;
 }
 
 export interface OtherProject {
