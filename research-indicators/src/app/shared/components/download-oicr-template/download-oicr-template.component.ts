@@ -27,6 +27,12 @@ export class DownloadOicrTemplateComponent implements OnInit {
 
   fieldsToProcess: { dropdownId: string; selectedValue: string; attribute: string; type: string }[] = [
     {
+      dropdownId: '2132273794',
+      selectedValue: '',
+      attribute: 'tag_name_text',
+      type: 'text'
+    },
+    {
       dropdownId: '-1191449392',
       selectedValue: '',
       attribute: 'title',
@@ -102,7 +108,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
   //* •	Primary Levers → 771681199 → DropDown BUG no guarda en la creación esta en el inicio
   //* •	Other Contributing Levers → -63980865 → DropDown en la creaccion
   //? •	Geographic scope → -750698587 → DropDown
-  // •	Regions / Countries (campo de texto único) → -1355309710 → Texto
+  //? •	Regions / Countries (campo de texto único) → -1355309710 → Texto
   //? •	Geographic Scope comments → -515767717 → Texto
 
   /**
@@ -152,15 +158,16 @@ export class DownloadOicrTemplateComponent implements OnInit {
 
     // Use the new method to format regions and countries
     response.data.regions_countries_text = this.formatRegionsAndCountries(response.data.regions, response.data.countries);
+    response.data.tag_name_text = this.getTagAsText(response.data.tag_id.toString());
 
     this.mapFieldsToProcess(response.data);
 
-    // console.log(response.data);
+    console.log(response.data);
   }
   async downloadOicrTemplate() {
     await this.getOicrDetails(this.cache.currentResultId());
 
-    // console.log(this.fieldsToProcess);
+    console.log(this.fieldsToProcess);
 
     this.processing.set(true);
     this.result = null;
