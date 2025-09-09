@@ -11,6 +11,7 @@ export interface GetOICRDetails {
   // main_lever_full: any;
   other_projects: OtherProject[];
   other_levers: LeverItem[];
+  main_levers: LeverItem[];
   geographic_scope: string;
   regions: Region[];
   countries: Country[];
@@ -20,6 +21,8 @@ export interface GetOICRDetails {
   // auxiliars
   other_projects_text: string;
   regions_countries_text: string;
+  others_levers_text: string;
+  main_levers_text: string;
 }
 
 export interface LeverItem {
