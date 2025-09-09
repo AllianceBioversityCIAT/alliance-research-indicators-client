@@ -185,7 +185,7 @@
         [maxLength]="80"
         [aiAssistantFunction]="aiAssistantFunctionForShortOutcome.bind(this)"
         [isAiDisabled]="isShortOutcomeAiDisabled()"
-        [isAiLoading]="isAiLoading()"
+        [isAiLoading]="isAiLoading() || isTyping()"
         [aiError]="aiError()"
         [onRetry]="onRetryAi.bind(this)"
         [signal]="body"

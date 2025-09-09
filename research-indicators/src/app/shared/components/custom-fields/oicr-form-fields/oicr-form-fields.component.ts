@@ -52,6 +52,7 @@ export class OicrFormFieldsComponent {
   wordCountService = inject(WordCountService);
   actions = inject(ActionsService);
   isAiLoading = signal(false);
+  isTyping = signal(false);
   aiError = signal('');
   private aiTimeoutId: number | null = null;
 
@@ -163,6 +164,7 @@ export class OicrFormFieldsComponent {
     const targetText = text.trim();
     if (targetText === currentValue) return;
 
+    this.isTyping.set(true);
     const targetDuration = 1500;
     const typingSpeed = Math.max(20, Math.floor(targetDuration / targetText.length));
 
@@ -174,13 +176,14 @@ export class OicrFormFieldsComponent {
         currentIndex++;
       } else {
         clearInterval(typeInterval);
+        this.isTyping.set(false);
       }
     }, typingSpeed);
   }
 
   isShortOutcomeAiDisabled(): boolean {
     const elaborationText = this.utils.getNestedPropertySignal(this.body, this.outcomeImpactOptionValue) || '';
-    return elaborationText.trim().length === 0 || this.isAiLoading() || this.isElaborationTextExceedingLimit();
+    return elaborationText.trim().length === 0 || this.isAiLoading() || this.isTyping() || this.isElaborationTextExceedingLimit();
   }
 
   isElaborationTextExceedingLimit(): boolean {
