@@ -241,7 +241,7 @@
           </div>
         } @else {
           <div class="w-full analyze-result-content flex">
-            @for (item of createResultManagementService.items() | slice: first() : first() + rows(); track $index) {
+            @for (item of createResultManagementService.items() | slice: first() : first() + rows(); track item) {
               <app-result-ai-item
                 [item]="item"
                 [isFirstItem]="$index === 0"
