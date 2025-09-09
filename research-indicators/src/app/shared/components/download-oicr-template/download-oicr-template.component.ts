@@ -58,6 +58,28 @@ export class DownloadOicrTemplateComponent implements OnInit {
     }
   ];
 
+  getTagAsText(tagId: string) {
+    const tags = {
+      '1': 'New OICR',
+      '2': 'Updated OICR (Same Level of Maturity)',
+      '3': 'Updated OICR (New Level of Maturity)'
+    };
+    return tags[tagId as keyof typeof tags];
+  }
+
+  getGeoScopeText(geoScopeId: string) {
+    const geoScopes = {
+      '1': 'Global',
+      '2': 'Multi-region',
+      '3': 'Multi-country',
+      '4': 'Regional',
+      '5': 'Sub-regional',
+      '6': 'National',
+      '7': 'Sub-national'
+    };
+    return geoScopes[geoScopeId as keyof typeof geoScopes];
+  }
+
   //? •	Title → -1461958722 → Texto
   //? •	Main project → -1815635536 → Texto
   //TODO •	Other contributing projects → 1964384726 → Texto (Repetible: contenedor=1972143100, item=1915110532) ALLIANCE ALIGNMENT
