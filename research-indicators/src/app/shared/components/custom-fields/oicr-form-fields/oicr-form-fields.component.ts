@@ -1,4 +1,4 @@
-import { Component, Input, WritableSignal } from '@angular/core';
+import { Component, inject, Input, WritableSignal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectComponent } from '../select/select.component';
@@ -6,6 +6,10 @@ import { TextareaComponent } from '../textarea/textarea.component';
 import { InputComponent } from '../input/input.component';
 import { OICR_HELPER_TEXTS } from '@shared/constants/oicr-helper-texts.constants';
 import { OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { FastResponseData } from '@shared/interfaces/fast-response.interface';
+import { PROMPT_OICR_DETAILS } from '@shared/constants/result-ai.constants';
+import { ApiService } from '@shared/services/api.service';
+import { UtilsService } from '@shared/services/utils.service';
 
 type OicrFormBody = OicrCreation | PatchOicr;
 
@@ -41,6 +45,10 @@ export class OicrFormFieldsComponent {
     // Default empty implementation - can be overridden by parent component
   };
 
+  api = inject(ApiService);
+  utils = inject(UtilsService);
+  isAiLoading = signal(false);
+
   taggingHelperText = OICR_HELPER_TEXTS.taggingHelperText;
   outcomeImpactStatementHelperText = OICR_HELPER_TEXTS.outcomeImpactStatementHelperText;
   maturityLevelHelperText = OICR_HELPER_TEXTS.maturityLevelHelperText;
@@ -63,5 +71,54 @@ export class OicrFormFieldsComponent {
     }
 
     return false;
+  }
+
+  async aiAssistantFunctionForShortOutcome() {
+    const elaborationText = this.utils.getNestedPropertySignal(this.body, this.outcomeImpactOptionValue) || '';
+    const textData = {
+      prompt: PROMPT_OICR_DETAILS,
+      input_text: elaborationText
+    };
+
+    this.isAiLoading.set(true);
+    const response = await this.api.fastResponse(textData);
+
+    if (response.successfulRequest) {
+      let aiText = '';
+      const fastResponse = response as unknown as FastResponseData;
+      if (fastResponse.output) {
+        aiText = fastResponse.output;
+      }
+
+      if (aiText) {
+        this.typeTextEffect(aiText, this.shortOutcomeOptionValue);
+      }
+    }
+    this.isAiLoading.set(false);
+  }
+
+  private typeTextEffect(text: string, fieldPath: string) {
+    const currentValue = this.utils.getNestedPropertySignal(this.body, fieldPath) || '';
+    const targetText = text.trim();
+    if (targetText === currentValue) return;
+
+    const targetDuration = 1500;
+    const typingSpeed = Math.max(20, Math.floor(targetDuration / targetText.length));
+
+    let currentIndex = 0;
+    const typeInterval = setInterval(() => {
+      if (currentIndex <= targetText.length) {
+        const partialText = targetText.substring(0, currentIndex);
+        this.utils.setNestedPropertyWithReduceSignal(this.body, fieldPath, partialText);
+        currentIndex++;
+      } else {
+        clearInterval(typeInterval);
+      }
+    }, typingSpeed);
+  }
+
+  isShortOutcomeAiDisabled(): boolean {
+    const elaborationText = this.utils.getNestedPropertySignal(this.body, this.outcomeImpactOptionValue) || '';
+    return elaborationText.trim().length === 0 || this.isAiLoading();
   }
 }
