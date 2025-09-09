@@ -77,13 +77,13 @@ export class DownloadOicrTemplateComponent implements OnInit {
     {
       dropdownId: '1308358992',
       selectedValue: '',
-      attribute: 'regions_countries_text',
+      attribute: 'main_lever_text',
       type: 'text'
     },
     {
       dropdownId: '539860219',
       selectedValue: '',
-      attribute: 'regions_countries_text',
+      attribute: 'others_levers_text',
       type: 'text'
     }
   ];
@@ -171,6 +171,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
     // Use the new method to format regions and countries
     response.data.regions_countries_text = this.formatRegionsAndCountries(response.data.regions, response.data.countries);
     response.data.tag_name_text = this.getTagAsText(response.data.tag_id.toString());
+    response.data.others_levers_text = response.data.other_levers.map(lever => lever.lever_full).join('\n\n');
 
     this.mapFieldsToProcess(response.data);
 

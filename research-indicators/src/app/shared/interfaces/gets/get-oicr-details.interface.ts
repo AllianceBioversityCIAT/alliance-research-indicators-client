@@ -20,6 +20,8 @@ export interface GetOICRDetails {
   // auxiliars
   other_projects_text: string;
   regions_countries_text: string;
+  others_levers_text: string;
+  main_lever_text: string;
 }
 
 export interface LeverItem {
