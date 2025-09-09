@@ -25,7 +25,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
   api = inject(ApiService);
   cache = inject(CacheService);
 
-  fieldsToProcess = [
+  fieldsToProcess: { dropdownId: string; selectedValue: string; attribute: string; type: string }[] = [
     {
       dropdownId: '-1191449392',
       selectedValue: '',
@@ -51,6 +51,12 @@ export class DownloadOicrTemplateComponent implements OnInit {
       type: 'text'
     },
     {
+      dropdownId: '-547993178',
+      selectedValue: '',
+      attribute: 'geographic_scope',
+      type: 'dropdown'
+    },
+    {
       dropdownId: '-515767717',
       selectedValue: '',
       attribute: 'geographic_scope_comments',
@@ -67,18 +73,19 @@ export class DownloadOicrTemplateComponent implements OnInit {
     return tags[tagId as keyof typeof tags];
   }
 
-  getGeoScopeText(geoScopeId: string) {
-    const geoScopes = {
-      '1': 'Global',
-      '2': 'Multi-region',
-      '3': 'Multi-country',
-      '4': 'Regional',
-      '5': 'Sub-regional',
-      '6': 'National',
-      '7': 'Sub-national'
-    };
-    return geoScopes[geoScopeId as keyof typeof geoScopes];
-  }
+  // getGeoScopeText(geoScopeId: string) {
+  //   const geoScopes = {
+  //     '1': 'Global',
+  //     // '': 'Multi-region',
+  //     // '': 'Multi-country',
+  //     '2': 'Regional',
+  //     // '': 'Sub-regional',
+  //     '4': 'National',
+  //     '5': 'Sub-national',
+  //     '50': 'This is yet to be determined'
+  //   };
+  //   return geoScopes[geoScopeId as keyof typeof geoScopes];
+  // }
 
   //? •	Title → -1461958722 → Texto
   //? •	Main project → -1815635536 → Texto
@@ -88,7 +95,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
   //? •	Elaboration of outcome/impact statement → -1005152857 → Texto
   //* •	Primary Levers → 771681199 → DropDown BUG no guarda en la creación esta en el inicio
   //* •	Other Contributing Levers → -63980865 → DropDown en la creaccion
-  // •	Geographic scope → -750698587 → DropDown
+  //? •	Geographic scope → -750698587 → DropDown
   // •	Regions / Countries (campo de texto único) → -1355309710 → Texto
   //? •	Geographic Scope comments → -515767717 → Texto
 
