@@ -4,7 +4,7 @@ export interface GetOICRDetails {
   title: string;
   main_project_id: string;
   main_project: string;
-  other_projects: OicrOtherProject[];
+  other_projects: OtherProject[];
   tags: Tag[];
   outcome_impact_statement: string;
   main_lever_id: any;
@@ -13,12 +13,14 @@ export interface GetOICRDetails {
   other_levers: any[];
   geographic_scope: string;
   regions: Region[];
-  countries: any[];
+  countries: Country[];
   geographic_scope_comments: string;
+  // auxiliars
   other_projects_text: string;
+  regions_countries_text: string;
 }
 
-export interface OicrOtherProject {
+export interface OtherProject {
   project_id: string;
   project_title: string;
 }
@@ -31,4 +33,9 @@ export interface Tag {
 export interface Region {
   region_code: number;
   region_name: string;
+}
+
+export interface Country {
+  country_code: string;
+  country_name: string;
 }

@@ -4,7 +4,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { WasmService } from '../../services/go/wasm.service';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
-import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
+import { GetOICRDetails, Region, Country } from '@shared/interfaces/gets/get-oicr-details.interface';
 export interface ProcessResult {
   success: boolean;
   message?: string;
@@ -45,12 +45,6 @@ export class DownloadOicrTemplateComponent implements OnInit {
       type: 'text'
     },
     {
-      dropdownId: '-1355309710', // TODO: Update this field
-      selectedValue: '',
-      attribute: 'title',
-      type: 'text'
-    },
-    {
       dropdownId: '-547993178',
       selectedValue: '',
       attribute: 'geographic_scope',
@@ -66,6 +60,12 @@ export class DownloadOicrTemplateComponent implements OnInit {
       dropdownId: '1209379648',
       selectedValue: '',
       attribute: 'other_projects_text',
+      type: 'text'
+    },
+    {
+      dropdownId: '-504483',
+      selectedValue: '',
+      attribute: 'regions_countries_text',
       type: 'text'
     }
   ];
@@ -105,12 +105,42 @@ export class DownloadOicrTemplateComponent implements OnInit {
   // •	Regions / Countries (campo de texto único) → -1355309710 → Texto
   //? •	Geographic Scope comments → -515767717 → Texto
 
+  /**
+   * Formats regions and countries with titles and line breaks for Word document
+   * @param regions Array of regions
+   * @param countries Array of countries
+   * @returns Formatted string with titles and line breaks
+   */
+  formatRegionsAndCountries(regions: Region[], countries: Country[]): string {
+    let result = '';
+
+    // Add regions section if there are regions
+    if (regions && regions.length > 0) {
+      result += 'Regions:\n';
+      const regionNames = regions.map(region => region.region_name).join(', ');
+      result += regionNames;
+    }
+
+    // Add countries section if there are countries
+    if (countries && countries.length > 0) {
+      // Add line break between sections if we have both
+      if (result.length > 0) {
+        result += '\n\n';
+      }
+      result += 'Countries:\n';
+      const countryNames = countries.map(country => country.country_name).join(', ');
+      result += countryNames;
+    }
+
+    return result;
+  }
+
   mapFieldsToProcess(oicrDetails: GetOICRDetails) {
     this.fieldsToProcess.forEach(field => {
       field.selectedValue = oicrDetails[field.attribute as keyof GetOICRDetails];
     });
 
-    console.log(this.fieldsToProcess);
+    // console.log(this.fieldsToProcess);
   }
 
   async ngOnInit() {
@@ -118,17 +148,19 @@ export class DownloadOicrTemplateComponent implements OnInit {
   }
   async getOicrDetails(resultCode: number) {
     const response = await this.api.GET_OICRDetails(resultCode);
-    response.data.other_projects_text = response.data.other_projects
-      .map(project => project.project_id + ' - ' + project.project_title)
-      .join('<w:br/><w:br/>');
+    response.data.other_projects_text = response.data.other_projects.map(project => project.project_id + ' - ' + project.project_title).join('\n\n');
+
+    // Use the new method to format regions and countries
+    response.data.regions_countries_text = this.formatRegionsAndCountries(response.data.regions, response.data.countries);
+
     this.mapFieldsToProcess(response.data);
 
-    console.log(response.data);
+    // console.log(response.data);
   }
   async downloadOicrTemplate() {
     await this.getOicrDetails(this.cache.currentResultId());
 
-    console.log(this.fieldsToProcess);
+    // console.log(this.fieldsToProcess);
 
     this.processing.set(true);
     this.result = null;
