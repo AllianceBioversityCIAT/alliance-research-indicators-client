@@ -10,8 +10,8 @@ export interface GetOICRDetails {
   // main_lever_short: any;
   // main_lever_full: any;
   other_projects: OtherProject[];
-  other_levers: LeverItem[];
-  main_levers: LeverItem[];
+  other_levers: OtherLeverItem[];
+  main_levers: MainLeverItem[];
   geographic_scope: string;
   regions: Region[];
   countries: Country[];
@@ -25,10 +25,16 @@ export interface GetOICRDetails {
   main_levers_text: string;
 }
 
-export interface LeverItem {
+export interface OtherLeverItem {
   lever_id: number | string;
   lever_short: string;
   lever_full: string;
+}
+
+export interface MainLeverItem {
+  main_lever_id: number | string;
+  main_lever: string;
+  main_lever_name: string;
 }
 
 export interface OtherProject {
