@@ -162,12 +162,12 @@ export class DownloadOicrTemplateComponent implements OnInit {
 
     this.mapFieldsToProcess(response.data);
 
-    console.log(response.data);
+    // console.log(response.data);
   }
   async downloadOicrTemplate() {
     await this.getOicrDetails(this.cache.currentResultId());
 
-    console.log(this.fieldsToProcess);
+    // console.log(this.fieldsToProcess);
 
     this.processing.set(true);
     this.result = null;
