@@ -137,7 +137,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
 
   mapFieldsToProcess(oicrDetails: GetOICRDetails) {
     this.fieldsToProcess.forEach(field => {
-      field.selectedValue = oicrDetails[field.attribute as keyof GetOICRDetails];
+      field.selectedValue = oicrDetails[field.attribute as keyof GetOICRDetails] as string;
     });
 
     // console.log(this.fieldsToProcess);

@@ -7,10 +7,10 @@ export interface GetOICRDetails {
   other_projects: OtherProject[];
   tags: Tag[];
   outcome_impact_statement: string;
-  main_lever_id: any;
-  main_lever_short: any;
-  main_lever_full: any;
-  other_levers: any[];
+  // main_lever_id: any;
+  // main_lever_short: any;
+  // main_lever_full: any;
+  // other_levers: any[];
   geographic_scope: string;
   regions: Region[];
   countries: Country[];
