@@ -119,7 +119,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
   async getOicrDetails(resultCode: number) {
     const response = await this.api.GET_OICRDetails(resultCode);
     response.data.other_projects_text = response.data.other_projects
-      .map(project => project.project_title + ' - ' + project.project_title + '')
+      .map(project => project.project_id + ' - ' + project.project_title + ' \r\n ')
       .join(', ');
     this.mapFieldsToProcess(response.data);
 
