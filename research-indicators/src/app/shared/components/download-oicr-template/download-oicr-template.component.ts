@@ -178,7 +178,15 @@ export class DownloadOicrTemplateComponent implements OnInit {
       const { success, fileData } = this.result;
       // if success and fileData, download the file
       if (success && fileData) {
-        this.wasm.downloadFile(fileData, 'documento_procesado.docx');
+        const now = new Date();
+        const dateTimeString =
+          now.getFullYear().toString() +
+          (now.getMonth() + 1).toString().padStart(2, '0') +
+          now.getDate().toString().padStart(2, '0') +
+          '_' +
+          now.getHours().toString().padStart(2, '0') +
+          now.getMinutes().toString().padStart(2, '0');
+        this.wasm.downloadFile(fileData, `STAR_OICR_${this.cache.currentResultId()}_${dateTimeString}.docx`);
       }
     } catch (error) {
       this.result = {
