@@ -72,14 +72,14 @@ export class WasmService {
       if (!this.wasmLoaded) {
         return {
           success: false,
-          error: 'WASM no está cargado. Llama a loadWasm() primero.'
+          error: 'WASM is not loaded. Call loadWasm() first.'
         };
       }
 
       if (typeof window.processDocxWasm !== 'function') {
         return {
           success: false,
-          error: 'Función WASM no está disponible'
+          error: 'WASM function is not available'
         };
       }
 
@@ -89,7 +89,7 @@ export class WasmService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error desconocido'
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
@@ -122,7 +122,7 @@ export class WasmService {
 
       return new Uint8Array(response);
     } catch (error) {
-      throw new Error(`Error descargando template: ${error}`);
+      throw new Error(`Error downloading template: ${error}`);
     }
   }
 
@@ -133,6 +133,6 @@ export class WasmService {
       }
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    throw new Error('Timeout esperando función WASM');
+    throw new Error('Timeout waiting for WASM function');
   }
 }
