@@ -15,7 +15,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     if len(args) < 2 {
         return map[string]interface{}{
             "success": false,
-            "error": "Se requieren 2 parámetros: templateData (Uint8Array) y dropdowns (Array)",
+            "error": "2 parameters required: templateData (Uint8Array) and dropdowns (Array)",
         }
     }
 
@@ -25,7 +25,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     if dropdownsJS.Type() != js.TypeObject || dropdownsJS.Get("length").Type() == js.TypeUndefined {
         return map[string]interface{}{
             "success": false,
-            "error": "El segundo parámetro debe ser un array de dropdowns",
+            "error": "The second parameter must be an array of dropdowns",
         }
     }
 
@@ -56,7 +56,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     if length == 0 {
         return map[string]interface{}{
             "success": false,
-            "error": "El template está vacío",
+            "error": "Template is empty",
         }
     }
 
@@ -74,7 +74,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     if err != nil {
         return map[string]interface{}{
             "success": false,
-            "error": fmt.Sprintf("Error abriendo documento: %v", err),
+            "error": fmt.Sprintf("Error opening document: %v", err),
         }
     }
 
@@ -89,7 +89,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     if documentXML == nil {
         return map[string]interface{}{
             "success": false,
-            "error": "Documento DOCX inválido: falta word/document.xml",
+            "error": "Invalid DOCX document: missing word/document.xml",
         }
     }
 
@@ -97,7 +97,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     if err != nil {
         return map[string]interface{}{
             "success": false,
-            "error": fmt.Sprintf("Error leyendo documento: %v", err),
+            "error": fmt.Sprintf("Error reading document: %v", err),
         }
     }
     defer xmlReader.Close()
@@ -106,7 +106,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     if err != nil {
         return map[string]interface{}{
             "success": false,
-            "error": fmt.Sprintf("Error leyendo contenido: %v", err),
+            "error": fmt.Sprintf("Error reading content: %v", err),
         }
     }
 
@@ -165,7 +165,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     if totalProcessed == 0 {
         return map[string]interface{}{
             "success": false,
-            "error": fmt.Sprintf("No se pudo procesar ningún dropdown. Fallidos: %v", failedDropdowns),
+            "error": fmt.Sprintf("Could not process any dropdown. Failed: %v", failedDropdowns),
         }
     }
 
@@ -177,7 +177,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
         if err != nil {
             return map[string]interface{}{
                 "success": false,
-                "error": fmt.Sprintf("Error creando archivo: %v", err),
+                "error": fmt.Sprintf("Error creating file: %v", err),
             }
         }
 
@@ -195,7 +195,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
         if err != nil {
             return map[string]interface{}{
                 "success": false,
-                "error": fmt.Sprintf("Error escribiendo archivo: %v", err),
+                "error": fmt.Sprintf("Error writing file: %v", err),
             }
         }
     }
@@ -204,7 +204,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     if err != nil {
         return map[string]interface{}{
             "success": false,
-            "error": fmt.Sprintf("Error finalizando documento: %v", err),
+            "error": fmt.Sprintf("Error finalizing document: %v", err),
         }
     }
 
@@ -214,7 +214,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
 
     return map[string]interface{}{
         "success": true,
-        "message": fmt.Sprintf("Documento procesado exitosamente: %d/%d dropdowns modificados", totalProcessed, len(dropdowns)),
+        "message": fmt.Sprintf("Document processed successfully: %d/%d dropdowns modified", totalProcessed, len(dropdowns)),
         "fileData": wasmBytes,
     }
 }
