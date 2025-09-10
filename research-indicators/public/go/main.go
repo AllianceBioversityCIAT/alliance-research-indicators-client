@@ -9,55 +9,67 @@ import (
 	"syscall/js"
 )
 
+// Constants to avoid duplication
+const (
+	sdtContentTag    = "<w:sdtContent>"
+	sdtContentEndTag = "</w:sdtContent>"
+	sdtTag           = "<w:sdt>"
+	sdtEndTag        = "</w:sdt>"
+	documentXMLPath  = "word/document.xml"
+	showingPlcHdr    = "<w:showingPlcHdr/>"
+)
 
+// DropdownData represents a dropdown configuration
+type DropdownData struct {
+    DropdownID    string
+    SelectedValue string
+    Type          string
+}
+
+// validateArgs validates the input arguments
+func validateArgs(args []js.Value) error {
+    if len(args) < 2 {
+        return fmt.Errorf("2 parameters required: templateData (Uint8Array) and dropdowns (Array)")
+    }
+    
+    dropdownsJS := args[1]
+    if dropdownsJS.Type() != js.TypeObject || dropdownsJS.Get("length").Type() == js.TypeUndefined {
+        return fmt.Errorf("The second parameter must be an array of dropdowns")
+    }
+    
+    return nil
+}
+
+// parseDropdowns extracts dropdown data from JS array
+func parseDropdowns(dropdownsJS js.Value) []DropdownData {
+    dropdownsLength := dropdownsJS.Get("length").Int()
+    var dropdowns []DropdownData
+    
+    for i := 0; i < dropdownsLength; i++ {
+        dropdownObj := dropdownsJS.Index(i)
+        dropdowns = append(dropdowns, DropdownData{
+            DropdownID:    dropdownObj.Get("dropdownId").String(),
+            SelectedValue: dropdownObj.Get("selectedValue").String(),
+            Type:          dropdownObj.Get("type").String(),
+        })
+    }
+    
+    return dropdowns
+}
 
 func processDocxWasm(this js.Value, args []js.Value) interface{} {
-    if len(args) < 2 {
-        return map[string]interface{}{
-            "success": false,
-            "error": "2 parameters required: templateData (Uint8Array) and dropdowns (Array)",
-        }
+    if err := validateArgs(args); err != nil {
+        return createErrorResponse(err.Error())
     }
 
     templateDataJS := args[0]
     dropdownsJS := args[1]
-
-    if dropdownsJS.Type() != js.TypeObject || dropdownsJS.Get("length").Type() == js.TypeUndefined {
-        return map[string]interface{}{
-            "success": false,
-            "error": "The second parameter must be an array of dropdowns",
-        }
-    }
-
-    dropdownsLength := dropdownsJS.Get("length").Int()
-
-    type DropdownData struct {
-        DropdownID    string
-        SelectedValue string
-        Type          string
-    }
-
-    var dropdowns []DropdownData
-    for i := 0; i < dropdownsLength; i++ {
-        dropdownObj := dropdownsJS.Index(i)
-        dropdownID := dropdownObj.Get("dropdownId").String()
-        selectedValue := dropdownObj.Get("selectedValue").String()
-        controlType := dropdownObj.Get("type").String()
-
-        dropdowns = append(dropdowns, DropdownData{
-            DropdownID:    dropdownID,
-            SelectedValue: selectedValue,
-            Type:          controlType,
-        })
-    }
+    dropdowns := parseDropdowns(dropdownsJS)
 
     length := templateDataJS.Get("length").Int()
 
     if length == 0 {
-        return map[string]interface{}{
-            "success": false,
-            "error": "Template is empty",
-        }
+        return createErrorResponse("Template is empty")
     }
 
     templateData := make([]byte, length)
@@ -72,42 +84,30 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     reader := bytes.NewReader(templateData)
     zipReader, err := zip.NewReader(reader, int64(len(templateData)))
     if err != nil {
-        return map[string]interface{}{
-            "success": false,
-            "error": fmt.Sprintf("Error opening document: %v", err),
-        }
+        return createErrorResponse(fmt.Sprintf("Error opening document: %v", err))
     }
 
     var documentXML *zip.File
     for _, file := range zipReader.File {
-        if file.Name == "word/document.xml" {
+        if file.Name == documentXMLPath {
             documentXML = file
             break
         }
     }
 
     if documentXML == nil {
-        return map[string]interface{}{
-            "success": false,
-            "error": "Invalid DOCX document: missing word/document.xml",
-        }
+        return createErrorResponse("Invalid DOCX document: missing word/document.xml")
     }
 
     xmlReader, err := documentXML.Open()
     if err != nil {
-        return map[string]interface{}{
-            "success": false,
-            "error": fmt.Sprintf("Error reading document: %v", err),
-        }
+        return createErrorResponse(fmt.Sprintf("Error reading document: %v", err))
     }
     defer xmlReader.Close()
 
     xmlContent, err := io.ReadAll(xmlReader)
     if err != nil {
-        return map[string]interface{}{
-            "success": false,
-            "error": fmt.Sprintf("Error reading content: %v", err),
-        }
+        return createErrorResponse(fmt.Sprintf("Error reading content: %v", err))
     }
 
     xmlString := string(xmlContent)
@@ -123,19 +123,19 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
                 continue
             }
 
-            sdtStart := strings.LastIndex(xmlString[:dropdownStart], "<w:sdt>")
+            sdtStart := strings.LastIndex(xmlString[:dropdownStart], sdtTag)
             if sdtStart == -1 {
                 failedDropdowns = append(failedDropdowns, dropdown.DropdownID)
                 continue
             }
 
-            sdtEnd := strings.Index(xmlString[dropdownStart:], "</w:sdt>")
+            sdtEnd := strings.Index(xmlString[dropdownStart:], sdtEndTag)
             if sdtEnd == -1 {
                 failedDropdowns = append(failedDropdowns, dropdown.DropdownID)
                 continue
             }
 
-            sdtEndPos := dropdownStart + sdtEnd + len("</w:sdt>")
+            sdtEndPos := dropdownStart + sdtEnd + len(sdtEndTag)
             dropdownSection := xmlString[sdtStart:sdtEndPos]
             controlType := dropdown.Type
 
@@ -163,10 +163,7 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     }
 
     if totalProcessed == 0 {
-        return map[string]interface{}{
-            "success": false,
-            "error": fmt.Sprintf("Could not process any dropdown. Failed: %v", failedDropdowns),
-        }
+        return createErrorResponse(fmt.Sprintf("Could not process any dropdown. Failed: %v", failedDropdowns))
     }
 
     var outputBuffer bytes.Buffer
@@ -175,13 +172,10 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
     for _, file := range zipReader.File {
         writer, err := zipWriter.Create(file.Name)
         if err != nil {
-            return map[string]interface{}{
-                "success": false,
-                "error": fmt.Sprintf("Error creating file: %v", err),
-            }
+            return createErrorResponse(fmt.Sprintf("Error creating file: %v", err))
         }
 
-        if file.Name == "word/document.xml" {
+        if file.Name == documentXMLPath {
             _, err = writer.Write([]byte(xmlString))
         } else {
             reader, err := file.Open()
@@ -193,30 +187,40 @@ func processDocxWasm(this js.Value, args []js.Value) interface{} {
         }
 
         if err != nil {
-            return map[string]interface{}{
-                "success": false,
-                "error": fmt.Sprintf("Error writing file: %v", err),
-            }
+            return createErrorResponse(fmt.Sprintf("Error writing file: %v", err))
         }
     }
 
     err = zipWriter.Close()
     if err != nil {
-        return map[string]interface{}{
-            "success": false,
-            "error": fmt.Sprintf("Error finalizing document: %v", err),
-        }
+        return createErrorResponse(fmt.Sprintf("Error finalizing document: %v", err))
     }
 
     outputBytes := outputBuffer.Bytes()
     wasmBytes := js.Global().Get("Uint8Array").New(len(outputBytes))
     js.CopyBytesToJS(wasmBytes, outputBytes)
 
-    return map[string]interface{}{
-        "success": true,
-        "message": fmt.Sprintf("Document processed successfully: %d/%d dropdowns modified", totalProcessed, len(dropdowns)),
-        "fileData": wasmBytes,
-    }
+    return createSuccessResponse(
+        fmt.Sprintf("Document processed successfully: %d/%d dropdowns modified", totalProcessed, len(dropdowns)),
+        wasmBytes,
+    )
+}
+
+// createErrorResponse creates a standard error response
+func createErrorResponse(errorMsg string) map[string]interface{} {
+	return map[string]interface{}{
+		"success": false,
+		"error":   errorMsg,
+	}
+}
+
+// createSuccessResponse creates a standard success response
+func createSuccessResponse(message string, fileData js.Value) map[string]interface{} {
+	return map[string]interface{}{
+		"success":  true,
+		"message":  message,
+		"fileData": fileData,
+	}
 }
 
 func min(a, b int) int {
@@ -272,10 +276,10 @@ func processLineBreaks(text string) string {
 
 
 func updateDropdownSelection(sdtXML, selectedValue string) string {
-	result := strings.ReplaceAll(sdtXML, "<w:showingPlcHdr/>", "")
+	result := strings.ReplaceAll(sdtXML, showingPlcHdr, "")
 
-	contentStart := strings.Index(result, "<w:sdtContent>")
-	contentEnd := strings.Index(result, "</w:sdtContent>")
+	contentStart := strings.Index(result, sdtContentTag)
+	contentEnd := strings.Index(result, sdtContentEndTag)
 
 	if contentStart == -1 || contentEnd == -1 {
 		return result
@@ -283,19 +287,19 @@ func updateDropdownSelection(sdtXML, selectedValue string) string {
 
 	// Process line breaks in the selected value
 	processedValue := processLineBreaks(selectedValue)
-	newContent := fmt.Sprintf(`<w:sdtContent>%s</w:sdtContent>`, processedValue)
+	newContent := fmt.Sprintf(`%s%s%s`, sdtContentTag, processedValue, sdtContentEndTag)
 
 	beforeContent := result[:contentStart]
-	afterContent := result[contentEnd+len("</w:sdtContent>"):]
+	afterContent := result[contentEnd+len(sdtContentEndTag):]
 
 	return beforeContent + newContent + afterContent
 }
 
 func updateTextSelection(sdtXML, selectedValue string) string {
-	result := strings.ReplaceAll(sdtXML, "<w:showingPlcHdr/>", "")
+	result := strings.ReplaceAll(sdtXML, showingPlcHdr, "")
 
-	contentStart := strings.Index(result, "<w:sdtContent>")
-	contentEnd := strings.Index(result, "</w:sdtContent>")
+	contentStart := strings.Index(result, sdtContentTag)
+	contentEnd := strings.Index(result, sdtContentEndTag)
 
 	if contentStart == -1 || contentEnd == -1 {
 		patterns := []string{
@@ -321,11 +325,11 @@ func updateTextSelection(sdtXML, selectedValue string) string {
 	if strings.Contains(result, "<w:tc>") {
 		newContent = fmt.Sprintf(`<w:sdtContent><w:tc><w:tcPr><w:tcW w:w="4961" w:type="dxa"/><w:tcBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/><w:right w:val="nil"/></w:tcBorders><w:shd w:val="clear" w:color="auto" w:fill="F2F2F2" w:themeFill="background1" w:themeFillShade="F2"/></w:tcPr><w:p w14:paraId="77A59F33" w14:textId="0D341366" w:rsidR="00D93092" w:rsidRPr="002F02E5" w:rsidRDefault="00DF1D8E" w:rsidP="00491955"><w:pPr><w:pStyle w:val="Heading5"/><w:rPr><w:color w:val="0070C0"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="en-US"/></w:rPr></w:pPr>%s</w:p></w:tc></w:sdtContent>`, processedValue)
 	} else {
-		newContent = fmt.Sprintf(`<w:sdtContent>%s</w:sdtContent>`, processedValue)
+		newContent = fmt.Sprintf(`%s%s%s`, sdtContentTag, processedValue, sdtContentEndTag)
 	}
 
 	beforeContent := result[:contentStart]
-	afterContent := result[contentEnd+len("</w:sdtContent>"):]
+	afterContent := result[contentEnd+len(sdtContentEndTag):]
 
 	return beforeContent + newContent + afterContent
 }
