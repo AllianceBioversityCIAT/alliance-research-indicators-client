@@ -97,38 +97,6 @@ export class DownloadOicrTemplateComponent implements OnInit {
     return tags[tagId as keyof typeof tags];
   }
 
-  // getGeoScopeText(geoScopeId: string) {
-  //   const geoScopes = {
-  //     '1': 'Global',
-  //     // '': 'Multi-region',
-  //     // '': 'Multi-country',
-  //     '2': 'Regional',
-  //     // '': 'Sub-regional',
-  //     '4': 'National',
-  //     '5': 'Sub-national',
-  //     '50': 'This is yet to be determined'
-  //   };
-  //   return geoScopes[geoScopeId as keyof typeof geoScopes];
-  // }
-
-  //? •	Title → -1461958722 → Texto
-  //? •	Main project → -1815635536 → Texto
-  //? •	Other contributing projects → 1964384726 → Texto (Repetible: contenedor=1972143100, item=1915110532) ALLIANCE ALIGNMENT
-  //? •	Tagging (Tag as) → 1527089857 → DropDown map ids
-  //! •	OICR handle (solo para actualizaciones) → 1079386482 → Texto
-  //? •	Elaboration of outcome/impact statement → -1005152857 → Texto
-  //* •	Primary Levers → 771681199 → DropDown BUG no guarda en la creación esta en el inicio
-  //* •	Other Contributing Levers → -63980865 → DropDown en la creaccion
-  //? •	Geographic scope → -750698587 → DropDown
-  //? •	Regions / Countries (campo de texto único) → -1355309710 → Texto
-  //? •	Geographic Scope comments → -515767717 → Texto
-
-  /**
-   * Formats regions and countries with titles and line breaks for Word document
-   * @param regions Array of regions
-   * @param countries Array of countries
-   * @returns Formatted string with titles and line breaks
-   */
   formatRegionsAndCountries(regions: Region[], countries: Country[]): string {
     let result = '';
 
@@ -175,14 +143,9 @@ export class DownloadOicrTemplateComponent implements OnInit {
     response.data.main_levers_text = response.data.main_levers?.map(lever => lever.main_lever_name).join('\n\n');
 
     this.mapFieldsToProcess(response.data);
-
-    // console.log(response.data);
   }
   async downloadOicrTemplate() {
     await this.getOicrDetails(this.cache.currentResultId());
-
-    // console.log(this.fieldsToProcess);
-
     this.processing.set(true);
     this.result = null;
 
