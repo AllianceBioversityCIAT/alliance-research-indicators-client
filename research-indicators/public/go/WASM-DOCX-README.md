@@ -1,11 +1,11 @@
-### Recompilar WASM
+### Recompile WASM
 
-Si modificas el código Go, recompila WASM:
+If you modify the Go code, recompile WASM:
 
 ```bash
-# En el directorio raíz del proyecto Go
+# In the Go project root directory
 GOOS=js GOARCH=wasm go build -o main.wasm main.go
 
-# Copiar a Angular
+# Copy to Angular
 cp main.wasm wasm_exec.js
 ```
