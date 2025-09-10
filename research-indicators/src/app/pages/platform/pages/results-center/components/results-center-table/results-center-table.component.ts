@@ -236,30 +236,44 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResult(result: Result) {
+    console.warn('🟢 openResult() - INICIANDO');
+    console.warn('🟢 result:', result);
+    console.warn('🟢 result.platform_code:', result.platform_code);
+    console.warn('🟢 result.result_official_code:', result.result_official_code);
+
     this.resultsCenterService.clearAllFilters();
+
+    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+    console.warn('🟢 resultCode construido:', resultCode);
 
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
-      this.router.navigate(['/result', result.result_official_code, 'general-information'], { queryParams: { version: latestYear } });
+      console.warn('🟢 Navegando con versión:', latestYear);
+      this.router.navigate(['/result', resultCode, 'general-information'], { queryParams: { version: latestYear } });
     } else {
-      this.router.navigate(['/result', result.result_official_code]);
+      console.warn('🟢 Navegando sin versión');
+      this.router.navigate(['/result', resultCode]);
     }
   }
 
-  openResultByYear(result_official_code: string, year: string | number) {
+  openResultByYear(result: Result, year: string | number) {
     this.resultsCenterService.clearAllFilters();
 
-    this.router.navigate(['/result', result_official_code], {
+    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+
+    this.router.navigate(['/result', resultCode], {
       queryParams: { version: year }
     });
   }
 
   getResultHref(result: Result): string {
+    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
-      return `/result/${result.result_official_code}/general-information?version=${latestYear}`;
+      return `/result/${resultCode}/general-information?version=${latestYear}`;
     }
-    return `/result/${result.result_official_code}`;
+    return `/result/${resultCode}`;
   }
 
   ngAfterViewInit() {
