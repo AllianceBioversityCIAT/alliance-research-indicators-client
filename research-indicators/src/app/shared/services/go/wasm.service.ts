@@ -95,7 +95,7 @@ export class WasmService {
   }
 
   downloadFile(data: ArrayBuffer | Uint8Array, filename: string): void {
-    const uint8Array = data instanceof Uint8Array ? new Uint8Array(data) : new Uint8Array(data);
+    const uint8Array = data instanceof Uint8Array ? data : new Uint8Array(data);
 
     const blob = new Blob([uint8Array], {
       type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'

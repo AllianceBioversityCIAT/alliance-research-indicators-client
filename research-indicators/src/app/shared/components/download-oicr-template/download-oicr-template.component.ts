@@ -157,11 +157,12 @@ export class DownloadOicrTemplateComponent implements OnInit {
     this.fieldsToProcess.forEach(field => {
       field.selectedValue = oicrDetails[field.attribute as keyof GetOICRDetails] as string;
     });
-
   }
 
-  async ngOnInit() {
-    this.wasmLoaded.set(await this.wasm.loadWasm());
+  ngOnInit(): void {
+    this.wasm.loadWasm().then(loaded => {
+      this.wasmLoaded.set(loaded);
+    });
   }
   async getOicrDetails(resultCode: number) {
     const response = await this.api.GET_OICRDetails(resultCode);
