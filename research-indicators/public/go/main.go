@@ -226,18 +226,31 @@ func min(a, b int) int {
     return b
 }
 
+// escapeXML escapes special XML characters to prevent document corruption
+func escapeXML(text string) string {
+    text = strings.ReplaceAll(text, "&", "&amp;")
+    text = strings.ReplaceAll(text, "<", "&lt;")
+    text = strings.ReplaceAll(text, ">", "&gt;")
+    text = strings.ReplaceAll(text, "\"", "&quot;")
+    text = strings.ReplaceAll(text, "'", "&apos;")
+    return text
+}
+
 // processLineBreaks converts line breaks in text to Word XML format
 func processLineBreaks(text string) string {
     if text == "" {
         return ""
     }
 
+    // Escape XML characters first
+    escapedText := escapeXML(text)
+
     // Split text by line breaks (handle both \n and \r\n)
-    lines := strings.Split(strings.ReplaceAll(text, "\r\n", "\n"), "\n")
+    lines := strings.Split(strings.ReplaceAll(escapedText, "\r\n", "\n"), "\n")
 
     if len(lines) <= 1 {
         // No line breaks, return simple text element
-        return fmt.Sprintf(`<w:r w:rsidR="00730B13"><w:rPr><w:color w:val="0070C0"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="en-US"/></w:rPr><w:t>%s</w:t></w:r>`, text)
+        return fmt.Sprintf(`<w:r w:rsidR="00730B13"><w:rPr><w:color w:val="0070C0"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="en-US"/></w:rPr><w:t>%s</w:t></w:r>`, escapedText)
     }
 
     // Multiple lines, build XML with line breaks
