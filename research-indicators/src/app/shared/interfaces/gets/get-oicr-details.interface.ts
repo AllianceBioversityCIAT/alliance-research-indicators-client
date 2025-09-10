@@ -6,9 +6,6 @@ export interface GetOICRDetails {
   main_project: string;
   tags: Tag[];
   outcome_impact_statement: string;
-  // main_lever_id: any;
-  // main_lever_short: any;
-  // main_lever_full: any;
   other_projects: OtherProject[];
   other_levers: OtherLeverItem[];
   main_levers: MainLeverItem[];
