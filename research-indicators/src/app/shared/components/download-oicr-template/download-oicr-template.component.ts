@@ -12,6 +12,13 @@ export interface ProcessResult {
   fileData?: ArrayBuffer | Uint8Array;
 }
 
+interface FieldToProcess {
+  dropdownId: string;
+  selectedValue: string;
+  attribute: string;
+  type: string;
+}
+
 @Component({
   selector: 'app-download-oicr-template',
   imports: [ButtonModule, TooltipModule],
@@ -25,68 +32,26 @@ export class DownloadOicrTemplateComponent implements OnInit {
   api = inject(ApiService);
   cache = inject(CacheService);
 
-  fieldsToProcess: { dropdownId: string; selectedValue: string; attribute: string; type: string }[] = [
-    {
-      dropdownId: '2132273794',
-      selectedValue: '',
-      attribute: 'tag_name_text',
-      type: 'text'
-    },
-    {
-      dropdownId: '-1191449392',
-      selectedValue: '',
-      attribute: 'title',
-      type: 'text'
-    },
-    {
-      dropdownId: '-1815635536',
-      selectedValue: '',
-      attribute: 'main_project',
-      type: 'text'
-    },
-    {
-      dropdownId: '1376114886',
-      selectedValue: '',
-      attribute: 'outcome_impact_statement',
-      type: 'text'
-    },
-    {
-      dropdownId: '-547993178',
-      selectedValue: '',
-      attribute: 'geographic_scope',
-      type: 'dropdown'
-    },
-    {
-      dropdownId: '-515767717',
-      selectedValue: '',
-      attribute: 'geographic_scope_comments',
-      type: 'text'
-    },
-    {
-      dropdownId: '1209379648',
-      selectedValue: '',
-      attribute: 'other_projects_text',
-      type: 'text'
-    },
-    {
-      dropdownId: '-504483',
-      selectedValue: '',
-      attribute: 'regions_countries_text',
-      type: 'text'
-    },
-    {
-      dropdownId: '1308358992',
-      selectedValue: '',
-      attribute: 'main_levers_text',
-      type: 'text'
-    },
-    {
-      dropdownId: '539860219',
-      selectedValue: '',
-      attribute: 'others_levers_text',
-      type: 'text'
-    }
-  ];
+  // Field configuration with minimal duplication
+  private readonly fieldConfig = [
+    ['2132273794', 'tag_name_text', 'text'],
+    ['-1191449392', 'title', 'text'],
+    ['-1815635536', 'main_project', 'text'],
+    ['1376114886', 'outcome_impact_statement', 'text'],
+    ['-547993178', 'geographic_scope', 'dropdown'],
+    ['-515767717', 'geographic_scope_comments', 'text'],
+    ['1209379648', 'other_projects_text', 'text'],
+    ['-504483', 'regions_countries_text', 'text'],
+    ['1308358992', 'main_levers_text', 'text'],
+    ['539860219', 'others_levers_text', 'text']
+  ] as const;
+
+  fieldsToProcess: FieldToProcess[] = this.fieldConfig.map(([dropdownId, attribute, type]) => ({
+    dropdownId,
+    selectedValue: '',
+    attribute,
+    type
+  }));
 
   getTagAsText(tagId: string) {
     const tags = {
@@ -97,38 +62,6 @@ export class DownloadOicrTemplateComponent implements OnInit {
     return tags[tagId as keyof typeof tags];
   }
 
-  // getGeoScopeText(geoScopeId: string) {
-  //   const geoScopes = {
-  //     '1': 'Global',
-  //     // '': 'Multi-region',
-  //     // '': 'Multi-country',
-  //     '2': 'Regional',
-  //     // '': 'Sub-regional',
-  //     '4': 'National',
-  //     '5': 'Sub-national',
-  //     '50': 'This is yet to be determined'
-  //   };
-  //   return geoScopes[geoScopeId as keyof typeof geoScopes];
-  // }
-
-  //? •	Title → -1461958722 → Texto
-  //? •	Main project → -1815635536 → Texto
-  //? •	Other contributing projects → 1964384726 → Texto (Repetible: contenedor=1972143100, item=1915110532) ALLIANCE ALIGNMENT
-  //? •	Tagging (Tag as) → 1527089857 → DropDown map ids
-  //! •	OICR handle (solo para actualizaciones) → 1079386482 → Texto
-  //? •	Elaboration of outcome/impact statement → -1005152857 → Texto
-  //* •	Primary Levers → 771681199 → DropDown BUG no guarda en la creación esta en el inicio
-  //* •	Other Contributing Levers → -63980865 → DropDown en la creaccion
-  //? •	Geographic scope → -750698587 → DropDown
-  //? •	Regions / Countries (campo de texto único) → -1355309710 → Texto
-  //? •	Geographic Scope comments → -515767717 → Texto
-
-  /**
-   * Formats regions and countries with titles and line breaks for Word document
-   * @param regions Array of regions
-   * @param countries Array of countries
-   * @returns Formatted string with titles and line breaks
-   */
   formatRegionsAndCountries(regions: Region[], countries: Country[]): string {
     let result = '';
 
@@ -175,14 +108,9 @@ export class DownloadOicrTemplateComponent implements OnInit {
     response.data.main_levers_text = response.data.main_levers?.map(lever => lever.main_lever_name).join('\n\n');
 
     this.mapFieldsToProcess(response.data);
-
-    // console.log(response.data);
   }
   async downloadOicrTemplate() {
     await this.getOicrDetails(this.cache.currentResultId());
-
-    // console.log(this.fieldsToProcess);
-
     this.processing.set(true);
     this.result = null;
 
