@@ -63,6 +63,7 @@ import { FindContracts } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
+import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { Oicr, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 
@@ -629,6 +630,11 @@ export class ApiService {
     const timestamp = new Date().getTime();
     const urlWithTimestamp = `${environment.frontVersionUrl}?t=${timestamp}`;
     return this.TP.get('', { isAuth: urlWithTimestamp, noCache: true });
+  };
+
+  GET_OICRDetails = (resultCode: number): Promise<MainResponse<GetOICRDetails>> => {
+    const url = () => `results/oicr/details/${resultCode}`;
+    return this.TP.get(url(), {});
   };
 
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
