@@ -12,6 +12,13 @@ export interface ProcessResult {
   fileData?: ArrayBuffer | Uint8Array;
 }
 
+interface FieldToProcess {
+  dropdownId: string;
+  selectedValue: string;
+  attribute: string;
+  type: string;
+}
+
 @Component({
   selector: 'app-download-oicr-template',
   imports: [ButtonModule, TooltipModule],
@@ -25,68 +32,26 @@ export class DownloadOicrTemplateComponent implements OnInit {
   api = inject(ApiService);
   cache = inject(CacheService);
 
-  fieldsToProcess: { dropdownId: string; selectedValue: string; attribute: string; type: string }[] = [
-    {
-      dropdownId: '2132273794',
-      selectedValue: '',
-      attribute: 'tag_name_text',
-      type: 'text'
-    },
-    {
-      dropdownId: '-1191449392',
-      selectedValue: '',
-      attribute: 'title',
-      type: 'text'
-    },
-    {
-      dropdownId: '-1815635536',
-      selectedValue: '',
-      attribute: 'main_project',
-      type: 'text'
-    },
-    {
-      dropdownId: '1376114886',
-      selectedValue: '',
-      attribute: 'outcome_impact_statement',
-      type: 'text'
-    },
-    {
-      dropdownId: '-547993178',
-      selectedValue: '',
-      attribute: 'geographic_scope',
-      type: 'dropdown'
-    },
-    {
-      dropdownId: '-515767717',
-      selectedValue: '',
-      attribute: 'geographic_scope_comments',
-      type: 'text'
-    },
-    {
-      dropdownId: '1209379648',
-      selectedValue: '',
-      attribute: 'other_projects_text',
-      type: 'text'
-    },
-    {
-      dropdownId: '-504483',
-      selectedValue: '',
-      attribute: 'regions_countries_text',
-      type: 'text'
-    },
-    {
-      dropdownId: '1308358992',
-      selectedValue: '',
-      attribute: 'main_levers_text',
-      type: 'text'
-    },
-    {
-      dropdownId: '539860219',
-      selectedValue: '',
-      attribute: 'others_levers_text',
-      type: 'text'
-    }
-  ];
+  // Field configuration with minimal duplication
+  private readonly fieldConfig = [
+    ['2132273794', 'tag_name_text', 'text'],
+    ['-1191449392', 'title', 'text'],
+    ['-1815635536', 'main_project', 'text'],
+    ['1376114886', 'outcome_impact_statement', 'text'],
+    ['-547993178', 'geographic_scope', 'dropdown'],
+    ['-515767717', 'geographic_scope_comments', 'text'],
+    ['1209379648', 'other_projects_text', 'text'],
+    ['-504483', 'regions_countries_text', 'text'],
+    ['1308358992', 'main_levers_text', 'text'],
+    ['539860219', 'others_levers_text', 'text']
+  ] as const;
+
+  fieldsToProcess: FieldToProcess[] = this.fieldConfig.map(([dropdownId, attribute, type]) => ({
+    dropdownId,
+    selectedValue: '',
+    attribute,
+    type
+  }));
 
   getTagAsText(tagId: string) {
     const tags = {
