@@ -14,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { CacheService } from '../../services/cache/cache.service';
+import { AllModalsService } from '../../services/cache/all-modals.service';
 @Component({
   selector: 'app-project-results-table',
   imports: [
@@ -33,6 +34,7 @@ import { CacheService } from '../../services/cache/cache.service';
 export class ProjectResultsTableComponent implements OnInit {
   api = inject(ApiService);
   cacheService = inject(CacheService);
+  allModalsService = inject(AllModalsService);
   @Input() contractId = '';
   loading = signal(true);
 
@@ -78,6 +80,10 @@ export class ProjectResultsTableComponent implements OnInit {
   clear(table: Table) {
     table.clear();
     this.searchValue = '';
+  }
+
+  openCreateResultForProject() {
+    this.allModalsService.openModal('createResult');
   }
 
   getSeverity(status: string) {
