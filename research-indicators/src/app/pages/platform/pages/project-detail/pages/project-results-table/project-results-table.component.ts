@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, WritableSignal, Input } from '@angular/core';
 
 import { Table, TableModule } from 'primeng/table';
 
@@ -14,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CustomTagComponent } from '@components/custom-tag/custom-tag.component';
 import { CacheService } from '@services/cache/cache.service';
+import { AllModalsService } from '@services/cache/all-modals.service';
 @Component({
   selector: 'app-project-results-table',
   imports: [
@@ -33,7 +34,8 @@ import { CacheService } from '@services/cache/cache.service';
 export default class ProjectResultsTableComponent implements OnInit {
   api = inject(ApiService);
   cacheService = inject(CacheService);
-  contractId = this.cacheService.currentProjectId();
+  allModalsService = inject(AllModalsService);
+  @Input() contractId = '';
   loading = signal(true);
 
   activityValues: number[] = [0, 100];
@@ -78,6 +80,10 @@ export default class ProjectResultsTableComponent implements OnInit {
   clear(table: Table) {
     table.clear();
     this.searchValue = '';
+  }
+
+  openCreateResultForProject() {
+    this.allModalsService.openModal('createResult');
   }
 
   getSeverity(status: string) {
