@@ -86,6 +86,7 @@ export class ProjectResultsTableComponent implements OnInit {
     this.allModalsService.openModal('createResult');
   }
 
+
   getSeverity(status: string) {
     switch (status) {
       case 'EDITING':
