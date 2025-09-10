@@ -17,7 +17,6 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   @Input() title = 'Reporting Project';
   @Input() maxLength = 117;
   @Input() showWarning = false;
-  @Input() helperText = '';
   @Input() getContractStatusClasses: (status: string) => string = () => '';
   @Input() helperText = 'Enter the eligible project under which you are submitting the result. Only Alliance non-pool-funded projects are allowed.';
   @Input() helperText2 = '';
