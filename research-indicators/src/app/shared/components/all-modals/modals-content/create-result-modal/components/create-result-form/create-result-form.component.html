@@ -11,7 +11,8 @@
       <div class="flex gap-3 pt-[15px] mb-2.5 items-center">
         <img src="/images/prms-reporting-tool.svg" alt="PRMS Reporting Tool" class="w-6" />
         <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left">
-          For results from <strong>Pooled Projects</strong>, please report in <strong>PRMS</strong>.
+          For reporting Innovations (development and use), Capacity Sharing activities, and Policy change & Investments matured in the context of a
+          <strong>pool-funded project</strong>, please go to <strong>PRMS:</strong>
           <a
             href="https://reporting.cgiar.org/result/results-outlet/results-list"
             class="text-[#1689CA] hover:underline"
@@ -25,7 +26,7 @@
       <div class="flex gap-3 pb-[15px] items-center">
         <img src="/images/tracking.svg" alt="TIP" class="w-6" />
         <h3 class="text-[#777C83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left">
-          For Knowledge <strong>Product Results</strong> from non-pooled projects, please report in <strong>TIP</strong>.
+          For submitting Knowledge Products (e.g., book chapters, journal articles, briefs, reports, etc.), please use <strong>TIP:</strong>
           <a href="https://tip.alliance.cgiar.org" class="text-[#1689CA] hover:underline" target="_blank" rel="noopener noreferrer">
             https://tip.alliance.cgiar.org
           </a>
@@ -41,7 +42,8 @@
         [showWarning]="true"
         [getContractStatusClasses]="getContractStatusClasses"
         title="Reporting Project"
-        helperText="Enter the eligible project under which you are submitting the result. Only Alliance non-pool-funded projects are allowed."
+        helperText="Select the project under which you intend to report the result. For indicators other than Outcome Impact Case Reports (OICRs)."
+        helperText2="Only Alliance non-pool-funded projects (Window 3 and Bilaterals) can be selected."
         [maxLength]="100"
         (validityChanged)="sharedFormValid = $event"
         [contractId]="contractId"
