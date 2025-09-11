@@ -4,10 +4,11 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { SetUpProjectService } from '../../set-up-project.service';
 import { DriverjsService } from '@shared/services/driverjs.service';
+import { ManageLevelsModalComponent } from '../../components/manage-levels-modal/manage-levels-modal.component';
 
 @Component({
   selector: 'app-structure',
-  imports: [StructureTableViewComponent, ButtonModule, TooltipModule],
+  imports: [StructureTableViewComponent, ButtonModule, TooltipModule, ManageLevelsModalComponent],
   templateUrl: './structure.component.html',
   styleUrl: './structure.component.scss'
 })

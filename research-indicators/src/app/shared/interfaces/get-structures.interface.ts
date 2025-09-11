@@ -5,13 +5,12 @@ export interface GetStructures {
 }
 
 export interface Level {
-  name_level_1?: string;
   custom_fields: CustomField[];
-  name_level_2?: string;
+  name?: string;
 }
 
 export interface CustomField {
-  fieldID: number;
+  fieldID: number | null;
   field_name: string;
 }
 

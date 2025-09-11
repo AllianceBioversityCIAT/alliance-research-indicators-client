@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../../../../shared/services/api.service';
-import { Indicator, IndicatorItem, IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
+import { Indicator, IndicatorItem, IndicatorsStructure, GetStructures, Level } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
 import { ActionsService } from '../../../../shared/services/actions.service';
 import { NumberFormatOption, NumberTypeOption } from '../../../../shared/interfaces/project-setup.interface';
@@ -25,6 +25,7 @@ export class SetUpProjectService {
   showAllIndicators = signal<boolean>(false);
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
+  levels = signal<Level[]>([]);
   showCreateStructure = signal<boolean>(false);
   loadingStructures = signal<boolean>(false);
   currentAgreementId = signal<number | string | null>(null);
@@ -105,10 +106,15 @@ export class SetUpProjectService {
   async saveStructures() {
     this.loadingStructures.set(true);
     try {
+      console.log({
+        structures: this.structures(),
+        agreement_id: this.routeid(),
+        levels: this.levels()
+      });
       await this.api.POST_SyncStructures({
         structures: this.structures(),
         agreement_id: this.routeid(),
-        levels: [{ name_level_1: this.level1Name(), custom_fields: [], name_level_2: this.level2Name() }]
+        levels: this.levels()
       });
       await this.getStructures();
       this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Structures saved successfully' });
@@ -166,13 +172,14 @@ export class SetUpProjectService {
 
     const res = await this.api.GET_Structures(this.currentAgreementId() as number);
     this.structures.set(res.data.structures);
-    this.level1Name.set(res.data.levels[0]?.name_level_1 || 'Level 1');
-    this.level2Name.set(res.data.levels[1]?.name_level_2 || 'Level 2');
+    this.levels.set(res.data.levels);
+    console.log(res.data);
 
     if (res.successfulRequest) return;
 
     this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });
     this.structures.set([]);
+    this.levels.set([]);
 
     this.loadingStructures.set(false);
   }
