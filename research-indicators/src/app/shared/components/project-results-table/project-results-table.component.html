@@ -17,14 +17,6 @@
         <input [(ngModel)]="searchValue" type="text" placeholder="Search by code, title or creator" />
       </div>
       <div class="options">
-        <p-button
-          label="New Project Result"
-          icon="pi pi-plus"
-          severity="info"
-          size="small"
-          styleClass="!rounded-[9px] !h-7.5 !text-[13px]"
-          [style]="{ 'min-width': '95px' }"
-          (onClick)="openCreateResultForProject()" />
         <p-button label="Clear" [text]="true" icon="pi pi-filter-slash" (onClick)="clear(dt1)" size="small" />
       </div>
     </div>
