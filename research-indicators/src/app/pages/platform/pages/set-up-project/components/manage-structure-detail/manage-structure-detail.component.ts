@@ -50,4 +50,8 @@ export class ManageStructureDetailComponent {
     this.body.set({ code: '', name: '', custom_values: [] });
     this.setUpProjectService.structureDetailModal.set({ show: false });
   };
+
+  clearBody = () => {
+    this.body.set({ code: '', name: '', custom_values: [] });
+  };
 }

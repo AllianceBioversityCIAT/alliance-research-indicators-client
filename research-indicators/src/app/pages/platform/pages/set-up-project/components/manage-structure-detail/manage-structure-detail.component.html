@@ -1,4 +1,9 @@
-<p-dialog header="Edit Profile" [modal]="true" [(visible)]="setUpProjectService.structureDetailModal().show" [style]="{ width: '25rem' }">
+<p-dialog
+  header="Edit Profile"
+  (onHide)="clearBody()"
+  [modal]="true"
+  [(visible)]="setUpProjectService.structureDetailModal().show"
+  [style]="{ width: '25rem' }">
   <span class="p-text-secondary block mb-8">Update your information.</span>
 
   <app-input
