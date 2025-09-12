@@ -178,7 +178,7 @@ export class SetUpProjectService {
 
     const res = await this.api.GET_Structures(this.currentAgreementId() as number);
     res.data.structures.forEach((structure: IndicatorsStructure) => {
-      structure.level_id = 1;
+      structure.isParent = true;
       structure.custom_values.forEach((customValue: levelCustomFieldValue) => {
         customValue.field_name = res.data.levels[0].custom_fields.find(field => field.fieldID === customValue.field)?.field_name || '';
       });

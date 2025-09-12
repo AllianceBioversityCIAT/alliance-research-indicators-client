@@ -30,6 +30,6 @@
     <p-button label="Cancel" severity="secondary" (click)="setUpProjectService.structureDetailModal.set({ show: false })" />
     <p-button
       label="Save"
-      (click)="this.setUpProjectService.structureDetailModal().structure?.level_id === 1 ? saveEditingLevel1() : saveEditingLevel2()" />
+      (click)="this.setUpProjectService.structureDetailModal().structure?.isParent ? saveEditingLevel1() : saveEditingLevel2()" />
   </div>
 </p-dialog>
