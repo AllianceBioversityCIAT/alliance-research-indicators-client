@@ -12,6 +12,7 @@ import { GetMetadataService } from '../../services/get-metadata.service';
 import { SubmissionService } from '../../services/submission.service';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { SetUpProjectService } from '../../../pages/platform/pages/set-up-project/set-up-project.service';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 interface SubmissionAlertData {
   severity: 'success' | 'warning';
@@ -32,7 +33,7 @@ interface SidebarOption {
 
 @Component({
   selector: 'app-result-sidebar',
-  imports: [CustomTagComponent, RouterLink, RouterLinkActive, ButtonModule, CommonModule, TooltipModule],
+  imports: [CustomTagComponent, RouterLink, RouterLinkActive, ButtonModule, CommonModule, TooltipModule, S3ImageUrlPipe],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })

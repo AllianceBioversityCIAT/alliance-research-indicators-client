@@ -65,14 +65,14 @@
                 } @else {
                   Generate with AI
                   <img
-                    src="images/spark-white.svg"
-                    alt="upload-ai"
-                    class="h-4.5"
-                    [style.filter]="
-                      isAiDisabled
-                        ? 'brightness(0) saturate(100%) invert(54%) sepia(8%) saturate(464%) hue-rotate(202deg) brightness(95%) contrast(89%)'
-                        : 'none'
-                    " />
+                [src]="'images/spark-white.svg' | s3ImageUrl"
+                alt="upload-ai"
+                class="h-4.5"
+                [style.filter]="
+                  isAiDisabled
+                    ? 'brightness(0) saturate(100%) invert(54%) sepia(8%) saturate(464%) hue-rotate(202deg) brightness(95%) contrast(89%)'
+                    : 'none'
+                " />
                 }
               </button>
             </div>

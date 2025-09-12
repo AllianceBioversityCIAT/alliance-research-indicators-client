@@ -1,9 +1,10 @@
 import { Component, ElementRef, HostListener, inject, ViewChild, OnInit, signal } from '@angular/core';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { ApiService } from '@shared/services/api.service';
 import { GetAnnouncementSettingAvailable } from '../../../../../../shared/interfaces/get-announcement-setting-available.interface';
 @Component({
   selector: 'app-header',
-  imports: [],
+  imports: [S3ImageUrlPipe],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })

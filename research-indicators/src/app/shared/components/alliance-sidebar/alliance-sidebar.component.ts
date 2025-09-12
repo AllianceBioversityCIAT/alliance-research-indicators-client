@@ -4,10 +4,11 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 @Component({
   selector: 'alliance-sidebar',
-  imports: [RouterModule, CommonModule, TooltipModule],
+  imports: [RouterModule, CommonModule, TooltipModule, S3ImageUrlPipe],
   templateUrl: './alliance-sidebar.component.html',
   styleUrl: './alliance-sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -25,10 +25,11 @@ import { ActionsService } from '@services/actions.service';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.service';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 @Component({
   selector: 'alliance-navbar',
-  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule],
+  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, S3ImageUrlPipe],
   templateUrl: './alliance-navbar.component.html',
   styleUrl: './alliance-navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
