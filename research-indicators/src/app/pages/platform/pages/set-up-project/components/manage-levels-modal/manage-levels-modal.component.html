@@ -1,11 +1,10 @@
-<p-dialog 
-  header="Manage Project Structure" 
-  [modal]="true" 
-  [(visible)]="visible" 
+<p-dialog
+  header="Manage Project Structure"
+  [modal]="true"
+  [(visible)]="setUpProjectService.showManageLevelsModal"
   [style]="{ width: '800px', maxHeight: '85vh' }"
   [draggable]="false"
   [closable]="true">
-  
   <div class="manage-levels-content">
     <div class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
       <div class="flex items-center space-x-2">
@@ -34,24 +33,14 @@
           <!-- Level Name Input -->
           <div class="mb-4">
             <label for="level-name-{{ $index }}" class="block text-sm font-medium text-gray-700 mb-2">Level Name *</label>
-            <input 
-              id="level-name-{{ $index }}"
-              pInputText 
-              [(ngModel)]="level.name" 
-              placeholder="Enter level name"
-              class="w-full" />
+            <input id="level-name-{{ $index }}" pInputText [(ngModel)]="level.name" placeholder="Enter level name" class="w-full" />
           </div>
 
           <!-- Custom Fields Section -->
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <h6 class="text-sm font-medium text-gray-700">Custom Fields</h6>
-              <p-button 
-                label="Add Custom Field" 
-                icon="pi pi-plus"
-                size="small"
-                severity="secondary"
-                (click)="addCustomField(level)" />
+              <p-button label="Add Custom Field" icon="pi pi-plus" size="small" severity="secondary" (click)="addCustomField(level)" />
             </div>
 
             @if (level.custom_fields.length > 0) {
@@ -59,12 +48,8 @@
                 @for (customField of level.custom_fields; track $index) {
                   <div class="flex items-center space-x-2 p-2 bg-gray-50 rounded">
                     <i class="pi pi-tag text-gray-500 text-sm"></i>
-                    <input 
-                      pInputText 
-                      [(ngModel)]="customField.field_name" 
-                      placeholder="Custom field name"
-                      class="flex-1" />
-                    <p-button 
+                    <input pInputText [(ngModel)]="customField.field_name" placeholder="Custom field name" class="flex-1" />
+                    <p-button
                       icon="pi pi-trash"
                       severity="danger"
                       size="small"
@@ -88,15 +73,7 @@
   </div>
 
   <div class="flex justify-end gap-2 pt-4 border-t border-gray-200 mt-6">
-    <p-button 
-      label="Cancel" 
-      severity="secondary" 
-      size="small"
-      (click)="visible.set(false)" />
-    <p-button 
-      label="Save Changes" 
-      size="small"
-      icon="pi pi-check"
-      (click)="this.setUpProjectService.saveStructures()" />
+    <p-button label="Cancel" severity="secondary" size="small" (click)="setUpProjectService.showManageLevelsModal.set(false)" />
+    <p-button label="Save Changes" size="small" icon="pi pi-check" (click)="this.setUpProjectService.saveStructures()" />
   </div>
 </p-dialog>

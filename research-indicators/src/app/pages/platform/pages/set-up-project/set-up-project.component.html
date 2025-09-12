@@ -29,7 +29,7 @@
         </div>
       </div>
 
-      @if (activeRoute === 'structure' && false) {
+      @if (activeRoute === 'structure') {
         <!-- Tree Structure Visualization -->
         <div class="tree-container bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
           <div class="flex items-center">
@@ -69,7 +69,7 @@
                     <i
                       class="pi pi-pencil ml-2 text-blue-400 cursor-pointer hover:text-blue-600"
                       style="font-size: 12px"
-                      (click)="setUpProjectService.startEditingLevel1()"></i>
+                      (click)="setUpProjectService.showManageLevelsModal.set(true)"></i>
                   }
                 </div>
               </div>
@@ -104,7 +104,7 @@
                     <i
                       class="pi pi-pencil ml-2 text-blue-400 cursor-pointer hover:text-blue-600"
                       style="font-size: 12px"
-                      (click)="setUpProjectService.startEditingLevel2()"></i>
+                      (click)="setUpProjectService.showManageLevelsModal.set(true)"></i>
                   }
                 </div>
               </div>

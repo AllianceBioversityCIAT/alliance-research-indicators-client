@@ -13,11 +13,10 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './manage-levels-modal.component.scss'
 })
 export class ManageLevelsModalComponent {
-  visible = signal(false);
   setUpProjectService = inject(SetUpProjectService);
   body = signal({ title: null });
   addCustomField = (level: Level) => {
-    level.custom_fields.push({ fieldID: null, field_name: '' });
+    level.custom_fields.push({ fieldID: level.custom_fields.length + 1, field_name: '' });
   };
 
   removeCustomField = (level: Level, index: number) => {

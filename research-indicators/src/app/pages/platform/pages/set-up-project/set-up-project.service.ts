@@ -26,6 +26,7 @@ export class SetUpProjectService {
   structureDetailBody = signal({ code: '', name: '', custom_values: [] as WritableSignal<levelCustomFieldValue>[] });
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
+  showManageLevelsModal = signal<boolean>(false);
   structureDetailModal = signal<{
     show: boolean;
     structure?: IndicatorsStructure;
@@ -49,7 +50,9 @@ export class SetUpProjectService {
   // Tree hierarchy signals
   level1Name = signal<string>('Level 1');
   level2Name = signal<string>('Level 2');
+  //! Delete
   editingLevel1 = signal<boolean>(false);
+  //! Delete
   editingLevel2 = signal<boolean>(false);
   // Structure table expand/collapse control
   allStructuresExpanded = signal<boolean>(true);
@@ -272,15 +275,6 @@ export class SetUpProjectService {
     this.saveStructures();
   }
 
-  // Tree hierarchy editing methods
-  startEditingLevel1() {
-    this.editingLevel1.set(true);
-  }
-
-  startEditingLevel2() {
-    this.editingLevel2.set(true);
-  }
-
   saveLevel1Name(newName: string) {
     this.level1Name.set(newName || 'Level 1');
     this.editingLevel1.set(false);
@@ -293,10 +287,12 @@ export class SetUpProjectService {
     this.saveStructures();
   }
 
+  //! Delete
   cancelEditingLevel1() {
     this.editingLevel1.set(false);
   }
 
+  //! Delete
   cancelEditingLevel2() {
     this.editingLevel2.set(false);
   }
