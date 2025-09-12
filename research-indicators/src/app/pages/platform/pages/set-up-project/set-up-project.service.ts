@@ -36,7 +36,7 @@ export class SetUpProjectService {
   loadingStructures = signal<boolean>(false);
   currentAgreementId = signal<number | string | null>(null);
   // isCardsView = signal<boolean>(false);
-  editingFocus = signal<boolean>(false);
+
   assignIndicatorsModal = signal<{
     show: boolean;
     targetLevel1?: IndicatorsStructure;
@@ -59,7 +59,7 @@ export class SetUpProjectService {
     const result = structuresCopy.flatMap((item: IndicatorsStructure) => {
       const { items, ...itemWithoutItems } = item;
       const isGhostItem = !item.items?.length;
-      if (isGhostItem) item.items = [{ id: null, name: '', code: '', indicators: [], editing: true, ghostItem: true }];
+      if (isGhostItem) item.items = [{ id: null, name: '', code: '', indicators: [], ghostItem: true, custom_values: [] }];
       item.items?.map((stItem: IndicatorItem) => {
         stItem.representative = { ...itemWithoutItems, itemsCount: items?.filter((i: IndicatorItem) => !i.ghostItem).length || 0 };
       });
@@ -180,6 +180,11 @@ export class SetUpProjectService {
     res.data.structures.forEach((structure: IndicatorsStructure) => {
       structure.custom_values.forEach((customValue: levelCustomFieldValue) => {
         customValue.field_name = res.data.levels[0].custom_fields.find(field => field.fieldID === customValue.field)?.field_name || '';
+      });
+      structure.items?.forEach((level2: IndicatorItem) => {
+        level2.custom_values?.forEach((customValue: levelCustomFieldValue) => {
+          customValue.field_name = res.data.levels[1].custom_fields.find(field => field.fieldID === customValue.field)?.field_name || '';
+        });
       });
     });
 

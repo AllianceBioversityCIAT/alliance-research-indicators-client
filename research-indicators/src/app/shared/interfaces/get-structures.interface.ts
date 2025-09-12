@@ -20,16 +20,15 @@ export interface IndicatorsStructure {
   code: string;
   items?: IndicatorItem[];
   indicators: Indicator[];
-  //auxiliary attributes
-  editing?: boolean;
-  newStructure?: boolean;
   custom_values: levelCustomFieldValue[];
+  //auxiliary attributes
+  newStructure?: boolean;
 }
 
 export interface levelCustomFieldValue {
   field: number;
   field_value: string;
-  // aux
+  // auxiliary fields
   field_name: string;
 }
 
@@ -38,9 +37,9 @@ export interface IndicatorItem {
   name: string;
   code: string;
   indicators?: Indicator[];
+  custom_values: levelCustomFieldValue[];
   //auxiliary fields
   representative?: IndicatorItem;
-  editing?: boolean;
   newItem?: boolean;
   ghostItem?: boolean;
   itemsCount?: number;

@@ -3,7 +3,7 @@
 
   @for (structure of setUpProjectService.structureDetailModal().structure?.custom_values; track $index) {
     <div class="flex items-center gap-4 mb-4">
-      <label for="username" class="font-semibold w-24">{{ structure.field }}</label>
+      <label for="username" class="font-semibold w-24">{{ structure.field_name }}</label>
       <input pInputText id="username" class="flex-auto" autocomplete="off" />
     </div>
   }

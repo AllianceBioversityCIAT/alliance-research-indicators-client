@@ -6,16 +6,15 @@
     </div>
 
     <div class="flex items-center gap-2">
-      @if (!setUpProjectService.editingFocus()) {
-        <div class="create-structure-button">
-          <p-button
-            (click)="addStructure()"
-            icon="pi pi-plus"
-            severity="contrast"
-            size="small"
-            [label]="'Add ' + this.setUpProjectService.level1Name()" />
-        </div>
-      }
+      <div class="create-structure-button">
+        <p-button
+          (click)="addStructure()"
+          icon="pi pi-plus"
+          severity="contrast"
+          size="small"
+          [label]="'Add ' + this.setUpProjectService.level1Name()" />
+      </div>
+
       @if (setUpProjectService.structures().length > 0) {
         <p-button
           [icon]="setUpProjectService.allStructuresExpanded() ? 'pi pi-minus' : 'pi pi-plus'"
