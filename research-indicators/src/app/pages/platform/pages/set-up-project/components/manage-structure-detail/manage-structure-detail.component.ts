@@ -44,7 +44,7 @@ export class ManageStructureDetailComponent {
     }
 
     this.setUpProjectService.saveStructures();
-    this.body.set({ code: '', name: '' });
+    this.body.set({ code: '', name: '', custom_values: [] });
     this.setUpProjectService.structureDetailModal.set({ show: false });
   };
 }

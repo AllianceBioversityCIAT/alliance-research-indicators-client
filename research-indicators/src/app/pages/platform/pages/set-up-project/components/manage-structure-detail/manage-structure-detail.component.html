@@ -19,10 +19,20 @@
     placeholder="Write the title"
     [maxLength]="30"></app-input>
 
-  @for (structure of setUpProjectService.structureDetailModal().structure?.custom_values; track $index) {
-    <div class="flex items-center gap-4 mb-4">
-      <label for="username" class="font-semibold w-24">{{ structure.field_name }}</label>
-      <input pInputText id="username" class="flex-auto" autocomplete="off" />
+  <div class="mb-4">
+    <h6 class="text-lg font-medium text-gray-700 mb-2">Custom Fields:</h6>
+  </div>
+
+  @for (customValue of this.body().custom_values; track $index) {
+    <div>
+      <app-input
+        [label]="customValue().field_name"
+        [isRequired]="true"
+        [validateEmpty]="true"
+        [signal]="customValue"
+        optionValue="name"
+        placeholder="Write the title"
+        [maxLength]="30"></app-input>
     </div>
   }
 

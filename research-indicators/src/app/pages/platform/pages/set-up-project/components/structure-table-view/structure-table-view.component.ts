@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, effect } from '@angular/core';
+import { Component, inject, OnInit, effect, signal } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { SetUpProjectService } from '../../set-up-project.service';
 import { TagModule } from 'primeng/tag';
@@ -37,7 +37,11 @@ export class StructureTableViewComponent implements OnInit {
 
   openStructureDetailModal = (structure: IndicatorsStructure) => {
     this.setUpProjectService.structureDetailModal.set({ show: true, structure });
-    this.setUpProjectService.structureDetailBody.set({ code: structure.code, name: structure.name });
+    this.setUpProjectService.structureDetailBody.set({
+      code: structure.code,
+      name: structure.name,
+      custom_values: structure.custom_values.map(customValue => signal(customValue))
+    });
   };
 
   updateExpandedRows() {

@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '../../../../shared/services/api.service';
 import { Indicator, IndicatorItem, IndicatorsStructure, Level, levelCustomFieldValue } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
@@ -23,7 +23,7 @@ export class SetUpProjectService {
     show: false
   });
   showAllIndicators = signal<boolean>(false);
-  structureDetailBody = signal({ code: '', name: '' });
+  structureDetailBody = signal({ code: '', name: '', custom_values: [] as WritableSignal<levelCustomFieldValue>[] });
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
   structureDetailModal = signal<{
