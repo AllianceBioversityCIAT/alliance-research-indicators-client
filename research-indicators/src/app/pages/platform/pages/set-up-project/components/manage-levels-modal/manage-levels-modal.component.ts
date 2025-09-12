@@ -56,4 +56,9 @@ export class ManageLevelsModalComponent {
   removeCustomField = (level: Level, index: number) => {
     level.custom_fields.splice(index, 1);
   };
+
+  onSave() {
+    this.setUpProjectService.showManageLevelsModal.set(false);
+    this.setUpProjectService.saveStructures();
+  }
 }
