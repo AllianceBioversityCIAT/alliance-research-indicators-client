@@ -26,6 +26,8 @@ export class ManageStructureDetailComponent {
         if (foundStructure) {
           foundStructure.name = this.body().name;
           foundStructure.code = this.body().code;
+          foundStructure.custom_values = this.body().custom_values.map(customValue => customValue());
+          console.log(foundStructure);
         }
         return [...structures];
       });
@@ -38,6 +40,7 @@ export class ManageStructureDetailComponent {
         if (item) {
           item.name = this.body().name;
           item.code = this.body().code;
+          item.custom_values = this.body().custom_values.map(customValue => customValue());
         }
         return [...structures];
       });
