@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/cor
 import { CognitoService } from '../../shared/services/cognito.service';
 import { Router, RouterLink } from '@angular/router';
 import { CacheService } from '../../shared/services/cache/cache.service';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink],
+  imports: [RouterLink, S3ImageUrlPipe],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
