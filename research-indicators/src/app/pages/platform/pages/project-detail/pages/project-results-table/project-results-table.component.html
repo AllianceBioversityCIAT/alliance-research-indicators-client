@@ -55,8 +55,18 @@
     </tr>
   </ng-template>
   <ng-template pTemplate="emptymessage">
-    <tr>
-      <td colspan="4">No results found.</td>
-    </tr>
+    <td colspan="7" class="text-center p-2 bg-white">
+      <div class="flex flex-col items-center gap-4 bg-surface-ground p-6 rounded-xl">
+        <div class="flex flex-col items-center gap-1">
+          <img src="/images/landing/projects.png" alt="Empty Projects" class="w-[180px] h-[180px] mb-3" />
+          <h2 class="text-[#173F6F] text-[16px] font-bold">
+            PROJECT RESULTS LIST IS EMPTY
+          </h2>
+          <p class="text-[#4C5158] leading-4 text-center text-[14px] max-w-[600px] pt-1">
+            No results found for this project at the moment.
+          </p>
+        </div>
+      </div>
+    </td>
   </ng-template>
 </p-table>
