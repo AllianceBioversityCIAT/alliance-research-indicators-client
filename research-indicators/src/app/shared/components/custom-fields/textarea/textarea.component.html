@@ -58,7 +58,7 @@
               (click)="!isAiDisabled && aiAssistantFunction()">
               Generate with AI
               <img
-                src="images/spark-white.svg"
+                [src]="'images/spark-white.svg' | s3ImageUrl"
                 alt="upload-ai"
                 class="h-4.5"
                 [style.filter]="

@@ -24,6 +24,7 @@ import { GetYearsService } from '@shared/services/control-list/get-years.service
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
 import { WordCountService } from '@shared/services/word-count.service';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 registerLocaleData(localeEs);
 
@@ -34,6 +35,7 @@ registerLocaleData(localeEs);
     ButtonModule,
     FormsModule,
     InputTextModule,
+    S3ImageUrlPipe,
     NgTemplateOutlet,
     SelectModule,
     RouterModule,
