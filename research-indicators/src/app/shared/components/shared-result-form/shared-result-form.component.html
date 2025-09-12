@@ -52,8 +52,11 @@
       </div>
     </ng-template>
   </p-select>
-  <div class="flex items-center gap-1 mt-1 text-[#8D9299] text-[14px]">
-    <span> Enter the eligible project under which you are submitting the result. Only Alliance non-pool-funded projects are allowed. </span>
+  <div class="flex flex-col mt-1 text-[#8D9299] text-[14px]">
+    <span> {{ helperText }} </span>
+    @if (helperText2) {
+      <span> {{ helperText2 }} </span>
+    }
   </div>
 
   @if (isInvalid && showWarning) {

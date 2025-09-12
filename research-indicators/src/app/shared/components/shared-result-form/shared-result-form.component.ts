@@ -18,6 +18,8 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   @Input() maxLength = 117;
   @Input() showWarning = false;
   @Input() getContractStatusClasses: (status: string) => string = () => '';
+  @Input() helperText = 'Enter the eligible project under which you are submitting the result. Only Alliance non-pool-funded projects are allowed.';
+  @Input() helperText2 = '';
   @Output() validityChanged = new EventEmitter<boolean>();
   @Output() contractIdChange = new EventEmitter<number>();
 

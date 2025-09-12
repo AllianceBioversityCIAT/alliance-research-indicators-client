@@ -13,7 +13,7 @@
       <div class="flex-col flex gap-[10px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[14px] font-[700] flex text-[#173F6F]">
           UPLOAD YOUR FILE
-          <img src="/icons/star-blue-icon.svg" alt="upload-ai" class="w-4.5 pl-1" />
+          <img [src]="'icons/star-blue-icon.svg' | s3ImageUrl" alt="upload-ai" class="w-4.5 pl-1" />
         </p>
 
         <app-shared-result-form
@@ -82,11 +82,11 @@
       <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6 lg:py-6 xl:py-6">
         <p class="text-[14px] font-[700] flex text-[#173F6F]">
           UPLOAD YOUR FILE
-          <img src="/icons/star-blue-icon.svg" alt="upload-ai" class="w-4.5 pl-1" />
+          <img [src]="'icons/star-blue-icon.svg' | s3ImageUrl" alt="upload-ai" class="w-4.5 pl-1" />
         </p>
 
         <div class="w-full flex place-content-center">
-          <img src="gifs/robot.gif" alt="Robot animado" class="w-1/3 h-auto" />
+          <img [src]="'gifs/robot.gif' | s3ImageUrl" alt="Robot animado" class="w-1/3 h-auto" />
         </div>
 
         @if (steps()[activeIndex()]) {
@@ -271,11 +271,11 @@
       <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[14px] font-[700] flex text-[#173F6F]">
           UPLOAD YOUR FILE
-          <img src="/icons/star-blue-icon.svg" alt="upload-ai" class="w-4.5 pl-1" />
+            <img [src]="'icons/star-blue-icon.svg' | s3ImageUrl" alt="upload-ai" class="w-4.5 pl-1" />
         </p>
 
         <div class="w-full flex place-content-center">
-          <img src="images/upload-ai-2.svg" alt="upload-ai" class="w-1/4 h-auto" />
+          <img [src]="'images/upload-ai-2.svg' | s3ImageUrl" alt="upload-ai" class="w-1/4 h-auto" />
         </div>
 
         <div class="flex flex-col items-center justify-center w-full h-full">

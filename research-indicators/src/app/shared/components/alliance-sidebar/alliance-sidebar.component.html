@@ -38,7 +38,7 @@
           @if (cache.isSidebarCollapsed() && option.underConstruction) {
             <div class="icon-construction-container">
               <i class="!text-[15px]" [ngClass]="'pi ' + option.icon"></i>
-              <img src="construction.png" class="construction-icon-x1 icon-construction-container-img" alt="" />
+              <img [src]="'construction.png' | s3ImageUrl" class="construction-icon-x1 icon-construction-container-img" alt="" />
             </div>
           } @else {
             <i class="!text-[15px]" [ngClass]="'pi ' + option.icon"></i>
@@ -47,7 +47,7 @@
           <div class="body-2 text flex !text-[15px]">
             {{ option.label }}
             @if (option.underConstruction && !cache.isSidebarCollapsed()) {
-              <img src="construction.png" class="construction-icon-x1" alt="" />
+              <img [src]="'construction.png' | s3ImageUrl" class="construction-icon-x1" alt="" />
             }
           </div>
         </div>

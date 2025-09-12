@@ -20,9 +20,9 @@
               [disabled]="loadingPin()"
               title="Pin tab">
               @if (isPinned(item.id!)) {
-                <img src="/icons/pin-outline.svg" alt="pin logo" class="w-3 h-3" />
+                <img [src]="'/icons/pin-outline.svg' | s3ImageUrl" alt="pin logo" class="w-3 h-3" />
               } @else {
-                <img src="/icons/pin.svg" alt="pin logo" class="w-3 h-3" />
+                <img [src]="'/icons/pin.svg' | s3ImageUrl" alt="pin logo" class="w-3 h-3" />
               }
             </button>
             <span

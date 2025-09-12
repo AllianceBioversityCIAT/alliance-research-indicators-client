@@ -10,10 +10,11 @@ import { WordCounterComponent } from '../word-counter/word-counter.component';
 import { InputValueType } from '@shared/services/word-count.service';
 import { TextareaValidationService } from '@shared/services/textarea-validation.service';
 import { UtilsService } from '@shared/services/utils.service';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 @Component({
   selector: 'app-textarea',
-  imports: [FormsModule, TextareaModule, SaveOnWritingDirective, SkeletonModule, WordCounterComponent],
+  imports: [FormsModule, TextareaModule, SaveOnWritingDirective, SkeletonModule, WordCounterComponent, S3ImageUrlPipe],
   templateUrl: './textarea.component.html',
   styleUrl: './textarea.component.scss'
 })

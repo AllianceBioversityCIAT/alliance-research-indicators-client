@@ -9,6 +9,7 @@ import { SectionSidebarComponent } from '../../../../shared/components/section-s
 import { ApiService } from '../../../../shared/services/api.service';
 import { ActionsService } from '../../../../shared/services/actions.service';
 import { MenuItem } from 'primeng/api';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 @Component({
   selector: 'app-results-center',
@@ -17,7 +18,8 @@ import { MenuItem } from 'primeng/api';
     ResultsCenterTableComponent,
     TableFiltersSidebarComponent,
     TableConfigurationComponent,
-    SectionSidebarComponent
+    SectionSidebarComponent,
+    S3ImageUrlPipe
   ],
   templateUrl: './results-center.component.html',
   styleUrls: ['./results-center.component.scss']

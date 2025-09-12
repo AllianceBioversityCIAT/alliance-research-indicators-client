@@ -42,7 +42,7 @@
 
           <div class="option">{{ option.label }}</div>
           @if (option.underConstruction) {
-            <img src="construction.png" alt="" class="construction-icon-x1" />
+            <img [src]="'construction.png' | s3ImageUrl" alt="" class="construction-icon-x1" />
           }
         </div>
       }
