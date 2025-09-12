@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Card, Faq } from '../interfaces/landing.interface';
+import { Faq } from '../interfaces/landing.interface';
 
 @Injectable({
   providedIn: 'root'
