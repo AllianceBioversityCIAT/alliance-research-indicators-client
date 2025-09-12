@@ -16,8 +16,42 @@ export class ManageLevelsModalComponent {
   setUpProjectService = inject(SetUpProjectService);
   body = signal({ title: null });
   addCustomField = (level: Level) => {
-    level.custom_fields.push({ fieldID: level.custom_fields.length + 1, field_name: '' });
+    const nextId = this.getNextAvailableId(level.custom_fields);
+    level.custom_fields.push({ fieldID: nextId, field_name: '' });
   };
+
+  /**
+   * Generates the next available unique ID for custom fields
+   * Time complexity: O(n log n) in worst case, O(1) in best case
+   * Space complexity: O(1)
+   */
+  private getNextAvailableId(customFields: { fieldID: number | null }[]): number {
+    if (customFields.length === 0) {
+      return 1;
+    }
+
+    // Filter out null values and sort existing IDs
+    const existingIds = customFields
+      .map(field => field.fieldID)
+      .filter((id): id is number => id !== null)
+      .sort((a, b) => a - b);
+
+    // If no valid IDs exist, start with 1
+    if (existingIds.length === 0) {
+      return 1;
+    }
+
+    // Check for gaps in the sequence starting from 1
+    for (let i = 0; i < existingIds.length; i++) {
+      const expectedId = i + 1;
+      if (existingIds[i] !== expectedId) {
+        return expectedId;
+      }
+    }
+
+    // No gaps found, return next sequential number
+    return existingIds.length + 1;
+  }
 
   removeCustomField = (level: Level, index: number) => {
     level.custom_fields.splice(index, 1);
