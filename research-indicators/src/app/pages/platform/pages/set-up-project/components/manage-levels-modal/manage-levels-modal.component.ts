@@ -18,6 +18,13 @@ export class ManageLevelsModalComponent {
   addCustomField = (level: Level) => {
     const nextId = this.getNextAvailableId(level.custom_fields);
     level.custom_fields.push({ fieldID: nextId, field_name: '' });
+    
+    // Sort custom fields by fieldID to maintain order
+    level.custom_fields.sort((a, b) => {
+      if (a.fieldID === null) return 1;
+      if (b.fieldID === null) return -1;
+      return a.fieldID - b.fieldID;
+    });
   };
 
   /**
