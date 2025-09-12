@@ -63,7 +63,7 @@
         <ng-template #item let-item>
           <div class="flex flex-col gap-2 h-[54px] text-[14px] w-full min-w-0" pTooltip="{{ item?.title }}">
             <p class="text-[#4C5158] font-[400] w-full overflow-hidden whitespace-nowrap text-ellipsis">
-              <b>{{ item?.id }} -</b>
+              <b>{{ item?.external_id }} -</b>
               {{ item?.title }}
             </p>
 
@@ -160,7 +160,7 @@
       [rows]="5"
       [isRequired]="true"
       label="Elaboration of outcome/impact statement"
-      [helperText]="outcomeImpactStatementHelperText"
+      helperText="For the preliminary submission, a brief description (1–3 sentences) of the outcome/impact is sufficient."
       [maxLength]="400"
       [signal]="body"
       [optionValue]="outcomeImpactOptionValue"

@@ -86,7 +86,7 @@
         <div class="flex-1 xl:max-w-[260px]">
           <h2 class="text-[16px] font-[500] text-[#173F6F] pb-1">Reporting year<span class="text-[15px] text-[#CF0808]">*</span></h2>
           <p-select
-            [options]="yearsService.list()"
+            [options]="body().indicator_id === 5 ? [{ report_year: 2025 }] : yearsService.list()"
             [(ngModel)]="body().year"
             [style]="isYearMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
             [optionLabel]="'report_year'"
@@ -171,7 +171,8 @@
         </div>
         <div class="flex max-w-[135px] min-w-[135px]">
           <button
-            class="font-medium cursor-pointer font-[500] text-[13px] bg-gradient-to-r from-[#035BA9] to-[#039CE0] text-white px-6 py-3 gap-2 justify-center w-full flex rounded-[15px]"
+            class="font-medium cursor-pointer font-[500] text-[13px] bg-gradient-to-r from-[#035BA9] to-[#039CE0] text-white px-6 py-3 gap-2 justify-center w-full flex rounded-[15px] disabled:bg-none disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] disabled:cursor-default"
+            [disabled]="body().indicator_id === 5"
             (click)="this.createResultManagementService.resultPageStep.set(1)">
             Upload file
             <img src="/icons/upload-icon.svg" alt="upload-ai" class="w-4" />
