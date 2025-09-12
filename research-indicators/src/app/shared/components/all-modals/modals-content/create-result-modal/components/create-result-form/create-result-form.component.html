@@ -14,11 +14,11 @@
           For reporting Innovations (development and use), Capacity Sharing activities, and Policy change & Investments matured in the context of a
           <strong>pool-funded project</strong>, please go to <strong>PRMS:</strong>
           <a
-            href="https://reporting.cgiar.org/result/results-outlet/results-list"
+            [href]="prmsUrl"
             class="text-[#1689CA] hover:underline"
             target="_blank"
             rel="noopener noreferrer">
-            https://reporting.cgiar.org
+            {{ prmsUrl }}
           </a>
         </h3>
       </div>
@@ -27,8 +27,8 @@
         <img [src]="'images/tracking.svg' | s3ImageUrl" alt="TIP" class="w-6" />
         <h3 class="text-[#777C83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left">
           For submitting Knowledge Products (e.g., book chapters, journal articles, briefs, reports, etc.), please use <strong>TIP:</strong>
-          <a href="https://tip.alliance.cgiar.org" class="text-[#1689CA] hover:underline" target="_blank" rel="noopener noreferrer">
-            https://tip.alliance.cgiar.org
+          <a [href]="tipUrl" class="text-[#1689CA] hover:underline" target="_blank" rel="noopener noreferrer">
+            {{ tipUrl }}
           </a>
         </h3>
       </div>
