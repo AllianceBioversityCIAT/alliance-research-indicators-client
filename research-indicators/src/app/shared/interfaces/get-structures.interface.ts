@@ -29,6 +29,8 @@ export interface IndicatorsStructure {
 export interface levelCustomFieldValue {
   field: number;
   field_value: string;
+  // aux
+  field_name: string;
 }
 
 export interface IndicatorItem {

@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../../../../shared/services/api.service';
-import { Indicator, IndicatorItem, IndicatorsStructure, Level } from '../../../../shared/interfaces/get-structures.interface';
+import { Indicator, IndicatorItem, IndicatorsStructure, Level, levelCustomFieldValue } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
 import { ActionsService } from '../../../../shared/services/actions.service';
 import { NumberFormatOption, NumberTypeOption } from '../../../../shared/interfaces/project-setup.interface';
@@ -177,6 +177,12 @@ export class SetUpProjectService {
     this.loadingStructures.set(true);
 
     const res = await this.api.GET_Structures(this.currentAgreementId() as number);
+    res.data.structures.forEach((structure: IndicatorsStructure) => {
+      structure.custom_values.forEach((customValue: levelCustomFieldValue) => {
+        customValue.field_name = res.data.levels[0].custom_fields.find(field => field.fieldID === customValue.field)?.field_name || '';
+      });
+    });
+
     this.structures.set(res.data.structures);
     this.levels.set(res.data.levels);
     console.log(res.data);
