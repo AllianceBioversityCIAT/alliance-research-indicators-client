@@ -15,37 +15,37 @@ export class ManageStructureDetailComponent {
   setUpProjectService = inject(SetUpProjectService);
   body = signal({ code: '', name: '' });
 
-  saveEditingLevel1 = () => {
-    if (!this.body().code) return;
-    this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === this.setUpProjectService.structureDetailModal().structure?.id);
-      if (structure) {
-        structure.name = this.body().name;
-        structure.code = this.body().code;
-      }
-      return [...structures];
-    });
+  saveStructure = () => {
+    const structure = this.setUpProjectService.structureDetailModal().structure;
+    if (!structure) return;
+
+    if (structure.isParent) {
+      // Logic for level 1 (parent)
+      if (!this.body().code) return;
+      this.setUpProjectService.structures.update(structures => {
+        const foundStructure = structures.find(s => s.id === structure.id);
+        if (foundStructure) {
+          foundStructure.name = this.body().name;
+          foundStructure.code = this.body().code;
+        }
+        return [...structures];
+      });
+    } else {
+      // Logic for level 2 (child)
+      if (!this.body().name || !this.body().code) return;
+      this.setUpProjectService.structures.update(structures => {
+        const item = structures.find(s => s.id === structure.parent_id)?.items?.find(i => i.id === structure.id);
+
+        if (item) {
+          item.name = this.body().name;
+          item.code = this.body().code;
+        }
+        return [...structures];
+      });
+    }
+
     this.setUpProjectService.saveStructures();
     this.body.set({ code: '', name: '' });
-    this.setUpProjectService.structureDetailModal.set({ show: false });
-  };
-
-  saveEditingLevel2 = () => {
-    if (!this.body().name || !this.body().code) return;
-    this.setUpProjectService.structures.update(structures => {
-      const item = structures
-        .find(s => s.id === this.setUpProjectService.structureDetailModal().structure?.parent_id)
-        ?.items?.find(i => i.id === this.setUpProjectService.structureDetailModal().structure?.id);
-
-      if (item) {
-        item.name = this.body().name;
-        item.code = this.body().code;
-      }
-      return [...structures];
-    });
-
-    this.setUpProjectService.saveStructures();
-    this.body.set({ name: '', code: '' });
     this.setUpProjectService.structureDetailModal.set({ show: false });
   };
 }
