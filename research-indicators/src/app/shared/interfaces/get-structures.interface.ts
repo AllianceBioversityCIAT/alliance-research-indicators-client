@@ -23,6 +23,8 @@ export interface IndicatorsStructure {
   custom_values: levelCustomFieldValue[];
   //auxiliary attributes
   newStructure?: boolean;
+  level_id?: number;
+  parent_id?: number | null | string;
 }
 
 export interface levelCustomFieldValue {
@@ -43,6 +45,7 @@ export interface IndicatorItem {
   newItem?: boolean;
   ghostItem?: boolean;
   itemsCount?: number;
+  parent_id?: number | null | string;
 }
 
 export interface Indicator {

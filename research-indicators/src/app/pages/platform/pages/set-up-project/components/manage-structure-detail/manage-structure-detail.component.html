@@ -1,6 +1,24 @@
 <p-dialog header="Edit Profile" [modal]="true" [(visible)]="setUpProjectService.structureDetailModal().show" [style]="{ width: '25rem' }">
   <span class="p-text-secondary block mb-8">Update your information.</span>
 
+  <app-input
+    label="Code"
+    [isRequired]="true"
+    [validateEmpty]="true"
+    [signal]="this.body"
+    optionValue="code"
+    placeholder="Write the title"
+    [maxLength]="30"></app-input>
+
+  <app-input
+    label="Name"
+    [isRequired]="true"
+    [validateEmpty]="true"
+    [signal]="this.body"
+    optionValue="name"
+    placeholder="Write the title"
+    [maxLength]="30"></app-input>
+
   @for (structure of setUpProjectService.structureDetailModal().structure?.custom_values; track $index) {
     <div class="flex items-center gap-4 mb-4">
       <label for="username" class="font-semibold w-24">{{ structure.field_name }}</label>
@@ -10,6 +28,8 @@
 
   <div class="flex justify-end gap-2">
     <p-button label="Cancel" severity="secondary" (click)="setUpProjectService.structureDetailModal.set({ show: false })" />
-    <p-button label="Save" (click)="setUpProjectService.structureDetailModal.set({ show: false })" />
+    <p-button
+      label="Save"
+      (click)="this.setUpProjectService.structureDetailModal().structure?.level_id === 1 ? saveEditingLevel1() : saveEditingLevel2()" />
   </div>
 </p-dialog>

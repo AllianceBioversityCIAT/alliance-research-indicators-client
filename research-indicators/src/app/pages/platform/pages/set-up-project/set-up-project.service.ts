@@ -178,10 +178,12 @@ export class SetUpProjectService {
 
     const res = await this.api.GET_Structures(this.currentAgreementId() as number);
     res.data.structures.forEach((structure: IndicatorsStructure) => {
+      structure.level_id = 1;
       structure.custom_values.forEach((customValue: levelCustomFieldValue) => {
         customValue.field_name = res.data.levels[0].custom_fields.find(field => field.fieldID === customValue.field)?.field_name || '';
       });
       structure.items?.forEach((level2: IndicatorItem) => {
+        level2.parent_id = structure.id;
         level2.custom_values?.forEach((customValue: levelCustomFieldValue) => {
           customValue.field_name = res.data.levels[1].custom_fields.find(field => field.fieldID === customValue.field)?.field_name || '';
         });
