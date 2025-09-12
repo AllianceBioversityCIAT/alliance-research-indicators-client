@@ -24,7 +24,7 @@ export class CacheService {
   );
   showMetadataPanel = signal(localStorage.getItem('showMetadataPanel') === 'true');
   currentSectionHeaderName = signal('');
-  currentResultId: WritableSignal<number> = signal(0, {
+  currentResultId: WritableSignal<string | number> = signal(0, {
     equal: (a, b) => {
       return a === b;
     }
@@ -72,26 +72,12 @@ export class CacheService {
   }
 
   /**
-   * Establece el currentResultId extrayendo siempre solo el ID numérico
-   * @param id - ID que puede venir como string (ej: "result.platform_code-2863") o número (ej: 2863)
+   * Establece el currentResultId preservando el ID completo con plataforma
+   * @param id - ID que puede venir como string (ej: "TIP-2863") o número (ej: 2863)
    */
   setCurrentResultId(id: string | number): void {
-    let numericId: number;
-
-    if (typeof id === 'string' && id.includes('-')) {
-      // Extraer el número después del último guión (formato: result.platform_code-2863)
-      const parts = id.split('-');
-      const lastPart = parts[parts.length - 1];
-      numericId = parseInt(lastPart, 10);
-    } else {
-      // Si es un número directo o string numérico
-      numericId = Number(id);
-    }
-
-    // Solo establecer si es un número válido
-    if (numericId > 0 && !isNaN(numericId)) {
-      this.currentResultId.set(numericId);
-    }
+    // Preservar el ID completo tal como viene
+    this.currentResultId.set(id);
   }
 
   toggleSidebar() {

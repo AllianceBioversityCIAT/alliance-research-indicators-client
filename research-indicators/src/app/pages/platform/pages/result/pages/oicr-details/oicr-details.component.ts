@@ -42,7 +42,7 @@ export default class OicrDetailsComponent {
   }
   async getData() {
     this.loading.set(true);
-    const response = await this.api.GET_Oicr(this.cache.currentResultId());
+    const response = await this.api.GET_Oicr(this.cache.getCurrentNumericResultId());
 
     const data = response.data || {};
 

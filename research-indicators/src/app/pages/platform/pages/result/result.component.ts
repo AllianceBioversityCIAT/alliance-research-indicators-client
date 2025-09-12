@@ -44,7 +44,7 @@ export default class ResultComponent {
       }
 
       if (id > 0 && !isNaN(id)) {
-        this.cache.setCurrentResultId(id);
+        this.cache.setCurrentResultId(idParam || id);
       }
     });
 
@@ -56,9 +56,7 @@ export default class ResultComponent {
 
   checkAndUpdateMetadata() {
     const version = this.versionWatcher.version();
-    const id = this.cache.currentResultId();
-
-    this.metadata.update(id);
+    const id = this.cache.getCurrentNumericResultId();
 
     if (id > 0 && (this.lastVersion !== version || this.lastId !== id)) {
       this.metadata.update(id);

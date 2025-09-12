@@ -101,7 +101,7 @@ export default class GeographicScopeComponent {
 
   async getData() {
     this.loading.set(true);
-    const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
+    const response = await this.api.GET_GeoLocation(this.cache.getCurrentNumericResultId());
     response.data.countries?.forEach(country => {
       country.result_countries_sub_nationals.forEach(subNational => {
         subNational.name = subNational.sub_national?.name ?? '';

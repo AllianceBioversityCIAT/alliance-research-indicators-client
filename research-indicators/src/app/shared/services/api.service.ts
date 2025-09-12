@@ -605,9 +605,9 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_GreenChecks = (resultCode: number): Promise<MainResponse<GreenChecks>> => {
-    const url = () => `results/green-checks/${resultCode}`;
-    return this.TP.get(url(), { useResultInterceptor: true });
+  GET_GreenChecks = (resultCode: number, platform?: string): Promise<MainResponse<GreenChecks>> => {
+    const url = () => `results/green-checks/${resultCode}${platform ? `?reportingPlatforms=${platform}` : ''}`;
+    return this.TP.get(url(), {});
   };
 
   GET_SubmitionHistory = (resultCode: number) => {

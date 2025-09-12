@@ -100,7 +100,7 @@ export default class InnovationDetailsComponent {
   }
 
   async getData() {
-    const response = await this.apiService.GET_InnovationDetails(this.cache.currentResultId());
+    const response = await this.apiService.GET_InnovationDetails  (this.cache.getCurrentNumericResultId());
     if (Array.isArray(response.data.knowledge_sharing_form?.link_to_result)) {
       response.data.knowledge_sharing_form.link_to_result = response.data.knowledge_sharing_form.link_to_result.map(link => {
         if (link.other_result_id) {

@@ -49,7 +49,7 @@ export default class EvidenceComponent {
   async getData() {
     this.loading.set(true);
 
-    const response = await this.api.GET_ResultEvidences(this.cache.currentResultId());
+    const response = await this.api.GET_ResultEvidences(this.cache.getCurrentNumericResultId());
     const data = response.data;
 
     if (!data.evidence || data.evidence.length === 0) {

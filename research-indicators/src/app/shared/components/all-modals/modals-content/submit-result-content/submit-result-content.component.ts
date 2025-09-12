@@ -99,13 +99,13 @@ export class SubmitResultContentComponent {
 
   async submitReview(): Promise<void> {
     const response = await this.api.PATCH_SubmitResult({
-      resultCode: this.cache.currentResultId(),
+      resultCode: this.cache.getCurrentNumericResultId(),
       comment: this.submissionService.comment(),
       status: this.submissionService.statusSelected()!.statusId
     });
     if (!response.successfulRequest) return;
     if (this.submissionService.statusSelected()?.statusId === 6) this.submissionService.comment.set('');
-    await this.metadata.update(this.cache.currentResultId());
+    await this.metadata.update(this.cache.getCurrentNumericResultId());
     this.cache.lastResultId.set(null);
     this.cache.lastVersionParam.set(null);
     this.cache.liveVersionData.set(null);
@@ -120,7 +120,7 @@ export class SubmitResultContentComponent {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     if (this.submissionService.statusSelected()?.statusId === 6) {
-      const versionsResponse = await this.api.GET_Versions(this.cache.currentResultId());
+      const versionsResponse = await this.api.GET_Versions(this.cache.getCurrentNumericResultId());
       const versions = Array.isArray(versionsResponse.data.versions) ? versionsResponse.data.versions : [];
       this.cache.versionsList.set(versions);
       if (versions.length > 0) {

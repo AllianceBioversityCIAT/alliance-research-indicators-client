@@ -116,7 +116,7 @@ export class ToPromiseService {
   };
 
   getGreenChecks = (): Promise<MainResponse<GreenChecks>> => {
-    const url = () => `results/green-checks/${this.cacheService.currentResultId()}`;
+    const url = () => `results/green-checks/${this.cacheService.getCurrentNumericResultId()}`;
     return this.get(url(), { useResultInterceptor: true });
   };
 

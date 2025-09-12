@@ -50,7 +50,7 @@ export default class PartnersComponent {
 
   async getData() {
     this.loading.set(true);
-    const response = await this.api.GET_Partners(this.cache.currentResultId());
+    const response = await this.api.GET_Partners(this.cache.getCurrentNumericResultId());
     this.body.set(response.data);
     this.optionsDisabled.set(response.data.institutions.filter(institution => institution.institution_role_id !== 3));
     this.loading.set(false);

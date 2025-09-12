@@ -63,7 +63,7 @@ export class AskForHelpModalComponent {
       url: this.cache.currentUrlPath(),
       metadata: this.cache.currentMetadata(),
       userData: this.cache.dataCache().user,
-      currentResultId: this.cache.currentResultId(),
+      currentResultId: this.cache.getCurrentNumericResultId(),
       currentRouteTitle: this.cache.currentRouteTitle(),
       windowWidth: this.cache.windowWidth(),
       windowHeight: this.cache.windowHeight(),

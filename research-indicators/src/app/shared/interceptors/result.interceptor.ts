@@ -10,12 +10,14 @@ export const resultInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
+  
   const headers = req.headers.delete('X-Use-Year');
   const year = getYearFromUrl(router);
   
   // Check if platform is provided via header, otherwise get from URL
   const platformFromHeader = req.headers.get('X-Platform');
   const platform = platformFromHeader || getPlatformFromUrl(router);
+
 
   let modifiedUrl = req.url;
 
@@ -26,6 +28,7 @@ export const resultInterceptor: HttpInterceptorFn = (req, next) => {
   if (platform) {
     modifiedUrl = addParameterToUrl(modifiedUrl, 'reportingPlatforms', platform);
   }
+
 
   const clonedRequest = req.clone({
     url: modifiedUrl,
@@ -43,7 +46,7 @@ function getYearFromUrl(router: Router): string | null {
 function getPlatformFromUrl(router: Router): string | null {
   const url = router.url;
 
-  const platformRegex = /result\/(TP|PRMS|STAR)-(\d+)/;
+  const platformRegex = /result\/(PRMS|STAR|TIP)-(\d+)/;
   const platformMatch = platformRegex.exec(url);
   if (platformMatch) {
     return platformMatch[1];

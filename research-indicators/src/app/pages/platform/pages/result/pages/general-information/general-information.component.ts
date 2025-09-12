@@ -74,9 +74,7 @@ export default class GeneralInformationComponent {
   }
 
   async getData() {
-    console.log('🟢 getData() - INICIANDO');
-    console.log('🟢 this.cache.currentResultId():', this.cache.currentResultId());
-    const response = await this.api.GET_GeneralInformation(this.cache.currentResultId());
+    const response = await this.api.GET_GeneralInformation(this.cache.getCurrentNumericResultId());
     if (response.data?.main_contact_person?.user_id) response.data.user_id = response.data.main_contact_person.user_id;
     this.body.set(response.data);
   }
@@ -88,11 +86,11 @@ export default class GeneralInformationComponent {
         current.main_contact_person = { user_id: current.user_id };
         return { ...current };
       });
-      await this.api.PATCH_GeneralInformation(this.cache.currentResultId(), this.body());
+      await this.api.PATCH_GeneralInformation(this.cache.getCurrentNumericResultId(), this.body());
       this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
       this.getResultsService.updateList();
       await this.getData();
-      await this.metadata.update(this.cache.currentResultId());
+      await this.metadata.update(this.cache.getCurrentNumericResultId());
     }
 
     if (page === 'next') {

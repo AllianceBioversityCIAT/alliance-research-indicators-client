@@ -35,7 +35,7 @@ export default class IpRightsComponent {
   }
   async getData() {
     this.loading.set(true);
-    const response = await this.api.GET_IpOwner(this.cache.currentResultId());
+    const response = await this.api.GET_IpOwner(this.cache.getCurrentNumericResultId());
     const fieldsToNormalize = ['publicity_restriction', 'potential_asset', 'requires_futher_development'] as const;
 
     const normalized = { ...response.data };

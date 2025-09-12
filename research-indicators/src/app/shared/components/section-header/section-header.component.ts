@@ -70,7 +70,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
                 });
 
                 try {
-                  const res = await this.api.DELETE_Result(this.cache.currentResultId());
+                  const res = await this.api.DELETE_Result(this.cache.getCurrentNumericResultId());
                   if (res.successfulRequest) {
                     this.actions.hideGlobalAlert(0);
                     this.actions.showToast({ severity: 'success', summary: 'Result deleted', detail: 'Result deleted successfully' });

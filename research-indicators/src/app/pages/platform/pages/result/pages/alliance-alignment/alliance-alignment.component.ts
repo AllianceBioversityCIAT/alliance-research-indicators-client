@@ -51,7 +51,7 @@ export default class AllianceAlignmentComponent {
   }
 
   async getData() {
-    const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
+    const response = await this.apiService.GET_Alignments(this.cache.getCurrentNumericResultId());
 
     const mappedData = {
       contracts: response.data.contracts || [],
