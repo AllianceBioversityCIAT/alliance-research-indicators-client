@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SetUpProjectService } from '../../set-up-project.service';
@@ -13,8 +13,7 @@ import { InputComponent } from '../../../../../../shared/components/custom-field
 })
 export class ManageStructureDetailComponent {
   setUpProjectService = inject(SetUpProjectService);
-  body = signal({ code: '', name: '' });
-
+  body = this.setUpProjectService.structureDetailBody;
   saveStructure = () => {
     const structure = this.setUpProjectService.structureDetailModal().structure;
     if (!structure) return;

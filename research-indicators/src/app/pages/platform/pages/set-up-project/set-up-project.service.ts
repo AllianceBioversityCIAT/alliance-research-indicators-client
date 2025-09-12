@@ -23,6 +23,7 @@ export class SetUpProjectService {
     show: false
   });
   showAllIndicators = signal<boolean>(false);
+  structureDetailBody = signal({ code: '', name: '' });
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
   structureDetailModal = signal<{

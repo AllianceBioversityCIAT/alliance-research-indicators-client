@@ -97,7 +97,7 @@
         <td>
           <div class="flex gap-2 justify-end">
             <p-button
-              (click)="this.setUpProjectService.structureDetailModal.set({ show: true, structure: customer.representative })"
+              (click)="openStructureDetailModal(customer.representative)"
               icon="pi pi-pencil"
               pTooltip="Edit"
               tooltipPosition="left"
@@ -141,7 +141,7 @@
           <td>
             <div class="flex gap-2 justify-end">
               <p-button
-                (click)="this.setUpProjectService.structureDetailModal.set({ show: true, structure: item })"
+                (click)="openStructureDetailModal(item)"
                 icon="pi pi-pencil"
                 pTooltip="Edit"
                 tooltipPosition="left"

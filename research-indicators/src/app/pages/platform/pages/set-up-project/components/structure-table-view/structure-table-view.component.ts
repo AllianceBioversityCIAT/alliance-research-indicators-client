@@ -7,7 +7,7 @@ import { TableIndicatorItemComponent } from '../table-indicator-item/table-indic
 import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
-import { IndicatorItem } from '../../../../../../shared/interfaces/get-structures.interface';
+import { IndicatorItem, IndicatorsStructure } from '../../../../../../shared/interfaces/get-structures.interface';
 import { DriverjsService } from '@shared/services/driverjs.service';
 
 @Component({
@@ -34,6 +34,11 @@ export class StructureTableViewComponent implements OnInit {
     // Inicializar todas las filas como expandidas
     this.updateExpandedRows();
   }
+
+  openStructureDetailModal = (structure: IndicatorsStructure) => {
+    this.setUpProjectService.structureDetailModal.set({ show: true, structure });
+    this.setUpProjectService.structureDetailBody.set({ code: structure.code, name: structure.name });
+  };
 
   updateExpandedRows() {
     this.expandedRowKeys = {};
