@@ -13,7 +13,9 @@
   </p>
 </div>
 
-<div class="bg-[url('images/landing/discover-background.png' | s3ImageUrl)] bg-cover bg-no-repeat mt-[70px]">
+<div
+  class="bg-cover bg-no-repeat mt-[70px]"
+  [style.background-image]="'url(' + ('images/landing/discover-background.png' | s3ImageUrl) + ')'">
   <div
     class="flex flex-col items-start justify-start px-[20px] gap-[25px] xl:px-[75px] xl:gap-[25px] lg:px-[65px] lg:gap-[25px] md:px-[45px] md:gap-[25px]">
     <div class="relative mx-auto -mt-[70px]">
