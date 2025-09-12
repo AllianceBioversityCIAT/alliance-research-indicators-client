@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './manage-levels-modal.component.scss'
 })
 export class ManageLevelsModalComponent {
-  visible = signal(true);
+  visible = signal(false);
   setUpProjectService = inject(SetUpProjectService);
   body = signal({ title: null });
   addCustomField = (level: Level) => {

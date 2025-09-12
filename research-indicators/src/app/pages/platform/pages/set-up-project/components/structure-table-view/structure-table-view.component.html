@@ -135,7 +135,7 @@
                 size="small">
               </p-button> -->
                 <p-button
-                  (click)="changeEditingLevel1(customer)"
+                  (click)="this.setUpProjectService.structureDetailModal.set({ show: true, structure: customer.representative })"
                   icon="pi pi-pencil"
                   pTooltip="Edit"
                   tooltipPosition="left"

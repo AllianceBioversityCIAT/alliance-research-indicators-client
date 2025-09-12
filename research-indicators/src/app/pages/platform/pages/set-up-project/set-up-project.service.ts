@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../../../../shared/services/api.service';
-import { Indicator, IndicatorItem, IndicatorsStructure, GetStructures, Level } from '../../../../shared/interfaces/get-structures.interface';
+import { Indicator, IndicatorItem, IndicatorsStructure, Level } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
 import { ActionsService } from '../../../../shared/services/actions.service';
 import { NumberFormatOption, NumberTypeOption } from '../../../../shared/interfaces/project-setup.interface';
@@ -25,6 +25,12 @@ export class SetUpProjectService {
   showAllIndicators = signal<boolean>(false);
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
+  structureDetailModal = signal<{
+    show: boolean;
+    structure?: IndicatorsStructure;
+  }>({
+    show: false
+  });
   levels = signal<Level[]>([]);
   showCreateStructure = signal<boolean>(false);
   loadingStructures = signal<boolean>(false);
