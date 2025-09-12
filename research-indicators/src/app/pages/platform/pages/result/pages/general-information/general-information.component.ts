@@ -74,6 +74,8 @@ export default class GeneralInformationComponent {
   }
 
   async getData() {
+    console.log('🟢 getData() - INICIANDO');
+    console.log('🟢 this.cache.currentResultId():', this.cache.currentResultId());
     const response = await this.api.GET_GeneralInformation(this.cache.currentResultId());
     if (response.data?.main_contact_person?.user_id) response.data.user_id = response.data.main_contact_person.user_id;
     this.body.set(response.data);
@@ -95,7 +97,8 @@ export default class GeneralInformationComponent {
 
     if (page === 'next') {
       const version = this.route.snapshot.queryParamMap.get('version');
-      const commands: string[] = ['result', this.cache.currentResultId().toString(), 'alliance-alignment'];
+      const currentId = this.route.snapshot.paramMap.get('id'); // Preserve the full ID with platform
+      const commands: string[] = ['result', currentId || this.cache.currentResultId().toString(), 'alliance-alignment'];
       const queryParams = version ? { version } : undefined;
 
       this.router.navigate(commands, {

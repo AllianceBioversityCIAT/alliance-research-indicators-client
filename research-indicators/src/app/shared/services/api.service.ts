@@ -280,7 +280,7 @@ export class ApiService {
 
   GET_Versions = (resultCode: number): Promise<MainResponse<GetVersions>> => {
     const url = () => `results/versions/${resultCode}`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), {useResultInterceptor: true});
   };
 
   GET_InnovationReadinessLevels = (): Promise<MainResponse<InnovationLevel[]>> => {
@@ -444,10 +444,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Metadata = (id: number): Promise<MainResponse<GetMetadata>> => {
+  GET_Metadata = (id: number, platform?: string): Promise<MainResponse<GetMetadata>> => {
     const url = () => `results/${id}/metadata`;
     return this.TP.get(url(), {
-      useResultInterceptor: true
+      useResultInterceptor: true,
+      platform: platform
     });
   };
 

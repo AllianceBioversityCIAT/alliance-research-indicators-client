@@ -119,12 +119,13 @@ export default class GeographicScopeComponent {
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
 
-    const resultId = Number(this.cache.currentResultId());
+    const numericResultId = this.cache.getCurrentNumericResultId();
+    const currentId = this.route.snapshot.paramMap.get('id'); // Preserve the full ID with platform
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', currentId || numericResultId.toString(), path], {
         queryParams,
         replaceUrl: true
       });
@@ -135,7 +136,7 @@ export default class GeographicScopeComponent {
         syncSubnationalArrayFromSignals(currentBody.countries);
         return currentBody;
       });
-      const response = await this.api.PATCH_GeoLocation(resultId, this.body());
+      const response = await this.api.PATCH_GeoLocation(numericResultId, this.body());
       if (!response.successfulRequest) {
         this.loading.set(false);
         return;

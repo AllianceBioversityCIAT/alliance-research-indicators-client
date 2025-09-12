@@ -286,11 +286,12 @@ export default class InnovationDetailsComponent {
         });
     }
 
-    const resultId = Number(this.cache.currentResultId());
+    const numericResultId = this.cache.getCurrentNumericResultId();
+    const currentId = this.route.snapshot.paramMap.get('id'); // Preserve the full ID with platform
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
     if (this.submission.isEditableStatus()) {
-      const response = await this.apiService.PATCH_InnovationDetails(resultId, cleanedBody);
+      const response = await this.apiService.PATCH_InnovationDetails(numericResultId, cleanedBody);
       if (response.successfulRequest) {
         this.actions.showToast({
           severity: 'success',
@@ -302,7 +303,7 @@ export default class InnovationDetailsComponent {
     }
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', currentId || numericResultId.toString(), path], {
         queryParams,
         replaceUrl: true
       });

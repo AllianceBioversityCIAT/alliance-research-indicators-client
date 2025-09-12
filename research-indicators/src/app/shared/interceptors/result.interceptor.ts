@@ -12,7 +12,10 @@ export const resultInterceptor: HttpInterceptorFn = (req, next) => {
 
   const headers = req.headers.delete('X-Use-Year');
   const year = getYearFromUrl(router);
-  const platform = getPlatformFromUrl(router);
+  
+  // Check if platform is provided via header, otherwise get from URL
+  const platformFromHeader = req.headers.get('X-Platform');
+  const platform = platformFromHeader || getPlatformFromUrl(router);
 
   let modifiedUrl = req.url;
 
@@ -40,7 +43,7 @@ function getYearFromUrl(router: Router): string | null {
 function getPlatformFromUrl(router: Router): string | null {
   const url = router.url;
 
-  const platformRegex = /result\/(TP|PRMS)-(\d+)/;
+  const platformRegex = /result\/(TP|PRMS|STAR)-(\d+)/;
   const platformMatch = platformRegex.exec(url);
   if (platformMatch) {
     return platformMatch[1];

@@ -103,4 +103,28 @@ export class CacheService {
     this.isSidebarCollapsed.set(true);
     localStorage.setItem('isSidebarCollapsed', 'true');
   }
+
+  /**
+   * Extract numeric ID from platform-prefixed ID
+   * @param id - The ID string (e.g., "STAR-2879" or "2879")
+   * @returns The numeric ID (e.g., 2879)
+   */
+  extractNumericId(id: string | number): number {
+    if (typeof id === 'number') return id;
+    
+    if (id.includes('-')) {
+      const parts = id.split('-');
+      const lastPart = parts[parts.length - 1];
+      return parseInt(lastPart, 10);
+    }
+    return parseInt(id, 10);
+  }
+
+  /**
+   * Get the current numeric result ID
+   * @returns The numeric ID from currentResultId
+   */
+  getCurrentNumericResultId(): number {
+    return this.extractNumericId(this.currentResultId());
+  }
 }

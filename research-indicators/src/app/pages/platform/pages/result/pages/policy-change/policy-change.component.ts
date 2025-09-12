@@ -73,12 +73,13 @@ export default class PolicyChangeComponent {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    const resultId = this.cache.currentResultId().toString();
+    const numericResultId = this.cache.getCurrentNumericResultId();
+    const currentId = this.route.snapshot.paramMap.get('id'); // Preserve the full ID with platform
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', currentId || numericResultId.toString(), path], {
         queryParams,
         replaceUrl: true
       });

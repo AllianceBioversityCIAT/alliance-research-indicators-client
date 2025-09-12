@@ -9,19 +9,20 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
   const cacheService = inject(CacheService);
   const idParam = route.paramMap.get('id');
 
-  // Usar el método helper del CacheService para extraer el ID numérico
   let id: number;
+  let platform: string | null = null;
+  
   if (typeof idParam === 'string' && idParam.includes('-')) {
-    // Extraer el número después del último guión (formato: result.platform_code-2863)
     const parts = idParam.split('-');
+    platform = parts[0]; // TP, PRMS, etc.
     const lastPart = parts[parts.length - 1];
     id = parseInt(lastPart, 10);
   } else {
-    // Si es un número directo
     id = Number(idParam);
+    platform = 'STAR'; // Default platform for numeric IDs
   }
-
-  const success = await metadataService.update(id);
+  
+  const success = await metadataService.update(id, platform);
 
   if (!success) {
     router.navigate(['/results-center']);

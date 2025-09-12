@@ -59,12 +59,13 @@ export default class PartnersComponent {
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
 
-    const resultId = Number(this.cache.currentResultId());
+    const numericResultId = this.cache.getCurrentNumericResultId();
+    const currentId = this.route.snapshot.paramMap.get('id'); // Preserve the full ID with platform
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', currentId || numericResultId.toString(), path], {
         queryParams,
         replaceUrl: true
       });
@@ -73,7 +74,7 @@ export default class PartnersComponent {
     const backPath = this.cache.currentResultIndicatorSectionPath();
 
     if (this.submission.isEditableStatus()) {
-      const response = await this.api.PATCH_Partners(resultId, this.body());
+      const response = await this.api.PATCH_Partners(numericResultId, this.body());
       if (response.successfulRequest) {
         this.actions.showToast({
           severity: 'success',
