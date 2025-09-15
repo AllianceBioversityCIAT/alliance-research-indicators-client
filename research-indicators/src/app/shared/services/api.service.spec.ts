@@ -548,7 +548,7 @@ describe('ApiService', () => {
 
       service.GET_Versions(resultCode);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/versions/123', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/versions/123', { useResultInterceptor: true });
     });
 
     it('should call GET_InnovationReadinessLevels', () => {
@@ -1033,9 +1033,7 @@ describe('ApiService', () => {
 
       service.GET_GreenChecks(resultCode);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/green-checks/123', {
-        useResultInterceptor: true
-      });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/green-checks/123', {});
     });
 
     it('should call GET_SubmitionHistory', () => {
