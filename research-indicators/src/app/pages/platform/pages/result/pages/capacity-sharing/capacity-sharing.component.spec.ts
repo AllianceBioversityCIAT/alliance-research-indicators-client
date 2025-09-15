@@ -78,6 +78,7 @@ const versionWatcher = {
 
 class CacheServiceMock {
   currentResultId = jest.fn().mockReturnValue(1);
+  getCurrentNumericResultId = jest.fn().mockReturnValue(1);
   currentMetadata = jest.fn().mockReturnValue({ result_title: 'Test Title' });
   currentResultIsLoading = jest.fn().mockReturnValue(false);
   showSectionHeaderActions = jest.fn().mockReturnValue(false);
@@ -89,6 +90,7 @@ class CacheServiceMock {
 
 const activatedRouteMock = {
   snapshot: {
+    paramMap: { get: (key: string) => (key === 'id' ? '1' : null) },
     queryParamMap: {
       get: (key: string) => (key === 'version' ? 'v1' : null)
     }
