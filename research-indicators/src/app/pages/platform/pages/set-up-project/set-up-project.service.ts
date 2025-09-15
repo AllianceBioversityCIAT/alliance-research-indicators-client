@@ -52,10 +52,6 @@ export class SetUpProjectService {
   // Tree hierarchy signals
   level1Name = signal<string>('Level 1');
   level2Name = signal<string>('Level 2');
-  //! Delete
-  editingLevel1 = signal<boolean>(false);
-  //! Delete
-  editingLevel2 = signal<boolean>(false);
   // Structure table expand/collapse control
   allStructuresExpanded = signal<boolean>(true);
   progressIndicatorsData = signal<{ showSplitter: boolean; indicator: GetIndicatorsProgress | null }>({ showSplitter: false, indicator: null });
@@ -269,28 +265,6 @@ export class SetUpProjectService {
       });
     }
     this.saveStructures();
-  }
-
-  saveLevel1Name(newName: string) {
-    this.level1Name.set(newName || 'Level 1');
-    this.editingLevel1.set(false);
-    this.saveStructures();
-  }
-
-  saveLevel2Name(newName: string) {
-    this.level2Name.set(newName || 'Level 2');
-    this.editingLevel2.set(false);
-    this.saveStructures();
-  }
-
-  //! Delete
-  cancelEditingLevel1() {
-    this.editingLevel1.set(false);
-  }
-
-  //! Delete
-  cancelEditingLevel2() {
-    this.editingLevel2.set(false);
   }
 
   // Structure table expand/collapse methods

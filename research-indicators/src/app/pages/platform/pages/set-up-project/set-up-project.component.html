@@ -38,39 +38,18 @@
               Hierarchy
             </h3>
             <div class="flex-1 h-px bg-gray-200 mr-4"></div>
+            <i
+              class="pi pi-pencil text-blue-400 cursor-pointer hover:text-blue-600 mr-4"
+              style="font-size: 12px"
+              (click)="setUpProjectService.showManageLevelsModal.set(true)"
+              title="Edit level names"></i>
 
             <div class="tree-structure space-y-1 flex-shrink-0">
               <!-- Level 1: Structure -->
               <div class="level-1 flex items-center">
                 <div class="flex items-center text-blue-600 font-medium">
                   <i class="pi pi-folder mr-2" style="font-size: 12px"></i>
-
-                  @if (setUpProjectService.editingLevel1()) {
-                    <div class="flex items-center">
-                      <input
-                        #level1Input
-                        type="text"
-                        [value]="setUpProjectService.level1Name()"
-                        class="text-sm bg-white border border-blue-300 rounded px-2 py-1 mr-2 focus:outline-none focus:border-blue-500"
-                        (keyup.enter)="setUpProjectService.saveLevel1Name(level1Input.value)"
-                        (blur)="setUpProjectService.saveLevel1Name(level1Input.value)"
-                        (keyup.escape)="setUpProjectService.cancelEditingLevel1()" />
-                      <i
-                        class="pi pi-check text-green-500 cursor-pointer mr-1"
-                        style="font-size: 12px"
-                        (click)="setUpProjectService.saveLevel1Name(level1Input.value)"></i>
-                      <i
-                        class="pi pi-times text-red-500 cursor-pointer"
-                        style="font-size: 12px"
-                        (click)="setUpProjectService.cancelEditingLevel1()"></i>
-                    </div>
-                  } @else {
-                    <span class="text-sm">{{ setUpProjectService.level1Name() }}</span>
-                    <i
-                      class="pi pi-pencil ml-2 text-blue-400 cursor-pointer hover:text-blue-600"
-                      style="font-size: 12px"
-                      (click)="setUpProjectService.showManageLevelsModal.set(true)"></i>
-                  }
+                  <span class="text-sm">{{ setUpProjectService.level1Name() }}</span>
                 </div>
               </div>
 
@@ -79,33 +58,7 @@
                 <div class="flex items-center text-gray-800">
                   <div class="tree-connector w-4 h-px bg-gray-400 mr-2"></div>
                   <i class="pi pi-folder mr-2" style="font-size: 12px"></i>
-
-                  @if (setUpProjectService.editingLevel2()) {
-                    <div class="flex items-center">
-                      <input
-                        #level2Input
-                        type="text"
-                        [value]="setUpProjectService.level2Name()"
-                        class="text-sm bg-white border border-gray-300 rounded px-2 py-1 mr-2 focus:outline-none focus:border-gray-500"
-                        (keyup.enter)="setUpProjectService.saveLevel2Name(level2Input.value)"
-                        (blur)="setUpProjectService.saveLevel2Name(level2Input.value)"
-                        (keyup.escape)="setUpProjectService.cancelEditingLevel2()" />
-                      <i
-                        class="pi pi-check text-green-500 cursor-pointer mr-1"
-                        style="font-size: 12px"
-                        (click)="setUpProjectService.saveLevel2Name(level2Input.value)"></i>
-                      <i
-                        class="pi pi-times text-red-500 cursor-pointer"
-                        style="font-size: 12px"
-                        (click)="setUpProjectService.cancelEditingLevel2()"></i>
-                    </div>
-                  } @else {
-                    <span class="text-sm">{{ setUpProjectService.level2Name() }}</span>
-                    <i
-                      class="pi pi-pencil ml-2 text-blue-400 cursor-pointer hover:text-blue-600"
-                      style="font-size: 12px"
-                      (click)="setUpProjectService.showManageLevelsModal.set(true)"></i>
-                  }
+                  <span class="text-sm">{{ setUpProjectService.level2Name() }}</span>
                 </div>
               </div>
             </div>
