@@ -56,6 +56,9 @@ describe('IpRightsComponent', () => {
 
     routeMock = {
       snapshot: {
+        paramMap: {
+          get: jest.fn().mockReturnValue('123')
+        },
         queryParamMap: {
           get: jest.fn().mockReturnValue(null)
         }

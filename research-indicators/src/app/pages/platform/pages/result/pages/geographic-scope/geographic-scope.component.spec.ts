@@ -19,6 +19,7 @@ class ApiServiceMock {
 }
 class CacheServiceMock {
   currentResultId = jest.fn().mockReturnValue(1);
+  getCurrentNumericResultId = jest.fn().mockReturnValue(1);
   currentMetadata = jest.fn().mockReturnValue({ result_title: 'Test Title' });
   currentResultIsLoading = jest.fn().mockReturnValue(false);
   showSectionHeaderActions = jest.fn().mockReturnValue(false);
@@ -53,7 +54,7 @@ describe('GeographicScopeComponent', () => {
     actions = new ActionsServiceMock();
     router = new RouterMock();
     submission = new SubmissionServiceMock();
-    route = { snapshot: { queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } } as unknown as ActivatedRoute;
+    route = { snapshot: { paramMap: { get: (k: string) => (k === 'id' ? '1' : null) }, queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } } as unknown as ActivatedRoute;
     await TestBed.configureTestingModule({
       imports: [GeographicScopeComponent],
       providers: [
@@ -103,14 +104,14 @@ describe('GeographicScopeComponent', () => {
     api.PATCH_GeoLocation.mockResolvedValueOnce({ successfulRequest: true });
     jest.spyOn(component, 'getData').mockResolvedValue(undefined);
     await component.saveData('back');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should navigate to evidence on saveData next', async () => {
     api.PATCH_GeoLocation.mockResolvedValueOnce({ successfulRequest: true });
     jest.spyOn(component, 'getData').mockResolvedValue(undefined);
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'evidence'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'evidence'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should not PATCH if not editable', async () => {
@@ -219,14 +220,14 @@ describe('GeographicScopeComponent', () => {
     api.PATCH_GeoLocation.mockResolvedValue({ successfulRequest: true });
     jest.spyOn(component, 'getData').mockResolvedValue();
     await component.saveData('back');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], expect.any(Object));
+    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'partners'], expect.any(Object));
   });
 
   it('should navigate to next page', async () => {
     api.PATCH_GeoLocation.mockResolvedValue({ successfulRequest: true });
     jest.spyOn(component, 'getData').mockResolvedValue();
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'evidence'], expect.any(Object));
+    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'evidence'], expect.any(Object));
   });
 
   it('should use version in queryParams if present', async () => {
@@ -234,7 +235,7 @@ describe('GeographicScopeComponent', () => {
     api.PATCH_GeoLocation.mockResolvedValue({ successfulRequest: true });
     jest.spyOn(component, 'getData').mockResolvedValue();
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'evidence'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'evidence'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should not use version in queryParams if not present', async () => {
@@ -242,7 +243,7 @@ describe('GeographicScopeComponent', () => {
     api.PATCH_GeoLocation.mockResolvedValue({ successfulRequest: true });
     jest.spyOn(component, 'getData').mockResolvedValue();
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'evidence'], { queryParams: undefined, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'evidence'], { queryParams: undefined, replaceUrl: true });
   });
 
   it('should handle getData with empty countries and sub_national undefined', async () => {
