@@ -390,12 +390,12 @@ export class ApiService {
   };
 
   GET_CapacitySharing = (): Promise<MainResponse<GetCapSharing>> => {
-    const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
+    const url = () => `results/capacity-sharing/by-result-id/${this.cache.getCurrentNumericResultId()}`;
     return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_CapacitySharing = <T>(body: T): Promise<MainResponse<GetCapSharing>> => {
-    const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
+    const url = () => `results/capacity-sharing/by-result-id/${this.cache.getCurrentNumericResultId()}`;
     return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
