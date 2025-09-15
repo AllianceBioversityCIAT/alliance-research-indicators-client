@@ -22,7 +22,8 @@ describe('SubmissionHistoryContentComponent', () => {
     },
     updated_at: '2023-10-10',
     from_status_id: 1,
-    to_status_id: 2
+    to_status_id: 2,
+    submission_comment: ''
   };
 
   beforeEach(async () => {
@@ -31,7 +32,8 @@ describe('SubmissionHistoryContentComponent', () => {
     };
 
     cacheServiceMock = {
-      currentResultId: signal(123)
+      currentResultId: signal(123),
+      getCurrentNumericResultId: jest.fn(() => 123)
     };
 
     await TestBed.configureTestingModule({
