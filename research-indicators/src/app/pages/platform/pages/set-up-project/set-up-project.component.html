@@ -37,14 +37,9 @@
               <i class="pi pi-sitemap mr-2 text-blue-400" style="font-size: 12px"></i>
               Hierarchy
             </h3>
-            <div class="flex-1 h-px bg-gray-200 mr-4"></div>
-            <i
-              class="pi pi-pencil text-blue-400 cursor-pointer hover:text-blue-600 mr-4"
-              style="font-size: 12px"
-              (click)="setUpProjectService.showManageLevelsModal.set(true)"
-              title="Edit level names"></i>
+            <div class="flex-1 h-px bg-gray-200"></div>
 
-            <div class="tree-structure space-y-1 flex-shrink-0">
+            <div class="tree-structure space-y-1 flex-shrink-0 mr-4">
               <!-- Level 1: Structure -->
               <div class="level-1 flex items-center">
                 <div class="flex items-center text-blue-600 font-medium">
@@ -62,6 +57,12 @@
                 </div>
               </div>
             </div>
+
+            <i
+              class="pi pi-pencil text-blue-400 cursor-pointer hover:text-blue-600"
+              style="font-size: 12px"
+              (click)="setUpProjectService.showManageLevelsModal.set(true)"
+              title="Edit level names"></i>
           </div>
         </div>
       }
