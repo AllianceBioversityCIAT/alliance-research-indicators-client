@@ -286,7 +286,7 @@ export class ApiService {
 
   GET_Versions = (resultCode: number): Promise<MainResponse<GetVersions>> => {
     const url = () => `results/versions/${resultCode}`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), { useResultInterceptor: true });
   };
 
   GET_InnovationReadinessLevels = (): Promise<MainResponse<InnovationLevel[]>> => {
@@ -396,12 +396,12 @@ export class ApiService {
   };
 
   GET_CapacitySharing = (): Promise<MainResponse<GetCapSharing>> => {
-    const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
+    const url = () => `results/capacity-sharing/by-result-id/${this.cache.getCurrentNumericResultId()}`;
     return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_CapacitySharing = <T>(body: T): Promise<MainResponse<GetCapSharing>> => {
-    const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
+    const url = () => `results/capacity-sharing/by-result-id/${this.cache.getCurrentNumericResultId()}`;
     return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
@@ -450,10 +450,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Metadata = (id: number): Promise<MainResponse<GetMetadata>> => {
+  GET_Metadata = (id: number, platform?: string): Promise<MainResponse<GetMetadata>> => {
     const url = () => `results/${id}/metadata`;
     return this.TP.get(url(), {
-      useResultInterceptor: true
+      useResultInterceptor: true,
+      platform: platform
     });
   };
 
@@ -610,9 +611,9 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_GreenChecks = (resultCode: number): Promise<MainResponse<GreenChecks>> => {
-    const url = () => `results/green-checks/${resultCode}`;
-    return this.TP.get(url(), { useResultInterceptor: true });
+  GET_GreenChecks = (resultCode: number, platform?: string): Promise<MainResponse<GreenChecks>> => {
+    const url = () => `results/green-checks/${resultCode}${platform ? `?reportingPlatforms=${platform}` : ''}`;
+    return this.TP.get(url(), {});
   };
 
   GET_SubmitionHistory = (resultCode: number) => {
@@ -687,9 +688,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  // get https://main-allianceindicatorstest.ciat.cgiar.org/api/project-indicators/contributions/:agreementId
-
-  GET_OICRDetails = (resultCode: number): Promise<MainResponse<GetOICRDetails>> => {
+  GET_OICRDetails = (resultCode: number | string): Promise<MainResponse<GetOICRDetails>> => {
     const url = () => `results/oicr/details/${resultCode}`;
     return this.TP.get(url(), {});
   };

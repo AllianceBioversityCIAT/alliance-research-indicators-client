@@ -7,7 +7,8 @@ import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
+import { NavigationEnd } from '@angular/router';
 import { signal } from '@angular/core';
 
 class MockApiService {
@@ -20,6 +21,12 @@ class MockCacheService {
   lastVersionParam = signal(null);
   liveVersionData = signal(null);
   versionsList = signal([]);
+  extractNumericId = jest.fn((id: string | number) => {
+    if (typeof id === 'number') return id;
+    const parts = String(id).split('-');
+    return parseInt(parts[parts.length - 1] ?? String(id), 10);
+  });
+  getCurrentNumericResultId = jest.fn(() => 1);
 }
 class MockActionsService {
   showGlobalAlert = jest.fn();
@@ -29,7 +36,7 @@ class MockGetMetadataService {
   update = jest.fn();
 }
 class MockRouter {
-  events = of();
+  events = new Subject<NavigationEnd>();
   url = '/result/1/general-information';
   navigate = jest.fn().mockReturnValue(Promise.resolve(true));
 }
@@ -176,6 +183,7 @@ describe('VersionSelectorComponent', () => {
     component.selectedResultId.set(10);
     component['handleVersionSelection']({
       resultId: 1,
+      currentResultId: '1',
       liveData: { result_id: 10, result_status_id: 2, report_year_id: 2022, result_official_code: 1 },
       versionsArray: []
     });
@@ -186,6 +194,7 @@ describe('VersionSelectorComponent', () => {
     component.selectedResultId.set(10);
     component['handleVersionSelection']({
       resultId: 1,
+      currentResultId: '1',
       liveData: { result_id: 10, result_status_id: 2, report_year_id: 2022, result_official_code: 1 },
       versionsArray: []
     });
@@ -199,6 +208,7 @@ describe('VersionSelectorComponent', () => {
     component['hasAutoNavigated'] = false;
     component['handleVersionSelection']({
       resultId: 1,
+      currentResultId: '1',
       liveData: null,
       versionsArray: [{ result_id: 2, report_year_id: 2023, result_status_id: 1, result_official_code: 1 }]
     });
@@ -210,6 +220,7 @@ describe('VersionSelectorComponent', () => {
     component['hasAutoNavigated'] = false;
     component['handleVersionSelection']({
       resultId: 1,
+      currentResultId: '1',
       liveData: null,
       versionsArray: [{ result_id: 2, report_year_id: 2023, result_status_id: 1, result_official_code: 1 }]
     });
@@ -293,5 +304,27 @@ describe('VersionSelectorComponent', () => {
     const version = { result_id: 2, report_year_id: 2023 } as any;
     component.liveVersion.set({ result_id: 1 } as any);
     expect(() => component.selectVersion(version)).not.toThrow();
+  });
+
+  it('should call loadVersions when a NavigationEnd event occurs', async () => {
+    const router = TestBed.inject(Router) as any;
+    const spy = jest.spyOn<any, any>(component as any, 'loadVersions').mockResolvedValue(undefined);
+    router.events.next(new NavigationEnd(1, '/a', '/b'));
+    await Promise.resolve();
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it('should set selectedResultId from versionParam in handleVersionSelection', () => {
+    const route = TestBed.inject(ActivatedRoute) as any;
+    route.snapshot.queryParamMap.get = (k: string) => (k === 'version' ? '2023' : null);
+    component.selectedResultId.set(999);
+    component['handleVersionSelection']({
+      resultId: 1,
+      currentResultId: '1',
+      liveData: { result_id: 1, result_status_id: 2, report_year_id: 2022, result_official_code: 1 } as any,
+      versionsArray: [{ result_id: 2, report_year_id: 2023, result_status_id: 1, result_official_code: 1 } as any]
+    });
+    expect(component.selectedResultId()).toBe(2);
   });
 });

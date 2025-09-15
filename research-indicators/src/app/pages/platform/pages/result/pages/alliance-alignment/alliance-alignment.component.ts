@@ -51,7 +51,7 @@ export default class AllianceAlignmentComponent {
   }
 
   async getData() {
-    const response = await this.apiService.GET_Alignments(this.cache.currentResultId());
+    const response = await this.apiService.GET_Alignments(this.cache.getCurrentNumericResultId());
 
     const mappedData = {
       contracts: response.data.contracts || [],
@@ -73,12 +73,12 @@ export default class AllianceAlignmentComponent {
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
 
-    const resultId = Number(this.cache.currentResultId());
+    const numericResultId = this.cache.getCurrentNumericResultId();
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', this.cache.currentResultId(), path], {
         queryParams,
         replaceUrl: true
       });
@@ -96,11 +96,11 @@ export default class AllianceAlignmentComponent {
             is_active: sdg.is_active,
             updated_at: sdg.updated_at,
             clarisa_sdg_id: sdg.id,
-            result_id: resultId
+            result_id: numericResultId
           })) || []
       };
 
-      const response = await this.apiService.PATCH_Alignments(resultId, dataToSend);
+      const response = await this.apiService.PATCH_Alignments(numericResultId, dataToSend);
       if (response.successfulRequest) {
         this.actions.showToast({
           severity: 'success',

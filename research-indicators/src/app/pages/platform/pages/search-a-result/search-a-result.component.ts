@@ -40,6 +40,7 @@ export default class SearchAResultComponent {
     return getIndicatorTypeIcon(type);
   }
   openResult(item: GetOsResult) {
-    this.router.navigate([`/result/${item.result_official_code}/general-information`]);
+    const resultCode = `${item.platform_code}-${item.result_official_code}`;
+    this.router.navigate([`/result/${resultCode}/general-information`]);
   }
 }

@@ -71,7 +71,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
                 });
 
                 try {
-                  const res = await this.api.DELETE_Result(this.cache.currentResultId());
+                  const res = await this.api.DELETE_Result(this.cache.getCurrentNumericResultId());
                   if (res.successfulRequest) {
                     this.actions.hideGlobalAlert(0);
                     this.actions.showToast({ severity: 'success', summary: 'Result deleted', detail: 'Result deleted successfully' });
@@ -272,13 +272,16 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
 
   private async loadResultData() {
     const urlParts = this.router.url.split('/');
-    const resultId = urlParts[2]; // /result/2243/any-page -> 2243
+    const resultId = urlParts[2]; // /result/STAR-2243/any-page -> STAR-2243
     this.currentResultId.set(resultId);
+
+    // Extract numeric ID from platform-prefixed ID (e.g., "STAR-2243" -> 2243)
+    const numericId = this.cache.extractNumericId(resultId);
 
     try {
       const [alignmentsResponse, resultResponse] = await Promise.all([
-        this.api.GET_Alignments(parseInt(resultId)),
-        this.api.GET_GeneralInformation(parseInt(resultId))
+        this.api.GET_Alignments(numericId),
+        this.api.GET_GeneralInformation(numericId)
       ]);
 
       if (resultResponse?.data?.title) {

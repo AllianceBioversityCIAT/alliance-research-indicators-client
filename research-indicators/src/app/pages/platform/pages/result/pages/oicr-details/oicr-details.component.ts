@@ -42,7 +42,7 @@ export default class OicrDetailsComponent {
   }
   async getData() {
     this.loading.set(true);
-    const response = await this.api.GET_Oicr(this.cache.currentResultId());
+    const response = await this.api.GET_Oicr(this.cache.getCurrentNumericResultId());
 
     const data = response.data || {};
 
@@ -53,13 +53,13 @@ export default class OicrDetailsComponent {
   async saveData(page?: 'back' | 'next'): Promise<void> {
     try {
       this.loading.set(true);
-      const resultId = this.cache.currentResultId();
+      const numericResultId = this.cache.getCurrentNumericResultId();
       const version = this.route.snapshot.queryParamMap.get('version');
       const queryParams = version ? { version } : undefined;
 
       if (this.submission.isEditableStatus()) {
         const current = this.body();
-        const response = await this.api.PATCH_Oicr(resultId, current);
+        const response = await this.api.PATCH_Oicr(numericResultId, current);
 
         if (!response.successfulRequest) {
           return;
@@ -74,13 +74,13 @@ export default class OicrDetailsComponent {
       }
 
       if (page === 'back') {
-        this.router.navigate(['result', resultId, 'alliance-alignment'], {
+        this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment'], {
           queryParams,
           replaceUrl: true
         });
       }
       if (page === 'next')
-        this.router.navigate(['result', resultId, 'partners'], {
+        this.router.navigate(['result', this.cache.currentResultId(), 'partners'], {
           queryParams,
           replaceUrl: true
         });

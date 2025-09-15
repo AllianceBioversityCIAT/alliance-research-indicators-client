@@ -18,6 +18,7 @@ class ApiServiceMock {
 }
 class CacheServiceMock {
   currentResultId = jest.fn().mockReturnValue(1);
+  getCurrentNumericResultId = jest.fn().mockReturnValue(1);
   currentResultIndicatorSectionPath = jest.fn().mockReturnValue('next-section');
   currentMetadata = jest.fn().mockReturnValue({});
   currentResultIsLoading = jest.fn().mockReturnValue(false);
@@ -59,7 +60,7 @@ describe('AllianceAlignmentComponent', () => {
     actions = new ActionsServiceMock();
     router = new RouterMock();
     submission = new SubmissionServiceMock();
-    route = { snapshot: { queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } };
+    route = { snapshot: { paramMap: { get: (k: string) => (k === 'id' ? '1' : null) }, queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } };
     await TestBed.configureTestingModule({
       imports: [AllianceAlignmentComponent, HttpClientTestingModule],
       providers: [

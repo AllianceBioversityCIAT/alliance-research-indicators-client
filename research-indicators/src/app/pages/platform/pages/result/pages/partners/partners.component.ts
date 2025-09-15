@@ -50,7 +50,7 @@ export default class PartnersComponent {
 
   async getData() {
     this.loading.set(true);
-    const response = await this.api.GET_Partners(this.cache.currentResultId());
+    const response = await this.api.GET_Partners(this.cache.getCurrentNumericResultId());
     this.body.set(response.data);
     this.optionsDisabled.set(response.data.institutions.filter(institution => institution.institution_role_id !== 3));
     this.loading.set(false);
@@ -59,12 +59,12 @@ export default class PartnersComponent {
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
 
-    const resultId = Number(this.cache.currentResultId());
+    const numericResultId = this.cache.getCurrentNumericResultId();
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', this.cache.currentResultId(), path], {
         queryParams,
         replaceUrl: true
       });
@@ -73,7 +73,7 @@ export default class PartnersComponent {
     const backPath = this.cache.currentResultIndicatorSectionPath();
 
     if (this.submission.isEditableStatus()) {
-      const response = await this.api.PATCH_Partners(resultId, this.body());
+      const response = await this.api.PATCH_Partners(numericResultId, this.body());
       if (response.successfulRequest) {
         this.actions.showToast({
           severity: 'success',

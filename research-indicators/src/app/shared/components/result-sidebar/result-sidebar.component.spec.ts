@@ -33,6 +33,7 @@ describe('ResultSidebarComponent', () => {
         status_id: 1
       }),
       currentResultId: signal(123),
+      getCurrentNumericResultId: jest.fn(() => 123),
       greenChecks: signal({
         general_information: 1,
         alignment: 0,

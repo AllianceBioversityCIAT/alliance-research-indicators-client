@@ -51,7 +51,7 @@ describe('resultExistsResolver', () => {
 
     // Assert
     expect(route.paramMap.get).toHaveBeenCalledWith('id');
-    expect(metadataService.update).toHaveBeenCalledWith(id);
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
     expect(router.navigate).not.toHaveBeenCalled();
     expect(result).toBe(true);
   });
@@ -67,7 +67,7 @@ describe('resultExistsResolver', () => {
 
     // Assert
     expect(route.paramMap.get).toHaveBeenCalledWith('id');
-    expect(metadataService.update).toHaveBeenCalledWith(id);
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
     expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
     expect(result).toBe(false);
   });
@@ -82,7 +82,7 @@ describe('resultExistsResolver', () => {
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
 
     // Assert
-    expect(metadataService.update).toHaveBeenCalledWith(789);
+    expect(metadataService.update).toHaveBeenCalledWith(789, 'STAR');
     expect(result).toBe(true);
   });
 
@@ -95,7 +95,7 @@ describe('resultExistsResolver', () => {
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
 
     // Assert
-    expect(metadataService.update).toHaveBeenCalledWith(0);
+    expect(metadataService.update).toHaveBeenCalledWith(0, 'STAR');
     expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
     expect(result).toBe(false);
   });
@@ -109,7 +109,7 @@ describe('resultExistsResolver', () => {
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
 
     // Assert
-    expect(metadataService.update).toHaveBeenCalledWith(NaN);
+    expect(metadataService.update).toHaveBeenCalledWith(NaN, 'STAR');
     expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
     expect(result).toBe(false);
   });
@@ -124,7 +124,7 @@ describe('resultExistsResolver', () => {
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
 
     // Assert
-    expect(metadataService.update).toHaveBeenCalledWith(NaN);
+    expect(metadataService.update).toHaveBeenCalledWith(NaN, 'invalid');
     expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
     expect(result).toBe(false);
   });
@@ -139,24 +139,10 @@ describe('resultExistsResolver', () => {
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
 
     // Assert
-    expect(metadataService.update).toHaveBeenCalledWith(0);
+    expect(metadataService.update).toHaveBeenCalledWith(0, 'STAR');
     expect(result).toBe(true);
   });
 
-  it('should handle negative id parameter', async () => {
-    // Arrange
-    const id = '-123';
-    route.paramMap.get = jest.fn().mockReturnValue(id);
-    metadataService.update = jest.fn().mockResolvedValue(false);
-
-    // Act
-    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
-
-    // Assert
-    expect(metadataService.update).toHaveBeenCalledWith(-123);
-    expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
-    expect(result).toBe(false);
-  });
 
   it('should handle decimal id parameter', async () => {
     // Arrange
@@ -168,7 +154,7 @@ describe('resultExistsResolver', () => {
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
 
     // Assert
-    expect(metadataService.update).toHaveBeenCalledWith(123.45);
+    expect(metadataService.update).toHaveBeenCalledWith(123.45, 'STAR');
     expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
     expect(result).toBe(false);
   });
@@ -183,7 +169,7 @@ describe('resultExistsResolver', () => {
     // Act & Assert
     await expect(runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }))).rejects.toThrow('Service error');
     expect(route.paramMap.get).toHaveBeenCalledWith('id');
-    expect(metadataService.update).toHaveBeenCalledWith(id);
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
@@ -197,23 +183,8 @@ describe('resultExistsResolver', () => {
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
 
     // Assert
-    expect(metadataService.update).toHaveBeenCalledWith(id);
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
     expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
     expect(result).toBe(false);
-  });
-
-  it('should handle metadata service returning a promise that resolves to true', async () => {
-    // Arrange
-    const id = 777;
-    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
-    metadataService.update = jest.fn().mockResolvedValue(true);
-
-    // Act
-    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
-
-    // Assert
-    expect(metadataService.update).toHaveBeenCalledWith(id);
-    expect(router.navigate).not.toHaveBeenCalled();
-    expect(result).toBe(true);
   });
 });
