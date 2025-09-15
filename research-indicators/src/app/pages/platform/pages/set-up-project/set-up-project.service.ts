@@ -1,10 +1,11 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '../../../../shared/services/api.service';
-import { Indicator, IndicatorItem, IndicatorsStructure } from '../../../../shared/interfaces/get-structures.interface';
+import { Indicator, IndicatorItem, IndicatorsStructure, Level, levelCustomFieldValue } from '../../../../shared/interfaces/get-structures.interface';
 import { GetIndicators } from '../../../../shared/interfaces/get-indicators.interface';
 import { ActionsService } from '../../../../shared/services/actions.service';
 import { NumberFormatOption, NumberTypeOption } from '../../../../shared/interfaces/project-setup.interface';
 import { PostIndicator } from '../../../../shared/interfaces/post-indicator.interface';
+import { GetIndicatorsProgress } from '../../../../shared/interfaces/get-indicators-progress.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -22,13 +23,24 @@ export class SetUpProjectService {
     show: false
   });
   showAllIndicators = signal<boolean>(false);
+  structureDetailBody = signal({ code: '', name: '', custom_values: [] as WritableSignal<levelCustomFieldValue>[] });
   editingElementId = signal<string | null | undefined>(null);
   structures = signal<IndicatorsStructure[]>([]);
+  showManageLevelsModal = signal<boolean>(false);
+  structureDetailModal = signal<{
+    show: boolean;
+    editingMode?: boolean;
+    structure?: IndicatorsStructure;
+  }>({
+    editingMode: false,
+    show: false
+  });
+  levels = signal<Level[]>([]);
   showCreateStructure = signal<boolean>(false);
   loadingStructures = signal<boolean>(false);
   currentAgreementId = signal<number | string | null>(null);
   // isCardsView = signal<boolean>(false);
-  editingFocus = signal<boolean>(false);
+
   assignIndicatorsModal = signal<{
     show: boolean;
     targetLevel1?: IndicatorsStructure;
@@ -40,17 +52,20 @@ export class SetUpProjectService {
   // Tree hierarchy signals
   level1Name = signal<string>('Level 1');
   level2Name = signal<string>('Level 2');
+  //! Delete
   editingLevel1 = signal<boolean>(false);
+  //! Delete
   editingLevel2 = signal<boolean>(false);
   // Structure table expand/collapse control
   allStructuresExpanded = signal<boolean>(true);
+  progressIndicatorsData = signal<{ showSplitter: boolean; indicator: GetIndicatorsProgress | null }>({ showSplitter: false, indicator: null });
 
   strcutureGrouped = computed(() => {
     const structuresCopy = JSON.parse(JSON.stringify(this.structures()));
     const result = structuresCopy.flatMap((item: IndicatorsStructure) => {
       const { items, ...itemWithoutItems } = item;
       const isGhostItem = !item.items?.length;
-      if (isGhostItem) item.items = [{ id: null, name: '', code: '', indicators: [], editing: true, ghostItem: true }];
+      if (isGhostItem) item.items = [{ id: null, name: '', code: '', indicators: [], ghostItem: true, custom_values: [] }];
       item.items?.map((stItem: IndicatorItem) => {
         stItem.representative = { ...itemWithoutItems, itemsCount: items?.filter((i: IndicatorItem) => !i.ghostItem).length || 0 };
       });
@@ -106,7 +121,7 @@ export class SetUpProjectService {
       await this.api.POST_SyncStructures({
         structures: this.structures(),
         agreement_id: this.routeid(),
-        levels: [{ name_level_1: this.level1Name(), custom_fields: [], name_level_2: this.level2Name() }]
+        levels: this.levels()
       });
       await this.getStructures();
       this.actions.showToast({ severity: 'success', summary: 'Success', detail: 'Structures saved successfully' });
@@ -163,14 +178,27 @@ export class SetUpProjectService {
     this.loadingStructures.set(true);
 
     const res = await this.api.GET_Structures(this.currentAgreementId() as number);
+    res.data.structures.forEach((structure: IndicatorsStructure) => {
+      structure.isParent = true;
+      structure.custom_values.forEach((customValue: levelCustomFieldValue) => {
+        customValue.field_name = res.data.levels[0].custom_fields.find(field => field.fieldID === customValue.field)?.field_name || '';
+      });
+      structure.items?.forEach((level2: IndicatorItem) => {
+        level2.parent_id = structure.id;
+        level2.custom_values?.forEach((customValue: levelCustomFieldValue) => {
+          customValue.field_name = res.data.levels[1].custom_fields.find(field => field.fieldID === customValue.field)?.field_name || '';
+        });
+      });
+    });
+
     this.structures.set(res.data.structures);
-    this.level1Name.set(res.data.levels[0]?.name_level_1 || 'Level 1');
-    this.level2Name.set(res.data.levels[1]?.name_level_2 || 'Level 2');
+    this.levels.set(res.data.levels);
 
     if (res.successfulRequest) return;
 
     this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to get structures' });
     this.structures.set([]);
+    this.levels.set([]);
 
     this.loadingStructures.set(false);
   }
@@ -243,15 +271,6 @@ export class SetUpProjectService {
     this.saveStructures();
   }
 
-  // Tree hierarchy editing methods
-  startEditingLevel1() {
-    this.editingLevel1.set(true);
-  }
-
-  startEditingLevel2() {
-    this.editingLevel2.set(true);
-  }
-
   saveLevel1Name(newName: string) {
     this.level1Name.set(newName || 'Level 1');
     this.editingLevel1.set(false);
@@ -264,10 +283,12 @@ export class SetUpProjectService {
     this.saveStructures();
   }
 
+  //! Delete
   cancelEditingLevel1() {
     this.editingLevel1.set(false);
   }
 
+  //! Delete
   cancelEditingLevel2() {
     this.editingLevel2.set(false);
   }

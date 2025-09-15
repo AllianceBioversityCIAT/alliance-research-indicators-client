@@ -5,6 +5,10 @@ import { ActivatedRoute, PRIMARY_OUTLET, Router, RouterLink, RouterOutlet } from
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 import { TabsModule } from 'primeng/tabs';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
+import { SplitterModule } from 'primeng/splitter';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
+import { SetUpProjectService } from '../set-up-project/set-up-project.service';
+import { ProgressDetailContentComponent } from './pages/progress-towards-indicators/components/progress-detail-content/progress-detail-content.component';
 
 interface ViewTab {
   label: string;
@@ -14,7 +18,16 @@ interface ViewTab {
 
 @Component({
   selector: 'app-project-detail',
-  imports: [ProjectItemComponent, TabsModule, RouterLink, RouterOutlet],
+  imports: [
+    ProjectItemComponent,
+    TabsModule,
+    RouterLink,
+    RouterOutlet,
+    SplitterModule,
+    NgTemplateOutlet,
+    CommonModule,
+    ProgressDetailContentComponent
+  ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
@@ -25,6 +38,7 @@ export default class ProjectDetailComponent implements OnInit {
   router = inject(Router);
   contractId = signal('');
   lastSegment = signal('');
+  setupProjectService = inject(SetUpProjectService);
   currentProject = signal<GetProjectDetail>({});
   tabs = signal<ViewTab[]>([
     {

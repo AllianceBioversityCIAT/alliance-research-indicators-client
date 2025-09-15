@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, effect } from '@angular/core';
+import { Component, inject, OnInit, effect, signal } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { SetUpProjectService } from '../../set-up-project.service';
 import { TagModule } from 'primeng/tag';
@@ -7,7 +7,7 @@ import { TableIndicatorItemComponent } from '../table-indicator-item/table-indic
 import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
-import { IndicatorItem } from '../../../../../../shared/interfaces/get-structures.interface';
+import { IndicatorItem, IndicatorsStructure } from '../../../../../../shared/interfaces/get-structures.interface';
 import { DriverjsService } from '@shared/services/driverjs.service';
 
 @Component({
@@ -19,10 +19,6 @@ import { DriverjsService } from '@shared/services/driverjs.service';
 export class StructureTableViewComponent implements OnInit {
   driverjs = inject(DriverjsService);
   setUpProjectService = inject(SetUpProjectService);
-  level1NameInput = '';
-  level1CodeInput = '';
-  level2NameInput = '';
-  level2CodeInput = '';
   expandedRowKeys: Record<string, boolean> = {};
 
   constructor() {
@@ -39,6 +35,15 @@ export class StructureTableViewComponent implements OnInit {
     this.updateExpandedRows();
   }
 
+  openStructureDetailModal = (structure: IndicatorsStructure) => {
+    this.setUpProjectService.structureDetailModal.set({ show: true, structure, editingMode: true });
+    this.setUpProjectService.structureDetailBody.set({
+      code: structure.code,
+      name: structure.name,
+      custom_values: structure.custom_values.map(customValue => signal(customValue))
+    });
+  };
+
   updateExpandedRows() {
     this.expandedRowKeys = {};
     if (this.setUpProjectService.allStructuresExpanded()) {
@@ -50,79 +55,22 @@ export class StructureTableViewComponent implements OnInit {
     }
   }
 
-  changeEditingLevel1 = (customer: IndicatorItem) => {
-    this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative?.id);
-      if (structure) {
-        structure.editing = !structure.editing;
-        this.level1NameInput = structure.name;
-        this.level1CodeInput = structure.code;
-        if (structure.editing) this.setUpProjectService.editingFocus.set(true);
-      }
-      return [...structures];
-    });
-  };
-  saveEditingLevel1 = (customer: IndicatorItem) => {
-    if (!this.level1NameInput || !this.level1CodeInput) return;
-    this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative?.id);
-      if (structure) {
-        structure.name = this.level1NameInput;
-        structure.code = this.level1CodeInput;
-        structure.editing = false;
-        this.setUpProjectService.editingFocus.set(false);
-      }
-      return [...structures];
-    });
-    this.setUpProjectService.saveStructures();
-    this.setUpProjectService.editingFocus.set(false);
-    this.level1NameInput = '';
-    this.level1CodeInput = '';
-    this.driverjs.nextStep();
-  };
-  changeEditingLevel2 = (customer: IndicatorItem) => {
-    this.setUpProjectService.structures.update(structures => {
-      const item = structures.find(s => s.id === customer.representative?.id)?.items?.find(i => i.id === customer.id);
-      if (item) {
-        item.editing = !item.editing;
-        this.level2NameInput = item.name;
-        this.level2CodeInput = item.code;
-        if (item.editing) this.setUpProjectService.editingFocus.set(true);
-      }
-      return [...structures];
-    });
-  };
-  saveEditingLevel2 = (customer: IndicatorItem) => {
-    if (!this.level2NameInput || !this.level2CodeInput) return;
-    this.setUpProjectService.structures.update(structures => {
-      const item = structures.find(s => s.id === customer.representative?.id)?.items?.find(i => i.id === customer.id);
-      if (item) {
-        item.name = this.level2NameInput;
-        item.code = this.level2CodeInput;
-        item.editing = false;
-        this.setUpProjectService.editingFocus.set(false);
-      }
-      return [...structures];
-    });
-    this.setUpProjectService.saveStructures();
-    this.setUpProjectService.editingFocus.set(false);
-    this.level2NameInput = '';
-    this.level2CodeInput = '';
-  };
-
-  addNewItem = (customer: IndicatorItem, toggleRowId: string) => {
-    this.setUpProjectService.editingFocus.set(true);
-    this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative?.id);
-      if (structure?.items) {
-        structure.items.push({ id: '', name: '', editing: true, code: '', indicators: [], newItem: true });
-      }
-      return [...structures];
-    });
-    setTimeout(() => {
-      const isExpanded = Boolean(Number(document.getElementById(toggleRowId)?.getAttribute('isExpanded')));
-      if (!isExpanded) document.getElementById(toggleRowId)?.click();
-    }, 100);
+  addNewItem = (customer: IndicatorItem) => {
+    const parentStructure = this.setUpProjectService.structures().find(s => s.id === customer.representative?.id);
+    if (parentStructure) {
+      this.setUpProjectService.structureDetailModal.set({
+        show: true,
+        editingMode: false,
+        structure: {
+          name: '',
+          code: '',
+          indicators: [],
+          custom_values: [],
+          isParent: false,
+          parent_id: parentStructure.id
+        }
+      });
+    }
   };
   deleteStructure = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
@@ -146,50 +94,5 @@ export class StructureTableViewComponent implements OnInit {
     });
 
     this.setUpProjectService.saveStructures();
-  };
-  cancelEditingLevel1 = (customer: IndicatorItem) => {
-    this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative?.id);
-      if (structure) {
-        if (structure.newStructure) {
-          // Si es nueva estructura, eliminarla completamente
-          const index = structures.indexOf(structure);
-          structures.splice(index, 1);
-        } else {
-          // Si es estructura existente, solo cancelar edición
-          structure.editing = false;
-        }
-        this.setUpProjectService.editingFocus.set(false);
-      }
-      return [...structures];
-    });
-    this.cleanInputs();
-    this.driverjs.nextStep();
-  };
-  cancelEditingLevel2 = (customer: IndicatorItem) => {
-    this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative?.id);
-      const item = structure?.items?.find(i => i.id === customer.id);
-      if (item && structure) {
-        if (item.newItem) {
-          // Si es nuevo item, eliminarlo completamente
-          const index = structure.items?.indexOf(item) || 0;
-          structure.items?.splice(index, 1);
-        } else {
-          // Si es item existente, solo cancelar edición
-          item.editing = false;
-        }
-        this.setUpProjectService.editingFocus.set(false);
-      }
-      return [...structures];
-    });
-    this.cleanInputs();
-  };
-
-  cleanInputs = () => {
-    this.level1NameInput = '';
-    this.level1CodeInput = '';
-    this.level2NameInput = '';
-    this.level2CodeInput = '';
   };
 }

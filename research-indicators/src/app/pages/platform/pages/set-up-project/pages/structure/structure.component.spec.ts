@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import StructureComponent from './structure.component';
 import { SetUpProjectService } from '../../set-up-project.service';
@@ -25,6 +27,9 @@ describe('StructureComponent', () => {
       // Add missing signals and methods
       level1Name: signal('Structure'),
       level2Name: signal('Item'),
+      levels: signal([]),
+      structureDetailModal: signal({ show: false }),
+      structureDetailBody: signal({ code: '', name: '', custom_values: [] }),
       editingLevel1: signal(false),
       editingLevel2: signal(false),
       allStructuresExpanded: signal(false),
@@ -40,7 +45,9 @@ describe('StructureComponent', () => {
       imports: [StructureComponent],
       providers: [
         { provide: SetUpProjectService, useValue: mockSetUpProjectService },
-        { provide: DriverjsService, useValue: mockDriverjsService }
+        { provide: DriverjsService, useValue: mockDriverjsService },
+        provideHttpClient(),
+        provideHttpClientTesting()
       ]
     }).compileComponents();
 

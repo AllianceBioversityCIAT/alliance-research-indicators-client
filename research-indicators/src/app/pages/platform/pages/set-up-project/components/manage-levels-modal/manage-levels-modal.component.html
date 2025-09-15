@@ -1,0 +1,79 @@
+<p-dialog
+  header="Manage Project Structure"
+  [modal]="true"
+  [(visible)]="setUpProjectService.showManageLevelsModal"
+  [style]="{ width: '800px', maxHeight: '85vh' }"
+  [draggable]="false"
+  [closable]="true">
+  <div class="manage-levels-content">
+    <div class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+      <div class="flex items-center space-x-2">
+        <i class="pi pi-sitemap text-gray-600 text-sm"></i>
+        <div>
+          <h4 class="font-medium text-gray-900 text-sm">Project Structure Configuration</h4>
+          <p class="text-xs text-gray-600">Configure levels and custom fields for your project structure</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      @for (level of setUpProjectService.levels(); track $index) {
+        <div class="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+          <!-- Level Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2">
+              <i class="pi pi-layer-group text-blue-600"></i>
+              <h5 class="font-semibold text-gray-900">Level {{ $index + 1 }}</h5>
+            </div>
+            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+              {{ level.custom_fields.length }} custom field{{ level.custom_fields.length !== 1 ? 's' : '' }}
+            </span>
+          </div>
+
+          <!-- Level Name Input -->
+          <div class="mb-4">
+            <label for="level-name-{{ $index }}" class="block text-sm font-medium text-gray-700 mb-2">Level Name *</label>
+            <input id="level-name-{{ $index }}" pInputText [(ngModel)]="level.name" placeholder="Enter level name" class="w-full" />
+          </div>
+
+          <!-- Custom Fields Section -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h6 class="text-sm font-medium text-gray-700">Custom Fields</h6>
+              <p-button label="Add Custom Field" icon="pi pi-plus" size="small" severity="secondary" (click)="addCustomField(level)" />
+            </div>
+
+            @if (level.custom_fields.length > 0) {
+              <div class="space-y-2">
+                @for (customField of level.custom_fields; track $index) {
+                  <div class="flex items-center space-x-2 p-2 bg-gray-50 rounded">
+                    <i class="pi pi-tag text-gray-500 text-sm"></i>
+                    <input pInputText [(ngModel)]="customField.field_name" placeholder="Custom field name" class="flex-1" />
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger"
+                      size="small"
+                      [text]="true"
+                      pTooltip="Remove field"
+                      (click)="removeCustomField(level, $index)" />
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="text-center py-4 bg-gray-50 rounded border-2 border-dashed border-gray-300">
+                <i class="pi pi-info-circle text-gray-400 text-lg mb-2"></i>
+                <p class="text-sm text-gray-500">No custom fields added yet</p>
+                <p class="text-xs text-gray-400">Click "Add Custom Field" to create one</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-2 pt-4 border-t border-gray-200 mt-6">
+    <p-button label="Cancel" severity="secondary" size="small" (click)="setUpProjectService.showManageLevelsModal.set(false)" />
+    <p-button label="Save Changes" size="small" icon="pi pi-check" (click)="onSave()" />
+  </div>
+</p-dialog>

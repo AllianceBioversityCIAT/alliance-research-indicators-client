@@ -5,13 +5,12 @@ export interface GetStructures {
 }
 
 export interface Level {
-  name_level_1?: string;
   custom_fields: CustomField[];
-  name_level_2?: string;
+  name?: string;
 }
 
 export interface CustomField {
-  fieldID: number;
+  fieldID: number | null;
   field_name: string;
 }
 
@@ -21,15 +20,18 @@ export interface IndicatorsStructure {
   code: string;
   items?: IndicatorItem[];
   indicators: Indicator[];
-  //auxiliary attributes
-  editing?: boolean;
-  newStructure?: boolean;
   custom_values: levelCustomFieldValue[];
+  //auxiliary attributes
+  newStructure?: boolean;
+  isParent?: boolean;
+  parent_id?: number | null | string;
 }
 
 export interface levelCustomFieldValue {
   field: number;
   field_value: string;
+  // auxiliary fields
+  field_name: string;
 }
 
 export interface IndicatorItem {
@@ -37,12 +39,14 @@ export interface IndicatorItem {
   name: string;
   code: string;
   indicators?: Indicator[];
+  custom_values: levelCustomFieldValue[];
   //auxiliary fields
   representative?: IndicatorItem;
-  editing?: boolean;
   newItem?: boolean;
   ghostItem?: boolean;
   itemsCount?: number;
+  isParent?: boolean;
+  parent_id?: number | null | string;
 }
 
 export interface Indicator {

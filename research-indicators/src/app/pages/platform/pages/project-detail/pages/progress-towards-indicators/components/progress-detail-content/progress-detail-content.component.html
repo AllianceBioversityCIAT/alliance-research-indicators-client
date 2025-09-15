@@ -1,0 +1,45 @@
+<div class="w-full h-full px-4">
+  <div class="flex items-center justify-between mt-8">
+    <div class="t-grey-600 font-light space-grotesk">
+      {{ setupProjectService.progressIndicatorsData().indicator?.code }}
+    </div>
+    <div class="flex items-center gap-3">
+      <i class="pi pi-window-maximize cursor-pointer"></i>
+      <i class="pi pi-times cursor-pointer" (click)="setupProjectService.progressIndicatorsData.set({ showSplitter: false, indicator: null })"></i>
+    </div>
+  </div>
+
+  <div class="t-primary-blue-600 font-bold text-2xl mt-2">{{ setupProjectService.progressIndicatorsData().indicator?.name }}</div>
+  <div class="t-primary-blue-600 font-bold text-xl mt-6">Indicator Details</div>
+  <div class="space-grotesk flex flex-wrap gap-x-7 gap-y-4 mt-4">
+    <div class="space-grotesk flex items-center gap-2">
+      <span class="t-grey-600">Baseline</span> <i class="pi pi-arrow-right text-sm! t-grey-600"></i>
+      <span class="t-primary-blue-600">{{ setupProjectService.progressIndicatorsData().indicator?.base_line }}</span>
+    </div>
+    <div class="space-grotesk flex items-center gap-2">
+      <span class="t-grey-600 font-normal">Target</span> <i class="pi pi-arrow-right text-sm! t-grey-600"></i>
+      <span class="t-primary-blue-600">{{ setupProjectService.progressIndicatorsData().indicator?.target_value }}</span>
+    </div>
+    <div class="space-grotesk flex items-center gap-2">
+      <span class="t-grey-600 font-normal">Current</span> <i class="pi pi-arrow-right text-sm! t-grey-600"></i>
+      <span class="text-green-700">{{ setupProjectService.progressIndicatorsData().indicator?.total_contributions }}</span>
+    </div>
+    <div class="space-grotesk flex items-center gap-2">
+      <span class="t-grey-600 font-normal">Year</span> <i class="pi pi-arrow-right text-sm! t-grey-600"></i>
+      <span class="t-primary-blue-600">{{ setupProjectService.progressIndicatorsData().indicator?.year }}</span>
+    </div>
+    <div class="space-grotesk flex items-center gap-2">
+      <span class="t-grey-600 font-normal">Contributors</span> <i class="pi pi-arrow-right text-sm! t-grey-600"></i>
+      <span class="t-primary-blue-600">{{ setupProjectService.progressIndicatorsData().indicator?.contributions?.length }}</span>
+    </div>
+    <div class="space-grotesk flex items-center gap-2">
+      <span class="t-grey-600 font-normal">Progress</span> <i class="pi pi-arrow-right text-sm! t-grey-600"></i>
+      <span class="t-primary-blue-600">{{ setupProjectService.progressIndicatorsData().indicator?.percentageProgress }}</span>
+    </div>
+    <!-- <div>Strucuture Parent: {{ setupProjectService.progressIndicatorsData().indicator?.structure_parent }}</div> -->
+    <div class="space-grotesk flex items-center gap-2">
+      <span class="t-grey-600 font-normal">Year</span> <i class="pi pi-arrow-right text-sm! t-grey-600"></i>
+      <span class="t-primary-blue-600">{{ setupProjectService.progressIndicatorsData().indicator?.year }}</span>
+    </div>
+  </div>
+</div>
