@@ -18,6 +18,7 @@ class ApiServiceMock {
 }
 class CacheServiceMock {
   currentResultId = jest.fn().mockReturnValue(1);
+  getCurrentNumericResultId = jest.fn().mockReturnValue(1);
   currentResultIndicatorSectionPath = jest.fn().mockReturnValue('next-section');
   currentMetadata = jest.fn().mockReturnValue({});
   currentResultIsLoading = jest.fn().mockReturnValue(false);
@@ -59,7 +60,7 @@ describe('AllianceAlignmentComponent', () => {
     actions = new ActionsServiceMock();
     router = new RouterMock();
     submission = new SubmissionServiceMock();
-    route = { snapshot: { queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } };
+    route = { snapshot: { paramMap: { get: (k: string) => (k === 'id' ? '1' : null) }, queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } };
     await TestBed.configureTestingModule({
       imports: [AllianceAlignmentComponent, HttpClientTestingModule],
       providers: [
@@ -126,14 +127,14 @@ describe('AllianceAlignmentComponent', () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     await component.saveData('back');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'general-information'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'general-information'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should navigate to next page', async () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should use version in queryParams if present', async () => {
@@ -141,7 +142,7 @@ describe('AllianceAlignmentComponent', () => {
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     route.snapshot.queryParamMap.get = (key: string) => (key === 'version' ? 'v1' : null);
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should not use version in queryParams if not present', async () => {
@@ -149,7 +150,7 @@ describe('AllianceAlignmentComponent', () => {
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     route.snapshot.queryParamMap.get = () => null;
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: undefined, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'next-section'], { queryParams: undefined, replaceUrl: true });
   });
 
   it('should not PATCH if not editable', async () => {
