@@ -22,6 +22,7 @@ describe('AskForHelpModalComponent', () => {
     currentMetadata: jest.Mock;
     dataCache: jest.Mock;
     currentResultId: jest.Mock;
+    getCurrentNumericResultId?: jest.Mock;
     currentRouteTitle: jest.Mock;
     windowWidth: jest.Mock;
     windowHeight: jest.Mock;
@@ -51,6 +52,7 @@ describe('AskForHelpModalComponent', () => {
     cacheServiceMock.currentMetadata.mockReturnValue({ id: 1 });
     cacheServiceMock.dataCache.mockReturnValue({ user: { id: 123, name: 'Test User' } });
     cacheServiceMock.currentResultId.mockReturnValue(456);
+    cacheServiceMock.getCurrentNumericResultId = jest.fn().mockReturnValue(456);
     cacheServiceMock.currentRouteTitle.mockReturnValue('Test Route');
     cacheServiceMock.windowWidth.mockReturnValue(1920);
     cacheServiceMock.windowHeight.mockReturnValue(1080);
