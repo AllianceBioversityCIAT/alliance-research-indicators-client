@@ -69,11 +69,18 @@ export const cacheServiceMock = {
     const last = parts[parts.length - 1] ?? String(id);
     return parseInt(last, 10);
   }),
-  getCurrentNumericResultId: jest.fn(function (this: any) {
+  getCurrentNumericResultId: jest.fn(function (this: { currentResultId: unknown }) {
     try {
       const source = this.currentResultId;
-      const value = typeof source === 'function' ? source() : source?.value ?? source;
-      return (typeof value === 'number') ? value : parseInt(String(value).split('-').pop() ?? '0', 10);
+      let value: unknown;
+      if (typeof source === 'function') {
+        value = (source as () => unknown)();
+      } else if (typeof source === 'object' && source !== null && 'value' in (source as Record<string, unknown>)) {
+        value = (source as { value: unknown }).value;
+      } else {
+        value = source;
+      }
+      return typeof value === 'number' ? value : parseInt(String(value).split('-').pop() ?? '0', 10);
     } catch {
       return 0;
     }

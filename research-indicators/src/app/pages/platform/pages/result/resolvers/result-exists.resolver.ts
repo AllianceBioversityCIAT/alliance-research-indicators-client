@@ -1,12 +1,10 @@
 import { inject } from '@angular/core';
 import { ResolveFn, Router } from '@angular/router';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
-import { CacheService } from '@shared/services/cache/cache.service';
 
 export const resultExistsResolver: ResolveFn<boolean> = async route => {
   const metadataService = inject(GetMetadataService);
   const router = inject(Router);
-  const cacheService = inject(CacheService);
   const idParam = route.paramMap.get('id');
 
   let id: number;

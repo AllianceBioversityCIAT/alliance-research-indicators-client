@@ -77,7 +77,7 @@ export class VersionSelectorComponent implements OnDestroy {
     this.liveVersion.set(liveData);
     this.approvedVersions.set(versionsArray);
 
-    this.handleVersionSelection({ resultId: numericResultId, currentResultId: currentResultId.toString(), liveData, versionsArray });
+    this.handleVersionSelection({ currentResultId: currentResultId.toString(), liveData, versionsArray });
   }
 
   private applyCachedVersions(resultId: number, versionParam: string | null) {
@@ -103,12 +103,10 @@ export class VersionSelectorComponent implements OnDestroy {
   }
 
   private handleVersionSelection({
-    resultId,
     currentResultId,
     liveData,
     versionsArray
   }: {
-    resultId: number;
     currentResultId: string;
     liveData: TransformResultCodeResponse | null;
     versionsArray: TransformResultCodeResponse[];
