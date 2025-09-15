@@ -290,7 +290,7 @@ describe('IpRightsComponent', () => {
 
       await component.saveData('back');
 
-      expect(router.navigate).toHaveBeenCalledWith(['result', '123', 'evidence'], {
+      expect(router.navigate).toHaveBeenCalledWith(['result', 123, 'evidence'], {
         queryParams: undefined,
         replaceUrl: true
       });
@@ -303,7 +303,7 @@ describe('IpRightsComponent', () => {
 
       await component.saveData('back');
 
-      expect(router.navigate).toHaveBeenCalledWith(['result', '123', 'evidence'], {
+      expect(router.navigate).toHaveBeenCalledWith(['result', 123, 'evidence'], {
         queryParams: { version: 'v2' },
         replaceUrl: true
       });
