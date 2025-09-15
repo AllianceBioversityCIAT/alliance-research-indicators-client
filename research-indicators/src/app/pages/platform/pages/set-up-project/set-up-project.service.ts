@@ -29,8 +29,10 @@ export class SetUpProjectService {
   showManageLevelsModal = signal<boolean>(false);
   structureDetailModal = signal<{
     show: boolean;
+    editingMode?: boolean;
     structure?: IndicatorsStructure;
   }>({
+    editingMode: false,
     show: false
   });
   levels = signal<Level[]>([]);

@@ -8,7 +8,13 @@
     <div class="flex items-center gap-2">
       <div class="create-structure-button">
         <p-button
-          (click)="addStructure()"
+          (click)="
+            setUpProjectService.structureDetailModal.set({
+              show: true,
+              editingMode: false,
+              structure: { name: '', code: '', indicators: [], custom_values: [] }
+            })
+          "
           icon="pi pi-plus"
           severity="contrast"
           size="small"

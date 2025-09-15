@@ -1,12 +1,11 @@
 <p-dialog
-  header="Edit Structure Detail"
+  [header]="setUpProjectService.structureDetailModal().editingMode ? 'Edit Structure Detail' : 'Add New Structure'"
   (onHide)="clearBody()"
   [modal]="true"
   [(visible)]="setUpProjectService.structureDetailModal().show"
   [style]="{ width: '600px', maxHeight: '85vh' }"
   [draggable]="false"
   [closable]="true">
-
   <div class="structure-detail-content">
     <!-- Header Information Card -->
     <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 rounded-xl shadow-sm">
@@ -101,10 +100,6 @@
       size="small"
       icon="pi pi-times"
       (click)="setUpProjectService.structureDetailModal.set({ show: false })" />
-    <p-button
-      label="Save Changes"
-      size="small"
-      icon="pi pi-check"
-      (click)="saveStructure()" />
+    <p-button label="Save Changes" size="small" icon="pi pi-check" (click)="saveStructure()" />
   </div>
 </p-dialog>
