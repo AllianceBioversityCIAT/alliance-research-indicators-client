@@ -54,7 +54,6 @@ export default class OicrDetailsComponent {
     try {
       this.loading.set(true);
       const numericResultId = this.cache.getCurrentNumericResultId();
-      const currentId = this.route.snapshot.paramMap.get('id'); // Preserve the full ID with platform
       const version = this.route.snapshot.queryParamMap.get('version');
       const queryParams = version ? { version } : undefined;
 
@@ -75,13 +74,13 @@ export default class OicrDetailsComponent {
       }
 
       if (page === 'back') {
-        this.router.navigate(['result', currentId || numericResultId.toString(), 'alliance-alignment'], {
+        this.router.navigate(['result', this.cache.currentResultId(), 'alliance-alignment'], {
           queryParams,
           replaceUrl: true
         });
       }
       if (page === 'next')
-        this.router.navigate(['result', currentId || numericResultId.toString(), 'partners'], {
+        this.router.navigate(['result', this.cache.currentResultId(), 'partners'], {
           queryParams,
           replaceUrl: true
         });

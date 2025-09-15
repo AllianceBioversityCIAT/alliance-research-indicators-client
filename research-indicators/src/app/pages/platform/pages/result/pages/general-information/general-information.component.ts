@@ -95,8 +95,7 @@ export default class GeneralInformationComponent {
 
     if (page === 'next') {
       const version = this.route.snapshot.queryParamMap.get('version');
-      const currentId = this.route.snapshot.paramMap.get('id'); // Preserve the full ID with platform
-      const commands: string[] = ['result', currentId || this.cache.currentResultId().toString(), 'alliance-alignment'];
+      const commands: string[] = ['result', this.cache.currentResultId().toString(), 'alliance-alignment'];
       const queryParams = version ? { version } : undefined;
 
       this.router.navigate(commands, {
