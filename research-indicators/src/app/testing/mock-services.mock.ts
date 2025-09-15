@@ -62,7 +62,22 @@ export const cacheServiceMock = {
   loading: jest.fn().mockReturnValue(false),
   headerHeight: signal(0),
   showSubmissionHistory: signal(false),
-  isMyResult: jest.fn().mockReturnValue(true)
+  isMyResult: jest.fn().mockReturnValue(true),
+  extractNumericId: jest.fn((id: string | number) => {
+    if (typeof id === 'number') return id;
+    const parts = String(id).split('-');
+    const last = parts[parts.length - 1] ?? String(id);
+    return parseInt(last, 10);
+  }),
+  getCurrentNumericResultId: jest.fn(function (this: any) {
+    try {
+      const source = this.currentResultId;
+      const value = typeof source === 'function' ? source() : source?.value ?? source;
+      return (typeof value === 'number') ? value : parseInt(String(value).split('-').pop() ?? '0', 10);
+    } catch {
+      return 0;
+    }
+  })
 } as unknown as CacheService;
 
 const paramMapMock: ParamMap = {

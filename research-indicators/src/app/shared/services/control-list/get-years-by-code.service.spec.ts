@@ -18,7 +18,10 @@ describe('GetYearsByCodeService', () => {
     const apiMock = { ...apiServiceMock, GET_Years: jest.fn().mockResolvedValue({ data: mockData }) };
     const cacheMock = {
       ...cacheServiceMock,
-      currentResultId: jest.fn().mockReturnValue(123)
+      currentResultId: jest.fn().mockReturnValue(123),
+      getCurrentNumericResultId: jest.fn(function (this: any) {
+        return typeof this.currentResultId === 'function' ? this.currentResultId() : 123;
+      })
     };
 
     TestBed.configureTestingModule({
@@ -182,6 +185,7 @@ describe('GetYearsByCodeService', () => {
     it('should use currentResultId from cache service', async () => {
       const mockResultId = 456;
       cacheService.currentResultId = jest.fn().mockReturnValue(mockResultId);
+      cacheService.getCurrentNumericResultId = jest.fn().mockReturnValue(mockResultId);
 
       await service.main();
 
@@ -191,6 +195,7 @@ describe('GetYearsByCodeService', () => {
     it('should handle different result IDs from cache', async () => {
       const mockResultId = 789;
       cacheService.currentResultId = jest.fn().mockReturnValue(mockResultId);
+      cacheService.getCurrentNumericResultId = jest.fn().mockReturnValue(mockResultId);
 
       await service.main();
 
