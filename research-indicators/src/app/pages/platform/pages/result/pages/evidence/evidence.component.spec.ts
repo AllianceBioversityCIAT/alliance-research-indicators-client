@@ -156,13 +156,13 @@ describe('EvidenceComponent', () => {
   it('should navigate to back page', async () => {
     const spy = jest.spyOn(router, 'navigate');
     await component.saveData('back');
-    expect(spy).toHaveBeenCalledWith(['result', '123', 'geographic-scope'], expect.anything());
+    expect(spy).toHaveBeenCalledWith(['result', 123, 'geographic-scope'], expect.anything());
   });
 
   it('should navigate to next page', async () => {
     const spy = jest.spyOn(router, 'navigate');
     await component.saveData('next');
-    expect(spy).toHaveBeenCalledWith(['result', '123', 'ip-rights'], expect.anything());
+    expect(spy).toHaveBeenCalledWith(['result', 123, 'ip-rights'], expect.anything());
   });
 
   it('should not call PATCH_ResultEvidences if not editable', async () => {

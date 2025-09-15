@@ -127,14 +127,14 @@ describe('AllianceAlignmentComponent', () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     await component.saveData('back');
-    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'general-information'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'general-information'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should navigate to next page', async () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should use version in queryParams if present', async () => {
@@ -142,7 +142,7 @@ describe('AllianceAlignmentComponent', () => {
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     route.snapshot.queryParamMap.get = (key: string) => (key === 'version' ? 'v1' : null);
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should not use version in queryParams if not present', async () => {
@@ -150,7 +150,7 @@ describe('AllianceAlignmentComponent', () => {
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
     route.snapshot.queryParamMap.get = () => null;
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'next-section'], { queryParams: undefined, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: undefined, replaceUrl: true });
   });
 
   it('should not PATCH if not editable', async () => {

@@ -207,7 +207,7 @@ describe('CapacitySharingComponent', () => {
 
     await component.saveData('next');
 
-    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should navigate to back page', async () => {
@@ -217,7 +217,7 @@ describe('CapacitySharingComponent', () => {
 
     await component.saveData('back');
 
-    expect(router.navigate).toHaveBeenCalledWith(['result', '1', 'alliance-alignment'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'alliance-alignment'], { queryParams: { version: 'v1' }, replaceUrl: true });
   });
 
   it('should convert dates to ISO string before PATCH', async () => {
