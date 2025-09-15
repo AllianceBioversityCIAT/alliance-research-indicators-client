@@ -35,7 +35,6 @@ import { ProjectItemComponent } from '../../../../shared/components/project-item
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 import { ApiService } from '../../../../shared/services/api.service';
 import { DriverjsService } from '@shared/services/driverjs.service';
-import { SplitterModule } from 'primeng/splitter';
 
 @Component({
   selector: 'app-set-up-project',

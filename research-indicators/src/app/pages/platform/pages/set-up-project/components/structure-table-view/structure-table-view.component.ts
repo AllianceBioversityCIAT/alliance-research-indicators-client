@@ -36,7 +36,6 @@ export class StructureTableViewComponent implements OnInit {
   }
 
   openStructureDetailModal = (structure: IndicatorsStructure) => {
-    console.log(structure.custom_values);
     this.setUpProjectService.structureDetailModal.set({ show: true, structure, editingMode: true });
     this.setUpProjectService.structureDetailBody.set({
       code: structure.code,

@@ -118,11 +118,6 @@ export class SetUpProjectService {
   async saveStructures() {
     this.loadingStructures.set(true);
     try {
-      console.log({
-        structures: this.structures(),
-        agreement_id: this.routeid(),
-        levels: this.levels()
-      });
       await this.api.POST_SyncStructures({
         structures: this.structures(),
         agreement_id: this.routeid(),
@@ -198,7 +193,6 @@ export class SetUpProjectService {
 
     this.structures.set(res.data.structures);
     this.levels.set(res.data.levels);
-    console.log(res.data);
 
     if (res.successfulRequest) return;
 
