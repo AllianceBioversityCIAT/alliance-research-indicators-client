@@ -22,24 +22,42 @@ export class ManageStructureDetailComponent {
     const isEditingMode = modal.editingMode;
 
     if (!isEditingMode) {
-      // Creating new structure (similar to old addStructure logic)
+      // Creating new structure or sub-item
       if (!this.body().name || !this.body().code) return;
 
-      this.setUpProjectService.structures.update(structures => {
-        // Add new structure with the form data
-        structures.push({
-          id: null,
-          name: this.body().name,
-          code: this.body().code,
-          items: [],
-          indicators: [],
-          custom_values: this.body().custom_values.map(customValue => customValue()),
-          newStructure: true
+      if (structure.isParent === false && structure.parent_id) {
+        // Creating new sub-item (level 2)
+        this.setUpProjectService.structures.update(structures => {
+          const parentStructure = structures.find(s => s.id === structure.parent_id);
+          if (parentStructure?.items) {
+            parentStructure.items.push({
+              id: null,
+              name: this.body().name,
+              code: this.body().code,
+              indicators: [],
+              custom_values: this.body().custom_values.map(customValue => customValue()),
+              newItem: true
+            });
+          }
+          return [...structures];
         });
-        return [...structures];
-      });
+      } else {
+        // Creating new structure (level 1 - parent)
+        this.setUpProjectService.structures.update(structures => {
+          structures.push({
+            id: null,
+            name: this.body().name,
+            code: this.body().code,
+            items: [],
+            indicators: [],
+            custom_values: this.body().custom_values.map(customValue => customValue()),
+            newStructure: true
+          });
+          return [...structures];
+        });
 
-      this.setUpProjectService.collapseAllStructures();
+        this.setUpProjectService.collapseAllStructures();
+      }
     } else {
       // Editing existing structure (original logic)
       if (structure.isParent) {

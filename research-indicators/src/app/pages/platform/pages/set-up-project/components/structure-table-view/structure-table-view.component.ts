@@ -56,18 +56,22 @@ export class StructureTableViewComponent implements OnInit {
     }
   }
 
-  addNewItem = (customer: IndicatorItem, toggleRowId: string) => {
-    this.setUpProjectService.structures.update(structures => {
-      const structure = structures.find(s => s.id === customer.representative?.id);
-      if (structure?.items) {
-        structure.items.push({ id: '', name: '', code: '', indicators: [], newItem: true, custom_values: [] });
-      }
-      return [...structures];
-    });
-    setTimeout(() => {
-      const isExpanded = Boolean(Number(document.getElementById(toggleRowId)?.getAttribute('isExpanded')));
-      if (!isExpanded) document.getElementById(toggleRowId)?.click();
-    }, 100);
+  addNewItem = (customer: IndicatorItem) => {
+    const parentStructure = this.setUpProjectService.structures().find(s => s.id === customer.representative?.id);
+    if (parentStructure) {
+      this.setUpProjectService.structureDetailModal.set({
+        show: true,
+        editingMode: false,
+        structure: {
+          name: '',
+          code: '',
+          indicators: [],
+          custom_values: [],
+          isParent: false,
+          parent_id: parentStructure.id
+        }
+      });
+    }
   };
   deleteStructure = (customer: IndicatorItem) => {
     this.setUpProjectService.structures.update(structures => {
