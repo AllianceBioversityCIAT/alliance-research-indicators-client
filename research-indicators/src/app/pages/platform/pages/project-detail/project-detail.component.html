@@ -6,11 +6,16 @@
       </div>
     }
     <div class="w-full min-w-0 py-[8px] px-[8px] sm:py-[12px] sm:px-[12px] md:py-[20px] md:px-[24px]">
+      <h1>{{ lastSegment() }}</h1>
       <p-tabs [value]="lastSegment()">
         <p-tablist>
           @for (tab of tabs(); track tab.route) {
             @if (!tab.hidden) {
-              <p-tab [value]="tab.route" [routerLink]="tab.route" class="flex items-center !gap-2 text-inherit">
+              <p-tab
+                [value]="tab.route"
+                (click)="this.lastSegment.set(tab.route)"
+                [routerLink]="tab.route"
+                class="flex items-center !gap-2 text-inherit">
                 <span>{{ tab.label }}</span>
               </p-tab>
             }
