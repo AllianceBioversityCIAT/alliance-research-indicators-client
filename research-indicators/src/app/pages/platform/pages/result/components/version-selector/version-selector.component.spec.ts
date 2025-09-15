@@ -20,6 +20,12 @@ class MockCacheService {
   lastVersionParam = signal(null);
   liveVersionData = signal(null);
   versionsList = signal([]);
+  extractNumericId = jest.fn((id: string | number) => {
+    if (typeof id === 'number') return id;
+    const parts = String(id).split('-');
+    return parseInt(parts[parts.length - 1] ?? String(id), 10);
+  });
+  getCurrentNumericResultId = jest.fn(() => 1);
 }
 class MockActionsService {
   showGlobalAlert = jest.fn();
@@ -176,6 +182,7 @@ describe('VersionSelectorComponent', () => {
     component.selectedResultId.set(10);
     component['handleVersionSelection']({
       resultId: 1,
+      currentResultId: '1',
       liveData: { result_id: 10, result_status_id: 2, report_year_id: 2022, result_official_code: 1 },
       versionsArray: []
     });
@@ -186,6 +193,7 @@ describe('VersionSelectorComponent', () => {
     component.selectedResultId.set(10);
     component['handleVersionSelection']({
       resultId: 1,
+      currentResultId: '1',
       liveData: { result_id: 10, result_status_id: 2, report_year_id: 2022, result_official_code: 1 },
       versionsArray: []
     });
@@ -199,6 +207,7 @@ describe('VersionSelectorComponent', () => {
     component['hasAutoNavigated'] = false;
     component['handleVersionSelection']({
       resultId: 1,
+      currentResultId: '1',
       liveData: null,
       versionsArray: [{ result_id: 2, report_year_id: 2023, result_status_id: 1, result_official_code: 1 }]
     });
@@ -210,6 +219,7 @@ describe('VersionSelectorComponent', () => {
     component['hasAutoNavigated'] = false;
     component['handleVersionSelection']({
       resultId: 1,
+      currentResultId: '1',
       liveData: null,
       versionsArray: [{ result_id: 2, report_year_id: 2023, result_status_id: 1, result_official_code: 1 }]
     });
