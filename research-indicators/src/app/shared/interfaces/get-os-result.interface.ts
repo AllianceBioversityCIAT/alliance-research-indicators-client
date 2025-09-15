@@ -1,6 +1,7 @@
 export interface GetOsResult {
   result_id: number;
   result_official_code: number;
+  platform_code: string;
   version_id: null;
   title: string;
   description: null | string;

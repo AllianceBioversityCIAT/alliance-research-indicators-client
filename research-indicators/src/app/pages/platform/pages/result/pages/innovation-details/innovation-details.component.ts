@@ -100,7 +100,7 @@ export default class InnovationDetailsComponent {
   }
 
   async getData() {
-    const response = await this.apiService.GET_InnovationDetails(this.cache.currentResultId());
+    const response = await this.apiService.GET_InnovationDetails  (this.cache.getCurrentNumericResultId());
     if (Array.isArray(response.data.knowledge_sharing_form?.link_to_result)) {
       response.data.knowledge_sharing_form.link_to_result = response.data.knowledge_sharing_form.link_to_result.map(link => {
         if (link.other_result_id) {
@@ -286,11 +286,11 @@ export default class InnovationDetailsComponent {
         });
     }
 
-    const resultId = Number(this.cache.currentResultId());
+    const numericResultId = this.cache.getCurrentNumericResultId();
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
     if (this.submission.isEditableStatus()) {
-      const response = await this.apiService.PATCH_InnovationDetails(resultId, cleanedBody);
+      const response = await this.apiService.PATCH_InnovationDetails(numericResultId, cleanedBody);
       if (response.successfulRequest) {
         this.actions.showToast({
           severity: 'success',
@@ -302,7 +302,7 @@ export default class InnovationDetailsComponent {
     }
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', this.cache.currentResultId(), path], {
         queryParams,
         replaceUrl: true
       });

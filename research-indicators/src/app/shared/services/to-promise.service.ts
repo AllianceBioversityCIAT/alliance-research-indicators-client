@@ -77,6 +77,9 @@ export class ToPromiseService {
     if (config?.useResultInterceptor) {
       headers = headers.set('X-Use-Year', 'true');
     }
+    if (config?.platform) {
+      headers = headers.set('X-Platform', config.platform);
+    }
     if (config?.noAuthInterceptor) {
       headers = headers.set('no-auth-interceptor', 'true');
     }
@@ -113,7 +116,7 @@ export class ToPromiseService {
   };
 
   getGreenChecks = (): Promise<MainResponse<GreenChecks>> => {
-    const url = () => `results/green-checks/${this.cacheService.currentResultId()}`;
+    const url = () => `results/green-checks/${this.cacheService.getCurrentNumericResultId()}`;
     return this.get(url(), { useResultInterceptor: true });
   };
 
@@ -130,6 +133,7 @@ interface Config {
   loadingTrigger?: boolean;
   params?: HttpParams;
   useResultInterceptor?: boolean;
+  platform?: string;
   noCache?: boolean;
   noAuthInterceptor?: boolean;
 }

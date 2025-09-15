@@ -38,6 +38,7 @@ class ApiServiceMock {
 }
 class CacheServiceMock {
   currentResultId = jest.fn().mockReturnValue(1);
+  getCurrentNumericResultId = jest.fn().mockReturnValue(1);
   currentResultIndicatorSectionPath = jest.fn().mockReturnValue('next-section');
   currentMetadata = jest.fn().mockReturnValue({});
   currentResultIsLoading = jest.fn().mockReturnValue(false);
@@ -122,6 +123,7 @@ class ServiceLocatorServiceMock {
 const routerSpy = { navigate: jest.fn() };
 const activatedRouteMock = {
   snapshot: {
+    paramMap: { get: (key: string) => (key === 'id' ? '1' : null) },
     queryParamMap: {
       get: (key: string) => (key === 'version' ? 'v1' : null)
     }

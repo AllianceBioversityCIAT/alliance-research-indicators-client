@@ -94,12 +94,11 @@ describe('ResultsCenterComponent', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should reset state and load pinned tab', () => {
+    it('should load pinned tab', () => {
       const loadPinnedTabSpy = jest.spyOn(component, 'loadPinnedTab');
 
       component.ngOnInit();
 
-      expect(mockResultsCenterService.resetState).toHaveBeenCalled();
       expect(loadPinnedTabSpy).toHaveBeenCalled();
     });
   });

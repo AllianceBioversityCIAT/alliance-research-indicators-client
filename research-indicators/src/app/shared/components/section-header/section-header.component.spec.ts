@@ -84,6 +84,8 @@ describe('SectionHeaderComponent', () => {
       currentRouteTitle: signal<string>('Test Title'),
       showSectionHeaderActions: signal<boolean>(true),
       currentResultId: signal<number>(123),
+      extractNumericId: jest.fn((id: string | number) => (typeof id === 'number' ? id : parseInt(String(id).split('-').pop() || '0', 10))),
+      getCurrentNumericResultId: jest.fn(() => 123),
       currentMetadata: signal({
         status_id: 5
       }),

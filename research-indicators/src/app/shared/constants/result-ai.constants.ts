@@ -41,4 +41,4 @@ export const getIndicatorTypeIcon = (type: string): IndicatorIconResult => {
 };
 
 export const PROMPT_OICR_DETAILS =
-  'Generate a concise version of the following outcome or impact statement. Your response must summarize the core message and key impact clearly and effectively. The output must not exceed 80 words. Use clear, formal language and maintain the original meaning and intent. Do not include any introduction or explanation—only return the rewritten short statement. Ensure the result is suitable for inclusion in a results reporting platform.';
+  'Generate a concise version of the following outcome or impact statement. Your response must summarize the core message and key impact clearly and effectively. The output must not exceed 80 words. Use clear, formal language and maintain the original meaning and intent. Do not include any introduction or explanation—only return the rewritten short statement. Ensure the result is suitable for inclusion in a results reporting platform. The output must be in the same language as the input statement.';

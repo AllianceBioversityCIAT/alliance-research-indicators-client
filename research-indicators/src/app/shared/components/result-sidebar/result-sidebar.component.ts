@@ -162,11 +162,11 @@ export class ResultSidebarComponent {
         event: (data?: { comment?: string; selected?: string }) => {
           (async () => {
             const response = await this.api.PATCH_SubmitResult({
-              resultCode: this.cache.currentResultId(),
+              resultCode: this.cache.getCurrentNumericResultId(),
               comment: data?.comment ?? '',
               status: this.submissionService.currentResultIsSubmitted() ? 4 : 2
             });
-            this.metadata.update(this.cache.currentResultId());
+            this.metadata.update(this.cache.getCurrentNumericResultId());
             this.submissionService.refreshSubmissionHistory.update(v => v + 1);
             if (!response.successfulRequest) {
               this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });

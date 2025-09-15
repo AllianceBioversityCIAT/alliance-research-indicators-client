@@ -5,6 +5,7 @@ export interface Result {
   result_official_code: string;
   version_id: null;
   title: string;
+  platform_code: string;
   description: null | string;
   indicator_id: number;
   geo_scope_id: null;

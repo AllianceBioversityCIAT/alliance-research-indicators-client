@@ -14,6 +14,7 @@ export interface LatestResult {
   is_active: boolean;
   result_id: number;
   result_official_code: number;
+  platform_code: string;
   title: string;
   description: null;
   indicator_id: number;
@@ -84,7 +85,7 @@ export interface AgressoContract {
 export class MyLatestResultsComponent implements OnInit {
   api = inject(ApiService);
   allModalsService = inject(AllModalsService);
-  greenChecksByResult: WritableSignal<Record<number, GreenChecks>> = signal({});
+  greenChecksByResult: WritableSignal<Record<string, GreenChecks>> = signal({});
 
   latestResultList: WritableSignal<LatestResult[]> = signal([]);
 
@@ -97,10 +98,11 @@ export class MyLatestResultsComponent implements OnInit {
     this.latestResultList.set(results.data);
 
     for (const result of results.data) {
-      const { data } = await this.api.GET_GreenChecks(result.result_official_code);
+      const resultCode = `${result.platform_code}-${result.result_official_code}`;
+      const { data } = await this.api.GET_GreenChecks(result.result_official_code, result.platform_code);
       this.greenChecksByResult.update(map => ({
         ...map,
-        [result.result_official_code]: data
+        [resultCode]: data
       }));
     }
   }

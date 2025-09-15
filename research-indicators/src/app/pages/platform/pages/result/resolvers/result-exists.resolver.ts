@@ -2,12 +2,25 @@ import { inject } from '@angular/core';
 import { ResolveFn, Router } from '@angular/router';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 
-export const resultExistsResolver: ResolveFn<boolean> = async (route) => {
+export const resultExistsResolver: ResolveFn<boolean> = async route => {
   const metadataService = inject(GetMetadataService);
   const router = inject(Router);
-  const id = Number(route.paramMap.get('id'));
+  const idParam = route.paramMap.get('id');
 
-  const success = await metadataService.update(id);
+  let id: number;
+  let platform: string | null = null;
+  
+  if (typeof idParam === 'string' && idParam.includes('-')) {
+    const parts = idParam.split('-');
+    platform = parts[0]; // TP, PRMS, etc.
+    const lastPart = parts[parts.length - 1];
+    id = parseInt(lastPart, 10);
+  } else {
+    id = Number(idParam);
+    platform = 'STAR'; // Default platform for numeric IDs
+  }
+  
+  const success = await metadataService.update(id, platform);
 
   if (!success) {
     router.navigate(['/results-center']);

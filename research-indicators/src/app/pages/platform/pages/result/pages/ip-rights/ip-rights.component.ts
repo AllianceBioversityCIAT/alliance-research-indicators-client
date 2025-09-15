@@ -35,7 +35,7 @@ export default class IpRightsComponent {
   }
   async getData() {
     this.loading.set(true);
-    const response = await this.api.GET_IpOwner(this.cache.currentResultId());
+    const response = await this.api.GET_IpOwner(this.cache.getCurrentNumericResultId());
     const fieldsToNormalize = ['publicity_restriction', 'potential_asset', 'requires_futher_development'] as const;
 
     const normalized = { ...response.data };
@@ -60,12 +60,12 @@ export default class IpRightsComponent {
   async saveData(page?: 'back'): Promise<void> {
     this.loading.set(true);
 
-    const resultId = this.cache.currentResultId().toString();
+    const numericResultId = this.cache.getCurrentNumericResultId();
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', this.cache.currentResultId(), path], {
         queryParams,
         replaceUrl: true
       });
@@ -84,7 +84,7 @@ export default class IpRightsComponent {
 
       this.body.set({ ...current });
 
-      const response = await this.api.PATCH_IpOwners(Number(resultId), this.body());
+      const response = await this.api.PATCH_IpOwners(numericResultId, this.body());
       if (!response.successfulRequest) {
         this.loading.set(false);
         return;

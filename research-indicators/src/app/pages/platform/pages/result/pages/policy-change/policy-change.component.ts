@@ -65,7 +65,7 @@ export default class PolicyChangeComponent {
 
   async getData() {
     this.loading.set(true);
-    const response = await this.api.GET_PolicyChange(this.cache.currentResultId());
+    const response = await this.api.GET_PolicyChange(this.cache.getCurrentNumericResultId());
     response.data.loaded = true;
     this.body.set(response.data);
     this.loading.set(false);
@@ -73,19 +73,18 @@ export default class PolicyChangeComponent {
 
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
-    const resultId = this.cache.currentResultId().toString();
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', this.cache.currentResultId(), path], {
         queryParams,
         replaceUrl: true
       });
     };
 
     if (this.submission.isEditableStatus()) {
-      const response = await this.api.PATCH_PolicyChange(this.cache.currentResultId(), this.body());
+      const response = await this.api.PATCH_PolicyChange(this.cache.getCurrentNumericResultId(), this.body());
       if (response.successfulRequest) {
         this.actions.showToast({ severity: 'success', summary: 'Policy Change', detail: 'Data saved successfully' });
         await this.getData();
