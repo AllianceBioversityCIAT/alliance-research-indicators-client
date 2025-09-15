@@ -17,16 +17,4 @@ export default class StructureComponent {
   setUpProjectService = inject(SetUpProjectService);
   driverjs = inject(DriverjsService);
   // Vista predeterminada: tabla (false = tabla, true = tarjetas)
-
-  addStructure = () => {
-    this.setUpProjectService.structures.update(structures => {
-      structures.push({ id: null, name: '', code: '', items: [], indicators: [], custom_values: [], newStructure: true });
-      return [...structures];
-    });
-
-    this.setUpProjectService.collapseAllStructures();
-    setTimeout(() => {
-      this.driverjs.nextStep();
-    }, 100);
-  };
 }

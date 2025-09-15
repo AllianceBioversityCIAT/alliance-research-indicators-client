@@ -15,35 +15,59 @@ export class ManageStructureDetailComponent {
   setUpProjectService = inject(SetUpProjectService);
   body = this.setUpProjectService.structureDetailBody;
   saveStructure = () => {
-    const structure = this.setUpProjectService.structureDetailModal().structure;
+    const modal = this.setUpProjectService.structureDetailModal();
+    const structure = modal.structure;
     if (!structure) return;
 
-    if (structure.isParent) {
-      // Logic for level 1 (parent)
-      if (!this.body().code) return;
-      this.setUpProjectService.structures.update(structures => {
-        const foundStructure = structures.find(s => s.id === structure.id);
-        if (foundStructure) {
-          foundStructure.name = this.body().name;
-          foundStructure.code = this.body().code;
-          foundStructure.custom_values = this.body().custom_values.map(customValue => customValue());
-          console.log(foundStructure);
-        }
-        return [...structures];
-      });
-    } else {
-      // Logic for level 2 (child)
-      if (!this.body().name || !this.body().code) return;
-      this.setUpProjectService.structures.update(structures => {
-        const item = structures.find(s => s.id === structure.parent_id)?.items?.find(i => i.id === structure.id);
+    const isEditingMode = modal.editingMode;
 
-        if (item) {
-          item.name = this.body().name;
-          item.code = this.body().code;
-          item.custom_values = this.body().custom_values.map(customValue => customValue());
-        }
+    if (!isEditingMode) {
+      // Creating new structure (similar to old addStructure logic)
+      if (!this.body().name || !this.body().code) return;
+
+      this.setUpProjectService.structures.update(structures => {
+        // Add new structure with the form data
+        structures.push({
+          id: null,
+          name: this.body().name,
+          code: this.body().code,
+          items: [],
+          indicators: [],
+          custom_values: this.body().custom_values.map(customValue => customValue()),
+          newStructure: true
+        });
         return [...structures];
       });
+
+      this.setUpProjectService.collapseAllStructures();
+    } else {
+      // Editing existing structure (original logic)
+      if (structure.isParent) {
+        // Logic for level 1 (parent)
+        if (!this.body().code) return;
+        this.setUpProjectService.structures.update(structures => {
+          const foundStructure = structures.find(s => s.id === structure.id);
+          if (foundStructure) {
+            foundStructure.name = this.body().name;
+            foundStructure.code = this.body().code;
+            foundStructure.custom_values = this.body().custom_values.map(customValue => customValue());
+          }
+          return [...structures];
+        });
+      } else {
+        // Logic for level 2 (child)
+        if (!this.body().name || !this.body().code) return;
+        this.setUpProjectService.structures.update(structures => {
+          const item = structures.find(s => s.id === structure.parent_id)?.items?.find(i => i.id === structure.id);
+
+          if (item) {
+            item.name = this.body().name;
+            item.code = this.body().code;
+            item.custom_values = this.body().custom_values.map(customValue => customValue());
+          }
+          return [...structures];
+        });
+      }
     }
 
     this.setUpProjectService.saveStructures();
