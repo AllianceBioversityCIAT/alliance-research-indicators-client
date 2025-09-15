@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { ManageStructureDetailComponent } from './manage-structure-detail.component';
 
@@ -8,9 +10,9 @@ describe('ManageStructureDetailComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ManageStructureDetailComponent]
-    })
-    .compileComponents();
+      imports: [ManageStructureDetailComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting()]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ManageStructureDetailComponent);
     component = fixture.componentInstance;
