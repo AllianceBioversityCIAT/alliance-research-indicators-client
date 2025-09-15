@@ -189,6 +189,8 @@ export class SetUpProjectService {
 
     this.structures.set(res.data.structures);
     this.levels.set(res.data.levels);
+    this.level1Name.set(res.data?.levels[0]?.name || 'Level 1');
+    this.level2Name.set(res.data?.levels[1]?.name || 'Level 2');
 
     if (res.successfulRequest) return;
 
