@@ -24,6 +24,8 @@ import { GetYearsService } from '@shared/services/control-list/get-years.service
 import { SharedResultFormComponent } from '@shared/components/shared-result-form/shared-result-form.component';
 import { WordCountService } from '@shared/services/word-count.service';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { environment } from '../../../../../../../../environments/environment';
 
 registerLocaleData(localeEs);
 
@@ -34,6 +36,7 @@ registerLocaleData(localeEs);
     ButtonModule,
     FormsModule,
     InputTextModule,
+    S3ImageUrlPipe,
     NgTemplateOutlet,
     SelectModule,
     RouterModule,
@@ -56,6 +59,10 @@ export class CreateResultFormComponent {
   api = inject(ApiService);
   actions = inject(ActionsService);
   wordCountService = inject(WordCountService);
+
+  // External links by environment
+  prmsUrl: string = environment.prmsUrl;
+  tipUrl: string = environment.tipUrl;
 
   body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null; year: number | null }>({
     indicator_id: null,

@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 @Component({
   selector: 'app-footer',
-  imports: [],
+  imports: [S3ImageUrlPipe],
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss']
 })

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 interface Indicator {
   icon: string;
@@ -11,7 +12,7 @@ interface Indicator {
 
 @Component({
   selector: 'app-discover-hero',
-  imports: [],
+  imports: [S3ImageUrlPipe],
   templateUrl: './discover-hero.component.html'
 })
 export class DiscoverHeroComponent {

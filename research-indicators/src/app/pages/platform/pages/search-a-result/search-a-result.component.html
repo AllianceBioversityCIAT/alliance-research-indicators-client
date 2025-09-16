@@ -18,7 +18,7 @@
             [disabled]="true"
             pTooltip="This feature is under construction">
             <ng-template pTemplate="icon">
-              <img src="/construction.png" width="20" height="20" alt="Under construction" />
+              <img [src]="'construction.png' | s3ImageUrl" width="20" height="20" alt="Under construction" />
             </ng-template>
           </p-button>
         </div>
@@ -29,7 +29,7 @@
       @if (this.getOsResultService.list().length === 0) {
         <div class="no-results-container">
           <div class="no-results-content">
-            <img src="images/no-results-found.png" alt="" />
+            <img [src]="'images/no-results-found.png' | s3ImageUrl" alt="" />
             <div class="title-text-no-results">NO RESULTS FOUND FOR YOUR SEARCH</div>
             <div class="description-text">
               You searched "{{ this.cache.searchAResultValue() }}". Please check the entered term or try using different keywords.
@@ -39,7 +39,7 @@
         <div class="explore-other-results-button">
           <p-button label="Explore other results" size="small" [disabled]="true" pTooltip="This feature is under construction">
             <ng-template pTemplate="icon">
-              <img src="/construction.png" width="20" height="20" alt="Under construction" />
+              <img [src]="'construction.png' | s3ImageUrl" width="20" height="20" alt="Under construction" />
             </ng-template>
           </p-button>
         </div>
