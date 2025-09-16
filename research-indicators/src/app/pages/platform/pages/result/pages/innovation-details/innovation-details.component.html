@@ -188,12 +188,13 @@
               </div>
             }
 
-            <app-textarea class="mt-[18px]"
+            <app-textarea class="mt-3"
             [isRequired]="true"
             [disabled]="!submission.isEditableStatus()"
             [rows]="5"
             helperText="Provide a brief explanation that explains how the provided evidence/documentation justifies the chosen innovation readiness level."
             label="Readiness explanation"
+            [maxLength]="50"
             [signal]="this.body"
             [optionValue]="'innovation_readiness_explanation'"
             placeholder="Write the explanation"></app-textarea>
