@@ -8,6 +8,7 @@ export class GetInnovationDetails {
   new_or_improved_varieties_count: number | undefined = undefined;
   expected_outcome = '';
   intended_beneficiaries_description = '';
+  innovation_readiness_explanation = '';
   actors: Actor[] = [];
   institution_types: InstitutionType[] = [];
   knowledge_sharing_form: KnowledgeSharingForm = new KnowledgeSharingForm();

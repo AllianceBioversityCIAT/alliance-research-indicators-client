@@ -66,6 +66,7 @@ export default class InnovationDetailsComponent {
     innovation_type_id: undefined,
     innovation_readiness_id: undefined,
     anticipated_users_id: undefined,
+    innovation_readiness_explanation: '',
     is_new_or_improved_variety: undefined,
     new_or_improved_varieties_count: undefined,
     expected_outcome: '',
