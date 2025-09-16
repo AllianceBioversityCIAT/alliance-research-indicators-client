@@ -94,9 +94,14 @@
   </div>
   }
 
-  <div class="px-15 flex flex-col mb-8">
-    <p-steps [model]="stepItems()" [readonly]="false" [activeIndex]="activeIndex"
-      (activeIndexChange)="onActiveIndexChange($event)" [styleClass]="'completed-' + activeIndex" class="my-8">
+  <div class="px-5 flex flex-col mx-10 mb-12">
+    <p-steps
+      [model]="stepItems()"
+      [readonly]="false"
+      [activeIndex]="activeIndex"
+      (activeIndexChange)="onActiveIndexChange($event)"
+      [styleClass]="'completed-' + activeIndex"
+      class="my-8">
     </p-steps>
 
     @if (activeIndex === 0) {
