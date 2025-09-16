@@ -48,7 +48,6 @@ export interface Lever {
 }
 
 export interface StepTwo {
-  initiatives: Initiative[];
   primary_lever: Lever[];
   contributor_lever: Lever[];
 }
