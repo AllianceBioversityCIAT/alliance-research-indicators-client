@@ -1,6 +1,6 @@
 <div class="app-page-wrapper">
   <app-form-header />
-  <div class="flex flex-col gap-5">
+  <div class="flex flex-col gap-5 pb-5">
     <p-accordion [value]="['0']" multiple="true">
       <ng-template #globalToggleIcon let-active="active">
         @if (active) {
@@ -23,7 +23,7 @@
           </div>
         </p-accordion-header>
         <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-          <div class="flex flex-col bg-[#fcfcfc] gap-[18px] rounded-[10px] p-[10px] pt-8">
+          <div class="flex flex-col gap-[18px] rounded-[10px] p-[10px] pt-8">
             <app-input
               label="Short title"
               [signal]="body"
@@ -187,6 +187,16 @@
                 </h3>
               </div>
             }
+
+            <app-textarea class="mt-[18px]"
+            [isRequired]="true"
+            [disabled]="!submission.isEditableStatus()"
+            [rows]="5"
+            helperText="Provide a brief explanation that explains how the provided evidence/documentation justifies the chosen innovation readiness level."
+            label="Readiness explanation"
+            [signal]="this.body"
+            [optionValue]="'innovation_readiness_explanation'"
+            placeholder="Write the explanation"></app-textarea>
           </div>
         </p-accordion-content>
       </p-accordion-panel>
@@ -205,7 +215,7 @@
           </div>
         </p-accordion-header>
         <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-          <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px] pt-8">
+          <div class="flex flex-col rounded-[10px] p-[10px] pt-8">
             <app-radio-button
               label="Who would be the user(s) of this Innovation?"
               [isRequired]="true"
@@ -321,7 +331,7 @@
             </div>
           </p-accordion-header>
           <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-            <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px] pt-8">
+            <div class="flex flex-col rounded-[10px] p-[10px] pt-8">
               <div class="flex flex-col gap-[18px]">
                 <div class="flex flex-col xl:flex-row">
                   <div class="flex-1">
@@ -535,7 +545,7 @@
             </div>
           </p-accordion-header>
           <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-            <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px] pt-8">
+            <div class="flex flex-col rounded-[10px] p-[10px] pt-8">
               <span class="text-[#1689CA] text-[16px] leading-[17px] pb-3 font-semibold">Formulation</span>
               <div class="flex flex-col xl:flex-row xl:gap-[18px]">
                 <div class="flex-1 pb-5 xl:max-w-1/2 pr-18">
