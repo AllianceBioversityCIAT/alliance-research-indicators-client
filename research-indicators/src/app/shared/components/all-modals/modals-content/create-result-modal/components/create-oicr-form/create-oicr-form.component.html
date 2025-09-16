@@ -136,35 +136,6 @@
         <p class="text-[15px] font-[800] text-[#173F6F]">CONTRIBUTORS</p>
 
         <div class="grid gap-[10px]">
-          <div class="flex flex-col">
-            <app-multiselect
-              label="Initiatives"
-              [signal]="body"
-              optionValue="official_code"
-              [filterBy]="'official_code,short_name'"
-              signalOptionValue="step_two.initiatives"
-              [hideTemplate]="true"
-              [columnsOnXl]="true"
-              scrollHeight="260px"
-              serviceName="initiatives"
-              placeholder="Select the initiatives">
-              <ng-template #selectedItems let-value>
-                @if (value?.length > 0) {
-                  <div class="flex items-center gap-2 block whitespace-normal break-words">
-                    <span>{{ formatSelectedInitiatives(value) }}</span>
-                  </div>
-                }
-              </ng-template>
-              <ng-template #item let-item>
-                <div class="flex items-center gap-2 text-[##4C5158]">
-                  <span>
-                    {{ item?.official_code }} - <span class="font-[600]">{{ item?.short_name }}</span></span
-                  >
-                </div>
-              </ng-template>
-            </app-multiselect>
-          </div>
-
           <div class="flex flex-col pt-2">
             <app-multiselect
               label="Primary Levers"
