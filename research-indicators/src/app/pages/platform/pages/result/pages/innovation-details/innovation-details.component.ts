@@ -111,6 +111,12 @@ export default class InnovationDetailsComponent {
       });
     }
 
+    if (Array.isArray(response.data.knowledge_sharing_form?.tool_function_id)) {
+      response.data.knowledge_sharing_form.tool_function_id = response.data.knowledge_sharing_form.tool_function_id.map(tf => ({
+        id: tf.tool_function_id
+      }));
+    }
+
     if (
       response.data.is_new_or_improved_variety &&
       (response.data.new_or_improved_varieties_count === undefined || response.data.new_or_improved_varieties_count === null)
@@ -285,6 +291,14 @@ export default class InnovationDetailsComponent {
             other_result_id: link.result_id
           };
         });
+    }
+
+    if (Array.isArray(cleanedBody.knowledge_sharing_form.tool_function_id)) {
+      (cleanedBody.knowledge_sharing_form).tool_function_id = cleanedBody.knowledge_sharing_form.tool_function_id
+        .filter(tf => tf?.id)
+        .map(tf => ({
+          tool_function_id: tf.id
+        }));
     }
 
     const numericResultId = this.cache.getCurrentNumericResultId();
