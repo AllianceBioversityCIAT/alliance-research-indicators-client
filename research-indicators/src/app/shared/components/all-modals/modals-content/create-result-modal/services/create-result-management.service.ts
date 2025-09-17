@@ -8,7 +8,8 @@ export class CreateResultManagementService {
   resultPageStep = signal<number>(0);
   expandedItem = signal<AIAssistantResult | null>(null);
   items = signal<AIAssistantResult[]>([]);
-  contractId = signal<number | null>(null);
+  contractId = signal<string | null>(null);
+  presetFromProjectResultsTable = signal<boolean>(false);
   resultTitle = signal<string | null>(null);
   year = signal<number | null>(null);
   modalTitle = signal<string>('Create A Result');
@@ -25,13 +26,19 @@ export class CreateResultManagementService {
     this.expandedItem.set(null);
     this.items.set([]);
     this.contractId.set(null);
+    this.presetFromProjectResultsTable.set(false);
     this.resultTitle.set(null);
     this.modalTitle.set('Create A Result');
   }
 
-  setContractId(contractId: number | null) {
+  setContractId(contractId: string | null) {
     this.contractId.set(contractId);
   }
+
+  setPresetFromProjectResultsTable(value: boolean) {
+    this.presetFromProjectResultsTable.set(value);
+  }
+
 
   setResultTitle(title: string | null) {
     this.resultTitle.set(title);

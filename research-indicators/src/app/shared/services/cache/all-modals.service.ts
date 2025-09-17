@@ -94,7 +94,7 @@ export class AllModalsService {
     }));
 
     if (modalName === 'createResult') {
-      this.createResultManagementService.resultPageStep.set(0);
+      this.createResultManagementService.resetModal();
     }
   }
 
@@ -109,7 +109,7 @@ export class AllModalsService {
     }));
 
     if (modalName === 'createResult') {
-      this.createResultManagementService.resultPageStep.set(0);
+      this.createResultManagementService.resetModal();
     }
   }
 
@@ -141,7 +141,7 @@ export class AllModalsService {
       askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false }
     });
 
-    this.createResultManagementService.resultPageStep.set(0);
+    this.createResultManagementService.resetModal();
   }
 
   setModalWidth(modalName: ModalName, isWide: boolean): void {

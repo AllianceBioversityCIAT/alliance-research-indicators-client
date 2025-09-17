@@ -75,7 +75,7 @@ export class ResultAiAssistantComponent {
     { label: 'Generating response', completed: false, inProgress: false, progress: 0 }
   ]);
 
-  body = signal<{ contract_id: number | null; feedbackText: string }>({ contract_id: null, feedbackText: '' });
+  body = signal<{ contract_id: string | null; feedbackText: string }>({ contract_id: null, feedbackText: '' });
   sharedFormValid = false;
   contractId: string | null = null;
 
@@ -97,8 +97,8 @@ export class ResultAiAssistantComponent {
     });
   }
 
-  onContractIdChange(newContractId: number | null) {
-    this.contractId = newContractId !== null ? String(newContractId) : null;
+  onContractIdChange(newContractId: string | null) {
+    this.contractId = newContractId;
     this.body.update(b => ({ ...b, contract_id: newContractId }));
   }
 

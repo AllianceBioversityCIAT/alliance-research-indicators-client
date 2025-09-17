@@ -30,34 +30,13 @@ export interface AIAssistantResult {
   organization_sub_type?: string;
   organizations?: string[];
   innovation_actors_detailed?: InnovationActorDetailed[];
+  result_id?: string;
 }
 
 export interface CountryArea {
   country_code: string;
   areas: string[];
 }
-
-export interface AIAssistantResult {
-  indicator: string;
-  title: string;
-  description: string;
-  keywords: string[];
-  geoscope: CountryArea[];
-  training_type: string;
-  contract_code?: string;
-  total_participants: number;
-  non_binary_participants: string;
-  female_participants: number;
-  male_participants: number;
-  evidence_for_stage: string;
-  policy_type: string;
-  result_id?: string;
-  stage_in_policy_process: string;
-  result_official_code?: string;
-  alliance_main_contact_person_first_name: string;
-  alliance_main_contact_person_last_name: string;
-}
-
 export interface CreateResultResponse {
   data: ResultData;
 }

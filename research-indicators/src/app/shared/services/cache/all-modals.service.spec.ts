@@ -8,11 +8,17 @@ describe('AllModalsService', () => {
   let mockCreateResultManagementService: jest.Mocked<CreateResultManagementService>;
 
   beforeEach(() => {
-    const mockService = {
+    const mockService: Partial<CreateResultManagementService> = {
       resultPageStep: {
         set: jest.fn()
-      }
+      } as any,
+      resetModal: jest.fn()
     } as any;
+
+    // Ensure resetModal mimics production by resetting step to 0
+    (mockService.resetModal as jest.Mock).mockImplementation(() => {
+      (mockService.resultPageStep as any).set(0);
+    });
 
     TestBed.configureTestingModule({
       providers: [AllModalsService, { provide: CreateResultManagementService, useValue: mockService }]
