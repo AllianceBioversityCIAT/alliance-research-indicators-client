@@ -179,13 +179,14 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
 
     if (!contractId) return [];
 
+    // Use contractId for project label, not agreementId from URL
     let baseItems: BreadcrumbItem[] = [
       {
         label: 'Projects',
         route: '/projects'
       },
       {
-        label: `Project ${agreementId}`,
+        label: `Project ${contractId}`,
         tooltip: project?.projectDescription ?? project?.description
       }
     ];
