@@ -256,9 +256,8 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
 
   private async loadProjectData() {
     const urlParts = this.router.url.split('/');
-    const projectId = urlParts[urlParts.length - 1];
+    const projectId = urlParts[2];
     this.contractId.set(projectId);
-
     try {
       const response = await this.api.GET_ResultsCount(projectId);
       if (response?.data) {
