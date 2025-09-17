@@ -56,6 +56,7 @@
           <p-select
             [options]="indicatorsService.indicatorsGrouped()"
             [(ngModel)]="body().indicator_id"
+            (ngModelChange)="onIndicatorChange($event)"
             placeholder="Select the Indicator"
             [group]="true"
             [scrollHeight]="'290px'"

@@ -17,6 +17,7 @@ import { Result } from '../../../../../../interfaces/result/result.interface';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
+import { IndicatorGroup } from '@shared/interfaces/indicator-group.interface';
 import { SelectModule } from 'primeng/select';
 import localeEs from '@angular/common/locales/es';
 import { NgTemplateOutlet, registerLocaleData } from '@angular/common';
@@ -74,7 +75,6 @@ export class CreateResultFormComponent {
   sharedFormValid = false;
   loading = false;
   contractId: string | null = null;
-  private hasShownW1W2Alert = false;
 
   public getContractStatusClasses = getContractStatusClasses;
 
@@ -93,46 +93,22 @@ export class CreateResultFormComponent {
     { allowSignalWrites: true }
   );
 
-  w1w2GuardEffect = effect(
-    () => {
-      const shouldBlock = this.isW1W2NonOicr();
-      if (shouldBlock && !this.hasShownW1W2Alert) {
-        this.hasShownW1W2Alert = true;
-        this.actions.showGlobalAlert({
-          severity: 'info',
-          summary: 'Pooled-Funded Projects Must Be Reported in PRMS',
-          detail: this.buildW1W2RestrictionHtml(),
-          hasNoCancelButton: true,
-          generalButton: true,
-          confirmCallback: {
-            label: 'Report in PRMS',
-            event: () => {
-              try {
-                window.open(this.prmsUrl, '_blank');
-              } catch {}
-            }
-          },
-          buttonColor: '#035BA9',
-          buttonIconClass: 'pi pi-external-link text-white !text-[16px] pb-1.5'
-        });
-      }
-    },
-    { allowSignalWrites: true }
-  );
 
   private buildW1W2RestrictionHtml(): string {
     const agreementId = this.body()?.contract_id;
-    const contract = this.getContractsService
-      .list()
-      .find(c => (c as any).agreement_id === agreementId) as any;
-    const projectLabel = contract?.select_label || agreementId || '';
+
+    const contracts = this.getContractsService.list();
+    const contract: GetContracts | undefined = contracts.find(c => c.agreement_id === agreementId);
+    const projectLabel = contract?.select_label ?? agreementId ?? '';
     const [projectFirst, ...projectRest] = String(projectLabel).split(' - ');
     const projectSecond = projectRest.join(' - ');
 
     const indicatorId = this.body()?.indicator_id;
-    const types: any[] = (this.indicatorsService as any).indicators?.() || [];
-    const allIndicators: any[] = types.flatMap(t => t?.indicators || []);
-    const indicatorName = allIndicators.find(i => i?.indicator_id === indicatorId)?.name || 'selected';
+
+    const indicatorsFn = (this.indicatorsService as unknown as { indicators?: () => IndicatorGroup[] }).indicators;
+    const groups =indicatorsFn ? indicatorsFn() : [];
+    const allIndicators = groups.flatMap(g => g.indicators ?? []);
+    const indicatorName = allIndicators.find(i => i.indicator_id === indicatorId)?.name ?? 'selected';
 
     return (
       `You selected “<em><strong>${projectFirst || ''}</strong>${projectSecond ? ' - ' + projectSecond : ''}</em>” with the “<em>${indicatorName}</em>” indicator. ` +
@@ -186,10 +162,10 @@ export class CreateResultFormComponent {
     const indicatorId = this.body()?.indicator_id;
     const agreementId = this.body()?.contract_id;
     if (!indicatorId || !agreementId) return false;
-    const contract = this.getContractsService
-      .list()
-      .find(c => (c as any).agreement_id === agreementId);
-    const isW1W2 = (contract as any)?.funding_type === 'W1/W2';
+
+    const contracts = this.getContractsService.list();
+    const contract = contracts.find(c => c.agreement_id === agreementId);
+    const isW1W2 = contract?.funding_type === 'W1/W2';
     const isOicr = indicatorId === 5;
     return Boolean(isW1W2 && !isOicr);
   }
@@ -197,6 +173,31 @@ export class CreateResultFormComponent {
   onContractIdChange(newAgreementId: string | null) {
     this.contractId = newAgreementId;
     this.body.update(b => ({ ...b, contract_id: newAgreementId }));
+    this.maybeShowW1W2Alert();
+  }
+
+  onIndicatorChange(newIndicatorId: number | null) {
+    this.body.update(b => ({ ...b, indicator_id: newIndicatorId }));
+    this.maybeShowW1W2Alert();
+  }
+
+  private maybeShowW1W2Alert() {
+    const shouldBlock = this.isW1W2NonOicr();
+    if (shouldBlock) {
+      this.actions.showGlobalAlert({
+        severity: 'info',
+        summary: 'Pooled-Funded Projects Must Be Reported in PRMS',
+        detail: this.buildW1W2RestrictionHtml(),
+        hasNoCancelButton: true,
+        generalButton: true,
+        confirmCallback: {
+          label: 'Report in PRMS',
+          event: () => window.open(this.prmsUrl, '_blank')
+        },
+        buttonColor: '#035BA9',
+        buttonIconClass: 'pi pi-external-link text-white !text-[16px] pb-1.5'
+      });
+    }
   }
 
   navigateToOicr() {
