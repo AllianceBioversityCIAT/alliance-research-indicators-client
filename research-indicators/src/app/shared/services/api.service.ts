@@ -633,7 +633,7 @@ export class ApiService {
     return this.TP.get('', { isAuth: urlWithTimestamp, noCache: true });
   };
 
-  GET_OICRDetails = (resultCode: number): Promise<MainResponse<GetOICRDetails>> => {
+  GET_OICRDetails = (resultCode: number | string): Promise<MainResponse<GetOICRDetails>> => {
     const url = () => `results/oicr/details/${resultCode}`;
     return this.TP.get(url(), {});
   };
