@@ -294,7 +294,7 @@ export default class InnovationDetailsComponent {
     }
 
     if (Array.isArray(cleanedBody.knowledge_sharing_form.tool_function_id)) {
-      (cleanedBody.knowledge_sharing_form as any).tool_function_id = cleanedBody.knowledge_sharing_form.tool_function_id
+      (cleanedBody.knowledge_sharing_form).tool_function_id = cleanedBody.knowledge_sharing_form.tool_function_id
         .filter(tf => tf?.id)
         .map(tf => ({
           tool_function_id: tf.id
