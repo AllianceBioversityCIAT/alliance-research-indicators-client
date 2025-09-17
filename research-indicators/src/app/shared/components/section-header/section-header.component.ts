@@ -13,6 +13,7 @@ import { SubmissionService } from '../../services/submission.service';
 import { GetProjectDetail } from '../../interfaces/get-project-detail.interface';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+import { DownloadOicrTemplateComponent } from '../download-oicr-template/download-oicr-template.component';
 
 export interface BreadcrumbItem {
   label: string;
@@ -22,7 +23,7 @@ export interface BreadcrumbItem {
 
 @Component({
   selector: 'app-section-header',
-  imports: [CommonModule, PopoverModule, ButtonModule, TooltipModule, MenuModule, RouterModule],
+  imports: [CommonModule, PopoverModule, ButtonModule, TooltipModule, MenuModule, RouterModule, DownloadOicrTemplateComponent],
   templateUrl: './section-header.component.html',
   styleUrl: './section-header.component.scss'
 })

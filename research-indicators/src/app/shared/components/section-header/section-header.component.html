@@ -33,7 +33,10 @@
 
   @if (this.cache.showSectionHeaderActions()) {
     <div class="buttons-container rs-gap-x-[15]">
-      <div class="flex items-center">
+      <div class="flex items-center gap-3">
+        @if (cache.currentMetadata()?.indicator_id === 5) {
+          <app-download-oicr-template></app-download-oicr-template>
+        }
         <p-button variant="text" pTooltip="Submission history" tooltipPosition="left" (onClick)="cache.showSubmissionHistory.set(true)">
           <ng-template pTemplate="icon">
             <i class="material-symbols-rounded text-[#035BA9]">overview</i>

@@ -31,7 +31,7 @@
           </div>
         } @else {
           <div class="no-updates-yet">
-            <img src="images/home/no-updates-yet.png" alt="" />
+            <img [src]="'images/home/no-updates-yet.png' | s3ImageUrl" alt="" />
             <span class="title">No updates yet</span>
             <span class="description">It looks like you haven't created any results yet. Start now and unlock the potential of your research.</span>
           </div>
@@ -59,7 +59,7 @@
           </div>
         } @else {
           <div class="no-results-yet">
-            <img src="images/home/no-results-yet.png" alt="" />
+            <img [src]="'images/home/no-results-yet.png' | s3ImageUrl" alt="" />
             <span class="title">No results yet</span>
             <span class="description">It looks like you haven't created any results yet. Start now and unlock the potential of your research.</span>
           </div>
@@ -87,7 +87,7 @@
         </div>
       } @else {
         <div class="no-results-yet-2">
-          <img src="images/home/no-results-yet.png" alt="" />
+          <img [src]="'images/home/no-results-yet.png' | s3ImageUrl" alt="" />
           <div class="column">
             <span class="title">No results yet</span>
             <span class="description">It looks like you haven't created any results yet. Start now and unlock the potential of your research.</span>

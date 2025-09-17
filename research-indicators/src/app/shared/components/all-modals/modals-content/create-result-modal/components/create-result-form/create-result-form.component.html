@@ -9,25 +9,26 @@
   <div class="mx-7">
     <div class="flex-wrap w-full px-6 items-center bg-[#e8ebed] border-l-[5px] border-l-[#074b86] mb-[30px]">
       <div class="flex gap-3 pt-[15px] mb-2.5 items-center">
-        <img src="/images/prms-reporting-tool.svg" alt="PRMS Reporting Tool" class="w-6" />
+        <img [src]="'images/prms-reporting-tool.svg' | s3ImageUrl" alt="PRMS Reporting Tool" class="w-6" />
         <h3 class="text-[#777c83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left">
-          For results from <strong>Pooled Projects</strong>, please report in <strong>PRMS</strong>.
+          For reporting Innovations (development and use), Capacity Sharing activities, and Policy change & Investments matured in the context of a
+          <strong>pool-funded project</strong>, please go to <strong>PRMS:</strong>
           <a
-            href="https://reporting.cgiar.org/result/results-outlet/results-list"
+            [href]="prmsUrl"
             class="text-[#1689CA] hover:underline"
             target="_blank"
             rel="noopener noreferrer">
-            https://reporting.cgiar.org
+            {{ prmsUrl }}
           </a>
         </h3>
       </div>
 
       <div class="flex gap-3 pb-[15px] items-center">
-        <img src="/images/tracking.svg" alt="TIP" class="w-6" />
+        <img [src]="'images/tracking.svg' | s3ImageUrl" alt="TIP" class="w-6" />
         <h3 class="text-[#777C83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left">
-          For Knowledge <strong>Product Results</strong> from non-pooled projects, please report in <strong>TIP</strong>.
-          <a href="https://tip.alliance.cgiar.org" class="text-[#1689CA] hover:underline" target="_blank" rel="noopener noreferrer">
-            https://tip.alliance.cgiar.org
+          For submitting Knowledge Products (e.g., book chapters, journal articles, briefs, reports, etc.), please use <strong>TIP:</strong>
+          <a [href]="tipUrl" class="text-[#1689CA] hover:underline" target="_blank" rel="noopener noreferrer">
+            {{ tipUrl }}
           </a>
         </h3>
       </div>
@@ -41,7 +42,7 @@
         [showWarning]="true"
         [getContractStatusClasses]="getContractStatusClasses"
         title="Reporting Project"
-        helperText="Enter the eligible project under which you are submitting the result. Only Alliance non-pool-funded projects are allowed."
+        helperText="Select the project under which you intend to report the result. For indicators other than Outcome Impact Case Reports (OICRs), only Alliance non-pool-funded projects (Window 3 and Bilaterals) can be selected."
         [maxLength]="100"
         (validityChanged)="sharedFormValid = $event"
         [contractId]="contractId"
@@ -152,7 +153,7 @@
       <div class="flex-grow h-0.5 bg-[#E8EBED]"></div>
       <span class="mx-3 text-[#8D9299] text-[14px] flex items-center gap-1">
         Alternative
-        <img src="/icons/star-icon.svg" alt="upload-ai" class="w-4" />
+        <img [src]="'/icons/star-icon.svg' | s3ImageUrl" alt="upload-ai" class="w-4" />
       </span>
       <div class="flex-grow h-0.5 bg-[#E8EBED]"></div>
     </div>
@@ -160,7 +161,7 @@
     <div class="bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
       <div class="flex items-center">
         <div class="w-[90px]">
-          <img src="/images/upload-ai.svg" alt="upload-ai" style="width: 100%" />
+          <img [src]="'images/upload-ai.svg' | s3ImageUrl" alt="upload-ai" style="width: 100%" />
         </div>
         <div class="flex text-justify flex-col pr-9 pl-5">
           <p class="text-[14px] font-[700] text-[#173F6F]">REUSE INFORMATION WITHOUT DUPLICATING EFFORT</p>
@@ -175,7 +176,7 @@
             [disabled]="body().indicator_id === 5"
             (click)="this.createResultManagementService.resultPageStep.set(1)">
             Upload file
-            <img src="/icons/upload-icon.svg" alt="upload-ai" class="w-4" />
+            <img [src]="'icons/upload-icon.svg' | s3ImageUrl" alt="upload-ai" class="w-4" />
           </button>
         </div>
       </div>
