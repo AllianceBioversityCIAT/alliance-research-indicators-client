@@ -175,9 +175,12 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
   breadcrumb = computed(() => {
     const project = this.currentProject();
     const contractId = this.contractId();
+    const urlParts = this.currentUrl().split('/');
+    const agreementId = urlParts[2];
 
     if (!contractId) return [];
 
+    // Use contractId for project label, not agreementId from URL
     let baseItems: BreadcrumbItem[] = [
       {
         label: 'Projects',
@@ -190,9 +193,6 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     ];
 
     if (this.isSetUpProjectPage()) {
-      const urlParts = this.currentUrl().split('/');
-      const agreementId = urlParts[2]; // /result/2243/any-page -> 2243
-
       if (agreementId) {
         baseItems[1].route = `/project-detail/${agreementId}`;
         baseItems[1].label = `Project ${agreementId}`;
