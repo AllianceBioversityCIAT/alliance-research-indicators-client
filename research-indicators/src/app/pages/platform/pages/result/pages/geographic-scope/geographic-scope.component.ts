@@ -64,9 +64,8 @@ export default class GeographicScopeComponent {
         ...value,
         countries: []
       }));
+      this.isFirstSelect = false;
     }
-
-    this.isFirstSelect = false;
   };
 
   canRemove = (): boolean => {
