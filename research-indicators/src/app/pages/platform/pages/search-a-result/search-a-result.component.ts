@@ -11,10 +11,11 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { getIndicatorTypeIcon } from '@shared/constants/result-ai.constants';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 import { Router } from '@angular/router';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 @Component({
   selector: 'app-search-a-result',
-  imports: [CommonModule, ButtonModule, PaginatorModule, TooltipModule, CustomProgressBarComponent],
+  imports: [CommonModule, ButtonModule, PaginatorModule, TooltipModule, CustomProgressBarComponent, S3ImageUrlPipe],
   templateUrl: './search-a-result.component.html',
   styleUrl: './search-a-result.component.scss'
 })

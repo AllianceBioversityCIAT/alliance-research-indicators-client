@@ -20,6 +20,7 @@ import { SharedResultFormComponent } from '@shared/components/shared-result-form
 import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
 import { ApiService } from '@shared/services/api.service';
 import { IssueCategory } from '@shared/interfaces/issue-category.interface';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 export interface TextMiningResponse {
   text: string;
@@ -34,7 +35,7 @@ GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3
 
 @Component({
   selector: 'app-result-ai-assistant',
-  imports: [CommonModule, SharedResultFormComponent, ButtonModule, PaginatorModule, FormsModule, ResultAiItemComponent, TextareaComponent],
+  imports: [CommonModule, SharedResultFormComponent, ButtonModule, PaginatorModule, FormsModule, ResultAiItemComponent, TextareaComponent, S3ImageUrlPipe],
   templateUrl: './result-ai-assistant.component.html',
   styleUrl: './result-ai-assistant.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

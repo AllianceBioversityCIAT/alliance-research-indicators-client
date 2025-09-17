@@ -5,10 +5,12 @@ import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+
 @Component({
   selector: 'app-submission-history-content',
   standalone: true,
-  imports: [SubmissionHistoryItemComponent],
+  imports: [SubmissionHistoryItemComponent, S3ImageUrlPipe],
   templateUrl: './submission-history-content.component.html',
   styleUrl: './submission-history-content.component.scss'
 })

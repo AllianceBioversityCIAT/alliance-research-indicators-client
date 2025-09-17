@@ -1,7 +1,7 @@
 @let hss = this.cache.hasSmallScreen();
 <div id="navbar" #navbar class="navbar bg-[#173F6F]">
   <div class="logo" routerLink="/">
-    <img src="STAR.png" alt="" class="{{ hss ? 'h-[40px]' : 'h-[60px]' }}" />
+    <img [src]="'STAR.png' | s3ImageUrl" alt="" class="{{ hss ? 'h-[40px]' : 'h-[60px]' }}" />
   </div>
   <div class="options">
     @for (option of this.options; track $index) {
@@ -19,7 +19,7 @@
             {{ option.icon }}
           </a>
           @if (option.underConstruction) {
-            <img src="construction.png" class="construction-icon-x1" alt="" />
+            <img [src]="'construction.png' | s3ImageUrl" class="construction-icon-x1" alt="" />
           }
         </a>
       }

@@ -17,9 +17,9 @@
               [disabled]="loadingPin()"
               title="Pin tab">
               @if (isPinned(item.id)) {
-                <img src="/icons/pin-outline.svg" alt="pin logo" class="w-3 h-3" />
+                <img [src]="'icons/pin-outline.svg' | s3ImageUrl" alt="pin logo" class="w-3 h-3" />
               } @else {
-                <img src="/icons/pin.svg" alt="pin logo" class="w-3 h-3" />
+                <img [src]="'icons/pin.svg' | s3ImageUrl" alt="pin logo" class="w-3 h-3" />
               }
             </button>
             <span
@@ -271,7 +271,7 @@
                       <td colspan="7" class="text-center p-8">
                         <div class="flex flex-col items-center gap-4 bg-surface-ground p-6 rounded-xl">
                           <div class="flex flex-col items-center gap-1">
-                            <img src="/images/landing/projects.png" alt="Empty Projects" class="w-[180px] h-[180px] mb-3" />
+                            <img [src]="'images/landing/projects.png' | s3ImageUrl" alt="Empty Projects" class="w-[180px] h-[180px] mb-3" />
                             <h2 class="text-[#173F6F] text-[16px] font-bold">
                               {{ myProjectsFilterItem()?.id === 'my' ? 'YOUR PROJECTS LIST IS EMPTY' : 'PROJECTS LIST IS EMPTY' }}
                             </h2>
