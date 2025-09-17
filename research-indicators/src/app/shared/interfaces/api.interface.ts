@@ -22,3 +22,7 @@ export interface Indicator {
   indicator_type_id: number;
   icon_src: string;
 }
+
+export interface IndicatorGroup {
+  indicators: Indicator[];
+}

@@ -17,7 +17,7 @@ import { Result } from '../../../../../../interfaces/result/result.interface';
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { GetContracts } from '../../../../../../interfaces/get-contracts.interface';
-import { IndicatorGroup } from '@shared/interfaces/indicator-group.interface';
+import { IndicatorGroup } from '@shared/interfaces/api.interface';
 import { SelectModule } from 'primeng/select';
 import localeEs from '@angular/common/locales/es';
 import { NgTemplateOutlet, registerLocaleData } from '@angular/common';
