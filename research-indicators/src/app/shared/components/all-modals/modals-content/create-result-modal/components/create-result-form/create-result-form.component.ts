@@ -106,14 +106,15 @@ export class CreateResultFormComponent {
           generalButton: true,
           confirmCallback: {
             label: 'Report in PRMS',
-            event: () => {}
+            event: () => {
+              try {
+                window.open(this.prmsUrl, '_blank');
+              } catch {}
+            }
           },
-          buttonColor: '#035BA9'
+          buttonColor: '#035BA9',
+          buttonIconClass: 'pi pi-external-link text-white !text-[16px] pb-1.5'
         });
-      }
-
-      if (!shouldBlock) {
-        this.hasShownW1W2Alert = false;
       }
     },
     { allowSignalWrites: true }

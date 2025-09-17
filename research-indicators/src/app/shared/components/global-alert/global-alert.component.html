@@ -112,7 +112,7 @@
           }
           @if (alert.generalButton) {
             <button
-              class="text-white font-[500] h-12 w-full text-[16px] bg-[#035BA9] cursor-pointer rounded-xl"
+              class="text-white font-[500] h-12 w-full text-[16px] bg-[#035BA9] cursor-pointer rounded-xl flex items-center justify-center gap-3"
               (click)="
                 alert.confirmCallback?.event?.({
                   comment: this.body().commentValue,
@@ -121,7 +121,10 @@
                 closeAlert($index)
               "
               [disabled]="(alert.selectorRequired && !this.body().selectValue) || (alert.commentRequired && !this.body().commentValue)">
-              {{ alert.confirmCallback?.label }}
+              @if (alert.buttonIconClass) {
+                <i [class]="alert.buttonIconClass"></i>
+              }
+              <span>{{ alert.confirmCallback?.label }}</span>
             </button>
           }
           @for (callback of alert.callbacks; track $index) {
