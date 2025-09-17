@@ -1,9 +1,6 @@
-import { Component, computed, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
-
+import { Component, computed, inject, Input, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
-
 import { InputTextModule } from 'primeng/inputtext';
-
 import { ResultTable } from '@shared/interfaces/result/result.interface';
 import { Button } from 'primeng/button';
 import { ApiService } from '../../services/api.service';
@@ -15,6 +12,7 @@ import { RouterLink } from '@angular/router';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { CacheService } from '../../services/cache/cache.service';
 import { AllModalsService } from '../../services/cache/all-modals.service';
+import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 @Component({
   selector: 'app-project-results-table',
   imports: [
@@ -31,10 +29,11 @@ import { AllModalsService } from '../../services/cache/all-modals.service';
   templateUrl: './project-results-table.component.html',
   styleUrl: './project-results-table.component.scss'
 })
-export class ProjectResultsTableComponent implements OnInit {
+export class ProjectResultsTableComponent implements OnInit, OnDestroy {
   api = inject(ApiService);
   cacheService = inject(CacheService);
   allModalsService = inject(AllModalsService);
+  createResultManagementService = inject(CreateResultManagementService);
   @Input() contractId = '';
   loading = signal(true);
 
@@ -83,7 +82,14 @@ export class ProjectResultsTableComponent implements OnInit {
   }
 
   openCreateResultForProject() {
+    this.createResultManagementService.setContractId(this.contractId);
+    this.createResultManagementService.setPresetFromProjectResultsTable(true);
     this.allModalsService.openModal('createResult');
+  }
+
+  ngOnDestroy() {
+    this.createResultManagementService.setContractId(null);
+    this.createResultManagementService.setPresetFromProjectResultsTable(false);
   }
 
 

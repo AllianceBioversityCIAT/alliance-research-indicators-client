@@ -64,7 +64,7 @@ export class CreateResultFormComponent {
   prmsUrl: string = environment.prmsUrl;
   tipUrl: string = environment.tipUrl;
 
-  body = signal<{ indicator_id: number | null; title: string | null; contract_id: number | null; year: number | null }>({
+  body = signal<{ indicator_id: number | null; title: string | null; contract_id: string | null; year: number | null }>({
     indicator_id: null,
     title: null,
     year: null,
@@ -73,9 +73,24 @@ export class CreateResultFormComponent {
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   sharedFormValid = false;
   loading = false;
-  contractId: number | null = null;
+  contractId: string | null = null;
 
   public getContractStatusClasses = getContractStatusClasses;
+
+  syncPresetContractId = effect(
+    () => {
+      const shouldPreset = this.createResultManagementService.presetFromProjectResultsTable();
+      const presetId = this.createResultManagementService.contractId();
+      if (shouldPreset && presetId !== null) {
+        this.contractId = presetId;
+        this.body.update(b => ({ ...b, contract_id: presetId }));
+      } else {
+        this.contractId = null;
+        this.body.update(b => ({ ...b, contract_id: null }));
+      }
+    },
+    { allowSignalWrites: true }
+  );
 
   onYearsLoaded = effect(
     () => {
@@ -109,9 +124,9 @@ export class CreateResultFormComponent {
     return !this.sharedFormValid || !b.title?.length || !b.indicator_id || !b.contract_id || !b.year;
   }
 
-  onContractIdChange(newContractId: number | null) {
-    this.contractId = newContractId;
-    this.body.update(b => ({ ...b, contract_id: newContractId }));
+  onContractIdChange(newAgreementId: string | null) {
+    this.contractId = newAgreementId;
+    this.body.update(b => ({ ...b, contract_id: newAgreementId }));
   }
 
   navigateToOicr() {

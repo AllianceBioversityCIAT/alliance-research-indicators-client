@@ -13,7 +13,7 @@ import { TooltipModule } from 'primeng/tooltip';
 })
 export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   @Input() contracts: GetContracts[] = [];
-  @Input() contractId: number | null = null;
+  @Input() contractId: string | null = null;
   @Input() title = 'Reporting Project';
   @Input() maxLength = 117;
   @Input() showWarning = false;
@@ -21,7 +21,7 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   @Input() helperText = 'Enter the eligible project under which you are submitting the result. Only Alliance non-pool-funded projects are allowed.';
   @Input() helperText2 = '';
   @Output() validityChanged = new EventEmitter<boolean>();
-  @Output() contractIdChange = new EventEmitter<number>();
+  @Output() contractIdChange = new EventEmitter<string>();
 
   @ViewChild('containerRef') containerRef!: ElementRef;
   containerWidth = 0;
@@ -97,7 +97,7 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
     return !this.contractId;
   }
 
-  onContractChange(value: number) {
+  onContractChange(value: string) {
     this.contractId = value;
     this.contractIdChange.emit(value);
     this.validityChanged.emit(!this.isInvalid);
