@@ -74,6 +74,7 @@ export class CreateResultFormComponent {
   sharedFormValid = false;
   loading = false;
   contractId: string | null = null;
+  private hasShownW1W2Alert = false;
 
   public getContractStatusClasses = getContractStatusClasses;
 
@@ -91,6 +92,55 @@ export class CreateResultFormComponent {
     },
     { allowSignalWrites: true }
   );
+
+  w1w2GuardEffect = effect(
+    () => {
+      const shouldBlock = this.isW1W2NonOicr();
+      if (shouldBlock && !this.hasShownW1W2Alert) {
+        this.hasShownW1W2Alert = true;
+        this.actions.showGlobalAlert({
+          severity: 'info',
+          summary: 'Pooled-Funded Projects Must Be Reported in PRMS',
+          detail: this.buildW1W2RestrictionHtml(),
+          hasNoCancelButton: true,
+          generalButton: true,
+          confirmCallback: {
+            label: 'Report in PRMS',
+            event: () => {}
+          },
+          buttonColor: '#035BA9'
+        });
+      }
+
+      if (!shouldBlock) {
+        this.hasShownW1W2Alert = false;
+      }
+    },
+    { allowSignalWrites: true }
+  );
+
+  private buildW1W2RestrictionHtml(): string {
+    const agreementId = this.body()?.contract_id;
+    const contract = this.getContractsService
+      .list()
+      .find(c => (c as any).agreement_id === agreementId) as any;
+    const projectLabel = contract?.select_label || agreementId || '';
+    const [projectFirst, ...projectRest] = String(projectLabel).split(' - ');
+    const projectSecond = projectRest.join(' - ');
+
+    const indicatorId = this.body()?.indicator_id;
+    const types: any[] = (this.indicatorsService as any).indicators?.() || [];
+    const allIndicators: any[] = types.flatMap(t => t?.indicators || []);
+    const indicatorName = allIndicators.find(i => i?.indicator_id === indicatorId)?.name || 'selected';
+
+    return (
+      `You selected “<em><strong>${projectFirst || ''}</strong>${projectSecond ? ' - ' + projectSecond : ''}</em>” with the “<em>${indicatorName}</em>” indicator. ` +
+      `Results from Science Programs and Accelerators (W1/W2 pooled funding) using this indicator cannot be reported in STAR. ` +
+      `Please report directly in PRMS.<br/><br/>` +
+      `If you have any questions, please contact the SPRM team at: ` +
+      `<a class="text-[#1689CA] hover:underline" href="mailto:Alliance-SPRM@cgiar.org">Alliance-SPRM@cgiar.org</a>`
+    );
+  }
 
   onYearsLoaded = effect(
     () => {
@@ -121,7 +171,26 @@ export class CreateResultFormComponent {
 
   get isDisabled(): boolean {
     const b = this.body();
-    return !this.sharedFormValid || !b.title?.length || !b.indicator_id || !b.contract_id || !b.year;
+    return (
+      !this.sharedFormValid ||
+      !b.title?.length ||
+      !b.indicator_id ||
+      !b.contract_id ||
+      !b.year ||
+      this.isW1W2NonOicr()
+    );
+  }
+
+  private isW1W2NonOicr(): boolean {
+    const indicatorId = this.body()?.indicator_id;
+    const agreementId = this.body()?.contract_id;
+    if (!indicatorId || !agreementId) return false;
+    const contract = this.getContractsService
+      .list()
+      .find(c => (c as any).agreement_id === agreementId);
+    const isW1W2 = (contract as any)?.funding_type === 'W1/W2';
+    const isOicr = indicatorId === 5;
+    return Boolean(isW1W2 && !isOicr);
   }
 
   onContractIdChange(newAgreementId: string | null) {

@@ -12,8 +12,8 @@
         <i [class]="alert.icon" [style]="{ 'font-size': '50px', color: alert.color }"></i>
       </div>
 
-      <div class="summary !text-[{{ alert.color }}]">{{ alert.summary }}</div>
-      <div class="detail -mt-1.5 leading-5 text-[#4C5158]" [innerHTML]="alert.detail"></div>
+      <div class="summary !font-[Space_Grotesk] !text-[{{ alert.color }}]">{{ alert.summary }}</div>
+      <div class="detail -mt-1.5 leading-[22px] text-[#4C5158]" [innerHTML]="alert.detail"></div>
       @if (alert.selectorLabel) {
         <div class="w-full flex flex-col pb-2">
           <label class="label inline-block pb-2 self-start" for="username"
