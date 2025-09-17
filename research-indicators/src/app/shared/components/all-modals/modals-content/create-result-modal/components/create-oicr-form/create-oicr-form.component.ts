@@ -90,7 +90,6 @@ export class CreateOicrFormComponent {
 
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
-  body = this.createResultManagementService.createOicrBody;
   contractId: number | null = null;
   private isFirstSelect = true;
   environment = environment;
@@ -104,14 +103,25 @@ export class CreateOicrFormComponent {
   public getContractStatusClasses = getContractStatusClasses;
   private stepSectionIds = [...CREATE_OICR_STEPPER_SECTIONS];
 
-  isRegionsRequired = computed(() => isRegionsRequiredByScope(Number(this.body().step_three.geo_scope_id)));
-  isCountriesRequired = computed(() => isCountriesRequiredByScope(Number(this.body().step_three.geo_scope_id)));
-  getMultiselectLabel = computed(() => getGeoScopeMultiselectTexts(Number(this.body().step_three.geo_scope_id)));
-  isSubNationalRequired = computed(() => isSubNationalRequiredByScope(Number(this.body().step_three.geo_scope_id)));
-  showSubnationalError = computed(() => shouldShowSubnationalError(Number(this.body().step_three.geo_scope_id), this.body().step_three.countries));
+  isRegionsRequired = computed(() => isRegionsRequiredByScope(Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id)));
+  isCountriesRequired = computed(() =>
+    isCountriesRequiredByScope(Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id))
+  );
+  getMultiselectLabel = computed(() =>
+    getGeoScopeMultiselectTexts(Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id))
+  );
+  isSubNationalRequired = computed(() =>
+    isSubNationalRequiredByScope(Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id))
+  );
+  showSubnationalError = computed(() =>
+    shouldShowSubnationalError(
+      Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id),
+      this.createResultManagementService.createOicrBody().step_three.countries
+    )
+  );
 
   currentContract = computed(() => {
-    const contractId = this.body().base_information.contract_id;
+    const contractId = this.createResultManagementService.createOicrBody().base_information.contract_id;
     const contractsList = this.contracts();
     return contractsList.find(contract => contract.contract_id === String(contractId)) || null;
   });
@@ -170,7 +180,7 @@ export class CreateOicrFormComponent {
 
   updateOptionsDisabledEffect = effect(
     () => {
-      const primaryLevers = this.body().step_two?.primary_lever || [];
+      const primaryLevers = this.createResultManagementService.createOicrBody().step_two?.primary_lever || [];
       this.optionsDisabled.set(primaryLevers);
     },
     { allowSignalWrites: true }
@@ -178,7 +188,7 @@ export class CreateOicrFormComponent {
 
   updatePrimaryOptionsDisabledEffect = effect(
     () => {
-      const contributorLevers = this.body().step_two?.contributor_lever || [];
+      const contributorLevers = this.createResultManagementService.createOicrBody().step_two?.contributor_lever || [];
       this.primaryOptionsDisabled.set(contributorLevers);
     },
     { allowSignalWrites: true }
@@ -188,7 +198,7 @@ export class CreateOicrFormComponent {
     async () => {
       const contractId = this.createResultManagementService.contractId();
       if (contractId !== null) {
-        this.body.update(body => ({
+        this.createResultManagementService.createOicrBody.update(body => ({
           ...body,
           contract_id: contractId
         }));
@@ -216,7 +226,7 @@ export class CreateOicrFormComponent {
     }
   }
   removeSubnationalRegion(country: Country, region: Region) {
-    this.body.update(current => {
+    this.createResultManagementService.createOicrBody.update(current => {
       const removedId = removeSubnationalRegionFromCountries(current.step_three.countries, country.isoAlpha2, region.sub_national_id);
       const instance = this.multiselectInstances.find(m => m.endpointParams?.isoAlpha2 === country.isoAlpha2);
       if (removedId !== undefined) instance?.removeRegionById(removedId);
@@ -225,14 +235,15 @@ export class CreateOicrFormComponent {
   }
 
   updateCountryRegions = (isoAlpha2: string, newRegions: Region[]) => {
-    this.body.update(current => {
+    this.createResultManagementService.createOicrBody.update(current => {
       updateCountryRegions(current.step_three.countries, isoAlpha2, newRegions);
       return current;
     });
   };
 
   get isDisabled(): boolean {
-    const b = this.body();
+    const b = this.createResultManagementService.createOicrBody();
+    console.log(b);
     return (
       !b.base_information.title?.length ||
       !b.base_information.indicator_id ||
@@ -245,17 +256,17 @@ export class CreateOicrFormComponent {
   }
 
   get isCompleteStepOne(): boolean {
-    const b = this.body();
+    const b = this.createResultManagementService.createOicrBody();
     return b.step_one.main_contact_person.user_id > 0 && b.step_one.tagging.tag_id > 0 && b.step_one.outcome_impact_statement.length > 0;
   }
 
   get isCompleteStepTwo(): boolean {
-    const b = this.body();
+    const b = this.createResultManagementService.createOicrBody();
     return b.step_two.primary_lever.length > 0;
   }
 
   get isCompleteStepThree(): boolean {
-    const b = this.body();
+    const b = this.createResultManagementService.createOicrBody();
     const geoScopeId = b.step_three.geo_scope_id;
     const multiselectLabels = this.getMultiselectLabel();
 
@@ -281,7 +292,7 @@ export class CreateOicrFormComponent {
 
   onContractIdChange(newContractId: number | null) {
     this.contractId = newContractId;
-    this.body.update(b => ({ ...b, contract_id: newContractId }));
+    this.createResultManagementService.createOicrBody.update(b => ({ ...b, contract_id: newContractId }));
   }
 
   onStepClick(stepIndex: number, sectionId: string) {
@@ -297,15 +308,15 @@ export class CreateOicrFormComponent {
   }
 
   onSelect = () => {
-    this.body.update(current => {
+    this.createResultManagementService.createOicrBody.update(current => {
       mapCountriesToSubnationalSignals(current.step_three.countries);
       syncSubnationalArrayFromSignals(current.step_three.countries);
       return current;
     });
-    const currentId = Number(this.body().step_three.geo_scope_id);
+    const currentId = Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id);
 
     if (!this.isFirstSelect && currentId === 5) {
-      this.body.update(value => ({
+      this.createResultManagementService.createOicrBody.update(value => ({
         ...value,
         step_three: {
           ...value.step_three,
@@ -318,9 +329,9 @@ export class CreateOicrFormComponent {
   };
 
   async createResult() {
-    console.log(this.body());
+    console.log(this.createResultManagementService.createOicrBody());
     return;
-    const response = await this.api.POST_CreateOicr(this.body());
+    const response = await this.api.POST_CreateOicr(this.createResultManagementService.createOicrBody());
     if (response.status !== 200 && response.status !== 201) {
       this.actions.handleBadRequest(response, () => {
         this.createResultManagementService.resultPageStep.set(0);
@@ -371,7 +382,7 @@ export class CreateOicrFormComponent {
   }
 
   isGeoScopeId(value: number | string): boolean {
-    return Number(this.body().step_three.geo_scope_id) === value;
+    return Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id) === value;
   }
 
   formatSelectedInitiatives(value: string[]): string {
@@ -389,7 +400,7 @@ export class CreateOicrFormComponent {
   }
 
   clearOicrSelection(): void {
-    this.body.update(current => ({
+    this.createResultManagementService.createOicrBody.update(current => ({
       ...current,
       step_one: {
         ...current.step_one,
