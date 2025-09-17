@@ -14,6 +14,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { CacheService } from '../../services/cache/cache.service';
+import { AllModalsService } from '../../services/cache/all-modals.service';
+import { CreateResultManagementService } from '../all-modals/modals-content/create-result-modal/services/create-result-management.service';
 @Component({
   selector: 'app-project-results-table',
   imports: [
@@ -33,6 +35,8 @@ import { CacheService } from '../../services/cache/cache.service';
 export class ProjectResultsTableComponent implements OnInit {
   api = inject(ApiService);
   cacheService = inject(CacheService);
+  allModalsService = inject(AllModalsService);
+  createResultManagementService = inject(CreateResultManagementService);
   @Input() contractId = '';
   loading = signal(true);
 
@@ -59,6 +63,15 @@ export class ProjectResultsTableComponent implements OnInit {
 
   ngOnInit() {
     this.getData();
+  }
+
+  openEditRequestdOicrsModal(id: number) {
+    this.api.GET_OICRModal(id).then(response => {
+      console.log(response.data);
+      this.createResultManagementService.createOicrBody.set(response.data);
+      this.allModalsService.openModal('createResult');
+      this.createResultManagementService.resultPageStep.set(2);
+    });
   }
 
   async getData() {

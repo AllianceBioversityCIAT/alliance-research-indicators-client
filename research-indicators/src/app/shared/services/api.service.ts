@@ -637,6 +637,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_OICRModal = (resultCode: number): Promise<MainResponse<any>> => {
+    const url = () => `results/oicr/${resultCode}/modal`;
+    return this.TP.get(url(), {});
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {

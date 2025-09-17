@@ -1,5 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, WritableSignal, signal } from '@angular/core';
 import { AIAssistantResult } from '../models/AIAssistantResult';
+import { OicrCreation } from '../../../../../interfaces/oicr-creation.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,45 @@ export class CreateResultManagementService {
   resultTitle = signal<string | null>(null);
   year = signal<number | null>(null);
   modalTitle = signal<string>('Create A Result');
+  createOicrBody: WritableSignal<OicrCreation> = signal({
+    step_one: {
+      main_contact_person: {
+        result_user_id: 0,
+        result_id: 0,
+        user_id: 0,
+        user_role_id: 0
+      },
+      tagging: {
+        tag_id: 0
+      },
+      link_result: {
+        external_oicr_id: 0
+      },
+      outcome_impact_statement: ''
+    },
+    step_two: {
+      initiatives: [],
+      primary_lever: [],
+      contributor_lever: []
+    },
+    step_three: {
+      geo_scope_id: undefined,
+      countries: [],
+      regions: [],
+      comment_geo_scope: ''
+    },
+    step_four: {
+      general_comment: ''
+    },
+    base_information: {
+      indicator_id: 5,
+      contract_id: String(this.contractId() || ''),
+      title: this.resultTitle() || '',
+      description: '',
+      year: String(this.year() || ''),
+      is_ai: false
+    }
+  });
 
   // Step constants for better readability
   readonly STEPS = {

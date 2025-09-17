@@ -44,7 +44,7 @@ import {
 } from '@shared/utils/geographic-scope.util';
 import { Country, Region } from '@shared/interfaces/get-geo-location.interface';
 import { environment } from '@envs/environment';
-import { OicrCreation, Lever } from '@shared/interfaces/oicr-creation.interface';
+import { Lever } from '@shared/interfaces/oicr-creation.interface';
 import { Initiative } from '@shared/interfaces/initiative.interface';
 import { TooltipModule } from 'primeng/tooltip';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
@@ -90,7 +90,7 @@ export class CreateOicrFormComponent {
 
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
-
+  body = this.createResultManagementService.createOicrBody;
   contractId: number | null = null;
   private isFirstSelect = true;
   environment = environment;
@@ -130,45 +130,6 @@ export class CreateOicrFormComponent {
     }))
   );
 
-  body: WritableSignal<OicrCreation> = signal({
-    step_one: {
-      main_contact_person: {
-        result_user_id: 0,
-        result_id: 0,
-        user_id: 0,
-        user_role_id: 0
-      },
-      tagging: {
-        tag_id: 0
-      },
-      link_result: {
-        external_oicr_id: 0
-      },
-      outcome_impact_statement: ''
-    },
-    step_two: {
-      initiatives: [],
-      primary_lever: [],
-      contributor_lever: []
-    },
-    step_three: {
-      geo_scope_id: undefined,
-      countries: [],
-      regions: [],
-      comment_geo_scope: ''
-    },
-    step_four: {
-      general_comment: ''
-    },
-    base_information: {
-      indicator_id: 5,
-      contract_id: String(this.createResultManagementService.contractId() || ''),
-      title: this.createResultManagementService.resultTitle() || '',
-      description: '',
-      year: String(this.createResultManagementService.year() || ''),
-      is_ai: false
-    }
-  });
   stepOneCompletionEffect = effect(
     () => {
       const completed = this.isCompleteStepOne;
@@ -357,6 +318,8 @@ export class CreateOicrFormComponent {
   };
 
   async createResult() {
+    console.log(this.body());
+    return;
     const response = await this.api.POST_CreateOicr(this.body());
     if (response.status !== 200 && response.status !== 201) {
       this.actions.handleBadRequest(response, () => {
