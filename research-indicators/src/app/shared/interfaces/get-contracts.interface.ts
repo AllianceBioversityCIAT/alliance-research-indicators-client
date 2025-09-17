@@ -33,4 +33,5 @@ export interface GetContracts {
   display_label: string;
   lever?: string;
   leverUrl?: string;
+  select_label?: string;
 }
