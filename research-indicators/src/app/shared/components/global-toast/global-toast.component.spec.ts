@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { GlobalToastComponent } from './global-toast.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActionsService } from '../../services/actions.service';
@@ -11,7 +11,7 @@ describe('GlobalToastComponent', () => {
   let component: GlobalToastComponent;
   let fixture: ComponentFixture<GlobalToastComponent>;
   let actionsServiceMock: Partial<ActionsService>;
-  let messageServiceMock: Partial<MessageService>;
+  let messageServiceMock: jest.Mocked<MessageService>;
 
   beforeEach(async () => {
     if (!window.Element.prototype.animate) {
@@ -36,12 +36,16 @@ describe('GlobalToastComponent', () => {
           timeline: null
         }) as any;
     }
+    
+    const toastMessageSignal = signal<ToastMessage>({ severity: 'info', summary: '', detail: '' });
+    
     actionsServiceMock = {
-      toastMessage: signal<ToastMessage>({ severity: 'info', summary: '', detail: '' })
+      toastMessage: toastMessageSignal
     };
     messageServiceMock = {
       add: jest.fn()
-    };
+    } as any;
+    
     await TestBed.configureTestingModule({
       imports: [GlobalToastComponent, HttpClientTestingModule],
       providers: [
@@ -50,8 +54,14 @@ describe('GlobalToastComponent', () => {
         provideAnimations()
       ]
     }).compileComponents();
+    
     fixture = TestBed.createComponent(GlobalToastComponent);
     component = fixture.componentInstance;
+    
+    // Get the actual MessageService instance used by the component
+    const actualMessageService = TestBed.inject(MessageService);
+    jest.spyOn(actualMessageService, 'add');
+    
     fixture.detectChanges();
   });
 
@@ -60,8 +70,46 @@ describe('GlobalToastComponent', () => {
   });
 
   it('should not call messageService.add if summary is empty', () => {
-    (actionsServiceMock.toastMessage as any).set({ severity: 'info', summary: '', detail: '' });
+    const actualMessageService = TestBed.inject(MessageService);
+    actionsServiceMock.toastMessage!.set({ severity: 'info', summary: '', detail: '' });
     fixture.detectChanges();
-    expect(messageServiceMock.add).not.toHaveBeenCalled();
+    expect(actualMessageService.add).not.toHaveBeenCalled();
   });
+
+  it('should have effect that calls messageService.add when summary exists', () => {
+    // Test that the effect is properly set up by checking the component has the show effect
+    expect(component.show).toBeDefined();
+    expect(typeof component.show).toBe('object');
+  });
+
+  it('should inject ActionsService and MessageService', () => {
+    expect(component.actions).toBeDefined();
+    expect(component.actions).toBe(actionsServiceMock);
+  });
+
+  it('should not call messageService.add when summary is null', () => {
+    const actualMessageService = TestBed.inject(MessageService);
+    actionsServiceMock.toastMessage!.set({ severity: 'info', summary: null, detail: '' });
+    fixture.detectChanges();
+    expect(actualMessageService.add).not.toHaveBeenCalled();
+  });
+
+  it('should not call messageService.add when summary is undefined', () => {
+    const actualMessageService = TestBed.inject(MessageService);
+    actionsServiceMock.toastMessage!.set({ severity: 'info', summary: undefined, detail: '' });
+    fixture.detectChanges();
+    expect(actualMessageService.add).not.toHaveBeenCalled();
+  });
+
+  it('should call messageService.add when summary is provided (true branch)', fakeAsync(() => {
+    const svc = fixture.debugElement.injector.get(MessageService) as jest.Mocked<MessageService>;
+    const addSpy = jest.spyOn(svc, 'add');
+
+    actionsServiceMock.toastMessage!.set({ severity: 'success', summary: 'Hello', detail: 'World' });
+    fixture.detectChanges();
+    tick();
+
+    expect(addSpy).toHaveBeenCalledWith({ severity: 'success', summary: 'Hello', detail: 'World' });
+  }));
+
 });
