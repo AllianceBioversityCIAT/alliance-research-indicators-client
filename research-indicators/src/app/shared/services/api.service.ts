@@ -204,8 +204,10 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  POST_CreateOicr = <T>(body: T): Promise<MainResponse<Result>> => {
-    const url = () => `results/oicr`;
+  POST_CreateOicr = <T>(body: T, resultCode?: number): Promise<MainResponse<Result>> => {
+    // resultCode
+    const queryString = resultCode ? `?resultCode=${resultCode}` : '';
+    const url = () => `results/oicr${queryString}`;
     return this.TP.patch(url(), body, {});
   };
 
@@ -281,7 +283,7 @@ export class ApiService {
 
   GET_Versions = (resultCode: number): Promise<MainResponse<GetVersions>> => {
     const url = () => `results/versions/${resultCode}`;
-    return this.TP.get(url(), {useResultInterceptor: true});
+    return this.TP.get(url(), { useResultInterceptor: true });
   };
 
   GET_InnovationReadinessLevels = (): Promise<MainResponse<InnovationLevel[]>> => {

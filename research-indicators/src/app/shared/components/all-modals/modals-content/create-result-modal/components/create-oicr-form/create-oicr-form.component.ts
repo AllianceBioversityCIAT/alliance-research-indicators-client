@@ -328,7 +328,12 @@ export class CreateOicrFormComponent {
 
   async createResult() {
     console.log(this.createResultManagementService.createOicrBody());
-    const response = await this.api.POST_CreateOicr(this.createResultManagementService.createOicrBody());
+    const response = await this.api.POST_CreateOicr(
+      this.createResultManagementService.createOicrBody(),
+      this.createResultManagementService.currentRequestedResultCode() || undefined
+    );
+    // clean currentRequestedResultCode
+    this.createResultManagementService.currentRequestedResultCode.set(null);
     if (response.status !== 200 && response.status !== 201) {
       this.actions.handleBadRequest(response, () => {
         this.createResultManagementService.resultPageStep.set(0);

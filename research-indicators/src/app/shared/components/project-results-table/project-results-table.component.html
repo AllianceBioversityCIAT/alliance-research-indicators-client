@@ -37,8 +37,8 @@
     <tr>
       @for (col of this.columns; track $index) {
         <td
-          [routerLink]="false ? ['/result', customer.result_official_code] : null"
-          (click)="openEditRequestdOicrsModal(customer.result_official_code)">
+          [routerLink]="customer.indicator.indicator_id === 5 ? null : ['/result', customer.result_official_code]"
+          (click)="customer.indicator.indicator_id === 5 ? openEditRequestdOicrsModal(customer.result_official_code) : null">
           @if (col.attr === 'statusName') {
             <app-custom-tag [statusId]="customer.result_status?.result_status_id" [statusName]="customer.result_status?.name"></app-custom-tag>
           } @else {

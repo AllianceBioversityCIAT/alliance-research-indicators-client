@@ -13,6 +13,7 @@ export class CreateResultManagementService {
   resultTitle = signal<string | null>(null);
   year = signal<number | null>(null);
   modalTitle = signal<string>('Create A Result');
+  currentRequestedResultCode = signal<number | null>(null);
   createOicrBody: WritableSignal<OicrCreation> = signal({
     step_one: {
       main_contact_person: {
