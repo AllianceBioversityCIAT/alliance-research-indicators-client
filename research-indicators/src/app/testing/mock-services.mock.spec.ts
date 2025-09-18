@@ -32,6 +32,13 @@ describe('mock-services.mock coverage', () => {
     (cacheServiceMock as any).currentResultId = original;
   });
 
+  it('getCurrentNumericResultId covers object value that is already number', () => {
+    const original = (cacheServiceMock as any).currentResultId;
+    (cacheServiceMock as any).currentResultId = { value: 77 };
+    expect(cacheServiceMock.getCurrentNumericResultId()).toBe(77);
+    (cacheServiceMock as any).currentResultId = original;
+  });
+
   it('getCurrentNumericResultId covers primitive string source path', () => {
     const original = (cacheServiceMock as any).currentResultId;
     (cacheServiceMock as any).currentResultId = 'STAR-55' as any;
@@ -56,6 +63,28 @@ describe('mock-services.mock coverage', () => {
       expect(cacheServiceMock.extractNumericId('STAR-123' as any)).toBeNaN();
     } finally {
       String.prototype.split = originalSplit;
+    }
+  });
+
+  it('getCurrentNumericResultId handles empty last segment (returns NaN)', () => {
+    const original = (cacheServiceMock as any).currentResultId;
+    (cacheServiceMock as any).currentResultId = 'STAR-';
+    expect(Number.isNaN(cacheServiceMock.getCurrentNumericResultId() as any)).toBe(true);
+    (cacheServiceMock as any).currentResultId = original;
+  });
+
+  it('getCurrentNumericResultId covers nullish-coalescing to fallback "0"', () => {
+    const originalId = (cacheServiceMock as any).currentResultId;
+    (cacheServiceMock as any).currentResultId = 'STAR-123';
+    const originalSplit = String.prototype.split;
+    // Force split to return empty array so pop() === undefined and ?? '0' applies
+    // @ts-ignore
+    String.prototype.split = function () { return []; } as any;
+    try {
+      expect(cacheServiceMock.getCurrentNumericResultId()).toBe(0);
+    } finally {
+      String.prototype.split = originalSplit;
+      (cacheServiceMock as any).currentResultId = originalId;
     }
   });
 

@@ -226,4 +226,123 @@ describe('SelectComponent', () => {
   it('should handle service injection through constructor', () => {
     expect(component['serviceLocator']).toBe(mockServiceLocator);
   });
+
+  it('onSectionLoad effect sets body when nested array value exists', () => {
+    // Prevent effect on construct
+    mockCacheService.currentResultIsLoading.set(true);
+
+    // Add missing loading method to mock service
+    mockService.loading = jest.fn().mockReturnValue(false);
+
+    const fixture = TestBed.createComponent(SelectComponent);
+    const comp = fixture.componentInstance;
+
+    // Arrange state before enabling effect
+    comp.optionValue = { body: 'items.value', option: 'id' };
+    comp.body.set({ value: null });
+    comp.signal = signal<any>({ items: [{ value: 'ARR-VAL' }] });
+
+    mockUtilsService.setNestedPropertyWithReduce.mockImplementation((obj: any, _p: string, v: any) => {
+      obj.value = v;
+    });
+
+    // Trigger effect now
+    mockCacheService.currentResultIsLoading.set(false);
+    fixture.detectChanges();
+
+    expect(comp.body().value).toBe('ARR-VAL');
+  });
+
+  it('onSectionLoad effect handles non-array path (covers lines 80-83)', () => {
+    // Prevent effect on construct
+    mockCacheService.currentResultIsLoading.set(true);
+
+    // Add missing loading method to mock service
+    mockService.loading = jest.fn().mockReturnValue(false);
+
+    const fixture = TestBed.createComponent(SelectComponent);
+    const comp = fixture.componentInstance;
+
+    // Arrange state before enabling effect - non-array path
+    comp.optionValue = { body: 'simpleField', option: 'id' };
+    comp.body.set({ value: null });
+    comp.signal = signal<any>({ simpleField: 'SIMPLE-VAL' });
+
+    mockUtilsService.getNestedProperty.mockReturnValue('SIMPLE-VAL');
+    mockUtilsService.setNestedPropertyWithReduce.mockImplementation((obj: any, _p: string, v: any) => {
+      obj.value = v;
+    });
+
+    // Trigger effect now
+    mockCacheService.currentResultIsLoading.set(false);
+    fixture.detectChanges();
+
+    expect(comp.body().value).toBe('SIMPLE-VAL');
+  });
+
+
+  it('setValue updates simple path using utils', () => {
+    component.optionValue = { body: 'testField', option: 'id' };
+    component.setValue('SIMPLE');
+    expect(mockUtilsService.setNestedPropertyWithReduce).toHaveBeenCalledWith(expect.any(Object), 'testField', 'SIMPLE');
+  });
+
+  it('setValue creates array and pushes object when array path exists but empty', () => {
+    component.signal = signal<any>({ arr: [] });
+    component.optionValue = { body: 'arr.prop', option: 'id' };
+
+    component.setValue(123);
+
+    const result = component.signal();
+    expect(Array.isArray(result.arr)).toBe(true);
+    expect(result.arr.length).toBe(1);
+    expect(result.arr[0].prop).toBe(123);
+  });
+
+  it('setValue updates first element when array path already exists', () => {
+    component.signal = signal<any>({ arr: [{ prop: 1 }] });
+    component.optionValue = { body: 'arr.prop', option: 'id' };
+
+    component.setValue(999);
+
+    const result = component.signal();
+    expect(result.arr[0].prop).toBe(999);
+  });
+
+  it('setValue uses utils when array path exists but is not an array (covers line 125)', () => {
+    component.optionValue = { body: 'arr.prop', option: 'id' };
+    component.signal.set({ arr: 'not-an-array' });
+    component.setValue(789);
+
+    expect(mockUtilsService.setNestedPropertyWithReduce).toHaveBeenCalledWith(
+      expect.any(Object),
+      'arr.prop',
+      789
+    );
+  });
+
+  it('setValue uses utils when array path does not exist (covers line 125)', () => {
+    component.optionValue = { body: 'arr.prop', option: 'id' };
+    component.signal.set({});
+    component.setValue(999);
+
+    expect(mockUtilsService.setNestedPropertyWithReduce).toHaveBeenCalledWith(
+      expect.any(Object),
+      'arr.prop',
+      999
+    );
+  });
+
+  it('setValue handles simple property path (covers line 125)', () => {
+    component.optionValue = { body: 'simpleField', option: 'id' };
+    component.signal.set({ simpleField: 'old' });
+    component.setValue('new');
+
+    expect(mockUtilsService.setNestedPropertyWithReduce).toHaveBeenCalledWith(
+      expect.any(Object),
+      'simpleField',
+      'new'
+    );
+  });
+
 });

@@ -612,7 +612,9 @@ export class ApiService {
   };
 
   GET_GreenChecks = (resultCode: number, platform?: string): Promise<MainResponse<GreenChecks>> => {
-    const url = () => `results/green-checks/${resultCode}${platform ? `?reportingPlatforms=${platform}` : ''}`;
+    const basePath = `results/green-checks/${resultCode}`;
+    const query = platform ? '?reportingPlatforms=' + platform : '';
+    const url = () => basePath + query;
     return this.TP.get(url(), {});
   };
 
