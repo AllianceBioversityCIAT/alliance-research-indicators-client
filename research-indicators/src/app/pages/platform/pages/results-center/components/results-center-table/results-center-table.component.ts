@@ -248,10 +248,9 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     }
   }
 
-  openResultByYear(result: Result, year: string | number) {
+  openResultByYear(result: number, year: string | number, platformCode: string) {
     this.resultsCenterService.clearAllFilters();
-
-    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+    const resultCode = `${platformCode}-${result}`;
 
     this.router.navigate(['/result', resultCode], {
       queryParams: { version: year }
