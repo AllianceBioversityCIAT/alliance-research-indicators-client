@@ -30,7 +30,6 @@ export class CreateResultManagementService {
       outcome_impact_statement: ''
     },
     step_two: {
-      initiatives: [],
       primary_lever: [],
       contributor_lever: []
     },
