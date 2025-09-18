@@ -206,7 +206,7 @@ export class ApiService {
 
   POST_CreateOicr = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `results/oicr`;
-    return this.TP.post(url(), body, {});
+    return this.TP.patch(url(), body, {});
   };
 
   PATCH_Oicr = <T>(id: number, body: T): Promise<MainResponse<PatchOicr>> => {

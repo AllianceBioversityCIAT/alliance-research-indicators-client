@@ -243,7 +243,7 @@ export class CreateOicrFormComponent {
 
   get isDisabled(): boolean {
     const b = this.createResultManagementService.createOicrBody();
-    console.log(b);
+    // console.log(b);
     return (
       !b.base_information.title?.length ||
       !b.base_information.indicator_id ||
@@ -330,7 +330,6 @@ export class CreateOicrFormComponent {
 
   async createResult() {
     console.log(this.createResultManagementService.createOicrBody());
-    return;
     const response = await this.api.POST_CreateOicr(this.createResultManagementService.createOicrBody());
     if (response.status !== 200 && response.status !== 201) {
       this.actions.handleBadRequest(response, () => {
