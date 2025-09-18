@@ -2,13 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { VersionSelectorComponent } from './version-selector.component';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
-import { of, Subject } from 'rxjs';
-import { NavigationEnd } from '@angular/router';
+import { Subject } from 'rxjs';
 import { signal } from '@angular/core';
 
 class MockApiService {
@@ -27,6 +26,7 @@ class MockCacheService {
     return parseInt(parts[parts.length - 1] ?? String(id), 10);
   });
   getCurrentNumericResultId = jest.fn(() => 1);
+  getCurrentPlatformCode = signal('STAR');
 }
 class MockActionsService {
   showGlobalAlert = jest.fn();
@@ -70,12 +70,12 @@ describe('VersionSelectorComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call selectVersion and update selectedResultId', async () => {
+  it('should call selectVersion and update selectedResultId', () => {
     const version = { result_id: 2, report_year_id: 2023 } as any;
     component.liveVersion.set({ result_id: 1 } as any);
     const router = TestBed.inject(Router);
     component.selectedResultId.set(0);
-    await component.selectVersion(version);
+    component.selectVersion(version);
     expect(component.selectedResultId()).toBe(2);
     expect(router.navigate).toHaveBeenCalled();
   });
@@ -182,7 +182,6 @@ describe('VersionSelectorComponent', () => {
     Object.defineProperty(router, 'url', { value: '/result/1/other-section', writable: true });
     component.selectedResultId.set(10);
     component['handleVersionSelection']({
-      resultId: 1,
       currentResultId: '1',
       liveData: { result_id: 10, result_status_id: 2, report_year_id: 2022, result_official_code: 1 },
       versionsArray: []
@@ -193,7 +192,6 @@ describe('VersionSelectorComponent', () => {
   it('should not set selectedResultId in handleVersionSelection if already selected', () => {
     component.selectedResultId.set(10);
     component['handleVersionSelection']({
-      resultId: 1,
       currentResultId: '1',
       liveData: { result_id: 10, result_status_id: 2, report_year_id: 2022, result_official_code: 1 },
       versionsArray: []
@@ -207,7 +205,6 @@ describe('VersionSelectorComponent', () => {
     component.selectedResultId.set(2);
     component['hasAutoNavigated'] = false;
     component['handleVersionSelection']({
-      resultId: 1,
       currentResultId: '1',
       liveData: null,
       versionsArray: [{ result_id: 2, report_year_id: 2023, result_status_id: 1, result_official_code: 1 }]
@@ -219,7 +216,6 @@ describe('VersionSelectorComponent', () => {
     component.selectedResultId.set(2);
     component['hasAutoNavigated'] = false;
     component['handleVersionSelection']({
-      resultId: 1,
       currentResultId: '1',
       liveData: null,
       versionsArray: [{ result_id: 2, report_year_id: 2023, result_status_id: 1, result_official_code: 1 }]
@@ -227,19 +223,19 @@ describe('VersionSelectorComponent', () => {
     expect(component.selectedResultId()).toBe(2);
   });
 
-  it('should call router.navigate with empty queryParams if selecting liveVersion', async () => {
+  it('should call router.navigate with empty queryParams if selecting liveVersion', () => {
     const router = TestBed.inject(Router);
     const version = { result_id: 1, report_year_id: 2023 } as any;
     component.liveVersion.set({ result_id: 1 } as any);
-    await component.selectVersion(version);
+    component.selectVersion(version);
     expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: {} }));
   });
 
-  it('should call router.navigate with version param if not selecting liveVersion', async () => {
+  it('should call router.navigate with version param if not selecting liveVersion', () => {
     const router = TestBed.inject(Router);
     const version = { result_id: 2, report_year_id: 2023 } as any;
     component.liveVersion.set({ result_id: 1 } as any);
-    await component.selectVersion(version);
+    component.selectVersion(version);
     expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: { version: '2023' } }));
   });
 
@@ -248,9 +244,9 @@ describe('VersionSelectorComponent', () => {
     const actions = TestBed.inject(ActionsService);
     (api.PATCH_ReportingCycle as jest.Mock).mockResolvedValue({ successfulRequest: false, errorDetail: { errors: 'error' } });
     (actions.showGlobalAlert as jest.Mock).mockImplementation(arg => {
-      arg.confirmCallback.event({});
+      arg.confirmCallback?.event?.({});
     });
-    await component.updateResult();
+    component.updateResult();
     await new Promise(r => setTimeout(r, 0));
     expect(api.PATCH_ReportingCycle).toHaveBeenCalledWith(expect.anything(), '');
   });
@@ -268,7 +264,7 @@ describe('VersionSelectorComponent', () => {
     (api.PATCH_ReportingCycle as jest.Mock).mockResolvedValue({ successfulRequest: true });
     (router.navigate as jest.Mock).mockRejectedValue(new Error('Navigation failed'));
     (actions.showGlobalAlert as jest.Mock).mockImplementation(arg => {
-      if (arg.confirmCallback && arg.confirmCallback.event) arg.confirmCallback.event({ selected: '2023' });
+      arg.confirmCallback?.event?.({ selected: '2023' });
     });
     expect(() => component.updateResult()).not.toThrow();
   });
@@ -284,7 +280,7 @@ describe('VersionSelectorComponent', () => {
       throw new Error('loadVersions error');
     });
     (actions.showGlobalAlert as jest.Mock).mockImplementation(arg => {
-      if (arg.confirmCallback && arg.confirmCallback.event) arg.confirmCallback.event({ selected: '2023' });
+      arg.confirmCallback?.event?.({ selected: '2023' });
     });
     expect(() => component.updateResult()).not.toThrow();
     component['loadVersions'] = originalLoadVersions;
@@ -320,11 +316,88 @@ describe('VersionSelectorComponent', () => {
     route.snapshot.queryParamMap.get = (k: string) => (k === 'version' ? '2023' : null);
     component.selectedResultId.set(999);
     component['handleVersionSelection']({
-      resultId: 1,
       currentResultId: '1',
       liveData: { result_id: 1, result_status_id: 2, report_year_id: 2022, result_official_code: 1 } as any,
       versionsArray: [{ result_id: 2, report_year_id: 2023, result_status_id: 1, result_official_code: 1 } as any]
     });
     expect(component.selectedResultId()).toBe(2);
+  });
+
+  describe('editInPlatform', () => {
+    let windowOpenSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      windowOpenSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+    });
+
+    afterEach(() => {
+      windowOpenSpy.mockRestore();
+    });
+
+    it('should open PRMS URL when platform is PRMS', () => {
+      const cache = TestBed.inject(CacheService) as any;
+      cache.getCurrentPlatformCode.set('PRMS');
+      
+      component.editInPlatform();
+      
+      expect(windowOpenSpy).toHaveBeenCalledWith(component.prmsUrl, '_blank', 'noopener,noreferrer');
+    });
+
+    it('should open TIP URL when platform is TIP', () => {
+      const cache = TestBed.inject(CacheService) as any;
+      cache.getCurrentPlatformCode.set('TIP');
+      
+      component.editInPlatform();
+      
+      expect(windowOpenSpy).toHaveBeenCalledWith(component.tipUrl, '_blank', 'noopener,noreferrer');
+    });
+
+    it('should not open any URL when platform is not PRMS or TIP', () => {
+      const cache = TestBed.inject(CacheService) as any;
+      cache.getCurrentPlatformCode.set('OTHER');
+      
+      component.editInPlatform();
+      
+      expect(windowOpenSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not open any URL when platform code is empty', () => {
+      const cache = TestBed.inject(CacheService) as any;
+      cache.getCurrentPlatformCode.set('');
+      
+      component.editInPlatform();
+      
+      expect(windowOpenSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('platformEditButtonText', () => {
+    it('should return "Edit in PRMS" when platform is PRMS', () => {
+      const cache = TestBed.inject(CacheService) as any;
+      cache.getCurrentPlatformCode.set('PRMS');
+      
+      expect(component.platformEditButtonText).toBe('Edit in PRMS');
+    });
+
+    it('should return "Edit in TIP" when platform is TIP', () => {
+      const cache = TestBed.inject(CacheService) as any;
+      cache.getCurrentPlatformCode.set('TIP');
+      
+      expect(component.platformEditButtonText).toBe('Edit in TIP');
+    });
+
+    it('should return "Edit in OTHER" when platform is OTHER', () => {
+      const cache = TestBed.inject(CacheService) as any;
+      cache.getCurrentPlatformCode.set('OTHER');
+      
+      expect(component.platformEditButtonText).toBe('Edit in OTHER');
+    });
+
+    it('should return "Edit in " when platform code is empty', () => {
+      const cache = TestBed.inject(CacheService) as any;
+      cache.getCurrentPlatformCode.set('');
+      
+      expect(component.platformEditButtonText).toBe('Edit in ');
+    });
   });
 });
