@@ -6,7 +6,8 @@ const cacheMock = {
   allGreenChecksAreTrue: jest.fn(),
   greenChecks: jest.fn(),
   isMyResult: jest.fn(),
-  currentMetadata: jest.fn()
+  currentMetadata: jest.fn(),
+  getCurrentPlatformCode: jest.fn()
 };
 
 describe('SubmissionService', () => {
@@ -36,28 +37,51 @@ describe('SubmissionService', () => {
     expect(service.getStatusNameById(-1)).toBe('');
   });
 
-  it('isEditableStatus true for status_id 4', () => {
+  it('isEditableStatus true for status_id 4 and STAR platform', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 4 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
     expect(service.isEditableStatus()).toBe(true);
   });
 
-  it('isEditableStatus true for status_id 5', () => {
+  it('isEditableStatus true for status_id 5 and STAR platform', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 5 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
     expect(service.isEditableStatus()).toBe(true);
   });
 
-  it('isEditableStatus false for status_id 2', () => {
+  it('isEditableStatus false for status_id 4 but TIP platform', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 4 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('TIP');
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
+  it('isEditableStatus false for status_id 5 but TIP platform', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 5 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('TIP');
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
+  it('isEditableStatus false for status_id 2 and STAR platform', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 2 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
     expect(service.isEditableStatus()).toBe(false);
   });
 
   it('isEditableStatus false for null status_id', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: null });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
     expect(service.isEditableStatus()).toBe(false);
   });
 
   it('isEditableStatus false for undefined status_id', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: undefined });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
+  it('isEditableStatus false for status_id 4 but empty platform code', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 4 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('');
     expect(service.isEditableStatus()).toBe(false);
   });
 
