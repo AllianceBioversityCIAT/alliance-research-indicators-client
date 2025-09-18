@@ -39,4 +39,25 @@ describe('ResultsTableComponent', () => {
     expect(component.getSeverity('renewal')).toBeNull();
     expect(component.getSeverity('unknown')).toBeNull();
   });
+
+  it('should set loading to false after ngOnInit timer', () => {
+    jest.useFakeTimers();
+
+    // initial true
+    expect(component.loading()).toBe(true);
+
+    component.ngOnInit();
+
+    // before timer fires remains true
+    expect(component.loading()).toBe(true);
+
+    jest.advanceTimersByTime(1000);
+
+    // trigger change detection after timer
+    fixture.detectChanges();
+
+    expect(component.loading()).toBe(false);
+
+    jest.useRealTimers();
+  });
 });
