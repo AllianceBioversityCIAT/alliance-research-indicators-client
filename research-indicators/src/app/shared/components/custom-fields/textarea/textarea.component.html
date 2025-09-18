@@ -60,7 +60,7 @@
                 [attr.aria-label]="isAiLoading ? 'Generating with AI, please wait' : 'Generate with AI'"
                 (click)="!isAiDisabled && !isAiLoading && aiAssistantFunction()">
                 @if (isAiLoading) {
-                  <i class="pi pi-spinner pi-spin text-[#8D9299] text-xs" role="status" aria-label="Generating content"></i>
+                  <i class="pi pi-spinner pi-spin text-[#8D9299] text-xs"></i>
                   Generating...
                 } @else {
                   Generate with AI

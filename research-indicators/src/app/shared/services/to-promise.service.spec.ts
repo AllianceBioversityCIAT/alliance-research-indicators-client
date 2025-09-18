@@ -137,6 +137,13 @@ describe('ToPromiseService', () => {
     expect(headers.get('X-Use-Year')).toBe('true');
   });
 
+  it('get sets X-Platform header when platform provided', async () => {
+    httpClientMock.get = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
+    await service.get('/test-url', { platform: 'STAR' });
+    const headers = (httpClientMock.get as jest.Mock).mock.calls[0][1].headers;
+    expect(headers.get('X-Platform')).toBe('STAR');
+  });
+
   it('getWithParams passes loadingTrigger', async () => {
     httpClientMock.get = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
     await service.getWithParams('/test-url', { a: '1' }, { loadingTrigger: true });
