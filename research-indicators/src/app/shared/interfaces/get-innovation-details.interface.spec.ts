@@ -4,7 +4,8 @@ import {
   InstitutionType,
   KnowledgeSharingForm,
   LinkToResult,
-  ScalingPotentialForm
+  ScalingPotentialForm,
+  ToolFunction
 } from './get-innovation-details.interface';
 
 describe('GetInnovationDetails Interface Classes', () => {
@@ -100,7 +101,7 @@ describe('GetInnovationDetails Interface Classes', () => {
       expect(instance.dissemination_qualification_id).toBeUndefined();
       expect(instance.tool_useful_context).toBe('');
       expect(instance.results_achieved_expected).toBe('');
-      expect(instance.tool_function_id).toBeUndefined();
+      expect(instance.tool_function_id).toEqual([]);
       expect(instance.is_used_beyond_original_context).toBe(false);
       expect(instance.adoption_adaptation_context).toBe('');
       expect(instance.other_tools).toBe('');

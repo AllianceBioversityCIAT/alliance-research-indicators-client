@@ -165,6 +165,13 @@
       [signal]="body"
       [optionValue]="outcomeImpactOptionValue"
       placeholder="Write the elaboration of outcome / impact statement"></app-textarea>
+
+    @if (isElaborationTextExceedingLimit()) {
+      <div class="flex items-center gap-1 -mt-1 text-[#E69F00]">
+        <i class="material-symbols-rounded !text-[15px]">warning</i>
+        <span class="!text-[14px] leading-5">{{ getElaborationLimitMessage() }}</span>
+      </div>
+    }
   </div>
 
   <!-- Short Outcome/Impact Statement -->
@@ -178,6 +185,9 @@
         [maxLength]="80"
         [aiAssistantFunction]="aiAssistantFunctionForShortOutcome.bind(this)"
         [isAiDisabled]="isShortOutcomeAiDisabled()"
+        [isAiLoading]="isAiLoading() || isTyping()"
+        [aiError]="aiError()"
+        [onRetry]="onRetryAi.bind(this)"
         [signal]="body"
         [optionValue]="shortOutcomeOptionValue"
         placeholder="Write the short outcome"></app-textarea>

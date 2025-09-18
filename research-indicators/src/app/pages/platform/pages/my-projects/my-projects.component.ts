@@ -343,11 +343,13 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   openResult(result: Result) {
-    this.router.navigate(['/result', result.result_official_code]);
+    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+    this.router.navigate(['/result', resultCode]);
   }
 
-  openResultByYear(result_official_code: string, year: string | number) {
-    this.router.navigate(['/result', result_official_code, year]);
+  openResultByYear(result: Result, year: string | number) {
+    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+    this.router.navigate(['/result', resultCode, year]);
   }
 
   getScrollHeight() {

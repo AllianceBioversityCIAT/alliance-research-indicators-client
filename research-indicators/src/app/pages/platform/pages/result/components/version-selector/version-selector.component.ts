@@ -51,20 +51,21 @@ export class VersionSelectorComponent implements OnDestroy {
   }
 
   private async loadVersions() {
-    const resultId = this.cache.currentResultId();
-    if (!resultId || resultId <= 0) return;
+    const currentResultId = this.cache.currentResultId();
+    const numericResultId = this.cache.extractNumericId(currentResultId);
+    if (!numericResultId || numericResultId <= 0) return;
 
     const versionParam = this.route.snapshot.queryParamMap.get('version');
 
-    if (this.cache.lastResultId() === resultId && this.cache.lastVersionParam() === versionParam) {
-      this.applyCachedVersions(resultId, versionParam);
+    if (this.cache.lastResultId() === numericResultId && this.cache.lastVersionParam() === versionParam) {
+      this.applyCachedVersions(numericResultId, versionParam);
       return;
     }
 
-    this.cache.lastResultId.set(resultId);
+    this.cache.lastResultId.set(numericResultId);
     this.cache.lastVersionParam.set(versionParam);
 
-    const response = await this.api.GET_Versions(resultId);
+    const response = await this.api.GET_Versions(numericResultId);
     const data = response.data;
 
     const liveData = Array.isArray(data.live) && data.live.length > 0 ? data.live[0] : null;
@@ -76,7 +77,7 @@ export class VersionSelectorComponent implements OnDestroy {
     this.liveVersion.set(liveData);
     this.approvedVersions.set(versionsArray);
 
-    this.handleVersionSelection({ resultId, liveData, versionsArray });
+    this.handleVersionSelection({ currentResultId: currentResultId.toString(), liveData, versionsArray });
   }
 
   private applyCachedVersions(resultId: number, versionParam: string | null) {
@@ -102,11 +103,11 @@ export class VersionSelectorComponent implements OnDestroy {
   }
 
   private handleVersionSelection({
-    resultId,
+    currentResultId,
     liveData,
     versionsArray
   }: {
-    resultId: number;
+    currentResultId: string;
     liveData: TransformResultCodeResponse | null;
     versionsArray: TransformResultCodeResponse[];
   }) {
@@ -127,7 +128,7 @@ export class VersionSelectorComponent implements OnDestroy {
         this.selectedResultId.set(liveData.result_id);
       }
       if (currentChild === 'general-information') {
-        this.router.navigate(['/result', resultId, currentChild], { replaceUrl: true });
+        this.router.navigate(['/result', currentResultId, currentChild], { replaceUrl: true });
       }
       return;
     }
@@ -136,7 +137,7 @@ export class VersionSelectorComponent implements OnDestroy {
       const firstApproved = versionsArray[0];
       this.selectedResultId.set(firstApproved.result_id);
       if (currentChild === 'general-information') {
-        this.router.navigate(['/result', resultId, currentChild], {
+        this.router.navigate(['/result', currentResultId, currentChild], {
           queryParams: { version: firstApproved.report_year_id },
           replaceUrl: true
         });
@@ -181,7 +182,7 @@ export class VersionSelectorComponent implements OnDestroy {
         label: 'Confirm',
         event: (data?: { comment?: string; selected?: string }) => {
           (async () => {
-            const response = await this.api.PATCH_ReportingCycle(this.cache.currentResultId(), data?.selected ?? '');
+            const response = await this.api.PATCH_ReportingCycle(this.cache.getCurrentNumericResultId(), data?.selected ?? '');
 
             if (!response.successfulRequest) {
               this.actions.showToast({ severity: 'error', summary: 'Error', detail: response.errorDetail.errors });
@@ -193,7 +194,7 @@ export class VersionSelectorComponent implements OnDestroy {
               this.cache.versionsList.set([]);
 
               // Force metadata update
-              this.metadata.update(this.cache.currentResultId());
+              this.metadata.update(this.cache.getCurrentNumericResultId());
 
               // Navigate to the current route without parameters to stay in live version
               const currentPath = this.router.url.split('?')[0];

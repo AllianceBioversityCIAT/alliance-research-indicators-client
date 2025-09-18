@@ -19,6 +19,7 @@ class ApiServiceMock {
 }
 class CacheServiceMock {
   currentResultId = jest.fn().mockReturnValue(1);
+  getCurrentNumericResultId = jest.fn().mockReturnValue(1);
   currentMetadata = jest.fn().mockReturnValue({ result_title: 'Test Title' });
   currentResultIsLoading = jest.fn().mockReturnValue(false);
   showSectionHeaderActions = jest.fn().mockReturnValue(false);
@@ -53,7 +54,7 @@ describe('GeographicScopeComponent', () => {
     actions = new ActionsServiceMock();
     router = new RouterMock();
     submission = new SubmissionServiceMock();
-    route = { snapshot: { queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } } as unknown as ActivatedRoute;
+    route = { snapshot: { paramMap: { get: (k: string) => (k === 'id' ? '1' : null) }, queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } } as unknown as ActivatedRoute;
     await TestBed.configureTestingModule({
       imports: [GeographicScopeComponent],
       providers: [

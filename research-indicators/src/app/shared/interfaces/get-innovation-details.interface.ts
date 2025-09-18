@@ -8,6 +8,7 @@ export class GetInnovationDetails {
   new_or_improved_varieties_count: number | undefined = undefined;
   expected_outcome = '';
   intended_beneficiaries_description = '';
+  innovation_readiness_explanation = '';
   actors: Actor[] = [];
   institution_types: InstitutionType[] = [];
   knowledge_sharing_form: KnowledgeSharingForm = new KnowledgeSharingForm();
@@ -42,12 +43,17 @@ export class KnowledgeSharingForm {
   dissemination_qualification_id: number | undefined = undefined;
   tool_useful_context = '';
   results_achieved_expected = '';
-  tool_function_id: number | undefined = undefined;
+  tool_function_id: ToolFunction[] = [];
   is_used_beyond_original_context = false;
   adoption_adaptation_context = '';
   other_tools = '';
   other_tools_integration = '';
   link_to_result: LinkToResult[] = [];
+}
+
+export class ToolFunction {
+  id?: number;
+  tool_function_id?: number;
 }
 
 export class LinkToResult {

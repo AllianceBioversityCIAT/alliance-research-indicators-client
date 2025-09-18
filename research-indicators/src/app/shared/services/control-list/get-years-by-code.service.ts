@@ -20,7 +20,7 @@ export class GetYearsByCodeService {
   async main() {
     this.loading.set(true);
     try {
-      const response = await this.apiService.GET_Years(this.cache.currentResultId());
+      const response = await this.apiService.GET_Years(this.cache.getCurrentNumericResultId());
       const data = Array.isArray(response?.data) ? response.data : [];
       this.list.set(data);
     } finally {
