@@ -42,6 +42,7 @@
       [optionValue]="taggingOptionValue"
       optionLabel="name"
       serviceName="tags"
+      [disabled]="this.createResultManagementService.editingOicr()"
       scrollHeight="132px"
       placeholder="Select the tagging">
     </app-select>
@@ -61,6 +62,7 @@
         [isRequired]="true"
         placeholder="Select OICR"
         scrollHeight="295px"
+        [disabled]="this.createResultManagementService.editingOicr()"
         [hideSelected]="false"
         textSpan="OICR selected">
         <!-- Item template -->

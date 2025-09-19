@@ -13,6 +13,7 @@ import { UtilsService } from '@shared/services/utils.service';
 import { WordCountService } from '@shared/services/word-count.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { RolesService } from '@shared/services/cache/roles.service';
+import { CreateResultManagementService } from '../../all-modals/modals-content/create-result-modal/services/create-result-management.service';
 
 type OicrFormBody = OicrCreation | PatchOicr;
 
@@ -56,6 +57,7 @@ export class OicrFormFieldsComponent {
   isTyping = signal(false);
   aiError = signal('');
   rolesService = inject(RolesService);
+  createResultManagementService = inject(CreateResultManagementService);
   private aiTimeoutId: number | null = null;
 
   taggingHelperText = OICR_HELPER_TEXTS.taggingHelperText;
