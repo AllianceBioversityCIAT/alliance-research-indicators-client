@@ -1,6 +1,6 @@
 import { Injectable, WritableSignal, signal } from '@angular/core';
 import { AIAssistantResult } from '../models/AIAssistantResult';
-import { OicrCreation } from '../../../../../interfaces/oicr-creation.interface';
+import { Lever, OicrCreation } from '../../../../../interfaces/oicr-creation.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +14,7 @@ export class CreateResultManagementService {
   year = signal<number | null>(null);
   modalTitle = signal<string>('Create A Result');
   currentRequestedResultCode = signal<number | null>(null);
+  oicrPrimaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
   createOicrBody: WritableSignal<OicrCreation> = signal({
     step_one: {
       main_contact_person: {

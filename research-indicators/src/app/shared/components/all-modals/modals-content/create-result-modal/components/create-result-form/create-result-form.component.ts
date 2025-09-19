@@ -138,7 +138,7 @@ export class CreateResultFormComponent {
   }
 
   navigateToOicr() {
-    this.getOicrMetadata();
+    // this.getOicrMetadata();
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);
     this.createResultManagementService.setYear(this.body().year);
@@ -158,7 +158,7 @@ export class CreateResultFormComponent {
               {
                 result_lever_id: 0,
                 result_id: 0,
-                lever_id: this.getPrimaryLeverId(this.body().contract_id || 0),
+                lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || 0) || 0),
                 lever_role_id: 0,
                 is_primary: true
               } as Lever
@@ -166,7 +166,16 @@ export class CreateResultFormComponent {
           : []
       } as StepTwo
     }));
-
+    this.createResultManagementService.oicrPrimaryOptionsDisabled.update(b => [
+      ...b,
+      {
+        result_lever_id: 0,
+        result_id: 0,
+        lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || 0)),
+        lever_role_id: 0,
+        is_primary: true
+      } as Lever
+    ]);
     this.createResultManagementService.resultPageStep.set(2);
   }
 
