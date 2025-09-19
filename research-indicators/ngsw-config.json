@@ -1,65 +1,6 @@
 {
   "$schema": "./node_modules/@angular/service-worker/config/schema.json",
   "index": "/index.html",
-  "assetGroups": [
-    {
-      "name": "app",
-      "installMode": "prefetch",
-      "resources": {
-        "files": ["/favicon.ico", "/index.html", "/manifest.webmanifest", "/*.css", "/*.js"]
-      }
-    },
-    {
-      "name": "images",
-      "installMode": "lazy",
-      "updateMode": "lazy",
-      "resources": {
-        "files": [
-          "/public/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|ico|bmp)",
-          "/assets/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|ico|bmp)",
-          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|ico|bmp)",
-          "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|ico|bmp)"
-        ]
-      }
-    },
-    {
-      "name": "fonts-and-assets",
-      "installMode": "lazy",
-      "updateMode": "prefetch",
-      "resources": {
-        "files": ["/assets/**", "/*.(otf|ttf|woff|woff2)"]
-      }
-    }
-  ],
-  "dataGroups": [
-    {
-      "name": "static-data",
-      "urls": ["/api/indicators", "/api/results/status", "/api/indicator-types"],
-      "cacheConfig": {
-        "strategy": "performance",
-        "maxSize": 100,
-        "maxAge": "1d"
-      }
-    },
-    {
-      "name": "dynamic-images",
-      "urls": ["/api/**/images/**", "/api/**/*.{svg,jpg,jpeg,png,gif,webp,ico,bmp}", "/**/*.{svg,jpg,jpeg,png,gif,webp,ico,bmp}"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 30,
-        "maxAge": "1h",
-        "timeout": "5s"
-      }
-    },
-    {
-      "name": "version",
-      "urls": ["/config/version.json"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 1,
-        "maxAge": "0s",
-        "timeout": "1s"
-      }
-    }
-  ]
+  "assetGroups": [],
+  "dataGroups": []
 }
