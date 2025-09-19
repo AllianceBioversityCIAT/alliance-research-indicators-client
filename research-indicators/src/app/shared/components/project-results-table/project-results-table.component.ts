@@ -47,7 +47,7 @@ export class ProjectResultsTableComponent implements OnInit, OnDestroy {
 
   getScrollHeight = computed(
     () =>
-      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 240 : 490)}px)`
+      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 240 : 349)}px)`
   );
 
   columns: ResultTable[] = [
