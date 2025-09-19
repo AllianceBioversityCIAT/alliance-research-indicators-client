@@ -64,7 +64,7 @@ import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
-import { Oicr, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 
 @Injectable({
@@ -642,7 +642,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_OICRModal = (resultCode: number): Promise<MainResponse<any>> => {
+  GET_OICRModal = (resultCode: number): Promise<MainResponse<OicrCreation>> => {
     const url = () => `results/oicr/${resultCode}/modal`;
     return this.TP.get(url(), {});
   };

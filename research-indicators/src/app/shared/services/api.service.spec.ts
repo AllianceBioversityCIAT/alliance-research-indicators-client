@@ -206,11 +206,11 @@ describe('ApiService', () => {
   describe('POST methods', () => {
     it('should call POST_CreateOicr', () => {
       const body = { test: 'data' } as any;
-      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
 
       service.POST_CreateOicr(body);
 
-      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/oicr', body, {});
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/oicr', body, {});
     });
 
     it('should call POST_Result', () => {
@@ -373,10 +373,9 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith(
-        'results/green-checks/change/status?resultCode=123&comment=test comment&status=1',
-        { useResultInterceptor: true }
-      );
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', {
+        useResultInterceptor: true
+      });
     });
 
     it('should call PATCH_SubmitResult without comment', () => {

@@ -116,7 +116,6 @@ export class CreateResultFormComponent {
   }
 
   navigateToOicr() {
-    console.log(this.body());
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);
     this.createResultManagementService.setYear(this.body().year);
