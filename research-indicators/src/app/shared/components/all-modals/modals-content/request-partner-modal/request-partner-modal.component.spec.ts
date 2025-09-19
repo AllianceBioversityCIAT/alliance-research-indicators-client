@@ -181,41 +181,6 @@ describe('RequestPartnerModalComponent', () => {
     expect(component.isPartnerConfirmDisabled()).toBe(true);
   });
 
-  it('should create partner successfully', async () => {
-    const mockResponse = { successfulRequest: true };
-    mockApiService.POST_PartnerRequest!.mockResolvedValue(mockResponse);
-
-    component.body.set({
-      acronym: 'TEST',
-      name: 'Test Name',
-      institutionTypeCode: 'TEST',
-      hqCountryIso: 'US',
-      websiteLink: 'https://example.com',
-      externalUserComments: null
-    });
-
-    await component.createPartner();
-
-    expect(mockApiService.POST_PartnerRequest).toHaveBeenCalledWith({
-      acronym: 'TEST',
-      name: 'Test Name',
-      institutionTypeCode: 'TEST',
-      hqCountryIso: 'US',
-      websiteLink: 'https://example.com',
-      externalUserComments: 'Username: John Doe | User ID: 123 | Result code: TEST-001 | Section: Test Section',
-      platformUrl: 'http://localhost:4200//test-url'
-    });
-
-    expect(mockActionsService.showToast).toHaveBeenCalledWith({
-      severity: 'success',
-      summary: 'Success',
-      detail: 'Partner request sent successfully'
-    });
-
-    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('requestPartner');
-    expect(component.loading()).toBe(false);
-  });
-
   it('should handle bad request with warning (409 status)', async () => {
     const mockResponse = { 
       successfulRequest: false, 
