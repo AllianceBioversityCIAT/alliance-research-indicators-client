@@ -54,6 +54,26 @@ describe('CacheService', () => {
     expect(service.getCurrentNumericResultId()).toBe(321);
   });
 
+  it('getCurrentPlatformCode extracts platform code correctly', () => {
+    const service = TestBed.inject(CacheService);
+    
+    // Test with STAR platform
+    service.setCurrentResultId('STAR-2879');
+    expect(service.getCurrentPlatformCode()).toBe('STAR');
+    
+    // Test with TIP platform
+    service.setCurrentResultId('TIP-2863');
+    expect(service.getCurrentPlatformCode()).toBe('TIP');
+    
+    // Test with numeric ID (no platform code)
+    service.setCurrentResultId(321);
+    expect(service.getCurrentPlatformCode()).toBe('');
+    
+    // Test with string without hyphen
+    service.setCurrentResultId('12345');
+    expect(service.getCurrentPlatformCode()).toBe('');
+  });
+
   it('extractNumericId covers hyphen and plain numeric string', () => {
     const service = TestBed.inject(CacheService);
     expect(service.extractNumericId('TIP-2863')).toBe(2863);

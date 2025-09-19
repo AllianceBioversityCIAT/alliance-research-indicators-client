@@ -37,15 +37,23 @@
       }
     </div>
   }
-  @if (!hasLiveVersion) {
+  @if (!hasLiveVersion && cache.getCurrentPlatformCode() === 'STAR') {
     <div class="flex w-full justify-end min-w-[150px] max-w-[150px] items-center">
-      <span
-        (click)="updateResult()"
-        (keydown.enter)="updateResult()"
-        class="rounded-[11px] pl-4 pr-3 py-[9px] tracking-[0.05em] cursor-pointer font-['Space_Grotesk'] flex items-center transition-all duration-150 bg-[#1689CA] ml-4 font-[500] text-[12px] text-white mr-2">
-        <i class="pi pi-pencil mr-2 !text-[11px] text-white"></i>
-        Update result
-      </span>
+        <span
+          (click)="updateResult()"
+          (keydown.enter)="updateResult()"
+          class="rounded-[11px] pl-4 pr-3 py-[9px] tracking-[0.05em] cursor-pointer font-['Space_Grotesk'] flex items-center transition-all duration-150 bg-[#1689CA] ml-4 font-[500] text-[12px] text-white mr-2">
+          <i class="pi pi-pencil mr-2 !text-[11px] text-white"></i>
+          Update result
+        </span>
     </div>
+  } @else if (cache.getCurrentPlatformCode() !== 'STAR') {
+    <span
+      (click)="editInPlatform()"
+      (keydown.enter)="editInPlatform()"
+      class="rounded-[11px] min-w-[125px] justify-center pl-4 pr-3 py-[9px] tracking-[0.05em] cursor-pointer font-['Space_Grotesk'] flex items-center transition-all duration-150 bg-[#1689CA] ml-4 font-[500] text-[12px] text-white mr-2">
+      <i class="pi pi-external-link mr-2 !text-[13px] text-white"></i>
+      {{ platformEditButtonText }}
+    </span>
   }
 </div>

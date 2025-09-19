@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { InputComponent } from './input.component';
 import { CacheService } from '../../../services/cache/cache.service';
 import { UtilsService } from '../../../services/utils.service';
@@ -7,6 +7,7 @@ import { WordCountService } from '../../../services/word-count.service';
 
 describe('InputComponent', () => {
   let component: InputComponent;
+  let fixture: ComponentFixture<InputComponent>;
   let cacheService: jest.Mocked<CacheService>;
   let utilsService: jest.Mocked<UtilsService>;
   let wordCountService: jest.Mocked<WordCountService>;
@@ -25,6 +26,7 @@ describe('InputComponent', () => {
       getWordCount: jest.fn()
     };
 
+    TestBed.overrideComponent(InputComponent, { set: { template: '' } });
     await TestBed.configureTestingModule({
       imports: [InputComponent],
       providers: [
@@ -34,7 +36,7 @@ describe('InputComponent', () => {
       ]
     }).compileComponents();
 
-    const fixture = TestBed.createComponent(InputComponent);
+    fixture = TestBed.createComponent(InputComponent);
     component = fixture.componentInstance;
     cacheService = TestBed.inject(CacheService) as jest.Mocked<CacheService>;
     utilsService = TestBed.inject(UtilsService) as jest.Mocked<UtilsService>;
@@ -198,9 +200,9 @@ describe('InputComponent', () => {
     });
 
     it('should return true if currentWordIndex >= maxWords', () => {
-      wordCountService.getWordCount.mockReturnValue(3);
-      const event = { key: 'a', target: { selectionStart: 35 } } as any;
-      expect(component.shouldPreventInput(event, 'one two three')).toBe(false);
+      wordCountService.getWordCount.mockReturnValue(4);
+      const event = { key: 'a', target: { selectionStart: 100 } } as any;
+      expect(component.shouldPreventInput(event, 'one two three four')).toBe(true);
     });
   });
 
@@ -289,29 +291,41 @@ describe('InputComponent', () => {
     });
 
     it('should handle paste within MAX_SAFE_TEXT limit', () => {
+      jest.useFakeTimers();
       component.handlePasteText(mockEvent);
 
       expect(mockEvent.preventDefault).toHaveBeenCalled();
       expect(component.body().value).toBe('existpasted text text');
       expect(component.showMaxReachedMessage()).toBe(false);
       expect(utilsService.setNestedPropertyWithReduceSignal).toHaveBeenCalledWith(component.signal, component.optionValue, 'existpasted text text');
+
+      // cursor reposition happens in a timeout
+      jest.runOnlyPendingTimers();
+      expect(mockInput.setSelectionRange).toHaveBeenCalled();
+      jest.useRealTimers();
     });
 
     it('should truncate paste when exceeding MAX_SAFE_TEXT', () => {
+      jest.useFakeTimers();
       const longPastedText = 'a'.repeat(50000);
       mockEvent.clipboardData.getData.mockReturnValue(longPastedText);
 
       component.handlePasteText(mockEvent);
 
       expect(component.showMaxReachedMessage()).toBe(true);
-      expect(component.body().value.length).toBeLessThanOrEqual(component.MAX_SAFE_TEXT);
+      expect(String(component.body().value).length).toBeLessThanOrEqual(component.MAX_SAFE_TEXT);
+      jest.runOnlyPendingTimers();
+      expect(mockInput.setSelectionRange).toHaveBeenCalled();
+      jest.useRealTimers();
     });
 
     it('should handle cursor positioning after paste', () => {
+      jest.useFakeTimers();
       component.handlePasteText(mockEvent);
-
-      // Verify that the paste was handled correctly
       expect(component.body().value).toBe('existpasted text text');
+      jest.runOnlyPendingTimers();
+      expect(mockInput.setSelectionRange).toHaveBeenCalledWith(5 + 'pasted text'.length, 5 + 'pasted text'.length);
+      jest.useRealTimers();
     });
   });
 
@@ -378,6 +392,7 @@ describe('InputComponent', () => {
     });
 
     it('should handle cursor positioning when trimming words', () => {
+      jest.useFakeTimers();
       component.maxWords = 2;
       const input = document.createElement('input');
       document.body.appendChild(input);
@@ -390,9 +405,13 @@ describe('InputComponent', () => {
 
       // Verify that the value was trimmed correctly
       expect(component.body().value).toBe('one two');
+      // run timeout to reposition cursor when applicable
+      jest.runOnlyPendingTimers();
+      expect(setSelectionRangeSpy).toHaveBeenCalled();
 
       // Clean up
       document.body.removeChild(input);
+      jest.useRealTimers();
     });
 
     it('should handle setValue with empty words array', () => {
@@ -453,6 +472,50 @@ describe('InputComponent', () => {
       component.body.set({ value: 123 });
       expect(component.body().value).toBe(123);
     });
+
+    it('onChange effect should sync body when external signal changes', fakeAsync(() => {
+      utilsService.getNestedProperty.mockReturnValue('ext');
+      component.signal.set({ testField: 'ext' } as any);
+      fixture.detectChanges();
+      tick();
+      expect(component.body().value).toBe('ext');
+    }));
+
+    it('updateMaxReachedMessage should react to number length threshold', fakeAsync(() => {
+      component.type = 'number';
+      const longNumString = '9'.repeat(18);
+      utilsService.getNestedProperty.mockReturnValue(longNumString as any);
+      component.signal.set({ testField: longNumString } as any);
+      component.body.set({ value: longNumString as any });
+      fixture.detectChanges();
+      tick();
+      expect(component.showMaxReachedMessage()).toBe(true);
+
+      utilsService.getNestedProperty.mockReturnValue('1' as any);
+      component.signal.set({ testField: '1' } as any);
+      component.body.set({ value: '1' as any });
+      fixture.detectChanges();
+      tick();
+      expect(component.showMaxReachedMessage()).toBe(false);
+    }));
+
+    it('updateMaxReachedMessage should react to text length threshold and null', fakeAsync(() => {
+      component.type = 'text';
+      const longText = 'a'.repeat(component.MAX_SAFE_TEXT);
+      utilsService.getNestedProperty.mockReturnValue(longText as any);
+      component.signal.set({ testField: longText } as any);
+      component.body.set({ value: longText });
+      fixture.detectChanges();
+      tick();
+      expect(component.showMaxReachedMessage()).toBe(true);
+
+      utilsService.getNestedProperty.mockReturnValue(null as any);
+      component.signal.set({ testField: null } as any);
+      component.body.set({ value: null });
+      fixture.detectChanges();
+      tick();
+      expect(component.showMaxReachedMessage()).toBe(false);
+    }));
   });
 
   // Edge cases and combinations
@@ -536,7 +599,7 @@ describe('InputComponent', () => {
         clipboardData: {
           getData: jest.fn().mockReturnValue('')
         }
-      };
+      } as any;
 
       // Empty paste
       component.handlePasteText(mockEvent);
