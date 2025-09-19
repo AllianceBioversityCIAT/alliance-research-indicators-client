@@ -1,3 +1,81 @@
+function withLocalStorage(map: Record<string, string | null>): void {
+  const store = new Map<string, string>();
+  for (const [k, v] of Object.entries(map)) {
+    if (v !== null) store.set(k, v);
+  }
+  jest.spyOn(Storage.prototype, 'getItem').mockImplementation(((key: string) => (store.has(key) ? store.get(key)! : null)) as any);
+  jest.spyOn(Storage.prototype, 'setItem').mockImplementation((key: string, value: string) => {
+    store.set(key, value);
+  });
+  jest.spyOn(Storage.prototype, 'removeItem').mockImplementation((key: string) => {
+    store.delete(key);
+  });
+}
+
+describe('CacheService', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('initializes dataCache from valid JSON and showMetadataPanel from LS', () => {
+    withLocalStorage({ data: JSON.stringify({ user: { sec_user_id: 9 } }), showMetadataPanel: 'true', isSidebarCollapsed: 'false' });
+    const service = TestBed.inject(CacheService);
+    expect(service.dataCache().user.sec_user_id).toBe(9);
+    expect(service.showMetadataPanel()).toBe(true);
+    expect(service.isSidebarCollapsed()).toBe(false);
+  });
+
+  it('falls back to empty object when JSON invalid', () => {
+    withLocalStorage({ data: '}{', isSidebarCollapsed: 'true' });
+    const service = TestBed.inject(CacheService);
+    expect(service.dataCache()).toEqual({});
+    expect(service.isSidebarCollapsed()).toBe(true);
+  });
+
+  it('currentResultIndicatorSectionPath covers all branches', () => {
+    const service = TestBed.inject(CacheService);
+    service.currentMetadata.set({ indicator_id: 1 } as any);
+    expect(service.currentResultIndicatorSectionPath()).toBe('capacity-sharing');
+    service.currentMetadata.set({ indicator_id: 2 } as any);
+    expect(service.currentResultIndicatorSectionPath()).toBe('innovation-details');
+    service.currentMetadata.set({ indicator_id: 4 } as any);
+    expect(service.currentResultIndicatorSectionPath()).toBe('policy-change');
+    service.currentMetadata.set({ indicator_id: 5 } as any);
+    expect(service.currentResultIndicatorSectionPath()).toBe('oicr-details');
+    service.currentMetadata.set({ indicator_id: 999 } as any);
+    expect(service.currentResultIndicatorSectionPath()).toBe('');
+  });
+
+  it('setCurrentResultId and getCurrentNumericResultId work for strings and numbers', () => {
+    const service = TestBed.inject(CacheService);
+    service.setCurrentResultId('STAR-2879');
+    expect(service.getCurrentNumericResultId()).toBe(2879);
+    service.setCurrentResultId(321);
+    expect(service.getCurrentNumericResultId()).toBe(321);
+  });
+
+  it('extractNumericId covers hyphen and plain numeric string', () => {
+    const service = TestBed.inject(CacheService);
+    expect(service.extractNumericId('TIP-2863')).toBe(2863);
+    expect(service.extractNumericId('4042')).toBe(4042);
+    expect(service.extractNumericId(77)).toBe(77);
+  });
+
+  it('allGreenChecksAreTrue and isMyResult computed branches', () => {
+    const service = TestBed.inject(CacheService);
+    service.greenChecks.set({ a: true, b: true } as any);
+    expect(service.allGreenChecksAreTrue()).toBe(true);
+    service.greenChecks.set({ a: true, b: false } as any);
+    expect(service.allGreenChecksAreTrue()).toBe(false);
+
+    service.dataCache.set({ user: { sec_user_id: 5 } } as any);
+    service.currentMetadata.set({ created_by: 5 } as any);
+    expect(service.isMyResult()).toBe(true);
+    service.currentMetadata.set({ created_by: 6 } as any);
+    expect(service.isMyResult()).toBe(false);
+  });
+});
+
 import { TestBed } from '@angular/core/testing';
 
 import { CacheService } from '@services/cache/cache.service';

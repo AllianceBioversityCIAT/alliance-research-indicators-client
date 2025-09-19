@@ -30,7 +30,7 @@ describe('GetMetadataService', () => {
   it('update returns true and sets metadata if status is 200', async () => {
     apiMock.GET_Metadata.mockResolvedValue({ status: 200, data: { foo: 'bar' } });
     const result = await service.update(1);
-    expect(apiMock.GET_Metadata).toHaveBeenCalledWith(1);
+    expect(apiMock.GET_Metadata).toHaveBeenCalledWith(1, undefined);
     expect(cacheMock.currentMetadata.set).toHaveBeenCalledWith({ foo: 'bar' });
     expect(result).toBe(true);
   });
@@ -38,7 +38,7 @@ describe('GetMetadataService', () => {
   it('update returns false and navigates if status is not 200', async () => {
     apiMock.GET_Metadata.mockResolvedValue({ status: 404 });
     const result = await service.update(2);
-    expect(apiMock.GET_Metadata).toHaveBeenCalledWith(2);
+    expect(apiMock.GET_Metadata).toHaveBeenCalledWith(2, undefined);
     expect(routerMock.navigate).toHaveBeenCalledWith(['/results-center']);
     expect(result).toBe(false);
   });

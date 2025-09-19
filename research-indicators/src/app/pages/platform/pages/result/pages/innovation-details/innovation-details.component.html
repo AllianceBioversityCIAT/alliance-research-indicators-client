@@ -1,6 +1,6 @@
 <div class="app-page-wrapper">
   <app-form-header />
-  <div class="flex flex-col gap-5">
+  <div class="flex flex-col gap-5 pb-5">
     <p-accordion [value]="['0']" multiple="true">
       <ng-template #globalToggleIcon let-active="active">
         @if (active) {
@@ -23,7 +23,7 @@
           </div>
         </p-accordion-header>
         <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-          <div class="flex flex-col bg-[#fcfcfc] gap-[18px] rounded-[10px] p-[10px] pt-8">
+          <div class="flex flex-col gap-[18px] rounded-[10px] p-[10px] pt-8">
             <app-input
               label="Short title"
               [signal]="body"
@@ -187,6 +187,17 @@
                 </h3>
               </div>
             }
+
+            <app-textarea class="mt-3"
+            [isRequired]="true"
+            [disabled]="!submission.isEditableStatus()"
+            [rows]="5"
+            helperText="Provide a brief explanation that explains how the provided evidence/documentation justifies the chosen innovation readiness level."
+            label="Readiness explanation"
+            [maxLength]="50"
+            [signal]="this.body"
+            [optionValue]="'innovation_readiness_explanation'"
+            placeholder="Write the explanation"></app-textarea>
           </div>
         </p-accordion-content>
       </p-accordion-panel>
@@ -205,7 +216,7 @@
           </div>
         </p-accordion-header>
         <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-          <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px] pt-8">
+          <div class="flex flex-col rounded-[10px] p-[10px] pt-8">
             <app-radio-button
               label="Who would be the user(s) of this Innovation?"
               [isRequired]="true"
@@ -321,7 +332,7 @@
             </div>
           </p-accordion-header>
           <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-            <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px] pt-8">
+            <div class="flex flex-col rounded-[10px] p-[10px] pt-8">
               <div class="flex flex-col gap-[18px]">
                 <div class="flex flex-col xl:flex-row">
                   <div class="flex-1">
@@ -382,15 +393,39 @@
                     </div>
 
                     <div class="flex-1 -mt-1">
-                      <app-select
+                      <app-multiselect
                         label="Tool function"
-                        [disabled]="!submission.isEditableStatus()"
+                        [signal]="body"
                         [isRequired]="true"
-                        [signal]="this.body"
-                        [optionValue]="{ body: 'knowledge_sharing_form.tool_function_id', option: 'id' }"
                         optionLabel="name"
+                        optionValue="id"
+                        signalOptionValue="knowledge_sharing_form.tool_function_id"
+                        [disabled]="!submission.isEditableStatus()"
+                        [removeCondition]="canRemove"
+                        [columnsOnXl]="true"
                         serviceName="toolFunctions"
-                        placeholder="Select the tool function"></app-select>
+                        placeholder="Select tool functions">
+                        <ng-template #selectedItems let-value>
+                          @if (value?.length > 0) {
+                            <div class="flex items-center gap-2">
+                              <span>{{ value?.length }} item{{ value?.length === 1 ? '' : 's' }} selected</span>
+                            </div>
+                          }
+                        </ng-template>
+                        <ng-template #item let-toolFunction>
+                          <span class="text-[#4C5158]">
+                            {{ toolFunction.name }}
+                          </span>
+                        </ng-template>
+                        <ng-template #rows let-toolFunction>
+                          <div class="flex flex-col gap-1.5 py-1">
+                            <span class="font-[500] text-[#4C5158] text-[15px]">{{ toolFunction.name }}</span>
+                            @if (toolFunction.description) {
+                              <span class="text-[12px] text-[#8d9299]">{{ toolFunction.description }}</span>
+                            }
+                          </div>
+                        </ng-template>
+                      </app-multiselect>
                     </div>
 
                     <div class="flex-1">
@@ -535,7 +570,7 @@
             </div>
           </p-accordion-header>
           <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-            <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[10px] pt-8">
+            <div class="flex flex-col rounded-[10px] p-[10px] pt-8">
               <span class="text-[#1689CA] text-[16px] leading-[17px] pb-3 font-semibold">Formulation</span>
               <div class="flex flex-col xl:flex-row xl:gap-[18px]">
                 <div class="flex-1 pb-5 xl:max-w-1/2 pr-18">

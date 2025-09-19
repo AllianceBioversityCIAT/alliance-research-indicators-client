@@ -261,4 +261,12 @@ describe('TextareaComponent', () => {
       expect(component.isInvalid()).toBe(false);
     });
   });
+
+  describe('value setter', () => {
+    it('should delegate to setValue method (covers line 66)', () => {
+      const setValueSpy = jest.spyOn(component, 'setValue');
+      component.value = 'test value';
+      expect(setValueSpy).toHaveBeenCalledWith('test value');
+    });
+  });
 });

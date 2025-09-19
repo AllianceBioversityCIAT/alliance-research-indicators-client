@@ -24,7 +24,11 @@ export class CacheService {
   );
   showMetadataPanel = signal(localStorage.getItem('showMetadataPanel') === 'true');
   currentSectionHeaderName = signal('');
-  currentResultId: WritableSignal<number> = signal(0);
+  currentResultId: WritableSignal<string | number> = signal(0, {
+    equal: (a, b) => {
+      return a === b;
+    }
+  });
   currentResultIsLoading = signal(false);
   currentUrlPath = signal('');
   currentMetadata: WritableSignal<GetMetadata> = signal({});
@@ -67,6 +71,10 @@ export class CacheService {
     this.currentSectionHeaderName.set(name);
   }
 
+  setCurrentResultId(id: string | number): void {
+    this.currentResultId.set(id);
+  }
+
   toggleSidebar() {
     this.isSidebarCollapsed.update(isCollapsed => !isCollapsed);
     localStorage.setItem('isSidebarCollapsed', this.isSidebarCollapsed().toString());
@@ -75,5 +83,20 @@ export class CacheService {
   collapseSidebar() {
     this.isSidebarCollapsed.set(true);
     localStorage.setItem('isSidebarCollapsed', 'true');
+  }
+
+  extractNumericId(id: string | number): number {
+    if (typeof id === 'number') return id;
+    
+    if (id.includes('-')) {
+      const parts = id.split('-');
+      const lastPart = parts[parts.length - 1];
+      return parseInt(lastPart, 10);
+    }
+    return parseInt(id, 10);
+  }
+
+  getCurrentNumericResultId(): number {
+    return this.extractNumericId(this.currentResultId());
   }
 }

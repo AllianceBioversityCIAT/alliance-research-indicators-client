@@ -94,7 +94,7 @@ describe('ResultsCenterComponent', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should load pinned tab on init', () => {
+    it('should load pinned tab', () => {
       const loadPinnedTabSpy = jest.spyOn(component, 'loadPinnedTab');
 
       component.ngOnInit();

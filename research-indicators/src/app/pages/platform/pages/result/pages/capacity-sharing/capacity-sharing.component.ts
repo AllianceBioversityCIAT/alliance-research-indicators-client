@@ -103,12 +103,11 @@ export default class CapacitySharingComponent {
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
 
-    const resultId = this.cache.currentResultId().toString();
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', this.cache.currentResultId(), path], {
         queryParams,
         replaceUrl: true
       });

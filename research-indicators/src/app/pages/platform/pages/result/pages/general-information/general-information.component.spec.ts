@@ -79,7 +79,7 @@ describe('GeneralInformationComponent', () => {
             })
           }
         },
-        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: jest.fn().mockReturnValue('1.0') } } } },
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: jest.fn().mockReturnValue('123') }, queryParamMap: { get: jest.fn().mockReturnValue('1.0') } } } },
         { provide: ApiService, useValue: apiServiceMock },
         { provide: SubmissionService, useValue: submissionServiceMock },
         { provide: GetMetadataService, useValue: getMetadataServiceMock },
@@ -239,7 +239,7 @@ describe('GeneralInformationComponent', () => {
     (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
     (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ success: true });
     (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
-    (route as any).snapshot = { queryParamMap: { get: jest.fn().mockReturnValue(null) } };
+    (route as any).snapshot = { paramMap: { get: jest.fn().mockReturnValue('123') }, queryParamMap: { get: jest.fn().mockReturnValue(null) } };
 
     await component.saveData('next');
 
@@ -248,7 +248,7 @@ describe('GeneralInformationComponent', () => {
 
   it('should handle saveData when not editable and page is next', async () => {
     (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(false);
-    (route as any).snapshot = { queryParamMap: { get: jest.fn().mockReturnValue('1.0') } };
+    (route as any).snapshot = { paramMap: { get: jest.fn().mockReturnValue('123') }, queryParamMap: { get: jest.fn().mockReturnValue('1.0') } };
 
     await component.saveData('next');
 

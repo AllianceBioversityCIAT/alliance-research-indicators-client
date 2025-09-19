@@ -86,18 +86,15 @@ export default class ResultsCenterComponent implements OnInit {
       const allPinned = pinValue.all === '1';
       const selfPinned = pinValue.self === '1';
 
-      if (allPinned) {
+      const showAll = allPinned || !selfPinned;
+      if (showAll) {
         this.pinnedTab.set('all');
         this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
         this.loadAllResults();
-      } else if (selfPinned) {
+      } else {
         this.pinnedTab.set('my');
         this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
         this.loadMyResults();
-      } else {
-        this.pinnedTab.set('all');
-        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
-        this.loadAllResults();
       }
     } else {
       this.pinnedTab.set('all');

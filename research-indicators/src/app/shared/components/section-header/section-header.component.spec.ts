@@ -12,18 +12,16 @@ import { MenuItemCommandEvent } from 'primeng/api';
 
 // Mock ResizeObserver
 class ResizeObserverMock {
+  private callback: ResizeObserverCallback;
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback;
+  }
   observe(target: Element) {
-    // Mock implementation
-    console.log('Mock observe called on:', target);
+    // Immediately invoke the callback to simulate a resize event
+    this.callback([], this as any);
   }
-  unobserve(target: Element) {
-    // Mock implementation
-    console.log('Mock unobserve called on:', target);
-  }
-  disconnect() {
-    // Mock implementation
-    console.log('Mock disconnect called');
-  }
+  unobserve(_target: Element) {}
+  disconnect() {}
 }
 
 global.ResizeObserver = ResizeObserverMock;
@@ -84,6 +82,8 @@ describe('SectionHeaderComponent', () => {
       currentRouteTitle: signal<string>('Test Title'),
       showSectionHeaderActions: signal<boolean>(true),
       currentResultId: signal<number>(123),
+      extractNumericId: jest.fn((id: string | number) => (typeof id === 'number' ? id : parseInt(String(id).split('-').pop() || '0', 10))),
+      getCurrentNumericResultId: jest.fn(() => 123),
       currentMetadata: signal({
         status_id: 5
       }),
@@ -96,7 +96,9 @@ describe('SectionHeaderComponent', () => {
     actionsService = {
       validateToken: jest.fn(),
       logOut: jest.fn(),
-      showGlobalAlert: jest.fn()
+      showGlobalAlert: jest.fn(),
+      hideGlobalAlert: jest.fn(),
+      showToast: jest.fn()
     };
 
     apiService = {
@@ -175,6 +177,66 @@ describe('SectionHeaderComponent', () => {
 
       expect(actionsService.showGlobalAlert).toHaveBeenCalled();
     }
+  });
+
+  it('should execute delete confirm flow successfully', async () => {
+    // Trigger menu open to register the alert with confirm callback
+    const deleteMenuItem = component.items().find(item => item.items?.some(subItem => subItem.label === 'Delete Result'));
+    const deleteCommand = deleteMenuItem?.items?.find(item => item.label === 'Delete Result')?.command;
+    const fakeEvent = { originalEvent: new Event('click'), item: {} } as MenuItemCommandEvent;
+    deleteCommand?.(fakeEvent);
+
+    // Capture the last call payload and run confirm callback
+    const lastCall = (actionsService.showGlobalAlert as jest.Mock).mock.calls.pop()?.[0];
+    expect(lastCall).toBeDefined();
+    await lastCall.confirmCallback.event();
+    // allow async IIFE inside the command to complete
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(actionsService.hideGlobalAlert).toHaveBeenCalled();
+    expect(actionsService.showToast).toHaveBeenCalledWith({ severity: 'success', summary: 'Result deleted', detail: 'Result deleted successfully' });
+    expect((routerSpy.navigate as jest.Mock)).toHaveBeenCalledWith(['/results-center']);
+  });
+
+  it('should handle unsuccessful delete response', async () => {
+    (apiService.DELETE_Result as jest.Mock).mockResolvedValueOnce({ successfulRequest: false });
+
+    const deleteMenuItem = component.items().find(item => item.items?.some(subItem => subItem.label === 'Delete Result'));
+    const deleteCommand = deleteMenuItem?.items?.find(item => item.label === 'Delete Result')?.command;
+    deleteCommand?.({ originalEvent: new Event('click'), item: {} } as MenuItemCommandEvent);
+
+    const lastCall = (actionsService.showGlobalAlert as jest.Mock).mock.calls.pop()?.[0];
+    await lastCall.confirmCallback.event();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(actionsService.hideGlobalAlert).toHaveBeenCalled();
+    expect(actionsService.showGlobalAlert).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error' }));
+    // Call inner error alert OK button handler
+    const innerErrorPayload = (actionsService.showGlobalAlert as jest.Mock).mock.calls.pop()?.[0];
+    innerErrorPayload.confirmCallback.event();
+    expect(actionsService.hideGlobalAlert).toHaveBeenCalled();
+  });
+
+  it('should handle delete API throwing error', async () => {
+    (apiService.DELETE_Result as jest.Mock).mockRejectedValueOnce(new Error('boom'));
+
+    const deleteMenuItem = component.items().find(item => item.items?.some(subItem => subItem.label === 'Delete Result'));
+    const deleteCommand = deleteMenuItem?.items?.find(item => item.label === 'Delete Result')?.command;
+    deleteCommand?.({ originalEvent: new Event('click'), item: {} } as MenuItemCommandEvent);
+
+    const lastCall = (actionsService.showGlobalAlert as jest.Mock).mock.calls.pop()?.[0];
+    await lastCall.confirmCallback.event();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(actionsService.hideGlobalAlert).toHaveBeenCalled();
+    expect(actionsService.showGlobalAlert).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error' }));
+    // Call inner error alert OK button handler
+    const innerErrorPayload2 = (actionsService.showGlobalAlert as jest.Mock).mock.calls.pop()?.[0];
+    innerErrorPayload2.confirmCallback.event();
+    expect(actionsService.hideGlobalAlert).toHaveBeenCalled();
   });
 
   it('should handle submission history action', () => {
@@ -368,6 +430,8 @@ describe('SectionHeaderComponent', () => {
       // Verify that ResizeObserver was created and observe was called
       expect(component['resizeObserver']).toBeDefined();
       expect(mockQuerySelector).toHaveBeenCalledWith('#section-sidebar');
+      // Because our mock calls the callback immediately, headerHeight should be updated
+      expect(headerHeightSpy).toHaveBeenCalledWith(150);
     });
   });
 

@@ -97,7 +97,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
       this.wasmLoaded.set(loaded);
     });
   }
-  async getOicrDetails(resultCode: number) {
+  async getOicrDetails(resultCode: number | string) {
     const response = await this.api.GET_OICRDetails(resultCode);
     response.data.other_projects_text = response.data.other_projects.map(project => project.project_id + ' - ' + project.project_title).join('\n\n');
 
@@ -110,7 +110,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
     this.mapFieldsToProcess(response.data);
   }
   async downloadOicrTemplate() {
-    await this.getOicrDetails(this.cache.currentResultId());
+    await this.getOicrDetails(this.cache.getCurrentNumericResultId());
     this.processing.set(true);
     this.result = null;
 
@@ -128,7 +128,7 @@ export class DownloadOicrTemplateComponent implements OnInit {
           '_' +
           now.getHours().toString().padStart(2, '0') +
           now.getMinutes().toString().padStart(2, '0');
-        this.wasm.downloadFile(fileData, `STAR_OICR_${this.cache.currentResultId()}_${dateTimeString}.docx`);
+        this.wasm.downloadFile(fileData, `STAR_OICR_${this.cache.getCurrentNumericResultId()}_${dateTimeString}.docx`);
       }
     } catch (error) {
       this.result = {

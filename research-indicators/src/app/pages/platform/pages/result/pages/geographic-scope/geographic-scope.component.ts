@@ -64,9 +64,8 @@ export default class GeographicScopeComponent {
         ...value,
         countries: []
       }));
+      this.isFirstSelect = false;
     }
-
-    this.isFirstSelect = false;
   };
 
   canRemove = (): boolean => {
@@ -101,7 +100,7 @@ export default class GeographicScopeComponent {
 
   async getData() {
     this.loading.set(true);
-    const response = await this.api.GET_GeoLocation(this.cache.currentResultId());
+    const response = await this.api.GET_GeoLocation(this.cache.getCurrentNumericResultId());
     response.data.countries?.forEach(country => {
       country.result_countries_sub_nationals.forEach(subNational => {
         subNational.name = subNational.sub_national?.name ?? '';
@@ -119,12 +118,12 @@ export default class GeographicScopeComponent {
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
 
-    const resultId = Number(this.cache.currentResultId());
+    const numericResultId = this.cache.getCurrentNumericResultId();
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', this.cache.currentResultId(), path], {
         queryParams,
         replaceUrl: true
       });
@@ -135,7 +134,7 @@ export default class GeographicScopeComponent {
         syncSubnationalArrayFromSignals(currentBody.countries);
         return currentBody;
       });
-      const response = await this.api.PATCH_GeoLocation(resultId, this.body());
+      const response = await this.api.PATCH_GeoLocation(numericResultId, this.body());
       if (!response.successfulRequest) {
         this.loading.set(false);
         return;

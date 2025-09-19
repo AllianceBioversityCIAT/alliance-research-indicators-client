@@ -49,7 +49,7 @@ export default class EvidenceComponent {
   async getData() {
     this.loading.set(true);
 
-    const response = await this.api.GET_ResultEvidences(this.cache.currentResultId());
+    const response = await this.api.GET_ResultEvidences(this.cache.getCurrentNumericResultId());
     const data = response.data;
 
     if (!data.evidence || data.evidence.length === 0) {
@@ -63,19 +63,19 @@ export default class EvidenceComponent {
   async saveData(page?: 'next' | 'back') {
     this.loading.set(true);
 
-    const resultId = Number(this.cache.currentResultId());
+    const numericResultId = this.cache.getCurrentNumericResultId();
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
     const navigateTo = (path: string) => {
-      this.router.navigate(['result', resultId, path], {
+      this.router.navigate(['result', this.cache.currentResultId(), path], {
         queryParams,
         replaceUrl: true
       });
     };
 
     if (this.submission.isEditableStatus()) {
-      await this.api.PATCH_ResultEvidences(resultId, this.body());
+      await this.api.PATCH_ResultEvidences(numericResultId, this.body());
 
       this.actions.showToast({
         severity: 'success',

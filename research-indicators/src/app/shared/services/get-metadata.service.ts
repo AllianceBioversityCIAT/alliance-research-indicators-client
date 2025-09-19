@@ -11,8 +11,8 @@ export class GetMetadataService {
   cache = inject(CacheService);
   router = inject(Router);
 
-  async update(id: number): Promise<boolean> {
-    const response = await this.api.GET_Metadata(id);
+  async update(id: number, platform?: string | null): Promise<boolean> {
+    const response = await this.api.GET_Metadata(id, platform || undefined);
     if (response?.status !== 200) {
       this.router.navigate(['/results-center']);
       return false;

@@ -91,7 +91,12 @@ export class ResultsCenterService {
       path: 'result_levers.lever.short_name',
       header: 'Primary Lever',
       maxWidth: 'max-w-[100px]',
-      getValue: (result: Result) => result.result_levers?.lever?.short_name ?? '-'
+      getValue: (result: Result) => {
+        if (!result.result_levers || !Array.isArray(result.result_levers)) return '-';
+        const primaryLevers = result.result_levers.filter(rl => rl.is_primary === 1);
+        if (primaryLevers.length === 0) return '-';
+        return primaryLevers.map(rl => rl.lever?.short_name).filter(Boolean).join(', ');
+      }
     },
     {
       field: 'year',

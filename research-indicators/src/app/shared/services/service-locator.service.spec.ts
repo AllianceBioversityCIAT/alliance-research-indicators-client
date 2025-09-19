@@ -157,6 +157,12 @@ describe('ServiceLocatorService', () => {
       expect(result).toBe(serviceMock);
     });
 
+    it('returns maturityLevels service', () => {
+      const result = (service as any).getPrimaryServices('maturityLevels');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('calls main(true) for countriesWithSubnational', () => {
       const svc = { main: jest.fn() };
       injectorMock.get.mockReturnValue(svc);

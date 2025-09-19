@@ -300,11 +300,11 @@ describe('resultInterceptor', () => {
   });
 
   describe('Platform detection', () => {
-    it('should add TP platform when URL contains TP-2804', () => {
+    it('should add TIP platform when URL contains TIP-2804', () => {
       const headers = new HttpHeaders().set('X-Use-Year', 'true');
       const request = new HttpRequest('GET', 'http://test.com/api/data', null, { headers });
 
-      mockRouter.url = '/result/TP-2804/general-information';
+      mockRouter.url = '/result/TIP-2804/general-information';
       mockRouter.parseUrl.mockReturnValue({
         queryParams: { version: '2023' }
       });
@@ -313,7 +313,7 @@ describe('resultInterceptor', () => {
 
       const calledRequest = mockHandler.mock.calls[0][0];
       expect(calledRequest.headers.has('X-Use-Year')).toBe(false);
-      expect(calledRequest.url).toBe('http://test.com/api/data?reportYear=2023&reportingPlatforms=TP');
+      expect(calledRequest.url).toBe('http://test.com/api/data?reportYear=2023&reportingPlatforms=TIP');
     });
 
     it('should add PRMS platform when URL contains PRMS-2804', () => {
@@ -368,7 +368,7 @@ describe('resultInterceptor', () => {
       const headers = new HttpHeaders().set('X-Use-Year', 'true');
       const request = new HttpRequest('GET', 'http://test.com/api/data', null, { headers });
 
-      mockRouter.url = '/result/TP-2804/general-information';
+      mockRouter.url = '/result/TIP-2804/general-information';
       mockRouter.parseUrl.mockReturnValue({
         queryParams: {}
       });
@@ -377,7 +377,7 @@ describe('resultInterceptor', () => {
 
       const calledRequest = mockHandler.mock.calls[0][0];
       expect(calledRequest.headers.has('X-Use-Year')).toBe(false);
-      expect(calledRequest.url).toBe('http://test.com/api/data?reportingPlatforms=TP');
+      expect(calledRequest.url).toBe('http://test.com/api/data?reportingPlatforms=TIP');
     });
 
     it('should handle both year and platform with existing query parameters', () => {

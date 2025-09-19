@@ -6,6 +6,7 @@ import { GetMetadataService } from '../../../../shared/services/get-metadata.ser
 import { SubmissionHistoryContentComponent } from './components/submission-history-content/submission-history-content.component';
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-result',
@@ -22,16 +23,27 @@ export default class ResultComponent {
   lastVersion: string | null = null;
   lastId: number | null = null;
 
+  routeParams = toSignal(this.route.params, { initialValue: {} });
+
   constructor() {
-    // Synchronize the global ID with the active route
     effect(() => {
-      const id = Number(this.route.snapshot.params['id']);
-      if (id > 0) {
-        this.cache.currentResultId.set(id);
+      const params = this.routeParams();
+      const idParam = params && 'id' in params ? (params['id'] as string) : undefined;
+      let id: number;
+
+      if (typeof idParam === 'string' && idParam.includes('-')) {
+        const parts = idParam.split('-');
+        const lastPart = parts[parts.length - 1];
+        id = parseInt(lastPart, 10);
+      } else {
+        id = Number(idParam);
+      }
+
+      if (id > 0 && !isNaN(id)) {
+        this.cache.setCurrentResultId(idParam || id);
       }
     });
 
-    // Control the metadata update only if id or version changes
     this.versionChangeEffect = effect(() => {
       this.checkAndUpdateMetadata();
     });
@@ -39,8 +51,8 @@ export default class ResultComponent {
 
   checkAndUpdateMetadata() {
     const version = this.versionWatcher.version();
-    const id = this.cache.currentResultId();
-    this.metadata.update(id);
+    const id = this.cache.getCurrentNumericResultId();
+
     if (id > 0 && (this.lastVersion !== version || this.lastId !== id)) {
       this.metadata.update(id);
       this.lastVersion = version;
