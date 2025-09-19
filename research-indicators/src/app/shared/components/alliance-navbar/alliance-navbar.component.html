@@ -2,7 +2,7 @@
 <div id="navbar" #navbar class="navbar bg-[#173F6F]">
   <div class="logo flex items-center gap-1" routerLink="/">
     <img [src]="'STAR.png' | s3ImageUrl" alt="" class="{{ hss ? 'h-[40px]' : 'h-[60px]' }}" />
-    @if (isTestingEnvironment) {
+    @if (!isProductionEnvironment) {
       <div class="bg-[#CF0808] text-white px-3 py-2 mr-3 rounded-lg font-semibold xl:text-[14px] text-[12px] shadow-lg whitespace-nowrap">
         Testing Environment
       </div>

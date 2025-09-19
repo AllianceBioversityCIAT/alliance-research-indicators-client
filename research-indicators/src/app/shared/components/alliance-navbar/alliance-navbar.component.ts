@@ -38,7 +38,7 @@ import { environment } from '../../../../environments/environment';
 export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navbar') navbarElement!: ElementRef;
   @ViewChild('dropdownRef') dropdownRef!: ElementRef;
-  isTestingEnvironment = environment.name === 'test';
+  isProductionEnvironment = environment.production;
   private resizeObserver: ResizeObserver | null = null;
   private readonly zone = inject(NgZone);
   dropdownsCache = inject(DropdownsCacheService);
