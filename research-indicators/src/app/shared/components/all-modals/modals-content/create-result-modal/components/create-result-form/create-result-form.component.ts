@@ -121,10 +121,20 @@ export class CreateResultFormComponent {
   }
 
   async getOicrMetadata() {
-    console.clear();
     const response = await this.api.GET_OICRMetadata();
     if (!response.successfulRequest) return;
-    console.log(response.data);
+    // Pre-fill OICR form fields with metadata
+    this.createResultManagementService.createOicrBody.update(b => ({
+      ...b,
+      step_two: {
+        ...b.step_two,
+        contributor_lever: response.data.step_two.contributor_lever.map(cl => ({
+          ...cl,
+          lever_id: Number(cl.lever_id)
+        }))
+      },
+      step_three: response.data.step_three
+    }));
   }
 
   navigateToOicr() {

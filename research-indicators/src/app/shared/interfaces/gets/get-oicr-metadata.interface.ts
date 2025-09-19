@@ -17,7 +17,7 @@ export interface StepTwo {
 }
 
 export interface ContributorLever {
-  lever_id: string;
+  lever_id: string | number;
 }
 
 export interface StepThree {
