@@ -73,6 +73,7 @@ export class ProjectResultsTableComponent implements OnInit {
       this.createResultManagementService.createOicrBody.set(response.data);
       this.allModalsService.openModal('createResult');
       this.createResultManagementService.resultPageStep.set(2);
+      this.createResultManagementService.modalTitle.set('Edit OICR');
     });
   }
 
