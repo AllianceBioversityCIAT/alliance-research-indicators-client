@@ -11,7 +11,8 @@ describe('AllModalsService', () => {
     const mockService = {
       resultPageStep: {
         set: jest.fn()
-      }
+      },
+      editingOicr: jest.fn(() => false)
     } as any;
 
     TestBed.configureTestingModule({
