@@ -539,7 +539,6 @@ describe('CognitoService', () => {
       let callCount = 0;
       const mockGetItem = jest.fn().mockImplementation(() => {
         callCount++;
-        // Primera llamada retorna un valor truthy, segunda llamada retorna null
         return callCount === 1 ? 'some-value' : null;
       });
       localStorage.getItem = mockGetItem;
@@ -559,7 +558,6 @@ describe('CognitoService', () => {
       let callCount = 0;
       const mockGetItem = jest.fn().mockImplementation(() => {
         callCount++;
-        // Primera llamada retorna un valor truthy, segunda llamada retorna undefined
         return callCount === 1 ? 'some-value' : undefined;
       });
       localStorage.getItem = mockGetItem;
