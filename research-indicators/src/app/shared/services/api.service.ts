@@ -66,6 +66,7 @@ import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
+import { OicrMetadata } from '../interfaces/gets/get-oicr-metadata.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -644,6 +645,11 @@ export class ApiService {
 
   GET_OICRModal = (resultCode: number): Promise<MainResponse<OicrCreation>> => {
     const url = () => `results/oicr/${resultCode}/modal`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_OICRMetadata = (resultCode = 1): Promise<MainResponse<OicrMetadata>> => {
+    const url = () => `temp/oicrs/${resultCode}/metadata`;
     return this.TP.get(url(), {});
   };
 
