@@ -13,6 +13,7 @@ import { CustomTagComponent } from '@components/custom-tag/custom-tag.component'
 import { CacheService } from '@services/cache/cache.service';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
+import { S3ImageUrlPipe } from '../../pipes/s3-image-url.pipe';
 @Component({
   selector: 'app-project-results-table',
   imports: [
@@ -24,7 +25,8 @@ import { CreateResultManagementService } from '@shared/components/all-modals/mod
     FilterByTextWithAttrPipe,
     FormsModule,
     RouterLink,
-    CustomTagComponent
+    CustomTagComponent,
+    S3ImageUrlPipe
   ],
   templateUrl: './project-results-table.component.html',
   styleUrl: './project-results-table.component.scss'
