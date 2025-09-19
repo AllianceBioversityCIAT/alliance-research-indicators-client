@@ -73,12 +73,7 @@ export class CacheService {
     this.currentSectionHeaderName.set(name);
   }
 
-  /**
-   * Establece el currentResultId preservando el ID completo con plataforma
-   * @param id - ID que puede venir como string (ej: "TIP-2863") o número (ej: 2863)
-   */
   setCurrentResultId(id: string | number): void {
-    // Preservar el ID completo tal como viene
     this.currentResultId.set(id);
   }
 
@@ -92,11 +87,6 @@ export class CacheService {
     localStorage.setItem('isSidebarCollapsed', 'true');
   }
 
-  /**
-   * Extract numeric ID from platform-prefixed ID
-   * @param id - The ID string (e.g., "STAR-2879" or "2879")
-   * @returns The numeric ID (e.g., 2879)
-   */
   extractNumericId(id: string | number): number {
     if (typeof id === 'number') return id;
 
@@ -108,10 +98,6 @@ export class CacheService {
     return parseInt(id, 10);
   }
 
-  /**
-   * Get the current numeric result ID
-   * @returns The numeric ID from currentResultId
-   */
   getCurrentNumericResultId(): number {
     return this.extractNumericId(this.currentResultId());
   }
