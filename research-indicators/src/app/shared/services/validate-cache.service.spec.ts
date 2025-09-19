@@ -47,6 +47,8 @@ describe('ValidateCacheService', () => {
 
     Object.defineProperty(window, 'localStorage', { value: mockLocalStorage, configurable: true });
     Object.defineProperty(window, 'location', { value: { reload: jest.fn() }, configurable: true });
+    Object.defineProperty(window, 'alert', { value: jest.fn(), configurable: true });
+    Object.defineProperty(window, 'confirm', { value: jest.fn().mockReturnValue(true), configurable: true });
 
     // Mock caches API
     Object.defineProperty(window, 'caches', {
@@ -71,119 +73,108 @@ describe('ValidateCacheService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should not request update if versions are the same', async () => {
-    const version = '1.0.0';
-    localStorage.setItem('lastVersionValidated', version);
-    (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: version } });
-    const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion');
+  describe('validateVersions', () => {
+    it('should not request update if versions are the same', async () => {
+      const version = '1.0.0';
+      localStorage.setItem('lastVersionValidated', version);
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: version } });
+      const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
 
-    await service.validateVersions();
+      await service.validateVersions();
 
-    expect(requestUpdateSpy).not.toHaveBeenCalled();
+      expect(requestUpdateSpy).not.toHaveBeenCalled();
+    });
+
+    it('should request update if versions are different', async () => {
+      const oldVersion = '1.0.0';
+      const newVersion = '1.1.0';
+      localStorage.setItem('lastVersionValidated', oldVersion);
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
+      const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
+
+      await service.validateVersions();
+
+      expect(requestUpdateSpy).toHaveBeenCalledWith(newVersion);
+    });
+
+    it('should request update if no local version', async () => {
+      const newVersion = '1.1.0';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
+      const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
+
+      await service.validateVersions();
+
+      expect(requestUpdateSpy).toHaveBeenCalledWith(newVersion);
+    });
+
+    it('should apply silent update if pending version matches current', async () => {
+      const version = '1.1.0';
+      localStorage.setItem('pendingUpdateVersion', version);
+      localStorage.setItem('lastVersionValidated', '1.0.0');
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: version } });
+      const applySilentUpdateSpy = jest.spyOn(service as any, 'applySilentUpdate').mockResolvedValue(undefined);
+
+      await service.validateVersions();
+
+      expect(applySilentUpdateSpy).toHaveBeenCalledWith(version);
+    });
   });
 
-  it('should request update if versions are different', async () => {
-    const oldVersion = '1.0.0';
-    const newVersion = '1.1.0';
-    localStorage.setItem('lastVersionValidated', oldVersion);
-    (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
-    const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
-
-    await service.validateVersions();
-
-    expect(requestUpdateSpy).toHaveBeenCalled();
-    expect(localStorage.getItem('lastVersionValidated')).toBe(newVersion);
-  });
-
-  it('should request update if no local version', async () => {
-    const newVersion = '1.1.0';
-    (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
-    const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
-
-    await service.validateVersions();
-
-    expect(requestUpdateSpy).toHaveBeenCalled();
-    expect(localStorage.getItem('lastVersionValidated')).toBe(newVersion);
-  });
-
-  it('should request update when local version is null', async () => {
-    const newVersion = '1.1.0';
-    localStorage.removeItem('lastVersionValidated');
-    (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
-    const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
-
-    await service.validateVersions();
-
-    expect(requestUpdateSpy).toHaveBeenCalled();
-    expect(localStorage.getItem('lastVersionValidated')).toBe(newVersion);
-  });
-
-  it('should request update when versions are different and local exists', async () => {
-    const oldVersion = '1.0.0';
-    const newVersion = '1.1.0';
-    localStorage.setItem('lastVersionValidated', oldVersion);
-    (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
-    const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
-
-    await service.validateVersions();
-
-    expect(requestUpdateSpy).toHaveBeenCalled();
-    expect(localStorage.getItem('lastVersionValidated')).toBe(newVersion);
-  });
-
-  it('should not request update when versions are the same and local version exists', async () => {
-    const version = '1.0.0';
-    localStorage.setItem('lastVersionValidated', version);
-    (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: version } });
-    const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
-
-    await service.validateVersions();
-
-    expect(requestUpdateSpy).not.toHaveBeenCalled();
-    expect(localStorage.getItem('lastVersionValidated')).toBe(version);
-  });
-
-  it('should handle case where localStorage returns empty string', async () => {
-    const newVersion = '1.1.0';
-    localStorage.setItem('lastVersionValidated', '');
-    (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
-    const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
-
-    await service.validateVersions();
-
-    expect(requestUpdateSpy).toHaveBeenCalled();
-    expect(localStorage.getItem('lastVersionValidated')).toBe(newVersion);
-  });
-
-  it('should handle case where new version is empty string and local version exists', async () => {
-    const oldVersion = '1.0.0';
-    const newVersion = '';
-    localStorage.setItem('lastVersionValidated', oldVersion);
-    (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
-    const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
-
-    await service.validateVersions();
-
-    expect(requestUpdateSpy).toHaveBeenCalled();
-    expect(localStorage.getItem('lastVersionValidated')).toBe(newVersion);
-  });
-
-  describe('clearImageCaches', () => {
+  describe('requeestUpdateFrontVersion', () => {
     beforeEach(() => {
-      // Mock caches API with more detailed behavior
+      jest.spyOn(service as any, 'downloadUpdatesInBackground').mockResolvedValue(undefined);
+      jest.spyOn(service as any, 'performImmediateUpdate').mockResolvedValue(undefined);
+    });
+
+    it('should perform immediate update when user confirms', async () => {
+      const version = '1.1.0';
+      (window.confirm as jest.Mock).mockReturnValue(true);
+      const performUpdateSpy = jest.spyOn(service as any, 'performImmediateUpdate');
+
+      await service.requeestUpdateFrontVersion(version);
+
+      expect(window.confirm).toHaveBeenCalledWith(
+        '🔄 New changes are available. Do you want to update the application now?\n\nThis will clear the cache and reload the page.'
+      );
+      expect(performUpdateSpy).toHaveBeenCalledWith(version);
+    });
+
+    it('should download in background when user cancels', async () => {
+      const version = '1.1.0';
+      (window.confirm as jest.Mock).mockReturnValue(false);
+      const downloadSpy = jest.spyOn(service as any, 'downloadUpdatesInBackground');
+
+      await service.requeestUpdateFrontVersion(version);
+
+      expect(downloadSpy).toHaveBeenCalledWith(version);
+    });
+
+    it('should handle error and show alert', async () => {
+      const version = '1.1.0';
+      const error = new Error('Update error');
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      jest.spyOn(service as any, 'performImmediateUpdate').mockRejectedValue(error);
+
+      await service.requeestUpdateFrontVersion(version);
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error updating front version:', error);
+      expect(window.alert).toHaveBeenCalledWith('❌ Update error. Please reload the page manually (Ctrl+F5 or Cmd+Shift+R)');
+
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('clearStaticResourceCaches', () => {
+    beforeEach(() => {
       const mockCache = {
         keys: jest
           .fn()
           .mockResolvedValue([
+            { url: 'https://example.com/style.css' },
+            { url: 'https://example.com/script.js' },
             { url: 'https://example.com/image.png' },
-            { url: 'https://example.com/image.jpg' },
-            { url: 'https://example.com/image.jpeg' },
-            { url: 'https://example.com/image.gif' },
-            { url: 'https://example.com/image.svg' },
-            { url: 'https://example.com/image.webp' },
-            { url: 'https://example.com/image.ico' },
-            { url: 'https://example.com/image.bmp' },
-            { url: 'https://example.com/script.js' }
+            { url: 'https://example.com/font.woff2' },
+            { url: 'https://example.com/data.json' }
           ]),
         delete: jest.fn().mockResolvedValue(true)
       };
@@ -198,28 +189,27 @@ describe('ValidateCacheService', () => {
       });
     });
 
-    it('should clear image caches successfully', async () => {
+    it('should clear static resource caches successfully', async () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-      await (service as any).clearImageCaches();
+      await (service as any).clearStaticResourceCaches();
 
       expect(window.caches.keys).toHaveBeenCalled();
       expect(window.caches.open).toHaveBeenCalledWith('cache1');
       expect(window.caches.open).toHaveBeenCalledWith('cache2');
-      expect(consoleSpy).toHaveBeenCalledWith('Image caches cleared successfully');
+      expect(consoleSpy).toHaveBeenCalledWith('Static resource caches (CSS, JS, images) cleared successfully');
 
       consoleSpy.mockRestore();
     });
 
-    it('should handle error when clearing image caches', async () => {
+    it('should handle error when clearing static resource caches', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Cache error');
 
       (window.caches.keys as jest.Mock).mockRejectedValue(error);
 
-      await (service as any).clearImageCaches();
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error clearing image caches:', error);
+      await expect((service as any).clearStaticResourceCaches()).rejects.toThrow(error);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error clearing static resource caches:', error);
 
       consoleErrorSpy.mockRestore();
     });
@@ -227,46 +217,7 @@ describe('ValidateCacheService', () => {
     it('should do nothing if caches API is not available', async () => {
       Object.defineProperty(window, 'caches', { value: undefined, configurable: true });
 
-      await expect((service as any).clearImageCaches()).resolves.not.toThrow();
-    });
-  });
-
-  describe('requeestUpdateFrontVersion', () => {
-    beforeEach(() => {
-      jest.spyOn(service as any, 'clearAllCaches').mockResolvedValue(undefined);
-      jest.spyOn(service as any, 'clearImageCaches').mockResolvedValue(undefined);
-      jest.spyOn(service as any, 'updateServiceWorker').mockResolvedValue(undefined);
-      jest.spyOn(service as any, 'forceReload').mockImplementation();
-    });
-
-    it('should execute update process successfully', async () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
-      await service.requeestUpdateFrontVersion();
-
-      expect(consoleSpy).toHaveBeenCalledWith('New version available, updating application...');
-      expect(service as any).toHaveProperty('clearAllCaches');
-      expect(service as any).toHaveProperty('clearImageCaches');
-      expect(service as any).toHaveProperty('updateServiceWorker');
-      expect(service as any).toHaveProperty('forceReload');
-
-      consoleSpy.mockRestore();
-    });
-
-    it('should handle error and show alert', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      const alertSpy = jest.spyOn(window, 'alert').mockImplementation();
-      const error = new Error('Update error');
-
-      jest.spyOn(service as any, 'clearAllCaches').mockRejectedValue(error);
-
-      await service.requeestUpdateFrontVersion();
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error updating front version:', error);
-      expect(alertSpy).toHaveBeenCalledWith('A new version is available, please refresh the page manually');
-
-      consoleErrorSpy.mockRestore();
-      alertSpy.mockRestore();
+      await expect((service as any).clearStaticResourceCaches()).resolves.not.toThrow();
     });
   });
 
@@ -287,7 +238,7 @@ describe('ValidateCacheService', () => {
 
       expect(window.caches.keys).toHaveBeenCalled();
       expect(window.caches.delete).toHaveBeenCalledTimes(3);
-      expect(consoleSpy).toHaveBeenCalledWith('All caches cleared successfully');
+      expect(consoleSpy).toHaveBeenCalledWith('All 3 caches processed successfully');
 
       consoleSpy.mockRestore();
     });
@@ -303,8 +254,7 @@ describe('ValidateCacheService', () => {
         configurable: true
       });
 
-      await (service as any).clearAllCaches();
-
+      await expect((service as any).clearAllCaches()).rejects.toThrow(error);
       expect(consoleErrorSpy).toHaveBeenCalledWith('Error clearing caches:', error);
 
       consoleErrorSpy.mockRestore();
@@ -354,8 +304,7 @@ describe('ValidateCacheService', () => {
       mockSwUpdate.isEnabled = true;
       mockSwUpdate.checkForUpdate = jest.fn().mockRejectedValue(error);
 
-      await (service as any).updateServiceWorker();
-
+      await expect((service as any).updateServiceWorker()).rejects.toThrow(error);
       expect(consoleErrorSpy).toHaveBeenCalledWith('Error updating service worker:', error);
 
       consoleErrorSpy.mockRestore();
@@ -375,31 +324,66 @@ describe('ValidateCacheService', () => {
   });
 
   describe('forceReload', () => {
-    beforeEach(() => {
-      jest.useFakeTimers();
-      Object.defineProperty(window, 'location', {
-        value: { reload: jest.fn() },
-        configurable: true
-      });
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    it('should force page reload after 1 second', () => {
+    it('should force page reload immediately', () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-      const reloadSpy = jest.spyOn(window.location, 'reload');
+      const reloadSpy = jest.spyOn(window.location, 'reload').mockImplementation();
 
       (service as any).forceReload();
 
-      expect(consoleSpy).toHaveBeenCalledWith('Forcing page reload in 1 second...');
-      expect(reloadSpy).not.toHaveBeenCalled();
-
-      // Fast-forward time
-      jest.advanceTimersByTime(1000);
-
+      expect(consoleSpy).toHaveBeenCalledWith('Forcing page reload immediately...');
+      expect(window.alert).toHaveBeenCalledWith('✅ Cache cleared successfully. The application will reload now...');
       expect(reloadSpy).toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('downloadUpdatesInBackground', () => {
+    it('should download updates and set pending version', async () => {
+      const version = '1.1.0';
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      jest.spyOn(service as any, 'updateServiceWorker').mockResolvedValue(undefined);
+
+      await (service as any).downloadUpdatesInBackground(version);
+
+      expect(localStorage.getItem('pendingUpdateVersion')).toBe(version);
+      expect(consoleSpy).toHaveBeenCalledWith('Downloading updates in background...');
+      expect(consoleSpy).toHaveBeenCalledWith(`Version ${version} downloaded and ready for next refresh`);
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('performImmediateUpdate', () => {
+    it('should perform immediate update and set version', async () => {
+      const version = '1.1.0';
+      jest.spyOn(service as any, 'clearAllCaches').mockResolvedValue(undefined);
+      jest.spyOn(service as any, 'clearStaticResourceCaches').mockResolvedValue(undefined);
+      jest.spyOn(service as any, 'clearApplicationCache').mockResolvedValue(undefined);
+      jest.spyOn(service as any, 'updateServiceWorker').mockResolvedValue(undefined);
+      jest.spyOn(service as any, 'forceReload').mockImplementation();
+
+      await (service as any).performImmediateUpdate(version);
+
+      expect(localStorage.getItem('lastVersionValidated')).toBe(version);
+      expect(localStorage.getItem('pendingUpdateVersion')).toBeNull();
+    });
+  });
+
+  describe('applySilentUpdate', () => {
+    it('should apply silent update and set version', async () => {
+      const version = '1.1.0';
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      jest.spyOn(service as any, 'clearAllCaches').mockResolvedValue(undefined);
+      jest.spyOn(service as any, 'clearStaticResourceCaches').mockResolvedValue(undefined);
+      jest.spyOn(service as any, 'clearApplicationCache').mockResolvedValue(undefined);
+
+      await (service as any).applySilentUpdate(version);
+
+      expect(localStorage.getItem('lastVersionValidated')).toBe(version);
+      expect(localStorage.getItem('pendingUpdateVersion')).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith('Applying silent update...');
+      expect(consoleSpy).toHaveBeenCalledWith(`Silent update applied for version ${version}`);
 
       consoleSpy.mockRestore();
     });
