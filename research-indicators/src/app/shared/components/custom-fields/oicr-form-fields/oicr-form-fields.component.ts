@@ -12,6 +12,7 @@ import { ApiService } from '@shared/services/api.service';
 import { UtilsService } from '@shared/services/utils.service';
 import { WordCountService } from '@shared/services/word-count.service';
 import { ActionsService } from '@shared/services/actions.service';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 type OicrFormBody = OicrCreation | PatchOicr;
 
@@ -54,6 +55,7 @@ export class OicrFormFieldsComponent {
   isAiLoading = signal(false);
   isTyping = signal(false);
   aiError = signal('');
+  rolesService = inject(RolesService);
   private aiTimeoutId: number | null = null;
 
   taggingHelperText = OICR_HELPER_TEXTS.taggingHelperText;

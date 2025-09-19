@@ -1,3 +1,4 @@
+@let isAdmin = this.rolesService.isAdmin();
 <ng-template #next>
   <button
     type="button"
@@ -20,7 +21,7 @@
   <button
     class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
     (click)="createResult()"
-    [disabled]="loading || isDisabled">
+    [disabled]="loading || isDisabled || !isAdmin">
     @if (loading) {
       <div class="min-w-[191px]">
         <i class="pi pi-spinner pi-spin text-white text-xs"></i>
@@ -139,6 +140,7 @@
           <div class="flex flex-col pt-2">
             <app-multiselect
               label="Primary Levers"
+              [disabled]="!isAdmin"
               [signal]="createResultManagementService.createOicrBody"
               optionValue="lever_id"
               signalOptionValue="step_two.primary_lever"
@@ -178,6 +180,7 @@
           <div class="flex flex-col pt-2">
             <app-multiselect
               label="Other Contributing Levers"
+              [disabled]="!isAdmin"
               [signal]="createResultManagementService.createOicrBody"
               optionValue="lever_id"
               signalOptionValue="step_two.contributor_lever"
@@ -232,6 +235,7 @@
           <div class="flex flex-col gap-8">
             <app-radio-button
               [isRequired]="true"
+              [disabled]="!isAdmin"
               label="What is the main geographic focus of the Impact?"
               helperText="This should reflect where the Impact has taken place/contributed to benefit."
               [signal]="createResultManagementService.createOicrBody"
@@ -246,6 +250,7 @@
               <app-multiselect
                 [signal]="createResultManagementService.createOicrBody"
                 [optionLabel]="'name'"
+                [disabled]="!isAdmin"
                 class="-mt-5"
                 [optionValue]="'region_id'"
                 [signalOptionValue]="'step_three.regions'"
@@ -259,6 +264,7 @@
             @if (getMultiselectLabel().country.label) {
               @if (isGeoScopeId(5)) {
                 <app-multiselect
+                  [disabled]="!isAdmin"
                   (selectEvent)="onSelect()"
                   [signal]="createResultManagementService.createOicrBody"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
@@ -347,6 +353,7 @@
           <div class="flex flex-col pt-2">
             <app-textarea
               [rows]="5"
+              [disabled]="!isAdmin"
               label="Comments Geographic Scope"
               helperText="Provide additional information about the geographic scope, if necessary."
               [maxLength]="1000"
@@ -374,6 +381,7 @@
           <div class="flex flex-col">
             <app-textarea
               [rows]="5"
+              [disabled]="!isAdmin"
               label="Comments, questions or anything else?"
               [maxLength]="400"
               [signal]="this.createResultManagementService.createOicrBody"

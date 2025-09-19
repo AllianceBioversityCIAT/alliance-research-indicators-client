@@ -49,6 +49,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { Router } from '@angular/router';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
@@ -85,6 +86,7 @@ export class CreateOicrFormComponent {
   cache = inject(CacheService);
   api = inject(ApiService);
   router = inject(Router);
+  rolesService = inject(RolesService);
 
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
