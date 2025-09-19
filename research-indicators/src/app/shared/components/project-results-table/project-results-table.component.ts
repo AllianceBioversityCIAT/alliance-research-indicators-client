@@ -13,7 +13,7 @@ import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { CacheService } from '../../services/cache/cache.service';
 import { AllModalsService } from '../../services/cache/all-modals.service';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
-import { S3ImageUrlPipe } from '../../pipes/s3-image-url.pipe';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 @Component({
   selector: 'app-project-results-table',
   imports: [
