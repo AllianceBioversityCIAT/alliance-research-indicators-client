@@ -120,7 +120,15 @@ export class CreateResultFormComponent {
     return contract?.lever_id;
   }
 
+  async getOicrMetadata() {
+    console.clear();
+    const response = await this.api.GET_OICRMetadata();
+    if (!response.successfulRequest) return;
+    console.log(response.data);
+  }
+
   navigateToOicr() {
+    this.getOicrMetadata();
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);
     this.createResultManagementService.setYear(this.body().year);
