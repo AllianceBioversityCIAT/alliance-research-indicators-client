@@ -97,7 +97,7 @@ export class CacheService {
    */
   extractNumericId(id: string | number): number {
     if (typeof id === 'number') return id;
-    
+
     if (id.includes('-')) {
       const parts = id.split('-');
       const lastPart = parts[parts.length - 1];

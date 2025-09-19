@@ -333,7 +333,7 @@ export class CreateOicrFormComponent {
       this.createResultManagementService.currentRequestedResultCode() || undefined
     );
     // clean currentRequestedResultCode
-    this.createResultManagementService.currentRequestedResultCode.set(null);
+
     if (response.status !== 200 && response.status !== 201) {
       this.actions.handleBadRequest(response, () => {
         this.createResultManagementService.resultPageStep.set(0);
@@ -341,22 +341,28 @@ export class CreateOicrFormComponent {
     } else {
       this.actions.showGlobalAlert({
         severity: 'success',
-        summary: 'Thank you for your submission',
+        summary: `Thank you for ${(this.createResultManagementService.currentRequestedResultCode() && 'update') || ''} your submission`,
         hasNoCancelButton: true,
         detail:
           'Your OICR will be reviewed by PISA-SPRM and the assigned regional MEL specialist will reach out to support you in finalizing the next steps of the OICR development process.',
         confirmCallback: {
           label: 'Done',
           event: () => {
-            this.router.navigate(['result', response.data.result_official_code], {
-              replaceUrl: true
-            });
+            this.router.navigate(
+              this.createResultManagementService.createOicrBody().base_information.indicator_id === 5
+                ? ['project-detail/', this.createResultManagementService.createOicrBody()?.base_information?.contract_id]
+                : ['result', response.data.result_official_code],
+              {
+                replaceUrl: true
+              }
+            );
             this.allModalsService.closeModal('createResult');
             this.getResultsService.updateList();
           }
         }
       });
     }
+    this.createResultManagementService.currentRequestedResultCode.set(null);
   }
 
   goNext() {
