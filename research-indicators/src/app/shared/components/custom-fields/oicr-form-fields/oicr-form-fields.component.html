@@ -79,7 +79,7 @@
               @if (item?.handle_link) {
                 <span class="text-[#B9C0C5]">|</span>
                 CGSpace link <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                <span class="text-[#1689CA] underline">{{ item?.handle_link }}</span>
+                <a [href]="item?.handle_link" target="_blank" class="text-[#1689CA] underline">{{ item?.handle_link }}</a>
               }
             </p>
           </div>
@@ -108,7 +108,7 @@
                 @if (item?.handle_link) {
                   <span class="text-[#B9C0C5]">|</span>
                   CGSpace link <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                  <span class="text-[#1689CA] underline">{{ item?.handle_link }}</span>
+                  <a [href]="item?.handle_link" target="_blank" class="text-[#1689CA] underline">{{ item?.handle_link }}</a>
                   }
               </p>
             </div>
