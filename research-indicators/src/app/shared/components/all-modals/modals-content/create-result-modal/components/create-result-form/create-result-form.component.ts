@@ -121,7 +121,7 @@ export class CreateResultFormComponent {
   }
 
   async getOicrMetadata() {
-    const response = await this.api.GET_OICRMetadata();
+    const response = await this.api.GET_OICRMetadata(1);
     if (!response.successfulRequest) return;
     // Pre-fill OICR form fields with metadata
     this.createResultManagementService.createOicrBody.update(b => ({

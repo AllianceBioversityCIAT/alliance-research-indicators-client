@@ -15,6 +15,7 @@ export class CreateResultManagementService {
   modalTitle = signal<string>('Create A Result');
   currentRequestedResultCode = signal<number | null>(null);
   oicrPrimaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
+  editingOicr = signal<boolean>(false);
   createOicrBody: WritableSignal<OicrCreation> = signal({
     step_one: {
       main_contact_person: {

@@ -9,5 +9,5 @@ export class RolesService {
   createResultManagementService = inject(CreateResultManagementService);
   cache = inject(CacheService);
   isAdmin = computed(() => this.cache.dataCache().user.user_role_list.some(role => role.role_id === 9));
-  canEditOicr = computed(() => this.isAdmin() || !this.createResultManagementService.currentRequestedResultCode());
+  canEditOicr = computed(() => (this.createResultManagementService.editingOicr() ? this.isAdmin() : true));
 }

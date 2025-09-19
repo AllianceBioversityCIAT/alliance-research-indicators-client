@@ -26,6 +26,7 @@ import { AllModalsService } from '@services/cache/all-modals.service';
 import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.service';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { CreateResultManagementService } from '../all-modals/modals-content/create-result-modal/services/create-result-management.service';
 
 @Component({
   selector: 'alliance-navbar',
@@ -51,6 +52,7 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
   service: any;
   private searchDebounceTimeout: any;
   showDropdown = false;
+  createResultManagementService = inject(CreateResultManagementService);
 
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home', underConstruction: false },
