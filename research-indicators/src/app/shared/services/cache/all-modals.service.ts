@@ -1,6 +1,7 @@
 import { effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { ModalName } from '@ts-types/modal.types';
+import { RolesService } from '@services/cache/roles.service';
 
 interface ModalConfig {
   isOpen: boolean;
@@ -77,7 +78,9 @@ export class AllModalsService {
       modal.createResult = {
         isOpen: modal.createResult.isOpen,
         title: 'Create A Result',
-        ...(step === 1 || step === 2 ? { iconAction: () => this.goBackFunction?.(), icon: 'arrow_back' } : {})
+        ...(step === 1 || step === 2
+          ? { iconAction: () => this.goBackFunction?.(), icon: !this.createResultManagementService.editingOicr() ? 'arrow_back' : '' }
+          : {})
       };
       return modal;
     });
