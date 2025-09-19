@@ -31,6 +31,7 @@ export class AllModalsComponent {
   });
 
   clearModal = () => {
+    this.createResultManagementService.currentRequestedResultCode.set(null);
     setTimeout(() => {
       this.createResultManagementService.resultPageStep.set(0);
     }, 300);

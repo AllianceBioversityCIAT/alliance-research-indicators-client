@@ -41,7 +41,7 @@ export default class ProjectResultsTableComponent implements OnInit, OnDestroy {
 
   activityValues: number[] = [0, 100];
 
-  searchValue = 'a100';
+  searchValue = '';
 
   resultList: WritableSignal<GetResultsByContract[]> = signal([]);
 
