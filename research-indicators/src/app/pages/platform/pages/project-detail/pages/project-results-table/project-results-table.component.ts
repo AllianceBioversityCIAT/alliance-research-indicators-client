@@ -66,6 +66,7 @@ export default class ProjectResultsTableComponent implements OnInit, OnDestroy {
 
   openEditRequestdOicrsModal(id: number) {
     this.createResultManagementService.currentRequestedResultCode.set(id);
+    this.createResultManagementService.editingOicr.set(true);
     this.api.GET_OICRModal(id).then(response => {
       this.createResultManagementService.createOicrBody.set(response.data);
       this.allModalsService.openModal('createResult');

@@ -8,7 +8,7 @@
       </div>
     }
   </div>
-  
+
   <div class="options">
     @for (option of this.options; track $index) {
       @if (!option.hide) {
@@ -36,7 +36,7 @@
       severity="info"
       size="small"
       styleClass="!rounded-[15px] {{ hss ? '!h-7.5 !text-[13px]' : '!h-9 !text-[16px]' }}"
-      (onClick)="this.allModalsService.openModal('createResult')"
+      (onClick)="this.allModalsService.openModal('createResult'); this.createResultManagementService.editingOicr.set(false)"
       [style]="{ 'margin-left': '20px', 'min-width': '105px !important' }" />
     <div class="icons-container">
       <div class="search-box {{ hss ? '!w-60' : '' }} !w-60 xl:!w-75 ml-3">

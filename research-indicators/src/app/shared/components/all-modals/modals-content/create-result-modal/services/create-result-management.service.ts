@@ -15,6 +15,7 @@ export class CreateResultManagementService {
   year = signal<number | null>(null);
   modalTitle = signal<string>('Create A Result');
   currentRequestedResultCode = signal<number | null>(null);
+  editingOicr = signal<boolean>(false);
   oicrPrimaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
   createOicrBody: WritableSignal<OicrCreation> = signal({
     step_one: {
@@ -79,7 +80,6 @@ export class CreateResultManagementService {
   setPresetFromProjectResultsTable(value: boolean) {
     this.presetFromProjectResultsTable.set(value);
   }
-
 
   setResultTitle(title: string | null) {
     this.resultTitle.set(title);
