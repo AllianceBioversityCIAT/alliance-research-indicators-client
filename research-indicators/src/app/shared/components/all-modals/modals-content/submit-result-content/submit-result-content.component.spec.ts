@@ -209,6 +209,47 @@ describe('SubmitResultContentComponent', () => {
     expect(mockSubmissionService.statusSelected()).toBeNull();
   });
 
+  it('constructor should register callbacks in AllModalsService', () => {
+    expect((mockAllModalsService.setSubmitReview as jest.Mock)).toHaveBeenCalled();
+    expect((mockAllModalsService.setDisabledSubmitReview as jest.Mock)).toHaveBeenCalled();
+    const disabledCb = (mockAllModalsService.setDisabledSubmitReview as jest.Mock).mock.calls[0][0] as () => boolean;
+    // With default selection/comment it should be false (enabled)
+    expect(disabledCb()).toBe(false);
+  });
+
+  it('should execute the submit callback registered by constructor', async () => {
+    const submitCb = (mockAllModalsService.setSubmitReview as jest.Mock).mock.calls[0][0] as () => Promise<void>;
+    // Prepare a valid selection and comment for submission
+    mockSubmissionService.statusSelected.set({ statusId: 6, commentLabel: undefined } as any);
+    mockSubmissionService.comment.set('some');
+    (mockApiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({ successfulRequest: true });
+    (mockApiService.GET_Versions as jest.Mock).mockResolvedValue({ data: { versions: [] } });
+    await submitCb();
+    expect(mockApiService.PATCH_SubmitResult).toHaveBeenCalled();
+  });
+
+  it('should set initial selected review option when invoked from effect path', () => {
+    mockCacheService.currentMetadata!.set({ status_id: 6 });
+    component.setInitialSelectedReviewOption();
+    expect(mockSubmissionService.statusSelected()?.statusId).toBe(6);
+  });
+
+  it('effect should call setInitialSelectedReviewOption on first open when constructed with modal open', () => {
+    // Prepare mocks for a new instance where the modal is already open
+    mockCacheService.currentMetadata!.set({ status_id: 5 });
+    mockAllModalsService.modalConfig!.set({
+      submitResult: { isOpen: true },
+      createResult: { isOpen: false },
+      requestPartner: { isOpen: false },
+      askForHelp: { isOpen: false }
+    });
+    const protoSpy = jest.spyOn(SubmitResultContentComponent.prototype, 'setInitialSelectedReviewOption');
+    const newFixture = TestBed.createComponent(SubmitResultContentComponent);
+    newFixture.detectChanges();
+    expect(protoSpy).toHaveBeenCalled();
+    protoSpy.mockRestore();
+  });
+
   it('should submit review successfully', async () => {
     const mockResponse = { successfulRequest: true };
     mockApiService.PATCH_SubmitResult!.mockResolvedValue(mockResponse);
