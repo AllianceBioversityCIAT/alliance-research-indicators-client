@@ -23,23 +23,19 @@ export default class ResultComponent {
   lastVersion: string | null = null;
   lastId: number | null = null;
 
-  // Convertir los parámetros de la ruta en un signal
   routeParams = toSignal(this.route.params, { initialValue: {} });
 
   constructor() {
-    // Synchronize the global ID with the active route
     effect(() => {
       const params = this.routeParams();
       const idParam = params && 'id' in params ? (params['id'] as string) : undefined;
       let id: number;
 
       if (typeof idParam === 'string' && idParam.includes('-')) {
-        // Extraer el número después del último guión (formato: result.platform_code-2863)
         const parts = idParam.split('-');
         const lastPart = parts[parts.length - 1];
         id = parseInt(lastPart, 10);
       } else {
-        // Si es un número directo
         id = Number(idParam);
       }
 
@@ -48,7 +44,6 @@ export default class ResultComponent {
       }
     });
 
-    // Control the metadata update only if id or version changes
     this.versionChangeEffect = effect(() => {
       this.checkAndUpdateMetadata();
     });

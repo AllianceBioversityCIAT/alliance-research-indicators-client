@@ -704,7 +704,7 @@ describe('ActionsService', () => {
     service.handleBadRequest({
       status: 409,
       errorDetail: {
-        description: 'Error sin dos puntos',
+        description: 'Error without colon',
         errors: { result_official_code: 1234 }
       }
     } as any);

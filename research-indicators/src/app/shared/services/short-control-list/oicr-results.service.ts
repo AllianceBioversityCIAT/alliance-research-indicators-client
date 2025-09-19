@@ -12,7 +12,6 @@ export class OicrResultsService {
   list = signal<Oicr[]>([]);
   isOpenSearch = signal(false);
 
-  // Propiedades para filtros y configuración
   resultsFilter = {};
   resultsConfig = {};
 
@@ -26,7 +25,6 @@ export class OicrResultsService {
       const response = await this.apiService.GET_OicrResults();
       const data = Array.isArray(response?.data) ? response.data : [];
 
-      // Mapear los datos para incluir select_label
       const mappedData = data.map(item => ({
         ...item,
         select_label: this.generateSelectLabel(item)
@@ -40,7 +38,6 @@ export class OicrResultsService {
     }
   }
 
-  // Método para generar el label de selección
   private generateSelectLabel(item: Oicr): string {
     const id = item.id !== undefined && item.id !== null ? item.id.toString() : '';
     const title = item.title || '';
@@ -52,9 +49,7 @@ export class OicrResultsService {
     return `${id} - ${title}`;
   }
 
-  // Método para actualizar filtros (para OpenSearch)
   update(filter: Record<string, unknown>) {
-    // Implementar lógica de filtrado si es necesario
     this.resultsFilter = filter;
   }
 }
