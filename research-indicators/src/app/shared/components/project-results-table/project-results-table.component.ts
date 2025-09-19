@@ -42,7 +42,7 @@ export class ProjectResultsTableComponent implements OnInit {
 
   activityValues: number[] = [0, 100];
 
-  searchValue = 'a100';
+  searchValue = '';
 
   resultList: WritableSignal<GetResultsByContract[]> = signal([]);
 
