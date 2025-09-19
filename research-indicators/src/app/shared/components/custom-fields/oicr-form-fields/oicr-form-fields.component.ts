@@ -84,6 +84,30 @@ export class OicrFormFieldsComponent {
     return false;
   }
 
+  onSelectOicr(external_oicr_id: number) {
+    console.clear();
+    console.log('Select OICR', external_oicr_id);
+    this.getOicrMetadata(external_oicr_id);
+  }
+
+  async getOicrMetadata(externalOicrId: number) {
+    const response = await this.api.GET_OICRMetadata(externalOicrId);
+    console.log(response);
+    if (!response.successfulRequest) return;
+    // Pre-fill OICR form fields with metadata
+    this.createResultManagementService.createOicrBody.update(b => ({
+      ...b,
+      step_two: {
+        ...b.step_two,
+        contributor_lever: response.data.step_two.contributor_lever.map(cl => ({
+          ...cl,
+          lever_id: Number(cl.lever_id)
+        }))
+      },
+      step_three: response.data.step_three
+    }));
+  }
+
   async aiAssistantFunctionForShortOutcome() {
     const elaborationText = this.utils.getNestedPropertySignal(this.body, this.outcomeImpactOptionValue) || '';
     const textData = {

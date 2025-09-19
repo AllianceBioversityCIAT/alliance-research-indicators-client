@@ -60,6 +60,7 @@
         optionLabel="title"
         serviceName="oicrResults"
         [isRequired]="true"
+        (selectEvent)="onSelectOicr($event)"
         placeholder="Select OICR"
         scrollHeight="295px"
         [disabled]="this.createResultManagementService.editingOicr()"
