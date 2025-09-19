@@ -26,7 +26,10 @@ export const routes: Routes = [
     path: 'auth',
     loadComponent: () => import('./pages/auth/auth.component')
   },
-
+  {
+    path: 'cache-test',
+    loadComponent: () => import('./pages/cache-test/cache-test.component')
+  },
   {
     path: '',
     loadComponent: () => import('@platform/platform.component'),
