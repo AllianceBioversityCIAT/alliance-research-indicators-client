@@ -26,7 +26,7 @@ import { WordCountService } from '@shared/services/word-count.service';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { environment } from '../../../../../../../../environments/environment';
-import { BaseInformation } from '../../../../../../interfaces/oicr-creation.interface';
+import { BaseInformation, StepTwo, Lever } from '../../../../../../interfaces/oicr-creation.interface';
 
 registerLocaleData(localeEs);
 
@@ -115,6 +115,11 @@ export class CreateResultFormComponent {
     this.body.update(b => ({ ...b, contract_id: newContractId }));
   }
 
+  getPrimaryLeverId(contractId: number) {
+    const contract = this.getContractsService.list().find(c => c.agreement_id === String(contractId));
+    return contract?.lever_id;
+  }
+
   navigateToOicr() {
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);
@@ -127,8 +132,23 @@ export class CreateResultFormComponent {
         title: this.body().title || '',
         contract_id: this.body().contract_id || '',
         year: this.body().year || ''
-      } as BaseInformation
+      } as BaseInformation,
+      step_two: {
+        ...b.step_two,
+        primary_lever: this.getPrimaryLeverId(this.body().contract_id || 0)
+          ? [
+              {
+                result_lever_id: 0,
+                result_id: 0,
+                lever_id: this.getPrimaryLeverId(this.body().contract_id || 0),
+                lever_role_id: 0,
+                is_primary: true
+              } as Lever
+            ]
+          : []
+      } as StepTwo
     }));
+
     this.createResultManagementService.resultPageStep.set(2);
   }
 

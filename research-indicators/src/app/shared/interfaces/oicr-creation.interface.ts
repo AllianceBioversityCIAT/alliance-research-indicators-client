@@ -42,7 +42,7 @@ export interface Initiative {
 export interface Lever {
   result_lever_id: number;
   result_id: number;
-  lever_id: string;
+  lever_id: string | number;
   lever_role_id: number;
   is_primary: boolean;
 }
