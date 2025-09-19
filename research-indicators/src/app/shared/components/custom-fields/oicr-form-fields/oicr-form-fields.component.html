@@ -1,3 +1,4 @@
+@let isAdmin = this.rolesService.isAdmin();
 <div class="grid gap-[15px]">
   <!-- Main Contact Person (optional) -->
   @if (showMainContactPerson) {
@@ -7,6 +8,7 @@
         helperText="Pick a contact person from the Alliance staff database who is associated with the result and can provide information as needed. Only one person can be selected."
         [isRequired]="true"
         [signal]="body"
+        [disabled]="!isAdmin"
         [optionValue]="mainContactPersonOptionValue"
         optionLabel="full_name"
         serviceName="userStaff"
@@ -34,6 +36,7 @@
       label="Tagging"
       [isRequired]="true"
       class="flex-1"
+      [disabled]="!isAdmin"
       [helperText]="taggingHelperText"
       [signal]="body"
       [optionValue]="taggingOptionValue"
@@ -49,6 +52,7 @@
     <div class="flex flex-col">
       <app-select
         label="Select existing OICR"
+        [disabled]="!isAdmin"
         helperText="Select an OICR previously reported in the Alliance."
         [signal]="body"
         [optionValue]="oicrOptionValue"
@@ -159,6 +163,7 @@
     <app-textarea
       [rows]="5"
       [isRequired]="true"
+      [disabled]="!isAdmin"
       label="Elaboration of outcome/impact statement"
       helperText="For the preliminary submission, a brief description (1–3 sentences) of the outcome/impact is sufficient."
       [maxLength]="400"

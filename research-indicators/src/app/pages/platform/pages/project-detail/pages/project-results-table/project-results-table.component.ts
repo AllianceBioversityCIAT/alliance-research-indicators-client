@@ -37,10 +37,9 @@ export default class ProjectResultsTableComponent implements OnInit, OnDestroy {
   loading = signal(true);
   createResultManagementService = inject(CreateResultManagementService);
 
-
   activityValues: number[] = [0, 100];
 
-  searchValue = '';
+  searchValue = 'a100';
 
   resultList: WritableSignal<GetResultsByContract[]> = signal([]);
 
@@ -61,6 +60,16 @@ export default class ProjectResultsTableComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getData();
+  }
+
+  openEditRequestdOicrsModal(id: number) {
+    this.createResultManagementService.currentRequestedResultCode.set(id);
+    this.api.GET_OICRModal(id).then(response => {
+      this.createResultManagementService.createOicrBody.set(response.data);
+      this.allModalsService.openModal('createResult');
+      this.createResultManagementService.resultPageStep.set(2);
+      this.createResultManagementService.modalTitle.set('Edit OICR');
+    });
   }
 
   async getData() {
@@ -92,7 +101,6 @@ export default class ProjectResultsTableComponent implements OnInit, OnDestroy {
     this.createResultManagementService.setContractId(null);
     this.createResultManagementService.setPresetFromProjectResultsTable(false);
   }
-
 
   getSeverity(status: string) {
     switch (status) {

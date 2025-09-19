@@ -69,7 +69,7 @@ import { PostSyncContributor } from '../interfaces/post-sync-contributor.interfa
 import { GetIndicatorsProgress } from '../interfaces/get-indicators-progress.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
-import { Oicr, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 
 @Injectable({
@@ -209,9 +209,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  POST_CreateOicr = <T>(body: T): Promise<MainResponse<Result>> => {
-    const url = () => `results/oicr`;
-    return this.TP.post(url(), body, {});
+  POST_CreateOicr = <T>(body: T, resultCode?: number): Promise<MainResponse<Result>> => {
+    // resultCode
+    const queryString = resultCode ? `?resultCode=${resultCode}` : '';
+    const url = () => `results/oicr${queryString}`;
+    return this.TP.patch(url(), body, {});
   };
 
   PATCH_Oicr = <T>(id: number, body: T): Promise<MainResponse<PatchOicr>> => {
@@ -692,6 +694,11 @@ export class ApiService {
 
   GET_OICRDetails = (resultCode: number | string): Promise<MainResponse<GetOICRDetails>> => {
     const url = () => `results/oicr/details/${resultCode}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_OICRModal = (resultCode: number): Promise<MainResponse<OicrCreation>> => {
+    const url = () => `results/oicr/${resultCode}/modal`;
     return this.TP.get(url(), {});
   };
 

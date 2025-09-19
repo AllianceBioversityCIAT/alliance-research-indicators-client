@@ -27,6 +27,7 @@ import { WordCountService } from '@shared/services/word-count.service';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { environment } from '../../../../../../../../environments/environment';
+import { BaseInformation } from '../../../../../../interfaces/oicr-creation.interface';
 
 registerLocaleData(localeEs);
 
@@ -205,6 +206,15 @@ export class CreateResultFormComponent {
     this.createResultManagementService.setResultTitle(this.body().title);
     this.createResultManagementService.setYear(this.body().year);
     this.createResultManagementService.setModalTitle('OICR result');
+    this.createResultManagementService.createOicrBody.update(b => ({
+      ...b,
+      base_information: {
+        ...b.base_information,
+        title: this.body().title || '',
+        contract_id: this.body().contract_id || '',
+        year: this.body().year || ''
+      } as BaseInformation
+    }));
     this.createResultManagementService.resultPageStep.set(2);
   }
 
