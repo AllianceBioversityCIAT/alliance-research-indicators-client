@@ -77,7 +77,9 @@ export class AllModalsService {
       modal.createResult = {
         isOpen: modal.createResult.isOpen,
         title: 'Create A Result',
-        ...(step === 1 || step === 2 ? { iconAction: () => this.goBackFunction?.(), icon: 'arrow_back' } : {})
+        ...(step === 1 || step === 2
+          ? { iconAction: () => this.goBackFunction?.(), icon: !this.createResultManagementService.editingOicr() ? 'arrow_back' : '' }
+          : {})
       };
       return modal;
     });

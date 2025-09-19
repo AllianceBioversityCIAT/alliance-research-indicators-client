@@ -42,6 +42,7 @@
       [optionValue]="taggingOptionValue"
       optionLabel="name"
       serviceName="tags"
+      [disabled]="this.createResultManagementService.editingOicr()"
       scrollHeight="132px"
       placeholder="Select the tagging">
     </app-select>
@@ -59,8 +60,10 @@
         optionLabel="title"
         serviceName="oicrResults"
         [isRequired]="true"
+        (selectEvent)="onSelectOicr($event)"
         placeholder="Select OICR"
         scrollHeight="310px"
+        [disabled]="this.createResultManagementService.editingOicr()"
         [hideSelected]="false"
         textSpan="OICR selected">
         <!-- Item template -->
@@ -113,7 +116,7 @@
                   <span class="text-[#B9C0C5]">|</span>
                   CGSpace link <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
                   <span class="text-[#1689CA] underline">{{ item?.handle_link }}</span>
-                  }
+                }
               </p>
             </div>
             <div class="flex w-[10%] justify-end items-center">

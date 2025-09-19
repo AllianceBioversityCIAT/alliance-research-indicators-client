@@ -13,6 +13,7 @@ import { UtilsService } from '@shared/services/utils.service';
 import { WordCountService } from '@shared/services/word-count.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { RolesService } from '@shared/services/cache/roles.service';
+import { CreateResultManagementService } from '../../all-modals/modals-content/create-result-modal/services/create-result-management.service';
 
 type OicrFormBody = OicrCreation | PatchOicr;
 
@@ -56,6 +57,7 @@ export class OicrFormFieldsComponent {
   isTyping = signal(false);
   aiError = signal('');
   rolesService = inject(RolesService);
+  createResultManagementService = inject(CreateResultManagementService);
   private aiTimeoutId: number | null = null;
 
   taggingHelperText = OICR_HELPER_TEXTS.taggingHelperText;
@@ -80,6 +82,27 @@ export class OicrFormFieldsComponent {
     }
 
     return false;
+  }
+
+  onSelectOicr(external_oicr_id: number) {
+    this.getOicrMetadata(external_oicr_id);
+  }
+
+  async getOicrMetadata(externalOicrId: number) {
+    const response = await this.api.GET_OICRMetadata(externalOicrId);
+    if (!response.successfulRequest) return;
+    // Pre-fill OICR form fields with metadata
+    this.createResultManagementService.createOicrBody.update(b => ({
+      ...b,
+      step_two: {
+        ...b.step_two,
+        contributor_lever: response.data.step_two.contributor_lever.map(cl => ({
+          ...cl,
+          lever_id: Number(cl.lever_id)
+        }))
+      },
+      step_three: response.data.step_three
+    }));
   }
 
   async aiAssistantFunctionForShortOutcome() {
