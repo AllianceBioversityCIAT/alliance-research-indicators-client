@@ -329,8 +329,6 @@ export class CreateOicrFormComponent {
   };
 
   async createResult() {
-    console.log(this.createResultManagementService.createOicrBody());
-    console.log(this.createResultManagementService.currentRequestedResultCode());
     const response = await this.api.POST_CreateOicr(
       this.createResultManagementService.createOicrBody(),
       this.createResultManagementService.currentRequestedResultCode() || undefined

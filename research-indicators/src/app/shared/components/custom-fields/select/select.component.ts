@@ -11,7 +11,6 @@ import {
   TemplateRef,
   ContentChild,
   Output,
-  output,
   EventEmitter
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';

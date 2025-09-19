@@ -85,14 +85,11 @@ export class OicrFormFieldsComponent {
   }
 
   onSelectOicr(external_oicr_id: number) {
-    console.clear();
-    console.log('Select OICR', external_oicr_id);
     this.getOicrMetadata(external_oicr_id);
   }
 
   async getOicrMetadata(externalOicrId: number) {
     const response = await this.api.GET_OICRMetadata(externalOicrId);
-    console.log(response);
     if (!response.successfulRequest) return;
     // Pre-fill OICR form fields with metadata
     this.createResultManagementService.createOicrBody.update(b => ({
