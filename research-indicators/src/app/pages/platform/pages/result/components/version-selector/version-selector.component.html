@@ -37,7 +37,7 @@
       }
     </div>
   }
-  @if (!hasLiveVersion && cache.getCurrentPlatformCode() === 'STAR') {
+  @if (!hasLiveVersion && (cache.getCurrentPlatformCode() === 'STAR' || cache.getCurrentPlatformCode() === '')) {
     <div class="flex w-full justify-end min-w-[150px] max-w-[150px] items-center">
         <span
           (click)="updateResult()"
@@ -47,7 +47,7 @@
           Update result
         </span>
     </div>
-  } @else if (cache.getCurrentPlatformCode() !== 'STAR') {
+  } @else if (cache.getCurrentPlatformCode() !== 'STAR' && cache.getCurrentPlatformCode() !== '') {
     <span
       (click)="editInPlatform()"
       (keydown.enter)="editInPlatform()"

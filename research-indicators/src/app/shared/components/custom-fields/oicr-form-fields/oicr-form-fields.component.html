@@ -56,7 +56,7 @@
         serviceName="oicrResults"
         [isRequired]="true"
         placeholder="Select OICR"
-        scrollHeight="295px"
+        scrollHeight="310px"
         [hideSelected]="false"
         textSpan="OICR selected">
         <!-- Item template -->
@@ -100,6 +100,11 @@
                 <span class="text-[#B9C0C5]">|</span>
                 Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
                 <span class="text-[#345B8F]">{{ item?.report_year }}</span>
+                @if (item?.handle_link) {
+                  <span class="text-[#B9C0C5]">|</span>
+                    CGSpace Link <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+                    <span class="text-[#345B8F]">{{ item?.handle_link }}</span>
+                  }
               </p>
             </div>
             <div class="flex w-[10%] justify-end items-center">
