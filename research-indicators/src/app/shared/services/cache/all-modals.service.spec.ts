@@ -11,7 +11,8 @@ describe('AllModalsService', () => {
     const mockService: Partial<CreateResultManagementService> = {
       resultPageStep: {
         set: jest.fn()
-      },
+      } as any,
+      resetModal: jest.fn(),
       editingOicr: jest.fn(() => false)
     } as any;
 
