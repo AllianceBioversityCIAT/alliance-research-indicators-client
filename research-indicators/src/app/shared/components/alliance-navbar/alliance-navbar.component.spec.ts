@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { AllianceNavbarComponent } from './alliance-navbar.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal, Renderer2 } from '@angular/core';
 import { CacheService } from '@services/cache/cache.service';
 import { DarkModeService } from '@services/dark-mode.service';
 import { ActionsService } from '@services/actions.service';
@@ -10,8 +10,14 @@ import { AllModalsService } from '@services/cache/all-modals.service';
 import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.service';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { Router } from '@angular/router';
-import { Renderer2 } from '@angular/core';
-import { environment } from '../../../../environments/environment';
+
+// Mock environment
+jest.mock('../../../../environments/environment', () => ({
+  environment: {
+    production: false,
+    name: 'test'
+  }
+}));
 
 // Mock ResizeObserver
 class ResizeObserverMock {
@@ -108,7 +114,8 @@ describe('AllianceNavbarComponent', () => {
   });
 
   it('should initialize with testing environment flag', () => {
-    expect(component.isTestingEnvironment).toBeDefined();
+    expect(component.isProductionEnvironment).toBeDefined();
+    expect(component.isProductionEnvironment).toBe(false);
   });
 
   it('should initialize service in ngOnInit', () => {
@@ -438,7 +445,7 @@ describe('AllianceNavbarComponent', () => {
   // Branch coverage tests - comprehensive approach
   it('should test all conditional branches in the component', () => {
     // Test environment branch
-    expect(typeof component.isTestingEnvironment).toBe('boolean');
+    expect(typeof component.isProductionEnvironment).toBe('boolean');
     
     // Test ngOnDestroy branches
     component.resizeObserver = null;
