@@ -150,8 +150,9 @@ export class CreateResultFormComponent {
 
     if (openresult) {
       this.cache.currentResultId.set(Number(result.data.result_official_code));
+      const resultCode = `STAR-${result.data.result_official_code}`;
 
-      this.router.navigate(['result', result.data.result_official_code], {
+      this.router.navigate(['result', resultCode], {
         replaceUrl: true
       });
 

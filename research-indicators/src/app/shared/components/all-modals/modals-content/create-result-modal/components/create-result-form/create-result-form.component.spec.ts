@@ -190,7 +190,7 @@ describe('CreateResultFormComponent', () => {
     component.body.update(b => ({ ...b, title: 'Another Title' }));
     component.successRequest(result, true);
     expect(cacheServiceMock.currentResultId()).toBe(999);
-    expect(navigateSpy).toHaveBeenCalledWith(['result', '999'], { replaceUrl: true });
+    expect(navigateSpy).toHaveBeenCalledWith(['result', 'STAR-999'], { replaceUrl: true });
     expect(allModalsServiceMock.closeModal).toHaveBeenCalledWith('createResult');
   });
 
