@@ -27,7 +27,7 @@ import { WordCountService } from '@shared/services/word-count.service';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { environment } from '../../../../../../../../environments/environment';
-import { BaseInformation } from '../../../../../../interfaces/oicr-creation.interface';
+import { BaseInformation, StepTwo, Lever } from '../../../../../../interfaces/oicr-creation.interface';
 
 registerLocaleData(localeEs);
 
@@ -201,7 +201,30 @@ export class CreateResultFormComponent {
     }
   }
 
+  getPrimaryLeverId(contractId: number) {
+    const contract = this.getContractsService.list().find(c => c.agreement_id === String(contractId));
+    return contract?.lever_id;
+  }
+
+  async getOicrMetadata() {
+    const response = await this.api.GET_OICRMetadata();
+    if (!response.successfulRequest) return;
+    // Pre-fill OICR form fields with metadata
+    this.createResultManagementService.createOicrBody.update(b => ({
+      ...b,
+      step_two: {
+        ...b.step_two,
+        contributor_lever: response.data.step_two.contributor_lever.map(cl => ({
+          ...cl,
+          lever_id: Number(cl.lever_id)
+        }))
+      },
+      step_three: response.data.step_three
+    }));
+  }
+
   navigateToOicr() {
+    // this.getOicrMetadata();
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);
     this.createResultManagementService.setYear(this.body().year);
@@ -213,8 +236,32 @@ export class CreateResultFormComponent {
         title: this.body().title || '',
         contract_id: this.body().contract_id || '',
         year: this.body().year || ''
-      } as BaseInformation
+      } as BaseInformation,
+      step_two: {
+        ...b.step_two,
+        primary_lever: this.getPrimaryLeverId(this.body().contract_id || 0)
+          ? [
+              {
+                result_lever_id: 0,
+                result_id: 0,
+                lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || 0) || 0),
+                lever_role_id: 0,
+                is_primary: true
+              } as Lever
+            ]
+          : []
+      } as StepTwo
     }));
+    this.createResultManagementService.oicrPrimaryOptionsDisabled.update(b => [
+      ...b,
+      {
+        result_lever_id: 0,
+        result_id: 0,
+        lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || 0)),
+        lever_role_id: 0,
+        is_primary: true
+      } as Lever
+    ]);
     this.createResultManagementService.resultPageStep.set(2);
   }
 

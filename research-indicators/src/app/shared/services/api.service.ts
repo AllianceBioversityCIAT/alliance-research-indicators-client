@@ -702,6 +702,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_OICRMetadata = (resultCode = 1): Promise<MainResponse<OicrCreation>> => {
+    const url = () => `temp/oicrs/${resultCode}/metadata`;
+    return this.TP.get(url(), {});
+  };
+
   //? >>>>>>>>>>>> Utils <<<<<<<<<<<<<<<<<
 
   cleanBody(body: Record<string, unknown>) {

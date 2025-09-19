@@ -21,7 +21,7 @@
   <button
     class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
     (click)="createResult()"
-    [disabled]="loading || isDisabled || canEditOicr">
+    [disabled]="loading || isDisabled || !canEditOicr">
     @if (loading) {
       <div class="min-w-[191px]">
         <i class="pi pi-spinner pi-spin text-white text-xs"></i>

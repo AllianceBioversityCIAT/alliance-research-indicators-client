@@ -189,7 +189,7 @@ export class CreateOicrFormComponent {
   updatePrimaryOptionsDisabledEffect = effect(
     () => {
       const contributorLevers = this.createResultManagementService.createOicrBody().step_two?.contributor_lever || [];
-      this.primaryOptionsDisabled.set(contributorLevers);
+      this.primaryOptionsDisabled.set([...this.createResultManagementService.oicrPrimaryOptionsDisabled(), ...contributorLevers]);
     },
     { allowSignalWrites: true }
   );
