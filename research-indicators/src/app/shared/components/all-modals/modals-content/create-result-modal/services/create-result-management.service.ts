@@ -17,7 +17,6 @@ export class CreateResultManagementService {
   currentRequestedResultCode = signal<number | null>(null);
   editingOicr = signal<boolean>(false);
   oicrPrimaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
-  editingOicr = signal<boolean>(false);
   createOicrBody: WritableSignal<OicrCreation> = signal({
     step_one: {
       main_contact_person: {
