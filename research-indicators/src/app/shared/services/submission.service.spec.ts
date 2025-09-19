@@ -79,10 +79,16 @@ describe('SubmissionService', () => {
     expect(service.isEditableStatus()).toBe(false);
   });
 
-  it('isEditableStatus false for status_id 4 but empty platform code', () => {
+  it('isEditableStatus true for status_id 4 and empty platform code', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 4 });
     cacheMock.getCurrentPlatformCode.mockReturnValue('');
-    expect(service.isEditableStatus()).toBe(false);
+    expect(service.isEditableStatus()).toBe(true);
+  });
+
+  it('isEditableStatus true for status_id 5 and empty platform code', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 5 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('');
+    expect(service.isEditableStatus()).toBe(true);
   });
 
   it('isSubmitted true for status_id 2', () => {
