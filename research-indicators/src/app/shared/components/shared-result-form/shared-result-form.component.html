@@ -19,13 +19,8 @@
     <ng-template let-item pTemplate="item">
       <div class="flex flex-col gap-2 h-[54px] text-[14px] w-full min-w-0" pTooltip="{{ item?.description }}">
         <p class="text-[#4C5158] font-[400] w-full overflow-hidden whitespace-nowrap text-ellipsis">
-          @if (item?.select_label?.includes(' - ')) {
-            <span>
-              <b>{{ item.select_label.split(' - ')[0] }}</b> - {{ item.select_label.split(' - ')[1] }}
-            </span>
-          } @else {
-            <span>{{ item.select_label }}</span>
-          }
+          <b>{{ item?.agreement_id }} -</b>
+          {{ item?.description }}
         </p>
 
         <p class="space-x-3 text-[11px] text-[#777C83]">
@@ -47,13 +42,10 @@
     </ng-template>
     <ng-template let-selected pTemplate="selectedItem">
       <div class="flex items-center block whitespace-normal break-words gap-2">
-        @if (selected?.select_label?.includes(' - ')) {
-          <span>
-            <b>{{ selected.select_label.split(' - ')[0] }}</b> - {{ selected.select_label.split(' - ')[1] }}
-          </span>
-        } @else {
-          <span>{{ selected.select_label }}</span>
-        }
+        <p class="text-[#4C5158] font-[400] w-full overflow-hidden whitespace-nowrap text-ellipsis">
+          <b>{{ selected?.agreement_id }} -</b>
+          {{ selected?.description }}
+        </p>
       </div>
     </ng-template>
   </p-select>
