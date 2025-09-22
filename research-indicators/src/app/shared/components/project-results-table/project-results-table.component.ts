@@ -15,6 +15,7 @@ import { AllModalsService } from '../../services/cache/all-modals.service';
 import { CurrentResultService } from '../../services/cache/current-result.service';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { ProjectResultsTableService } from './project-results-table.service';
 @Component({
   selector: 'app-project-results-table',
   imports: [
@@ -38,12 +39,10 @@ export class ProjectResultsTableComponent implements OnInit, OnDestroy {
   allModalsService = inject(AllModalsService);
   createResultManagementService = inject(CreateResultManagementService);
   currentResultService = inject(CurrentResultService);
+  projectResultsTableService = inject(ProjectResultsTableService);
   @Input() contractId = '';
-  loading = signal(true);
 
   activityValues: number[] = [0, 100];
-
-  resultList: WritableSignal<GetResultsByContract[]> = signal([]);
 
   getScrollHeight = computed(
     () =>
@@ -61,21 +60,8 @@ export class ProjectResultsTableComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit() {
-    this.getData();
-  }
-
-  async getData() {
-    this.loading.set(true);
-    const response = await this.api.GET_ResultsByContractId(this.contractId);
-    response.data.forEach((result: GetResultsByContract) => {
-      result.full_name = `${result.result_official_code} - ${result.title} - ${result.indicator.name}`;
-      result.indicatorName = result.indicator.name;
-      result.statusName = result.result_status.name;
-      result.creatorName = `${result.created_user.first_name} ${result.created_user.last_name}`;
-    });
-
-    this.resultList.set(response.data);
-    this.loading.set(false);
+    this.projectResultsTableService.contractId = this.contractId;
+    this.projectResultsTableService.getData();
   }
 
   clear(table: Table) {
