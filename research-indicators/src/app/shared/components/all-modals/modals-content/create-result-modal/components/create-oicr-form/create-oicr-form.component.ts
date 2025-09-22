@@ -49,7 +49,7 @@ import { ServiceLocatorService } from '@shared/services/service-locator.service'
 import { Router } from '@angular/router';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 import { RolesService } from '@shared/services/cache/roles.service';
-import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
+import { ProjectResultsTableService } from '../../../../../../../pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
