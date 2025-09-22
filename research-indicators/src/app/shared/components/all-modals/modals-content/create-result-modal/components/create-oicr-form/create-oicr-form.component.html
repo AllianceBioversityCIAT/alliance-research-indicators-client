@@ -91,14 +91,16 @@
           }
         </div>
 
-      <app-download-oicr-template class="xl:hidden pt-2.5"></app-download-oicr-template>
-
+        @if (this.createResultManagementService.editingOicr()) {
+          <app-download-oicr-template class="xl:hidden pt-2.5"></app-download-oicr-template>
+        }
       </div>
 
       <div class="xl:min-w-[200px] hidden xl:flex ml-4">
-      <app-download-oicr-template ></app-download-oicr-template>
+        @if (this.createResultManagementService.editingOicr()) {
+          <app-download-oicr-template></app-download-oicr-template>
+        }
       </div>
-
     </div>
   }
 

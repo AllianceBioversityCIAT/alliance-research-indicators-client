@@ -20,6 +20,7 @@ export class CurrentResultService {
       this.allModalsService.openModal('createResult');
       this.createResultManagementService.resultPageStep.set(2);
       this.createResultManagementService.modalTitle.set('Edit OICR');
+      this.createResultManagementService.contractId.set(response.data.base_information.contract_id);
     });
     return true;
   }
