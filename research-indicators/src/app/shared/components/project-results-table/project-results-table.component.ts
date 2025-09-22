@@ -44,8 +44,6 @@ export class ProjectResultsTableComponent implements OnInit {
 
   activityValues: number[] = [0, 100];
 
-  searchValue = '';
-
   resultList: WritableSignal<GetResultsByContract[]> = signal([]);
 
   getScrollHeight = computed(
@@ -83,7 +81,7 @@ export class ProjectResultsTableComponent implements OnInit {
 
   clear(table: Table) {
     table.clear();
-    this.searchValue = '';
+    this.cacheService.projectResultsSearchValue.set('');
   }
 
   getSeverity(status: string) {

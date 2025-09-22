@@ -2,9 +2,11 @@ import { inject } from '@angular/core';
 import { ResolveFn, Router } from '@angular/router';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { CurrentResultService } from '../../../../../shared/services/cache/current-result.service';
+import { CacheService } from '../../../../../shared/services/cache/cache.service';
 
 export const resultExistsResolver: ResolveFn<boolean> = async route => {
   const metadataService = inject(GetMetadataService);
+  const cacheService = inject(CacheService);
   const currentResultService = inject(CurrentResultService);
   const router = inject(Router);
   const idParam = route.paramMap.get('id');
@@ -22,20 +24,17 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
     platform = 'STAR'; // Default platform for numeric IDs
   }
 
-  const metadataRules = await metadataService.update(id, platform);
+  const { canOpen, indicator_id, status_id, result_official_code, contract_id, result_title } = (await metadataService.update(id, platform)) || {};
 
-  if (!metadataRules.canOpen) {
+  if (!canOpen) {
     router.navigate(['/results-center']);
     return false;
   }
 
-  if (currentResultService.validateOpenResult(metadataRules.indicator_id ?? 0, metadataRules.status_id ?? 0)) {
-    router.navigate(['/project-detail/A100']);
-    currentResultService.openEditRequestdOicrsModal(
-      metadataRules.indicator_id ?? 0,
-      metadataRules.status_id ?? 0,
-      metadataRules.result_official_code ?? 0
-    );
+  if (currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
+    router.navigate(['/project-detail', contract_id]);
+    cacheService.projectResultsSearchValue.set(result_title ?? '');
+    currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
     return false;
   }
 

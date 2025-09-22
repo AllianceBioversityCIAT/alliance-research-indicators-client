@@ -24,11 +24,6 @@ export class CurrentResultService {
     return true;
   }
 
-  pp(result: any) {
-    // console.log(result);
-    return '';
-  }
-
   validateOpenResult(indicatorId: number, resultStatusId: number) {
     return indicatorId === 5 || resultStatusId === 9;
   }

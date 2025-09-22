@@ -1,7 +1,7 @@
 <p-table
   class="w-full"
   #dt1
-  [value]="resultList() | filterByTextWithAttr: 'full_name' : searchValue"
+  [value]="resultList() | filterByTextWithAttr: 'full_name' : cacheService.projectResultsSearchValue()"
   dataKey="id"
   [rows]="10"
   [rowsPerPageOptions]="[10, 25, 50]"
@@ -14,7 +14,7 @@
     <div class="header">
       <div class="search-box">
         <i class="material-symbols-rounded">search</i>
-        <input [(ngModel)]="searchValue" type="text" placeholder="Search by code, title or creator" />
+        <input [(ngModel)]="cacheService.projectResultsSearchValue" type="text" placeholder="Search by code, title or creator" />
       </div>
       <div class="options">
         <p-button label="Clear" [text]="true" icon="pi pi-filter-slash" (onClick)="clear(dt1)" size="small" />

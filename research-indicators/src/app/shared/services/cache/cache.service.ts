@@ -30,6 +30,7 @@ export class CacheService {
     }
   });
   currentResultIsLoading = signal(false);
+  projectResultsSearchValue = signal('');
   currentUrlPath = signal('');
   currentMetadata: WritableSignal<GetMetadata> = signal({});
   greenChecks = signal<GreenChecks>({});

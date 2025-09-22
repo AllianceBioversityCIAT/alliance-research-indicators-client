@@ -2,7 +2,14 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { CacheService } from './cache/cache.service';
 import { Router } from '@angular/router';
-
+interface GetMetadataResponse {
+  canOpen: boolean;
+  result_official_code?: number;
+  indicator_id?: number;
+  status_id?: number;
+  contract_id?: string;
+  result_title?: string;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -11,19 +18,17 @@ export class GetMetadataService {
   cache = inject(CacheService);
   router = inject(Router);
 
-  async update(
-    id: number,
-    platform?: string | null
-  ): Promise<{ canOpen: boolean; result_official_code?: number; indicator_id?: number; status_id?: number }> {
+  async update(id: number, platform?: string | null): Promise<GetMetadataResponse> {
     const response = await this.api.GET_Metadata(id, platform || undefined);
     if (response?.status !== 200) {
       this.router.navigate(['/results-center']);
       return { canOpen: false };
     } else {
       this.cache.currentMetadata.set(response?.data);
+      console.log(response?.data);
 
-      const { result_official_code, indicator_id, status_id } = response?.data ?? {};
-      return { canOpen: true, result_official_code, indicator_id, status_id };
+      const { result_official_code, indicator_id, status_id, result_title } = response?.data ?? {};
+      return { canOpen: true, result_official_code, indicator_id, status_id, contract_id: 'A100', result_title };
     }
   }
 
