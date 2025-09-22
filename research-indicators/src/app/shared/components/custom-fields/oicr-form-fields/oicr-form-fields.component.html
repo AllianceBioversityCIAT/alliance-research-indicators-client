@@ -36,7 +36,6 @@
       label="Tagging"
       [isRequired]="true"
       class="flex-1"
-      [disabled]="!canEditOicr"
       [helperText]="taggingHelperText"
       [signal]="body"
       [optionValue]="taggingOptionValue"
@@ -53,7 +52,6 @@
     <div class="flex flex-col">
       <app-select
         label="Select existing OICR"
-        [disabled]="!canEditOicr"
         helperText="Select an OICR previously reported in the Alliance."
         [signal]="body"
         [optionValue]="oicrOptionValue"
@@ -124,10 +122,12 @@
               </p>
             </div>
             <div class="flex w-[28px] justify-end items-center">
-              <i
-                class="pi pi-times-circle !text-[18px] text-[#CF0808] pl-1"
-                (keydown.enter)="clearOicrSelection()"
-                (click)="clearOicrSelection()"></i>
+              @if (!this.createResultManagementService.editingOicr()) {
+                <i
+                  class="pi pi-times-circle !text-[18px] text-[#CF0808] pl-1"
+                  (keydown.enter)="clearOicrSelection()"
+                  (click)="clearOicrSelection()"></i>
+              }
             </div>
           </div>
         </ng-template>
