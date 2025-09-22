@@ -380,14 +380,14 @@ export class CreateOicrFormComponent {
                   replaceUrl: true,
                   onSameUrlNavigation: 'reload'
                 });
+                this.allModalsService.closeModal('createResult');
+                this.getResultsService.updateList();
+                this.createResultManagementService.currentRequestedResultCode.set(null);
+                this.projectResultsTableService.getData();
+                this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
+                this.createResultManagementService.clearOicrBody();
               }, 300);
             });
-            this.allModalsService.closeModal('createResult');
-            this.getResultsService.updateList();
-            this.createResultManagementService.currentRequestedResultCode.set(null);
-            this.projectResultsTableService.getData();
-            this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
-            this.createResultManagementService.clearOicrBody();
           }
         }
       });
