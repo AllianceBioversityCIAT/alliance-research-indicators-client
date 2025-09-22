@@ -431,4 +431,9 @@ export class CreateOicrFormComponent {
       }
     }));
   }
+
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'https://alliance-files-storage.s3.us-east-1.amazonaws.com/images/levers/L7-Gender-Youth-and-Inclusion_COLOR.png';
+  }
 }
