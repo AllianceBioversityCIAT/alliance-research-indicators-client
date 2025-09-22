@@ -50,6 +50,7 @@ import { Router } from '@angular/router';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
+import { DownloadOicrTemplateComponent } from '@shared/components/download-oicr-template/download-oicr-template.component';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
@@ -67,7 +68,8 @@ interface GetContractsExtended extends GetContracts {
     OicrFormFieldsComponent,
     DatePipe,
     NgTemplateOutlet,
-    TooltipModule
+    TooltipModule,
+    DownloadOicrTemplateComponent
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -140,6 +142,13 @@ export class CreateOicrFormComponent {
         command: () => this.onStepClick(idx, CREATE_OICR_STEPPER_SECTIONS[idx])
       }))
     );
+
+    effect(() => {
+      const contractId = this.createResultManagementService.createOicrBody().base_information.contract_id;
+      if (contractId) {
+        this.cache.setCurrentResultId(contractId);
+      }
+    });
   }
 
   stepOneCompletionEffect = effect(
