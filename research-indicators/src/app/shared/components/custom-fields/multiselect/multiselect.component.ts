@@ -94,19 +94,10 @@ export class MultiselectComponent implements OnInit {
   });
 
   selectedOptions = computed(() => {
-    console.log(this.optionsDisabled());
-    console.log(
-      this.utils.getNestedProperty(this.signal(), this.signalOptionValue).map((item: any) => ({
-        ...item,
-        disabled: Boolean(this.optionsDisabled().find((option: any) => option[this.optionValue] === item[this.optionValue]))
-      }))
-    );
-    return this.utils
-      .getNestedProperty(this.signal(), this.signalOptionValue)
-      .map((item: any) => ({
-        ...item,
-        disabled: Boolean(this.optionsDisabled().find((option: any) => option[this.optionValue] === item[this.optionValue]))
-      }));
+    return this.utils.getNestedProperty(this.signal(), this.signalOptionValue).map((item: any) => ({
+      ...item,
+      disabled: Boolean(this.optionsDisabled().find((option: any) => option[this.optionValue] === item[this.optionValue]))
+    }));
   });
   firstLoad = signal(true);
 

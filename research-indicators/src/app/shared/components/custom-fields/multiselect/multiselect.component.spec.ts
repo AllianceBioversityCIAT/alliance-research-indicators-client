@@ -348,7 +348,7 @@ describe('MultiselectComponent', () => {
   });
 
   it('should handle selectedOptions computed property', () => {
-    const mockOptions = [{ id: 1, name: 'Test 1' }];
+    const mockOptions = [{ id: 1, name: 'Test 1', disabled: false }];
     mockUtilsService.getNestedProperty.mockReturnValue(mockOptions);
 
     const result = component.selectedOptions();
