@@ -11,6 +11,7 @@ import { ApiService } from '../../services/api.service';
 import { CardModule } from 'primeng/card';
 import { TabViewModule } from 'primeng/tabview';
 import { Result, ResultTable } from '@interfaces/result/result.interface';
+import { ProjectResultsTableService } from '../../../pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
 
 @Component({
   selector: 'app-results-table',
@@ -32,7 +33,7 @@ import { Result, ResultTable } from '@interfaces/result/result.interface';
 })
 export class ResultsTableComponent implements OnInit {
   api = inject(ApiService);
-  results: WritableSignal<Result[]> = signal([]);
+  projectResultsTableService = inject(ProjectResultsTableService);
 
   loading = signal(true);
 

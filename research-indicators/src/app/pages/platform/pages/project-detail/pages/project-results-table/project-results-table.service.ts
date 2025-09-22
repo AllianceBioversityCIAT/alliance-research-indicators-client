@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { GetResultsByContract } from '../../interfaces/get-results-by-contract.interface';
-import { ApiService } from '../../services/api.service';
+import { ApiService } from '../../../../../../shared/services/api.service';
+import { GetResultsByContract } from '../../../../../../shared/interfaces/get-results-by-contract.interface';
 
 @Injectable({
   providedIn: 'root'
