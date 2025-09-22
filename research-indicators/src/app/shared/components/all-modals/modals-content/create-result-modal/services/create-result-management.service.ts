@@ -1,6 +1,7 @@
 import { Injectable, WritableSignal, signal } from '@angular/core';
 import { AIAssistantResult } from '../models/AIAssistantResult';
 import { Lever, OicrCreation } from '../../../../../interfaces/oicr-creation.interface';
+import { MenuItem } from 'primeng/api';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class CreateResultManagementService {
   currentRequestedResultCode = signal<number | null>(null);
   oicrPrimaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
   editingOicr = signal<boolean>(false);
+  stepItems = signal<MenuItem[]>([]);
   createOicrBody: WritableSignal<OicrCreation> = signal({
     step_one: {
       main_contact_person: {

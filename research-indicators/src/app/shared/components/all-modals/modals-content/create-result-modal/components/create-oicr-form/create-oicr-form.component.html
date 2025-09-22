@@ -96,7 +96,7 @@
 
   <div class="px-5 flex flex-col mx-10 mb-12">
     <p-steps
-      [model]="stepItems()"
+      [model]="createResultManagementService.stepItems()"
       [readonly]="false"
       [activeIndex]="activeIndex"
       (activeIndexChange)="onActiveIndexChange($event)"

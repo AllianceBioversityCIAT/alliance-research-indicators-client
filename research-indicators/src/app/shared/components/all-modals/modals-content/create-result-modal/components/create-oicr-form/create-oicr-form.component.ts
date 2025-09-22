@@ -14,7 +14,6 @@ import {
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 
 import { StepsModule } from 'primeng/steps';
-import { MenuItem } from 'primeng/api';
 import { CREATE_OICR_STEPPER_ITEMS, CREATE_OICR_STEPPER_SECTIONS } from '@shared/constants/stepper.constants';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { ApiService } from '@services/api.service';
@@ -96,7 +95,6 @@ export class CreateOicrFormComponent {
   loading = false;
   activeIndex = 0;
 
-  stepFourVisited = signal(false);
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
   primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
 
@@ -133,17 +131,21 @@ export class CreateOicrFormComponent {
     return { first: parts[0] || '', second: parts[1] || '' };
   });
 
-  stepItems = signal<MenuItem[]>(
-    CREATE_OICR_STEPPER_ITEMS.map((item, idx) => ({
-      ...item,
-      command: () => this.onStepClick(idx, CREATE_OICR_STEPPER_SECTIONS[idx])
-    }))
-  );
+  constructor() {
+    this.createResultManagementService.stepItems.set(
+      CREATE_OICR_STEPPER_ITEMS.map((item, idx) => ({
+        ...item,
+        command: () => this.onStepClick(idx, CREATE_OICR_STEPPER_SECTIONS[idx])
+      }))
+    );
+  }
 
   stepOneCompletionEffect = effect(
     () => {
       const completed = this.isCompleteStepOne;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 0 ? { ...item, styleClass: completed ? 'oicr-step1-complete' : '' } : item)));
+      this.createResultManagementService.stepItems.update(items =>
+        items.map((item, idx) => (idx === 0 ? { ...item, styleClass: completed ? 'oicr-step1-complete' : '' } : item))
+      );
     },
     { allowSignalWrites: true }
   );
@@ -151,7 +153,9 @@ export class CreateOicrFormComponent {
   stepTwoCompletionEffect = effect(
     () => {
       const completed = this.isCompleteStepTwo;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 1 ? { ...item, styleClass: completed ? 'oicr-step2-complete' : '' } : item)));
+      this.createResultManagementService.stepItems.update(items =>
+        items.map((item, idx) => (idx === 1 ? { ...item, styleClass: completed ? 'oicr-step2-complete' : '' } : item))
+      );
     },
     { allowSignalWrites: true }
   );
@@ -159,7 +163,9 @@ export class CreateOicrFormComponent {
   stepThreeCompletionEffect = effect(
     () => {
       const completed = this.isCompleteStepThree;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 2 ? { ...item, styleClass: completed ? 'oicr-step3-complete' : '' } : item)));
+      this.createResultManagementService.stepItems.update(items =>
+        items.map((item, idx) => (idx === 2 ? { ...item, styleClass: completed ? 'oicr-step3-complete' : '' } : item))
+      );
     },
     { allowSignalWrites: true }
   );
@@ -172,8 +178,10 @@ export class CreateOicrFormComponent {
 
   stepFourCompletionEffect = effect(
     () => {
-      const completed = this.isCompleteStepFour;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item)));
+      const completed = this.createResultManagementService.createOicrBody().step_four.general_comment.length > 0;
+      this.createResultManagementService.stepItems.update(items =>
+        items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item))
+      );
     },
     { allowSignalWrites: true }
   );
@@ -221,9 +229,6 @@ export class CreateOicrFormComponent {
 
   onActiveIndexChange(event: number) {
     this.activeIndex = event;
-    if (event === 3) {
-      this.stepFourVisited.set(true);
-    }
   }
   removeSubnationalRegion(country: Country, region: Region) {
     this.createResultManagementService.createOicrBody.update(current => {
@@ -284,10 +289,6 @@ export class CreateOicrFormComponent {
     const hasValidCountries = !multiselectLabels.country.label || b.step_three.countries.length > 0;
 
     return hasValidRegions && hasValidCountries;
-  }
-
-  get isCompleteStepFour(): boolean {
-    return this.stepFourVisited();
   }
 
   onContractIdChange(newContractId: number | null) {
@@ -368,7 +369,7 @@ export class CreateOicrFormComponent {
 
   goNext() {
     const current = this.activeIndex;
-    const lastIndex = this.stepItems().length - 1;
+    const lastIndex = this.createResultManagementService.stepItems().length - 1;
     if (current < lastIndex) {
       const next = current + 1;
       const sectionId = this.stepSectionIds[next] ?? this.stepSectionIds[0];
