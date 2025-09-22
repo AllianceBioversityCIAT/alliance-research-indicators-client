@@ -438,9 +438,4 @@ export class CreateOicrFormComponent {
       }
     }));
   }
-
-  onImageError(event: Event): void {
-    const target = event.target as HTMLImageElement;
-    target.src = 'icons/empty.png';
-  }
 }
