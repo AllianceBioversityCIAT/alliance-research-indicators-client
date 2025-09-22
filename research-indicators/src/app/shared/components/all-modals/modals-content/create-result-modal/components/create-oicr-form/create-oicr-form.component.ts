@@ -357,14 +357,22 @@ export class CreateOicrFormComponent {
         confirmCallback: {
           label: 'Done',
           event: () => {
-            this.router.navigate(
+            // Modern Angular approach - Navigate with reload
+            const targetRoute =
               this.createResultManagementService.createOicrBody().base_information.indicator_id === 5
                 ? ['project-detail/', this.createResultManagementService.createOicrBody()?.base_information?.contract_id]
-                : ['result', response.data.result_official_code],
-              {
-                replaceUrl: true
-              }
-            );
+                : ['result', response.data.result_official_code];
+
+            // Navigate to results-center first to ensure component refresh
+            this.router.navigate(['/results-center']).then(() => {
+              // Then navigate to the target with a small delay
+              setTimeout(() => {
+                this.router.navigate(targetRoute, {
+                  replaceUrl: true,
+                  onSameUrlNavigation: 'reload'
+                });
+              }, 100);
+            });
             this.allModalsService.closeModal('createResult');
             this.getResultsService.updateList();
           }
