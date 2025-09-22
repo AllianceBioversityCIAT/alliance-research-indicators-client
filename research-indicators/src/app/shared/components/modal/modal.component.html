@@ -6,7 +6,7 @@
           @if (getConfig().icon) {
             <i
               class="material-symbols-rounded cursor-pointer pr-2 !text-[22px]"
-              (click)="getConfig().iconAction?.()"
+              (click)="getConfig().iconAction?.(); clearModal()"
               (keydown)="getConfig().iconAction?.()"
               >{{ getConfig().icon }}</i
             >
