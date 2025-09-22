@@ -8,4 +8,5 @@ export interface GetMetadata {
   result_title?: string;
   created_by?: string;
   is_principal_investigator?: boolean;
+  result_contract_id?: string;
 }
