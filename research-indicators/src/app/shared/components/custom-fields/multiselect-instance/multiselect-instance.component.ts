@@ -108,6 +108,7 @@ export class MultiselectInstanceComponent implements OnInit {
       this.body.set({ value: this.objectArrayToIdArray(newArray, this.optionValue) });
 
       if ('result_countries_sub_nationals_signal' in current && current.result_countries_sub_nationals_signal?.set) {
+        console.log('ss');
         current.result_countries_sub_nationals_signal.set({ regions: newArray });
       }
       this.valueChange.emit(newArray);

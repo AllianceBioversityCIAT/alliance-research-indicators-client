@@ -227,6 +227,11 @@ export class CreateOicrFormComponent {
     { allowSignalWrites: true }
   );
 
+  printht(c: Country) {
+    console.log(c);
+    console.log(c?.result_countries_sub_nationals_signal?.());
+  }
+
   onActiveIndexChange(event: number) {
     this.activeIndex = event;
   }
