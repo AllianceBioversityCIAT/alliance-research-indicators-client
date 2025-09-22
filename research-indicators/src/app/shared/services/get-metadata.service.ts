@@ -7,8 +7,8 @@ interface GetMetadataResponse {
   result_official_code?: number;
   indicator_id?: number;
   status_id?: number;
-  contract_id?: string;
   result_title?: string;
+  result_contract_id?: string;
 }
 @Injectable({
   providedIn: 'root'
@@ -25,8 +25,8 @@ export class GetMetadataService {
       return { canOpen: false };
     } else {
       this.cache.currentMetadata.set(response?.data);
-      const { result_official_code, indicator_id, status_id, result_title } = response?.data ?? {};
-      return { canOpen: true, result_official_code, indicator_id, status_id, contract_id: 'A100', result_title };
+      const { result_official_code, indicator_id, status_id, result_title, result_contract_id } = response?.data ?? {};
+      return { canOpen: true, result_official_code, indicator_id, status_id, result_contract_id, result_title };
     }
   }
 

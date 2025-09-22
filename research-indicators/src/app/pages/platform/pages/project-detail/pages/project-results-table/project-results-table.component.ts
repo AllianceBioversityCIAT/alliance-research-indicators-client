@@ -39,7 +39,6 @@ export default class ProjectResultsTableComponent implements OnInit, OnDestroy {
   contractId = this.cacheService.currentProjectId();
   createResultManagementService = inject(CreateResultManagementService);
   currentResultService = inject(CurrentResultService);
-
   loading = signal(true);
 
   activityValues: number[] = [0, 100];

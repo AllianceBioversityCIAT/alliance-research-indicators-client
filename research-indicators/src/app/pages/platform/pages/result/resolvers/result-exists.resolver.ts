@@ -24,7 +24,8 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
     platform = 'STAR'; // Default platform for numeric IDs
   }
 
-  const { canOpen, indicator_id, status_id, result_official_code, contract_id, result_title } = (await metadataService.update(id, platform)) || {};
+  const { canOpen, indicator_id, status_id, result_official_code, result_contract_id, result_title } =
+    (await metadataService.update(id, platform)) || {};
 
   if (!canOpen) {
     router.navigate(['/results-center']);
@@ -32,7 +33,7 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
   }
 
   if (currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
-    router.navigate(['/project-detail', contract_id]);
+    router.navigate(['/project-detail', result_contract_id]);
     if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');
     currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
     return false;
