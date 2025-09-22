@@ -1,11 +1,10 @@
-import { Component, computed, inject, Input, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { ResultTable } from '@shared/interfaces/result/result.interface';
 import { Button } from 'primeng/button';
 import { ApiService } from '../../services/api.service';
 import { FilterByTextWithAttrPipe } from '../../pipes/filter-by-text-with-attr.pipe';
-import { GetResultsByContract } from '../../interfaces/get-results-by-contract.interface';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
