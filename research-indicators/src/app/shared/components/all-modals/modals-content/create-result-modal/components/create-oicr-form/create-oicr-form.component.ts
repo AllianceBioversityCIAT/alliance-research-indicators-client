@@ -371,18 +371,18 @@ export class CreateOicrFormComponent {
                   replaceUrl: true,
                   onSameUrlNavigation: 'reload'
                 });
-              }, 100);
+              }, 300);
             });
             this.allModalsService.closeModal('createResult');
             this.getResultsService.updateList();
+            this.createResultManagementService.currentRequestedResultCode.set(null);
+            this.projectResultsTableService.getData();
+            this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
+            this.createResultManagementService.clearOicrBody();
           }
         }
       });
     }
-    this.createResultManagementService.currentRequestedResultCode.set(null);
-    this.projectResultsTableService.getData();
-    this.createResultManagementService.clearOicrBody();
-    this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
   }
 
   goNext() {
