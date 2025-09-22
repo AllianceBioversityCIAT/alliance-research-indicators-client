@@ -92,17 +92,23 @@ export class OicrFormFieldsComponent {
     const response = await this.api.GET_OICRMetadata(externalOicrId);
     if (!response.successfulRequest) return;
     // Pre-fill OICR form fields with metadata
-    this.createResultManagementService.createOicrBody.update(b => ({
-      ...b,
-      step_two: {
-        ...b.step_two,
-        contributor_lever: response.data.step_two.contributor_lever.map(cl => ({
-          ...cl,
-          lever_id: Number(cl.lever_id)
-        }))
-      },
-      step_three: response.data.step_three
-    }));
+    this.createResultManagementService.createOicrBody.update(b => {
+      const primaryLeverIds = b.step_two.primary_lever.map(pl => Number(pl.lever_id));
+
+      return {
+        ...b,
+        step_two: {
+          ...b.step_two,
+          contributor_lever: response.data.step_two.contributor_lever
+            .filter(cl => !primaryLeverIds.includes(Number(cl.lever_id)))
+            .map(cl => ({
+              ...cl,
+              lever_id: Number(cl.lever_id)
+            }))
+        },
+        step_three: response.data.step_three
+      };
+    });
   }
 
   async aiAssistantFunctionForShortOutcome() {
