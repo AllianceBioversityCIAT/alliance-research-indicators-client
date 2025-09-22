@@ -51,7 +51,16 @@ describe('ResultsCenterComponent', () => {
       applyFilters: jest.fn(),
       cleanMultiselects: jest.fn(),
       loadMyResults: jest.fn(),
-      loadAllResults: jest.fn()
+      loadAllResults: jest.fn(),
+      api: {
+        indicatorTabs: {
+          lazy: jest.fn().mockReturnValue({
+            list: signal([]),
+            isLoading: signal(false),
+            hasValue: signal(false)
+          })
+        }
+      }
     } as any;
 
     mockCacheService = {

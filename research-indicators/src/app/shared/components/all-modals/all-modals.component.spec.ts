@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
 import { SubmissionService } from '@shared/services/submission.service';
+import { CreateResultManagementService } from './modals-content/create-result-modal/services/create-result-management.service';
 
 describe('AllModalsComponent', () => {
   let component: AllModalsComponent;
@@ -35,6 +36,15 @@ describe('AllModalsComponent', () => {
       }),
       comment: signal('')
     };
+    const resultPageStepMock: any = Object.assign(jest.fn().mockReturnValue(0), { set: jest.fn() });
+    const presetFromProjectResultsTableMock: any = jest.fn().mockReturnValue(false);
+    const contractIdMock: any = jest.fn().mockReturnValue(null);
+    const mockCreateResultManagementService: Partial<CreateResultManagementService> = {
+      resultPageStep: resultPageStepMock,
+      presetFromProjectResultsTable: presetFromProjectResultsTableMock,
+      contractId: contractIdMock
+    } as any;
+    
     await TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, AllModalsComponent],
       providers: [
@@ -48,6 +58,10 @@ describe('AllModalsComponent', () => {
         {
           provide: SubmissionService,
           useValue: mockSubmissionService
+        },
+        {
+          provide: CreateResultManagementService,
+          useValue: mockCreateResultManagementService
         }
       ]
     }).compileComponents();
@@ -59,5 +73,50 @@ describe('AllModalsComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('disabledConfirmIf', () => {
+    it('should be true when statusSelected is undefined', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set(undefined);
+      expect(component.disabledConfirmIf()).toBe(true);
+    });
+
+    it('should be true when statusSelected.statusId is falsy', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set({ statusId: 0 });
+      expect(component.disabledConfirmIf()).toBe(true);
+    });
+
+    it('should be true for statusId 5 when comment is empty', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set({ statusId: 5 });
+      service.comment.set('');
+      expect(component.disabledConfirmIf()).toBe(true);
+    });
+
+    it('should be false for statusId 6 regardless of comment', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set({ statusId: 6 });
+      service.comment.set('');
+      expect(component.disabledConfirmIf()).toBe(false);
+      service.comment.set('some text');
+      expect(component.disabledConfirmIf()).toBe(false);
+    });
+
+    it('should be true for statusId 7 when comment is empty and false when not', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set({ statusId: 7 });
+      service.comment.set('');
+      expect(component.disabledConfirmIf()).toBe(true);
+      service.comment.set('Has comment');
+      expect(component.disabledConfirmIf()).toBe(false);
+    });
+
+    it('should be true for any other statusId', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set({ statusId: 99 });
+      expect(component.disabledConfirmIf()).toBe(true);
+    });
   });
 });

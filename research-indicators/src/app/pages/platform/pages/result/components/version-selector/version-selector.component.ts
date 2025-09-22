@@ -8,6 +8,7 @@ import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { filter, Subscription } from 'rxjs';
+import { environment } from '../../../../../../../environments/environment';
 
 @Component({
   selector: 'app-version-selector',
@@ -16,9 +17,9 @@ import { filter, Subscription } from 'rxjs';
   imports: [DividerModule, TooltipModule]
 })
 export class VersionSelectorComponent implements OnDestroy {
-  private readonly api = inject(ApiService);
-  private readonly cache = inject(CacheService);
+  readonly cache = inject(CacheService);
   private readonly router = inject(Router);
+  private readonly api = inject(ApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly actions = inject(ActionsService);
   private readonly metadata = inject(GetMetadataService);
@@ -26,6 +27,9 @@ export class VersionSelectorComponent implements OnDestroy {
   selectedResultId = signal<number | null>(null);
   liveVersion = signal<TransformResultCodeResponse | null>(null);
   approvedVersions = signal<TransformResultCodeResponse[]>([]);
+
+  prmsUrl: string = environment.prmsUrl;
+  tipUrl: string = environment.tipUrl;
 
   private readonly versionEffectCleanup: EffectRef | undefined;
   private readonly routerEventsSub: Subscription | undefined;
@@ -220,6 +224,26 @@ export class VersionSelectorComponent implements OnDestroy {
       },
       buttonColor: '#035BA9'
     });
+  }
+
+  editInPlatform() {
+    const platformCode = this.cache.getCurrentPlatformCode();
+    let url = '';
+    
+    if (platformCode === 'PRMS') {
+      url = this.prmsUrl;
+    } else if (platformCode === 'TIP') {
+      url = this.tipUrl;
+    }
+    
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  get platformEditButtonText(): string {
+    const platformCode = this.cache.getCurrentPlatformCode();
+    return `Edit in ${platformCode}`;
   }
 
   private isResultRouteActive(resultId: string | number): boolean {

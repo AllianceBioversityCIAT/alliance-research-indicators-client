@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { InputComponent } from '../custom-fields/input/input.component';
 import { apiServiceMock } from '../../../testing/mock-services.mock';
+import { GetYear } from '@shared/interfaces/get-year.interface';
 
 describe('GlobalAlertComponent', () => {
   let component: GlobalAlertComponent;
@@ -102,5 +103,268 @@ describe('GlobalAlertComponent', () => {
     expect(actionsService.hideGlobalAlert).toHaveBeenCalledWith(0);
     expect(component.body().commentValue).toBe('');
     expect(component.body().selectValue).toBeNull();
+  });
+
+  it('should handle all severity types in getIcon', () => {
+    const severities = ['success', 'confirm', 'warning', 'secondary', 'error', 'delete', 'processing', 'info'] as const;
+    
+    severities.forEach(severity => {
+      const result = component.getIcon(severity);
+      expect(result).toHaveProperty('icon');
+      expect(result).toHaveProperty('color');
+    });
+
+    // Test default case
+    const defaultResult = component.getIcon('unknown' as any);
+    expect(defaultResult.icon).toBe('pi pi-info-circle');
+    expect(defaultResult.color).toBe('#035BA9');
+  });
+
+  it('should handle service with list method in alertList computed', () => {
+    const mockService = {
+      list: jest.fn().mockReturnValue([
+        { report_year: 2023, has_reported: 0 },
+        { report_year: 2024, has_reported: 1 }
+      ] as GetYear[])
+    };
+
+    serviceLocator.getService.mockReturnValue(mockService);
+
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Test',
+      serviceName: 'testService'
+    };
+
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    expect(component.service).toBe(mockService);
+    expect(component.optionsList).toEqual([
+      { report_year: 2023, has_reported: 0 },
+      { report_year: 2024, has_reported: 1 }
+    ]);
+  });
+
+  it('should handle service returning null in alertList computed', () => {
+    serviceLocator.getService.mockReturnValue(null);
+
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Test',
+      serviceName: 'testService'
+    };
+
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    expect(component.service).toBeUndefined();
+    expect(component.optionsList).toEqual([]);
+  });
+
+  it('should handle alert without serviceName in alertList computed', () => {
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Test'
+    };
+
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    expect(component.service).toBeUndefined();
+  });
+
+  it('should handle commentLabel with commentRequired true', () => {
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Test',
+      commentLabel: 'Test Comment',
+      commentRequired: true
+    };
+
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    const alertList = component.alertList();
+    expect(alertList[0].commentLabel).toBe('Test Comment');
+  });
+
+  it('should handle commentLabel with commentRequired false', () => {
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Test',
+      commentLabel: 'Test Comment',
+      commentRequired: false
+    };
+
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    const alertList = component.alertList();
+    expect(alertList[0].commentLabel).toBe('Test Comment (Optional)');
+  });
+
+  it('should set default cancelCallback when not provided', () => {
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Test'
+    };
+
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    const alertList = component.alertList();
+    expect(alertList[0].cancelCallback?.label).toBe('Cancel');
+  });
+
+  it('should handle cancelCallback with existing label', () => {
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Test',
+      cancelCallback: { label: 'Custom Cancel' }
+    };
+
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    const alertList = component.alertList();
+    expect(alertList[0].cancelCallback?.label).toBe('Custom Cancel');
+  });
+
+  it('should handle onSelectChange with has_reported = 1', () => {
+    component.optionsList = [
+      { report_year: 2023, has_reported: 0 },
+      { report_year: 2024, has_reported: 1 }
+    ] as GetYear[];
+
+    component.onSelectChange(2024);
+
+    expect(component.showReportedWarning).toBe(true);
+    expect(component.body().selectValue).toBeNull();
+  });
+
+  it('should handle onSelectChange with has_reported = 0', () => {
+    component.optionsList = [
+      { report_year: 2023, has_reported: 0 },
+      { report_year: 2024, has_reported: 1 }
+    ] as GetYear[];
+
+    component.onSelectChange(2023);
+
+    expect(component.showReportedWarning).toBe(false);
+    expect(component.body().selectValue).toBe(2023);
+  });
+
+  it('should handle onSelectChange with no matching option', () => {
+    component.optionsList = [
+      { report_year: 2023, has_reported: 0 }
+    ] as GetYear[];
+
+    component.onSelectChange(2025);
+
+    expect(component.showReportedWarning).toBe(false);
+    expect(component.body().selectValue).toBe(2025);
+  });
+
+  it('should clear timeout when closing alert with existing timeout', () => {
+    jest.useFakeTimers();
+    const clearTimeoutSpy = jest.spyOn(window, 'clearTimeout');
+
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Test',
+      autoHideDuration: 1000
+    };
+
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    // Manually set a timeout ID to simulate existing timeout
+    (component as any).autoHideTimeouts[0] = 123;
+
+    component.closeAlert(0);
+
+    expect(clearTimeoutSpy).toHaveBeenCalledWith(123);
+    expect((component as any).autoHideTimeouts[0]).toBe(0);
+
+    clearTimeoutSpy.mockRestore();
+    jest.useRealTimers();
+  });
+
+  it('should handle closeAlert without existing timeout', () => {
+    const clearTimeoutSpy = jest.spyOn(window, 'clearTimeout');
+
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Test'
+    };
+
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    component.closeAlert(0);
+
+    expect(actionsService.hideGlobalAlert).toHaveBeenCalledWith(0);
+    expect(component.body().commentValue).toBe('');
+    expect(component.body().selectValue).toBeNull();
+
+    clearTimeoutSpy.mockRestore();
+  });
+
+  it('should handle clearAllTimeouts with mixed timeout values', () => {
+    const clearTimeoutSpy = jest.spyOn(window, 'clearTimeout');
+    
+    // Set up mixed timeout values
+    (component as any).autoHideTimeouts = [123, 0, 456, null, undefined];
+
+    component.ngOnDestroy();
+
+    expect(clearTimeoutSpy).toHaveBeenCalledWith(123);
+    expect(clearTimeoutSpy).toHaveBeenCalledWith(456);
+    expect(clearTimeoutSpy).not.toHaveBeenCalledWith(0);
+    expect(clearTimeoutSpy).not.toHaveBeenCalledWith(null);
+    expect(clearTimeoutSpy).not.toHaveBeenCalledWith(undefined);
+    expect((component as any).autoHideTimeouts).toEqual([]);
+
+    clearTimeoutSpy.mockRestore();
+  });
+
+  it('should call setupAutoHideForAlerts in ngOnInit', () => {
+    const setupSpy = jest.spyOn(component as any, 'setupAutoHideForAlerts');
+    
+    component.ngOnInit();
+    
+    expect(setupSpy).toHaveBeenCalledWith(component.alertList());
+  });
+
+  it('should trigger closeAlert when autoHideDuration timeout expires', () => {
+    jest.useFakeTimers();
+    const closeAlertSpy = jest.spyOn(component, 'closeAlert');
+
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Test',
+      autoHideDuration: 1000
+    };
+
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    // Advance time to trigger the timeout
+    jest.advanceTimersByTime(1000);
+
+    expect(closeAlertSpy).toHaveBeenCalledWith(0);
+
+    jest.useRealTimers();
   });
 });

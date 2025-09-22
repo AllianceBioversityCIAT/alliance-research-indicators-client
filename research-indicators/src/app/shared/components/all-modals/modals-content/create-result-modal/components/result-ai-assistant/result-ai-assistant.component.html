@@ -23,6 +23,7 @@
           title="Reporting Project"
           [maxLength]="100"
           [contractId]="body().contract_id"
+          helperText="Select the project under which you are reporting the result. Please note: for all indicators except Outcome Impact Case Reports (OICRs), only Alliance non-pooled-funded projects (Window 3 and Bilaterals) may be selected. Pooled-funded projects can be selected only for OICRs."
           (validityChanged)="sharedFormValid = $event"
           (contractIdChange)="onContractIdChange($event)">
         </app-shared-result-form>
@@ -241,7 +242,7 @@
           </div>
         } @else {
           <div class="w-full analyze-result-content flex">
-            @for (item of createResultManagementService.items() | slice: first() : first() + rows(); track $index) {
+            @for (item of createResultManagementService.items() | slice: first() : first() + rows(); track item) {
               <app-result-ai-item
                 [item]="item"
                 [isFirstItem]="$index === 0"
