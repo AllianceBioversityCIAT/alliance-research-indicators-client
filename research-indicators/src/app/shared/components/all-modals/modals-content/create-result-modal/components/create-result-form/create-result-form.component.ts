@@ -193,12 +193,15 @@ export class CreateResultFormComponent {
     }
   }
 
-  getPrimaryLeverId(contractId: number) {
+  getPrimaryLeverId(contractId: string) {
     const contract = this.getContractsService.list().find(c => c.agreement_id === String(contractId));
+    console.log(this.getContractsService.list());
+    console.log(contractId);
     return contract?.lever_id;
   }
 
   navigateToOicr() {
+    console.log(this.body().contract_id);
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);
     this.createResultManagementService.setYear(this.body().year);
@@ -213,12 +216,12 @@ export class CreateResultFormComponent {
       } as BaseInformation,
       step_two: {
         ...b.step_two,
-        primary_lever: this.getPrimaryLeverId(Number(this.body().contract_id || 0))
+        primary_lever: this.getPrimaryLeverId(this.body().contract_id || '')
           ? [
               {
                 result_lever_id: 0,
                 result_id: 0,
-                lever_id: Number(this.getPrimaryLeverId(Number(this.body().contract_id || 0))),
+                lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || '')),
                 lever_role_id: 0,
                 is_primary: true
               } as Lever
@@ -231,7 +234,7 @@ export class CreateResultFormComponent {
       {
         result_lever_id: 0,
         result_id: 0,
-        lever_id: Number(this.getPrimaryLeverId(Number(this.body().contract_id || 0))),
+        lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || '')),
         lever_role_id: 0,
         is_primary: true
       } as Lever
