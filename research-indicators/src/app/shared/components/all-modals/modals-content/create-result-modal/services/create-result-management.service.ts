@@ -17,7 +17,7 @@ export class CreateResultManagementService {
   modalTitle = signal<string>('Create A Result');
   currentRequestedResultCode = signal<number | null>(null);
   editingOicr = signal<boolean>(false);
-  showGeoScope = signal(false);
+  showGeoScope = signal(true);
   oicrPrimaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
   stepItems = signal<MenuItem[]>([]);
   createOicrBody: WritableSignal<OicrCreation> = signal({
