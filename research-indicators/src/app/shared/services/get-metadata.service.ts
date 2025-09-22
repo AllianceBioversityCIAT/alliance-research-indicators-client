@@ -25,7 +25,6 @@ export class GetMetadataService {
       return { canOpen: false };
     } else {
       this.cache.currentMetadata.set(response?.data);
-      console.log(response?.data);
       const { result_official_code, indicator_id, status_id, result_title, result_contract_id } = response?.data ?? {};
       return { canOpen: true, result_official_code, indicator_id, status_id, result_contract_id, result_title };
     }

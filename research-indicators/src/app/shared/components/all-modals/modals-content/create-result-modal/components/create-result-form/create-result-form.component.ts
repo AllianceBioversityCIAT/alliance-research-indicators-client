@@ -195,13 +195,10 @@ export class CreateResultFormComponent {
 
   getPrimaryLeverId(contractId: string) {
     const contract = this.getContractsService.list().find(c => c.agreement_id === String(contractId));
-    console.log(this.getContractsService.list());
-    console.log(contractId);
     return contract?.lever_id;
   }
 
   navigateToOicr() {
-    console.log(this.body().contract_id);
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);
     this.createResultManagementService.setYear(this.body().year);

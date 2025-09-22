@@ -3,7 +3,4 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class ProjectResultsTableService {
-
-  constructor() { }
-}
+export class ProjectResultsTableService {}
