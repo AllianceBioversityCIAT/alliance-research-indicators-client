@@ -11,14 +11,23 @@ export class CurrentResultService {
   api = inject(ApiService);
   allModalsService = inject(AllModalsService);
   constructor() {}
-  openEditRequestdOicrsModal(id: number) {
-    this.createResultManagementService.currentRequestedResultCode.set(id);
+  openEditRequestdOicrsModal(indicatorId: number, resultStatusId: number, resultCode: number) {
+    if (!this.validateOpenResult(indicatorId, resultStatusId)) return;
+    this.createResultManagementService.currentRequestedResultCode.set(resultCode);
     this.createResultManagementService.editingOicr.set(true);
-    this.api.GET_OICRModal(id).then(response => {
+    this.api.GET_OICRModal(resultCode).then(response => {
       this.createResultManagementService.createOicrBody.set(response.data);
       this.allModalsService.openModal('createResult');
       this.createResultManagementService.resultPageStep.set(2);
       this.createResultManagementService.modalTitle.set('Edit OICR');
     });
+  }
+
+  validateOpenResult(indicatorId: number, resultStatusId: number) {
+    return indicatorId === 5 || resultStatusId === 9;
+  }
+
+  getResultLink(indicatorId: number, resultStatusId: number, resultId: number) {
+    return this.validateOpenResult(indicatorId, resultStatusId) ? null : ['/result', resultId];
   }
 }

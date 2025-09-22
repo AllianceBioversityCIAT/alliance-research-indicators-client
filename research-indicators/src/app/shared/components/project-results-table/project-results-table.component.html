@@ -38,15 +38,16 @@
       @for (col of this.columns; track $index) {
         @let indicatorId = customer.indicator.indicator_id;
         @let resultStatusId = customer.result_status.result_status_id;
+        @let validateOpenResult = currentResultService.getResultLink(indicatorId, resultStatusId, customer.result_official_code);
         <td
-          [routerLink]="indicatorId === 5 || resultStatusId === 9 ? null : ['/result', customer.result_official_code]"
-          (click)="indicatorId === 5 || resultStatusId === 9 ? currentResultService.openEditRequestdOicrsModal(customer.result_official_code) : null"
+          [routerLink]="validateOpenResult"
+          (click)="currentResultService.openEditRequestdOicrsModal(indicatorId, resultStatusId, customer.result_official_code)"
           (keydown)="
-            ($event.key === 'Enter' || $event.key === ' ') && (indicatorId === 5 || resultStatusId === 9)
-              ? currentResultService.openEditRequestdOicrsModal(customer.result_official_code)
+            ($event.key === 'Enter' || $event.key === ' ') && validateOpenResult
+              ? currentResultService.openEditRequestdOicrsModal(indicatorId, resultStatusId, customer.result_official_code)
               : null
           "
-          [attr.tabindex]="indicatorId === 5 || resultStatusId === 9 ? '0' : null">
+          [attr.tabindex]="validateOpenResult ? '0' : null">
           @if (col.attr === 'statusName') {
             <app-custom-tag [statusId]="customer.result_status?.result_status_id" [statusName]="customer.result_status?.name"></app-custom-tag>
           } @else {
