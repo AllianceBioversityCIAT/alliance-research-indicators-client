@@ -61,13 +61,13 @@
         textSpan="OICR selected">
         <!-- Item template -->
         <ng-template #item let-item>
-          <div class="flex flex-col gap-2 h-[54px] text-[14px] w-full min-w-0" pTooltip="{{ item?.title }}">
+          <div class="flex flex-col gap-2  text-[14px] w-full min-w-0" pTooltip="{{ item?.title }}">
             <p class="text-[#4C5158] font-[400] w-full overflow-hidden whitespace-nowrap text-ellipsis">
               <b>{{ item?.external_id }} -</b>
               {{ item?.title }}
             </p>
 
-            <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
+            <p class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
               <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
                 Published
               </button>
@@ -77,9 +77,11 @@
               Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
               <span class="text-[#345B8F]">{{ item?.report_year }}</span>
               @if (item?.handle_link) {
-                <span class="text-[#B9C0C5]">|</span>
-                CGSpace link <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                <a [href]="item?.handle_link" target="_blank" class="text-[#1689CA] underline">{{ item?.handle_link }}</a>
+                <span class="text-[#B9C0C5] shrink-0">|</span>
+                <span class="flex items-center gap-1 shrink-0">
+                  CGSpace link <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+                  <a [href]="item?.handle_link" target="_blank" class="text-[#1689CA] underline break-all">{{ item?.handle_link }}</a>
+                </span>
               }
             </p>
           </div>
@@ -87,8 +89,8 @@
 
         <!-- Rows template -->
         <ng-template #rows let-item>
-          <div class="flex min-h-[82px] text-[14px] w-full min-w-0 px-2 py-0.5">
-            <div class="w-[90%] flex flex-col gap-2">
+          <div class="flex justify-between min-h-[82px] text-[14px] w-full min-w-0 px-2 py-0.5">
+            <div class="w-auto flex flex-col gap-2">
               <div class="flex items-center gap-2">
                 <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
                 <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
@@ -96,7 +98,7 @@
               <div class="flex">
                 <p class="text-[#4C5158] font-[500] flex leading-4">{{ item?.id }} -{{ item?.title }}</p>
               </div>
-              <p class="space-x-2 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
+              <p class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
                 <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
                   Published
                 </button>
@@ -106,13 +108,15 @@
                 Reporting year <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
                 <span class="text-[#345B8F]">{{ item?.report_year }}</span>
                 @if (item?.handle_link) {
-                  <span class="text-[#B9C0C5]">|</span>
-                  CGSpace link <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
-                  <a [href]="item?.handle_link" target="_blank" class="text-[#1689CA] underline">{{ item?.handle_link }}</a>
-                  }
+                  <span class="text-[#B9C0C5] shrink-0">|</span>
+                  <span class="flex items-center gap-1 shrink-0">
+                    CGSpace link <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pl-1"></i>
+                    <a [href]="item?.handle_link" target="_blank" class="text-[#1689CA] underline break-all">{{ item?.handle_link }}</a>
+                  </span>
+                }
               </p>
             </div>
-            <div class="flex w-[10%] justify-end items-center">
+            <div class="flex w-[28px] justify-end items-center">
               <i
                 class="pi pi-times-circle !text-[18px] text-[#CF0808] pl-1"
                 (keydown.enter)="clearOicrSelection()"
