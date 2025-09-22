@@ -373,6 +373,7 @@ export class CreateOicrFormComponent {
     }
     this.createResultManagementService.currentRequestedResultCode.set(null);
     this.projectResultsTableService.getData();
+    this.createResultManagementService.clearOicrBody();
   }
 
   goNext() {
