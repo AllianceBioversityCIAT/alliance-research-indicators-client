@@ -94,7 +94,6 @@ export class CreateResultFormComponent {
     { allowSignalWrites: true }
   );
 
-
   private buildW1W2RestrictionHtml(): string {
     const agreementId = this.body()?.contract_id;
 
@@ -107,7 +106,7 @@ export class CreateResultFormComponent {
     const indicatorId = this.body()?.indicator_id;
 
     const indicatorsFn = (this.indicatorsService as unknown as { indicators?: () => IndicatorGroup[] }).indicators;
-    const groups =indicatorsFn ? indicatorsFn() : [];
+    const groups = indicatorsFn ? indicatorsFn() : [];
     const allIndicators = groups.flatMap(g => g.indicators ?? []);
     const indicatorName = allIndicators.find(i => i.indicator_id === indicatorId)?.name ?? 'selected';
 
@@ -149,14 +148,7 @@ export class CreateResultFormComponent {
 
   get isDisabled(): boolean {
     const b = this.body();
-    return (
-      !this.sharedFormValid ||
-      !b.title?.length ||
-      !b.indicator_id ||
-      !b.contract_id ||
-      !b.year ||
-      this.isW1W2NonOicr()
-    );
+    return !this.sharedFormValid || !b.title?.length || !b.indicator_id || !b.contract_id || !b.year || this.isW1W2NonOicr();
   }
 
   private isW1W2NonOicr(): boolean {
@@ -221,12 +213,12 @@ export class CreateResultFormComponent {
       } as BaseInformation,
       step_two: {
         ...b.step_two,
-        primary_lever: this.getPrimaryLeverId(this.body().contract_id || 0)
+        primary_lever: this.getPrimaryLeverId(Number(this.body().contract_id || 0))
           ? [
               {
                 result_lever_id: 0,
                 result_id: 0,
-                lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || 0) || 0),
+                lever_id: Number(this.getPrimaryLeverId(Number(this.body().contract_id || 0))),
                 lever_role_id: 0,
                 is_primary: true
               } as Lever
@@ -239,7 +231,7 @@ export class CreateResultFormComponent {
       {
         result_lever_id: 0,
         result_id: 0,
-        lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || 0)),
+        lever_id: Number(this.getPrimaryLeverId(Number(this.body().contract_id || 0))),
         lever_role_id: 0,
         is_primary: true
       } as Lever
