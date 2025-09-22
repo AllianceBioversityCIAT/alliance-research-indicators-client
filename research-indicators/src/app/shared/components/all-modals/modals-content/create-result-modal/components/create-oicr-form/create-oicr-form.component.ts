@@ -142,13 +142,6 @@ export class CreateOicrFormComponent {
         command: () => this.onStepClick(idx, CREATE_OICR_STEPPER_SECTIONS[idx])
       }))
     );
-
-    effect(() => {
-      const contractId = this.createResultManagementService.createOicrBody().base_information.contract_id;
-      if (contractId) {
-        this.cache.setCurrentResultId(contractId);
-      }
-    });
   }
 
   stepOneCompletionEffect = effect(
