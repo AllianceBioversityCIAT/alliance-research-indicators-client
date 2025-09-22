@@ -1,12 +1,12 @@
 <p-table
   class="w-full"
   #dt1
-  [value]="resultList() | filterByTextWithAttr: 'full_name' : cacheService.projectResultsSearchValue()"
+  [value]="projectResultsTableService.resultList() | filterByTextWithAttr: 'full_name' : cacheService.projectResultsSearchValue()"
   dataKey="id"
   [rows]="10"
   [rowsPerPageOptions]="[10, 25, 50]"
   [scrollHeight]="getScrollHeight()"
-  [loading]="this.loading()"
+  [loading]="projectResultsTableService.loading()"
   [paginator]="true"
   [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
   styleClass="custom-table">
@@ -59,12 +59,8 @@
       <div class="flex flex-col items-center gap-4 bg-surface-ground p-6 rounded-xl">
         <div class="flex flex-col items-center gap-1">
           <img [src]="'/images/landing/projects.png' | s3ImageUrl" alt="Empty Projects" class="w-[180px] mb-3" />
-          <h2 class="text-[#173F6F] text-[16px] font-bold">
-            PROJECT RESULTS LIST IS EMPTY
-          </h2>
-          <p class="text-[#4C5158] leading-4 text-center text-[14px] max-w-[600px] pt-1">
-            No results found for this project at the moment.
-          </p>
+          <h2 class="text-[#173F6F] text-[16px] font-bold">PROJECT RESULTS LIST IS EMPTY</h2>
+          <p class="text-[#4C5158] leading-4 text-center text-[14px] max-w-[600px] pt-1">No results found for this project at the moment.</p>
         </div>
       </div>
     </td>
