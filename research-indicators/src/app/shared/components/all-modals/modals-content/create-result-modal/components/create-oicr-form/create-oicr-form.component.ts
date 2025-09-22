@@ -49,6 +49,7 @@ import { ServiceLocatorService } from '@shared/services/service-locator.service'
 import { Router } from '@angular/router';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 import { RolesService } from '@shared/services/cache/roles.service';
+import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
@@ -86,6 +87,7 @@ export class CreateOicrFormComponent {
   api = inject(ApiService);
   router = inject(Router);
   rolesService = inject(RolesService);
+  projectResultsTableService = inject(ProjectResultsTableService);
 
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
@@ -370,6 +372,7 @@ export class CreateOicrFormComponent {
       });
     }
     this.createResultManagementService.currentRequestedResultCode.set(null);
+    this.projectResultsTableService.getData();
   }
 
   goNext() {
