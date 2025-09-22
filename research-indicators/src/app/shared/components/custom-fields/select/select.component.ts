@@ -38,6 +38,7 @@ export class SelectComponent implements OnInit {
   @Input() optionLabel = '';
   @Input() optionLabel2 = '';
   @Input() optionValue = { body: '', option: '' };
+  @Input() customFilterBy = '';
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
   @Input() description = '';
