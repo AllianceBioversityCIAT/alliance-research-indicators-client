@@ -348,10 +348,8 @@ export class CreateOicrFormComponent {
   initializeCountriesWithSignals = effect(() => {
     const countries = this.createResultManagementService.createOicrBody().step_three.countries;
     if (countries && countries.length > 0) {
-      const needsInitialization = countries.some(country => 
-        !country.result_countries_sub_nationals_signal
-      );
-      
+      const needsInitialization = countries.some(country => !country.result_countries_sub_nationals_signal);
+
       if (needsInitialization) {
         this.createResultManagementService.createOicrBody.update(current => {
           mapCountriesToSubnationalSignals(current.step_three.countries);
@@ -450,6 +448,6 @@ export class CreateOicrFormComponent {
 
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement;
-    target.src = 'https://alliance-files-storage.s3.us-east-1.amazonaws.com/images/levers/L7-Gender-Youth-and-Inclusion_COLOR.png';
+    target.src = 'icons/empty.png';
   }
 }
