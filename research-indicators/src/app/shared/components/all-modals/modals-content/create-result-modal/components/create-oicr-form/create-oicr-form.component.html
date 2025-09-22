@@ -96,7 +96,7 @@
 
   <div class="px-5 flex flex-col mx-10 mb-12">
     <p-steps
-      [model]="stepItems()"
+      [model]="createResultManagementService.stepItems()"
       [readonly]="false"
       [activeIndex]="activeIndex"
       (activeIndexChange)="onActiveIndexChange($event)"
@@ -293,12 +293,14 @@
                               @if (c.result_countries_sub_nationals_signal()?.regions?.length > 0) {
                                 @for (region of c.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
                                   <div class="bg-[#e5e7eb] rounded-full px-3 py-1 flex items-center gap-2 text-[13px] text-[#4c5158]">
-                                    {{ region.name }}
-                                    <i
-                                      class="pi pi-times !text-[12px] text-[#8d9299] hover:text-[#4c5158] cursor-pointer"
-                                      (keydown.enter)="removeSubnationalRegion(c, region)"
-                                      (click)="removeSubnationalRegion(c, region)">
-                                    </i>
+                                    {{ region.name || region.sub_national?.name }}
+                                    @if (canEditOicr) {
+                                      <i
+                                        class="pi pi-times !text-[12px] text-[#8d9299] hover:text-[#4c5158] cursor-pointer"
+                                        (keydown.enter)="removeSubnationalRegion(c, region)"
+                                        (click)="removeSubnationalRegion(c, region)">
+                                      </i>
+                                    }
                                   </div>
                                 }
                               }
@@ -311,6 +313,7 @@
                           <app-multiselect-instance
                             [signal]="c.result_countries_sub_nationals_signal"
                             [optionLabel]="'name'"
+                            [disabled]="!canEditOicr"
                             (valueChange)="updateCountryRegions(c.isoAlpha2, $event)"
                             [optionValue]="'sub_national_id'"
                             [signalOptionValue]="'regions'"

@@ -14,6 +14,7 @@ import { CacheService } from '@services/cache/cache.service';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { CurrentResultService } from '@shared/services/cache/current-result.service';
 @Component({
   selector: 'app-project-results-table',
   imports: [
@@ -36,12 +37,12 @@ export default class ProjectResultsTableComponent implements OnInit, OnDestroy {
   cacheService = inject(CacheService);
   allModalsService = inject(AllModalsService);
   contractId = this.cacheService.currentProjectId();
-  loading = signal(true);
   createResultManagementService = inject(CreateResultManagementService);
+  currentResultService = inject(CurrentResultService);
+
+  loading = signal(true);
 
   activityValues: number[] = [0, 100];
-
-  searchValue = '';
 
   resultList: WritableSignal<GetResultsByContract[]> = signal([]);
 
@@ -64,17 +65,6 @@ export default class ProjectResultsTableComponent implements OnInit, OnDestroy {
     this.getData();
   }
 
-  openEditRequestdOicrsModal(id: number) {
-    this.createResultManagementService.currentRequestedResultCode.set(id);
-    this.createResultManagementService.editingOicr.set(true);
-    this.api.GET_OICRModal(id).then(response => {
-      this.createResultManagementService.createOicrBody.set(response.data);
-      this.allModalsService.openModal('createResult');
-      this.createResultManagementService.resultPageStep.set(2);
-      this.createResultManagementService.modalTitle.set('Edit OICR');
-    });
-  }
-
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_ResultsByContractId(this.contractId);
@@ -91,7 +81,7 @@ export default class ProjectResultsTableComponent implements OnInit, OnDestroy {
 
   clear(table: Table) {
     table.clear();
-    this.searchValue = '';
+    this.cacheService.projectResultsSearchValue.set('');
   }
 
   openCreateResultForProject() {
