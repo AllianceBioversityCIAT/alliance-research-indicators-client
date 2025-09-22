@@ -40,7 +40,7 @@
         @let resultStatusId = customer.result_status.result_status_id;
         <td
           [routerLink]="indicatorId === 5 || resultStatusId === 9 ? null : ['/result', customer.result_official_code]"
-          (click)="indicatorId === 5 || resultStatusId === 9 ? openEditRequestdOicrsModal(customer.result_official_code) : null">
+          (click)="indicatorId === 5 || resultStatusId === 9 ? currentResultService.openEditRequestdOicrsModal(customer.result_official_code) : null">
           @if (col.attr === 'statusName') {
             <app-custom-tag [statusId]="customer.result_status?.result_status_id" [statusName]="customer.result_status?.name"></app-custom-tag>
           } @else {

@@ -16,6 +16,7 @@ import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { CacheService } from '../../services/cache/cache.service';
 import { AllModalsService } from '../../services/cache/all-modals.service';
 import { CreateResultManagementService } from '../all-modals/modals-content/create-result-modal/services/create-result-management.service';
+import { CurrentResultService } from '../../services/cache/current-result.service';
 @Component({
   selector: 'app-project-results-table',
   imports: [
@@ -37,6 +38,7 @@ export class ProjectResultsTableComponent implements OnInit {
   cacheService = inject(CacheService);
   allModalsService = inject(AllModalsService);
   createResultManagementService = inject(CreateResultManagementService);
+  currentResultService = inject(CurrentResultService);
   @Input() contractId = '';
   loading = signal(true);
 
@@ -63,17 +65,6 @@ export class ProjectResultsTableComponent implements OnInit {
 
   ngOnInit() {
     this.getData();
-  }
-
-  openEditRequestdOicrsModal(id: number) {
-    this.createResultManagementService.currentRequestedResultCode.set(id);
-    this.createResultManagementService.editingOicr.set(true);
-    this.api.GET_OICRModal(id).then(response => {
-      this.createResultManagementService.createOicrBody.set(response.data);
-      this.allModalsService.openModal('createResult');
-      this.createResultManagementService.resultPageStep.set(2);
-      this.createResultManagementService.modalTitle.set('Edit OICR');
-    });
   }
 
   async getData() {
