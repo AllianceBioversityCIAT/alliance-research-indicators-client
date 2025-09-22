@@ -33,7 +33,7 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
 
   if (currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
     router.navigate(['/project-detail', contract_id]);
-    cacheService.projectResultsSearchValue.set(result_title ?? '');
+    if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');
     currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
     return false;
   }
