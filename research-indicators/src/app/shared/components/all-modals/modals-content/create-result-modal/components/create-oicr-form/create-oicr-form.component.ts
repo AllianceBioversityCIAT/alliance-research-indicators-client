@@ -227,9 +227,9 @@ export class CreateOicrFormComponent {
     { allowSignalWrites: true }
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   printht(c: Country) {
-    console.log(c);
-    console.log(c?.result_countries_sub_nationals_signal?.());
+    // Debug method - console statements removed for linting compliance
   }
 
   onActiveIndexChange(event: number) {

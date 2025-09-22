@@ -280,7 +280,6 @@
                   placeholder="Select the countries">
                   <ng-template #rows let-country>
                     @for (c of [country]; track c.isoAlpha2) {
-                      <button (click)="printht(c)">boton {{ c.result_countries_sub_nationals_signal()?.regions?.length }}</button>
                       <div class="flex justify-between items-start w-full">
                         <div class="flex flex-col gap-3 max-w-[70%]">
                           <div class="flex items-center gap-3">
@@ -292,15 +291,16 @@
                               <span class="text-[#777c83] text-[13px]">Sub-national levels</span>
                               <i class="pi pi-arrow-right !text-[12px] text-[#8d9299] cursor-pointer"></i>
                               @if (c.result_countries_sub_nationals_signal()?.regions?.length > 0) {
-                                <h1>length: {{ c.result_countries_sub_nationals_signal()?.regions?.length }}</h1>
                                 @for (region of c.result_countries_sub_nationals_signal().regions; track region.sub_national_id) {
                                   <div class="bg-[#e5e7eb] rounded-full px-3 py-1 flex items-center gap-2 text-[13px] text-[#4c5158]">
-                                    {{ region.name || region.sub_national.name }}
-                                    <i
-                                      class="pi pi-times !text-[12px] text-[#8d9299] hover:text-[#4c5158] cursor-pointer"
-                                      (keydown.enter)="removeSubnationalRegion(c, region)"
-                                      (click)="removeSubnationalRegion(c, region)">
-                                    </i>
+                                    {{ region.name || region.sub_national?.name }}
+                                    @if (canEditOicr) {
+                                      <i
+                                        class="pi pi-times !text-[12px] text-[#8d9299] hover:text-[#4c5158] cursor-pointer"
+                                        (keydown.enter)="removeSubnationalRegion(c, region)"
+                                        (click)="removeSubnationalRegion(c, region)">
+                                      </i>
+                                    }
                                   </div>
                                 }
                               }
