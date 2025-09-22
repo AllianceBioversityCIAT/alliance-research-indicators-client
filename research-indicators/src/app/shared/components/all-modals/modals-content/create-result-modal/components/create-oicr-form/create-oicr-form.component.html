@@ -27,7 +27,7 @@
         <i class="pi pi-spinner pi-spin text-white text-xs"></i>
       </div>
     } @else {
-      {{ canEditOicr ? 'OICR requested' : 'Create preliminary OICR submission' }}
+      {{ this.createResultManagementService.editingOicr() ? 'OICR requested' : 'Create preliminary OICR submission' }}
       <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
     }
   </button>
