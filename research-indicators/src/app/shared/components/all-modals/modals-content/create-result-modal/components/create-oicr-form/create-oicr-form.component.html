@@ -311,6 +311,7 @@
                           <app-multiselect-instance
                             [signal]="c.result_countries_sub_nationals_signal"
                             [optionLabel]="'name'"
+                            [disabled]="!canEditOicr"
                             (valueChange)="updateCountryRegions(c.isoAlpha2, $event)"
                             [optionValue]="'sub_national_id'"
                             [signalOptionValue]="'regions'"
