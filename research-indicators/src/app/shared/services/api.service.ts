@@ -512,7 +512,6 @@ export class ApiService {
   };
 
   GET_ResultsByContractId = (contractId: string): Promise<MainResponse<GetResultsByContract[]>> => {
-    console.log('GET_ResultsByContractId', contractId);
     const url = () => `results/contracts/${contractId}`;
     return this.TP.get(url(), {});
   };

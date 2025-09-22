@@ -13,7 +13,6 @@ export class ProjectResultsTableService {
 
   async getData() {
     this.loading.set(true);
-    console.log('getData', this.contractId);
     const response = await this.api.GET_ResultsByContractId(this.contractId);
     response.data.forEach((result: GetResultsByContract) => {
       result.full_name = `${result.result_official_code} - ${result.title} - ${result.indicator.name}`;
