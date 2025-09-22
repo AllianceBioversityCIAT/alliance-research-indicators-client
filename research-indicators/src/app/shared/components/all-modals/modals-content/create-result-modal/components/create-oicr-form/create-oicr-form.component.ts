@@ -345,6 +345,22 @@ export class CreateOicrFormComponent {
     this.isFirstSelect = false;
   };
 
+  initializeCountriesWithSignals = effect(() => {
+    const countries = this.createResultManagementService.createOicrBody().step_three.countries;
+    if (countries && countries.length > 0) {
+      const needsInitialization = countries.some(country => 
+        !country.result_countries_sub_nationals_signal
+      );
+      
+      if (needsInitialization) {
+        this.createResultManagementService.createOicrBody.update(current => {
+          mapCountriesToSubnationalSignals(current.step_three.countries);
+          return current;
+        });
+      }
+    }
+  });
+
   async createResult() {
     const response = await this.api.POST_CreateOicr(
       this.createResultManagementService.createOicrBody(),
@@ -430,5 +446,10 @@ export class CreateOicrFormComponent {
         link_result: { external_oicr_id: 0 }
       }
     }));
+  }
+
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'https://alliance-files-storage.s3.us-east-1.amazonaws.com/images/levers/L7-Gender-Youth-and-Inclusion_COLOR.png';
   }
 }
