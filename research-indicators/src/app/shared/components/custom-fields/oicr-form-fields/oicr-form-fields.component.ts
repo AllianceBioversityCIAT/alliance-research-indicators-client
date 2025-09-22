@@ -90,7 +90,6 @@ export class OicrFormFieldsComponent {
 
   async getOicrMetadata(externalOicrId: number) {
     const response = await this.api.GET_OICRMetadata(externalOicrId);
-    console.log(response);
     if (!response.successfulRequest) return;
     // Pre-fill OICR form fields with metadata
     this.createResultManagementService.createOicrBody.update(b => {
