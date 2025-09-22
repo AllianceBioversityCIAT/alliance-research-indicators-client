@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ProjectResultsTableService } from './project-results-table.service';
-import { ApiService } from '../../services/api.service';
+import { ApiService } from '../../../../../../shared/services/api.service';
 
 describe('ProjectResultsTableService', () => {
   let service: ProjectResultsTableService;

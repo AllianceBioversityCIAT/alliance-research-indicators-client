@@ -1,17 +1,30 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { ResultsTableComponent } from './results-table.component';
 import { ApiService } from '@services/api.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { apiServiceMock } from 'src/app/testing/mock-services.mock';
+import { ProjectResultsTableService } from '../../../pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
 
 describe('ResultsTableComponent', () => {
   let component: ResultsTableComponent;
   let fixture: ComponentFixture<ResultsTableComponent>;
 
   beforeEach(async () => {
+    const mockProjectResultsTableService = {
+      resultList: signal([]),
+      loading: signal(false),
+      contractId: '',
+      getData: jest.fn()
+    };
+
     await TestBed.configureTestingModule({
       imports: [ResultsTableComponent],
-      providers: [{ provide: ApiService, useValue: apiServiceMock }, provideHttpClient(withInterceptorsFromDi())]
+      providers: [
+        { provide: ApiService, useValue: apiServiceMock },
+        { provide: ProjectResultsTableService, useValue: mockProjectResultsTableService },
+        provideHttpClient(withInterceptorsFromDi())
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ResultsTableComponent);

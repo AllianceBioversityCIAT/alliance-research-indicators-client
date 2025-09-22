@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { CardModule } from 'primeng/card';
 import { TabViewModule } from 'primeng/tabview';
-import { Result, ResultTable } from '@interfaces/result/result.interface';
+import { ResultTable } from '@interfaces/result/result.interface';
 import { ProjectResultsTableService } from '../../../pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
 
 @Component({
@@ -36,6 +36,7 @@ export class ResultsTableComponent implements OnInit {
   projectResultsTableService = inject(ProjectResultsTableService);
 
   loading = signal(true);
+  results = this.projectResultsTableService.resultList;
 
   activityValues: number[] = [0, 100];
 
