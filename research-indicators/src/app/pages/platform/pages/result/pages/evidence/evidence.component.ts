@@ -19,22 +19,18 @@ import { NavigationButtonsComponent } from '@shared/components/navigation-button
   templateUrl: './evidence.component.html'
 })
 export default class EvidenceComponent {
-  value: undefined;
   actions = inject(ActionsService);
   cache = inject(CacheService);
   router = inject(Router);
   api = inject(ApiService);
   body = signal<PatchResultEvidences>(new PatchResultEvidences());
-  example = signal({ evidence_url: signal('test') });
   loading = signal(false);
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
   route = inject(ActivatedRoute);
 
   constructor() {
-    this.versionWatcher.onVersionChange(() => {
-      this.getData();
-    });
+    this.versionWatcher.onVersionChange(() => this.getData());
   }
 
   addEvidence() {
@@ -46,49 +42,46 @@ export default class EvidenceComponent {
     this.actions.saveCurrentSection();
   }
 
-  async getData() {
-    this.loading.set(true);
-
-    const response = await this.api.GET_ResultEvidences(this.cache.getCurrentNumericResultId());
-    const data = response.data;
-
-    if (!data.evidence || data.evidence.length === 0) {
-      data.evidence = [new Evidence()];
-    }
-
-    this.body.set(data);
-    this.loading.set(false);
+  private setLoading(isLoading: boolean): void {
+    this.loading.set(isLoading);
   }
 
-  async saveData(page?: 'next' | 'back') {
-    this.loading.set(true);
-
-    const numericResultId = this.cache.getCurrentNumericResultId();
+  private navigateTo(path: 'geographic-scope' | 'ip-rights'): void {
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
+    this.router.navigate(['result', this.cache.currentResultId(), path], {
+      queryParams,
+      replaceUrl: true
+    });
+  }
 
-    const navigateTo = (path: string) => {
-      this.router.navigate(['result', this.cache.currentResultId(), path], {
-        queryParams,
-        replaceUrl: true
-      });
-    };
-
-    if (this.submission.isEditableStatus()) {
-      await this.api.PATCH_ResultEvidences(numericResultId, this.body());
-
-      this.actions.showToast({
-        severity: 'success',
-        summary: 'Evidence',
-        detail: 'Data saved successfully'
-      });
-
-      await this.getData();
+  async getData(): Promise<void> {
+    this.setLoading(true);
+    try {
+      const response = await this.api.GET_ResultEvidences(this.cache.getCurrentNumericResultId());
+      const data = response.data;
+      if (!data.evidence || data.evidence.length === 0) {
+        data.evidence = [new Evidence()];
+      }
+      this.body.set(data);
+    } finally {
+      this.setLoading(false);
     }
+  }
 
-    if (page === 'back') navigateTo('geographic-scope');
-    if (page === 'next') navigateTo('ip-rights');
+  async saveData(page?: 'next' | 'back'): Promise<void> {
+    this.setLoading(true);
+    try {
+      if (this.submission.isEditableStatus()) {
+        await this.api.PATCH_ResultEvidences(this.cache.getCurrentNumericResultId(), this.body());
+        this.actions.showToast({ severity: 'success', summary: 'Evidence', detail: 'Data saved successfully' });
+        await this.getData();
+      }
 
-    this.loading.set(false);
+      if (page === 'back') this.navigateTo('geographic-scope');
+      if (page === 'next') this.navigateTo('ip-rights');
+    } finally {
+      this.setLoading(false);
+    }
   }
 }
