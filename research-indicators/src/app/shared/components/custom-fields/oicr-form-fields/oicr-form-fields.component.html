@@ -58,6 +58,7 @@
         optionLabel="title"
         serviceName="oicrResults"
         [isRequired]="true"
+        [customFilterBy]="'external_id,title,maturity_level,report_year'"
         (selectEvent)="onSelectOicr($event)"
         placeholder="Select OICR"
         scrollHeight="310px"
@@ -101,7 +102,7 @@
                 <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
               </div>
               <div class="flex">
-                <p class="text-[#4C5158] font-[500] flex leading-4">{{ item?.id }} -{{ item?.title }}</p>
+                <p class="text-[#4C5158] font-[500] flex leading-4">{{ item?.external_id }} -{{ item?.title }}</p>
               </div>
               <p class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
                 <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
