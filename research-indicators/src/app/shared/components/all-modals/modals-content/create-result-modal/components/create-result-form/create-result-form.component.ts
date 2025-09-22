@@ -198,6 +198,26 @@ export class CreateResultFormComponent {
     return contract?.lever_id;
   }
 
+  async CreateOicr() {
+    const title = this.body().title?.trim() ?? '';
+    const res = await this.api.GET_ValidateTitle(title);
+    const isValid = Boolean(res.successfulRequest && res.data?.isValid);
+    if (isValid) {
+      this.navigateToOicr();
+      return;
+    }
+
+    this.actions.showGlobalAlert({
+      severity: 'secondary',
+      summary: 'Title Already Exists',
+      detail: 'Please enter a different title.',
+      hasNoCancelButton: true,
+      generalButton: true,
+      confirmCallback: { label: 'Enter other title', event: () => null },
+      buttonColor: '#035BA9'
+    });
+  }
+
   navigateToOicr() {
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);

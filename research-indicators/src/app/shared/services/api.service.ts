@@ -204,8 +204,13 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_ValidateTitle = (title: string): Promise<MainResponse<{ isValid: boolean }>> => {
+    const queryString = title ? `?title=${title}` : '';
+    const url = () => `results/validate-title${queryString}`;
+    return this.TP.get(url(), {});
+  };
+
   POST_CreateOicr = <T>(body: T, resultCode?: number): Promise<MainResponse<Result>> => {
-    // resultCode
     const queryString = resultCode ? `?resultCode=${resultCode}` : '';
     const url = () => `results/oicr${queryString}`;
     return this.TP.patch(url(), body, {});
