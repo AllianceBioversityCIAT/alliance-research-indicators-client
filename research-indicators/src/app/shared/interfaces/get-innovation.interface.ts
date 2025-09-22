@@ -6,6 +6,7 @@ export interface InnovationLevel {
   level: number;
   name: string;
   definition: string;
+  additional_guidance: string;
 }
 
 export interface InnovationCharacteristic {

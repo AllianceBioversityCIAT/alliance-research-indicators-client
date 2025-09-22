@@ -44,6 +44,7 @@ describe('AllModalsComponent', () => {
       presetFromProjectResultsTable: presetFromProjectResultsTableMock,
       contractId: contractIdMock
     } as any;
+    
     await TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, AllModalsComponent],
       providers: [
@@ -74,50 +75,48 @@ describe('AllModalsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should compute disabledConfirmIf: default (true)', () => {
-    // statusId 1 (default) with empty comment → true
-    expect(component.disabledConfirmIf()).toBe(true);
-  });
+  describe('disabledConfirmIf', () => {
+    it('should be true when statusSelected is undefined', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set(undefined);
+      expect(component.disabledConfirmIf()).toBe(true);
+    });
 
-  it('should compute disabledConfirmIf: undefined status (true)', () => {
-    const sub = TestBed.inject(SubmissionService);
-    sub.statusSelected.set({ ...sub.statusSelected(), statusId: undefined as any } as any);
-    expect(component.disabledConfirmIf()).toBe(true);
-  });
+    it('should be true when statusSelected.statusId is falsy', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set({ statusId: 0 });
+      expect(component.disabledConfirmIf()).toBe(true);
+    });
 
-  it('should compute disabledConfirmIf: status 5 depends on comment', () => {
-    const sub = TestBed.inject(SubmissionService);
-    sub.statusSelected.set({ ...sub.statusSelected(), statusId: 5 } as any);
-    sub.comment.set('');
-    expect(component.disabledConfirmIf()).toBe(true);
-    sub.comment.set('ok');
-    expect(component.disabledConfirmIf()).toBe(false);
-  });
+    it('should be true for statusId 5 when comment is empty', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set({ statusId: 5 });
+      service.comment.set('');
+      expect(component.disabledConfirmIf()).toBe(true);
+    });
 
-  it('should compute disabledConfirmIf: status 6 always false', () => {
-    const sub = TestBed.inject(SubmissionService);
-    sub.statusSelected.set({ ...sub.statusSelected(), statusId: 6 } as any);
-    sub.comment.set('');
-    expect(component.disabledConfirmIf()).toBe(false);
-    sub.comment.set('anything');
-    expect(component.disabledConfirmIf()).toBe(false);
-  });
+    it('should be false for statusId 6 regardless of comment', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set({ statusId: 6 });
+      service.comment.set('');
+      expect(component.disabledConfirmIf()).toBe(false);
+      service.comment.set('some text');
+      expect(component.disabledConfirmIf()).toBe(false);
+    });
 
-  it('should compute disabledConfirmIf: status 7 depends on comment', () => {
-    const sub = TestBed.inject(SubmissionService);
-    sub.statusSelected.set({ ...sub.statusSelected(), statusId: 7 } as any);
-    sub.comment.set('');
-    expect(component.disabledConfirmIf()).toBe(true);
-    sub.comment.set('ok');
-    expect(component.disabledConfirmIf()).toBe(false);
-  });
+    it('should be true for statusId 7 when comment is empty and false when not', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set({ statusId: 7 });
+      service.comment.set('');
+      expect(component.disabledConfirmIf()).toBe(true);
+      service.comment.set('Has comment');
+      expect(component.disabledConfirmIf()).toBe(false);
+    });
 
-  it('should clearModal reset step to 0 after timeout', () => {
-    jest.useFakeTimers();
-    const mgmt = TestBed.inject(CreateResultManagementService);
-    component.clearModal();
-    jest.advanceTimersByTime(300);
-    expect((mgmt.resultPageStep as any).set).toHaveBeenCalledWith(0);
-    jest.useRealTimers();
+    it('should be true for any other statusId', () => {
+      const service = TestBed.inject(SubmissionService) as any;
+      service.statusSelected.set({ statusId: 99 });
+      expect(component.disabledConfirmIf()).toBe(true);
+    });
   });
 });

@@ -26,6 +26,7 @@ import { AllModalsService } from '@services/cache/all-modals.service';
 import { DropdownsCacheService } from '../../services/cache/dropdowns-cache.service';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'alliance-navbar',
@@ -37,7 +38,7 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navbar') navbarElement!: ElementRef;
   @ViewChild('dropdownRef') dropdownRef!: ElementRef;
-
+  isProductionEnvironment = environment.production;
   private resizeObserver: ResizeObserver | null = null;
   private readonly zone = inject(NgZone);
   dropdownsCache = inject(DropdownsCacheService);

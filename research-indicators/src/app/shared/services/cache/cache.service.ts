@@ -96,7 +96,16 @@ export class CacheService {
     return parseInt(id, 10);
   }
 
-  getCurrentNumericResultId(): number {
+  getCurrentNumericResultId = computed(() => {
     return this.extractNumericId(this.currentResultId());
-  }
+  });
+
+  getCurrentPlatformCode = computed(() => {
+    const currentId = this.currentResultId();
+    if (typeof currentId === 'string' && currentId.includes('-')) {
+      const parts = currentId.split('-');
+      return parts[0];
+    }
+    return '';
+  });
 }

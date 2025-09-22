@@ -19,6 +19,8 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
   showRightArrow = signal(false);
   private resizeObserver: ResizeObserver | null = null;
 
+  indicatorTabs = this.resultsCenterService.api.indicatorTabs.lazy();
+
   ngAfterViewInit() {
     if (this.filtersContainer) {
       this.filtersContainer.nativeElement.addEventListener('scroll', () => this.updateArrowVisibility());
