@@ -11,14 +11,19 @@ export class GetMetadataService {
   cache = inject(CacheService);
   router = inject(Router);
 
-  async update(id: number, platform?: string | null): Promise<boolean> {
+  async update(
+    id: number,
+    platform?: string | null
+  ): Promise<{ canOpen: boolean; result_official_code?: number; indicator_id?: number; status_id?: number }> {
     const response = await this.api.GET_Metadata(id, platform || undefined);
     if (response?.status !== 200) {
       this.router.navigate(['/results-center']);
-      return false;
+      return { canOpen: false };
     } else {
       this.cache.currentMetadata.set(response?.data);
-      return true;
+
+      const { result_official_code, indicator_id, status_id } = response?.data ?? {};
+      return { canOpen: true, result_official_code, indicator_id, status_id };
     }
   }
 

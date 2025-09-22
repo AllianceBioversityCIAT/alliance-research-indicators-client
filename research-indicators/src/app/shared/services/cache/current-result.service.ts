@@ -25,12 +25,12 @@ export class CurrentResultService {
   }
 
   pp(result: any) {
-    console.log(result);
+    // console.log(result);
     return '';
   }
 
   validateOpenResult(indicatorId: number, resultStatusId: number) {
-    console.log(indicatorId, resultStatusId);
+    // console.log(indicatorId, resultStatusId);
     return indicatorId === 5 || resultStatusId === 9;
   }
 
