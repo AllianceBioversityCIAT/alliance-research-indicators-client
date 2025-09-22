@@ -30,11 +30,6 @@ export class CurrentResultService {
   }
 
   validateOpenResult(indicatorId: number, resultStatusId: number) {
-    // console.log(indicatorId, resultStatusId);
     return indicatorId === 5 || resultStatusId === 9;
-  }
-
-  getResultLink(indicatorId: number, resultStatusId: number, resultId: number) {
-    return this.validateOpenResult(indicatorId, resultStatusId) ? null : ['/result', resultId];
   }
 }
