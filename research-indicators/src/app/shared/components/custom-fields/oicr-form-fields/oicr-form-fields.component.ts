@@ -94,9 +94,12 @@ export class OicrFormFieldsComponent {
     // Pre-fill OICR form fields with metadata
     this.createResultManagementService.createOicrBody.update(b => {
       const primaryLeverIds = b.step_two.primary_lever.map(pl => Number(pl.lever_id));
-
       return {
         ...b,
+        step_one: {
+          ...b.step_one,
+          outcome_impact_statement: response.data.step_one.outcome_impact_statement
+        },
         step_two: {
           ...b.step_two,
           contributor_lever: response.data.step_two.contributor_lever
