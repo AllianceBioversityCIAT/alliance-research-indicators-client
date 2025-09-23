@@ -186,7 +186,7 @@ export class CreateOicrFormComponent {
         this.isCompleteStepOne &&
         this.isCompleteStepTwo &&
         this.isCompleteStepThree &&
-        (this.createResultManagementService.editingOicr() ? true : !this.step4opened());
+        (this.createResultManagementService.editingOicr() ? true : this.step4opened());
       this.createResultManagementService.stepItems.update(items =>
         items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item))
       );
@@ -278,7 +278,11 @@ export class CreateOicrFormComponent {
     const userIdValid = String(b.step_one.main_contact_person.user_id).trim().length > 0;
     const tagIdValid = b.step_one.tagging.tag_id > 0;
     const outcomeLen = (b.step_one.outcome_impact_statement ?? '').length;
-    return userIdValid && tagIdValid && outcomeLen > 0;
+
+    const showOicrSelection = b.step_one.tagging.tag_id === 2 || b.step_one.tagging.tag_id === 3;
+    const oicrSelectionValid = !showOicrSelection || b.step_one.link_result.external_oicr_id > 0;
+
+    return userIdValid && tagIdValid && outcomeLen > 0 && oicrSelectionValid;
   }
 
   get isCompleteStepTwo(): boolean {
@@ -426,8 +430,8 @@ export class CreateOicrFormComponent {
       const next = current + 1;
       const sectionId = this.stepSectionIds[next] ?? this.stepSectionIds[0];
       this.onStepClick(next, sectionId);
+      if (next === 3) this.step4opened.set(true);
     }
-    if (current === 3) this.step4opened.set(true);
   }
 
   goBack() {
