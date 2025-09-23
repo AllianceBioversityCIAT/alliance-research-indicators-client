@@ -274,7 +274,11 @@ export class CreateOicrFormComponent {
     const userIdValid = String(b.step_one.main_contact_person.user_id).trim().length > 0;
     const tagIdValid = b.step_one.tagging.tag_id > 0;
     const outcomeLen = (b.step_one.outcome_impact_statement ?? '').length;
-    return userIdValid && tagIdValid && outcomeLen > 0;
+    
+    const showOicrSelection = b.step_one.tagging.tag_id === 2 || b.step_one.tagging.tag_id === 3;
+    const oicrSelectionValid = !showOicrSelection || (b.step_one.link_result.external_oicr_id > 0);
+    
+    return userIdValid && tagIdValid && outcomeLen > 0 && oicrSelectionValid;
   }
 
   get isCompleteStepTwo(): boolean {
