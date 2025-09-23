@@ -18,9 +18,9 @@ export interface BaseInformation {
 }
 
 export interface MainContactPerson {
-  result_user_id: number;
+  result_user_id: string;
   result_id: number;
-  user_id: number;
+  user_id: string;
   user_role_id: number;
 }
 

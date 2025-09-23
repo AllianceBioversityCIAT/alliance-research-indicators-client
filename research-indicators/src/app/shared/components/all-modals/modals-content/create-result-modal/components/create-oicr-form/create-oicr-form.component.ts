@@ -257,7 +257,6 @@ export class CreateOicrFormComponent {
 
   get isDisabled(): boolean {
     const b = this.createResultManagementService.createOicrBody();
-    // console.log(b);
     return (
       !b.base_information.title?.length ||
       !b.base_information.indicator_id ||
@@ -271,7 +270,12 @@ export class CreateOicrFormComponent {
 
   get isCompleteStepOne(): boolean {
     const b = this.createResultManagementService.createOicrBody();
-    return b.step_one.main_contact_person.user_id > 0 && b.step_one.tagging.tag_id > 0 && b.step_one.outcome_impact_statement.length > 0;
+    const userIdValid = String(b.step_one.main_contact_person.user_id)
+      .trim()
+      .length > 0;
+    const tagIdValid = b.step_one.tagging.tag_id > 0;
+    const outcomeLen = (b.step_one.outcome_impact_statement ?? '').length;
+    return userIdValid && tagIdValid && outcomeLen > 0;
   }
 
   get isCompleteStepTwo(): boolean {
