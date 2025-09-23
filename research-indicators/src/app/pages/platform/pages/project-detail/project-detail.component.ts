@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
 import { ApiService } from '../../../../shared/services/api.service';
 import { ActivatedRoute, PRIMARY_OUTLET, Router, RouterLink, RouterOutlet } from '@angular/router';
@@ -40,21 +40,25 @@ export default class ProjectDetailComponent implements OnInit {
   lastSegment = signal('');
   setupProjectService = inject(SetUpProjectService);
   currentProject = signal<GetProjectDetail>({});
-  tabs = signal<ViewTab[]>([
-    {
-      label: 'Project Results',
-      route: 'project-results'
-    },
-    {
-      label: 'Project Members',
-      route: 'project-members',
-      hidden: true
-    },
-    {
-      label: 'Progress towards indicators',
-      route: 'progress-towards-indicators'
-    }
-  ]);
+  tabs = computed<ViewTab[]>(() => {
+    const tabs = [
+      {
+        label: 'Project Results',
+        route: 'project-results'
+      },
+      {
+        label: 'Project Members',
+        route: 'project-members',
+        hidden: true
+      },
+      {
+        label: 'Progress towards indicators',
+        route: 'progress-towards-indicators',
+        hidden: this.cache.onlyMvpUsers()
+      }
+    ];
+    return tabs;
+  });
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
