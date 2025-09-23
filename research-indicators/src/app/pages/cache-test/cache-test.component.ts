@@ -4,7 +4,6 @@ import { VersionNumberComponent } from '@pages/landing/components/version-number
 @Component({
   selector: 'app-cache-test',
   imports: [VersionNumberComponent],
-  templateUrl: './cache-test.component.html',
-  styleUrl: './cache-test.component.scss'
+  templateUrl: './cache-test.component.html'
 })
 export default class CacheTestComponent {}
