@@ -270,9 +270,7 @@ export class CreateOicrFormComponent {
 
   get isCompleteStepOne(): boolean {
     const b = this.createResultManagementService.createOicrBody();
-    const userIdValid = String(b.step_one.main_contact_person.user_id)
-      .trim()
-      .length > 0;
+    const userIdValid = String(b.step_one.main_contact_person.user_id).trim().length > 0;
     const tagIdValid = b.step_one.tagging.tag_id > 0;
     const outcomeLen = (b.step_one.outcome_impact_statement ?? '').length;
     return userIdValid && tagIdValid && outcomeLen > 0;
@@ -384,21 +382,32 @@ export class CreateOicrFormComponent {
                 : ['result', response.data.result_official_code];
 
             // Navigate to results-center first to ensure component refresh
-            this.router.navigate(['/results-center']).then(() => {
-              // Then navigate to the target with a small delay
-              setTimeout(() => {
-                this.router.navigate(targetRoute, {
-                  replaceUrl: true,
-                  onSameUrlNavigation: 'reload'
-                });
-                this.allModalsService.closeModal('createResult');
-                this.getResultsService.updateList();
-                this.createResultManagementService.currentRequestedResultCode.set(null);
-                this.projectResultsTableService.getData();
-                this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
-                this.createResultManagementService.clearOicrBody();
-              }, 300);
-            });
+            const navigate = () => {
+              this.router.navigate(targetRoute, {
+                replaceUrl: true,
+                onSameUrlNavigation: 'reload'
+              });
+              this.allModalsService.closeModal('createResult');
+              this.getResultsService.updateList();
+              this.createResultManagementService.currentRequestedResultCode.set(null);
+              this.projectResultsTableService.getData();
+              this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
+              this.createResultManagementService.clearOicrBody();
+            };
+
+            if (
+              this.createResultManagementService.createOicrBody().base_information.indicator_id === 5 &&
+              this.router.url.includes('/project-detail/')
+            ) {
+              this.router.navigate(['/home']).then(() => {
+                // Then navigate to the target with a small delay
+                setTimeout(() => {
+                  navigate();
+                }, 300);
+              });
+            } else {
+              navigate();
+            }
           }
         }
       });
