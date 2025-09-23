@@ -7,7 +7,9 @@ export interface GlobalAlert {
   callbacks?: Callback[];
   placeholder?: string;
   icon?: string;
+  iconClass?: string; 
   color?: string;
+  buttonIconClass?: string; 
   selectorLabel?: string;
   selectorRequired?: boolean;
   commentLabel?: string;

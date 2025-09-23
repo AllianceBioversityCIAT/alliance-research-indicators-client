@@ -18,9 +18,9 @@ export interface BaseInformation {
 }
 
 export interface MainContactPerson {
-  result_user_id: number;
+  result_user_id: string;
   result_id: number;
-  user_id: number;
+  user_id: string;
   user_role_id: number;
 }
 
@@ -42,13 +42,12 @@ export interface Initiative {
 export interface Lever {
   result_lever_id: number;
   result_id: number;
-  lever_id: string;
+  lever_id: string | number;
   lever_role_id: number;
   is_primary: boolean;
 }
 
 export interface StepTwo {
-  initiatives: Initiative[];
   primary_lever: Lever[];
   contributor_lever: Lever[];
 }

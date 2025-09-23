@@ -64,7 +64,7 @@ import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
-import { Oicr, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 
 @Injectable({
@@ -101,7 +101,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Contracts = (projectId?: number): Promise<MainResponse<GetContracts[]>> => {
+  GET_Contracts = (projectId?: string): Promise<MainResponse<GetContracts[]>> => {
     const url = () => {
       const baseUrl = 'agresso/contracts';
       const queryParam = projectId ? `?projectId=${projectId}` : '';
@@ -204,9 +204,16 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  POST_CreateOicr = <T>(body: T): Promise<MainResponse<Result>> => {
-    const url = () => `results/oicr`;
-    return this.TP.post(url(), body, {});
+  GET_ValidateTitle = (title: string): Promise<MainResponse<{ isValid: boolean }>> => {
+    const queryString = title ? `?title=${title}` : '';
+    const url = () => `results/validate-title${queryString}`;
+    return this.TP.get(url(), {});
+  };
+
+  POST_CreateOicr = <T>(body: T, resultCode?: number): Promise<MainResponse<Result>> => {
+    const queryString = resultCode ? `?resultCode=${resultCode}` : '';
+    const url = () => `results/oicr${queryString}`;
+    return this.TP.patch(url(), body, {});
   };
 
   PATCH_Oicr = <T>(id: number, body: T): Promise<MainResponse<PatchOicr>> => {
@@ -281,7 +288,7 @@ export class ApiService {
 
   GET_Versions = (resultCode: number): Promise<MainResponse<GetVersions>> => {
     const url = () => `results/versions/${resultCode}`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), { useResultInterceptor: true });
   };
 
   GET_InnovationReadinessLevels = (): Promise<MainResponse<InnovationLevel[]>> => {
@@ -391,12 +398,12 @@ export class ApiService {
   };
 
   GET_CapacitySharing = (): Promise<MainResponse<GetCapSharing>> => {
-    const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
+    const url = () => `results/capacity-sharing/by-result-id/${this.cache.getCurrentNumericResultId()}`;
     return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_CapacitySharing = <T>(body: T): Promise<MainResponse<GetCapSharing>> => {
-    const url = () => `results/capacity-sharing/by-result-id/${this.cache.currentResultId()}`;
+    const url = () => `results/capacity-sharing/by-result-id/${this.cache.getCurrentNumericResultId()}`;
     return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
@@ -445,10 +452,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Metadata = (id: number): Promise<MainResponse<GetMetadata>> => {
+  GET_Metadata = (id: number, platform?: string): Promise<MainResponse<GetMetadata>> => {
     const url = () => `results/${id}/metadata`;
     return this.TP.get(url(), {
-      useResultInterceptor: true
+      useResultInterceptor: true,
+      platform: platform
     });
   };
 
@@ -605,9 +613,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_GreenChecks = (resultCode: number): Promise<MainResponse<GreenChecks>> => {
-    const url = () => `results/green-checks/${resultCode}`;
-    return this.TP.get(url(), { useResultInterceptor: true });
+  GET_GreenChecks = (resultCode: number, platform?: string): Promise<MainResponse<GreenChecks>> => {
+    const basePath = `results/green-checks/${resultCode}`;
+    const query = platform ? '?reportingPlatforms=' + platform : '';
+    const url = () => basePath + query;
+    return this.TP.get(url(), {});
   };
 
   GET_SubmitionHistory = (resultCode: number) => {
@@ -632,8 +642,18 @@ export class ApiService {
     return this.TP.get('', { isAuth: urlWithTimestamp, noCache: true });
   };
 
-  GET_OICRDetails = (resultCode: number): Promise<MainResponse<GetOICRDetails>> => {
+  GET_OICRDetails = (resultCode: number | string): Promise<MainResponse<GetOICRDetails>> => {
     const url = () => `results/oicr/details/${resultCode}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_OICRModal = (resultCode: number): Promise<MainResponse<OicrCreation>> => {
+    const url = () => `results/oicr/${resultCode}/modal`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_OICRMetadata = (resultCode: number): Promise<MainResponse<OicrCreation>> => {
+    const url = () => `temp/oicrs/${resultCode}/metadata`;
     return this.TP.get(url(), {});
   };
 

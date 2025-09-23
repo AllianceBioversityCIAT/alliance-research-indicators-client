@@ -519,5 +519,57 @@ describe('CognitoService', () => {
 
       localStorage.getItem = originalGetItem;
     });
+
+    it('should handle localStorage.getItem returning a truthy value that is not valid JSON', () => {
+      const originalGetItem = localStorage.getItem;
+      localStorage.getItem = jest.fn().mockReturnValue('not-json');
+
+      service.updateCacheService();
+
+      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
+      expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
+      expect(clarity.updateUserInfo).toHaveBeenCalled();
+
+      localStorage.getItem = originalGetItem;
+    });
+
+    it('should handle localStorage.getItem returning different values on multiple calls', () => {
+      const originalGetItem = localStorage.getItem;
+      let callCount = 0;
+      const mockGetItem = jest.fn().mockImplementation(() => {
+        callCount++;
+        return callCount === 1 ? 'some-value' : null;
+      });
+      localStorage.getItem = mockGetItem;
+
+      service.updateCacheService();
+
+      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
+      expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
+      expect(clarity.updateUserInfo).toHaveBeenCalled();
+
+      localStorage.getItem = originalGetItem;
+    });
+
+    it('should handle localStorage.getItem returning undefined in second call to trigger nullish coalescing', () => {
+      const originalGetItem = localStorage.getItem;
+      let callCount = 0;
+      const mockGetItem = jest.fn().mockImplementation(() => {
+        callCount++;
+        return callCount === 1 ? 'some-value' : undefined;
+      });
+      localStorage.getItem = mockGetItem;
+
+      service.updateCacheService();
+
+      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
+      expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
+      expect(clarity.updateUserInfo).toHaveBeenCalled();
+
+      localStorage.getItem = originalGetItem;
+    });
   });
 });

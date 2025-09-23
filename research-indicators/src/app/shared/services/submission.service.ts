@@ -38,7 +38,11 @@ export class SubmissionService {
 
   isEditableStatus = computed(() => {
     const editableStatuses = [4, 5];
-    return editableStatuses.includes(this.cache.currentMetadata().status_id ?? -1);
+    const hasEditableStatus = editableStatuses.includes(this.cache.currentMetadata().status_id ?? -1);
+    const platformCode = this.cache.getCurrentPlatformCode();
+    const isStarPlatform = platformCode === 'STAR';
+    const hasNoPlatformCode = platformCode === '';
+    return hasEditableStatus && (isStarPlatform || hasNoPlatformCode);
   });
 
   isSubmitted = computed(() => {

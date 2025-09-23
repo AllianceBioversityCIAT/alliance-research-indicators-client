@@ -34,6 +34,9 @@ export class TextareaComponent {
   @Input() maxLength = 40000;
   @Input() aiAssistantFunction?: () => void;
   @Input() isAiDisabled = false;
+  @Input() isAiLoading = false;
+  @Input() aiError = '';
+  @Input() onRetry?: () => void;
 
   body = signal<{ value: string }>({ value: '' });
   showMaxReachedMessage = signal(false);

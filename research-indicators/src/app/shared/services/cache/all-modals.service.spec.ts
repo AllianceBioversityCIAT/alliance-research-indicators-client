@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { AllModalsService } from './all-modals.service';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { ModalName } from '@ts-types/modal.types';
@@ -8,11 +9,18 @@ describe('AllModalsService', () => {
   let mockCreateResultManagementService: jest.Mocked<CreateResultManagementService>;
 
   beforeEach(() => {
-    const mockService = {
+    const mockService: Partial<CreateResultManagementService> = {
       resultPageStep: {
         set: jest.fn()
-      }
-    } as any;
+      } as any,
+      editingOicr: jest.fn(() => false),
+      resetModal: jest.fn()
+    };
+
+    // Ensure resetModal mimics production by resetting step to 0
+    (mockService.resetModal as jest.Mock).mockImplementation(() => {
+      (mockService.resultPageStep as any).set(0);
+    });
 
     TestBed.configureTestingModule({
       providers: [AllModalsService, { provide: CreateResultManagementService, useValue: mockService }]

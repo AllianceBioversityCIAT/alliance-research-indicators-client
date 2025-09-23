@@ -24,8 +24,13 @@ export class CacheService {
   );
   showMetadataPanel = signal(localStorage.getItem('showMetadataPanel') === 'true');
   currentSectionHeaderName = signal('');
-  currentResultId: WritableSignal<number> = signal(0);
+  currentResultId: WritableSignal<string | number> = signal(0, {
+    equal: (a, b) => {
+      return a === b;
+    }
+  });
   currentResultIsLoading = signal(false);
+  projectResultsSearchValue = signal('');
   currentUrlPath = signal('');
   currentMetadata: WritableSignal<GetMetadata> = signal({});
   greenChecks = signal<GreenChecks>({});
@@ -67,6 +72,10 @@ export class CacheService {
     this.currentSectionHeaderName.set(name);
   }
 
+  setCurrentResultId(id: string | number): void {
+    this.currentResultId.set(id);
+  }
+
   toggleSidebar() {
     this.isSidebarCollapsed.update(isCollapsed => !isCollapsed);
     localStorage.setItem('isSidebarCollapsed', this.isSidebarCollapsed().toString());
@@ -76,4 +85,28 @@ export class CacheService {
     this.isSidebarCollapsed.set(true);
     localStorage.setItem('isSidebarCollapsed', 'true');
   }
+
+  extractNumericId(id: string | number): number {
+    if (typeof id === 'number') return id;
+
+    if (id.includes('-')) {
+      const parts = id.split('-');
+      const lastPart = parts[parts.length - 1];
+      return parseInt(lastPart, 10);
+    }
+    return parseInt(id, 10);
+  }
+
+  getCurrentNumericResultId = computed(() => {
+    return this.extractNumericId(this.currentResultId());
+  });
+
+  getCurrentPlatformCode = computed(() => {
+    const currentId = this.currentResultId();
+    if (typeof currentId === 'string' && currentId.includes('-')) {
+      const parts = currentId.split('-');
+      return parts[0];
+    }
+    return '';
+  });
 }

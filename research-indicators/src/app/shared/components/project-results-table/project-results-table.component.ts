@@ -1,19 +1,20 @@
-import { Component, computed, inject, Input, OnInit, signal, WritableSignal } from '@angular/core';
-
+import { Component, computed, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
-
 import { InputTextModule } from 'primeng/inputtext';
-
 import { ResultTable } from '@shared/interfaces/result/result.interface';
 import { Button } from 'primeng/button';
 import { ApiService } from '../../services/api.service';
 import { FilterByTextWithAttrPipe } from '../../pipes/filter-by-text-with-attr.pipe';
-import { GetResultsByContract } from '../../interfaces/get-results-by-contract.interface';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { CacheService } from '../../services/cache/cache.service';
+import { AllModalsService } from '../../services/cache/all-modals.service';
+import { CurrentResultService } from '../../services/cache/current-result.service';
+import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { ProjectResultsTableService } from './project-results-table.service';
 @Component({
   selector: 'app-project-results-table',
   imports: [
@@ -25,26 +26,26 @@ import { CacheService } from '../../services/cache/cache.service';
     FilterByTextWithAttrPipe,
     FormsModule,
     RouterLink,
-    CustomTagComponent
+    CustomTagComponent,
+    S3ImageUrlPipe
   ],
   templateUrl: './project-results-table.component.html',
   styleUrl: './project-results-table.component.scss'
 })
-export class ProjectResultsTableComponent implements OnInit {
+export class ProjectResultsTableComponent implements OnInit, OnDestroy {
   api = inject(ApiService);
   cacheService = inject(CacheService);
+  allModalsService = inject(AllModalsService);
+  createResultManagementService = inject(CreateResultManagementService);
+  currentResultService = inject(CurrentResultService);
+  projectResultsTableService = inject(ProjectResultsTableService);
   @Input() contractId = '';
-  loading = signal(true);
 
   activityValues: number[] = [0, 100];
 
-  searchValue = '';
-
-  resultList: WritableSignal<GetResultsByContract[]> = signal([]);
-
   getScrollHeight = computed(
     () =>
-      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 240 : 490)}px)`
+      `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + this.cacheService.tableFiltersSidebarHeight() + (this.cacheService.hasSmallScreen() ? 240 : 349)}px)`
   );
 
   columns: ResultTable[] = [
@@ -58,26 +59,24 @@ export class ProjectResultsTableComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.getData();
-  }
-
-  async getData() {
-    this.loading.set(true);
-    const response = await this.api.GET_ResultsByContractId(this.contractId);
-    response.data.forEach((result: GetResultsByContract) => {
-      result.full_name = `${result.result_official_code} - ${result.title} - ${result.indicator.name}`;
-      result.indicatorName = result.indicator.name;
-      result.statusName = result.result_status.name;
-      result.creatorName = `${result.created_user.first_name} ${result.created_user.last_name}`;
-    });
-
-    this.resultList.set(response.data);
-    this.loading.set(false);
+    this.projectResultsTableService.contractId = this.contractId;
+    this.projectResultsTableService.getData();
   }
 
   clear(table: Table) {
     table.clear();
-    this.searchValue = '';
+    this.cacheService.projectResultsSearchValue.set('');
+  }
+
+  openCreateResultForProject() {
+    this.createResultManagementService.setContractId(this.contractId);
+    this.createResultManagementService.setPresetFromProjectResultsTable(true);
+    this.allModalsService.openModal('createResult');
+  }
+
+  ngOnDestroy() {
+    this.createResultManagementService.setContractId(null);
+    this.createResultManagementService.setPresetFromProjectResultsTable(false);
   }
 
   getSeverity(status: string) {

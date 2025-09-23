@@ -14,7 +14,6 @@ import {
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 
 import { StepsModule } from 'primeng/steps';
-import { MenuItem } from 'primeng/api';
 import { CREATE_OICR_STEPPER_ITEMS, CREATE_OICR_STEPPER_SECTIONS } from '@shared/constants/stepper.constants';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { ApiService } from '@services/api.service';
@@ -44,13 +43,14 @@ import {
 } from '@shared/utils/geographic-scope.util';
 import { Country, Region } from '@shared/interfaces/get-geo-location.interface';
 import { environment } from '@envs/environment';
-import { OicrCreation, Lever } from '@shared/interfaces/oicr-creation.interface';
-import { Initiative } from '@shared/interfaces/initiative.interface';
+import { Lever } from '@shared/interfaces/oicr-creation.interface';
 import { TooltipModule } from 'primeng/tooltip';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
-import { GetInitiativesService } from '@shared/services/control-list/get-initiatives.service';
 import { Router } from '@angular/router';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
+import { RolesService } from '@shared/services/cache/roles.service';
+import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
+import { DownloadOicrTemplateComponent } from '@shared/components/download-oicr-template/download-oicr-template.component';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
@@ -68,7 +68,8 @@ interface GetContractsExtended extends GetContracts {
     OicrFormFieldsComponent,
     DatePipe,
     NgTemplateOutlet,
-    TooltipModule
+    TooltipModule,
+    DownloadOicrTemplateComponent
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -87,31 +88,42 @@ export class CreateOicrFormComponent {
   cache = inject(CacheService);
   api = inject(ApiService);
   router = inject(Router);
+  rolesService = inject(RolesService);
+  projectResultsTableService = inject(ProjectResultsTableService);
 
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
-
   contractId: number | null = null;
   private isFirstSelect = true;
   environment = environment;
   loading = false;
   activeIndex = 0;
 
-  stepFourVisited = signal(false);
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
   primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
 
   public getContractStatusClasses = getContractStatusClasses;
   private stepSectionIds = [...CREATE_OICR_STEPPER_SECTIONS];
 
-  isRegionsRequired = computed(() => isRegionsRequiredByScope(Number(this.body().step_three.geo_scope_id)));
-  isCountriesRequired = computed(() => isCountriesRequiredByScope(Number(this.body().step_three.geo_scope_id)));
-  getMultiselectLabel = computed(() => getGeoScopeMultiselectTexts(Number(this.body().step_three.geo_scope_id)));
-  isSubNationalRequired = computed(() => isSubNationalRequiredByScope(Number(this.body().step_three.geo_scope_id)));
-  showSubnationalError = computed(() => shouldShowSubnationalError(Number(this.body().step_three.geo_scope_id), this.body().step_three.countries));
+  isRegionsRequired = computed(() => isRegionsRequiredByScope(Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id)));
+  isCountriesRequired = computed(() =>
+    isCountriesRequiredByScope(Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id))
+  );
+  getMultiselectLabel = computed(() =>
+    getGeoScopeMultiselectTexts(Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id))
+  );
+  isSubNationalRequired = computed(() =>
+    isSubNationalRequiredByScope(Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id))
+  );
+  showSubnationalError = computed(() =>
+    shouldShowSubnationalError(
+      Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id),
+      this.createResultManagementService.createOicrBody().step_three.countries
+    )
+  );
 
   currentContract = computed(() => {
-    const contractId = this.body().base_information.contract_id;
+    const contractId = this.createResultManagementService.createOicrBody().base_information.contract_id;
     const contractsList = this.contracts();
     return contractsList.find(contract => contract.contract_id === String(contractId)) || null;
   });
@@ -123,56 +135,21 @@ export class CreateOicrFormComponent {
     return { first: parts[0] || '', second: parts[1] || '' };
   });
 
-  stepItems = signal<MenuItem[]>(
-    CREATE_OICR_STEPPER_ITEMS.map((item, idx) => ({
-      ...item,
-      command: () => this.onStepClick(idx, CREATE_OICR_STEPPER_SECTIONS[idx])
-    }))
-  );
+  constructor() {
+    this.createResultManagementService.stepItems.set(
+      CREATE_OICR_STEPPER_ITEMS.map((item, idx) => ({
+        ...item,
+        command: () => this.onStepClick(idx, CREATE_OICR_STEPPER_SECTIONS[idx])
+      }))
+    );
+  }
 
-  body: WritableSignal<OicrCreation> = signal({
-    step_one: {
-      main_contact_person: {
-        result_user_id: 0,
-        result_id: 0,
-        user_id: 0,
-        user_role_id: 0
-      },
-      tagging: {
-        tag_id: 0
-      },
-      link_result: {
-        external_oicr_id: 0
-      },
-      outcome_impact_statement: ''
-    },
-    step_two: {
-      initiatives: [],
-      primary_lever: [],
-      contributor_lever: []
-    },
-    step_three: {
-      geo_scope_id: undefined,
-      countries: [],
-      regions: [],
-      comment_geo_scope: ''
-    },
-    step_four: {
-      general_comment: ''
-    },
-    base_information: {
-      indicator_id: 5,
-      contract_id: String(this.createResultManagementService.contractId() || ''),
-      title: this.createResultManagementService.resultTitle() || '',
-      description: '',
-      year: String(this.createResultManagementService.year() || ''),
-      is_ai: false
-    }
-  });
   stepOneCompletionEffect = effect(
     () => {
       const completed = this.isCompleteStepOne;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 0 ? { ...item, styleClass: completed ? 'oicr-step1-complete' : '' } : item)));
+      this.createResultManagementService.stepItems.update(items =>
+        items.map((item, idx) => (idx === 0 ? { ...item, styleClass: completed ? 'oicr-step1-complete' : '' } : item))
+      );
     },
     { allowSignalWrites: true }
   );
@@ -180,7 +157,9 @@ export class CreateOicrFormComponent {
   stepTwoCompletionEffect = effect(
     () => {
       const completed = this.isCompleteStepTwo;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 1 ? { ...item, styleClass: completed ? 'oicr-step2-complete' : '' } : item)));
+      this.createResultManagementService.stepItems.update(items =>
+        items.map((item, idx) => (idx === 1 ? { ...item, styleClass: completed ? 'oicr-step2-complete' : '' } : item))
+      );
     },
     { allowSignalWrites: true }
   );
@@ -188,7 +167,9 @@ export class CreateOicrFormComponent {
   stepThreeCompletionEffect = effect(
     () => {
       const completed = this.isCompleteStepThree;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 2 ? { ...item, styleClass: completed ? 'oicr-step3-complete' : '' } : item)));
+      this.createResultManagementService.stepItems.update(items =>
+        items.map((item, idx) => (idx === 2 ? { ...item, styleClass: completed ? 'oicr-step3-complete' : '' } : item))
+      );
     },
     { allowSignalWrites: true }
   );
@@ -201,15 +182,17 @@ export class CreateOicrFormComponent {
 
   stepFourCompletionEffect = effect(
     () => {
-      const completed = this.isCompleteStepFour;
-      this.stepItems.update(items => items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item)));
+      const completed = this.createResultManagementService.createOicrBody().step_four.general_comment.length > 0;
+      this.createResultManagementService.stepItems.update(items =>
+        items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item))
+      );
     },
     { allowSignalWrites: true }
   );
 
   updateOptionsDisabledEffect = effect(
     () => {
-      const primaryLevers = this.body().step_two?.primary_lever || [];
+      const primaryLevers = this.createResultManagementService.createOicrBody().step_two?.primary_lever || [];
       this.optionsDisabled.set(primaryLevers);
     },
     { allowSignalWrites: true }
@@ -217,8 +200,8 @@ export class CreateOicrFormComponent {
 
   updatePrimaryOptionsDisabledEffect = effect(
     () => {
-      const contributorLevers = this.body().step_two?.contributor_lever || [];
-      this.primaryOptionsDisabled.set(contributorLevers);
+      const contributorLevers = this.createResultManagementService.createOicrBody().step_two?.contributor_lever || [];
+      this.primaryOptionsDisabled.set([...this.createResultManagementService.oicrPrimaryOptionsDisabled(), ...contributorLevers]);
     },
     { allowSignalWrites: true }
   );
@@ -227,7 +210,7 @@ export class CreateOicrFormComponent {
     async () => {
       const contractId = this.createResultManagementService.contractId();
       if (contractId !== null) {
-        this.body.update(body => ({
+        this.createResultManagementService.createOicrBody.update(body => ({
           ...body,
           contract_id: contractId
         }));
@@ -248,14 +231,16 @@ export class CreateOicrFormComponent {
     { allowSignalWrites: true }
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  printht(c: Country) {
+    // Debug method - console statements removed for linting compliance
+  }
+
   onActiveIndexChange(event: number) {
     this.activeIndex = event;
-    if (event === 3) {
-      this.stepFourVisited.set(true);
-    }
   }
   removeSubnationalRegion(country: Country, region: Region) {
-    this.body.update(current => {
+    this.createResultManagementService.createOicrBody.update(current => {
       const removedId = removeSubnationalRegionFromCountries(current.step_three.countries, country.isoAlpha2, region.sub_national_id);
       const instance = this.multiselectInstances.find(m => m.endpointParams?.isoAlpha2 === country.isoAlpha2);
       if (removedId !== undefined) instance?.removeRegionById(removedId);
@@ -264,14 +249,14 @@ export class CreateOicrFormComponent {
   }
 
   updateCountryRegions = (isoAlpha2: string, newRegions: Region[]) => {
-    this.body.update(current => {
+    this.createResultManagementService.createOicrBody.update(current => {
       updateCountryRegions(current.step_three.countries, isoAlpha2, newRegions);
       return current;
     });
   };
 
   get isDisabled(): boolean {
-    const b = this.body();
+    const b = this.createResultManagementService.createOicrBody();
     return (
       !b.base_information.title?.length ||
       !b.base_information.indicator_id ||
@@ -284,17 +269,20 @@ export class CreateOicrFormComponent {
   }
 
   get isCompleteStepOne(): boolean {
-    const b = this.body();
-    return b.step_one.main_contact_person.user_id > 0 && b.step_one.tagging.tag_id > 0 && b.step_one.outcome_impact_statement.length > 0;
+    const b = this.createResultManagementService.createOicrBody();
+    const userIdValid = String(b.step_one.main_contact_person.user_id).trim().length > 0;
+    const tagIdValid = b.step_one.tagging.tag_id > 0;
+    const outcomeLen = (b.step_one.outcome_impact_statement ?? '').length;
+    return userIdValid && tagIdValid && outcomeLen > 0;
   }
 
   get isCompleteStepTwo(): boolean {
-    const b = this.body();
+    const b = this.createResultManagementService.createOicrBody();
     return b.step_two.primary_lever.length > 0;
   }
 
   get isCompleteStepThree(): boolean {
-    const b = this.body();
+    const b = this.createResultManagementService.createOicrBody();
     const geoScopeId = b.step_three.geo_scope_id;
     const multiselectLabels = this.getMultiselectLabel();
 
@@ -314,13 +302,9 @@ export class CreateOicrFormComponent {
     return hasValidRegions && hasValidCountries;
   }
 
-  get isCompleteStepFour(): boolean {
-    return this.stepFourVisited();
-  }
-
   onContractIdChange(newContractId: number | null) {
     this.contractId = newContractId;
-    this.body.update(b => ({ ...b, contract_id: newContractId }));
+    this.createResultManagementService.createOicrBody.update(b => ({ ...b, contract_id: newContractId }));
   }
 
   onStepClick(stepIndex: number, sectionId: string) {
@@ -336,19 +320,19 @@ export class CreateOicrFormComponent {
   }
 
   onSelect = () => {
-    this.body.update(current => {
+    this.createResultManagementService.createOicrBody.update(current => {
       mapCountriesToSubnationalSignals(current.step_three.countries);
       syncSubnationalArrayFromSignals(current.step_three.countries);
       return current;
     });
-    const currentId = Number(this.body().step_three.geo_scope_id);
+    if (this.createResultManagementService.autofillinOicr()) return;
+    const currentId = Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id);
 
     if (!this.isFirstSelect && currentId === 5) {
-      this.body.update(value => ({
+      this.createResultManagementService.createOicrBody.update(value => ({
         ...value,
         step_three: {
-          ...value.step_three,
-          countries: []
+          ...value.step_three
         }
       }));
     }
@@ -356,8 +340,27 @@ export class CreateOicrFormComponent {
     this.isFirstSelect = false;
   };
 
+  initializeCountriesWithSignals = effect(() => {
+    const countries = this.createResultManagementService.createOicrBody().step_three.countries;
+    if (countries && countries.length > 0) {
+      const needsInitialization = countries.some(country => !country.result_countries_sub_nationals_signal);
+
+      if (needsInitialization) {
+        this.createResultManagementService.createOicrBody.update(current => {
+          mapCountriesToSubnationalSignals(current.step_three.countries);
+          return current;
+        });
+      }
+    }
+  });
+
   async createResult() {
-    const response = await this.api.POST_CreateOicr(this.body());
+    const response = await this.api.POST_CreateOicr(
+      this.createResultManagementService.createOicrBody(),
+      this.createResultManagementService.currentRequestedResultCode() || undefined
+    );
+    // clean currentRequestedResultCode
+
     if (response.status !== 200 && response.status !== 201) {
       this.actions.handleBadRequest(response, () => {
         this.createResultManagementService.resultPageStep.set(0);
@@ -365,18 +368,46 @@ export class CreateOicrFormComponent {
     } else {
       this.actions.showGlobalAlert({
         severity: 'success',
-        summary: 'Thank you for your submission',
+        summary: `Thank you for ${(this.createResultManagementService.currentRequestedResultCode() && 'update') || ''} your submission`,
         hasNoCancelButton: true,
         detail:
           'Your OICR will be reviewed by PISA-SPRM and the assigned regional MEL specialist will reach out to support you in finalizing the next steps of the OICR development process.',
         confirmCallback: {
           label: 'Done',
           event: () => {
-            this.router.navigate(['result', response.data.result_official_code], {
-              replaceUrl: true
-            });
-            this.allModalsService.closeModal('createResult');
-            this.getResultsService.updateList();
+            // Modern Angular approach - Navigate with reload
+            const targetRoute =
+              this.createResultManagementService.createOicrBody().base_information.indicator_id === 5
+                ? ['project-detail/', this.createResultManagementService.createOicrBody()?.base_information?.contract_id]
+                : ['result', response.data.result_official_code];
+
+            // Navigate to results-center first to ensure component refresh
+            const navigate = () => {
+              this.router.navigate(targetRoute, {
+                replaceUrl: true,
+                onSameUrlNavigation: 'reload'
+              });
+              this.allModalsService.closeModal('createResult');
+              this.getResultsService.updateList();
+              this.createResultManagementService.currentRequestedResultCode.set(null);
+              this.projectResultsTableService.getData();
+              this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
+              this.createResultManagementService.clearOicrBody();
+            };
+
+            if (
+              this.createResultManagementService.createOicrBody().base_information.indicator_id === 5 &&
+              this.router.url.includes('/project-detail/')
+            ) {
+              this.router.navigate(['/home']).then(() => {
+                // Then navigate to the target with a small delay
+                setTimeout(() => {
+                  navigate();
+                }, 300);
+              });
+            } else {
+              navigate();
+            }
           }
         }
       });
@@ -385,7 +416,7 @@ export class CreateOicrFormComponent {
 
   goNext() {
     const current = this.activeIndex;
-    const lastIndex = this.stepItems().length - 1;
+    const lastIndex = this.createResultManagementService.stepItems().length - 1;
     if (current < lastIndex) {
       const next = current + 1;
       const sectionId = this.stepSectionIds[next] ?? this.stepSectionIds[0];
@@ -408,25 +439,11 @@ export class CreateOicrFormComponent {
   }
 
   isGeoScopeId(value: number | string): boolean {
-    return Number(this.body().step_three.geo_scope_id) === value;
-  }
-
-  formatSelectedInitiatives(value: string[]): string {
-    if (!value || value.length === 0) return '';
-
-    const initiativesService = this.serviceLocator.getService('initiatives') as GetInitiativesService;
-    const allInitiatives = initiativesService?.list() || [];
-
-    const selectedInitiatives = value.map(code => allInitiatives.find((initiative: Initiative) => initiative.official_code === code)).filter(Boolean);
-
-    return selectedInitiatives
-      .map((item: Initiative | undefined) => (item ? `${item.official_code} - ${item.short_name}` : ''))
-      .filter(Boolean)
-      .join(', ');
+    return Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id) === value;
   }
 
   clearOicrSelection(): void {
-    this.body.update(current => ({
+    this.createResultManagementService.createOicrBody.update(current => ({
       ...current,
       step_one: {
         ...current.step_one,

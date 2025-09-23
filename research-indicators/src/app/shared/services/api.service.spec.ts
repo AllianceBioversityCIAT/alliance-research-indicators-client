@@ -24,8 +24,9 @@ describe('ApiService', () => {
     };
 
     mockCacheService = {
-      currentResultId: jest.fn().mockReturnValue(123)
-    };
+      currentResultId: jest.fn().mockReturnValue(123),
+      getCurrentNumericResultId: jest.fn().mockReturnValue(123)
+    } as any;
 
     mockControlListCacheService = {};
 
@@ -204,12 +205,12 @@ describe('ApiService', () => {
 
   describe('POST methods', () => {
     it('should call POST_CreateOicr', () => {
-      const body = { test: 'data' };
-      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
+      const body = { test: 'data' } as any;
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
 
       service.POST_CreateOicr(body);
 
-      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/oicr', body, {});
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/oicr', body, {});
     });
 
     it('should call POST_Result', () => {
@@ -222,7 +223,7 @@ describe('ApiService', () => {
     });
 
     it('should call POST_CreateResult', () => {
-      const result = { test: 'data' };
+      const result = { test: 'data' } as any;
       (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
 
       service.POST_CreateResult(result);
@@ -269,7 +270,7 @@ describe('ApiService', () => {
     it('should call PATCH_Configuration', () => {
       const id = '123';
       const section = 'test';
-      const body = { test: 'data' };
+      const body = { test: 'data' } as unknown as import('../interfaces/configuration.interface').Configuration;
       (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_Configuration(id, section, body);
@@ -367,30 +368,29 @@ describe('ApiService', () => {
     });
 
     it('should call PATCH_SubmitResult with comment', () => {
-      const params = { resultCode: 123, comment: 'test comment', status: 'submitted' };
+      const params = { resultCode: 123, comment: 'test comment', status: 1 } as any;
       (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith(
-        'results/green-checks/change/status?resultCode=123&comment=test comment&status=submitted',
-        { useResultInterceptor: true }
-      );
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', {
+        useResultInterceptor: true
+      });
     });
 
     it('should call PATCH_SubmitResult without comment', () => {
-      const params = { resultCode: 123, status: 'submitted' };
+      const params = { resultCode: 123, status: 1 } as any;
       (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&status=submitted', {
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&status=1', {
         useResultInterceptor: true
       });
     });
 
     it('should call PATCH_Feedback', () => {
-      const body = { test: 'data' };
+      const body = { test: 'data' } as any;
       (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_Feedback(body);
@@ -488,7 +488,7 @@ describe('ApiService', () => {
 
   describe('Special methods', () => {
     it('should call saveErrors', () => {
-      const error = { message: 'test error' };
+      const error = { message: 'test error', original_error: {} } as any;
       (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
 
       service.saveErrors(error);
@@ -548,7 +548,7 @@ describe('ApiService', () => {
 
       service.GET_Versions(resultCode);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/versions/123', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/versions/123', { useResultInterceptor: true });
     });
 
     it('should call GET_InnovationReadinessLevels', () => {
@@ -1033,9 +1033,7 @@ describe('ApiService', () => {
 
       service.GET_GreenChecks(resultCode);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/green-checks/123', {
-        useResultInterceptor: true
-      });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/green-checks/123', {});
     });
 
     it('should call GET_SubmitionHistory', () => {
@@ -1064,46 +1062,46 @@ describe('ApiService', () => {
 
   describe('GET_Results method', () => {
     it('should call GET_Results with basic filter', () => {
-      const resultFilter = { 'indicator-codes-tabs': ['CODE1', 'CODE2'] };
+      const resultFilter = { 'indicator-codes-tabs': [101, 102] };
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
       service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?indicator-codes=CODE1,CODE2&indicator-codes-tabs=CODE1,CODE2', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?indicator-codes=101,102&indicator-codes-tabs=101,102', {});
     });
 
     it('should call GET_Results with indicator-codes-filter', () => {
-      const resultFilter = { 'indicator-codes-filter': ['CODE1', 'CODE2'] };
+      const resultFilter = { 'indicator-codes-filter': [101, 102] };
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
       service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?indicator-codes=CODE1,CODE2&indicator-codes-filter=CODE1,CODE2', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?indicator-codes=101,102&indicator-codes-filter=101,102', {});
     });
 
     it('should call GET_Results with resultConfig', () => {
       const resultFilter = {};
-      const resultConfig = { includeArchived: true, includeDraft: false };
+      const resultConfig: import('../interfaces/result/result.interface').ResultConfig = { 'audit-data': true, 'result-status': false };
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
       service.GET_Results(resultFilter, resultConfig);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?includeArchived=true', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?audit-data=true', {});
     });
 
     it('should call GET_Results with complex filters', () => {
-      const resultFilter = {
-        'indicator-codes-tabs': ['CODE1'],
-        status: ['active', 'pending'],
-        year: [2024]
+      const resultFilter: import('../interfaces/result/result.interface').ResultFilter = {
+        'indicator-codes-tabs': [101],
+        'status-codes': [1, 2],
+        years: [2024]
       };
-      const resultConfig = { includeArchived: true };
+      const resultConfig: import('../interfaces/result/result.interface').ResultConfig = { 'audit-data': true };
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
       service.GET_Results(resultFilter, resultConfig);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith(
-        'results?indicator-codes=CODE1&includeArchived=true&indicator-codes-tabs=CODE1&status=active,pending&year=2024',
+        'results?indicator-codes=101&audit-data=true&indicator-codes-tabs=101&status-codes=1,2&years=2024',
         {}
       );
     });

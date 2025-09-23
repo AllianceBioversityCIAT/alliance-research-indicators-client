@@ -63,7 +63,6 @@ export default class ResultsCenterComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.resultsCenterService.resetState();
     this.loadPinnedTab();
   }
 
@@ -84,16 +83,22 @@ export default class ResultsCenterComponent implements OnInit {
     if (response?.data) {
       const pinValue = response.data as unknown as { all: string; self: string };
 
+      const allPinned = pinValue.all === '1';
       const selfPinned = pinValue.self === '1';
-      if (selfPinned) {
-        this.pinnedTab.set('my');
-        this.loadMyResults();
-      } else {
+
+      const showAll = allPinned || !selfPinned;
+      if (showAll) {
         this.pinnedTab.set('all');
+        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
         this.loadAllResults();
+      } else {
+        this.pinnedTab.set('my');
+        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
+        this.loadMyResults();
       }
     } else {
       this.pinnedTab.set('all');
+      this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
       this.loadAllResults();
     }
     this.loadingPin.set(false);

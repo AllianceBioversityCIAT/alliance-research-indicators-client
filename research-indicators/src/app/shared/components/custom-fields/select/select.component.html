@@ -28,7 +28,7 @@
         [scrollHeight]="this.scrollHeight"
         [optionValue]="this.optionValue.option"
         [filter]="!this.service?.isOpenSearch()"
-        [filterBy]="this.optionLabel"
+        [filterBy]="this.customFilterBy || this.optionLabel"
         [optionLabel]="this.optionLabel"
         [showClear]="false">
         <!-- Header Template -->

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, signal, ViewChild, ElementRef, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { Component, inject, Input, signal, ViewChild, ElementRef, ChangeDetectionStrategy, HostListener, OnChanges, SimpleChanges } from '@angular/core';
 import { AIAssistantResult } from '../../../../models/AIAssistantResult';
 import { CreateResultManagementService } from '../../../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
@@ -19,7 +19,7 @@ import { EXPANDED_ITEM_DETAILS, getIndicatorTypeIcon, INDICATOR_TYPE_ICONS } fro
   imports: [CommonModule, ButtonModule, TooltipModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ResultAiItemComponent {
+export class ResultAiItemComponent implements OnChanges {
   @Input() item!: AIAssistantResult | GetOsResult;
   @Input() hideButtons = false;
   @Input() isLastItem = false;
@@ -49,6 +49,13 @@ export class ResultAiItemComponent {
   indicatorTypeIcon = INDICATOR_TYPE_ICONS;
 
   constructor(private readonly router: Router) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['item'] && this.item) {
+      const aiItem = this.isAIAssistantResult(this.item) ? this.item : undefined;
+      this.isCreated.set(Boolean(aiItem?.result_official_code));
+    }
+  }
 
   getIndicatorTypeIcon(type: string) {
     return getIndicatorTypeIcon(type);

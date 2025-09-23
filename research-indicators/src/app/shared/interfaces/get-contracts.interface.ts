@@ -19,6 +19,7 @@ export interface GetContracts {
   extension_date: null | string;
   funding_type: null | string;
   grant_amount: string;
+  lever_id: number;
   grant_amount_usd: string;
   project: null | string;
   projectDescription: null | string;
@@ -33,4 +34,5 @@ export interface GetContracts {
   display_label: string;
   lever?: string;
   leverUrl?: string;
+  select_label?: string;
 }

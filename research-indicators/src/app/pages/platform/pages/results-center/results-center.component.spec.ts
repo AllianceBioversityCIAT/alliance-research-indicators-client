@@ -51,7 +51,16 @@ describe('ResultsCenterComponent', () => {
       applyFilters: jest.fn(),
       cleanMultiselects: jest.fn(),
       loadMyResults: jest.fn(),
-      loadAllResults: jest.fn()
+      loadAllResults: jest.fn(),
+      api: {
+        indicatorTabs: {
+          lazy: jest.fn().mockReturnValue({
+            list: signal([]),
+            isLoading: signal(false),
+            hasValue: signal(false)
+          })
+        }
+      }
     } as any;
 
     mockCacheService = {
@@ -94,12 +103,11 @@ describe('ResultsCenterComponent', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should reset state and load pinned tab', () => {
+    it('should load pinned tab', () => {
       const loadPinnedTabSpy = jest.spyOn(component, 'loadPinnedTab');
 
       component.ngOnInit();
 
-      expect(mockResultsCenterService.resetState).toHaveBeenCalled();
       expect(loadPinnedTabSpy).toHaveBeenCalled();
     });
   });
