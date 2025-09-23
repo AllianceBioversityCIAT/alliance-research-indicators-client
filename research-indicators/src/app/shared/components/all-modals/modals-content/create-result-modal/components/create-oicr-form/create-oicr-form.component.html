@@ -237,45 +237,45 @@
       </div>
     }
 
-    <div id="geographic-scope" [hidden]="activeIndex !== 2" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
-      <p class="text-[15px] font-[800] text-[#173F6F]">GEOGRAPHIC SCOPE</p>
+    @if (activeIndex === 2) {
+      <div id="geographic-scope" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
+        <p class="text-[15px] font-[800] text-[#173F6F]">GEOGRAPHIC SCOPE</p>
 
-      <div class="grid gap-[10px]">
-        <div class="flex flex-col gap-8">
-          <app-radio-button
-            [isRequired]="true"
-            [disabled]="!canEditOicr"
-            label="What is the main geographic focus of the Impact?"
-            helperText="This should reflect where the Impact has taken place/contributed to benefit."
-            [signal]="createResultManagementService.createOicrBody"
-            [optionLabel]="'label'"
-            direction="horizontal"
-            spaceX="gap-10"
-            serviceName="geoFocus"
-            (selectEvent)="onSelect()"
-            [optionValue]="{ body: 'step_three.geo_scope_id', option: 'value' }"></app-radio-button>
-
-          @if (getMultiselectLabel().region.label) {
-            <app-multiselect
-              [signal]="createResultManagementService.createOicrBody"
-              [optionLabel]="'name'"
+        <div class="grid gap-[10px]">
+          <div class="flex flex-col gap-8">
+            <app-radio-button
+              [isRequired]="true"
               [disabled]="!canEditOicr"
-              class="-mt-5"
-              [optionValue]="'region_id'"
-              [signalOptionValue]="'step_three.regions'"
-              [isRequired]="isRegionsRequired()"
-              serviceName="regions"
-              label="{{ getMultiselectLabel().region.label }}"
-              helperText="{{ getMultiselectLabel().region.description }}"
-              placeholder="Select the regions">
-            </app-multiselect>
-          }
-          @if (getMultiselectLabel().country.label) {
-            @if (isGeoScopeId(5)) {
-              @if (createResultManagementService.showGeoScope()) {
+              label="What is the main geographic focus of the Impact?"
+              helperText="This should reflect where the Impact has taken place/contributed to benefit."
+              [signal]="createResultManagementService.createOicrBody"
+              [optionLabel]="'label'"
+              direction="horizontal"
+              spaceX="gap-10"
+              serviceName="geoFocus"
+              (selectEvent)="onSelect('radio')"
+              [optionValue]="{ body: 'step_three.geo_scope_id', option: 'value' }"></app-radio-button>
+
+            @if (getMultiselectLabel().region.label) {
+              <app-multiselect
+                [signal]="createResultManagementService.createOicrBody"
+                [optionLabel]="'name'"
+                [disabled]="!canEditOicr"
+                class="-mt-5"
+                [optionValue]="'region_id'"
+                [signalOptionValue]="'step_three.regions'"
+                [isRequired]="isRegionsRequired()"
+                serviceName="regions"
+                label="{{ getMultiselectLabel().region.label }}"
+                helperText="{{ getMultiselectLabel().region.description }}"
+                placeholder="Select the regions">
+              </app-multiselect>
+            }
+            @if (getMultiselectLabel().country.label) {
+              @if (isGeoScopeId(5) && !createResultManagementService.autofillinOicr()) {
                 <app-multiselect
                   [disabled]="!canEditOicr"
-                  (selectEvent)="onSelect()"
+                  (selectEvent)="onSelect('multi regi')"
                   [signal]="createResultManagementService.createOicrBody"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
                   [disabledSelectedScroll]="isGeoScopeId(5)"
@@ -336,55 +336,56 @@
                     }
                   </ng-template>
                 </app-multiselect>
+
+                @if (showSubnationalError()) {
+                  <div class="flex items-center gap-1 -mt-6 text-[#E69F00]">
+                    <i class="material-symbols-rounded !text-[14px]">warning</i>
+                    <span class="!text-[14px]">Please select at least one sub-national level per country.</span>
+                  </div>
+                }
+              } @else {
+                <app-multiselect
+                  (selectEvent)="onSelect('normi')"
+                  [signal]="createResultManagementService.createOicrBody"
+                  class="-mt-3"
+                  [disabled]="!canEditOicr"
+                  [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
+                  [disabledSelectedScroll]="isGeoScopeId(5)"
+                  [optionLabel]="'name'"
+                  [isRequired]="isCountriesRequired()"
+                  [optionValue]="'isoAlpha2'"
+                  [signalOptionValue]="'step_three.countries'"
+                  serviceName="countriesWithoutSubnational"
+                  label="{{ getMultiselectLabel().country.label }}"
+                  helperText="{{ getMultiselectLabel().country.description }}"
+                  placeholder="Select the countries">
+                </app-multiselect>
               }
-              @if (showSubnationalError()) {
-                <div class="flex items-center gap-1 -mt-6 text-[#E69F00]">
-                  <i class="material-symbols-rounded !text-[14px]">warning</i>
-                  <span class="!text-[14px]">Please select at least one sub-national level per country.</span>
-                </div>
-              }
-            } @else {
-              <app-multiselect
-                (selectEvent)="onSelect()"
-                [signal]="createResultManagementService.createOicrBody"
-                class="-mt-3"
-                [disabled]="!canEditOicr"
-                [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
-                [disabledSelectedScroll]="isGeoScopeId(5)"
-                [optionLabel]="'name'"
-                [isRequired]="isCountriesRequired()"
-                [optionValue]="'isoAlpha2'"
-                [signalOptionValue]="'step_three.countries'"
-                serviceName="countriesWithoutSubnational"
-                label="{{ getMultiselectLabel().country.label }}"
-                helperText="{{ getMultiselectLabel().country.description }}"
-                placeholder="Select the countries">
-              </app-multiselect>
             }
-          }
+          </div>
+
+          <div class="flex flex-col pt-2">
+            <app-textarea
+              [rows]="5"
+              [disabled]="!canEditOicr"
+              label="Comments Geographic Scope"
+              helperText="Provide additional information about the geographic scope, if necessary."
+              [maxLength]="1000"
+              [signal]="this.createResultManagementService.createOicrBody"
+              [optionValue]="'step_three.comment_geo_scope'"
+              placeholder="Write the comments"></app-textarea>
+          </div>
         </div>
 
-        <div class="flex flex-col pt-2">
-          <app-textarea
-            [rows]="5"
-            [disabled]="!canEditOicr"
-            label="Comments Geographic Scope"
-            helperText="Provide additional information about the geographic scope, if necessary."
-            [maxLength]="1000"
-            [signal]="this.createResultManagementService.createOicrBody"
-            [optionValue]="'step_three.comment_geo_scope'"
-            placeholder="Write the comments"></app-textarea>
+        <div class="w-full flex justify-between">
+          <div class="flex gap-3">
+            <ng-container *ngTemplateOutlet="previous"></ng-container>
+            <ng-container *ngTemplateOutlet="next"></ng-container>
+          </div>
+          <ng-container *ngTemplateOutlet="createButton"></ng-container>
         </div>
       </div>
-
-      <div class="w-full flex justify-between">
-        <div class="flex gap-3">
-          <ng-container *ngTemplateOutlet="previous"></ng-container>
-          <ng-container *ngTemplateOutlet="next"></ng-container>
-        </div>
-        <ng-container *ngTemplateOutlet="createButton"></ng-container>
-      </div>
-    </div>
+    }
 
     @if (activeIndex === 3) {
       <div id="general-comments" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">

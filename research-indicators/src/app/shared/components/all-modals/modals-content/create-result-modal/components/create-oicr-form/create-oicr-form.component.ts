@@ -317,20 +317,24 @@ export class CreateOicrFormComponent {
     }
   }
 
-  onSelect = () => {
+  onSelect = (name: string) => {
+    console.log(name);
     this.createResultManagementService.createOicrBody.update(current => {
       mapCountriesToSubnationalSignals(current.step_three.countries);
       syncSubnationalArrayFromSignals(current.step_three.countries);
       return current;
     });
+    if (this.createResultManagementService.autofillinOicr()) return;
+    // console.log(this.createResultManagementService.createOicrBody().step_three.geo_scope_id);
+    // if (this.createResultManagementService.createOicrBody().step_three.geo_scope_id === undefined) return;
     const currentId = Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id);
 
+    console.log(currentId);
     if (!this.isFirstSelect && currentId === 5) {
       this.createResultManagementService.createOicrBody.update(value => ({
         ...value,
         step_three: {
-          ...value.step_three,
-          countries: []
+          ...value.step_three
         }
       }));
     }
