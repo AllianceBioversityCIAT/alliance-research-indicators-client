@@ -19,7 +19,7 @@
 
 <ng-template #createButton>
   @let disableCreateButton =
-    loading || isDisabled || !canEditOicr || (this.createResultManagementService.editingOicr() ? false : activeIndex() !== 3);
+    loading || isDisabled || !canEditOicr || (this.createResultManagementService.editingOicr() ? false : !this.step4opened());
   <button
     class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
     (click)="createResult()"

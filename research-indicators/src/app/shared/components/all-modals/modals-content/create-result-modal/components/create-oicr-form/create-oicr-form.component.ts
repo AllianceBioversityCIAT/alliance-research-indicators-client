@@ -90,7 +90,7 @@ export class CreateOicrFormComponent {
   router = inject(Router);
   rolesService = inject(RolesService);
   projectResultsTableService = inject(ProjectResultsTableService);
-
+  step4opened = signal(false);
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
   contractId: number | null = null;
@@ -182,7 +182,7 @@ export class CreateOicrFormComponent {
 
   stepFourCompletionEffect = effect(
     () => {
-      const completed = this.isCompleteStepOne && this.isCompleteStepTwo && this.isCompleteStepThree && this.activeIndex() === 3;
+      const completed = this.isCompleteStepOne && this.isCompleteStepTwo && this.isCompleteStepThree && this.step4opened();
       this.createResultManagementService.stepItems.update(items =>
         items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item))
       );
@@ -238,6 +238,7 @@ export class CreateOicrFormComponent {
 
   onActiveIndexChange(event: number) {
     this.activeIndex.set(event);
+    if (event === 3) this.step4opened.set(true);
   }
   removeSubnationalRegion(country: Country, region: Region) {
     this.createResultManagementService.createOicrBody.update(current => {
