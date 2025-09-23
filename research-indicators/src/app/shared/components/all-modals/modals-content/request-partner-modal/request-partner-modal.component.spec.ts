@@ -182,10 +182,10 @@ describe('RequestPartnerModalComponent', () => {
   });
 
   it('should handle bad request with warning (409 status)', async () => {
-    const mockResponse = { 
-      successfulRequest: false, 
-      status: 409, 
-      errorDetail: { errors: 'Conflict error' } 
+    const mockResponse = {
+      successfulRequest: false,
+      status: 409,
+      errorDetail: { errors: 'Conflict error' }
     };
     mockApiService.POST_PartnerRequest!.mockResolvedValue(mockResponse);
 
@@ -210,10 +210,10 @@ describe('RequestPartnerModalComponent', () => {
   });
 
   it('should handle bad request with error (non-409 status)', async () => {
-    const mockResponse = { 
-      successfulRequest: false, 
-      status: 400, 
-      errorDetail: { errors: 'Bad request error' } 
+    const mockResponse = {
+      successfulRequest: false,
+      status: 400,
+      errorDetail: { errors: 'Bad request error' }
     };
     mockApiService.POST_PartnerRequest!.mockResolvedValue(mockResponse);
 
@@ -300,7 +300,7 @@ describe('RequestPartnerModalComponent', () => {
       ...component.body(),
       websiteLink: null
     });
-    
+
     // This should trigger the validateWebsite call in isPartnerConfirmDisabled
     expect(component.isPartnerConfirmDisabled()).toBe(true);
   });
@@ -327,7 +327,7 @@ describe('RequestPartnerModalComponent', () => {
       ...component.body(),
       websiteLink: undefined
     });
-    
+
     // This should trigger the validateWebsite call in isPartnerConfirmDisabled
     expect(component.isPartnerConfirmDisabled()).toBe(true);
   });
@@ -359,7 +359,7 @@ describe('RequestPartnerModalComponent', () => {
       hqCountryIso: 'US',
       websiteLink: '' // Empty string
     });
-    
+
     // This should trigger the validateWebsite call in isPartnerConfirmDisabled with empty string
     expect(component.isPartnerConfirmDisabled()).toBe(false); // Empty string is valid
   });
@@ -372,7 +372,7 @@ describe('RequestPartnerModalComponent', () => {
       hqCountryIso: 'US',
       websiteLink: '   ' // Whitespace only
     });
-    
+
     // This should trigger the validateWebsite call in isPartnerConfirmDisabled with whitespace
     expect(component.isPartnerConfirmDisabled()).toBe(false); // Whitespace is valid
   });
@@ -385,7 +385,7 @@ describe('RequestPartnerModalComponent', () => {
       hqCountryIso: 'US',
       websiteLink: 'https://example.com' // Valid URL
     });
-    
+
     // This should trigger the validateWebsite call in isPartnerConfirmDisabled with valid URL
     expect(component.isPartnerConfirmDisabled()).toBe(false); // Valid URL should not disable
   });
@@ -398,7 +398,7 @@ describe('RequestPartnerModalComponent', () => {
       hqCountryIso: 'US',
       websiteLink: 'invalid-url' // Invalid URL
     });
-    
+
     // This should trigger the validateWebsite call in isPartnerConfirmDisabled with invalid URL
     expect(component.isPartnerConfirmDisabled()).toBe(true); // Invalid URL should disable
   });
@@ -422,7 +422,7 @@ describe('RequestPartnerModalComponent', () => {
         hqCountryIso: 'US',
         websiteLink: websiteLink
       });
-      
+
       // Force the computed to run by calling it
       const result = component.isPartnerConfirmDisabled();
       expect(result).toBe(expected);
