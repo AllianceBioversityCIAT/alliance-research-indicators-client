@@ -1,3 +1,4 @@
+@let canEditOicr = this.rolesService.canEditOicr();
 <div class="grid gap-[15px]">
   <!-- Main Contact Person (optional) -->
   @if (showMainContactPerson) {
@@ -7,6 +8,7 @@
         helperText="Pick a contact person from the Alliance staff database who is associated with the result and can provide information as needed. Only one person can be selected."
         [isRequired]="true"
         [signal]="body"
+        [disabled]="!canEditOicr"
         [optionValue]="mainContactPersonOptionValue"
         optionLabel="full_name"
         serviceName="userStaff"
@@ -39,6 +41,7 @@
       [optionValue]="taggingOptionValue"
       optionLabel="name"
       serviceName="tags"
+      [disabled]="this.createResultManagementService.editingOicr()"
       scrollHeight="132px"
       placeholder="Select the tagging">
     </app-select>
@@ -55,13 +58,16 @@
         optionLabel="title"
         serviceName="oicrResults"
         [isRequired]="true"
+        [customFilterBy]="'external_id,title,maturity_level,report_year'"
+        (selectEvent)="onSelectOicr($event)"
         placeholder="Select OICR"
         scrollHeight="310px"
+        [disabled]="this.createResultManagementService.editingOicr()"
         [hideSelected]="false"
         textSpan="OICR selected">
         <!-- Item template -->
         <ng-template #item let-item>
-          <div class="flex flex-col gap-2  text-[14px] w-full min-w-0" pTooltip="{{ item?.title }}">
+          <div class="flex flex-col gap-2 text-[14px] w-full min-w-0" pTooltip="{{ item?.title }}">
             <p class="text-[#4C5158] font-[400] w-full overflow-hidden whitespace-nowrap text-ellipsis">
               <b>{{ item?.external_id }} -</b>
               {{ item?.title }}
@@ -96,7 +102,7 @@
                 <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
               </div>
               <div class="flex">
-                <p class="text-[#4C5158] font-[500] flex leading-4">{{ item?.id }} -{{ item?.title }}</p>
+                <p class="text-[#4C5158] font-[500] flex leading-4">{{ item?.external_id }} -{{ item?.title }}</p>
               </div>
               <p class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
                 <button class="uppercase max-w-24 text-[10px] font-semibold px-2 py-1 rounded-lg border border-[#7CB580] text-[#358540]">
@@ -117,10 +123,12 @@
               </p>
             </div>
             <div class="flex w-[28px] justify-end items-center">
-              <i
-                class="pi pi-times-circle !text-[18px] text-[#CF0808] pl-1"
-                (keydown.enter)="clearOicrSelection()"
-                (click)="clearOicrSelection()"></i>
+              @if (!this.createResultManagementService.editingOicr()) {
+                <i
+                  class="pi pi-times-circle !text-[18px] text-[#CF0808] pl-1"
+                  (keydown.enter)="clearOicrSelection()"
+                  (click)="clearOicrSelection()"></i>
+              }
             </div>
           </div>
         </ng-template>
@@ -173,6 +181,7 @@
     <app-textarea
       [rows]="5"
       [isRequired]="true"
+      [disabled]="!canEditOicr"
       label="Elaboration of outcome/impact statement"
       helperText="For the preliminary submission, a brief description (1–3 sentences) of the outcome/impact is sufficient."
       [maxLength]="400"

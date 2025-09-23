@@ -6,7 +6,7 @@
           @if (getConfig().icon) {
             <i
               class="material-symbols-rounded cursor-pointer pr-2 !text-[22px]"
-              (click)="getConfig().iconAction?.()"
+              (click)="getConfig().iconAction?.(); clearModal()"
               (keydown)="getConfig().iconAction?.()"
               >{{ getConfig().icon }}</i
             >
@@ -17,7 +17,7 @@
           class="absolute top-5 right-6 text-[#777c83] cursor-pointer"
           (click)="allModalsService.toggleModal(modalName)"
           (keydown.enter)="allModalsService.toggleModal(modalName)">
-          <i class="material-symbols-rounded !text-[22px]">close</i>
+          <i class="material-symbols-rounded !text-[22px]" (click)="clearModal()" (keydown.enter)="clearModal()">close</i>
         </div>
 
         <div class="overflow-y-auto">

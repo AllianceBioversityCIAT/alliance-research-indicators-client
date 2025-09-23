@@ -31,6 +31,9 @@ export class AllModalsComponent {
   });
 
   clearModal = () => {
+    this.createResultManagementService.currentRequestedResultCode.set(null);
+    this.createResultManagementService.editingOicr.set(false);
+    this.createResultManagementService.clearOicrBody();
     setTimeout(() => {
       this.createResultManagementService.resultPageStep.set(0);
     }, 300);

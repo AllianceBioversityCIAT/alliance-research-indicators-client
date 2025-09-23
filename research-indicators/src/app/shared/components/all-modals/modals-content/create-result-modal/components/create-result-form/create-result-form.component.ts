@@ -27,6 +27,7 @@ import { WordCountService } from '@shared/services/word-count.service';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { environment } from '../../../../../../../../environments/environment';
+import { BaseInformation, StepTwo, Lever } from '../../../../../../interfaces/oicr-creation.interface';
 
 registerLocaleData(localeEs);
 
@@ -93,7 +94,6 @@ export class CreateResultFormComponent {
     { allowSignalWrites: true }
   );
 
-
   private buildW1W2RestrictionHtml(): string {
     const agreementId = this.body()?.contract_id;
 
@@ -106,7 +106,7 @@ export class CreateResultFormComponent {
     const indicatorId = this.body()?.indicator_id;
 
     const indicatorsFn = (this.indicatorsService as unknown as { indicators?: () => IndicatorGroup[] }).indicators;
-    const groups =indicatorsFn ? indicatorsFn() : [];
+    const groups = indicatorsFn ? indicatorsFn() : [];
     const allIndicators = groups.flatMap(g => g.indicators ?? []);
     const indicatorName = allIndicators.find(i => i.indicator_id === indicatorId)?.name ?? 'selected';
 
@@ -148,14 +148,7 @@ export class CreateResultFormComponent {
 
   get isDisabled(): boolean {
     const b = this.body();
-    return (
-      !this.sharedFormValid ||
-      !b.title?.length ||
-      !b.indicator_id ||
-      !b.contract_id ||
-      !b.year ||
-      this.isW1W2NonOicr()
-    );
+    return !this.sharedFormValid || !b.title?.length || !b.indicator_id || !b.contract_id || !b.year || this.isW1W2NonOicr();
   }
 
   private isW1W2NonOicr(): boolean {
@@ -200,11 +193,69 @@ export class CreateResultFormComponent {
     }
   }
 
+  getPrimaryLeverId(contractId: string) {
+    const contract = this.getContractsService.list().find(c => c.agreement_id === String(contractId));
+    return contract?.lever_id;
+  }
+
+  async CreateOicr() {
+    const title = this.body().title?.trim() ?? '';
+    const res = await this.api.GET_ValidateTitle(title);
+    const isValid = Boolean(res.successfulRequest && res.data?.isValid);
+    if (isValid) {
+      this.navigateToOicr();
+      return;
+    }
+
+    this.actions.showGlobalAlert({
+      severity: 'secondary',
+      summary: 'Title Already Exists',
+      detail: 'Please enter a different title.',
+      hasNoCancelButton: true,
+      generalButton: true,
+      confirmCallback: { label: 'Enter other title', event: () => null },
+      buttonColor: '#035BA9'
+    });
+  }
+
   navigateToOicr() {
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);
     this.createResultManagementService.setYear(this.body().year);
     this.createResultManagementService.setModalTitle('OICR result');
+    this.createResultManagementService.createOicrBody.update(b => ({
+      ...b,
+      base_information: {
+        ...b.base_information,
+        title: this.body().title || '',
+        contract_id: this.body().contract_id || '',
+        year: this.body().year || ''
+      } as BaseInformation,
+      step_two: {
+        ...b.step_two,
+        primary_lever: this.getPrimaryLeverId(this.body().contract_id || '')
+          ? [
+              {
+                result_lever_id: 0,
+                result_id: 0,
+                lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || '')),
+                lever_role_id: 0,
+                is_primary: true
+              } as Lever
+            ]
+          : []
+      } as StepTwo
+    }));
+    this.createResultManagementService.oicrPrimaryOptionsDisabled.update(b => [
+      ...b,
+      {
+        result_lever_id: 0,
+        result_id: 0,
+        lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || '')),
+        lever_role_id: 0,
+        is_primary: true
+      } as Lever
+    ]);
     this.createResultManagementService.resultPageStep.set(2);
   }
 

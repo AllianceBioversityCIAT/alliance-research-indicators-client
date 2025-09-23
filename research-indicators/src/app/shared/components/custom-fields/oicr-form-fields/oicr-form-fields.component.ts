@@ -12,6 +12,8 @@ import { ApiService } from '@shared/services/api.service';
 import { UtilsService } from '@shared/services/utils.service';
 import { WordCountService } from '@shared/services/word-count.service';
 import { ActionsService } from '@shared/services/actions.service';
+import { RolesService } from '@shared/services/cache/roles.service';
+import { CreateResultManagementService } from '../../all-modals/modals-content/create-result-modal/services/create-result-management.service';
 
 type OicrFormBody = OicrCreation | PatchOicr;
 
@@ -54,6 +56,8 @@ export class OicrFormFieldsComponent {
   isAiLoading = signal(false);
   isTyping = signal(false);
   aiError = signal('');
+  rolesService = inject(RolesService);
+  createResultManagementService = inject(CreateResultManagementService);
   private aiTimeoutId: number | null = null;
 
   taggingHelperText = OICR_HELPER_TEXTS.taggingHelperText;
@@ -78,6 +82,38 @@ export class OicrFormFieldsComponent {
     }
 
     return false;
+  }
+
+  onSelectOicr(external_oicr_id: number) {
+    this.getOicrMetadata(external_oicr_id);
+  }
+
+  async getOicrMetadata(externalOicrId: number) {
+    this.createResultManagementService.autofillinOicr.set(true);
+    const response = await this.api.GET_OICRMetadata(externalOicrId);
+    if (!response.successfulRequest) return;
+    // Pre-fill OICR form fields with metadata
+    this.createResultManagementService.createOicrBody.update(b => {
+      const primaryLeverIds = b.step_two.primary_lever.map(pl => Number(pl.lever_id));
+      return {
+        ...b,
+        step_one: {
+          ...b.step_one,
+          outcome_impact_statement: response.data.step_one.outcome_impact_statement
+        },
+        step_two: {
+          ...b.step_two,
+          contributor_lever: response.data.step_two.contributor_lever
+            .filter(cl => !primaryLeverIds.includes(Number(cl.lever_id)))
+            .map(cl => ({
+              ...cl,
+              lever_id: Number(cl.lever_id)
+            }))
+        },
+        step_three: response.data.step_three
+      };
+    });
+    this.createResultManagementService.autofillinOicr.set(false);
   }
 
   async aiAssistantFunctionForShortOutcome() {

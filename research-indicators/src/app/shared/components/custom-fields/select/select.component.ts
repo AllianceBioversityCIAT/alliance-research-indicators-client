@@ -1,5 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, computed, effect, inject, Input, OnInit, signal, WritableSignal, TemplateRef, ContentChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  Input,
+  OnInit,
+  signal,
+  WritableSignal,
+  TemplateRef,
+  ContentChild,
+  Output,
+  EventEmitter
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ControlListServices } from '../../../interfaces/services.interface';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
@@ -25,6 +38,7 @@ export class SelectComponent implements OnInit {
   @Input() optionLabel = '';
   @Input() optionLabel2 = '';
   @Input() optionValue = { body: '', option: '' };
+  @Input() customFilterBy = '';
   @Input() serviceName: ControlListServices = '';
   @Input() label = '';
   @Input() description = '';
@@ -36,6 +50,7 @@ export class SelectComponent implements OnInit {
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
   @Input() hideSelected = true;
   @Input() textSpan = '';
+  @Output() selectEvent = new EventEmitter<any>();
 
   @ContentChild('item') itemTemplate?: TemplateRef<any>;
   @ContentChild('selectedItemTemplate') selectedItemTemplate?: TemplateRef<any>;
@@ -100,6 +115,7 @@ export class SelectComponent implements OnInit {
   }
 
   setValue(value: any) {
+    this.selectEvent.emit(value);
     this.body.set({ value: value });
 
     this.signal.update(currentSignal => {

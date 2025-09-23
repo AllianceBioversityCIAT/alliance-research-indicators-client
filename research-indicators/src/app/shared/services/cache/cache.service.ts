@@ -30,6 +30,7 @@ export class CacheService {
     }
   });
   currentResultIsLoading = signal(false);
+  projectResultsSearchValue = signal('');
   currentUrlPath = signal('');
   currentMetadata: WritableSignal<GetMetadata> = signal({});
   greenChecks = signal<GreenChecks>({});
@@ -87,7 +88,7 @@ export class CacheService {
 
   extractNumericId(id: string | number): number {
     if (typeof id === 'number') return id;
-    
+
     if (id.includes('-')) {
       const parts = id.split('-');
       const lastPart = parts[parts.length - 1];
