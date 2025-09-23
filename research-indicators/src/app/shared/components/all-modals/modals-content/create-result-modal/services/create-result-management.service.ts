@@ -23,9 +23,9 @@ export class CreateResultManagementService {
   createOicrBody: WritableSignal<OicrCreation> = signal({
     step_one: {
       main_contact_person: {
-        result_user_id: 0,
+        result_user_id: '',
         result_id: 0,
-        user_id: 0,
+        user_id: '',
         user_role_id: 0
       },
       tagging: {
@@ -63,9 +63,9 @@ export class CreateResultManagementService {
     this.createOicrBody.set({
       step_one: {
         main_contact_person: {
-          result_user_id: 0,
+          result_user_id: '',
           result_id: 0,
-          user_id: 0,
+          user_id: '',
           user_role_id: 0
         },
         tagging: {
