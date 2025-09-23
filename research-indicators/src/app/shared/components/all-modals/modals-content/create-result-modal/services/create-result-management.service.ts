@@ -17,7 +17,7 @@ export class CreateResultManagementService {
   modalTitle = signal<string>('Create A Result');
   currentRequestedResultCode = signal<number | null>(null);
   editingOicr = signal<boolean>(false);
-  showGeoScope = signal(true);
+  autofillinOicr = signal<boolean>(false);
   oicrPrimaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
   stepItems = signal<MenuItem[]>([]);
   createOicrBody: WritableSignal<OicrCreation> = signal({
@@ -115,13 +115,6 @@ export class CreateResultManagementService {
     this.presetFromProjectResultsTable.set(false);
     this.resultTitle.set(null);
     this.modalTitle.set('Create A Result');
-  }
-
-  reloadGeoScope() {
-    this.showGeoScope.set(false);
-    setTimeout(() => {
-      this.showGeoScope.set(true);
-    }, 10000);
   }
 
   setContractId(contractId: string | null) {

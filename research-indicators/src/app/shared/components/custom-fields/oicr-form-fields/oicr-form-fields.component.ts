@@ -89,6 +89,7 @@ export class OicrFormFieldsComponent {
   }
 
   async getOicrMetadata(externalOicrId: number) {
+    this.createResultManagementService.autofillinOicr.set(true);
     const response = await this.api.GET_OICRMetadata(externalOicrId);
     if (!response.successfulRequest) return;
     // Pre-fill OICR form fields with metadata
@@ -112,7 +113,7 @@ export class OicrFormFieldsComponent {
         step_three: response.data.step_three
       };
     });
-    this.createResultManagementService.reloadGeoScope();
+    this.createResultManagementService.autofillinOicr.set(false);
   }
 
   async aiAssistantFunctionForShortOutcome() {

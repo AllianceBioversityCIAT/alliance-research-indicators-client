@@ -323,14 +323,14 @@ export class CreateOicrFormComponent {
       syncSubnationalArrayFromSignals(current.step_three.countries);
       return current;
     });
+    if (this.createResultManagementService.autofillinOicr()) return;
     const currentId = Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id);
 
     if (!this.isFirstSelect && currentId === 5) {
       this.createResultManagementService.createOicrBody.update(value => ({
         ...value,
         step_three: {
-          ...value.step_three,
-          countries: []
+          ...value.step_three
         }
       }));
     }
