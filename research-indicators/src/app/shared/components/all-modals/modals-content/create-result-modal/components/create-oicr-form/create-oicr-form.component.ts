@@ -97,7 +97,7 @@ export class CreateOicrFormComponent {
   private isFirstSelect = true;
   environment = environment;
   loading = false;
-  activeIndex = 0;
+  activeIndex = signal(0);
 
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
   primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
@@ -182,7 +182,7 @@ export class CreateOicrFormComponent {
 
   stepFourCompletionEffect = effect(
     () => {
-      const completed = this.isCompleteStepOne && this.isCompleteStepTwo && this.isCompleteStepThree;
+      const completed = this.isCompleteStepOne && this.isCompleteStepTwo && this.isCompleteStepThree && this.activeIndex() === 3;
       this.createResultManagementService.stepItems.update(items =>
         items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item))
       );
@@ -237,7 +237,7 @@ export class CreateOicrFormComponent {
   }
 
   onActiveIndexChange(event: number) {
-    this.activeIndex = event;
+    this.activeIndex.set(event);
   }
   removeSubnationalRegion(country: Country, region: Region) {
     this.createResultManagementService.createOicrBody.update(current => {
@@ -308,7 +308,7 @@ export class CreateOicrFormComponent {
   }
 
   onStepClick(stepIndex: number, sectionId: string) {
-    this.activeIndex = stepIndex;
+    this.activeIndex.set(stepIndex);
     this.scrollTo(sectionId);
   }
 
@@ -415,7 +415,7 @@ export class CreateOicrFormComponent {
   }
 
   goNext() {
-    const current = this.activeIndex;
+    const current = this.activeIndex();
     const lastIndex = this.createResultManagementService.stepItems().length - 1;
     if (current < lastIndex) {
       const next = current + 1;
@@ -425,7 +425,7 @@ export class CreateOicrFormComponent {
   }
 
   goBack() {
-    const current = this.activeIndex;
+    const current = this.activeIndex();
     if (current > 0) {
       const prev = current - 1;
       const sectionId = this.stepSectionIds[prev] ?? this.stepSectionIds[0];

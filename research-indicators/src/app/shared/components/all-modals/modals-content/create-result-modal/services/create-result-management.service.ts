@@ -21,7 +21,6 @@ export class CreateResultManagementService {
   oicrPrimaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
   stepItems = signal<MenuItem[]>([]);
   createOicrBody: WritableSignal<OicrCreation> = signal(this.getDefaultOicrBody());
-
   private getDefaultOicrBody(): OicrCreation {
     return {
       step_one: {
