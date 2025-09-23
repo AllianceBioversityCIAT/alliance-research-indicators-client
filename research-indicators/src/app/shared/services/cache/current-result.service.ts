@@ -18,6 +18,7 @@ export class CurrentResultService {
     this.createResultManagementService.currentRequestedResultCode.set(resultCode);
     this.createResultManagementService.editingOicr.set(true);
     await this.api.GET_OICRModal(resultCode).then(response => {
+      response.data.step_three.comment_geo_scope = response.data.step_three.comment_geo_scope || '';
       this.createResultManagementService.createOicrBody.set(response.data);
       this.allModalsService.openModal('createResult');
       this.createResultManagementService.resultPageStep.set(2);
