@@ -182,7 +182,7 @@ export class CreateOicrFormComponent {
 
   stepFourCompletionEffect = effect(
     () => {
-      const completed = this.createResultManagementService.createOicrBody().step_four.general_comment.length > 0;
+      const completed = this.isCompleteStepOne && this.isCompleteStepTwo && this.isCompleteStepThree;
       this.createResultManagementService.stepItems.update(items =>
         items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item))
       );
