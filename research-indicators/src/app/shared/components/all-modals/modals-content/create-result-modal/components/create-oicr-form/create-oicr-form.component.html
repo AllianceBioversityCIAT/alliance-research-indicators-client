@@ -253,7 +253,7 @@
               direction="horizontal"
               spaceX="gap-10"
               serviceName="geoFocus"
-              (selectEvent)="onSelect('radio')"
+              (selectEvent)="onSelect()"
               [optionValue]="{ body: 'step_three.geo_scope_id', option: 'value' }"></app-radio-button>
 
             @if (getMultiselectLabel().region.label) {
@@ -275,7 +275,7 @@
               @if (isGeoScopeId(5) && !createResultManagementService.autofillinOicr()) {
                 <app-multiselect
                   [disabled]="!canEditOicr"
-                  (selectEvent)="onSelect('multi regi')"
+                  (selectEvent)="onSelect()"
                   [signal]="createResultManagementService.createOicrBody"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
                   [disabledSelectedScroll]="isGeoScopeId(5)"
@@ -345,7 +345,7 @@
                 }
               } @else {
                 <app-multiselect
-                  (selectEvent)="onSelect('normi')"
+                  (selectEvent)="onSelect()"
                   [signal]="createResultManagementService.createOicrBody"
                   class="-mt-3"
                   [disabled]="!canEditOicr"
