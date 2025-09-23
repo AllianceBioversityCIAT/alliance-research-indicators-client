@@ -18,10 +18,16 @@
 </ng-template>
 
 <ng-template #createButton>
+  @let disableCreateButton =
+    loading || isDisabled || !canEditOicr || (this.createResultManagementService.editingOicr() ? false : !this.step4opened());
   <button
     class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
     (click)="createResult()"
-    [disabled]="loading || isDisabled || !canEditOicr">
+    [pTooltip]="
+      !disableCreateButton ? '' : 'This button will be enabled once all steps are completed. Please make sure to review and fill out each section.'
+    "
+    tooltipPosition="top"
+    [disabled]="disableCreateButton">
     @if (loading) {
       <div class="min-w-[191px]">
         <i class="pi pi-spinner pi-spin text-white text-xs"></i>
@@ -108,13 +114,13 @@
     <p-steps
       [model]="createResultManagementService.stepItems()"
       [readonly]="false"
-      [activeIndex]="activeIndex"
+      [activeIndex]="activeIndex()"
       (activeIndexChange)="onActiveIndexChange($event)"
       [styleClass]="'completed-' + activeIndex"
       class="my-8">
     </p-steps>
 
-    @if (activeIndex === 0) {
+    @if (activeIndex() === 0) {
       <div id="general-information" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[15px] font-[800] text-[#173F6F]">GENERAL INFORMATION</p>
 
@@ -142,7 +148,7 @@
       </div>
     }
 
-    @if (activeIndex === 1) {
+    @if (activeIndex() === 1) {
       <div id="contributors" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[15px] font-[800] text-[#173F6F]">CONTRIBUTORS</p>
 
@@ -237,7 +243,7 @@
       </div>
     }
 
-    @if (activeIndex === 2) {
+    @if (activeIndex() === 2) {
       <div id="geographic-scope" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[15px] font-[800] text-[#173F6F]">GEOGRAPHIC SCOPE</p>
 
@@ -387,7 +393,7 @@
       </div>
     }
 
-    @if (activeIndex === 3) {
+    @if (activeIndex() === 3) {
       <div id="general-comments" class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
         <p class="text-[15px] font-[800] text-[#173F6F]">GENERAL COMMENTS</p>
 
