@@ -430,8 +430,8 @@ export class CreateOicrFormComponent {
       const next = current + 1;
       const sectionId = this.stepSectionIds[next] ?? this.stepSectionIds[0];
       this.onStepClick(next, sectionId);
+      if (next === 3) this.step4opened.set(true);
     }
-    if (current === 3) this.step4opened.set(true);
   }
 
   goBack() {
