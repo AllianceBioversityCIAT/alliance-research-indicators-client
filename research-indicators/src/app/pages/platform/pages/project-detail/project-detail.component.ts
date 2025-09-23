@@ -54,7 +54,7 @@ export default class ProjectDetailComponent implements OnInit {
       {
         label: 'Progress towards indicators',
         route: 'progress-towards-indicators',
-        hidden: this.cache.onlyMvpUsers()
+        hidden: !this.cache.onlyMvpUsers()
       }
     ];
     return tabs;
