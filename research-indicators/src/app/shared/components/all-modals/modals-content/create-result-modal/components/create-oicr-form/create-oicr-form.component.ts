@@ -182,7 +182,11 @@ export class CreateOicrFormComponent {
 
   stepFourCompletionEffect = effect(
     () => {
-      const completed = this.isCompleteStepOne && this.isCompleteStepTwo && this.isCompleteStepThree && this.step4opened();
+      const completed =
+        this.isCompleteStepOne &&
+        this.isCompleteStepTwo &&
+        this.isCompleteStepThree &&
+        (this.createResultManagementService.editingOicr() ? true : !this.step4opened());
       this.createResultManagementService.stepItems.update(items =>
         items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item))
       );
@@ -427,6 +431,7 @@ export class CreateOicrFormComponent {
       const sectionId = this.stepSectionIds[next] ?? this.stepSectionIds[0];
       this.onStepClick(next, sectionId);
     }
+    if (current === 3) this.step4opened.set(true);
   }
 
   goBack() {
