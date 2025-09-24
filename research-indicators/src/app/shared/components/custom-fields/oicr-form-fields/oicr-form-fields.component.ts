@@ -93,6 +93,7 @@ export class OicrFormFieldsComponent {
     const response = await this.api.GET_OICRMetadata(externalOicrId);
     if (!response.successfulRequest) return;
     // Pre-fill OICR form fields with metadata
+    response.data.step_three.comment_geo_scope = response.data.step_three.comment_geo_scope || '';
     this.createResultManagementService.createOicrBody.update(b => {
       const primaryLeverIds = b.step_two.primary_lever.map(pl => Number(pl.lever_id));
       return {
