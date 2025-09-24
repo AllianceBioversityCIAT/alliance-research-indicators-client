@@ -90,14 +90,14 @@ export class CreateOicrFormComponent {
   router = inject(Router);
   rolesService = inject(RolesService);
   projectResultsTableService = inject(ProjectResultsTableService);
-
+  step4opened = signal(false);
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
   contractId: number | null = null;
   private isFirstSelect = true;
   environment = environment;
   loading = false;
-  activeIndex = 0;
+  activeIndex = signal(0);
 
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
   primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
@@ -182,7 +182,11 @@ export class CreateOicrFormComponent {
 
   stepFourCompletionEffect = effect(
     () => {
-      const completed = this.createResultManagementService.createOicrBody().step_four.general_comment.length > 0;
+      const completed =
+        this.isCompleteStepOne &&
+        this.isCompleteStepTwo &&
+        this.isCompleteStepThree &&
+        (this.createResultManagementService.editingOicr() ? true : this.step4opened());
       this.createResultManagementService.stepItems.update(items =>
         items.map((item, idx) => (idx === 3 ? { ...item, styleClass: completed ? 'oicr-step4-complete' : '' } : item))
       );
@@ -237,7 +241,8 @@ export class CreateOicrFormComponent {
   }
 
   onActiveIndexChange(event: number) {
-    this.activeIndex = event;
+    this.activeIndex.set(event);
+    if (event === 3) this.step4opened.set(true);
   }
   removeSubnationalRegion(country: Country, region: Region) {
     this.createResultManagementService.createOicrBody.update(current => {
@@ -273,7 +278,11 @@ export class CreateOicrFormComponent {
     const userIdValid = String(b.step_one.main_contact_person.user_id).trim().length > 0;
     const tagIdValid = b.step_one.tagging.tag_id > 0;
     const outcomeLen = (b.step_one.outcome_impact_statement ?? '').length;
-    return userIdValid && tagIdValid && outcomeLen > 0;
+
+    const showOicrSelection = b.step_one.tagging.tag_id === 2 || b.step_one.tagging.tag_id === 3;
+    const oicrSelectionValid = !showOicrSelection || b.step_one.link_result.external_oicr_id > 0;
+
+    return userIdValid && tagIdValid && outcomeLen > 0 && oicrSelectionValid;
   }
 
   get isCompleteStepTwo(): boolean {
@@ -308,7 +317,7 @@ export class CreateOicrFormComponent {
   }
 
   onStepClick(stepIndex: number, sectionId: string) {
-    this.activeIndex = stepIndex;
+    this.activeIndex.set(stepIndex);
     this.scrollTo(sectionId);
   }
 
@@ -390,7 +399,6 @@ export class CreateOicrFormComponent {
               this.allModalsService.closeModal('createResult');
               this.getResultsService.updateList();
               this.createResultManagementService.currentRequestedResultCode.set(null);
-              this.projectResultsTableService.getData();
               this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
               this.createResultManagementService.clearOicrBody();
             };
@@ -415,17 +423,18 @@ export class CreateOicrFormComponent {
   }
 
   goNext() {
-    const current = this.activeIndex;
+    const current = this.activeIndex();
     const lastIndex = this.createResultManagementService.stepItems().length - 1;
     if (current < lastIndex) {
       const next = current + 1;
       const sectionId = this.stepSectionIds[next] ?? this.stepSectionIds[0];
       this.onStepClick(next, sectionId);
+      if (next === 3) this.step4opened.set(true);
     }
   }
 
   goBack() {
-    const current = this.activeIndex;
+    const current = this.activeIndex();
     if (current > 0) {
       const prev = current - 1;
       const sectionId = this.stepSectionIds[prev] ?? this.stepSectionIds[0];

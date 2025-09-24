@@ -18,11 +18,13 @@ export class CurrentResultService {
     this.createResultManagementService.currentRequestedResultCode.set(resultCode);
     this.createResultManagementService.editingOicr.set(true);
     await this.api.GET_OICRModal(resultCode).then(response => {
+      response.data.step_three.comment_geo_scope = response.data.step_three.comment_geo_scope || '';
       this.createResultManagementService.createOicrBody.set(response.data);
       this.allModalsService.openModal('createResult');
       this.createResultManagementService.resultPageStep.set(2);
       this.createResultManagementService.modalTitle.set('Edit OICR');
       this.createResultManagementService.contractId.set(response.data.base_information.contract_id);
+      this.createResultManagementService.resultTitle.set(response.data.base_information.title);
       this.cache.currentResultId.set(resultCode);
     });
     return true;
