@@ -50,6 +50,7 @@ export class SelectComponent implements OnInit {
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
   @Input() hideSelected = true;
   @Input() textSpan = '';
+  @Input() disableFilter = false;
   @Output() selectEvent = new EventEmitter<any>();
 
   @ContentChild('item') itemTemplate?: TemplateRef<any>;
@@ -74,7 +75,7 @@ export class SelectComponent implements OnInit {
     return this.service?.list()?.find((item: any) => item[this.optionValue.option] === selectedValue);
   });
 
-  constructor(private serviceLocator: ServiceLocatorService) {}
+  constructor(private readonly serviceLocator: ServiceLocatorService) {}
 
   onSectionLoad = effect(
     () => {
