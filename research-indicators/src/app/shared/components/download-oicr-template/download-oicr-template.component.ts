@@ -43,7 +43,8 @@ export class DownloadOicrTemplateComponent implements OnInit {
     ['1209379648', 'other_projects_text', 'text'],
     ['-504483', 'regions_countries_text', 'text'],
     ['1308358992', 'main_levers_text', 'text'],
-    ['539860219', 'others_levers_text', 'text']
+    ['539860219', 'others_levers_text', 'text'],
+    ['-264317297', 'handle_link', 'text']
   ] as const;
 
   fieldsToProcess: FieldToProcess[] = this.fieldConfig.map(([dropdownId, attribute, type]) => ({

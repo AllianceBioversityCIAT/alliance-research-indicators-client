@@ -16,10 +16,13 @@
           class="option atc-white-1 {{ hss ? 'py-[15px] px-[15px] xl:px-[10px]' : 'py-[25px] px-[15px] xl:px-[25px]' }} "
           [routerLink]="option.disabled ? null : option.path"
           routerLinkActive="active atc-light-blue-200-i"
-          [routerLinkActiveOptions]="{ exact: true }"
+          [routerLinkActiveOptions]="option.path === '/projects' ? { exact: false } : { exact: true }"
           [attr.data-route]="option.path"
           [class.disabled]="option.disabled"
           [attr.aria-disabled]="option.disabled ? true : null">
+          @if (option.path === '/projects') {
+            <span class="hidden" [routerLink]="'/project-detail'"></span>
+          }
           {{ option.label }}
           <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
             {{ option.icon }}
