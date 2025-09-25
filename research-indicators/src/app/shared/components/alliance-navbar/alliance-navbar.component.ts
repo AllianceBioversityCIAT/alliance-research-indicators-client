@@ -10,12 +10,13 @@ import {
   AfterViewInit,
   OnDestroy,
   NgZone,
-  Renderer2
+  Renderer2,
+  ChangeDetectorRef
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CacheService } from '@services/cache/cache.service';
 import { DarkModeService } from '@services/dark-mode.service';
 import { AvatarModule } from 'primeng/avatar';
@@ -54,6 +55,8 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
   service: any;
   private searchDebounceTimeout: any;
   showDropdown = false;
+  private readonly cdr = inject(ChangeDetectorRef);
+  private isProjectsOrDetailActiveFlag = false;
 
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home', underConstruction: false },
@@ -62,10 +65,24 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
     { label: 'Results Center', path: '/results-center', underConstruction: false, disabled: false }
   ];
 
+  isProjectsOrDetailActive(): boolean {
+    return this.isProjectsOrDetailActiveFlag;
+  }
+
   constructor(private readonly renderer: Renderer2) {}
 
   ngOnInit() {
     this.service = this.serviceLocator.getService('openSearchResult');
+    const updateActiveFlag = (url: string) => {
+      this.isProjectsOrDetailActiveFlag = url.startsWith('/projects') || url.startsWith('/project-detail/');
+      this.cdr.markForCheck();
+    };
+    updateActiveFlag(this.router.url);
+    this.router.events.subscribe(evt => {
+      if (evt instanceof NavigationEnd) {
+        updateActiveFlag(evt.urlAfterRedirects);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
