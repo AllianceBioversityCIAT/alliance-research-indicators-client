@@ -27,7 +27,7 @@
         [virtualScrollItemSize]="optionLabel2 ? 60 : 41"
         [scrollHeight]="this.scrollHeight"
         [optionValue]="this.optionValue.option"
-        [filter]="!this.service?.isOpenSearch()"
+        [filter]="!this.service?.isOpenSearch() && !this.disableFilter"
         [filterBy]="this.customFilterBy || this.optionLabel"
         [optionLabel]="this.optionLabel"
         [showClear]="false">
@@ -36,7 +36,7 @@
           <ng-template pTemplate="header">
             <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
           </ng-template>
-        } @else if (this.service?.isOpenSearch()) {
+        } @else if (this.service?.isOpenSearch() && !this.disableFilter) {
           <ng-template pTemplate="header">
             <div class="p-select-header">
               <div class="p-input-icon-left p-fluid">

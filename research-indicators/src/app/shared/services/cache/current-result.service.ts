@@ -22,7 +22,7 @@ export class CurrentResultService {
       this.createResultManagementService.createOicrBody.set(response.data);
       this.allModalsService.openModal('createResult');
       this.createResultManagementService.resultPageStep.set(2);
-      this.createResultManagementService.modalTitle.set('Edit OICR');
+      this.createResultManagementService.modalTitle.set('Outcome Impact Case Report (OICR)');
       this.createResultManagementService.contractId.set(response.data.base_information.contract_id);
       this.createResultManagementService.resultTitle.set(response.data.base_information.title);
       this.cache.currentResultId.set(resultCode);

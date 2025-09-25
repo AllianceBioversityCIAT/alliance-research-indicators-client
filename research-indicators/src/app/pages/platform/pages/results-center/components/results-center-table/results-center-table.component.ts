@@ -262,9 +262,28 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
-      return `/result/${resultCode}/general-information?version=${latestYear}`;
+      return this.router.createUrlTree(['/result', resultCode, 'general-information'], { 
+        queryParams: { version: latestYear } 
+      }).toString();
     }
     return `/result/${resultCode}`;
+  }
+
+  getResultRouteArray(result: Result): string[] {
+    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+
+    if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
+      return ['/result', resultCode, 'general-information'];
+    }
+    return ['/result', resultCode];
+  }
+
+  getResultQueryParams(result: Result): { version?: number } {
+    if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
+      const latestYear = Math.max(...result.snapshot_years);
+      return { version: latestYear };
+    }
+    return {};
   }
 
   ngAfterViewInit() {
