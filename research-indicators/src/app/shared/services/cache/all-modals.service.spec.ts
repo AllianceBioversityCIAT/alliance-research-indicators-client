@@ -55,7 +55,7 @@ describe('AllModalsService', () => {
       },
       createOicrResult: {
         isOpen: false,
-        title: 'OICR Result'
+        title: 'Outcome Impact Case Report (OICR)'
       },
       askForHelp: {
         isOpen: false,
