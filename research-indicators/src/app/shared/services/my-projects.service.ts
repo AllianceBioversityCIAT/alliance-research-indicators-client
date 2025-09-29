@@ -25,6 +25,9 @@ export class MyProjectsService {
   list = signal<FindContracts[]>([]);
   loading = signal(true);
   isOpenSearch = signal(false);
+  // Server-side pagination
+  page = signal(1);
+  limit = signal(10);
 
   tableFilters = signal(new MyProjectsFilters());
   appliedFilters = signal(new MyProjectsFilters());
@@ -86,7 +89,11 @@ export class MyProjectsService {
   async main(params?: Record<string, unknown>) {
     this.loading.set(true);
     try {
-      const response = await this.api.GET_FindContracts(params);
+      const response = await this.api.GET_FindContracts({
+        ...(params || {}),
+        page: String(this.page()),
+        limit: String(this.limit())
+      });
       if (response?.data) {
         this.list.set(response.data);
         this.list.update(current =>
@@ -106,6 +113,16 @@ export class MyProjectsService {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  setPage(page: number): void {
+    const next = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+    this.page.set(next);
+  }
+
+  setLimit(limit: number): void {
+    const next = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 10;
+    this.limit.set(next);
   }
 
   applyFilters = () => {

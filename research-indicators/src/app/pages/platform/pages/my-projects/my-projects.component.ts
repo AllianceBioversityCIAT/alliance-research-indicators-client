@@ -160,18 +160,41 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   });
 
   onPageChange(event: PaginatorState) {
+    const rows = event.rows ?? 10;
+    const first = event.first ?? 0;
+    const page = Math.floor(first / rows) + 1;
+
     if (this.myProjectsFilterItem()?.id === 'my') {
-      this.myProjectsFirst.set(event.first ?? 0);
-      this.myProjectsRows.set(event.rows ?? 10);
+      this.myProjectsFirst.set(first);
+      this.myProjectsRows.set(rows);
+      this.myProjectsService.setLimit(rows);
+      this.myProjectsService.setPage(page);
+      this.loadMyProjects();
     } else {
-      this.allProjectsFirst.set(event.first ?? 0);
-      this.allProjectsRows.set(event.rows ?? 10);
+      this.allProjectsFirst.set(first);
+      this.allProjectsRows.set(rows);
+      this.myProjectsService.setLimit(rows);
+      this.myProjectsService.setPage(page);
+      this.loadAllProjects();
     }
   }
 
   onAllProjectsPageChange(event: PaginatorState) {
-    this.allProjectsFirst.set(event.first ?? 0);
-    this.allProjectsRows.set(event.rows ?? 10);
+    const rows = event.rows ?? this.myProjectsService.limit();
+    const first = event.first ?? 0;
+    const page = Math.floor(first / rows) + 1;
+
+    this.allProjectsFirst.set(first);
+    this.allProjectsRows.set(rows);
+
+    this.myProjectsService.setLimit(rows);
+    this.myProjectsService.setPage(page);
+
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this.loadMyProjects();
+    } else {
+      this.loadAllProjects();
+    }
   }
 
   ngOnInit(): void {
@@ -373,6 +396,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   onCurrentPageChange(event: PaginatorState): void {
+    this.onPageChange(event);
+  }
+
+  onRowsChange(event: PaginatorState): void {
     this.onPageChange(event);
   }
 }

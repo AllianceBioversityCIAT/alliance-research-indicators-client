@@ -705,7 +705,9 @@ export class ApiService {
       'lever',
       'status',
       'start-date',
-      'end-date'
+      'end-date',
+      'page',
+      'limit'
     ];
     filterKeys.forEach(key => {
       const value = filters[key];
