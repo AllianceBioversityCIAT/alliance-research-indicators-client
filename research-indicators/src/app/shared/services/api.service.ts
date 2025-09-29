@@ -500,6 +500,8 @@ export class ApiService {
     'order-field'?: string;
     direction?: string;
     'end-date'?: string;
+    page?: string;
+    limit?: string;
   }): Promise<MainResponse<FindContracts[]>> => {
     const url = () => 'agresso/contracts/find-contracts';
     const params = this.buildFindContractsParams(filters);
@@ -690,6 +692,8 @@ export class ApiService {
     status?: string;
     'start-date'?: string;
     'end-date'?: string;
+    page?: string;
+    limit?: string;
   }): HttpParams {
     let params = new HttpParams();
     if (!filters) return params;
