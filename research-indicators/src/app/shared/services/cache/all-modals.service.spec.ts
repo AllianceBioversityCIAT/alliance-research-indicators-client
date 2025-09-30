@@ -52,6 +52,10 @@ describe('AllModalsService', () => {
         isOpen: false,
         title: 'Partners Request'
       },
+      resultInformation: {
+        isOpen: false,
+        title: 'Result Information'
+      },
       createOicrResult: {
         isOpen: false,
         title: 'Outcome Impact Case Report (OICR)'
@@ -111,6 +115,22 @@ describe('AllModalsService', () => {
     const modalConfig = service.modalConfig();
     expect(modalConfig.createResult.title).toBe('Create A Result');
     expect(modalConfig.createResult.icon).toBe('arrow_back');
+    expect(modalConfig.createResult.iconAction).toBeDefined();
+  });
+
+  it('should not set icon or action when step is not 1 or 2', () => {
+    service.updateModal(3);
+    const modalConfig = service.modalConfig();
+    expect(modalConfig.createResult.title).toBe('Create A Result');
+    expect(modalConfig.createResult.icon).toBeUndefined();
+    expect(modalConfig.createResult.iconAction).toBeUndefined();
+  });
+
+  it('should set empty icon when editingOicr is true (step 1)', () => {
+    (mockCreateResultManagementService.editingOicr as jest.Mock).mockReturnValueOnce(true);
+    service.updateModal(1);
+    const modalConfig = service.modalConfig();
+    expect(modalConfig.createResult.icon).toBe('');
     expect(modalConfig.createResult.iconAction).toBeDefined();
   });
 
@@ -177,6 +197,7 @@ describe('AllModalsService', () => {
     service.openModal('createResult');
     service.openModal('submitResult');
     service.openModal('requestPartner');
+    service.openModal('resultInformation');
     service.openModal('askForHelp');
 
     expect(service.isAnyModalOpen()).toBe(true);
@@ -188,6 +209,7 @@ describe('AllModalsService', () => {
     expect(service.modalConfig().requestPartner.isOpen).toBe(false);
     expect(service.modalConfig().createOicrResult.isOpen).toBe(false);
     expect(service.modalConfig().askForHelp.isOpen).toBe(false);
+    expect(service.modalConfig().resultInformation.isOpen).toBe(false);
     expect(mockCreateResultManagementService.resultPageStep.set).toHaveBeenCalledWith(0);
   });
 
