@@ -37,3 +37,17 @@ export interface FindContracts {
   is_active?: boolean;
   indicators?: GetProjectDetailIndicator[];
 }
+
+export interface FindContractsResponse {
+  data: FindContracts[];
+  metadata: FindContractsMetadata;
+}
+
+export interface FindContractsMetadata {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}

@@ -153,7 +153,7 @@ describe('CreateResultFormComponent', () => {
     expect(management.setContractId).toHaveBeenCalledWith(77);
     expect(management.setResultTitle).toHaveBeenCalledWith('Title');
     expect(management.setYear).toHaveBeenCalledWith(2024);
-    expect(management.setModalTitle).toHaveBeenCalledWith('OICR result');
+    expect(management.setModalTitle).toHaveBeenCalledWith('Outcome Impact Case Report (OICR)');
     expect(management.resultPageStep()).toBe(2);
   });
 

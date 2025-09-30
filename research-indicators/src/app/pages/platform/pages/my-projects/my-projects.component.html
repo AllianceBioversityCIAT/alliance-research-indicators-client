@@ -94,17 +94,17 @@
                 <app-project-item [project]="project"></app-project-item>
               }
             </div>
-            @if (getCurrentProjects().length > 0) {
+            @if (myProjectsService.total() > 0) {
               <div #cardRppScope class="rpp-dropup flex justify-end w-full bg-white py-2 border border-[#E8EBED]">
-                <p-paginator
-                  (onPageChange)="onCurrentPageChange($event)"
-                  [first]="getCurrentFirst()"
-                  [rows]="getCurrentRows()"
-                  [totalRecords]="getCurrentProjects().length"
-                  [showCurrentPageReport]="true"
-                  [rowsPerPageOptions]="[5, 10, 25, 50]"
-                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
-                  [dropdownAppendTo]="cardRppScope" />
+              <p-paginator
+                (onPageChange)="onCurrentPageChange($event)"
+                [first]="(myProjectsService.page() - 1) * myProjectsService.limit()"
+                [rows]="myProjectsService.limit()"
+                [totalRecords]="myProjectsService.total()"
+                [showCurrentPageReport]="true"
+                [rowsPerPageOptions]="[5, 10, 25, 50]"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+                [dropdownAppendTo]="cardRppScope" />
               </div>
             }
           }
@@ -113,9 +113,10 @@
           @if (isTableView()) {
             <div #tableRppScope class="rpp-dropup w-full border border-[#E8EBED]">
               <p-table
-                [value]="getCurrentProjects()"
+                [value]="myProjectsService.list()"
                 [paginator]="true"
-                [rows]="10"
+                [rows]="myProjectsService.limit()"
+                [first]="(myProjectsService.page() - 1) * myProjectsService.limit()"
                 [loading]="getLoadingState()"
                 [scrollHeight]="getScrollHeight()"
                 [showCurrentPageReport]="true"
@@ -123,9 +124,12 @@
                 [tableStyle]="{ 'min-width': '100%' }"
                 [rowsPerPageOptions]="[5, 10, 25, 50]"
                 [paginatorDropdownAppendTo]="tableRppScope"
+                (onPage)="onCurrentPageChange($event)"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
                 [sortField]="'start_date'"
                 [sortOrder]="-1"
+                [lazy]="true"
+                [totalRecords]="myProjectsService.total()"
                 [globalFilterFields]="[
                   'agreement_id',
                   'full_name',

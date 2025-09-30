@@ -1,0 +1,109 @@
+<div class="w-[90vw] max-w-[1100px] p-6">
+  @if (result()) {
+    <div class="bg-white rounded-2xl border border-[#E8EBED] p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+        <img [src]="'images/prms-reporting-tool.svg' | s3ImageUrl" alt="PRMS Reporting Tool" class="w-13" />
+
+        <div class="flex items-center text-[11px]">
+
+           <span
+             class="py-1 px-2 rounded-l-lg font-[600] min-w-[50px] max-w-[50px] text-center"
+             [style.color]="getPlatformColors(result()?.platform_code ?? '')?.text"
+             [style.background-color]="getPlatformColors(result()?.platform_code ?? '')?.background">
+             {{ result()?.platform_code ?? '' }}
+           </span>
+           <span class="text-[#4C5158] bg-[#E8EBED] py-1 px-2 rounded-r-lg min-w-[43px] text-center">
+             {{ formatResultCode(result()?.result_official_code) }}
+           </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <span class="text-[#B9C0C5]/60">|</span>
+            <i class="pi pi-users !text-[16px] text-[#7CB580]"></i>
+            <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">CAPACITY SHARING FOR DEVELOPMENT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-[#173F6F]">
+        <p class="text-[18px] font-[700] leading-snug mb-4">{{ result()?.title }}</p>
+        <div class="flex flex-wrap gap-4 text-sm mb-2">
+            <app-custom-tag [statusId]="(result()?.result_status?.result_status_id ?? 0)" [tiny]="true" [statusName]="(result()?.result_status?.name ?? '')">
+            </app-custom-tag>
+
+            <div class="flex items-center">
+            <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Reporting Project</span>
+            <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+            <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                result()?.result_contracts?.contract_id }}
+            </span>
+            </div>
+            <div class="flex items-center">
+            <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Primary Lever</span>
+            <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+            <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{getValue() }}
+            </span>
+            </div>
+            <div class="flex items-center">
+            <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Creator</span>
+            <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+            <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                result()?.created_by_user?.first_name }} {{ result()?.created_by_user?.last_name }}
+            </span>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4 text-sm">  
+            <div class="flex items-center">
+                <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Live Version</span>
+                <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+                <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                    result()?.report_year_id }}
+                </span>
+            </div>
+
+            @if ((result()?.snapshot_years?.length ?? 0) > 0) {
+            <div class="flex items-center">
+                <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Approved Versions</span>
+                <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+                <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">
+                    @for (year of result()?.snapshot_years; track year) {
+                        <span
+                            class="px-2 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[11px] cursor-pointer">
+                            {{ year }}
+                        </span>
+                        }
+                </span>
+            </div>
+            }
+
+            <div class="flex items-center">
+            <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Creation date</span>
+            <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+            <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+                result()?.created_at | date:'dd/MM/yyyy' }}
+            </span>
+            </div>
+        </div>
+      </div>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <button
+        type="button"
+        class="flex cursor-pointer items-center gap-2 border-1 border-[#035BA9] text-[#035BA9] px-6 py-2 rounded-[13px] text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:border-[#E8EBED] disabled:text-[#A2A9AF]">
+        Open Pdf
+        <i class="pi pi-file-pdf !text-[14px]"></i> 
+      </button>
+      <button
+      type="button"
+      class="flex cursor-pointer items-center gap-2  bg-[#035BA9] text-white px-6 py-2 rounded-[13px] text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:border-[#E8EBED] disabled:text-[#A2A9AF]">
+      Open result in PRMS
+      <i class="pi pi-external-link !text-[12px]"></i> 
+    </button>
+      </div>
+    </div>
+  }
+</div>
+
+
