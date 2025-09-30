@@ -94,13 +94,13 @@
                 <app-project-item [project]="project"></app-project-item>
               }
             </div>
-            @if (getCurrentProjects().length > 0) {
+            @if (myProjectsService.total() > 0) {
               <div #cardRppScope class="rpp-dropup flex justify-end w-full bg-white py-2 border border-[#E8EBED]">
               <p-paginator
                 (onPageChange)="onCurrentPageChange($event)"
                 [first]="(myProjectsService.page() - 1) * myProjectsService.limit()"
                 [rows]="myProjectsService.limit()"
-                [totalRecords]="getCurrentProjects().length"
+                [totalRecords]="myProjectsService.total()"
                 [showCurrentPageReport]="true"
                 [rowsPerPageOptions]="[5, 10, 25, 50]"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
@@ -113,9 +113,10 @@
           @if (isTableView()) {
             <div #tableRppScope class="rpp-dropup w-full border border-[#E8EBED]">
               <p-table
-                [value]="getCurrentProjects()"
+                [value]="myProjectsService.list()"
                 [paginator]="true"
                 [rows]="myProjectsService.limit()"
+                [first]="(myProjectsService.page() - 1) * myProjectsService.limit()"
                 [loading]="getLoadingState()"
                 [scrollHeight]="getScrollHeight()"
                 [showCurrentPageReport]="true"
@@ -127,6 +128,8 @@
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
                 [sortField]="'start_date'"
                 [sortOrder]="-1"
+                [lazy]="true"
+                [totalRecords]="myProjectsService.total()"
                 [globalFilterFields]="[
                   'agreement_id',
                   'full_name',

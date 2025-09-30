@@ -59,7 +59,7 @@ import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { Initiative } from '@shared/interfaces/initiative.interface';
-import { FindContracts } from '../interfaces/find-contracts.interface';
+import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
@@ -502,7 +502,7 @@ export class ApiService {
     'end-date'?: string;
     page?: string;
     limit?: string;
-  }): Promise<MainResponse<FindContracts[]>> => {
+  }): Promise<MainResponse<FindContractsResponse>> => {
     const url = () => 'agresso/contracts/find-contracts';
     const params = this.buildFindContractsParams(filters);
     return this.TP.get(url(), { params });
