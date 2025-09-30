@@ -1,5 +1,6 @@
 import { effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
+import { Result } from '@shared/interfaces/result/result.interface';
 import { ModalName } from '@ts-types/modal.types';
 
 interface ModalConfig {
@@ -20,6 +21,7 @@ interface ModalConfig {
 })
 export class AllModalsService {
   partnerRequestSection = signal<string | null>(null);
+  selectedResultForInfo = signal<Result | null>(null);
   createResultManagementService = inject(CreateResultManagementService);
   goBackFunction?: () => void;
   setGoBackFunction = (fn: () => void) => (this.goBackFunction = fn);
@@ -58,6 +60,10 @@ export class AllModalsService {
     askForHelp: {
       isOpen: false,
       title: 'Ask for Help'
+    },
+    resultInformation: {
+      isOpen: false,
+      title: 'Result Information'
     }
   });
 
@@ -140,7 +146,8 @@ export class AllModalsService {
       submitResult: { ...this.modalConfig().submitResult, isOpen: false, isWide: false },
       requestPartner: { ...this.modalConfig().requestPartner, isOpen: false, isWide: false },
       createOicrResult: { ...this.modalConfig().createOicrResult, isOpen: false, isWide: false },
-      askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false }
+      askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false },
+      resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false }
     });
 
     this.createResultManagementService.resetModal();
