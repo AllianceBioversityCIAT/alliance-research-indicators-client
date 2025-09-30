@@ -31,7 +31,7 @@ export class ResultInformationModalComponent {
   getValue(result?: Result): string {
     const r = result ?? this.result();
     if (!r) return '-';
-    const levers = (r.result_levers as Array<{ is_primary: number | string; lever?: { short_name?: string } }> | undefined) ?? [];
+    const levers = (r.result_levers as { is_primary: number | string; lever?: { short_name?: string } }[] | undefined) ?? [];
     if (!Array.isArray(levers) || levers.length === 0) return '-';
     const primaryLevers = levers.filter(l => Number(l.is_primary) === 1);
     if (primaryLevers.length === 0) return '-';
