@@ -107,6 +107,28 @@ describe('ValidateCacheService', () => {
       expect(requestUpdateSpy).toHaveBeenCalledWith(newVersion);
     });
 
+    it('should request update if local version is empty string', async () => {
+      const newVersion = '3.0.0';
+      localStorage.setItem('lastVersionValidated', '');
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
+      const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
+
+      await service.validateVersions();
+
+      expect(requestUpdateSpy).toHaveBeenCalledWith(newVersion);
+    });
+
+    it('should not request update when versions are the same and last version is truthy', async () => {
+      const version = '4.0.0';
+      localStorage.setItem('lastVersionValidated', version);
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: version } });
+      const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
+
+      await service.validateVersions();
+
+      expect(requestUpdateSpy).not.toHaveBeenCalled();
+    });
+
     it('should apply silent update if pending version matches current', async () => {
       const version = '1.1.0';
       localStorage.setItem('pendingUpdateVersion', version);
@@ -117,6 +139,20 @@ describe('ValidateCacheService', () => {
       await service.validateVersions();
 
       expect(applySilentUpdateSpy).toHaveBeenCalledWith(version);
+    });
+
+    it('should do nothing when pending matches current and equals last validated', async () => {
+      const version = '2.0.0';
+      localStorage.setItem('pendingUpdateVersion', version);
+      localStorage.setItem('lastVersionValidated', version);
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: version } });
+      const applySilentUpdateSpy = jest.spyOn(service as any, 'applySilentUpdate').mockResolvedValue(undefined);
+      const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
+
+      await service.validateVersions();
+
+      expect(applySilentUpdateSpy).not.toHaveBeenCalled();
+      expect(requestUpdateSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -219,6 +255,45 @@ describe('ValidateCacheService', () => {
 
       await expect((service as any).clearStaticResourceCaches()).resolves.not.toThrow();
     });
+
+    it('should skip when there are no static resources in a cache', async () => {
+      const mockCache = {
+        keys: jest.fn().mockResolvedValue([{ url: 'https://example.com/data.api' }]),
+        delete: jest.fn().mockResolvedValue(true)
+      };
+      Object.defineProperty(window, 'caches', {
+        value: {
+          keys: jest.fn().mockResolvedValue(['cacheX']),
+          open: jest.fn().mockResolvedValue(mockCache)
+        },
+        configurable: true
+      });
+
+      await expect((service as any).clearStaticResourceCaches()).resolves.not.toThrow();
+      expect(mockCache.delete).not.toHaveBeenCalled();
+    });
+
+    it('should handle error for a specific cache while continuing others', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const okCache = {
+        keys: jest.fn().mockResolvedValue([{ url: 'https://example.com/style.css' }]),
+        delete: jest.fn().mockResolvedValue(true)
+      };
+      Object.defineProperty(window, 'caches', {
+        value: {
+          keys: jest.fn().mockResolvedValue(['badCache', 'okCache']),
+          open: jest.fn().mockImplementation((name: string) => {
+            if (name === 'badCache') throw new Error('open error');
+            return Promise.resolve(okCache);
+          })
+        },
+        configurable: true
+      });
+
+      await expect((service as any).clearStaticResourceCaches()).resolves.not.toThrow();
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      consoleErrorSpy.mockRestore();
+    });
   });
 
   describe('clearAllCaches', () => {
@@ -264,6 +339,59 @@ describe('ValidateCacheService', () => {
       Object.defineProperty(window, 'caches', { value: undefined, configurable: true });
 
       await expect((service as any).clearAllCaches()).resolves.not.toThrow();
+    });
+
+    it('should log when there are no caches to clear', async () => {
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      Object.defineProperty(window, 'caches', {
+        value: {
+          keys: jest.fn().mockResolvedValue([])
+        },
+        configurable: true
+      });
+
+      await (service as any).clearAllCaches();
+
+      expect(consoleSpy).toHaveBeenCalledWith('No caches to clear');
+      consoleSpy.mockRestore();
+    });
+
+    it('should continue and log errors for individual cache deletions', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const names = ['a', 'b'];
+      Object.defineProperty(window, 'caches', {
+        value: {
+          keys: jest.fn().mockResolvedValue(names),
+          delete: jest.fn().mockImplementation((name: string) => {
+            if (name === 'a') throw new Error('del error');
+            return Promise.resolve(true);
+          })
+        },
+        configurable: true
+      });
+
+      await expect((service as any).clearAllCaches()).resolves.not.toThrow();
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(consoleWarnSpy).toHaveBeenCalledWith('All 2 caches processed successfully');
+      consoleErrorSpy.mockRestore();
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('should log when a cache cannot be deleted (returns false)', async () => {
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      Object.defineProperty(window, 'caches', {
+        value: {
+          keys: jest.fn().mockResolvedValue(['ghostCache']),
+          delete: jest.fn().mockResolvedValue(false)
+        },
+        configurable: true
+      });
+
+      await (service as any).clearAllCaches();
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Cache not found or already deleted: ghostCache');
+      consoleWarnSpy.mockRestore();
     });
   });
 
@@ -354,6 +482,19 @@ describe('ValidateCacheService', () => {
     });
   });
 
+  describe('downloadUpdatesInBackground error path', () => {
+    it('should catch and log errors', async () => {
+      const version = '2.0.0';
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      jest.spyOn(service as any, 'updateServiceWorker').mockRejectedValue(new Error('fail'));
+
+      await (service as any).downloadUpdatesInBackground(version);
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error downloading updates in background:', expect.any(Error));
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
   describe('performImmediateUpdate', () => {
     it('should perform immediate update and set version', async () => {
       const version = '1.1.0';
@@ -389,11 +530,93 @@ describe('ValidateCacheService', () => {
     });
   });
 
+  describe('applySilentUpdate error path', () => {
+    it('should catch and log errors', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const originalAllSettled = Promise.allSettled;
+      // @ts-expect-error override for test
+      Promise.allSettled = jest.fn().mockRejectedValue(new Error('boom'));
+
+      await (service as any).applySilentUpdate('3.0.0');
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error applying silent update:', expect.any(Error));
+      consoleErrorSpy.mockRestore();
+      Promise.allSettled = originalAllSettled;
+    });
+  });
+
   describe('getConfiguration', () => {
     it('should call tp.get with correct parameters', () => {
       service.getConfiguration();
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith(`configuration/${environment.frontVersionKey}`, { noAuthInterceptor: true });
+    });
+  });
+
+  describe('clearApplicationCache branches', () => {
+    let originalSessionStorage: Storage;
+    beforeEach(() => {
+      originalSessionStorage = window.sessionStorage;
+    });
+    afterEach(() => {
+      Object.defineProperty(window, 'sessionStorage', { value: originalSessionStorage, configurable: true });
+    });
+    it('should attempt to clear indexedDB databases when supported', async () => {
+      // @ts-expect-error add databases
+      global.indexedDB = {
+        databases: jest.fn().mockResolvedValue([{ name: 'db1' }]),
+        deleteDatabase: jest.fn().mockImplementation(() => {
+          const req: any = {};
+          setTimeout(() => req.onsuccess && req.onsuccess(), 0);
+          return req;
+        })
+      };
+
+      await (service as any).clearApplicationCache();
+
+      expect((indexedDB as any).databases).toHaveBeenCalled();
+      expect((indexedDB as any).deleteDatabase).toHaveBeenCalledWith('db1');
+    });
+
+    it('should warn if indexedDB.databases throws', async () => {
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      // @ts-expect-error add databases
+      global.indexedDB = {
+        databases: jest.fn().mockRejectedValue(new Error('nope'))
+      };
+
+      await (service as any).clearApplicationCache();
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Could not clear IndexedDB:', expect.any(Error));
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('should throw when a fatal error happens', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      Object.defineProperty(window, 'sessionStorage', {
+        value: {
+          clear: jest.fn().mockImplementation(() => {
+            throw new Error('fatal');
+          })
+        },
+        configurable: true
+      });
+
+      await expect((service as any).clearApplicationCache()).rejects.toThrow('fatal');
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error clearing application cache:', expect.any(Error));
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should skip deleteDatabase when a database has no name', async () => {
+      // @ts-expect-error add databases
+      global.indexedDB = {
+        databases: jest.fn().mockResolvedValue([{ }]),
+        deleteDatabase: jest.fn()
+      };
+
+      await (service as any).clearApplicationCache();
+
+      expect((indexedDB as any).deleteDatabase).not.toHaveBeenCalled();
     });
   });
 });
