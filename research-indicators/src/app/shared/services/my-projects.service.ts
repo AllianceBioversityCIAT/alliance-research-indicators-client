@@ -93,10 +93,12 @@ export class MyProjectsService {
   async main(params?: Record<string, unknown>) {
     this.loading.set(true);
     try {
+      const searchQuery = this.searchInput();
       const response = await this.api.GET_FindContracts({
         ...(params || {}),
         page: String(this.page()),
-        limit: String(this.limit())
+        limit: String(this.limit()),
+        ...(searchQuery ? { query: searchQuery } : {})
       });
       if (response?.data) {
         const payload = response.data;
@@ -184,6 +186,12 @@ export class MyProjectsService {
     if (filters.endDate) {
       const endDate = new Date(filters.endDate);
       params['end-date'] = endDate.toISOString().slice(0, 23);
+    }
+
+    // Include search query in filters
+    const searchQuery = this.searchInput();
+    if (searchQuery) {
+      params['query'] = searchQuery;
     }
 
     this.appliedFilters.set({ ...filters });
@@ -324,16 +332,21 @@ export class MyProjectsService {
 
   clearAllFilters() {
     this.resetFilters();
+    this.searchInput.set(''); // Clear search input
     this.main(this.getBaseParams());
   }
 
   clearFilters() {
-    this.resetFilters();
-    this.main(this.getBaseParams());
+    this.clearAllFilters();
   }
 
   refresh() {
-    this.main(this.getBaseParams());
+    const params = this.getBaseParams();
+    const searchQuery = this.searchInput();
+    if (searchQuery) {
+      params['query'] = searchQuery;
+    }
+    this.main(params);
   }
 
   resetState() {
