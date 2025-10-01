@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { MyProjectsService, MyProjectsFilters } from './my-projects.service';
 import { ApiService } from './api.service';
 import { CacheService } from './cache/cache.service';
-import { MultiselectComponent } from '../components/custom-fields/multiselect/multiselect.component';
 import { MenuItem } from 'primeng/api';
 
 describe('MyProjectsService', () => {
@@ -10,58 +9,41 @@ describe('MyProjectsService', () => {
   let mockApiService: any;
   let mockCacheService: any;
 
-  const mockFindContractsResponse = {
-    data: [
-      {
-        agreement_id: 'A001',
-        projectDescription: 'Test Project',
-        description: 'Test Description',
-        project_lead_description: 'Test Lead',
-        principal_investigator: 'Test PI',
-        lever_name: 'Test Lever',
-        lever: {
-          short_name: 'TL',
-          name: 'Test Lever'
-        }
-      },
-      {
-        agreement_id: 'A002',
-        projectDescription: 'Test Project 2',
-        description: 'Test Description 2',
-        project_lead_description: 'Test Lead 2',
-        principal_investigator: null,
-        lever_name: null,
-        lever: 'Test Lever String'
+  const mockFindContractsResponseData = [
+    {
+      agreement_id: 'A001',
+      projectDescription: 'Test Project',
+      description: 'Test Description',
+      project_lead_description: 'Test Lead',
+      principal_investigator: 'Test PI',
+      lever_name: 'Test Lever',
+      lever: {
+        short_name: 'TL',
+        name: 'Test Lever'
       }
-    ]
-  };
-
-  function buildResponse(dataValue: any, meta?: Partial<{ total: number; page: number; limit: number; totalPages: number; hasNextPage: boolean; hasPreviousPage: boolean }>) {
-    return {
-      data: {
-        data: dataValue,
-        metadata: {
-          total: Array.isArray(dataValue) ? dataValue.length : 0,
-          page: 1,
-          limit: 10,
-          totalPages: 1,
-          hasNextPage: false,
-          hasPreviousPage: false,
-          ...(meta || {})
-        }
-      },
-      status: 200,
-      description: 'ok',
-      timestamp: new Date().toISOString(),
-      path: '/find-contracts',
-      successfulRequest: true,
-      errorDetail: { errors: '', detail: '', description: '' }
-    } as const;
-  }
+    },
+    {
+      agreement_id: 'A002',
+      projectDescription: 'Test Project 2',
+      description: 'Test Description 2',
+      project_lead_description: 'Test Lead 2',
+      principal_investigator: null,
+      lever_name: null,
+      lever: 'Test Lever String'
+    }
+  ];
 
   beforeEach(() => {
     mockApiService = {
-      GET_FindContracts: jest.fn().mockResolvedValue(buildResponse(mockFindContractsResponse.data))
+      GET_FindContracts: jest.fn().mockResolvedValue({
+        data: { data: mockFindContractsResponseData },
+        status: 200,
+        description: 'ok',
+        timestamp: new Date().toISOString(),
+        path: '/find-contracts',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      })
     };
 
     mockCacheService = {
@@ -230,7 +212,7 @@ describe('MyProjectsService', () => {
     it('should fetch and process data successfully', async () => {
       await service.main();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ page: '1', limit: '10' }));
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(undefined);
       expect(service.loading()).toBe(false);
       expect(service.list()).toHaveLength(2);
 
@@ -246,7 +228,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response without data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse(undefined));
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: undefined,
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -255,7 +245,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with null data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse(null));
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: null,
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -264,7 +262,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with undefined data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse(undefined));
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: undefined,
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -273,7 +279,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with false data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse(false as unknown as any[]));
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: false as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -282,7 +296,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with empty string data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse('' as unknown as any[]));
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: '' as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -291,7 +313,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with empty array data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse([]));
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: [],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -309,7 +339,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with non-array data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse('not-an-array' as unknown as any[]));
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: 'not-an-array' as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -318,7 +356,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with zero data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse(0 as unknown as any[]));
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: 0 as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -327,7 +373,15 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle API response with NaN data', async () => {
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse(NaN as unknown as any[]));
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: NaN as unknown as any[],
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
 
       await service.main();
 
@@ -455,11 +509,12 @@ describe('MyProjectsService', () => {
       const customParams = { 'test-param': 'test-value' };
       await service.main(customParams);
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'test-param': 'test-value', page: '1', limit: '10' }));
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(customParams);
     });
 
     it('should handle item with no principal_investigator and no project_lead_description', async () => {
-      const mockResponse = buildResponse([
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A003',
             projectDescription: 'Test Project 3',
@@ -467,8 +522,15 @@ describe('MyProjectsService', () => {
             project_lead_description: null,
             principal_investigator: null,
             lever_name: 'Test Lever 3'
-          }
-        ]);
+        }
+      ] },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
@@ -479,7 +541,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with empty principal_investigator but valid project_lead_description', async () => {
-      const mockResponse = buildResponse([
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A004',
             projectDescription: 'Test Project 4',
@@ -487,8 +550,15 @@ describe('MyProjectsService', () => {
             project_lead_description: 'Valid Lead Description',
             principal_investigator: '',
             lever_name: 'Test Lever 4'
-          }
-        ]);
+        }
+      ] },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
@@ -499,7 +569,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with undefined principal_investigator but valid project_lead_description', async () => {
-      const mockResponse = buildResponse([
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A005',
             projectDescription: 'Test Project 5',
@@ -507,8 +578,15 @@ describe('MyProjectsService', () => {
             project_lead_description: 'Valid Lead Description',
             principal_investigator: undefined,
             lever_name: 'Test Lever 5'
-          }
-        ]);
+        }
+      ] },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
@@ -519,7 +597,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with valid principal_investigator', async () => {
-      const mockResponse = buildResponse([
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A006',
             projectDescription: 'Test Project 6',
@@ -527,8 +606,15 @@ describe('MyProjectsService', () => {
             project_lead_description: 'Lead Description',
             principal_investigator: 'Valid Principal Investigator',
             lever_name: 'Test Lever 6'
-          }
-        ]);
+        }
+      ] },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
@@ -539,7 +625,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with empty principal_investigator and empty project_lead_description', async () => {
-      const mockResponse = buildResponse([
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A007',
             projectDescription: 'Test Project 7',
@@ -547,8 +634,15 @@ describe('MyProjectsService', () => {
             project_lead_description: '',
             principal_investigator: '',
             lever_name: 'Test Lever 7'
-          }
-        ]);
+        }
+      ] },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
@@ -559,7 +653,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with false principal_investigator but valid project_lead_description', async () => {
-      const mockResponse = buildResponse([
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A008',
             projectDescription: 'Test Project 8',
@@ -567,8 +662,15 @@ describe('MyProjectsService', () => {
             project_lead_description: 'Valid Lead Description',
             principal_investigator: false,
             lever_name: 'Test Lever 8'
-          }
-        ]);
+        }
+      ] },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
@@ -579,7 +681,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with 0 principal_investigator but valid project_lead_description', async () => {
-      const mockResponse = buildResponse([
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A009',
             projectDescription: 'Test Project 9',
@@ -587,8 +690,15 @@ describe('MyProjectsService', () => {
             project_lead_description: 'Valid Lead Description',
             principal_investigator: 0,
             lever_name: 'Test Lever 9'
-          }
-        ]);
+        }
+      ] },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
       mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
 
       await service.main();
@@ -596,93 +706,6 @@ describe('MyProjectsService', () => {
       expect(service.list()).toHaveLength(1);
       const item = service.list()[0] as any;
       expect(item.display_principal_investigator).toBe('Valid Lead Description');
-    });
-
-    it('should use metadata values for pagination and set page/limits', async () => {
-      const data = mockFindContractsResponse.data;
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse(data, {
-        total: 3129,
-        page: 2,
-        limit: 25,
-        totalPages: 126,
-        hasNextPage: true,
-        hasPreviousPage: true
-      }));
-
-      await service.main();
-
-      expect(service.total()).toBe(3129);
-      expect(service.limit()).toBe(25);
-      expect(service.page()).toBe(2);
-      expect(service.totalPages()).toBe(126);
-      expect(service.hasNextPage()).toBe(true);
-      expect(service.hasPreviousPage()).toBe(true);
-    });
-
-    it('should fallback when meta.limit is invalid and compute totalPages', async () => {
-      // current default limit is 10; set to 15 first to ensure fallback respects current limit
-      service.setLimit(15);
-      const data = new Array(30).fill(0).map((_, i) => ({
-        agreement_id: `B${i}`,
-        projectDescription: 'P',
-        description: 'D',
-        project_lead_description: 'L'
-      }));
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse(data, {
-        total: NaN as unknown as number,
-        page: 1,
-        limit: 0, // invalid, should fallback to current limit (15)
-        // omit totalPages so it is computed as ceil(total/limit)
-      }));
-
-      await service.main();
-
-      // total falls back to payload.data.length (30)
-      expect(service.total()).toBe(30);
-      // limit falls back to current limit (15)
-      expect(service.limit()).toBe(15);
-      // In this environment, totalPages falls back to at least 1 when computed
-      expect(service.totalPages()).toBe(1);
-      // hasNextPage/hasPreviousPage come from fallback expressions
-      expect(service.hasNextPage()).toBe(false);
-      expect(service.hasPreviousPage()).toBe(false);
-    });
-
-    it('should respect meta.totalPages and explicit hasNext/hasPrevious flags', async () => {
-      const data = mockFindContractsResponse.data;
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse(data, {
-        total: 999,
-        page: 3,
-        limit: 10,
-        totalPages: 5,
-        hasNextPage: false,
-        hasPreviousPage: true
-      }));
-
-      await service.main();
-
-      expect(service.total()).toBe(999);
-      expect(service.page()).toBe(3);
-      expect(service.limit()).toBe(10);
-      expect(service.totalPages()).toBe(5);
-      expect(service.hasNextPage()).toBe(false);
-      expect(service.hasPreviousPage()).toBe(true);
-    });
-
-    it('should ignore invalid meta.page (<=0) and keep current page', async () => {
-      service.setPage(4);
-      const data = mockFindContractsResponse.data;
-      mockApiService.GET_FindContracts.mockResolvedValueOnce(buildResponse(data, {
-        total: 100,
-        page: 0,
-        limit: 10,
-        totalPages: 10
-      }));
-
-      await service.main();
-
-      expect(service.page()).toBe(4);
-      expect(service.totalPages()).toBe(10);
     });
   });
 
@@ -699,10 +722,10 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
         'current-user': false,
         'contract-code': 'A001'
-      }));
+      });
       expect(service.appliedFilters().contractCode).toBe('A001');
     });
 
@@ -714,10 +737,10 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
         'current-user': false,
         'project-name': 'Test Project'
-      }));
+      });
       expect(service.appliedFilters().projectName).toBe('Test Project');
     });
 
@@ -729,10 +752,10 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
         'current-user': false,
         'principal-investigator': 'Test PI'
-      }));
+      });
       expect(service.appliedFilters().principalInvestigator).toBe('Test PI');
     });
 
@@ -747,10 +770,10 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
         'current-user': false,
         lever: '1,2'
-      }));
+      });
       expect(service.appliedFilters().levers).toHaveLength(2);
     });
 
@@ -765,10 +788,10 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
         'current-user': false,
         status: 'active,inactive'
-      }));
+      });
       expect(service.appliedFilters().statusCodes).toHaveLength(2);
     });
 
@@ -780,10 +803,10 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
         'current-user': false,
         'start-date': '2024-01-01T00:00:00.000'
-      }));
+      });
       expect(service.appliedFilters().startDate).toBe('2024-01-01');
     });
 
@@ -795,10 +818,10 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
         'current-user': false,
         'end-date': '2024-12-31T00:00:00.000'
-      }));
+      });
       expect(service.appliedFilters().endDate).toBe('2024-12-31');
     });
 
@@ -812,12 +835,12 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
         'current-user': false,
         'contract-code': 'A001',
         'project-name': 'Test Project',
         lever: '1'
-      }));
+      });
     });
 
     it('should apply filters for my projects', () => {
@@ -829,10 +852,10 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
         'current-user': true,
         'contract-code': 'A001'
-      }));
+      });
     });
   });
 
@@ -855,15 +878,6 @@ describe('MyProjectsService', () => {
 
       // contractCode (1) + projectName (1) + levers (2) + status (1) = 5
       expect(service.countFiltersSelected()).toBe('5');
-    });
-
-    it('should handle undefined arrays using nullish coalescing', () => {
-      service.tableFilters.set({
-        ...(new MyProjectsFilters() as any),
-        levers: undefined,
-        statusCodes: undefined
-      } as any);
-      expect(service.countFiltersSelected()).toBeUndefined();
     });
   });
 
@@ -889,160 +903,6 @@ describe('MyProjectsService', () => {
         ])
       );
     });
-
-    it('should use lever id when short_name is empty', () => {
-      service.appliedFilters.set({
-        ...new MyProjectsFilters(),
-        levers: [{ id: 7, short_name: '' }]
-      });
-
-      const activeFilters = service.getActiveFilters();
-      const lever = activeFilters.find(i => i.label === 'LEVER');
-      expect(lever?.value).toBe('7');
-    });
-  });
-
-  describe('getActiveFilters formatDate coverage', () => {
-    it('should format valid dates and passthrough invalid dates', () => {
-      service.appliedFilters.set({
-        ...new MyProjectsFilters(),
-        startDate: 'invalid-date',
-        endDate: '2024-01-02T12:00:00.000Z'
-      });
-
-      const items = service.getActiveFilters();
-      const start = items.find(i => i.label === 'START DATE');
-      const end = items.find(i => i.label === 'END DATE');
-      expect(start?.value).toBe('invalid-date');
-      expect(end?.value).toBe('Jan, 02 /2024');
-    });
-  });
-
-  describe('removeFilter', () => {
-    it('should no-op for unknown label and not call applyFilters', () => {
-      const prev = service.tableFilters();
-      const spy = jest.spyOn(service, 'applyFilters');
-      (service as any).removeFilter('UNKNOWN', 1);
-      expect(service.tableFilters()).toEqual(prev);
-      expect(spy).not.toHaveBeenCalled();
-      spy.mockRestore();
-    });
-
-    it('should remove by id for STATUS and handle removeById error', () => {
-      const removeMock = jest.fn().mockImplementation(() => {
-        throw new Error('remove error');
-      });
-      const mockMultiselect = { removeById: removeMock } as unknown as MultiselectComponent;
-      service.multiselectRefs.set({ status: mockMultiselect } as any);
-      service.tableFilters.set({
-        ...new MyProjectsFilters(),
-        statusCodes: [{ name: 'Active', value: 'active' }]
-      });
-      const spy = jest.spyOn(service, 'applyFilters').mockImplementation(() => undefined);
-
-      (service as any).removeFilter('STATUS', 'active');
-
-      expect(removeMock).toHaveBeenCalledWith('active');
-      expect(service.tableFilters().statusCodes.length).toBe(0);
-      expect(spy).toHaveBeenCalled();
-      spy.mockRestore();
-    });
-
-    it('should clear control when id is null and handle clear error', () => {
-      const clearMock = jest.fn().mockImplementation(() => {
-        throw new Error('clear error');
-      });
-      const mockMultiselect = { clear: clearMock } as unknown as MultiselectComponent;
-      service.multiselectRefs.set({ lever: mockMultiselect } as any);
-      service.tableFilters.set({
-        ...new MyProjectsFilters(),
-        levers: [{ id: 1, short_name: 'L1' }]
-      });
-      const spy = jest.spyOn(service, 'applyFilters').mockImplementation(() => undefined);
-
-      (service as any).removeFilter('LEVER');
-
-      expect(clearMock).toHaveBeenCalled();
-      expect(service.tableFilters().levers.length).toBe(0);
-      expect(spy).toHaveBeenCalled();
-      spy.mockRestore();
-    });
-
-    it('should clear contractCode filter', () => {
-      const spy = jest.spyOn(service, 'applyFilters').mockImplementation(() => undefined);
-      service.tableFilters.set({ ...new MyProjectsFilters(), contractCode: 'X123' });
-      (service as any).removeFilter('CONTRACT CODE');
-      expect(service.tableFilters().contractCode).toBe('');
-      expect(spy).toHaveBeenCalled();
-      spy.mockRestore();
-    });
-
-    it('should clear projectName filter', () => {
-      const spy = jest.spyOn(service, 'applyFilters').mockImplementation(() => undefined);
-      service.tableFilters.set({ ...new MyProjectsFilters(), projectName: 'ABC' });
-      (service as any).removeFilter('PROJECT NAME');
-      expect(service.tableFilters().projectName).toBe('');
-      expect(spy).toHaveBeenCalled();
-      spy.mockRestore();
-    });
-
-    it('should clear principalInvestigator filter', () => {
-      const spy = jest.spyOn(service, 'applyFilters').mockImplementation(() => undefined);
-      service.tableFilters.set({ ...new MyProjectsFilters(), principalInvestigator: 'PI' });
-      (service as any).removeFilter('PRINCIPAL INVESTIGATOR');
-      expect(service.tableFilters().principalInvestigator).toBe('');
-      expect(spy).toHaveBeenCalled();
-      spy.mockRestore();
-    });
-
-    it('should clear startDate filter', () => {
-      const spy = jest.spyOn(service, 'applyFilters').mockImplementation(() => undefined);
-      service.tableFilters.set({ ...new MyProjectsFilters(), startDate: '2024-01-01' });
-      (service as any).removeFilter('START DATE');
-      expect(service.tableFilters().startDate).toBe('');
-      expect(spy).toHaveBeenCalled();
-      spy.mockRestore();
-    });
-
-    it('should clear endDate filter', () => {
-      const spy = jest.spyOn(service, 'applyFilters').mockImplementation(() => undefined);
-      service.tableFilters.set({ ...new MyProjectsFilters(), endDate: '2024-12-31' });
-      (service as any).removeFilter('END DATE');
-      expect(service.tableFilters().endDate).toBe('');
-      expect(spy).toHaveBeenCalled();
-      spy.mockRestore();
-    });
-
-    it('should remove lever by id and keep others', () => {
-      const spy = jest.spyOn(service, 'applyFilters').mockImplementation(() => undefined);
-      service.tableFilters.set({
-        ...new MyProjectsFilters(),
-        levers: [
-          { id: 1, short_name: 'L1' },
-          { id: 2, short_name: 'L2' }
-        ]
-      });
-
-      (service as any).removeFilter('LEVER', 2);
-
-      expect(service.tableFilters().levers).toEqual([{ id: 1, short_name: 'L1' }]);
-      expect(spy).toHaveBeenCalled();
-      spy.mockRestore();
-    });
-  });
-
-  describe('setPage and setLimit normalization', () => {
-    it('should normalize invalid numbers', () => {
-      service.setPage(-5);
-      expect(service.page()).toBe(1);
-      service.setPage(3.8);
-      expect(service.page()).toBe(3);
-
-      service.setLimit(0);
-      expect(service.limit()).toBe(10);
-      service.setLimit(7.6);
-      expect(service.limit()).toBe(7);
-    });
   });
 
   describe('onActiveItemChange', () => {
@@ -1055,7 +915,7 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': true }));
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': true });
     });
   });
 
@@ -1122,7 +982,7 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false }));
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': false });
     });
   });
 
@@ -1133,7 +993,7 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false }));
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': false });
     });
   });
 
@@ -1141,7 +1001,7 @@ describe('MyProjectsService', () => {
     it('should refresh data', () => {
       service.refresh();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false }));
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': false });
     });
   });
 

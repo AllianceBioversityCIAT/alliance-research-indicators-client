@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
 import { ApiService } from './api.service';
-import { FindContracts, FindContractsMetadata } from '@shared/interfaces/find-contracts.interface';
+import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { MultiselectComponent } from '../components/custom-fields/multiselect/multiselect.component';
 import { MenuItem } from 'primeng/api';
 import { CacheService } from './cache/cache.service';
@@ -25,13 +25,6 @@ export class MyProjectsService {
   list = signal<FindContracts[]>([]);
   loading = signal(true);
   isOpenSearch = signal(false);
-  // Server-side pagination
-  page = signal(1);
-  limit = signal(10);
-  total = signal(0);
-  totalPages = signal(0);
-  hasNextPage = signal(false);
-  hasPreviousPage = signal(false);
 
   tableFilters = signal(new MyProjectsFilters());
   appliedFilters = signal(new MyProjectsFilters());
@@ -93,16 +86,9 @@ export class MyProjectsService {
   async main(params?: Record<string, unknown>) {
     this.loading.set(true);
     try {
-      const searchQuery = this.searchInput();
-      const response = await this.api.GET_FindContracts({
-        ...(params || {}),
-        page: String(this.page()),
-        limit: String(this.limit()),
-        ...(searchQuery ? { query: searchQuery } : {})
-      });
-      if (response?.data) {
-        const payload = response.data;
-        this.list.set(payload.data);
+      const response = await this.api.GET_FindContracts(params);
+      if (response?.data?.data) {
+        this.list.set(response.data.data);
         this.list.update(current =>
           current.map(item => ({
             ...item,
@@ -111,47 +97,15 @@ export class MyProjectsService {
             display_lever_name: this.getLeverDisplayName(item)
           }))
         );
-        const meta = payload.metadata as Partial<FindContractsMetadata> | undefined;
-        const currentLimit = Number(this.limit());
-        const metaTotal = Number(meta?.total ?? NaN);
-        const metaLimit = Number(meta?.limit ?? currentLimit);
-        const total = Number.isFinite(metaTotal) ? metaTotal : (payload.data?.length ?? 0);
-        const limitToUse = Number.isFinite(metaLimit) && metaLimit > 0 ? metaLimit : currentLimit;
-        this.total.set(total);
-        this.limit.set(limitToUse);
-        const pageFromMeta = Number(meta?.page ?? this.page());
-        if (Number.isFinite(pageFromMeta) && pageFromMeta > 0) this.page.set(Math.floor(pageFromMeta));
-        const totalPages = Number.isFinite(meta?.totalPages as number) ? (meta?.totalPages as number) : Math.max(1, Math.ceil(total / limitToUse));
-        this.totalPages.set(totalPages);
-        this.hasNextPage.set(Boolean(meta?.hasNextPage ?? (this.page() < totalPages)));
-        this.hasPreviousPage.set(Boolean(meta?.hasPreviousPage ?? (this.page() > 1)));
       } else {
         this.list.set([]);
-        this.total.set(0);
-        this.totalPages.set(0);
-        this.hasNextPage.set(false);
-        this.hasPreviousPage.set(false);
       }
     } catch (e) {
       console.error('Failed to fetch find contracts:', e);
       this.list.set([]);
-      this.total.set(0);
-      this.totalPages.set(0);
-      this.hasNextPage.set(false);
-      this.hasPreviousPage.set(false);
     } finally {
       this.loading.set(false);
     }
-  }
-
-  setPage(page: number): void {
-    const next = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
-    this.page.set(next);
-  }
-
-  setLimit(limit: number): void {
-    const next = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 10;
-    this.limit.set(next);
   }
 
   applyFilters = () => {
@@ -186,12 +140,6 @@ export class MyProjectsService {
     if (filters.endDate) {
       const endDate = new Date(filters.endDate);
       params['end-date'] = endDate.toISOString().slice(0, 23);
-    }
-
-    // Include search query in filters
-    const searchQuery = this.searchInput();
-    if (searchQuery) {
-      params['query'] = searchQuery;
     }
 
     this.appliedFilters.set({ ...filters });
@@ -332,21 +280,16 @@ export class MyProjectsService {
 
   clearAllFilters() {
     this.resetFilters();
-    this.searchInput.set(''); // Clear search input
     this.main(this.getBaseParams());
   }
 
   clearFilters() {
-    this.clearAllFilters();
+    this.resetFilters();
+    this.main(this.getBaseParams());
   }
 
   refresh() {
-    const params = this.getBaseParams();
-    const searchQuery = this.searchInput();
-    if (searchQuery) {
-      params['query'] = searchQuery;
-    }
-    this.main(params);
+    this.main(this.getBaseParams());
   }
 
   resetState() {
