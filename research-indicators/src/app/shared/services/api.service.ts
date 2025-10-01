@@ -500,6 +500,7 @@ export class ApiService {
     'order-field'?: string;
     direction?: string;
     'end-date'?: string;
+    query?: string;
     page?: string;
     limit?: string;
   }): Promise<MainResponse<FindContractsResponse>> => {
@@ -692,6 +693,7 @@ export class ApiService {
     status?: string;
     'start-date'?: string;
     'end-date'?: string;
+    query?: string;
     page?: string;
     limit?: string;
   }): HttpParams {
@@ -706,6 +708,7 @@ export class ApiService {
       'status',
       'start-date',
       'end-date',
+      'query',
       'page',
       'limit'
     ];

@@ -136,27 +136,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   filteredProjects = computed(() => {
-    const projects = this.myProjectsService.list();
-    const searchTerm =
-      this.myProjectsFilterItem()?.id === 'my' ? this._searchValue().toLowerCase() : this.myProjectsService.searchInput().toLowerCase();
-
-    if (!searchTerm) return projects;
-
-    return projects.filter(project => {
-      const fullName = project.full_name?.toLowerCase() || '';
-      const agreementId = project.agreement_id?.toLowerCase() || '';
-      const description = project.description?.toLowerCase() || '';
-      const projectDescription = project.projectDescription?.toLowerCase() || '';
-      const principalInvestigator = project.principal_investigator?.toLowerCase() || '';
-
-      return (
-        fullName.includes(searchTerm) ||
-        agreementId.includes(searchTerm) ||
-        description.includes(searchTerm) ||
-        projectDescription.includes(searchTerm) ||
-        principalInvestigator.includes(searchTerm)
-      );
-    });
+    return this.myProjectsService.list();
   });
 
   onPageChange(event: PaginatorState) {
@@ -293,6 +273,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
     this.myProjectsService.clearFilters();
     this._searchValue.set('');
+    this.myProjectsService.searchInput.set('');
 
     if (event.id === 'my') {
       this.myProjectsFirst.set(0);
@@ -306,11 +287,21 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   };
 
   loadMyProjects() {
-    this.myProjectsService.main({ 'current-user': true });
+    const params: Record<string, unknown> = { 'current-user': true };
+    const searchQuery = this.myProjectsService.searchInput();
+    if (searchQuery) {
+      params['query'] = searchQuery;
+    }
+    this.myProjectsService.main(params);
   }
 
   loadAllProjects() {
-    this.myProjectsService.main({ 'current-user': false });
+    const params: Record<string, unknown> = { 'current-user': false };
+    const searchQuery = this.myProjectsService.searchInput();
+    if (searchQuery) {
+      params['query'] = searchQuery;
+    }
+    this.myProjectsService.main(params);
   }
 
   onPinIconClick(tabId: string, event: Event) {
@@ -324,8 +315,13 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
     if (this.myProjectsFilterItem()?.id === 'my') {
       this._searchValue.set(value);
+      this.myProjectsService.searchInput.set(value);
+      this.myProjectsService.setPage(1);
+      this.loadMyProjects();
     } else {
       this.myProjectsService.searchInput.set(value);
+      this.myProjectsService.setPage(1);
+      this.loadAllProjects();
     }
   }
 
