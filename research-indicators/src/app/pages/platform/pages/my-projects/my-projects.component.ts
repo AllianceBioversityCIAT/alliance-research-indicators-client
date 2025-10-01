@@ -136,45 +136,42 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   filteredProjects = computed(() => {
-    return this.myProjectsService.list();
+    const projects = this.myProjectsService.list();
+    const searchTerm =
+      this.myProjectsFilterItem()?.id === 'my' ? this._searchValue().toLowerCase() : this.myProjectsService.searchInput().toLowerCase();
+
+    if (!searchTerm) return projects;
+
+    return projects.filter(project => {
+      const fullName = project.full_name?.toLowerCase() || '';
+      const agreementId = project.agreement_id?.toLowerCase() || '';
+      const description = project.description?.toLowerCase() || '';
+      const projectDescription = project.projectDescription?.toLowerCase() || '';
+      const principalInvestigator = project.principal_investigator?.toLowerCase() || '';
+
+      return (
+        fullName.includes(searchTerm) ||
+        agreementId.includes(searchTerm) ||
+        description.includes(searchTerm) ||
+        projectDescription.includes(searchTerm) ||
+        principalInvestigator.includes(searchTerm)
+      );
+    });
   });
 
   onPageChange(event: PaginatorState) {
-    const rows = event.rows ?? 10;
-    const first = event.first ?? 0;
-    const page = Math.floor(first / rows) + 1;
-
     if (this.myProjectsFilterItem()?.id === 'my') {
-      this.myProjectsFirst.set(first);
-      this.myProjectsRows.set(rows);
-      this.myProjectsService.setLimit(rows);
-      this.myProjectsService.setPage(page);
-      this.loadMyProjects();
+      this.myProjectsFirst.set(event.first ?? 0);
+      this.myProjectsRows.set(event.rows ?? 10);
     } else {
-      this.allProjectsFirst.set(first);
-      this.allProjectsRows.set(rows);
-      this.myProjectsService.setLimit(rows);
-      this.myProjectsService.setPage(page);
-      this.loadAllProjects();
+      this.allProjectsFirst.set(event.first ?? 0);
+      this.allProjectsRows.set(event.rows ?? 10);
     }
   }
 
   onAllProjectsPageChange(event: PaginatorState) {
-    const rows = event.rows ?? this.myProjectsService.limit();
-    const first = event.first ?? 0;
-    const page = Math.floor(first / rows) + 1;
-
-    this.allProjectsFirst.set(first);
-    this.allProjectsRows.set(rows);
-
-    this.myProjectsService.setLimit(rows);
-    this.myProjectsService.setPage(page);
-
-    if (this.myProjectsFilterItem()?.id === 'my') {
-      this.loadMyProjects();
-    } else {
-      this.loadAllProjects();
-    }
+    this.allProjectsFirst.set(event.first ?? 0);
+    this.allProjectsRows.set(event.rows ?? 10);
   }
 
   ngOnInit(): void {
@@ -273,7 +270,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
     this.myProjectsService.clearFilters();
     this._searchValue.set('');
-    this.myProjectsService.searchInput.set('');
 
     if (event.id === 'my') {
       this.myProjectsFirst.set(0);
@@ -287,21 +283,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   };
 
   loadMyProjects() {
-    const params: Record<string, unknown> = { 'current-user': true };
-    const searchQuery = this.myProjectsService.searchInput();
-    if (searchQuery) {
-      params['query'] = searchQuery;
-    }
-    this.myProjectsService.main(params);
+    this.myProjectsService.main({ 'current-user': true });
   }
 
   loadAllProjects() {
-    const params: Record<string, unknown> = { 'current-user': false };
-    const searchQuery = this.myProjectsService.searchInput();
-    if (searchQuery) {
-      params['query'] = searchQuery;
-    }
-    this.myProjectsService.main(params);
+    this.myProjectsService.main({ 'current-user': false });
   }
 
   onPinIconClick(tabId: string, event: Event) {
@@ -315,13 +301,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
     if (this.myProjectsFilterItem()?.id === 'my') {
       this._searchValue.set(value);
-      this.myProjectsService.searchInput.set(value);
-      this.myProjectsService.setPage(1);
-      this.loadMyProjects();
+      this.myProjectsFirst.set(0);
     } else {
       this.myProjectsService.searchInput.set(value);
-      this.myProjectsService.setPage(1);
-      this.loadAllProjects();
+      this.allProjectsFirst.set(0);
     }
   }
 
@@ -384,7 +367,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentFirst(): number {
-    return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsFirst() : this.allProjectsRows();
+    return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsFirst() : this.allProjectsFirst();
   }
 
   getCurrentRows(): number {
@@ -392,10 +375,6 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   onCurrentPageChange(event: PaginatorState): void {
-    this.onPageChange(event);
-  }
-
-  onRowsChange(event: PaginatorState): void {
     this.onPageChange(event);
   }
 }
