@@ -346,7 +346,7 @@ describe('VersionSelectorComponent', () => {
 
     it('should open TIP URL when platform is TIP', () => {
       const cache = TestBed.inject(CacheService) as any;
-      cache.getCurrentPlatformCode.set('TIP');
+      cache.getCurrentPlatformCode.set(PLATFORM_CODES.TIP);
       
       component.editInPlatform();
       
@@ -382,7 +382,7 @@ describe('VersionSelectorComponent', () => {
 
     it('should return "Edit in TIP" when platform is TIP', () => {
       const cache = TestBed.inject(CacheService) as any;
-      cache.getCurrentPlatformCode.set('TIP');
+      cache.getCurrentPlatformCode.set(PLATFORM_CODES.TIP);
       
       expect(component.platformEditButtonText).toBe('Edit in TIP');
     });

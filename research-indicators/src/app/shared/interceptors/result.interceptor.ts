@@ -1,6 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 
 export const resultInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -46,7 +47,10 @@ function getYearFromUrl(router: Router): string | null {
 function getPlatformFromUrl(router: Router): string | null {
   const url = router.url;
 
-  const platformRegex = /result\/(PRMS|STAR|TIP)-(\d+)/;
+  const platformAlternation = [PLATFORM_CODES.PRMS, PLATFORM_CODES.STAR, PLATFORM_CODES.TIP]
+    .map(code => code.replace(/[-/\\^$*+?.()|[\]{}]/g, ''))
+    .join('|');
+  const platformRegex = new RegExp(`result/(${platformAlternation})-(\\d+)`);
   const platformMatch = platformRegex.exec(url);
   if (platformMatch) {
     return platformMatch[1];
@@ -55,7 +59,7 @@ function getPlatformFromUrl(router: Router): string | null {
   const resultRegex = /result\/(\d+)/;
   const resultMatch = resultRegex.exec(url);
   if (resultMatch) {
-    return 'STAR';
+    return PLATFORM_CODES.STAR;
   }
 
   return null;
