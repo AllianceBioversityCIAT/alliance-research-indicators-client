@@ -291,25 +291,8 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   @HostListener('click', ['$event'])
   onHostClick(event: MouseEvent) {
-    this.lastClickedElement = event.target as Element;
     const target = event.target as Element;
-    const rowEl = target.closest('tr');
-    if (!rowEl) return;
-    const tbody = rowEl.parentElement;
-    if (!tbody) return;
-    const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
-    const rowIndex = rows.indexOf(rowEl);
-    if (rowIndex < 0) return;
-    const data: Result[] = (this.dt2.filteredValue as Result[] | undefined) ?? this.resultsCenterService.list();
-    const pageStart: number = this.dt2.first || 0;
-    const idx = pageStart + rowIndex;
-    const result = data[idx] as Result | undefined;
-    if (result && result.platform_code === 'PRMS') {
-      event.preventDefault();
-      event.stopPropagation();
-      this.allModalsService.selectedResultForInfo.set(result);
-      this.allModalsService.openModal('resultInformation');
-    }
+    this.processRowClick(target, event);
   }
 
   getResultQueryParams(result: Result): { version?: number } {
@@ -334,27 +317,31 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     const onDocClickCapture = (event: MouseEvent) => {
       const target = event.target as Element | null;
       if (!target) return;
-      this.lastClickedElement = target;
-      const rowEl = target.closest('tr');
-      if (!rowEl) return;
-      const tbody = rowEl.parentElement;
-      if (!tbody) return;
-      const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
-      const rowIndex = rows.indexOf(rowEl);
-      if (rowIndex < 0) return;
-      const data: Result[] = (this.dt2.filteredValue as Result[] | undefined) ?? this.resultsCenterService.list();
-      const pageStart: number = this.dt2.first || 0;
-      const idx = pageStart + rowIndex;
-      const result = data[idx] as Result | undefined;
-      if (result && result.platform_code === 'PRMS') {
-        event.preventDefault();
-        event.stopPropagation();
-        this.allModalsService.selectedResultForInfo.set(result);
-        this.allModalsService.openModal('resultInformation');
-      }
+      this.processRowClick(target, event);
     };
 
     document.addEventListener('click', onDocClickCapture, { capture: true });
     this.removeDocumentClickListener = () => document.removeEventListener('click', onDocClickCapture, { capture: true } as unknown as boolean);
+  }
+
+  private processRowClick(target: Element, event: MouseEvent) {
+    this.lastClickedElement = target;
+    const rowEl = target.closest('tr');
+    if (!rowEl) return;
+    const tbody = rowEl.parentElement;
+    if (!tbody) return;
+    const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
+    const rowIndex = rows.indexOf(rowEl);
+    if (rowIndex < 0) return;
+    const data: Result[] = (this.dt2.filteredValue as Result[] | undefined) ?? this.resultsCenterService.list();
+    const pageStart: number = this.dt2.first || 0;
+    const idx = pageStart + rowIndex;
+    const result = data[idx] as Result | undefined;
+    if (result && result.platform_code === 'PRMS') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.allModalsService.selectedResultForInfo.set(result);
+      this.allModalsService.openModal('resultInformation');
+    }
   }
 }
