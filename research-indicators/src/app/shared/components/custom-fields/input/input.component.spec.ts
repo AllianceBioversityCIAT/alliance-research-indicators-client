@@ -72,6 +72,14 @@ describe('InputComponent', () => {
     expect(component.inputValid().message).toBe('This field is required');
   });
 
+  it('should validate required when value is truthy object with length 0 to cover branch', () => {
+    component.isRequired = true;
+    component.signal = signal({ testField: { length: 0 } as any });
+    const result = component.inputValid();
+    expect(result.valid).toBe(false);
+    expect(result.message).toBe('This field is required');
+  });
+
   it('should validate email pattern', () => {
     component.pattern = 'email';
     component.signal = signal({ testField: 'invalid-email' });
