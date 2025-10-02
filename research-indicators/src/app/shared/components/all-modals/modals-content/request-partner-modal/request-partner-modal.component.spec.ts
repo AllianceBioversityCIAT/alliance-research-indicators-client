@@ -9,7 +9,6 @@ import { GetClarisaInstitutionsTypesChildlessService } from '@shared/services/ge
 import { GetCountriesService } from '@shared/services/control-list/get-countries.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
 
 describe('RequestPartnerModalComponent', () => {
   let component: RequestPartnerModalComponent;
@@ -452,5 +451,45 @@ describe('RequestPartnerModalComponent', () => {
       const result = component.isPartnerConfirmDisabled();
       expect(result).toBe(expected);
     });
+  });
+
+  it('should invoke createPartner via constructor-registered callback', async () => {
+    const createCb = (mockAllModalsService.setCreatePartner as jest.Mock).mock.calls[0][0];
+    const mockResponse = { successfulRequest: true } as any;
+    (mockApiService.POST_PartnerRequest as jest.Mock).mockResolvedValue(mockResponse);
+    component.body.set({
+      acronym: 'ACR',
+      name: 'Name',
+      institutionTypeCode: 'CODE',
+      hqCountryIso: 'US',
+      websiteLink: 'https://example.com',
+      externalUserComments: null
+    });
+    await createCb();
+    expect(mockApiService.POST_PartnerRequest).toHaveBeenCalled();
+  });
+
+  it('should invoke disabledConfirm via constructor-registered callback', () => {
+    const disabledCb = (mockAllModalsService.setDisabledConfirmPartner as jest.Mock).mock.calls[0][0];
+    component.body.set({
+      acronym: null,
+      name: null,
+      institutionTypeCode: null,
+      hqCountryIso: null,
+      websiteLink: null,
+      externalUserComments: null
+    });
+    expect(disabledCb()).toBe(true);
+    component.body.set({
+      acronym: 'A',
+      name: 'N',
+      institutionTypeCode: 'C',
+      hqCountryIso: 'US',
+      websiteLink: 'https://example.com',
+      externalUserComments: null
+    });
+    expect(disabledCb()).toBe(false);
+    component.loading.set(true);
+    expect(disabledCb()).toBe(true);
   });
 });
