@@ -87,8 +87,8 @@ export class MyProjectsService {
     this.loading.set(true);
     try {
       const response = await this.api.GET_FindContracts(params);
-      if (response?.data) {
-        this.list.set(response.data);
+      if (response?.data?.data) {
+        this.list.set(response.data.data);
         this.list.update(current =>
           current.map(item => ({
             ...item,

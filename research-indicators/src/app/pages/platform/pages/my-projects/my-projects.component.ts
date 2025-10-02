@@ -301,8 +301,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
     if (this.myProjectsFilterItem()?.id === 'my') {
       this._searchValue.set(value);
+      this.myProjectsFirst.set(0);
     } else {
       this.myProjectsService.searchInput.set(value);
+      this.allProjectsFirst.set(0);
     }
   }
 
@@ -365,7 +367,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentFirst(): number {
-    return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsFirst() : this.allProjectsRows();
+    return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsFirst() : this.allProjectsFirst();
   }
 
   getCurrentRows(): number {

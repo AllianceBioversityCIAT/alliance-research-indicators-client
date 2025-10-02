@@ -59,7 +59,7 @@ import { DynamoFeedback } from '../interfaces/dynamo-feedback.interface';
 import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { Initiative } from '@shared/interfaces/initiative.interface';
-import { FindContracts } from '../interfaces/find-contracts.interface';
+import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
@@ -500,7 +500,10 @@ export class ApiService {
     'order-field'?: string;
     direction?: string;
     'end-date'?: string;
-  }): Promise<MainResponse<FindContracts[]>> => {
+    query?: string;
+    page?: string;
+    limit?: string;
+  }): Promise<MainResponse<FindContractsResponse>> => {
     const url = () => 'agresso/contracts/find-contracts';
     const params = this.buildFindContractsParams(filters);
     return this.TP.get(url(), { params });
@@ -690,6 +693,9 @@ export class ApiService {
     status?: string;
     'start-date'?: string;
     'end-date'?: string;
+    query?: string;
+    page?: string;
+    limit?: string;
   }): HttpParams {
     let params = new HttpParams();
     if (!filters) return params;
@@ -701,7 +707,10 @@ export class ApiService {
       'lever',
       'status',
       'start-date',
-      'end-date'
+      'end-date',
+      'query',
+      'page',
+      'limit'
     ];
     filterKeys.forEach(key => {
       const value = filters[key];

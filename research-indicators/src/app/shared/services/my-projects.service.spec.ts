@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { MyProjectsService, MyProjectsFilters } from './my-projects.service';
 import { ApiService } from './api.service';
 import { CacheService } from './cache/cache.service';
-import { MultiselectComponent } from '../components/custom-fields/multiselect/multiselect.component';
 import { MenuItem } from 'primeng/api';
 
 describe('MyProjectsService', () => {
@@ -10,36 +9,34 @@ describe('MyProjectsService', () => {
   let mockApiService: any;
   let mockCacheService: any;
 
-  const mockFindContractsResponse = {
-    data: [
-      {
-        agreement_id: 'A001',
-        projectDescription: 'Test Project',
-        description: 'Test Description',
-        project_lead_description: 'Test Lead',
-        principal_investigator: 'Test PI',
-        lever_name: 'Test Lever',
-        lever: {
-          short_name: 'TL',
-          name: 'Test Lever'
-        }
-      },
-      {
-        agreement_id: 'A002',
-        projectDescription: 'Test Project 2',
-        description: 'Test Description 2',
-        project_lead_description: 'Test Lead 2',
-        principal_investigator: null,
-        lever_name: null,
-        lever: 'Test Lever String'
+  const mockFindContractsResponseData = [
+    {
+      agreement_id: 'A001',
+      projectDescription: 'Test Project',
+      description: 'Test Description',
+      project_lead_description: 'Test Lead',
+      principal_investigator: 'Test PI',
+      lever_name: 'Test Lever',
+      lever: {
+        short_name: 'TL',
+        name: 'Test Lever'
       }
-    ]
-  };
+    },
+    {
+      agreement_id: 'A002',
+      projectDescription: 'Test Project 2',
+      description: 'Test Description 2',
+      project_lead_description: 'Test Lead 2',
+      principal_investigator: null,
+      lever_name: null,
+      lever: 'Test Lever String'
+    }
+  ];
 
   beforeEach(() => {
     mockApiService = {
       GET_FindContracts: jest.fn().mockResolvedValue({
-        data: mockFindContractsResponse.data,
+        data: { data: mockFindContractsResponseData },
         status: 200,
         description: 'ok',
         timestamp: new Date().toISOString(),
@@ -516,8 +513,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with no principal_investigator and no project_lead_description', async () => {
-      const mockResponse = {
-        data: [
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A003',
             projectDescription: 'Test Project 3',
@@ -525,8 +522,8 @@ describe('MyProjectsService', () => {
             project_lead_description: null,
             principal_investigator: null,
             lever_name: 'Test Lever 3'
-          }
-        ],
+        }
+      ] },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -544,8 +541,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with empty principal_investigator but valid project_lead_description', async () => {
-      const mockResponse = {
-        data: [
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A004',
             projectDescription: 'Test Project 4',
@@ -553,8 +550,8 @@ describe('MyProjectsService', () => {
             project_lead_description: 'Valid Lead Description',
             principal_investigator: '',
             lever_name: 'Test Lever 4'
-          }
-        ],
+        }
+      ] },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -572,8 +569,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with undefined principal_investigator but valid project_lead_description', async () => {
-      const mockResponse = {
-        data: [
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A005',
             projectDescription: 'Test Project 5',
@@ -581,8 +578,8 @@ describe('MyProjectsService', () => {
             project_lead_description: 'Valid Lead Description',
             principal_investigator: undefined,
             lever_name: 'Test Lever 5'
-          }
-        ],
+        }
+      ] },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -600,8 +597,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with valid principal_investigator', async () => {
-      const mockResponse = {
-        data: [
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A006',
             projectDescription: 'Test Project 6',
@@ -609,8 +606,8 @@ describe('MyProjectsService', () => {
             project_lead_description: 'Lead Description',
             principal_investigator: 'Valid Principal Investigator',
             lever_name: 'Test Lever 6'
-          }
-        ],
+        }
+      ] },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -628,8 +625,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with empty principal_investigator and empty project_lead_description', async () => {
-      const mockResponse = {
-        data: [
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A007',
             projectDescription: 'Test Project 7',
@@ -637,8 +634,8 @@ describe('MyProjectsService', () => {
             project_lead_description: '',
             principal_investigator: '',
             lever_name: 'Test Lever 7'
-          }
-        ],
+        }
+      ] },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -656,8 +653,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with false principal_investigator but valid project_lead_description', async () => {
-      const mockResponse = {
-        data: [
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A008',
             projectDescription: 'Test Project 8',
@@ -665,8 +662,8 @@ describe('MyProjectsService', () => {
             project_lead_description: 'Valid Lead Description',
             principal_investigator: false,
             lever_name: 'Test Lever 8'
-          }
-        ],
+        }
+      ] },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -684,8 +681,8 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with 0 principal_investigator but valid project_lead_description', async () => {
-      const mockResponse = {
-        data: [
+    const mockResponse = {
+      data: { data: [
           {
             agreement_id: 'A009',
             projectDescription: 'Test Project 9',
@@ -693,8 +690,8 @@ describe('MyProjectsService', () => {
             project_lead_description: 'Valid Lead Description',
             principal_investigator: 0,
             lever_name: 'Test Lever 9'
-          }
-        ],
+        }
+      ] },
         status: 200,
         description: 'ok',
         timestamp: '',

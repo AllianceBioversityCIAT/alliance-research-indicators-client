@@ -1,4 +1,4 @@
-import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed } from '@angular/core';
+import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -16,6 +16,7 @@ import { Result } from '@shared/interfaces/result/result.interface';
 import { FiltersActionButtonsComponent } from '../../../../../../shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '../../../../../../shared/components/search-export-controls/search-export-controls.component';
 import { PLATFORM_COLOR_MAP } from '../../../../../../shared/constants/platform-colors';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 @Component({
   selector: 'app-results-center-table',
   imports: [
@@ -37,8 +38,11 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   resultsCenterService = inject(ResultsCenterService);
   private readonly router = inject(Router);
   private readonly cacheService = inject(CacheService);
+  private readonly allModalsService = inject(AllModalsService);
   @ViewChild('dt2') dt2!: Table;
   tableRef = signal<Table | undefined>(undefined);
+  private lastClickedElement: Element | null = null;
+  private removeDocumentClickListener: (() => void) | null = null;
 
   menuItems: MenuItem[] = [
     { label: 'Edit', icon: 'pi pi-pencil' },
@@ -237,9 +241,12 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   openResult(result: Result) {
     this.resultsCenterService.clearAllFilters();
-
+    if (result.platform_code === 'PRMS') {
+      this.allModalsService.selectedResultForInfo.set(result);
+      this.allModalsService.openModal('resultInformation');
+      return;
+    }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
-
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
       this.router.navigate(['/result', resultCode, 'general-information'], { queryParams: { version: latestYear } });
@@ -249,17 +256,22 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResultByYear(result: number, year: string | number, platformCode: string) {
+    if (platformCode === 'PRMS') {
+      return;
+    }
     this.resultsCenterService.clearAllFilters();
     const resultCode = `${platformCode}-${result}`;
-
     this.router.navigate(['/result', resultCode], {
       queryParams: { version: year }
     });
   }
 
   getResultHref(result: Result): string {
+    if (result.platform_code === 'PRMS') {
+      this.onResultLinkClick(result);
+      return '';
+    }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
-
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
       return this.router.createUrlTree(['/result', resultCode, 'general-information'], { 
@@ -269,13 +281,18 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     return `/result/${resultCode}`;
   }
 
-  getResultRouteArray(result: Result): string[] {
+  getResultRouteArray(result: Result): string | string[] {
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
-
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       return ['/result', resultCode, 'general-information'];
     }
     return ['/result', resultCode];
+  }
+
+  @HostListener('click', ['$event'])
+  onHostClick(event: MouseEvent) {
+    const target = event.target as Element;
+    this.processRowClick(target, event);
   }
 
   getResultQueryParams(result: Result): { version?: number } {
@@ -286,8 +303,45 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     return {};
   }
 
+  onResultLinkClick(result: Result): void {
+    if (result.platform_code === 'PRMS') {
+      this.allModalsService.selectedResultForInfo.set(result);
+      this.allModalsService.openModal('resultInformation');
+    }
+  }
+
   ngAfterViewInit() {
     this.tableRef.set(this.dt2);
     this.resultsCenterService.tableRef.set(this.dt2);
+
+    const onDocClickCapture = (event: MouseEvent) => {
+      const target = event.target as Element | null;
+      if (!target) return;
+      this.processRowClick(target, event);
+    };
+
+    document.addEventListener('click', onDocClickCapture, { capture: true });
+    this.removeDocumentClickListener = () => document.removeEventListener('click', onDocClickCapture, { capture: true } as unknown as boolean);
+  }
+
+  private processRowClick(target: Element, event: MouseEvent) {
+    this.lastClickedElement = target;
+    const rowEl = target.closest('tr');
+    if (!rowEl) return;
+    const tbody = rowEl.parentElement;
+    if (!tbody) return;
+    const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
+    const rowIndex = rows.indexOf(rowEl);
+    if (rowIndex < 0) return;
+    const data: Result[] = (this.dt2.filteredValue as Result[] | undefined) ?? this.resultsCenterService.list();
+    const pageStart: number = this.dt2.first || 0;
+    const idx = pageStart + rowIndex;
+    const result = data[idx] as Result | undefined;
+    if (result && result.platform_code === 'PRMS') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.allModalsService.selectedResultForInfo.set(result);
+      this.allModalsService.openModal('resultInformation');
+    }
   }
 }

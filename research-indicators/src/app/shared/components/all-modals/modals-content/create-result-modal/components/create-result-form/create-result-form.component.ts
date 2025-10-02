@@ -222,7 +222,7 @@ export class CreateResultFormComponent {
     this.createResultManagementService.setContractId(this.body().contract_id);
     this.createResultManagementService.setResultTitle(this.body().title);
     this.createResultManagementService.setYear(this.body().year);
-    this.createResultManagementService.setModalTitle('OICR result');
+    this.createResultManagementService.setModalTitle('Outcome Impact Case Report (OICR)');
     this.createResultManagementService.createOicrBody.update(b => ({
       ...b,
       base_information: {
