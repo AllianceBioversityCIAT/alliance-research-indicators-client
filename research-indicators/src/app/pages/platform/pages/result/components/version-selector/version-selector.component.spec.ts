@@ -8,6 +8,7 @@ import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { Subject } from 'rxjs';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { signal } from '@angular/core';
 
 class MockApiService {
@@ -336,7 +337,7 @@ describe('VersionSelectorComponent', () => {
 
     it('should open PRMS URL when platform is PRMS', () => {
       const cache = TestBed.inject(CacheService) as any;
-      cache.getCurrentPlatformCode.set('PRMS');
+      cache.getCurrentPlatformCode.set(PLATFORM_CODES.PRMS);
       
       component.editInPlatform();
       
@@ -374,7 +375,7 @@ describe('VersionSelectorComponent', () => {
   describe('platformEditButtonText', () => {
     it('should return "Edit in PRMS" when platform is PRMS', () => {
       const cache = TestBed.inject(CacheService) as any;
-      cache.getCurrentPlatformCode.set('PRMS');
+      cache.getCurrentPlatformCode.set(PLATFORM_CODES.PRMS);
       
       expect(component.platformEditButtonText).toBe('Edit in PRMS');
     });

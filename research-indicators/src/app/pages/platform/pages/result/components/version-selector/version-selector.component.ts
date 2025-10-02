@@ -9,6 +9,7 @@ import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { filter, Subscription } from 'rxjs';
 import { environment } from '../../../../../../../environments/environment';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 
 @Component({
   selector: 'app-version-selector',
@@ -230,9 +231,9 @@ export class VersionSelectorComponent implements OnDestroy {
     const platformCode = this.cache.getCurrentPlatformCode();
     let url = '';
     
-    if (platformCode === 'PRMS') {
+    if (platformCode === PLATFORM_CODES.PRMS) {
       url = this.prmsUrl;
-    } else if (platformCode === 'TIP') {
+    } else if (platformCode === PLATFORM_CODES.TIP) {
       url = this.tipUrl;
     }
     
