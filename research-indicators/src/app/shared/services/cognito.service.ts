@@ -58,7 +58,14 @@ export class CognitoService {
   }
 
   updateCacheService() {
-    this.cache.dataCache.set(localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data') ?? '') : {});
+    const raw = localStorage.getItem('data') ?? '{}';
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      parsed = {};
+    }
+    this.cache.dataCache.set(parsed);
     this.cache.isLoggedIn.set(true);
     this.cache.isValidatingToken.set(false);
     this.clarity.updateUserInfo();

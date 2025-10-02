@@ -555,12 +555,17 @@ describe('CognitoService', () => {
 
     it('should handle localStorage.getItem returning undefined in second call to trigger nullish coalescing', () => {
       const originalGetItem = localStorage.getItem;
+      const originalParse = JSON.parse;
       let callCount = 0;
       const mockGetItem = jest.fn().mockImplementation(() => {
         callCount++;
-        return callCount === 1 ? 'some-value' : undefined;
+        return callCount === 1 ? 'exists' : undefined;
       });
       localStorage.getItem = mockGetItem;
+      JSON.parse = jest.fn().mockImplementation((value: string) => {
+        expect(value).toBe('');
+        return {} as any;
+      });
 
       service.updateCacheService();
 
@@ -570,6 +575,7 @@ describe('CognitoService', () => {
       expect(clarity.updateUserInfo).toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
+      JSON.parse = originalParse;
     });
   });
 });
