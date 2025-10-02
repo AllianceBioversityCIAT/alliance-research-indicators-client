@@ -74,7 +74,7 @@ export class VersionSelectorComponent implements OnDestroy {
     const data = response.data;
 
     const liveData = Array.isArray(data.live) && data.live.length > 0 ? data.live[0] : null;
-    const versionsArray = Array.isArray(data.versions) ? data.versions : [];
+    const versionsArray = this.getVersionsArray(data);
 
     this.cache.liveVersionData.set(liveData);
     this.cache.versionsList.set(versionsArray);
@@ -83,6 +83,10 @@ export class VersionSelectorComponent implements OnDestroy {
     this.approvedVersions.set(versionsArray);
 
     this.handleVersionSelection({ currentResultId: currentResultId.toString(), liveData, versionsArray });
+  }
+
+  protected getVersionsArray(data: any): TransformResultCodeResponse[] {
+    return Array.isArray(data.versions) ? (data.versions as TransformResultCodeResponse[]) : [];
   }
 
   private applyCachedVersions(resultId: number, versionParam: string | null) {
