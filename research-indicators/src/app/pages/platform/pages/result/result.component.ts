@@ -40,7 +40,7 @@ export default class ResultComponent {
       }
 
       if (id > 0 && !isNaN(id)) {
-        this.cache.setCurrentResultId(idParam || id);
+        this.cache.setCurrentResultId(this.getCurrentResultIdentifier(idParam, id));
       }
     });
 
@@ -58,5 +58,9 @@ export default class ResultComponent {
       this.lastVersion = version;
       this.lastId = id;
     }
+  }
+
+  protected getCurrentResultIdentifier(idParam: unknown, id: number): string | number {
+    return (idParam as any) || id;
   }
 }
