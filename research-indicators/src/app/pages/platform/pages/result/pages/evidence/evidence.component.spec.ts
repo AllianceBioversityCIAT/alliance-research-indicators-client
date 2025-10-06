@@ -237,4 +237,110 @@ describe('EvidenceComponent', () => {
     expect(spyPatch).not.toHaveBeenCalled();
     expect(spyToast).not.toHaveBeenCalled();
   });
+
+  it('should navigate without query params when version is absent (back)', async () => {
+    const route = TestBed.inject(ActivatedRoute) as any;
+    const routerSpy = jest.spyOn(router, 'navigate');
+    route.snapshot.queryParamMap.get = () => null;
+
+    await component.saveData('back');
+
+    const call = (router.navigate as jest.Mock).mock.calls.pop();
+    expect(call[0]).toEqual(['result', 123, 'geographic-scope']);
+    expect(call[1].queryParams).toBeUndefined();
+    expect(call[1].replaceUrl).toBe(true);
+  });
+
+  it('should navigate without query params when version is absent (next)', async () => {
+    const route = TestBed.inject(ActivatedRoute) as any;
+    const routerSpy = jest.spyOn(router, 'navigate');
+    route.snapshot.queryParamMap.get = () => null;
+
+    await component.saveData('next');
+
+    const call = (router.navigate as jest.Mock).mock.calls.pop();
+    expect(call[0]).toEqual(['result', 123, 'ip-rights']);
+    expect(call[1].queryParams).toBeUndefined();
+    expect(call[1].replaceUrl).toBe(true);
+  });
+
+  it('should call getData when versionWatcher triggers version change', async () => {
+    const spy = jest.spyOn(component, 'getData').mockResolvedValue();
+    expect(component.versionWatcher.onVersionChange).toHaveBeenCalled();
+    const cb = (component.versionWatcher.onVersionChange as jest.Mock).mock.calls[0][0];
+    await cb();
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it('should handle getData when evidence is null', async () => {
+    api.GET_ResultEvidences.mockResolvedValueOnce({ data: { evidence: null } });
+    await component.getData();
+    expect(component.body().evidence.length).toBe(1);
+  });
+
+  it('should handle getData when evidence is undefined', async () => {
+    api.GET_ResultEvidences.mockResolvedValueOnce({ data: { evidence: undefined } });
+    await component.getData();
+    expect(component.body().evidence.length).toBe(1);
+  });
+
+  it('should handle getData when data is null', async () => {
+    api.GET_ResultEvidences.mockResolvedValueOnce({ data: null });
+    await expect(component.getData()).rejects.toThrow();
+  });
+
+  it('should handle getData when data is undefined', async () => {
+    api.GET_ResultEvidences.mockResolvedValueOnce({ data: undefined });
+    await expect(component.getData()).rejects.toThrow();
+  });
+
+  it('should test setLoading private method', () => {
+    component.loading.set(false);
+    (component as any).setLoading(true);
+    expect(component.loading()).toBe(true);
+    (component as any).setLoading(false);
+    expect(component.loading()).toBe(false);
+  });
+
+  it('should test navigateTo private method with version', () => {
+    const route = TestBed.inject(ActivatedRoute) as any;
+    route.snapshot.queryParamMap.get = (key: string) => key === 'version' ? '1.0' : null;
+    const spy = jest.spyOn(router, 'navigate');
+    
+    (component as any).navigateTo('geographic-scope');
+    
+    expect(spy).toHaveBeenCalledWith(['result', 123, 'geographic-scope'], {
+      queryParams: { version: '1.0' },
+      replaceUrl: true
+    });
+  });
+
+  it('should test navigateTo private method without version', () => {
+    const route = TestBed.inject(ActivatedRoute) as any;
+    route.snapshot.queryParamMap.get = () => null;
+    const spy = jest.spyOn(router, 'navigate');
+    
+    (component as any).navigateTo('ip-rights');
+    
+    expect(spy).toHaveBeenCalledWith(['result', 123, 'ip-rights'], {
+      queryParams: undefined,
+      replaceUrl: true
+    });
+  });
+
+  it('should handle getData when response has no data property', async () => {
+    api.GET_ResultEvidences.mockResolvedValueOnce({});
+    await expect(component.getData()).rejects.toThrow();
+  });
+
+  it('should handle getData when response is null', async () => {
+    api.GET_ResultEvidences.mockResolvedValueOnce(null);
+    await expect(component.getData()).rejects.toThrow();
+  });
+
+  it('should handle getData when response is undefined', async () => {
+    api.GET_ResultEvidences.mockResolvedValueOnce(undefined);
+    await expect(component.getData()).rejects.toThrow();
+  });
 });
