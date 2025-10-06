@@ -123,6 +123,13 @@ describe('AllianceNavbarComponent', () => {
     expect(component.service).toBe(mockService);
   });
 
+  it('should reflect isProjectsOrDetailActive flag via method', () => {
+    (component as any).isProjectsOrDetailActiveFlag = false;
+    expect(component.isProjectsOrDetailActive()).toBe(false);
+    (component as any).isProjectsOrDetailActiveFlag = true;
+    expect(component.isProjectsOrDetailActive()).toBe(true);
+  });
+
   it('should set up ResizeObserver in ngAfterViewInit', () => {
     const mockNavbar = document.createElement('div');
     mockNavbar.id = 'navbar';

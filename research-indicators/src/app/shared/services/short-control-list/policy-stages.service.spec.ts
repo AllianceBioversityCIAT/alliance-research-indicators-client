@@ -1,4 +1,58 @@
 import { TestBed } from '@angular/core/testing';
+import { PolicyStagesService } from './policy-stages.service';
+import { ApiService } from '../api.service';
+
+describe('PolicyStagesService', () => {
+  let service: PolicyStagesService;
+
+  const apiMock = {} as unknown as ApiService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [{ provide: ApiService, useValue: apiMock }]
+    });
+  });
+
+  it('should call main in constructor', () => {
+    const mainSpy = jest.spyOn(PolicyStagesService.prototype as any, 'main');
+    service = TestBed.inject(PolicyStagesService);
+    expect(service).toBeTruthy();
+    expect(mainSpy).toHaveBeenCalled();
+    mainSpy.mockRestore();
+  });
+
+  it('should initialize list and set loading to false after main', async () => {
+    service = TestBed.inject(PolicyStagesService);
+    await service.main();
+    expect(service.loading()).toBe(false);
+    const list = service.list();
+    expect(Array.isArray(list)).toBe(true);
+    expect(list.length).toBe(3);
+    expect(list[0].id).toBe(1);
+    expect(list[1].id).toBe(2);
+    expect(list[2].id).toBe(3);
+  });
+
+  it('should set loading to false even if list.set throws', async () => {
+    service = TestBed.inject(PolicyStagesService);
+    const originalSet = service.list.set.bind(service.list);
+    const setSpy = jest.spyOn(service.list, 'set').mockImplementation(() => {
+      throw new Error('boom');
+    });
+
+    await expect(service.main()).rejects.toThrow('boom');
+    expect(service.loading()).toBe(false);
+
+    setSpy.mockImplementation(originalSet);
+  });
+
+  it('should have api injected', () => {
+    service = TestBed.inject(PolicyStagesService);
+    expect(service.api).toBeDefined();
+  });
+});
+
+import { TestBed } from '@angular/core/testing';
 
 import { PolicyStagesService } from './policy-stages.service';
 

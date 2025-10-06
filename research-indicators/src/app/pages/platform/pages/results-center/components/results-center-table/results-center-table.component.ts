@@ -16,6 +16,7 @@ import { Result } from '@shared/interfaces/result/result.interface';
 import { FiltersActionButtonsComponent } from '../../../../../../shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '../../../../../../shared/components/search-export-controls/search-export-controls.component';
 import { PLATFORM_COLOR_MAP } from '../../../../../../shared/constants/platform-colors';
+import { PLATFORM_CODES } from '../../../../../../shared/constants/platform-codes';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 @Component({
   selector: 'app-results-center-table',
@@ -241,7 +242,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   openResult(result: Result) {
     this.resultsCenterService.clearAllFilters();
-    if (result.platform_code === 'PRMS') {
+    if (result.platform_code === PLATFORM_CODES.PRMS) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
       return;
@@ -256,7 +257,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResultByYear(result: number, year: string | number, platformCode: string) {
-    if (platformCode === 'PRMS') {
+    if (platformCode === PLATFORM_CODES.PRMS) {
       return;
     }
     this.resultsCenterService.clearAllFilters();
@@ -267,7 +268,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   getResultHref(result: Result): string {
-    if (result.platform_code === 'PRMS') {
+    if (result.platform_code === PLATFORM_CODES.PRMS) {
       this.onResultLinkClick(result);
       return '';
     }
@@ -304,7 +305,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   onResultLinkClick(result: Result): void {
-    if (result.platform_code === 'PRMS') {
+    if (result.platform_code === PLATFORM_CODES.PRMS) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
     }
@@ -337,7 +338,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     const pageStart: number = this.dt2.first || 0;
     const idx = pageStart + rowIndex;
     const result = data[idx] as Result | undefined;
-    if (result && result.platform_code === 'PRMS') {
+    if (result && result.platform_code === PLATFORM_CODES.PRMS) {
       event.preventDefault();
       event.stopPropagation();
       this.allModalsService.selectedResultForInfo.set(result);

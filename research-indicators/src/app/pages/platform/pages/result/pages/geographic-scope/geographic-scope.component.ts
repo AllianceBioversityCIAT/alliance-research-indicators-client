@@ -23,10 +23,11 @@ import {
   updateCountryRegions,
   shouldShowSubnationalError
 } from '@shared/utils/geographic-scope.util';
+import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
 
 @Component({
   selector: 'app-geographic-scope',
-  imports: [FormHeaderComponent, NavigationButtonsComponent, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent],
+  imports: [FormHeaderComponent, NavigationButtonsComponent, RadioButtonComponent, MultiselectComponent, MultiselectInstanceComponent, TextareaComponent],
   templateUrl: './geographic-scope.component.html'
 })
 export default class GeographicScopeComponent {

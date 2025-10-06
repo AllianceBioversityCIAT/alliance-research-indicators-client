@@ -345,4 +345,18 @@ describe('SelectComponent', () => {
     );
   });
 
+  it('setValue initializes missing array branch to cover line 132', () => {
+    component.optionValue = { body: 'arr.prop', option: 'id' };
+    component.signal.set({});
+    const isArraySpy = jest.spyOn(Array, 'isArray')
+      .mockImplementationOnce(() => true)
+      .mockImplementation(() => false);
+    component.setValue(42);
+    isArraySpy.mockRestore();
+    const result = component.signal();
+    expect(Array.isArray(result.arr)).toBe(true);
+    expect(result.arr.length).toBe(1);
+    expect(result.arr[0].prop).toBe(42);
+  });
+
 });

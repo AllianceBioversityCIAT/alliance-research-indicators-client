@@ -114,20 +114,24 @@ export class MyLatestResultsComponent implements OnInit {
     if (!result.indicator) return 0;
     const indicatorId = result.indicator.indicator_id;
 
-    const steps = [
-      'general_information',
-      'alignment',
-      ...(indicatorId === 1 ? ['cap_sharing', 'cap_sharing_ip'] : []),
-      ...(indicatorId === 4 ? ['policy_change'] : []),
-      'partners',
-      'geo_location',
-      'evidences'
-    ] as (keyof GreenChecks)[];
+    const steps = this.getSteps(indicatorId);
 
     const total = steps.length;
     const completed = steps.filter(key => greenChecks[key] === 1).length;
 
     return total === 0 ? 0 : Math.round((completed / total) * 100);
+  }
+
+  protected getSteps(indicatorId: number): (keyof GreenChecks)[] {
+    return [
+      'general_information',
+      'alignment',
+      ...(indicatorId === 1 ? ['cap_sharing', 'cap_sharing_ip'] as (keyof GreenChecks)[] : []),
+      ...(indicatorId === 4 ? ['policy_change'] as (keyof GreenChecks)[] : []),
+      'partners',
+      'geo_location',
+      'evidences'
+    ] as (keyof GreenChecks)[];
   }
 
   getStatusColor(result: LatestResult) {

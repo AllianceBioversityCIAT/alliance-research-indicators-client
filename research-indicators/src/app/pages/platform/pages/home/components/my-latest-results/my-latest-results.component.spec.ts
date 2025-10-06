@@ -91,6 +91,7 @@ describe('MyLatestResultsComponent', () => {
         indicator: { ...mockLatestResults.data[0].indicator, indicator_id: 999 },
         platform_code: 'STAR'
       } as any;
+      jest.spyOn(component as any, 'getSteps').mockReturnValue([]);
       component.greenChecksByResult.set({
         [result.result_official_code]: {} as GreenChecks
       });

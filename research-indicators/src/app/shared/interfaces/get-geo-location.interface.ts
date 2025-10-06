@@ -4,6 +4,7 @@ export interface GetGeoLocation {
   geo_scope_id?: number | string;
   countries?: Country[];
   regions?: Region[];
+  comment_geo_scope?: string;
 }
 
 export interface Region {
