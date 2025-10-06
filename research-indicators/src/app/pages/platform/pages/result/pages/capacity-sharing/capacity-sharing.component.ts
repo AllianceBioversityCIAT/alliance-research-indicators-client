@@ -72,7 +72,7 @@ export default class CapacitySharingComponent {
   isStartDateGreaterThanEndDate = computed(() => {
     const { start_date, end_date } = this.body() ?? {};
     if (!this.hasBothDates({ start_date, end_date } as GetCapSharing)) return false;
-    return new Date(start_date as any).getTime() > new Date(end_date as any).getTime();
+    return new Date(start_date as string | number | Date).getTime() > new Date(end_date as string | number | Date).getTime();
   });
 
   protected clearDegreeIdIfNotLongTerm() {
@@ -151,18 +151,26 @@ export default class CapacitySharingComponent {
     return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
   }
 
-protected toDate(value: any) {
-  if (value) {
+  protected toDate(value: string | number | Date | undefined): Date | undefined {
+    if (value === undefined) return undefined;
     return new Date(value);
   }
-  return value;
-}
 
-protected normalizeDates(current: GetCapSharing) {
-  current.start_date = this.toDate(current.start_date);
-  current.end_date = this.toDate(current.end_date);
-  return { ...current };
-}
+  protected toDatePreservingFalsy(value: unknown): unknown {
+    if (value instanceof Date) return value;
+    if (typeof value === 'string') {
+      if (value.trim().length === 0) return value;
+      return new Date(value);
+    }
+    return value;
+  }
+
+  protected normalizeDates<T extends { start_date?: unknown; end_date?: unknown }>(current: T) {
+    const result = { ...current } as T & { start_date?: unknown; end_date?: unknown };
+    result.start_date = this.toDatePreservingFalsy(result.start_date);
+    result.end_date = this.toDatePreservingFalsy(result.end_date);
+    return result;
+  }
 
   protected hasBothDates(current: GetCapSharing): boolean {
     return Boolean(current?.start_date) && Boolean(current?.end_date);

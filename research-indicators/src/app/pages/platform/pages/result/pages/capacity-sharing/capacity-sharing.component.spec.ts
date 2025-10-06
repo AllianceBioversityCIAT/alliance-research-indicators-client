@@ -492,6 +492,22 @@ describe('CapacitySharingComponent', () => {
     expect(result.end_date).toBeUndefined();
   });
 
+  it('toDate returns undefined when value is undefined', () => {
+    const result = (component as any).toDate(undefined);
+    expect(result).toBeUndefined();
+  });
+
+  it('toDate converts string date to Date', () => {
+    const result = (component as any).toDate('2024-01-15T00:00:00.000Z');
+    expect(result).toBeInstanceOf(Date);
+  });
+
+  it('toDate converts numeric timestamp to Date', () => {
+    const ts = Date.UTC(2024, 0, 15);
+    const result = (component as any).toDate(ts);
+    expect(result).toBeInstanceOf(Date);
+  });
+
   it('normalizeDates should handle start_date as null and use fallback', () => {
     const data = { start_date: null, end_date: new Date() };
     const result = (component as any).normalizeDates(data);
