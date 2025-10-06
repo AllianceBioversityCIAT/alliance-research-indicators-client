@@ -5,6 +5,7 @@ import { ApiService } from '@services/api.service';
 import { ActionsService } from '@services/actions.service';
 import { ClarityService } from './clarity.service';
 import { environment } from '../../../environments/environment';
+import { DataCache } from '@interfaces/cache.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -59,11 +60,12 @@ export class CognitoService {
 
   updateCacheService() {
     const raw = localStorage.getItem('data') ?? '{}';
-    let parsed: any = {};
+    let parsed: DataCache;
     try {
-      parsed = JSON.parse(raw);
+      const obj = JSON.parse(raw) as Partial<DataCache>;
+      parsed = Object.assign(new DataCache(), obj);
     } catch {
-      parsed = {};
+      parsed = new DataCache();
     }
     this.cache.dataCache.set(parsed);
     this.cache.isLoggedIn.set(true);

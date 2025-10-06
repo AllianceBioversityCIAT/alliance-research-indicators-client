@@ -85,7 +85,7 @@ export class VersionSelectorComponent implements OnDestroy {
     this.handleVersionSelection({ currentResultId: currentResultId.toString(), liveData, versionsArray });
   }
 
-  protected getVersionsArray(data: any): TransformResultCodeResponse[] {
+  protected getVersionsArray(data: { versions?: unknown }): TransformResultCodeResponse[] {
     return Array.isArray(data.versions) ? (data.versions as TransformResultCodeResponse[]) : [];
   }
 

@@ -6,6 +6,7 @@ import { ApiService } from '@services/api.service';
 import { ActionsService } from '@services/actions.service';
 import { ClarityService } from './clarity.service';
 import { environment } from '../../../environments/environment';
+import { DataCache } from '@interfaces/cache.interface';
 
 const activatedRouteMock = {
   snapshot: {
@@ -431,7 +432,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -445,7 +446,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -459,7 +460,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -478,7 +479,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -498,7 +499,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -512,7 +513,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -526,7 +527,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -545,7 +546,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -569,7 +570,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
