@@ -207,4 +207,376 @@ describe('resultExistsResolver', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
     expect(result).toBe(false);
   });
+
+  it('should handle string ID with dash parsing (TP-123 format)', async () => {
+    // Arrange
+    const idParam = 'TP-123';
+    route.paramMap.get = jest.fn().mockReturnValue(idParam);
+    metadataService.update = jest.fn().mockResolvedValue({ canOpen: true });
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(123, 'TP');
+    expect(result).toBe(true);
+  });
+
+  it('should handle string ID with multiple dashes (PRMS-456-789 format)', async () => {
+    // Arrange
+    const idParam = 'PRMS-456-789';
+    route.paramMap.get = jest.fn().mockReturnValue(idParam);
+    metadataService.update = jest.fn().mockResolvedValue({ canOpen: true });
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(789, 'PRMS');
+    expect(result).toBe(true);
+  });
+
+  it('should handle validateOpenResult returning true and navigate to project-detail', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(result).toBe(false);
+  });
+
+  it('should handle validateOpenResult returning true but not set cache when already on project-detail', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/project-detail/456';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).not.toHaveBeenCalled();
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(result).toBe(false);
+  });
+
+  it('should handle validateOpenResult returning false and return true', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(false);
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
+
+  it('should handle metadata service returning null/undefined values', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: null,
+      status_id: undefined,
+      result_official_code: null,
+      result_contract_id: undefined,
+      result_title: null
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(false);
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(0, 0);
+    expect(result).toBe(true);
+  });
+
+  it('should handle metadata service returning null/undefined response', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue(null);
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
+    expect(result).toBe(false);
+  });
+
+  it('should handle metadata service returning undefined response', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue(undefined);
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
+    expect(result).toBe(false);
+  });
+
+  it('should handle validateOpenResult returning true with null result_contract_id', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2,
+      result_official_code: 3,
+      result_contract_id: null,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', null]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(result).toBe(false);
+  });
+
+  it('should handle validateOpenResult returning true with undefined result_contract_id', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2,
+      result_official_code: 3,
+      result_contract_id: undefined,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', undefined]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(result).toBe(false);
+  });
+
+  it('should handle validateOpenResult returning true with null result_title', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: null
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(result).toBe(false);
+  });
+
+  it('should handle validateOpenResult returning true with undefined result_title', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: undefined
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(result).toBe(false);
+  });
+
+  it('should handle validateOpenResult returning true with null result_official_code', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2,
+      result_official_code: null,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 0);
+    expect(result).toBe(false);
+  });
+
+  it('should handle validateOpenResult returning true with undefined result_official_code', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2,
+      result_official_code: undefined,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 0);
+    expect(result).toBe(false);
+  });
+
+  it('should handle validateOpenResult returning true with all null values', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: null,
+      status_id: null,
+      result_official_code: null,
+      result_contract_id: null,
+      result_title: null
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(0, 0);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', null]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0);
+    expect(result).toBe(false);
+  });
+
+  it('should handle validateOpenResult returning true with all undefined values', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: undefined,
+      status_id: undefined,
+      result_official_code: undefined,
+      result_contract_id: undefined,
+      result_title: undefined
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(0, 0);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', undefined]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0);
+    expect(result).toBe(false);
+  });
 });
