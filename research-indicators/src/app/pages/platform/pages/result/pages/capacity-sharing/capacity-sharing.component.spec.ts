@@ -176,6 +176,36 @@ describe('CapacitySharingComponent', () => {
     expect(component.body().end_date).toBeUndefined();
   });
 
+  it('should handle getData when only start_date is present', async () => {
+    const mockResponse = {
+      data: {
+        start_date: '2023-05-05T00:00:00.000Z',
+        end_date: undefined
+      }
+    };
+    apiService.GET_CapacitySharing.mockResolvedValue(mockResponse);
+
+    await component.getData();
+
+    expect(component.body().start_date).toBeInstanceOf(Date);
+    expect(component.body().end_date).toBeUndefined();
+  });
+
+  it('should handle getData when only end_date is present', async () => {
+    const mockResponse = {
+      data: {
+        start_date: undefined,
+        end_date: '2023-06-06T00:00:00.000Z'
+      }
+    };
+    apiService.GET_CapacitySharing.mockResolvedValue(mockResponse);
+
+    await component.getData();
+
+    expect(component.body().start_date).toBeUndefined();
+    expect(component.body().end_date).toBeInstanceOf(Date);
+  });
+
   it('should call PATCH_CapacitySharing and show toast on saveData', async () => {
     submission.isEditableStatus.mockReturnValue(true);
     apiService.PATCH_CapacitySharing.mockResolvedValue({});
@@ -205,15 +235,38 @@ describe('CapacitySharingComponent', () => {
     apiService.PATCH_CapacitySharing.mockResolvedValue({});
     apiService.GET_CapacitySharing.mockResolvedValue({ data: {} });
 
+    const routeMock = TestBed.inject(ActivatedRoute) as any;
+    routeMock.snapshot.queryParamMap.get = () => 'v1';
+
     await component.saveData('next');
 
     expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
+  });
+
+  it('should navigate with no query params when version is absent', async () => {
+    submission.isEditableStatus.mockReturnValue(true);
+    apiService.PATCH_CapacitySharing.mockResolvedValue({});
+    apiService.GET_CapacitySharing.mockResolvedValue({ data: {} });
+
+    const routeMock = TestBed.inject(ActivatedRoute) as any;
+    routeMock.snapshot.queryParamMap.get = () => null;
+
+    await component.saveData('next');
+
+    expect(router.navigate).toHaveBeenCalled();
+    const navigateArgs = (router.navigate as jest.Mock).mock.calls.pop();
+    expect(navigateArgs[0]).toEqual(['result', 1, 'partners']);
+    expect(navigateArgs[1].queryParams).toBeUndefined();
+    expect(navigateArgs[1].replaceUrl).toBe(true);
   });
 
   it('should navigate to back page', async () => {
     submission.isEditableStatus.mockReturnValue(true);
     apiService.PATCH_CapacitySharing.mockResolvedValue({});
     apiService.GET_CapacitySharing.mockResolvedValue({ data: {} });
+
+    const routeMock = TestBed.inject(ActivatedRoute) as any;
+    routeMock.snapshot.queryParamMap.get = () => 'v1';
 
     await component.saveData('back');
 
@@ -289,6 +342,184 @@ describe('CapacitySharingComponent', () => {
     expect(component.isStartDateGreaterThanEndDate()).toBe(false);
   });
 
+  it('hasBothDates should return true only when both present', () => {
+    expect((component as any).hasBothDates({ start_date: new Date(), end_date: new Date() })).toBe(true);
+    expect((component as any).hasBothDates({ start_date: new Date(), end_date: undefined } as any)).toBe(false);
+    expect((component as any).hasBothDates({ start_date: undefined, end_date: new Date() } as any)).toBe(false);
+    expect((component as any).hasBothDates({} as any)).toBe(false);
+  });
+
+  it('should handle isStartDateGreaterThanEndDate when body is null', () => {
+    component.body.set(null as any);
+    expect(component.isStartDateGreaterThanEndDate()).toBe(false);
+  });
+
+  it('should handle isStartDateGreaterThanEndDate when body is undefined', () => {
+    component.body.set(undefined as any);
+    expect(component.isStartDateGreaterThanEndDate()).toBe(false);
+  });
+
+  it('normalizeDates should handle null start_date', () => {
+    const data = { start_date: null, end_date: new Date() };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeNull();
+    expect(result.end_date).toBeInstanceOf(Date);
+  });
+
+  it('normalizeDates should handle null end_date', () => {
+    const data = { start_date: new Date(), end_date: null };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBeNull();
+  });
+
+  it('normalizeDates should handle null start_date and end_date', () => {
+    const data = { start_date: null, end_date: null };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeNull();
+    expect(result.end_date).toBeNull();
+  });
+
+  it('normalizeDates should handle falsy start_date', () => {
+    const data = { start_date: '', end_date: new Date() };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBe('');
+    expect(result.end_date).toBeInstanceOf(Date);
+  });
+
+  it('normalizeDates should handle falsy end_date', () => {
+    const data = { start_date: new Date(), end_date: '' };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBe('');
+  });
+
+  it('normalizeDates should handle undefined start_date', () => {
+    const data = { start_date: undefined, end_date: new Date() };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeUndefined();
+    expect(result.end_date).toBeInstanceOf(Date);
+  });
+
+  it('normalizeDates should handle undefined end_date', () => {
+    const data = { start_date: new Date(), end_date: undefined };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBeUndefined();
+  });
+
+  it('normalizeDates should handle both dates as null', () => {
+    const data = { start_date: null, end_date: null };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeNull();
+    expect(result.end_date).toBeNull();
+  });
+
+  it('normalizeDates should handle both dates as undefined', () => {
+    const data = { start_date: undefined, end_date: undefined };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeUndefined();
+    expect(result.end_date).toBeUndefined();
+  });
+
+  it('normalizeDates should handle start_date as empty string and use fallback', () => {
+    const data = { start_date: '', end_date: new Date() };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBe('');
+    expect(result.end_date).toBeInstanceOf(Date);
+  });
+
+  it('normalizeDates should handle end_date as empty string and use fallback', () => {
+    const data = { start_date: new Date(), end_date: '' };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBe('');
+  });
+
+  it('normalizeDates should handle start_date as 0 and use fallback', () => {
+    const data = { start_date: 0, end_date: new Date() };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBe(0);
+    expect(result.end_date).toBeInstanceOf(Date);
+  });
+
+  it('normalizeDates should handle end_date as 0 and use fallback', () => {
+    const data = { start_date: new Date(), end_date: 0 };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBe(0);
+  });
+
+  it('normalizeDates should handle start_date as false and use fallback', () => {
+    const data = { start_date: false, end_date: new Date() };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBe(false);
+    expect(result.end_date).toBeInstanceOf(Date);
+  });
+
+  it('normalizeDates should handle end_date as false and use fallback', () => {
+    const data = { start_date: new Date(), end_date: false };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBe(false);
+  });
+
+  it('normalizeDates should handle start_date as null and use fallback', () => {
+    const data = { start_date: null, end_date: new Date() };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeNull();
+    expect(result.end_date).toBeInstanceOf(Date);
+  });
+
+  it('normalizeDates should handle end_date as null and use fallback', () => {
+    const data = { start_date: new Date(), end_date: null };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBeNull();
+  });
+
+  it('normalizeDates should handle start_date as undefined and use fallback', () => {
+    const data = { start_date: undefined, end_date: new Date() };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeUndefined();
+    expect(result.end_date).toBeInstanceOf(Date);
+  });
+
+  it('normalizeDates should handle end_date as undefined and use fallback', () => {
+    const data = { start_date: new Date(), end_date: undefined };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBeUndefined();
+  });
+
+  it('normalizeDates should handle start_date as null and use fallback', () => {
+    const data = { start_date: null, end_date: new Date() };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeNull();
+    expect(result.end_date).toBeInstanceOf(Date);
+  });
+
+  it('normalizeDates should handle end_date as null and use fallback', () => {
+    const data = { start_date: new Date(), end_date: null };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBeNull();
+  });
+
+  it('normalizeDates should handle start_date as undefined and use fallback', () => {
+    const data = { start_date: undefined, end_date: new Date() };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeUndefined();
+    expect(result.end_date).toBeInstanceOf(Date);
+  });
+
+  it('normalizeDates should handle end_date as undefined and use fallback', () => {
+    const data = { start_date: new Date(), end_date: undefined };
+    const result = (component as any).normalizeDates(data);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBeUndefined();
+  });
+
   it('should call canRemove and return true if editable', () => {
     submission.isEditableStatus.mockReturnValue(true);
     expect(component.canRemove()).toBe(true);
@@ -316,6 +547,21 @@ describe('CapacitySharingComponent', () => {
 
     expect(component.body().degree_id).toBe(5);
   }));
+
+  it('should call getData when versionWatcher triggers version change', async () => {
+    const spy = jest.spyOn(component, 'getData').mockResolvedValue();
+    expect(versionWatcher.onVersionChange).toHaveBeenCalled();
+    const cb = (versionWatcher.onVersionChange as jest.Mock).mock.calls[0][0];
+    await cb();
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it('should clear degree_id via helper when invoked directly', () => {
+    component.body.set({ session_length_id: 1, degree_id: 9 } as any);
+    (component as any).clearDegreeIdIfNotLongTerm();
+    expect(component.body().degree_id).toBeUndefined();
+  });
 
   it('should handle saveData without page parameter', async () => {
     submission.isEditableStatus.mockReturnValue(true);
@@ -346,5 +592,32 @@ describe('CapacitySharingComponent', () => {
         end_date: undefined
       })
     );
+  });
+
+  it('should not update body when degree_id is already undefined and not long term', () => {
+    // Ensure long term is not selected
+    component.body.set({ session_length_id: 1 } as any);
+    const updateSpy = jest.spyOn(component.body, 'update');
+
+    // Invoke the helper directly
+    (component as any).clearDegreeIdIfNotLongTerm();
+
+    // No updates should be performed because degree_id is undefined
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(component.body().degree_id).toBeUndefined();
+
+    updateSpy.mockRestore();
+  });
+
+  it('normalizeDates should convert only start_date when end_date is absent', () => {
+    const result = (component as any).normalizeDates({ start_date: '2024-01-01', end_date: undefined } as any);
+    expect(result.start_date).toBeInstanceOf(Date);
+    expect(result.end_date).toBeUndefined();
+  });
+
+  it('normalizeDates should convert only end_date when start_date is absent', () => {
+    const result = (component as any).normalizeDates({ start_date: undefined, end_date: '2024-12-31' } as any);
+    expect(result.start_date).toBeUndefined();
+    expect(result.end_date).toBeInstanceOf(Date);
   });
 });

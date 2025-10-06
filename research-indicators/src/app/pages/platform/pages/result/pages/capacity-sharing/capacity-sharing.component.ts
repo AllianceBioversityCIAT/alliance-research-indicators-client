@@ -58,13 +58,7 @@ export default class CapacitySharingComponent {
 
     effect(() => {
       if (!this.isLongTermSelected()) {
-        const current = this.body();
-        if (current?.degree_id) {
-          this.body.update(b => ({
-            ...b,
-            degree_id: undefined
-          }));
-        }
+        this.clearDegreeIdIfNotLongTerm();
       }
     });
   }
@@ -77,9 +71,19 @@ export default class CapacitySharingComponent {
 
   isStartDateGreaterThanEndDate = computed(() => {
     const { start_date, end_date } = this.body() ?? {};
-    if (!start_date || !end_date) return false;
-    return new Date(start_date).getTime() > new Date(end_date).getTime();
+    if (!this.hasBothDates({ start_date, end_date } as GetCapSharing)) return false;
+    return new Date(start_date as any).getTime() > new Date(end_date as any).getTime();
   });
+
+  protected clearDegreeIdIfNotLongTerm() {
+    const current = this.body();
+    if (current?.degree_id) {
+      this.body.update(b => ({
+        ...b,
+        degree_id: undefined
+      }));
+    }
+  }
 
   async getData() {
     this.cache.loadingCurrentResult.set(true);
@@ -92,11 +96,7 @@ export default class CapacitySharingComponent {
 
     this.body.set(data);
     this.cache.loadingCurrentResult.set(false);
-    this.body.update(current => {
-      if (current.start_date) current.start_date = new Date(current.start_date ?? '');
-      if (current.end_date) current.end_date = new Date(current.end_date ?? '');
-      return { ...current };
-    });
+    this.body.update(current => this.normalizeDates(current));
     this.loading.set(false);
   }
 
@@ -149,5 +149,22 @@ export default class CapacitySharingComponent {
   parseToLocalDate(dateStr: string): Date {
     const date = new Date(dateStr);
     return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  }
+
+protected toDate(value: any) {
+  if (value) {
+    return new Date(value);
+  }
+  return value;
+}
+
+protected normalizeDates(current: GetCapSharing) {
+  current.start_date = this.toDate(current.start_date);
+  current.end_date = this.toDate(current.end_date);
+  return { ...current };
+}
+
+  protected hasBothDates(current: GetCapSharing): boolean {
+    return Boolean(current?.start_date) && Boolean(current?.end_date);
   }
 }
