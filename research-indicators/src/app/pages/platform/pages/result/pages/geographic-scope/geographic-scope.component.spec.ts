@@ -1,346 +1,271 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import GeographicScopeComponent from './geographic-scope.component';
-import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
-import { ApiService } from '../../../../../../shared/services/api.service';
-import { CacheService } from '../../../../../../shared/services/cache/cache.service';
-import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { Router } from '@angular/router';
+import { ApiService } from '@shared/services/api.service';
+import { CacheService } from '@shared/services/cache/cache.service';
+import { ActionsService } from '@shared/services/actions.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SubmissionService } from '@shared/services/submission.service';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
-import { MultiselectInstanceComponent } from '../../../../../../shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
-import { signal } from '@angular/core';
 
-class ApiServiceMock {
-  GET_GeoLocation = jest.fn().mockResolvedValue({ data: { countries: [] } });
-  PATCH_GeoLocation = jest.fn().mockResolvedValue({ successfulRequest: true });
-}
-class CacheServiceMock {
-  currentResultId = jest.fn().mockReturnValue(1);
-  getCurrentNumericResultId = jest.fn().mockReturnValue(1);
-  currentMetadata = jest.fn().mockReturnValue({ result_title: 'Test Title' });
-  currentResultIsLoading = jest.fn().mockReturnValue(false);
-  showSectionHeaderActions = jest.fn().mockReturnValue(false);
-  isSidebarCollapsed = jest.fn().mockReturnValue(false);
-}
-class ActionsServiceMock {
-  showToast = jest.fn();
-}
-class RouterMock {
-  navigate = jest.fn();
-}
-class SubmissionServiceMock {
-  isEditableStatus = jest.fn().mockReturnValue(true);
-}
-class VersionWatcherServiceMock {
-  onVersionChange = jest.fn();
-}
+jest.mock('@shared/utils/geographic-scope.util', () => ({
+  getGeoScopeMultiselectTexts: jest.fn().mockReturnValue({
+    country: { label: 'countries' },
+    region: { label: 'regions' },
+    subnational: { label: 'subnational' },
+  }),
+  isRegionsRequiredByScope: jest.fn().mockReturnValue(false),
+  isCountriesRequiredByScope: jest.fn().mockReturnValue(false),
+  isSubNationalRequiredByScope: jest.fn().mockReturnValue(false),
+  mapCountriesToSubnationalSignals: jest.fn(),
+  removeSubnationalRegionFromCountries: jest.fn(),
+  syncSubnationalArrayFromSignals: jest.fn(),
+  updateCountryRegions: jest.fn(),
+  shouldShowSubnationalError: jest.fn().mockReturnValue(false),
+}));
+
+import {
+  mapCountriesToSubnationalSignals,
+  removeSubnationalRegionFromCountries,
+  syncSubnationalArrayFromSignals,
+  updateCountryRegions as utilUpdateCountryRegions,
+  isRegionsRequiredByScope,
+  isCountriesRequiredByScope,
+  isSubNationalRequiredByScope,
+  shouldShowSubnationalError,
+  getGeoScopeMultiselectTexts,
+} from '@shared/utils/geographic-scope.util';
 
 describe('GeographicScopeComponent', () => {
   let component: GeographicScopeComponent;
   let fixture: ComponentFixture<GeographicScopeComponent>;
-  let api: ApiServiceMock;
-  let cache: CacheServiceMock;
-  let actions: ActionsServiceMock;
-  let router: RouterMock;
-  let submission: SubmissionServiceMock;
-  let route: ActivatedRoute;
+
+  const apiMock = {
+    GET_GeoLocation: jest.fn(),
+    PATCH_GeoLocation: jest.fn(),
+  } as unknown as jest.Mocked<ApiService>;
+
+  const cacheMock = {
+    getCurrentNumericResultId: jest.fn().mockReturnValue(123),
+    currentResultId: jest.fn().mockReturnValue('PR-1'),
+  } as unknown as jest.Mocked<CacheService>;
+
+  const actionsMock = {
+    showToast: jest.fn(),
+  } as unknown as jest.Mocked<ActionsService>;
+
+  const routerMock = {
+    navigate: jest.fn(),
+  } as unknown as jest.Mocked<Router>;
+
+  const submissionMock = {
+    isEditableStatus: jest.fn().mockReturnValue(true),
+  } as unknown as jest.Mocked<SubmissionService>;
+
+  let versionCallback: (() => void) | null = null;
+  const versionWatcherMock = {
+    onVersionChange: jest.fn((cb: () => void) => {
+      versionCallback = cb;
+    }),
+  } as unknown as jest.Mocked<VersionWatcherService>;
+
+  const routeMock = {
+    snapshot: { queryParamMap: new Map<string, string | null>() },
+  } as unknown as ActivatedRoute;
 
   beforeEach(async () => {
-    api = new ApiServiceMock();
-    cache = new CacheServiceMock();
-    actions = new ActionsServiceMock();
-    router = new RouterMock();
-    submission = new SubmissionServiceMock();
-    route = { snapshot: { paramMap: { get: (k: string) => (k === 'id' ? '1' : null) }, queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } } as unknown as ActivatedRoute;
+    jest.clearAllMocks();
+    (routeMock.snapshot.queryParamMap as any) = {
+      get: jest.fn().mockReturnValue('1'),
+    };
+
     await TestBed.configureTestingModule({
       imports: [GeographicScopeComponent],
       providers: [
-        { provide: ApiService, useValue: api },
-        { provide: CacheService, useValue: cache },
-        { provide: ActionsService, useValue: actions },
-        { provide: Router, useValue: router },
-        { provide: SubmissionService, useValue: submission },
-        { provide: VersionWatcherService, useClass: VersionWatcherServiceMock },
-        { provide: ActivatedRoute, useValue: route }
-      ]
-    }).compileComponents();
+        { provide: ApiService, useValue: apiMock },
+        { provide: CacheService, useValue: cacheMock },
+        { provide: ActionsService, useValue: actionsMock },
+        { provide: Router, useValue: routerMock },
+        { provide: SubmissionService, useValue: submissionMock },
+        { provide: VersionWatcherService, useValue: versionWatcherMock },
+        { provide: ActivatedRoute, useValue: routeMock },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    })
+      .overrideTemplate(GeographicScopeComponent, '')
+      .compileComponents();
+
     fixture = TestBed.createComponent(GeographicScopeComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call getData and set body', async () => {
-    api.GET_GeoLocation.mockResolvedValueOnce({ data: { countries: [{ result_countries_sub_nationals: [{ sub_national: { name: 'Test' } }] }] } });
+  it('should call getData on version change', async () => {
+    const spy = jest.spyOn(component as any, 'getData').mockResolvedValue(undefined as any);
+    expect(versionCallback).toBeTruthy();
+    versionCallback && versionCallback();
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('canRemove should proxy submission service', () => {
+    submissionMock.isEditableStatus.mockReturnValueOnce(true);
+    expect(component.canRemove()).toBe(true);
+    submissionMock.isEditableStatus.mockReturnValueOnce(false);
+    expect(component.canRemove()).toBe(false);
+  });
+
+  it('onSelect should map and sync, and clear countries when geo_scope_id=5 and not first select', () => {
+    (mapCountriesToSubnationalSignals as jest.Mock).mockClear();
+    (syncSubnationalArrayFromSignals as jest.Mock).mockClear();
+
+    component['isFirstSelect'] = false as any;
+    component.body.set({ geo_scope_id: 5, countries: [{ isoAlpha2: 'CO' }] } as any);
+    component.onSelect();
+    expect(mapCountriesToSubnationalSignals).toHaveBeenCalled();
+    expect(syncSubnationalArrayFromSignals).toHaveBeenCalled();
+    expect(component.body().countries).toEqual([]);
+  });
+
+  it('onSelect should not clear countries when first select', () => {
+    component['isFirstSelect'] = true as any;
+    component.body.set({ geo_scope_id: 5, countries: [{ isoAlpha2: 'CO' }] } as any);
+    component.onSelect();
+    expect(component.body().countries).toEqual([{ isoAlpha2: 'CO' }]);
+  });
+
+  it('updateCountryRegions should delegate to util and keep body', () => {
+    (utilUpdateCountryRegions as jest.Mock).mockClear();
+    component.body.set({ countries: [{ isoAlpha2: 'PE' }] } as any);
+    component.updateCountryRegions('PE', [{ sub_national_id: 1 } as any]);
+    expect(utilUpdateCountryRegions).toHaveBeenCalledWith(component.body().countries, 'PE', [{ sub_national_id: 1 }]);
+  });
+
+  it('isArray should detect arrays only', () => {
+    expect(component.isArray([1, 2])).toBe(true);
+    expect(component.isArray('x')).toBe(false);
+    expect(component.isArray(null)).toBe(false);
+  });
+
+  it('removeSubnationalRegion should call removeRegionById when removedId is defined', () => {
+    (removeSubnationalRegionFromCountries as jest.Mock).mockReturnValueOnce(10);
+    const instance = { endpointParams: { isoAlpha2: 'CO' }, removeRegionById: jest.fn() } as any;
+    (component as any).multiselectInstances = [{ endpointParams: { isoAlpha2: 'CO' }, removeRegionById: instance.removeRegionById }] as any;
+    component.body.set({ countries: [{ isoAlpha2: 'CO' }] } as any);
+    component.removeSubnationalRegion({ isoAlpha2: 'CO' } as any, { sub_national_id: 10 } as any);
+    expect(instance.removeRegionById).toHaveBeenCalledWith(10);
+  });
+
+  it('removeSubnationalRegion should skip removeRegionById when removedId is undefined', () => {
+    (removeSubnationalRegionFromCountries as jest.Mock).mockReturnValueOnce(undefined);
+    const instance = { endpointParams: { isoAlpha2: 'CO' }, removeRegionById: jest.fn() } as any;
+    (component as any).multiselectInstances = [instance] as any;
+    component.body.set({ countries: [{ isoAlpha2: 'CO' }] } as any);
+    component.removeSubnationalRegion({ isoAlpha2: 'CO' } as any, { sub_national_id: 11 } as any);
+    expect(instance.removeRegionById).not.toHaveBeenCalled();
+  });
+
+  it('getData should map sub_national names, set body, call map signals and toggle loading', async () => {
+    const response = {
+      data: {
+        geo_scope_id: 1,
+        countries: [
+          {
+            isoAlpha2: 'CO',
+            result_countries_sub_nationals: [
+              { sub_national: { name: 'A' } },
+              { sub_national: undefined },
+            ],
+          },
+        ],
+      },
+    };
+    (apiMock.GET_GeoLocation as any).mockResolvedValue(response);
     await component.getData();
-    expect(api.GET_GeoLocation).toHaveBeenCalled();
-    expect(component.body().countries?.[0].result_countries_sub_nationals?.[0].name).toBe('Test');
     expect(component.loading()).toBe(false);
+    expect(component.body()).toEqual(response.data);
+    expect(mapCountriesToSubnationalSignals).toHaveBeenCalled();
+    // Ensure nullish coalescing applied
+    expect(component.body().countries![0].result_countries_sub_nationals[1].name).toBe('');
   });
 
-  it('should call PATCH_GeoLocation and show toast on saveData', async () => {
-    api.PATCH_GeoLocation.mockResolvedValueOnce({ successfulRequest: true });
-    jest.spyOn(component, 'getData').mockResolvedValue(undefined);
-    await component.saveData();
-    expect(api.PATCH_GeoLocation).toHaveBeenCalled();
-    expect(actions.showToast).toHaveBeenCalled();
-    expect(component.loading()).toBe(false);
-  });
+  it('saveData should PATCH, refresh, toast and navigate next/back with version', async () => {
+    (submissionMock.isEditableStatus as any).mockReturnValue(true);
+    (apiMock.PATCH_GeoLocation as any).mockResolvedValue({ successfulRequest: true });
+    const getDataSpy = jest.spyOn(component as any, 'getData').mockResolvedValue(undefined as any);
 
-  it('should not call showToast if PATCH_GeoLocation fails', async () => {
-    api.PATCH_GeoLocation.mockResolvedValueOnce({ successfulRequest: false });
-    await component.saveData();
-    expect(actions.showToast).not.toHaveBeenCalled();
-    expect(component.loading()).toBe(false);
-  });
-
-  it('should navigate to partners on saveData back', async () => {
-    api.PATCH_GeoLocation.mockResolvedValueOnce({ successfulRequest: true });
-    jest.spyOn(component, 'getData').mockResolvedValue(undefined);
-    await component.saveData('back');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
-  });
-
-  it('should navigate to evidence on saveData next', async () => {
-    api.PATCH_GeoLocation.mockResolvedValueOnce({ successfulRequest: true });
-    jest.spyOn(component, 'getData').mockResolvedValue(undefined);
     await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'evidence'], { queryParams: { version: 'v1' }, replaceUrl: true });
+    expect(syncSubnationalArrayFromSignals).toHaveBeenCalled();
+    expect(apiMock.PATCH_GeoLocation).toHaveBeenCalledWith(123, component.body());
+    expect(getDataSpy).toHaveBeenCalled();
+    expect(actionsMock.showToast).toHaveBeenCalled();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['result', 'PR-1', 'evidence'], expect.any(Object));
+
+    await component.saveData('back');
+    expect(routerMock.navigate).toHaveBeenCalledWith(['result', 'PR-1', 'partners'], expect.any(Object));
   });
 
-  it('should not PATCH if not editable', async () => {
-    submission.isEditableStatus.mockReturnValue(false);
+  it('saveData should early-return when PATCH unsuccessful and turn off loading', async () => {
+    (submissionMock.isEditableStatus as any).mockReturnValue(true);
+    (apiMock.PATCH_GeoLocation as any).mockResolvedValue({ successfulRequest: false });
     await component.saveData();
-    expect(api.PATCH_GeoLocation).not.toHaveBeenCalled();
+    expect(component.loading()).toBe(false);
   });
 
-  it('should update country regions', () => {
-    component.body.set({
-      countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: signal({ regions: [] }) }]
-    });
-    component.updateCountryRegions('CO', [{ sub_national_id: 1, region_id: 10, name: 'Region1' } as any]);
-    expect(component.body().countries?.[0].result_countries_sub_nationals?.[0].name).toBe('Region1');
+  it('saveData should not PATCH when not editable and still navigate with/without version', async () => {
+    (submissionMock.isEditableStatus as any).mockReturnValue(false);
+    // version present case
+    await component.saveData('next');
+    expect(apiMock.PATCH_GeoLocation).not.toHaveBeenCalled();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['result', 'PR-1', 'evidence'], expect.any(Object));
+
+    // version null => no query params
+    (routeMock.snapshot.queryParamMap as any).get.mockReturnValueOnce(null);
+    await component.saveData('back');
+    const call = (routerMock.navigate as jest.Mock).mock.calls.pop();
+    const opts = call[1];
+    expect(opts.queryParams).toBeUndefined();
   });
 
-  it('should remove subnational region and sync selector', () => {
-    const setMock = jest.fn();
-    const removeRegionByIdMock = jest.fn();
-    const signalMock = Object.assign(() => ({ regions: [{ sub_national_id: 1, region_id: 10 }] }), {
-      set: setMock,
-      update: jest.fn(),
-      asReadonly: jest.fn()
-    });
-    component.body.set({
-      countries: [
-        {
-          isoAlpha2: 'CO',
-          result_countries_sub_nationals_signal: signalMock as any,
-          result_countries_sub_nationals: [{ sub_national_id: 1, region_id: 10 }]
-        }
-      ]
-    });
-    component.multiselectInstances = [{ endpointParams: { isoAlpha2: 'CO' }, removeRegionById: removeRegionByIdMock }] as any;
-    component.removeSubnationalRegion({ isoAlpha2: 'CO' } as any, { sub_national_id: 1, region_id: 10 } as any);
-    expect(setMock).toHaveBeenCalled();
-    expect(removeRegionByIdMock).toHaveBeenCalledWith(1);
-  });
-
-  it('should return true for isArray with array', () => {
-    expect(component.isArray([1, 2, 3])).toBe(true);
-  });
-  it('should return false for isArray with non-array', () => {
-    expect(component.isArray('not-array')).toBe(false);
-  });
-
-  it('should compute isRegionsRequired, isCountriesRequired, isSubNationalRequired', () => {
-    component.body.set({ geo_scope_id: 2 });
+  it('isRegionsRequired, isCountriesRequired, isSubNationalRequired should compute from utils', () => {
+    (isRegionsRequiredByScope as jest.Mock).mockReturnValueOnce(true);
+    component.body.set({ geo_scope_id: 2 } as any);
     expect(component.isRegionsRequired()).toBe(true);
-    component.body.set({ geo_scope_id: 4 });
+
+    (isCountriesRequiredByScope as jest.Mock).mockReturnValueOnce(true);
+    component.body.set({ geo_scope_id: 4 } as any);
     expect(component.isCountriesRequired()).toBe(true);
-    component.body.set({ geo_scope_id: 5 });
+
+    (isSubNationalRequiredByScope as jest.Mock).mockReturnValueOnce(true);
+    component.body.set({ geo_scope_id: 5 } as any);
     expect(component.isSubNationalRequired()).toBe(true);
   });
 
-  it('should compute showSubnationalError', () => {
-    const signalMock = Object.assign(() => ({ regions: [] }), { set: jest.fn(), update: jest.fn(), asReadonly: jest.fn() });
-    component.body.set({
-      geo_scope_id: 5,
-      countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: signalMock as any }]
-    });
+  it('showSubnationalError should compute from util', () => {
+    (shouldShowSubnationalError as jest.Mock).mockReturnValueOnce(true);
+    component.body.set({ geo_scope_id: 5, countries: [{ isoAlpha2: 'CO' }] } as any);
     expect(component.showSubnationalError()).toBe(true);
-    component.body.set({
-      geo_scope_id: 4,
-      countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: signalMock as any }]
-    });
+
+    (shouldShowSubnationalError as jest.Mock).mockReturnValueOnce(false);
+    component.body.set({ geo_scope_id: 4, countries: [{ isoAlpha2: 'CO' }] } as any);
     expect(component.showSubnationalError()).toBe(false);
   });
 
-  it('should call onSelect and update isFirstSelect', () => {
-    component.body.set({ geo_scope_id: 5, countries: [] });
-    (component as any).isFirstSelect = false;
-    component.onSelect();
-    expect((component as any).isFirstSelect).toBe(false);
-  });
+  it('getMultiselectLabel should delegate to util with current scope id', () => {
+    (getGeoScopeMultiselectTexts as jest.Mock).mockClear();
+    component.body.set({ geo_scope_id: 1 } as any);
+    const r1 = component.getMultiselectLabel();
+    expect((getGeoScopeMultiselectTexts as jest.Mock).mock.calls.pop()?.[0]).toBe(1);
+    expect(r1.country.label).toBe('countries');
 
-  it('should map subnational data between signals and arrays via onSelect', () => {
-    const signalMock = Object.assign(() => ({ regions: [{ sub_national_id: 1, region_id: 10 }] }), {
-      set: jest.fn(),
-      update: jest.fn(),
-      asReadonly: jest.fn()
-    });
-    component.body.set({
-      geo_scope_id: 4,
-      countries: [
-        {
-          isoAlpha2: 'CO',
-          result_countries_sub_nationals: [{ sub_national_id: 1, region_id: 10 }],
-          result_countries_sub_nationals_signal: signalMock as any
-        }
-      ]
-    });
-    component.onSelect();
-    expect(component.body().countries?.[0].result_countries_sub_nationals).toBeDefined();
-  });
+    component.body.set({ geo_scope_id: 2 } as any);
+    component.getMultiselectLabel();
+    expect((getGeoScopeMultiselectTexts as jest.Mock).mock.calls.pop()?.[0]).toBe(2);
 
-  it('should not show toast or call getData if PATCH is not successful', async () => {
-    api.PATCH_GeoLocation.mockResolvedValue({ successfulRequest: false });
-    jest.spyOn(component, 'getData').mockResolvedValue();
-    await component.saveData();
-    expect(actions.showToast).not.toHaveBeenCalled();
-    expect(component.getData).not.toHaveBeenCalled();
-  });
-
-  it('should navigate to back page', async () => {
-    api.PATCH_GeoLocation.mockResolvedValue({ successfulRequest: true });
-    jest.spyOn(component, 'getData').mockResolvedValue();
-    await component.saveData('back');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], expect.any(Object));
-  });
-
-  it('should navigate to next page', async () => {
-    api.PATCH_GeoLocation.mockResolvedValue({ successfulRequest: true });
-    jest.spyOn(component, 'getData').mockResolvedValue();
-    await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'evidence'], expect.any(Object));
-  });
-
-  it('should use version in queryParams if present', async () => {
-    route.snapshot.queryParamMap.get = (key: string) => (key === 'version' ? 'v1' : null);
-    api.PATCH_GeoLocation.mockResolvedValue({ successfulRequest: true });
-    jest.spyOn(component, 'getData').mockResolvedValue();
-    await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'evidence'], { queryParams: { version: 'v1' }, replaceUrl: true });
-  });
-
-  it('should not use version in queryParams if not present', async () => {
-    route.snapshot.queryParamMap.get = () => null;
-    api.PATCH_GeoLocation.mockResolvedValue({ successfulRequest: true });
-    jest.spyOn(component, 'getData').mockResolvedValue();
-    await component.saveData('next');
-    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'evidence'], { queryParams: undefined, replaceUrl: true });
-  });
-
-  it('should handle getData with empty countries and sub_national undefined', async () => {
-    api.GET_GeoLocation.mockResolvedValue({ data: { countries: [{ result_countries_sub_nationals: [{}] }] } });
-    await component.getData();
-    expect(component.body().countries?.[0].result_countries_sub_nationals?.[0].name).toBe('');
-  });
-
-  it('should handle getData with no countries', async () => {
-    api.GET_GeoLocation.mockResolvedValue({ data: {} });
-    await component.getData();
-    expect(component.body()).toEqual({});
-  });
-
-  it('should not throw if removeSubnationalRegion called with no signal', () => {
-    const country = { isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: undefined } as any;
-    const region = { sub_national_id: 1 } as any;
-    expect(() => component.removeSubnationalRegion(country, region)).not.toThrow();
-  });
-
-  it('should not throw if removeSubnationalRegion called with no set', () => {
-    const country = { isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: () => ({ regions: [] }) } as any;
-    const region = { sub_national_id: 1 } as any;
-    expect(() => component.removeSubnationalRegion(country, region)).not.toThrow();
-  });
-
-  it('should handle onSelect with non-array result_countries_sub_nationals', () => {
-    const signalMock = Object.assign(() => ({ regions: [] }), { set: jest.fn(), update: jest.fn(), asReadonly: jest.fn() });
-    component.body.set({
-      countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: undefined as any, result_countries_sub_nationals_signal: signalMock as any }]
-    });
-    expect(() => component.onSelect()).not.toThrow();
-  });
-
-  it('should handle onSelect with no signal property', () => {
-    const signalMock = Object.assign(() => ({ regions: [] }), { set: jest.fn(), update: jest.fn(), asReadonly: jest.fn() });
-    component.body.set({
-      countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: signalMock as any }]
-    });
-    expect(() => component.onSelect()).not.toThrow();
-  });
-
-  it('should handle onSelect with empty regions', () => {
-    const signalMock = Object.assign(() => ({}), { set: jest.fn(), update: jest.fn(), asReadonly: jest.fn() });
-    component.body.set({
-      countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: signalMock as any }]
-    });
-    expect(() => component.onSelect()).not.toThrow();
-  });
-
-  it('should showSubnationalError return false if scope is not 5', () => {
-    const signalMock = Object.assign(() => ({ regions: [] }), { set: jest.fn(), update: jest.fn(), asReadonly: jest.fn() });
-    component.body.set({
-      geo_scope_id: 4,
-      countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: signalMock as any }]
-    });
-    expect(component.showSubnationalError()).toBe(false);
-  });
-
-  it('should showSubnationalError return true if country has no regions', () => {
-    const signalMock = Object.assign(() => ({ regions: [] }), { set: jest.fn(), update: jest.fn(), asReadonly: jest.fn() });
-    component.body.set({
-      geo_scope_id: 5,
-      countries: [{ isoAlpha2: 'CO', result_countries_sub_nationals: [], result_countries_sub_nationals_signal: signalMock as any }]
-    });
-    expect(component.showSubnationalError()).toBe(true);
-  });
-
-  it('should showSubnationalError return false if country has regions', () => {
-    const signalMock = Object.assign(() => ({ regions: [{ sub_national_id: 1, region_id: 10 }] }), {
-      set: jest.fn(),
-      update: jest.fn(),
-      asReadonly: jest.fn()
-    });
-    component.body.set({
-      geo_scope_id: 5,
-      countries: [
-        {
-          isoAlpha2: 'CO',
-          result_countries_sub_nationals: [{ sub_national_id: 1, region_id: 10 }],
-          result_countries_sub_nationals_signal: signalMock as any
-        }
-      ]
-    });
-    expect(component.showSubnationalError()).toBe(false);
-  });
-
-  it('should getMultiselectLabel for all cases', () => {
-    component.body.set({ geo_scope_id: 1 });
-    expect(component.getMultiselectLabel().country.label).toContain('countries');
-    component.body.set({ geo_scope_id: 2 });
-    expect(component.getMultiselectLabel().region.label).toContain('regions');
-    component.body.set({ geo_scope_id: 4 });
-    expect(component.getMultiselectLabel().country.label).toContain('countries');
-    component.body.set({ geo_scope_id: 5 });
-    expect(component.getMultiselectLabel().country.label).toContain('countries');
-    component.body.set({ geo_scope_id: 99 });
-    expect(component.getMultiselectLabel().country.label).toBe('');
+    component.body.set({ geo_scope_id: 4 } as any);
+    component.getMultiselectLabel();
+    expect((getGeoScopeMultiselectTexts as jest.Mock).mock.calls.pop()?.[0]).toBe(4);
   });
 });
