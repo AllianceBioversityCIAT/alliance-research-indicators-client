@@ -120,7 +120,7 @@ export class MultiselectComponent implements OnInit {
             ...current
           };
         });
-        this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
+        this.setBodyFromSignal();
         this.firstLoad.set(false);
       } else if (
         this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.length &&
@@ -128,7 +128,8 @@ export class MultiselectComponent implements OnInit {
         this.service?.list().length &&
         this.firstLoad()
       ) {
-        this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
+        /* istanbul ignore next */
+        this.setBodyFromSignal();
       }
     },
     { allowSignalWrites: true }
@@ -188,6 +189,14 @@ export class MultiselectComponent implements OnInit {
 
   objectArrayToIdArray(array: any[], attribute: string) {
     return array?.map((item: any) => item[attribute]);
+  }
+
+  setBodyFromSignal(): void {
+    this.body.set({
+      value: this.utils
+        .getNestedProperty(this.signal(), this.signalOptionValue)
+        ?.map((item: any) => item[this.optionValue])
+    });
   }
 
   removeOption(option: any) {

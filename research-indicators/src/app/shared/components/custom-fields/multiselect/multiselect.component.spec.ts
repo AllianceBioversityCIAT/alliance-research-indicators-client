@@ -246,6 +246,21 @@ describe('MultiselectComponent', () => {
     expect(removeSpy).toHaveBeenCalledWith({ id: 5, name: 'Five' });
   });
 
+  it('should not remove when removeById does not find an option', () => {
+    const removeSpy = jest.spyOn(component, 'removeOption');
+    mockService.list.mockReturnValue([{ id: 5, name: 'Five' }]);
+    component.ngOnInit();
+    component.removeById(99);
+    expect(removeSpy).not.toHaveBeenCalled();
+  });
+
+  it('should mark selectedOptions items as not disabled when not present in optionsDisabled', () => {
+    component.optionsDisabled.set([{ id: 2 }]);
+    mockUtilsService.getNestedProperty.mockReturnValue([{ id: 3 }]);
+    const result = component.selectedOptions();
+    expect(result[0].disabled).toBe(false);
+  });
+
   // Tests for line 105 (onGlobalLoadingChange effect)
   it('should reset firstLoad when currentResultIsLoading becomes true', () => {
     component.firstLoad.set(false);
@@ -835,5 +850,59 @@ describe('MultiselectComponent', () => {
     }
 
     expect(component.body().value).toEqual([1, 2]);
+  });
+
+  it('should set body from signal via setBodyFromSignal()', () => {
+    component.optionValue = 'id';
+    component.signalOptionValue = 'testField';
+    const items = [{ id: 7 }, { id: 8 }];
+    component.signal = signal({ testField: items });
+    mockUtilsService.getNestedProperty.mockReturnValue(items);
+
+    component.setBodyFromSignal();
+
+    expect(component.body().value).toEqual([7, 8]);
+  });
+
+  it('should call setBodyFromSignal through else-if branch (line 131)', () => {
+    const fixture = TestBed.createComponent(MultiselectComponent);
+    const comp = fixture.componentInstance;
+    comp.optionValue = 'id';
+    comp.signalOptionValue = 'testField';
+    const itemsWithLabels = [
+      { id: 1, name: 'Option 1' },
+      { id: 2, name: 'Option 2' }
+    ];
+    mockService.list.mockReturnValue(itemsWithLabels);
+    mockCacheService.currentResultIsLoading.set(false);
+    comp.ngOnInit();
+    fixture.detectChanges();
+    comp.firstLoad.set(true);
+    mockUtilsService.getNestedProperty.mockReturnValue(itemsWithLabels);
+    const spy = jest.spyOn(comp, 'setBodyFromSignal');
+
+    comp.signal.set({ testField: itemsWithLabels } as any);
+    comp.signal.update(current => ({ ...current }));
+    fixture.detectChanges();
+
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should handle listWithDisabled when service is undefined (optional chain branch)', () => {
+    // Force service to be undefined to take the optional chaining falsey path
+    (component as any).service = undefined;
+    const result = component.listWithDisabled();
+    expect(result).toBeUndefined();
+  });
+
+  it('should set undefined body value when nested property is undefined (optional chain branch)', () => {
+    component.optionValue = 'id';
+    component.signalOptionValue = 'testField';
+    component.signal = signal({});
+    mockUtilsService.getNestedProperty.mockReturnValue(undefined);
+
+    component.setBodyFromSignal();
+
+    expect(component.body().value).toBeUndefined();
   });
 });
