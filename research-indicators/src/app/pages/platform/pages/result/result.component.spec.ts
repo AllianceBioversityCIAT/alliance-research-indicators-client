@@ -208,6 +208,14 @@ describe('ResultComponent branch coverage - constructor and metadata', () => {
     expect((component as any).getCurrentResultIdentifier('', 99)).toBe(99);
   });
 
+  it('getCurrentResultIdentifier returns number when idParam is a number', () => {
+    expect((component as any).getCurrentResultIdentifier(123, 99)).toBe(123);
+  });
+
+  it('getCurrentResultIdentifier falls back to numeric id when idParam is undefined', () => {
+    expect((component as any).getCurrentResultIdentifier(undefined, 77)).toBe(77);
+  });
+
   it('does not set currentResultId when id is missing', () => {
     params$.next({});
     fixture.detectChanges();

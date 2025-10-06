@@ -61,6 +61,10 @@ export default class ResultComponent {
   }
 
   protected getCurrentResultIdentifier(idParam: unknown, id: number): string | number {
-    return (idParam as any) || id;
+    if (typeof idParam === 'string') {
+      return idParam.trim().length > 0 ? idParam : id;
+    }
+    if (typeof idParam === 'number') return idParam;
+    return id;
   }
 }
