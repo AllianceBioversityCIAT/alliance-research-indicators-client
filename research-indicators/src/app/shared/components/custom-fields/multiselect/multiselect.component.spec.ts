@@ -486,6 +486,13 @@ describe('MultiselectComponent', () => {
     expect(mockUtilsService.getNestedProperty).toHaveBeenCalledWith(component.signal(), 'testField');
   });
 
+  it('should return empty array in selectedOptions when nested property is undefined', () => {
+    mockUtilsService.getNestedProperty.mockReturnValue(undefined);
+    const result = component.selectedOptions();
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(0);
+  });
+
   it('should handle isInvalid computed property when required and no selection', () => {
     component._isRequired.set(true);
     mockUtilsService.getNestedProperty.mockReturnValue([]);
@@ -528,6 +535,13 @@ describe('MultiselectComponent', () => {
       { id: 1, name: 'Option 1', disabled: { id: 1 } },
       { id: 2, name: 'Option 2', disabled: undefined }
     ]);
+  });
+
+  it('should handle listWithDisabled when service.list() returns undefined (optional chain map)', () => {
+    component.ngOnInit();
+    mockService.list.mockReturnValue(undefined as any);
+    const result = component.listWithDisabled();
+    expect(result).toBeUndefined();
   });
 
   it('should handle input properties', () => {
