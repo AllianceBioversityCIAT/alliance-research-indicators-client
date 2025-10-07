@@ -45,8 +45,8 @@ describe('GetAllianceStaffByGroupService', () => {
     // Title-case and full_name concatenation
     expect(list[0]).toMatchObject({ user_id: 10, full_name: 'Juan Pérez - juan@example.com' });
     expect(list[1]).toMatchObject({ user_id: 20, full_name: 'Maria Lopez - maria@example.com' });
-    expect(list[2]).toMatchObject({ user_id: 30, full_name: 'Luis Gomez' });
-    expect(list[3]).toMatchObject({ user_id: 'only@mail.com', full_name: 'Only Mail - only@mail.com' });
+    expect(list[2]).toMatchObject({ user_id: '', full_name: 'Luis Gomez' });
+    expect(list[3]).toMatchObject({ user_id: '', full_name: 'Only Mail - only@mail.com' });
     // Empty names should not add stray spaces
     expect(list[4]).toMatchObject({ user_id: '', full_name: '' });
   });
@@ -72,7 +72,7 @@ describe('GetAllianceStaffByGroupService', () => {
     await Promise.resolve();
 
     const [item] = service.list();
-    expect(item.user_id).toBe('no-name@example.com');
+    expect(item.user_id).toBe('');
     // When no names, only email should appear prefixed with separator
     expect(item.full_name).toBe(' - no-name@example.com');
   });

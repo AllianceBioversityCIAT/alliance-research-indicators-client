@@ -27,8 +27,8 @@ export class GetAllianceStaffByGroupService {
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
 
-        const normalized = raw.map((item: any) => {
-          const user_id = item?.user_id ?? item?.carnet ?? item?.id ?? item?.email ?? '';
+        const normalized = raw.map((item: UserStaff) => {
+          const user_id = item?.user_id ?? item?.carnet ?? '';
           const first = toTitleCase(item?.first_name ?? '');
           const last = toTitleCase(item?.last_name ?? '');
           const email = item?.email ?? '';
