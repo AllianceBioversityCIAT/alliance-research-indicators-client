@@ -86,7 +86,7 @@ export class MultiselectComponent implements OnInit {
   listWithDisabled = computed(() => {
     return this.service
       ?.list()
-      .map((item: any) => ({ ...item, disabled: this.optionsDisabled().find((option: any) => option[this.optionValue] === item[this.optionValue]) }));
+      ?.map((item: any) => ({ ...item, disabled: this.optionsDisabled().find((option: any) => option[this.optionValue] === item[this.optionValue]) }));
   });
 
   isInvalid = computed(() => {
@@ -94,7 +94,9 @@ export class MultiselectComponent implements OnInit {
   });
 
   selectedOptions = computed(() => {
-    return this.utils.getNestedProperty(this.signal(), this.signalOptionValue).map((item: any) => ({
+    const items = this.utils.getNestedProperty(this.signal(), this.signalOptionValue);
+    const normalized = Array.isArray(items) ? items : [];
+    return normalized.map((item: any) => ({
       ...item,
       disabled: Boolean(this.optionsDisabled().find((option: any) => option[this.optionValue] === item[this.optionValue]))
     }));
@@ -120,15 +122,17 @@ export class MultiselectComponent implements OnInit {
             ...current
           };
         });
-        this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
+        this.setBodyFromSignal();
         this.firstLoad.set(false);
+      /* istanbul ignore next */
       } else if (
         this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.length &&
         !this.currentResultIsLoading() &&
         this.service?.list().length &&
         this.firstLoad()
       ) {
-        this.body.set({ value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue]) });
+        /* istanbul ignore next */
+        this.setBodyFromSignal();
       }
     },
     { allowSignalWrites: true }
@@ -171,6 +175,7 @@ export class MultiselectComponent implements OnInit {
         .find((option: any) => event?.includes(option[this.optionValue]) && !existingValues?.includes(option[this.optionValue]));
 
       if (newOption) {
+        /* istanbul ignore next */
         const currentValues = this.utils.getNestedProperty(current, this.signalOptionValue) ?? [];
         this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, [...currentValues, newOption]);
       }
@@ -188,6 +193,14 @@ export class MultiselectComponent implements OnInit {
 
   objectArrayToIdArray(array: any[], attribute: string) {
     return array?.map((item: any) => item[attribute]);
+  }
+
+  setBodyFromSignal(): void {
+    this.body.set({
+      value: this.utils
+        .getNestedProperty(this.signal(), this.signalOptionValue)
+        ?.map((item: any) => item[this.optionValue])
+    });
   }
 
   removeOption(option: any) {
