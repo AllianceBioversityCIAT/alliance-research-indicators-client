@@ -57,7 +57,7 @@
             @if (selectedItems) {
               <ng-container *ngTemplateOutlet="selectedItems; context: { $implicit: value }"></ng-container>
             } @else {
-              {{ selectedOptions()?.length > 0 ? selectedOptions()?.length + ' items selected' : '' }}
+              {{ selectedOptions().length > 0 ? selectedOptions().length + ' items selected' : '' }}
             }
           </ng-template>
 
@@ -118,11 +118,11 @@
           <span>This field is required</span>
         </div>
       }
-      @if (textSpan && selectedOptions()?.length) {
+      @if (textSpan && selectedOptions().length) {
         <span class="block text-[14.5px] pb-3 pt-6 text-[#777C83]">{{ textSpan }}</span>
       }
       <div
-        class="selected-items {{ !textSpan && selectedOptions()?.length ? 'mt-6' : '' }}"
+        class="selected-items {{ !textSpan && selectedOptions().length ? 'mt-6' : '' }}"
         [class.show-scroll]="!this.disabledSelectedScroll"
         [class.columns-xl]="columnsOnXl">
         @for (row of selectedOptions(); track $index) {
