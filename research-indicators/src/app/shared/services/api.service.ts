@@ -274,6 +274,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_AllianceStaff = (groupId: number): Promise<MainResponse<UserStaff[]>> => {
+    const groupIdQuery = groupId ? `?groupId=${groupId}` : '';
+    const url = () => `results/alliance-user-staff/by-groups/map${groupIdQuery}`;
+    return this.TP.get(url(), {});
+  };
+
   GET_GeneralInformation = (id: number): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/${id}/general-information`;
     return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });

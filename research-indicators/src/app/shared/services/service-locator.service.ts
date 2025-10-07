@@ -51,6 +51,7 @@ import { GetInitiativesService } from './control-list/get-initiatives.service';
 import { GetTagsService } from './control-list/get-tags.service';
 import { OicrResultsService } from './short-control-list/oicr-results.service';
 import { GetMaturityLevelsService } from './control-list/get-maturity-levels.service';
+import { GetAllianceStaffByGroupService } from './control-list/get-alliance-staff-by-group.service';
 
 @Injectable({
   providedIn: 'root'
@@ -222,6 +223,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetLeversService);
       case 'projectStatus':
         return this.injector.get(GetProjectStatusService);
+      case 'allianceStaffByGroup':
+        return this.injector.get(GetAllianceStaffByGroupService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;

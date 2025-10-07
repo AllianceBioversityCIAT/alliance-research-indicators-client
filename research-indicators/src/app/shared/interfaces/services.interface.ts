@@ -53,4 +53,5 @@ export type ControlListServices =
   | 'initiatives'
   | 'tags'
   | 'oicrResults'
+  | 'allianceStaffByGroup'
   | '';
