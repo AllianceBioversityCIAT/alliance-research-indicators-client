@@ -23,7 +23,9 @@ describe('DashboardComponent', () => {
   });
 
   it('should have dashboardUrl property with correct value', () => {
-    expect(component.dashboardUrl).toBe(POWERBI_CONSTANTS.DASHBOARD_URL);
+    expect(component.dashboardUrl).toBeDefined();
+    expect(component.dashboardUrl).toBeTruthy();
+    // SafeResourceUrl wraps the URL, so we check it's defined and truthy
   });
 
   it('should render iframe with correct src', () => {
@@ -40,23 +42,24 @@ describe('DashboardComponent', () => {
   it('should render iframe with correct CSS classes', () => {
     const iframe = fixture.debugElement.query(By.css('iframe'));
     expect(iframe.nativeElement.classList.contains('w-full')).toBeTruthy();
-    expect(iframe.nativeElement.classList.contains('h-[80vh]')).toBeTruthy();
+    expect(iframe.nativeElement.classList.contains('h-full')).toBeTruthy();
+    expect(iframe.nativeElement.classList.contains('border-0')).toBeTruthy();
   });
 
-  it('should render powerbi-container div', () => {
-    const container = fixture.debugElement.query(By.css('.powerbi-container'));
+  it('should render inner container div', () => {
+    const container = fixture.debugElement.query(By.css('.h-full.p-6.pt-8'));
     expect(container).toBeTruthy();
   });
 
   it('should render main container with correct classes', () => {
-    const mainContainer = fixture.debugElement.query(By.css('.w-full.h-screen.bg-gray-50.p-6'));
+    const mainContainer = fixture.debugElement.query(By.css('.w-full.h-\\[calc\\(100vh-120px\\)\\]'));
     expect(mainContainer).toBeTruthy();
   });
 
   it('should have iframe src binding working correctly', () => {
     // Verify the iframe src is bound to the component property
     const iframe = fixture.debugElement.query(By.css('iframe'));
-    expect(iframe.nativeElement.src).toBe(component.dashboardUrl);
+    expect(iframe.nativeElement.src).toBe(POWERBI_CONSTANTS.DASHBOARD_URL);
   });
 
   it('should maintain iframe attributes', () => {
@@ -76,8 +79,8 @@ describe('DashboardComponent', () => {
   });
 
   it('should render complete component structure', () => {
-    const mainDiv = fixture.debugElement.query(By.css('.w-full.h-screen.bg-gray-50.p-6'));
-    const containerDiv = fixture.debugElement.query(By.css('.powerbi-container'));
+    const mainDiv = fixture.debugElement.query(By.css('.w-full.h-\\[calc\\(100vh-120px\\)\\]'));
+    const containerDiv = fixture.debugElement.query(By.css('.h-full.p-6.pt-8'));
     const iframe = fixture.debugElement.query(By.css('iframe'));
     
     expect(mainDiv).toBeTruthy();
