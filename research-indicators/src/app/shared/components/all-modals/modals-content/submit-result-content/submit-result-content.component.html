@@ -1,4 +1,5 @@
-<div class="px-12">
+<div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px] md:overflow-x-hidden px-12">
+
     @if (allModalsService.submitResultOrigin?.() === 'latest') {
       <div class="-mx-12 mb-6">
         <app-oicr-header [data]="allModalsService.submitHeader()" [showDownload]="true"></app-oicr-header>
@@ -6,10 +7,10 @@
     }
     <h3 class="text-[16px] font-semibold text-[#153C71] mb-2">Select a review action</h3>
   
-    <div class="flex justify-between space-x-5">
+    <div class="flex justify-center space-x-6 xl:space-x-12 xl:pt-2">
       @for (option of submittionOptions(); track option.key) {
         <div
-          class="relative flex flex-col items-center p-6 rounded-lg text-center {{
+          class="relative xl:max-w-[250px] flex flex-col items-center p-6 rounded-lg text-center {{
             option.selected ? 'border-[#1689CA]/20 border-1 bg-[#79D9FF]/8' : 'bg-white'
           }}"
           (keydown)="submissionService.statusSelected.set(option)"
@@ -33,14 +34,14 @@
       </p>
     }
   
-    @if (allModalsService.submitResultOrigin?.() === 'latest' && submissionService.statusSelected()?.statusId === 6) {
+    @if (allModalsService.submitResultOrigin?.() === 'latest' && submissionService.statusSelected()?.statusId === 10) {
       <div class=" mt-6">
         <div class="w-full">
             <app-select
             label="Assign a MEL Regional Expert"
             [isRequired]="true"
             [signal]="form"
-            [optionValue]="{ body: 'melRegionalExpert', option: 'user_id' }"
+            [optionValue]="{ body: 'mel_regional_expert', option: 'user_id' }"
             optionLabel="full_name"
             serviceName="allianceStaffByGroup"
             placeholder="Select the MEL Regional Expert"></app-select>
@@ -53,7 +54,7 @@
               helperText="Internal code assigned by SPRM."
               [isRequired]="true"
               [validateEmpty]="true"
-              [optionValue]="'oicrNo'"
+              [optionValue]="'oicr_internal_code'"
               [signal]="form"
               placeholder="e.g. LAC-2501"></app-input>
           </div>
@@ -63,7 +64,7 @@
               helperText="SPRM SharePoint Folder Link"
               [isRequired]="true"
               [validateEmpty]="true"
-              [optionValue]="'sharePointFolderLink'"
+              [optionValue]="'sharepoint_link'"
               [signal]="form"
               placeholder="Paste the SharePoint folder link"></app-input>
           </div>
