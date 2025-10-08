@@ -9,6 +9,8 @@ export interface OicrHeaderData {
   leverUrl?: string;
   leverFirst?: string;
   leverSecond?: string;
+  status_id?: string;
+  status_name?: string;
 }
 
 

@@ -8,7 +8,7 @@ export const STATUS_COLOR_MAP: Record<string, { border: string; text: string }> 
   '5': { border: '#E69F00', text: '#F58220' }, // Revise - Orange border, dark orange text
   '6': { border: '#7CB580', text: '#235B2D' }, // Approved - Green border, dark green text
   '7': { border: '#F16937', text: '#CF0808' }, // Rejected - Red border, dark red text
-  '8': { border: '#777C83', text: '#4C5158' },
+  '8': { border: '#777C83', text: '#4C5158' }, 
   '9': { border: '#E69F00', text: '#F58220' },
   '10': { border: '#7CB580', text: '#235B2D' }, // OICR Approved - Green border, dark green text
   '11': { border: '#E69F00', text: '#F58220' }, // OICR Postpone - Orange border, dark orange text
