@@ -449,6 +449,12 @@ describe('ServiceLocatorService', () => {
       expect(result).toBe(serviceMock);
     });
 
+    it('returns allianceStaffByGroup service', () => {
+      const result = (service as any).getOtherServices('allianceStaffByGroup');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('returns null and warns for unknown', () => {
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
       expect((service as any).getOtherServices('unknown')).toBeNull();
