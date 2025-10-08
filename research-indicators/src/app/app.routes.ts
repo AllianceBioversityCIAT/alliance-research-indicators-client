@@ -243,10 +243,10 @@ export const routes: Routes = [
         }
       },
       {
-        path: 'settings',
-        loadComponent: () => import('@platform/pages/settings/settings.component'),
+        path: 'dashboard',
+        loadComponent: () => import('@pages/platform/pages/dashboard/dashboard.component'),
         data: {
-          title: 'Settings'
+          title: 'Results Dashboard'
         }
       },
       {

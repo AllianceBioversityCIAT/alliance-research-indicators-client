@@ -60,8 +60,8 @@
           display: block;
           position: absolute;
           bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
+          left: 12px;
+          right: 12px;
           height: 3px;
           background-color: #00b6ff;
         }
@@ -70,21 +70,6 @@
       .option-icon {
         margin: -10px 0;
       }
-    }
-    .option.active[data-route='/home']::after {
-      width: 53px;
-    }
-
-    .option.active[data-route='/settings']::after {
-      width: 113px;
-    }
-
-    .option.active[data-route='/projects']::after {
-      width: 97px;
-    }
-
-    .option.active[data-route='/results-center']::after {
-      width: 110px;
     }
 
     .notification-icon {

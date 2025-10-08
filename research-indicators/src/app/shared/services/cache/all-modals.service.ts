@@ -22,6 +22,9 @@ interface ModalConfig {
 export class AllModalsService {
   partnerRequestSection = signal<string | null>(null);
   selectedResultForInfo = signal<Result | null>(null);
+  submitResultOrigin = signal<'latest' | null>(null);
+  submitHeader = signal<Record<string, unknown> | null>(null);
+  submitBackStep = signal<number | null>(null);
   createResultManagementService = inject(CreateResultManagementService);
   goBackFunction?: () => void;
   setGoBackFunction = (fn: () => void) => (this.goBackFunction = fn);
@@ -33,6 +36,34 @@ export class AllModalsService {
   setDisabledConfirmPartner = (fn: () => boolean) => (this.disabledConfirmPartner = fn);
   disabledSubmitReview?: () => boolean;
   setDisabledSubmitReview = (fn: () => boolean) => (this.disabledSubmitReview = fn);
+
+  setSubmitResultOrigin(origin: 'latest' | null): void {
+    this.submitResultOrigin.set(origin);
+    const title = origin === 'latest' ? 'Review Outcome Impact Case Report (OICR)' : 'Review Result';
+    this.modalConfig.update(modals => ({
+      ...modals,
+      submitResult: {
+        ...modals.submitResult,
+        title,
+        icon: origin === 'latest' ? 'arrow_back' : modals.submitResult.icon,
+        iconAction: origin === 'latest' ? () => {
+          this.hideModal('submitResult');
+          this.submitBackAction?.();
+        } : modals.submitResult.iconAction
+      }
+    }));
+  }
+
+  setSubmitHeader(header: Record<string, unknown> | null): void {
+    this.submitHeader.set(header);
+  }
+
+  setSubmitBackStep(step: number | null): void {
+    this.submitBackStep.set(step);
+  }
+
+  submitBackAction?: () => void;
+  setSubmitBackAction = (fn: () => void) => (this.submitBackAction = fn);
 
   modalConfig: WritableSignal<Record<ModalName, ModalConfig>> = signal({
     createResult: {
@@ -101,9 +132,35 @@ export class AllModalsService {
       }
     }));
 
+    if (modalName === 'submitResult' && !this.modalConfig().submitResult.isOpen) {
+      this.setSubmitResultOrigin(null);
+      this.setSubmitHeader(null);
+      this.setSubmitBackStep(null);
+    }
+
     if (modalName === 'createResult') {
       this.createResultManagementService.resetModal();
     }
+  }
+
+  hideModal(modalName: ModalName): void {
+    this.modalConfig.update(modals => ({
+      ...modals,
+      [modalName]: {
+        ...modals[modalName],
+        isOpen: false
+      }
+    }));
+  }
+
+  showModal(modalName: ModalName): void {
+    this.modalConfig.update(modals => ({
+      ...modals,
+      [modalName]: {
+        ...modals[modalName],
+        isOpen: true
+      }
+    }));
   }
 
   closeModal(modalName: ModalName): void {
@@ -115,6 +172,12 @@ export class AllModalsService {
         isWide: false
       }
     }));
+
+    if (modalName === 'submitResult') {
+      this.setSubmitResultOrigin(null);
+      this.setSubmitHeader(null);
+      this.setSubmitBackStep(null);
+    }
 
     if (modalName === 'createResult') {
       this.createResultManagementService.resetModal();
@@ -149,6 +212,8 @@ export class AllModalsService {
       askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false },
       resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false }
     });
+
+    this.setSubmitResultOrigin(null);
 
     this.createResultManagementService.resetModal();
   }

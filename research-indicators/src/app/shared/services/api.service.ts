@@ -40,7 +40,7 @@ import { GetSubnationalsByIsoAlpha } from '../interfaces/get-subnationals-by-iso
 import { ControlListCacheService } from './control-list-cache.service';
 import { SignalEndpointService } from './signal-endpoint.service';
 import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
-import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
+import { PatchSubmitResult, PatchSubmitResultLatest } from '../interfaces/patch_submit-result.interface';
 import { GetClarisaInstitutionsTypes } from '@shared/interfaces/get-clarisa-institutions-types.interface';
 import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
@@ -616,10 +616,13 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  PATCH_SubmitResult = ({ resultCode, comment, status }: PatchSubmitResult): Promise<MainResponse<PatchSubmitResult | ExtendedHttpErrorResponse>> => {
+  PATCH_SubmitResult = (
+    { resultCode, comment, status }: PatchSubmitResult,
+    body?: PatchSubmitResultLatest
+  ): Promise<MainResponse<PatchSubmitResult | ExtendedHttpErrorResponse>> => {
     const commentQuery = comment ? `&comment=${comment}` : '';
     const url = () => `results/green-checks/change/status?resultCode=${resultCode}${commentQuery}&status=${status}`;
-    return this.TP.patch(url(), { useResultInterceptor: true });
+    return this.TP.patch(url(), body ?? {}, { useResultInterceptor: true });
   };
 
   GET_ReviewStatuses = () => {

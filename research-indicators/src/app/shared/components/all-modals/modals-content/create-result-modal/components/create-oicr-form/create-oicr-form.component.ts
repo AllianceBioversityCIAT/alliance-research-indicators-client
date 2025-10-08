@@ -51,6 +51,7 @@ import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-f
 import { RolesService } from '@shared/services/cache/roles.service';
 import { DownloadOicrTemplateComponent } from '@shared/components/download-oicr-template/download-oicr-template.component';
 import { ProjectResultsTableService } from '@pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
+import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
@@ -69,7 +70,8 @@ interface GetContractsExtended extends GetContracts {
     DatePipe,
     NgTemplateOutlet,
     TooltipModule,
-    DownloadOicrTemplateComponent
+    DownloadOicrTemplateComponent,
+    OicrHeaderComponent
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -234,11 +236,6 @@ export class CreateOicrFormComponent {
     },
     { allowSignalWrites: true }
   );
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  printht(c: Country) {
-    // Debug method - console statements removed for linting compliance
-  }
 
   onActiveIndexChange(event: number) {
     this.activeIndex.set(event);
@@ -459,5 +456,27 @@ export class CreateOicrFormComponent {
         link_result: { external_oicr_id: 0 }
       }
     }));
+  }
+
+  openSubmitResultModal() {
+    this.allModalsService.setSubmitResultOrigin('latest');
+    this.allModalsService.closeModal('createResult');
+    this.allModalsService.setSubmitBackStep(this.activeIndex());
+    const contract = this.currentContract?.();
+    const lever = contract?.lever as string | undefined;
+    const leverParts = this.leverParts?.();
+    this.allModalsService.setSubmitHeader({
+      title: this.createResultManagementService.resultTitle?.(),
+      agreement_id: contract?.agreement_id,
+      description: contract?.description,
+      project_lead_description: contract?.project_lead_description,
+      start_date: contract?.start_date,
+      endDateGlobal: contract?.endDateGlobal,
+      lever,
+      leverUrl: contract?.leverUrl,
+      leverFirst: leverParts?.first,
+      leverSecond: leverParts?.second
+    });
+    this.allModalsService.openModal('submitResult');
   }
 }

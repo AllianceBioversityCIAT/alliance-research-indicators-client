@@ -18,96 +18,57 @@
 </ng-template>
 
 <ng-template #createButton>
+  <div class="flex gap-3">
   @let disableCreateButton =
     loading || isDisabled || !canEditOicr || (this.createResultManagementService.editingOicr() ? false : !this.step4opened());
-  <button
-    class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
-    (click)="createResult()"
-    [pTooltip]="
-      !disableCreateButton ? '' : 'This button will be enabled once all steps are completed. Please make sure to review and fill out each section.'
-    "
-    tooltipPosition="top"
-    [disabled]="disableCreateButton">
-    @if (loading) {
-      <div class="min-w-[191px]">
-        <i class="pi pi-spinner pi-spin text-white text-xs"></i>
-      </div>
-    } @else {
-      {{ this.createResultManagementService.editingOicr() ? 'OICR requested' : 'Create preliminary OICR submission' }}
-      <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
-    }
-  </button>
+    <button
+      class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] {{ this.createResultManagementService.editingOicr() ? 'bg-[#509C55]' : 'bg-[#035BA9]' }} text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
+      (click)="createResult()"
+      [pTooltip]="
+        !disableCreateButton ? '' : 'This button will be enabled once all steps are completed. Please make sure to review and fill out each section.'
+      "
+      tooltipPosition="top"
+      [disabled]="disableCreateButton">
+      @if (loading) {
+        <div class="min-w-[191px]">
+          <i class="pi pi-spinner pi-spin text-white disabled:text-[#A2A9AF] text-xs"></i>
+        </div>
+      } @else {
+        @if (this.createResultManagementService.editingOicr()) {
+          <i class="pi pi-save !text-[12px]"></i>
+        }
+
+        {{ this.createResultManagementService.editingOicr() ? 'Save changes' : 'Create preliminary OICR submission' }}
+        @if (!this.createResultManagementService.editingOicr()) {
+          <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
+        } 
+      }
+    </button>
+    <button
+      class="font-medium hidden cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
+      (click)="openSubmitResultModal()"
+      [disabled]="disableCreateButton">
+      <i class="pi pi-pencil !text-[12px]"></i>
+      Review OICR
+    </button>
+  </div>
 </ng-template>
 
 <div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px] md:overflow-x-hidden">
   <!-- OICR header -->
   @if (currentContract()) {
-    <div class="flex justify-between items-center bg-[#f4f7f9] border-y border-[#E8EBED] px-15 pb-7 pt-6">
-      <div class="flex-col flex w-full">
-        <div class="flex items-center gap-2">
-          <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
-          <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
-        </div>
-        <div class="text-[17px] text-[#173F6F] font-[600] pb-1">{{ createResultManagementService.resultTitle() || 'Enter OICR title' }}</div>
-        <div class="text-[15px] text-[#4C5158] font-[600]">{{ currentContract()?.agreement_id }} - {{ currentContract()?.description }}</div>
-
-        <div class="flex justify-between pt-2 xl:pt-1">
-          <div class="flex gap-x-5 justify-between">
-            <div class="flex items-center">
-              <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Principal investigator</span>
-              <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
-              <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
-                currentContract()?.project_lead_description
-              }}</span>
-            </div>
-
-            <div class="flex items-center">
-              <span class="text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Start date</span>
-              <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
-              <span class="text-[13px] leading-[18px] text-[#345b8f] !font-['Space_Grotesk']">{{
-                currentContract()?.start_date | date: 'dd/MM/yyyy'
-              }}</span>
-            </div>
-
-            <div class="flex items-center">
-              <span class="text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">End date</span>
-              <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
-              <span class="text-[13px] leading-[18px] text-[#345b8f] !font-['Space_Grotesk']">{{
-                currentContract()?.endDateGlobal | date: 'dd/MM/yyyy'
-              }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-center pt-1 xl:pt-1.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
-          @if (currentContract()?.lever === 'Not available') {
-            Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ currentContract()?.lever }}</span>
-          } @else {
-            <img [src]="currentContract()?.leverUrl" alt="Lever" class="w-[22px] h-[22px] mr-1" />
-            @if (currentContract()?.lever?.includes(':')) {
-              @if (leverParts().first) {
-                {{ leverParts().first }} -
-              }
-              @if (leverParts().second) {
-                <span class="text-[13px] leading-[18px] text-[#77c83] font-['Barlow'] font-normal">{{ leverParts().second }}</span>
-              }
-            } @else {
-              {{ currentContract()?.lever }}
-            }
-          }
-        </div>
-
-        @if (this.createResultManagementService.editingOicr()) {
-          <app-download-oicr-template class="xl:hidden pt-2.5"></app-download-oicr-template>
-        }
-      </div>
-
-      <div class="xl:min-w-[200px] hidden xl:flex ml-4">
-        @if (this.createResultManagementService.editingOicr()) {
-          <app-download-oicr-template></app-download-oicr-template>
-        }
-      </div>
-    </div>
+    <app-oicr-header [data]="{
+      title: createResultManagementService.resultTitle() || '',
+      agreement_id: currentContract()?.agreement_id,
+      description: currentContract()?.description,
+      project_lead_description: currentContract()?.project_lead_description,
+      start_date: currentContract()?.start_date,
+      endDateGlobal: currentContract()?.endDateGlobal || undefined,
+      lever: currentContract()?.lever,
+      leverUrl: currentContract()?.leverUrl,
+      leverFirst: leverParts().first,
+      leverSecond: leverParts().second
+    }" [showTag]="this.createResultManagementService.editingOicr()" [showDownload]="this.createResultManagementService.editingOicr()"></app-oicr-header>
   }
 
   <div class="px-5 flex flex-col mx-10 mb-12">
