@@ -13,6 +13,9 @@ export interface SubmissionStatus {
 export class SubmissionService {
   cache = inject(CacheService);
   comment = signal('');
+  melRegionalExpert = signal('');
+  oicrNo = signal('');
+  sharePointFolderLink = signal('');
   statusSelected = signal<ReviewOption | null>(null);
   canSubmitResult = computed(() => {
     return (

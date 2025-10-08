@@ -22,6 +22,7 @@ interface ModalConfig {
 export class AllModalsService {
   partnerRequestSection = signal<string | null>(null);
   selectedResultForInfo = signal<Result | null>(null);
+  submitResultOrigin = signal<'latest' | null>(null);
   createResultManagementService = inject(CreateResultManagementService);
   goBackFunction?: () => void;
   setGoBackFunction = (fn: () => void) => (this.goBackFunction = fn);
@@ -33,6 +34,18 @@ export class AllModalsService {
   setDisabledConfirmPartner = (fn: () => boolean) => (this.disabledConfirmPartner = fn);
   disabledSubmitReview?: () => boolean;
   setDisabledSubmitReview = (fn: () => boolean) => (this.disabledSubmitReview = fn);
+
+  setSubmitResultOrigin(origin: 'latest' | null): void {
+    this.submitResultOrigin.set(origin);
+    const title = origin === 'latest' ? 'Review Outcome Impact Case Report (OICR)' : 'Review Result';
+    this.modalConfig.update(modals => ({
+      ...modals,
+      submitResult: {
+        ...modals.submitResult,
+        title
+      }
+    }));
+  }
 
   modalConfig: WritableSignal<Record<ModalName, ModalConfig>> = signal({
     createResult: {
@@ -101,6 +114,10 @@ export class AllModalsService {
       }
     }));
 
+    if (modalName === 'submitResult' && !this.modalConfig().submitResult.isOpen) {
+      this.setSubmitResultOrigin(null);
+    }
+
     if (modalName === 'createResult') {
       this.createResultManagementService.resetModal();
     }
@@ -115,6 +132,10 @@ export class AllModalsService {
         isWide: false
       }
     }));
+
+    if (modalName === 'submitResult') {
+      this.setSubmitResultOrigin(null);
+    }
 
     if (modalName === 'createResult') {
       this.createResultManagementService.resetModal();
@@ -149,6 +170,8 @@ export class AllModalsService {
       askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false },
       resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false }
     });
+
+    this.setSubmitResultOrigin(null);
 
     this.createResultManagementService.resetModal();
   }
