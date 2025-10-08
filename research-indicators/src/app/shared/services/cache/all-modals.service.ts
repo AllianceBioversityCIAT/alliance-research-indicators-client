@@ -23,6 +23,7 @@ export class AllModalsService {
   partnerRequestSection = signal<string | null>(null);
   selectedResultForInfo = signal<Result | null>(null);
   submitResultOrigin = signal<'latest' | null>(null);
+  submitHeader = signal<Record<string, unknown> | null>(null);
   createResultManagementService = inject(CreateResultManagementService);
   goBackFunction?: () => void;
   setGoBackFunction = (fn: () => void) => (this.goBackFunction = fn);
@@ -45,6 +46,10 @@ export class AllModalsService {
         title
       }
     }));
+  }
+
+  setSubmitHeader(header: Record<string, unknown> | null): void {
+    this.submitHeader.set(header);
   }
 
   modalConfig: WritableSignal<Record<ModalName, ModalConfig>> = signal({
@@ -116,6 +121,7 @@ export class AllModalsService {
 
     if (modalName === 'submitResult' && !this.modalConfig().submitResult.isOpen) {
       this.setSubmitResultOrigin(null);
+      this.setSubmitHeader(null);
     }
 
     if (modalName === 'createResult') {
@@ -135,6 +141,7 @@ export class AllModalsService {
 
     if (modalName === 'submitResult') {
       this.setSubmitResultOrigin(null);
+      this.setSubmitHeader(null);
     }
 
     if (modalName === 'createResult') {

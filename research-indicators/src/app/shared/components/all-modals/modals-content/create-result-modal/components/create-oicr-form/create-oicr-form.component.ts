@@ -51,6 +51,7 @@ import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-f
 import { RolesService } from '@shared/services/cache/roles.service';
 import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
 import { DownloadOicrTemplateComponent } from '@shared/components/download-oicr-template/download-oicr-template.component';
+import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
@@ -69,7 +70,8 @@ interface GetContractsExtended extends GetContracts {
     DatePipe,
     NgTemplateOutlet,
     TooltipModule,
-    DownloadOicrTemplateComponent
+    DownloadOicrTemplateComponent,
+    OicrHeaderComponent
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -459,5 +461,25 @@ export class CreateOicrFormComponent {
         link_result: { external_oicr_id: 0 }
       }
     }));
+  }
+
+  openSubmitResultModal() {
+    this.allModalsService.setSubmitResultOrigin('latest');
+    const contract = this.currentContract?.();
+    const lever = contract?.lever as string | undefined;
+    const leverParts = this.leverParts?.();
+    this.allModalsService.setSubmitHeader({
+      title: this.createResultManagementService.resultTitle?.(),
+      agreement_id: contract?.agreement_id,
+      description: contract?.description,
+      project_lead_description: contract?.project_lead_description,
+      start_date: contract?.start_date,
+      endDateGlobal: (contract as any)?.endDateGlobal,
+      lever,
+      leverUrl: (contract as any)?.leverUrl,
+      leverFirst: leverParts?.first,
+      leverSecond: leverParts?.second
+    });
+    this.allModalsService.openModal('submitResult');
   }
 }

@@ -13,10 +13,11 @@ import { ActionsService } from '@shared/services/actions.service';
 import { Router } from '@angular/router';
 import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
+import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 
 @Component({
   selector: 'app-submit-result-content',
-  imports: [DialogModule, ButtonModule, FormsModule, TextareaModule, SelectComponent, InputComponent],
+  imports: [DialogModule, ButtonModule, FormsModule, TextareaModule, SelectComponent, InputComponent, OicrHeaderComponent],
   templateUrl: './submit-result-content.component.html'
 })
 
