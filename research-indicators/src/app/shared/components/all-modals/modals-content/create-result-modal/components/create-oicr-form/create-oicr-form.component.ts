@@ -237,11 +237,6 @@ export class CreateOicrFormComponent {
     { allowSignalWrites: true }
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  printht(c: Country) {
-    // Debug method - console statements removed for linting compliance
-  }
-
   onActiveIndexChange(event: number) {
     this.activeIndex.set(event);
     if (event === 3) this.step4opened.set(true);
@@ -465,6 +460,8 @@ export class CreateOicrFormComponent {
 
   openSubmitResultModal() {
     this.allModalsService.setSubmitResultOrigin('latest');
+    this.allModalsService.closeModal('createResult');
+    this.allModalsService.setSubmitBackStep(this.activeIndex());
     const contract = this.currentContract?.();
     const lever = contract?.lever as string | undefined;
     const leverParts = this.leverParts?.();
@@ -474,9 +471,9 @@ export class CreateOicrFormComponent {
       description: contract?.description,
       project_lead_description: contract?.project_lead_description,
       start_date: contract?.start_date,
-      endDateGlobal: (contract as any)?.endDateGlobal,
+      endDateGlobal: contract?.endDateGlobal,
       lever,
-      leverUrl: (contract as any)?.leverUrl,
+      leverUrl: contract?.leverUrl,
       leverFirst: leverParts?.first,
       leverSecond: leverParts?.second
     });

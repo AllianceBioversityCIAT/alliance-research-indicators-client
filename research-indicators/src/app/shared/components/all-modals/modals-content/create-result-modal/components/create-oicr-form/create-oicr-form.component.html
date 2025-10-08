@@ -18,49 +18,57 @@
 </ng-template>
 
 <ng-template #createButton>
+  <div class="flex gap-3">
   @let disableCreateButton =
     loading || isDisabled || !canEditOicr || (this.createResultManagementService.editingOicr() ? false : !this.step4opened());
-  <button
-    class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
-    (click)="createResult()"
-    [pTooltip]="
-      !disableCreateButton ? '' : 'This button will be enabled once all steps are completed. Please make sure to review and fill out each section.'
-    "
-    tooltipPosition="top"
-    [disabled]="disableCreateButton">
-    @if (loading) {
-      <div class="min-w-[191px]">
-        <i class="pi pi-spinner pi-spin text-white text-xs"></i>
-      </div>
-    } @else {
-      {{ this.createResultManagementService.editingOicr() ? 'OICR requested' : 'Create preliminary OICR submission' }}
-      <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
-    }
-  </button>
-  <button
-    class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
-    (click)="openSubmitResultModal()"
-    [disabled]="disableCreateButton">
-    <i class="pi pi-pencil !text-[12px]"></i>
-    Review OICR
-  </button>
+    <button
+      class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] {{ this.createResultManagementService.editingOicr() ? 'bg-[#509C55]' : 'bg-[#035BA9]' }} text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
+      (click)="createResult()"
+      [pTooltip]="
+        !disableCreateButton ? '' : 'This button will be enabled once all steps are completed. Please make sure to review and fill out each section.'
+      "
+      tooltipPosition="top"
+      [disabled]="disableCreateButton">
+      @if (loading) {
+        <div class="min-w-[191px]">
+          <i class="pi pi-spinner pi-spin text-white disabled:text-[#A2A9AF] text-xs"></i>
+        </div>
+      } @else {
+        @if (this.createResultManagementService.editingOicr()) {
+          <i class="pi pi-save !text-[12px]"></i>
+        }
+
+        {{ this.createResultManagementService.editingOicr() ? 'Save changes' : 'Create preliminary OICR submission' }}
+        @if (!this.createResultManagementService.editingOicr()) {
+          <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
+        } 
+      }
+    </button>
+    <button
+      class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
+      (click)="openSubmitResultModal()"
+      [disabled]="disableCreateButton">
+      <i class="pi pi-pencil !text-[12px]"></i>
+      Review OICR
+    </button>
+  </div>
 </ng-template>
 
 <div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px] md:overflow-x-hidden">
   <!-- OICR header -->
   @if (currentContract()) {
     <app-oicr-header [data]="{
-      title: createResultManagementService.resultTitle(),
+      title: createResultManagementService.resultTitle() || '',
       agreement_id: currentContract()?.agreement_id,
       description: currentContract()?.description,
       project_lead_description: currentContract()?.project_lead_description,
       start_date: currentContract()?.start_date,
-      endDateGlobal: currentContract()?.endDateGlobal,
+      endDateGlobal: currentContract()?.endDateGlobal || undefined,
       lever: currentContract()?.lever,
       leverUrl: currentContract()?.leverUrl,
       leverFirst: leverParts().first,
       leverSecond: leverParts().second
-    }" [showDownload]="this.createResultManagementService.editingOicr()"></app-oicr-header>
+    }" [showTag]="this.createResultManagementService.editingOicr()" [showDownload]="this.createResultManagementService.editingOicr()"></app-oicr-header>
   }
 
   <div class="px-5 flex flex-col mx-10 mb-12">

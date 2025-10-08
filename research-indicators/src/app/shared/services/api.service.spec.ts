@@ -373,7 +373,7 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', {
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', {}, {
         useResultInterceptor: true
       });
     });
@@ -384,7 +384,7 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&status=1', {
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&status=1', {}, {
         useResultInterceptor: true
       });
     });
@@ -430,7 +430,6 @@ describe('ApiService', () => {
     });
 
     it('should update signal body correctly', () => {
-      const body = { existing: 'value' };
       const newBody = { newKey: 'newValue', nullKey: null };
       const updateSpy = jest.fn();
 

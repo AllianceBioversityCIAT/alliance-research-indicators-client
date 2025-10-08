@@ -15,6 +15,7 @@ import { SelectComponent } from '@shared/components/custom-fields/select/select.
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 import { PatchSubmitResultLatest } from '@shared/interfaces/patch_submit-result.interface';
+import { CurrentResultService } from '@shared/services/cache/current-result.service';
 
 @Component({
   selector: 'app-submit-result-content',
@@ -28,6 +29,7 @@ export class SubmitResultContentComponent {
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
   actions = inject(ActionsService);
+  currentResultService = inject(CurrentResultService);
   private readonly router = inject(Router);
 
   form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
@@ -35,6 +37,7 @@ export class SubmitResultContentComponent {
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
     this.allModalsService.setDisabledSubmitReview(() => this.disabledConfirmSubmit());
+    this.allModalsService.setSubmitBackAction(() => this.handleSubmitBack());
 
     let wasVisible = false;
     effect(() => {
@@ -133,6 +136,14 @@ export class SubmitResultContentComponent {
     return !!selected?.commentLabel && !comment?.trim();
   };
 
+  async handleSubmitBack(): Promise<void> {
+    const currentMetadata = this.cache.currentMetadata();
+    const indicatorId = currentMetadata?.indicator_id ?? 5; 
+    const statusId = currentMetadata?.status_id ?? 9; 
+    const resultCode = this.cache.getCurrentNumericResultId() ?? 0;
+    await this.currentResultService.openEditRequestdOicrsModal(indicatorId, statusId, resultCode);
+  }
+
   private buildLatestBody(isApprove: boolean, formValue: PatchSubmitResultLatest): PatchSubmitResultLatest | undefined {
     if (!isApprove) return undefined;
     return {
@@ -188,11 +199,22 @@ export class SubmitResultContentComponent {
         body
       );
       if (!response.successfulRequest) return;
+      
+      this.allModalsService.closeModal('submitResult');
+      
+      const currentMetadata = this.cache.currentMetadata();
+      if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
+        const resultCode = this.cache.getCurrentNumericResultId();
+        await this.currentResultService.openEditRequestdOicrsModal(
+          currentMetadata.indicator_id,
+          currentMetadata.status_id,
+          resultCode
+        );
+      }
     }
     else {
       await this.handlePostSubmitForLegacyFlow();
+      this.allModalsService.closeModal('submitResult');
     }
-
-    this.allModalsService.closeModal('submitResult');
   }
 }
