@@ -60,9 +60,9 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
 
   options: AllianceNavOptions[] = [
     { label: 'Home', path: '/home', underConstruction: false },
-    { label: 'My Dashboard', path: '/dashboard', underConstruction: false},
     { label: 'Projects', path: '/projects', underConstruction: false },
-    { label: 'Results Center', path: '/results-center', underConstruction: false, disabled: false }
+    { label: 'Results Center', path: '/results-center', underConstruction: false, disabled: false },
+    { label: 'Results Dashboard', path: '/dashboard', underConstruction: false }
   ];
 
   isProjectsOrDetailActive(): boolean {
