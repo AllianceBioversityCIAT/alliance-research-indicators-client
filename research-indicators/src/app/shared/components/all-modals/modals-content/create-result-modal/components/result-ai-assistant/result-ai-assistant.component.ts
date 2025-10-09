@@ -293,7 +293,8 @@ export class ResultAiAssistantComponent {
         throw new Error('Could not get the name of the uploaded file.');
       }
 
-      this.miningResponse = (await this.textMiningService.executeTextMining(filename)).content;
+      const miningResponse = await this.textMiningService.executeTextMining(filename);
+      this.miningResponse = miningResponse.content;
 
       if (!this.miningResponse?.length) {
         this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
@@ -317,7 +318,6 @@ export class ResultAiAssistantComponent {
         this.noResults.set(true);
         return;
       }
-
       const mappedResults = this.mapResultRawAiToAIAssistantResult(combinedResults);
       this.createResultManagementService.items.set(mappedResults);
       this.documentAnalyzed.set(true);
@@ -335,7 +335,9 @@ export class ResultAiAssistantComponent {
       title: result.title,
       description: result.description,
       keywords: result.keywords,
-      geoscope: result.geoscope ?? [],
+      geoscope_level: result.geoscope_level,
+      regions: result.regions ?? [],
+      countries: result.countries ?? [],
       training_type: result.training_type,
       length_of_training: result.length_of_training,
       start_date: result.start_date,
@@ -345,8 +347,11 @@ export class ResultAiAssistantComponent {
       total_participants: result.total_participants,
       evidence_for_stage: result.evidence_for_stage,
       policy_type: result.policy_type,
-      alliance_main_contact_person_first_name: result.alliance_main_contact_person_first_name,
-      alliance_main_contact_person_last_name: result.alliance_main_contact_person_last_name,
+      main_contact_person: {
+        name: result.main_contact_person?.name || 'Not collected',
+        code: result.main_contact_person?.code || '',
+        similarity_score: result.main_contact_person?.similarity_score || 0
+      },
       stage_in_policy_process: result.stage_in_policy_process,
       male_participants: result.male_participants ?? 0,
       female_participants: result.female_participants ?? 0,

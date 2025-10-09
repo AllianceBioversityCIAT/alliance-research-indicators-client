@@ -7,7 +7,7 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '../../../../services/submission.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { Router } from '@angular/router';
-import { signal } from '@angular/core';
+import { signal, computed } from '@angular/core';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
 import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
@@ -1025,6 +1025,18 @@ describe('SubmitResultContentComponent', () => {
     callback();
     
     expect(mockAllModalsService.closeAllModals).toHaveBeenCalled();
+  });
+
+
+  it('should handle buildLatestBody with undefined formValue', () => {
+    // Test the case where formValue is undefined (line 167)
+    const result = component['buildLatestBody'](true, undefined);
+    
+    expect(result).toEqual({
+      oicr_internal_code: '',
+      mel_regional_expert: '',
+      sharepoint_link: ''
+    });
   });
 
 

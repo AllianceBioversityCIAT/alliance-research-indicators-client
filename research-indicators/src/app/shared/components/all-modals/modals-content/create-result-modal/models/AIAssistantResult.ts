@@ -1,9 +1,22 @@
+export interface MainContactPerson {
+  name: string;
+  code: string;
+  similarity_score: number;
+}
+
+export interface Country {
+  code: string;
+  areas: string[];
+}
+
 export interface AIAssistantResult {
   indicator: string;
   title: string;
   description: string;
   keywords: string[];
-  geoscope: CountryArea[];
+  geoscope_level: string;
+  regions: string[];
+  countries: Country[];
   training_type: string;
   length_of_training: string;
   start_date: string;
@@ -19,8 +32,7 @@ export interface AIAssistantResult {
   policy_type: string;
   stage_in_policy_process: string;
   result_official_code?: string;
-  alliance_main_contact_person_first_name: string;
-  alliance_main_contact_person_last_name: string;
+  main_contact_person: MainContactPerson;
   // Innovation Development fields
   innovation_nature?: string;
   innovation_type?: string;

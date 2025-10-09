@@ -156,12 +156,9 @@ export class SubmitResultContentComponent {
 
   private async refreshTables(): Promise<void> {
     try {
-      // Refresh project results table if contractId is available
       if (this.projectResultsTableService.contractId) {
         await this.projectResultsTableService.getData();
       }
-      
-      // Refresh results center table
       await this.resultsCenterService.main();
     } catch (error) {
       console.error('Error refreshing tables:', error);
@@ -231,11 +228,7 @@ export class SubmitResultContentComponent {
       this.submissionService.statusSelected.set(null);
       
       this.allModalsService.closeModal('submitResult');
-      
-      // Refresh tables after closing modal
       await this.refreshTables();
-      
-      // Mostrar alerta de éxito
       this.actions.showGlobalAlert({
         severity: 'success',
         summary: 'Review submitted successfully',
