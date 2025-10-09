@@ -362,19 +362,92 @@ describe('SectionHeaderComponent', () => {
     expect(disconnectSpy).toHaveBeenCalled();
   });
 
-  it('should handle currentMetadata being null', () => {
-    cacheService.currentMetadata?.set(null as any);
+  it('should handle currentMetadata with indicator_id not equal to 5', () => {
+    // Mock currentMetadata to return an object with indicator_id !== 5
+    (cacheService.currentMetadata as any).set({
+      indicator_id: 3,
+      status_id: 1,
+      is_principal_investigator: false
+    });
     fixture.detectChanges();
 
     const items = component.items();
+    // status_id: 1 doesn't meet the delete condition, so no items should be added
     expect(items[0].items?.length).toBe(0);
   });
 
-  it('should handle currentMetadata being undefined', () => {
-    cacheService.currentMetadata?.set(undefined as any);
+  it('should handle currentMetadata with indicator_id equal to 5', () => {
+    // Mock currentMetadata to return an object with indicator_id === 5
+    (cacheService.currentMetadata as any).set({
+      indicator_id: 5,
+      status_id: 1,
+      is_principal_investigator: false
+    });
     fixture.detectChanges();
 
     const items = component.items();
+    // status_id: 1 doesn't meet the delete condition, so no items should be added
+    expect(items[0].items?.length).toBe(0);
+  });
+
+  it('should show delete option when status_id is 5', () => {
+    // Mock currentMetadata to return an object with status_id === 5 (deletable)
+    jest.spyOn(cacheService, 'currentMetadata').mockReturnValue({
+      indicator_id: 3,
+      status_id: 5,
+      is_principal_investigator: false
+    } as any);
+    fixture.detectChanges();
+
+    const items = component.items();
+    // status_id: 5 meets the delete condition, so delete item should be added
+    expect(items[0].items?.length).toBe(1);
+    expect(items[0].items?.[0].label).toBe('Delete Result');
+  });
+
+  it('should show delete option when status_id is 7', () => {
+    // Mock currentMetadata to return an object with status_id === 7 (deletable)
+    jest.spyOn(cacheService, 'currentMetadata').mockReturnValue({
+      indicator_id: 3,
+      status_id: 7,
+      is_principal_investigator: false
+    } as any);
+    fixture.detectChanges();
+
+    const items = component.items();
+    // status_id: 7 meets the delete condition, so delete item should be added
+    expect(items[0].items?.length).toBe(1);
+    expect(items[0].items?.[0].label).toBe('Delete Result');
+  });
+
+  it('should show delete option when status_id is 4 and isMyResult is true', () => {
+    // Mock currentMetadata to return an object with status_id === 4 and isMyResult true
+    jest.spyOn(cacheService, 'currentMetadata').mockReturnValue({
+      indicator_id: 3,
+      status_id: 4,
+      is_principal_investigator: false
+    } as any);
+    jest.spyOn(cacheService, 'isMyResult').mockReturnValue(true);
+    fixture.detectChanges();
+
+    const items = component.items();
+    // status_id: 4 with isMyResult true meets the delete condition, so delete item should be added
+    expect(items[0].items?.length).toBe(1);
+    expect(items[0].items?.[0].label).toBe('Delete Result');
+  });
+
+  it('should not show delete option when status_id is 4 and isMyResult is false', () => {
+    // Mock currentMetadata to return an object with status_id === 4 and isMyResult false
+    (cacheService.currentMetadata as any).set({
+      indicator_id: 3,
+      status_id: 4,
+      is_principal_investigator: false
+    });
+    jest.spyOn(cacheService, 'isMyResult').mockReturnValue(false);
+    fixture.detectChanges();
+
+    const items = component.items();
+    // status_id: 4 with isMyResult false doesn't meet the delete condition, so no items should be added
     expect(items[0].items?.length).toBe(0);
   });
 
