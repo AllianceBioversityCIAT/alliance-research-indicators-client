@@ -8,7 +8,7 @@
         helperText="Pick a contact person from the Alliance staff database who is associated with the result and can provide information as needed. Only one person can be selected."
         [isRequired]="true"
         [signal]="body"
-        [disabled]="!canEditOicr"
+        [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
         [optionValue]="mainContactPersonOptionValue"
         optionLabel="full_name"
         serviceName="userStaff"
@@ -182,7 +182,7 @@
     <app-textarea
       [rows]="5"
       [isRequired]="true"
-      [disabled]="!canEditOicr"
+      [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
       label="Elaboration of outcome/impact statement"
       helperText="For the preliminary submission, a brief description (1–3 sentences) of the outcome/impact is sufficient."
       [maxLength]="400"

@@ -41,7 +41,7 @@
 
           {{ this.createResultManagementService.editingOicr() ? 'Save changes' : 'Create preliminary OICR submission' }}
           @if (!this.createResultManagementService.editingOicr()) {
-            <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
+            <i class="pi pi-arrow-right !text-[10px] pl-1 disabled:text-[#A2A9AF]" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
           } 
         }
       </button>
@@ -122,7 +122,7 @@
           <div class="flex flex-col pt-2">
             <app-multiselect
               label="Primary Levers"
-              [disabled]="!canEditOicr"
+              [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
               [signal]="createResultManagementService.createOicrBody"
               optionValue="lever_id"
               signalOptionValue="step_two.primary_lever"
@@ -162,7 +162,7 @@
           <div class="flex flex-col pt-2">
             <app-multiselect
               label="Other Contributing Levers"
-              [disabled]="!canEditOicr"
+              [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
               [signal]="createResultManagementService.createOicrBody"
               optionValue="lever_id"
               signalOptionValue="step_two.contributor_lever"
@@ -217,7 +217,7 @@
           <div class="flex flex-col gap-8">
             <app-radio-button
               [isRequired]="true"
-              [disabled]="!canEditOicr"
+              [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
               label="What is the main geographic focus of the Impact?"
               helperText="This should reflect where the Impact has taken place/contributed to benefit."
               [signal]="createResultManagementService.createOicrBody"
@@ -232,7 +232,7 @@
               <app-multiselect
                 [signal]="createResultManagementService.createOicrBody"
                 [optionLabel]="'name'"
-                [disabled]="!canEditOicr"
+                [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
                 class="-mt-5"
                 [optionValue]="'region_id'"
                 [signalOptionValue]="'step_three.regions'"
@@ -246,7 +246,7 @@
             @if (getMultiselectLabel().country.label) {
               @if (isGeoScopeId(5) && !createResultManagementService.autofillinOicr()) {
                 <app-multiselect
-                  [disabled]="!canEditOicr"
+                  [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
                   (selectEvent)="onSelect()"
                   [signal]="createResultManagementService.createOicrBody"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
@@ -295,7 +295,7 @@
                           <app-multiselect-instance
                             [signal]="c.result_countries_sub_nationals_signal"
                             [optionLabel]="'name'"
-                            [disabled]="!canEditOicr"
+                            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
                             (valueChange)="updateCountryRegions(c.isoAlpha2, $event)"
                             [optionValue]="'sub_national_id'"
                             [signalOptionValue]="'regions'"
@@ -320,7 +320,7 @@
                   (selectEvent)="onSelect()"
                   [signal]="createResultManagementService.createOicrBody"
                   class="-mt-3"
-                  [disabled]="!canEditOicr"
+                  [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
                   [disabledSelectedScroll]="isGeoScopeId(5)"
                   [optionLabel]="'name'"
@@ -339,7 +339,7 @@
           <div class="flex flex-col pt-2">
             <app-textarea
               [rows]="5"
-              [disabled]="!canEditOicr"
+              [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
               label="Comments Geographic Scope"
               helperText="Provide additional information about the geographic scope, if necessary."
               [maxLength]="1000"
@@ -367,7 +367,7 @@
           <div class="flex flex-col">
             <app-textarea
               [rows]="5"
-              [disabled]="!canEditOicr"
+              [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7"
               label="Comments, questions or anything else?"
               [maxLength]="400"
               [signal]="this.createResultManagementService.createOicrBody"
