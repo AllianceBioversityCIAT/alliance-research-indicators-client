@@ -4,7 +4,7 @@
       <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
       <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
       @if (showTag) {
-        <app-custom-tag [statusId]="data?.['status_id'] ?? 9" [statusName]="data?.['status_name'] ?? 'Requested'" class="pb-1"></app-custom-tag>
+        <app-custom-tag [statusId]="data?.['status_id'] ?? 9" [statusName]="getStatusName(+(data?.['status_id'] ?? 9))" class="pb-1"></app-custom-tag>
       }
     </div>
     <div class="text-[17px] text-[#173F6F] font-[600] pb-1">{{ data?.['title'] || 'Enter OICR title' }}</div>
