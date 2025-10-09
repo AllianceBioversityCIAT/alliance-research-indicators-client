@@ -21,7 +21,9 @@ describe('ResultAiItemComponent', () => {
     title: 'My Title',
     description: 'desc',
     keywords: [],
-    geoscope: [],
+    geoscope_level: 'global',
+    regions: [],
+    countries: [],
     training_type: 'tt',
     length_of_training: '1',
     start_date: 's',
@@ -31,8 +33,7 @@ describe('ResultAiItemComponent', () => {
     total_participants: 10,
     evidence_for_stage: 'ev',
     policy_type: 'pol',
-    alliance_main_contact_person_first_name: 'n',
-    alliance_main_contact_person_last_name: 'l',
+    main_contact_person: { name: 'n l', code: 'c', similarity_score: 0.8 },
     stage_in_policy_process: 'st',
     male_participants: 0,
     female_participants: 0,
@@ -212,6 +213,54 @@ describe('ResultAiItemComponent', () => {
     expect(component.getOrganizationType(item)).toEqual(['A']);
     expect(component.getOrganizations(item)).toEqual(['B']);
     expect(component.getInnovationActorsDetailed(item)).toEqual([{ name: 'n', role: 'r' }]);
+  });
+
+  it('ngOnChanges should set isCreated to true when item has result_official_code', () => {
+    const itemWithCode = { ...baseItem, result_official_code: 'R-123' };
+    component.item = itemWithCode;
+    
+    component.ngOnChanges({
+      item: {
+        currentValue: itemWithCode,
+        previousValue: null,
+        firstChange: true,
+        isFirstChange: () => true
+      }
+    });
+    
+    expect(component.isCreated()).toBe(true);
+  });
+
+  it('ngOnChanges should set isCreated to false when item has no result_official_code', () => {
+    const itemWithoutCode = { ...baseItem, result_official_code: undefined };
+    component.item = itemWithoutCode;
+    
+    component.ngOnChanges({
+      item: {
+        currentValue: itemWithoutCode,
+        previousValue: null,
+        firstChange: true,
+        isFirstChange: () => true
+      }
+    });
+    
+    expect(component.isCreated()).toBe(false);
+  });
+
+  it('ngOnChanges should handle non-AI assistant result items', () => {
+    const nonAiItem = { name: 'test', type: 'other' };
+    component.item = nonAiItem as any;
+    
+    component.ngOnChanges({
+      item: {
+        currentValue: nonAiItem,
+        previousValue: null,
+        firstChange: true,
+        isFirstChange: () => true
+      }
+    });
+    
+    expect(component.isCreated()).toBe(false);
   });
 });
 
