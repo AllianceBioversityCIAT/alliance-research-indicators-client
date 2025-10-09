@@ -108,7 +108,7 @@ describe('ApiService', () => {
 
       service.GET_Contracts(projectId);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts?projectId=123', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts?project=123', {});
     });
 
     it('should call GET_Institutions', () => {

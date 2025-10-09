@@ -9,6 +9,8 @@ import { ActionsService } from '@shared/services/actions.service';
 import { Router } from '@angular/router';
 import { signal } from '@angular/core';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
+import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
+import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 
 describe('SubmitResultContentComponent', () => {
   let component: SubmitResultContentComponent;
@@ -21,6 +23,8 @@ describe('SubmitResultContentComponent', () => {
   let mockActionsService: Partial<ActionsService>;
   let mockRouter: Partial<Router>;
   let mockCurrentResultService: Partial<CurrentResultService>;
+  let mockProjectResultsTableService: Partial<ProjectResultsTableService>;
+  let mockResultsCenterService: Partial<ResultsCenterService>;
 
   beforeEach(async () => {
     mockAllModalsService = {
@@ -84,6 +88,15 @@ describe('SubmitResultContentComponent', () => {
       openEditRequestdOicrsModal: jest.fn().mockResolvedValue(undefined)
     };
 
+    mockProjectResultsTableService = {
+      contractId: 'test-contract-id',
+      getData: jest.fn().mockResolvedValue(undefined)
+    };
+
+    mockResultsCenterService = {
+      main: jest.fn().mockResolvedValue(undefined)
+    };
+
     await TestBed.configureTestingModule({
       imports: [SubmitResultContentComponent],
       providers: [
@@ -94,7 +107,9 @@ describe('SubmitResultContentComponent', () => {
         { provide: SubmissionService, useValue: mockSubmissionService },
         { provide: ActionsService, useValue: mockActionsService },
         { provide: Router, useValue: mockRouter },
-        { provide: CurrentResultService, useValue: mockCurrentResultService }
+        { provide: CurrentResultService, useValue: mockCurrentResultService },
+        { provide: ProjectResultsTableService, useValue: mockProjectResultsTableService },
+        { provide: ResultsCenterService, useValue: mockResultsCenterService }
       ]
     }).compileComponents();
 
