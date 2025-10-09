@@ -52,7 +52,7 @@ describe('DashboardComponent', () => {
   });
 
   it('should render main container with correct classes', () => {
-    const mainContainer = fixture.debugElement.query(By.css('.w-full.h-\\[calc\\(100vh-120px\\)\\]'));
+    const mainContainer = fixture.debugElement.query(By.css('.w-full.h-\\[calc\\(100vh-118px\\)\\]'));
     expect(mainContainer).toBeTruthy();
   });
 
@@ -79,7 +79,7 @@ describe('DashboardComponent', () => {
   });
 
   it('should render complete component structure', () => {
-    const mainDiv = fixture.debugElement.query(By.css('.w-full.h-\\[calc\\(100vh-120px\\)\\]'));
+    const mainDiv = fixture.debugElement.query(By.css('.w-full.h-\\[calc\\(100vh-118px\\)\\]'));
     const containerDiv = fixture.debugElement.query(By.css('.h-full.p-6.pt-8'));
     const iframe = fixture.debugElement.query(By.css('iframe'));
     
