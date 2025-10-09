@@ -55,7 +55,7 @@
         <button
           class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
           (click)="openSubmitResultModal()"
-          [disabled]="disableCreateButton">
+          [disabled]="disableCreateButton || !isHeaderDataLoaded()">
           <i class="pi pi-pencil !text-[12px]"></i>
           Review OICR
         </button>

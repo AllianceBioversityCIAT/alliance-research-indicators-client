@@ -16,6 +16,8 @@ import { InputComponent } from '@shared/components/custom-fields/input/input.com
 import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 import { PatchSubmitResultLatest } from '@shared/interfaces/patch_submit-result.interface';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
+import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
+import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 
 @Component({
   selector: 'app-submit-result-content',
@@ -30,6 +32,8 @@ export class SubmitResultContentComponent {
   submissionService = inject(SubmissionService);
   actions = inject(ActionsService);
   currentResultService = inject(CurrentResultService);
+  projectResultsTableService = inject(ProjectResultsTableService);
+  resultsCenterService = inject(ResultsCenterService);
   private readonly router = inject(Router);
 
   form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
@@ -150,6 +154,20 @@ export class SubmitResultContentComponent {
     }
   }
 
+  private async refreshTables(): Promise<void> {
+    try {
+      // Refresh project results table if contractId is available
+      if (this.projectResultsTableService.contractId) {
+        await this.projectResultsTableService.getData();
+      }
+      
+      // Refresh results center table
+      await this.resultsCenterService.main();
+    } catch (error) {
+      console.error('Error refreshing tables:', error);
+    }
+  }
+
   private buildLatestBody(isApprove: boolean, formValue: PatchSubmitResultLatest): PatchSubmitResultLatest | undefined {
     if (!isApprove) return undefined;
     return {
@@ -213,6 +231,9 @@ export class SubmitResultContentComponent {
       this.submissionService.statusSelected.set(null);
       
       this.allModalsService.closeModal('submitResult');
+      
+      // Refresh tables after closing modal
+      await this.refreshTables();
       
       // Mostrar alerta de éxito
       this.actions.showGlobalAlert({

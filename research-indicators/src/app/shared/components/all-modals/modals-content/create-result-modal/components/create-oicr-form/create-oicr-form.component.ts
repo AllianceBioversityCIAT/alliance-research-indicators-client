@@ -97,6 +97,7 @@ export class CreateOicrFormComponent {
   environment = environment;
   loading = false;
   activeIndex = signal(0);
+  headerDataLoading = signal(true);
 
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
   primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
@@ -132,6 +133,18 @@ export class CreateOicrFormComponent {
     if (!lever?.includes(':')) return { first: '', second: '' };
     const parts = lever.split(':');
     return { first: parts[0] || '', second: parts[1] || '' };
+  });
+
+  isHeaderDataLoaded = computed(() => {
+    const contract = this.currentContract();
+    const title = this.createResultManagementService.resultTitle();
+    const statusId = this.createResultManagementService.statusId();
+    
+    return !this.headerDataLoading() && 
+           contract !== null && 
+           title !== null && 
+           title !== undefined && 
+           statusId !== null;
   });
 
   constructor() {
@@ -213,6 +226,7 @@ export class CreateOicrFormComponent {
     async () => {
       const contractId = this.createResultManagementService.contractId();
       if (contractId !== null) {
+        this.headerDataLoading.set(true);
         this.createResultManagementService.createOicrBody.update(body => ({
           ...body,
           contract_id: contractId
@@ -228,6 +242,8 @@ export class CreateOicrFormComponent {
           }
         } catch (error) {
           console.error('Error loading contracts:', error);
+        } finally {
+          this.headerDataLoading.set(false);
         }
       }
     },
