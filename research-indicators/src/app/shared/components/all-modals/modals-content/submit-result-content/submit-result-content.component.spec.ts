@@ -28,6 +28,7 @@ describe('SubmitResultContentComponent', () => {
       setDisabledSubmitReview: jest.fn(),
       setSubmitBackAction: jest.fn(),
       closeModal: jest.fn(),
+      closeAllModals: jest.fn(),
       submitResultOrigin: signal(null),
       submitHeader: signal(null),
       modalConfig: signal({
@@ -64,7 +65,15 @@ describe('SubmitResultContentComponent', () => {
       sharePointFolderLink: signal('')
     };
 
-    mockActionsService = {};
+    // Create spies for signal methods
+    jest.spyOn(mockSubmissionService.comment, 'set');
+    jest.spyOn(mockSubmissionService.statusSelected, 'set');
+
+    mockActionsService = {
+      showGlobalAlert: jest.fn(),
+      hideGlobalAlert: jest.fn(),
+      showToast: jest.fn()
+    };
 
     mockRouter = {
       url: '/test-url?param=value',
@@ -311,8 +320,8 @@ describe('SubmitResultContentComponent', () => {
 
     expect(mockApiService.PATCH_SubmitResult).toHaveBeenCalled();
     expect(mockMetadataService.update).not.toHaveBeenCalled();
-    // closeModal is called after handlePostSubmitForLegacyFlow regardless of success
-    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
+    // closeModal is not called when request is unsuccessful
+    expect(mockAllModalsService.closeModal).not.toHaveBeenCalled();
   });
 
   it('should clear comment for approve status (statusId 6)', async () => {
@@ -432,7 +441,8 @@ describe('SubmitResultContentComponent', () => {
 
     await component.handleSubmitBack();
 
-    expect(mockCurrentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(5, 9, 0);
+    // Should not call openEditRequestdOicrsModal when metadata is empty
+    expect(mockCurrentResultService.openEditRequestdOicrsModal).not.toHaveBeenCalled();
   });
 
   it('should handle handleSubmitBack with null metadata', async () => {
@@ -441,7 +451,8 @@ describe('SubmitResultContentComponent', () => {
 
     await component.handleSubmitBack();
 
-    expect(mockCurrentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(5, 9, 0);
+    // Should not call openEditRequestdOicrsModal when metadata is null
+    expect(mockCurrentResultService.openEditRequestdOicrsModal).not.toHaveBeenCalled();
   });
 
   it('should update form correctly', () => {
@@ -535,7 +546,16 @@ describe('SubmitResultContentComponent', () => {
     );
 
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
-    expect(mockCurrentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(5, 9, 123);
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalledWith({
+      severity: 'success',
+      summary: 'Review submitted successfully',
+      hasNoCancelButton: true,
+      detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+      confirmCallback: {
+        label: 'Done',
+        event: expect.any(Function)
+      }
+    });
   });
 
   it('should handle latest flow submit review with non-approve', async () => {
@@ -563,6 +583,16 @@ describe('SubmitResultContentComponent', () => {
     );
 
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalledWith({
+      severity: 'success',
+      summary: 'Review submitted successfully',
+      hasNoCancelButton: true,
+      detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+      confirmCallback: {
+        label: 'Done',
+        event: expect.any(Function)
+      }
+    });
   });
 
   it('should handle latest flow submit review with unsuccessful request', async () => {
@@ -595,6 +625,16 @@ describe('SubmitResultContentComponent', () => {
 
     expect(mockApiService.PATCH_SubmitResult).toHaveBeenCalled();
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalledWith({
+      severity: 'success',
+      summary: 'Review submitted successfully',
+      hasNoCancelButton: true,
+      detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+      confirmCallback: {
+        label: 'Done',
+        event: expect.any(Function)
+      }
+    });
     expect(mockCurrentResultService.openEditRequestdOicrsModal).not.toHaveBeenCalled();
   });
 
@@ -665,6 +705,311 @@ describe('SubmitResultContentComponent', () => {
       oicr_internal_code: '',
       sharepoint_link: ''
     });
+  });
+
+  it('should handle setComment method', () => {
+    const mockEvent = {
+      target: { value: 'Test comment' }
+    } as any;
+    
+    component.setComment(mockEvent);
+    
+    expect(mockSubmissionService.comment.set).toHaveBeenCalledWith('Test comment');
+  });
+
+  it('should handle disabledConfirmSubmit with comment required', () => {
+    const selectedOption = { commentLabel: 'Required comment' };
+    mockSubmissionService.statusSelected.set(selectedOption);
+    mockSubmissionService.comment.set('');
+    
+    const result = component.disabledConfirmSubmit();
+    
+    expect(result).toBe(true);
+  });
+
+  it('should handle disabledConfirmSubmit with comment provided', () => {
+    const selectedOption = { commentLabel: 'Required comment' };
+    mockSubmissionService.statusSelected.set(selectedOption);
+    mockSubmissionService.comment.set('Test comment');
+    
+    const result = component.disabledConfirmSubmit();
+    
+    expect(result).toBe(false);
+  });
+
+  it('should handle disabledConfirmSubmit with no comment required', () => {
+    const selectedOption = { commentLabel: undefined };
+    mockSubmissionService.statusSelected.set(selectedOption);
+    mockSubmissionService.comment.set('');
+    
+    const result = component.disabledConfirmSubmit();
+    
+    expect(result).toBe(false);
+  });
+
+  it('should handle disabledConfirmSubmit with no status selected', () => {
+    mockSubmissionService.statusSelected.set(null);
+    mockSubmissionService.comment.set('');
+    
+    const result = component.disabledConfirmSubmit();
+    
+    expect(result).toBe(false);
+  });
+
+  it('should handle submittionOptions computed', () => {
+    const selectedOption = { statusId: 6, label: 'Approve' };
+    mockSubmissionService.statusSelected.set(selectedOption);
+    
+    const options = component.submittionOptions();
+    
+    expect(options).toHaveLength(3);
+    expect(options[0].selected).toBe(true);
+    expect(options[1].selected).toBe(false);
+    expect(options[2].selected).toBe(false);
+  });
+
+  it('should handle submittionOptions with no status selected', () => {
+    mockSubmissionService.statusSelected.set(null);
+    
+    const options = component.submittionOptions();
+    
+    expect(options).toHaveLength(3);
+    expect(options[0].selected).toBe(false);
+    expect(options[1].selected).toBe(false);
+    expect(options[2].selected).toBe(false);
+  });
+
+  it('should handle setInitialSelectedReviewOption with matching status', () => {
+    mockCacheService.currentMetadata!.set({ status_id: 6 });
+    
+    component.setInitialSelectedReviewOption();
+    
+    expect(mockSubmissionService.statusSelected.set).toHaveBeenCalledWith(
+      expect.objectContaining({ statusId: 6 })
+    );
+  });
+
+  it('should handle setInitialSelectedReviewOption with no matching status', () => {
+    mockCacheService.currentMetadata!.set({ status_id: 99 });
+    
+    component.setInitialSelectedReviewOption();
+    
+    expect(mockSubmissionService.statusSelected.set).not.toHaveBeenCalled();
+  });
+
+  it('should handle setInitialSelectedReviewOption with null status', () => {
+    mockCacheService.currentMetadata!.set({ status_id: null });
+    
+    component.setInitialSelectedReviewOption();
+    
+    expect(mockSubmissionService.statusSelected.set).not.toHaveBeenCalled();
+  });
+
+  it('should handle setInitialSelectedReviewOption with undefined status', () => {
+    mockCacheService.currentMetadata!.set({ status_id: undefined });
+    
+    component.setInitialSelectedReviewOption();
+    
+    expect(mockSubmissionService.statusSelected.set).not.toHaveBeenCalled();
+  });
+
+  it('should handle buildLatestBody with empty form values', () => {
+    const formValue = { mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' };
+    const result = (component as any).buildLatestBody(true, formValue);
+    
+    expect(result).toEqual({
+      mel_regional_expert: '',
+      oicr_internal_code: '',
+      sharepoint_link: ''
+    });
+  });
+
+  it('should handle buildLatestBody with undefined form values', () => {
+    const formValue = { mel_regional_expert: undefined, oicr_internal_code: undefined, sharepoint_link: undefined };
+    const result = (component as any).buildLatestBody(true, formValue);
+    
+    expect(result).toEqual({
+      mel_regional_expert: '',
+      oicr_internal_code: '',
+      sharepoint_link: ''
+    });
+  });
+
+  it('should handle legacy flow submit review', async () => {
+    mockAllModalsService.submitResultOrigin!.set(null);
+    
+    const selectedOption = { statusId: 6, commentLabel: undefined };
+    mockSubmissionService.statusSelected.set(selectedOption);
+    mockSubmissionService.comment.set('Test comment');
+    
+    const mockResponse = { successfulRequest: true };
+    mockApiService.PATCH_SubmitResult!.mockResolvedValue(mockResponse);
+    mockApiService.GET_Versions!.mockResolvedValue({ data: { versions: [{ report_year_id: 2024 }] } });
+    
+    await component.submitReview();
+
+    expect(mockApiService.PATCH_SubmitResult).toHaveBeenCalledWith({
+      resultCode: 123,
+      comment: 'Test comment',
+      status: 6
+    });
+    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
+  });
+
+  it('should handle legacy flow submit review with unsuccessful request', async () => {
+    mockAllModalsService.submitResultOrigin!.set(null);
+    
+    const selectedOption = { statusId: 6, commentLabel: undefined };
+    mockSubmissionService.statusSelected.set(selectedOption);
+    mockSubmissionService.comment.set('Test comment');
+    
+    const mockResponse = { successfulRequest: false };
+    mockApiService.PATCH_SubmitResult!.mockResolvedValue(mockResponse);
+    
+    await component.submitReview();
+
+    expect(mockApiService.PATCH_SubmitResult).toHaveBeenCalled();
+    expect(mockAllModalsService.closeModal).not.toHaveBeenCalled();
+  });
+
+  it('should handle legacy flow submit review with status 6 and versions', async () => {
+    mockAllModalsService.submitResultOrigin!.set(null);
+    
+    const selectedOption = { statusId: 6, commentLabel: undefined };
+    mockSubmissionService.statusSelected.set(selectedOption);
+    mockSubmissionService.comment.set('Test comment');
+    
+    const mockResponse = { successfulRequest: true };
+    mockApiService.PATCH_SubmitResult!.mockResolvedValue(mockResponse);
+    mockApiService.GET_Versions!.mockResolvedValue({ data: { versions: [{ report_year_id: 2024 }] } });
+    
+    await component.submitReview();
+
+    expect(mockApiService.PATCH_SubmitResult).toHaveBeenCalled();
+    expect(mockApiService.GET_Versions).toHaveBeenCalledWith(123);
+    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
+  });
+
+  it('should handle legacy flow submit review with status 6 and no versions', async () => {
+    mockAllModalsService.submitResultOrigin!.set(null);
+    
+    const selectedOption = { statusId: 6, commentLabel: undefined };
+    mockSubmissionService.statusSelected.set(selectedOption);
+    mockSubmissionService.comment.set('Test comment');
+    
+    const mockResponse = { successfulRequest: true };
+    mockApiService.PATCH_SubmitResult!.mockResolvedValue(mockResponse);
+    mockApiService.GET_Versions!.mockResolvedValue({ data: { versions: [] } });
+    
+    await component.submitReview();
+
+    expect(mockApiService.PATCH_SubmitResult).toHaveBeenCalled();
+    expect(mockApiService.GET_Versions).toHaveBeenCalledWith(123);
+    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
+  });
+
+  it('should handle legacy flow submit review with non-array versions', async () => {
+    mockAllModalsService.submitResultOrigin!.set(null);
+    
+    const selectedOption = { statusId: 6, commentLabel: undefined };
+    mockSubmissionService.statusSelected.set(selectedOption);
+    mockSubmissionService.comment.set('Test comment');
+    
+    const mockResponse = { successfulRequest: true };
+    mockApiService.PATCH_SubmitResult!.mockResolvedValue(mockResponse);
+    mockApiService.GET_Versions!.mockResolvedValue({ data: { versions: null } });
+    
+    await component.submitReview();
+
+    expect(mockApiService.PATCH_SubmitResult).toHaveBeenCalled();
+    expect(mockApiService.GET_Versions).toHaveBeenCalledWith(123);
+    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
+  });
+
+  it('should handle review options with non-reject key', () => {
+    // Test the reviewOptions computed property with options that don't have key 'reject'
+    const options = component.reviewOptions();
+    
+    // Find an option that doesn't have key 'reject' to test the return opt; line
+    const nonRejectOption = options.find(opt => opt.key !== 'reject');
+    expect(nonRejectOption).toBeDefined();
+    expect(nonRejectOption).toEqual(expect.objectContaining({
+      key: expect.any(String),
+      statusId: expect.any(Number)
+    }));
+  });
+
+  it('should return original option for non-reject keys in reviewOptions', () => {
+    // This test specifically covers the return opt; line (line 118)
+    const options = component.reviewOptions();
+    
+    // Get all options that are not 'reject' to ensure the return opt; path is covered
+    const nonRejectOptions = options.filter(opt => opt.key !== 'reject');
+    
+    expect(nonRejectOptions.length).toBeGreaterThan(0);
+    
+    // Verify that non-reject options maintain their original structure
+    nonRejectOptions.forEach(option => {
+      expect(option).toHaveProperty('key');
+      expect(option).toHaveProperty('statusId');
+      expect(option.key).not.toBe('reject');
+    });
+  });
+
+  it('should map review options correctly with reject and non-reject keys', () => {
+    // This test specifically targets the mapping logic to cover line 118
+    const options = component.reviewOptions();
+    
+    // Verify we have both reject and non-reject options
+    const rejectOption = options.find(opt => opt.key === 'reject');
+    const nonRejectOptions = options.filter(opt => opt.key !== 'reject');
+    
+    expect(rejectOption).toBeDefined();
+    expect(nonRejectOptions.length).toBeGreaterThan(0);
+    
+    // Verify reject option has the modified properties
+    expect(rejectOption.commentLabel).toBe('Add the reject reason');
+    
+    // Verify non-reject options maintain original structure (covers return opt; line)
+    nonRejectOptions.forEach(option => {
+      expect(option).toHaveProperty('key');
+      expect(option).toHaveProperty('statusId');
+      expect(option.key).not.toBe('reject');
+      // These should not have the modified commentLabel
+      expect(option.commentLabel).not.toBe('Add the reject reason');
+    });
+  });
+
+  it('should execute closeAllModals callback in success alert', async () => {
+    mockAllModalsService.submitResultOrigin!.set('latest');
+    
+    const selectedOption = { statusId: 10, commentLabel: undefined };
+    mockSubmissionService.statusSelected.set(selectedOption);
+    
+    const mockResponse = { successfulRequest: true };
+    mockApiService.PATCH_SubmitResult!.mockResolvedValue(mockResponse);
+
+    await component.submitReview();
+
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalledWith({
+      severity: 'success',
+      summary: 'Review submitted successfully',
+      hasNoCancelButton: true,
+      detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+      confirmCallback: {
+        label: 'Done',
+        event: expect.any(Function)
+      }
+    });
+
+    // Test the callback function
+    const alertCall = mockActionsService.showGlobalAlert.mock.calls[0][0];
+    const callback = alertCall.confirmCallback.event;
+    
+    // Execute the callback to test the closeAllModals call
+    callback();
+    
+    expect(mockAllModalsService.closeAllModals).toHaveBeenCalled();
   });
 
 

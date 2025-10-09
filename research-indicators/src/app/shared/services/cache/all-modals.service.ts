@@ -47,7 +47,6 @@ export class AllModalsService {
         title,
         icon: origin === 'latest' ? 'arrow_back' : modals.submitResult.icon,
         iconAction: origin === 'latest' ? () => {
-          this.hideModal('submitResult');
           this.submitBackAction?.();
         } : modals.submitResult.iconAction
       }

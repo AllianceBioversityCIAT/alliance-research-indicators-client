@@ -11,7 +11,7 @@ import {
   ViewChildren,
   WritableSignal
 } from '@angular/core';
-import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 
 import { StepsModule } from 'primeng/steps';
 import { CREATE_OICR_STEPPER_ITEMS, CREATE_OICR_STEPPER_SECTIONS } from '@shared/constants/stepper.constants';
@@ -50,7 +50,6 @@ import { Router } from '@angular/router';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
-import { DownloadOicrTemplateComponent } from '@shared/components/download-oicr-template/download-oicr-template.component';
 import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 
 interface GetContractsExtended extends GetContracts {
@@ -67,10 +66,8 @@ interface GetContractsExtended extends GetContracts {
     MultiselectComponent,
     MultiselectInstanceComponent,
     OicrFormFieldsComponent,
-    DatePipe,
     NgTemplateOutlet,
     TooltipModule,
-    DownloadOicrTemplateComponent,
     OicrHeaderComponent
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
@@ -475,8 +472,13 @@ export class CreateOicrFormComponent {
       lever,
       leverUrl: contract?.leverUrl,
       leverFirst: leverParts?.first,
-      leverSecond: leverParts?.second
+      leverSecond: leverParts?.second,
+      status_id: this.createResultManagementService.statusId()
     });
     this.allModalsService.openModal('submitResult');
+  }
+
+  getStatusIdAsString(): string {
+    return String(this.createResultManagementService.statusId() || 9);
   }
 }

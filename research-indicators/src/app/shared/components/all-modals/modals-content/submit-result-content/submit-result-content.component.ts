@@ -137,11 +137,17 @@ export class SubmitResultContentComponent {
   };
 
   async handleSubmitBack(): Promise<void> {
+    this.allModalsService.closeModal('submitResult');
+    
     const currentMetadata = this.cache.currentMetadata();
-    const indicatorId = currentMetadata?.indicator_id ?? 5; 
-    const statusId = currentMetadata?.status_id ?? 9; 
-    const resultCode = this.cache.getCurrentNumericResultId() ?? 0;
-    await this.currentResultService.openEditRequestdOicrsModal(indicatorId, statusId, resultCode);
+    if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
+      const resultCode = this.cache.getCurrentNumericResultId();
+      await this.currentResultService.openEditRequestdOicrsModal(
+        currentMetadata.indicator_id,
+        currentMetadata.status_id,
+        resultCode
+      );
+    }
   }
 
   private buildLatestBody(isApprove: boolean, formValue: PatchSubmitResultLatest): PatchSubmitResultLatest | undefined {
@@ -153,13 +159,13 @@ export class SubmitResultContentComponent {
     };
   }
 
-  private async handlePostSubmitForLegacyFlow(): Promise<void> {
+  private async handlePostSubmitForLegacyFlow(): Promise<boolean> {
     const response = await this.api.PATCH_SubmitResult({
       resultCode: this.cache.getCurrentNumericResultId(),
       comment: this.submissionService.comment(),
       status: this.submissionService.statusSelected()!.statusId
     });
-    if (!response.successfulRequest) return;
+    if (!response.successfulRequest) return false;
     if (this.submissionService.statusSelected()?.statusId === 6) this.submissionService.comment.set('');
     await this.metadata.update(this.cache.getCurrentNumericResultId());
     this.cache.lastResultId.set(null);
@@ -183,6 +189,7 @@ export class SubmitResultContentComponent {
         });
       }
     }
+    return true;
   }
 
   async submitReview(): Promise<void> {
@@ -198,23 +205,34 @@ export class SubmitResultContentComponent {
         },
         body
       );
+      
       if (!response.successfulRequest) return;
       
+      this.form.set({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
+      this.submissionService.comment.set('');
+      this.submissionService.statusSelected.set(null);
+      
       this.allModalsService.closeModal('submitResult');
       
-      const currentMetadata = this.cache.currentMetadata();
-      if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
-        const resultCode = this.cache.getCurrentNumericResultId();
-        await this.currentResultService.openEditRequestdOicrsModal(
-          currentMetadata.indicator_id,
-          currentMetadata.status_id,
-          resultCode
-        );
-      }
+      // Mostrar alerta de éxito
+      this.actions.showGlobalAlert({
+        severity: 'success',
+        summary: 'Review submitted successfully',
+        hasNoCancelButton: true,
+        detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+        confirmCallback: {
+          label: 'Done',
+          event: () => {
+            this.allModalsService.closeAllModals();
+          }
+        }
+      });
     }
     else {
-      await this.handlePostSubmitForLegacyFlow();
-      this.allModalsService.closeModal('submitResult');
+      const success = await this.handlePostSubmitForLegacyFlow();
+      if (success) {
+        this.allModalsService.closeModal('submitResult');
+      }
     }
   }
 }

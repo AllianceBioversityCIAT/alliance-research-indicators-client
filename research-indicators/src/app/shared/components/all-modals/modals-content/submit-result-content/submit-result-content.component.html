@@ -1,8 +1,8 @@
 <div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px] md:overflow-x-hidden px-12">
 
-    @if (allModalsService.submitResultOrigin?.() === 'latest') {
+    @if (allModalsService.submitResultOrigin() === 'latest') {
       <div class="-mx-12 mb-6">
-        <app-oicr-header [data]="allModalsService.submitHeader()" [showDownload]="true"></app-oicr-header>
+        <app-oicr-header [data]="allModalsService.submitHeader()" [showTag]="true" [showDownload]="true"></app-oicr-header>
       </div>
     }
     <h3 class="text-[16px] font-semibold text-[#153C71] mb-2">Select a review action</h3>
@@ -28,13 +28,13 @@
       }
     </div>
   
-    @if (submissionService.statusSelected()?.message && allModalsService.submitResultOrigin?.() !== 'latest') {
+    @if (submissionService.statusSelected()?.message && allModalsService.submitResultOrigin() !== 'latest') {
       <p class="text-[15px] text-[#4c5158] my-5">
         {{ submissionService.statusSelected()?.message }}
       </p>
     }
   
-    @if (allModalsService.submitResultOrigin?.() === 'latest' && submissionService.statusSelected()?.statusId === 10) {
+    @if (allModalsService.submitResultOrigin() === 'latest' && submissionService.statusSelected()?.statusId === 10) {
       <div class=" mt-6">
         <div class="w-full">
             <app-select
@@ -73,7 +73,7 @@
     }
   
     @if (submissionService.statusSelected()?.commentLabel) {
-      <label for="comments" class="font-semibold text-[16px] text-[#153C71] block mb-2 {{ allModalsService.submitResultOrigin?.() === 'latest' ? 'mt-6' : '' }}">
+      <label for="comments" class="font-semibold text-[16px] text-[#153C71] block mb-2 {{ allModalsService.submitResultOrigin() === 'latest' ? 'mt-6' : '' }}">
         {{ submissionService.statusSelected()?.commentLabel }}
         <span class="text-red-500">*</span>
       </label>
