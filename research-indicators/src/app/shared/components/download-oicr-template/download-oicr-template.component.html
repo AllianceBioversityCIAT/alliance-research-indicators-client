@@ -4,7 +4,7 @@
   variant="outlined"
   [loading]="this.processing()"
   size="small"
-  [pTooltip]="this.wasmLoaded() ? 'Download OICR Template' : 'Is not possible to download the template'"
+  [pTooltip]="this.wasmLoaded() ? '' : 'Is not possible to download the template'"
   tooltipPosition="left"
   (onClick)="downloadOicrTemplate()">
   <ng-template pTemplate="icon">
