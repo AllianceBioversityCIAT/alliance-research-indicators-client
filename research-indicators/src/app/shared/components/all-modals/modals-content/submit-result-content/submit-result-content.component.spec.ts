@@ -9,8 +9,8 @@ import { ActionsService } from '@shared/services/actions.service';
 import { Router } from '@angular/router';
 import { signal } from '@angular/core';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
-import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
+import { ProjectResultsTableService } from '@pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
 
 describe('SubmitResultContentComponent', () => {
   let component: SubmitResultContentComponent;

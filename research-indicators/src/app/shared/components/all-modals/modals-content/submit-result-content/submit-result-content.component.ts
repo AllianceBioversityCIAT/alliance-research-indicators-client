@@ -16,8 +16,8 @@ import { InputComponent } from '@shared/components/custom-fields/input/input.com
 import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 import { PatchSubmitResultLatest } from '@shared/interfaces/patch_submit-result.interface';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
-import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
+import { ProjectResultsTableService } from '@pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
 
 @Component({
   selector: 'app-submit-result-content',
