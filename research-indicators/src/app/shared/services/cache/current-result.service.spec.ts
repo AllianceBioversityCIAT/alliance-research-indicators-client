@@ -7,33 +7,39 @@ import { CreateResultManagementService } from '../../components/all-modals/modal
 
 describe('CurrentResultService', () => {
   let service: CurrentResultService;
-
-  const mockApi: Partial<ApiService> = {
-    GET_OICRModal: jest.fn()
-  };
+  let mockApi: jest.Mocked<ApiService>;
+  let mockAllModals: jest.Mocked<AllModalsService>;
+  let mockCache: jest.Mocked<CacheService>;
+  let mockCreateResultManagement: jest.Mocked<CreateResultManagementService>;
 
   const signalMock = () => ({ set: jest.fn() });
 
-  const mockAllModals: Partial<AllModalsService> = {
-    openModal: jest.fn()
-  };
-
-  const mockCreateResultManagement: Partial<CreateResultManagementService> = {
-    currentRequestedResultCode: signalMock() as unknown as CreateResultManagementService['currentRequestedResultCode'],
-    editingOicr: signalMock() as unknown as CreateResultManagementService['editingOicr'],
-    createOicrBody: signalMock() as unknown as CreateResultManagementService['createOicrBody'],
-    resultPageStep: signalMock() as unknown as CreateResultManagementService['resultPageStep'],
-    modalTitle: signalMock() as unknown as CreateResultManagementService['modalTitle'],
-    contractId: signalMock() as unknown as CreateResultManagementService['contractId'],
-    resultTitle: signalMock() as unknown as CreateResultManagementService['resultTitle']
-  };
-
-  const mockCache: Partial<CacheService> = {
-    currentResultId: signalMock() as unknown as CacheService['currentResultId']
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
+    
+    mockApi = {
+      GET_OICRModal: jest.fn()
+    } as any;
+
+    mockAllModals = {
+      openModal: jest.fn()
+    } as any;
+
+    mockCache = {
+      currentResultId: signalMock() as any
+    } as any;
+
+    mockCreateResultManagement = {
+      currentRequestedResultCode: signalMock() as any,
+      editingOicr: signalMock() as any,
+      createOicrBody: signalMock() as any,
+      resultPageStep: signalMock() as any,
+      modalTitle: signalMock() as any,
+      contractId: signalMock() as any,
+      resultTitle: signalMock() as any,
+      statusId: signalMock() as any
+    } as any;
+
     TestBed.configureTestingModule({
       providers: [
         CurrentResultService,
@@ -50,81 +56,193 @@ describe('CurrentResultService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('validateOpenResult should return true when indicatorId is 5', () => {
-    expect(service.validateOpenResult(5, 1)).toBe(true);
-  });
-
-  it('validateOpenResult should return true when resultStatusId is 9', () => {
-    expect(service.validateOpenResult(1, 9)).toBe(true);
-  });
-
-  it('validateOpenResult should return false otherwise', () => {
-    expect(service.validateOpenResult(1, 1)).toBe(false);
-  });
-
-  it('openEditRequestdOicrsModal should short-circuit and return false when validation fails', async () => {
-    const result = await service.openEditRequestdOicrsModal(1, 1, 123);
-    expect(result).toBe(false);
-    expect(mockApi.GET_OICRModal).not.toHaveBeenCalled();
-    expect(mockAllModals.openModal).not.toHaveBeenCalled();
-    expect((mockCreateResultManagement.currentRequestedResultCode as any).set).not.toHaveBeenCalled();
-    expect((mockCache.currentResultId as any).set).not.toHaveBeenCalled();
-  });
-
-  it('openEditRequestdOicrsModal should load data, set signals and return true with defaulted comment', async () => {
-    const responseData = {
-      step_three: { comment_geo_scope: undefined },
-      base_information: { contract_id: 'C-1', title: 'TITLE-1' }
-    };
-    (mockApi.GET_OICRModal as jest.Mock).mockResolvedValueOnce({ data: responseData });
-
-    const ok = await service.openEditRequestdOicrsModal(5, 1, 456);
-
-    expect(ok).toBe(true);
-    expect(mockApi.GET_OICRModal).toHaveBeenCalledWith(456);
-    expect((mockCreateResultManagement.currentRequestedResultCode as any).set).toHaveBeenCalledWith(456);
-    expect((mockCreateResultManagement.editingOicr as any).set).toHaveBeenCalledWith(true);
-    const createOicrSetArg = (mockCreateResultManagement.createOicrBody as any).set.mock.calls[0][0];
-    expect(createOicrSetArg.step_three.comment_geo_scope).toBe('');
-    expect(mockAllModals.openModal).toHaveBeenCalledWith('createResult');
-    expect((mockCreateResultManagement.resultPageStep as any).set).toHaveBeenCalledWith(2);
-    expect((mockCreateResultManagement.modalTitle as any).set).toHaveBeenCalledWith('Outcome Impact Case Report (OICR)');
-    expect((mockCreateResultManagement.contractId as any).set).toHaveBeenCalledWith('C-1');
-    expect((mockCreateResultManagement.resultTitle as any).set).toHaveBeenCalledWith('TITLE-1');
-    expect((mockCache.currentResultId as any).set).toHaveBeenCalledWith(456);
-  });
-
-  it('openEditRequestdOicrsModal should preserve existing comment_geo_scope', async () => {
-    const responseData = {
-      step_three: { comment_geo_scope: 'existing' },
-      base_information: { contract_id: 'C-2', title: 'TITLE-2' }
-    };
-    (mockApi.GET_OICRModal as jest.Mock).mockResolvedValueOnce({ data: responseData });
-
-    const ok = await service.openEditRequestdOicrsModal(5, 1, 789);
-
-    expect(ok).toBe(true);
-    const setArg = (mockCreateResultManagement.createOicrBody as any).set.mock.calls[0][0];
-    expect(setArg.step_three.comment_geo_scope).toBe('existing');
-  });
-});
-
-import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-
-import { CurrentResultService } from './current-result.service';
-
-describe('CurrentResultService', () => {
-  let service: CurrentResultService;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule]
+  describe('validateOpenResult', () => {
+    it('should return true when indicatorId is 5', () => {
+      expect(service.validateOpenResult(5, 1)).toBe(true);
     });
-    service = TestBed.inject(CurrentResultService);
+
+    it('should return true when resultStatusId is 9', () => {
+      expect(service.validateOpenResult(1, 9)).toBe(true);
+    });
+
+    it('should return true when both indicatorId is 5 and resultStatusId is 9', () => {
+      expect(service.validateOpenResult(5, 9)).toBe(true);
+    });
+
+    it('should return false when indicatorId is not 5 and resultStatusId is not 9', () => {
+      expect(service.validateOpenResult(1, 1)).toBe(false);
+    });
+
+    it('should return false when indicatorId is 0 and resultStatusId is 0', () => {
+      expect(service.validateOpenResult(0, 0)).toBe(false);
+    });
+
+    it('should return false when indicatorId is -1 and resultStatusId is -1', () => {
+      expect(service.validateOpenResult(-1, -1)).toBe(false);
+    });
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  describe('openEditRequestdOicrsModal', () => {
+    it('should return false when validation fails (indicatorId not 5 and resultStatusId not 9)', async () => {
+      const result = await service.openEditRequestdOicrsModal(1, 1, 123);
+      
+      expect(result).toBe(false);
+      expect(mockApi.GET_OICRModal).not.toHaveBeenCalled();
+      expect(mockAllModals.openModal).not.toHaveBeenCalled();
+      expect(mockCreateResultManagement.currentRequestedResultCode.set).not.toHaveBeenCalled();
+      expect(mockCreateResultManagement.editingOicr.set).not.toHaveBeenCalled();
+      expect(mockCache.currentResultId.set).not.toHaveBeenCalled();
+    });
+
+    it('should return false when validation fails with indicatorId 0', async () => {
+      const result = await service.openEditRequestdOicrsModal(0, 1, 123);
+      
+      expect(result).toBe(false);
+      expect(mockApi.GET_OICRModal).not.toHaveBeenCalled();
+    });
+
+    it('should return false when validation fails with resultStatusId 0', async () => {
+      const result = await service.openEditRequestdOicrsModal(1, 0, 123);
+      
+      expect(result).toBe(false);
+      expect(mockApi.GET_OICRModal).not.toHaveBeenCalled();
+    });
+
+    it('should successfully open modal when indicatorId is 5', async () => {
+      const responseData = {
+        step_three: { comment_geo_scope: 'existing comment' },
+        base_information: { contract_id: 'C-123', title: 'Test Title' }
+      };
+      mockApi.GET_OICRModal.mockResolvedValueOnce({ data: responseData });
+
+      const result = await service.openEditRequestdOicrsModal(5, 1, 456);
+
+      expect(result).toBe(true);
+      expect(mockApi.GET_OICRModal).toHaveBeenCalledWith(456);
+      expect(mockCreateResultManagement.currentRequestedResultCode.set).toHaveBeenCalledWith(456);
+      expect(mockCreateResultManagement.editingOicr.set).toHaveBeenCalledWith(true);
+      expect(mockAllModals.openModal).toHaveBeenCalledWith('createResult');
+      expect(mockCreateResultManagement.resultPageStep.set).toHaveBeenCalledWith(2);
+      expect(mockCreateResultManagement.modalTitle.set).toHaveBeenCalledWith('Outcome Impact Case Report (OICR)');
+      expect(mockCreateResultManagement.contractId.set).toHaveBeenCalledWith('C-123');
+      expect(mockCreateResultManagement.resultTitle.set).toHaveBeenCalledWith('Test Title');
+      expect(mockCreateResultManagement.statusId.set).toHaveBeenCalledWith(1);
+      expect(mockCache.currentResultId.set).toHaveBeenCalledWith(456);
+    });
+
+    it('should successfully open modal when resultStatusId is 9', async () => {
+      const responseData = {
+        step_three: { comment_geo_scope: 'another comment' },
+        base_information: { contract_id: 'C-789', title: 'Another Title' }
+      };
+      mockApi.GET_OICRModal.mockResolvedValueOnce({ data: responseData });
+
+      const result = await service.openEditRequestdOicrsModal(1, 9, 789);
+
+      expect(result).toBe(true);
+      expect(mockApi.GET_OICRModal).toHaveBeenCalledWith(789);
+      expect(mockCreateResultManagement.statusId.set).toHaveBeenCalledWith(9);
+    });
+
+    it('should set empty string for comment_geo_scope when undefined', async () => {
+      const responseData = {
+        step_three: { comment_geo_scope: undefined },
+        base_information: { contract_id: 'C-456', title: 'Title' }
+      };
+      mockApi.GET_OICRModal.mockResolvedValueOnce({ data: responseData });
+
+      await service.openEditRequestdOicrsModal(5, 1, 123);
+
+      expect(mockCreateResultManagement.createOicrBody.set).toHaveBeenCalledWith({
+        step_three: { comment_geo_scope: '' },
+        base_information: { contract_id: 'C-456', title: 'Title' }
+      });
+    });
+
+    it('should set empty string for comment_geo_scope when null', async () => {
+      const responseData = {
+        step_three: { comment_geo_scope: null },
+        base_information: { contract_id: 'C-456', title: 'Title' }
+      };
+      mockApi.GET_OICRModal.mockResolvedValueOnce({ data: responseData });
+
+      await service.openEditRequestdOicrsModal(5, 1, 123);
+
+      expect(mockCreateResultManagement.createOicrBody.set).toHaveBeenCalledWith({
+        step_three: { comment_geo_scope: '' },
+        base_information: { contract_id: 'C-456', title: 'Title' }
+      });
+    });
+
+    it('should preserve existing comment_geo_scope when it has a value', async () => {
+      const responseData = {
+        step_three: { comment_geo_scope: 'existing comment' },
+        base_information: { contract_id: 'C-456', title: 'Title' }
+      };
+      mockApi.GET_OICRModal.mockResolvedValueOnce({ data: responseData });
+
+      await service.openEditRequestdOicrsModal(5, 1, 123);
+
+      expect(mockCreateResultManagement.createOicrBody.set).toHaveBeenCalledWith({
+        step_three: { comment_geo_scope: 'existing comment' },
+        base_information: { contract_id: 'C-456', title: 'Title' }
+      });
+    });
+
+    it('should handle API call with different resultCode values', async () => {
+      const responseData = {
+        step_three: { comment_geo_scope: 'test' },
+        base_information: { contract_id: 'C-999', title: 'Test Title' }
+      };
+      mockApi.GET_OICRModal.mockResolvedValueOnce({ data: responseData });
+
+      await service.openEditRequestdOicrsModal(5, 1, 999);
+
+      expect(mockApi.GET_OICRModal).toHaveBeenCalledWith(999);
+      expect(mockCreateResultManagement.currentRequestedResultCode.set).toHaveBeenCalledWith(999);
+      expect(mockCache.currentResultId.set).toHaveBeenCalledWith(999);
+    });
+
+    it('should handle different statusId values', async () => {
+      const responseData = {
+        step_three: { comment_geo_scope: 'test' },
+        base_information: { contract_id: 'C-123', title: 'Test Title' }
+      };
+      mockApi.GET_OICRModal.mockResolvedValueOnce({ data: responseData });
+
+      await service.openEditRequestdOicrsModal(5, 3, 123);
+
+      expect(mockCreateResultManagement.statusId.set).toHaveBeenCalledWith(3);
+    });
+
+    it('should handle edge case with resultCode 0', async () => {
+      const responseData = {
+        step_three: { comment_geo_scope: 'test' },
+        base_information: { contract_id: 'C-0', title: 'Test Title' }
+      };
+      mockApi.GET_OICRModal.mockResolvedValueOnce({ data: responseData });
+
+      const result = await service.openEditRequestdOicrsModal(5, 1, 0);
+
+      expect(result).toBe(true);
+      expect(mockApi.GET_OICRModal).toHaveBeenCalledWith(0);
+      expect(mockCreateResultManagement.currentRequestedResultCode.set).toHaveBeenCalledWith(0);
+      expect(mockCache.currentResultId.set).toHaveBeenCalledWith(0);
+    });
+
+    it('should handle edge case with resultCode -1', async () => {
+      const responseData = {
+        step_three: { comment_geo_scope: 'test' },
+        base_information: { contract_id: 'C--1', title: 'Test Title' }
+      };
+      mockApi.GET_OICRModal.mockResolvedValueOnce({ data: responseData });
+
+      const result = await service.openEditRequestdOicrsModal(5, 1, -1);
+
+      expect(result).toBe(true);
+      expect(mockApi.GET_OICRModal).toHaveBeenCalledWith(-1);
+      expect(mockCreateResultManagement.currentRequestedResultCode.set).toHaveBeenCalledWith(-1);
+      expect(mockCache.currentResultId.set).toHaveBeenCalledWith(-1);
+    });
   });
 });

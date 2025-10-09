@@ -1,14 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OicrHeaderComponent } from './oicr-header.component';
 import { OicrHeaderData } from '@shared/interfaces/oicr-header-data.interface';
+import { SubmissionService } from '@shared/services/submission.service';
 
 describe('OicrHeaderComponent', () => {
   let component: OicrHeaderComponent;
   let fixture: ComponentFixture<OicrHeaderComponent>;
+  let mockSubmissionService: jest.Mocked<SubmissionService>;
 
   beforeEach(async () => {
+    mockSubmissionService = {
+      getStatusNameById: jest.fn()
+    } as any;
+
     await TestBed.configureTestingModule({
-      imports: [OicrHeaderComponent]
+      imports: [OicrHeaderComponent],
+      providers: [
+        { provide: SubmissionService, useValue: mockSubmissionService }
+      ]
     })
       // avoid rendering dependencies; template rendering isn't required for TS coverage
       .overrideComponent(OicrHeaderComponent, { set: { template: '<div></div>' } })
@@ -111,6 +120,128 @@ describe('OicrHeaderComponent', () => {
     component.showDownload = false;
     fixture.detectChanges();
     expect(component.showDownload).toBe(false);
+  });
+
+  it('should handle showTag input', () => {
+    expect(component.showTag).toBe(false);
+    
+    component.showTag = true;
+    fixture.detectChanges();
+    expect(component.showTag).toBe(true);
+    
+    component.showTag = false;
+    fixture.detectChanges();
+    expect(component.showTag).toBe(false);
+  });
+
+  it('should call getStatusName with correct id', () => {
+    mockSubmissionService.getStatusNameById.mockReturnValue('Test Status');
+    
+    const result = component.getStatusName(5);
+    
+    expect(mockSubmissionService.getStatusNameById).toHaveBeenCalledWith(5);
+    expect(result).toBe('Test Status');
+  });
+
+  it('should call getStatusName with different ids', () => {
+    mockSubmissionService.getStatusNameById.mockReturnValue('Different Status');
+    
+    const result = component.getStatusName(10);
+    
+    expect(mockSubmissionService.getStatusNameById).toHaveBeenCalledWith(10);
+    expect(result).toBe('Different Status');
+  });
+
+  it('should call getStatusName with edge case ids', () => {
+    mockSubmissionService.getStatusNameById.mockReturnValue('Edge Case');
+    
+    const result = component.getStatusName(0);
+    
+    expect(mockSubmissionService.getStatusNameById).toHaveBeenCalledWith(0);
+    expect(result).toBe('Edge Case');
+  });
+
+  it('should call getStatusName with negative id', () => {
+    mockSubmissionService.getStatusNameById.mockReturnValue('Negative Status');
+    
+    const result = component.getStatusName(-1);
+    
+    expect(mockSubmissionService.getStatusNameById).toHaveBeenCalledWith(-1);
+    expect(result).toBe('Negative Status');
+  });
+
+  it('should handle getStatusName returning empty string', () => {
+    mockSubmissionService.getStatusNameById.mockReturnValue('');
+    
+    const result = component.getStatusName(999);
+    
+    expect(mockSubmissionService.getStatusNameById).toHaveBeenCalledWith(999);
+    expect(result).toBe('');
+  });
+
+  it('should have submissionService injected', () => {
+    expect(component.submissionService).toBeDefined();
+    expect(component.submissionService).toBe(mockSubmissionService);
+  });
+
+  it('should handle data with all properties', () => {
+    const completeData: OicrHeaderData = {
+      title: 'Complete OICR',
+      agreement_id: 'AG-123',
+      description: 'Complete description',
+      project_lead_description: 'Complete lead description',
+      start_date: '2024-01-01',
+      endDateGlobal: '2024-12-31',
+      lever: 'Complete lever',
+      leverUrl: 'https://complete.example.com',
+      leverFirst: 'Complete first',
+      leverSecond: 'Complete second'
+    };
+    
+    component.data = completeData;
+    fixture.detectChanges();
+    
+    expect(component.data).toBe(completeData);
+    expect(component.data.title).toBe('Complete OICR');
+    expect(component.data.agreement_id).toBe('AG-123');
+    expect(component.data.description).toBe('Complete description');
+    expect(component.data.project_lead_description).toBe('Complete lead description');
+    expect(component.data.start_date).toBe('2024-01-01');
+    expect(component.data.endDateGlobal).toBe('2024-12-31');
+    expect(component.data.lever).toBe('Complete lever');
+    expect(component.data.leverUrl).toBe('https://complete.example.com');
+    expect(component.data.leverFirst).toBe('Complete first');
+    expect(component.data.leverSecond).toBe('Complete second');
+  });
+
+  it('should handle data with undefined properties', () => {
+    const dataWithUndefined: OicrHeaderData = {
+      title: 'Undefined Test',
+      agreement_id: undefined,
+      description: undefined,
+      project_lead_description: undefined,
+      start_date: undefined,
+      endDateGlobal: undefined,
+      lever: undefined,
+      leverUrl: undefined,
+      leverFirst: undefined,
+      leverSecond: undefined
+    };
+    
+    component.data = dataWithUndefined;
+    fixture.detectChanges();
+    
+    expect(component.data).toBe(dataWithUndefined);
+    expect(component.data.title).toBe('Undefined Test');
+    expect(component.data.agreement_id).toBeUndefined();
+    expect(component.data.description).toBeUndefined();
+    expect(component.data.project_lead_description).toBeUndefined();
+    expect(component.data.start_date).toBeUndefined();
+    expect(component.data.endDateGlobal).toBeUndefined();
+    expect(component.data.lever).toBeUndefined();
+    expect(component.data.leverUrl).toBeUndefined();
+    expect(component.data.leverFirst).toBeUndefined();
+    expect(component.data.leverSecond).toBeUndefined();
   });
 });
 

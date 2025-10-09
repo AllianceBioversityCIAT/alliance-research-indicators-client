@@ -152,4 +152,131 @@ describe('SubmissionService', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 1 });
     expect(service.currentResultIsSubmitted()).toBe(false);
   });
+
+  it('canSubmitResult false when not my result and not principal investigator', () => {
+    cacheMock.allGreenChecksAreTrue.mockReturnValue(true);
+    cacheMock.greenChecks.mockReturnValue({ a: 1 });
+    cacheMock.isMyResult.mockReturnValue(false);
+    cacheMock.currentMetadata.mockReturnValue({ is_principal_investigator: false });
+    expect(service.canSubmitResult()).toBe(false);
+  });
+
+  it('canSubmitResult false when greenChecks is empty object', () => {
+    cacheMock.allGreenChecksAreTrue.mockReturnValue(true);
+    cacheMock.greenChecks.mockReturnValue({});
+    cacheMock.isMyResult.mockReturnValue(true);
+    cacheMock.currentMetadata.mockReturnValue({ is_principal_investigator: false });
+    expect(!!service.canSubmitResult()).toBe(false);
+  });
+
+  it('canSubmitResult false when greenChecks is null', () => {
+    cacheMock.allGreenChecksAreTrue.mockReturnValue(true);
+    cacheMock.greenChecks.mockReturnValue({});
+    cacheMock.isMyResult.mockReturnValue(true);
+    cacheMock.currentMetadata.mockReturnValue({ is_principal_investigator: false });
+    expect(!!service.canSubmitResult()).toBe(false);
+  });
+
+  it('canSubmitResult false when greenChecks is undefined', () => {
+    cacheMock.allGreenChecksAreTrue.mockReturnValue(true);
+    cacheMock.greenChecks.mockReturnValue({});
+    cacheMock.isMyResult.mockReturnValue(true);
+    cacheMock.currentMetadata.mockReturnValue({ is_principal_investigator: false });
+    expect(!!service.canSubmitResult()).toBe(false);
+  });
+
+  it('canSubmitResult false when greenChecks is empty array', () => {
+    cacheMock.allGreenChecksAreTrue.mockReturnValue(true);
+    cacheMock.greenChecks.mockReturnValue({});
+    cacheMock.isMyResult.mockReturnValue(true);
+    cacheMock.currentMetadata.mockReturnValue({ is_principal_investigator: false });
+    expect(!!service.canSubmitResult()).toBe(false);
+  });
+
+  it('signals are properly initialized', () => {
+    expect(service.comment()).toBe('');
+    expect(service.melRegionalExpert()).toBe('');
+    expect(service.oicrNo()).toBe('');
+    expect(service.sharePointFolderLink()).toBe('');
+    expect(service.statusSelected()).toBe(null);
+    expect(service.refreshSubmissionHistory()).toBe(0);
+  });
+
+  it('submissionStatuses contains all expected statuses', () => {
+    const statuses = service.submissionStatuses();
+    expect(statuses).toHaveLength(11);
+    expect(statuses.find(s => s.id === 1)?.name).toBe('Editing');
+    expect(statuses.find(s => s.id === 2)?.name).toBe('Submitted');
+    expect(statuses.find(s => s.id === 3)?.name).toBe('Accepted');
+    expect(statuses.find(s => s.id === 4)?.name).toBe('Draft');
+    expect(statuses.find(s => s.id === 5)?.name).toBe('Revised');
+    expect(statuses.find(s => s.id === 6)?.name).toBe('Approved');
+    expect(statuses.find(s => s.id === 7)?.name).toBe('Rejected');
+    expect(statuses.find(s => s.id === 8)?.name).toBe('Deleted');
+    expect(statuses.find(s => s.id === 9)?.name).toBe('Requested');
+    expect(statuses.find(s => s.id === 10)?.name).toBe('Approved');
+    expect(statuses.find(s => s.id === 11)?.name).toBe('Postponed');
+  });
+
+  it('getStatusNameById returns correct names for all statuses', () => {
+    expect(service.getStatusNameById(1)).toBe('Editing');
+    expect(service.getStatusNameById(2)).toBe('Submitted');
+    expect(service.getStatusNameById(3)).toBe('Accepted');
+    expect(service.getStatusNameById(4)).toBe('Draft');
+    expect(service.getStatusNameById(5)).toBe('Revised');
+    expect(service.getStatusNameById(6)).toBe('Approved');
+    expect(service.getStatusNameById(7)).toBe('Rejected');
+    expect(service.getStatusNameById(8)).toBe('Deleted');
+    expect(service.getStatusNameById(9)).toBe('Requested');
+    expect(service.getStatusNameById(10)).toBe('Approved');
+    expect(service.getStatusNameById(11)).toBe('Postponed');
+  });
+
+  it('isEditableStatus handles edge cases', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 3 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
+  it('isEditableStatus handles status_id 0', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 0 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
+  it('isEditableStatus handles status_id -1', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: -1 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
+  it('isSubmitted handles status_id 0', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 0 });
+    expect(service.isSubmitted()).toBe(false);
+  });
+
+  it('isSubmitted handles status_id -1', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: -1 });
+    expect(service.isSubmitted()).toBe(false);
+  });
+
+  it('currentResultIsSubmitted handles status_id 0', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 0 });
+    expect(service.currentResultIsSubmitted()).toBe(false);
+  });
+
+  it('currentResultIsSubmitted handles status_id -1', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: -1 });
+    expect(service.currentResultIsSubmitted()).toBe(false);
+  });
+
+  it('currentResultIsSubmitted handles null status_id', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: null });
+    expect(service.currentResultIsSubmitted()).toBe(false);
+  });
+
+  it('currentResultIsSubmitted handles undefined status_id', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: undefined });
+    expect(service.currentResultIsSubmitted()).toBe(false);
+  });
 });
