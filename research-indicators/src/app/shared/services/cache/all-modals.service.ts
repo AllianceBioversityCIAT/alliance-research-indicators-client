@@ -44,11 +44,7 @@ export class AllModalsService {
       ...modals,
       submitResult: {
         ...modals.submitResult,
-        title,
-        icon: origin === 'latest' ? 'arrow_back' : modals.submitResult.icon,
-        iconAction: origin === 'latest' ? () => {
-          this.submitBackAction?.();
-        } : modals.submitResult.iconAction
+        title
       }
     }));
   }
@@ -74,9 +70,10 @@ export class AllModalsService {
       title: 'Review Result',
       cancelText: 'Cancel',
       confirmText: 'Confirm',
-      cancelAction: () => this.toggleModal('submitResult'),
+      cancelAction: () => this.submitBackAction?.() ?? this.toggleModal('submitResult'),
       confirmAction: () => this.submitReview?.(),
-      disabledConfirmAction: () => this.disabledSubmitReview?.() ?? false
+      disabledConfirmAction: () => this.disabledSubmitReview?.() ?? false,
+      iconAction: () => this.submitBackAction?.() ?? this.toggleModal('submitResult')
     },
     requestPartner: {
       isOpen: false,

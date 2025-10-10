@@ -441,35 +441,6 @@ describe('SubmitResultContentComponent', () => {
     expect(mockApiService.GET_Versions).not.toHaveBeenCalled();
   });
 
-  it('should handle handleSubmitBack method', async () => {
-    mockCacheService.currentMetadata!.set({ indicator_id: 5, status_id: 9 });
-    mockCacheService.getCurrentNumericResultId!.mockReturnValue(123);
-
-    await component.handleSubmitBack();
-
-    expect(mockCurrentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(5, 9, 123);
-  });
-
-  it('should handle handleSubmitBack with default values', async () => {
-    mockCacheService.currentMetadata!.set({});
-    mockCacheService.getCurrentNumericResultId!.mockReturnValue(0);
-
-    await component.handleSubmitBack();
-
-    // Should not call openEditRequestdOicrsModal when metadata is empty
-    expect(mockCurrentResultService.openEditRequestdOicrsModal).not.toHaveBeenCalled();
-  });
-
-  it('should handle handleSubmitBack with null metadata', async () => {
-    mockCacheService.currentMetadata!.set(null);
-    mockCacheService.getCurrentNumericResultId!.mockReturnValue(null);
-
-    await component.handleSubmitBack();
-
-    // Should not call openEditRequestdOicrsModal when metadata is null
-    expect(mockCurrentResultService.openEditRequestdOicrsModal).not.toHaveBeenCalled();
-  });
-
   it('should update form correctly', () => {
     component.updateForm('mel_regional_expert', 'test-expert');
     expect(component.form().mel_regional_expert).toBe('test-expert');
@@ -676,10 +647,6 @@ describe('SubmitResultContentComponent', () => {
     expect(component.form().mel_regional_expert).toBe('expert1');
     expect(component.form().oicr_internal_code).toBe('OICR-123');
     expect(component.form().sharepoint_link).toBe('https://test.com');
-  });
-
-  it('should register setSubmitBackAction callback in constructor', () => {
-    expect((mockAllModalsService.setSubmitBackAction as jest.Mock)).toHaveBeenCalled();
   });
 
   it('should build latest body correctly for approve', () => {
@@ -1036,6 +1003,88 @@ describe('SubmitResultContentComponent', () => {
       oicr_internal_code: '',
       mel_regional_expert: '',
       sharepoint_link: ''
+    });
+  });
+
+  it('should handle disabledConfirmSubmit with latest origin and statusId 10 and all fields filled', () => {
+    mockAllModalsService.submitResultOrigin = signal('latest');
+    mockSubmissionService.statusSelected = signal({ statusId: 10, commentLabel: undefined });
+    mockSubmissionService.comment = signal('');
+    
+    component.form.set({
+      mel_regional_expert: 'test expert',
+      oicr_internal_code: 'test code',
+      sharepoint_link: 'test link'
+    });
+    
+    const result = component.disabledConfirmSubmit();
+    
+    expect(result).toBe(false);
+  });
+
+  it('should handle disabledConfirmSubmit with latest origin and statusId 10 and missing fields', () => {
+    mockAllModalsService.submitResultOrigin = signal('latest');
+    mockSubmissionService.statusSelected = signal({ statusId: 10, commentLabel: undefined });
+    mockSubmissionService.comment = signal('');
+    
+    component.form.set({
+      mel_regional_expert: 'test expert',
+      oicr_internal_code: '',
+      sharepoint_link: 'test link'
+    });
+    
+    const result = component.disabledConfirmSubmit();
+    
+    expect(result).toBe(true);
+  });
+
+  it('should handle refreshTables error', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    mockProjectResultsTableService.getData = jest.fn().mockRejectedValue(new Error('Test error'));
+    mockResultsCenterService.main = jest.fn().mockRejectedValue(new Error('Test error'));
+    
+    await component['refreshTables']();
+    
+    expect(consoleSpy).toHaveBeenCalledWith('Error refreshing tables:', expect.any(Error));
+    consoleSpy.mockRestore();
+  });
+
+  it('should handle reviewOptions with non-latest origin', () => {
+    mockAllModalsService.submitResultOrigin = signal(null);
+    
+    const result = component.reviewOptions();
+    
+    expect(result).toEqual(component['baseReviewOptions']);
+  });
+
+  it('should handle reviewOptions with latest origin', () => {
+    mockAllModalsService.submitResultOrigin = signal('latest');
+    
+    const result = component.reviewOptions();
+    
+    // Should return the modified options for latest origin
+    expect(result).toHaveLength(3);
+    expect(result[0].key).toBe('approve');
+    expect(result[1].key).toBe('revise');
+    expect(result[2].key).toBe('reject');
+  });
+
+  it('should handle reviewOptions mapping with all conditions', () => {
+    mockAllModalsService.submitResultOrigin = signal('latest');
+    
+    // This test covers the return opt; line in the map function
+    const result = component.reviewOptions();
+    
+    // Verify that all options are processed and returned
+    expect(result).toBeDefined();
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBeGreaterThan(0);
+    
+    // Verify that the mapping function processes all options
+    result.forEach(option => {
+      expect(option).toHaveProperty('key');
+      expect(option).toHaveProperty('label');
+      expect(option).toHaveProperty('statusId');
     });
   });
 

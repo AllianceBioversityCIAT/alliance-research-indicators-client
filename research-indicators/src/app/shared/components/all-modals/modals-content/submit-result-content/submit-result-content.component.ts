@@ -41,7 +41,6 @@ export class SubmitResultContentComponent {
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
     this.allModalsService.setDisabledSubmitReview(() => this.disabledConfirmSubmit());
-    this.allModalsService.setSubmitBackAction(() => this.handleSubmitBack());
 
     let wasVisible = false;
     effect(() => {
@@ -137,22 +136,17 @@ export class SubmitResultContentComponent {
   disabledConfirmSubmit = (): boolean => {
     const selected = this.submissionService.statusSelected();
     const comment = this.submissionService.comment();
-    return !!selected?.commentLabel && !comment?.trim();
-  };
-
-  async handleSubmitBack(): Promise<void> {
-    this.allModalsService.closeModal('submitResult');
+    const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
+    const commentRequired = !!selected?.commentLabel && !comment?.trim();
     
-    const currentMetadata = this.cache.currentMetadata();
-    if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
-      const resultCode = this.cache.getCurrentNumericResultId();
-      await this.currentResultService.openEditRequestdOicrsModal(
-        currentMetadata.indicator_id,
-        currentMetadata.status_id,
-        resultCode
-      );
+    if (isLatest && selected?.statusId === 10) {
+      const form = this.form();
+      const allFieldsFilled = form.mel_regional_expert?.trim() && form.oicr_internal_code?.trim() && form.sharepoint_link?.trim();
+      return commentRequired || !allFieldsFilled;
     }
-  }
+    
+    return commentRequired;
+  };
 
   private async refreshTables(): Promise<void> {
     try {

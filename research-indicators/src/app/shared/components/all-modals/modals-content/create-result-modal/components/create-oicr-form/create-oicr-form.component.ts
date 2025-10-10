@@ -51,6 +51,7 @@ import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-f
 import { RolesService } from '@shared/services/cache/roles.service';
 import { ProjectResultsTableService } from '@pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
 import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
+import { CurrentResultService } from '@shared/services/cache/current-result.service';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
@@ -89,6 +90,7 @@ export class CreateOicrFormComponent {
   router = inject(Router);
   rolesService = inject(RolesService);
   projectResultsTableService = inject(ProjectResultsTableService);
+  currentResultService = inject(CurrentResultService);
   step4opened = signal(false);
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
@@ -491,7 +493,25 @@ export class CreateOicrFormComponent {
       leverSecond: leverParts?.second,
       status_id: this.createResultManagementService.statusId()
     });
+    
+    // Set up the cancel action to call handleSubmitBack
+    this.allModalsService.setSubmitBackAction(() => this.handleSubmitBack());
+    
     this.allModalsService.openModal('submitResult');
+  }
+
+  async handleSubmitBack(): Promise<void> {
+    this.allModalsService.closeModal('submitResult');
+    
+    const currentMetadata = this.cache.currentMetadata();
+    if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
+      const resultCode = this.cache.getCurrentNumericResultId();
+      await this.currentResultService.openEditRequestdOicrsModal(
+        currentMetadata.indicator_id,
+        currentMetadata.status_id,
+        resultCode
+      );
+    }
   }
 
   getStatusIdAsString(): string {
