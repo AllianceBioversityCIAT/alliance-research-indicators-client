@@ -45,4 +45,15 @@ export class ModalComponent {
     }
     return this.getConfig().title;
   }
+
+  handleCloseClick() {
+    const config = this.getConfig();
+    if (config.iconAction) {
+      config.iconAction();
+    } else if (config.cancelAction) {
+      config.cancelAction();
+    } else {
+      this.allModalsService.toggleModal(this.modalName);
+    }
+  }
 }
