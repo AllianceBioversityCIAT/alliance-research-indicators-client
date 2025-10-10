@@ -41,7 +41,6 @@ export class SubmitResultContentComponent {
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
     this.allModalsService.setDisabledSubmitReview(() => this.disabledConfirmSubmit());
-    this.allModalsService.setSubmitBackAction(() => this.handleSubmitBack());
 
     let wasVisible = false;
     effect(() => {
@@ -139,20 +138,6 @@ export class SubmitResultContentComponent {
     const comment = this.submissionService.comment();
     return !!selected?.commentLabel && !comment?.trim();
   };
-
-  async handleSubmitBack(): Promise<void> {
-    this.allModalsService.closeModal('submitResult');
-    
-    const currentMetadata = this.cache.currentMetadata();
-    if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
-      const resultCode = this.cache.getCurrentNumericResultId();
-      await this.currentResultService.openEditRequestdOicrsModal(
-        currentMetadata.indicator_id,
-        currentMetadata.status_id,
-        resultCode
-      );
-    }
-  }
 
   private async refreshTables(): Promise<void> {
     try {

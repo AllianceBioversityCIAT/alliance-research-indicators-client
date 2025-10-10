@@ -11,6 +11,13 @@
               >{{ getConfig().icon }}</i
             >
           }
+          @if (modalName === 'submitResult') {
+            <i
+              class="material-symbols-rounded cursor-pointer pr-2 !text-[22px]"
+              (click)="getConfig().cancelAction?.()"
+              (keydown.enter)="getConfig().cancelAction?.()"
+              title="Go back">arrow_back</i>
+          }
           <p class="font-[500] text-[18px]">{{ getModalTitle() }}</p>
         </header>
         <div
