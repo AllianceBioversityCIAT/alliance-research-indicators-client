@@ -478,7 +478,7 @@ export class CreateOicrFormComponent {
     this.allModalsService.closeModal('createResult');
     this.allModalsService.setSubmitBackStep(this.activeIndex());
     const contract = this.currentContract?.();
-    const lever = contract?.lever as string | undefined;
+    const lever = contract?.lever;
     const leverParts = this.leverParts?.();
     this.allModalsService.setSubmitHeader({
       title: this.createResultManagementService.resultTitle?.(),
