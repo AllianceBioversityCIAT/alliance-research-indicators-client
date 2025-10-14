@@ -82,6 +82,7 @@ export class CreateResultManagementService {
     this.presetFromProjectResultsTable.set(false);
     this.resultTitle.set(null);
     this.modalTitle.set('Create A Result');
+    this.statusId.set(null);
   }
 
   setContractId(contractId: string | null) {

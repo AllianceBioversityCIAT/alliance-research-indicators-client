@@ -3,7 +3,6 @@ import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
-import { GetContracts } from '../interfaces/get-contracts.interface';
 import { Result, ResultConfig, ResultFilter } from '../interfaces/result/result.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
@@ -98,15 +97,6 @@ export class ApiService {
 
   GET_MaturityLevels = (): Promise<MainResponse<MaturityLevel[]>> => {
     const url = () => `maturity-levels`;
-    return this.TP.get(url(), {});
-  };
-
-  GET_Contracts = (projectId?: string): Promise<MainResponse<GetContracts[]>> => {
-    const url = () => {
-      const baseUrl = 'agresso/contracts';
-      const queryParam = projectId ? `?project=${projectId}` : '';
-      return `${baseUrl}${queryParam}`;
-    };
     return this.TP.get(url(), {});
   };
 
@@ -509,6 +499,7 @@ export class ApiService {
     query?: string;
     page?: string;
     limit?: string;
+    project?: string;
   }): Promise<MainResponse<FindContractsResponse>> => {
     const url = () => 'agresso/contracts/find-contracts';
     const params = this.buildFindContractsParams(filters);
@@ -705,6 +696,7 @@ export class ApiService {
     query?: string;
     page?: string;
     limit?: string;
+    project?: string;
   }): HttpParams {
     let params = new HttpParams();
     if (!filters) return params;
@@ -719,7 +711,8 @@ export class ApiService {
       'end-date',
       'query',
       'page',
-      'limit'
+      'limit',
+      'project'
     ];
     filterKeys.forEach(key => {
       const value = filters[key];

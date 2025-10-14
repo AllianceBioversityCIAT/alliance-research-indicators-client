@@ -52,9 +52,17 @@ import { RolesService } from '@shared/services/cache/roles.service';
 import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
 import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
+import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 
 interface GetContractsExtended extends GetContracts {
   contract_id: string;
+  levers?: {
+    id: number;
+    full_name: string;
+    short_name: string;
+    other_names: string;
+    lever_url: string;
+  };
 }
 @Component({
   selector: 'app-create-oicr-form',
@@ -234,13 +242,13 @@ export class CreateOicrFormComponent {
           contract_id: contractId
         }));
         try {
-          const response = await this.api.GET_Contracts(contractId);
+          const response = await this.api.GET_FindContracts({ 'contract-code': contractId.toString() });
           if (response.successfulRequest && response.data) {
-            const contractsWithId = response.data.map(contract => ({
+            const contractsWithId = response.data.data.map((contract: FindContracts) => ({
               ...contract,
               contract_id: contract.agreement_id
             }));
-            this.contracts.set(contractsWithId);
+            this.contracts.set(contractsWithId as GetContractsExtended[]);
           }
         } catch (error) {
           console.error('Error loading contracts:', error);
@@ -413,6 +421,7 @@ export class CreateOicrFormComponent {
               this.createResultManagementService.currentRequestedResultCode.set(null);
               this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
               this.createResultManagementService.clearOicrBody();
+              this.createResultManagementService.setStatusId(null);
             };
 
             if (
@@ -457,6 +466,7 @@ export class CreateOicrFormComponent {
   goBackToCreateResult() {
     this.createResultManagementService.setModalTitle('Create A Result');
     this.createResultManagementService.resultPageStep.set(0);
+    this.createResultManagementService.setStatusId(null);
   }
 
   isGeoScopeId(value: number | string): boolean {
@@ -478,20 +488,25 @@ export class CreateOicrFormComponent {
     this.allModalsService.closeModal('createResult');
     this.allModalsService.setSubmitBackStep(this.activeIndex());
     const contract = this.currentContract?.();
-    const lever = contract?.lever;
-    const leverParts = this.leverParts?.();
+    
+    // Map the new lever structure - levers come directly in the contract object
+    const levers = contract?.levers ? {
+      id: contract.levers.id,
+      full_name: contract.levers.full_name,
+      short_name: contract.levers.short_name,
+      other_names: contract.levers.other_names,
+      lever_url: contract.levers.lever_url
+    } : null;
+    
     this.allModalsService.setSubmitHeader({
-      title: this.createResultManagementService.resultTitle?.(),
+      title: this.createResultManagementService.resultTitle?.() || undefined,
       agreement_id: contract?.agreement_id,
       description: contract?.description,
       project_lead_description: contract?.project_lead_description,
       start_date: contract?.start_date,
-      endDateGlobal: contract?.endDateGlobal,
-      lever,
-      leverUrl: contract?.leverUrl,
-      leverFirst: leverParts?.first,
-      leverSecond: leverParts?.second,
-      status_id: this.createResultManagementService.statusId()
+      endDateGlobal: contract?.endDateGlobal || undefined,
+      levers: levers || undefined,
+      status_id: this.createResultManagementService.statusId()?.toString() || undefined
     });
     
     // Set up the cancel action to call handleSubmitBack
@@ -502,6 +517,7 @@ export class CreateOicrFormComponent {
 
   async handleSubmitBack(): Promise<void> {
     this.allModalsService.closeModal('submitResult');
+    this.createResultManagementService.setStatusId(null);
     
     const currentMetadata = this.cache.currentMetadata();
     if (currentMetadata?.indicator_id && currentMetadata?.status_id) {

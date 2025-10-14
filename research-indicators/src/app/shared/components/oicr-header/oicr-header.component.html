@@ -33,19 +33,14 @@
     </div>
 
     <div class="flex items-center pt-1 xl:pt-1.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
-      @if (data?.['lever'] === 'Not available') {
-        Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ data?.['lever'] }}</span>
+      @if (data?.['levers']?.full_name === 'Not available' || !data?.['levers']) {
+        Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ data?.['levers']?.full_name || 'Not available' }}</span>
       } @else {
-        <img [src]="data?.['leverUrl']" alt="Lever" class="w-[22px] h-[22px] mr-1" />
-        @if ((data?.['lever'] || '').includes(':')) {
-          @if (data?.['leverFirst']) {
-            {{ data?.['leverFirst'] }} -
-          }
-          @if (data?.['leverSecond']) {
-            <span class="text-[13px] leading-[18px] text-[#77c83] font-['Barlow'] font-normal">{{ data?.['leverSecond'] }}</span>
-          }
+        <img [src]="data?.['levers']?.lever_url" alt="Lever" class="w-[22px] h-[22px] mr-1" />
+        @if (data?.['levers']?.full_name?.includes(':')) {
+          <span class="text-[13px] leading-[18px] text-[#77c83] font-['Barlow'] font-normal">{{ data?.['levers']?.full_name }}</span>
         } @else {
-          {{ data?.['lever'] || '' }}
+          {{ data?.['levers']?.short_name || data?.['levers']?.full_name || '' }}
         }
       }
     </div>
