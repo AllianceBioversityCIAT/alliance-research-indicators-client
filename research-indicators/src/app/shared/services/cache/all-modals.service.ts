@@ -2,6 +2,7 @@ import { effect, inject, Injectable, signal, WritableSignal } from '@angular/cor
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { ModalName } from '@ts-types/modal.types';
+import { OicrHeaderData } from '@shared/interfaces/oicr-header-data.interface';
 
 interface ModalConfig {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export class AllModalsService {
   partnerRequestSection = signal<string | null>(null);
   selectedResultForInfo = signal<Result | null>(null);
   submitResultOrigin = signal<'latest' | null>(null);
-  submitHeader = signal<Record<string, unknown> | null>(null);
+  submitHeader = signal<OicrHeaderData | null>(null);
   submitBackStep = signal<number | null>(null);
   createResultManagementService = inject(CreateResultManagementService);
   goBackFunction?: () => void;
@@ -49,7 +50,7 @@ export class AllModalsService {
     }));
   }
 
-  setSubmitHeader(header: Record<string, unknown> | null): void {
+  setSubmitHeader(header: OicrHeaderData | null): void {
     this.submitHeader.set(header);
   }
 

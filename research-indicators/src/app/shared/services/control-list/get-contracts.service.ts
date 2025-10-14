@@ -21,10 +21,10 @@ export class GetContractsService {
   async main() {
     this.loading.set(true);
     try {
-      const response = await this.api.GET_Contracts();
+      const response = await this.api.GET_FindContracts();
 
-      if (response?.data && Array.isArray(response.data)) {
-        this.list.set(response.data);
+      if (response?.data?.data && Array.isArray(response.data.data)) {
+        this.list.set(response.data.data as GetContracts[]);
 
         this.list.update(current =>
           current.map(item => ({

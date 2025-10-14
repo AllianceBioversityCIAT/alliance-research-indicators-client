@@ -75,6 +75,7 @@ describe('CreateOicrFormComponent', () => {
       resultTitle: signal(''),
       statusId: signal(9),
       setModalTitle: jest.fn(),
+      setStatusId: jest.fn(),
       clearOicrBody: jest.fn()
     };
 
@@ -275,6 +276,7 @@ describe('CreateOicrFormComponent', () => {
     component.goBackToCreateResult();
     
     expect(mockCreateResultManagementService.setModalTitle).toHaveBeenCalledWith('Create A Result');
+    expect(mockCreateResultManagementService.setStatusId).toHaveBeenCalledWith(null);
     // The resultPageStep.set is a signal method, so we can't spy on it directly
     // But we can verify the method was called
   });
@@ -303,49 +305,6 @@ describe('CreateOicrFormComponent', () => {
     
     mockCreateResultManagementService.statusId.set(null);
     expect(component.getStatusIdAsString()).toBe('9');
-  });
-
-  it('should handle openSubmitResultModal', () => {
-    // Mock the computed properties by setting up the service data
-    mockCreateResultManagementService.createOicrBody.set({
-      ...mockCreateResultManagementService.createOicrBody(),
-      base_information: { contract_id: 123 }
-    });
-    
-    // Mock the contracts signal to return our test data
-    component.contracts.set([{
-      contract_id: '123',
-      agreement_id: '123',
-      description: 'Test contract',
-      project_lead_description: 'Test lead',
-      start_date: '2023-01-01',
-      endDateGlobal: '2023-12-31',
-      lever: 'Test:Level',
-      leverUrl: 'test-url'
-    }]);
-    
-    mockCreateResultManagementService.resultTitle = signal('Test Result');
-    mockCreateResultManagementService.statusId = signal(5);
-    
-    component.openSubmitResultModal();
-    
-    expect(mockAllModalsService.setSubmitResultOrigin).toHaveBeenCalledWith('latest');
-    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('createResult');
-    expect(mockAllModalsService.setSubmitBackStep).toHaveBeenCalledWith(0);
-    expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith({
-      title: 'Test Result',
-      agreement_id: '123',
-      description: 'Test contract',
-      project_lead_description: 'Test lead',
-      start_date: '2023-01-01',
-      endDateGlobal: '2023-12-31',
-      lever: 'Test:Level',
-      leverUrl: 'test-url',
-      leverFirst: 'Test',
-      leverSecond: 'Level',
-      status_id: 5
-    });
-    expect(mockAllModalsService.openModal).toHaveBeenCalledWith('submitResult');
   });
 
   it('should handle isDisabled when form is incomplete', () => {
@@ -706,6 +665,7 @@ describe('CreateOicrFormComponent', () => {
     await component.handleSubmitBack();
     
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
+    expect(mockCreateResultManagementService.setStatusId).toHaveBeenCalledWith(null);
     // This test covers the handleSubmitBack method logic
   });
 
@@ -717,6 +677,7 @@ describe('CreateOicrFormComponent', () => {
     await component.handleSubmitBack();
     
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
+    expect(mockCreateResultManagementService.setStatusId).toHaveBeenCalledWith(null);
     // This test covers the handleSubmitBack method with no metadata
   });
 });

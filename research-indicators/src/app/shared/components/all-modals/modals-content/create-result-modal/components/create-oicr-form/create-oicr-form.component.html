@@ -75,10 +75,7 @@
       project_lead_description: currentContract()?.project_lead_description,
       start_date: currentContract()?.start_date,
       endDateGlobal: currentContract()?.endDateGlobal || undefined,
-      lever: currentContract()?.lever,
-      leverUrl: currentContract()?.leverUrl,
-      leverFirst: leverParts().first,
-      leverSecond: leverParts().second,
+      levers: currentContract()?.levers,
       status_id: getStatusIdAsString()
     }" [showTag]="this.createResultManagementService.editingOicr()" [showDownload]="this.createResultManagementService.editingOicr()"></app-oicr-header>
   }
