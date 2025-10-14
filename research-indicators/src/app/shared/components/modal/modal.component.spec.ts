@@ -179,4 +179,66 @@ describe('ModalComponent', () => {
     const componentMetadata = component.constructor as any;
     expect(componentMetadata).toBeDefined();
   });
+
+  it('handleCloseClick should call iconAction when available', () => {
+    const iconAction = jest.fn();
+    allModalsServiceMock.modalConfig.mockReturnValue({
+      createResult: {
+        isOpen: true,
+        title: 'Test',
+        iconAction
+      }
+    });
+    
+    component.handleCloseClick();
+    
+    expect(iconAction).toHaveBeenCalled();
+  });
+
+  it('handleCloseClick should call cancelAction when iconAction is not available', () => {
+    const cancelAction = jest.fn();
+    allModalsServiceMock.modalConfig.mockReturnValue({
+      createResult: {
+        isOpen: true,
+        title: 'Test',
+        cancelAction
+      }
+    });
+    
+    component.handleCloseClick();
+    
+    expect(cancelAction).toHaveBeenCalled();
+  });
+
+  it('handleCloseClick should call toggleModal when neither iconAction nor cancelAction are available', () => {
+    allModalsServiceMock.modalConfig.mockReturnValue({
+      createResult: {
+        isOpen: true,
+        title: 'Test'
+      }
+    });
+    
+    component.handleCloseClick();
+    
+    expect(allModalsServiceMock.toggleModal).toHaveBeenCalledWith(modalName);
+  });
+
+  it('handleCloseClick should prioritize iconAction over cancelAction', () => {
+    const iconAction = jest.fn();
+    const cancelAction = jest.fn();
+    allModalsServiceMock.modalConfig.mockReturnValue({
+      createResult: {
+        isOpen: true,
+        title: 'Test',
+        iconAction,
+        cancelAction
+      }
+    });
+    
+    component.handleCloseClick();
+    
+    expect(iconAction).toHaveBeenCalled();
+    expect(cancelAction).not.toHaveBeenCalled();
+    expect(allModalsServiceMock.toggleModal).not.toHaveBeenCalled();
+  });
 });
