@@ -68,7 +68,6 @@ export class ResultAiAssistantComponent {
   activeIndex = signal(0);
   loading = signal(false);
   interactionId: string | null = null;
-  aiOutput: Record<string, unknown> | null = null;
 
   steps = signal<Step[]>([
     { label: 'Uploading document', completed: false, inProgress: false, progress: 0 },
@@ -337,7 +336,6 @@ export class ResultAiAssistantComponent {
           }
         }
       }
-      this.aiOutput = aggregatedJsonContent;
       if (combinedResults.length === 0) {
         this.noResults.set(true);
         return;
@@ -512,14 +510,17 @@ export class ResultAiAssistantComponent {
 
   async submitFeedback() {
     this.loading.set(true);
+    const isNegative = this.feedbackType() === 'negative';
+    const commentText = isNegative && this.selectedType.length > 0
+      ? `${this.selectedType.map(id => this.badTypes.find(type => type.id.toString() === id)?.name).filter(Boolean).join(', ')}; ${this.body().feedbackText}`
+      : this.body().feedbackText;
     const feedbackBody: InteractionFeedbackPayload = {
       user_id: this.cache.dataCache().user?.email,
-      ai_output: this.aiOutput ?? null,
       service_name: 'text-mining',
       update_mode: true,
       interaction_id: this.interactionId,
       feedback_type: this.feedbackType(),
-      feedback_comment: this.body().feedbackText
+      feedback_comment: commentText
     };
     await this.api.POST_feedback(feedbackBody);
     this.actions.showToast({ severity: 'success', summary: 'Feedback', detail: 'Feedback sent successfully' });
