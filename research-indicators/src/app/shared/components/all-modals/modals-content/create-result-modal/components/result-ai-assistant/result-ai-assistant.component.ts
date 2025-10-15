@@ -68,7 +68,7 @@ export class ResultAiAssistantComponent {
   activeIndex = signal(0);
   loading = signal(false);
   interactionId: string | null = null;
-  aiOutput: any = null;
+  aiOutput: Record<string, unknown> | null = null;
 
   steps = signal<Step[]>([
     { label: 'Uploading document', completed: false, inProgress: false, progress: 0 },
@@ -305,7 +305,7 @@ export class ResultAiAssistantComponent {
       }
 
       let combinedResults: AIAssistantResult[] = [];
-      let aggregatedJsonContent: any = null;
+      let aggregatedJsonContent: Record<string, unknown> | null = null;
       for (const item of this.miningResponse) {
         if (item?.text) {
           try {
@@ -313,15 +313,22 @@ export class ResultAiAssistantComponent {
             if (!this.interactionId && parsedText?.interaction_id) {
               this.interactionId = String(parsedText.interaction_id);
             }
-            const jsonContent = parsedText?.json_content;
-            if (jsonContent) {
+            const jsonContent: unknown = parsedText?.json_content;
+            if (jsonContent && typeof jsonContent === 'object') {
+              const currentResults = Array.isArray((jsonContent as { results?: unknown[] }).results)
+                ? ((jsonContent as { results?: unknown[] }).results as unknown[])
+                : [];
               if (!aggregatedJsonContent) {
-                aggregatedJsonContent = { ...jsonContent, results: Array.isArray(jsonContent.results) ? [...jsonContent.results] : [] };
-              } else if (Array.isArray(jsonContent.results) && jsonContent.results.length > 0) {
-                aggregatedJsonContent.results = [...aggregatedJsonContent.results, ...jsonContent.results];
+                aggregatedJsonContent = {
+                  ...(jsonContent as Record<string, unknown>),
+                  results: [...currentResults]
+                };
+              } else if (currentResults.length > 0) {
+                const prevResults = ((aggregatedJsonContent as Record<string, unknown>)['results'] as unknown[]) ?? [];
+                (aggregatedJsonContent as Record<string, unknown>)['results'] = [...prevResults, ...currentResults];
               }
             }
-            const results = (jsonContent?.results) ?? parsedText?.results ?? [];
+            const results = ((jsonContent as { results?: unknown[] })?.results) ?? parsedText?.results ?? [];
             if (Array.isArray(results) && results.length > 0) {
               combinedResults = combinedResults.concat(results);
             }
