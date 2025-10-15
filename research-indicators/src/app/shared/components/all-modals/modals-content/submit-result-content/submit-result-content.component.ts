@@ -139,6 +139,8 @@ export class SubmitResultContentComponent {
     const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
     const commentRequired = !!selected?.commentLabel && !comment?.trim();
     
+    if (!selected) return true;
+    
     if (isLatest && selected?.statusId === 10) {
       const form = this.form();
       const allFieldsFilled = form.mel_regional_expert?.trim() && form.oicr_internal_code?.trim() && form.sharepoint_link?.trim();

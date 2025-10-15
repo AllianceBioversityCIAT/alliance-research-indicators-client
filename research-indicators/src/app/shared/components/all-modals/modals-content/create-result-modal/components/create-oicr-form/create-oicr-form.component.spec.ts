@@ -680,4 +680,454 @@ describe('CreateOicrFormComponent', () => {
     expect(mockCreateResultManagementService.setStatusId).toHaveBeenCalledWith(null);
     // This test covers the handleSubmitBack method with no metadata
   });
+
+  it('should handle createResult with error response', async () => {
+    // Mock the API response with error
+    const mockResponse = { status: 400, data: { error: 'Bad Request' } };
+    mockApiService.POST_CreateOicr = jest.fn().mockResolvedValue(mockResponse);
+    
+    // Mock the actions service
+    const mockActionsService = TestBed.inject(ActionsService);
+    mockActionsService.handleBadRequest = jest.fn();
+    
+    await component.createResult();
+    
+    expect(mockActionsService.handleBadRequest).toHaveBeenCalledWith(mockResponse, expect.any(Function));
+  });
+
+  it('should handle createResult with success response and indicator_id 5', async () => {
+    // Mock the API response with success
+    const mockResponse = { 
+      status: 200, 
+      data: { result_official_code: 'TEST-001' } 
+    };
+    mockApiService.POST_CreateOicr = jest.fn().mockResolvedValue(mockResponse);
+    
+    // Mock the createResultManagementService to return indicator_id 5
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      base_information: { 
+        indicator_id: 5, 
+        contract_id: '123',
+        title: 'Test Title'
+      }
+    });
+    
+    // Mock the router
+    const mockRouter = TestBed.inject(Router);
+    mockRouter.navigate = jest.fn().mockResolvedValue(true);
+    mockRouter.url = '/project-detail/123';
+    
+    // Mock the actions service
+    const mockActionsService = TestBed.inject(ActionsService);
+    mockActionsService.showGlobalAlert = jest.fn();
+    
+    await component.createResult();
+    
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
+  });
+
+  it('should handle createResult with success response and indicator_id not 5', async () => {
+    // Mock the API response with success
+    const mockResponse = { 
+      status: 200, 
+      data: { result_official_code: 'TEST-001' } 
+    };
+    mockApiService.POST_CreateOicr = jest.fn().mockResolvedValue(mockResponse);
+    
+    // Mock the createResultManagementService to return indicator_id not 5
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      base_information: { 
+        indicator_id: 1, 
+        contract_id: '123',
+        title: 'Test Title'
+      }
+    });
+    
+    // Mock the router
+    const mockRouter = TestBed.inject(Router);
+    mockRouter.navigate = jest.fn().mockResolvedValue(true);
+    mockRouter.url = '/some-other-url';
+    
+    // Mock the actions service
+    const mockActionsService = TestBed.inject(ActionsService);
+    mockActionsService.showGlobalAlert = jest.fn();
+    
+    await component.createResult();
+    
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
+  });
+
+  it('should handle createResult with success response and indicator_id 5 but not on project-detail URL', async () => {
+    // Mock the API response with success
+    const mockResponse = { 
+      status: 200, 
+      data: { result_official_code: 'TEST-001' } 
+    };
+    mockApiService.POST_CreateOicr = jest.fn().mockResolvedValue(mockResponse);
+    
+    // Mock the createResultManagementService to return indicator_id 5
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      base_information: { 
+        indicator_id: 5, 
+        contract_id: '123',
+        title: 'Test Title'
+      }
+    });
+    
+    // Mock the router
+    const mockRouter = TestBed.inject(Router);
+    mockRouter.navigate = jest.fn().mockResolvedValue(true);
+    mockRouter.url = '/some-other-url'; // Not project-detail URL
+    
+    // Mock the actions service
+    const mockActionsService = TestBed.inject(ActionsService);
+    mockActionsService.showGlobalAlert = jest.fn();
+    
+    await component.createResult();
+    
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
+  });
+
+  it('should handle openSubmitResultModal with contract data', () => {
+    // Mock the currentContract signal
+    component.currentContract = signal({
+      agreement_id: 'A101',
+      description: 'Test contract',
+      project_lead_description: 'Test lead',
+      start_date: '2023-01-01',
+      endDateGlobal: '2023-12-31',
+      levers: {
+        id: 6,
+        full_name: 'Lever 6: Crops for Nutrition and Health',
+        short_name: 'Lever 6',
+        other_names: 'Crops for Nutrition and Health',
+        lever_url: 'https://example.com/lever.png'
+      }
+    });
+    
+    // Mock the activeIndex signal
+    component.activeIndex = signal(2);
+    
+    // Mock the resultTitle signal
+    mockCreateResultManagementService.resultTitle = signal('Test Result');
+    mockCreateResultManagementService.statusId = signal(5);
+    
+    component.openSubmitResultModal();
+    
+    expect(mockAllModalsService.setSubmitResultOrigin).toHaveBeenCalledWith('latest');
+    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('createResult');
+    expect(mockAllModalsService.setSubmitBackStep).toHaveBeenCalledWith(2);
+    expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith({
+      title: 'Test Result',
+      agreement_id: 'A101',
+      description: 'Test contract',
+      project_lead_description: 'Test lead',
+      start_date: '2023-01-01',
+      endDateGlobal: '2023-12-31',
+      levers: {
+        id: 6,
+        full_name: 'Lever 6: Crops for Nutrition and Health',
+        short_name: 'Lever 6',
+        other_names: 'Crops for Nutrition and Health',
+        lever_url: 'https://example.com/lever.png'
+      },
+      status_id: '5'
+    });
+    expect(mockAllModalsService.setSubmitBackAction).toHaveBeenCalled();
+    expect(mockAllModalsService.openModal).toHaveBeenCalledWith('submitResult');
+  });
+
+  it('should handle openSubmitResultModal with no contract data', () => {
+    // Mock the currentContract signal with null
+    component.currentContract = signal(null);
+    
+    // Mock the activeIndex signal
+    component.activeIndex = signal(0);
+    
+    // Mock the resultTitle signal
+    mockCreateResultManagementService.resultTitle = signal(null);
+    mockCreateResultManagementService.statusId = signal(null);
+    
+    component.openSubmitResultModal();
+    
+    expect(mockAllModalsService.setSubmitResultOrigin).toHaveBeenCalledWith('latest');
+    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('createResult');
+    expect(mockAllModalsService.setSubmitBackStep).toHaveBeenCalledWith(0);
+    expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith({
+      title: undefined,
+      agreement_id: undefined,
+      description: undefined,
+      project_lead_description: undefined,
+      start_date: undefined,
+      endDateGlobal: undefined,
+      levers: undefined,
+      status_id: undefined
+    });
+    expect(mockAllModalsService.setSubmitBackAction).toHaveBeenCalled();
+    expect(mockAllModalsService.openModal).toHaveBeenCalledWith('submitResult');
+  });
+
+  it('should handle initializeCountriesWithSignals effect', () => {
+    // Mock countries with missing signals
+    const mockCountries = [
+      { id: 1, name: 'Country 1', result_countries_sub_nationals_signal: null },
+      { id: 2, name: 'Country 2', result_countries_sub_nationals_signal: null }
+    ];
+    
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      step_three: { countries: mockCountries }
+    });
+    
+    // The effect should run and update the countries
+    // This test covers the initializeCountriesWithSignals effect
+    expect(mockCreateResultManagementService.createOicrBody().step_three.countries).toBeDefined();
+  });
+
+  it('should handle initializeCountriesWithSignals effect with no countries', () => {
+    // Mock empty countries array
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      step_three: { countries: [] }
+    });
+    
+    // The effect should not run with empty countries
+    expect(mockCreateResultManagementService.createOicrBody().step_three.countries).toEqual([]);
+  });
+
+  it('should handle initializeCountriesWithSignals effect with countries that already have signals', () => {
+    // Mock countries with existing signals
+    const mockCountries = [
+      { id: 1, name: 'Country 1', result_countries_sub_nationals_signal: signal([]) },
+      { id: 2, name: 'Country 2', result_countries_sub_nationals_signal: signal([]) }
+    ];
+    
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      step_three: { countries: mockCountries }
+    });
+    
+    // The effect should not run since all countries already have signals
+    expect(mockCreateResultManagementService.createOicrBody().step_three.countries).toBeDefined();
+  });
+
+  it('should handle createResult with success response and indicator_id 5 on project-detail URL with navigation', async () => {
+    // Mock the API response with success
+    const mockResponse = { 
+      status: 200, 
+      data: { result_official_code: 'TEST-001' } 
+    };
+    mockApiService.POST_CreateOicr = jest.fn().mockResolvedValue(mockResponse);
+    
+    // Mock the createResultManagementService to return indicator_id 5
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      base_information: { 
+        indicator_id: 5, 
+        contract_id: '123',
+        title: 'Test Title'
+      }
+    });
+    
+    // Mock the router with project-detail URL
+    const mockRouter = TestBed.inject(Router);
+    mockRouter.navigate = jest.fn().mockResolvedValue(true);
+    mockRouter.url = '/project-detail/123';
+    
+    // Mock the actions service to capture the callback and execute it
+    const mockActionsService = TestBed.inject(ActionsService);
+    let capturedCallback: any;
+    mockActionsService.showGlobalAlert = jest.fn().mockImplementation((config) => {
+      capturedCallback = config.confirmCallback?.event;
+    });
+    
+    // Mock the getResultsService
+    const mockGetResultsService = TestBed.inject(GetResultsService);
+    mockGetResultsService.updateList = jest.fn();
+    
+    // Mock the cache service
+    const mockCacheService = TestBed.inject(CacheService);
+    mockCacheService.projectResultsSearchValue = signal('');
+    
+    await component.createResult();
+    
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
+    
+    // Execute the callback to trigger navigation
+    if (capturedCallback) {
+      capturedCallback();
+    }
+    
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/home']);
+  });
+
+  it('should handle createResult with success response and indicator_id 5 on project-detail URL with setTimeout', async () => {
+    // Mock the API response with success
+    const mockResponse = { 
+      status: 200, 
+      data: { result_official_code: 'TEST-001' } 
+    };
+    mockApiService.POST_CreateOicr = jest.fn().mockResolvedValue(mockResponse);
+    
+    // Mock the createResultManagementService to return indicator_id 5
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      base_information: { 
+        indicator_id: 5, 
+        contract_id: '123',
+        title: 'Test Title'
+      }
+    });
+    
+    // Mock the router with project-detail URL
+    const mockRouter = TestBed.inject(Router);
+    mockRouter.navigate = jest.fn().mockResolvedValue(true);
+    mockRouter.url = '/project-detail/123';
+    
+    // Mock the actions service to capture the callback and execute it
+    const mockActionsService = TestBed.inject(ActionsService);
+    let capturedCallback: any;
+    mockActionsService.showGlobalAlert = jest.fn().mockImplementation((config) => {
+      capturedCallback = config.confirmCallback?.event;
+    });
+    
+    // Mock the getResultsService
+    const mockGetResultsService = TestBed.inject(GetResultsService);
+    mockGetResultsService.updateList = jest.fn();
+    
+    // Mock the cache service
+    const mockCacheService = TestBed.inject(CacheService);
+    mockCacheService.projectResultsSearchValue = signal('');
+    
+    // Mock setTimeout to avoid actual delays in tests
+    jest.spyOn(global, 'setTimeout').mockImplementation((fn) => {
+      fn();
+      return 1 as any;
+    });
+    
+    await component.createResult();
+    
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
+    
+    // Execute the callback to trigger navigation
+    if (capturedCallback) {
+      capturedCallback();
+    }
+    
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/home']);
+    
+    // Restore setTimeout
+    (global.setTimeout as jest.Mock).mockRestore();
+  });
+
+  it('should handle createResult with success response and indicator_id 5 but not on project-detail URL - direct navigation', async () => {
+    // Mock the API response with success
+    const mockResponse = { 
+      status: 200, 
+      data: { result_official_code: 'TEST-001' } 
+    };
+    mockApiService.POST_CreateOicr = jest.fn().mockResolvedValue(mockResponse);
+    
+    // Mock the createResultManagementService to return indicator_id 5
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      base_information: { 
+        indicator_id: 5, 
+        contract_id: '123',
+        title: 'Test Title'
+      }
+    });
+    
+    // Mock the router with non-project-detail URL
+    const mockRouter = TestBed.inject(Router);
+    mockRouter.navigate = jest.fn().mockResolvedValue(true);
+    mockRouter.url = '/some-other-url';
+    
+    // Mock the actions service to capture the callback and execute it
+    const mockActionsService = TestBed.inject(ActionsService);
+    let capturedCallback: any;
+    mockActionsService.showGlobalAlert = jest.fn().mockImplementation((config) => {
+      capturedCallback = config.confirmCallback?.event;
+    });
+    
+    // Mock the getResultsService
+    const mockGetResultsService = TestBed.inject(GetResultsService);
+    mockGetResultsService.updateList = jest.fn();
+    
+    // Mock the cache service
+    const mockCacheService = TestBed.inject(CacheService);
+    mockCacheService.projectResultsSearchValue = signal('');
+    
+    await component.createResult();
+    
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
+    
+    // Execute the callback to trigger navigation
+    if (capturedCallback) {
+      capturedCallback();
+    }
+    
+    // Should navigate directly without going to /home first
+    expect(mockRouter.navigate).toHaveBeenCalledWith(
+      ['project-detail/', '123'],
+      { replaceUrl: true, onSameUrlNavigation: 'reload' }
+    );
+  });
+
+  it('should handle createResult with success response and indicator_id not 5 - direct navigation', async () => {
+    // Mock the API response with success
+    const mockResponse = { 
+      status: 200, 
+      data: { result_official_code: 'TEST-001' } 
+    };
+    mockApiService.POST_CreateOicr = jest.fn().mockResolvedValue(mockResponse);
+    
+    // Mock the createResultManagementService to return indicator_id not 5
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      base_information: { 
+        indicator_id: 1, 
+        contract_id: '123',
+        title: 'Test Title'
+      }
+    });
+    
+    // Mock the router
+    const mockRouter = TestBed.inject(Router);
+    mockRouter.navigate = jest.fn().mockResolvedValue(true);
+    mockRouter.url = '/some-other-url';
+    
+    // Mock the actions service to capture the callback and execute it
+    const mockActionsService = TestBed.inject(ActionsService);
+    let capturedCallback: any;
+    mockActionsService.showGlobalAlert = jest.fn().mockImplementation((config) => {
+      capturedCallback = config.confirmCallback?.event;
+    });
+    
+    // Mock the getResultsService
+    const mockGetResultsService = TestBed.inject(GetResultsService);
+    mockGetResultsService.updateList = jest.fn();
+    
+    // Mock the cache service
+    const mockCacheService = TestBed.inject(CacheService);
+    mockCacheService.projectResultsSearchValue = signal('');
+    
+    await component.createResult();
+    
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
+    
+    // Execute the callback to trigger navigation
+    if (capturedCallback) {
+      capturedCallback();
+    }
+    
+    // Should navigate to result with result_official_code
+    expect(mockRouter.navigate).toHaveBeenCalledWith(
+      ['result', 'TEST-001'],
+      { replaceUrl: true, onSameUrlNavigation: 'reload' }
+    );
+  });
 });

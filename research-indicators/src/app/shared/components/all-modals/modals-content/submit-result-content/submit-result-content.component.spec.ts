@@ -7,7 +7,7 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '../../../../services/submission.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { Router } from '@angular/router';
-import { signal, computed } from '@angular/core';
+import { signal } from '@angular/core';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 import { ProjectResultsTableService } from '@pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
@@ -186,7 +186,7 @@ describe('SubmitResultContentComponent', () => {
   it('should compute disabledConfirmSubmit correctly', () => {
     // No selection - should be disabled
     mockSubmissionService.statusSelected.set(null);
-    expect(component.disabledConfirmSubmit()).toBe(false);
+    expect(component.disabledConfirmSubmit()).toBe(true);
 
     // Selected option without commentLabel - should be enabled
     const approveOption = { statusId: 6, commentLabel: undefined };
@@ -254,7 +254,7 @@ describe('SubmitResultContentComponent', () => {
     expect((mockAllModalsService.setDisabledSubmitReview as jest.Mock)).toHaveBeenCalled();
     const disabledCb = (mockAllModalsService.setDisabledSubmitReview as jest.Mock).mock.calls[0][0] as () => boolean;
     // With default selection/comment it should be false (enabled)
-    expect(disabledCb()).toBe(false);
+    expect(disabledCb()).toBe(true);
   });
 
   it('should execute the submit callback registered by constructor', async () => {
@@ -735,7 +735,7 @@ describe('SubmitResultContentComponent', () => {
     
     const result = component.disabledConfirmSubmit();
     
-    expect(result).toBe(false);
+    expect(result).toBe(true);
   });
 
   it('should handle submittionOptions computed', () => {
