@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, signal, ViewChild, WritableSignal } from '@angular/core';
+import { Component, effect, ElementRef, inject, signal, ViewChild, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../../../shared/services/api.service';
@@ -17,6 +17,7 @@ import { NavigationButtonsComponent } from '@shared/components/navigation-button
 import { GetSdgsService } from '@shared/services/control-list/get-sdgs.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
+import { Lever } from '@shared/interfaces/oicr-creation.interface';
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -29,7 +30,9 @@ export default class AllianceAlignmentComponent {
   getSdgsService = inject(GetSdgsService);
   body: WritableSignal<GetAllianceAlignment> = signal({
     contracts: [],
-    result_sdgs: []
+    result_sdgs: [],
+    primary_levers: [],
+    contributor_levers: []
   });
   apiService = inject(ApiService);
   cache = inject(CacheService);
@@ -60,11 +63,32 @@ export default class AllianceAlignmentComponent {
           ...sdg,
           sdg_id: sdg.clarisa_sdg_id, // Map clarisa_sdg_id to sdg_id for the multiselect
           is_primary: false // By default it is not primary
-        })) || []
+        })) || [],
+      primary_levers: response.data.primary_levers || [],
+      contributor_levers: response.data.contributor_levers || []
     };
 
     this.body.set(mappedData);
   }
+
+  optionsDisabled: WritableSignal<Lever[]> = signal([]);
+  primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
+
+  updateOptionsDisabledEffect = effect(
+    () => {
+      const primaryLevers = this.body().primary_levers || [];
+      this.optionsDisabled.set(primaryLevers);
+    },
+    { allowSignalWrites: true }
+  );
+
+  updatePrimaryOptionsDisabledEffect = effect(
+    () => {
+      const contributorLevers = this.body().contributor_levers || [];
+      this.primaryOptionsDisabled.set(contributorLevers);
+    },
+    { allowSignalWrites: true }
+  );
 
   canRemove = (): boolean => {
     return this.submission.isEditableStatus();

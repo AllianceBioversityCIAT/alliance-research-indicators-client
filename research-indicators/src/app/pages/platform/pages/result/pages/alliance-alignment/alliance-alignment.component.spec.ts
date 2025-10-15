@@ -96,7 +96,12 @@ describe('AllianceAlignmentComponent', () => {
   it('should handle getData with empty response', async () => {
     api.GET_Alignments.mockResolvedValue({ data: {} });
     await component.getData();
-    expect(component.body()).toEqual({ contracts: [], result_sdgs: [] });
+    expect(component.body()).toEqual({ 
+      contracts: [], 
+      result_sdgs: [],
+      primary_levers: [],
+      contributor_levers: []
+    });
   });
 
   it('should call PATCH_Alignments and show toast on saveData', async () => {

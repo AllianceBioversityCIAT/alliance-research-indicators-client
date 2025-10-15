@@ -104,15 +104,14 @@
                   </div>
 
                   <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
-                    @if (contract.lever === 'Not available') {
-                      Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ contract.lever }}</span>
+                    @if (contract.levers?.full_name === 'Not available' || !contract.levers) {
+                      Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ contract.levers?.full_name || 'Not available' }}</span>
                     } @else {
-                      <img [src]="contract.leverUrl" alt="Lever" class="w-[22px] h-[22px] mr-1" />
-                      @if (contract.lever?.includes(':')) {
-                        {{ contract.lever?.split(':')[0] }} -
-                        <span class="text-[13px] leading-[18px] text-[#777c83] font-['Barlow'] font-normal">{{ contract.lever?.split(':')[1] }}</span>
+                      <img [src]="contract.levers?.lever_url" alt="Lever" class="w-[22px] h-[22px] mr-1" />
+                      @if (contract.levers?.full_name?.includes(':')) {
+                        <span class="text-[13px] leading-[18px] text-[#77c83] font-['Barlow'] font-normal">{{ contract.levers?.full_name }}</span>
                       } @else {
-                        {{ contract.lever }}
+                        {{ contract.levers?.short_name || contract.levers?.full_name || '' }}
                       }
                     }
                   </div>
@@ -120,7 +119,89 @@
               </ng-template>
             </app-multiselect>
           </div>
-          <div>
+
+          <div class="flex flex-col pt-2">
+            <app-multiselect
+              label="Primary Levers"
+              [disabled]="!submission.isEditableStatus()"
+              [signal]="body"
+              optionValue="lever_id"
+              signalOptionValue="primary_levers"
+              [isRequired]="true"
+              [columnsOnXl]="true"
+              [textSpan]="'Levers selected'"
+              scrollHeight="260px"
+              serviceName="levers"
+              [optionsDisabled]="primaryOptionsDisabled"
+              placeholder="Select the levers">
+              <ng-template #selectedItems let-value>
+                @if (value?.length > 0) {
+                  <div class="flex items-center gap-2">
+                    <span>{{ value?.length }} Lever{{ value?.length === 1 ? '' : 's' }} selected </span>
+                  </div>
+                }
+              </ng-template>
+              <ng-template #item let-item>
+                <div class="flex items-center gap-2 text-[##4C5158]">
+                  <span class="font-[600]">
+                    {{ item?.short_name }}: <span class="font-['Barlow'] font-normal">{{ item?.other_names }}</span></span
+                  >
+                </div>
+              </ng-template>
+              <ng-template #rows let-lever>
+                <div class="flex-col flex w-full">
+                  <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                    <img [src]="lever.icon" [alt]="lever.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
+                    <span class="text-[15px] text-[#4C5158] font-[600]">
+                      {{ lever?.short_name }}: <span class="font-['Barlow'] font-normal">{{ lever?.other_names }}</span></span
+                    >
+                  </div>
+                </div>
+              </ng-template>
+            </app-multiselect>
+          </div>
+
+          <div class="flex flex-col pt-2">
+            <app-multiselect
+              label="Other Contributing Levers"
+              [disabled]="!submission.isEditableStatus()"
+              [signal]="body"
+              optionValue="lever_id"
+              signalOptionValue="contributor_levers"
+              [columnsOnXl]="true"
+              scrollHeight="260px"
+              serviceName="levers"
+              [textSpan]="'Levers selected'"
+              [optionsDisabled]="optionsDisabled"
+              placeholder="Select the levers">
+              <ng-template #selectedItems let-value>
+                @if (value?.length > 0) {
+                  <div class="flex items-center gap-2">
+                    <span>{{ value?.length }} Lever{{ value?.length === 1 ? '' : 's' }} selected </span>
+                  </div>
+                }
+              </ng-template>
+              <ng-template #item let-item>
+                <div class="flex items-center gap-2">
+                  <span class="font-[600] text-[##4C5158]">
+                    {{ item?.short_name }}: <span class="font-['Barlow'] font-normal">{{ item?.other_names }}</span></span
+                  >
+                </div>
+              </ng-template>
+              <ng-template #rows let-lever>
+                <div class="flex-col flex w-full">
+                  <div class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+                    <img [src]="lever.icon" [alt]="lever.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
+                    <span class="text-[15px] text-[#4C5158] font-[600]">
+                      {{ lever?.short_name }}: <span class="font-['Barlow'] font-normal">{{ lever?.other_names }}</span></span
+                    >
+                  </div>
+                </div>
+              </ng-template>
+            </app-multiselect>
+          </div>
+
+          <div class="flex flex-col pt-2">
             <app-multiselect
               label="Contribution to SDG targets"
               [signal]="body"
