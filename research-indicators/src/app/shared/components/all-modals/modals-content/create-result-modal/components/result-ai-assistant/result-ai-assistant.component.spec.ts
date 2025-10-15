@@ -60,7 +60,7 @@ describe('ResultAiAssistantComponent', () => {
 
     apiServiceMock = {
       GET_IssueCategories: jest.fn().mockResolvedValue({ data: [] }),
-      POST_DynamoFeedback: jest.fn().mockResolvedValue({})
+      POST_feedback: jest.fn().mockResolvedValue({})
     } as Partial<ApiService>;
 
     getContractsServiceMock = {
@@ -74,7 +74,7 @@ describe('ResultAiAssistantComponent', () => {
     } as Partial<CreateResultManagementService>;
 
     cacheServiceMock = {
-      dataCache: signal({ user: { id: 1 } })
+      dataCache: signal({ user: { id: 1, email: 'user@test.com' } })
     };
 
     await TestBed.configureTestingModule({
@@ -280,35 +280,35 @@ describe('ResultAiAssistantComponent', () => {
   });
 
   it('feedback panel flow and submitFeedback', async () => {
-    // open bad feedback
-    component.toggleFeedback('bad');
+    // open negative feedback
+    component.toggleFeedback('negative');
     expect(component.showFeedbackPanel()).toBe(true);
-    expect(component.feedbackType()).toBe('bad');
+    expect(component.feedbackType()).toBe('negative');
     expect(component.isRequired()).toBe(true);
     component.selectType('t1');
     component.body.update(b => ({ ...b, feedbackText: 'desc' }));
     component.miningResponse = [{ text: 'x' }];
     await component.submitFeedback();
-    expect(apiServiceMock.POST_DynamoFeedback).toHaveBeenCalled();
+    expect(apiServiceMock.POST_feedback).toHaveBeenCalled();
     expect(actionsServiceMock.showToast).toHaveBeenCalled();
     expect(component.feedbackSent).toBe(true);
-    expect(component.lastFeedbackType).toBe('bad');
+    expect(component.lastFeedbackType).toBe('negative');
     expect(component.showFeedbackPanel()).toBe(false);
   });
 
   it('toggleFeedback should close when same type clicked and reopen when switching type', () => {
     jest.useFakeTimers();
     const removeSpy = jest.spyOn(document, 'removeEventListener');
-    // open good
-    component.toggleFeedback('good');
+    // open positive
+    component.toggleFeedback('positive');
     jest.runOnlyPendingTimers();
     expect(component.showFeedbackPanel()).toBe(true);
     // click same type -> close
-    component.toggleFeedback('good');
+    component.toggleFeedback('positive');
     expect(component.showFeedbackPanel()).toBe(false);
     expect(removeSpy).toHaveBeenCalledWith('click', component.handleOutsideClick);
-    // switch to bad -> close then reopen with delay
-    component.toggleFeedback('bad');
+    // switch to negative -> close then reopen with delay
+    component.toggleFeedback('negative');
     jest.advanceTimersByTime(200);
     expect(component.showFeedbackPanel()).toBe(true);
     jest.useRealTimers();
@@ -318,11 +318,11 @@ describe('ResultAiAssistantComponent', () => {
     jest.useFakeTimers();
     const addSpy = jest.spyOn(document, 'addEventListener');
     const removeSpy = jest.spyOn(document, 'removeEventListener');
-    // open with good
-    component.toggleFeedback('good');
+    // open with positive
+    component.toggleFeedback('positive');
     jest.runOnlyPendingTimers();
-    // switch to bad triggers close then reopen after 100ms and then inner attach
-    component.toggleFeedback('bad');
+    // switch to negative triggers close then reopen after 100ms and then inner attach
+    component.toggleFeedback('negative');
     // first close removes listener
     expect(removeSpy).toHaveBeenCalledWith('click', component.handleOutsideClick);
     // advance to trigger reopen and inner attach
@@ -335,7 +335,7 @@ describe('ResultAiAssistantComponent', () => {
   it('toggleFeedback initial open should attach outside click listener', () => {
     jest.useFakeTimers();
     const addSpy = jest.spyOn(document, 'addEventListener');
-    component.toggleFeedback('good');
+    component.toggleFeedback('positive');
     jest.runOnlyPendingTimers();
     expect(component.showFeedbackPanel()).toBe(true);
     expect(addSpy).toHaveBeenCalledWith('click', component.handleOutsideClick);

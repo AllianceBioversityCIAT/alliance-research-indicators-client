@@ -70,6 +70,8 @@ import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
+import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
+
 
 @Injectable({
   providedIn: 'root'
@@ -781,5 +783,10 @@ export class ApiService {
   fastResponse = (body: { prompt: string; input_text: string }) => {
     const url = () => `fast-response`;
     return this.TP.post(url(), body, { isAuth: environment.fastResponseUrl });
+  };
+
+  POST_feedback = (body: InteractionFeedbackPayload) => {
+    const url = () => `interactions`;
+    return this.TP.post(url(), body, { isAuth: environment.feedbackUrl });
   };
 }

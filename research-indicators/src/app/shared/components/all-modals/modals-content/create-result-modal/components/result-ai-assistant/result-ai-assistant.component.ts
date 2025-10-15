@@ -21,6 +21,7 @@ import { TextareaComponent } from '@shared/components/custom-fields/textarea/tex
 import { ApiService } from '@shared/services/api.service';
 import { IssueCategory } from '@shared/interfaces/issue-category.interface';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
 
 export interface TextMiningResponse {
   text: string;
@@ -66,6 +67,7 @@ export class ResultAiAssistantComponent {
   badTypes: IssueCategory[] = [];
   activeIndex = signal(0);
   loading = signal(false);
+  interactionId: string | null = null;
 
   steps = signal<Step[]>([
     { label: 'Uploading document', completed: false, inProgress: false, progress: 0 },
@@ -80,7 +82,7 @@ export class ResultAiAssistantComponent {
   contractId: string | null = null;
 
   feedbackSent = false;
-  lastFeedbackType: 'good' | 'bad' | null = null;
+  lastFeedbackType: 'positive' | 'negative' | null = null;
 
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
@@ -302,12 +304,32 @@ export class ResultAiAssistantComponent {
       }
 
       let combinedResults: AIAssistantResult[] = [];
+      let aggregatedJsonContent: Record<string, unknown> | null = null;
       for (const item of this.miningResponse) {
         if (item?.text) {
           try {
             const parsedText = JSON.parse(item.text);
-            if (parsedText?.results?.length > 0) {
-              combinedResults = combinedResults.concat(parsedText.results);
+            if (!this.interactionId && parsedText?.interaction_id) {
+              this.interactionId = String(parsedText.interaction_id);
+            }
+            const jsonContent: unknown = parsedText?.json_content;
+            if (jsonContent && typeof jsonContent === 'object') {
+              const currentResults = Array.isArray((jsonContent as { results?: unknown[] }).results)
+                ? ((jsonContent as { results?: unknown[] }).results as unknown[])
+                : [];
+              if (!aggregatedJsonContent) {
+                aggregatedJsonContent = {
+                  ...(jsonContent as Record<string, unknown>),
+                  results: [...currentResults]
+                };
+              } else if (currentResults.length > 0) {
+                const prevResults = ((aggregatedJsonContent as Record<string, unknown>)['results'] as unknown[]) ?? [];
+                (aggregatedJsonContent as Record<string, unknown>)['results'] = [...prevResults, ...currentResults];
+              }
+            }
+            const results = ((jsonContent as { results?: unknown[] })?.results) ?? parsedText?.results ?? [];
+            if (Array.isArray(results) && results.length > 0) {
+              combinedResults = combinedResults.concat(results);
             }
           } catch (parseError) {
             console.error('Error parsing text:', parseError);
@@ -435,11 +457,11 @@ export class ResultAiAssistantComponent {
   }
 
   showFeedbackPanel = signal(false);
-  feedbackType = signal<'good' | 'bad' | null>(null);
+  feedbackType = signal<'positive' | 'negative' | null>(null);
   feedbackText = '';
   selectedType: string[] = [];
 
-  toggleFeedback(type: 'good' | 'bad') {
+  toggleFeedback(type: 'positive' | 'negative') {
     if (this.showFeedbackPanel()) {
       if (this.feedbackType() !== type) {
         this.showFeedbackPanel.set(false);
@@ -488,14 +510,19 @@ export class ResultAiAssistantComponent {
 
   async submitFeedback() {
     this.loading.set(true);
-    const body = {
-      user: this.cache.dataCache().user,
-      issueType: this.selectedType,
-      description: this.body().feedbackText,
-      feedbackType: this.feedbackType(),
-      text: this.miningResponse[0].text
+    const isNegative = this.feedbackType() === 'negative';
+    const commentText = isNegative && this.selectedType.length > 0
+      ? `${this.selectedType.map(id => this.badTypes.find(type => type.id.toString() === id)?.name).filter(Boolean).join(', ')}; ${this.body().feedbackText}`
+      : this.body().feedbackText;
+    const feedbackBody: InteractionFeedbackPayload = {
+      user_id: this.cache.dataCache().user?.email,
+      service_name: 'text-mining',
+      update_mode: true,
+      interaction_id: this.interactionId,
+      feedback_type: this.feedbackType(),
+      feedback_comment: commentText
     };
-    await this.api.POST_DynamoFeedback(body);
+    await this.api.POST_feedback(feedbackBody);
     this.actions.showToast({ severity: 'success', summary: 'Feedback', detail: 'Feedback sent successfully' });
     this.feedbackSent = true;
     this.lastFeedbackType = this.feedbackType();
@@ -511,6 +538,6 @@ export class ResultAiAssistantComponent {
   };
 
   isRequired() {
-    return this.feedbackType() === 'bad';
+    return this.feedbackType() === 'negative';
   }
 }
