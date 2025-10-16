@@ -3,6 +3,7 @@ import { CreateResultManagementService } from '@shared/components/all-modals/mod
 import { Result } from '@shared/interfaces/result/result.interface';
 import { ModalName } from '@ts-types/modal.types';
 import { OicrHeaderData } from '@shared/interfaces/oicr-header-data.interface';
+import { SubmissionService } from '@shared/services/submission.service';
 
 interface ModalConfig {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export class AllModalsService {
   submitHeader = signal<OicrHeaderData | null>(null);
   submitBackStep = signal<number | null>(null);
   createResultManagementService = inject(CreateResultManagementService);
+  submissionService = inject(SubmissionService);
   goBackFunction?: () => void;
   setGoBackFunction = (fn: () => void) => (this.goBackFunction = fn);
   submitReview?: () => void;
@@ -133,6 +135,7 @@ export class AllModalsService {
       this.setSubmitResultOrigin(null);
       this.setSubmitHeader(null);
       this.setSubmitBackStep(null);
+      this.clearSubmissionData();
     }
 
     if (modalName === 'createResult') {
@@ -174,6 +177,7 @@ export class AllModalsService {
       this.setSubmitResultOrigin(null);
       this.setSubmitHeader(null);
       this.setSubmitBackStep(null);
+      this.clearSubmissionData();
     }
 
     if (modalName === 'createResult') {
@@ -211,6 +215,7 @@ export class AllModalsService {
     });
 
     this.setSubmitResultOrigin(null);
+    this.clearSubmissionData();
 
     this.createResultManagementService.resetModal();
   }
@@ -223,5 +228,13 @@ export class AllModalsService {
         isWide
       }
     }));
+  }
+
+  clearSubmissionData(): void {
+    this.submissionService.statusSelected.set(null);
+    this.submissionService.comment.set('');
+    this.submissionService.melRegionalExpert.set('');
+    this.submissionService.oicrNo.set('');
+    this.submissionService.sharePointFolderLink.set('');
   }
 }
