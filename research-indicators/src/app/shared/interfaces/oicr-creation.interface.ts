@@ -45,8 +45,11 @@ export interface Lever {
   lever_id: string | number;
   lever_role_id: number;
   is_primary: boolean;
+  result_lever_strategic_outcomes?: LeverStrategicOutcome[];
 }
-
+export interface LeverStrategicOutcome {
+  lever_strategic_outcome_id: number;
+}
 export interface StepTwo {
   primary_lever: Lever[];
   contributor_lever: Lever[];
