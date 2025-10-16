@@ -6,6 +6,8 @@ import {
   inject,
   Input,
   OnInit,
+  OnChanges,
+  SimpleChanges,
   signal,
   WritableSignal,
   TemplateRef,
@@ -31,7 +33,7 @@ import { NgTemplateOutlet } from '@angular/common';
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss'
 })
-export class SelectComponent implements OnInit {
+export class SelectComponent implements OnInit, OnChanges {
   currentResultIsLoading = inject(CacheService).currentResultIsLoading;
   utils = inject(UtilsService);
   @Input() signal: WritableSignal<any> = signal({});
@@ -51,6 +53,7 @@ export class SelectComponent implements OnInit {
   @Input() hideSelected = true;
   @Input() textSpan = '';
   @Input() disableFilter = false;
+  @Input() serviceParams: unknown;
   @Output() selectEvent = new EventEmitter<any>();
 
   @ContentChild('item') itemTemplate?: TemplateRef<any>;
@@ -63,6 +66,8 @@ export class SelectComponent implements OnInit {
 
   service: any;
   body = signal({ value: null });
+  optionsSig: WritableSignal<any[]> = signal<any[]>([]);
+  loadingSig: WritableSignal<boolean> = signal<boolean>(false);
   environment = environment;
 
   isInvalid = computed(() => {
@@ -109,6 +114,38 @@ export class SelectComponent implements OnInit {
 
   ngOnInit() {
     this.service = this.serviceLocator.getService(this.serviceName);
+    this.loadData();
+    this.bindServiceSignals();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['serviceName'] || changes['serviceParams']) {
+      this.service = this.serviceLocator.getService(this.serviceName);
+      this.loadData();
+      this.bindServiceSignals();
+    }
+  }
+
+  private async loadData() {
+    if (this.service && typeof this.service.main === 'function') {
+      try {
+        await this.service.main(this.serviceParams as any);
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  private bindServiceSignals() {
+    if (this.service?.getList && this.service?.getLoading) {
+      const listSig = this.service.getList(this.serviceParams as any);
+      const loadingSig = this.service.getLoading(this.serviceParams as any);
+      if (listSig) this.optionsSig = listSig;
+      if (loadingSig) this.loadingSig = loadingSig;
+    } else {
+      if (this.service?.list) this.optionsSig = this.service.list;
+      if (this.service?.loading) this.loadingSig = this.service.loading;
+    }
   }
 
   onFilter(event: any) {
