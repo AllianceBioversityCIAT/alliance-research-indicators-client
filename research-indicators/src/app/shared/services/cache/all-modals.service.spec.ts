@@ -64,6 +64,16 @@ describe('AllModalsService', () => {
       askForHelp: {
         isOpen: false,
         title: 'Ask for Help'
+      },
+      addContactPerson: {
+        isOpen: false,
+        title: 'Authors And Contact Persons',
+        cancelText: 'Cancel',
+        confirmText: 'Confirm',
+        confirmIcon: 'pi pi-arrow-right !text-[12px]',
+        confirmAction: expect.any(Function),
+        disabledConfirmAction: expect.any(Function),
+        isWide: true
       }
     });
   });

@@ -536,7 +536,9 @@ export const apiServiceMock = {
   DELETE_Result: jest.fn().mockImplementation(() => Promise.resolve({ successfulRequest: true })),
   login: jest.fn(),
   GET_SessionLength: jest.fn(),
-  GET_AllResultStatus: jest.fn()
+  GET_AllResultStatus: jest.fn(),
+  GET_UserStaff: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
+  GET_FindContracts: jest.fn().mockImplementation(() => Promise.resolve({ data: [] }))
 } as unknown as jest.Mocked<ApiService>;
 
 export const httpClientMock = {
