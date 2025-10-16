@@ -34,7 +34,7 @@
       </p>
     }
   
-    @if (allModalsService.submitResultOrigin() === 'latest' && submissionService.statusSelected()?.statusId === 10) {
+    @if (allModalsService.submitResultOrigin() === 'latest' && submissionService.statusSelected()?.statusId === 4) {
       <div class=" mt-6">
         <div class="w-full">
             <app-select
@@ -44,6 +44,7 @@
             [optionValue]="{ body: 'mel_regional_expert', option: 'user_id' }"
             optionLabel="full_name"
             serviceName="allianceStaffByGroup"
+            [scrollHeight]="'238px'"
             placeholder="Select the MEL Regional Expert"></app-select>
         </div>
   
