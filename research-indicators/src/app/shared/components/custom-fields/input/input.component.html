@@ -27,7 +27,7 @@
           class="text-[14px]"
           [placeholder]="placeholder"
           [class]="this.inputValid().class"
-          [style]="isInvalid() || showMaxReachedMessage() ? { border: '2px solid #E69F00' } : {}"
+          [style]="(!this.inputValid().valid || showMaxReachedMessage()) ? { border: '2px solid #E69F00' } : {}"
           aria-describedby="username-help"
           [disabled]="disabled"
           [(ngModel)]="this.body().value"
@@ -60,12 +60,10 @@
       }
 
       @if (!this.inputValid().valid) {
-        @if (isInvalid()) {
-          <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
-            <i class="material-symbols-rounded !text-base">warning</i>
-            <span>{{ this.inputValid().message }}</span>
-          </div>
-        }
+        <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+          <i class="material-symbols-rounded !text-base">warning</i>
+          <span>{{ this.inputValid().message }}</span>
+        </div>
       }
       @if (showMaxReachedMessage()) {
         <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">

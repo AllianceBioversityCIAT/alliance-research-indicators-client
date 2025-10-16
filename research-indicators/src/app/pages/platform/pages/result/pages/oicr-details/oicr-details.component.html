@@ -1,23 +1,138 @@
 <div class="app-page-wrapper">
   <app-form-header />
-  <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] pb-[24px] mb-6">
-    <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px] mt-0">OICR DETAILS</div>
+  <p-accordion [value]="['0','1']" multiple="true">
+    <ng-template #globalToggleIcon let-active="active">
+      @if (active) {
+        <i class="pi pi-angle-up text-[#112F5C] bg-[#E8EBED] rounded-full p-1 !text-[18px]"></i>
+      } @else {
+        <i class="pi pi-angle-down text-[#112F5C] bg-[#E8EBED] rounded-full p-1 !text-[18px]"></i>
+      }
+    </ng-template>
 
-    <app-oicr-form-fields
-      [body]="body"
-      [oicrNoOptionValue]="'oicr_internal_code'"
-      [taggingOptionValue]="{ body: 'tagging.tag_id', option: 'id' }"
-      [oicrOptionValue]="{ body: 'link_result.external_oicr_id', option: 'id' }"
-      [maturityLevelOptionValue]="{ body: 'maturity_level_id', option: 'id' }"
-      [outcomeImpactOptionValue]="'outcome_impact_statement'"
-      [shortOutcomeOptionValue]="'short_outcome_impact_statement'"
-      [generalCommentOptionValue]="'general_comment'"
-      [showMaturityLevel]="true"
-      [showShortOutcome]="true"
-      [isOicrNoDisabled]="!submission.isEditableStatus()"
-      [clearOicrSelection]="clearOicrSelection.bind(this)">
-    </app-oicr-form-fields>
-  </div>
+    <p-accordion-panel value="0" class="!border-none">
+      <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
+        <div class="flex items-center gap-3">
+          <ng-template #toggleicon let-active="active">
+            <ng-container [ngTemplateOutlet]="globalToggleIcon" [ngTemplateOutletContext]="{ active: active }"></ng-container>
+          </ng-template>
+          <span>OICR DETAILS</span>
+        </div>
+      </p-accordion-header>
+      <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
+        <div class="flex flex-col bg-white rounded-[10px] p-[10px] pt-8">
+          <app-oicr-form-fields
+            [body]="body"
+            [oicrNoOptionValue]="'oicr_internal_code'"
+            [taggingOptionValue]="{ body: 'tagging.tag_id', option: 'id' }"
+            [oicrOptionValue]="{ body: 'link_result.external_oicr_id', option: 'id' }"
+            [maturityLevelOptionValue]="{ body: 'maturity_level_id', option: 'id' }"
+            [outcomeImpactOptionValue]="'outcome_impact_statement'"
+            [shortOutcomeOptionValue]="'short_outcome_impact_statement'"
+            [generalCommentOptionValue]="'general_comment'"
+            [showMaturityLevel]="true"
+            [showShortOutcome]="true"
+            [isOicrNoDisabled]="!submission.isEditableStatus()"
+            [clearOicrSelection]="clearOicrSelection.bind(this)">
+          </app-oicr-form-fields>
 
+          <div class="flex hidden flex-col">
+      <span class=" text-[16px] font-semibold text-[#173f6f] py-4">Quantification</span>
+      <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold pb-4">Actual count</span>
+
+      @for (q of quantifications(); track $index) {
+        <app-quantification-item
+          [quantification]="q"
+          [quantNumber]="$index + 1"
+          (update)="updateQuantification($index, $event)"
+          (delete)="removeQuantification($index)">
+        </app-quantification-item>
+      }
+
+      @if (submission.isEditableStatus()) {
+        <div class="flex w-full">
+          <button type="button" (click)="addQuantification()" class="flex cursor-pointer w-full items-center gap-2 border-2 justify-center font-medium border-[#1689CA] text-[#1689CA] px-4 py-3 rounded-[7px] text-[15px]">
+            Add other actual count
+            <i class="pi pi-plus !text-[12px]"></i>
+          </button>
+        </div>
+      }
+          </div>
+
+          <div class="flex hidden flex-col pt-4">
+            <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold py-4">Extrapolated estimates</span>
+
+            @for (est of extrapolatedEstimates(); track $index) {
+              <app-quantification-item
+                [quantification]="est"
+                [quantNumber]="$index + 1"
+                [headerLabel]="'EXTRAPOLATED ESTIMATES'"
+                (update)="updateExtrapolatedEstimate($index, $event)"
+                (delete)="removeExtrapolatedEstimate($index)">
+              </app-quantification-item>
+            }
+
+            @if (submission.isEditableStatus()) {
+              <div class="flex w-full">
+                <button type="button" (click)="addExtrapolatedEstimate()" class="flex cursor-pointer w-full items-center gap-2 border-2 justify-center font-medium border-[#1689CA] text-[#1689CA] px-4 py-3 rounded-[7px] text-[15px]">
+                  Add other extrapolated estimates
+                  <i class="pi pi-plus !text-[12px]"></i>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <p-accordion-panel value="1" class="!pt-8 !hidden !border-none">
+      <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
+        <div class="flex items-center gap-3">
+          <ng-template #toggleicon let-active="active">
+            <ng-container [ngTemplateOutlet]="globalToggleIcon" [ngTemplateOutletContext]="{ active: active }"></ng-container>
+          </ng-template>
+          <span>VISIBILITY AND OUTREACH</span>
+        </div>
+      </p-accordion-header>
+      <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
+        <div class="flex flex-col bg-white rounded-[10px] p-[10px] pt-8">
+          <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold pb-4">Other Notable References, Promotional Products and Communication materials</span>
+
+          @for (item of otherReferences(); track $index) {
+            <app-other-reference-item
+              [item]="item"
+              [itemNumber]="$index + 1"
+              (update)="updateOtherReference($index, $event)"
+              (delete)="removeOtherReference($index)">
+            </app-other-reference-item>
+          }
+
+          @if (submission.isEditableStatus()) {
+            <div class="flex w-full">
+              <button type="button" (click)="addOtherReference()" class="flex cursor-pointer w-full items-center gap-2 border-2 justify-center font-medium border-[#1689CA] text-[#1689CA] px-4 py-3 rounded-[7px] text-[15px]">
+                Add other item
+                <i class="pi pi-plus !text-[12px]"></i>
+              </button>
+            </div>
+          }
+
+          <div class="flex flex-col pt-4 pb-2">
+            <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold py-4">Authors and Contact Persons</span>
+            <app-authors-contact-persons-table [rows]="contactPersons()" (addClicked)="onAddContactPerson()"></app-authors-contact-persons-table>
+          </div>
+
+          <span class=" text-[16px] font-semibold text-[#173f6f] py-4">Further communication opportunities</span>
+          <div class="flex items-center gap-2">
+            <p-checkbox
+              id="men_youth"
+              [disabled]="!submission.isEditableStatus()"
+              [(ngModel)]="body().maturity_level_id"
+              binary="true"
+              styleClass="w-4 h-4" />
+            <label for="men_youth" class="text-[15px] text-[#4B5563] leading-5"> Check this box if you would like this case study to be considered for adaptation in external-facing stories or other institutional outreach. For the Alliance Communications team's reference, please indicate the best target audience (who this would be of most interest to / partners or others you would most like to reach), being as specific as possible. </label>
+          </div>
+        </div>
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
   <app-navigation-buttons (back)="saveData('back')" (next)="saveData('next')" (save)="saveData()" />
 </div>

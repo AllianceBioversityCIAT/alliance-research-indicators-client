@@ -4,4 +4,5 @@ export type ModalName =
   | 'requestPartner'
   | 'askForHelp'
   | 'createOicrResult'
-  | 'resultInformation';
+  | 'resultInformation'
+  | 'addContactPerson';

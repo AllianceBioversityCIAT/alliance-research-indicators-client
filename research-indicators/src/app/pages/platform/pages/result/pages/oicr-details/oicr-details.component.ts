@@ -10,10 +10,17 @@ import { FormHeaderComponent } from '@shared/components/form-header/form-header.
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 import { PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { QuantificationItemComponent, QuantificationItemData } from './components/quantification-item/quantification-item.component';
+import { OtherReferenceItemComponent, OtherReferenceItemData } from './components/other-reference-item/other-reference-item.component';
+import { CheckboxModule } from 'primeng/checkbox';
+import { AccordionModule } from 'primeng/accordion';
+import { AuthorsContactPersonsTableComponent, ContactPersonRow } from './components/authors-contact-persons-table/authors-contact-persons-table.component';
+import { NgTemplateOutlet } from '@angular/common';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 
 @Component({
   selector: 'app-oicr-details',
-  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, OicrFormFieldsComponent],
+  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, CheckboxModule, AccordionModule, NgTemplateOutlet, AuthorsContactPersonsTableComponent, OicrFormFieldsComponent, QuantificationItemComponent, OtherReferenceItemComponent],
   templateUrl: './oicr-details.component.html'
 })
 export default class OicrDetailsComponent {
@@ -28,12 +35,64 @@ export default class OicrDetailsComponent {
     link_result: { external_oicr_id: 0 }
   });
 
+  quantifications = signal<QuantificationItemData[]>([{ number: '', unit: '', comments: '' }]);
+  otherReferences = signal<OtherReferenceItemData[]>([{ type_id: null, link: '' }]);
+  extrapolatedEstimates = signal<QuantificationItemData[]>([{ number: '', unit: '', comments: '' }]);
+  contactPersons = signal<ContactPersonRow[]>([]);
+
+  addQuantification() {
+    if (!this.submission.isEditableStatus()) return;
+    this.quantifications.update(list => [...list, { number: '', unit: '', comments: '' }]);
+  }
+
+  removeQuantification(index: number) {
+    if (!this.submission.isEditableStatus()) return;
+    this.quantifications.update(list => list.filter((_, i) => i !== index));
+  }
+
+  updateQuantification(index: number, data: QuantificationItemData) {
+    this.quantifications.update(list => list.map((q, i) => (i === index ? data : q)));
+  }
+
+  addOtherReference() {
+    if (!this.submission.isEditableStatus()) return;
+    this.otherReferences.update(list => [...list, { type_id: null, link: '' }]);
+  }
+
+  removeOtherReference(index: number) {
+    if (!this.submission.isEditableStatus()) return;
+    this.otherReferences.update(list => list.filter((_, i) => i !== index));
+  }
+
+  updateOtherReference(index: number, data: OtherReferenceItemData) {
+    this.otherReferences.update(list => list.map((it, i) => (i === index ? data : it)));
+  }
+
+  addExtrapolatedEstimate() {
+    if (!this.submission.isEditableStatus()) return;
+    this.extrapolatedEstimates.update(list => [...list, { number: '', unit: '', comments: '' }]);
+  }
+
+  removeExtrapolatedEstimate(index: number) {
+    if (!this.submission.isEditableStatus()) return;
+    this.extrapolatedEstimates.update(list => list.filter((_, i) => i !== index));
+  }
+
+  updateExtrapolatedEstimate(index: number, data: QuantificationItemData) {
+    this.extrapolatedEstimates.update(list => list.map((it, i) => (i === index ? data : it)));
+  }
+
+  onAddContactPerson() {
+    this.allModalsService.toggleModal('addContactPerson');
+  }
+
   cache = inject(CacheService);
   actions = inject(ActionsService);
   loading = signal(false);
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
   route = inject(ActivatedRoute);
+  allModalsService = inject(AllModalsService);
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {

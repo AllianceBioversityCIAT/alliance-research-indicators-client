@@ -11,6 +11,7 @@ interface ModalConfig {
   icon?: string;
   cancelText?: string;
   confirmText?: string;
+  confirmIcon?: string;
   iconAction?: () => void;
   cancelAction?: () => void;
   confirmAction?: () => void;
@@ -39,6 +40,10 @@ export class AllModalsService {
   setDisabledConfirmPartner = (fn: () => boolean) => (this.disabledConfirmPartner = fn);
   disabledSubmitReview?: () => boolean;
   setDisabledSubmitReview = (fn: () => boolean) => (this.disabledSubmitReview = fn);
+  addContactPersonConfirm?: () => void;
+  setAddContactPersonConfirm = (fn: () => void) => (this.addContactPersonConfirm = fn);
+  disabledAddContactPerson?: () => boolean;
+  setDisabledAddContactPerson = (fn: () => boolean) => (this.disabledAddContactPerson = fn);
 
   setSubmitResultOrigin(origin: 'latest' | null): void {
     this.submitResultOrigin.set(origin);
@@ -94,6 +99,16 @@ export class AllModalsService {
     resultInformation: {
       isOpen: false,
       title: 'Result Information'
+    },
+    addContactPerson: {
+      isOpen: false,
+      title: 'Authors And Contact Persons',
+      cancelText: 'Cancel',
+      confirmText: 'Confirm',
+      confirmIcon: 'pi pi-arrow-right !text-[12px]',
+      confirmAction: () => this.addContactPersonConfirm?.(),
+      disabledConfirmAction: () => this.disabledAddContactPerson?.() ?? false,
+      isWide: true
     }
   });
 
@@ -211,7 +226,8 @@ export class AllModalsService {
       requestPartner: { ...this.modalConfig().requestPartner, isOpen: false, isWide: false },
       createOicrResult: { ...this.modalConfig().createOicrResult, isOpen: false, isWide: false },
       askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false },
-      resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false }
+      resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false },
+      addContactPerson: { ...this.modalConfig().addContactPerson, isOpen: false, isWide: false }
     });
 
     this.setSubmitResultOrigin(null);
