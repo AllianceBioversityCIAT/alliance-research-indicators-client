@@ -49,6 +49,7 @@ export type ControlListServices =
   | 'innResults'
   | 'applicationOptions'
   | 'levers'
+  | 'leverStrategicOutcomes'
   | 'projectStatus'
   | 'initiatives'
   | 'tags'
