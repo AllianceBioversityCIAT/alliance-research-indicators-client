@@ -46,6 +46,10 @@ export interface Lever {
   lever_role_id: number;
   is_primary: boolean;
   result_lever_strategic_outcomes?: LeverStrategicOutcome[];
+  // Optional display fields when coming from control-list selections
+  icon?: string;
+  short_name?: string;
+  other_names?: string;
 }
 export interface LeverStrategicOutcome {
   lever_strategic_outcome_id: number;

@@ -161,7 +161,7 @@
             </app-multiselect>
           </div>
 
-          <div class="flex flex-col pt-2">
+          <div class="flex flex-col pt-3">
             <app-multiselect
               label="Other Contributing Levers"
               [disabled]="!submission.isEditableStatus()"
@@ -201,7 +201,72 @@
             </app-multiselect>
           </div>
 
-          <div class="flex flex-col pt-2">
+          @if (body().primary_levers.length > 0 && cache.currentMetadata().indicator_id === 5) {
+          <div class="flex flex-col pt-3">
+            <span class="text-[#1689CA] text-[16px] leading-[17px] pb-3 font-semibold">Primary lever strategic outcomes</span>
+            
+            @for (lever of body().primary_levers; track lever.lever_id) {
+              <div class="flex flex-col p-4 pr-0">
+                <div class="flex items-center">
+                  <img [src]="lever.icon" [alt]="lever.short_name" class="w-[35px] h-[35px] mr-3 rounded-[3px]" />
+                  <span class="text-[15.5px] text-[#153C71] font-[600]">
+                    {{ lever?.short_name }}{{ lever?.other_names ? ': ' + lever?.other_names : '' }} <span class="text-red-500">*</span>
+                  </span>
+                </div>
+                <app-multiselect
+                  [isRequired]="true"
+                  [signal]="getLeverSignal(lever)"
+                  signalOptionValue="result_lever_strategic_outcomes"
+                  optionValue="id"
+                  optionLabel="strategic_outcome"
+                  serviceName="leverStrategicOutcomes"
+                  [enableVirtualScroll]="false"
+                  [scrollHeight]="'200px'"
+                  [textSpan]="'Strategic outcome selected'"
+                  [serviceParams]="lever.lever_id"
+                  placeholder="Select the option">
+                  <ng-template #selectedItems let-value>
+                    @if (value?.length > 0) {
+                      <div class="flex items-center gap-2">
+                        <span>{{ value?.length }} Strategic outcome{{ value?.length === 1 ? '' : 's' }} selected </span>
+                      </div>
+                    }
+                  </ng-template>
+
+                  <ng-template #item let-item>
+                    <div class="flex items-center gap-2 text-[#4C5158] flex items-center block whitespace-normal break-words gap-2 leading-5">
+                      @if (item?.strategic_outcome?.includes(':')) {
+                        <span>
+                          <b>{{ item?.strategic_outcome?.split(':')[0] }}:</b>
+                          {{ item?.strategic_outcome?.split(':')[1]?.trim() }}
+                        </span>
+                      } @else {
+                        <span>{{ item?.strategic_outcome }}</span>
+                      }
+                    </div>
+                  </ng-template>
+
+
+              <ng-template #rows let-strategicOutcome>
+                <div class="flex-col flex w-full">
+                  <div class="flex items-center gap-2 text-[#4C5158] flex items-center block whitespace-normal break-words gap-2 leading-5">
+                    @if (strategicOutcome?.strategic_outcome?.includes(':')) {
+                      <span>
+                        <b>{{ strategicOutcome?.strategic_outcome?.split(':')[0] }}:</b>
+                        {{ strategicOutcome?.strategic_outcome?.split(':')[1]?.trim() }}
+                      </span>
+                    } @else {
+                      <span>{{ strategicOutcome?.strategic_outcome }}</span>
+                    }
+                  </div>
+                </div>
+              </ng-template>
+                </app-multiselect>
+              </div>
+            }
+          </div>
+          }
+          <div class="flex flex-col {{ (body().primary_levers.length > 0 && cache.currentMetadata().indicator_id === 5) ? '-mt-2' : 'pt-3' }}">
             <app-multiselect
               label="Contribution to SDG targets"
               [signal]="body"
