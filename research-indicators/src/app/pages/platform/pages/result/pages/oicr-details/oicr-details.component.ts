@@ -13,11 +13,13 @@ import { PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { QuantificationItemComponent, QuantificationItemData } from './components/quantification-item/quantification-item.component';
 import { OtherReferenceItemComponent, OtherReferenceItemData } from './components/other-reference-item/other-reference-item.component';
 import { CheckboxModule } from 'primeng/checkbox';
+import { AccordionModule } from 'primeng/accordion';
 import { AuthorsContactPersonsTableComponent, ContactPersonRow } from './components/authors-contact-persons-table/authors-contact-persons-table.component';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-oicr-details',
-  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, CheckboxModule, AuthorsContactPersonsTableComponent, OicrFormFieldsComponent, QuantificationItemComponent, OtherReferenceItemComponent],
+  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, CheckboxModule, AccordionModule, NgTemplateOutlet, AuthorsContactPersonsTableComponent, OicrFormFieldsComponent, QuantificationItemComponent, OtherReferenceItemComponent],
   templateUrl: './oicr-details.component.html'
 })
 export default class OicrDetailsComponent {
