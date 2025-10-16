@@ -468,7 +468,7 @@ describe('SubmitResultContentComponent', () => {
       message: 'Once this result is approved, no further changes will be allowed.',
       commentLabel: undefined,
       placeholder: '',
-      statusId: 10,
+      statusId: 4,
       selected: false
     });
 
@@ -506,7 +506,7 @@ describe('SubmitResultContentComponent', () => {
     mockCacheService.currentMetadata!.set({ indicator_id: 5, status_id: 9 });
     mockCacheService.getCurrentNumericResultId!.mockReturnValue(123);
     
-    const selectedOption = { statusId: 10, commentLabel: undefined };
+    const selectedOption = { statusId: 4, commentLabel: undefined };
     mockSubmissionService.statusSelected.set(selectedOption);
     mockSubmissionService.comment.set('Test comment');
     
@@ -522,7 +522,7 @@ describe('SubmitResultContentComponent', () => {
       {
         resultCode: 123,
         comment: 'Test comment',
-        status: 10
+        status: 4
       },
       {
         mel_regional_expert: 'expert1',
@@ -584,7 +584,7 @@ describe('SubmitResultContentComponent', () => {
   it('should handle latest flow submit review with unsuccessful request', async () => {
     mockAllModalsService.submitResultOrigin!.set('latest');
     
-    const selectedOption = { statusId: 10, commentLabel: undefined };
+    const selectedOption = { statusId: 4, commentLabel: undefined };
     mockSubmissionService.statusSelected.set(selectedOption);
     
     const mockResponse = { successfulRequest: false };
@@ -601,7 +601,7 @@ describe('SubmitResultContentComponent', () => {
     mockAllModalsService.submitResultOrigin!.set('latest');
     mockCacheService.currentMetadata!.set(null);
     
-    const selectedOption = { statusId: 10, commentLabel: undefined };
+    const selectedOption = { statusId: 4, commentLabel: undefined };
     mockSubmissionService.statusSelected.set(selectedOption);
     
     const mockResponse = { successfulRequest: true };
@@ -965,7 +965,7 @@ describe('SubmitResultContentComponent', () => {
   it('should execute closeAllModals callback in success alert', async () => {
     mockAllModalsService.submitResultOrigin!.set('latest');
     
-    const selectedOption = { statusId: 10, commentLabel: undefined };
+    const selectedOption = { statusId: 4, commentLabel: undefined };
     mockSubmissionService.statusSelected.set(selectedOption);
     
     const mockResponse = { successfulRequest: true };
@@ -1006,9 +1006,9 @@ describe('SubmitResultContentComponent', () => {
     });
   });
 
-  it('should handle disabledConfirmSubmit with latest origin and statusId 10 and all fields filled', () => {
+  it('should handle disabledConfirmSubmit with latest origin and statusId 4 and all fields filled', () => {
     mockAllModalsService.submitResultOrigin = signal('latest');
-    mockSubmissionService.statusSelected = signal({ statusId: 10, commentLabel: undefined });
+    mockSubmissionService.statusSelected = signal({ statusId: 4, commentLabel: undefined });
     mockSubmissionService.comment = signal('');
     
     component.form.set({
@@ -1022,9 +1022,9 @@ describe('SubmitResultContentComponent', () => {
     expect(result).toBe(false);
   });
 
-  it('should handle disabledConfirmSubmit with latest origin and statusId 10 and missing fields', () => {
+  it('should handle disabledConfirmSubmit with latest origin and statusId 4 and missing fields', () => {
     mockAllModalsService.submitResultOrigin = signal('latest');
-    mockSubmissionService.statusSelected = signal({ statusId: 10, commentLabel: undefined });
+    mockSubmissionService.statusSelected = signal({ statusId: 4, commentLabel: undefined });
     mockSubmissionService.comment = signal('');
     
     component.form.set({

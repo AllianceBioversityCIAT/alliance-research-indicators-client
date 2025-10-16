@@ -110,7 +110,7 @@ export class SubmitResultContentComponent {
     return this.baseReviewOptions.map(opt => {
       if (!isLatest) return opt;
       if (opt.key === 'approve') {
-        return { ...opt, description: 'OICR development will continue with PISA support.', statusId: 10 };
+        return { ...opt, description: 'OICR development will continue with PISA support.', statusId: 4 };
       }
       if (opt.key === 'revise') {
         return { ...opt, label: 'Postpone', description: 'Not enough evidence for this reporting year.', commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', statusId: 11 };
@@ -141,7 +141,7 @@ export class SubmitResultContentComponent {
     
     if (!selected) return true;
     
-    if (isLatest && selected?.statusId === 10) {
+    if (isLatest && selected?.statusId === 4) {
       const form = this.form();
       const allFieldsFilled = form.mel_regional_expert?.trim() && form.oicr_internal_code?.trim() && form.sharepoint_link?.trim();
       return commentRequired || !allFieldsFilled;
@@ -205,7 +205,7 @@ export class SubmitResultContentComponent {
 
   async submitReview(): Promise<void> {
     if (this.allModalsService.submitResultOrigin?.() === 'latest') {
-      const isApprove = this.submissionService.statusSelected()?.statusId === 10;
+      const isApprove = this.submissionService.statusSelected()?.statusId === 4;
       const formValue = this.form();
       const body = this.buildLatestBody(isApprove, formValue);
       const response = await this.api.PATCH_SubmitResult(
