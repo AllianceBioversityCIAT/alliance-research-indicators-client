@@ -16,6 +16,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { AccordionModule } from 'primeng/accordion';
 import { AuthorsContactPersonsTableComponent, ContactPersonRow } from './components/authors-contact-persons-table/authors-contact-persons-table.component';
 import { NgTemplateOutlet } from '@angular/common';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 
 @Component({
   selector: 'app-oicr-details',
@@ -82,7 +83,7 @@ export default class OicrDetailsComponent {
   }
 
   onAddContactPerson() {
-    console.warn('onAddContactPerson');
+    this.allModalsService.toggleModal('addContactPerson');
   }
 
   cache = inject(CacheService);
@@ -91,6 +92,7 @@ export default class OicrDetailsComponent {
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
   route = inject(ActivatedRoute);
+  allModalsService = inject(AllModalsService);
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {

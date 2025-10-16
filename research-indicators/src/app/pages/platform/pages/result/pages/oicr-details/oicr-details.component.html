@@ -95,41 +95,41 @@
       </p-accordion-header>
       <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
         <div class="flex flex-col bg-white rounded-[10px] p-[10px] pt-8">
-    <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold pb-4">Other Notable References, Promotional Products and Communication materials</span>
+          <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold pb-4">Other Notable References, Promotional Products and Communication materials</span>
 
-    @for (item of otherReferences(); track $index) {
-      <app-other-reference-item
-        [item]="item"
-        [itemNumber]="$index + 1"
-        (update)="updateOtherReference($index, $event)"
-        (delete)="removeOtherReference($index)">
-      </app-other-reference-item>
-    }
+          @for (item of otherReferences(); track $index) {
+            <app-other-reference-item
+              [item]="item"
+              [itemNumber]="$index + 1"
+              (update)="updateOtherReference($index, $event)"
+              (delete)="removeOtherReference($index)">
+            </app-other-reference-item>
+          }
 
-    @if (submission.isEditableStatus()) {
-      <div class="flex w-full">
-        <button type="button" (click)="addOtherReference()" class="flex cursor-pointer w-full items-center gap-2 border-2 justify-center font-medium border-[#1689CA] text-[#1689CA] px-4 py-3 rounded-[7px] text-[15px]">
-          Add other item
-          <i class="pi pi-plus !text-[12px]"></i>
-        </button>
-      </div>
-    }
+          @if (submission.isEditableStatus()) {
+            <div class="flex w-full">
+              <button type="button" (click)="addOtherReference()" class="flex cursor-pointer w-full items-center gap-2 border-2 justify-center font-medium border-[#1689CA] text-[#1689CA] px-4 py-3 rounded-[7px] text-[15px]">
+                Add other item
+                <i class="pi pi-plus !text-[12px]"></i>
+              </button>
+            </div>
+          }
 
-    <div class="flex flex-col pt-4 pb-2">
-      <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold py-4">Authors and Contact Persons</span>
-      <app-authors-contact-persons-table [rows]="contactPersons()" (addClicked)="onAddContactPerson()"></app-authors-contact-persons-table>
-    </div>
+          <div class="flex flex-col pt-4 pb-2">
+            <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold py-4">Authors and Contact Persons</span>
+            <app-authors-contact-persons-table [rows]="contactPersons()" (addClicked)="onAddContactPerson()"></app-authors-contact-persons-table>
+          </div>
 
-    <span class=" text-[16px] font-semibold text-[#173f6f] py-4">Further communication opportunities</span>
-    <div class="flex items-center gap-2">
-      <p-checkbox
-        id="men_youth"
-        [disabled]="!submission.isEditableStatus()"
-        [(ngModel)]="body().maturity_level_id"
-        binary="true"
-        styleClass="w-4 h-4" />
-      <label for="men_youth" class="text-[15px] text-[#4B5563] leading-5"> Check this box if you would like this case study to be considered for adaptation in external-facing stories or other institutional outreach. For the Alliance Communications team's reference, please indicate the best target audience (who this would be of most interest to / partners or others you would most like to reach), being as specific as possible. </label>
-    </div>
+          <span class=" text-[16px] font-semibold text-[#173f6f] py-4">Further communication opportunities</span>
+          <div class="flex items-center gap-2">
+            <p-checkbox
+              id="men_youth"
+              [disabled]="!submission.isEditableStatus()"
+              [(ngModel)]="body().maturity_level_id"
+              binary="true"
+              styleClass="w-4 h-4" />
+            <label for="men_youth" class="text-[15px] text-[#4B5563] leading-5"> Check this box if you would like this case study to be considered for adaptation in external-facing stories or other institutional outreach. For the Alliance Communications team's reference, please indicate the best target audience (who this would be of most interest to / partners or others you would most like to reach), being as specific as possible. </label>
+          </div>
         </div>
       </p-accordion-content>
     </p-accordion-panel>
