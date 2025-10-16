@@ -7,14 +7,24 @@
     }
     <h3 class="text-[16px] font-semibold text-[#153C71] mb-2">Select a review action</h3>
   
-    <div class="flex justify-center space-x-6 xl:space-x-12 xl:pt-2">
-      @for (option of submittionOptions(); track option.key) {
-        <div
-          class="relative xl:max-w-[250px] flex flex-col items-center p-6 rounded-lg text-center {{
+    <div class="flex justify-center space-x-6 xl:space-x-12 xl:pt-2" role="radiogroup" aria-label="Select a review action">
+      @for (option of submittionOptions(); track option.key; let i = $index) {
+        <label
+          class="relative xl:max-w-[250px] flex flex-col items-center p-6 rounded-lg text-center cursor-pointer focus-within:outline-none focus-within:ring-2 focus-within:ring-[#1689CA] focus-within:ring-offset-2 {{
             option.selected ? 'border-[#1689CA]/20 border-1 bg-[#79D9FF]/8' : 'bg-white'
           }}"
-          (keydown)="submissionService.statusSelected.set(option)"
-          (click)="submissionService.statusSelected.set(option)">
+          [attr.data-option-key]="option.key"
+          [attr.aria-label]="option.label + ': ' + option.description"
+          (keydown)="onOptionKeydown($event, option, i)"
+          (click)="selectOption(option)"
+          (focus)="onOptionFocus(option)">
+          <input
+            type="radio"
+            name="reviewAction"
+            [value]="option.key"
+            [checked]="option.selected"
+            class="sr-only"
+            (change)="selectOption(option)">
           <div class="absolute top-2.5 right-3 w-3.5 h-3.5 rounded-full border-1 border-[#B9C0C5] flex items-center justify-center">
             @if (option.selected) {
               <div class="w-3.5 h-3.5 bg-[#1689CA] border-[#B9C0C5] rounded-full"></div>
@@ -24,7 +34,7 @@
           <i class="pi !text-[30px] {{ option.icon }} {{ option.color }}"></i>
           <span class="font-semibold text-[15px] text-[#4C5158]">{{ option?.label }}</span>
           <p class="text-[12px] text-[#4c5158]">{{ option?.description }}</p>
-        </div>
+        </label>
       }
     </div>
   

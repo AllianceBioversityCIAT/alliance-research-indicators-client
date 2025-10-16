@@ -129,6 +129,65 @@ export class SubmitResultContentComponent {
 
   setComment = (event: Event) => this.submissionService.comment.set((event.target as HTMLTextAreaElement).value);
 
+  selectOption(option: ReviewOption): void {
+    this.submissionService.statusSelected.set(option);
+  }
+
+  onOptionFocus(option: ReviewOption): void {
+    for (const opt of this.submittionOptions()) {
+      const element = document.querySelector(`[data-option-key="${opt.key}"]`) as HTMLElement;
+      if (element) {
+        element.setAttribute('tabindex', opt.key === option.key ? '0' : '-1');
+      }
+    }
+  }
+
+  onOptionKeydown(event: KeyboardEvent, option: ReviewOption, index: number): void {
+    const options = this.submittionOptions();
+    const currentIndex = index;
+    
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowDown': {
+        event.preventDefault();
+        const nextIndex = (currentIndex + 1) % options.length;
+        this.focusOption(options[nextIndex]);
+        break;
+      }
+        
+      case 'ArrowLeft':
+      case 'ArrowUp': {
+        event.preventDefault();
+        const prevIndex = currentIndex === 0 ? options.length - 1 : currentIndex - 1;
+        this.focusOption(options[prevIndex]);
+        break;
+      }
+        
+      case ' ':
+      case 'Enter':
+        event.preventDefault();
+        this.selectOption(option);
+        break;
+        
+      case 'Home':
+        event.preventDefault();
+        this.focusOption(options[0]);
+        break;
+        
+      case 'End':
+        event.preventDefault();
+        this.focusOption(options.at(-1)!);
+        break;
+    }
+  }
+
+  private focusOption(option: ReviewOption): void {
+    const element = document.querySelector(`[data-option-key="${option.key}"]`) as HTMLElement;
+    if (element) {
+      element.focus();
+    }
+  }
+
 
   updateForm<K extends keyof PatchSubmitResultLatest>(key: K, value: PatchSubmitResultLatest[K]): void {
     this.form.update(f => ({ ...f, [key]: value }));

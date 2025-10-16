@@ -1014,7 +1014,7 @@ describe('SubmitResultContentComponent', () => {
     component.form.set({
       mel_regional_expert: 'test expert',
       oicr_internal_code: 'test code',
-      sharepoint_link: 'test link'
+      sharepoint_link: 'https://example.com/sharepoint'
     });
     
     const result = component.disabledConfirmSubmit();
