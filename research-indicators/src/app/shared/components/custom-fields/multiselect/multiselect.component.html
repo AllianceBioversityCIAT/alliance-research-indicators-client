@@ -20,8 +20,8 @@
     <div>
       <p-multiSelect
         [style]="isInvalid() ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
-        [loading]="this.service?.loading()"
-        [options]="this.useDisabled() ? this.listWithDisabled() : this.service?.list()"
+        [loading]="this.loadingSig()"
+        [options]="this.useDisabled() ? this.listWithDisabled() : this.optionsSig()"
         [filter]="!this.service?.isOpenSearch()"
         [filterBy]="this.optionLabel"
         [optionLabel]="this.optionLabel"
@@ -30,12 +30,13 @@
         [(ngModel)]="this.body().value"
         (ngModelChange)="this.setValue($event)"
         [disabled]="disabled"
-        [virtualScroll]="true"
+        [virtualScroll]="enableVirtualScroll"
         [filterBy]="this.filterBy"
         [placeholder]="placeholder"
         [virtualScrollItemSize]="this.itemHeight"
         [scrollHeight]="this.scrollHeight"
-        appendTo="body">
+        [panelStyle]="{ width: '100%', minWidth: '100%' }"
+        appendTo="self">
         @if (this.service?.isOpenSearch()) {
           <ng-template pTemplate="header">
             <div class="p-dropdown-header">
@@ -104,7 +105,7 @@
   }
 
   @if (!this.hideSelected && !this.hideTemplate) {
-    @if (this.currentResultIsLoading() || !this.service?.list().length) {
+    @if (this.currentResultIsLoading() || !(this.optionsSig()?.length)) {
       @for (row of list; track $index) {
         <p-skeleton width="100%" height="41px" styleClass="mb-2" />
       }

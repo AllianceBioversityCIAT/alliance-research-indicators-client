@@ -541,7 +541,7 @@ describe('MultiselectComponent', () => {
     component.ngOnInit();
     mockService.list.mockReturnValue(undefined as any);
     const result = component.listWithDisabled();
-    expect(result).toBeUndefined();
+    expect(result).toEqual([]);
   });
 
   it('should handle input properties', () => {
@@ -906,7 +906,7 @@ describe('MultiselectComponent', () => {
     // Force service to be undefined to take the optional chaining falsey path
     (component as any).service = undefined;
     const result = component.listWithDisabled();
-    expect(result).toBeUndefined();
+    expect(result).toEqual([]);
   });
 
   it('should set undefined body value when nested property is undefined (optional chain branch)', () => {
