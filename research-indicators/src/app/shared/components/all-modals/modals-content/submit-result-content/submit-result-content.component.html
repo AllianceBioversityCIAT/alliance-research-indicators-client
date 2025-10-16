@@ -60,11 +60,12 @@
               placeholder="e.g. LAC-2501"></app-input>
           </div>
           <div class="flex-1">
-              <app-input
+            <app-input
               label="SharePoint Folder Link"
               helperText="SPRM SharePoint Folder Link"
               [isRequired]="true"
               [validateEmpty]="true"
+              pattern="url"
               [optionValue]="'sharepoint_link'"
               [signal]="form"
               placeholder="Paste the SharePoint folder link"></app-input>

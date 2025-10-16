@@ -47,7 +47,7 @@ export default class AllianceAlignmentComponent {
   @ViewChild('containerRef') containerRef!: ElementRef;
   containerWidth = 0;
 
-  private leverOutcomeSignals = new Map<string | number, WritableSignal<{ result_lever_strategic_outcomes: LeverStrategicOutcome[] }>>();
+  private readonly leverOutcomeSignals = new Map<string | number, WritableSignal<{ result_lever_strategic_outcomes: LeverStrategicOutcome[] }>>();
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {

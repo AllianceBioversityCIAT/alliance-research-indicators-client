@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
+import { InputTextModule } from 'primeng/inputtext';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { ApiService } from '@shared/services/api.service';
@@ -21,7 +22,7 @@ import { ResultsCenterService } from '@pages/platform/pages/results-center/resul
 
 @Component({
   selector: 'app-submit-result-content',
-  imports: [DialogModule, ButtonModule, FormsModule, TextareaModule, SelectComponent, InputComponent, OicrHeaderComponent],
+  imports: [DialogModule, ButtonModule, FormsModule, TextareaModule, InputTextModule, SelectComponent, InputComponent, OicrHeaderComponent],
   templateUrl: './submit-result-content.component.html'
 })
 export class SubmitResultContentComponent {
@@ -141,10 +142,11 @@ export class SubmitResultContentComponent {
     
     if (!selected) return true;
     
-    if (isLatest && selected?.statusId === 4) {
+    if (isLatest && (selected?.statusId === 4 || selected?.statusId === 10)) {
       const form = this.form();
       const allFieldsFilled = form.mel_regional_expert?.trim() && form.oicr_internal_code?.trim() && form.sharepoint_link?.trim();
-      return commentRequired || !allFieldsFilled;
+      const validSharepoint = this.validateWebsite(form.sharepoint_link);
+      return commentRequired || !allFieldsFilled || !validSharepoint;
     }
     
     return commentRequired;
@@ -201,6 +203,16 @@ export class SubmitResultContentComponent {
       }
     }
     return true;
+  }
+
+  validateWebsite(url?: string): boolean {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async submitReview(): Promise<void> {
