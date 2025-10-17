@@ -9,7 +9,7 @@
       }
     </ng-template>
 
-    <p-accordion-panel value="0" class="!border-none">
+    <p-accordion-panel value="0" class="!border-none !pb-8">
       <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
         <div class="flex items-center gap-3">
           <ng-template #toggleicon let-active="active">
@@ -35,7 +35,7 @@
             [clearOicrSelection]="clearOicrSelection.bind(this)">
           </app-oicr-form-fields>
 
-          <div class="flex hidden flex-col">
+          <div class="flex flex-col">
       <span class=" text-[16px] font-semibold text-[#173f6f] py-4">Quantification</span>
       <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold pb-4">Actual count</span>
 
@@ -58,7 +58,7 @@
       }
           </div>
 
-          <div class="flex hidden flex-col pt-4">
+          <div class="flex flex-col pt-4">
             <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold py-4">Extrapolated estimates</span>
 
             @for (est of extrapolatedEstimates(); track $index) {
@@ -84,7 +84,7 @@
       </p-accordion-content>
     </p-accordion-panel>
 
-    <p-accordion-panel value="1" class="!pt-8 !hidden !border-none">
+    <p-accordion-panel value="1" class="!border-none !pb-8">
       <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
         <div class="flex items-center gap-3">
           <ng-template #toggleicon let-active="active">
@@ -115,13 +115,13 @@
             </div>
           }
 
-          <div class="flex flex-col pt-4 pb-2">
+          <div class="flex flex-col pt-4 pb-2 hidden">
             <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold py-4">Authors and Contact Persons</span>
             <app-authors-contact-persons-table [rows]="contactPersons()" (addClicked)="onAddContactPerson()"></app-authors-contact-persons-table>
           </div>
 
-          <span class=" text-[16px] font-semibold text-[#173f6f] py-4">Further communication opportunities</span>
-          <div class="flex items-center gap-2">
+          <span class="hidden text-[16px] font-semibold text-[#173f6f] py-4">Further communication opportunities</span>
+          <div class="flex items-center gap-2 hidden">
             <p-checkbox
               id="men_youth"
               [disabled]="!submission.isEditableStatus()"

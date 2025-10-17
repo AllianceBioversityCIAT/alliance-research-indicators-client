@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject, signal, WritableSignal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, effect, inject, signal, WritableSignal } from '@angular/core';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
 import { SubmissionService } from '@shared/services/submission.service';
 
 export interface QuantificationItemData {
-  number: string;
+  number: number | null;
   unit: string;
   comments: string;
 }
@@ -25,10 +25,17 @@ export class QuantificationItemComponent implements OnInit {
 
   submission = inject(SubmissionService);
 
-  body: WritableSignal<QuantificationItemData> = signal({ number: '', unit: '', comments: '' });
+  body: WritableSignal<QuantificationItemData> = signal({ number: null, unit: '', comments: '' });
+  private initialized = false;
+
+  valueEffect = effect(() => {
+    if (!this.initialized) return;
+    this.update.emit(this.body());
+  });
 
   ngOnInit(): void {
-    this.body.set(this.quantification || { number: '', unit: '', comments: '' });
+    this.body.set(this.quantification || { number: null, unit: '', comments: '' });
+    this.initialized = true;
   }
 
   onValueChange() {

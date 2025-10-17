@@ -9,7 +9,7 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
-import { PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { PatchOicr, QuantificationPayload, NotableReferencePayload } from '@shared/interfaces/oicr-creation.interface';
 import { QuantificationItemComponent, QuantificationItemData } from './components/quantification-item/quantification-item.component';
 import { OtherReferenceItemComponent, OtherReferenceItemData } from './components/other-reference-item/other-reference-item.component';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -35,14 +35,14 @@ export default class OicrDetailsComponent {
     link_result: { external_oicr_id: 0 }
   });
 
-  quantifications = signal<QuantificationItemData[]>([{ number: '', unit: '', comments: '' }]);
+  quantifications = signal<QuantificationItemData[]>([{ number: null, unit: '', comments: '' }]);
   otherReferences = signal<OtherReferenceItemData[]>([{ type_id: null, link: '' }]);
-  extrapolatedEstimates = signal<QuantificationItemData[]>([{ number: '', unit: '', comments: '' }]);
+  extrapolatedEstimates = signal<QuantificationItemData[]>([{ number: null, unit: '', comments: '' }]);
   contactPersons = signal<ContactPersonRow[]>([]);
 
   addQuantification() {
     if (!this.submission.isEditableStatus()) return;
-    this.quantifications.update(list => [...list, { number: '', unit: '', comments: '' }]);
+    this.quantifications.update(list => [...list, { number: null, unit: '', comments: '' }]);
   }
 
   removeQuantification(index: number) {
@@ -70,7 +70,7 @@ export default class OicrDetailsComponent {
 
   addExtrapolatedEstimate() {
     if (!this.submission.isEditableStatus()) return;
-    this.extrapolatedEstimates.update(list => [...list, { number: '', unit: '', comments: '' }]);
+    this.extrapolatedEstimates.update(list => [...list, { number: null, unit: '', comments: '' }]);
   }
 
   removeExtrapolatedEstimate(index: number) {
@@ -104,8 +104,63 @@ export default class OicrDetailsComponent {
     const response = await this.api.GET_Oicr(this.cache.getCurrentNumericResultId());
 
     const data = response.data || {};
+    const apiData = data;
 
     this.body.set(data);
+    // Map quantifications (actual_count)
+    const apiActual = Array.isArray(apiData.actual_count) ? apiData.actual_count : [];
+    if (apiActual.length > 0) {
+      this.quantifications.set(
+        apiActual.map((q: QuantificationPayload) => {
+          let parsedNumber: number | null = null;
+          const raw = q?.quantification_number as unknown as number | string | null | undefined;
+          if (typeof raw === 'number') parsedNumber = raw;
+          else if (raw !== undefined && raw !== null) {
+            const n = Number(raw);
+            parsedNumber = Number.isNaN(n) ? null : n;
+          }
+          return {
+            number: parsedNumber,
+            unit: q?.unit ?? '',
+            comments: q?.description ?? ''
+          };
+        })
+      );
+    } else {
+      this.quantifications.set([{ number: null, unit: '', comments: '' }]);
+    }
+
+    // Map extrapolated estimates (extrapolate_estimates)
+    const apiExtrap = Array.isArray(apiData.extrapolate_estimates) ? apiData.extrapolate_estimates : [];
+    if (apiExtrap.length > 0) {
+      this.extrapolatedEstimates.set(
+        apiExtrap.map((q: QuantificationPayload) => {
+          let parsedNumber: number | null = null;
+          const raw = q?.quantification_number as unknown as number | string | null | undefined;
+          if (typeof raw === 'number') parsedNumber = raw;
+          else if (raw !== undefined && raw !== null) {
+            const n = Number(raw);
+            parsedNumber = Number.isNaN(n) ? null : n;
+          }
+          return {
+            number: parsedNumber,
+            unit: q?.unit ?? '',
+            comments: q?.description ?? ''
+          };
+        })
+      );
+    } else {
+      this.extrapolatedEstimates.set([{ number: null, unit: '', comments: '' }]);
+    }
+
+    const apiNotable = Array.isArray(apiData.notable_references) ? apiData.notable_references : [];
+    if (apiNotable.length > 0) {
+      this.otherReferences.set(
+        apiNotable.map((r: NotableReferencePayload) => ({ type_id: r?.notable_reference_type_id ?? null, link: r?.link ?? '' }))
+      );
+    } else {
+      this.otherReferences.set([{ type_id: null, link: '' }]);
+    }
     this.loading.set(false);
   }
 
@@ -118,7 +173,26 @@ export default class OicrDetailsComponent {
 
       if (this.submission.isEditableStatus()) {
         const current = this.body();
-        const response = await this.api.PATCH_Oicr(numericResultId, current);
+
+        const payload: PatchOicr = {
+          ...current,
+          actual_count: this.quantifications().map<QuantificationPayload>(q => ({
+            quantification_number: q.number ?? 0,
+            unit: q.unit ?? '',
+            description: q.comments ?? ''
+          })),
+          extrapolate_estimates: this.extrapolatedEstimates().map<QuantificationPayload>(q => ({
+            quantification_number: q.number ?? 0,
+            unit: q.unit ?? '',
+            description: q.comments ?? ''
+          })),
+          notable_references: this.otherReferences().map<NotableReferencePayload>(r => ({
+            notable_reference_type_id: r.type_id ?? null,
+            link: r.link ?? ''
+          }))
+        };
+
+        const response = await this.api.PATCH_Oicr(numericResultId, payload);
 
         if (!response.successfulRequest) {
           return;
