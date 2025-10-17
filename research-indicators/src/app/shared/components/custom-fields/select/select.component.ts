@@ -49,6 +49,7 @@ export class SelectComponent implements OnInit, OnChanges {
   @Input() disabled = false;
   @Input() scrollHeight = '270px';
   @Input() isRequired = false;
+  @Input() appendTo: any = 'body';
   @Input() flagAttributes: { isoAlpha2: string; institution_location_name: string } = { isoAlpha2: '', institution_location_name: '' };
   @Input() hideSelected = true;
   @Input() textSpan = '';

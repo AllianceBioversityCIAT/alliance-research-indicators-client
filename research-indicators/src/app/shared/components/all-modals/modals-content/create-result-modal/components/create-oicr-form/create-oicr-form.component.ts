@@ -499,7 +499,7 @@ export class CreateOicrFormComponent {
     } : null;
     
     this.allModalsService.setSubmitHeader({
-      title: this.createResultManagementService.resultTitle?.() || undefined,
+      title: this.createResultManagementService.resultTitle?.() || this.createResultManagementService.createOicrBody()?.base_information?.title || undefined,
       agreement_id: contract?.agreement_id,
       description: contract?.description,
       project_lead_description: contract?.project_lead_description,
