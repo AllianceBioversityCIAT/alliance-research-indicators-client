@@ -203,8 +203,9 @@ export class SubmitResultContentComponent {
     
     if (isLatest && (selected?.statusId === 4 || selected?.statusId === 10)) {
       const form = this.form();
-      const allFieldsFilled = form.mel_regional_expert?.trim() && form.oicr_internal_code?.trim() && form.sharepoint_link?.trim();
-      const validSharepoint = this.validateWebsite(form.sharepoint_link);
+      const allFieldsFilled = form.mel_regional_expert?.trim() && form.oicr_internal_code?.trim();
+      const sharepointLink = form.sharepoint_link?.trim();
+      const validSharepoint = !sharepointLink || this.validateWebsite(sharepointLink);
       return commentRequired || !allFieldsFilled || !validSharepoint;
     }
     
