@@ -53,6 +53,7 @@ import { OicrResultsService } from './short-control-list/oicr-results.service';
 import { GetMaturityLevelsService } from './control-list/get-maturity-levels.service';
 import { GetAllianceStaffByGroupService } from './control-list/get-alliance-staff-by-group.service';
 import { GetLeverStrategicOutcomesService } from './control-list/get-lever-strategic-outcomes.service';
+import { NotableReferenceTypesService } from './short-control-list/notable-reference-types.service';
 
 @Injectable({
   providedIn: 'root'
@@ -187,6 +188,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetInnoDevOutputService);
       case 'innoUseOutput':
         return this.injector.get(GetInnoUseOutputService);
+      case 'notableReferenceTypes':
+        return this.injector.get(NotableReferenceTypesService);
       default:
         return null;
     }

@@ -1,5 +1,28 @@
-import { Injector } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { ServiceLocatorService } from './service-locator.service';
+import { NotableReferenceTypesService } from './short-control-list/notable-reference-types.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ApiService } from '../services/api.service';
+
+describe('ServiceLocatorService notableReferenceTypes', () => {
+  let locator: ServiceLocatorService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [ServiceLocatorService, NotableReferenceTypesService, ApiService]
+    });
+    locator = TestBed.inject(ServiceLocatorService);
+  });
+
+  it('should resolve notableReferenceTypes service', () => {
+    const svc = locator.getService('notableReferenceTypes');
+    expect(svc).toBeInstanceOf(NotableReferenceTypesService);
+  });
+});
+
+import { Injector } from '@angular/core';
+// duplicate import removed
 
 describe('ServiceLocatorService', () => {
   let service: ServiceLocatorService;

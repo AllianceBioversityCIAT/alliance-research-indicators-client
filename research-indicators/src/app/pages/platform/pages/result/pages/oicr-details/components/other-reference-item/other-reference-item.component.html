@@ -15,9 +15,10 @@
         [isRequired]="true"
         [disabled]="!submission.isEditableStatus()"
         [signal]="body"
-        [optionValue]="{ body: 'type_id', option: 'code' }"
+        [optionValue]="{ body: 'type_id', option: 'id' }"
         optionLabel="name"
-        serviceName="getYears"
+        [scrollHeight]="'175px'"
+        serviceName="notableReferenceTypes"
         placeholder="Select an option">
       </app-select>
     </div>
