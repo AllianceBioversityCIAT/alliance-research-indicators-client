@@ -1,4 +1,4 @@
-import { Component, inject, Input, computed, Signal } from '@angular/core';
+import { Component, inject, Input, computed, Signal, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { ModalName } from '@ts-types/modal.types';
@@ -22,7 +22,7 @@ import { CreateResultManagementService } from '@shared/components/all-modals/mod
     ])
   ]
 })
-export class ModalComponent {
+export class ModalComponent implements AfterViewChecked {
   allModalsService = inject(AllModalsService);
   createResultManagementService = inject(CreateResultManagementService);
   @Input() modalName!: ModalName;
@@ -30,6 +30,9 @@ export class ModalComponent {
   @Input() clearModal: () => void = () => {
     /* no-op */
   };
+
+  @ViewChild('modalRoot') modalRoot!: ElementRef<HTMLDivElement>;
+  private wasOpen = false;
 
   showModal() {
     return this.allModalsService.isModalOpen(this.modalName);
@@ -54,6 +57,61 @@ export class ModalComponent {
       config.cancelAction();
     } else {
       this.allModalsService.toggleModal(this.modalName);
+    }
+  }
+
+  ngAfterViewChecked(): void {
+    const isOpen = !!this.getConfig().isOpen;
+    if (isOpen && !this.wasOpen) {
+      this.wasOpen = true;
+      setTimeout(() => this.focusFirstElement(), 0);
+    }
+    if (!isOpen && this.wasOpen) {
+      this.wasOpen = false;
+    }
+  }
+
+  onKeydown(event: KeyboardEvent) {
+    if (event.key !== 'Tab') return;
+    if (!this.getConfig().isOpen) return;
+    const container = this.modalRoot?.nativeElement;
+    if (!container) return;
+
+    const focusableSelectors = [
+      'a[href]','area[href]','input:not([disabled])','select:not([disabled])','textarea:not([disabled])',
+      'button:not([disabled])','iframe','object','embed','[tabindex]:not([tabindex="-1"])','[contenteditable]'
+    ].join(',');
+    const nodes = Array.from(container.querySelectorAll<HTMLElement>(focusableSelectors))
+      .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
+    if (nodes.length === 0) return;
+
+    const first = nodes[0];
+    const last = nodes[nodes.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+    const goingBackwards = event.shiftKey;
+
+    if (goingBackwards && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!goingBackwards && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  private focusFirstElement() {
+    const container = this.modalRoot?.nativeElement;
+    if (!container) return;
+    const focusableSelectors = [
+      'button','[href]','input:not([disabled])','select:not([disabled])','textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(',');
+    const nodes = Array.from(container.querySelectorAll<HTMLElement>(focusableSelectors))
+      .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
+    if (nodes.length > 0) {
+      nodes[0].focus();
+    } else {
+      container.focus();
     }
   }
 }

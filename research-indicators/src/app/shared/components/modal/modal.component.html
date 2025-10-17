@@ -1,7 +1,7 @@
 @if (getConfig().isOpen) {
-  <div class="local-container" [@fadeIn]>
+  <div class="local-container" [@fadeIn] (keydown)="onKeydown($event)">
     <div [@scaleIn]>
-      <div class="bg-[#f5f5f5] max-h-[97vh] rounded-[27px] flex flex-col no-scrollbar" [class]="getConfig().isWide ? 'max-w-[99vw]' : 'max-w-[80vw]'">
+      <div #modalRoot role="dialog" aria-modal="true" class="bg-[#f5f5f5] max-h-[97vh] rounded-[27px] flex flex-col no-scrollbar" [class]="getConfig().isWide ? 'max-w-[99vw]' : 'max-w-[80vw]'" tabindex="-1">
         <header class="px-10 py-4 flex items-center bg-white rounded-t-[27px] atc-primary-blue-500">
           @if (getConfig().icon) {
             <i

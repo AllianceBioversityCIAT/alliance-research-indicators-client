@@ -236,11 +236,11 @@ export class InputComponent {
   getPattern() {
     switch (this.pattern) {
       case 'email':
-        return { pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$', message: 'Please enter a valid email address.' };
+        return { pattern: String.raw`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, message: 'Please enter a valid email address.' };
       case 'url':
         return {
-          pattern: "^(https?:\\/\\/)?([\\w-]+(\\.[\\w-]+)*\\.([a-z]{2,}))(\\/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=%-]*)?$",
-          message: 'Please enter a valid URL.'
+          pattern: String.raw`^(https?:\/\/)([\w-]+(\.[\w-]+)+)(:[0-9]{2,5})?(\/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?$`,
+          message: 'Please enter a valid URL starting with http:// or https://.'
         };
       default:
         return { pattern: '', message: '' };
