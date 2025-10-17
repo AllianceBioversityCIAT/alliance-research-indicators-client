@@ -26,6 +26,7 @@
         [placeholder]="this.placeholder"
         [virtualScrollItemSize]="optionLabel2 ? 60 : 41"
         [scrollHeight]="this.scrollHeight"
+        [appendTo]="this.appendTo"
         [optionValue]="this.optionValue.option"
         [filter]="!this.service?.isOpenSearch() && !this.disableFilter"
         [filterBy]="this.customFilterBy || this.optionLabel"
