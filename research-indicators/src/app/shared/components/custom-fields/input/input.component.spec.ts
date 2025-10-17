@@ -8,7 +8,6 @@ import { WordCountService } from '../../../services/word-count.service';
 describe('InputComponent', () => {
   let component: InputComponent;
   let fixture: ComponentFixture<InputComponent>;
-  let cacheService: jest.Mocked<CacheService>;
   let utilsService: jest.Mocked<UtilsService>;
   let wordCountService: jest.Mocked<WordCountService>;
 
@@ -38,7 +37,6 @@ describe('InputComponent', () => {
 
     fixture = TestBed.createComponent(InputComponent);
     component = fixture.componentInstance;
-    cacheService = TestBed.inject(CacheService) as jest.Mocked<CacheService>;
     utilsService = TestBed.inject(UtilsService) as jest.Mocked<UtilsService>;
     wordCountService = TestBed.inject(WordCountService) as jest.Mocked<WordCountService>;
 
@@ -93,7 +91,7 @@ describe('InputComponent', () => {
     component.signal = signal({ testField: 'invalid-url' });
 
     expect(component.inputValid().valid).toBe(false);
-    expect(component.inputValid().message).toBe('Please enter a valid URL.');
+    expect(component.inputValid().message).toBe('Please enter a valid URL starting with http:// or https://.');
   });
 
   it('should convert to lowercase when onlyLowerCase is true', () => {
@@ -418,7 +416,7 @@ describe('InputComponent', () => {
       expect(setSelectionRangeSpy).toHaveBeenCalled();
 
       // Clean up
-      document.body.removeChild(input);
+      input.remove();
       jest.useRealTimers();
     });
 
@@ -436,17 +434,17 @@ describe('InputComponent', () => {
 
       component.pattern = 'email';
       expect(component.getPattern()).toEqual({
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+        pattern: String.raw`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`,
         message: 'Please enter a valid email address.'
       });
     });
 
     it('should return url pattern', () => {
       component.pattern = 'url';
-      expect(component.getPattern()).toEqual({
-        pattern: "^(https?:\\/\\/)?([\\w-]+(\\.[\\w-]+)*\\.([a-z]{2,}))(\\/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=%-]*)?$",
-        message: 'Please enter a valid URL.'
-      });
+    expect(component.getPattern()).toEqual({
+      pattern: String.raw`^(https?:\/\/)([\w-]+(\.[\w-]+)+)(:[0-9]{2,5})?(\/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?$`,
+      message: 'Please enter a valid URL starting with http:// or https://.'
+    });
     });
 
     it('should return empty pattern for default case', () => {
