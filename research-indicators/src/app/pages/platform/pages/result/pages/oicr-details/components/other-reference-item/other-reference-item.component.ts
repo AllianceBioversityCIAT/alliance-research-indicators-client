@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject, signal, WritableSignal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, effect, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { InputTextModule } from 'primeng/inputtext';
@@ -25,9 +25,16 @@ export class OtherReferenceItemComponent implements OnInit {
   submission = inject(SubmissionService);
 
   body: WritableSignal<OtherReferenceItemData> = signal({ type_id: null, link: '' });
+  private initialized = false;
+
+  valueEffect = effect(() => {
+    if (!this.initialized) return;
+    this.update.emit(this.body());
+  });
 
   ngOnInit(): void {
     this.body.set(this.item || { type_id: null, link: '' });
+    this.initialized = true;
   }
 
   onLinkChange() {

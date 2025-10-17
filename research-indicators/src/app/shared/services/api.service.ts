@@ -455,6 +455,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_ReferencesType = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `notable-reference-types`;
+    return this.TP.get(url(), {});
+  };
+
   GET_Metadata = (id: number, platform?: string): Promise<MainResponse<GetMetadata>> => {
     const url = () => `results/${id}/metadata`;
     return this.TP.get(url(), {

@@ -93,6 +93,20 @@ export interface PatchOicr {
   general_comment?: string;
   maturity_level_id: number;
   link_result: LinkResult;
+  actual_count?: QuantificationPayload[];
+  extrapolate_estimates?: QuantificationPayload[];
+  notable_references?: NotableReferencePayload[];
+}
+
+export interface QuantificationPayload {
+  quantification_number: number | string;
+  unit: string;
+  description: string;
+}
+
+export interface NotableReferencePayload {
+  notable_reference_type_id: number | null;
+  link: string;
 }
 
 export interface Oicr {
