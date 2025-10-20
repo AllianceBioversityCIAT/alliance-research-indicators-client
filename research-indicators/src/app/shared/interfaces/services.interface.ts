@@ -56,5 +56,6 @@ export type ControlListServices =
   | 'tags'
   | 'oicrResults'
   | 'notableReferenceTypes'
+  | 'informativeRoles'
   | 'allianceStaffByGroup'
   | '';

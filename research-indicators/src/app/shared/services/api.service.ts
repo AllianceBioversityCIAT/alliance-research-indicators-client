@@ -18,6 +18,7 @@ import { GetDeliveryModality } from '../interfaces/get-delivery-modality.interfa
 import { GetLanguages } from '../interfaces/get-get-languages.interface';
 import { SessionPurpose } from '../interfaces/get-session-purpose.interface';
 import { GetPolicyChange } from '../interfaces/get-get-policy-change.interface';
+import { ContactPersonResponse } from '../interfaces/contact-person.interface';
 import { GetResultsByContract } from '../interfaces/get-results-by-contract.interface';
 import { GetProjectDetail } from '../interfaces/get-project-detail.interface';
 import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
@@ -301,6 +302,11 @@ export class ApiService {
 
   GET_InnovationCharacteristics = (): Promise<MainResponse<InnovationCharacteristic[]>> => {
     const url = () => `tools/clarisa/innovation-characteristics`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InformativeRoles = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `informative-roles`;
     return this.TP.get(url(), {});
   };
 
@@ -799,4 +805,20 @@ export class ApiService {
     const url = () => `lever-strategic-outcome/by-lever/${leverId}`;
     return this.TP.get(url(), {});
   };
+
+  GET_AutorContact = (resultCode: number): Promise<MainResponse<ContactPersonResponse | ContactPersonResponse[]>> => {
+    const url = () => `result-user/author-contact/by-result/${resultCode}`;
+    return this.TP.get(url(), {useResultInterceptor: true});
+  };
+
+  POST_AutorContact = (body: { contact_person_id: number; informative_role_id: number }, resultCode: number): Promise<MainResponse<ContactPersonResponse>> => {
+    const url = () => `result-user/author-contact/save-by-result/${resultCode}`;
+    return this.TP.post(url(), body, {});
+  };
+
+  DELETE_AutorContact = (resultUserId: number, resultId: number) => {
+    const url = () => `result-user/author-contact/${resultUserId}/by-result/${resultId}`;
+    return this.TP.delete(url(), { useResultInterceptor: true });
+  };
+
 }

@@ -4,6 +4,8 @@ import { Result } from '@shared/interfaces/result/result.interface';
 import { ModalName } from '@ts-types/modal.types';
 import { OicrHeaderData } from '@shared/interfaces/oicr-header-data.interface';
 import { SubmissionService } from '@shared/services/submission.service';
+import { ModalActionWithData, ModalDisabledAction } from '@shared/interfaces/modal.interface';
+import { ContactPersonFormData } from '@shared/interfaces/contact-person.interface';
 
 interface ModalConfig {
   isOpen: boolean;
@@ -40,10 +42,12 @@ export class AllModalsService {
   setDisabledConfirmPartner = (fn: () => boolean) => (this.disabledConfirmPartner = fn);
   disabledSubmitReview?: () => boolean;
   setDisabledSubmitReview = (fn: () => boolean) => (this.disabledSubmitReview = fn);
-  addContactPersonConfirm?: () => void;
-  setAddContactPersonConfirm = (fn: () => void) => (this.addContactPersonConfirm = fn);
-  disabledAddContactPerson?: () => boolean;
-  setDisabledAddContactPerson = (fn: () => boolean) => (this.disabledAddContactPerson = fn);
+  addContactPersonConfirm?: ModalActionWithData;
+  setAddContactPersonConfirm = (fn: ModalActionWithData) => (this.addContactPersonConfirm = fn);
+  disabledAddContactPerson?: ModalDisabledAction;
+  setDisabledAddContactPerson = (fn: ModalDisabledAction) => (this.disabledAddContactPerson = fn);
+  contactPersonModalData?: ContactPersonFormData;
+  setContactPersonModalData = (data: ContactPersonFormData) => (this.contactPersonModalData = data);
 
   setSubmitResultOrigin(origin: 'latest' | null): void {
     this.submitResultOrigin.set(origin);
@@ -106,7 +110,7 @@ export class AllModalsService {
       cancelText: 'Cancel',
       confirmText: 'Confirm',
       confirmIcon: 'pi pi-arrow-right !text-[12px]',
-      confirmAction: () => this.addContactPersonConfirm?.(),
+      confirmAction: () => this.addContactPersonConfirm?.(this.contactPersonModalData!),
       disabledConfirmAction: () => this.disabledAddContactPerson?.() ?? false,
       isWide: true
     }

@@ -14,7 +14,8 @@ import { QuantificationItemComponent, QuantificationItemData } from './component
 import { OtherReferenceItemComponent, OtherReferenceItemData } from './components/other-reference-item/other-reference-item.component';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AccordionModule } from 'primeng/accordion';
-import { AuthorsContactPersonsTableComponent, ContactPersonRow } from './components/authors-contact-persons-table/authors-contact-persons-table.component';
+import { AuthorsContactPersonsTableComponent } from './components/authors-contact-persons-table/authors-contact-persons-table.component';
+import { ContactPersonRow, ContactPersonResponse, ContactPersonFormData } from '@shared/interfaces/contact-person.interface';
 import { NgTemplateOutlet } from '@angular/common';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
@@ -89,6 +90,43 @@ export default class OicrDetailsComponent {
     this.allModalsService.toggleModal('addContactPerson');
   }
 
+  async loadContactPersons() {
+    const res = await this.api.GET_AutorContact(this.cache.getCurrentNumericResultId());
+    
+    let dataArray: ContactPersonResponse[] = [];
+    if (res.data) {
+      if (Array.isArray(res.data)) {
+        dataArray = res.data;
+      } else {
+        dataArray = [res.data];
+      }
+    }
+    
+    
+    const mappedData: ContactPersonRow[] = dataArray.map((item: ContactPersonResponse) => ({
+      id: item.result_user_id,
+      name: `${item.user?.first_name || ''} ${item.user?.last_name || ''}`.trim(),
+      position: item.user?.position || '-',
+      affiliation: item.user?.affiliation || item.user?.center || '-',
+      email: item.user?.email || '-',
+      role: String(item.informative_role_id || '-'),
+      user_id: item.user_id,
+      informative_role_id: item.informative_role_id
+    }));
+    
+    this.contactPersons.set(mappedData);
+  }
+
+  async onDeleteContactPerson(row: ContactPersonRow) {
+    if (!row?.id) return;
+    const resultId = this.cache.getCurrentNumericResultId();
+    const res = await this.api.DELETE_AutorContact(row.id, resultId);
+    if (res.successfulRequest) {
+      await this.loadContactPersons();
+      this.actions.showToast({ severity: 'success', summary: 'Contact person', detail: 'Deleted successfully' });
+    }
+  }
+
   cache = inject(CacheService);
   actions = inject(ActionsService);
   loading = signal(false);
@@ -101,11 +139,42 @@ export default class OicrDetailsComponent {
     this.versionWatcher.onVersionChange(() => {
       this.getData();
     });
+    this.setupModalActions();
+  }
+
+  setupModalActions() {
+    this.allModalsService.setAddContactPersonConfirm((data: ContactPersonFormData) => this.onConfirmAddContactPerson(data));
+    this.allModalsService.setDisabledAddContactPerson(() => this.isAddContactPersonDisabled());
+  }
+
+  isAddContactPersonDisabled(): boolean {
+    return !this.submission.isEditableStatus();
+  }
+
+  async onConfirmAddContactPerson(data: ContactPersonFormData) {
+    if (!data?.contact_person_id || !data?.role_id) {
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Please select both contact person and role' });
+      return;
+    }
+    
+    const contactPersonData = {
+      contact_person_id: data.contact_person_id,
+      informative_role_id: data.role_id
+    };
+    
+    try {
+      await this.api.POST_AutorContact(contactPersonData, this.cache.getCurrentNumericResultId());
+      await this.loadContactPersons();
+      this.actions.showToast({ severity: 'success', summary: 'Contact person', detail: 'Added successfully' });
+      this.allModalsService.toggleModal('addContactPerson');
+    } catch {
+      this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to add contact person' });
+    }
   }
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_Oicr(this.cache.getCurrentNumericResultId());
-
+    this.loadContactPersons()
     const data = response.data || {};
     const apiData = data;
 
@@ -133,7 +202,6 @@ export default class OicrDetailsComponent {
       this.quantifications.set([{ number: null, unit: '', comments: '' }]);
     }
 
-    // Map extrapolated estimates (extrapolate_estimates)
     const apiExtrap = Array.isArray(apiData.extrapolate_estimates) ? apiData.extrapolate_estimates : [];
     if (apiExtrap.length > 0) {
       this.extrapolatedEstimates.set(
