@@ -37,6 +37,9 @@ export interface ContactPersonResponse {
   user_id: string;
   user_role_id: number;
   informative_role_id: number;
+  role: {
+    name: string;
+  };
   user: UserData;
 }
 

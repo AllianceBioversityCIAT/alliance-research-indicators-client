@@ -109,7 +109,7 @@ export default class OicrDetailsComponent {
       position: item.user?.position || '-',
       affiliation: item.user?.affiliation || item.user?.center || '-',
       email: item.user?.email || '-',
-      role: String(item.informative_role_id || '-'),
+      role: item.role.name || '-',
       user_id: item.user_id,
       informative_role_id: item.informative_role_id
     }));
