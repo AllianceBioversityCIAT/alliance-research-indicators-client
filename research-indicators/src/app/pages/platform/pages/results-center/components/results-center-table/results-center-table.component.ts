@@ -160,7 +160,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
         Title: result.title,
         Indicator: result.indicators?.name ?? '',
         Status: result.result_status?.name ?? '',
-        Project: result.result_contracts?.contract_id ?? '',
+        Project: result.result_contracts?.contract_id ?? 'Not provided',
         Lever: result.result_levers?.lever?.short_name ?? '',
         Year: result.report_year_id ?? '',
         Creator: result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '',
