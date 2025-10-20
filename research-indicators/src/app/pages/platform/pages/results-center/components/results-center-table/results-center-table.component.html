@@ -111,12 +111,16 @@
               </td>
             } @else if (column.field === 'project') {
               <td>
-                <span (keydown.enter)="$event.stopPropagation()"
-                  class="cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"
-                  [routerLink]="['/project-detail', result.result_contracts.contract_id, 'project-results']"
-                  (click)="$event.stopPropagation()">
-                  {{ result.result_contracts.contract_id }}
-                </span>
+                @if (result.result_contracts?.contract_id) {
+                  <span (keydown.enter)="$event.stopPropagation()"
+                    class="cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"
+                    [routerLink]="['/project-detail', result.result_contracts.contract_id, 'project-results']"
+                    (click)="$event.stopPropagation()">
+                    {{ result.result_contracts.contract_id }}
+                  </span>
+                } @else {
+                  <span class="text-gray-500">Not provided</span>
+                }
               </td>
             } @else if (column.field === 'versions') {
               <td>
