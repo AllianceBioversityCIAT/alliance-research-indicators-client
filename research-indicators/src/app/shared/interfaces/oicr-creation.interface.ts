@@ -96,6 +96,8 @@ export interface PatchOicr {
   actual_count?: QuantificationPayload[];
   extrapolate_estimates?: QuantificationPayload[];
   notable_references?: NotableReferencePayload[];
+  for_external_use: boolean
+  for_external_use_description: string
 }
 
 export interface QuantificationPayload {
