@@ -50,6 +50,11 @@
             <p-sortIcon field="role"></p-sortIcon>
           </div>
         </th>
+        <th class="!text-[#173F6F] !bg-[#FCFCFC]" scope="col">
+          <div class="flex items-center font-[500] leading-4.5 gap-2 text-[13px]">
+            Actions
+          </div>
+        </th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-row let-i="rowIndex">
@@ -60,11 +65,16 @@
         <td>{{ row.affiliation || '-' }}</td>
         <td>{{ row.email || '-' }}</td>
         <td>{{ row.role || '-' }}</td>
+        <td>
+          <button type="button" class="p-button p-button-text p-1 !bg-[#FFD5D5]" pTooltip="Remove author" tooltipPosition="top" (click)="deleteClicked.emit(row)" (keydown.enter)="deleteClicked.emit(row)">
+            <i class="pi pi-trash text-[#CF0808]"></i>
+          </button>
+        </td>
       </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="6" class="text-center p-6">
+        <td colspan="7" class="text-center p-6">
           <div class="flex flex-col items-center gap-4 bg-surface-ground p-3 pb-4 rounded-xl">
             <p class="text-[#4C5158] leading-4 text-center text-[14px] max-w-[800px]">
               No people have been added yet. Start by clicking “Add contact person” to include those involved in this result.

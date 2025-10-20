@@ -115,9 +115,9 @@
             </div>
           }
 
-          <div class="flex flex-col pt-4 pb-2 hidden">
+          <div class="flex flex-col pt-4 pb-2">
             <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold py-4">Authors and Contact Persons</span>
-            <app-authors-contact-persons-table [rows]="contactPersons()" (addClicked)="onAddContactPerson()"></app-authors-contact-persons-table>
+            <app-authors-contact-persons-table [rows]="contactPersons()" (addClicked)="onAddContactPerson()" (deleteClicked)="onDeleteContactPerson($event)"></app-authors-contact-persons-table>
           </div>
 
           <span class="text-[16px] font-semibold text-[#173f6f] py-4">Further communication opportunities</span>
