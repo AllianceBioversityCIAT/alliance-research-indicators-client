@@ -811,7 +811,7 @@ export class ApiService {
     return this.TP.get(url(), {useResultInterceptor: true});
   };
 
-  POST_AutorContact = (body: { contact_person_id: number; informative_role_id: number }, resultCode: number): Promise<MainResponse<ContactPersonResponse>> => {
+  POST_AutorContact = (body: { user_id: number; informative_role_id: number }, resultCode: number): Promise<MainResponse<ContactPersonResponse>> => {
     const url = () => `result-user/author-contact/save-by-result/${resultCode}`;
     return this.TP.post(url(), body, {});
   };
