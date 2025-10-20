@@ -120,16 +120,24 @@
             <app-authors-contact-persons-table [rows]="contactPersons()" (addClicked)="onAddContactPerson()"></app-authors-contact-persons-table>
           </div>
 
-          <span class="hidden text-[16px] font-semibold text-[#173f6f] py-4">Further communication opportunities</span>
-          <div class="flex items-center gap-2 hidden">
+          <span class="text-[16px] font-semibold text-[#173f6f] py-4">Further communication opportunities</span>
+          <div class="flex items-center gap-2">
             <p-checkbox
-              id="men_youth"
+              id="external_use"
               [disabled]="!submission.isEditableStatus()"
-              [(ngModel)]="body().maturity_level_id"
+              [(ngModel)]="body().for_external_use"
               binary="true"
               styleClass="w-4 h-4" />
-            <label for="men_youth" class="text-[15px] text-[#4B5563] leading-5"> Check this box if you would like this case study to be considered for adaptation in external-facing stories or other institutional outreach. For the Alliance Communications team's reference, please indicate the best target audience (who this would be of most interest to / partners or others you would most like to reach), being as specific as possible. </label>
+            <label for="external_use" class="text-[15px] text-[#4B5563] leading-5"> Check this box if you would like this case study to be considered for adaptation in external-facing stories or other institutional outreach. For the Alliance Communications team's reference, please indicate the best target audience (who this would be of most interest to / partners or others you would most like to reach), being as specific as possible. </label>
           </div>
+
+          @if(body().for_external_use){
+            <app-input class="mt-3"    
+              [disabled]="!submission.isEditableStatus()"
+              [signal]="body"
+              optionValue="for_external_use_description" placeholder="Write the text"></app-input>
+          }
+
         </div>
       </p-accordion-content>
     </p-accordion-panel>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, effect, inject, signal, WritableSignal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges, effect, inject, signal, WritableSignal } from '@angular/core';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
 import { SubmissionService } from '@shared/services/submission.service';
@@ -15,7 +15,7 @@ export interface QuantificationItemData {
   imports: [InputComponent, TextareaComponent],
   templateUrl: './quantification-item.component.html'
 })
-export class QuantificationItemComponent implements OnInit {
+export class QuantificationItemComponent implements OnInit, OnChanges {
   @Input() quantification!: QuantificationItemData;
   @Input() index!: number;
   @Input() quantNumber = 1;
@@ -36,6 +36,15 @@ export class QuantificationItemComponent implements OnInit {
   ngOnInit(): void {
     this.body.set(this.quantification || { number: null, unit: '', comments: '' });
     this.initialized = true;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['quantification'] && this.initialized) {
+      const next = this.quantification || { number: null, unit: '', comments: '' };
+      if (JSON.stringify(this.body()) !== JSON.stringify(next)) {
+        this.body.set(next);
+      }
+    }
   }
 
   onValueChange() {

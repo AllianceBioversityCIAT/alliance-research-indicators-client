@@ -17,10 +17,11 @@ import { AccordionModule } from 'primeng/accordion';
 import { AuthorsContactPersonsTableComponent, ContactPersonRow } from './components/authors-contact-persons-table/authors-contact-persons-table.component';
 import { NgTemplateOutlet } from '@angular/common';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 
 @Component({
   selector: 'app-oicr-details',
-  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, CheckboxModule, AccordionModule, NgTemplateOutlet, AuthorsContactPersonsTableComponent, OicrFormFieldsComponent, QuantificationItemComponent, OtherReferenceItemComponent],
+  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, CheckboxModule, AccordionModule, NgTemplateOutlet, AuthorsContactPersonsTableComponent, OicrFormFieldsComponent, QuantificationItemComponent, OtherReferenceItemComponent, InputComponent],
   templateUrl: './oicr-details.component.html'
 })
 export default class OicrDetailsComponent {
@@ -32,7 +33,9 @@ export default class OicrDetailsComponent {
     outcome_impact_statement: '',
     short_outcome_impact_statement: '',
     maturity_level_id: 0,
-    link_result: { external_oicr_id: 0 }
+    link_result: { external_oicr_id: 0 },
+    for_external_use: false,
+    for_external_use_description: ''
   });
 
   quantifications = signal<QuantificationItemData[]>([{ number: null, unit: '', comments: '' }]);

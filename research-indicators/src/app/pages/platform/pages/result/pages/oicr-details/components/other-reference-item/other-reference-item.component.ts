@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, effect, inject, signal, WritableSignal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges, effect, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { InputTextModule } from 'primeng/inputtext';
@@ -16,7 +16,7 @@ export interface OtherReferenceItemData {
   imports: [FormsModule, SelectComponent, InputTextModule, InputComponent],
   templateUrl: './other-reference-item.component.html'
 })
-export class OtherReferenceItemComponent implements OnInit {
+export class OtherReferenceItemComponent implements OnInit, OnChanges {
   @Input() item!: OtherReferenceItemData;
   @Input() itemNumber = 1;
   @Output() update = new EventEmitter<OtherReferenceItemData>();
@@ -35,6 +35,15 @@ export class OtherReferenceItemComponent implements OnInit {
   ngOnInit(): void {
     this.body.set(this.item || { type_id: null, link: '' });
     this.initialized = true;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['item'] && this.initialized) {
+      const next = this.item || { type_id: null, link: '' };
+      if (JSON.stringify(this.body()) !== JSON.stringify(next)) {
+        this.body.set(next);
+      }
+    }
   }
 
   onLinkChange() {
