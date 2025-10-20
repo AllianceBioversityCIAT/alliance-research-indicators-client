@@ -158,7 +158,7 @@ export default class OicrDetailsComponent {
     }
     
     const contactPersonData = {
-      contact_person_id: data.contact_person_id,
+      user_id: data.contact_person_id,
       informative_role_id: data.role_id
     };
     
