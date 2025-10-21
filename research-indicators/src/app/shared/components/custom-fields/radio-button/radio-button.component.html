@@ -1,6 +1,6 @@
 <div class="options input-container">
   @if (label) {
-    <label class="label inline-block" for="username"
+    <label class="label inline-block {{ centerOptions ? ' mb-2' : '' }}" for="username"
       ><span [innerHTML]="label"></span>
       @if (isRequired) {
         <span class="text-red-500">*</span>
@@ -22,7 +22,7 @@
           [disabled]="disabled"
           [inputId]="item[optionLabel] + 'id' + item[optionValue.option]"
           [class]="isInvalid() ? 'warning-radio' : ''" />
-        <label [for]="item[optionLabel] + 'id' + item[optionValue.option]" class="ml-2"> {{ item[optionLabel] }} </label>
+        <label [for]="item[optionLabel] + 'id' + item[optionValue.option]" class="ml-2" [innerHTML]="item[optionLabel]"></label>
       </div>
     }
   </div>
@@ -30,7 +30,7 @@
     <span class="block text-[14px] text-[#8D9299]" [innerHTML]="helperText"></span>
   }
   @if (isInvalid()) {
-    <div class="flex items-center gap-1 {{ helperText ? '-mt-1' : 'mt-1' }} text-[#E69F00] text-sm">
+    <div class="flex items-center gap-1 {{ helperText ? '-mt-1' : '' }} text-[#E69F00] text-sm">
       <i class="material-symbols-rounded !text-base">warning</i>
       <span>This field is required</span>
     </div>
