@@ -19,13 +19,17 @@ import { ContactPersonRow, ContactPersonResponse, ContactPersonFormData } from '
 import { NgTemplateOutlet } from '@angular/common';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
+import { ImpactAreasComponent } from './components/impact-areas/impact-areas.component';
+import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 @Component({
   selector: 'app-oicr-details',
-  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, CheckboxModule, AccordionModule, NgTemplateOutlet, AuthorsContactPersonsTableComponent, OicrFormFieldsComponent, QuantificationItemComponent, OtherReferenceItemComponent, InputComponent],
+  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, CheckboxModule, AccordionModule, NgTemplateOutlet, AuthorsContactPersonsTableComponent, OicrFormFieldsComponent, QuantificationItemComponent, OtherReferenceItemComponent, InputComponent, ImpactAreasComponent, SelectComponent],
   templateUrl: './oicr-details.component.html'
 })
 export default class OicrDetailsComponent {
+  rolesService = inject(RolesService);
   api = inject(ApiService);
   router = inject(Router);
   body: WritableSignal<PatchOicr> = signal({
@@ -260,7 +264,8 @@ export default class OicrDetailsComponent {
           notable_references: this.otherReferences().map<NotableReferencePayload>(r => ({
             notable_reference_type_id: r.type_id ?? null,
             link: r.link ?? ''
-          }))
+          })),
+          result_impact_areas: current.result_impact_areas || []
         };
 
         const response = await this.api.PATCH_Oicr(numericResultId, payload);
