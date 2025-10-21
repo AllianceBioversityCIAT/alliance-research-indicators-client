@@ -1,4 +1,5 @@
 import { Country, Region } from './get-geo-location.interface';
+import { ResultImpactArea } from './impact-area.interface';
 
 export interface OicrCreation {
   step_one: StepOne;
@@ -96,6 +97,7 @@ export interface PatchOicr {
   actual_count?: QuantificationPayload[];
   extrapolate_estimates?: QuantificationPayload[];
   notable_references?: NotableReferencePayload[];
+  result_impact_areas?: ResultImpactArea[];
   for_external_use: boolean
   for_external_use_description: string
 }
