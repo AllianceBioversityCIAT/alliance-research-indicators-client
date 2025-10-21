@@ -56,5 +56,8 @@ export type ControlListServices =
   | 'oicrResults'
   | 'notableReferenceTypes'
   | 'informativeRoles'
+  | 'globalTargets'
+  | 'impactAreaScores'
+  | 'impactAreas'
   | 'allianceStaffByGroup'
   | '';
