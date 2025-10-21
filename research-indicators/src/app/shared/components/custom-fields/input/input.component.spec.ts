@@ -91,7 +91,7 @@ describe('InputComponent', () => {
     component.signal = signal({ testField: 'invalid-url' });
 
     expect(component.inputValid().valid).toBe(false);
-    expect(component.inputValid().message).toBe('Please enter a valid URL starting with http:// or https://.');
+    expect(component.inputValid().message).toBe('Please enter a valid URL.');
   });
 
   it('should convert to lowercase when onlyLowerCase is true', () => {
@@ -441,10 +441,10 @@ describe('InputComponent', () => {
 
     it('should return url pattern', () => {
       component.pattern = 'url';
-    expect(component.getPattern()).toEqual({
-      pattern: String.raw`^(https?:\/\/)([\w-]+(\.[\w-]+)+)(:[0-9]{2,5})?(\/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?$`,
-      message: 'Please enter a valid URL starting with http:// or https://.'
-    });
+      expect(component.getPattern()).toEqual({
+        pattern: String.raw`^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?$`,
+        message: 'Please enter a valid URL.'
+      });
     });
 
     it('should return empty pattern for default case', () => {

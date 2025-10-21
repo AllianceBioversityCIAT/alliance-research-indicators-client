@@ -239,8 +239,8 @@ export class InputComponent {
         return { pattern: String.raw`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, message: 'Please enter a valid email address.' };
       case 'url':
         return {
-          pattern: String.raw`^(https?:\/\/)([\w-]+(\.[\w-]+)+)(:[0-9]{2,5})?(\/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?$`,
-          message: 'Please enter a valid URL starting with http:// or https://.'
+          pattern: String.raw`^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?$`,
+          message: 'Please enter a valid URL.'
         };
       default:
         return { pattern: '', message: '' };
