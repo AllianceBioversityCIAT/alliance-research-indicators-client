@@ -4,9 +4,9 @@
   <p-accordion [value]="['0','1','2']" multiple="true">
     <ng-template #globalToggleIcon let-active="active">
       @if (active) {
-        <i class="pi pi-angle-up text-[#112F5C] bg-[#E8EBED] rounded-full p-1 !text-[18px]"></i>
-      } @else {
         <i class="pi pi-angle-down text-[#112F5C] bg-[#E8EBED] rounded-full p-1 !text-[18px]"></i>
+      } @else {
+        <i class="pi pi-angle-up text-[#112F5C] bg-[#E8EBED] rounded-full p-1 !text-[18px]"></i>
       }
     </ng-template>
 
@@ -27,14 +27,15 @@
               <app-select class="!text-[16px]"
               label="MEL Regional Expert"
               [isRequired]="true"
-              [signal]="body"
+              [signal]="melExpertSignal"
               [disabled]="!isAdmin"
-              [optionValue]="{ body: 'mel_regional_expert', option: 'user_id' }"
+              [optionValue]="{ body: 'value', option: 'carnet' }"
               optionLabel="full_name"
               serviceName="allianceStaffByGroup"
               [scrollHeight]="'220px'"
               helperText="Select the MEL Regional Expert"
-              placeholder="Select the MEL Regional Expert"></app-select>
+              placeholder="Select the MEL Regional Expert"
+              (selectEvent)="onMelExpertChange($event)"></app-select>
             </div>
 
             <div class="flex-1">

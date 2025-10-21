@@ -66,7 +66,7 @@ export class ImpactAreasComponent {
     if (impactArea === undefined) {
       impactArea = {
         impact_area_id: areaId,
-        impact_area_score_id: 0,
+        impact_area_score_id: undefined,
         result_impact_area_global_targets: []
       };
       currentBody.result_impact_areas.push(impactArea);

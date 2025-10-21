@@ -20,7 +20,7 @@ export interface ResultImpactAreaGlobalTarget {
 
 export interface ResultImpactArea {
   impact_area_id: number;
-  impact_area_score_id: number;
+  impact_area_score_id: number | undefined;
   result_impact_area_global_targets: ResultImpactAreaGlobalTarget[];
 }
 

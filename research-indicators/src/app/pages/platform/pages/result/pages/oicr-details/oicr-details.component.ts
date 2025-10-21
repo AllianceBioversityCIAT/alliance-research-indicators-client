@@ -22,6 +22,8 @@ import { InputComponent } from '@shared/components/custom-fields/input/input.com
 import { ImpactAreasComponent } from './components/impact-areas/impact-areas.component';
 import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { RolesService } from '@shared/services/cache/roles.service';
+import { ServiceLocatorService } from '@shared/services/service-locator.service';
+import { UserStaff } from '@shared/interfaces/get-user-staff.interface';
 
 @Component({
   selector: 'app-oicr-details',
@@ -32,11 +34,14 @@ export default class OicrDetailsComponent {
   rolesService = inject(RolesService);
   api = inject(ApiService);
   router = inject(Router);
+  serviceLocator = inject(ServiceLocatorService);
   body: WritableSignal<PatchOicr> = signal({
     oicr_internal_code: '',
     tagging: { tag_id: 0 },
     outcome_impact_statement: '',
     short_outcome_impact_statement: '',
+    sharepoint_link: '',
+    mel_regional_expert: undefined,
     maturity_level_id: 0,
     link_result: { external_oicr_id: 0 },
     for_external_use: false,
@@ -47,6 +52,7 @@ export default class OicrDetailsComponent {
   otherReferences = signal<OtherReferenceItemData[]>([{ type_id: null, link: '' }]);
   extrapolatedEstimates = signal<QuantificationItemData[]>([{ number: null, unit: '', comments: '' }]);
   contactPersons = signal<ContactPersonRow[]>([]);
+  melExpertSignal = signal<{ value: UserStaff | null }>({ value: null });
 
   addQuantification() {
     if (!this.submission.isEditableStatus()) return;
@@ -183,6 +189,13 @@ export default class OicrDetailsComponent {
     const apiData = data;
 
     this.body.set(data);
+    
+    // Sync mel expert signal with API data
+    if (data.mel_regional_expert) {
+      this.melExpertSignal.set({ value: data.mel_regional_expert });
+    } else {
+      this.melExpertSignal.set({ value: null });
+    }
     // Map quantifications (actual_count)
     const apiActual = Array.isArray(apiData.actual_count) ? apiData.actual_count : [];
     if (apiActual.length > 0) {
@@ -236,6 +249,24 @@ export default class OicrDetailsComponent {
     } else {
       this.otherReferences.set([{ type_id: null, link: '' }]);
     }
+
+    // Map result_impact_areas
+    const apiImpactAreas = Array.isArray(apiData.result_impact_areas) ? apiData.result_impact_areas : [];
+    if (apiImpactAreas.length > 0) {
+      const mappedImpactAreas = apiImpactAreas.map((ia: { impact_area_id: number; impact_area_score_id: number | undefined; result_impact_area_global_targets?: { global_target_id: number }[] }) => ({
+        impact_area_id: ia.impact_area_id,
+        impact_area_score_id: ia.impact_area_score_id,
+        result_impact_area_global_targets: ia.result_impact_area_global_targets?.map((gt: { global_target_id: number }) => ({
+          global_target_id: gt.global_target_id
+        })) || []
+      }));
+      
+      // Update the body with the mapped impact areas
+      const currentBody = this.body();
+      currentBody.result_impact_areas = mappedImpactAreas;
+      this.body.set({ ...currentBody });
+    }
+
     this.loading.set(false);
   }
 
@@ -303,5 +334,20 @@ export default class OicrDetailsComponent {
       ...current,
       link_result: { external_oicr_id: 0 }
     }));
+  }
+
+  onMelExpertChange(carnet: string) {
+    const allianceStaffService = this.serviceLocator.getService('allianceStaffByGroup') as any;
+    const staffList = allianceStaffService?.list() || [];
+    const selectedExpert = staffList.find((expert: UserStaff) => expert.carnet === carnet);
+    
+    if (selectedExpert) {
+      // Update both signals
+      this.melExpertSignal.set({ value: selectedExpert });
+      this.body.update(current => ({
+        ...current,
+        mel_regional_expert: selectedExpert
+      }));
+    }
   }
 }
