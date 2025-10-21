@@ -55,6 +55,9 @@ import { GetAllianceStaffByGroupService } from './control-list/get-alliance-staf
 import { GetLeverStrategicOutcomesService } from './control-list/get-lever-strategic-outcomes.service';
 import { NotableReferenceTypesService } from './short-control-list/notable-reference-types.service';
 import { InformativeRolesService } from './short-control-list/informative-roles.service';
+import { GlobalTargetsService } from './short-control-list/global-targets.service';
+import { ImpactAreaScoresService } from './short-control-list/impact-area-scores.service';
+import { ImpactAreasService } from './short-control-list/impact-areas.service';
 
 @Injectable({
   providedIn: 'root'
@@ -191,10 +194,16 @@ export class ServiceLocatorService {
         return this.injector.get(GetInnoUseOutputService);
       case 'notableReferenceTypes':
         return this.injector.get(NotableReferenceTypesService);
-      case 'informativeRoles':
-        return this.injector.get(InformativeRolesService);
-      default:
-        return null;
+        case 'informativeRoles':
+          return this.injector.get(InformativeRolesService);
+        case 'globalTargets':
+          return this.injector.get(GlobalTargetsService);
+        case 'impactAreaScores':
+          return this.injector.get(ImpactAreaScoresService);
+        case 'impactAreas':
+          return this.injector.get(ImpactAreasService);
+        default:
+          return null;
     }
   }
 

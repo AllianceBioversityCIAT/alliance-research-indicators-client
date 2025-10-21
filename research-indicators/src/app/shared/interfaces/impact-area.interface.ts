@@ -10,15 +10,6 @@ export interface ImpactArea {
   color: string;
 }
 
-export interface ImpactAreaScore {
-  value: number | null;
-}
-
 export interface ImpactAreaGlobalTarget {
   value: number | null;
-}
-
-export interface ImpactAreaFormData {
-  score: number | null;
-  global_target: number | null;
 }

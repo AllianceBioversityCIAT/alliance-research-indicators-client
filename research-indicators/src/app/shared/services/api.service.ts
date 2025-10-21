@@ -308,7 +308,12 @@ export class ApiService {
   };
 
   GET_GlobalTargets = (): Promise<MainResponse<GlobalTarget[]>> => {
-    const url = () => `global-targets`;
+    const url = () => `tools/clarisa/global-targets`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ImpactAreaScores = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `impact-area-score`;
     return this.TP.get(url(), {});
   };
 
