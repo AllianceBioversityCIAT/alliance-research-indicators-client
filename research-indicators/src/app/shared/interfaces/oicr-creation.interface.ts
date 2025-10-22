@@ -1,6 +1,5 @@
 import { Country, Region } from './get-geo-location.interface';
 import { ResultImpactArea } from './impact-area.interface';
-import { UserStaff } from './get-user-staff.interface';
 
 export interface OicrCreation {
   step_one: StepOne;
@@ -91,7 +90,7 @@ export interface PatchOicr {
   oicr_internal_code: string;
   tagging: Tagging;
   sharepoint_link: string;
-  mel_regional_expert?: UserStaff;
+  mel_regional_expert_id?: string;
   outcome_impact_statement: string;
   short_outcome_impact_statement: string;
   general_comment?: string;

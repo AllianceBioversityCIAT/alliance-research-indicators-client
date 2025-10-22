@@ -27,15 +27,14 @@
               <app-select class="!text-[16px]"
               label="MEL Regional Expert"
               [isRequired]="true"
-              [signal]="melExpertSignal"
+              [signal]="body"
               [disabled]="!isAdmin"
-              [optionValue]="{ body: 'value', option: 'carnet' }"
+              [optionValue]="{ body: 'mel_regional_expert_id', option: 'user_id' }"
               optionLabel="full_name"
+              scrollHeight="220px"
               serviceName="allianceStaffByGroup"
-              [scrollHeight]="'220px'"
               helperText="Select the MEL Regional Expert"
-              placeholder="Select the MEL Regional Expert"
-              (selectEvent)="onMelExpertChange($event)"></app-select>
+              placeholder="Select the MEL Regional Expert"></app-select>
             </div>
 
             <div class="flex-1">

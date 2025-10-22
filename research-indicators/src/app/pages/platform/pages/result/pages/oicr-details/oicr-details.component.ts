@@ -23,7 +23,6 @@ import { ImpactAreasComponent } from './components/impact-areas/impact-areas.com
 import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
-import { UserStaff } from '@shared/interfaces/get-user-staff.interface';
 
 @Component({
   selector: 'app-oicr-details',
@@ -52,7 +51,6 @@ export default class OicrDetailsComponent {
   otherReferences = signal<OtherReferenceItemData[]>([{ type_id: null, link: '' }]);
   extrapolatedEstimates = signal<QuantificationItemData[]>([{ number: null, unit: '', comments: '' }]);
   contactPersons = signal<ContactPersonRow[]>([]);
-  melExpertSignal = signal<{ value: UserStaff | null }>({ value: null });
 
   addQuantification() {
     if (!this.submission.isEditableStatus()) return;
@@ -111,7 +109,6 @@ export default class OicrDetailsComponent {
         dataArray = [res.data];
       }
     }
-    
     
     const mappedData: ContactPersonRow[] = dataArray.map((item: ContactPersonResponse) => ({
       id: item.result_user_id,
@@ -181,6 +178,7 @@ export default class OicrDetailsComponent {
       this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Failed to add contact person' });
     }
   }
+
   async getData() {
     this.loading.set(true);
     const response = await this.api.GET_Oicr(this.cache.getCurrentNumericResultId());
@@ -189,13 +187,7 @@ export default class OicrDetailsComponent {
     const apiData = data;
 
     this.body.set(data);
-    
-    // Sync mel expert signal with API data
-    if (data.mel_regional_expert) {
-      this.melExpertSignal.set({ value: data.mel_regional_expert });
-    } else {
-      this.melExpertSignal.set({ value: null });
-    }
+
     // Map quantifications (actual_count)
     const apiActual = Array.isArray(apiData.actual_count) ? apiData.actual_count : [];
     if (apiActual.length > 0) {
@@ -334,20 +326,5 @@ export default class OicrDetailsComponent {
       ...current,
       link_result: { external_oicr_id: 0 }
     }));
-  }
-
-  onMelExpertChange(carnet: string) {
-    const allianceStaffService = this.serviceLocator.getService('allianceStaffByGroup') as any;
-    const staffList = allianceStaffService?.list() || [];
-    const selectedExpert = staffList.find((expert: UserStaff) => expert.carnet === carnet);
-    
-    if (selectedExpert) {
-      // Update both signals
-      this.melExpertSignal.set({ value: selectedExpert });
-      this.body.update(current => ({
-        ...current,
-        mel_regional_expert: selectedExpert
-      }));
-    }
   }
 }
