@@ -1,11 +1,12 @@
+@let isAdmin = this.rolesService.isAdmin();
 <div class="app-page-wrapper">
   <app-form-header />
-  <p-accordion [value]="['0','1']" multiple="true">
+  <p-accordion [value]="['0','1','2']" multiple="true">
     <ng-template #globalToggleIcon let-active="active">
       @if (active) {
-        <i class="pi pi-angle-up text-[#112F5C] bg-[#E8EBED] rounded-full p-1 !text-[18px]"></i>
-      } @else {
         <i class="pi pi-angle-down text-[#112F5C] bg-[#E8EBED] rounded-full p-1 !text-[18px]"></i>
+      } @else {
+        <i class="pi pi-angle-up text-[#112F5C] bg-[#E8EBED] rounded-full p-1 !text-[18px]"></i>
       }
     </ng-template>
 
@@ -19,7 +20,36 @@
         </div>
       </p-accordion-header>
       <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-        <div class="flex flex-col bg-white rounded-[10px] p-[10px] pt-8">
+        <div class="flex flex-col bg-white rounded-[10px] p-[10px] pt-5">
+          <div class="flex flex-col xl:flex-row gap-4 justify-between pb-4">
+
+            <div class="flex-1 xl:max-w-[428px]">
+              <app-select class="!text-[16px]"
+              label="MEL Regional Expert"
+              [isRequired]="true"
+              [signal]="body"
+              [disabled]="!isAdmin"
+              [optionValue]="{ body: 'mel_regional_expert_id', option: 'user_id' }"
+              optionLabel="full_name"
+              scrollHeight="220px"
+              serviceName="allianceStaffByGroup"
+              helperText="Select the MEL Regional Expert"
+              placeholder="Select the MEL Regional Expert"></app-select>
+            </div>
+
+            <div class="flex-1">
+              <app-input
+                label="SharePoint Folder Link"
+                helperText="SPRM SharePoint Folder Link"
+                pattern="url"
+                [disabled]="!isAdmin"
+                [optionValue]="'sharepoint_link'"
+                [signal]="body"
+                placeholder="Paste the SharePoint folder link">
+              </app-input>
+            </div>
+          </div>
+
           <app-oicr-form-fields
             [body]="body"
             [oicrNoOptionValue]="'oicr_internal_code'"
@@ -31,7 +61,8 @@
             [generalCommentOptionValue]="'general_comment'"
             [showMaturityLevel]="true"
             [showShortOutcome]="true"
-            [isOicrNoDisabled]="!submission.isEditableStatus()"
+            [showOicrNo]="true"
+            [isOicrNoDisabled]="!submission.isEditableStatus() || !isAdmin"
             [clearOicrSelection]="clearOicrSelection.bind(this)">
           </app-oicr-form-fields>
 
@@ -94,7 +125,7 @@
         </div>
       </p-accordion-header>
       <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-        <div class="flex flex-col bg-white rounded-[10px] p-[10px] pt-8">
+        <div class="flex flex-col bg-white rounded-[10px] p-[10px] pt-5">
           <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold pb-4">Other Notable References, Promotional Products and Communication materials</span>
 
           @for (item of otherReferences(); track $index) {
@@ -138,6 +169,27 @@
               optionValue="for_external_use_description" placeholder="Write the text"></app-input>
           }
 
+        </div>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <p-accordion-panel value="2" class="!border-none !pb-8">
+      <p-accordion-header class="!font-['Space_Grotesk'] !text-[14px] !p-7 !rounded-[16px] !font-medium !text-[#8d9299] !uppercase !mt-0">
+        <div class="flex items-center gap-3">
+          <ng-template #toggleicon let-active="active">
+            <ng-container [ngTemplateOutlet]="globalToggleIcon" [ngTemplateOutletContext]="{ active: active }"></ng-container>
+          </ng-template>
+          <span>IMPACT AREAS AND GLOBAL TARGETS</span>
+        </div>
+      </p-accordion-header>
+      <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
+        <div class="flex flex-col bg-white rounded-[10px] p-[10px] pt-5">
+          <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold pb-4">Link to impact areas and global targets</span>
+
+          <app-impact-areas
+            [body]="body"
+            [disabled]="!submission.isEditableStatus()">
+          </app-impact-areas>
         </div>
       </p-accordion-content>
     </p-accordion-panel>

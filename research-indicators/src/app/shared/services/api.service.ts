@@ -19,6 +19,7 @@ import { GetLanguages } from '../interfaces/get-get-languages.interface';
 import { SessionPurpose } from '../interfaces/get-session-purpose.interface';
 import { GetPolicyChange } from '../interfaces/get-get-policy-change.interface';
 import { ContactPersonResponse } from '../interfaces/contact-person.interface';
+import { GlobalTarget } from '../interfaces/global-target.interface';
 import { GetResultsByContract } from '../interfaces/get-results-by-contract.interface';
 import { GetProjectDetail } from '../interfaces/get-project-detail.interface';
 import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
@@ -72,6 +73,7 @@ import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interfa
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
+import { ImpactArea } from '@shared/interfaces/impact-area.interface';
 
 
 @Injectable({
@@ -307,6 +309,16 @@ export class ApiService {
 
   GET_InformativeRoles = (): Promise<MainResponse<GenericList[]>> => {
     const url = () => `informative-roles`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_GlobalTargets = (): Promise<MainResponse<GlobalTarget[]>> => {
+    const url = () => `tools/clarisa/global-targets`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ImpactAreaScores = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `impact-area-score`;
     return this.TP.get(url(), {});
   };
 
@@ -576,6 +588,11 @@ export class ApiService {
 
   GET_OpenSearchCountries = (search: string): Promise<MainResponse<GetOsCountries[]>> => {
     const url = () => `tools/clarisa/manager/opensearch/countries/search?query=${search}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ImpactAreas = (): Promise<MainResponse<ImpactArea[]>> => {
+    const url = () => `tools/clarisa/impact-areas`;
     return this.TP.get(url(), {});
   };
 

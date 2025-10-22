@@ -1,4 +1,5 @@
 import { Country, Region } from './get-geo-location.interface';
+import { ResultImpactArea } from './impact-area.interface';
 
 export interface OicrCreation {
   step_one: StepOne;
@@ -88,6 +89,8 @@ export interface LinkResult {
 export interface PatchOicr {
   oicr_internal_code: string;
   tagging: Tagging;
+  sharepoint_link: string;
+  mel_regional_expert_id?: string;
   outcome_impact_statement: string;
   short_outcome_impact_statement: string;
   general_comment?: string;
@@ -96,6 +99,7 @@ export interface PatchOicr {
   actual_count?: QuantificationPayload[];
   extrapolate_estimates?: QuantificationPayload[];
   notable_references?: NotableReferencePayload[];
+  result_impact_areas?: ResultImpactArea[];
   for_external_use: boolean
   for_external_use_description: string
 }

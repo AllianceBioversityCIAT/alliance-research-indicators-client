@@ -80,14 +80,59 @@
     }" [showTag]="this.createResultManagementService.editingOicr()" [showDownload]="this.createResultManagementService.editingOicr()"></app-oicr-header>
   }
 
-  <div class="px-5 flex flex-col mx-10 mb-12">
+  <div class="px-5 flex flex-col mx-10 mt-8">
+    @if ((this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 7) && submissionHistory().length > 0) {
+      <p-accordion (activeIndexChange)="onAccordionToggle($event)">
+        <p-accordion-panel value="0" class="!border-none">
+          <p-accordion-header class="!border !p-4 !font-medium" 
+          [class]="'!border !p-4 !font-medium ' + (isAccordionOpen() ? '!border-b-0 !rounded-t-[13px] !rounded-b-none' : '!rounded-[13px]')"
+          [style.border-color]="getColors().border" 
+          [style.color]="getColors().text"
+          [style.background-color]="getColors().background">
+            <div class="flex flex-col w-full">
+              <div class="flex items-center gap-3">
+                <i [class]="getStatusIcon()" [style.color]="getColors().text"></i>
+                <span class="font-medium">{{ getStatusName(+(getStatusIdAsString())) || '' }}</span>
+              </div>
+              <div class="flex gap-x-5 mt-2">
+                <div class="flex items-center">
+                  <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Reviewed by</span>
+                  <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+                  <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{ getReviewerFullName() }}</span>
+                </div>
+        
+                <div class="flex items-center">
+                  <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Review date</span>
+                  <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+                  <span class="text-[13px] leading-[18px] text-[#345b8f] !font-['Space_Grotesk']">{{ getUpdatedDate() | date: 'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end min-w-[100px]">
+              <span class="text-[#035BA9] text-[14px] px-2 text-right cursor-pointer hover:underline">See details</span>
+            </div>
+          </p-accordion-header>
+          <p-accordion-content class="!border !border-t-0 !rounded-b-[13px] !p-4 !mb-8 !-mt-px custom-accordion-content"
+            [style.border-color]="getColors().border" 
+            [style.color]="getColors().text"
+            [style.background-color]="getColors().background + ' !important'">
+            <div class="text-[#4C5158] text-[14px] leading-relaxed" 
+            [style.background-color]="getColors().background + ' !important'">
+              <span class="font-medium mb-2">Review justification:
+                <span class="font-normal">{{ getSubmissionComment() || 'No justification provided.' }}</span></span>
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
+      </p-accordion>
+    }
+    
     <p-steps
       [model]="createResultManagementService.stepItems()"
       [readonly]="false"
       [activeIndex]="activeIndex()"
       (activeIndexChange)="onActiveIndexChange($event)"
       [styleClass]="'completed-' + activeIndex"
-      class="my-8">
+      class="mb-8">
     </p-steps>
 
     @if (activeIndex() === 0) {

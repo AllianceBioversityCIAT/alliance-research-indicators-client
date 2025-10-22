@@ -36,3 +36,14 @@ export interface GetContracts {
   leverUrl?: string;
   select_label?: string;
 }
+
+export interface GetContractsExtended extends GetContracts {
+  contract_id: string;
+  levers?: {
+    id: number;
+    full_name: string;
+    short_name: string;
+    other_names: string;
+    lever_url: string;
+  };
+}
