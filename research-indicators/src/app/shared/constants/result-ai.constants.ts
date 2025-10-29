@@ -41,11 +41,9 @@ export const getIndicatorTypeIcon = (type: string): IndicatorIconResult => {
 };
 
 export const PROMPT_OICR_DETAILS =
-  `Summarize the following text using the following two-part structured format:
-
+`Summarize the following text using the following two-part structured format:
   OVERVIEW OF THE RESULTS
-  Provide a concise introductory paragraph that captures the key context, stakeholders, and purpose of the initiative or project. Emphasize the transformative change, policy relevance, or strategic importance of the work. The tone should be professional and policy- or results-oriented, highlighting the “why it matters” dimension. Include geographic and temporal scope, and briefly mention methodologies or frameworks used if relevant.
-
+  Provide a concise introductory paragraph that captures the key context, stakeholders, and purpose of the initiative or project. Emphasize the transformative change, policy relevance, or strategic importance of the work. The tone should be professional and policy- or results-oriented, highlighting the "why it matters" dimension. Include geographic and temporal scope, and briefly mention methodologies or frameworks used if relevant.
   HIGHLIGHTS Use 5–7 bullet points to present the most concrete, measurable, and policy-relevant outcomes. Focus on:
   – Quantitative results (e.g. yield increases, farmer adoption rates, income gains)
   – Institutional uptake (e.g. government use, policy integration, scaling)
@@ -53,5 +51,4 @@ export const PROMPT_OICR_DETAILS =
   – Capacity-building activities (e.g. training numbers, stakeholder engagement)
   – Geographic spread (e.g. number of provinces, districts, countries) – Environmental or social impact (e.g. improved soil health, resilience, equity)
   – Lessons or enablers (e.g. community engagement, technology adoption, co-design)
-
-  Be precise. Use numbers, names, locations, and years where available. Begin each bullet point with a bold, outcome-oriented phrase. Avoid fluff—each bullet should represent a key result or actionable insight. The output must be in the same language as the input statement`;
+  Be precise. Use numbers, names, locations, and years where available. Begin each bullet point with a bold, outcome-oriented phrase. Avoid fluff—each bullet should represent a key result or actionable insight. The output must not exceed 80 words, and it must be in the same language as the input statement`;
