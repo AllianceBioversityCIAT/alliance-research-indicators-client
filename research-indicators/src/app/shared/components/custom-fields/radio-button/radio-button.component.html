@@ -1,6 +1,6 @@
 <div class="options input-container">
   @if (label) {
-    <label class="label inline-block {{ centerOptions ? ' mb-2' : '' }}"
+    <label class="label inline-block {{ centerOptions ? ' mb-2' : '' }}" for="radio-button-{{ getUniqueId() }}"
       ><span [innerHTML]="label"></span>
       @if (isRequired) {
         <span class="text-red-500">*</span>
