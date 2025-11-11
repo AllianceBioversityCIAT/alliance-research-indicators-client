@@ -1,6 +1,6 @@
 <div class="options input-container">
   @if (label) {
-    <label class="label inline-block {{ centerOptions ? ' mb-2' : '' }}" for="username"
+    <label class="label inline-block {{ centerOptions ? ' mb-2' : '' }}"
       ><span [innerHTML]="label"></span>
       @if (isRequired) {
         <span class="text-red-500">*</span>
@@ -8,21 +8,21 @@
     </label>
   }
   @if (description) {
-    <small class="description" for="username">{{ description }}</small>
+    <small class="description">{{ description }}</small>
   }
 
   <div class="flex {{ spaceX }} {{ direction === 'vertical' ? 'flex-col' : 'flex-row' }}">
     @for (item of this.service.list(); track $index) {
       <div class="option {{ direction === 'vertical' ? 'pr-0' : 'pr-1' }}">
         <p-radioButton
-          [name]="item[optionValue.option]"
+          [name]="getUniqueName()"
           value="{{ item[optionValue.option] }}"
           (ngModelChange)="setValue(item[optionValue.option])"
           [(ngModel)]="this.body().value"
           [disabled]="disabled"
-          [inputId]="item[optionLabel] + 'id' + item[optionValue.option]"
+          [inputId]="getUniqueId(item)"
           [class]="isInvalid() ? 'warning-radio' : ''" />
-        <label [for]="item[optionLabel] + 'id' + item[optionValue.option]" class="ml-2" [innerHTML]="item[optionLabel]"></label>
+        <label [for]="getUniqueId(item)" class="ml-2" [innerHTML]="item[optionLabel]"></label>
       </div>
     }
   </div>
