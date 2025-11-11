@@ -92,6 +92,15 @@ export class CreateOicrFormComponent implements OnInit {
 
   // Accordion state
   isAccordionOpen = signal(false);
+  accordionActiveState = signal<boolean | null>(null);
+  
+  updateAccordionActiveState(active: boolean): boolean {
+    // Usar queueMicrotask para actualizar el signal fuera del contexto computed
+    queueMicrotask(() => {
+      this.accordionActiveState.set(active);
+    });
+    return active;
+  }
   
   // Submission history data
   submissionHistory = signal<SubmissionHistoryItem[]>([]);
@@ -570,7 +579,11 @@ export class CreateOicrFormComponent implements OnInit {
     }
   }
 
-  onAccordionToggle(event: number | number[]) {
+  onAccordionToggle(event: number | number[] | null) {
+    if (event === null || (Array.isArray(event) && event.length === 0)) {
+      this.isAccordionOpen.set(false);
+      return;
+    }
     const index = Array.isArray(event) ? event[0] : event;
     this.isAccordionOpen.set(index === 0);
   }
