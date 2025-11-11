@@ -65,4 +65,15 @@ export class RadioButtonComponent implements OnInit {
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue.body, value);
     this.selectEvent.emit(value);
   }
+
+  getUniqueId(item: any): string {
+    const bodyPath = this.optionValue.body.replace(/\./g, '-');
+    const optionLabel = item[this.optionLabel] || '';
+    const optionValue = item[this.optionValue.option] || '';
+    return `${bodyPath}-${optionLabel}-${optionValue}`.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
+  }
+
+  getUniqueName(): string {
+    return this.optionValue.body.replace(/\./g, '-').replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
+  }
 }
