@@ -178,7 +178,6 @@ export class SelectComponent implements OnInit, OnChanges {
             newSignal[arrayName][0][propertyName] = value;
           }
         } else {
-          // Propiedad simple
           this.utils.setNestedPropertyWithReduce(newSignal, this.optionValue.body, value);
         }
       } else {
