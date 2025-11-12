@@ -360,6 +360,27 @@ export class ResultAiAssistantComponent {
     }));
   }
 
+  private aggregateJsonContent(
+    jsonContent: unknown,
+    aggregatedJsonContent: Record<string, unknown> | null
+  ): Record<string, unknown> | null {
+    const currentResults = Array.isArray((jsonContent as { results?: unknown[] }).results)
+      ? ((jsonContent as { results?: unknown[] }).results as unknown[])
+      : [];
+    
+    if (!aggregatedJsonContent) {
+      return {
+        ...(jsonContent as Record<string, unknown>),
+        results: [...currentResults]
+      };
+    } else if (currentResults.length > 0) {
+      const prevResults = (aggregatedJsonContent['results'] as unknown[]) ?? [];
+      aggregatedJsonContent['results'] = [...prevResults, ...currentResults];
+    }
+    
+    return aggregatedJsonContent;
+  }
+
   private extractResultsFromMiningResponse(): AIAssistantResult[] {
     let combinedResults: AIAssistantResult[] = [];
     let aggregatedJsonContent: Record<string, unknown> | null = null;
@@ -373,18 +394,7 @@ export class ResultAiAssistantComponent {
           }
           const jsonContent: unknown = parsedText?.json_content;
           if (jsonContent && typeof jsonContent === 'object') {
-            const currentResults = Array.isArray((jsonContent as { results?: unknown[] }).results)
-              ? ((jsonContent as { results?: unknown[] }).results as unknown[])
-              : [];
-            if (!aggregatedJsonContent) {
-              aggregatedJsonContent = {
-                ...(jsonContent as Record<string, unknown>),
-                results: [...currentResults]
-              };
-            } else if (currentResults.length > 0) {
-              const prevResults = (aggregatedJsonContent['results'] as unknown[]) ?? [];
-              aggregatedJsonContent['results'] = [...prevResults, ...currentResults];
-            }
+            aggregatedJsonContent = this.aggregateJsonContent(jsonContent, aggregatedJsonContent);
           }
           const results = ((jsonContent as { results?: unknown[] })?.results) ?? parsedText?.results ?? [];
           if (Array.isArray(results) && results.length > 0) {
