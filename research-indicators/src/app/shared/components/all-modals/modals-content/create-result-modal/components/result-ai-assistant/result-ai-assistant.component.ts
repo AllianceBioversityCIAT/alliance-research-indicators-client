@@ -303,39 +303,7 @@ export class ResultAiAssistantComponent {
         return;
       }
 
-      let combinedResults: AIAssistantResult[] = [];
-      let aggregatedJsonContent: Record<string, unknown> | null = null;
-      for (const item of this.miningResponse) {
-        if (item?.text) {
-          try {
-            const parsedText = JSON.parse(item.text);
-            if (!this.interactionId && parsedText?.interaction_id) {
-              this.interactionId = String(parsedText.interaction_id);
-            }
-            const jsonContent: unknown = parsedText?.json_content;
-            if (jsonContent && typeof jsonContent === 'object') {
-              const currentResults = Array.isArray((jsonContent as { results?: unknown[] }).results)
-                ? ((jsonContent as { results?: unknown[] }).results as unknown[])
-                : [];
-              if (!aggregatedJsonContent) {
-                aggregatedJsonContent = {
-                  ...(jsonContent as Record<string, unknown>),
-                  results: [...currentResults]
-                };
-              } else if (currentResults.length > 0) {
-                const prevResults = ((aggregatedJsonContent as Record<string, unknown>)['results'] as unknown[]) ?? [];
-                (aggregatedJsonContent as Record<string, unknown>)['results'] = [...prevResults, ...currentResults];
-              }
-            }
-            const results = ((jsonContent as { results?: unknown[] })?.results) ?? parsedText?.results ?? [];
-            if (Array.isArray(results) && results.length > 0) {
-              combinedResults = combinedResults.concat(results);
-            }
-          } catch (parseError) {
-            console.error('Error parsing text:', parseError);
-          }
-        }
-      }
+      const combinedResults = this.extractResultsFromMiningResponse();
       if (combinedResults.length === 0) {
         this.noResults.set(true);
         return;
@@ -350,6 +318,7 @@ export class ResultAiAssistantComponent {
       this.analyzingDocument.set(false);
     }
   }
+  
 
   private mapResultRawAiToAIAssistantResult(results: AIAssistantResult[]): AIAssistantResult[] {
     return results.map(result => ({
@@ -389,6 +358,45 @@ export class ResultAiAssistantComponent {
       organizations: result.organizations,
       innovation_actors_detailed: result.innovation_actors_detailed
     }));
+  }
+
+  private extractResultsFromMiningResponse(): AIAssistantResult[] {
+    let combinedResults: AIAssistantResult[] = [];
+    let aggregatedJsonContent: Record<string, unknown> | null = null;
+
+    for (const item of this.miningResponse) {
+      if (item?.text) {
+        try {
+          const parsedText = JSON.parse(item.text);
+          if (!this.interactionId && parsedText?.interaction_id) {
+            this.interactionId = String(parsedText.interaction_id);
+          }
+          const jsonContent: unknown = parsedText?.json_content;
+          if (jsonContent && typeof jsonContent === 'object') {
+            const currentResults = Array.isArray((jsonContent as { results?: unknown[] }).results)
+              ? ((jsonContent as { results?: unknown[] }).results as unknown[])
+              : [];
+            if (!aggregatedJsonContent) {
+              aggregatedJsonContent = {
+                ...(jsonContent as Record<string, unknown>),
+                results: [...currentResults]
+              };
+            } else if (currentResults.length > 0) {
+              const prevResults = (aggregatedJsonContent['results'] as unknown[]) ?? [];
+              aggregatedJsonContent['results'] = [...prevResults, ...currentResults];
+            }
+          }
+          const results = ((jsonContent as { results?: unknown[] })?.results) ?? parsedText?.results ?? [];
+          if (Array.isArray(results) && results.length > 0) {
+            combinedResults = combinedResults.concat(results);
+          }
+        } catch (parseError) {
+          console.error('Error parsing text:', parseError);
+        }
+      }
+    }
+
+    return combinedResults;
   }
 
   startProgress(): void {
