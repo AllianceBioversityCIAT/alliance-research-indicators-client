@@ -33,9 +33,26 @@ export class AddContactPersonModalComponent {
     role_id: null
   });
 
+  private wasOpen = false;
+
   constructor() {
     effect(() => {
       this.allModalsService.setContactPersonModalData(this.body());
+    });
+
+    effect(() => {
+      const isOpen = this.allModalsService.isModalOpen('addContactPerson').isOpen;
+      if (this.wasOpen && !isOpen) {
+        this.clearData();
+      }
+      this.wasOpen = isOpen;
+    });
+  }
+
+  private clearData(): void {
+    this.body.set({
+      contact_person_id: null,
+      role_id: null
     });
   }
 

@@ -1,9 +1,9 @@
 <div class="grid h-[calc(100%-60px)] w-[60vw] max-w-[900px] md:overflow-x-hidden px-12 pt-12">
   <div class="flex flex-col gap-4 bg-white rounded-[10px] p-6">
-    <h3 class="text-[16px] font-bold text-[#153C71] mb-2">ADD CONTACT PERSONS</h3>
+    <h3 class="text-[16px] font-bold text-[#153C71] mb-2">ADD PEOPLE INVOLVED IN THIS RESULT</h3>
 
     <app-select
-      label="Contact Person"
+      label="Author / Contact Person"
       [isRequired]="true"
       [signal]="body"
       [optionValue]="{ body: 'contact_person_id', option: 'user_id' }"

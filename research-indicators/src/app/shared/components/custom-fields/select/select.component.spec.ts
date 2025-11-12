@@ -118,6 +118,7 @@ describe('SelectComponent', () => {
 
   it('should handle isInvalid computed property when required and empty', () => {
     component.isRequired = true;
+    component.isRequiredSignal.set(true);
     component.body.set({ value: null });
 
     expect(component.isInvalid()).toBe(true);
@@ -125,6 +126,7 @@ describe('SelectComponent', () => {
 
   it('should handle isInvalid computed property when required and has value', () => {
     component.isRequired = true;
+    component.isRequiredSignal.set(true);
     component.body.set({ value: 'some value' });
 
     expect(component.isInvalid()).toBe(false);
@@ -132,6 +134,7 @@ describe('SelectComponent', () => {
 
   it('should handle isInvalid computed property when not required', () => {
     component.isRequired = false;
+    component.isRequiredSignal.set(false);
     component.body.set({ value: null });
 
     expect(component.isInvalid()).toBe(false);
