@@ -2,7 +2,7 @@
   @if (label) {
     <label class="label inline-block flex items-center" for="username"
       >{{ label }}
-      @if (isRequired) {
+      @if (isRequiredSignal()) {
         <span class="text-red-500">*</span>
       }
     </label>

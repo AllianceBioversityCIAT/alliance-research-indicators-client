@@ -70,9 +70,10 @@ export class SelectComponent implements OnInit, OnChanges {
   optionsSig: WritableSignal<any[]> = signal<any[]>([]);
   loadingSig: WritableSignal<boolean> = signal<boolean>(false);
   environment = environment;
+  isRequiredSignal = signal(false);
 
   isInvalid = computed(() => {
-    return this.isRequired && !this.body()?.value;
+    return this.isRequiredSignal() && !this.body()?.value;
   });
 
   selectedOption = computed(() => {
@@ -114,12 +115,16 @@ export class SelectComponent implements OnInit, OnChanges {
   );
 
   ngOnInit() {
+    this.isRequiredSignal.set(this.isRequired);
     this.initializeService();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['serviceName'] || changes['serviceParams']) {
       this.initializeService();
+    }
+    if (changes['isRequired']) {
+      this.isRequiredSignal.set(this.isRequired);
     }
   }
 
