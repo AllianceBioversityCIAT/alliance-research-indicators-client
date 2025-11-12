@@ -21,7 +21,7 @@ export class ImpactAreasComponent {
   isGlobalTargetRequired(areaId: number): boolean {
     const impactArea = this.body().result_impact_areas?.find((ia: ResultImpactArea) => ia.impact_area_id === areaId);
     const score = impactArea?.impact_area_score_id;
-    return score === 2;
+    return score === 3;
   }
 
   getImpactAreaScore(areaId: number): WritableSignal<{ score: number | null }> {
