@@ -381,6 +381,14 @@ export class ResultAiAssistantComponent {
     return aggregatedJsonContent;
   }
 
+  private extractResultsFromParsedData(jsonContent: unknown, parsedText: Record<string, unknown>): AIAssistantResult[] {
+    const results = ((jsonContent as { results?: unknown[] })?.results) ?? parsedText?.['results'] ?? [];
+    if (Array.isArray(results) && results.length > 0) {
+      return results as AIAssistantResult[];
+    }
+    return [];
+  }
+
   private extractResultsFromMiningResponse(): AIAssistantResult[] {
     let combinedResults: AIAssistantResult[] = [];
     let aggregatedJsonContent: Record<string, unknown> | null = null;
@@ -396,10 +404,8 @@ export class ResultAiAssistantComponent {
           if (jsonContent && typeof jsonContent === 'object') {
             aggregatedJsonContent = this.aggregateJsonContent(jsonContent, aggregatedJsonContent);
           }
-          const results = ((jsonContent as { results?: unknown[] })?.results) ?? parsedText?.results ?? [];
-          if (Array.isArray(results) && results.length > 0) {
-            combinedResults = combinedResults.concat(results);
-          }
+          const results = this.extractResultsFromParsedData(jsonContent, parsedText);
+          combinedResults = combinedResults.concat(results);
         } catch (parseError) {
           console.error('Error parsing text:', parseError);
         }
