@@ -77,21 +77,21 @@ describe('ImpactAreaScoresService', () => {
     expect(service.list()).toEqual([
       {
         id: 0,
-        name: '<strong>0 -</strong> Not Targeted',
+        name: '<strong>-1 -</strong> Not Targeted',
         created_at: '2024-01-01T00:00:00.000Z',
         updated_at: '2024-01-01T00:00:00.000Z',
         is_active: true
       },
       {
         id: 1,
-        name: '<strong>1 -</strong> Significant',
+        name: '<strong>0 -</strong> Significant',
         created_at: '2024-01-01T00:00:00.000Z',
         updated_at: '2024-01-01T00:00:00.000Z',
         is_active: true
       },
       {
         id: 2,
-        name: '<strong>2 -</strong> Principal',
+        name: '<strong>1 -</strong> Principal',
         created_at: '2024-01-01T00:00:00.000Z',
         updated_at: '2024-01-01T00:00:00.000Z',
         is_active: true

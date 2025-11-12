@@ -26,7 +26,7 @@ export class ImpactAreaScoresService {
       
       const formattedData = data.map(item => ({
         id: item.id,
-        name: `<strong>${item.id} -</strong> ${item.name}`,
+        name: `<strong>${item.id - 1} -</strong> ${item.name}`,
         created_at: item.created_at || new Date().toISOString(),
         updated_at: item.updated_at || new Date().toISOString(),
         is_active: item.is_active ?? true
