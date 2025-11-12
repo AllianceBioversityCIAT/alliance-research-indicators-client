@@ -114,17 +114,19 @@ export class SelectComponent implements OnInit, OnChanges {
   );
 
   ngOnInit() {
-    this.service = this.serviceLocator.getService(this.serviceName);
-    this.loadData();
-    this.bindServiceSignals();
+    this.initializeService();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['serviceName'] || changes['serviceParams']) {
-      this.service = this.serviceLocator.getService(this.serviceName);
-      this.loadData();
-      this.bindServiceSignals();
+      this.initializeService();
     }
+  }
+
+  private initializeService() {
+    this.service = this.serviceLocator.getService(this.serviceName);
+    this.loadData();
+    this.bindServiceSignals();
   }
 
   private async loadData() {
@@ -176,7 +178,6 @@ export class SelectComponent implements OnInit, OnChanges {
             newSignal[arrayName][0][propertyName] = value;
           }
         } else {
-          // Propiedad simple
           this.utils.setNestedPropertyWithReduce(newSignal, this.optionValue.body, value);
         }
       } else {
