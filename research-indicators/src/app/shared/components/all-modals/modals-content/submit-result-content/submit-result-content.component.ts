@@ -205,7 +205,7 @@ export class SubmitResultContentComponent {
       const form = this.form();
       const allFieldsFilled = form.mel_regional_expert?.trim() && form.oicr_internal_code?.trim();
       const sharepointLink = form.sharepoint_link?.trim();
-      const validSharepoint = !sharepointLink || this.validateWebsite(sharepointLink);
+      const validSharepoint = !sharepointLink || this.validateWebsite(sharepointLink as string);
       return commentRequired || !allFieldsFilled || !validSharepoint;
     }
     
@@ -266,13 +266,11 @@ export class SubmitResultContentComponent {
   }
 
   validateWebsite(url?: string): boolean {
-    if (!url) return false;
-    try {
-      new URL(url);
-      return true;
-    } catch {
+    if (!url) {
       return false;
     }
+    const websitePattern = new RegExp(String.raw`^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?$`, 'i');
+    return websitePattern.test(url);
   }
 
   async submitReview(): Promise<void> {
