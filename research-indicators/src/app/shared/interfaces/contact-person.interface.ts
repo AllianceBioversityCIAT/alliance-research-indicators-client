@@ -28,6 +28,14 @@ export interface UserData {
   affiliation?: string;
 }
 
+export interface InformativeRole {
+  created_at: string;
+  updated_at: string;
+  is_active: boolean;
+  id: number;
+  name: string;
+}
+
 export interface ContactPersonResponse {
   created_at: string;
   updated_at: string;
@@ -37,9 +45,7 @@ export interface ContactPersonResponse {
   user_id: string;
   user_role_id: number;
   informative_role_id: number;
-  role: {
-    name: string;
-  };
+  informativeRole: InformativeRole;
   user: UserData;
 }
 

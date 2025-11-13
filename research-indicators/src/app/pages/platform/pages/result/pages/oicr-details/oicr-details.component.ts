@@ -116,7 +116,7 @@ export default class OicrDetailsComponent {
       position: item.user?.position || '-',
       affiliation: item.user?.affiliation || item.user?.center || '-',
       email: item.user?.email || '-',
-      role: item.role.name || '-',
+      role: item.informativeRole?.name || '-',
       user_id: item.user_id,
       informative_role_id: item.informative_role_id
     }));
