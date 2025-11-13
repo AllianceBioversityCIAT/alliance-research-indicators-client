@@ -155,6 +155,7 @@ export class AllModalsService {
       this.setSubmitHeader(null);
       this.setSubmitBackStep(null);
       this.clearSubmissionData();
+      this.createResultManagementService.resetModal();
     }
 
     if (modalName === 'createResult') {
@@ -197,6 +198,7 @@ export class AllModalsService {
       this.setSubmitHeader(null);
       this.setSubmitBackStep(null);
       this.clearSubmissionData();
+      this.createResultManagementService.resetModal();
     }
 
     if (modalName === 'createResult') {
