@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, Input, signal, WritableSignal, inject } from '@angular/core';
+import { Component, Input, signal, WritableSignal, inject, effect } from '@angular/core';
 import { RadioButtonComponent } from '@shared/components/custom-fields/radio-button/radio-button.component';
 import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
@@ -17,6 +17,30 @@ export class ImpactAreasComponent {
 
   serviceLocator = inject(ServiceLocatorService);
   impactAreasService = this.serviceLocator.getService('impactAreas') as BaseService;
+  
+  private globalTargetSignals = new Map<number, WritableSignal<{ global_target: number | null }>>();
+
+  constructor() {
+    effect(() => {
+      const body = this.body();
+      
+      if (body.result_impact_areas) {
+        for (const impactArea of body.result_impact_areas) {
+          const globalTargetId = (impactArea as any).global_target;
+          const areaId = impactArea.impact_area_id;
+          
+          if (areaId) {
+            let targetSignal = this.globalTargetSignals.get(areaId);
+            if (!targetSignal) {
+              targetSignal = signal({ global_target: null });
+              this.globalTargetSignals.set(areaId, targetSignal);
+            }
+            targetSignal.set({ global_target: globalTargetId ?? null });
+          }
+        }
+      }
+    });
+  }
 
   isGlobalTargetRequired(areaId: number): boolean {
     const impactArea = this.body().result_impact_areas?.find((ia: ResultImpactArea) => ia.impact_area_id === areaId);
@@ -30,9 +54,15 @@ export class ImpactAreasComponent {
   }
 
   getImpactAreaGlobalTarget(areaId: number): WritableSignal<{ global_target: number | null }> {
-    const impactArea = this.body().result_impact_areas?.find((ia: ResultImpactArea) => ia.impact_area_id === areaId);
-    const globalTarget = impactArea?.result_impact_area_global_targets?.[0];
-    return signal({ global_target: globalTarget?.global_target_id || null });
+    if (!this.globalTargetSignals.has(areaId)) {
+      const impactArea = this.body().result_impact_areas?.find((ia: ResultImpactArea) => ia.impact_area_id === areaId);
+      const globalTarget = impactArea?.result_impact_area_global_targets?.[0];
+      const globalTargetId = (impactArea as any)?.global_target || globalTarget?.global_target_id || null;
+      const newSignal = signal({ global_target: globalTargetId });
+      this.globalTargetSignals.set(areaId, newSignal);
+      return newSignal;
+    }
+    return this.globalTargetSignals.get(areaId)!;
   }
 
   onScoreChange(areaId: number, value: number) {
