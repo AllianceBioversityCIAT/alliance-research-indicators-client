@@ -19,19 +19,23 @@ export class ImpactAreasComponent {
   impactAreasService = this.serviceLocator.getService('impactAreas') as BaseService;
   
   private readonly globalTargetSignals = new Map<number, WritableSignal<{ global_target_id: number | null }>>();
+  private readonly impactAreaScoreSignals = new Map<number, WritableSignal<{ score: number | null }>>();
 
   constructor() {
     effect(() => {
       const body = this.body();
-      
       if (body.result_impact_areas) {
         for (const impactArea of body.result_impact_areas) {
           const globalTargetId = impactArea.global_target_id;
           const areaId = impactArea.impact_area_id;
+          const impactAreaScoreId = impactArea.impact_area_score_id;
           
           if (areaId) {
             const targetSignal = this.ensureGlobalTargetSignal(areaId);
             targetSignal.set({ global_target_id: globalTargetId ?? null });
+
+            const scoreSignal = this.ensureImpactAreaScoreSignal(areaId);
+            scoreSignal.set({ score: impactAreaScoreId ?? null });
           }
         }
       }
@@ -45,8 +49,7 @@ export class ImpactAreasComponent {
   }
 
   getImpactAreaScore(areaId: number): WritableSignal<{ score: number | null }> {
-    const impactArea = this.body().result_impact_areas?.find((ia: ResultImpactArea) => ia.impact_area_id === areaId);
-    return signal({ score: impactArea?.impact_area_score_id || null });
+    return this.ensureImpactAreaScoreSignal(areaId);
   }
 
   getImpactAreaGlobalTarget(areaId: number): WritableSignal<{ global_target_id: number | null }> {
@@ -68,6 +71,7 @@ export class ImpactAreasComponent {
       impactArea.impact_area_score_id = value;
     }
 
+    this.updateImpactAreaScoreSignal(areaId, value);
     this.body.set({ ...currentBody });
   }
 
@@ -104,5 +108,21 @@ export class ImpactAreasComponent {
   private updateGlobalTargetSignal(areaId: number, targetId: number | null) {
     const targetSignal = this.ensureGlobalTargetSignal(areaId);
     targetSignal.set({ global_target_id: targetId });
+  }
+
+  private ensureImpactAreaScoreSignal(areaId: number): WritableSignal<{ score: number | null }> {
+    if (!this.impactAreaScoreSignals.has(areaId)) {
+      const impactArea = this.body().result_impact_areas?.find((ia: ResultImpactArea) => ia.impact_area_id === areaId);
+      const initialScore = impactArea?.impact_area_score_id ?? null;
+      const newSignal = signal({ score: initialScore });
+      this.impactAreaScoreSignals.set(areaId, newSignal);
+    }
+
+    return this.impactAreaScoreSignals.get(areaId)!;
+  }
+
+  private updateImpactAreaScoreSignal(areaId: number, score: number | null) {
+    const scoreSignal = this.ensureImpactAreaScoreSignal(areaId);
+    scoreSignal.set({ score });
   }
 }
