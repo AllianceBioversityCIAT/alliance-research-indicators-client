@@ -472,6 +472,17 @@ describe('MultiselectOpensearchComponent', () => {
     expect(component.firstLoad()).toBe(true);
   });
 
+  it('should trigger real onGlobalLoadingChange effect (cover line 71)', () => {
+    const fixture = TestBed.createComponent(MultiselectOpensearchComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+    comp.firstLoad.set(false);
+    expect(comp.firstLoad()).toBe(false);
+    mockCacheService.currentResultIsLoading.set(true);
+    fixture.detectChanges();
+    expect(comp.firstLoad()).toBe(true);
+  });
+
   // Test for lines 86-93 - complete searchSubject flow
   it('should complete searchSubject flow with debounce', async () => {
     const mockResponse = [{ id: 1, name: 'Test Result' }];

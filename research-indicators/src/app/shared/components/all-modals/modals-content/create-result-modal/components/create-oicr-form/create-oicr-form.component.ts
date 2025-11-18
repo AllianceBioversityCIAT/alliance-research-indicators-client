@@ -9,7 +9,8 @@ import {
   computed,
   QueryList,
   ViewChildren,
-  WritableSignal
+  WritableSignal,
+  OnInit
 } from '@angular/core';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 
@@ -21,7 +22,8 @@ import { GetResultsService } from '@shared/services/control-list/get-results.ser
 import { CacheService } from '@shared/services/cache/cache.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
-import { GetContracts } from '@shared/interfaces/get-contracts.interface';
+import { GetContracts, GetContractsExtended } from '@shared/interfaces/get-contracts.interface';
+import { SubmissionHistoryItem } from '@shared/interfaces/submission-history.interface';
 
 import { GetYearsService } from '@shared/services/control-list/get-years.service';
 import { WordCountService } from '@shared/services/word-count.service';
@@ -50,11 +52,13 @@ import { Router } from '@angular/router';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
-import { DownloadOicrTemplateComponent } from '@shared/components/download-oicr-template/download-oicr-template.component';
+import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
+import { CurrentResultService } from '@shared/services/cache/current-result.service';
+import { FindContracts } from '@shared/interfaces/find-contracts.interface';
+import { AccordionModule } from 'primeng/accordion';
+import { SubmissionService } from '@shared/services/submission.service';
+import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 
-interface GetContractsExtended extends GetContracts {
-  contract_id: string;
-}
 @Component({
   selector: 'app-create-oicr-form',
   templateUrl: './create-oicr-form.component.html',
@@ -66,23 +70,40 @@ interface GetContractsExtended extends GetContracts {
     MultiselectComponent,
     MultiselectInstanceComponent,
     OicrFormFieldsComponent,
-    DatePipe,
     NgTemplateOutlet,
     TooltipModule,
-    DownloadOicrTemplateComponent
+    OicrHeaderComponent,
+    AccordionModule,
+    DatePipe
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CreateOicrFormComponent {
+export class CreateOicrFormComponent implements OnInit {
   @ViewChildren(MultiselectInstanceComponent) multiselectInstances!: QueryList<MultiselectInstanceComponent>;
 
   createResultManagementService = inject(CreateResultManagementService);
   serviceLocator = inject(ServiceLocatorService);
+  submissionService = inject(SubmissionService);
   getResultsService = inject(GetResultsService);
   allModalsService = inject(AllModalsService);
   wordCountService = inject(WordCountService);
   yearsService = inject(GetYearsService);
+
+  // Accordion state
+  isAccordionOpen = signal(false);
+  accordionActiveState = signal<boolean | null>(null);
+  
+  updateAccordionActiveState(active: boolean): boolean {
+    // Usar queueMicrotask para actualizar el signal fuera del contexto computed
+    queueMicrotask(() => {
+      this.accordionActiveState.set(active);
+    });
+    return active;
+  }
+  
+  // Submission history data
+  submissionHistory = signal<SubmissionHistoryItem[]>([]);
   actions = inject(ActionsService);
   elementRef = inject(ElementRef);
   cache = inject(CacheService);
@@ -90,6 +111,7 @@ export class CreateOicrFormComponent {
   router = inject(Router);
   rolesService = inject(RolesService);
   projectResultsTableService = inject(ProjectResultsTableService);
+  currentResultService = inject(CurrentResultService);
   step4opened = signal(false);
   filteredPrimaryContracts = signal<GetContracts[]>([]);
   contracts = signal<GetContractsExtended[]>([]);
@@ -98,6 +120,7 @@ export class CreateOicrFormComponent {
   environment = environment;
   loading = false;
   activeIndex = signal(0);
+  headerDataLoading = signal(true);
 
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
   primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
@@ -135,6 +158,18 @@ export class CreateOicrFormComponent {
     return { first: parts[0] || '', second: parts[1] || '' };
   });
 
+  isHeaderDataLoaded = computed(() => {
+    const contract = this.currentContract();
+    const title = this.createResultManagementService.resultTitle();
+    const statusId = this.createResultManagementService.statusId();
+    
+    return !this.headerDataLoading() && 
+           contract !== null && 
+           title !== null && 
+           title !== undefined && 
+           statusId !== null;
+  });
+
   constructor() {
     this.createResultManagementService.stepItems.set(
       CREATE_OICR_STEPPER_ITEMS.map((item, idx) => ({
@@ -142,6 +177,16 @@ export class CreateOicrFormComponent {
         command: () => this.onStepClick(idx, CREATE_OICR_STEPPER_SECTIONS[idx])
       }))
     );
+  }
+
+  ngOnInit() {
+    if(this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 7) {
+      this.api.GET_SubmitionHistory(this.cache.getCurrentNumericResultId()).then((response) => {
+        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+          this.submissionHistory.set(response.data);
+        }
+      });
+    }
   }
 
   stepOneCompletionEffect = effect(
@@ -214,31 +259,29 @@ export class CreateOicrFormComponent {
     async () => {
       const contractId = this.createResultManagementService.contractId();
       if (contractId !== null) {
+        this.headerDataLoading.set(true);
         this.createResultManagementService.createOicrBody.update(body => ({
           ...body,
           contract_id: contractId
         }));
         try {
-          const response = await this.api.GET_Contracts(contractId);
+          const response = await this.api.GET_FindContracts({ 'contract-code': contractId.toString() });
           if (response.successfulRequest && response.data) {
-            const contractsWithId = response.data.map(contract => ({
+            const contractsWithId = response.data.data.map((contract: FindContracts) => ({
               ...contract,
               contract_id: contract.agreement_id
             }));
-            this.contracts.set(contractsWithId);
+            this.contracts.set(contractsWithId as GetContractsExtended[]);
           }
         } catch (error) {
           console.error('Error loading contracts:', error);
+        } finally {
+          this.headerDataLoading.set(false);
         }
       }
     },
     { allowSignalWrites: true }
   );
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  printht(c: Country) {
-    // Debug method - console statements removed for linting compliance
-  }
 
   onActiveIndexChange(event: number) {
     this.activeIndex.set(event);
@@ -401,6 +444,7 @@ export class CreateOicrFormComponent {
               this.createResultManagementService.currentRequestedResultCode.set(null);
               this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
               this.createResultManagementService.clearOicrBody();
+              this.createResultManagementService.setStatusId(null);
             };
 
             if (
@@ -445,6 +489,7 @@ export class CreateOicrFormComponent {
   goBackToCreateResult() {
     this.createResultManagementService.setModalTitle('Create A Result');
     this.createResultManagementService.resultPageStep.set(0);
+    this.createResultManagementService.setStatusId(null);
   }
 
   isGeoScopeId(value: number | string): boolean {
@@ -459,5 +504,112 @@ export class CreateOicrFormComponent {
         link_result: { external_oicr_id: 0 }
       }
     }));
+  }
+
+  openSubmitResultModal() {
+    this.allModalsService.setSubmitResultOrigin('latest');
+    this.allModalsService.closeModal('createResult');
+    this.allModalsService.setSubmitBackStep(this.activeIndex());
+    const contract = this.currentContract?.();
+    
+    // Map the new lever structure - levers come directly in the contract object
+    const levers = contract?.levers ? {
+      id: contract.levers.id,
+      full_name: contract.levers.full_name,
+      short_name: contract.levers.short_name,
+      other_names: contract.levers.other_names,
+      lever_url: contract.levers.lever_url
+    } : null;
+    
+    this.allModalsService.setSubmitHeader({
+      title: this.createResultManagementService.resultTitle?.() || this.createResultManagementService.createOicrBody()?.base_information?.title || undefined,
+      agreement_id: contract?.agreement_id,
+      description: contract?.description,
+      project_lead_description: contract?.project_lead_description,
+      start_date: contract?.start_date,
+      endDateGlobal: contract?.endDateGlobal || undefined,
+      levers: levers || undefined,
+      status_id: this.createResultManagementService.statusId()?.toString() || undefined
+    });
+    
+    // Set up the cancel action to call handleSubmitBack
+    this.allModalsService.setSubmitBackAction(() => this.handleSubmitBack());
+    
+    this.allModalsService.openModal('submitResult');
+  }
+
+  async handleSubmitBack(): Promise<void> {
+    this.allModalsService.closeModal('submitResult');
+    this.createResultManagementService.setStatusId(null);
+    
+    const currentMetadata = this.cache.currentMetadata();
+    if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
+      const resultCode = this.cache.getCurrentNumericResultId();
+      await this.currentResultService.openEditRequestdOicrsModal(
+        currentMetadata.indicator_id,
+        currentMetadata.status_id,
+        resultCode
+      );
+    }
+  }
+
+  getStatusIdAsString(): string {
+    return String(this.createResultManagementService.statusId() || 9);
+  }
+
+  getStatusName(id: number): string {
+    return this.submissionService.getStatusNameById(id);
+  }
+
+  getColors() {
+    const status = String(this.getStatusIdAsString());
+    return STATUS_COLOR_MAP[status] || STATUS_COLOR_MAP[''];
+  }
+
+  getStatusIcon(): string {
+    const statusId = this.createResultManagementService.statusId();
+    
+    switch (statusId) {
+      case 11: 
+        return 'pi pi-minus-circle';
+      case 7: 
+        return 'pi pi-times-circle';
+      default: 
+        return 'pi pi-check-circle';
+    }
+  }
+
+  onAccordionToggle(event: number | number[] | null) {
+    if (event === null || (Array.isArray(event) && event.length === 0)) {
+      this.isAccordionOpen.set(false);
+      return;
+    }
+    const index = Array.isArray(event) ? event[0] : event;
+    this.isAccordionOpen.set(index === 0);
+  }
+
+  getFirstHistoryItem() {
+    const history = this.submissionHistory();
+    return history.length > 0 ? history[0] : null;
+  }
+
+  getReviewerFullName() {
+    const item = this.getFirstHistoryItem();
+    if (item?.created_by_object) {
+      const firstName = item.created_by_object.first_name || '';
+      const lastName = item.created_by_object.last_name || '';
+      return ` ${lastName}, ${firstName}`.trim();
+    }
+    return '';
+  }
+
+  getSubmissionComment() {
+    const item = this.getFirstHistoryItem();
+    return item?.submission_comment || '';
+  }
+
+  getUpdatedDate() {
+    const item = this.getFirstHistoryItem();
+    return item?.updated_at || '';
   }
 }

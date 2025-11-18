@@ -60,7 +60,7 @@ describe('ResultAiAssistantComponent', () => {
 
     apiServiceMock = {
       GET_IssueCategories: jest.fn().mockResolvedValue({ data: [] }),
-      POST_DynamoFeedback: jest.fn().mockResolvedValue({})
+      POST_feedback: jest.fn().mockResolvedValue({})
     } as Partial<ApiService>;
 
     getContractsServiceMock = {
@@ -74,7 +74,7 @@ describe('ResultAiAssistantComponent', () => {
     } as Partial<CreateResultManagementService>;
 
     cacheServiceMock = {
-      dataCache: signal({ user: { id: 1 } })
+      dataCache: signal({ user: { id: 1, email: 'user@test.com' } })
     };
 
     await TestBed.configureTestingModule({
@@ -280,35 +280,35 @@ describe('ResultAiAssistantComponent', () => {
   });
 
   it('feedback panel flow and submitFeedback', async () => {
-    // open bad feedback
-    component.toggleFeedback('bad');
+    // open negative feedback
+    component.toggleFeedback('negative');
     expect(component.showFeedbackPanel()).toBe(true);
-    expect(component.feedbackType()).toBe('bad');
+    expect(component.feedbackType()).toBe('negative');
     expect(component.isRequired()).toBe(true);
     component.selectType('t1');
     component.body.update(b => ({ ...b, feedbackText: 'desc' }));
     component.miningResponse = [{ text: 'x' }];
     await component.submitFeedback();
-    expect(apiServiceMock.POST_DynamoFeedback).toHaveBeenCalled();
+    expect(apiServiceMock.POST_feedback).toHaveBeenCalled();
     expect(actionsServiceMock.showToast).toHaveBeenCalled();
     expect(component.feedbackSent).toBe(true);
-    expect(component.lastFeedbackType).toBe('bad');
+    expect(component.lastFeedbackType).toBe('negative');
     expect(component.showFeedbackPanel()).toBe(false);
   });
 
   it('toggleFeedback should close when same type clicked and reopen when switching type', () => {
     jest.useFakeTimers();
     const removeSpy = jest.spyOn(document, 'removeEventListener');
-    // open good
-    component.toggleFeedback('good');
+    // open positive
+    component.toggleFeedback('positive');
     jest.runOnlyPendingTimers();
     expect(component.showFeedbackPanel()).toBe(true);
     // click same type -> close
-    component.toggleFeedback('good');
+    component.toggleFeedback('positive');
     expect(component.showFeedbackPanel()).toBe(false);
     expect(removeSpy).toHaveBeenCalledWith('click', component.handleOutsideClick);
-    // switch to bad -> close then reopen with delay
-    component.toggleFeedback('bad');
+    // switch to negative -> close then reopen with delay
+    component.toggleFeedback('negative');
     jest.advanceTimersByTime(200);
     expect(component.showFeedbackPanel()).toBe(true);
     jest.useRealTimers();
@@ -318,11 +318,11 @@ describe('ResultAiAssistantComponent', () => {
     jest.useFakeTimers();
     const addSpy = jest.spyOn(document, 'addEventListener');
     const removeSpy = jest.spyOn(document, 'removeEventListener');
-    // open with good
-    component.toggleFeedback('good');
+    // open with positive
+    component.toggleFeedback('positive');
     jest.runOnlyPendingTimers();
-    // switch to bad triggers close then reopen after 100ms and then inner attach
-    component.toggleFeedback('bad');
+    // switch to negative triggers close then reopen after 100ms and then inner attach
+    component.toggleFeedback('negative');
     // first close removes listener
     expect(removeSpy).toHaveBeenCalledWith('click', component.handleOutsideClick);
     // advance to trigger reopen and inner attach
@@ -335,7 +335,7 @@ describe('ResultAiAssistantComponent', () => {
   it('toggleFeedback initial open should attach outside click listener', () => {
     jest.useFakeTimers();
     const addSpy = jest.spyOn(document, 'addEventListener');
-    component.toggleFeedback('good');
+    component.toggleFeedback('positive');
     jest.runOnlyPendingTimers();
     expect(component.showFeedbackPanel()).toBe(true);
     expect(addSpy).toHaveBeenCalledWith('click', component.handleOutsideClick);
@@ -454,15 +454,17 @@ describe('ResultAiAssistantComponent', () => {
   it('mapResultRawAiToAIAssistantResult should coalesce optional fields and contract_code', () => {
     component.body.update(b => ({ ...b, contract_id: 123 }));
     const input = [{
-      indicator: 'i', title: 't', description: 'd', keywords: [], geoscope: undefined,
+      indicator: 'i', title: 't', description: 'd', keywords: [], geoscope_level: 'global', regions: [], countries: [],
       training_type: 'tt', length_of_training: 1, start_date: 's', end_date: 'e', degree: 'deg', delivery_modality: 'dm',
       total_participants: 10, evidence_for_stage: 'ev', policy_type: 'pol',
-      alliance_main_contact_person_first_name: 'n', alliance_main_contact_person_last_name: 'l', stage_in_policy_process: 'st',
+      main_contact_person: { name: 'n l', code: 'c', similarity_score: 0.8 }, stage_in_policy_process: 'st',
       male_participants: undefined, female_participants: undefined, non_binary_participants: undefined,
       innovation_nature: 'in', innovation_type: 'it', assess_readiness: 'ar', anticipated_users: 'au', organization_type: 'ot', organization_sub_type: 'ost', organizations: [], innovation_actors_detailed: []
     }];
     const out = (component as any).mapResultRawAiToAIAssistantResult(input);
-    expect(out[0].geoscope).toEqual([]);
+    expect(out[0].geoscope_level).toBe('global');
+    expect(out[0].regions).toEqual([]);
+    expect(out[0].countries).toEqual([]);
     expect(out[0].male_participants).toBe(0);
     expect(out[0].female_participants).toBe(0);
     expect(out[0].non_binary_participants).toBe('0');
@@ -483,6 +485,21 @@ describe('ResultAiAssistantComponent', () => {
     textMiningServiceMock.executeTextMining.mockResolvedValueOnce({ content: [{ text: '{invalid json' }] });
     await component.handleAnalyzingDocument();
     expect(component.noResults() || component.documentAnalyzed()).toBe(true);
+  });
+
+  it('onContractIdChange should update contractId and body', () => {
+    const newContractId = 'contract-123';
+    component.onContractIdChange(newContractId);
+    
+    expect(component.contractId).toBe(newContractId);
+    expect(component.body().contract_id).toBe(newContractId);
+  });
+
+  it('onContractIdChange should handle null contractId', () => {
+    component.onContractIdChange(null);
+    
+    expect(component.contractId).toBe(null);
+    expect(component.body().contract_id).toBe(null);
   });
 });
 

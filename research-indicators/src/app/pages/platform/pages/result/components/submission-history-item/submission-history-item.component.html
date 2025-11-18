@@ -7,10 +7,11 @@
 
   <div class="info-content">
     <div class="text-content">
-      <span class="title">{{ historyItem.created_by_object.first_name }}</span>
+      <span class="title">{{ historyItem.created_by_object.first_name }} {{ historyItem.created_by_object.last_name }} 
       <span class="description-text">&nbsp;has&nbsp;</span>
       <span class="title lowercase">{{ getStatusName(historyItem.to_status_id) }}</span>
       <span class="description-text">&nbsp;the result.</span>
+      </span>
     </div>
     <div class="status-content">
       <app-custom-tag [statusId]="historyItem.from_status_id" [statusName]="getStatusName(historyItem.from_status_id)"></app-custom-tag>

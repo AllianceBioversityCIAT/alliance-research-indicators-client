@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
+import { InputTextModule } from 'primeng/inputtext';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { ApiService } from '@shared/services/api.service';
@@ -11,10 +12,17 @@ import { ReviewOption } from '../../../../interfaces/review-option.interface';
 import { SubmissionService } from '../../../../services/submission.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { Router } from '@angular/router';
+import { SelectComponent } from '@shared/components/custom-fields/select/select.component';
+import { InputComponent } from '@shared/components/custom-fields/input/input.component';
+import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
+import { PatchSubmitResultLatest } from '@shared/interfaces/patch_submit-result.interface';
+import { CurrentResultService } from '@shared/services/cache/current-result.service';
+import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
+import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 
 @Component({
   selector: 'app-submit-result-content',
-  imports: [DialogModule, ButtonModule, FormsModule, TextareaModule],
+  imports: [DialogModule, ButtonModule, FormsModule, TextareaModule, InputTextModule, SelectComponent, InputComponent, OicrHeaderComponent],
   templateUrl: './submit-result-content.component.html'
 })
 export class SubmitResultContentComponent {
@@ -24,7 +32,12 @@ export class SubmitResultContentComponent {
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
   actions = inject(ActionsService);
+  currentResultService = inject(CurrentResultService);
+  projectResultsTableService = inject(ProjectResultsTableService);
+  resultsCenterService = inject(ResultsCenterService);
   private readonly router = inject(Router);
+
+  form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
 
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
@@ -35,6 +48,11 @@ export class SubmitResultContentComponent {
       const visible = this.allModalsService.modalConfig().submitResult.isOpen;
       if (!wasVisible && visible) {
         this.setInitialSelectedReviewOption();
+        this.form.set({
+          mel_regional_expert: this.submissionService.melRegionalExpert(),
+          oicr_internal_code: this.submissionService.oicrNo(),
+          sharepoint_link: this.submissionService.sharePointFolderLink()
+        });
       }
       wasVisible = visible;
     });
@@ -49,7 +67,7 @@ export class SubmitResultContentComponent {
     }
   }
 
-  reviewOptions = signal<ReviewOption[]>([
+  private readonly baseReviewOptions: ReviewOption[] = [
     {
       key: 'approve',
       label: 'Approve',
@@ -58,6 +76,7 @@ export class SubmitResultContentComponent {
       color: 'text-[#509C55]',
       message: 'Once this result is approved, no further changes will be allowed.',
       commentLabel: undefined,
+      placeholder: '',
       statusId: 6,
       selected: false
     },
@@ -69,6 +88,7 @@ export class SubmitResultContentComponent {
       color: 'text-[#e69f00]',
       message: 'The result submitter will address the provided recommendations and resubmit for review.',
       commentLabel: 'Add recommendations/comments',
+      placeholder: '',
       statusId: 5,
       selected: false
     },
@@ -80,10 +100,28 @@ export class SubmitResultContentComponent {
       color: 'text-[#cf0808]',
       message: 'If the result is rejected, it can no longer be edited or resubmitted.',
       commentLabel: 'Add the reject reason',
+      placeholder: '',
       statusId: 7,
       selected: false
     }
-  ]);
+  ];
+
+  reviewOptions = computed<ReviewOption[]>(() => {
+    const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
+    return this.baseReviewOptions.map(opt => {
+      if (!isLatest) return opt;
+      if (opt.key === 'approve') {
+        return { ...opt, description: 'OICR development will continue with PISA support.', statusId: 4 };
+      }
+      if (opt.key === 'revise') {
+        return { ...opt, label: 'Postpone', description: 'Not enough evidence for this reporting year.', commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', statusId: 11 };
+      }
+      if (opt.key === 'reject') {
+        return { ...opt, commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision' };
+      }
+      return opt;
+    });
+  });
 
   submittionOptions = computed(() =>
     this.reviewOptions().map(option => ({ ...option, selected: option.statusId === this.submissionService.statusSelected()?.statusId }))
@@ -91,19 +129,116 @@ export class SubmitResultContentComponent {
 
   setComment = (event: Event) => this.submissionService.comment.set((event.target as HTMLTextAreaElement).value);
 
+  selectOption(option: ReviewOption): void {
+    this.submissionService.statusSelected.set(option);
+  }
+
+  onOptionFocus(option: ReviewOption): void {
+    for (const opt of this.submittionOptions()) {
+      const element = document.querySelector(`[data-option-key="${opt.key}"]`) as HTMLElement;
+      if (element) {
+        element.setAttribute('tabindex', opt.key === option.key ? '0' : '-1');
+      }
+    }
+  }
+
+  onOptionKeydown(event: KeyboardEvent, option: ReviewOption, index: number): void {
+    const options = this.submittionOptions();
+    const currentIndex = index;
+    
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowDown': {
+        event.preventDefault();
+        const nextIndex = (currentIndex + 1) % options.length;
+        this.focusOption(options[nextIndex]);
+        break;
+      }
+        
+      case 'ArrowLeft':
+      case 'ArrowUp': {
+        event.preventDefault();
+        const prevIndex = currentIndex === 0 ? options.length - 1 : currentIndex - 1;
+        this.focusOption(options[prevIndex]);
+        break;
+      }
+        
+      case ' ':
+      case 'Enter':
+        event.preventDefault();
+        this.selectOption(option);
+        break;
+        
+      case 'Home':
+        event.preventDefault();
+        this.focusOption(options[0]);
+        break;
+        
+      case 'End':
+        event.preventDefault();
+        this.focusOption(options.at(-1)!);
+        break;
+    }
+  }
+
+  private focusOption(option: ReviewOption): void {
+    const element = document.querySelector(`[data-option-key="${option.key}"]`) as HTMLElement;
+    if (element) {
+      element.focus();
+    }
+  }
+
+
+  updateForm<K extends keyof PatchSubmitResultLatest>(key: K, value: PatchSubmitResultLatest[K]): void {
+    this.form.update(f => ({ ...f, [key]: value }));
+  }
+
   disabledConfirmSubmit = (): boolean => {
     const selected = this.submissionService.statusSelected();
     const comment = this.submissionService.comment();
-    return !!selected?.commentLabel && !comment?.trim();
+    const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
+    const commentRequired = !!selected?.commentLabel && !comment?.trim();
+    
+    if (!selected) return true;
+    
+    if (isLatest && (selected?.statusId === 4 || selected?.statusId === 10)) {
+      const form = this.form();
+      const allFieldsFilled = form.mel_regional_expert?.trim() && form.oicr_internal_code?.trim();
+      const sharepointLink = form.sharepoint_link?.trim();
+      const validSharepoint = !sharepointLink || this.validateWebsite(sharepointLink);
+      return commentRequired || !allFieldsFilled || !validSharepoint;
+    }
+    
+    return commentRequired;
   };
 
-  async submitReview(): Promise<void> {
+  private async refreshTables(): Promise<void> {
+    try {
+      if (this.projectResultsTableService.contractId) {
+        await this.projectResultsTableService.getData();
+      }
+      await this.resultsCenterService.main();
+    } catch (error) {
+      console.error('Error refreshing tables:', error);
+    }
+  }
+
+  private buildLatestBody(isApprove: boolean, formValue: PatchSubmitResultLatest): PatchSubmitResultLatest | undefined {
+    if (!isApprove) return undefined;
+    return {
+      oicr_internal_code: formValue?.oicr_internal_code || '',
+      mel_regional_expert: formValue?.mel_regional_expert || '',
+      sharepoint_link: formValue?.sharepoint_link || ''
+    };
+  }
+
+  private async handlePostSubmitForLegacyFlow(): Promise<boolean> {
     const response = await this.api.PATCH_SubmitResult({
       resultCode: this.cache.getCurrentNumericResultId(),
       comment: this.submissionService.comment(),
       status: this.submissionService.statusSelected()!.statusId
     });
-    if (!response.successfulRequest) return;
+    if (!response.successfulRequest) return false;
     if (this.submissionService.statusSelected()?.statusId === 6) this.submissionService.comment.set('');
     await this.metadata.update(this.cache.getCurrentNumericResultId());
     this.cache.lastResultId.set(null);
@@ -112,10 +247,7 @@ export class SubmitResultContentComponent {
     this.cache.versionsList.set([]);
 
     const currentPath = this.router.url.split('?')[0];
-    await this.router.navigate([currentPath], {
-      queryParams: {},
-      replaceUrl: true
-    });
+    await this.router.navigate([currentPath], { queryParams: {}, replaceUrl: true });
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -130,7 +262,57 @@ export class SubmitResultContentComponent {
         });
       }
     }
+    return true;
+  }
 
-    this.allModalsService.closeModal('submitResult');
+  validateWebsite(url?: string): boolean {
+    if (!url) {
+      return false;
+    }
+    const websitePattern = /^(https?:\/\/)?(www\.)?([\da-z-]+\.)+[a-z]{2,}(\/\S*)?$/i;
+    return websitePattern.test(url);
+  }
+
+  async submitReview(): Promise<void> {
+    if (this.allModalsService.submitResultOrigin?.() === 'latest') {
+      const isApprove = this.submissionService.statusSelected()?.statusId === 4;
+      const formValue = this.form();
+      const body = this.buildLatestBody(isApprove, formValue);
+      const response = await this.api.PATCH_SubmitResult(
+        {
+          resultCode: this.cache.getCurrentNumericResultId(),
+          comment: this.submissionService.comment(),
+          status: this.submissionService.statusSelected()!.statusId
+        },
+        body
+      );
+      
+      if (!response.successfulRequest) return;
+      
+      this.form.set({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
+      this.submissionService.comment.set('');
+      this.submissionService.statusSelected.set(null);
+      
+      this.allModalsService.closeModal('submitResult');
+      await this.refreshTables();
+      this.actions.showGlobalAlert({
+        severity: 'success',
+        summary: 'Review submitted successfully',
+        hasNoCancelButton: true,
+        detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+        confirmCallback: {
+          label: 'Done',
+          event: () => {
+            this.allModalsService.closeAllModals();
+          }
+        }
+      });
+    }
+    else {
+      const success = await this.handlePostSubmitForLegacyFlow();
+      if (success) {
+        this.allModalsService.closeModal('submitResult');
+      }
+    }
   }
 }

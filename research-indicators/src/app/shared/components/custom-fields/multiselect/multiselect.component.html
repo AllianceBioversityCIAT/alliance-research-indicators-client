@@ -20,8 +20,8 @@
     <div>
       <p-multiSelect
         [style]="isInvalid() ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
-        [loading]="this.service?.loading()"
-        [options]="this.useDisabled() ? this.listWithDisabled() : this.service?.list()"
+        [loading]="this.loadingSig()"
+        [options]="this.useDisabled() ? this.listWithDisabled() : this.optionsSig()"
         [filter]="!this.service?.isOpenSearch()"
         [filterBy]="this.optionLabel"
         [optionLabel]="this.optionLabel"
@@ -30,12 +30,13 @@
         [(ngModel)]="this.body().value"
         (ngModelChange)="this.setValue($event)"
         [disabled]="disabled"
-        [virtualScroll]="true"
+        [virtualScroll]="enableVirtualScroll"
         [filterBy]="this.filterBy"
         [placeholder]="placeholder"
         [virtualScrollItemSize]="this.itemHeight"
         [scrollHeight]="this.scrollHeight"
-        appendTo="body">
+        [panelStyle]="{ width: '100%', minWidth: '100%' }"
+        appendTo="self">
         @if (this.service?.isOpenSearch()) {
           <ng-template pTemplate="header">
             <div class="p-dropdown-header">
@@ -57,7 +58,7 @@
             @if (selectedItems) {
               <ng-container *ngTemplateOutlet="selectedItems; context: { $implicit: value }"></ng-container>
             } @else {
-              {{ selectedOptions()?.length > 0 ? selectedOptions()?.length + ' items selected' : '' }}
+              {{ selectedOptions().length > 0 ? selectedOptions().length + ' items selected' : '' }}
             }
           </ng-template>
 
@@ -104,7 +105,7 @@
   }
 
   @if (!this.hideSelected && !this.hideTemplate) {
-    @if (this.currentResultIsLoading() || !this.service?.list().length) {
+    @if (this.currentResultIsLoading() || !(this.optionsSig().length)) {
       @for (row of list; track $index) {
         <p-skeleton width="100%" height="41px" styleClass="mb-2" />
       }
@@ -118,11 +119,11 @@
           <span>This field is required</span>
         </div>
       }
-      @if (textSpan && selectedOptions()?.length) {
+      @if (textSpan && selectedOptions().length) {
         <span class="block text-[14.5px] pb-3 pt-6 text-[#777C83]">{{ textSpan }}</span>
       }
       <div
-        class="selected-items {{ !textSpan && selectedOptions()?.length ? 'mt-6' : '' }}"
+        class="selected-items {{ !textSpan && selectedOptions().length ? 'mt-6' : '' }}"
         [class.show-scroll]="!this.disabledSelectedScroll"
         [class.columns-xl]="columnsOnXl">
         @for (row of selectedOptions(); track $index) {

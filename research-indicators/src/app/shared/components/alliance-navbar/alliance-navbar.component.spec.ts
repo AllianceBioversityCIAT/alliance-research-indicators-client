@@ -123,6 +123,13 @@ describe('AllianceNavbarComponent', () => {
     expect(component.service).toBe(mockService);
   });
 
+  it('should reflect isProjectsOrDetailActive flag via method', () => {
+    (component as any).isProjectsOrDetailActiveFlag = false;
+    expect(component.isProjectsOrDetailActive()).toBe(false);
+    (component as any).isProjectsOrDetailActiveFlag = true;
+    expect(component.isProjectsOrDetailActive()).toBe(true);
+  });
+
   it('should set up ResizeObserver in ngAfterViewInit', () => {
     const mockNavbar = document.createElement('div');
     mockNavbar.id = 'navbar';
@@ -267,9 +274,9 @@ describe('AllianceNavbarComponent', () => {
   it('should have correct navigation options', () => {
     expect(component.options).toEqual([
       { label: 'Home', path: '/home', underConstruction: false },
-      { label: 'My Dashboard', path: '/settings', underConstruction: true, disabled: true },
       { label: 'Projects', path: '/projects', underConstruction: false },
-      { label: 'Results Center', path: '/results-center', underConstruction: false, disabled: false }
+      { label: 'Results Center', path: '/results-center', underConstruction: false, disabled: false },
+      { label: 'Results Dashboard', path: '/dashboard', underConstruction: false }
     ]);
   });
 

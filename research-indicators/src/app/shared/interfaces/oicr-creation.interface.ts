@@ -1,4 +1,5 @@
 import { Country, Region } from './get-geo-location.interface';
+import { ResultImpactArea } from './impact-area.interface';
 
 export interface OicrCreation {
   step_one: StepOne;
@@ -45,8 +46,15 @@ export interface Lever {
   lever_id: string | number;
   lever_role_id: number;
   is_primary: boolean;
+  result_lever_strategic_outcomes?: LeverStrategicOutcome[];
+  // Optional display fields when coming from control-list selections
+  icon?: string;
+  short_name?: string;
+  other_names?: string;
 }
-
+export interface LeverStrategicOutcome {
+  lever_strategic_outcome_id: number;
+}
 export interface StepTwo {
   primary_lever: Lever[];
   contributor_lever: Lever[];
@@ -81,11 +89,30 @@ export interface LinkResult {
 export interface PatchOicr {
   oicr_internal_code: string;
   tagging: Tagging;
+  sharepoint_link: string;
+  mel_regional_expert_id?: string;
   outcome_impact_statement: string;
   short_outcome_impact_statement: string;
   general_comment?: string;
   maturity_level_id: number;
   link_result: LinkResult;
+  actual_count?: QuantificationPayload[];
+  extrapolate_estimates?: QuantificationPayload[];
+  notable_references?: NotableReferencePayload[];
+  result_impact_areas?: ResultImpactArea[];
+  for_external_use: boolean
+  for_external_use_description: string
+}
+
+export interface QuantificationPayload {
+  quantification_number: number | string;
+  unit: string;
+  description: string;
+}
+
+export interface NotableReferencePayload {
+  notable_reference_type_id: number | null;
+  link: string;
 }
 
 export interface Oicr {

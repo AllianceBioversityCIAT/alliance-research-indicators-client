@@ -1,5 +1,13 @@
 import { GetProjectDetailIndicator } from './get-project-detail.interface';
 
+export interface LeverData {
+  id: number;
+  full_name: string;
+  short_name: string;
+  other_names: string;
+  lever_url: string;
+}
+
 export interface FindContracts {
   agreement_id?: string;
   projectDescription?: string | null;
@@ -11,6 +19,7 @@ export interface FindContracts {
   status_name?: string;
   lever_name?: string;
   lever?: { short_name?: string; name?: string } | string;
+  levers?: LeverData;
   principal_investigator?: string;
   full_name?: string;
   center_amount?: string;

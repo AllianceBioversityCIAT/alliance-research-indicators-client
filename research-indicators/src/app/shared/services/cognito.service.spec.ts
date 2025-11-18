@@ -6,6 +6,7 @@ import { ApiService } from '@services/api.service';
 import { ActionsService } from '@services/actions.service';
 import { ClarityService } from './clarity.service';
 import { environment } from '../../../environments/environment';
+import { DataCache } from '@interfaces/cache.interface';
 
 const activatedRouteMock = {
   snapshot: {
@@ -431,7 +432,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -445,7 +446,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -459,7 +460,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -478,7 +479,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -498,7 +499,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -512,7 +513,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -526,7 +527,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -545,7 +546,7 @@ describe('CognitoService', () => {
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
@@ -555,21 +556,27 @@ describe('CognitoService', () => {
 
     it('should handle localStorage.getItem returning undefined in second call to trigger nullish coalescing', () => {
       const originalGetItem = localStorage.getItem;
+      const originalParse = JSON.parse;
       let callCount = 0;
       const mockGetItem = jest.fn().mockImplementation(() => {
         callCount++;
-        return callCount === 1 ? 'some-value' : undefined;
+        return callCount === 1 ? 'exists' : undefined;
       });
       localStorage.getItem = mockGetItem;
+      JSON.parse = jest.fn().mockImplementation((value: string) => {
+        expect(value).toBe('');
+        return {} as any;
+      });
 
       service.updateCacheService();
 
-      expect(cache.dataCache.set).toHaveBeenCalledWith({});
+      expect(cache.dataCache.set).toHaveBeenCalledWith(expect.any(DataCache));
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
+      JSON.parse = originalParse;
     });
   });
 });

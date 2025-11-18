@@ -51,6 +51,13 @@ import { GetInitiativesService } from './control-list/get-initiatives.service';
 import { GetTagsService } from './control-list/get-tags.service';
 import { OicrResultsService } from './short-control-list/oicr-results.service';
 import { GetMaturityLevelsService } from './control-list/get-maturity-levels.service';
+import { GetAllianceStaffByGroupService } from './control-list/get-alliance-staff-by-group.service';
+import { GetLeverStrategicOutcomesService } from './control-list/get-lever-strategic-outcomes.service';
+import { NotableReferenceTypesService } from './short-control-list/notable-reference-types.service';
+import { InformativeRolesService } from './short-control-list/informative-roles.service';
+import { GlobalTargetsService } from './short-control-list/global-targets.service';
+import { ImpactAreaScoresService } from './short-control-list/impact-area-scores.service';
+import { ImpactAreasService } from './short-control-list/impact-areas.service';
 
 @Injectable({
   providedIn: 'root'
@@ -185,8 +192,18 @@ export class ServiceLocatorService {
         return this.injector.get(GetInnoDevOutputService);
       case 'innoUseOutput':
         return this.injector.get(GetInnoUseOutputService);
-      default:
-        return null;
+      case 'notableReferenceTypes':
+        return this.injector.get(NotableReferenceTypesService);
+        case 'informativeRoles':
+          return this.injector.get(InformativeRolesService);
+        case 'globalTargets':
+          return this.injector.get(GlobalTargetsService);
+        case 'impactAreaScores':
+          return this.injector.get(ImpactAreaScoresService);
+        case 'impactAreas':
+          return this.injector.get(ImpactAreasService);
+        default:
+          return null;
     }
   }
 
@@ -220,8 +237,12 @@ export class ServiceLocatorService {
         return this.injector.get(ApplicationOptionsService);
       case 'levers':
         return this.injector.get(GetLeversService);
+      case 'leverStrategicOutcomes':
+        return this.injector.get(GetLeverStrategicOutcomesService);
       case 'projectStatus':
         return this.injector.get(GetProjectStatusService);
+      case 'allianceStaffByGroup':
+        return this.injector.get(GetAllianceStaffByGroupService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;

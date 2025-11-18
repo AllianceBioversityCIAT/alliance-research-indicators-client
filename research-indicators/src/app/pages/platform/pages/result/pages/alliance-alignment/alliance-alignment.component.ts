@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, signal, ViewChild, WritableSignal } from '@angular/core';
+import { Component, effect, ElementRef, inject, signal, ViewChild, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../../../shared/services/api.service';
@@ -17,6 +17,7 @@ import { NavigationButtonsComponent } from '@shared/components/navigation-button
 import { GetSdgsService } from '@shared/services/control-list/get-sdgs.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
+import { Lever, LeverStrategicOutcome } from '@shared/interfaces/oicr-creation.interface';
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -29,7 +30,9 @@ export default class AllianceAlignmentComponent {
   getSdgsService = inject(GetSdgsService);
   body: WritableSignal<GetAllianceAlignment> = signal({
     contracts: [],
-    result_sdgs: []
+    result_sdgs: [],
+    primary_levers: [],
+    contributor_levers: []
   });
   apiService = inject(ApiService);
   cache = inject(CacheService);
@@ -43,6 +46,8 @@ export default class AllianceAlignmentComponent {
 
   @ViewChild('containerRef') containerRef!: ElementRef;
   containerWidth = 0;
+
+  private readonly leverOutcomeSignals = new Map<string | number, WritableSignal<{ result_lever_strategic_outcomes: LeverStrategicOutcome[] }>>();
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {
@@ -58,13 +63,34 @@ export default class AllianceAlignmentComponent {
       result_sdgs:
         response.data.result_sdgs?.map(sdg => ({
           ...sdg,
-          sdg_id: sdg.clarisa_sdg_id, // Map clarisa_sdg_id to sdg_id for the multiselect
-          is_primary: false // By default it is not primary
-        })) || []
+          sdg_id: sdg.clarisa_sdg_id,
+          is_primary: false
+        })) || [],
+      primary_levers: response.data.primary_levers || [],
+      contributor_levers: response.data.contributor_levers || []
     };
 
     this.body.set(mappedData);
   }
+
+  optionsDisabled: WritableSignal<Lever[]> = signal([]);
+  primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
+
+  updateOptionsDisabledEffect = effect(
+    () => {
+      const primaryLevers = this.body().primary_levers || [];
+      this.optionsDisabled.set(primaryLevers);
+    },
+    { allowSignalWrites: true }
+  );
+
+  updatePrimaryOptionsDisabledEffect = effect(
+    () => {
+      const contributorLevers = this.body().contributor_levers || [];
+      this.primaryOptionsDisabled.set(contributorLevers);
+    },
+    { allowSignalWrites: true }
+  );
 
   canRemove = (): boolean => {
     return this.submission.isEditableStatus();
@@ -87,9 +113,34 @@ export default class AllianceAlignmentComponent {
     const nextPath = this.cache.currentResultIndicatorSectionPath();
 
     if (this.submission.isEditableStatus()) {
-      // Map the data back to the format expected by the API
+      const normalizeOutcome = (value: unknown): LeverStrategicOutcome => {
+        if (typeof value === 'number') {
+          return { lever_strategic_outcome_id: value } as LeverStrategicOutcome;
+        }
+        if (value && typeof value === 'object') {
+          const obj = value as Partial<LeverStrategicOutcome> & { id?: number };
+          const idFromObject = obj.lever_strategic_outcome_id ?? obj.id;
+          return { ...(obj as LeverStrategicOutcome), lever_strategic_outcome_id: idFromObject as number };
+        }
+        return { lever_strategic_outcome_id: 0 } as LeverStrategicOutcome;
+      };
+
+      const withOutcomes = this.body().primary_levers.map(l => {
+        const s = this.leverOutcomeSignals.get(l.lever_id);
+        if (!s) return l;
+        const raw: unknown = s().result_lever_strategic_outcomes as unknown;
+        let normalized: LeverStrategicOutcome[] = [];
+        if (Array.isArray(raw)) {
+          normalized = (raw as unknown[]).map(normalizeOutcome);
+        } else if (typeof raw === 'number' || (raw && typeof raw === 'object')) {
+          normalized = [normalizeOutcome(raw)];
+        }
+        return { ...l, result_lever_strategic_outcomes: normalized };
+      });
+
       const dataToSend = {
         ...this.body(),
+        primary_levers: withOutcomes,
         result_sdgs:
           this.body().result_sdgs?.map(sdg => ({
             created_at: sdg.created_at,
@@ -139,5 +190,20 @@ export default class AllianceAlignmentComponent {
       max = 155;
     }
     return description.length > max ? description.slice(0, max) + '...' : description;
+  }
+
+  getLeverName(leverId: string | number): string {
+    return `Lever ${leverId}`;
+  }
+
+  getLeverSignal(lever: Lever) {
+    let s = this.leverOutcomeSignals.get(lever.lever_id);
+    if (!s) {
+      s = signal<{ result_lever_strategic_outcomes: LeverStrategicOutcome[] }>({
+        result_lever_strategic_outcomes: lever.result_lever_strategic_outcomes || []
+      });
+      this.leverOutcomeSignals.set(lever.lever_id, s);
+    }
+    return s;
   }
 }

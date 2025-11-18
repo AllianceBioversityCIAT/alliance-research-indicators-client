@@ -32,6 +32,7 @@ export class RadioButtonComponent implements OnInit {
   @Input() helperText = '';
   @Input() isRequired = false;
   @Input() disabled = false;
+  @Input() centerOptions = false;
 
   selectEvent = output<any>();
   service: any;
@@ -39,7 +40,7 @@ export class RadioButtonComponent implements OnInit {
   firstTime = signal(true);
 
   isInvalid = computed(() => {
-    return this.isRequired && (this.body().value === null || this.body().value === undefined);
+    return this.isRequired && (this.body().value === null || this.body().value === undefined || this.body().value === '');
   });
 
   onChange = effect(
@@ -63,5 +64,16 @@ export class RadioButtonComponent implements OnInit {
     this.body.set({ value: value });
     this.utils.setNestedPropertyWithReduceSignal(this.signal, this.optionValue.body, value);
     this.selectEvent.emit(value);
+  }
+
+  getUniqueId(item: any): string {
+    const bodyPath = this.optionValue.body.replace(/\./g, '-');
+    const optionLabel = item[this.optionLabel] || '';
+    const optionValue = item[this.optionValue.option] || '';
+    return `${bodyPath}-${optionLabel}-${optionValue}`.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
+  }
+
+  getUniqueName(): string {
+    return this.optionValue.body.replace(/\./g, '-').replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
   }
 }

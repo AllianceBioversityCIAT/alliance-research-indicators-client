@@ -129,8 +129,8 @@
                 <i
                   class="pi"
                   [ngClass]="{
-                    'pi-thumbs-up-fill': lastFeedbackType === 'good',
-                    'pi-thumbs-down-fill': lastFeedbackType === 'bad'
+                    'pi-thumbs-up-fill': lastFeedbackType === 'positive',
+                    'pi-thumbs-down-fill': lastFeedbackType === 'negative'
                   }"
                   style="
                     font-size: 16px;
@@ -150,15 +150,15 @@
               <span class="text-[12px] font-[400] px-2 text-[#8D9299]">Was this response helpful?</span>
               <button
                 dropdown-button
-                class="text-[#035BA9] !text-[16px] rounded-[6px] p-2 pi pi-thumbs-up {{ feedbackType() === 'good' ? 'bg-[#D9E1EB]' : '' }}"
+                class="text-[#035BA9] !text-[16px] rounded-[6px] p-2 pi pi-thumbs-up {{ feedbackType() === 'positive' ? 'bg-[#D9E1EB]' : '' }}"
                 aria-label="Like"
-                (click)="toggleFeedback('good')"
+                (click)="toggleFeedback('positive')"
                 #feedbackBtn></button>
               <button
                 dropdown-button
-                class="text-[#035BA9] !text-[16px] rounded-[6px] p-2 pi pi-thumbs-down {{ feedbackType() === 'bad' ? 'bg-[#D9E1EB]' : '' }}"
+                class="text-[#035BA9] !text-[16px] rounded-[6px] p-2 pi pi-thumbs-down {{ feedbackType() === 'negative' ? 'bg-[#D9E1EB]' : '' }}"
                 aria-label="Dislike"
-                (click)="toggleFeedback('bad')"
+                (click)="toggleFeedback('negative')"
                 #feedbackBtn></button>
               @if (showFeedbackPanel()) {
                 <div
@@ -170,12 +170,12 @@
                     <h2
                       class="text-[14px] font-[space_grotesk] mb-6"
                       [ngClass]="{
-                        'text-[#CF0808]': feedbackType() === 'bad',
-                        'text-[#509C55]': feedbackType() === 'good'
+                        'text-[#CF0808]': feedbackType() === 'negative',
+                        'text-[#509C55]': feedbackType() === 'positive'
                       }">
-                      {{ feedbackType() === 'good' ? 'What Is Working Well?' : 'What Is Not Working Well?' }}
+                      {{ feedbackType() === 'positive' ? 'What Is Working Well?' : 'What Is Not Working Well?' }}
                     </h2>
-                    @if (feedbackType() === 'bad') {
+                    @if (feedbackType() === 'negative') {
                       <div class="mb-5">
                         <span class="block text-[12px] text-[#153C71] font-[500] font-[space_grotesk] mb-1">Type of issue</span>
                         <div class="flex flex-wrap gap-2">
@@ -215,7 +215,7 @@
                         label="Confirm"
                         styleClass="!rounded-[12px] !text-[12px] !px-4"
                         (onClick)="submitFeedback()"
-                        [disabled]="(feedbackType() === 'bad' && (!selectedType || !body().feedbackText)) || loading()"></p-button>
+                        [disabled]="(feedbackType() === 'negative' && (!selectedType || !body().feedbackText)) || loading()"></p-button>
                     </div>
                   </div>
                 </div>

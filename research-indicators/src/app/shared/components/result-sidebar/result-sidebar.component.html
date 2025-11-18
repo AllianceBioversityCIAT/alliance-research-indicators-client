@@ -67,9 +67,9 @@
           'bg-[#035BA9]': submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted(),
           'bg-[#E8EBED] !text-[#8D9299]': !submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted()
         }"
-        [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
+        [pTooltip]="!submissionService.currentResultIsSubmitted() && !cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
         tooltipPosition="bottom"
-        [disabled]="!submissionService.canSubmitResult()"
+        [disabled]="!submissionService.currentResultIsSubmitted() && !submissionService.canSubmitResult()"
         (click)="submmitConfirm()">
         {{ submissionService.currentResultIsSubmitted() ? 'Unsubmit Result' : 'Submit Result' }}
         <i [ngClass]="submissionService.currentResultIsSubmitted() ? '' : 'pi pi-check'" class="pl-2 !text-[12px]"></i>

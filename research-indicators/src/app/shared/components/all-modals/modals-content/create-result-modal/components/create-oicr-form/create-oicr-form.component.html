@@ -18,106 +18,134 @@
 </ng-template>
 
 <ng-template #createButton>
-  @let disableCreateButton =
-    loading || isDisabled || !canEditOicr || (this.createResultManagementService.editingOicr() ? false : !this.step4opened());
-  <button
-    class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
-    (click)="createResult()"
-    [pTooltip]="
-      !disableCreateButton ? '' : 'This button will be enabled once all steps are completed. Please make sure to review and fill out each section.'
-    "
-    tooltipPosition="top"
-    [disabled]="disableCreateButton">
-    @if (loading) {
-      <div class="min-w-[191px]">
-        <i class="pi pi-spinner pi-spin text-white text-xs"></i>
+  @if (this.createResultManagementService.statusId() !== 10 && this.createResultManagementService.statusId() !== 7 && this.createResultManagementService.statusId() !== 11) {
+    @if (this.createResultManagementService.editingOicr() && !canEditOicr) {
+      <div class="bg-[#F6FAF7] border border-[#358540] rounded-[13px] px-4 py-3 flex items-center gap-3">
+        <i class="pi pi-check-circle text-[#358540]"></i>
+        <span class="text-[#358540] font-medium">This OICR has been submitted for review</span>
       </div>
     } @else {
-      {{ this.createResultManagementService.editingOicr() ? 'OICR requested' : 'Create preliminary OICR submission' }}
-      <i class="pi pi-arrow-right !text-[10px] pl-1" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
+      <div class="flex gap-3">
+      @let disableCreateButton =
+        loading || isDisabled || !canEditOicr || (this.createResultManagementService.editingOicr() ? false : !this.step4opened());
+        <button
+          class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] {{ this.createResultManagementService.editingOicr() ? 'bg-[#509C55]' : 'bg-[#035BA9]' }} text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
+          (click)="createResult()"
+          [pTooltip]="
+            !disableCreateButton ? '' : 'This button will be enabled once all steps are completed. Please make sure to review and fill out each section.'
+          "
+          tooltipPosition="top"
+          [disabled]="disableCreateButton">
+          @if (loading) {
+            <div class="min-w-[191px]">
+              <i class="pi pi-spinner pi-spin text-white disabled:text-[#A2A9AF] text-xs"></i>
+            </div>
+          } @else {
+            @if (this.createResultManagementService.editingOicr()) {
+              <i class="pi pi-save !text-[12px]"></i>
+            }
+
+            {{ this.createResultManagementService.editingOicr() ? 'Save changes' : 'Create preliminary OICR submission' }}
+            @if (!this.createResultManagementService.editingOicr()) {
+              <i class="pi pi-arrow-right !text-[10px] pl-1 disabled:text-[#A2A9AF]" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
+            } 
+          }
+        </button>
+        @if (this.createResultManagementService.editingOicr()) {
+        <button
+          class="font-medium cursor-pointer text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-[12px] bg-[#035BA9] text-white px-8 py-2.5 rounded-xl flex items-center gap-2"
+          (click)="openSubmitResultModal()"
+          [disabled]="disableCreateButton || !isHeaderDataLoaded()">
+          <i class="pi pi-pencil !text-[12px]"></i>
+          Review OICR
+        </button>
+        }
+      </div>
     }
-  </button>
+  }
 </ng-template>
 
 <div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px] md:overflow-x-hidden">
   <!-- OICR header -->
   @if (currentContract()) {
-    <div class="flex justify-between items-center bg-[#f4f7f9] border-y border-[#E8EBED] px-15 pb-7 pt-6">
-      <div class="flex-col flex w-full">
-        <div class="flex items-center gap-2">
-          <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
-          <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk]">OICR</span>
-        </div>
-        <div class="text-[17px] text-[#173F6F] font-[600] pb-1">{{ createResultManagementService.resultTitle() || 'Enter OICR title' }}</div>
-        <div class="text-[15px] text-[#4C5158] font-[600]">{{ currentContract()?.agreement_id }} - {{ currentContract()?.description }}</div>
-
-        <div class="flex justify-between pt-2 xl:pt-1">
-          <div class="flex gap-x-5 justify-between">
-            <div class="flex items-center">
-              <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Principal investigator</span>
-              <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
-              <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
-                currentContract()?.project_lead_description
-              }}</span>
-            </div>
-
-            <div class="flex items-center">
-              <span class="text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Start date</span>
-              <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
-              <span class="text-[13px] leading-[18px] text-[#345b8f] !font-['Space_Grotesk']">{{
-                currentContract()?.start_date | date: 'dd/MM/yyyy'
-              }}</span>
-            </div>
-
-            <div class="flex items-center">
-              <span class="text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">End date</span>
-              <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
-              <span class="text-[13px] leading-[18px] text-[#345b8f] !font-['Space_Grotesk']">{{
-                currentContract()?.endDateGlobal | date: 'dd/MM/yyyy'
-              }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-center pt-1 xl:pt-1.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
-          @if (currentContract()?.lever === 'Not available') {
-            Lever - <span class="text-[#4C5158] font-['Barlow'] font-normal">{{ currentContract()?.lever }}</span>
-          } @else {
-            <img [src]="currentContract()?.leverUrl" alt="Lever" class="w-[22px] h-[22px] mr-1" />
-            @if (currentContract()?.lever?.includes(':')) {
-              @if (leverParts().first) {
-                {{ leverParts().first }} -
-              }
-              @if (leverParts().second) {
-                <span class="text-[13px] leading-[18px] text-[#77c83] font-['Barlow'] font-normal">{{ leverParts().second }}</span>
-              }
-            } @else {
-              {{ currentContract()?.lever }}
-            }
-          }
-        </div>
-
-        @if (this.createResultManagementService.editingOicr()) {
-          <app-download-oicr-template class="xl:hidden pt-2.5"></app-download-oicr-template>
-        }
-      </div>
-
-      <div class="xl:min-w-[200px] hidden xl:flex ml-4">
-        @if (this.createResultManagementService.editingOicr()) {
-          <app-download-oicr-template></app-download-oicr-template>
-        }
-      </div>
-    </div>
+    <app-oicr-header [data]="{
+      title: createResultManagementService.resultTitle() || '',
+      agreement_id: currentContract()?.agreement_id,
+      description: currentContract()?.description,
+      project_lead_description: currentContract()?.project_lead_description,
+      start_date: currentContract()?.start_date,
+      endDateGlobal: currentContract()?.endDateGlobal || undefined,
+      levers: currentContract()?.levers,
+      status_id: getStatusIdAsString()
+    }" [showTag]="this.createResultManagementService.editingOicr()" [showDownload]="this.createResultManagementService.editingOicr()"></app-oicr-header>
   }
 
-  <div class="px-5 flex flex-col mx-10 mb-12">
+  <div class="px-5 flex flex-col mx-10 mt-8">
+    @if ((this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 7) && submissionHistory().length > 0) {
+      <p-accordion (activeIndexChange)="onAccordionToggle($event)">
+        <ng-template #globalToggleIcon let-active="active">
+          @if (active) {
+            <i class="pi pi-angle-up text-[#035BA9] !text-[14px]"></i>
+          } @else {
+            <i class="pi pi-angle-down text-[#035BA9] !text-[14px]"></i>
+          }
+        </ng-template>
+        <p-accordion-panel value="0" class="!border-none">
+          <p-accordion-header class="!border !p-4 !font-medium" 
+          [class]="'!border !p-4 !font-medium ' + ((accordionActiveState() ?? isAccordionOpen()) ? '!border-b-0 !rounded-t-[13px] !rounded-b-none' : '!rounded-[13px]')"
+          [style.border-color]="getColors().border" 
+          [style.color]="getColors().text"
+          [style.background-color]="getColors().background">
+            <div class="flex flex-col w-full">
+              <ng-template #toggleicon let-active="active">
+                <ng-container [ngTemplateOutlet]="globalToggleIcon" [ngTemplateOutletContext]="{ active: active }"></ng-container>
+                @if (accordionActiveState() !== active) {
+                  @let _ = updateAccordionActiveState(active);
+                }
+              </ng-template>
+              <div class="flex items-center gap-3">
+                <i [class]="getStatusIcon()" [style.color]="getColors().text"></i>
+                <span class="font-medium">OICR {{ getStatusName(+(getStatusIdAsString())) || '' }}</span>
+              </div>
+              <div class="flex gap-x-5 mt-2">
+                <div class="flex items-center">
+                  <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Reviewed by</span>
+                  <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+                  <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{ getReviewerFullName() }}</span>
+                </div>
+        
+                <div class="flex items-center">
+                  <span class="font-normal text-[13px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Review date</span>
+                  <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
+                  <span class="text-[13px] leading-[18px] text-[#345b8f] !font-['Space_Grotesk']">{{ getUpdatedDate() | date: 'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end min-w-[100px]">
+              <span class="text-[#035BA9] text-[14px] px-2 text-right cursor-pointer hover:underline">See details</span>
+            </div>
+          </p-accordion-header>
+          <p-accordion-content class="!border !border-t-0 !rounded-b-[13px] !px-4 !pb-4 !mb-8 !-mt-px custom-accordion-content"
+            [style.border-color]="getColors().border" 
+            [style.color]="getColors().text"
+            [style.background-color]="getColors().background + ' !important'">
+            <div class="text-[#4C5158] text-[14px] leading-relaxed" 
+            [style.background-color]="getColors().background + ' !important'">
+              <span class="font-medium mb-2">Reason:
+                <span class="font-normal">{{ getSubmissionComment() || 'No justification provided.' }}</span></span>
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
+      </p-accordion>
+    }
+    
     <p-steps
       [model]="createResultManagementService.stepItems()"
       [readonly]="false"
       [activeIndex]="activeIndex()"
       (activeIndexChange)="onActiveIndexChange($event)"
       [styleClass]="'completed-' + activeIndex"
-      class="my-8">
+      class="mb-8">
     </p-steps>
 
     @if (activeIndex() === 0) {
@@ -156,9 +184,10 @@
           <div class="flex flex-col pt-2">
             <app-multiselect
               label="Primary Levers"
-              [disabled]="!canEditOicr"
+              [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
               [signal]="createResultManagementService.createOicrBody"
               optionValue="lever_id"
+              [textSpan]="'Levers selected'"
               signalOptionValue="step_two.primary_lever"
               [isRequired]="true"
               [columnsOnXl]="true"
@@ -196,11 +225,12 @@
           <div class="flex flex-col pt-2">
             <app-multiselect
               label="Other Contributing Levers"
-              [disabled]="!canEditOicr"
+              [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
               [signal]="createResultManagementService.createOicrBody"
               optionValue="lever_id"
               signalOptionValue="step_two.contributor_lever"
               [columnsOnXl]="true"
+              [textSpan]="'Levers selected'"
               scrollHeight="260px"
               serviceName="levers"
               [optionsDisabled]="optionsDisabled"
@@ -251,7 +281,7 @@
           <div class="flex flex-col gap-8">
             <app-radio-button
               [isRequired]="true"
-              [disabled]="!canEditOicr"
+              [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
               label="What is the main geographic focus of the Impact?"
               helperText="This should reflect where the Impact has taken place/contributed to benefit."
               [signal]="createResultManagementService.createOicrBody"
@@ -266,7 +296,7 @@
               <app-multiselect
                 [signal]="createResultManagementService.createOicrBody"
                 [optionLabel]="'name'"
-                [disabled]="!canEditOicr"
+                [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
                 class="-mt-5"
                 [optionValue]="'region_id'"
                 [signalOptionValue]="'step_three.regions'"
@@ -280,7 +310,7 @@
             @if (getMultiselectLabel().country.label) {
               @if (isGeoScopeId(5) && !createResultManagementService.autofillinOicr()) {
                 <app-multiselect
-                  [disabled]="!canEditOicr"
+                  [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
                   (selectEvent)="onSelect()"
                   [signal]="createResultManagementService.createOicrBody"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
@@ -329,7 +359,7 @@
                           <app-multiselect-instance
                             [signal]="c.result_countries_sub_nationals_signal"
                             [optionLabel]="'name'"
-                            [disabled]="!canEditOicr"
+                            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
                             (valueChange)="updateCountryRegions(c.isoAlpha2, $event)"
                             [optionValue]="'sub_national_id'"
                             [signalOptionValue]="'regions'"
@@ -354,7 +384,7 @@
                   (selectEvent)="onSelect()"
                   [signal]="createResultManagementService.createOicrBody"
                   class="-mt-3"
-                  [disabled]="!canEditOicr"
+                  [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
                   [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
                   [disabledSelectedScroll]="isGeoScopeId(5)"
                   [optionLabel]="'name'"
@@ -373,7 +403,7 @@
           <div class="flex flex-col pt-2">
             <app-textarea
               [rows]="5"
-              [disabled]="!canEditOicr"
+              [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
               label="Comments Geographic Scope"
               helperText="Provide additional information about the geographic scope, if necessary."
               [maxLength]="1000"
@@ -401,7 +431,7 @@
           <div class="flex flex-col">
             <app-textarea
               [rows]="5"
-              [disabled]="!canEditOicr"
+              [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
               label="Comments, questions or anything else?"
               [maxLength]="400"
               [signal]="this.createResultManagementService.createOicrBody"

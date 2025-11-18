@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { AllModalsComponent } from './all-modals.component';
 import { ActivatedRoute } from '@angular/router';
@@ -37,10 +37,16 @@ describe('AllModalsComponent', () => {
       comment: signal('')
     };
     const resultPageStepMock: any = Object.assign(jest.fn().mockReturnValue(0), { set: jest.fn() });
+    const currentRequestedResultCodeMock: any = Object.assign(jest.fn().mockReturnValue(null), { set: jest.fn() });
+    const editingOicrMock: any = Object.assign(jest.fn().mockReturnValue(false), { set: jest.fn() });
+    const clearOicrBodyMock: any = jest.fn();
     const presetFromProjectResultsTableMock: any = jest.fn().mockReturnValue(false);
     const contractIdMock: any = jest.fn().mockReturnValue(null);
     const mockCreateResultManagementService: Partial<CreateResultManagementService> = {
       resultPageStep: resultPageStepMock,
+      currentRequestedResultCode: currentRequestedResultCodeMock,
+      editingOicr: editingOicrMock,
+      clearOicrBody: clearOicrBodyMock,
       presetFromProjectResultsTable: presetFromProjectResultsTableMock,
       contractId: contractIdMock
     } as any;
@@ -118,5 +124,17 @@ describe('AllModalsComponent', () => {
       service.statusSelected.set({ statusId: 99 });
       expect(component.disabledConfirmIf()).toBe(true);
     });
+  });
+
+  describe('clearModal', () => {
+    it('should reset create result state synchronously and step after delay', fakeAsync(() => {
+      const service = TestBed.inject(CreateResultManagementService) as any;
+      component.clearModal();
+      expect(service.currentRequestedResultCode.set).toHaveBeenCalledWith(null);
+      expect(service.editingOicr.set).toHaveBeenCalledWith(false);
+      expect(service.clearOicrBody).toHaveBeenCalled();
+      tick(300);
+      expect(service.resultPageStep.set).toHaveBeenCalledWith(0);
+    }));
   });
 });

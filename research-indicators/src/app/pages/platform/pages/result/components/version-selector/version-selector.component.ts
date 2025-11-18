@@ -9,6 +9,7 @@ import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { filter, Subscription } from 'rxjs';
 import { environment } from '../../../../../../../environments/environment';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 
 @Component({
   selector: 'app-version-selector',
@@ -73,7 +74,7 @@ export class VersionSelectorComponent implements OnDestroy {
     const data = response.data;
 
     const liveData = Array.isArray(data.live) && data.live.length > 0 ? data.live[0] : null;
-    const versionsArray = Array.isArray(data.versions) ? data.versions : [];
+    const versionsArray = this.getVersionsArray(data);
 
     this.cache.liveVersionData.set(liveData);
     this.cache.versionsList.set(versionsArray);
@@ -82,6 +83,10 @@ export class VersionSelectorComponent implements OnDestroy {
     this.approvedVersions.set(versionsArray);
 
     this.handleVersionSelection({ currentResultId: currentResultId.toString(), liveData, versionsArray });
+  }
+
+  protected getVersionsArray(data: { versions?: unknown }): TransformResultCodeResponse[] {
+    return Array.isArray(data.versions) ? (data.versions as TransformResultCodeResponse[]) : [];
   }
 
   private applyCachedVersions(resultId: number, versionParam: string | null) {
@@ -230,9 +235,9 @@ export class VersionSelectorComponent implements OnDestroy {
     const platformCode = this.cache.getCurrentPlatformCode();
     let url = '';
     
-    if (platformCode === 'PRMS') {
+    if (platformCode === PLATFORM_CODES.PRMS) {
       url = this.prmsUrl;
-    } else if (platformCode === 'TIP') {
+    } else if (platformCode === PLATFORM_CODES.TIP) {
       url = this.tipUrl;
     }
     

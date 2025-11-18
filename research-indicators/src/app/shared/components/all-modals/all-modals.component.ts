@@ -7,6 +7,7 @@ import { SubmissionService } from '../../services/submission.service';
 import { RequestPartnerModalComponent } from './modals-content/request-partner-modal/request-partner-modal.component';
 import { AskForHelpModalComponent } from './modals-content/ask-for-help-modal/ask-for-help-modal/ask-for-help-modal.component';
 import { ResultInformationModalComponent } from './modals-content/result-information-modal/result-information-modal.component';
+import { AddContactPersonModalComponent } from './modals-content/add-contact-person-modal/add-contact-person-modal.component';
 
 @Component({
   selector: 'app-all-modals',
@@ -16,7 +17,8 @@ import { ResultInformationModalComponent } from './modals-content/result-informa
     RequestPartnerModalComponent,
     SubmitResultContentComponent,
     AskForHelpModalComponent,
-    ResultInformationModalComponent
+    ResultInformationModalComponent,
+    AddContactPersonModalComponent
   ],
   templateUrl: './all-modals.component.html'
 })

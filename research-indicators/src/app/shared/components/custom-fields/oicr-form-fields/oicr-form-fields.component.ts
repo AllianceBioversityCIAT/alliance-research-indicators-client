@@ -44,6 +44,7 @@ export class OicrFormFieldsComponent {
   @Input() showMainContactPerson = false;
   @Input() showMaturityLevel = true;
   @Input() showShortOutcome = true;
+  @Input() showOicrNo = false;
   @Input() isOicrNoDisabled = false;
   @Input() clearOicrSelection: () => void = () => {
     // Default empty implementation - can be overridden by parent component

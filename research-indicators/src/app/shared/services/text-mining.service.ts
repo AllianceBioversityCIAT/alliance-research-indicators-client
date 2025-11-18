@@ -45,6 +45,7 @@ export class TextMiningService {
     formData.append('token', this.cache.dataCache().access_token);
     formData.append('key', `${environment.keyTextMining}${documentName}`);
     formData.append('bucketName', 'ai-services-ibd');
+    formData.append('user_id', this.cache.dataCache().user.email);
     formData.append('environmentUrl', environment.managementApiUrl);
 
     const headers = new HttpHeaders({

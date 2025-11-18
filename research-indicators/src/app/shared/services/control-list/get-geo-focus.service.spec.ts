@@ -1,29 +1,32 @@
+import { TestBed } from '@angular/core/testing';
 import { GetGeoFocusService } from './get-geo-focus.service';
+import { ApiService } from '../api.service';
 
 describe('GetGeoFocusService', () => {
   let service: GetGeoFocusService;
 
   beforeEach(() => {
-    service = {
-      list: jest.fn().mockReturnValue([
-        { value: '1', label: 'Global' },
-        { value: '2', label: 'Regional' },
-        { value: '4', label: 'National' },
-        { value: '5', label: 'Sub-national' },
-        { value: '50', label: 'This is yet to be determined' }
-      ]),
-      loading: jest.fn().mockReturnValue(false),
-      isOpenSearch: jest.fn().mockReturnValue(false),
-      main: jest.fn().mockResolvedValue(undefined)
-    } as unknown as GetGeoFocusService;
+    const mainSpy = jest.spyOn(GetGeoFocusService.prototype, 'main');
+
+    TestBed.configureTestingModule({
+      providers: [
+        GetGeoFocusService,
+        { provide: ApiService, useValue: {} }
+      ]
+    });
+
+    service = TestBed.inject(GetGeoFocusService);
+
+    expect(mainSpy).toHaveBeenCalled();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should initialize loading as false and list with expected values', () => {
+  it('should initialize signals with expected values after constructor/main', () => {
     expect(service.loading()).toBe(false);
+    expect(service.isOpenSearch()).toBe(false);
     expect(service.list()).toEqual([
       { value: '1', label: 'Global' },
       { value: '2', label: 'Regional' },
@@ -33,12 +36,21 @@ describe('GetGeoFocusService', () => {
     ]);
   });
 
-  it('main should set loading as false and list correctly', async () => {
-    await service.main();
-    expect(service.main).toHaveBeenCalled();
-  });
+  it('main should set list and loading correctly when invoked explicitly', async () => {
+    // mutate signals to ensure main actually performs the set operations
+    service.list.set([]);
+    service.loading.set(true);
 
-  it('isOpenSearch should be false', () => {
-    expect(service.isOpenSearch()).toBe(false);
+    await service.main();
+
+    expect(service.loading()).toBe(false);
+    expect(service.list()).toEqual([
+      { value: '1', label: 'Global' },
+      { value: '2', label: 'Regional' },
+      { value: '4', label: 'National' },
+      { value: '5', label: 'Sub-national' },
+      { value: '50', label: 'This is yet to be determined' }
+    ]);
+    expect(service.list().length).toBe(5);
   });
 });

@@ -8,7 +8,6 @@ import { WordCountService } from '../../../services/word-count.service';
 describe('InputComponent', () => {
   let component: InputComponent;
   let fixture: ComponentFixture<InputComponent>;
-  let cacheService: jest.Mocked<CacheService>;
   let utilsService: jest.Mocked<UtilsService>;
   let wordCountService: jest.Mocked<WordCountService>;
 
@@ -38,7 +37,6 @@ describe('InputComponent', () => {
 
     fixture = TestBed.createComponent(InputComponent);
     component = fixture.componentInstance;
-    cacheService = TestBed.inject(CacheService) as jest.Mocked<CacheService>;
     utilsService = TestBed.inject(UtilsService) as jest.Mocked<UtilsService>;
     wordCountService = TestBed.inject(WordCountService) as jest.Mocked<WordCountService>;
 
@@ -70,6 +68,14 @@ describe('InputComponent', () => {
 
     expect(component.inputValid().valid).toBe(false);
     expect(component.inputValid().message).toBe('This field is required');
+  });
+
+  it('should validate required when value is truthy object with length 0 to cover branch', () => {
+    component.isRequired = true;
+    component.signal = signal({ testField: { length: 0 } as any });
+    const result = component.inputValid();
+    expect(result.valid).toBe(false);
+    expect(result.message).toBe('This field is required');
   });
 
   it('should validate email pattern', () => {
@@ -410,7 +416,7 @@ describe('InputComponent', () => {
       expect(setSelectionRangeSpy).toHaveBeenCalled();
 
       // Clean up
-      document.body.removeChild(input);
+      input.remove();
       jest.useRealTimers();
     });
 
@@ -428,7 +434,7 @@ describe('InputComponent', () => {
 
       component.pattern = 'email';
       expect(component.getPattern()).toEqual({
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+        pattern: String.raw`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`,
         message: 'Please enter a valid email address.'
       });
     });
@@ -436,7 +442,7 @@ describe('InputComponent', () => {
     it('should return url pattern', () => {
       component.pattern = 'url';
       expect(component.getPattern()).toEqual({
-        pattern: "^(https?:\\/\\/)?([\\w-]+(\\.[\\w-]+)*\\.([a-z]{2,}))(\\/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=%-]*)?$",
+        pattern: String.raw`^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?$`,
         message: 'Please enter a valid URL.'
       });
     });

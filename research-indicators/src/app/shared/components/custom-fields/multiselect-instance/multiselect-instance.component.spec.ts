@@ -23,7 +23,9 @@ describe('MultiselectInstanceComponent', () => {
           { id: 2, name: 'Region 2' },
           { id: 3, name: 'Region 3' }
         ])
-      )
+      ),
+      isOpenSearch: jest.fn().mockReturnValue(false),
+      loading: jest.fn().mockReturnValue(false)
     };
 
     mockActionsService = {
@@ -451,6 +453,17 @@ describe('MultiselectInstanceComponent', () => {
     }
 
     expect(mockFirstLoad()).toBe(true);
+  });
+
+  it('should trigger real onGlobalLoadingChange effect (cover lines 66-67)', () => {
+    const fixture = TestBed.createComponent(MultiselectInstanceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+    comp.firstLoad.set(false);
+    expect(comp.firstLoad()).toBe(false);
+    (mockCacheService.currentResultIsLoading as any).set(true);
+    fixture.detectChanges();
+    expect(comp.firstLoad()).toBe(true);
   });
 
   it('should handle input properties', () => {

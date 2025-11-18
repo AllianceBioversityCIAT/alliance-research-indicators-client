@@ -3,7 +3,6 @@ import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
-import { GetContracts } from '../interfaces/get-contracts.interface';
 import { Result, ResultConfig, ResultFilter } from '../interfaces/result/result.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
@@ -19,6 +18,8 @@ import { GetDeliveryModality } from '../interfaces/get-delivery-modality.interfa
 import { GetLanguages } from '../interfaces/get-get-languages.interface';
 import { SessionPurpose } from '../interfaces/get-session-purpose.interface';
 import { GetPolicyChange } from '../interfaces/get-get-policy-change.interface';
+import { ContactPersonResponse } from '../interfaces/contact-person.interface';
+import { GlobalTarget } from '../interfaces/global-target.interface';
 import { GetResultsByContract } from '../interfaces/get-results-by-contract.interface';
 import { GetProjectDetail } from '../interfaces/get-project-detail.interface';
 import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
@@ -40,7 +41,7 @@ import { GetSubnationalsByIsoAlpha } from '../interfaces/get-subnationals-by-iso
 import { ControlListCacheService } from './control-list-cache.service';
 import { SignalEndpointService } from './signal-endpoint.service';
 import { GetCurrentUser } from '../interfaces/get-current-user.interfce';
-import { PatchSubmitResult } from '../interfaces/patch_submit-result.interface';
+import { PatchSubmitResult, PatchSubmitResultLatest } from '../interfaces/patch_submit-result.interface';
 import { GetClarisaInstitutionsTypes } from '@shared/interfaces/get-clarisa-institutions-types.interface';
 import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
@@ -64,8 +65,11 @@ import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
-import { Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
+import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
+import { ImpactArea } from '@shared/interfaces/impact-area.interface';
+
 
 @Injectable({
   providedIn: 'root'
@@ -98,15 +102,6 @@ export class ApiService {
 
   GET_MaturityLevels = (): Promise<MainResponse<MaturityLevel[]>> => {
     const url = () => `maturity-levels`;
-    return this.TP.get(url(), {});
-  };
-
-  GET_Contracts = (projectId?: string): Promise<MainResponse<GetContracts[]>> => {
-    const url = () => {
-      const baseUrl = 'agresso/contracts';
-      const queryParam = projectId ? `?projectId=${projectId}` : '';
-      return `${baseUrl}${queryParam}`;
-    };
     return this.TP.get(url(), {});
   };
 
@@ -274,6 +269,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_AllianceStaff = (groupId: number): Promise<MainResponse<UserStaff[]>> => {
+    const groupIdQuery = groupId ? `?groupId=${groupId}` : '';
+    const url = () => `results/alliance-user-staff/by-groups/map${groupIdQuery}`;
+    return this.TP.get(url(), {});
+  };
+
   GET_GeneralInformation = (id: number): Promise<MainResponse<GeneralInformation>> => {
     const url = () => `results/${id}/general-information`;
     return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
@@ -298,6 +299,21 @@ export class ApiService {
 
   GET_InnovationCharacteristics = (): Promise<MainResponse<InnovationCharacteristic[]>> => {
     const url = () => `tools/clarisa/innovation-characteristics`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_InformativeRoles = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `informative-roles`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_GlobalTargets = (impactAreaId: number): Promise<MainResponse<GlobalTarget[]>> => {
+    const url = () => `tools/clarisa/global-targets/impact-area/${impactAreaId}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ImpactAreaScores = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `impact-area-score`;
     return this.TP.get(url(), {});
   };
 
@@ -452,6 +468,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_ReferencesType = (): Promise<MainResponse<GenericList[]>> => {
+    const url = () => `notable-reference-types`;
+    return this.TP.get(url(), {});
+  };
+
   GET_Metadata = (id: number, platform?: string): Promise<MainResponse<GetMetadata>> => {
     const url = () => `results/${id}/metadata`;
     return this.TP.get(url(), {
@@ -503,6 +524,7 @@ export class ApiService {
     query?: string;
     page?: string;
     limit?: string;
+    project?: string;
   }): Promise<MainResponse<FindContractsResponse>> => {
     const url = () => 'agresso/contracts/find-contracts';
     const params = this.buildFindContractsParams(filters);
@@ -564,6 +586,11 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_ImpactAreas = (): Promise<MainResponse<ImpactArea[]>> => {
+    const url = () => `tools/clarisa/impact-areas`;
+    return this.TP.get(url(), {});
+  };
+
   GET_OpenSearchSubNationals = (search: string, openSearchFilters?: OpenSearchFilters): Promise<MainResponse<GetOsSubNationals[]>> => {
     const { country } = openSearchFilters || {};
     const countryQuery = country ? `&country=${country}` : '';
@@ -605,10 +632,13 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  PATCH_SubmitResult = ({ resultCode, comment, status }: PatchSubmitResult): Promise<MainResponse<PatchSubmitResult | ExtendedHttpErrorResponse>> => {
+  PATCH_SubmitResult = (
+    { resultCode, comment, status }: PatchSubmitResult,
+    body?: PatchSubmitResultLatest
+  ): Promise<MainResponse<PatchSubmitResult | ExtendedHttpErrorResponse>> => {
     const commentQuery = comment ? `&comment=${comment}` : '';
     const url = () => `results/green-checks/change/status?resultCode=${resultCode}${commentQuery}&status=${status}`;
-    return this.TP.patch(url(), { useResultInterceptor: true });
+    return this.TP.patch(url(), body ?? {}, { useResultInterceptor: true });
   };
 
   GET_ReviewStatuses = () => {
@@ -696,6 +726,7 @@ export class ApiService {
     query?: string;
     page?: string;
     limit?: string;
+    project?: string;
   }): HttpParams {
     let params = new HttpParams();
     if (!filters) return params;
@@ -710,7 +741,8 @@ export class ApiService {
       'end-date',
       'query',
       'page',
-      'limit'
+      'limit',
+      'project'
     ];
     filterKeys.forEach(key => {
       const value = filters[key];
@@ -725,4 +757,30 @@ export class ApiService {
     const url = () => `fast-response`;
     return this.TP.post(url(), body, { isAuth: environment.fastResponseUrl });
   };
+
+  POST_feedback = (body: InteractionFeedbackPayload) => {
+    const url = () => `interactions`;
+    return this.TP.post(url(), body, { isAuth: environment.feedbackUrl });
+  };
+
+  GET_LeverStrategicOutcomes = (leverId: number): Promise<MainResponse<LeverStrategicOutcome[]>> => {
+    const url = () => `lever-strategic-outcome/by-lever/${leverId}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_AutorContact = (resultCode: number): Promise<MainResponse<ContactPersonResponse | ContactPersonResponse[]>> => {
+    const url = () => `result-user/author-contact/by-result/${resultCode}`;
+    return this.TP.get(url(), {useResultInterceptor: true});
+  };
+
+  POST_AutorContact = (body: { user_id: number; informative_role_id: number }, resultCode: number): Promise<MainResponse<ContactPersonResponse>> => {
+    const url = () => `result-user/author-contact/save-by-result/${resultCode}`;
+    return this.TP.post(url(), body, {});
+  };
+
+  DELETE_AutorContact = (resultUserId: number, resultId: number) => {
+    const url = () => `result-user/author-contact/${resultUserId}/by-result/${resultId}`;
+    return this.TP.delete(url(), { useResultInterceptor: true });
+  };
+
 }

@@ -2,6 +2,10 @@ import { effect, inject, Injectable, signal, WritableSignal } from '@angular/cor
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { ModalName } from '@ts-types/modal.types';
+import { OicrHeaderData } from '@shared/interfaces/oicr-header-data.interface';
+import { SubmissionService } from '@shared/services/submission.service';
+import { ModalActionWithData, ModalDisabledAction } from '@shared/interfaces/modal.interface';
+import { ContactPersonFormData } from '@shared/interfaces/contact-person.interface';
 
 interface ModalConfig {
   isOpen: boolean;
@@ -9,6 +13,7 @@ interface ModalConfig {
   icon?: string;
   cancelText?: string;
   confirmText?: string;
+  confirmIcon?: string;
   iconAction?: () => void;
   cancelAction?: () => void;
   confirmAction?: () => void;
@@ -22,7 +27,11 @@ interface ModalConfig {
 export class AllModalsService {
   partnerRequestSection = signal<string | null>(null);
   selectedResultForInfo = signal<Result | null>(null);
+  submitResultOrigin = signal<'latest' | null>(null);
+  submitHeader = signal<OicrHeaderData | null>(null);
+  submitBackStep = signal<number | null>(null);
   createResultManagementService = inject(CreateResultManagementService);
+  submissionService = inject(SubmissionService);
   goBackFunction?: () => void;
   setGoBackFunction = (fn: () => void) => (this.goBackFunction = fn);
   submitReview?: () => void;
@@ -33,6 +42,35 @@ export class AllModalsService {
   setDisabledConfirmPartner = (fn: () => boolean) => (this.disabledConfirmPartner = fn);
   disabledSubmitReview?: () => boolean;
   setDisabledSubmitReview = (fn: () => boolean) => (this.disabledSubmitReview = fn);
+  addContactPersonConfirm?: ModalActionWithData;
+  setAddContactPersonConfirm = (fn: ModalActionWithData) => (this.addContactPersonConfirm = fn);
+  disabledAddContactPerson?: ModalDisabledAction;
+  setDisabledAddContactPerson = (fn: ModalDisabledAction) => (this.disabledAddContactPerson = fn);
+  contactPersonModalData?: ContactPersonFormData;
+  setContactPersonModalData = (data: ContactPersonFormData) => (this.contactPersonModalData = data);
+
+  setSubmitResultOrigin(origin: 'latest' | null): void {
+    this.submitResultOrigin.set(origin);
+    const title = origin === 'latest' ? 'Review Outcome Impact Case Report (OICR)' : 'Review Result';
+    this.modalConfig.update(modals => ({
+      ...modals,
+      submitResult: {
+        ...modals.submitResult,
+        title
+      }
+    }));
+  }
+
+  setSubmitHeader(header: OicrHeaderData | null): void {
+    this.submitHeader.set(header);
+  }
+
+  setSubmitBackStep(step: number | null): void {
+    this.submitBackStep.set(step);
+  }
+
+  submitBackAction?: () => void;
+  setSubmitBackAction = (fn: () => void) => (this.submitBackAction = fn);
 
   modalConfig: WritableSignal<Record<ModalName, ModalConfig>> = signal({
     createResult: {
@@ -44,9 +82,10 @@ export class AllModalsService {
       title: 'Review Result',
       cancelText: 'Cancel',
       confirmText: 'Confirm',
-      cancelAction: () => this.toggleModal('submitResult'),
+      cancelAction: () => this.submitBackAction?.() ?? this.toggleModal('submitResult'),
       confirmAction: () => this.submitReview?.(),
-      disabledConfirmAction: () => this.disabledSubmitReview?.() ?? false
+      disabledConfirmAction: () => this.disabledSubmitReview?.() ?? false,
+      iconAction: () => this.submitBackAction?.() ?? this.toggleModal('submitResult')
     },
     requestPartner: {
       isOpen: false,
@@ -64,6 +103,16 @@ export class AllModalsService {
     resultInformation: {
       isOpen: false,
       title: 'Result Information'
+    },
+    addContactPerson: {
+      isOpen: false,
+      title: 'Authors And Contact Persons',
+      cancelText: 'Cancel',
+      confirmText: 'Confirm',
+      confirmIcon: 'pi pi-arrow-right !text-[12px]',
+      confirmAction: () => this.addContactPersonConfirm?.(this.contactPersonModalData!),
+      disabledConfirmAction: () => this.disabledAddContactPerson?.() ?? false,
+      isWide: true
     }
   });
 
@@ -101,9 +150,37 @@ export class AllModalsService {
       }
     }));
 
+    if (modalName === 'submitResult' && !this.modalConfig().submitResult.isOpen) {
+      this.setSubmitResultOrigin(null);
+      this.setSubmitHeader(null);
+      this.setSubmitBackStep(null);
+      this.clearSubmissionData();
+      this.createResultManagementService.resetModal();
+    }
+
     if (modalName === 'createResult') {
       this.createResultManagementService.resetModal();
     }
+  }
+
+  hideModal(modalName: ModalName): void {
+    this.modalConfig.update(modals => ({
+      ...modals,
+      [modalName]: {
+        ...modals[modalName],
+        isOpen: false
+      }
+    }));
+  }
+
+  showModal(modalName: ModalName): void {
+    this.modalConfig.update(modals => ({
+      ...modals,
+      [modalName]: {
+        ...modals[modalName],
+        isOpen: true
+      }
+    }));
   }
 
   closeModal(modalName: ModalName): void {
@@ -115,6 +192,14 @@ export class AllModalsService {
         isWide: false
       }
     }));
+
+    if (modalName === 'submitResult') {
+      this.setSubmitResultOrigin(null);
+      this.setSubmitHeader(null);
+      this.setSubmitBackStep(null);
+      this.clearSubmissionData();
+      this.createResultManagementService.resetModal();
+    }
 
     if (modalName === 'createResult') {
       this.createResultManagementService.resetModal();
@@ -147,8 +232,12 @@ export class AllModalsService {
       requestPartner: { ...this.modalConfig().requestPartner, isOpen: false, isWide: false },
       createOicrResult: { ...this.modalConfig().createOicrResult, isOpen: false, isWide: false },
       askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false },
-      resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false }
+      resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false },
+      addContactPerson: { ...this.modalConfig().addContactPerson, isOpen: false, isWide: false }
     });
+
+    this.setSubmitResultOrigin(null);
+    this.clearSubmissionData();
 
     this.createResultManagementService.resetModal();
   }
@@ -161,5 +250,13 @@ export class AllModalsService {
         isWide
       }
     }));
+  }
+
+  clearSubmissionData(): void {
+    this.submissionService.statusSelected.set(null);
+    this.submissionService.comment.set('');
+    this.submissionService.melRegionalExpert.set('');
+    this.submissionService.oicrNo.set('');
+    this.submissionService.sharePointFolderLink.set('');
   }
 }

@@ -2,7 +2,7 @@
   @if (label) {
     <label class="label inline-block flex items-center" for="username"
       >{{ label }}
-      @if (isRequired) {
+      @if (isRequiredSignal()) {
         <span class="text-red-500">*</span>
       }
     </label>
@@ -19,13 +19,14 @@
         [disabled]="disabled"
         [style]="isInvalid() ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
         (ngModelChange)="this.setValue($event)"
-        [loading]="this.service.loading()"
-        [options]="this.service.list()"
+        [loading]="this.loadingSig()"
+        [options]="this.optionsSig()"
         [(ngModel)]="this.body().value"
         [virtualScroll]="true"
         [placeholder]="this.placeholder"
         [virtualScrollItemSize]="optionLabel2 ? 60 : 41"
         [scrollHeight]="this.scrollHeight"
+        [appendTo]="this.appendTo"
         [optionValue]="this.optionValue.option"
         [filter]="!this.service?.isOpenSearch() && !this.disableFilter"
         [filterBy]="this.customFilterBy || this.optionLabel"

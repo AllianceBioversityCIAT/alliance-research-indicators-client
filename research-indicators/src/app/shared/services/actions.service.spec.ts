@@ -244,6 +244,20 @@ describe('ActionsService', () => {
     setItemSpy.mockRestore();
   });
 
+  it('should updateLocalStorage using default isRefreshToken (omitted second arg)', () => {
+    const loginResponse = {
+      data: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        user: mockUser
+      },
+      successfulRequest: true
+    };
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    service.updateLocalStorage(loginResponse as any);
+    expect(setItemSpy).toHaveBeenCalledWith('data', expect.any(String));
+    setItemSpy.mockRestore();
+  });
+
   it('should call cache.windowHeight.set on listenToWindowHeight', () => {
     const spy = jest.spyOn(cacheMock.windowHeight!, 'set');
     service.listenToWindowHeight();

@@ -94,23 +94,6 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('indicators', {});
     });
 
-    it('should call GET_Contracts without projectId', () => {
-      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
-
-      service.GET_Contracts();
-
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts', {});
-    });
-
-    it('should call GET_Contracts with projectId', () => {
-      const projectId = 123;
-      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
-
-      service.GET_Contracts(projectId);
-
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts?projectId=123', {});
-    });
-
     it('should call GET_Institutions', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
@@ -211,6 +194,16 @@ describe('ApiService', () => {
       service.POST_CreateOicr(body);
 
       expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/oicr', body, {});
+    });
+
+    it('should call POST_CreateOicr with resultCode', () => {
+      const body = { test: 'data' } as any;
+      const resultCode = 123;
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.POST_CreateOicr(body, resultCode);
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/oicr?resultCode=123', body, {});
     });
 
     it('should call POST_Result', () => {
@@ -373,7 +366,7 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', {
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', {}, {
         useResultInterceptor: true
       });
     });
@@ -384,7 +377,19 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&status=1', {
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&status=1', {}, {
+        useResultInterceptor: true
+      });
+    });
+
+    it('should call PATCH_SubmitResult with body', () => {
+      const params = { resultCode: 123, comment: 'test comment', status: 1 } as any;
+      const body = { test: 'data' } as any;
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_SubmitResult(params, body);
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', body, {
         useResultInterceptor: true
       });
     });
@@ -430,7 +435,6 @@ describe('ApiService', () => {
     });
 
     it('should update signal body correctly', () => {
-      const body = { existing: 'value' };
       const newBody = { newKey: 'newValue', nullKey: null };
       const updateSpy = jest.fn();
 
@@ -1045,6 +1049,162 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results/green-checks/history/123', {
         useResultInterceptor: true
       });
+    });
+
+    it('should call GET_MaturityLevels', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_MaturityLevels();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('maturity-levels', {});
+    });
+
+    it('should call GET_OicrResults', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_OicrResults();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('temp/oicrs', {});
+    });
+
+    it('should call GET_ValidateTitle', () => {
+      const title = 'Test Title';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_ValidateTitle(title);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/validate-title?title=Test Title', {});
+    });
+
+    it('should call GET_ValidateTitle with empty title', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_ValidateTitle('');
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/validate-title', {});
+    });
+
+    it('should call PATCH_Oicr', () => {
+      const id = 123;
+      const body = { test: 'data' };
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_Oicr(id, body);
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/oicr/123', body, { useResultInterceptor: true });
+    });
+
+    it('should call GET_Oicr', () => {
+      const id = 123;
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_Oicr(id);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/oicr/123', { useResultInterceptor: true });
+    });
+
+    it('should call GET_AllianceStaff', () => {
+      const groupId = 123;
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_AllianceStaff(groupId);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/alliance-user-staff/by-groups/map?groupId=123', {});
+    });
+
+    it('should call GET_AllianceStaff without groupId', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_AllianceStaff(0);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/alliance-user-staff/by-groups/map', {});
+    });
+
+    it('should call GET_GreenChecks with platform', () => {
+      const resultCode = 123;
+      const platform = 'test-platform';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_GreenChecks(resultCode, platform);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/green-checks/123?reportingPlatforms=test-platform', {});
+    });
+
+    it('should call GET_Metadata with platform', () => {
+      const id = 123;
+      const platform = 'test-platform';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_Metadata(id, platform);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/metadata', {
+        useResultInterceptor: true,
+        platform: 'test-platform'
+      });
+    });
+
+    it('should call GET_ContractsByUser with order parameters', () => {
+      const orderField = 'name';
+      const direction = 'asc';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_ContractsByUser(orderField, direction);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts/results/current-user&order-field=name&direction=asc', {});
+    });
+
+    it('should call GET_ContractsByUser with only orderField', () => {
+      const orderField = 'name';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_ContractsByUser(orderField);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts/results/current-user&order-field=name', {});
+    });
+
+    it('should call GET_ContractsByUser with only direction', () => {
+      const direction = 'asc';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_ContractsByUser(undefined, direction);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts/results/current-user&direction=asc', {});
+    });
+
+    it('should call GET_OICRDetails', () => {
+      const resultCode = 123;
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_OICRDetails(resultCode);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/oicr/details/123', {});
+    });
+
+    it('should call GET_OICRModal', () => {
+      const resultCode = 123;
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_OICRModal(resultCode);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/oicr/123/modal', {});
+    });
+
+    it('should call GET_OICRMetadata', () => {
+      const resultCode = 123;
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_OICRMetadata(resultCode);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('temp/oicrs/123/metadata', {});
+    });
+
+    it('should call fastResponse', () => {
+      const body = { prompt: 'test', input_text: 'test input' };
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.fastResponse(body);
+
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('fast-response', body, { isAuth: environment.fastResponseUrl });
     });
   });
 

@@ -118,6 +118,7 @@ describe('SelectComponent', () => {
 
   it('should handle isInvalid computed property when required and empty', () => {
     component.isRequired = true;
+    component.isRequiredSignal.set(true);
     component.body.set({ value: null });
 
     expect(component.isInvalid()).toBe(true);
@@ -125,6 +126,7 @@ describe('SelectComponent', () => {
 
   it('should handle isInvalid computed property when required and has value', () => {
     component.isRequired = true;
+    component.isRequiredSignal.set(true);
     component.body.set({ value: 'some value' });
 
     expect(component.isInvalid()).toBe(false);
@@ -132,6 +134,7 @@ describe('SelectComponent', () => {
 
   it('should handle isInvalid computed property when not required', () => {
     component.isRequired = false;
+    component.isRequiredSignal.set(false);
     component.body.set({ value: null });
 
     expect(component.isInvalid()).toBe(false);
@@ -343,6 +346,20 @@ describe('SelectComponent', () => {
       'simpleField',
       'new'
     );
+  });
+
+  it('setValue initializes missing array branch to cover line 132', () => {
+    component.optionValue = { body: 'arr.prop', option: 'id' };
+    component.signal.set({});
+    const isArraySpy = jest.spyOn(Array, 'isArray')
+      .mockImplementationOnce(() => true)
+      .mockImplementation(() => false);
+    component.setValue(42);
+    isArraySpy.mockRestore();
+    const result = component.signal();
+    expect(Array.isArray(result.arr)).toBe(true);
+    expect(result.arr.length).toBe(1);
+    expect(result.arr[0].prop).toBe(42);
   });
 
 });

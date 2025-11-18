@@ -5,6 +5,7 @@ export interface ReviewOption {
   icon: string;
   color: string;
   message: string;
+  placeholder: string;
   commentLabel?: string;
   statusId: number;
   selected: boolean;

@@ -1,0 +1,69 @@
+<div class="flex flex-col gap-6">
+
+  <!-- Global Target Item Template -->
+  <ng-template #globalTargetItemTemplate let-item>
+    <div class="flex items-center block whitespace-normal break-words gap-2 text-[#4C5158]">
+      <span class="font-[600]">
+        {{ item?.smo_code }} <span class="font-['Barlow'] font-normal">{{ item?.target }}</span>
+      </span>
+    </div>
+  </ng-template>
+
+  <!-- Impact Areas List -->
+  @for (area of impactAreasService.list() || []; track area.id) {
+    <div class="flex flex-col gap-4 p-7 bg-[#F4F7F9] border border-[#E8EBED] rounded-lg">
+      <!-- Impact Area Header -->
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded flex items-center justify-center overflow-hidden">
+          <img [src]="area.icon" [alt]="area.name" class="w-full h-full object-cover">
+        </div>
+        <span class="!font-['Space_Grotesk'] !text-[15px] !rounded-[16px] !text-[#8d9299] !uppercase !mt-0 tracking-widest">
+          IMPACT AREA #{{ area.id }}: <span class="font-semibold">{{ area.name }}</span>
+        </span>
+      </div>
+
+      <div class="flex flex-col xl:flex-row gap-5 justify-between pt-2.5">
+             <!-- Impact Area Score -->
+            <app-radio-button
+                [label]="'Impact Area Score'"
+                [isRequired]="true"
+                [signal]="getImpactAreaScore(area.id)"
+                [disabled]="disabled"
+                [serviceName]="'impactAreaScores'"
+                [optionLabel]="'name'"
+                [optionValue]="{ body: 'score', option: 'id' }"
+                [direction]="'horizontal'"
+                [spaceX]="'gap-4'"
+                [centerOptions]="true"
+                (selectEvent)="onScoreChange(area.id, $event)">
+            </app-radio-button>
+
+            <div class="flex-1">
+                <app-select
+                [signal]="getImpactAreaGlobalTarget(area.id)"
+                [disabled]="disabled"
+                [isRequired]="isGlobalTargetRequired(area.id)"
+                label="Global Target"
+                serviceName="globalTargets"
+                optionLabel="target"
+                [serviceParams]="area.id"
+                [optionValue]="{ body: 'global_target_id', option: 'targetId' }"
+                placeholder="Select the Global Target"
+                [scrollHeight]="'145px'"
+                (selectEvent)="onGlobalTargetChange(area.id, $event)">
+
+                <!-- Selected item template -->
+                <ng-template #selectedItemTemplate let-value>
+                  <ng-container [ngTemplateOutlet]="globalTargetItemTemplate" [ngTemplateOutletContext]="{ $implicit: value }"></ng-container>
+                </ng-template>
+
+                <!-- Item template -->
+                <ng-template #item let-item>
+                  <ng-container [ngTemplateOutlet]="globalTargetItemTemplate" [ngTemplateOutletContext]="{ $implicit: item }"></ng-container>
+                </ng-template>
+                </app-select>
+            </div>
+        </div>
+    </div>
+  }
+</div>

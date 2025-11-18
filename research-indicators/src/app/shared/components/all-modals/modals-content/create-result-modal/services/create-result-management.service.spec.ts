@@ -79,4 +79,76 @@ describe('CreateResultManagementService', () => {
     service.setModalTitle('New Modal Title');
     expect(service.modalTitle()).toBe('New Modal Title');
   });
+
+  it('should clear OICR body', () => {
+    // First set some values to the OICR body
+    const customBody = {
+      step_one: {
+        main_contact_person: {
+          result_user_id: 'test',
+          result_id: 1,
+          user_id: 'user',
+          user_role_id: 1
+        },
+        tagging: {
+          tag_id: 1
+        },
+        link_result: {
+          external_oicr_id: 1
+        },
+        outcome_impact_statement: 'test statement'
+      },
+      step_two: {
+        primary_lever: [],
+        contributor_lever: []
+      },
+      step_three: {
+        geo_scope_id: 1,
+        countries: [],
+        regions: [],
+        comment_geo_scope: 'test comment'
+      },
+      step_four: {
+        general_comment: 'test comment'
+      },
+      base_information: {
+        indicator_id: 1,
+        contract_id: 'test',
+        title: 'test title',
+        description: 'test description',
+        year: '2024',
+        is_ai: true
+      }
+    };
+    
+    service.createOicrBody.set(customBody);
+    
+    // Clear the body
+    service.clearOicrBody();
+    
+    // Verify it was reset to default values
+    const defaultBody = service.createOicrBody();
+    expect(defaultBody.step_one.outcome_impact_statement).toBe('');
+    expect(defaultBody.step_two.primary_lever).toEqual([]);
+    expect(defaultBody.step_three.geo_scope_id).toBeUndefined();
+    expect(defaultBody.step_four.general_comment).toBe('');
+    expect(defaultBody.base_information.indicator_id).toBe(5);
+    expect(defaultBody.base_information.is_ai).toBe(false);
+  });
+
+  it('should set preset from project results table', () => {
+    service.setPresetFromProjectResultsTable(true);
+    expect(service.presetFromProjectResultsTable()).toBe(true);
+    
+    service.setPresetFromProjectResultsTable(false);
+    expect(service.presetFromProjectResultsTable()).toBe(false);
+  });
+
+  it('should set status ID', () => {
+    service.setStatusId(5);
+    expect(service.statusId()).toBe(5);
+    
+    service.setStatusId(null);
+    expect(service.statusId()).toBeNull();
+  });
 });

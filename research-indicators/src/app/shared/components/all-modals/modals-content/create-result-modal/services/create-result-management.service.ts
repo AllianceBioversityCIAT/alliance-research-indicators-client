@@ -20,6 +20,7 @@ export class CreateResultManagementService {
   autofillinOicr = signal<boolean>(false);
   oicrPrimaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
   stepItems = signal<MenuItem[]>([]);
+  statusId = signal<number | null>(null);
   createOicrBody: WritableSignal<OicrCreation> = signal(this.getDefaultOicrBody());
   private getDefaultOicrBody(): OicrCreation {
     return {
@@ -81,6 +82,7 @@ export class CreateResultManagementService {
     this.presetFromProjectResultsTable.set(false);
     this.resultTitle.set(null);
     this.modalTitle.set('Create A Result');
+    this.statusId.set(null);
   }
 
   setContractId(contractId: string | null) {
@@ -89,6 +91,10 @@ export class CreateResultManagementService {
 
   setPresetFromProjectResultsTable(value: boolean) {
     this.presetFromProjectResultsTable.set(value);
+  }
+
+  setStatusId(statusId: number | null) {
+    this.statusId.set(statusId);
   }
 
   setResultTitle(title: string | null) {

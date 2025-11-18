@@ -8,6 +8,7 @@ import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { Subject } from 'rxjs';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { signal } from '@angular/core';
 
 class MockApiService {
@@ -124,6 +125,26 @@ describe('VersionSelectorComponent', () => {
     expect(component.liveVersion()?.result_id).toBe(1);
     expect(component.approvedVersions().length).toBe(1);
     spyCurrentResultId.mockRestore();
+  });
+
+  it('should set approvedVersions to empty array when data.versions is not an array', async () => {
+    const api = TestBed.inject(ApiService);
+    (api.GET_Versions as jest.Mock).mockResolvedValue({
+      data: { live: [{ result_id: 1, result_status_id: 2 }], versions: null }
+    });
+    await component['loadVersions']();
+    expect(Array.isArray(component.approvedVersions())).toBe(true);
+    expect(component.approvedVersions().length).toBe(0);
+  });
+
+  it('getVersionsArray should return array when valid and empty when invalid', () => {
+    const valid = component['getVersionsArray']({ versions: [{ result_id: 1 } as any] });
+    expect(Array.isArray(valid)).toBe(true);
+    expect(valid.length).toBe(1);
+
+    const invalid = component['getVersionsArray']({ versions: null });
+    expect(Array.isArray(invalid)).toBe(true);
+    expect(invalid.length).toBe(0);
   });
 
   it('should apply cached versions with versionParam', () => {
@@ -323,6 +344,20 @@ describe('VersionSelectorComponent', () => {
     expect(component.selectedResultId()).toBe(2);
   });
 
+  it('should navigate when currentChild falls back to general-information (url short) and liveData present', () => {
+    const router = TestBed.inject(Router) as any;
+    const route = TestBed.inject(ActivatedRoute) as any;
+    Object.defineProperty(router, 'url', { value: '/result/1', writable: true });
+    route.snapshot.queryParamMap.get = () => null;
+    component.selectedResultId.set(999);
+    component['handleVersionSelection']({
+      currentResultId: '1',
+      liveData: { result_id: 10, result_status_id: 2, report_year_id: 2022, result_official_code: 1 } as any,
+      versionsArray: []
+    });
+    expect(router.navigate).toHaveBeenCalledWith(['/result', '1', 'general-information'], { replaceUrl: true });
+  });
+
   describe('editInPlatform', () => {
     let windowOpenSpy: jest.SpyInstance;
 
@@ -336,7 +371,7 @@ describe('VersionSelectorComponent', () => {
 
     it('should open PRMS URL when platform is PRMS', () => {
       const cache = TestBed.inject(CacheService) as any;
-      cache.getCurrentPlatformCode.set('PRMS');
+      cache.getCurrentPlatformCode.set(PLATFORM_CODES.PRMS);
       
       component.editInPlatform();
       
@@ -345,7 +380,7 @@ describe('VersionSelectorComponent', () => {
 
     it('should open TIP URL when platform is TIP', () => {
       const cache = TestBed.inject(CacheService) as any;
-      cache.getCurrentPlatformCode.set('TIP');
+      cache.getCurrentPlatformCode.set(PLATFORM_CODES.TIP);
       
       component.editInPlatform();
       
@@ -374,14 +409,14 @@ describe('VersionSelectorComponent', () => {
   describe('platformEditButtonText', () => {
     it('should return "Edit in PRMS" when platform is PRMS', () => {
       const cache = TestBed.inject(CacheService) as any;
-      cache.getCurrentPlatformCode.set('PRMS');
+      cache.getCurrentPlatformCode.set(PLATFORM_CODES.PRMS);
       
       expect(component.platformEditButtonText).toBe('Edit in PRMS');
     });
 
     it('should return "Edit in TIP" when platform is TIP', () => {
       const cache = TestBed.inject(CacheService) as any;
-      cache.getCurrentPlatformCode.set('TIP');
+      cache.getCurrentPlatformCode.set(PLATFORM_CODES.TIP);
       
       expect(component.platformEditButtonText).toBe('Edit in TIP');
     });

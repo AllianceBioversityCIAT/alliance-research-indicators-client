@@ -21,6 +21,7 @@ import { TextareaComponent } from '@shared/components/custom-fields/textarea/tex
 import { ApiService } from '@shared/services/api.service';
 import { IssueCategory } from '@shared/interfaces/issue-category.interface';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
 
 export interface TextMiningResponse {
   text: string;
@@ -66,6 +67,7 @@ export class ResultAiAssistantComponent {
   badTypes: IssueCategory[] = [];
   activeIndex = signal(0);
   loading = signal(false);
+  interactionId: string | null = null;
 
   steps = signal<Step[]>([
     { label: 'Uploading document', completed: false, inProgress: false, progress: 0 },
@@ -80,7 +82,7 @@ export class ResultAiAssistantComponent {
   contractId: string | null = null;
 
   feedbackSent = false;
-  lastFeedbackType: 'good' | 'bad' | null = null;
+  lastFeedbackType: 'positive' | 'negative' | null = null;
 
   constructor(private readonly cdr: ChangeDetectorRef) {
     this.allModalsService.setGoBackFunction(() => this.goBack());
@@ -293,31 +295,19 @@ export class ResultAiAssistantComponent {
         throw new Error('Could not get the name of the uploaded file.');
       }
 
-      this.miningResponse = (await this.textMiningService.executeTextMining(filename)).content;
+      const miningResponse = await this.textMiningService.executeTextMining(filename);
+      this.miningResponse = miningResponse.content;
 
       if (!this.miningResponse?.length) {
         this.actions.showToast({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
         return;
       }
 
-      let combinedResults: AIAssistantResult[] = [];
-      for (const item of this.miningResponse) {
-        if (item?.text) {
-          try {
-            const parsedText = JSON.parse(item.text);
-            if (parsedText?.results?.length > 0) {
-              combinedResults = combinedResults.concat(parsedText.results);
-            }
-          } catch (parseError) {
-            console.error('Error parsing text:', parseError);
-          }
-        }
-      }
+      const combinedResults = this.extractResultsFromMiningResponse();
       if (combinedResults.length === 0) {
         this.noResults.set(true);
         return;
       }
-
       const mappedResults = this.mapResultRawAiToAIAssistantResult(combinedResults);
       this.createResultManagementService.items.set(mappedResults);
       this.documentAnalyzed.set(true);
@@ -328,6 +318,7 @@ export class ResultAiAssistantComponent {
       this.analyzingDocument.set(false);
     }
   }
+  
 
   private mapResultRawAiToAIAssistantResult(results: AIAssistantResult[]): AIAssistantResult[] {
     return results.map(result => ({
@@ -335,7 +326,9 @@ export class ResultAiAssistantComponent {
       title: result.title,
       description: result.description,
       keywords: result.keywords,
-      geoscope: result.geoscope ?? [],
+      geoscope_level: result.geoscope_level,
+      regions: result.regions ?? [],
+      countries: result.countries ?? [],
       training_type: result.training_type,
       length_of_training: result.length_of_training,
       start_date: result.start_date,
@@ -345,8 +338,11 @@ export class ResultAiAssistantComponent {
       total_participants: result.total_participants,
       evidence_for_stage: result.evidence_for_stage,
       policy_type: result.policy_type,
-      alliance_main_contact_person_first_name: result.alliance_main_contact_person_first_name,
-      alliance_main_contact_person_last_name: result.alliance_main_contact_person_last_name,
+      main_contact_person: {
+        name: result.main_contact_person?.name || 'Not collected',
+        code: result.main_contact_person?.code || '',
+        similarity_score: result.main_contact_person?.similarity_score || 0
+      },
       stage_in_policy_process: result.stage_in_policy_process,
       male_participants: result.male_participants ?? 0,
       female_participants: result.female_participants ?? 0,
@@ -362,6 +358,61 @@ export class ResultAiAssistantComponent {
       organizations: result.organizations,
       innovation_actors_detailed: result.innovation_actors_detailed
     }));
+  }
+
+  private aggregateJsonContent(
+    jsonContent: unknown,
+    aggregatedJsonContent: Record<string, unknown> | null
+  ): Record<string, unknown> | null {
+    const currentResults = Array.isArray((jsonContent as { results?: unknown[] }).results)
+      ? ((jsonContent as { results?: unknown[] }).results as unknown[])
+      : [];
+    
+    if (!aggregatedJsonContent) {
+      return {
+        ...(jsonContent as Record<string, unknown>),
+        results: [...currentResults]
+      };
+    } else if (currentResults.length > 0) {
+      const prevResults = (aggregatedJsonContent['results'] as unknown[]) ?? [];
+      aggregatedJsonContent['results'] = [...prevResults, ...currentResults];
+    }
+    
+    return aggregatedJsonContent;
+  }
+
+  private extractResultsFromParsedData(jsonContent: unknown, parsedText: Record<string, unknown>): AIAssistantResult[] {
+    const results = ((jsonContent as { results?: unknown[] })?.results) ?? parsedText?.['results'] ?? [];
+    if (Array.isArray(results) && results.length > 0) {
+      return results as AIAssistantResult[];
+    }
+    return [];
+  }
+
+  private extractResultsFromMiningResponse(): AIAssistantResult[] {
+    let combinedResults: AIAssistantResult[] = [];
+    let aggregatedJsonContent: Record<string, unknown> | null = null;
+
+    for (const item of this.miningResponse) {
+      if (item?.text) {
+        try {
+          const parsedText = JSON.parse(item.text);
+          if (!this.interactionId && parsedText?.interaction_id) {
+            this.interactionId = String(parsedText.interaction_id);
+          }
+          const jsonContent: unknown = parsedText?.json_content;
+          if (jsonContent && typeof jsonContent === 'object') {
+            aggregatedJsonContent = this.aggregateJsonContent(jsonContent, aggregatedJsonContent);
+          }
+          const results = this.extractResultsFromParsedData(jsonContent, parsedText);
+          combinedResults = combinedResults.concat(results);
+        } catch (parseError) {
+          console.error('Error parsing text:', parseError);
+        }
+      }
+    }
+
+    return combinedResults;
   }
 
   startProgress(): void {
@@ -430,11 +481,11 @@ export class ResultAiAssistantComponent {
   }
 
   showFeedbackPanel = signal(false);
-  feedbackType = signal<'good' | 'bad' | null>(null);
+  feedbackType = signal<'positive' | 'negative' | null>(null);
   feedbackText = '';
   selectedType: string[] = [];
 
-  toggleFeedback(type: 'good' | 'bad') {
+  toggleFeedback(type: 'positive' | 'negative') {
     if (this.showFeedbackPanel()) {
       if (this.feedbackType() !== type) {
         this.showFeedbackPanel.set(false);
@@ -483,14 +534,19 @@ export class ResultAiAssistantComponent {
 
   async submitFeedback() {
     this.loading.set(true);
-    const body = {
-      user: this.cache.dataCache().user,
-      issueType: this.selectedType,
-      description: this.body().feedbackText,
-      feedbackType: this.feedbackType(),
-      text: this.miningResponse[0].text
+    const isNegative = this.feedbackType() === 'negative';
+    const commentText = isNegative && this.selectedType.length > 0
+      ? `${this.selectedType.map(id => this.badTypes.find(type => type.id.toString() === id)?.name).filter(Boolean).join(', ')}; ${this.body().feedbackText}`
+      : this.body().feedbackText;
+    const feedbackBody: InteractionFeedbackPayload = {
+      user_id: this.cache.dataCache().user?.email,
+      service_name: 'text-mining',
+      update_mode: true,
+      interaction_id: this.interactionId,
+      feedback_type: this.feedbackType(),
+      feedback_comment: commentText
     };
-    await this.api.POST_DynamoFeedback(body);
+    await this.api.POST_feedback(feedbackBody);
     this.actions.showToast({ severity: 'success', summary: 'Feedback', detail: 'Feedback sent successfully' });
     this.feedbackSent = true;
     this.lastFeedbackType = this.feedbackType();
@@ -506,6 +562,6 @@ export class ResultAiAssistantComponent {
   };
 
   isRequired() {
-    return this.feedbackType() === 'bad';
+    return this.feedbackType() === 'negative';
   }
 }

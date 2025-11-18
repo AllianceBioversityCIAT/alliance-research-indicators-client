@@ -194,7 +194,7 @@ export class InputComponent {
     if (this.maxLength && value && value.length > this.maxLength) {
       return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${this.maxLength} characters allowed` };
     }
-    if (this.pattern) {
+    if (this.pattern && value?.trim()) {
       const valid = new RegExp(this.getPattern().pattern).test(value);
       return { valid: valid, class: valid ? '' : 'ng-invalid ng-dirty', message: this.getPattern().message };
     }
@@ -236,10 +236,10 @@ export class InputComponent {
   getPattern() {
     switch (this.pattern) {
       case 'email':
-        return { pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$', message: 'Please enter a valid email address.' };
+        return { pattern: String.raw`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, message: 'Please enter a valid email address.' };
       case 'url':
         return {
-          pattern: "^(https?:\\/\\/)?([\\w-]+(\\.[\\w-]+)*\\.([a-z]{2,}))(\\/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=%-]*)?$",
+          pattern: String.raw`^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?$`,
           message: 'Please enter a valid URL.'
         };
       default:

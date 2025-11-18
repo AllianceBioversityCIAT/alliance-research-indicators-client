@@ -3,6 +3,7 @@ import { ResolveFn, Router } from '@angular/router';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { CurrentResultService } from '../../../../../shared/services/cache/current-result.service';
 import { CacheService } from '../../../../../shared/services/cache/cache.service';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 
 export const resultExistsResolver: ResolveFn<boolean> = async route => {
   const metadataService = inject(GetMetadataService);
@@ -21,7 +22,7 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
     id = parseInt(lastPart, 10);
   } else {
     id = Number(idParam);
-    platform = 'STAR'; // Default platform for numeric IDs
+    platform = PLATFORM_CODES.STAR; // Default platform for numeric IDs
   }
 
   const { canOpen, indicator_id, status_id, result_official_code, result_contract_id, result_title } =
@@ -33,10 +34,14 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
   }
 
   if (currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
-    router.navigate(['/project-detail', result_contract_id]);
-    if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');
-    currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
-    return false;
+    const isDraft = (status_id ?? 0) === 4;
+    if (!isDraft) {
+      router.navigate(['/project-detail', result_contract_id]);
+      if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');
+      currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
+      return false;
+    }
+    return true;
   }
 
   return true;

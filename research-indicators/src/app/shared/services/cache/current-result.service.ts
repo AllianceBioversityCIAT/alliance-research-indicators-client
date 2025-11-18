@@ -25,6 +25,7 @@ export class CurrentResultService {
       this.createResultManagementService.modalTitle.set('Outcome Impact Case Report (OICR)');
       this.createResultManagementService.contractId.set(response.data.base_information.contract_id);
       this.createResultManagementService.resultTitle.set(response.data.base_information.title);
+      this.createResultManagementService.statusId.set(resultStatusId);
       this.cache.currentResultId.set(resultCode);
     });
     return true;
