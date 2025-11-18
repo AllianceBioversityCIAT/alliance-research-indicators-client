@@ -67,12 +67,7 @@ export class ImpactAreasComponent {
     } else {
       impactArea.impact_area_score_id = value;
     }
-    
-    if (value !== 2) {
-      impactArea.global_target_id = undefined;
-      this.updateGlobalTargetSignal(areaId, null);
-    }
-    
+
     this.body.set({ ...currentBody });
   }
 
