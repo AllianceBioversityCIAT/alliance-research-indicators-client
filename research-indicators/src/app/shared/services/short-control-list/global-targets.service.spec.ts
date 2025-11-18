@@ -45,16 +45,17 @@ describe('GlobalTargetsService', () => {
   });
 
 
-  it('should initialize with empty list', () => {
-    expect(service.list()).toEqual([]);
+  it('should initialize with empty default list', () => {
+    expect(service.getList()()).toEqual([]);
   });
 
   it('should initialize with isOpenSearch false', () => {
     expect(service.isOpenSearch()).toBe(false);
   });
 
-  it('should load data successfully', async () => {
+  it('should load data successfully for a specific impact area', async () => {
     // Arrange
+    const impactAreaId = 1;
     const mockResponse = {
       data: mockGlobalTargets,
       status: 200,
@@ -63,16 +64,17 @@ describe('GlobalTargetsService', () => {
     mockApiService.GET_GlobalTargets.mockResolvedValue(mockResponse);
 
     // Act
-    await service.main();
+    await service.main(impactAreaId);
 
     // Assert
-    expect(mockApiService.GET_GlobalTargets).toHaveBeenCalled();
-    expect(service.list()).toEqual(mockGlobalTargets);
-    expect(service.loading()).toBe(false);
+    expect(mockApiService.GET_GlobalTargets).toHaveBeenCalledWith(impactAreaId);
+    expect(service.getList(impactAreaId)()).toEqual(mockGlobalTargets);
+    expect(service.getLoading(impactAreaId)()).toBe(false);
   });
 
   it('should handle API response with non-array data', async () => {
     // Arrange
+    const impactAreaId = 2;
     const mockResponse = {
       data: mockGlobalTargets[0], // Single object instead of array
       status: 200,
@@ -81,15 +83,16 @@ describe('GlobalTargetsService', () => {
     mockApiService.GET_GlobalTargets.mockResolvedValue(mockResponse);
 
     // Act
-    await service.main();
+    await service.main(impactAreaId);
 
     // Assert
-    expect(service.list()).toEqual([]);
-    expect(service.loading()).toBe(false);
+    expect(service.getList(impactAreaId)()).toEqual([]);
+    expect(service.getLoading(impactAreaId)()).toBe(false);
   });
 
   it('should handle API response with null data', async () => {
     // Arrange
+    const impactAreaId = 3;
     const mockResponse = {
       data: null,
       status: 200,
@@ -98,15 +101,16 @@ describe('GlobalTargetsService', () => {
     mockApiService.GET_GlobalTargets.mockResolvedValue(mockResponse);
 
     // Act
-    await service.main();
+    await service.main(impactAreaId);
 
     // Assert
-    expect(service.list()).toEqual([]);
-    expect(service.loading()).toBe(false);
+    expect(service.getList(impactAreaId)()).toEqual([]);
+    expect(service.getLoading(impactAreaId)()).toBe(false);
   });
 
   it('should handle API response with undefined data', async () => {
     // Arrange
+    const impactAreaId = 4;
     const mockResponse = {
       data: undefined,
       status: 200,
@@ -115,27 +119,29 @@ describe('GlobalTargetsService', () => {
     mockApiService.GET_GlobalTargets.mockResolvedValue(mockResponse);
 
     // Act
-    await service.main();
+    await service.main(impactAreaId);
 
     // Assert
-    expect(service.list()).toEqual([]);
-    expect(service.loading()).toBe(false);
+    expect(service.getList(impactAreaId)()).toEqual([]);
+    expect(service.getLoading(impactAreaId)()).toBe(false);
   });
 
   it('should handle API error', async () => {
     // Arrange
+    const impactAreaId = 5;
     mockApiService.GET_GlobalTargets.mockRejectedValue(new Error('API Error'));
 
     // Act
-    await service.main();
+    await service.main(impactAreaId);
 
     // Assert
-    expect(service.list()).toEqual([]);
-    expect(service.loading()).toBe(false);
+    expect(service.getList(impactAreaId)()).toEqual([]);
+    expect(service.getLoading(impactAreaId)()).toBe(false);
   });
 
   it('should set loading to true at start of main', async () => {
     // Arrange
+    const impactAreaId = 6;
     const mockResponse = {
       data: mockGlobalTargets,
       status: 200,
@@ -144,16 +150,17 @@ describe('GlobalTargetsService', () => {
     mockApiService.GET_GlobalTargets.mockResolvedValue(mockResponse);
 
     // Act
-    const mainPromise = service.main();
+    const mainPromise = service.main(impactAreaId);
     
     // Assert - loading should be true immediately
-    expect(service.loading()).toBe(true);
+    expect(service.getLoading(impactAreaId)()).toBe(true);
     
     await mainPromise;
   });
 
   it('should set loading to false after completion', async () => {
     // Arrange
+    const impactAreaId = 7;
     const mockResponse = {
       data: mockGlobalTargets,
       status: 200,
@@ -162,20 +169,21 @@ describe('GlobalTargetsService', () => {
     mockApiService.GET_GlobalTargets.mockResolvedValue(mockResponse);
 
     // Act
-    await service.main();
+    await service.main(impactAreaId);
 
     // Assert
-    expect(service.loading()).toBe(false);
+    expect(service.getLoading(impactAreaId)()).toBe(false);
   });
 
   it('should set loading to false even after error', async () => {
     // Arrange
+    const impactAreaId = 8;
     mockApiService.GET_GlobalTargets.mockRejectedValue(new Error('API Error'));
 
     // Act
-    await service.main();
+    await service.main(impactAreaId);
 
     // Assert
-    expect(service.loading()).toBe(false);
+    expect(service.getLoading(impactAreaId)()).toBe(false);
   });
 });
