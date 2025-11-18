@@ -46,9 +46,10 @@
                 label="Global Target"
                 serviceName="globalTargets"
                 optionLabel="target"
-                [optionValue]="{ body: 'global_target', option: 'targetId' }"
+                [serviceParams]="area.id"
+                [optionValue]="{ body: 'global_target_id', option: 'targetId' }"
                 placeholder="Select the Global Target"
-                [scrollHeight]="'200px'"
+                [scrollHeight]="'145px'"
                 (selectEvent)="onGlobalTargetChange(area.id, $event)">
 
                 <!-- Selected item template -->

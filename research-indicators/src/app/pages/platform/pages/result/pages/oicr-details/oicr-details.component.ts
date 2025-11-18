@@ -245,12 +245,10 @@ export default class OicrDetailsComponent {
     // Map result_impact_areas
     const apiImpactAreas = Array.isArray(apiData.result_impact_areas) ? apiData.result_impact_areas : [];
     if (apiImpactAreas.length > 0) {
-      const mappedImpactAreas = apiImpactAreas.map((ia: { impact_area_id: number; impact_area_score_id: number | undefined; result_impact_area_global_targets?: { global_target_id: number }[] }) => ({
+      const mappedImpactAreas = apiImpactAreas.map((ia: { impact_area_id: number; impact_area_score_id: number | undefined; global_target_id: number | undefined }) => ({
         impact_area_id: ia.impact_area_id,
         impact_area_score_id: ia.impact_area_score_id,
-        result_impact_area_global_targets: ia.result_impact_area_global_targets?.map((gt: { global_target_id: number }) => ({
-          global_target_id: gt.global_target_id
-        })) || []
+        global_target_id: ia.global_target_id,
       }));
       
       // Update the body with the mapped impact areas

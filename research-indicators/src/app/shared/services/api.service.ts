@@ -312,8 +312,8 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_GlobalTargets = (): Promise<MainResponse<GlobalTarget[]>> => {
-    const url = () => `tools/clarisa/global-targets`;
+  GET_GlobalTargets = (impactAreaId: number): Promise<MainResponse<GlobalTarget[]>> => {
+    const url = () => `tools/clarisa/global-targets/impact-area/${impactAreaId}`;
     return this.TP.get(url(), {});
   };
 
