@@ -14,6 +14,6 @@ export class Evidence {
 }
 
 export class NotableReference {
-  notable_reference_type_id = null;
+  notable_reference_type_id: number | null = null;
   link = '';
 }

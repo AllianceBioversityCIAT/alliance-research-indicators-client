@@ -9,9 +9,9 @@ import { VersionWatcherService } from '@shared/services/version-watcher.service'
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
-import { PatchOicr, QuantificationPayload, NotableReferencePayload } from '@shared/interfaces/oicr-creation.interface';
+import { PatchOicr, QuantificationPayload } from '@shared/interfaces/oicr-creation.interface';
 import { QuantificationItemComponent, QuantificationItemData } from './components/quantification-item/quantification-item.component';
-import { OtherReferenceItemComponent, OtherReferenceItemData } from './components/other-reference-item/other-reference-item.component';
+import { OtherReferenceItemComponent } from './components/other-reference-item/other-reference-item.component';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AccordionModule } from 'primeng/accordion';
 import { AuthorsContactPersonsTableComponent } from './components/authors-contact-persons-table/authors-contact-persons-table.component';
