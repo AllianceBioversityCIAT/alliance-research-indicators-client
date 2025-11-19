@@ -125,29 +125,9 @@
         </div>
       </p-accordion-header>
       <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
-        <div class="flex flex-col bg-white rounded-[10px] p-[10px] pt-5">
-          <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold pb-4">Other Notable References, Promotional Products and Communication materials</span>
-
-          @for (item of otherReferences(); track $index) {
-            <app-other-reference-item
-              [item]="item"
-              [itemNumber]="$index + 1"
-              (update)="updateOtherReference($index, $event)"
-              (delete)="removeOtherReference($index)">
-            </app-other-reference-item>
-          }
-
-          @if (submission.isEditableStatus()) {
-            <div class="flex w-full">
-              <button type="button" (click)="addOtherReference()" class="flex cursor-pointer w-full items-center gap-2 border-2 justify-center font-medium border-[#1689CA] text-[#1689CA] px-4 py-3 rounded-[7px] text-[15px]">
-                Add other item
-                <i class="pi pi-plus !text-[12px]"></i>
-              </button>
-            </div>
-          }
-
-          <div class="flex flex-col pt-4 pb-2">
-            <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold py-4">Authors and Contact Persons</span>
+        <div class="flex flex-col bg-white rounded-[10px] p-[10px]">
+          <div class="flex flex-col py-2">
+            <span class="text-[#1689CA] text-[16px] leading-[17px] font-semibold pb-4">Authors and Contact Persons</span>
             <app-authors-contact-persons-table [rows]="contactPersons()" (addClicked)="onAddContactPerson()" (deleteClicked)="onDeleteContactPerson($event)"></app-authors-contact-persons-table>
           </div>
 
