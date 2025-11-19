@@ -1,0 +1,46 @@
+<div class="app-page-wrapper">
+  <app-form-header />
+
+  <div class="flex flex-col gap-5">
+    <div class="content-section">
+      <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
+        <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px]">
+          LINKS TO RESULT
+        </div>
+        <span class="text-[#153C71] !font-['Space_Grotesk'] text-[18px] leading-[20px] font-semibold">
+          Linked results
+        </span>
+        
+        <div class="bg-white border border-[#E4EAEE] rounded-[18px] p-6 mt-3 flex justify-between items-center">
+          <div class="flex items-start gap-4">
+            <img [src]="'images/landing/search-feature.svg' | s3ImageUrl" class=" lg:w-[100px] w-[90px] p-2" alt="Search feature" />
+
+            <div class="flex flex-col">
+              <span class="text-[#153C71] text-[15px] !font-['Space_Grotesk'] leading-[20px] font-bold tracking-[0.03em] uppercase">
+                Search for existing results to link to this report
+              </span>
+              <p class="text-[#777C83] text-[16px] leading-[20px] mt-2 mb-0 max-w-[600px]">
+                Search for previously reported results that contribute to this one and link them to provide proper context and traceability.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="openSearchLinkedResults()"
+            [disabled]="!submission.isEditableStatus()"
+            class="flex cursor-pointer items-center gap-2 bg-[#035BA9] text-[#FFFFFF] pr-5 pl-6.5 py-2 rounded-[13px] text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF]">
+            Search <i class="pi pi-search !text-[12px] -scale-x-100"></i>
+          </button>
+        </div>
+      </div>
+
+      <app-navigation-buttons
+        [showSave]="false"
+        (back)="navigate('back')"
+        (next)="navigate('next')">
+      </app-navigation-buttons>
+    </div>
+  </div>
+</div>
+

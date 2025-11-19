@@ -102,6 +102,11 @@ export class ResultSidebarComponent {
       greenCheckKey: 'geo_location'
     },
     {
+      label: 'Links to result',
+      path: 'links-to-result',
+      greenCheckKey: 'linked_results'
+    },
+    {
       label: 'Evidence',
       path: 'evidence',
       greenCheckKey: 'evidences'
