@@ -48,7 +48,6 @@ export default class OicrDetailsComponent {
   });
 
   quantifications = signal<QuantificationItemData[]>([{ number: null, unit: '', comments: '' }]);
-  otherReferences = signal<OtherReferenceItemData[]>([{ type_id: null, link: '' }]);
   extrapolatedEstimates = signal<QuantificationItemData[]>([{ number: null, unit: '', comments: '' }]);
   contactPersons = signal<ContactPersonRow[]>([]);
 
@@ -64,20 +63,6 @@ export default class OicrDetailsComponent {
 
   updateQuantification(index: number, data: QuantificationItemData) {
     this.quantifications.update(list => list.map((q, i) => (i === index ? data : q)));
-  }
-
-  addOtherReference() {
-    if (!this.submission.isEditableStatus()) return;
-    this.otherReferences.update(list => [...list, { type_id: null, link: '' }]);
-  }
-
-  removeOtherReference(index: number) {
-    if (!this.submission.isEditableStatus()) return;
-    this.otherReferences.update(list => list.filter((_, i) => i !== index));
-  }
-
-  updateOtherReference(index: number, data: OtherReferenceItemData) {
-    this.otherReferences.update(list => list.map((it, i) => (i === index ? data : it)));
   }
 
   addExtrapolatedEstimate() {
@@ -233,15 +218,6 @@ export default class OicrDetailsComponent {
       this.extrapolatedEstimates.set([{ number: null, unit: '', comments: '' }]);
     }
 
-    const apiNotable = Array.isArray(apiData.notable_references) ? apiData.notable_references : [];
-    if (apiNotable.length > 0) {
-      this.otherReferences.set(
-        apiNotable.map((r: NotableReferencePayload) => ({ type_id: r?.notable_reference_type_id ?? null, link: r?.link ?? '' }))
-      );
-    } else {
-      this.otherReferences.set([{ type_id: null, link: '' }]);
-    }
-
     // Map result_impact_areas
     const apiImpactAreas = Array.isArray(apiData.result_impact_areas) ? apiData.result_impact_areas : [];
     if (apiImpactAreas.length > 0) {
@@ -281,10 +257,6 @@ export default class OicrDetailsComponent {
             quantification_number: q.number ?? 0,
             unit: q.unit ?? '',
             description: q.comments ?? ''
-          })),
-          notable_references: this.otherReferences().map<NotableReferencePayload>(r => ({
-            notable_reference_type_id: r.type_id ?? null,
-            link: r.link ?? ''
           })),
           result_impact_areas: current.result_impact_areas || []
         };

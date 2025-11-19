@@ -12,10 +12,11 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
+import { OtherReferenceItemComponent, OtherReferenceItemData } from '../oicr-details/components/other-reference-item/other-reference-item.component';
 
 @Component({
   selector: 'app-evidence',
-  imports: [ButtonModule, FormHeaderComponent, NavigationButtonsComponent, FormsModule, InputTextModule, EvidenceItemComponent],
+  imports: [ButtonModule, FormHeaderComponent, NavigationButtonsComponent, FormsModule, InputTextModule, EvidenceItemComponent, OtherReferenceItemComponent],
   templateUrl: './evidence.component.html'
 })
 export default class EvidenceComponent {
@@ -28,6 +29,7 @@ export default class EvidenceComponent {
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
   route = inject(ActivatedRoute);
+  otherReferences = signal<OtherReferenceItemData[]>([{ type_id: null, link: '' }]);
 
   constructor() {
     this.versionWatcher.onVersionChange(() => this.getData());
@@ -83,5 +85,21 @@ export default class EvidenceComponent {
     } finally {
       this.setLoading(false);
     }
+  }
+
+
+
+  addOtherReference() {
+    if (!this.submission.isEditableStatus()) return;
+    this.otherReferences.update(list => [...list, { type_id: null, link: '' }]);
+  }
+
+  removeOtherReference(index: number) {
+    if (!this.submission.isEditableStatus()) return;
+    this.otherReferences.update(list => list.filter((_, i) => i !== index));
+  }
+
+  updateOtherReference(index: number, data: OtherReferenceItemData) {
+    this.otherReferences.update(list => list.map((it, i) => (i === index ? data : it)));
   }
 }
