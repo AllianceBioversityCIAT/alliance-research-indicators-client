@@ -1,0 +1,172 @@
+<div class="flex flex-col px-10 py-4">
+  <div class="pt-4">
+    <span class="text-[#153C71] font-['Space_Grotesk'] text-[18px] leading-[20px] font-bold mb-2">RESULTS TABLE</span>
+    <p class="text-[#777C83] text-[14px] mb-4">Search and select the results that you want to link.</p>
+  </div>
+
+  <div class="flex items-center justify-between w-full p-4 bg-white border border-[#E4EAEE]">
+    <app-search-export-controls
+      [showExportButton]="false"
+      [searchValue]="searchInput()"
+      [searchPlaceholder]="'Find a result by code, title or creator'"
+      (searchChange)="setSearchInputFilter($event)">
+    </app-search-export-controls>
+
+    <app-filters-action-buttons
+      [applyLabel]="'Apply Filters'"
+      [badge]="resultsCenterService.countTableFiltersSelected()"
+      [showOverlayDot]="!!resultsCenterService.countTableFiltersSelected()"
+      [showClear]="true"
+      [showViewToggleButtons]="false"
+      [showConfigButton]="false"
+      (apply)="showFiltersSidebar()"
+      (clear)="resultsCenterService.clearAllFilters()">
+    </app-filters-action-buttons>
+  </div>
+
+  <p-table
+    #dt2
+    [value]="resultsCenterService.list()"
+    [paginator]="true"
+    [rows]="10"
+    class="border border-[#E4EAEE] rounded-[18px] border-t-0"
+    [loading]="resultsCenterService.loading()"
+    [scrollHeight]="getScrollHeight()"
+    [showCurrentPageReport]="true"
+    [scrollable]="true"
+    [tableStyle]="{ 'min-width': '100%' }"
+    [rowsPerPageOptions]="[5, 10, 25, 50]"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"
+    [sortField]="'result_official_code'"
+    [sortOrder]="-1"
+    [globalFilterFields]="resultsCenterService.getAllPathsAsArray()"
+    styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="!text-[#173F6F] min-w-[60px]" scope="col">
+          <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+            Select
+          </div>
+        </th>
+        @for (column of resultsCenterService.tableColumns(); track column.field) {
+          @if (column.field !== 'versions' && (!column.hideIf || !column.hideIf())) {
+            <th
+              class="{{ column.minWidth }} {{ column.maxWidth }} !text-[#173F6F]"
+              [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path"
+              scope="col">
+              <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] ">
+                {{
+                  column.field === 'project'
+                    ? 'Project'
+                    : column.field === 'lever'
+                      ? 'Lever'
+                      : column.field === 'year'
+                        ? 'Year'
+                        : column.header
+                }}
+                @if (!column?.hideFilterIf?.()) {
+                  <p-sortIcon field="{{ column.path }}"></p-sortIcon>
+                }
+              </div>
+            </th>
+          }
+        }
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-result>
+      <tr class="hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
+        <td>
+          <div class="flex justify-center">
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="isSelected(result)"
+              (ngModelChange)="toggleSelection(result)"
+              (click)="$event.stopPropagation()"
+              (keydown.enter)="toggleSelection(result); $event.stopPropagation()">
+            </p-checkbox>
+          </div>
+        </td>
+        @for (column of resultsCenterService.tableColumns(); track column.field) {
+          @if (column.field !== 'versions' && (!column.hideIf || !column.hideIf())) {
+            @if (column.field === 'status') {
+              <td>
+                <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true" [statusName]="result.result_status?.name">
+                </app-custom-tag>
+              </td>
+            } @else if (column.field === 'result_official_code') {
+              <td>
+                <div class="flex items-center text-[13px]">
+                  <span
+                    class="py-1 px-2 rounded-l-lg font-[600] min-w-[50px] max-w-[50px] text-center"
+                    [style.color]="getPlatformColors(result.platform_code)?.text"
+                    [style.background-color]="getPlatformColors(result.platform_code)?.background">
+                    {{ result.platform_code }}
+                  </span>
+                  <span class="text-[#4C5158] bg-[#E8EBED] py-1 px-2 rounded-r-lg min-w-[43px] text-center">
+                    {{ formatResultCode(result.result_official_code) }}
+                  </span>
+                </div>
+              </td>
+            } @else if (column.field === 'project') {
+              <td>
+                @if (result.result_contracts?.contract_id) {
+                  <span class="text-[#4C5158]">
+                    {{ result.result_contracts.contract_id }}
+                  </span>
+                } @else {
+                  <span class="text-gray-500">Not provided</span>
+                }
+              </td>
+            } @else {
+              <td [class]="column.minWidth + ' ' + column.maxWidth" [class.break-words]="column.field === 'title'" lang="es">
+                <div class="overflow-hidden line-clamp-3 xl:line-clamp-2">
+                  {{ column.getValue ? column.getValue(result) : '-' }}
+                </div>
+              </td>
+            }
+          }
+        }
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      @if (!resultsCenterService.loading()) {
+        <tr>
+          <td [attr.colspan]="resultsCenterService.tableColumns().length + 1" class="text-center p-8">
+            <div class="flex flex-col items-center gap-4 bg-surface-ground p-6 rounded-xl">
+              <div class="flex flex-col items-center gap-2">
+                <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-50">
+                  <i class="pi pi-inbox text-3xl text-blue-500"></i>
+                </div>
+                <h2 class="text-900 font-semibold m-0">No Results Available</h2>
+                <p class="text-600 text-center m-0 max-w-[30rem] leading-relaxed">
+                  There are currently no results in the database. New results will appear here once they are added to the system.
+                </p>
+              </div>
+            </div>
+          </td>
+        </tr>
+      }
+    </ng-template>
+  </p-table>
+
+ 
+</div>
+
+<div class="flex items-center justify-between px-10 py-4 border-t border-[#E8EBED] bg-white rounded-b-[30px]">
+  <span class="text-[#777C83] text-[15px] !font-[space_grotesk]">
+    Selected 
+    <i class="pi pi-arrow-right !text-[12px] pr-2 pl-1" style="color: #777C83"></i>
+
+    <span class="text-[#345B8F]">{{ selectedCount() }} {{ selectedCount() === 1 ? 'result' : 'results' }} </span> 
+  </span>
+  <div class="flex gap-3">
+    <button
+      type="button"
+      (click)="saveSelection()"
+      [disabled]="selectedCount() === 0"
+      class="bg-[#035BA9] text-[15px] text-white disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] px-5 py-2 rounded-[14px] cursor-pointer disabled:cursor-not-allowed flex items-center gap-2">
+      Save selection
+      <i class="pi pi-arrow-right !text-[12px]"></i>
+    </button>
+  </div>
+</div>

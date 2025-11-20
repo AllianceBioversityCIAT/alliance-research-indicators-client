@@ -1,0 +1,105 @@
+import { Component, computed, effect, inject, signal, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Table, TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
+import { TagModule } from 'primeng/tag';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
+import { Result } from '@shared/interfaces/result/result.interface';
+import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
+import { FiltersActionButtonsComponent } from '@shared/components/filters-action-buttons/filters-action-buttons.component';
+import { SearchExportControlsComponent } from '@shared/components/search-export-controls/search-export-controls.component';
+import { PLATFORM_COLOR_MAP } from '@shared/constants/platform-colors';
+import { CacheService } from '@shared/services/cache/cache.service';
+
+@Component({
+  selector: 'app-select-linked-results-modal',
+  imports: [
+    FormsModule,
+    TableModule,
+    ButtonModule,
+    InputTextModule,
+    CheckboxModule,
+    TagModule,
+    CustomTagComponent,
+    FiltersActionButtonsComponent,
+    SearchExportControlsComponent
+  ],
+  templateUrl: './select-linked-results-modal.component.html'
+})
+export class SelectLinkedResultsModalComponent {
+  allModalsService = inject(AllModalsService);
+  resultsCenterService = inject(ResultsCenterService);
+  cacheService = inject(CacheService);
+
+  @ViewChild('dt2') dt2!: Table;
+
+  selectedResults = signal<Result[]>([]);
+  searchInput = signal('');
+
+  selectedCount = computed(() => this.selectedResults().length);
+
+  onSearchInputChange = effect(() => {
+    const searchValue = this.searchInput();
+    if (this.dt2) {
+      this.dt2.filterGlobal(searchValue, 'contains');
+    }
+  });
+
+  constructor() {
+    // Los botones están en el HTML del componente
+  }
+
+  setSearchInputFilter($event: Event) {
+    this.searchInput.set(($event.target as HTMLInputElement).value);
+  }
+
+  formatResultCode(code: string | number): string {
+    if (!code) return String(code || '');
+    return String(code).padStart(3, '0');
+  }
+
+  getPlatformColors(platformCode: string): { text: string; background: string } | undefined {
+    return PLATFORM_COLOR_MAP[platformCode];
+  }
+
+  isSelected(result: Result): boolean {
+    return this.selectedResults().some(r => r.result_id === result.result_id);
+  }
+
+  toggleSelection(result: Result) {
+    const current = this.selectedResults();
+    const index = current.findIndex(r => r.result_id === result.result_id);
+    
+    if (index >= 0) {
+      this.selectedResults.set(current.filter(r => r.result_id !== result.result_id));
+    } else {
+      this.selectedResults.set([...current, result]);
+    }
+  }
+
+  cancel() {
+    this.allModalsService.closeModal('selectLinkedResults');
+    this.selectedResults.set([]);
+  }
+
+  saveSelection() {
+    const selected = this.selectedResults();
+    if (selected.length === 0) return;
+    
+    // Aquí se puede emitir un evento o llamar a un servicio para guardar la selección
+    // Por ahora, solo cerramos el modal
+    this.allModalsService.closeModal('selectLinkedResults');
+  }
+
+  showFiltersSidebar() {
+    this.resultsCenterService.showFiltersSidebar.set(true);
+  }
+
+  getScrollHeight = computed(
+    () => `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + 400}px)`
+  );
+}
+
