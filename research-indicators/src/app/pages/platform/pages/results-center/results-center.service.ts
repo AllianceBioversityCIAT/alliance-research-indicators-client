@@ -125,7 +125,7 @@ export class ResultsCenterService {
       field: 'creation_date',
       path: 'created_at',
       header: 'Creation Date',
-      minWidth: 'min-w-[100px]',
+      minWidth: 'min-w-[120px]',
 
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }

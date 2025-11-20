@@ -5,6 +5,7 @@ import { NavigationButtonsComponent } from '@shared/components/navigation-button
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
 
 @Component({
   selector: 'app-links-to-result',
@@ -16,6 +17,7 @@ export default class LinksToResultComponent {
   private cache = inject(CacheService);
   private route = inject(ActivatedRoute);
   submission = inject(SubmissionService);
+  allModalsService = inject(AllModalsService);
 
   navigate(page?: 'next' | 'back'): void {
     const version = this.route.snapshot.queryParamMap.get('version');
@@ -38,12 +40,7 @@ export default class LinksToResultComponent {
   }
 
   openSearchLinkedResults(): void {
-    this.router.navigate(['/search-a-result'], {
-      queryParams: {
-        linkedToResult: this.cache.currentResultId(),
-        returnPath: ['result', this.cache.currentResultId(), 'links-to-result'].join('/')
-      }
-    });
+    this.allModalsService.openModal('selectLinkedResults');
   }
 }
 
