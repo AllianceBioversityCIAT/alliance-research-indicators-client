@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -32,7 +32,7 @@ import { ActionsService } from '@shared/services/actions.service';
   ],
   templateUrl: './select-linked-results-modal.component.html'
 })
-export class SelectLinkedResultsModalComponent {
+export class SelectLinkedResultsModalComponent implements OnInit {
   allModalsService = inject(AllModalsService);
   resultsCenterService = inject(ResultsCenterService);
   cacheService = inject(CacheService);
@@ -54,8 +54,8 @@ export class SelectLinkedResultsModalComponent {
     }
   });
 
-  constructor() {
-    // Los botones están en el HTML del componente
+  ngOnInit(): void {
+    void this.initialize();
   }
 
   setSearchInputFilter($event: Event) {
@@ -133,5 +133,34 @@ export class SelectLinkedResultsModalComponent {
   getScrollHeight = computed(
     () => `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + 400}px)`
   );
+
+  private async ensureResultsListLoaded(): Promise<void> {
+    if (this.resultsCenterService.list().length === 0) {
+      await this.resultsCenterService.main();
+    }
+  }
+
+  private async initialize(): Promise<void> {
+    await this.ensureResultsListLoaded();
+    await this.loadExistingLinkedResults();
+  }
+
+  private async loadExistingLinkedResults(): Promise<void> {
+    const resultId = this.cacheService.getCurrentNumericResultId();
+    try {
+      const response = await this.apiService.GET_LinkedResults(resultId);
+      const codes = response.data?.link_results?.map(item => String(item.other_result_id)) ?? [];
+      if (codes.length === 0) {
+        this.selectedResults.set([]);
+        return;
+      }
+
+      const availableResults = this.resultsCenterService.list();
+      const matched = availableResults.filter(result => codes.includes(String(result.result_official_code)));
+      this.selectedResults.set(matched);
+    } catch (error) {
+      console.error('Error loading linked results', error);
+    }
+  }
 }
 
