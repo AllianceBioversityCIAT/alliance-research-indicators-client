@@ -30,8 +30,9 @@ export default class LinksToResultComponent implements OnInit {
   allModalsService = inject(AllModalsService);
 
   linkedResults = signal<Result[]>([]);
+  originalLinkedResults = signal<Result[]>([]);
   loading = signal(false);
-  removing = signal<number | null>(null);
+  saving = signal(false);
   private previousModalState = false;
 
   constructor() {
@@ -88,9 +89,11 @@ export default class LinksToResultComponent implements OnInit {
       );
       
       this.linkedResults.set(matched);
+      this.originalLinkedResults.set([...matched]);
     } catch (error) {
       console.error('Error loading linked results', error);
       this.linkedResults.set([]);
+      this.originalLinkedResults.set([]);
     } finally {
       this.loading.set(false);
     }
@@ -104,7 +107,7 @@ export default class LinksToResultComponent implements OnInit {
   getIndicatorIcon(result: Result): { icon: string; color: string } {
     const indicatorName = result.indicators?.name?.toLowerCase() || '';
     const iconSrc = result.indicators?.icon_src || '';
-console.log(indicatorName);
+
     // Mapeo basado en el nombre del indicador (case-insensitive)
     if (indicatorName.includes('innovation development')) {
       return { icon: 'pi pi-flag', color: '#7CB580' };
@@ -135,16 +138,22 @@ console.log(indicatorName);
     return { icon: 'pi-circle', color: '#7CB580' };
   }
 
-  async removeLinkedResult(resultId: number): Promise<void> {
+  removeLinkedResult(resultId: number): void {
     if (!this.submission.isEditableStatus()) return;
 
-    this.removing.set(resultId);
+    const currentResults = this.linkedResults();
+    const updatedResults = currentResults.filter(r => r.result_id !== resultId);
+    this.linkedResults.set(updatedResults);
+  }
+
+  async saveData(): Promise<void> {
+    if (!this.submission.isEditableStatus()) return;
+
+    this.saving.set(true);
     try {
       const currentResults = this.linkedResults();
-      const updatedResults = currentResults.filter(r => r.result_id !== resultId);
-
       const payload: LinkResultsResponse = {
-        link_results: updatedResults.map(result => ({
+        link_results: currentResults.map(result => ({
           other_result_id: Number(result.result_id)
         }))
       };
@@ -155,23 +164,25 @@ console.log(indicatorName);
       this.actions.showToast({
         severity: 'success',
         summary: 'Linked results',
-        detail: 'Result unlinked successfully'
+        detail: 'Data saved successfully'
       });
 
-      this.linkedResults.set(updatedResults);
+      this.originalLinkedResults.set([...currentResults]);
     } catch (error) {
       this.actions.showToast({
         severity: 'error',
         summary: 'Linked results',
-        detail: 'Unable to unlink result, please try again'
+        detail: 'Unable to save changes, please try again'
       });
       console.error(error);
+      // Restore original state on error
+      this.linkedResults.set([...this.originalLinkedResults()]);
     } finally {
-      this.removing.set(null);
+      this.saving.set(false);
     }
   }
 
-  navigate(page?: 'next' | 'back'): void {
+  async navigate(page?: 'next' | 'back'): Promise<void> {
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
 
@@ -184,6 +195,8 @@ console.log(indicatorName);
     }
 
     if (page === 'next') {
+      // Save before navigating
+      await this.saveData();
       this.router.navigate(['result', this.cache.currentResultId(), 'evidence'], {
         queryParams,
         replaceUrl: true

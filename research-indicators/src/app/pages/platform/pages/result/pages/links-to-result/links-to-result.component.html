@@ -72,8 +72,7 @@
                   <button
                     type="button"
                     (click)="removeLinkedResult(result.result_id)"
-                    [disabled]="removing() === result.result_id"
-                    class="flex-shrink-0 ml-4 cursor-pointer disabled:cursor-not-allowed"
+                    class="flex-shrink-0 ml-4 cursor-pointer"
                     [pTooltip]="'Remove linked result'">
                     <i class="pi pi-times-circle !text-[20px] text-[#CF0808]"></i>
                   </button>
@@ -95,9 +94,11 @@
       </div>
 
       <app-navigation-buttons
-        [showSave]="false"
+        [showSave]="true"
+        [disableSave]="saving()"
         (back)="navigate('back')"
-        (next)="navigate('next')">
+        (next)="navigate('next')"
+        (save)="saveData()">
       </app-navigation-buttons>
     </div>
   </div>
