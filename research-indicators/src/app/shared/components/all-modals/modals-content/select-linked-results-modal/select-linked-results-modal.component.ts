@@ -134,15 +134,16 @@ export class SelectLinkedResultsModalComponent implements OnInit {
     () => `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + 400}px)`
   );
 
-  private async ensureResultsListLoaded(): Promise<void> {
-    if (this.resultsCenterService.list().length === 0) {
-      await this.resultsCenterService.main();
-    }
-  }
-
   private async initialize(): Promise<void> {
     await this.ensureResultsListLoaded();
     await this.loadExistingLinkedResults();
+  }
+
+  private async ensureResultsListLoaded(): Promise<void> {
+    if (this.resultsCenterService.list().length === 0) {
+      this.resultsCenterService.clearAllFilters();
+      await this.resultsCenterService.main();
+    }
   }
 
   private async loadExistingLinkedResults(): Promise<void> {
