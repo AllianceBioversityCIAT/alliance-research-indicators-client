@@ -13,6 +13,9 @@ import { FiltersActionButtonsComponent } from '@shared/components/filters-action
 import { SearchExportControlsComponent } from '@shared/components/search-export-controls/search-export-controls.component';
 import { PLATFORM_COLOR_MAP } from '@shared/constants/platform-colors';
 import { CacheService } from '@shared/services/cache/cache.service';
+import { ApiService } from '@shared/services/api.service';
+import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
+import { ActionsService } from '@shared/services/actions.service';
 
 @Component({
   selector: 'app-select-linked-results-modal',
@@ -33,11 +36,14 @@ export class SelectLinkedResultsModalComponent {
   allModalsService = inject(AllModalsService);
   resultsCenterService = inject(ResultsCenterService);
   cacheService = inject(CacheService);
+  apiService = inject(ApiService);
+  actions = inject(ActionsService);
 
   @ViewChild('dt2') dt2!: Table;
 
   selectedResults = signal<Result[]>([]);
   searchInput = signal('');
+  saving = signal(false);
 
   selectedCount = computed(() => this.selectedResults().length);
 
@@ -83,15 +89,41 @@ export class SelectLinkedResultsModalComponent {
   cancel() {
     this.allModalsService.closeModal('selectLinkedResults');
     this.selectedResults.set([]);
+    this.saving.set(false);
   }
 
-  saveSelection() {
+  async saveSelection(): Promise<void> {
     const selected = this.selectedResults();
     if (selected.length === 0) return;
-    
-    // Aquí se puede emitir un evento o llamar a un servicio para guardar la selección
-    // Por ahora, solo cerramos el modal
-    this.allModalsService.closeModal('selectLinkedResults');
+
+    const payload: LinkResultsResponse = {
+      link_results: selected.map(result => ({
+        other_result_id: Number(result.result_official_code)
+      }))
+    };
+
+    const resultId = this.cacheService.getCurrentNumericResultId();
+
+    this.saving.set(true);
+    try {
+      await this.apiService.PATCH_LinkedResults(resultId, payload);
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Linked results',
+        detail: 'Results linked successfully'
+      });
+      this.selectedResults.set([]);
+      this.allModalsService.closeModal('selectLinkedResults');
+    } catch (error) {
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Linked results',
+        detail: 'Unable to link results, please try again'
+      });
+      console.error(error);
+    } finally {
+      this.saving.set(false);
+    }
   }
 
   showFiltersSidebar() {

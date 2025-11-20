@@ -163,7 +163,7 @@
     <button
       type="button"
       (click)="saveSelection()"
-      [disabled]="selectedCount() === 0"
+      [disabled]="selectedCount() === 0 || saving()"
       class="bg-[#035BA9] text-[15px] text-white disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] px-5 py-2 rounded-[14px] cursor-pointer disabled:cursor-not-allowed flex items-center gap-2">
       Save selection
       <i class="pi pi-arrow-right !text-[12px]"></i>
