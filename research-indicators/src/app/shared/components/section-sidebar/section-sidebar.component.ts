@@ -22,6 +22,8 @@ export class SectionSidebarComponent implements OnInit, OnDestroy {
   @Output() confirm = new EventEmitter<void>();
   @Input() hideActions = false;
   @Input() subtractExtraOffset = false;
+  @Input() customHeight?: string;
+  @Input() customTopOffset?: string;
 
   ngOnInit(): void {
     this.routerSub = this.router.events.subscribe(event => {

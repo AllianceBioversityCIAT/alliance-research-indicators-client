@@ -16,6 +16,8 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { ApiService } from '@shared/services/api.service';
 import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 import { ActionsService } from '@shared/services/actions.service';
+import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
+import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 
 const MODAL_INDICATOR_CODES = [1, 2, 4, 5] as const;
 
@@ -30,7 +32,9 @@ const MODAL_INDICATOR_CODES = [1, 2, 4, 5] as const;
     TagModule,
     CustomTagComponent,
     FiltersActionButtonsComponent,
-    SearchExportControlsComponent
+    SearchExportControlsComponent,
+    SectionSidebarComponent,
+    TableFiltersSidebarComponent
   ],
   templateUrl: './select-linked-results-modal.component.html'
 })
@@ -100,7 +104,7 @@ export class SelectLinkedResultsModalComponent implements OnInit {
 
     const payload: LinkResultsResponse = {
       link_results: selected.map(result => ({
-        other_result_id: Number(result.result_official_code)
+        other_result_id: Number(result.result_id)
       }))
     };
 
@@ -133,6 +137,7 @@ export class SelectLinkedResultsModalComponent implements OnInit {
   }
 
   clearFilters(): void {
+    this.resultsCenterService.clearAllFilters();
     this.applyModalIndicatorFilter();
     void this.loadResultsForModal();
   }
@@ -158,7 +163,7 @@ export class SelectLinkedResultsModalComponent implements OnInit {
       }
 
       const availableResults = this.resultsCenterService.list();
-      const matched = availableResults.filter(result => codes.includes(String(result.result_official_code)));
+      const matched = availableResults.filter(result => codes.includes(String(result.result_id)));
       this.selectedResults.set(matched);
     } catch (error) {
       console.error('Error loading linked results', error);
@@ -198,6 +203,25 @@ export class SelectLinkedResultsModalComponent implements OnInit {
       'indicator-codes-tabs': [...MODAL_INDICATOR_CODES],
       'indicator-codes-filter': []
     }));
+  }
+
+  onFiltersConfirm(): void {
+    const filters = this.resultsCenterService.tableFilters();
+
+    const updater = (prev: any) => ({
+      ...prev,
+      'lever-codes': filters.levers.map(lever => lever.id),
+      'status-codes': filters.statusCodes.map(status => status.result_status_id),
+      years: filters.years.map(year => year.id),
+      'contract-codes': filters.contracts.map(contract => contract.agreement_id),
+      'indicator-codes-filter': filters.indicators.map(indicator => indicator.indicator_id)
+    });
+
+    this.resultsCenterService.resultsFilter.update(updater);
+    this.resultsCenterService.appliedFilters.update(updater);
+
+    this.applyModalIndicatorFilter();
+    void this.loadResultsForModal();
   }
 }
 
