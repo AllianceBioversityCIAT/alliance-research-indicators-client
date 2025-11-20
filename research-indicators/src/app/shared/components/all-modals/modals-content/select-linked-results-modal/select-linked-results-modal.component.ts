@@ -17,6 +17,8 @@ import { ApiService } from '@shared/services/api.service';
 import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 import { ActionsService } from '@shared/services/actions.service';
 
+const MODAL_INDICATOR_CODES = [1, 2, 4, 5] as const;
+
 @Component({
   selector: 'app-select-linked-results-modal',
   imports: [
@@ -130,20 +132,19 @@ export class SelectLinkedResultsModalComponent implements OnInit {
     this.resultsCenterService.showFiltersSidebar.set(true);
   }
 
+  clearFilters(): void {
+    this.applyModalIndicatorFilter();
+    void this.loadResultsForModal();
+  }
+
   getScrollHeight = computed(
     () => `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + 400}px)`
   );
 
   private async initialize(): Promise<void> {
+    this.applyModalIndicatorFilter();
     await this.ensureResultsListLoaded();
     await this.loadExistingLinkedResults();
-  }
-
-  private async ensureResultsListLoaded(): Promise<void> {
-    if (this.resultsCenterService.list().length === 0) {
-      this.resultsCenterService.clearAllFilters();
-      await this.resultsCenterService.main();
-    }
   }
 
   private async loadExistingLinkedResults(): Promise<void> {
@@ -162,6 +163,41 @@ export class SelectLinkedResultsModalComponent implements OnInit {
     } catch (error) {
       console.error('Error loading linked results', error);
     }
+  }
+
+  private async ensureResultsListLoaded(): Promise<void> {
+    if (this.resultsCenterService.list().length === 0) {
+      await this.loadResultsForModal();
+    }
+  }
+
+  private async loadResultsForModal(): Promise<void> {
+    try {
+      this.resultsCenterService.list.set([]);
+      this.resultsCenterService.loading.set(true);
+
+      this.applyModalIndicatorFilter();
+      await this.resultsCenterService.main();
+    } catch (error) {
+      console.error('Error loading results for modal', error);
+      this.resultsCenterService.list.set([]);
+    } finally {
+      this.resultsCenterService.loading.set(false);
+    }
+  }
+
+  private applyModalIndicatorFilter(): void {
+    this.resultsCenterService.resultsFilter.update(prev => ({
+      ...prev,
+      'indicator-codes-tabs': [...MODAL_INDICATOR_CODES],
+      'indicator-codes-filter': []
+    }));
+
+    this.resultsCenterService.appliedFilters.update(prev => ({
+      ...prev,
+      'indicator-codes-tabs': [...MODAL_INDICATOR_CODES],
+      'indicator-codes-filter': []
+    }));
   }
 }
 
