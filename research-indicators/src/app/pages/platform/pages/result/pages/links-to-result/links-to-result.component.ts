@@ -12,6 +12,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ActionsService } from '@shared/services/actions.service';
 import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
+import { getIndicatorIcon } from '@shared/constants/indicator-icon.constants';
 
 const MODAL_INDICATOR_CODES = [1, 2, 4, 5] as const;
 
@@ -36,11 +37,9 @@ export default class LinksToResultComponent implements OnInit {
   private previousModalState = false;
 
   constructor() {
-    // Reload linked results when modal closes
     effect(() => {
       const isModalOpen = this.allModalsService.modalConfig().selectLinkedResults.isOpen;
       if (this.previousModalState && !isModalOpen) {
-        // Modal was just closed, reload data
         void this.loadLinkedResults();
       }
       this.previousModalState = isModalOpen;
@@ -63,7 +62,6 @@ export default class LinksToResultComponent implements OnInit {
         return;
       }
 
-      // Load all results with the same config as the modal
       const resultFilter = {
         'indicator-codes-tabs': [...MODAL_INDICATOR_CODES],
         'indicator-codes-filter': []
@@ -83,7 +81,6 @@ export default class LinksToResultComponent implements OnInit {
       const resultsResponse = await this.api.GET_Results(resultFilter, resultConfig);
       const allResults = Array.isArray(resultsResponse?.data) ? resultsResponse.data : [];
       
-      // Filter to only include linked results
       const matched = allResults.filter(result => 
         linkedResultIds.includes(result.result_id)
       );
@@ -104,38 +101,8 @@ export default class LinksToResultComponent implements OnInit {
     return String(code).padStart(3, '0');
   }
 
-  getIndicatorIcon(result: Result): { icon: string; color: string } {
-    const indicatorName = result.indicators?.name?.toLowerCase() || '';
-    const iconSrc = result.indicators?.icon_src || '';
-
-    // Mapeo basado en el nombre del indicador (case-insensitive)
-    if (indicatorName.includes('innovation development')) {
-      return { icon: 'pi pi-flag', color: '#7CB580' };
-    }
-    if (indicatorName.includes('innovation use')) {
-      return { icon: 'pi pi-sun', color: '#F58220' };
-    }
-    if (indicatorName.includes('capacity sharing')) {
-      return { icon: 'pi pi-users', color: '#7CB580' };
-    }
-    if (indicatorName.includes('oicr') || indicatorName.includes('outcome impact case report')) {
-      return { icon: 'pi pi-chart-pie', color: '#F58220' };
-    }
-    if (indicatorName.includes('knowledge product')) {
-      return { icon: 'pi pi-lightbulb', color: '#7CB580' };
-    }
-    if (indicatorName.includes('policy change')) {
-      return { icon: 'pi pi-folder-open', color: '#F58220' };
-    }
-
-    // Fallback al icono del API si existe
-    if (iconSrc) {
-      // Determinar color basado en el tipo de indicador
-      const isOutcome = indicatorName.includes('outcome') || iconSrc.includes('pi-sun') || iconSrc.includes('pi-chart-pie') || iconSrc.includes('pi-folder-open');
-      return { icon: iconSrc, color: isOutcome ? '#F58220' : '#7CB580' };
-    }
-
-    return { icon: 'pi-circle', color: '#7CB580' };
+  getIndicatorIcon(result: Result) {
+    return getIndicatorIcon(result.indicators?.icon_src, result.indicator_id);
   }
 
   removeLinkedResult(resultId: number): void {
@@ -175,7 +142,6 @@ export default class LinksToResultComponent implements OnInit {
         detail: 'Unable to save changes, please try again'
       });
       console.error(error);
-      // Restore original state on error
       this.linkedResults.set([...this.originalLinkedResults()]);
     } finally {
       this.saving.set(false);
@@ -195,7 +161,6 @@ export default class LinksToResultComponent implements OnInit {
     }
 
     if (page === 'next') {
-      // Save before navigating
       await this.saveData();
       this.router.navigate(['result', this.cache.currentResultId(), 'evidence'], {
         queryParams,
