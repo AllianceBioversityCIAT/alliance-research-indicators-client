@@ -242,13 +242,9 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   openResult(result: Result) {
     this.resultsCenterService.clearAllFilters();
-    if (result.platform_code === PLATFORM_CODES.PRMS) {
+    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
-      return;
-    }
-    if (result.platform_code === PLATFORM_CODES.TIP && result.external_link) {
-      globalThis.open(result.external_link, '_blank');
       return;
     }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
@@ -260,12 +256,8 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     }
   }
 
-  openResultByYear(result: number, year: string | number, platformCode: string, externalLink?: string) {
+  openResultByYear(result: number, year: string | number, platformCode: string) {
     if (platformCode === PLATFORM_CODES.PRMS) {
-      return;
-    }
-    if (platformCode === PLATFORM_CODES.TIP && externalLink) {
-      globalThis.open(externalLink, '_blank');
       return;
     }
     this.resultsCenterService.clearAllFilters();
@@ -279,9 +271,6 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     if (result.platform_code === PLATFORM_CODES.PRMS) {
       this.onResultLinkClick(result);
       return '';
-    }
-    if (result.platform_code === PLATFORM_CODES.TIP && result.external_link) {
-      return result.external_link;
     }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
@@ -319,12 +308,10 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   onResultLinkClick(result: Result): void {
-    if (result.platform_code === PLATFORM_CODES.PRMS) {
+    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
-    } else if (result.platform_code === PLATFORM_CODES.TIP && result.external_link) {
-      globalThis.open(result.external_link, '_blank');
-    }
+    } 
   }
 
   ngAfterViewInit() {
@@ -354,15 +341,11 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     const pageStart: number = this.dt2.first || 0;
     const idx = pageStart + rowIndex;
     const result = data[idx] as Result | undefined;
-    if (result && result.platform_code === PLATFORM_CODES.PRMS) {
+    if (result && (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP)) {
       event.preventDefault();
       event.stopPropagation();
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
-    } else if (result && result.platform_code === PLATFORM_CODES.TIP && result.external_link) {
-      event.preventDefault();
-      event.stopPropagation();
-      globalThis.open(result.external_link, '_blank');
     }
   }
 }
