@@ -76,8 +76,8 @@ export class ResultsCenterService {
       field: 'status',
       path: 'result_status.name',
       header: 'Status',
-      minWidth: 'min-w-[135px]',
-      maxWidth: 'max-w-[135px]',
+      minWidth: 'min-w-[150px]',
+      maxWidth: 'max-w-[150px]',
       getValue: (result: Result) => result.result_status?.name ?? '-'
     },
     {
