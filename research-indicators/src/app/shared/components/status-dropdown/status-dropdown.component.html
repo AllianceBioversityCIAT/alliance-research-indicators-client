@@ -10,15 +10,15 @@
   </div>
 
   @if (isOpen()) {
-    <div class="absolute top-full right-0  bg-white border border-[#E4EAEE] rounded-lg shadow-lg z-50 min-w-[200px]">
+    <div class="absolute top-full right-0 py-2 bg-white border border-[#E4EAEE] rounded-lg shadow-lg z-50 min-w-[200px]">
       @for (status of getAvailableStatuses(); track status.id) {
         <div
-          class="flex items-center gap-2 py-4 px-5 cursor-pointer hover:bg-[#F4F7F9] transition-colors"
+          class="flex items-center gap-2.5 py-2 px-5 cursor-pointer hover:bg-[#F4F7F9] transition-colors"
           (click)="selectStatus(status.id, $event)">
           <div class="w-4 h-4 flex items-center justify-center">
             @if (status.direction === 'previous') {
-              <div class="p-2 bg-[#E8EBED] rounded-sm flex items-center justify-center">
-                <i class="pi pi-arrow-left !text-[12px] text-[#035BA9]"></i>
+              <div class="p-1.5 bg-[#E8EBED] rounded-sm flex items-center justify-center">
+                <i class="pi pi-arrow-left !text-[12px] text-[#212121]"></i>
               </div>
             } @else {
               <div class="p-1.5 bg-[#E8EBED] rounded-sm flex items-center justify-center">

@@ -39,9 +39,8 @@ export class StatusDropdownComponent {
 
     const options: StatusOption[] = [];
 
-    // Only Science Edition (12) can go back to Draft (4)
-    // Add previous status only if current status is Science Edition
-    if (currentIndex > 0 && this.statusId === 12) {
+    // Add previous status if exists (all statuses except Draft can go back)
+    if (currentIndex > 0) {
       const previousStatus = this.STATUS_SEQUENCE[currentIndex - 1];
       options.push({
         id: previousStatus.id,
@@ -76,8 +75,8 @@ export class StatusDropdownComponent {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.status-dropdown-container')) {
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('.status-dropdown-container')) {
       this.isOpen.set(false);
     }
   }
