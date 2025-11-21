@@ -330,10 +330,17 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   private processRowClick(target: Element, event: MouseEvent) {
     this.lastClickedElement = target;
+    
+    if (target.closest('thead') || target.closest('th') || target.tagName.toLowerCase() === 'th') {
+      return;
+    }
+    
     const rowEl = target.closest('tr');
     if (!rowEl) return;
+    
     const tbody = rowEl.parentElement;
-    if (!tbody) return;
+    if (!tbody || tbody.tagName.toLowerCase() !== 'tbody') return;
+    
     const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
     const rowIndex = rows.indexOf(rowEl);
     if (rowIndex < 0) return;
