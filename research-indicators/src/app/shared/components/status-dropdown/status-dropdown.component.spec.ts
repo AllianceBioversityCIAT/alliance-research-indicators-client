@@ -86,21 +86,31 @@ describe('StatusDropdownComponent', () => {
       });
     });
 
-    it('should return only next status for KM Curation (13)', () => {
+    it('should return previous and next status for KM Curation (13)', () => {
       component.statusId = 13;
       const statuses = component.getAvailableStatuses();
-      expect(statuses).toHaveLength(1);
+      expect(statuses).toHaveLength(2);
       expect(statuses[0]).toEqual({
+        id: 12,
+        name: 'Science Edition',
+        direction: 'previous'
+      });
+      expect(statuses[1]).toEqual({
         id: 14,
         name: 'Published',
         direction: 'next'
       });
     });
 
-    it('should return empty array for Published (14)', () => {
+    it('should return previous status for Published (14)', () => {
       component.statusId = 14;
       const statuses = component.getAvailableStatuses();
-      expect(statuses).toEqual([]);
+      expect(statuses).toHaveLength(1);
+      expect(statuses[0]).toEqual({
+        id: 13,
+        name: 'KM Curation',
+        direction: 'previous'
+      });
     });
   });
 
