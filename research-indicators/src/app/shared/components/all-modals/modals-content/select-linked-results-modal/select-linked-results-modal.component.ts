@@ -19,7 +19,7 @@ import { ActionsService } from '@shared/services/actions.service';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 
-const MODAL_INDICATOR_CODES = [1, 2, 4, 5] as const;
+const MODAL_INDICATOR_CODES = [1, 2, 4, 6 ] as const;
 
 @Component({
   selector: 'app-select-linked-results-modal',
