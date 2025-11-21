@@ -410,7 +410,7 @@ export class ResultsCenterService {
     }));
   }
 
-  clearAllFilters() {
+  clearAllFilters(preserveIndicatorCodes?: readonly number[]) {
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
@@ -424,13 +424,13 @@ export class ResultsCenterService {
     this.resultsFilter.update(prev => ({
       ...prev,
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorCodes ? [...preserveIndicatorCodes] : []
     }));
 
     this.appliedFilters.update(prev => ({
       ...prev,
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorCodes ? [...preserveIndicatorCodes] : []
     }));
 
     // clear search input

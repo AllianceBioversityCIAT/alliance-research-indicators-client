@@ -137,9 +137,7 @@ export class SelectLinkedResultsModalComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.resultsCenterService.clearAllFilters();
-    this.applyModalIndicatorFilter();
-    void this.loadResultsForModal();
+    this.resultsCenterService.clearAllFilters([...MODAL_INDICATOR_CODES]);
   }
 
   getScrollHeight = computed(

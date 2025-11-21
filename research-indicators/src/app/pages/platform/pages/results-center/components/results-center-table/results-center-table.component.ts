@@ -247,6 +247,10 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       this.allModalsService.openModal('resultInformation');
       return;
     }
+    if (result.platform_code === PLATFORM_CODES.TIP && result.external_link) {
+      globalThis.open(result.external_link, '_blank');
+      return;
+    }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
@@ -256,8 +260,12 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     }
   }
 
-  openResultByYear(result: number, year: string | number, platformCode: string) {
+  openResultByYear(result: number, year: string | number, platformCode: string, externalLink?: string) {
     if (platformCode === PLATFORM_CODES.PRMS) {
+      return;
+    }
+    if (platformCode === PLATFORM_CODES.TIP && externalLink) {
+      globalThis.open(externalLink, '_blank');
       return;
     }
     this.resultsCenterService.clearAllFilters();
@@ -272,6 +280,9 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       this.onResultLinkClick(result);
       return '';
     }
+    if (result.platform_code === PLATFORM_CODES.TIP && result.external_link) {
+      return result.external_link;
+    }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
@@ -283,6 +294,9 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   getResultRouteArray(result: Result): string | string[] {
+    if (result.platform_code === PLATFORM_CODES.TIP) {
+      return [];
+    }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       return ['/result', resultCode, 'general-information'];
@@ -308,6 +322,8 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     if (result.platform_code === PLATFORM_CODES.PRMS) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
+    } else if (result.platform_code === PLATFORM_CODES.TIP && result.external_link) {
+      globalThis.open(result.external_link, '_blank');
     }
   }
 
@@ -343,6 +359,10 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       event.stopPropagation();
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
+    } else if (result && result.platform_code === PLATFORM_CODES.TIP && result.external_link) {
+      event.preventDefault();
+      event.stopPropagation();
+      globalThis.open(result.external_link, '_blank');
     }
   }
 }
