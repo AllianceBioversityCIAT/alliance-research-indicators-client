@@ -7,7 +7,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TagModule } from 'primeng/tag';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
-import { Result } from '@shared/interfaces/result/result.interface';
+import { Result, ResultFilter } from '@shared/interfaces/result/result.interface';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 import { FiltersActionButtonsComponent } from '@shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '@shared/components/search-export-controls/search-export-controls.component';
@@ -206,7 +206,7 @@ export class SelectLinkedResultsModalComponent implements OnInit {
   onFiltersConfirm(): void {
     const filters = this.resultsCenterService.tableFilters();
 
-    const updater = (prev: any) => ({
+    const updater = (prev: ResultFilter) => ({
       ...prev,
       'lever-codes': filters.levers.map(lever => lever.id),
       'status-codes': filters.statusCodes.map(status => status.result_status_id),
