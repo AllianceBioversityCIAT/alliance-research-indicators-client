@@ -74,6 +74,7 @@ import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/in
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
 import { ImpactArea } from '@shared/interfaces/impact-area.interface';
+import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 
 
 @Injectable({
@@ -573,6 +574,16 @@ export class ApiService {
 
   PATCH_GeoLocation = <T>(id: number, body: T): Promise<MainResponse<GetGeoLocation>> => {
     const url = () => `results/${id}/geo-location`;
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
+  };
+
+  GET_LinkedResults = (id: number): Promise<MainResponse<LinkResultsResponse>> => {
+    const url = () => `link-results/details/${id}`;
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_LinkedResults = (id: number, body: LinkResultsResponse): Promise<MainResponse<LinkResultsResponse>> => {
+    const url = () => `link-results/details/${id}`;
     return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 

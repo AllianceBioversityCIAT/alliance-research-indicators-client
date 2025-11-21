@@ -201,7 +201,7 @@ describe('GeographicScopeComponent', () => {
     expect(apiMock.PATCH_GeoLocation).toHaveBeenCalledWith(123, component.body());
     expect(getDataSpy).toHaveBeenCalled();
     expect(actionsMock.showToast).toHaveBeenCalled();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['result', 'PR-1', 'evidence'], expect.any(Object));
+    expect(routerMock.navigate).toHaveBeenCalledWith(['result', 'PR-1', 'links-to-result'], expect.any(Object));
 
     await component.saveData('back');
     expect(routerMock.navigate).toHaveBeenCalledWith(['result', 'PR-1', 'partners'], expect.any(Object));
@@ -219,7 +219,7 @@ describe('GeographicScopeComponent', () => {
     // version present case
     await component.saveData('next');
     expect(apiMock.PATCH_GeoLocation).not.toHaveBeenCalled();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['result', 'PR-1', 'evidence'], expect.any(Object));
+    expect(routerMock.navigate).toHaveBeenCalledWith(['result', 'PR-1', 'links-to-result'], expect.any(Object));
 
     // version null => no query params
     (routeMock.snapshot.queryParamMap as any).get.mockReturnValueOnce(null);

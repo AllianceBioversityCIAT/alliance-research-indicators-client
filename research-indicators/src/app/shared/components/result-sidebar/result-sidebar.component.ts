@@ -104,6 +104,11 @@ export class ResultSidebarComponent implements OnInit {
       greenCheckKey: 'geo_location'
     },
     {
+      label: 'Links to result',
+      path: 'links-to-result',
+      greenCheckKey: 'link_result'
+    },
+    {
       label: 'Evidence',
       path: 'evidence',
       greenCheckKey: 'evidences'

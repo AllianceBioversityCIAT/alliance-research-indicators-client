@@ -82,6 +82,11 @@ export const routes: Routes = [
             data: createResultData()
           },
           {
+            path: 'links-to-result',
+            loadComponent: () => import('@platform/pages/result/pages/links-to-result/links-to-result.component'),
+            data: createResultData()
+          },
+          {
             path: 'alliance-alignment',
             loadComponent: () => import('@platform/pages/result/pages/alliance-alignment/alliance-alignment.component'),
             data: createResultData()

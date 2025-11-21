@@ -125,7 +125,7 @@ export class ResultsCenterService {
       field: 'creation_date',
       path: 'created_at',
       header: 'Creation Date',
-      minWidth: 'min-w-[100px]',
+      minWidth: 'min-w-[120px]',
 
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
@@ -410,7 +410,7 @@ export class ResultsCenterService {
     }));
   }
 
-  clearAllFilters() {
+  clearAllFilters(preserveIndicatorCodes?: readonly number[]) {
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
@@ -424,13 +424,13 @@ export class ResultsCenterService {
     this.resultsFilter.update(prev => ({
       ...prev,
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorCodes ? [...preserveIndicatorCodes] : []
     }));
 
     this.appliedFilters.update(prev => ({
       ...prev,
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorCodes ? [...preserveIndicatorCodes] : []
     }));
 
     // clear search input

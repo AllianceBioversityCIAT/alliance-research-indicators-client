@@ -48,6 +48,10 @@ export class AllModalsService {
   setDisabledAddContactPerson = (fn: ModalDisabledAction) => (this.disabledAddContactPerson = fn);
   contactPersonModalData?: ContactPersonFormData;
   setContactPersonModalData = (data: ContactPersonFormData) => (this.contactPersonModalData = data);
+  selectLinkedResultsConfirm?: () => void;
+  setSelectLinkedResultsConfirm = (fn: () => void) => (this.selectLinkedResultsConfirm = fn);
+  disabledSelectLinkedResults?: () => boolean;
+  setDisabledSelectLinkedResults = (fn: () => boolean) => (this.disabledSelectLinkedResults = fn);
 
   setSubmitResultOrigin(origin: 'latest' | null): void {
     this.submitResultOrigin.set(origin);
@@ -112,6 +116,11 @@ export class AllModalsService {
       confirmIcon: 'pi pi-arrow-right !text-[12px]',
       confirmAction: () => this.addContactPersonConfirm?.(this.contactPersonModalData!),
       disabledConfirmAction: () => this.disabledAddContactPerson?.() ?? false,
+      isWide: true
+    },
+    selectLinkedResults: {
+      isOpen: false,
+      title: 'Existing Results',
       isWide: true
     }
   });
@@ -233,7 +242,8 @@ export class AllModalsService {
       createOicrResult: { ...this.modalConfig().createOicrResult, isOpen: false, isWide: false },
       askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false },
       resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false },
-      addContactPerson: { ...this.modalConfig().addContactPerson, isOpen: false, isWide: false }
+      addContactPerson: { ...this.modalConfig().addContactPerson, isOpen: false, isWide: false },
+      selectLinkedResults: { ...this.modalConfig().selectLinkedResults, isOpen: false, isWide: false }
     });
 
     this.setSubmitResultOrigin(null);

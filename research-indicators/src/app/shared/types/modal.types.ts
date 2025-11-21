@@ -5,4 +5,5 @@ export type ModalName =
   | 'askForHelp'
   | 'createOicrResult'
   | 'resultInformation'
-  | 'addContactPerson';
+  | 'addContactPerson'
+  | 'selectLinkedResults';

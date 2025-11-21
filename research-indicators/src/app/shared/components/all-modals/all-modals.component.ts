@@ -8,6 +8,7 @@ import { RequestPartnerModalComponent } from './modals-content/request-partner-m
 import { AskForHelpModalComponent } from './modals-content/ask-for-help-modal/ask-for-help-modal/ask-for-help-modal.component';
 import { ResultInformationModalComponent } from './modals-content/result-information-modal/result-information-modal.component';
 import { AddContactPersonModalComponent } from './modals-content/add-contact-person-modal/add-contact-person-modal.component';
+import { SelectLinkedResultsModalComponent } from './modals-content/select-linked-results-modal/select-linked-results-modal.component';
 
 @Component({
   selector: 'app-all-modals',
@@ -18,7 +19,8 @@ import { AddContactPersonModalComponent } from './modals-content/add-contact-per
     SubmitResultContentComponent,
     AskForHelpModalComponent,
     ResultInformationModalComponent,
-    AddContactPersonModalComponent
+    AddContactPersonModalComponent,
+    SelectLinkedResultsModalComponent
   ],
   templateUrl: './all-modals.component.html'
 })

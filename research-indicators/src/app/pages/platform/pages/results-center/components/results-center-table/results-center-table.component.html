@@ -85,15 +85,27 @@
           @if (!column.hideIf || !column.hideIf()) {
             @if (column.field === 'status') {
               <td>
-                <a
-                  [routerLink]="getResultRouteArray(result)"
-                  [queryParams]="getResultQueryParams(result)"
-                  (click)="$event.stopPropagation()"
-                  class="block"
-                  style="color: inherit; text-decoration: none">
-                  <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true" [statusName]="result.result_status?.name">
-                  </app-custom-tag>
-                </a>
+                @if (result.platform_code === 'TIP' && result.external_link) {
+                  <a
+                    [href]="result.external_link"
+                    target="_blank"
+                    (click)="$event.stopPropagation()"
+                    class="block"
+                    style="color: inherit; text-decoration: none">
+                    <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true" [statusName]="result.result_status?.name">
+                    </app-custom-tag>
+                  </a>
+                } @else {
+                  <a
+                    [routerLink]="getResultRouteArray(result)"
+                    [queryParams]="getResultQueryParams(result)"
+                    (click)="$event.stopPropagation()"
+                    class="block"
+                    style="color: inherit; text-decoration: none">
+                    <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true" [statusName]="result.result_status?.name">
+                    </app-custom-tag>
+                  </a>
+                }
               </td>
             } @else if (column.field === 'result_official_code') {
               <td>
@@ -135,8 +147,8 @@
                     <div (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" class="flex flex-wrap items-center gap-2 py-1">
                       @for (year of visibleYears; track year) {
                         <span
-                          (keydown.enter)="openResultByYear(result.result_official_code, year, result.platform_code)"
-                          (click)="openResultByYear(result.result_official_code, year, result.platform_code)"
+                          (keydown.enter)="openResultByYear(result.result_official_code, year, result.platform_code, result.external_link)"
+                          (click)="openResultByYear(result.result_official_code, year, result.platform_code, result.external_link)"
                           class="px-2 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[11px] cursor-pointer">
                           {{ year }}
                         </span>
@@ -151,8 +163,8 @@
                           <div class="grid grid-cols-2 gap-2">
                             @for (year of versions; track year) {
                               <span
-                                (keydown.enter)="openResultByYear(result.result_official_code, year, result.platform_code)"
-                                (click)="openResultByYear(result.result_official_code, year, result.platform_code)"
+                                (keydown.enter)="openResultByYear(result.result_official_code, year, result.platform_code, result.external_link)"
+                                (click)="openResultByYear(result.result_official_code, year, result.platform_code, result.external_link)"
                                 class="px-2 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[11px] cursor-pointer">
                                 {{ year }}
                               </span>
@@ -168,16 +180,29 @@
               </td>
             } @else {
               <td [class]="column.minWidth + ' ' + column.maxWidth" [class.break-words]="column.field === 'title'" lang="es">
-                <a
-                  [routerLink]="getResultRouteArray(result)"
-                  [queryParams]="getResultQueryParams(result)"
-                  (click)="$event.stopPropagation()"
-                  class="block w-full h-full"
-                  style="color: inherit; text-decoration: none">
-                  <div class="overflow-hidden line-clamp-3 xl:line-clamp-2">
-                    {{ column.getValue ? column.getValue(result) : '-' }}
-                  </div>
-                </a>
+                @if (result.platform_code === 'TIP' && result.external_link) {
+                  <a
+                    [href]="result.external_link"
+                    target="_blank"
+                    (click)="$event.stopPropagation()"
+                    class="block w-full h-full"
+                    style="color: inherit; text-decoration: none">
+                    <div class="overflow-hidden line-clamp-3 xl:line-clamp-2">
+                      {{ column.getValue ? column.getValue(result) : '-' }}
+                    </div>
+                  </a>
+                } @else {
+                  <a
+                    [routerLink]="getResultRouteArray(result)"
+                    [queryParams]="getResultQueryParams(result)"
+                    (click)="$event.stopPropagation()"
+                    class="block w-full h-full"
+                    style="color: inherit; text-decoration: none">
+                    <div class="overflow-hidden line-clamp-3 xl:line-clamp-2">
+                      {{ column.getValue ? column.getValue(result) : '-' }}
+                    </div>
+                  </a>
+                }
               </td>
             }
           }
