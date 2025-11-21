@@ -76,8 +76,8 @@ export class StatusDropdownComponent {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.status-dropdown-container')) {
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('.status-dropdown-container')) {
       this.isOpen.set(false);
     }
   }
