@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, effect, inject, signal, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, effect, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -38,7 +38,7 @@ const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
   ],
   templateUrl: './select-linked-results-modal.component.html'
 })
-export class SelectLinkedResultsModalComponent implements OnInit {
+export class SelectLinkedResultsModalComponent implements OnInit, OnDestroy {
   allModalsService = inject(AllModalsService);
   resultsCenterService = inject(ResultsCenterService);
   cacheService = inject(CacheService);
@@ -51,10 +51,13 @@ export class SelectLinkedResultsModalComponent implements OnInit {
   searchInput = signal('');
   saving = signal(false);
   private modalWasOpen = false;
-  private readonly modalCloseWatcher = effect(
+  private readonly modalVisibilityWatcher = effect(
     () => {
       const modalConfig = this.allModalsService.isModalOpen('selectLinkedResults');
       const isOpen = modalConfig?.isOpen ?? false;
+      if (isOpen && !this.modalWasOpen) {
+        void this.onModalOpened();
+      }
       if (!isOpen && this.modalWasOpen) {
         this.resetModalFilters();
       }
@@ -74,6 +77,11 @@ export class SelectLinkedResultsModalComponent implements OnInit {
 
   ngOnInit(): void {
     void this.initialize();
+  }
+
+  ngOnDestroy(): void {
+    this.modalVisibilityWatcher.destroy();
+    this.onSearchInputChange.destroy();
   }
 
   setSearchInputFilter($event: Event) {
@@ -160,6 +168,11 @@ export class SelectLinkedResultsModalComponent implements OnInit {
 
   private async initialize(): Promise<void> {
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
+    await this.ensureResultsListLoaded();
+    await this.loadExistingLinkedResults();
+  }
+
+  private async onModalOpened(): Promise<void> {
     await this.ensureResultsListLoaded();
     await this.loadExistingLinkedResults();
   }
