@@ -14,6 +14,7 @@ import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { SetUpProjectService } from '../../../pages/platform/pages/set-up-project/set-up-project.service';
 import { StatusDropdownComponent } from '../status-dropdown/status-dropdown.component';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 interface SubmissionAlertData {
   severity: 'success' | 'warning';
@@ -48,6 +49,7 @@ export class ResultSidebarComponent implements OnInit {
   router = inject(Router);
   route = inject(ActivatedRoute);
   submissionService = inject(SubmissionService);
+  roles = inject(RolesService);
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions()
       .filter(option => option?.indicator_id === this.cache.currentMetadata()?.indicator_id || !option?.indicator_id)
