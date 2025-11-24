@@ -177,8 +177,8 @@
     [showSignal]="resultsCenterService.showFiltersSidebar"
     confirmText="Apply filters"
     (confirm)="onFiltersConfirm()"
-    customHeight="calc(80vh - 100px)"
+    customHeight="calc(80vh - 124px)"
     customTopOffset="59px">
-    <app-table-filters-sidebar></app-table-filters-sidebar>
+    <app-table-filters-sidebar [indicatorHiddenIds]="[5, 3]" [forceIndicatorFilter]="true"></app-table-filters-sidebar>
   </app-section-sidebar>
 }

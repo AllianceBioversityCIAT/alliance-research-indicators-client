@@ -78,6 +78,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
   @Input() itemHeight = 41;
   @Input() enableVirtualScroll = true;
   @Input() dark = false;
+  @Input() optionFilter: (item: any) => boolean = () => true;
   selectEvent = output<any>();
   environment = environment;
 
@@ -96,6 +97,18 @@ export class MultiselectComponent implements OnInit, OnChanges {
       ...item,
       disabled: this.optionsDisabled().find((option: any) => option[this.optionValue] === item[this.optionValue])
     }));
+  });
+
+  availableOptions = computed(() => {
+    const base = this.useDisabled() ? this.listWithDisabled() : this.optionsSig();
+    const normalized = Array.isArray(base) ? base : [];
+    return normalized.filter(option => {
+      try {
+        return this.optionFilter ? this.optionFilter(option) : true;
+      } catch {
+        return true;
+      }
+    });
   });
 
   isInvalid = computed(() => {

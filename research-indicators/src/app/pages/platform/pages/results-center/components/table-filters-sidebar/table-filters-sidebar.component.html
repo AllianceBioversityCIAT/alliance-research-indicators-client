@@ -1,5 +1,5 @@
 <div class="body">
-  @if (!this.resultsCenterService.resultsFilter()['indicator-codes-tabs']?.length) {
+  @if (forceIndicatorFilter || !this.resultsCenterService.resultsFilter()['indicator-codes-tabs']?.length) {
     <app-multiselect
       #indicatorSelect
       label="Indicator"
@@ -8,7 +8,9 @@
       optionValue="indicator_id"
       signalOptionValue="indicators"
       serviceName="getAllIndicators"
-      placeholder="Select indicators">
+      [scrollHeight]="forceIndicatorFilter ? '180px' : '270px'"
+      placeholder="Select indicators"
+      [optionFilter]="indicatorOptionFilter">
     </app-multiselect>
   }
   <app-multiselect

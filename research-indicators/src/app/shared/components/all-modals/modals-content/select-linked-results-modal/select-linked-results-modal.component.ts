@@ -19,7 +19,7 @@ import { ActionsService } from '@shared/services/actions.service';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 
-const MODAL_INDICATOR_CODES = [1, 2, 4, 6 ] as const;
+const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
 
 @Component({
   selector: 'app-select-linked-results-modal',
@@ -50,6 +50,18 @@ export class SelectLinkedResultsModalComponent implements OnInit {
   selectedResults = signal<Result[]>([]);
   searchInput = signal('');
   saving = signal(false);
+  private modalWasOpen = false;
+  private readonly modalCloseWatcher = effect(
+    () => {
+      const modalConfig = this.allModalsService.isModalOpen('selectLinkedResults');
+      const isOpen = modalConfig?.isOpen ?? false;
+      if (!isOpen && this.modalWasOpen) {
+        this.resetModalFilters();
+      }
+      this.modalWasOpen = isOpen;
+    },
+    { allowSignalWrites: true }
+  );
 
   selectedCount = computed(() => this.selectedResults().length);
 
@@ -145,7 +157,7 @@ export class SelectLinkedResultsModalComponent implements OnInit {
   );
 
   private async initialize(): Promise<void> {
-    this.applyModalIndicatorFilter();
+    this.applyModalIndicatorFilter(true);
     await this.ensureResultsListLoaded();
     await this.loadExistingLinkedResults();
   }
@@ -189,18 +201,22 @@ export class SelectLinkedResultsModalComponent implements OnInit {
     }
   }
 
-  private applyModalIndicatorFilter(): void {
-    this.resultsCenterService.resultsFilter.update(prev => ({
+  private applyModalIndicatorFilter(resetIndicatorFilters = false): void {
+    const setIndicators = (prev: ResultFilter) => ({
       ...prev,
       'indicator-codes-tabs': [...MODAL_INDICATOR_CODES],
-      'indicator-codes-filter': []
-    }));
+      'indicator-codes-filter': resetIndicatorFilters ? [] : prev['indicator-codes-filter'] ?? []
+    });
 
-    this.resultsCenterService.appliedFilters.update(prev => ({
-      ...prev,
-      'indicator-codes-tabs': [...MODAL_INDICATOR_CODES],
-      'indicator-codes-filter': []
-    }));
+    this.resultsCenterService.resultsFilter.update(prev => setIndicators(prev));
+    this.resultsCenterService.appliedFilters.update(prev => setIndicators(prev));
+  }
+
+  private resetModalFilters(): void {
+    this.resultsCenterService.showFiltersSidebar.set(false);
+    this.selectedResults.set([]);
+    this.searchInput.set('');
+    this.clearFilters();
   }
 
   onFiltersConfirm(): void {
