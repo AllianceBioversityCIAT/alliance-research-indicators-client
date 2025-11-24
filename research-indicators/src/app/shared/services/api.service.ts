@@ -579,7 +579,7 @@ export class ApiService {
 
   GET_LinkedResults = (id: number): Promise<MainResponse<LinkResultsResponse>> => {
     const url = () => `link-results/details/${id}`;
-    return this.TP.get(url(), {});
+    return this.TP.get(url(), {loadingTrigger: true, useResultInterceptor: true});
   };
 
   PATCH_LinkedResults = (id: number, body: LinkResultsResponse): Promise<MainResponse<LinkResultsResponse>> => {
