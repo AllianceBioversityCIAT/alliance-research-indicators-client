@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, effect, inject, signal, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, effect, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -19,7 +19,7 @@ import { ActionsService } from '@shared/services/actions.service';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 
-const MODAL_INDICATOR_CODES = [1, 2, 4, 6 ] as const;
+const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
 
 @Component({
   selector: 'app-select-linked-results-modal',
@@ -38,7 +38,7 @@ const MODAL_INDICATOR_CODES = [1, 2, 4, 6 ] as const;
   ],
   templateUrl: './select-linked-results-modal.component.html'
 })
-export class SelectLinkedResultsModalComponent implements OnInit {
+export class SelectLinkedResultsModalComponent implements OnInit, OnDestroy {
   allModalsService = inject(AllModalsService);
   resultsCenterService = inject(ResultsCenterService);
   cacheService = inject(CacheService);
@@ -50,6 +50,21 @@ export class SelectLinkedResultsModalComponent implements OnInit {
   selectedResults = signal<Result[]>([]);
   searchInput = signal('');
   saving = signal(false);
+  private modalWasOpen = false;
+  private readonly modalVisibilityWatcher = effect(
+    () => {
+      const modalConfig = this.allModalsService.isModalOpen('selectLinkedResults');
+      const isOpen = modalConfig?.isOpen ?? false;
+      if (isOpen && !this.modalWasOpen) {
+        void this.onModalOpened();
+      }
+      if (!isOpen && this.modalWasOpen) {
+        this.resetModalFilters();
+      }
+      this.modalWasOpen = isOpen;
+    },
+    { allowSignalWrites: true }
+  );
 
   selectedCount = computed(() => this.selectedResults().length);
 
@@ -62,6 +77,11 @@ export class SelectLinkedResultsModalComponent implements OnInit {
 
   ngOnInit(): void {
     void this.initialize();
+  }
+
+  ngOnDestroy(): void {
+    this.modalVisibilityWatcher.destroy();
+    this.onSearchInputChange.destroy();
   }
 
   setSearchInputFilter($event: Event) {
@@ -138,6 +158,8 @@ export class SelectLinkedResultsModalComponent implements OnInit {
 
   clearFilters(): void {
     this.resultsCenterService.clearAllFilters([...MODAL_INDICATOR_CODES]);
+    this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
+    void this.loadResultsForModal();
   }
 
   getScrollHeight = computed(
@@ -145,7 +167,12 @@ export class SelectLinkedResultsModalComponent implements OnInit {
   );
 
   private async initialize(): Promise<void> {
-    this.applyModalIndicatorFilter();
+    this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
+    await this.ensureResultsListLoaded();
+    await this.loadExistingLinkedResults();
+  }
+
+  private async onModalOpened(): Promise<void> {
     await this.ensureResultsListLoaded();
     await this.loadExistingLinkedResults();
   }
@@ -179,7 +206,6 @@ export class SelectLinkedResultsModalComponent implements OnInit {
       this.resultsCenterService.list.set([]);
       this.resultsCenterService.loading.set(true);
 
-      this.applyModalIndicatorFilter();
       await this.resultsCenterService.main();
     } catch (error) {
       console.error('Error loading results for modal', error);
@@ -189,18 +215,36 @@ export class SelectLinkedResultsModalComponent implements OnInit {
     }
   }
 
-  private applyModalIndicatorFilter(): void {
-    this.resultsCenterService.resultsFilter.update(prev => ({
-      ...prev,
-      'indicator-codes-tabs': [...MODAL_INDICATOR_CODES],
-      'indicator-codes-filter': []
-    }));
+  private applyModalIndicatorFilter(options: { resetIndicatorFilters?: boolean; tabsOverride?: readonly number[] } = {}): void {
+    const { resetIndicatorFilters = false, tabsOverride } = options;
+    const hasActiveIndicatorFilter =
+      (this.resultsCenterService.tableFilters().indicators?.length ?? 0) > 0 ||
+      (this.resultsCenterService.resultsFilter()['indicator-codes-filter']?.length ?? 0) > 0;
 
-    this.resultsCenterService.appliedFilters.update(prev => ({
+    let tabs: number[];
+    if (Array.isArray(tabsOverride)) {
+      tabs = [...tabsOverride];
+    } else if (resetIndicatorFilters || !hasActiveIndicatorFilter) {
+      tabs = [...MODAL_INDICATOR_CODES];
+    } else {
+      tabs = [];
+    }
+
+    const setIndicators = (prev: ResultFilter) => ({
       ...prev,
-      'indicator-codes-tabs': [...MODAL_INDICATOR_CODES],
-      'indicator-codes-filter': []
-    }));
+      'indicator-codes-tabs': tabs,
+      'indicator-codes-filter': resetIndicatorFilters ? [] : prev['indicator-codes-filter'] ?? []
+    });
+
+    this.resultsCenterService.resultsFilter.update(prev => setIndicators(prev));
+    this.resultsCenterService.appliedFilters.update(prev => setIndicators(prev));
+  }
+
+  private resetModalFilters(): void {
+    this.resultsCenterService.showFiltersSidebar.set(false);
+    this.selectedResults.set([]);
+    this.searchInput.set('');
+    this.clearFilters();
   }
 
   onFiltersConfirm(): void {
@@ -218,7 +262,11 @@ export class SelectLinkedResultsModalComponent implements OnInit {
     this.resultsCenterService.resultsFilter.update(updater);
     this.resultsCenterService.appliedFilters.update(updater);
 
-    this.applyModalIndicatorFilter();
+    const shouldUseDefaultIndicatorTabs = filters.indicators.length === 0;
+
+    this.applyModalIndicatorFilter({
+      tabsOverride: shouldUseDefaultIndicatorTabs ? [...MODAL_INDICATOR_CODES] : []
+    });
     void this.loadResultsForModal();
   }
 }

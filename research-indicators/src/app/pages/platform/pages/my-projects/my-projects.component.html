@@ -48,7 +48,7 @@
             <app-search-export-controls
               [showExportButton]="false"
               [searchValue]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput()"
-              [searchPlaceholder]="'Find a result by code, title or principal investigator'"
+              [searchPlaceholder]="'Find a project by code, title or principal investigator'"
               (searchChange)="setSearchInputFilter($event)">
             </app-search-export-controls>
 
