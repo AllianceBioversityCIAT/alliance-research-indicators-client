@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, effect } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, effect } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
@@ -22,12 +22,12 @@ const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
   imports: [FormHeaderComponent, NavigationButtonsComponent, S3ImageUrlPipe, TooltipModule, CustomTagComponent],
   templateUrl: './links-to-result.component.html'
 })
-export default class LinksToResultComponent implements OnInit {
-  private router = inject(Router);
-  private cache = inject(CacheService);
-  private route = inject(ActivatedRoute);
-  private api = inject(ApiService);
-  private actions = inject(ActionsService);
+export default class LinksToResultComponent implements OnInit, OnDestroy {
+  private readonly router = inject(Router);
+  private readonly cache = inject(CacheService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly api = inject(ApiService);
+  private readonly actions = inject(ActionsService);
   submission = inject(SubmissionService);
   allModalsService = inject(AllModalsService);
   resultsCenterService = inject(ResultsCenterService);
@@ -37,6 +37,8 @@ export default class LinksToResultComponent implements OnInit {
   saving = signal(false);
   private previousModalState = false;
 
+  private readonly modalWatcherCleanup: () => void;
+
   constructor() {
     effect(() => {
       const isModalOpen = this.allModalsService.modalConfig().selectLinkedResults.isOpen;
@@ -45,10 +47,16 @@ export default class LinksToResultComponent implements OnInit {
       }
       this.previousModalState = isModalOpen;
     });
+    this.allModalsService.setRefreshLinkedResults(() => this.loadLinkedResults());
+    this.modalWatcherCleanup = () => this.allModalsService.setRefreshLinkedResults(undefined);
   }
 
   ngOnInit(): void {
     void this.loadLinkedResults();
+  }
+
+  ngOnDestroy(): void {
+    this.modalWatcherCleanup();
   }
 
   async loadLinkedResults(): Promise<void> {
@@ -136,6 +144,7 @@ export default class LinksToResultComponent implements OnInit {
       });
 
       this.originalLinkedResults.set([...currentResults]);
+      await this.loadLinkedResults();
     } catch (error) {
       this.actions.showToast({
         severity: 'error',

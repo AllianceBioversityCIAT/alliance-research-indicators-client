@@ -53,7 +53,8 @@ describe('LinksToResultComponent', () => {
           isWide: true
         }
       }),
-      openModal: jest.fn()
+      openModal: jest.fn(),
+      setRefreshLinkedResults: jest.fn()
     } as unknown as jest.Mocked<AllModalsService>;
 
     await TestBed.configureTestingModule({

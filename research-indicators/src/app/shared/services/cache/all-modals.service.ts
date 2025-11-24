@@ -52,6 +52,8 @@ export class AllModalsService {
   setSelectLinkedResultsConfirm = (fn: () => void) => (this.selectLinkedResultsConfirm = fn);
   disabledSelectLinkedResults?: () => boolean;
   setDisabledSelectLinkedResults = (fn: () => boolean) => (this.disabledSelectLinkedResults = fn);
+  refreshLinkedResults?: () => Promise<void> | void;
+  setRefreshLinkedResults = (fn: (() => Promise<void> | void) | undefined) => (this.refreshLinkedResults = fn);
 
   setSubmitResultOrigin(origin: 'latest' | null): void {
     this.submitResultOrigin.set(origin);
@@ -248,6 +250,7 @@ export class AllModalsService {
 
     this.setSubmitResultOrigin(null);
     this.clearSubmissionData();
+    this.refreshLinkedResults = undefined;
 
     this.createResultManagementService.resetModal();
   }

@@ -133,6 +133,7 @@ export class SelectLinkedResultsModalComponent implements OnInit, OnDestroy {
     this.saving.set(true);
     try {
       await this.apiService.PATCH_LinkedResults(resultId, payload);
+      await this.allModalsService.refreshLinkedResults?.();
       this.actions.showToast({
         severity: 'success',
         summary: 'Linked results',
@@ -151,6 +152,7 @@ export class SelectLinkedResultsModalComponent implements OnInit, OnDestroy {
       this.saving.set(false);
     }
   }
+  
 
   showFiltersSidebar() {
     this.resultsCenterService.showFiltersSidebar.set(true);

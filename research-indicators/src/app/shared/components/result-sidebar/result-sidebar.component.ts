@@ -107,6 +107,7 @@ export class ResultSidebarComponent {
     {
       label: 'Links to result',
       path: 'links-to-result',
+      indicator_id: 5,
       greenCheckKey: 'link_result'
     },
     {
