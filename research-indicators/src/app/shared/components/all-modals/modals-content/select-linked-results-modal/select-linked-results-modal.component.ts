@@ -150,6 +150,8 @@ export class SelectLinkedResultsModalComponent implements OnInit {
 
   clearFilters(): void {
     this.resultsCenterService.clearAllFilters([...MODAL_INDICATOR_CODES]);
+    this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
+    void this.loadResultsForModal();
   }
 
   getScrollHeight = computed(
@@ -157,7 +159,7 @@ export class SelectLinkedResultsModalComponent implements OnInit {
   );
 
   private async initialize(): Promise<void> {
-    this.applyModalIndicatorFilter(true);
+    this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
     await this.ensureResultsListLoaded();
     await this.loadExistingLinkedResults();
   }
@@ -191,7 +193,6 @@ export class SelectLinkedResultsModalComponent implements OnInit {
       this.resultsCenterService.list.set([]);
       this.resultsCenterService.loading.set(true);
 
-      this.applyModalIndicatorFilter();
       await this.resultsCenterService.main();
     } catch (error) {
       console.error('Error loading results for modal', error);
@@ -201,10 +202,24 @@ export class SelectLinkedResultsModalComponent implements OnInit {
     }
   }
 
-  private applyModalIndicatorFilter(resetIndicatorFilters = false): void {
+  private applyModalIndicatorFilter(options: { resetIndicatorFilters?: boolean; tabsOverride?: readonly number[] } = {}): void {
+    const { resetIndicatorFilters = false, tabsOverride } = options;
+    const hasActiveIndicatorFilter =
+      (this.resultsCenterService.tableFilters().indicators?.length ?? 0) > 0 ||
+      (this.resultsCenterService.resultsFilter()['indicator-codes-filter']?.length ?? 0) > 0;
+
+    let tabs: number[];
+    if (Array.isArray(tabsOverride)) {
+      tabs = [...tabsOverride];
+    } else if (resetIndicatorFilters || !hasActiveIndicatorFilter) {
+      tabs = [...MODAL_INDICATOR_CODES];
+    } else {
+      tabs = [];
+    }
+
     const setIndicators = (prev: ResultFilter) => ({
       ...prev,
-      'indicator-codes-tabs': [...MODAL_INDICATOR_CODES],
+      'indicator-codes-tabs': tabs,
       'indicator-codes-filter': resetIndicatorFilters ? [] : prev['indicator-codes-filter'] ?? []
     });
 
@@ -234,7 +249,11 @@ export class SelectLinkedResultsModalComponent implements OnInit {
     this.resultsCenterService.resultsFilter.update(updater);
     this.resultsCenterService.appliedFilters.update(updater);
 
-    this.applyModalIndicatorFilter();
+    const shouldUseDefaultIndicatorTabs = filters.indicators.length === 0;
+
+    this.applyModalIndicatorFilter({
+      tabsOverride: shouldUseDefaultIndicatorTabs ? [...MODAL_INDICATOR_CODES] : []
+    });
     void this.loadResultsForModal();
   }
 }

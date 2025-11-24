@@ -13,8 +13,9 @@ import { ActionsService } from '@shared/services/actions.service';
 import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 import { getIndicatorIcon } from '@shared/constants/indicator-icon.constants';
+import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 
-const MODAL_INDICATOR_CODES = [1, 2, 4, 5] as const;
+const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
 
 @Component({
   selector: 'app-links-to-result',
@@ -29,7 +30,7 @@ export default class LinksToResultComponent implements OnInit {
   private actions = inject(ActionsService);
   submission = inject(SubmissionService);
   allModalsService = inject(AllModalsService);
-
+  resultsCenterService = inject(ResultsCenterService);
   linkedResults = signal<Result[]>([]);
   originalLinkedResults = signal<Result[]>([]);
   loading = signal(false);
@@ -170,6 +171,7 @@ export default class LinksToResultComponent implements OnInit {
   }
 
   openSearchLinkedResults(): void {
+    this.resultsCenterService.clearAllFilters([...MODAL_INDICATOR_CODES]);
     this.allModalsService.openModal('selectLinkedResults');
   }
 }

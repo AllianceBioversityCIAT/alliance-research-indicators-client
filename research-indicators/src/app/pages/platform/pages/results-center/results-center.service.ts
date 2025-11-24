@@ -422,17 +422,18 @@ export class ResultsCenterService {
       levers: []
     }));
 
-    this.resultsFilter.update(prev => ({
-      ...prev,
-      'indicator-codes-filter': [],
-      'indicator-codes-tabs': preserveIndicatorCodes ? [...preserveIndicatorCodes] : []
-    }));
+    const preserved = preserveIndicatorCodes ? [...preserveIndicatorCodes] : [];
 
-    this.appliedFilters.update(prev => ({
+    const withPreservedIndicators = (prev: ResultFilter) => ({
       ...prev,
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': preserveIndicatorCodes ? [...preserveIndicatorCodes] : []
-    }));
+      'indicator-codes-tabs': preserved,
+      'indicator-codes': preserved,
+      'create-user-codes': []
+    });
+
+    this.resultsFilter.update(withPreservedIndicators);
+    this.appliedFilters.update(withPreservedIndicators);
 
     // clear search input
     this.searchInput.set('');
