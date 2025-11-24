@@ -24,7 +24,7 @@
     </div>
     <div class="w-full">
       <h2 class="text-[18px] font-[600] text-[#153C71] pb-1">Link<span class="text-[15px] text-[#CF0808]">*</span></h2>
-      <app-input [signal]="body" [optionValue]="'link'" [isRequired]="true" [validateEmpty]="true" pattern="url" placeholder="Enter the link" (ngModelChange)="onLinkChange()"></app-input>
+      <app-input [signal]="body" [disabled]="!submission.isEditableStatus()" [optionValue]="'link'" [isRequired]="true" [validateEmpty]="true" pattern="url" placeholder="Enter the link" (ngModelChange)="onLinkChange()"></app-input>
     </div>
   </div>
 </div>

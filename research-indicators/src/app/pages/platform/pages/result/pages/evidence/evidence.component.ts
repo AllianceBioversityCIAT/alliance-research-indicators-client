@@ -29,7 +29,7 @@ export default class EvidenceComponent {
   submission = inject(SubmissionService);
   versionWatcher = inject(VersionWatcherService);
   route = inject(ActivatedRoute);
-  otherReferences = signal<OtherReferenceItemData[]>([this.createEmptyOtherReference()]);
+  otherReferences = signal<OtherReferenceItemData[]>([]);
 
   constructor() {
     this.versionWatcher.onVersionChange(() => this.getData());
@@ -91,7 +91,7 @@ export default class EvidenceComponent {
 
   addOtherReference() {
     if (!this.submission.isEditableStatus()) return;
-    const next = [...this.otherReferences(), this.createEmptyOtherReference()];
+    const next = [...this.otherReferences(), { type_id: null, link: '' }];
     this.otherReferences.set(next);
   }
 
@@ -130,10 +130,7 @@ export default class EvidenceComponent {
       return;
     }
 
-    this.otherReferences.set([this.createEmptyOtherReference()]);
+    this.otherReferences.set([]);
   }
 
-  private createEmptyOtherReference(): OtherReferenceItemData {
-    return { type_id: null, link: '' };
-  }
 }
