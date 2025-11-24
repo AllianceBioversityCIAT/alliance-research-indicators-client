@@ -17,7 +17,7 @@
 
   <div class="flex p-[25px] pb-4 flex-wrap items-center justify-between font-medium full text-[13px] mb-[15px] text-[#777c83] title">
     FORM PROGRESS
-    @if (cache.currentMetadata().indicator_id === 5) {
+    @if (roles.isAdmin() && cache.currentMetadata().indicator_id === 5) {
       <app-status-dropdown 
         [statusId]="cache.currentMetadata().status_id ?? 0" 
         [statusName]="cache.currentMetadata().status_name ?? ''"
