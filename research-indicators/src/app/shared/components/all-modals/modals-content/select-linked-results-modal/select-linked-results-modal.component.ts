@@ -18,6 +18,8 @@ import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 import { ActionsService } from '@shared/services/actions.service';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-center/components/table-filters-sidebar/table-filters-sidebar.component';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
+import { Router, RouterLink, UrlTree } from '@angular/router';
 
 const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
 
@@ -34,7 +36,8 @@ const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
     FiltersActionButtonsComponent,
     SearchExportControlsComponent,
     SectionSidebarComponent,
-    TableFiltersSidebarComponent
+    TableFiltersSidebarComponent,
+    RouterLink
   ],
   templateUrl: './select-linked-results-modal.component.html'
 })
@@ -44,6 +47,7 @@ export class SelectLinkedResultsModalComponent implements OnInit, OnDestroy {
   cacheService = inject(CacheService);
   apiService = inject(ApiService);
   actions = inject(ActionsService);
+  private readonly router = inject(Router);
 
   @ViewChild('dt2') dt2!: Table;
 
@@ -86,6 +90,64 @@ export class SelectLinkedResultsModalComponent implements OnInit, OnDestroy {
 
   setSearchInputFilter($event: Event) {
     this.searchInput.set(($event.target as HTMLInputElement).value);
+  }
+
+  getResultHref(result: Result): string {
+    if (result.platform_code === PLATFORM_CODES.PRMS) {
+      this.onResultLinkClick(result);
+      return '';
+    }
+    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+    let urlTree: UrlTree;
+    if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
+      const latestYear = Math.max(...result.snapshot_years);
+      urlTree = this.router.createUrlTree(['/result', resultCode, 'general-information'], {
+        queryParams: { version: latestYear }
+      });
+    } else {
+      urlTree = this.router.createUrlTree(['/result', resultCode]);
+    }
+    return this.router.serializeUrl(urlTree);
+  }
+
+  openResult(result: Result) {
+    this.resultsCenterService.clearAllFilters();
+    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP) {
+      this.allModalsService.selectedResultForInfo.set(result);
+      this.allModalsService.openModal('resultInformation');
+      return;
+    }
+    const href = this.getResultHref(result);
+    this.openHrefInNewTab(href);
+  }
+
+  openResultByYear(result: number, year: string | number, platformCode: string) {
+    if (platformCode === PLATFORM_CODES.PRMS) {
+      return;
+    }
+    this.resultsCenterService.clearAllFilters();
+    const resultCode = `${platformCode}-${result}`;
+    const tree = this.router.createUrlTree(['/result', resultCode], {
+      queryParams: { version: year }
+    });
+    const href = this.router.serializeUrl(tree);
+    this.openHrefInNewTab(href);
+  }
+
+  onResultLinkClick(result: Result): void {
+    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS) {
+      this.allModalsService.selectedResultForInfo.set(result);
+      this.allModalsService.openModal('resultInformation');
+    }
+  }
+
+  private openHrefInNewTab(href: string): void {
+    if (!href) {
+      return;
+    }
+    const baseOrigin = globalThis.location?.origin ?? '';
+    const absoluteUrl = href.startsWith('http') ? href : new URL(href, baseOrigin).toString();
+    globalThis.open?.(absoluteUrl, '_blank', 'noopener');
   }
 
   formatResultCode(code: string | number): string {

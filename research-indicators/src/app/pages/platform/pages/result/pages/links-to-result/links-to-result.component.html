@@ -57,13 +57,18 @@
                     {{ result.title }}
                   </p>
                   <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
-                    @if (result.result_status?.result_status_id && result.result_status?.name) {
-                      <app-custom-tag [statusId]="result.result_status!.result_status_id" [statusName]="result.result_status!.name"></app-custom-tag>
-                    }
+                
                     @if (result.result_contracts?.contract_id) {
                       <span class="text-[#8D9299] text-[12px] !font-['Space_Grotesk']">
-                        Reporting Project <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pr-1.5 pl-1"></i>
-                        <span class="text-[#345B8F]">{{ result.result_contracts?.contract_id }}</span>
+                        @if (result.result_status?.result_status_id && result.result_status?.name) {
+                          <app-custom-tag [statusId]="result.result_status!.result_status_id" [statusName]="result.result_status!.name" class="pr-1.5"></app-custom-tag>
+                        }
+                         Reporting Project <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pr-1.5 pl-1"></i>
+                        <span class="text-[#345B8F] uppercase font-medium">{{ result.result_contracts?.contract_id }} 
+                          @if (result.result_contracts?.contract?.description) {
+                            {{ result.result_contracts?.contract?.description }}
+                          }
+                        </span>
                       </span>
                     }
                   </div>
