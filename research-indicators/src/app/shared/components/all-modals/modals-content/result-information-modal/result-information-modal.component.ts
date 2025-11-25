@@ -42,12 +42,12 @@ export class ResultInformationModalComponent {
 
   openExternalLink(): void {
     const currentResult = this.result();
-    if (!currentResult) return;
+    const link = currentResult?.external_link;
+    if (!currentResult || !link) return;
 
-    if (currentResult.platform_code === PLATFORM_CODES.TIP && currentResult.external_link) {
-      globalThis.open(currentResult.external_link, '_blank');
-    } else if (currentResult.platform_code === PLATFORM_CODES.PRMS && currentResult.external_link) {
-      globalThis.open(currentResult.external_link, '_blank');
+    const isSupportedPlatform = currentResult.platform_code === PLATFORM_CODES.TIP || currentResult.platform_code === PLATFORM_CODES.PRMS;
+    if (isSupportedPlatform) {
+      globalThis.open(link, '_blank', 'noopener');
     }
   }
 }
