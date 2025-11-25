@@ -18,6 +18,7 @@ import { GetSdgsService } from '@shared/services/control-list/get-sdgs.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 import { Lever, LeverStrategicOutcome } from '@shared/interfaces/oicr-creation.interface';
+import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -167,14 +168,39 @@ export default class AllianceAlignmentComponent {
     this.loading.set(false);
   }
 
-  markAsPrimary(item: { is_primary: boolean }, type: 'contract' | 'lever' | 'sdg') {
+  markAsPrimary(item: { is_primary: boolean; contract_id?: string | number; lever_id?: string | number; sdg_id?: number }, type: 'contract' | 'lever' | 'sdg') {
     this.body.update(current => {
       if (type === 'contract') {
-        current.contracts.forEach(contract => (contract.is_primary = false));
+        const contracts = current.contracts.map(contract => {
+          const isTargetContract = contract.contract_id === item.contract_id;
+          return {
+            ...contract,
+            is_primary: isTargetContract ? !contract.is_primary : false
+          };
+        });
+        return { ...current, contracts };
+      } else if (type === 'lever') {
+        const updatedPrimaryLevers = current.primary_levers.map(lever => {
+          const isTargetLever = lever.lever_id === item.lever_id;
+          return {
+            ...lever,
+            is_primary: isTargetLever ? !lever.is_primary : false
+          };
+        });
+        return { ...current, primary_levers: updatedPrimaryLevers };
+      } else if (type === 'sdg') {
+        const updatedResultSdgs = current.result_sdgs.map(sdg => {
+          const sdgWithId = sdg as GetSdgs & { sdg_id?: number; is_primary?: boolean };
+          const isTargetSdg = sdgWithId.sdg_id === item.sdg_id;
+          return {
+            ...sdg,
+            is_primary: isTargetSdg ? !sdgWithId.is_primary : false
+          } as GetSdgs & { sdg_id: number; is_primary: boolean };
+        });
+        return { ...current, result_sdgs: updatedResultSdgs };
       }
-      return { ...current };
+      return current;
     });
-    item.is_primary = !item.is_primary;
     this.actions.saveCurrentSection();
   }
 

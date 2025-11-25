@@ -180,18 +180,20 @@ describe('AllianceAlignmentComponent', () => {
   it('should call markAsPrimary for contract', () => {
     const contract1 = { is_primary: false, is_active: true, result_contract_id: 1, result_id: 1, contract_id: '1', contract_role_id: 1 };
     const contract2 = { is_primary: true, is_active: true, result_contract_id: 2, result_id: 1, contract_id: '2', contract_role_id: 1 };
-    component.body.set({ contracts: [contract1, contract2], result_sdgs: [] });
+    component.body.set({ contracts: [contract1, contract2], result_sdgs: [], primary_levers: [], contributor_levers: [] });
     component.markAsPrimary(contract1, 'contract');
-    expect(contract1.is_primary).toBe(true);
-    expect(contract2.is_primary).toBe(false);
+    const updatedContracts = component.body().contracts;
+    expect(updatedContracts.find(c => c.contract_id === '1')?.is_primary).toBe(true);
+    expect(updatedContracts.find(c => c.contract_id === '2')?.is_primary).toBe(false);
     expect(actions.saveCurrentSection).toHaveBeenCalled();
   });
 
   it('should call markAsPrimary for lever', () => {
-    const lever1 = { is_primary: false, is_active: true, result_contract_id: 1, result_id: 1, contract_id: '1', contract_role_id: 1 };
-    component.body.set({ contracts: [lever1], result_sdgs: [] });
+    const lever1 = { is_primary: false, lever_id: 1, result_lever_strategic_outcomes: [] };
+    component.body.set({ contracts: [], result_sdgs: [], primary_levers: [lever1], contributor_levers: [] });
     component.markAsPrimary(lever1, 'lever');
-    expect(lever1.is_primary).toBe(true);
+    const updatedLevers = component.body().primary_levers;
+    expect(updatedLevers.find(l => l.lever_id === 1)?.is_primary).toBe(true);
     expect(actions.saveCurrentSection).toHaveBeenCalled();
   });
 
