@@ -331,6 +331,16 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   private processRowClick(target: Element, event: MouseEvent) {
     this.lastClickedElement = target;
     
+    // Ignore clicks from PrimeNG Calendar component
+    if (target.closest('.p-calendar') || 
+        target.closest('.p-datepicker') || 
+        target.closest('.p-calendar-panel') || 
+        target.closest('.p-datepicker-panel') ||
+        target.closest('[class*="p-calendar"]') ||
+        target.closest('[class*="p-datepicker"]')) {
+      return;
+    }
+    
     if (target.closest('thead') || target.closest('th') || target.tagName.toLowerCase() === 'th') {
       return;
     }
