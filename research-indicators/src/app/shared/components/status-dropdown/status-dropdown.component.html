@@ -1,7 +1,7 @@
 <div class="status-dropdown-container relative inline-block">
   <div
     class="inline-flex items-center px-2.5 py-0.5 border-1 rounded-[6px] text-[12px] font-medium uppercase cursor-pointer"
-    [style.border-color]="getColors().border"
+    [style.border-color]="getColors().border" (keydown.enter)="toggleDropdown($event)"
     [style.color]="getColors().text"
     (click)="toggleDropdown($event)">
     <span class="font-semibold">{{ statusName }}</span>
@@ -14,7 +14,7 @@
       @for (status of getAvailableStatuses(); track status.id) {
         <div
           class="flex items-center gap-2.5 py-2 px-5 cursor-pointer hover:bg-[#F4F7F9] transition-colors"
-          (click)="selectStatus(status.id, $event)">
+          (click)="selectStatus(status.id, $event)" (keydown.enter)="selectStatus(status.id, $event)">
           <div class="w-4 h-4 flex items-center justify-center">
             @if (status.direction === 'previous') {
               <div class="p-1.5 bg-[#E8EBED] rounded-sm flex items-center justify-center">

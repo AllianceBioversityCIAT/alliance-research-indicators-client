@@ -26,7 +26,7 @@ export class TableFiltersSidebarComponent implements AfterViewInit {
   @Input() forceIndicatorFilter = false;
 
   indicatorOptionFilter = (indicator: { indicator_id?: number } | null) => {
-    if (!indicator || indicator.indicator_id == null) return true;
+    if (indicator?.indicator_id == null) return true;
     const id = Number(indicator.indicator_id);
     if (Number.isNaN(id)) return true;
     return !this.indicatorHiddenIds.includes(id);
