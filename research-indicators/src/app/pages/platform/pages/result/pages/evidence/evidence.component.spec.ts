@@ -156,7 +156,7 @@ describe('EvidenceComponent', () => {
   it('should navigate to back page', async () => {
     const spy = jest.spyOn(router, 'navigate');
     await component.saveData('back');
-    expect(spy).toHaveBeenCalledWith(['result', 123, 'geographic-scope'], expect.anything());
+    expect(spy).toHaveBeenCalledWith(['result', 123, 'links-to-result'], expect.anything());
   });
 
   it('should navigate to next page', async () => {
@@ -246,7 +246,7 @@ describe('EvidenceComponent', () => {
     await component.saveData('back');
 
     const call = (router.navigate as jest.Mock).mock.calls.pop();
-    expect(call[0]).toEqual(['result', 123, 'geographic-scope']);
+    expect(call[0]).toEqual(['result', 123, 'links-to-result']);
     expect(call[1].queryParams).toBeUndefined();
     expect(call[1].replaceUrl).toBe(true);
   });
@@ -308,9 +308,9 @@ describe('EvidenceComponent', () => {
     route.snapshot.queryParamMap.get = (key: string) => key === 'version' ? '1.0' : null;
     const spy = jest.spyOn(router, 'navigate');
     
-    (component as any).navigateTo('geographic-scope');
+    (component as any).navigateTo('links-to-result');
     
-    expect(spy).toHaveBeenCalledWith(['result', 123, 'geographic-scope'], {
+    expect(spy).toHaveBeenCalledWith(['result', 123, 'links-to-result'], {
       queryParams: { version: '1.0' },
       replaceUrl: true
     });

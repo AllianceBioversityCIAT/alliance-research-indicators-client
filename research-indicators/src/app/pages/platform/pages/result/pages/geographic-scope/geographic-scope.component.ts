@@ -150,7 +150,7 @@ export default class GeographicScopeComponent {
       });
     }
     if (page === 'back') navigateTo('partners');
-    if (page === 'next') navigateTo('evidence');
+    if (page === 'next') navigateTo('links-to-result');
 
     this.loading.set(false);
   }

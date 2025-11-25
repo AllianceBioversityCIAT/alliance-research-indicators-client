@@ -3,7 +3,11 @@
     <div class="bg-white rounded-2xl border border-[#E8EBED] p-6">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-3">
-        <img [src]="'images/prms-reporting-tool.svg' | s3ImageUrl" alt="PRMS Reporting Tool" class="w-13" />
+        @if (result()?.platform_code === 'TIP') {
+          <img [src]="'images/tracking.svg' | s3ImageUrl" alt="TIP" class="w-6" />
+        } @else {
+          <img [src]="'images/prms-reporting-tool.svg' | s3ImageUrl" alt="PRMS Reporting Tool" class="w-13" />
+        }
 
         <div class="flex items-center text-[11px]">
 
@@ -91,14 +95,19 @@
       <div class="mt-8 flex flex-wrap gap-3">
         <button
         type="button"
-        class="flex cursor-pointer items-center gap-2 border-1 border-[#035BA9] text-[#035BA9] px-6 py-2 rounded-[13px] text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:border-[#E8EBED] disabled:text-[#A2A9AF]">
+        class="{{ result()?.platform_code === 'TIP' ? 'hidden' : '' }} flex cursor-pointer items-center gap-2 border-1 border-[#035BA9] text-[#035BA9] px-6 py-2 rounded-[13px] text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:border-[#E8EBED] disabled:text-[#A2A9AF]">
         Open Pdf
         <i class="pi pi-file-pdf !text-[14px]"></i> 
       </button>
       <button
       type="button"
+      (click)="openExternalLink()"
       class="flex cursor-pointer items-center gap-2  bg-[#035BA9] text-white px-6 py-2 rounded-[13px] text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:border-[#E8EBED] disabled:text-[#A2A9AF]">
-      Open result in PRMS
+      @if (result()?.platform_code === 'TIP') {
+        Open result in CGSpace
+      } @else {
+        Open result in PRMS
+      }
       <i class="pi pi-external-link !text-[12px]"></i> 
     </button>
       </div>

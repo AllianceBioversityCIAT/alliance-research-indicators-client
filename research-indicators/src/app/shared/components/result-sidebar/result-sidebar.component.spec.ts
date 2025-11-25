@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ResultSidebarComponent } from './result-sidebar.component';
 import { ActivatedRoute, Router, NavigationEnd, ParamMap } from '@angular/router';
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CacheService } from '@shared/services/cache/cache.service';
@@ -11,6 +11,7 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { of } from 'rxjs';
+import { RolesService } from '@shared/services/cache/roles.service';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 
 describe('ResultSidebarComponent', () => {
@@ -24,6 +25,7 @@ describe('ResultSidebarComponent', () => {
   let submissionService: Partial<SubmissionService>;
   let router: Partial<Router>;
   let route: Partial<ActivatedRoute>;
+  let rolesService: Partial<RolesService>;
 
   beforeEach(async () => {
     cacheService = {
@@ -33,7 +35,7 @@ describe('ResultSidebarComponent', () => {
         status_id: 1
       }),
       currentResultId: signal(123),
-      getCurrentNumericResultId: jest.fn(() => 123),
+      getCurrentNumericResultId: computed(() => 123),
       greenChecks: signal({
         general_information: 1,
         alignment: 0,
@@ -45,7 +47,7 @@ describe('ResultSidebarComponent', () => {
         evidences: 0,
         ip_rights: 1
       } as GreenChecks),
-      allGreenChecksAreTrue: jest.fn().mockReturnValue(true) as any
+      allGreenChecksAreTrue: signal(true)
     };
 
     actionsService = {
@@ -91,6 +93,10 @@ describe('ResultSidebarComponent', () => {
       } as any
     };
 
+    rolesService = {
+      isAdmin: computed(() => true)
+    };
+
     await TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, RouterTestingModule, ResultSidebarComponent],
       providers: [
@@ -101,7 +107,8 @@ describe('ResultSidebarComponent', () => {
         { provide: GetMetadataService, useValue: metadataService },
         { provide: SubmissionService, useValue: submissionService },
         { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: route }
+        { provide: ActivatedRoute, useValue: route },
+        { provide: RolesService, useValue: rolesService }
       ]
     }).compileComponents();
 
@@ -122,10 +129,10 @@ describe('ResultSidebarComponent', () => {
       expect(options.length).toBeGreaterThan(0);
 
       // Check that greenCheck property is added
-      options.forEach(option => {
+      for (const option of options) {
         expect(option).toHaveProperty('greenCheck');
         expect(typeof option.greenCheck).toBe('boolean');
-      });
+      }
     });
 
     it('should handle options with different indicator_ids', () => {
@@ -145,9 +152,9 @@ describe('ResultSidebarComponent', () => {
 
       const options = component.allOptionsWithGreenChecks();
 
-      options.forEach(option => {
+      for (const option of options) {
         expect(option.greenCheck).toBe(false);
-      });
+      }
     });
   });
 

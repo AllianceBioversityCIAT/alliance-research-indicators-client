@@ -6,6 +6,7 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 import { PLATFORM_COLOR_MAP } from '@shared/constants/platform-colors';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 
 @Component({
   selector: 'app-result-information-modal',
@@ -37,6 +38,17 @@ export class ResultInformationModalComponent {
     if (primaryLevers.length === 0) return '-';
     const text = primaryLevers.map(l => l.lever?.short_name ?? '').filter(v => v.length > 0).join(', ');
     return text || '-';
+  }
+
+  openExternalLink(): void {
+    const currentResult = this.result();
+    const link = currentResult?.external_link;
+    if (!currentResult || !link) return;
+
+    const isSupportedPlatform = currentResult.platform_code === PLATFORM_CODES.TIP || currentResult.platform_code === PLATFORM_CODES.PRMS;
+    if (isSupportedPlatform) {
+      globalThis.open(link, '_blank', 'noopener');
+    }
   }
 }
 

@@ -12,4 +12,7 @@ export const STATUS_COLOR_MAP: Record<string, { border: string; text: string, ba
   '9': { border: '#E69F00', text: '#F58220' },
   '10': { border: '#7CB580', text: '#235B2D' }, // OICR Approved - Green border, dark green text
   '11': { border: '#E69F00', text: '#F58220', background: '#FFF6ED' }, // OICR Postpone - Orange border, dark orange text
+  '12': { border: '#345B8F', text: '#345B8F' }, // Science Edition - Blue
+  '13': { border: '#112F5C', text: '#112F5C' }, // KM Curation - Blue
+  '14': { border: '#7CB580', text: '#358540' }, // Published - Green border, dark green text
 };

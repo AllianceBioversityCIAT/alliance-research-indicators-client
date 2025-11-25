@@ -1,5 +1,6 @@
 export class PatchResultEvidences {
   evidence: Evidence[] = [];
+  notable_references: NotableReference[] = [];
 }
 
 export class Evidence {
@@ -10,4 +11,9 @@ export class Evidence {
   evidence_url = '';
   evidence_role_id = null;
   is_private = false;
+}
+
+export class NotableReference {
+  notable_reference_type_id: number | null = null;
+  link = '';
 }

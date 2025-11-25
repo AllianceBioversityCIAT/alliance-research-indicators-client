@@ -242,7 +242,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   openResult(result: Result) {
     this.resultsCenterService.clearAllFilters();
-    if (result.platform_code === PLATFORM_CODES.PRMS) {
+    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
       return;
@@ -283,6 +283,9 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   getResultRouteArray(result: Result): string | string[] {
+    if (result.platform_code === PLATFORM_CODES.TIP) {
+      return [];
+    }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       return ['/result', resultCode, 'general-information'];
@@ -305,10 +308,10 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   onResultLinkClick(result: Result): void {
-    if (result.platform_code === PLATFORM_CODES.PRMS) {
+    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
-    }
+    } 
   }
 
   ngAfterViewInit() {
@@ -327,10 +330,17 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   private processRowClick(target: Element, event: MouseEvent) {
     this.lastClickedElement = target;
+    
+    if (target.closest('thead') || target.closest('th') || target.tagName.toLowerCase() === 'th') {
+      return;
+    }
+    
     const rowEl = target.closest('tr');
     if (!rowEl) return;
+    
     const tbody = rowEl.parentElement;
-    if (!tbody) return;
+    if (!tbody || tbody.tagName.toLowerCase() !== 'tbody') return;
+    
     const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
     const rowIndex = rows.indexOf(rowEl);
     if (rowIndex < 0) return;
@@ -338,7 +348,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     const pageStart: number = this.dt2.first || 0;
     const idx = pageStart + rowIndex;
     const result = data[idx] as Result | undefined;
-    if (result && result.platform_code === PLATFORM_CODES.PRMS) {
+    if (result && (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP)) {
       event.preventDefault();
       event.stopPropagation();
       this.allModalsService.selectedResultForInfo.set(result);

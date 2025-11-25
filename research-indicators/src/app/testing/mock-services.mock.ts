@@ -61,6 +61,7 @@ export const cacheServiceMock = {
   currentResultIsLoading: jest.fn().mockReturnValue(false),
   loading: jest.fn().mockReturnValue(false),
   headerHeight: signal(0),
+  navbarHeight: signal(0),
   showSubmissionHistory: signal(false),
   isMyResult: jest.fn().mockReturnValue(true),
   extractNumericId: jest.fn((id: string | number) => {
@@ -538,7 +539,17 @@ export const apiServiceMock = {
   GET_SessionLength: jest.fn(),
   GET_AllResultStatus: jest.fn(),
   GET_UserStaff: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
-  GET_FindContracts: jest.fn().mockImplementation(() => Promise.resolve({ data: [] }))
+  GET_FindContracts: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
+  indicatorTabs: {
+    lazy: jest.fn().mockReturnValue({
+      isLoading: signal(false),
+      hasValue: signal(false),
+      list: signal([])
+    }),
+    fetch: jest.fn(),
+    promise: jest.fn(),
+    setReferenceName: jest.fn()
+  }
 } as unknown as jest.Mocked<ApiService>;
 
 export const httpClientMock = {

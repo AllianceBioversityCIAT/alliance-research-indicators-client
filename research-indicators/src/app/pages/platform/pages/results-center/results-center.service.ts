@@ -76,7 +76,8 @@ export class ResultsCenterService {
       field: 'status',
       path: 'result_status.name',
       header: 'Status',
-      maxWidth: 'max-w-[100px]',
+      minWidth: 'min-w-[150px]',
+      maxWidth: 'max-w-[150px]',
       getValue: (result: Result) => result.result_status?.name ?? '-'
     },
     {
@@ -125,7 +126,7 @@ export class ResultsCenterService {
       field: 'creation_date',
       path: 'created_at',
       header: 'Creation Date',
-      minWidth: 'min-w-[100px]',
+      minWidth: 'min-w-[120px]',
 
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
@@ -410,7 +411,7 @@ export class ResultsCenterService {
     }));
   }
 
-  clearAllFilters() {
+  clearAllFilters(preserveIndicatorCodes?: readonly number[]) {
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
@@ -421,17 +422,18 @@ export class ResultsCenterService {
       levers: []
     }));
 
-    this.resultsFilter.update(prev => ({
-      ...prev,
-      'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
-    }));
+    const preserved = preserveIndicatorCodes ? [...preserveIndicatorCodes] : [];
 
-    this.appliedFilters.update(prev => ({
+    const withPreservedIndicators = (prev: ResultFilter) => ({
       ...prev,
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
-    }));
+      'indicator-codes-tabs': preserved,
+      'indicator-codes': preserved,
+      'create-user-codes': []
+    });
+
+    this.resultsFilter.update(withPreservedIndicators);
+    this.appliedFilters.update(withPreservedIndicators);
 
     // clear search input
     this.searchInput.set('');

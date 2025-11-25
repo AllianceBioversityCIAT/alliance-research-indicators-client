@@ -9,7 +9,7 @@
         <i class="{{ cache.currentMetadata().indicator_name === 'Policy Change' ? 'pi pi-folder-open' : 'pi pi-users' }} !text-[16px]"> </i>
       </span>
 
-      <span class="text-[#153C71] leading-4 font-bold uppercase text-[14px]">{{ cache.currentMetadata().indicator_name }}</span>
+      <span class="text-[#153C71] leading-4 font-bold uppercase text-[14px]">{{ cache.currentMetadata().indicator_name}}</span>
     </div>
   </div>
 
@@ -17,7 +17,15 @@
 
   <div class="flex p-[25px] pb-4 flex-wrap items-center justify-between font-medium full text-[13px] mb-[15px] text-[#777c83] title">
     FORM PROGRESS
-    <app-custom-tag [statusId]="cache.currentMetadata().status_id ?? ''" [statusName]="cache.currentMetadata().status_name ?? ''"></app-custom-tag>
+    @if (roles.isAdmin() && cache.currentMetadata().indicator_id === 5) {
+      <app-status-dropdown 
+        [statusId]="cache.currentMetadata().status_id ?? 0" 
+        [statusName]="cache.currentMetadata().status_name ?? ''"
+        (statusChange)="onStatusChange($event)">
+      </app-status-dropdown>
+    } @else {
+      <app-custom-tag [statusId]="cache.currentMetadata().status_id ?? ''" [statusName]="cache.currentMetadata().status_name ?? ''"></app-custom-tag>
+    }
     <div class="flex w-full text-[14px] -mt-1 font-normal">
       <span class="text-[#70ae74] pr-1">{{ getCompletedCount() }}/{{ getTotalCount() }}</span> sections completed
     </div>

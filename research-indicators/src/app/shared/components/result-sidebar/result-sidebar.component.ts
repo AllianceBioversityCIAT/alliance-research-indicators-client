@@ -11,7 +11,9 @@ import { ApiService } from '../../services/api.service';
 import { GetMetadataService } from '../../services/get-metadata.service';
 import { SubmissionService } from '../../services/submission.service';
 import { CustomTagComponent } from '../custom-tag/custom-tag.component';
+import { StatusDropdownComponent } from '../status-dropdown/status-dropdown.component';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 interface SubmissionAlertData {
   severity: 'success' | 'warning';
@@ -32,7 +34,7 @@ interface SidebarOption {
 
 @Component({
   selector: 'app-result-sidebar',
-  imports: [CustomTagComponent, RouterLink, RouterLinkActive, ButtonModule, CommonModule, TooltipModule, S3ImageUrlPipe],
+  imports: [CustomTagComponent, StatusDropdownComponent, RouterLink, RouterLinkActive, ButtonModule, CommonModule, TooltipModule, S3ImageUrlPipe],
   templateUrl: './result-sidebar.component.html',
   styleUrl: './result-sidebar.component.scss'
 })
@@ -45,6 +47,7 @@ export class ResultSidebarComponent {
   router = inject(Router);
   route = inject(ActivatedRoute);
   submissionService = inject(SubmissionService);
+  roles = inject(RolesService);
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions()
       .filter(option => option?.indicator_id === this.cache.currentMetadata()?.indicator_id || !option?.indicator_id)
@@ -100,6 +103,12 @@ export class ResultSidebarComponent {
       underConstruction: false,
       hide: false,
       greenCheckKey: 'geo_location'
+    },
+    {
+      label: 'Links to result',
+      path: 'links-to-result',
+      indicator_id: 5,
+      greenCheckKey: 'link_result'
     },
     {
       label: 'Evidence',
@@ -208,5 +217,37 @@ export class ResultSidebarComponent {
 
     const id = this.route.snapshot.paramMap.get('id');
     return ['/result', id!, option.path];
+  }
+
+  async onStatusChange(newStatusId: number): Promise<void> {
+    try {
+      const response = await this.api.PATCH_SubmitResult({
+        resultCode: this.cache.getCurrentNumericResultId(),
+        comment: '',
+        status: newStatusId
+      });
+      
+      if (response.successfulRequest) {
+        this.metadata.update(this.cache.getCurrentNumericResultId());
+        this.actions.showToast({
+          severity: 'success',
+          summary: 'Status updated',
+          detail: 'The status has been updated successfully'
+        });
+      } else {
+        this.actions.showToast({
+          severity: 'error',
+          summary: 'Error',
+          detail: response.errorDetail?.errors || 'Unable to update status, please try again'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Unable to update status, please try again'
+      });
+    }
   }
 }

@@ -1,7 +1,8 @@
 <div
   class="container z-2"
   [class.show-sidebar]="this.showSignal()"
-  [style.height]="'calc(100vh - ' + (this.cache.navbarHeight() + this.cache.headerHeight() - (subtractExtraOffset ? 4 : 0)) + 'px)'">
+  [style.height]="customHeight || 'calc(100vh - ' + (this.cache.navbarHeight() + this.cache.headerHeight() - (subtractExtraOffset ? 4 : 0)) + 'px)'"
+  [style.top]="customTopOffset || 'unset'">
   <div class="content">
     <div class="header">
       <div class="title-container">

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, flush } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import AllianceAlignmentComponent from './alliance-alignment.component';
@@ -61,6 +61,10 @@ describe('AllianceAlignmentComponent', () => {
     router = new RouterMock();
     submission = new SubmissionServiceMock();
     route = { snapshot: { paramMap: { get: (k: string) => (k === 'id' ? '1' : null) }, queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } };
+    
+    // Mock GET_Alignments before component creation to avoid constructor error
+    api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+    
     await TestBed.configureTestingModule({
       imports: [AllianceAlignmentComponent, HttpClientTestingModule],
       providers: [
@@ -108,6 +112,15 @@ describe('AllianceAlignmentComponent', () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [{ id: 1 }] } });
     jest.spyOn(component, 'getData');
+    
+    // Set result_sdgs to ensure line 145 is covered
+    component.body.set({
+      contracts: [],
+      result_sdgs: [{ id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01' }],
+      primary_levers: [],
+      contributor_levers: []
+    });
+    
     await component.saveData();
     expect(api.PATCH_Alignments).toHaveBeenCalledWith(
       1,
@@ -190,5 +203,458 @@ describe('AllianceAlignmentComponent', () => {
   it('should call canRemove and return false if not editable', () => {
     submission.isEditableStatus.mockReturnValue(false);
     expect(component.canRemove()).toBe(false);
+  });
+
+  describe('saveData with lever outcomes', () => {
+    it('should normalize outcomes when value is a number', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
+      component.body.set({ 
+        contracts: [], 
+        result_sdgs: [],
+        primary_levers: [lever],
+        contributor_levers: []
+      });
+      
+      const signal = component.getLeverSignal(lever);
+      signal.set({ result_lever_strategic_outcomes: [5] as any });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes[0]).toEqual({ lever_strategic_outcome_id: 5 });
+    });
+
+    it('should normalize outcomes when value is an object with lever_strategic_outcome_id', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
+      component.body.set({ 
+        contracts: [], 
+        result_sdgs: [],
+        primary_levers: [lever],
+        contributor_levers: []
+      });
+      
+      const signal = component.getLeverSignal(lever);
+      signal.set({ result_lever_strategic_outcomes: [{ lever_strategic_outcome_id: 10 }] as any });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes[0]).toEqual({ lever_strategic_outcome_id: 10 });
+    });
+
+    it('should normalize outcomes when value is an object with id', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
+      component.body.set({ 
+        contracts: [], 
+        result_sdgs: [],
+        primary_levers: [lever],
+        contributor_levers: []
+      });
+      
+      const signal = component.getLeverSignal(lever);
+      signal.set({ result_lever_strategic_outcomes: [{ id: 15 }] as any });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes[0]).toEqual({ id: 15, lever_strategic_outcome_id: 15 });
+    });
+
+    it('should normalize outcomes when value is invalid', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
+      component.body.set({ 
+        contracts: [], 
+        result_sdgs: [],
+        primary_levers: [lever],
+        contributor_levers: []
+      });
+      
+      const signal = component.getLeverSignal(lever);
+      signal.set({ result_lever_strategic_outcomes: [null] as any });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes[0]).toEqual({ lever_strategic_outcome_id: 0 });
+    });
+
+    it('should handle array of outcomes', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
+      component.body.set({ 
+        contracts: [], 
+        result_sdgs: [],
+        primary_levers: [lever],
+        contributor_levers: []
+      });
+      
+      const signal = component.getLeverSignal(lever);
+      signal.set({ result_lever_strategic_outcomes: [1, 2, 3] as any });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes).toHaveLength(3);
+    });
+
+    it('should handle single number outcome', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
+      component.body.set({ 
+        contracts: [], 
+        result_sdgs: [],
+        primary_levers: [lever],
+        contributor_levers: []
+      });
+      
+      const signal = component.getLeverSignal(lever);
+      signal.set({ result_lever_strategic_outcomes: 7 as any });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes).toHaveLength(1);
+      expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes[0]).toEqual({ lever_strategic_outcome_id: 7 });
+    });
+
+    it('should handle single object outcome', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
+      component.body.set({ 
+        contracts: [], 
+        result_sdgs: [],
+        primary_levers: [lever],
+        contributor_levers: []
+      });
+      
+      const signal = component.getLeverSignal(lever);
+      signal.set({ result_lever_strategic_outcomes: { lever_strategic_outcome_id: 20 } as any });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes).toHaveLength(1);
+      expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes[0]).toEqual({ lever_strategic_outcome_id: 20 });
+    });
+
+    it('should handle lever without signal', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      const lever = { lever_id: 999, result_lever_strategic_outcomes: [] };
+      component.body.set({ 
+        contracts: [], 
+        result_sdgs: [],
+        primary_levers: [lever],
+        contributor_levers: []
+      });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].primary_levers[0]).toEqual(lever);
+    });
+
+    it('should map result_sdgs correctly', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      component.body.set({ 
+        contracts: [], 
+        result_sdgs: [
+          { id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01' }
+        ],
+        primary_levers: [],
+        contributor_levers: []
+      });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].result_sdgs[0]).toEqual({
+        created_at: '2024-01-01',
+        is_active: true,
+        updated_at: '2024-01-01',
+        clarisa_sdg_id: 1,
+        result_id: 1
+      });
+    });
+  });
+
+  describe('getShortDescription', () => {
+    beforeEach(() => {
+      component.containerRef = { nativeElement: { offsetWidth: 1000 } } as any;
+    });
+
+    it('should return full description when shorter than max for small screen', () => {
+      component.containerWidth = 800;
+      const description = 'Short text';
+      expect(component.getShortDescription(description)).toBe('Short text');
+    });
+
+    it('should truncate description for small screen (< 900)', () => {
+      component.containerWidth = 800;
+      const description = 'a'.repeat(100);
+      const result = component.getShortDescription(description);
+      expect(result.length).toBe(76); // 73 + '...'
+      expect(result.endsWith('...')).toBe(true);
+    });
+
+    it('should truncate description for medium screen (900-1100)', () => {
+      component.containerWidth = 1000;
+      const description = 'a'.repeat(120);
+      const result = component.getShortDescription(description);
+      expect(result.length).toBe(108); // 105 + '...'
+      expect(result.endsWith('...')).toBe(true);
+    });
+
+    it('should truncate description for large screen (1100-1240)', () => {
+      component.containerWidth = 1150;
+      const description = 'a'.repeat(150);
+      const result = component.getShortDescription(description);
+      expect(result.length).toBe(138); // 135 + '...'
+      expect(result.endsWith('...')).toBe(true);
+    });
+
+    it('should truncate description for extra large screen (>= 1240)', () => {
+      component.containerWidth = 1300;
+      const description = 'a'.repeat(170);
+      const result = component.getShortDescription(description);
+      expect(result.length).toBe(158); // 155 + '...'
+      expect(result.endsWith('...')).toBe(true);
+    });
+
+    it('should return full description when shorter than max for extra large screen', () => {
+      component.containerWidth = 1300;
+      const description = 'Short text';
+      expect(component.getShortDescription(description)).toBe('Short text');
+    });
+  });
+
+  describe('getLeverName', () => {
+    it('should return lever name with string id', () => {
+      expect(component.getLeverName('1')).toBe('Lever 1');
+    });
+
+    it('should return lever name with number id', () => {
+      expect(component.getLeverName(2)).toBe('Lever 2');
+    });
+  });
+
+  describe('getLeverSignal', () => {
+    it('should return existing signal if already created', () => {
+      const lever = { lever_id: 1, result_lever_strategic_outcomes: [{ lever_strategic_outcome_id: 1 }] };
+      const signal1 = component.getLeverSignal(lever);
+      const signal2 = component.getLeverSignal(lever);
+      expect(signal1).toBe(signal2);
+    });
+
+    it('should create new signal if not exists', () => {
+      const lever = { lever_id: 2, result_lever_strategic_outcomes: [{ lever_strategic_outcome_id: 2 }] };
+      const signal = component.getLeverSignal(lever);
+      expect(signal().result_lever_strategic_outcomes).toEqual([{ lever_strategic_outcome_id: 2 }]);
+    });
+
+    it('should create signal with empty array if outcomes are missing', () => {
+      const lever = { lever_id: 3 };
+      const signal = component.getLeverSignal(lever);
+      expect(signal().result_lever_strategic_outcomes).toEqual([]);
+    });
+  });
+
+  describe('getData', () => {
+    it('should map result_sdgs with clarisa_sdg_id', async () => {
+      api.GET_Alignments.mockResolvedValue({
+        data: {
+          contracts: [],
+          result_sdgs: [
+            { clarisa_sdg_id: 1, name: 'SDG 1' },
+            { clarisa_sdg_id: 2, name: 'SDG 2' }
+          ],
+          primary_levers: [],
+          contributor_levers: []
+        }
+      });
+      
+      await component.getData();
+      
+      expect(component.body().result_sdgs[0].sdg_id).toBe(1);
+      expect(component.body().result_sdgs[0].is_primary).toBe(false);
+      expect(component.body().result_sdgs[1].sdg_id).toBe(2);
+    });
+
+    it('should handle missing result_sdgs', async () => {
+      api.GET_Alignments.mockResolvedValue({
+        data: {
+          contracts: [],
+          primary_levers: [],
+          contributor_levers: []
+        }
+      });
+      
+      await component.getData();
+      
+      expect(component.body().result_sdgs).toEqual([]);
+    });
+  });
+
+  describe('constructor', () => {
+    it('should register version change watcher', () => {
+      const versionWatcher = TestBed.inject(VersionWatcherService);
+      expect(versionWatcher.onVersionChange).toHaveBeenCalled();
+    });
+
+    it('should call getData on version change', async () => {
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+      const versionWatcher = TestBed.inject(VersionWatcherService);
+      const getDataSpy = jest.spyOn(component, 'getData').mockResolvedValue();
+      
+      // Get the callback that was registered
+      const callback = (versionWatcher.onVersionChange as jest.Mock).mock.calls[0][0];
+      await callback();
+      
+      expect(getDataSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('effects', () => {
+    it('should update optionsDisabled when primary_levers change', fakeAsync(() => {
+      const primaryLever = { lever_id: 1, name: 'Lever 1' };
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [primaryLever],
+        contributor_levers: []
+      });
+      
+      tick();
+      flush();
+      fixture.detectChanges();
+      
+      const disabled = component.optionsDisabled();
+      expect(disabled).toEqual([primaryLever]);
+    }));
+
+
+    it('should update primaryOptionsDisabled when contributor_levers change', fakeAsync(() => {
+      const contributorLever = { lever_id: 2, name: 'Lever 2' };
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [],
+        contributor_levers: [contributorLever]
+      });
+      
+      tick();
+      flush();
+      fixture.detectChanges();
+      
+      const disabled = component.primaryOptionsDisabled();
+      expect(disabled).toEqual([contributorLever]);
+    }));
+
+  });
+
+  describe('saveData result_sdgs mapping', () => {
+    it('should map result_sdgs with all properties', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      component.body.set({
+        contracts: [],
+        result_sdgs: [
+          { 
+            id: 5, 
+            created_at: '2024-01-01', 
+            is_active: true, 
+            updated_at: '2024-01-02',
+            sdg_id: 5,
+            is_primary: false
+          }
+        ],
+        primary_levers: [],
+        contributor_levers: []
+      });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].result_sdgs[0]).toEqual({
+        created_at: '2024-01-01',
+        is_active: true,
+        updated_at: '2024-01-02',
+        clarisa_sdg_id: 5,
+        result_id: 1
+      });
+    });
+
+    it('should map result_sdgs when array exists', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      component.body.set({
+        contracts: [],
+        result_sdgs: [
+          { id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01' },
+          { id: 2, created_at: '2024-01-02', is_active: true, updated_at: '2024-01-02' }
+        ],
+        primary_levers: [],
+        contributor_levers: []
+      });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].result_sdgs).toHaveLength(2);
+      expect(callArgs[1].result_sdgs[0].clarisa_sdg_id).toBe(1);
+      expect(callArgs[1].result_sdgs[1].clarisa_sdg_id).toBe(2);
+    });
+
+    it('should handle result_sdgs as undefined', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
+      
+      component.body.set({
+        contracts: [],
+        result_sdgs: undefined as any,
+        primary_levers: [],
+        contributor_levers: []
+      });
+      
+      await component.saveData();
+      
+      expect(api.PATCH_Alignments).toHaveBeenCalled();
+      const callArgs = api.PATCH_Alignments.mock.calls[0];
+      expect(callArgs[1].result_sdgs).toEqual([]);
+    });
   });
 });
