@@ -219,7 +219,7 @@
     </div>
   }
 
-  @if (!isOicrNoDisabled) {
+  @if (!isOicrNoDisabled && showGeneralComment) {
     <div class="flex flex-col">
       <app-textarea
         [rows]="5"

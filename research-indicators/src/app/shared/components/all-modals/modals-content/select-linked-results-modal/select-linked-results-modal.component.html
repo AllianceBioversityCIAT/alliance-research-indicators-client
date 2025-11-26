@@ -1,7 +1,7 @@
-<div class="flex flex-col px-10 py-4">
+<div class="flex flex-col px-10 py-4 border-t border-[#E8EBED]">
   <div class="pt-4">
-    <span class="text-[#153C71] font-['Space_Grotesk'] text-[18px] leading-[20px] font-bold mb-2">RESULTS TABLE</span>
-    <p class="text-[#777C83] text-[14px] mb-4">Search and select the results that you want to link.</p>
+    <span class="text-[#153C71] font-['Space_Grotesk'] text-[18px] leading-[20px] font-semibold mb-2">RESULTS TABLE</span>
+    <p class="text-[#4C5158] text-[13px] mb-4">Search and select the results that you want to link.</p>
   </div>
 
   <div class="flex items-center justify-between w-full p-4 bg-white border border-[#E4EAEE]">
@@ -188,7 +188,7 @@
 
  
   <div class="flex items-center justify-between px-10 py-4 border-t border-[#E8EBED] bg-white rounded-b-[30px]">
-    <span class="text-[#777C83] text-[15px] !font-[space_grotesk]">
+    <span class="text-[#777C83] text-[16px] !font-[space_grotesk]">
       Selected 
       <i class="pi pi-arrow-right !text-[12px] pr-2 pl-1" style="color: #777C83"></i>
 
@@ -199,9 +199,9 @@
         type="button"
         (click)="saveSelection()"
         [disabled]="selectedCount() === 0 || saving()"
-        class="bg-[#035BA9] text-[15px] text-white disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] px-5 py-2 rounded-[14px] cursor-pointer disabled:cursor-not-allowed flex items-center gap-2">
+        class="bg-[#035BA9] text-[16px] font-medium text-white disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] px-7 py-2 rounded-[14px] cursor-pointer disabled:cursor-not-allowed flex items-center gap-2">
         Save selection
-        <i class="pi pi-arrow-right !text-[12px]"></i>
+        <i class="pi pi-arrow-right !text-[12px] pt-1"></i>
       </button>
     </div>
   </div>
@@ -213,8 +213,8 @@
     [showSignal]="resultsCenterService.showFiltersSidebar"
     confirmText="Apply filters"
     (confirm)="onFiltersConfirm()"
-    customHeight="calc(80vh - 124px)"
-    customTopOffset="59px">
+    customHeight="h-auto"
+    customTopOffset="60px" customBottomOffset="71px">
     <app-table-filters-sidebar [indicatorHiddenIds]="[5, 3]" [forceIndicatorFilter]="true"></app-table-filters-sidebar>
   </app-section-sidebar>
 }
