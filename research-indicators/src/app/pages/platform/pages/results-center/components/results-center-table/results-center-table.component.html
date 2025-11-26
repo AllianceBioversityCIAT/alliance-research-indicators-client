@@ -123,12 +123,12 @@
             } @else if (column.field === 'project') {
               <td>
                 @if (result.result_contracts?.contract_id) {
-                  <span (keydown.enter)="$event.stopPropagation()"
-                    class="cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"
+                  <a (keydown.enter)="$event.stopPropagation()"
+                    class="project-link cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"
                     [routerLink]="['/project-detail', result.result_contracts.contract_id, 'project-results']"
                     (click)="$event.stopPropagation()">
                     {{ result.result_contracts.contract_id }}
-                  </span>
+                  </a>
                 } @else {
                   <span class="text-gray-500">Not provided</span>
                 }
