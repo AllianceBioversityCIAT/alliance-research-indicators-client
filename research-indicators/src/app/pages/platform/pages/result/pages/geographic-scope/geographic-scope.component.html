@@ -142,6 +142,7 @@
             label="Comments Geographic Scope"
             helperText="Provide additional information about the geographic scope, if necessary."
             [maxLength]="1000"
+            [disabled]="!submission.isEditableStatus()"
             [signal]="body"
             [optionValue]="'comment_geo_scope'"
             placeholder="Write the comments"></app-textarea>

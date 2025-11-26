@@ -35,7 +35,10 @@ export class SubmissionService {
     { id: 8, name: 'Deleted' },
     { id: 9, name: 'Requested' },
     { id: 10, name: 'Approved' },
-    { id: 11, name: 'Postponed' }
+    { id: 11, name: 'Postponed' },
+    { id: 12, name: 'Science Edition' },
+    { id: 13, name: 'KM Curation' },
+    { id: 14, name: 'Published' }
   ]);
 
   currentResultIsSubmitted = computed(() => this.cache.currentMetadata().status_id == 2);
