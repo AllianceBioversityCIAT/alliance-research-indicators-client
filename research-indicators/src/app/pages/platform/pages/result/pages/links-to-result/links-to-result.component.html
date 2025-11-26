@@ -7,7 +7,7 @@
         <div class="font-['Space_Grotesk'] text-[14px] font-medium text-[#8d9299] uppercase mb-[30px]">
           LINKS TO RESULT
         </div>
-        <span class="text-[#153C71] !font-['Space_Grotesk'] text-[17px] leading-[20px] font-[500]">
+        <span class="text-[#153C71] !font-['Space_Grotesk'] text-[16px] leading-[20px] font-[500]">
           Linked results
         </span>
         
@@ -86,12 +86,12 @@
             }
           </div>
         } @else if (!loading()) {
-          <div class="mt-2 mb-6 flex flex-col items-center justify-center py-12">
-            <img [src]="'images/no-results-found.png' | s3ImageUrl" alt="No linked results" class="w-[200px] h-[200px] mb-6" />
-            <span class="text-[#153C71] text-[15px] !font-['Space_Grotesk'] leading-[20px] font-bold tracking-[0.03em] uppercase">
+          <div class=" flex flex-col items-center justify-center py-12">
+            <img [src]="'images/no-results-found.png' | s3ImageUrl" alt="No linked results" class="w-[180px] mb-6" />
+            <span class="text-[#153C71] text-[14px] !font-['Space_Grotesk'] leading-[20px] font-bold tracking-[0.03em] uppercase">
               THERE ARE NOT LINKED RESULTS YET
             </span>
-            <p class="text-[#777C83] text-[16px] leading-[20px] mt-1 max-w-[600px]">
+            <p class="text-[#777C83] text-[15px] leading-[20px] mt-1 max-w-[600px]">
               Search for results to associate with this one.
             </p>
           </div>
