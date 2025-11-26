@@ -11,7 +11,6 @@ import { NavigationButtonsComponent } from '@shared/components/navigation-button
 import { OicrFormFieldsComponent } from '@shared/components/custom-fields/oicr-form-fields/oicr-form-fields.component';
 import { PatchOicr, QuantificationPayload } from '@shared/interfaces/oicr-creation.interface';
 import { QuantificationItemComponent, QuantificationItemData } from './components/quantification-item/quantification-item.component';
-import { OtherReferenceItemComponent } from './components/other-reference-item/other-reference-item.component';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AccordionModule } from 'primeng/accordion';
 import { AuthorsContactPersonsTableComponent } from './components/authors-contact-persons-table/authors-contact-persons-table.component';
@@ -26,7 +25,7 @@ import { ServiceLocatorService } from '@shared/services/service-locator.service'
 
 @Component({
   selector: 'app-oicr-details',
-  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, CheckboxModule, AccordionModule, NgTemplateOutlet, AuthorsContactPersonsTableComponent, OicrFormFieldsComponent, QuantificationItemComponent, OtherReferenceItemComponent, InputComponent, ImpactAreasComponent, SelectComponent],
+  imports: [NavigationButtonsComponent, FormsModule, FormHeaderComponent, CheckboxModule, AccordionModule, NgTemplateOutlet, AuthorsContactPersonsTableComponent, OicrFormFieldsComponent, QuantificationItemComponent, InputComponent, ImpactAreasComponent, SelectComponent],
   templateUrl: './oicr-details.component.html'
 })
 export default class OicrDetailsComponent {
