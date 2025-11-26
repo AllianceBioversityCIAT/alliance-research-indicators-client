@@ -204,7 +204,7 @@ describe('SubmissionService', () => {
 
   it('submissionStatuses contains all expected statuses', () => {
     const statuses = service.submissionStatuses();
-    expect(statuses).toHaveLength(11);
+    expect(statuses).toHaveLength(14);
     expect(statuses.find(s => s.id === 1)?.name).toBe('Editing');
     expect(statuses.find(s => s.id === 2)?.name).toBe('Submitted');
     expect(statuses.find(s => s.id === 3)?.name).toBe('Accepted');
@@ -216,6 +216,9 @@ describe('SubmissionService', () => {
     expect(statuses.find(s => s.id === 9)?.name).toBe('Requested');
     expect(statuses.find(s => s.id === 10)?.name).toBe('Approved');
     expect(statuses.find(s => s.id === 11)?.name).toBe('Postponed');
+    expect(statuses.find(s => s.id === 12)?.name).toBe('Science Edition');
+    expect(statuses.find(s => s.id === 13)?.name).toBe('KM Curation');
+    expect(statuses.find(s => s.id === 14)?.name).toBe('Published');
   });
 
   it('getStatusNameById returns correct names for all statuses', () => {
@@ -230,6 +233,9 @@ describe('SubmissionService', () => {
     expect(service.getStatusNameById(9)).toBe('Requested');
     expect(service.getStatusNameById(10)).toBe('Approved');
     expect(service.getStatusNameById(11)).toBe('Postponed');
+    expect(service.getStatusNameById(12)).toBe('Science Edition');
+    expect(service.getStatusNameById(13)).toBe('KM Curation');
+    expect(service.getStatusNameById(14)).toBe('Published');
   });
 
   it('isEditableStatus handles edge cases', () => {
