@@ -180,7 +180,7 @@ export default class LinksToResultComponent implements OnInit, OnDestroy {
   }
 
   openSearchLinkedResults(): void {
-    this.resultsCenterService.clearAllFilters([...MODAL_INDICATOR_CODES]);
+    this.resultsCenterService.clearAllFiltersWithPreserve([...MODAL_INDICATOR_CODES]);
     this.allModalsService.openModal('selectLinkedResults');
   }
 }
