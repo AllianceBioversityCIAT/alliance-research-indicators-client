@@ -221,7 +221,7 @@ export class SelectLinkedResultsModalComponent implements OnInit, OnDestroy {
   }
 
   clearFilters(): void {
-    this.resultsCenterService.clearAllFilters([...MODAL_INDICATOR_CODES]);
+    this.resultsCenterService.clearAllFiltersWithPreserve([...MODAL_INDICATOR_CODES]);
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
     void this.loadResultsForModal();
   }
