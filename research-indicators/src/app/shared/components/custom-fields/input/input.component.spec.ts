@@ -368,9 +368,10 @@ describe('InputComponent', () => {
 
     it('should return invalid if value exceeds maxLength', () => {
       component.maxLength = 5;
-      component.signal = signal({ testField: '123456' });
+      wordCountService.getWordCount.mockReturnValue(6);
+      component.signal = signal({ testField: 'one two three four five six' });
       expect(component.inputValid().valid).toBe(false);
-      expect(component.inputValid().message).toContain('Maximum 5 characters allowed');
+      expect(component.inputValid().message).toContain('Maximum 5 words allowed');
     });
 
     it('should return valid when maxWords is exactly met', () => {
@@ -382,7 +383,8 @@ describe('InputComponent', () => {
 
     it('should return valid when maxLength is exactly met', () => {
       component.maxLength = 5;
-      component.signal = signal({ testField: '12345' });
+      wordCountService.getWordCount.mockReturnValue(5);
+      component.signal = signal({ testField: 'one two three four five' });
       expect(component.inputValid().valid).toBe(true);
     });
   });

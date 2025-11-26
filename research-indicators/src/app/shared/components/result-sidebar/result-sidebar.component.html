@@ -21,12 +21,12 @@
       <app-status-dropdown 
         [statusId]="cache.currentMetadata().status_id ?? 0" 
         [statusName]="cache.currentMetadata().status_name ?? ''"
-        (statusChange)="onStatusChange($event)">
+        (statusChange)="onStatusChange($event)" class="cursor-pointer -mt-1">
       </app-status-dropdown>
     } @else {
-      <app-custom-tag [statusId]="cache.currentMetadata().status_id ?? ''" [statusName]="cache.currentMetadata().status_name ?? ''"></app-custom-tag>
+      <app-custom-tag [statusId]="cache.currentMetadata().status_id ?? ''" [statusName]="cache.currentMetadata().status_name ?? ''" class="-mt-1"></app-custom-tag>
     }
-    <div class="flex w-full text-[14px] -mt-1 font-normal">
+    <div class="flex w-full text-[14px] font-normal">
       <span class="text-[#70ae74] pr-1">{{ getCompletedCount() }}/{{ getTotalCount() }}</span> sections completed
     </div>
   </div>

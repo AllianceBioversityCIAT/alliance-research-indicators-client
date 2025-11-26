@@ -191,8 +191,9 @@ export class InputComponent {
         return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${this.maxWords} words allowed` };
       }
     }
-    if (this.maxLength && value && value.length > this.maxLength) {
-      return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${this.maxLength} characters allowed` };
+    if (this.maxLength && value) {
+      const maxLengthError = this.checkMaxLength(this.maxLength, value);
+      if (maxLengthError) return maxLengthError;
     }
     if (this.pattern && value?.trim()) {
       const valid = new RegExp(this.getPattern().pattern).test(value);
@@ -200,6 +201,14 @@ export class InputComponent {
     }
     return { valid: true, class: '', message: '' };
   });
+
+  checkMaxLength(maxLength: number, value: string): { valid: boolean; class: string; message: string } | null {
+    const wordCount = this.wordCountService.getWordCount(value);
+    if (wordCount > maxLength) {
+      return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${maxLength} words allowed` };
+    }
+    return null;
+  }
 
   setValue(value: any) {
     if (this.onlyLowerCase) value = value.toLowerCase();

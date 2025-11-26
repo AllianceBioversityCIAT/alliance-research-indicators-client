@@ -411,7 +411,7 @@ export class ResultsCenterService {
     }));
   }
 
-  clearAllFilters(preserveIndicatorCodes?: readonly number[]) {
+  clearAllFilters() {
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
@@ -422,7 +422,42 @@ export class ResultsCenterService {
       levers: []
     }));
 
-    const preserved = preserveIndicatorCodes ? [...preserveIndicatorCodes] : [];
+    this.resultsFilter.update(prev => ({
+      ...prev,
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+
+    this.appliedFilters.update(prev => ({
+      ...prev,
+      'indicator-codes-filter': [],
+      'indicator-codes-tabs': []
+    }));
+
+    // clear search input
+    this.searchInput.set('');
+    this.cleanMultiselects();
+    const table = this.tableRef();
+    if (table) {
+      table.clear();
+      table.sortField = 'result_official_code';
+      table.sortOrder = -1;
+    }
+    this.onSelectFilterTab(0);
+  }
+  
+  clearAllFiltersWithPreserve(preserveIndicatorCodes: readonly number[]): void {
+    this.tableFilters.set(new TableFilters());
+    this.tableFilters.update(prev => ({
+      ...prev,
+      indicators: [],
+      statusCodes: [],
+      years: [],
+      contracts: [],
+      levers: []
+    }));
+
+    const preserved = [...preserveIndicatorCodes];
 
     const withPreservedIndicators = (prev: ResultFilter) => ({
       ...prev,
