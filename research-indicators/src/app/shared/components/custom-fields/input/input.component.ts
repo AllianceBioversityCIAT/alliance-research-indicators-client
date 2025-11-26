@@ -191,8 +191,11 @@ export class InputComponent {
         return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${this.maxWords} words allowed` };
       }
     }
-    if (this.maxLength && value && value.length > this.maxLength) {
-      return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${this.maxLength} characters allowed` };
+    if (this.maxLength && value) {
+      const wordCount = this.wordCountService.getWordCount(value);
+      if (wordCount > this.maxLength) {
+        return { valid: false, class: 'ng-invalid ng-dirty', message: `Maximum ${this.maxLength} words allowed` };
+      }
     }
     if (this.pattern && value?.trim()) {
       const valid = new RegExp(this.getPattern().pattern).test(value);
