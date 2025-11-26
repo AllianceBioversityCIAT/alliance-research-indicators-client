@@ -16,10 +16,10 @@
             <img [src]="'images/landing/search-feature.svg' | s3ImageUrl" class=" lg:w-[100px] w-[90px] p-2" alt="Search feature" />
 
             <div class="flex flex-col">
-              <span class="text-[#153C71] text-[15px] !font-['Space_Grotesk'] leading-[20px] font-bold tracking-[0.03em] uppercase">
+              <span class="text-[#153C71] text-[14px] !font-['Space_Grotesk'] leading-[20px] font-bold tracking-[0.03em] uppercase">
                 Search for existing results to link to this report
               </span>
-              <p class="text-[#777C83] text-[16px] leading-[20px] mt-2 mb-0 max-w-[600px]">
+              <p class="text-[#777C83] text-[15px] leading-[20px] mt-2 mb-0 max-w-[600px]">
                 Search for previously reported results that contribute to this one and link them to provide proper context and traceability.
               </p>
             </div>
@@ -29,8 +29,8 @@
             type="button"
             (click)="openSearchLinkedResults()"
             [disabled]="!submission.isEditableStatus()"
-            class="flex cursor-pointer items-center gap-2 bg-[#035BA9] text-[#FFFFFF] pr-5 pl-6.5 py-2 rounded-[13px] text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF]">
-            Search <i class="pi pi-search !text-[12px] -scale-x-100"></i>
+            class="flex cursor-pointer items-center gap-2 bg-[#035BA9] ml-5 text-[#FFFFFF] pr-5 pl-6.5 py-2 rounded-[13px] text-[15px] disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF]">
+            Search <i class="pi pi-search !text-[10px] -scale-x-100 "></i>
           </button>
         </div>
 
@@ -52,19 +52,19 @@
                       {{ result.indicators?.name  }}
                     </span>
                   </div>
-                  <p class="text-[#4C5158] font-[400] text-[14px] leading-5 font-[500]">
+                  <p class="text-[#4C5158] font-[400] text-[14px] leading-4 font-[500] ">
                    {{ formatResultCode(result.result_official_code) }} -
                     {{ result.title }}
                   </p>
                   <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#777C83] !font-['Space_Grotesk']">
                 
                     @if (result.result_contracts?.contract_id) {
-                      <span class="text-[#8D9299] text-[12px] !font-['Space_Grotesk']">
+                      <span class="text-[#8D9299] font-normal text-[12px] !font-['Space_Grotesk']">
                         @if (result.result_status?.result_status_id && result.result_status?.name) {
                           <app-custom-tag [statusId]="result.result_status!.result_status_id" [statusName]="result.result_status!.name" class="pr-1.5"></app-custom-tag>
                         }
                          Reporting Project <i class="pi pi-arrow-right !text-[8px] text-[#777C83] pr-1.5 pl-1"></i>
-                        <span class="text-[#345B8F] uppercase font-medium">{{ result.result_contracts?.contract_id }} 
+                        <span class="text-[#345B8F] uppercase font-semibold text-[11px]">{{ result.result_contracts?.contract_id }} 
                           @if (result.result_contracts?.contract?.description) {
                             {{ result.result_contracts?.contract?.description }}
                           }
