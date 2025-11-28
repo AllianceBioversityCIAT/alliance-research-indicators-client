@@ -220,13 +220,82 @@ export class ResultSidebarComponent {
   }
 
   async onStatusChange(newStatusId: number): Promise<void> {
+    const specialAlert = this.getSpecialStatusAlert(newStatusId);
+    if (specialAlert) {
+      this.actions.showGlobalAlert({
+        severity: specialAlert.severity,
+        summary: specialAlert.summary,
+        detail: specialAlert.detail,
+        placeholder: specialAlert.placeholder,
+        icon: specialAlert.icon,
+        iconClass: specialAlert.iconClass,
+        color: specialAlert.color,
+        commentLabel: 'Justification',
+        commentRequired: true,
+        confirmCallback: {
+          label: 'Confirm',
+          event: (data?: { comment?: string }) => {
+            void this.updateResultStatus(newStatusId, data?.comment ?? '');
+          }
+        },
+        cancelCallback: {
+          label: 'Cancel'
+        }
+      });
+      return;
+    }
+
+    await this.updateResultStatus(newStatusId, '');
+  }
+
+  private getSpecialStatusAlert(statusId: number):
+    | {
+        severity: 'warning' | 'error';
+        summary: string;
+        detail: string;
+        placeholder: string;
+        icon: string;
+        iconClass: string;
+        color: string;
+      }
+    | null {
+    const resultTitle = this.cache.currentMetadata().result_title ?? '';
+
+    if (statusId === 11) {
+      return {
+        severity: 'warning',
+        summary: 'POSTPONE THIS OICR?',
+        detail: `You are about to postpone the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
+        placeholder: 'Provide the justification to postpone this OICR',
+        icon: 'pi pi-minus-circle',
+        iconClass: 'text-[#e69f00]',
+        color: '#FFB547'
+      };
+    }
+
+    if (statusId === 7) {
+      return {
+        severity: 'error',
+        summary: 'REJECT THIS OICR?',
+        detail: `You are about to reject the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
+        placeholder: 'Provide the justification to reject this OICR',
+        icon: 'pi pi-times-circle',
+        iconClass: 'text-[#CF0808]',
+        color: '#FF5050'
+      };
+    }
+
+    return null;
+  }
+
+  private async updateResultStatus(status: number, comment: string): Promise<void> {
     try {
       const response = await this.api.PATCH_SubmitResult({
         resultCode: this.cache.getCurrentNumericResultId(),
-        comment: '',
-        status: newStatusId
+        comment,
+        status
       });
-      
+
       if (response.successfulRequest) {
         this.metadata.update(this.cache.getCurrentNumericResultId());
         this.actions.showToast({

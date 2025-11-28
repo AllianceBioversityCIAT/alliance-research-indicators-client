@@ -6,6 +6,7 @@ interface StatusOption {
   id: number;
   name: string;
   direction: 'previous' | 'next';
+  icon?: 'reject' | 'postpone';
 }
 
 @Component({
@@ -27,6 +28,13 @@ export class StatusDropdownComponent {
     { id: 13, name: 'KM Curation' },
     { id: 14, name: 'Published' }
   ];
+
+  private readonly SPECIAL_TRANSITIONS: Record<number, StatusOption[]> = {
+    4: [
+      { id: 11, name: 'Postpone', direction: 'previous', icon: 'postpone' },
+      { id: 7, name: 'Reject', direction: 'previous', icon: 'reject' },
+    ]
+  };
 
   getColors() {
     const status = String(this.statusId);
@@ -58,6 +66,9 @@ export class StatusDropdownComponent {
         direction: 'next'
       });
     }
+
+    const specialTransitions = this.SPECIAL_TRANSITIONS[this.statusId] || [];
+    options.push(...specialTransitions);
 
     return options;
   }

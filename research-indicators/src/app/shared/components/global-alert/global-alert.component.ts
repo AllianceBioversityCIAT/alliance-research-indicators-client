@@ -124,11 +124,11 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
       case 'confirm':
         return { icon: 'pi pi-pencil', color: '#509C55' };
       case 'warning':
-        return { icon: 'pi pi-history', color: '#E69F00', buttonColor: '#E69F00' };
+        return { icon: 'pi pi-history', color: '#E69F00', buttonColor: '#035BA9' };
       case 'secondary':
         return { icon: 'pi pi-exclamation-triangle', color: '#E69F00', buttonColor: '#E69F00' };
       case 'error':
-        return { icon: 'pi pi-times-circle', color: 'red' };
+        return { icon: 'pi pi-times-circle', color: '#CF0808' };
       case 'delete':
         return { icon: 'pi pi-trash', color: '#CF0808', buttonColor: '#CF0808' };
       case 'processing':
