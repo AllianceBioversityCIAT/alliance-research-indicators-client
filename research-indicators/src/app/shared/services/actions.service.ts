@@ -196,7 +196,9 @@ export class ActionsService {
       }));
       localStorage.setItem('data', JSON.stringify(this.cache.dataCache()));
     } else {
-      loginResponse.data.user.roleName = loginResponse.data.user?.user_role_list[0]?.role?.name ?? '';
+      const userRoles = loginResponse.data.user?.user_role_list ?? [];
+      const preferredRole = userRoles.find(role => role.role_id === 1) ?? userRoles[0];
+      loginResponse.data.user.roleName = preferredRole?.role?.name ?? '';
       localStorage.setItem('data', JSON.stringify({ ...loginResponse.data, exp }));
     }
   }
