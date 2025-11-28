@@ -59,14 +59,26 @@ describe('StatusDropdownComponent', () => {
       expect(component.getAvailableStatuses()).toEqual([]);
     });
 
-    it('should return only next status for Draft (4)', () => {
+    it('should return next and special statuses for Draft (4)', () => {
       component.statusId = 4;
       const statuses = component.getAvailableStatuses();
-      expect(statuses).toHaveLength(1);
+      expect(statuses).toHaveLength(3);
       expect(statuses[0]).toEqual({
         id: 12,
         name: 'Science Edition',
         direction: 'next'
+      });
+      expect(statuses[1]).toEqual({
+        id: 11,
+        name: 'Postpone',
+        direction: 'previous',
+        icon: 'postpone'
+      });
+      expect(statuses[2]).toEqual({
+        id: 7,
+        name: 'Reject',
+        direction: 'previous',
+        icon: 'reject'
       });
     });
 
