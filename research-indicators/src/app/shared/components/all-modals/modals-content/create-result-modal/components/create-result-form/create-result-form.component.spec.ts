@@ -67,7 +67,8 @@ describe('CreateResultFormComponent', () => {
     } as Partial<GetResultsService> 
 
     contractsServiceMock = {
-      list: jest.fn().mockReturnValue([])
+      list: signal([]),
+      main: jest.fn().mockResolvedValue(undefined)
     } 
 
     indicatorsServiceMock = {
@@ -276,24 +277,24 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('isW1W2NonOicr should return true for W1/W2 non-OICR combinations', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', is_science_program: true } as any
     ]);
     component.body.set({ indicator_id: 1, contract_id: '123' });
     expect((component as any).isW1W2NonOicr()).toBe(true);
   });
 
   it('isW1W2NonOicr should return false for OICR indicators', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', is_science_program: true } as any
     ]);
     component.body.set({ indicator_id: 5, contract_id: '123' });
     expect((component as any).isW1W2NonOicr()).toBe(false);
   });
 
   it('isW1W2NonOicr should return false for non-W1/W2 contracts', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'Other' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', is_science_program: false } as any
     ]);
     component.body.set({ indicator_id: 1, contract_id: '123' });
     expect((component as any).isW1W2NonOicr()).toBe(false);
@@ -308,8 +309,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('maybeShowW1W2Alert should show alert when W1/W2 non-OICR condition is met', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', is_science_program: true } as any
     ]);
     component.body.set({ indicator_id: 1, contract_id: '123' });
     
@@ -318,8 +319,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('maybeShowW1W2Alert should not show alert when condition is not met', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'Other' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', is_science_program: false } as any
     ]);
     component.body.set({ indicator_id: 1, contract_id: '123' });
     
@@ -328,14 +329,14 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('getPrimaryLeverId should return lever_id from contract', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', lever_id: 456 }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 456 } as any
     ]);
     expect(component.getPrimaryLeverId('123')).toBe(456);
   });
 
   it('getPrimaryLeverId should return undefined when contract not found', () => {
-    contractsServiceMock.list.mockReturnValue([]);
+    contractsServiceMock.list.set([]);
     expect(component.getPrimaryLeverId('999')).toBeUndefined();
   });
 
@@ -365,8 +366,8 @@ describe('CreateResultFormComponent', () => {
 
   it('navigateToOicr should set all management service values and update OICR body', () => {
     component.body.set({ title: 'Test Title', contract_id: '123', year: 2024 });
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', lever_id: 456 }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 456 } as any
     ]);
     
     component.navigateToOicr();
@@ -380,7 +381,7 @@ describe('CreateResultFormComponent', () => {
 
   it('navigateToOicr should handle case when no primary lever is found', () => {
     component.body.set({ title: 'Test Title', contract_id: '999', year: 2024 });
-    contractsServiceMock.list.mockReturnValue([]);
+    contractsServiceMock.list.set([]);
     
     component.navigateToOicr();
     
@@ -390,8 +391,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('buildW1W2RestrictionHtml should generate proper HTML content', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', select_label: 'Project Name - Description' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: 'Project Name - Description' } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
@@ -407,7 +408,7 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('buildW1W2RestrictionHtml should handle missing contract and indicator', () => {
-    contractsServiceMock.list.mockReturnValue([]);
+    contractsServiceMock.list.set([]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([]);
     
     component.body.set({ contract_id: '999', indicator_id: 999 });
@@ -418,8 +419,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('isDisabled should return true when W1/W2 non-OICR condition is met', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', is_science_program: true } as any
     ]);
     component.body.set({ indicator_id: 1, title: 'Test', contract_id: '123', year: 2024 });
     component.sharedFormValid = true;
@@ -428,8 +429,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('isDisabled should return false when all conditions are met and no W1/W2 restriction', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'Other' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', is_science_program: false } as any
     ]);
     component.body.set({ indicator_id: 1, title: 'Test', contract_id: '123', year: 2024 });
     component.sharedFormValid = true;
@@ -439,8 +440,8 @@ describe('CreateResultFormComponent', () => {
 
   it('should execute PRMS callback when W1/W2 alert is shown', () => {
     const windowOpenSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', is_science_program: true } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
@@ -478,8 +479,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('should handle buildW1W2RestrictionHtml with missing project names', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2', project_name: null }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', funding_type: 'W1/W2', project_name: null } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
@@ -493,8 +494,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('should handle buildW1W2RestrictionHtml with empty project names', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2', project_name: '' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', funding_type: 'W1/W2', project_name: '' } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
@@ -508,8 +509,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('should handle buildW1W2RestrictionHtml with missing indicator', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2', project_name: 'Test Project' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', funding_type: 'W1/W2', project_name: 'Test Project' } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [] }
@@ -524,8 +525,8 @@ describe('CreateResultFormComponent', () => {
 
   it('should handle navigateToOicr with empty body values', () => {
     component.body.set({ title: '', contract_id: '', year: '' });
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', lever_id: 1 }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 1 } as any
     ]);
     
     component.navigateToOicr();
@@ -538,8 +539,8 @@ describe('CreateResultFormComponent', () => {
 
   it('should handle navigateToOicr with null body values', () => {
     component.body.set({ title: null, contract_id: null, year: null });
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', lever_id: 1 }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 1 } as any
     ]);
     
     component.navigateToOicr();
@@ -552,8 +553,8 @@ describe('CreateResultFormComponent', () => {
 
   it('should handle navigateToOicr with undefined body values', () => {
     component.body.set({ title: undefined, contract_id: undefined, year: undefined });
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', lever_id: 1 }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 1 } as any
     ]);
     
     component.navigateToOicr();
@@ -565,8 +566,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('should handle buildW1W2RestrictionHtml with null project names', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2', project_name: null }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', funding_type: 'W1/W2', project_name: null } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
@@ -580,8 +581,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('should handle buildW1W2RestrictionHtml with undefined project names', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2', project_name: undefined }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', funding_type: 'W1/W2', project_name: undefined } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
@@ -595,8 +596,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('should handle buildW1W2RestrictionHtml with null indicator name', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2', project_name: 'Test Project' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', funding_type: 'W1/W2', project_name: 'Test Project' } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [{ indicator_id: 1, name: null }] }
@@ -610,8 +611,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('should handle buildW1W2RestrictionHtml with undefined indicator name', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2', project_name: 'Test Project' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', funding_type: 'W1/W2', project_name: 'Test Project' } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [{ indicator_id: 1, name: undefined }] }
@@ -626,8 +627,8 @@ describe('CreateResultFormComponent', () => {
 
   it('should handle navigateToOicr with null contract_id in body', () => {
     component.body.set({ title: 'Test', contract_id: null, year: 2024 });
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', lever_id: 1 }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 1 } as any
     ]);
     
     component.navigateToOicr();
@@ -640,8 +641,8 @@ describe('CreateResultFormComponent', () => {
 
   it('should handle navigateToOicr with undefined contract_id in body', () => {
     component.body.set({ title: 'Test', contract_id: undefined, year: 2024 });
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', lever_id: 1 }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 1 } as any
     ]);
     
     component.navigateToOicr();
@@ -653,8 +654,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('should handle buildW1W2RestrictionHtml with empty string project names', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2', project_name: '' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', funding_type: 'W1/W2', project_name: '' } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
@@ -668,8 +669,8 @@ describe('CreateResultFormComponent', () => {
   });
 
   it('should handle buildW1W2RestrictionHtml with empty string indicator name', () => {
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', funding_type: 'W1/W2', project_name: 'Test Project' }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', funding_type: 'W1/W2', project_name: 'Test Project' } as any
     ]);
     indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
       { indicators: [{ indicator_id: 1, name: '' }] }
@@ -684,8 +685,8 @@ describe('CreateResultFormComponent', () => {
 
   it('should handle navigateToOicr with empty string contract_id in body', () => {
     component.body.set({ title: 'Test', contract_id: '', year: 2024 });
-    contractsServiceMock.list.mockReturnValue([
-      { agreement_id: '123', lever_id: 1 }
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 1 } as any
     ]);
     
     component.navigateToOicr();

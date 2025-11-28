@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, signal, ViewChild, WritableSignal } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, signal, ViewChild, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../../../shared/services/api.service';
@@ -49,6 +49,13 @@ export default class AllianceAlignmentComponent {
   containerWidth = 0;
 
   private readonly leverOutcomeSignals = new Map<string | number, WritableSignal<{ result_lever_strategic_outcomes: LeverStrategicOutcome[] }>>();
+
+  contractServiceParams = computed(() => {
+    const indicatorId = this.cache.currentMetadata()?.indicator_id;
+    return {
+      'exclude-pooled-funding': indicatorId !== 5
+    };
+  });
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {

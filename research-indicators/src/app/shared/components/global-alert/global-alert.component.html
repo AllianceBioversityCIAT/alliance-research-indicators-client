@@ -71,15 +71,35 @@
         </div>
       }
       @if (alert.commentLabel) {
-        <app-input
-          [label]="alert.commentLabel"
-          [signal]="body"
-          [placeholder]="alert.placeholder ?? ''"
-          optionValue="commentValue"
-          [style]="{ width: '100%', textAlign: 'start' }"
-          autoComplete="off"
-          [isRequired]="alert.commentRequired || false">
-        </app-input>
+        @if (alert.commentAsTextArea) {
+          <div class="w-full mt-4 text-left">
+            <label
+              for="global-alert-comment"
+              class="font-semibold text-[16px] text-[#153C71] block mb-2">
+              {{ alert.commentLabel }}
+              @if (alert.commentRequired) {
+                <span class="text-red-500">*</span>
+              }
+            </label>
+            <textarea
+              id="global-alert-comment"
+              rows="5"
+              class="w-full border-1 border-gray-500 rounded-md resize-none text-[14px] p-2"
+              [value]="body().commentValue"
+              [placeholder]="alert.placeholder ?? ''"
+              (input)="onCommentInput($event)"></textarea>
+          </div>
+        } @else {
+          <app-input
+            [label]="alert.commentLabel"
+            [signal]="body"
+            [placeholder]="alert.placeholder ?? ''"
+            optionValue="commentValue"
+            [style]="{ width: '100%', textAlign: 'start' }"
+            autoComplete="off"
+            [isRequired]="alert.commentRequired || false">
+          </app-input>
+        }
       }
       @if (!alert.hasNoButton) {
         <div class="flex gap-4 w-full place-content-center text-center">

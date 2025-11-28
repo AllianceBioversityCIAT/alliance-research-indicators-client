@@ -42,7 +42,8 @@ describe('ResultAiAssistantComponent', () => {
     allModalsServiceMock = {
       setGoBackFunction: jest.fn(),
       setModalWidth: jest.fn(),
-      modalConfig: jest.fn().mockReturnValue({ createResult: { isWide: false } })
+      modalConfig: jest.fn().mockReturnValue({ createResult: { isWide: false } }),
+      isModalOpen: jest.fn().mockReturnValue({ isOpen: false })
     };
 
     fileManagerServiceMock = {
@@ -64,7 +65,9 @@ describe('ResultAiAssistantComponent', () => {
     } as Partial<ApiService>;
 
     getContractsServiceMock = {
-      list: jest.fn().mockReturnValue([])
+      list: signal([]),
+      aiAssistantList: signal([]),
+      mainForAiAssistant: jest.fn().mockResolvedValue(undefined)
     };
 
     createResultManagementServiceMock = {
