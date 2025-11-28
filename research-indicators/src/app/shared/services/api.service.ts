@@ -531,6 +531,7 @@ export class ApiService {
     page?: string;
     limit?: string;
     project?: string;
+    'exclude-pooled-funding'?: boolean;
   }): Promise<MainResponse<FindContractsResponse>> => {
     const url = () => 'agresso/contracts/find-contracts';
     const params = this.buildFindContractsParams(filters);
@@ -793,6 +794,7 @@ export class ApiService {
     page?: string;
     limit?: string;
     project?: string;
+    'exclude-pooled-funding'?: boolean;
   }): HttpParams {
     let params = new HttpParams();
     if (!filters) return params;
@@ -808,7 +810,8 @@ export class ApiService {
       'query',
       'page',
       'limit',
-      'project'
+      'project',
+      'exclude-pooled-funding'
     ];
     filterKeys.forEach(key => {
       const value = filters[key];

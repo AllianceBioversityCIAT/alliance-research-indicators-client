@@ -17,9 +17,9 @@
               [removeCondition]="canRemove"
               [isRequired]="true"
               [scrollHeight]="'290px'"
-              [filterBy]="'select_label,project_lead_description'"
               [itemHeight]="70"
               serviceName="contracts"
+              [serviceParams]="contractServiceParams()"
               placeholder="Select the contributing projects">
               <ng-template #item let-item>
                 <div class="flex flex-col gap-2 h-[54px] text-[14px]" pTooltip="{{ item?.description }}">
@@ -130,6 +130,7 @@
               [isRequired]="true"
               [columnsOnXl]="true"
               [textSpan]="'Levers selected'"
+              [filterBy]="'short_name,other_names'"
               scrollHeight="260px"
               serviceName="levers"
               [optionsDisabled]="primaryOptionsDisabled"
@@ -171,6 +172,7 @@
               [columnsOnXl]="true"
               scrollHeight="260px"
               serviceName="levers"
+              [filterBy]="'short_name,other_names'"
               [textSpan]="'Levers selected'"
               [optionsDisabled]="optionsDisabled"
               placeholder="Select the levers">
