@@ -14,6 +14,7 @@ import { CustomTagComponent } from '../custom-tag/custom-tag.component';
 import { StatusDropdownComponent } from '../status-dropdown/status-dropdown.component';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { RolesService } from '@shared/services/cache/roles.service';
+import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
 
 interface SubmissionAlertData {
   severity: 'success' | 'warning';
@@ -231,6 +232,7 @@ export class ResultSidebarComponent {
         iconClass: specialAlert.iconClass,
         color: specialAlert.color,
         commentLabel: 'Justification',
+        commentAsTextArea: true,
         commentRequired: true,
         confirmCallback: {
           label: 'Confirm',
@@ -248,17 +250,7 @@ export class ResultSidebarComponent {
     await this.updateResultStatus(newStatusId, '');
   }
 
-  private getSpecialStatusAlert(statusId: number):
-    | {
-        severity: 'warning' | 'error';
-        summary: string;
-        detail: string;
-        placeholder: string;
-        icon: string;
-        iconClass: string;
-        color: string;
-      }
-    | null {
+  private getSpecialStatusAlert(statusId: number): GlobalAlert | null {
     const resultTitle = this.cache.currentMetadata().result_title ?? '';
 
     if (statusId === 11) {
@@ -269,7 +261,8 @@ export class ResultSidebarComponent {
         placeholder: 'Provide the justification to postpone this OICR',
         icon: 'pi pi-minus-circle',
         iconClass: 'text-[#e69f00]',
-        color: '#FFB547'
+        color: '#FFB547',
+        commentAsTextArea: true
       };
     }
 
@@ -281,7 +274,8 @@ export class ResultSidebarComponent {
         placeholder: 'Provide the justification to reject this OICR',
         icon: 'pi pi-times-circle',
         iconClass: 'text-[#CF0808]',
-        color: '#FF5050'
+        color: '#FF5050',
+        commentAsTextArea: true
       };
     }
 

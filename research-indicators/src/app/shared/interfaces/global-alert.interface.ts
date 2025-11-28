@@ -14,6 +14,7 @@ export interface GlobalAlert {
   selectorRequired?: boolean;
   commentLabel?: string;
   commentRequired?: boolean;
+  commentAsTextArea?: boolean;
   confirmCallback?: Callback;
   cancelCallback?: Callback;
   hasNoButton?: boolean;

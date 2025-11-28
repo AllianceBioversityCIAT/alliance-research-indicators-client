@@ -44,6 +44,14 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
   constructor(private readonly serviceLocator: ServiceLocatorService) {}
   private autoHideTimeouts: number[] = [];
 
+  onCommentInput(event: Event): void {
+    const value = (event.target as HTMLTextAreaElement | HTMLInputElement)?.value ?? '';
+    this.body.update(prev => ({
+      ...prev,
+      commentValue: value
+    }));
+  }
+
   alertList = computed(() => {
     const list = this.actions.globalAlertsStatus().map((alert: GlobalAlert) => {
       alert.icon = this.getIcon(alert.severity).icon;
