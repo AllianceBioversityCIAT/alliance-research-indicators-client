@@ -79,10 +79,6 @@ export class CreateResultFormComponent {
 
   public getContractStatusClasses = getContractStatusClasses;
 
-  constructor() {
-    this.getContractsService.main();
-  }
-
   syncPresetContractId = effect(
     () => {
       const shouldPreset = this.createResultManagementService.presetFromProjectResultsTable();

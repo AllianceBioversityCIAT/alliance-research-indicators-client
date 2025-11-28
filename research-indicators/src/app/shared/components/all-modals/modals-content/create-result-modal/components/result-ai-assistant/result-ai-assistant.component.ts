@@ -97,9 +97,25 @@ export class ResultAiAssistantComponent {
     this.api.GET_IssueCategories().then(res => {
       this.badTypes = res.data;
     });
-
-    void this.getContractsService.main({ 'exclude-pooled-funding': true });
   }
+
+  // Load contracts with exclude-pooled-funding filter when component is shown (step 1)
+  private lastStep = -1;
+  loadContractsOnStepChange = effect(
+    () => {
+      const modalConfig = this.allModalsService.isModalOpen('createResult');
+      const isOpen = modalConfig?.isOpen ?? false;
+      const step = this.createResultManagementService.resultPageStep();
+      
+      // Load contracts with filter when modal is open and step is 1 (this component)
+      if (isOpen && step === 1 && this.lastStep !== 1) {
+        void this.getContractsService.mainForAiAssistant();
+      }
+      
+      this.lastStep = step;
+    },
+    { allowSignalWrites: true }
+  );
 
   onContractIdChange(newContractId: string | null) {
     this.contractId = newContractId;
