@@ -53,7 +53,7 @@ export default class AllianceAlignmentComponent {
   contractServiceParams = computed(() => {
     const indicatorId = this.cache.currentMetadata()?.indicator_id;
     return {
-      'exclude-pooled-funding': indicatorId === 5 ? true : true
+      'exclude-pooled-funding': indicatorId !== 5
     };
   });
 
