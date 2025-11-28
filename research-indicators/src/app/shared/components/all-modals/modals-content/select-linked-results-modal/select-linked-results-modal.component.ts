@@ -21,7 +21,7 @@ import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-cent
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { Router, RouterLink, UrlTree } from '@angular/router';
 
-const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
+const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
 
 @Component({
   selector: 'app-select-linked-results-modal',
