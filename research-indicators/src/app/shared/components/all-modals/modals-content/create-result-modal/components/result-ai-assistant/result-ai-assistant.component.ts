@@ -97,6 +97,8 @@ export class ResultAiAssistantComponent {
     this.api.GET_IssueCategories().then(res => {
       this.badTypes = res.data;
     });
+
+    void this.getContractsService.main({ 'exclude-pooled-funding': true });
   }
 
   onContractIdChange(newContractId: string | null) {
