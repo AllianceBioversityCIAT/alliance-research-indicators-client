@@ -102,13 +102,20 @@ export class MultiselectComponent implements OnInit, OnChanges {
   availableOptions = computed(() => {
     const base = this.useDisabled() ? this.listWithDisabled() : this.optionsSig();
     const normalized = Array.isArray(base) ? base : [];
-    return normalized.filter(option => {
+    const filtered = normalized.filter(option => {
       try {
         return this.optionFilter ? this.optionFilter(option) : true;
       } catch {
         return true;
       }
     });
+    
+    const selected = this.selectedOptions();
+    const missingSelected = selected.filter((item: any) => {
+      return !filtered.some((option: any) => option[this.optionValue] === item[this.optionValue]);
+    });
+    
+    return [...filtered, ...missingSelected];
   });
 
   isInvalid = computed(() => {
@@ -120,7 +127,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
     const normalized = Array.isArray(items) ? items : [];
     return normalized.map((item: any) => ({
       ...item,
-      disabled: Boolean(this.optionsDisabled().find((option: any) => option[this.optionValue] === item[this.optionValue]))
+      disabled: Boolean(this.optionsDisabled().some((option: any) => option[this.optionValue] === item[this.optionValue]))
     }));
   });
   firstLoad = signal(true);

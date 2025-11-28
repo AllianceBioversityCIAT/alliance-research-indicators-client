@@ -17,7 +17,6 @@
               [removeCondition]="canRemove"
               [isRequired]="true"
               [scrollHeight]="'290px'"
-              [filterBy]="'select_label,project_lead_description'"
               [itemHeight]="70"
               serviceName="contracts"
               placeholder="Select the contributing projects">
@@ -130,6 +129,7 @@
               [isRequired]="true"
               [columnsOnXl]="true"
               [textSpan]="'Levers selected'"
+              [filterBy]="'short_name,other_names'"
               scrollHeight="260px"
               serviceName="levers"
               [optionsDisabled]="primaryOptionsDisabled"
@@ -171,6 +171,7 @@
               [columnsOnXl]="true"
               scrollHeight="260px"
               serviceName="levers"
+              [filterBy]="'short_name,other_names'"
               [textSpan]="'Levers selected'"
               [optionsDisabled]="optionsDisabled"
               placeholder="Select the levers">

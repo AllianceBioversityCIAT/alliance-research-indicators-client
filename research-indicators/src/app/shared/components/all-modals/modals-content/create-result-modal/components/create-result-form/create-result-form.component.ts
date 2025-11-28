@@ -159,8 +159,9 @@ export class CreateResultFormComponent {
     const contracts = this.getContractsService.list();
     const contract = contracts.find(c => c.agreement_id === agreementId);
     const isW1W2 = contract?.funding_type === 'W1/W2';
+    const is_science_program = contract?.is_science_program;
     const isOicr = indicatorId === 5;
-    return Boolean(isW1W2 && !isOicr);
+    return Boolean((isW1W2 || is_science_program) && !isOicr);
   }
 
   onContractIdChange(newAgreementId: string | null) {

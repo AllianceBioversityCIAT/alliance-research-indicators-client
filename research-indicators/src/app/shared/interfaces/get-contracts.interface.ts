@@ -11,6 +11,7 @@ export interface GetContracts {
   division: null | string;
   divisionId: null | string;
   donor: null | string;
+  is_science_program: boolean;
   donor_reference: null | string;
   endDateGlobal: null | string;
   endDatefinance: string;
