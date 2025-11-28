@@ -19,6 +19,7 @@
               [scrollHeight]="'290px'"
               [itemHeight]="70"
               serviceName="contracts"
+              [serviceParams]="{ 'exclude-pooled-funding': true }"
               placeholder="Select the contributing projects">
               <ng-template #item let-item>
                 <div class="flex flex-col gap-2 h-[54px] text-[14px]" pTooltip="{{ item?.description }}">

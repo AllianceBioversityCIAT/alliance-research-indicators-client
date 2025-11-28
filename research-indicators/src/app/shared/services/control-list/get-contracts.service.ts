@@ -18,10 +18,26 @@ export class GetContractsService {
     this.main();
   }
 
-  async main() {
+  async main(filters?: {
+    'current-user'?: boolean;
+    'contract-code'?: string;
+    'project-name'?: string;
+    'principal-investigator'?: string;
+    lever?: string;
+    status?: string;
+    'start-date'?: string;
+    'order-field'?: string;
+    direction?: string;
+    'end-date'?: string;
+    query?: string;
+    page?: string;
+    limit?: string;
+    project?: string;
+    'exclude-pooled-funding'?: boolean;
+  }) {
     this.loading.set(true);
     try {
-      const response = await this.api.GET_FindContracts();
+      const response = await this.api.GET_FindContracts(filters);
 
       if (response?.data?.data && Array.isArray(response.data.data)) {
         this.list.set(response.data.data as GetContracts[]);
