@@ -15,6 +15,7 @@ import { StatusDropdownComponent } from '../status-dropdown/status-dropdown.comp
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
+import { CurrentResultService } from '@shared/services/cache/current-result.service';
 
 interface SubmissionAlertData {
   severity: 'success' | 'warning';
@@ -49,6 +50,7 @@ export class ResultSidebarComponent {
   route = inject(ActivatedRoute);
   submissionService = inject(SubmissionService);
   roles = inject(RolesService);
+  currentResultService = inject(CurrentResultService);
   allOptionsWithGreenChecks = computed(() => {
     return this.allOptions()
       .filter(option => option?.indicator_id === this.cache.currentMetadata()?.indicator_id || !option?.indicator_id)
@@ -291,12 +293,17 @@ export class ResultSidebarComponent {
       });
 
       if (response.successfulRequest) {
-        this.metadata.update(this.cache.getCurrentNumericResultId());
+        await this.metadata.update(this.cache.getCurrentNumericResultId());
+        
         this.actions.showToast({
           severity: 'success',
           summary: 'Status updated',
           detail: 'The status has been updated successfully'
         });
+
+        if (status === 11 || status === 7) {
+          await this.handlePostponeOrRejectRedirect();
+        }
       } else {
         this.actions.showToast({
           severity: 'error',
@@ -312,5 +319,33 @@ export class ResultSidebarComponent {
         detail: 'Unable to update status, please try again'
       });
     }
+  }
+
+  private async handlePostponeOrRejectRedirect(): Promise<void> {
+    const { indicator_id, status_id, result_contract_id, result_title, result_official_code } = 
+      this.cache.currentMetadata() || {};
+
+    if (!this.currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
+      return;
+    }
+
+    const isDraft = (status_id ?? 0) === 4 || (status_id ?? 0) === 14 || 
+                   (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
+    
+    if (isDraft || !result_contract_id) {
+      return;
+    }
+
+    this.router.navigate(['/project-detail', result_contract_id]);
+    
+    if (!this.router.url.includes('/project-detail/')) {
+      this.cache.projectResultsSearchValue.set(result_title ?? '');
+    }
+    
+    await this.currentResultService.openEditRequestdOicrsModal(
+      indicator_id ?? 0,
+      status_id ?? 0,
+      result_official_code ?? 0
+    );
   }
 }
