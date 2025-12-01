@@ -54,6 +54,10 @@ export class SubmitResultContentComponent {
           sharepoint_link: this.submissionService.sharePointFolderLink()
         });
       }
+      if (wasVisible && !visible) {
+        // Reset disablePostponeOption when modal closes
+        this.allModalsService.disablePostponeOption.set(false);
+      }
       wasVisible = visible;
     });
   }
@@ -62,8 +66,11 @@ export class SubmitResultContentComponent {
     if (currentStatusId == null) return;
 
     const matchingOption = this.reviewOptions().find(option => option.statusId === currentStatusId);
-    if (matchingOption) {
+    
+    if (matchingOption && !matchingOption.disabled) {
       this.submissionService.statusSelected.set(matchingOption);
+    } else {
+      this.submissionService.statusSelected.set(null);
     }
   }
 
@@ -108,13 +115,22 @@ export class SubmitResultContentComponent {
 
   reviewOptions = computed<ReviewOption[]>(() => {
     const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
+    const disablePostpone = this.allModalsService.disablePostponeOption?.() ?? false;
     return this.baseReviewOptions.map(opt => {
       if (!isLatest) return opt;
       if (opt.key === 'approve') {
         return { ...opt, description: 'OICR development will continue with PISA support.', statusId: 4 };
       }
       if (opt.key === 'revise') {
-        return { ...opt, label: 'Postpone', description: 'Not enough evidence for this reporting year.', commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', statusId: 11 };
+        return { 
+          ...opt, 
+          label: 'Postpone', 
+          description: 'Not enough evidence for this reporting year.', 
+          commentLabel: 'Justification', 
+          placeholder: 'Please briefly elaborate your decision', 
+          statusId: 11,
+          disabled: disablePostpone
+        };
       }
       if (opt.key === 'reject') {
         return { ...opt, commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision' };
@@ -130,6 +146,7 @@ export class SubmitResultContentComponent {
   setComment = (event: Event) => this.submissionService.comment.set((event.target as HTMLTextAreaElement).value);
 
   selectOption(option: ReviewOption): void {
+    if (option.disabled) return;
     this.submissionService.statusSelected.set(option);
   }
 
@@ -151,7 +168,7 @@ export class SubmitResultContentComponent {
       case 'ArrowDown': {
         event.preventDefault();
         const nextIndex = (currentIndex + 1) % options.length;
-        this.focusOption(options[nextIndex]);
+        this.focusNextEnabledOption(options, nextIndex, 1);
         break;
       }
         
@@ -159,25 +176,54 @@ export class SubmitResultContentComponent {
       case 'ArrowUp': {
         event.preventDefault();
         const prevIndex = currentIndex === 0 ? options.length - 1 : currentIndex - 1;
-        this.focusOption(options[prevIndex]);
+        this.focusNextEnabledOption(options, prevIndex, -1);
         break;
       }
         
       case ' ':
       case 'Enter':
         event.preventDefault();
-        this.selectOption(option);
+        if (!option.disabled) {
+          this.selectOption(option);
+        }
         break;
         
       case 'Home':
         event.preventDefault();
-        this.focusOption(options[0]);
+        const firstEnabled = options.findIndex(opt => !opt.disabled);
+        if (firstEnabled !== -1) {
+          this.focusOption(options[firstEnabled]);
+        }
         break;
         
       case 'End':
         event.preventDefault();
-        this.focusOption(options.at(-1)!);
+        let lastEnabled = -1;
+        for (let i = options.length - 1; i >= 0; i--) {
+          if (!options[i].disabled) {
+            lastEnabled = i;
+            break;
+          }
+        }
+        if (lastEnabled !== -1) {
+          this.focusOption(options[lastEnabled]);
+        }
         break;
+    }
+  }
+
+  private focusNextEnabledOption(options: ReviewOption[], startIndex: number, direction: number): void {
+    let currentIndex = startIndex;
+    const maxAttempts = options.length;
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+      if (!options[currentIndex].disabled) {
+        this.focusOption(options[currentIndex]);
+        return;
+      }
+      currentIndex = (currentIndex + direction + options.length) % options.length;
+      attempts++;
     }
   }
 
