@@ -47,7 +47,7 @@
 
             {{ this.createResultManagementService.editingOicr() ? 'Save changes' : 'Create preliminary OICR submission' }}
             @if (!this.createResultManagementService.editingOicr()) {
-              <i class="pi pi-arrow-right !text-[10px] pl-1 disabled:text-[#A2A9AF]" [class.text-white]="!loading && !isDisabled" [class.text-[#A2A9AF]]="loading || isDisabled"></i>
+              <i class="pi pi-arrow-right !text-[10px] pl-1 disabled:!text-[#A2A9AF]"  ></i>
             } 
           }
         </button>
