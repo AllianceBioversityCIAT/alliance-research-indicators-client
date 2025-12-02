@@ -96,6 +96,7 @@ export default class LinksToResultComponent implements OnInit, OnDestroy {
       
       this.linkedResults.set(matched);
       this.originalLinkedResults.set([...matched]);
+      this.allModalsService.syncSelectedResults.set(matched);
     } catch (error) {
       console.error('Error loading linked results', error);
       this.linkedResults.set([]);
@@ -116,10 +117,10 @@ export default class LinksToResultComponent implements OnInit, OnDestroy {
 
   removeLinkedResult(resultId: number): void {
     if (!this.submission.isEditableStatus()) return;
-
     const currentResults = this.linkedResults();
     const updatedResults = currentResults.filter(r => r.result_id !== resultId);
     this.linkedResults.set(updatedResults);
+    this.allModalsService.syncSelectedResults.set(updatedResults);
   }
 
   async saveData(): Promise<void> {

@@ -56,6 +56,7 @@ export class AllModalsService {
   setDisabledSelectLinkedResults = (fn: () => boolean) => (this.disabledSelectLinkedResults = fn);
   refreshLinkedResults?: () => Promise<void> | void;
   setRefreshLinkedResults = (fn: (() => Promise<void> | void) | undefined) => (this.refreshLinkedResults = fn);
+  syncSelectedResults = signal<Result[]>([]);
 
   setSubmitResultOrigin(origin: 'latest' | null): void {
     this.submitResultOrigin.set(origin);
