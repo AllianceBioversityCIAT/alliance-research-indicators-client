@@ -508,6 +508,7 @@ export class CreateOicrFormComponent implements OnInit {
 
   openSubmitResultModal() {
     this.allModalsService.disablePostponeOption.set(false);
+    this.allModalsService.disableRejectOption.set(false);
     this.allModalsService.setSubmitResultOrigin('latest');
     this.allModalsService.closeModal('createResult');
     this.allModalsService.setSubmitBackStep(this.activeIndex());
@@ -540,7 +541,11 @@ export class CreateOicrFormComponent implements OnInit {
   }
 
   openSubmitResultModalForReviewAgain() {
-    this.allModalsService.disablePostponeOption.set(true);
+    const statusId = this.createResultManagementService.statusId();
+    // If current status is Postponed (11), disable Postpone in the modal.
+    // If current status is Rejected (7), disable Reject in the modal.
+    this.allModalsService.disablePostponeOption.set(statusId === 11);
+    this.allModalsService.disableRejectOption.set(statusId === 7);
     this.allModalsService.setSubmitResultOrigin('latest');
     this.allModalsService.closeModal('createResult');
     this.allModalsService.setSubmitBackStep(this.activeIndex());
@@ -563,7 +568,7 @@ export class CreateOicrFormComponent implements OnInit {
       start_date: contract?.start_date,
       endDateGlobal: contract?.endDateGlobal || undefined,
       levers: levers || undefined,
-      status_id: '11' // Postpone status for Review again
+      status_id: this.createResultManagementService.statusId()?.toString() || undefined
     });
     
     // Set up the cancel action to call handleSubmitBack

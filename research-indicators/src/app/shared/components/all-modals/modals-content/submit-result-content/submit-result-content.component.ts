@@ -39,6 +39,24 @@ export class SubmitResultContentComponent {
 
   form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
 
+  // Adjust header status for latest flow so that tag shows correct status (e.g., Rejected for 7, Postponed for 11)
+  headerData = computed(() => {
+    const base = this.allModalsService.submitHeader();
+    if (!base) return null;
+
+    if (this.allModalsService.submitResultOrigin?.() === 'latest') {
+      const currentStatusId = this.cache.currentMetadata()?.status_id;
+      if (currentStatusId === 7 || currentStatusId === 11) {
+        return {
+          ...base,
+          status_id: String(currentStatusId)
+        };
+      }
+    }
+
+    return base;
+  });
+
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
     this.allModalsService.setDisabledSubmitReview(() => this.disabledConfirmSubmit());
@@ -55,8 +73,9 @@ export class SubmitResultContentComponent {
         });
       }
       if (wasVisible && !visible) {
-        // Reset disablePostponeOption when modal closes
+        // Reset disabled options when modal closes
         this.allModalsService.disablePostponeOption.set(false);
+        this.allModalsService.disableRejectOption.set(false);
       }
       wasVisible = visible;
     });
@@ -116,6 +135,7 @@ export class SubmitResultContentComponent {
   reviewOptions = computed<ReviewOption[]>(() => {
     const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
     const disablePostpone = this.allModalsService.disablePostponeOption?.() ?? false;
+    const disableReject = this.allModalsService.disableRejectOption?.() ?? false;
     return this.baseReviewOptions.map(opt => {
       if (!isLatest) return opt;
       if (opt.key === 'approve') {
@@ -133,7 +153,7 @@ export class SubmitResultContentComponent {
         };
       }
       if (opt.key === 'reject') {
-        return { ...opt, commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision' };
+        return { ...opt, commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', disabled: disableReject };
       }
       return opt;
     });
@@ -188,15 +208,16 @@ export class SubmitResultContentComponent {
         }
         break;
         
-      case 'Home':
+      case 'Home': {
         event.preventDefault();
         const firstEnabled = options.findIndex(opt => !opt.disabled);
         if (firstEnabled !== -1) {
           this.focusOption(options[firstEnabled]);
         }
         break;
+      }
         
-      case 'End':
+      case 'End': {
         event.preventDefault();
         let lastEnabled = -1;
         for (let i = options.length - 1; i >= 0; i--) {
@@ -209,6 +230,7 @@ export class SubmitResultContentComponent {
           this.focusOption(options[lastEnabled]);
         }
         break;
+      }
     }
   }
 

@@ -35,6 +35,8 @@ describe('SubmitResultContentComponent', () => {
       closeAllModals: jest.fn(),
       submitResultOrigin: signal(null),
       submitHeader: signal(null),
+      disablePostponeOption: Object.assign(() => false, { set: jest.fn() }) as any,
+      disableRejectOption: Object.assign(() => false, { set: jest.fn() }) as any,
       modalConfig: signal({
         submitResult: { isOpen: false },
         createResult: { isOpen: false },
@@ -483,7 +485,8 @@ describe('SubmitResultContentComponent', () => {
       commentLabel: 'Justification',
       placeholder: 'Please briefly elaborate your decision',
       statusId: 11,
-      selected: false
+      selected: false,
+      disabled: false
     });
 
     // Check reject option for latest flow
@@ -497,7 +500,8 @@ describe('SubmitResultContentComponent', () => {
       commentLabel: 'Justification',
       placeholder: 'Please briefly elaborate your decision',
       statusId: 7,
-      selected: false
+      selected: false,
+      disabled: false
     });
   });
 
@@ -776,7 +780,8 @@ describe('SubmitResultContentComponent', () => {
     
     component.setInitialSelectedReviewOption();
     
-    expect(mockSubmissionService.statusSelected.set).not.toHaveBeenCalled();
+    // Now we explicitly clear the selection when there is no matching status
+    expect(mockSubmissionService.statusSelected.set).toHaveBeenCalledWith(null);
   });
 
   it('should handle setInitialSelectedReviewOption with null status', () => {
