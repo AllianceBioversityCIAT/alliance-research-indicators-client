@@ -95,11 +95,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       return result.external_link ?? '';
     }
 
-    if (effectivePlatform === PLATFORM_CODES.PRMS) {
-      this.onResultLinkClick({ ...result, platform_code: effectivePlatform });
-      return '';
-    }
-
     const resultCode = `${effectivePlatform}-${result.result_official_code}`;
     let urlTree: UrlTree;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
@@ -115,11 +110,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
 
   openResult(result: Result) {
     this.resultsCenterService.clearAllFilters();
-    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP) {
-      this.allModalsService.selectedResultForInfo.set(result);
-      this.allModalsService.openModal('resultInformation');
-      return;
-    }
     const href = this.getResultHref(result);
     this.openHrefInNewTab(href);
   }
@@ -135,13 +125,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     });
     const href = this.router.serializeUrl(tree);
     this.openHrefInNewTab(href);
-  }
-
-  onResultLinkClick(result: Result): void {
-    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS) {
-      this.allModalsService.selectedResultForInfo.set(result);
-      this.allModalsService.openModal('resultInformation');
-    }
   }
 
   private openHrefInNewTab(href: string): void {
