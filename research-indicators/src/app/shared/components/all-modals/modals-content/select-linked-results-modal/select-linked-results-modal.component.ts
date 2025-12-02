@@ -124,9 +124,23 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   }
 
   openResult(result: Result) {
+    if (result.platform_code === PLATFORM_CODES.TIP && result.external_link) {
+      this.openExternalLink(result);
+      return;
+    }
     this.resultsCenterService.clearAllFilters();
     const href = this.getResultHref(result);
     this.openHrefInNewTab(href);
+  }
+
+  openExternalLink(result: Result): void {
+    const link = result.external_link;
+    if (!link) return;
+
+    const isSupportedPlatform = result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS;
+    if (isSupportedPlatform) {
+      globalThis.open(link, '_blank', 'noopener');
+    }
   }
 
   openResultByYear(result: number, year: string | number, platformCode: string) {
