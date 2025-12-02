@@ -21,7 +21,7 @@ import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-cent
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { Router, RouterLink, UrlTree } from '@angular/router';
 
-const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
+const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
 
 @Component({
   selector: 'app-select-linked-results-modal',
@@ -88,12 +88,19 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.searchInput.set(($event.target as HTMLInputElement).value);
   }
 
-  getResultHref(result: Result): string {
-    if (result.platform_code === PLATFORM_CODES.PRMS) {
-      this.onResultLinkClick(result);
+  getResultHref(result: Result, platformCode?: string): string {
+    const effectivePlatform = platformCode ?? result.platform_code;
+
+    if (effectivePlatform === PLATFORM_CODES.TIP) {
+      return result.external_link ?? '';
+    }
+
+    if (effectivePlatform === PLATFORM_CODES.PRMS) {
+      this.onResultLinkClick({ ...result, platform_code: effectivePlatform });
       return '';
     }
-    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+
+    const resultCode = `${effectivePlatform}-${result.result_official_code}`;
     let urlTree: UrlTree;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
