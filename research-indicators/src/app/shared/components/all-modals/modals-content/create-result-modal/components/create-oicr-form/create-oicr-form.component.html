@@ -65,7 +65,7 @@
   }
 </ng-template>
 
-<div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px] md:overflow-x-hidden">
+<div class="grid h-[calc(100%-60px)] w-[70vw] max-w-[1300px] md:overflow-x-hidden pb-12">
   <!-- OICR header -->
   @if (currentContract()) {
     <app-oicr-header [data]="{
@@ -84,14 +84,16 @@
     @if ((this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 7) && submissionHistory().length > 0) {
       <p-accordion (activeIndexChange)="onAccordionToggle($event)">
         <ng-template #globalToggleIcon let-active="active">
+        </ng-template>
+        <ng-template #globalSeeDetailsIcon let-active="active">
           @if (active) {
-            <i class="pi pi-angle-up text-[#035BA9] !text-[14px]"></i>
+            <i class="pi pi-chevron-up text-[#035BA9] !text-[12px]"></i>
           } @else {
-            <i class="pi pi-angle-down text-[#035BA9] !text-[14px]"></i>
+            <i class="pi pi-chevron-down text-[#035BA9] !text-[12px]"></i>
           }
         </ng-template>
         <p-accordion-panel value="0" class="!border-none">
-          <p-accordion-header class="!border !p-4 !font-medium" 
+          <p-accordion-header class="!border !py-4 !px-7 !font-medium" 
           [class]="'!border !p-4 !font-medium ' + ((accordionActiveState() ?? isAccordionOpen()) ? '!border-b-0 !rounded-t-[13px] !rounded-b-none' : '!rounded-[13px]')"
           [style.border-color]="getColors().border" 
           [style.color]="getColors().text"
@@ -121,11 +123,27 @@
                 </div>
               </div>
             </div>
-            <div class="flex justify-end min-w-[100px]">
-              <span class="text-[#035BA9] text-[14px] px-2 text-right cursor-pointer hover:underline">See details</span>
-            </div>
+            <div class="flex items-center justify-end gap-4 min-w-[200px]">
+              <span class="text-[#035BA9] text-[14px] px-2 text-right cursor-pointer hover:underline flex items-center gap-1">
+                See details
+                @if (accordionActiveState() ?? isAccordionOpen()) {
+                  <i class="pi pi-chevron-up text-[#035BA9] !text-[12px]"></i>
+                } @else {
+                  <i class="pi pi-chevron-down text-[#035BA9] !text-[12px]"></i>
+                }
+              </span>
+            </div>            
+
+            @if ((this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 7) && this.createResultManagementService.editingOicr()) {
+            <button
+            class="font-medium cursor-pointer min-w-[136px] text-[14px] ml-4 text-[#035BA9] border border-[#035BA9] px-4 py-1.5 rounded-lg flex items-center gap-2 hover:bg-[#035BA9]/5 transition-colors"
+            (click)="openSubmitResultModalForReviewAgain(); $event.stopPropagation()">
+            <i class="pi pi-pencil !text-[14px]"></i>
+            Review again
+          </button>
+        }
           </p-accordion-header>
-          <p-accordion-content class="!border !border-t-0 !rounded-b-[13px] !px-4 !pb-4 !mb-8 !-mt-px custom-accordion-content"
+          <p-accordion-content class="!border !border-t-0 !rounded-b-[13px] !px-7 !pb-4 !mb-8 !-mt-px custom-accordion-content"
             [style.border-color]="getColors().border" 
             [style.color]="getColors().text"
             [style.background-color]="getColors().background + ' !important'">

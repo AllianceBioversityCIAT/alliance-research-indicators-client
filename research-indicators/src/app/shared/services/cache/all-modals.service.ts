@@ -30,6 +30,8 @@ export class AllModalsService {
   submitResultOrigin = signal<'latest' | null>(null);
   submitHeader = signal<OicrHeaderData | null>(null);
   submitBackStep = signal<number | null>(null);
+  disablePostponeOption = signal<boolean>(false);
+  disableRejectOption = signal<boolean>(false);
   createResultManagementService = inject(CreateResultManagementService);
   submissionService = inject(SubmissionService);
   goBackFunction?: () => void;
