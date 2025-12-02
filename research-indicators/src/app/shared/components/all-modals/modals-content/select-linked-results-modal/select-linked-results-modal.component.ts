@@ -72,6 +72,20 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
 
   selectedCount = computed(() => this.selectedResults().length);
 
+  private readonly syncSelectedResultsWatcher = effect(
+    () => {
+      const syncedResults = this.allModalsService.syncSelectedResults();
+      const currentSelected = this.selectedResults();
+      const syncedIds = syncedResults.map(r => r.result_id).sort((a, b) => a - b);
+      const currentIds = currentSelected.map(r => r.result_id).sort((a, b) => a - b);
+      
+      if (JSON.stringify(syncedIds) !== JSON.stringify(currentIds)) {
+        this.selectedResults.set(syncedResults);
+      }
+    },
+    { allowSignalWrites: true }
+  );
+
   onSearchInputChange = effect(() => {
     const searchValue = this.searchInput();
     if (this.dt2) {
@@ -82,6 +96,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.modalVisibilityWatcher.destroy();
     this.onSearchInputChange.destroy();
+    this.syncSelectedResultsWatcher.destroy();
   }
 
   setSearchInputFilter($event: Event) {
