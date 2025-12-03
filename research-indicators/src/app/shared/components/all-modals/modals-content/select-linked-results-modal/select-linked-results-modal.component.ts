@@ -183,9 +183,13 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     const index = current.findIndex(r => r.result_id === result.result_id);
     
     if (index >= 0) {
-      this.selectedResults.set(current.filter(r => r.result_id !== result.result_id));
+      const updated = current.filter(r => r.result_id !== result.result_id);
+      this.selectedResults.set(updated);
+      this.allModalsService.syncSelectedResults.set(updated);
     } else {
-      this.selectedResults.set([...current, result]);
+      const updated = [...current, result];
+      this.selectedResults.set(updated);
+      this.allModalsService.syncSelectedResults.set(updated);
     }
   }
 
