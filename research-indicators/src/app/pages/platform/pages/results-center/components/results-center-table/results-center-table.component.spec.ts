@@ -74,7 +74,9 @@ describe('ResultsCenterTableComponent', () => {
 
     mockModals = {
       selectedResultForInfo: signal<any>(null),
-      openModal: jest.fn()
+      openModal: jest.fn(),
+      // New helper used by processRowClick to avoid interfering when a modal is already open
+      isAnyModalOpen: jest.fn(() => false)
     };
 
     mockRouter = {

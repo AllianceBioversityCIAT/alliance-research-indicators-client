@@ -329,6 +329,10 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   private processRowClick(target: Element, event: MouseEvent) {
+    if (this.allModalsService.isAnyModalOpen()) {
+      return;
+    }
+
     this.lastClickedElement = target;
     
     if (target.closest('.project-link') || target.classList.contains('project-link')) {
