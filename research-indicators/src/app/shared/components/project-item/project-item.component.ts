@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { GetContractsByUser, IndicatorElement } from '@shared/interfaces/get-contracts-by-user.interface';
@@ -15,19 +15,27 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './project-item.component.html',
   styleUrl: './project-item.component.scss'
 })
-export class ProjectItemComponent implements OnInit {
+export class ProjectItemComponent implements OnInit, OnChanges {
   @Input() isHeader = false;
   @Input() hideSetup = false;
   @Input() project: GetContractsByUser | GetProjectDetail | FindContracts = {};
   cache = inject(CacheService);
-  private projectUtils = inject(ProjectUtilsService);
+  private readonly projectUtils = inject(ProjectUtilsService);
 
-  // Local property for processed indicators
   processedIndicators: (IndicatorElement | GetProjectDetailIndicator)[] = [];
 
   ngOnInit(): void {
-    if (this.project.indicators && this.project.indicators.length > 0) {
-      // Create a local copy of indicators and process them
+    this.processIndicators();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['project'] && !changes['project'].firstChange) {
+      this.processIndicators();
+    }
+  }
+
+  private processIndicators(): void {
+    if (this.project?.indicators && this.project.indicators.length > 0) {
       this.processedIndicators = this.projectUtils.sortIndicators([...this.project.indicators]);
     } else {
       this.processedIndicators = [];
