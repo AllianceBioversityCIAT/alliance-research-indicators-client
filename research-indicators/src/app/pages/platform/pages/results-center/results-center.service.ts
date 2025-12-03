@@ -139,6 +139,7 @@ export class ResultsCenterService {
   );
 
   resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
+  primaryContractId = signal<string | null>(null);
   resultsConfig = signal<ResultConfig>({
     indicators: true,
     'result-status': true,
@@ -286,7 +287,13 @@ export class ResultsCenterService {
   async main() {
     this.loading.set(true);
     try {
-      const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
+      const baseFilter = this.resultsFilter();
+      const primaryContractId = this.primaryContractId();
+      const finalFilter = primaryContractId
+        ? ({ ...baseFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter)
+        : baseFilter;
+
+      const response = await this.getResultsService.getInstance(finalFilter, this.resultsConfig());
       this.list.set(response());
     } catch (error) {
       console.error('Error loading results:', error);

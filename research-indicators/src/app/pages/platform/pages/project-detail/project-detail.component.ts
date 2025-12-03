@@ -1,24 +1,29 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ProjectResultsTableComponent } from '@shared/components/project-results-table/project-results-table.component';
+import { ResultsCenterTableComponent } from '../results-center/components/results-center-table/results-center-table.component';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
 import { ApiService } from '../../../../shared/services/api.service';
 import { ActivatedRoute } from '@angular/router';
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
+import { ResultsCenterService } from '../results-center/results-center.service';
 
 @Component({
   selector: 'app-project-detail',
-  imports: [ProjectResultsTableComponent, ProjectItemComponent],
+  imports: [ResultsCenterTableComponent, ProjectItemComponent],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
 export default class ProjectDetailComponent implements OnInit {
   activatedRoute = inject(ActivatedRoute);
   api = inject(ApiService);
+  resultsCenterService = inject(ResultsCenterService);
   contractId = signal('');
   currentProject = signal<GetProjectDetail>({});
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
+    this.resultsCenterService.resetState();
+    this.resultsCenterService.primaryContractId.set(this.contractId());
+    this.resultsCenterService.main();
     this.getProjectDetail();
   }
 

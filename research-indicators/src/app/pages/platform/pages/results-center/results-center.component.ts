@@ -63,6 +63,7 @@ export default class ResultsCenterComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.resultsCenterService.primaryContractId.set(null);
     this.loadPinnedTab();
   }
 
