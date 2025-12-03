@@ -76,7 +76,7 @@ describe('StatusDropdownComponent', () => {
       });
       expect(statuses[2]).toEqual({
         id: 7,
-        name: 'Reject',
+        name: 'Do not approve',
         direction: 'previous',
         icon: 'reject'
       });
