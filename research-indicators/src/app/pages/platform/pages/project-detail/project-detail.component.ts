@@ -1,5 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ResultsCenterTableComponent } from '../results-center/components/results-center-table/results-center-table.component';
+import { TableFiltersSidebarComponent } from '../results-center/components/table-filters-sidebar/table-filters-sidebar.component';
+import { TableConfigurationComponent } from '../results-center/components/table-configuration/table-configuration.component';
+import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
 import { ApiService } from '../../../../shared/services/api.service';
 import { ActivatedRoute } from '@angular/router';
@@ -8,7 +11,7 @@ import { ResultsCenterService } from '../results-center/results-center.service';
 
 @Component({
   selector: 'app-project-detail',
-  imports: [ResultsCenterTableComponent, ProjectItemComponent],
+  imports: [ResultsCenterTableComponent, ProjectItemComponent, TableFiltersSidebarComponent, TableConfigurationComponent, SectionSidebarComponent],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })

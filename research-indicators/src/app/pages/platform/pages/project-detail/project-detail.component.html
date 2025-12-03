@@ -4,3 +4,21 @@
 <div class="py-[30px] px-[20px] w-full">
   <app-results-center-table [showNewProjectResultButton]="true"></app-results-center-table>
 </div>
+
+<app-section-sidebar
+  [title]="'Table Filters'"
+  [description]="'Filter your table data by applying custom criteria.'"
+  [showSignal]="this.resultsCenterService.showFiltersSidebar"
+  confirmText="Apply filters"
+  (confirm)="this.resultsCenterService.applyFilters()">
+  <app-table-filters-sidebar></app-table-filters-sidebar>
+</app-section-sidebar>
+
+<app-section-sidebar
+  [title]="'Table Configuration'"
+  [description]="'Customize your table by enabling, disabling, or reordering columns.'"
+  [showSignal]="this.resultsCenterService.showConfigurationsSidebar"
+  confirmText="Save table settings"
+  (confirm)="sidebarConfigurations.applyConfigurations()">
+  <app-table-configuration #sidebarConfigurations></app-table-configuration>
+</app-section-sidebar>
