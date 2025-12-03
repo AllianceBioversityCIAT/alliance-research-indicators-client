@@ -153,7 +153,7 @@ export class SubmitResultContentComponent {
         };
       }
       if (opt.key === 'reject') {
-        return { ...opt, commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', disabled: disableReject };
+        return { ...opt, label: 'Do not approve', commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', disabled: disableReject };
       }
       return opt;
     });

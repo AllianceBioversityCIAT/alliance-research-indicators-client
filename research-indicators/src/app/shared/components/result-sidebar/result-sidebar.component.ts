@@ -96,7 +96,7 @@ export class ResultSidebarComponent {
       greenCheckKey: 'policy_change'
     },
     {
-      label: 'Partners',
+      label: 'Results Partners',
       path: 'partners',
       greenCheckKey: 'partners'
     },
