@@ -46,21 +46,20 @@
 
           <div class="flex items-center justify-between w-full">
             <app-search-export-controls
-              [showExportButton]="false"
-              [searchValue]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput()"
-              [searchPlaceholder]="'Find a project by code, title or principal investigator'"
-              (searchChange)="setSearchInputFilter($event)">
-            </app-search-export-controls>
-
-            <app-filters-action-buttons
               [applyLabel]="applyFiltersLabel"
               [badge]="myProjectsService.countFiltersSelected()"
               [showOverlayDot]="!!myProjectsService.countFiltersSelected()"
               [showClear]="true"
+              [searchValue]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput()"
+              [searchPlaceholder]="'Find a project by code, title or principal investigator'"
+              (searchChange)="setSearchInputFilter($event)"
+              (apply)="showFiltersSidebar()"
+              (clear)="myProjectsService.clearFilters()">
+            </app-search-export-controls>
+
+            <app-filters-action-buttons
               [showViewToggleButtons]="true"
               [isTableView]="isTableView()"
-              (apply)="showFiltersSidebar()"
-              (clear)="myProjectsService.clearFilters()"
               (tableView)="toggleTableView()"
               (cardView)="toggleCardView()">
             </app-filters-action-buttons>

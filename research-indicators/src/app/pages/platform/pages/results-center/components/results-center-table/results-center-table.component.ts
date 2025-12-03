@@ -89,6 +89,14 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     return filter.value || filter.label;
   }
 
+  getVisibleColumns() {
+    const columns = this.resultsCenterService.tableColumns();
+    if (!this.showNewProjectResultButton) {
+      return columns;
+    }
+    return columns.filter(column => column.field !== 'project' && column.field !== 'lever');
+  }
+
   getPlatformColors(platformCode: string): { text: string; background: string } | undefined {
     return PLATFORM_COLOR_MAP[platformCode];
   }

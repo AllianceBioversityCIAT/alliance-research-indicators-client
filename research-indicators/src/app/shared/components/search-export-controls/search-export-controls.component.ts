@@ -10,11 +10,16 @@ import { InputTextModule } from 'primeng/inputtext';
   templateUrl: './search-export-controls.component.html'
 })
 export class SearchExportControlsComponent {
-  @Input() showExportButton = true;
-  @Input() exportLabel = 'Export Results';
+
+  @Input() applyLabel = 'Apply Filters';
+  @Input() badge?: string | number;
+  @Input() showOverlayDot = false;
+  @Input() showClear = true;
   @Input() searchValue = '';
   @Input() searchPlaceholder = 'Find a result by code, title or creator';
 
-  @Output() export = new EventEmitter<void>();
+
+  @Output() apply = new EventEmitter<void>();
+  @Output() clear = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<Event>();
 }
