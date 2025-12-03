@@ -139,7 +139,7 @@ export class SubmitResultContentComponent {
     return this.baseReviewOptions.map(opt => {
       if (!isLatest) return opt;
       if (opt.key === 'approve') {
-        return { ...opt, description: 'OICR development will continue with PISA support.', statusId: 4 };
+        return { ...opt, description: 'The development of the OICR will continue with backstopping from the PISA-SPRM team.', statusId: 4 };
       }
       if (opt.key === 'revise') {
         return { 
@@ -367,7 +367,7 @@ export class SubmitResultContentComponent {
         severity: 'success',
         summary: 'Review submitted successfully',
         hasNoCancelButton: true,
-        detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+        detail: 'Your review has been submitted and the OICR development process will continue with backstopping from the PISA-SPRM team.',
         confirmCallback: {
           label: 'Done',
           event: () => {

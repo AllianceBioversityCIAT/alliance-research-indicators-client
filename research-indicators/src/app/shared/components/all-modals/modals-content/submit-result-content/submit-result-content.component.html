@@ -38,7 +38,9 @@
   
           <i class="pi !text-[30px] {{ option.icon }} {{ option.color }}"></i>
           <span class="font-semibold text-[15px] text-[#4C5158]">{{ option?.label }}</span>
-          <p class="text-[12px] text-[#4c5158]">{{ option?.description }}</p>
+          <p class="text-[12px] text-[#4c5158] flex-1 flex items-center justify-center text-center">
+            {{ option?.description }}
+          </p>
         </label>
       }
     </div>
