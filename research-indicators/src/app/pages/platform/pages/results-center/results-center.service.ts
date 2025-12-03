@@ -63,6 +63,8 @@ export class ResultsCenterService {
     {
       field: 'indicator_id',
       path: 'indicators.name',
+      minWidth: 'min-w-[165px]',
+      maxWidth: 'max-w-[165px]',
       header: 'Indicator',
       hideIf: computed(() =>
         this.api.indicatorTabs
@@ -126,7 +128,8 @@ export class ResultsCenterService {
       field: 'creation_date',
       path: 'created_at',
       header: 'Creation Date',
-      minWidth: 'min-w-[120px]',
+      minWidth: 'min-w-[110px]',
+      maxWidth: 'max-w-[110px]',
 
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
@@ -366,7 +369,6 @@ export class ResultsCenterService {
       'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
     }));
-
     this.main();
   };
 
@@ -394,7 +396,6 @@ export class ResultsCenterService {
       ...prev,
       indicators: []
     }));
-
     this.main();
   }
 

@@ -21,9 +21,8 @@ export default class ProjectDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
-    this.resultsCenterService.resetState();
     this.resultsCenterService.primaryContractId.set(this.contractId());
-    this.resultsCenterService.main();
+    this.resultsCenterService.resetState();
     this.getProjectDetail();
   }
 
