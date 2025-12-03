@@ -169,13 +169,19 @@
                         <p-sortIcon field="display_lever_name"></p-sortIcon>
                       </div>
                     </th>
-                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date" style="width: 8%">
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="display_lever_name" style="min-width: 200px">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Lead Center
+                        <p-sortIcon field="display_lever_name"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date" style="min-width: 120px">
                       <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                         Start Date
                         <p-sortIcon field="start_date"></p-sortIcon>
                       </div>
                     </th>
-                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="end_date" style="width: 8%">
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="end_date" style="min-width: 120px">
                       <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                         End Date
                         <p-sortIcon field="end_date"></p-sortIcon>
@@ -246,6 +252,14 @@
                       </a>
                     </td>
                     <td>
+                      <a
+                        [routerLink]="['/project-detail', project.agreement_id]"
+                        (click)="$event.stopPropagation()"
+                        class="block"
+                        style="color: inherit; text-decoration: none">
+                        {{ project.ubwClientDescription ? (project.ubwClientDescription) : '-' }}
+                      </a>
+                    </td><td>
                       <a
                         [routerLink]="['/project-detail', project.agreement_id]"
                         (click)="$event.stopPropagation()"
