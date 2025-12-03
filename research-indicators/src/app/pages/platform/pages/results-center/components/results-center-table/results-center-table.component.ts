@@ -1,4 +1,4 @@
-import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed, HostListener } from '@angular/core';
+import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -18,6 +18,7 @@ import { SearchExportControlsComponent } from '../../../../../../shared/componen
 import { PLATFORM_COLOR_MAP } from '../../../../../../shared/constants/platform-colors';
 import { PLATFORM_CODES } from '../../../../../../shared/constants/platform-codes';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 @Component({
   selector: 'app-results-center-table',
   imports: [
@@ -40,6 +41,9 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   private readonly router = inject(Router);
   private readonly cacheService = inject(CacheService);
   private readonly allModalsService = inject(AllModalsService);
+  private readonly createResultManagementService = inject(CreateResultManagementService);
+
+  @Input() showNewProjectResultButton = false;
   @ViewChild('dt2') dt2!: Table;
   tableRef = signal<Table | undefined>(undefined);
   private lastClickedElement: Element | null = null;
@@ -83,6 +87,14 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       return `Project: ${filter.value}`;
     }
     return filter.value || filter.label;
+  }
+
+  getVisibleColumns() {
+    const columns = this.resultsCenterService.tableColumns();
+    if (!this.showNewProjectResultButton) {
+      return columns;
+    }
+    return columns.filter(column => column.field !== 'project' && column.field !== 'lever');
   }
 
   getPlatformColors(platformCode: string): { text: string; background: string } | undefined {
@@ -229,6 +241,16 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   showConfiguratiosnSidebar() {
     this.resultsCenterService.showConfigurationsSidebar.set(true);
+  }
+
+  openCreateResultForProject() {
+    const contractId = this.resultsCenterService.primaryContractId();
+    if (!contractId) {
+      return;
+    }
+    this.createResultManagementService.setContractId(contractId);
+    this.createResultManagementService.setPresetFromProjectResultsTable(true);
+    this.allModalsService.openModal('createResult');
   }
 
   getStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'help' | 'primary' | 'secondary' | 'contrast' | null | undefined {

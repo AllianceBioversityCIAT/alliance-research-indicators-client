@@ -1,30 +1,16 @@
 <div class="flex gap-3 items-center">
-  <div class="relative">
-    <p-button
-      styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px]"
-      [label]="badge ? applyLabel + ' (' + badge + ')' : applyLabel"
-      icon="pi pi-filter !text-[10px]"
-      size="small"
-      (keydown.enter)="apply.emit()"
-      (click)="apply.emit()"></p-button>
 
-    @if (showOverlayDot) {
-      <div class="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-white"></div>
-    }
-  </div>
-
-  @if (showClear) {
+  @if (showExportButton) {
     <p-button
-      styleClass="!text-[12px]"
-      label="Clear Filters"
-      [text]="true"
-      size="small"
-      severity="secondary"
-      (keydown.enter)="clear.emit()"
-      (click)="clear.emit()"></p-button>
+      icon="pi pi-file-excel !text-[12px]"
+      styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] !bg-white !text-[#035BA9] !border-[#035BA9]"
+      (keydown.enter)="export.emit()"
+      (click)="export.emit()"
+      [label]="exportLabel"
+      class="p-button-outlined"
+      [outlined]="true"></p-button>
   }
-
-  @if (showViewToggleButtons) {
+    @if (showViewToggleButtons) {
     <p-button
       styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn"
       icon="pi pi-bars"
@@ -48,7 +34,7 @@
 
   @if (showConfigButton) {
     <p-button
-      styleClass="!rounded-[8px] !p-0 !max-w-[30px] !max-h-[27px]"
+      styleClass="!rounded-[8px] !p-0 !max-w-[30px] !max-h-[27px] !border-none"
       icon="pi pi-cog !text-[17px]"
       size="small"
       [outlined]="true"

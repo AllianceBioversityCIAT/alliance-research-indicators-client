@@ -10,19 +10,14 @@ import { InputTextModule } from 'primeng/inputtext';
   templateUrl: './filters-action-buttons.component.html'
 })
 export class FiltersActionButtonsComponent {
-  @Input() applyLabel = 'Apply Filters';
-  @Input() badge?: string | number;
-  @Input() showOverlayDot = false;
-
-  @Input() showClear = true;
-
+  @Input() showExportButton = false;
+  @Input() exportLabel = 'Export Results';
   @Input() showViewToggleButtons = false;
   @Input() isTableView = false;
 
   @Input() showConfigButton = false;
 
-  @Output() apply = new EventEmitter<void>();
-  @Output() clear = new EventEmitter<void>();
+  @Output() export = new EventEmitter<void>();
   @Output() tableView = new EventEmitter<void>();
   @Output() cardView = new EventEmitter<void>();
   @Output() config = new EventEmitter<void>();

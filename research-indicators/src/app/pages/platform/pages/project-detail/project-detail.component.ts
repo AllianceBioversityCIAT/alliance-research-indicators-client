@@ -9,6 +9,11 @@ import { SplitterModule } from 'primeng/splitter';
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { SetUpProjectService } from '../set-up-project/set-up-project.service';
 import { ProgressDetailContentComponent } from './pages/progress-towards-indicators/components/progress-detail-content/progress-detail-content.component';
+import { ResultsCenterService } from '../results-center/results-center.service';
+import { ResultsCenterTableComponent } from '../results-center/components/results-center-table/results-center-table.component';
+import { TableFiltersSidebarComponent } from '../results-center/components/table-filters-sidebar/table-filters-sidebar.component';
+import { TableConfigurationComponent } from '../results-center/components/table-configuration/table-configuration.component';
+import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 
 interface ViewTab {
   label: string;
@@ -16,18 +21,10 @@ interface ViewTab {
   hidden?: boolean;
 }
 
+
 @Component({
   selector: 'app-project-detail',
-  imports: [
-    ProjectItemComponent,
-    TabsModule,
-    RouterLink,
-    RouterOutlet,
-    SplitterModule,
-    NgTemplateOutlet,
-    CommonModule,
-    ProgressDetailContentComponent
-  ],
+  imports: [ResultsCenterTableComponent, ProjectItemComponent, TableFiltersSidebarComponent, TableConfigurationComponent, SectionSidebarComponent, NgTemplateOutlet, RouterOutlet, RouterLink, TabsModule, SplitterModule, CommonModule, ProgressDetailContentComponent],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
@@ -36,6 +33,7 @@ export default class ProjectDetailComponent implements OnInit {
   api = inject(ApiService);
   cache = inject(CacheService);
   router = inject(Router);
+  resultsCenterService = inject(ResultsCenterService);
   contractId = signal('');
   lastSegment = signal('');
   setupProjectService = inject(SetUpProjectService);
@@ -62,6 +60,8 @@ export default class ProjectDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
+    this.resultsCenterService.primaryContractId.set(this.contractId());
+    this.resultsCenterService.resetState();
     this.getProjectDetail();
     this.cache.currentProjectId.set(this.contractId());
     this.getLastSegment();
@@ -70,7 +70,16 @@ export default class ProjectDetailComponent implements OnInit {
   getLastSegment() {
     const tree = this.router.parseUrl(this.router.url);
     const segments = tree.root.children[PRIMARY_OUTLET]?.segments ?? [];
-    this.lastSegment.set(segments.at(-1)?.path ?? '');
+    const lastPath = segments.at(-1)?.path ?? '';
+    // Si no hay segmento o es el ID del proyecto, usar 'project-results' por defecto
+    this.lastSegment.set(lastPath === this.contractId() || !lastPath ? 'project-results' : lastPath);
+  }
+
+  onTabClick(tab: ViewTab) {
+    this.lastSegment.set(tab.route);
+    if (tab.route !== 'project-results') {
+      this.router.navigate([tab.route], { relativeTo: this.activatedRoute });
+    }
   }
 
   async getProjectDetail() {

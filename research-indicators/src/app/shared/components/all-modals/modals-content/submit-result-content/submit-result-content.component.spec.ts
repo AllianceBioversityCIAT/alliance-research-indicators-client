@@ -464,7 +464,7 @@ describe('SubmitResultContentComponent', () => {
     expect(options[0]).toEqual({
       key: 'approve',
       label: 'Approve',
-      description: 'OICR development will continue with PISA support.',
+      description: 'The development of the OICR will continue with backstopping from the PISA-SPRM team.',
       icon: 'pi-check-circle',
       color: 'text-[#509C55]',
       message: 'Once this result is approved, no further changes will be allowed.',
@@ -540,7 +540,7 @@ describe('SubmitResultContentComponent', () => {
       severity: 'success',
       summary: 'Review submitted successfully',
       hasNoCancelButton: true,
-      detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+      detail: 'Your review has been submitted and the OICR development process will continue with backstopping from the PISA-SPRM team.',
       confirmCallback: {
         label: 'Done',
         event: expect.any(Function)
@@ -577,7 +577,7 @@ describe('SubmitResultContentComponent', () => {
       severity: 'success',
       summary: 'Review submitted successfully',
       hasNoCancelButton: true,
-      detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+      detail: 'Your review has been submitted and the OICR development process will continue with backstopping from the PISA-SPRM team.',
       confirmCallback: {
         label: 'Done',
         event: expect.any(Function)
@@ -619,7 +619,7 @@ describe('SubmitResultContentComponent', () => {
       severity: 'success',
       summary: 'Review submitted successfully',
       hasNoCancelButton: true,
-      detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+      detail: 'Your review has been submitted and the OICR development process will continue with backstopping from the PISA-SPRM team.',
       confirmCallback: {
         label: 'Done',
         event: expect.any(Function)
@@ -982,7 +982,7 @@ describe('SubmitResultContentComponent', () => {
       severity: 'success',
       summary: 'Review submitted successfully',
       hasNoCancelButton: true,
-      detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+      detail: 'Your review has been submitted and the OICR development process will continue with backstopping from the PISA-SPRM team.',
       confirmCallback: {
         label: 'Done',
         event: expect.any(Function)

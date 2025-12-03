@@ -6,21 +6,21 @@
 
   <div class="flex items-center justify-between w-full p-4 bg-white border border-[#E4EAEE]">
     <app-search-export-controls
-      [showExportButton]="false"
-      [searchValue]="searchInput()"
-      [searchPlaceholder]="'Find a result by code, title or creator'"
-      (searchChange)="setSearchInputFilter($event)">
-    </app-search-export-controls>
-
-    <app-filters-action-buttons
       [applyLabel]="'Apply Filters'"
       [badge]="resultsCenterService.countTableFiltersSelected()"
       [showOverlayDot]="!!resultsCenterService.countTableFiltersSelected()"
       [showClear]="true"
-      [showViewToggleButtons]="false"
-      [showConfigButton]="false"
+      [searchValue]="searchInput()"
+      [searchPlaceholder]="'Find a result by code, title or creator'"
+      (searchChange)="setSearchInputFilter($event)"
       (apply)="showFiltersSidebar()"
       (clear)="clearFilters()">
+    </app-search-export-controls>
+
+    <app-filters-action-buttons
+      [showViewToggleButtons]="false"
+      [showConfigButton]="false"
+      [showExportButton]="false">
     </app-filters-action-buttons>
   </div>
 

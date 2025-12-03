@@ -2,7 +2,7 @@
   <div class="flex flex-col h-full min-w-0">
     @if (!setupProjectService.progressIndicatorsData().showSplitter) {
       <div class="w-full">
-        <app-project-item [project]="currentProject()" [isHeader]="true"></app-project-item>
+        <app-project-item [project]="currentProject()" ></app-project-item>
       </div>
     }
     <div class="w-full min-w-0 py-[8px] px-[8px] sm:py-[12px] sm:px-[12px] md:py-[20px] md:px-[24px]">
@@ -12,8 +12,9 @@
             @if (!tab.hidden) {
               <p-tab
                 [value]="tab.route"
-                (click)="this.lastSegment.set(tab.route)"
-                [routerLink]="tab.route"
+                (click)="onTabClick(tab)"
+                (keydown.enter)="onTabClick(tab)"
+                [routerLink]="tab.route === 'project-results' ? null : tab.route"
                 class="flex items-center !gap-2 text-inherit">
                 <span>{{ tab.label }}</span>
               </p-tab>
@@ -22,7 +23,13 @@
         </p-tablist>
       </p-tabs>
       <div class="w-full overflow-x-auto">
-        <router-outlet />
+        @if (lastSegment() === 'project-results') {
+          <div class="w-full">
+            <app-results-center-table [showNewProjectResultButton]="true"></app-results-center-table>
+          </div>
+        } @else {
+          <router-outlet />
+        }
       </div>
     </div>
   </div>
@@ -43,3 +50,21 @@
 } @else {
   <ng-container *ngTemplateOutlet="tableView"> </ng-container>
 }
+
+<app-section-sidebar
+  [title]="'Table Filters'"
+  [description]="'Filter your table data by applying custom criteria.'"
+  [showSignal]="this.resultsCenterService.showFiltersSidebar"
+  confirmText="Apply filters"
+  (confirm)="this.resultsCenterService.applyFilters()">
+  <app-table-filters-sidebar></app-table-filters-sidebar>
+</app-section-sidebar>
+
+<app-section-sidebar
+  [title]="'Table Configuration'"
+  [description]="'Customize your table by enabling, disabling, or reordering columns.'"
+  [showSignal]="this.resultsCenterService.showConfigurationsSidebar"
+  confirmText="Save table settings"
+  (confirm)="sidebarConfigurations.applyConfigurations()">
+  <app-table-configuration #sidebarConfigurations></app-table-configuration>
+</app-section-sidebar>
