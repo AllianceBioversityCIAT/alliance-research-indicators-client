@@ -98,7 +98,7 @@ export class ResultSidebarComponent implements OnInit {
       greenCheckKey: 'policy_change'
     },
     {
-      label: 'Partners',
+      label: 'Results Partners',
       path: 'partners',
       greenCheckKey: 'partners'
     },

@@ -209,9 +209,9 @@ describe('SubmissionService', () => {
     expect(statuses.find(s => s.id === 2)?.name).toBe('Submitted');
     expect(statuses.find(s => s.id === 3)?.name).toBe('Accepted');
     expect(statuses.find(s => s.id === 4)?.name).toBe('Draft');
-    expect(statuses.find(s => s.id === 5)?.name).toBe('Revised');
+    expect(statuses.find(s => s.id === 5)?.name).toBe('Pending Revision');
     expect(statuses.find(s => s.id === 6)?.name).toBe('Approved');
-    expect(statuses.find(s => s.id === 7)?.name).toBe('Rejected');
+    expect(statuses.find(s => s.id === 7)?.name).toBe('Do not approve');
     expect(statuses.find(s => s.id === 8)?.name).toBe('Deleted');
     expect(statuses.find(s => s.id === 9)?.name).toBe('Requested');
     expect(statuses.find(s => s.id === 10)?.name).toBe('Approved');
@@ -226,9 +226,9 @@ describe('SubmissionService', () => {
     expect(service.getStatusNameById(2)).toBe('Submitted');
     expect(service.getStatusNameById(3)).toBe('Accepted');
     expect(service.getStatusNameById(4)).toBe('Draft');
-    expect(service.getStatusNameById(5)).toBe('Revised');
+    expect(service.getStatusNameById(5)).toBe('Pending Revision');
     expect(service.getStatusNameById(6)).toBe('Approved');
-    expect(service.getStatusNameById(7)).toBe('Rejected');
+    expect(service.getStatusNameById(7)).toBe('Do not approve');
     expect(service.getStatusNameById(8)).toBe('Deleted');
     expect(service.getStatusNameById(9)).toBe('Requested');
     expect(service.getStatusNameById(10)).toBe('Approved');

@@ -492,7 +492,7 @@ describe('SubmitResultContentComponent', () => {
     // Check reject option for latest flow
     expect(options[2]).toEqual({
       key: 'reject',
-      label: 'Reject',
+      label: 'Do not approve',
       description: 'Reject this result and specify the reason.',
       icon: 'pi-times-circle',
       color: 'text-[#cf0808]',
