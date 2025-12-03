@@ -11,17 +11,31 @@
         (searchChange)="setSearchInputFilter($event)">
       </app-search-export-controls>
 
-      <app-filters-action-buttons
-        [applyLabel]="'Apply Filters'"
-        [badge]="resultsCenterService.countTableFiltersSelected()"
-        [showOverlayDot]="!!resultsCenterService.countTableFiltersSelected()"
-        [showClear]="true"
-        [showViewToggleButtons]="false"
-        [showConfigButton]="true"
-        (apply)="showFiltersSidebar()"
-        (clear)="this.resultsCenterService.clearAllFilters()"
-        (config)="showConfiguratiosnSidebar()">
-      </app-filters-action-buttons>
+      <div class="flex items-center gap-5">
+        <app-filters-action-buttons
+          [applyLabel]="'Apply Filters'"
+          [badge]="resultsCenterService.countTableFiltersSelected()"
+          [showOverlayDot]="!!resultsCenterService.countTableFiltersSelected()"
+          [showClear]="true"
+          [showViewToggleButtons]="false"
+          [showConfigButton]="true"
+          (apply)="showFiltersSidebar()"
+          (clear)="this.resultsCenterService.clearAllFilters()"
+          (config)="showConfiguratiosnSidebar()">
+        </app-filters-action-buttons>
+
+        @if (showNewProjectResultButton) {
+          <p-button
+            label="New Project Result"
+            icon="pi pi-plus"
+            severity="info"
+            size="small"
+            styleClass="!rounded-[9px] !h-7.5 !text-[13px]"
+            [style]="{ 'min-width': '95px' }"
+            (onClick)="openCreateResultForProject()">
+          </p-button>
+        }
+      </div>
     </div>
 
     @if (shouldShowFilterMessage()) {
