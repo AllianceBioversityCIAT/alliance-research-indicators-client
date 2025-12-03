@@ -121,7 +121,7 @@
                 </div>
               </td>
             } @else if (column.field === 'project') {
-              <td>
+              <td class="project-cell">
                 @if (result.result_contracts?.contract_id) {
                   <a (keydown.enter)="$event.stopPropagation()"
                     class="project-link cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"

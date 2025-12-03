@@ -334,34 +334,26 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     }
 
     this.lastClickedElement = target;
-    
-    if (target.closest('.project-link') || target.classList.contains('project-link')) {
-      return;
-    }
-    
-    if (target.closest('.p-calendar') || 
-        target.closest('.p-datepicker') || 
-        target.closest('.p-calendar-panel') || 
+
+    if (target.closest('.p-calendar') ||
+        target.closest('.p-datepicker') ||
+        target.closest('.p-calendar-panel') ||
         target.closest('.p-datepicker-panel') ||
         target.closest('[class*="p-calendar"]') ||
         target.closest('[class*="p-datepicker"]')) {
       return;
     }
-    
-    if (target.closest('a[routerLink], span[routerLink], [ng-reflect-router-link]')) {
-      return;
-    }
-    
+
     if (target.closest('thead') || target.closest('th') || target.tagName.toLowerCase() === 'th') {
       return;
     }
-    
+
     const rowEl = target.closest('tr');
     if (!rowEl) return;
-    
+
     const tbody = rowEl.parentElement;
     if (!tbody || tbody.tagName.toLowerCase() !== 'tbody') return;
-    
+
     const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
     const rowIndex = rows.indexOf(rowEl);
     if (rowIndex < 0) return;
@@ -369,7 +361,27 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     const pageStart: number = this.dt2.first || 0;
     const idx = pageStart + rowIndex;
     const result = data[idx] as Result | undefined;
-    if (result && (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP)) {
+
+    if (!result) {
+      return;
+    }
+
+    if (target.closest('.project-cell') || target.closest('.project-link') || target.classList.contains('project-link')) {
+      if (result.result_contracts?.contract_id) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.router.navigate(['/project-detail', result.result_contracts.contract_id, 'project-results']);
+      }
+      return;
+    }
+
+    if (result.platform_code !== PLATFORM_CODES.PRMS &&
+        result.platform_code !== PLATFORM_CODES.TIP &&
+        target.closest('a[routerLink], span[routerLink], [ng-reflect-router-link]')) {
+      return;
+    }
+
+    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP) {
       event.preventDefault();
       event.stopPropagation();
       this.allModalsService.selectedResultForInfo.set(result);
