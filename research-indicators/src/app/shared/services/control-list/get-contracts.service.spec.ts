@@ -94,4 +94,73 @@ describe('GetContractsService', () => {
     expect(mainSpy).toHaveBeenCalled();
   });
 
+  it('should use filteredList and filteredLoading when exclude-pooled-funding filter is present', async () => {
+    apiMock.GET_FindContracts.mockResolvedValueOnce({ data: { data: mockData } });
+
+    await service.main({ 'exclude-pooled-funding': true });
+
+    const filteredResult = service.filteredList();
+    expect(filteredResult).toHaveLength(2);
+    expect(filteredResult[0]).toMatchObject({
+      agreement_id: 'A1',
+      description: 'Contract 1',
+      select_label: 'A1 - Contract 1',
+      contract_id: 'A1'
+    });
+    expect(service.filteredLoading()).toBe(false);
+  });
+
+  it('should return correct list signal from getList()', () => {
+    expect(service.getList()).toBe(service.list);
+    expect(service.getList({ 'exclude-pooled-funding': true })).toBe(service.filteredList);
+  });
+
+  it('should return correct loading signal from getLoading()', () => {
+    expect(service.getLoading()).toBe(service.loading);
+    expect(service.getLoading({ 'exclude-pooled-funding': true })).toBe(service.filteredLoading);
+  });
+
+  describe('mainForAiAssistant', () => {
+    it('should fetch and transform contracts for AI assistant successfully', async () => {
+      apiMock.GET_FindContracts.mockResolvedValueOnce({ data: { data: mockData } });
+
+      await service.mainForAiAssistant();
+
+      const result = service.aiAssistantList();
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({
+        agreement_id: 'A1',
+        description: 'Contract 1',
+        select_label: 'A1 - Contract 1',
+        contract_id: 'A1'
+      });
+      expect(result[1]).toEqual({
+        agreement_id: 'A2',
+        description: 'Contract 2',
+        select_label: 'A2 - Contract 2',
+        contract_id: 'A2'
+      });
+      expect(service.aiAssistantLoading()).toBe(false);
+      expect(apiMock.GET_FindContracts).toHaveBeenCalledWith({ 'exclude-pooled-funding': true });
+    });
+
+    it('should handle non-array response for AI assistant', async () => {
+      apiMock.GET_FindContracts.mockResolvedValueOnce({ data: { data: 'not an array' } });
+
+      await service.mainForAiAssistant();
+
+      expect(service.aiAssistantList()).toEqual([]);
+      expect(service.aiAssistantLoading()).toBe(false);
+    });
+
+    it('should handle API errors for AI assistant', async () => {
+      apiMock.GET_FindContracts.mockRejectedValueOnce(new Error('AI Error'));
+
+      await service.mainForAiAssistant();
+
+      expect(service.aiAssistantList()).toEqual([]);
+      expect(service.aiAssistantLoading()).toBe(false);
+    });
+  });
+
 });
