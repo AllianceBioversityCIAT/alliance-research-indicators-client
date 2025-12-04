@@ -24,25 +24,27 @@
     placeholder="Select statuses">
   </app-multiselect>
 
-  <app-multiselect
-    #projectSelect
-    label="Project"
-    [signal]="this.resultsCenterService.tableFilters"
-    optionLabel="select_label"
-    optionValue="agreement_id"
-    signalOptionValue="contracts"
-    serviceName="contracts"
-    placeholder="Select projects">
-  </app-multiselect>
+  @if (!hideProjectFilter) {
+    <app-multiselect
+      #projectSelect
+      label="Project"
+      [signal]="this.resultsCenterService.tableFilters"
+      optionLabel="select_label"
+      optionValue="agreement_id"
+      signalOptionValue="contracts"
+      serviceName="contracts"
+      placeholder="Select projects">
+    </app-multiselect>
+  }
 
   <app-multiselect
     #yearSelect
     label="Year"
     [signal]="this.resultsCenterService.tableFilters"
-    optionLabel="name"
-    optionValue="id"
+    optionLabel="report_year"
+    optionValue="report_year"
     signalOptionValue="years"
-    serviceName="getAllYears"
+    serviceName="getYears"
     placeholder="Select years">
   </app-multiselect>
 </div>
