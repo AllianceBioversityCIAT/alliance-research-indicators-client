@@ -28,8 +28,9 @@ export class TableConfigurationComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Initialize auxiliaryColumns with the current order
-    this.auxiliaryColumns.set([...this.resultsCenterService.tableColumns()]);
+    this.auxiliaryColumns.set(
+      [...this.resultsCenterService.tableColumns()].filter(column => column.header !== 'Platform')
+    );
 
     // Try to load the saved order
     const savedOrder = localStorage.getItem(STORAGE_KEY);
@@ -42,8 +43,7 @@ export class TableConfigurationComponent implements OnInit {
         const isValidOrder = currentColumns.every(col => parsedOrder.some(saved => saved.field === col.field));
 
         if (isValidOrder) {
-          // Update auxiliaryColumns with the saved order
-          this.auxiliaryColumns.set(parsedOrder);
+          this.auxiliaryColumns.set(parsedOrder.filter(column => column.header !== 'Platform'));
           // Reorder tableColumns according to the saved order
           this.reorderByReference(parsedOrder);
         }
