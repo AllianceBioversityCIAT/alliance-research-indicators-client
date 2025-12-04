@@ -20,5 +20,5 @@
   [showSignal]="this.resultsCenterService.showConfigurationsSidebar"
   confirmText="Save table settings"
   (confirm)="sidebarConfigurations.applyConfigurations()">
-  <app-table-configuration #sidebarConfigurations></app-table-configuration>
+  <app-table-configuration #sidebarConfigurations [excludedColumns]="['Platform', 'Reporting Project', 'Primary Lever']"></app-table-configuration>
 </app-section-sidebar>

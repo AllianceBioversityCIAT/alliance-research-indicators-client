@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderListModule } from 'primeng/orderlist';
 import { ResultsCenterService } from '../../results-center.service';
@@ -14,6 +14,7 @@ const STORAGE_KEY = 'results-center-columns-order';
   styleUrls: ['./table-configuration.component.scss']
 })
 export class TableConfigurationComponent implements OnInit {
+  @Input() excludedColumns: string[] = ['Platform'];
   private readonly resultsCenterService = inject(ResultsCenterService);
   auxiliaryColumns = signal<TableColumn[]>([]);
 
@@ -29,7 +30,7 @@ export class TableConfigurationComponent implements OnInit {
 
   ngOnInit() {
     this.auxiliaryColumns.set(
-      [...this.resultsCenterService.tableColumns()].filter(column => column.header !== 'Platform')
+      [...this.resultsCenterService.tableColumns()].filter(column => !this.excludedColumns.includes(column.header))
     );
 
     // Try to load the saved order
@@ -43,7 +44,7 @@ export class TableConfigurationComponent implements OnInit {
         const isValidOrder = currentColumns.every(col => parsedOrder.some(saved => saved.field === col.field));
 
         if (isValidOrder) {
-          this.auxiliaryColumns.set(parsedOrder.filter(column => column.header !== 'Platform'));
+          this.auxiliaryColumns.set(parsedOrder.filter(column => !this.excludedColumns.includes(column.header)));
           // Reorder tableColumns according to the saved order
           this.reorderByReference(parsedOrder);
         }
