@@ -241,14 +241,22 @@ describe('ResultsCenterTableComponent', () => {
   });
 
   it('processRowClick should open PRMS modal and prevent default', () => {
-    (component as any).dt2 = { first: 0, filteredValue: [ { ...mockResult, platform_code: 'PRMS' } ] } as any;
+    const tableElement = document.createElement('div');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const td = document.createElement('td');
+    tbody.appendChild(row);
+    row.appendChild(td);
+    tableElement.appendChild(tbody);
+    
+    (component as any).dt2 = {
+      first: 0,
+      filteredValue: [{ ...mockResult, platform_code: 'PRMS' }],
+      el: { nativeElement: tableElement }
+    } as any;
+    
     const prevent = jest.fn();
     const stop = jest.fn();
-    const row = document.createElement('tr');
-    const tbody = document.createElement('tbody');
-    tbody.appendChild(row);
-    const td = document.createElement('td');
-    row.appendChild(td);
     (component as any).processRowClick(td, { preventDefault: prevent, stopPropagation: stop } as any);
     expect(mockModals.openModal).toHaveBeenCalledWith('resultInformation');
     expect(prevent).toHaveBeenCalled();
@@ -256,19 +264,30 @@ describe('ResultsCenterTableComponent', () => {
   });
 
   it('processRowClick should early return when not inside row', () => {
+    const tableElement = document.createElement('div');
     const div = document.createElement('div');
+    tableElement.appendChild(div);
+    (component as any).dt2 = {
+      el: { nativeElement: tableElement }
+    } as any;
     (component as any).processRowClick(div, { preventDefault: jest.fn(), stopPropagation: jest.fn() } as any);
     // nothing should happen
     expect(mockModals.openModal).not.toHaveBeenCalledWith('resultInformation');
   });
 
   it('onHostClick should delegate to processRowClick for non-PRMS and do nothing', () => {
-    (component as any).dt2 = { first: 0, filteredValue: [ { ...mockResult, platform_code: 'ROAR' } ] } as any;
-    const row = document.createElement('tr');
+    const tableElement = document.createElement('div');
     const tbody = document.createElement('tbody');
-    tbody.appendChild(row);
+    const row = document.createElement('tr');
     const td = document.createElement('td');
+    tbody.appendChild(row);
     row.appendChild(td);
+    tableElement.appendChild(tbody);
+    (component as any).dt2 = {
+      first: 0,
+      filteredValue: [{ ...mockResult, platform_code: 'ROAR' }],
+      el: { nativeElement: tableElement }
+    } as any;
     component.onHostClick({ target: td } as any);
     expect(mockModals.openModal).not.toHaveBeenCalledWith('resultInformation');
   });
@@ -405,10 +424,16 @@ describe('ResultsCenterTableComponent', () => {
   });
 
   it('processRowClick should early return when row has no parent', () => {
+    const tableElement = document.createElement('div');
     const tr = document.createElement('tr');
     const td = document.createElement('td');
     tr.appendChild(td);
-    (component as any).dt2 = { first: 0, filteredValue: [mockResult] } as any;
+    tableElement.appendChild(tr);
+    (component as any).dt2 = {
+      first: 0,
+      filteredValue: [mockResult],
+      el: { nativeElement: tableElement }
+    } as any;
     const prevent = jest.fn();
     const stop = jest.fn();
     (component as any).processRowClick(td, { preventDefault: prevent, stopPropagation: stop } as any);
