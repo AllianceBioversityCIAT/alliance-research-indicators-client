@@ -355,6 +355,14 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       return;
     }
 
+    if (!this.dt2 || !this.dt2.el || !this.dt2.el.nativeElement) {
+      return;
+    }
+    const tableElement = this.dt2.el.nativeElement;
+    if (!tableElement.contains(target)) {
+      return;
+    }
+
     this.lastClickedElement = target;
 
     if (target.closest('.p-calendar') ||
