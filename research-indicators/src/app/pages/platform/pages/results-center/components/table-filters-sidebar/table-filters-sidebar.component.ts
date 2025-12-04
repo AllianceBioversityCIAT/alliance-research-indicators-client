@@ -24,6 +24,7 @@ export class TableFiltersSidebarComponent implements AfterViewInit {
   @Input() confirmSidebarEvent = output<void>();
   @Input() indicatorHiddenIds: number[] = [];
   @Input() forceIndicatorFilter = false;
+  @Input() hideProjectFilter = false;
 
   indicatorOptionFilter = (indicator: { indicator_id?: number } | null) => {
     if (indicator?.indicator_id == null) return true;

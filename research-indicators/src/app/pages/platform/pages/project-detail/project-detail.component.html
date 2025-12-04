@@ -11,7 +11,7 @@
   [showSignal]="this.resultsCenterService.showFiltersSidebar"
   confirmText="Apply filters"
   (confirm)="this.resultsCenterService.applyFilters()">
-  <app-table-filters-sidebar></app-table-filters-sidebar>
+  <app-table-filters-sidebar [hideProjectFilter]="true"></app-table-filters-sidebar>
 </app-section-sidebar>
 
 <app-section-sidebar

@@ -91,7 +91,7 @@ export class ResultsCenterService {
     },
     {
       field: 'lever',
-      path: 'result_levers.lever.short_name',
+      path: 'primaryLeverSort',
       header: 'Primary Lever',
       maxWidth: 'max-w-[100px]',
       getValue: (result: Result) => {
@@ -297,7 +297,28 @@ export class ResultsCenterService {
         : baseFilter;
 
       const response = await this.getResultsService.getInstance(finalFilter, this.resultsConfig());
-      this.list.set(response());
+      const rawResults = response();
+
+      const enhancedResults = rawResults.map(result => {
+        const primaryLevers = Array.isArray(result.result_levers)
+          ? result.result_levers.filter(rl => rl.is_primary === 1)
+          : [];
+        const primaryLeverSort =
+          primaryLevers.length === 0
+            ? ''
+            : primaryLevers
+                .map(rl => rl.lever?.short_name || '')
+                .filter(Boolean)
+                .join(', ')
+                .toLowerCase();
+
+        return {
+          ...result,
+          primaryLeverSort
+        } as Result & { primaryLeverSort: string };
+      });
+
+      this.list.set(enhancedResults);
     } catch (error) {
       console.error('Error loading results:', error);
       this.list.set([]);
