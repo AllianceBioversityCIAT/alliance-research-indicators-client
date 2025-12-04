@@ -198,9 +198,9 @@ export class ResultsCenterService {
     }
 
     if ((active['years'] ?? []).length > 0) {
-      const selected = this.tableFilters().years as { id: number; name: string }[];
+      const selected = this.tableFilters().years;
       selected.forEach(y => {
-        if (y) filters.push({ label: 'YEAR', value: y.name ?? String(y.id), id: y.id });
+        if (y) filters.push({ label: 'YEAR', value: String(y.report_year), id: y.report_year });
       });
     }
 
@@ -226,7 +226,7 @@ export class ResultsCenterService {
       STATUS: { update: mkUpdater<{ result_status_id: number }>('statusCodes', s => s?.result_status_id !== id), ref: 'status' },
       PROJECT: { update: mkUpdater<{ agreement_id: string }>('contracts', c => c?.agreement_id !== id), ref: 'project' },
       LEVER: { update: mkUpdater<{ id: number }>('levers', l => l?.id !== id), ref: 'lever' },
-      YEAR: { update: mkUpdater<{ id: number }>('years', y => y?.id !== id), ref: 'year' }
+      YEAR: { update: mkUpdater<{ report_year: number }>('years', y => y?.report_year !== id), ref: 'year' }
     };
 
     const handler = map[label];
@@ -377,7 +377,7 @@ export class ResultsCenterService {
       ...prev,
       'lever-codes': this.tableFilters().levers.map(lever => lever.id),
       'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
-      years: this.tableFilters().years.map(year => year.id),
+      years: this.tableFilters().years.map(year => year.report_year),
       'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
     }));
@@ -386,7 +386,7 @@ export class ResultsCenterService {
       ...prev,
       'lever-codes': this.tableFilters().levers.map(lever => lever.id),
       'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
-      years: this.tableFilters().years.map(year => year.id),
+      years: this.tableFilters().years.map(year => year.report_year),
       'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
     }));

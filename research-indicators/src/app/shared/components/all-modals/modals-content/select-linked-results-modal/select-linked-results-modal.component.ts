@@ -333,7 +333,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       ...prev,
       'lever-codes': filters.levers.map(lever => lever.id),
       'status-codes': filters.statusCodes.map(status => status.result_status_id),
-      years: filters.years.map(year => year.id),
+      years: filters.years.map(year => year.report_year),
       'contract-codes': filters.contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': filters.indicators.map(indicator => indicator.indicator_id)
     });
