@@ -82,6 +82,8 @@ describe('InputComponent', () => {
     component.pattern = 'email';
     component.signal = signal({ testField: 'invalid-email' });
 
+    utilsService.getNestedProperty.mockReturnValue('invalid-email');
+
     expect(component.inputValid().valid).toBe(false);
     expect(component.inputValid().message).toBe('Please enter a valid email address.');
   });
@@ -89,6 +91,8 @@ describe('InputComponent', () => {
   it('should validate URL pattern', () => {
     component.pattern = 'url';
     component.signal = signal({ testField: 'invalid-url' });
+
+    utilsService.getNestedProperty.mockReturnValue('invalid-url');
 
     expect(component.inputValid().valid).toBe(false);
     expect(component.inputValid().message).toBe('Please enter a valid URL.');
@@ -130,6 +134,8 @@ describe('InputComponent', () => {
   it('should handle validateEmpty when value is not empty', () => {
     component.validateEmpty = true;
     component.signal = signal({ testField: 'some value' });
+
+    utilsService.getNestedProperty.mockReturnValue('some value');
 
     expect(component.inputValid().valid).toBe(true);
     expect(component.inputValid().message).toBe('');
@@ -362,6 +368,7 @@ describe('InputComponent', () => {
       component.maxWords = 2;
       wordCountService.getWordCount.mockReturnValue(3);
       component.signal = signal({ testField: 'one two three' });
+      utilsService.getNestedProperty.mockReturnValue('one two three');
       expect(component.inputValid().valid).toBe(false);
       expect(component.inputValid().message).toContain('Maximum 2 words allowed');
     });
@@ -370,6 +377,7 @@ describe('InputComponent', () => {
       component.maxLength = 5;
       wordCountService.getWordCount.mockReturnValue(6);
       component.signal = signal({ testField: 'one two three four five six' });
+      utilsService.getNestedProperty.mockReturnValue('one two three four five six');
       expect(component.inputValid().valid).toBe(false);
       expect(component.inputValid().message).toContain('Maximum 5 words allowed');
     });
