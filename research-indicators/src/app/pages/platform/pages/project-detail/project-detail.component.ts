@@ -42,4 +42,21 @@ export default class ProjectDetailComponent implements OnInit {
       this.currentProject.set(undefined as unknown as GetProjectDetail);
     }
   }
+
+  onIndicatorClick(indicator: { indicator_id: number; name: string }): void {
+    // Limpiar otros filtros de indicadores primero
+    this.resultsCenterService.tableFilters.update(prev => ({
+      ...prev,
+      indicators: []
+    }));
+
+    // Agregar el indicador seleccionado al filtro
+    this.resultsCenterService.tableFilters.update(prev => ({
+      ...prev,
+      indicators: [{ indicator_id: indicator.indicator_id, name: indicator.name }]
+    }));
+
+    // Aplicar los filtros
+    this.resultsCenterService.applyFilters();
+  }
 }

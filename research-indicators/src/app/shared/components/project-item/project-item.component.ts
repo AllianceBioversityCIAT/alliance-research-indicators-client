@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { GetContractsByUser, IndicatorElement } from '@shared/interfaces/get-contracts-by-user.interface';
@@ -13,17 +13,30 @@ import { ProjectUtilsService } from '@shared/services/project-utils.service';
   templateUrl: './project-item.component.html',
   styleUrl: './project-item.component.scss'
 })
-export class ProjectItemComponent implements OnInit {
+export class ProjectItemComponent implements OnInit, OnChanges {
   @Input() isHeader = false;
   @Input() project: GetContractsByUser | GetProjectDetail | FindContracts = {};
+  @Input() enableIndicatorFilter = false;
 
-  private projectUtils = inject(ProjectUtilsService);
+  indicatorClick = output<{ indicator_id: number; name: string }>();
+
+  private readonly projectUtils = inject(ProjectUtilsService);
 
   // Local property for processed indicators
   processedIndicators: (IndicatorElement | GetProjectDetailIndicator)[] = [];
 
   ngOnInit(): void {
-    if (this.project.indicators && this.project.indicators.length > 0) {
+    this.processIndicators();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['project'] && !changes['project'].firstChange) {
+      this.processIndicators();
+    }
+  }
+
+  private processIndicators(): void {
+    if (this.project?.indicators && this.project.indicators.length > 0) {
       // Create a local copy of indicators and process them
       this.processedIndicators = this.projectUtils.sortIndicators([...this.project.indicators]);
     } else {
@@ -41,5 +54,17 @@ export class ProjectItemComponent implements OnInit {
 
   hasField(fieldName: string): boolean {
     return this.projectUtils.hasField(this.project, fieldName);
+  }
+
+  onIndicatorClick(indicator: IndicatorElement | GetProjectDetailIndicator, event: Event): void {
+    if (this.enableIndicatorFilter) {
+      event.preventDefault();
+      event.stopPropagation();
+      const indicatorId = indicator.indicator_id || indicator.indicator?.indicator_id;
+      const indicatorName = indicator.indicator?.name || '';
+      if (indicatorId) {
+        this.indicatorClick.emit({ indicator_id: indicatorId, name: indicatorName });
+      }
+    }
   }
 }

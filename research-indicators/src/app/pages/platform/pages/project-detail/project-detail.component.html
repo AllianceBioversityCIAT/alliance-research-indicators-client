@@ -1,5 +1,9 @@
 <div class="w-full">
-  <app-project-item [project]="currentProject()" [isHeader]="true"></app-project-item>
+  <app-project-item 
+    [project]="currentProject()" 
+    [isHeader]="true"
+    [enableIndicatorFilter]="true"
+    (indicatorClick)="onIndicatorClick($event)"></app-project-item>
 </div>
 <div class="py-[30px] px-[20px] w-full">
   <app-results-center-table [showNewProjectResultButton]="true"></app-results-center-table>

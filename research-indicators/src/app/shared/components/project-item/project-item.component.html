@@ -48,7 +48,13 @@
     </div>
     <div class="project-indicators w-full flex flex-wrap gap-16 gap-y-6">
       @for (indicator of processedIndicators; track indicator.indicator?.indicator_id) {
-        <div class="indicator {{ indicator.indicator.name === 'Capacity Sharing for Development' ? 'max-w-[126px]' : 'max-w-[178px]' }}">
+        <div 
+          class="indicator {{ indicator.indicator.name === 'Capacity Sharing for Development' ? 'max-w-[126px]' : 'max-w-[178px]' }} {{ enableIndicatorFilter ? 'cursor-pointer hover:opacity-80 transition-opacity' : '' }}"
+          (click)="onIndicatorClick(indicator, $event)"
+          (keydown.enter)="onIndicatorClick(indicator, $event)"
+          [attr.tabindex]="enableIndicatorFilter ? 0 : -1"
+          [attr.role]="enableIndicatorFilter ? 'button' : null"
+          [attr.aria-label]="enableIndicatorFilter ? 'Filter by ' + indicator.indicator.name : null">
           <div class="indicator-number-container">
             <i
               class="pi {{ indicator.indicator.icon_src }} !text-[18px] {{
