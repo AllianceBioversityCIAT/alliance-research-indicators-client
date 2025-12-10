@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, output } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, output, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { GetContractsByUser, IndicatorElement } from '@shared/interfaces/get-contracts-by-user.interface';
@@ -6,6 +6,7 @@ import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 import { ProjectUtilsService } from '@shared/services/project-utils.service';
+import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 
 @Component({
   selector: 'app-project-item',
@@ -21,6 +22,16 @@ export class ProjectItemComponent implements OnInit, OnChanges {
   indicatorClick = output<{ indicator_id: number; name: string }>();
 
   private readonly projectUtils = inject(ProjectUtilsService);
+  private readonly resultsCenterService = inject(ResultsCenterService, { optional: true });
+
+  filteredIndicatorIds = computed(() => {
+    if (!this.resultsCenterService || !this.enableIndicatorFilter) {
+      return new Set<number>();
+    }
+    return new Set(
+      this.resultsCenterService.tableFilters().indicators.map(ind => ind.indicator_id)
+    );
+  });
 
   // Local property for processed indicators
   processedIndicators: (IndicatorElement | GetProjectDetailIndicator)[] = [];
@@ -66,5 +77,13 @@ export class ProjectItemComponent implements OnInit, OnChanges {
         this.indicatorClick.emit({ indicator_id: indicatorId, name: indicatorName });
       }
     }
+  }
+
+  isIndicatorFiltered(indicator: IndicatorElement | GetProjectDetailIndicator): boolean {
+    if (!this.enableIndicatorFilter || !this.resultsCenterService) {
+      return false;
+    }
+    const indicatorId = indicator.indicator_id || indicator.indicator?.indicator_id;
+    return indicatorId ? this.filteredIndicatorIds().has(indicatorId) : false;
   }
 }
