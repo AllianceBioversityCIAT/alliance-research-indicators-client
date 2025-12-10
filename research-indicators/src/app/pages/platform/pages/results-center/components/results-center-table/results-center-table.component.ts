@@ -355,7 +355,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       return;
     }
 
-    if (!this.dt2 || !this.dt2.el || !this.dt2.el.nativeElement) {
+    if (!this.dt2?.el?.nativeElement) {
       return;
     }
     const tableElement = this.dt2.el.nativeElement;

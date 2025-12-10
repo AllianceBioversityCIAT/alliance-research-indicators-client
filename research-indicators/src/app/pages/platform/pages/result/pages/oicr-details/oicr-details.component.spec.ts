@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { signal } from '@angular/core';
 
 import OicrDetailsComponent from './oicr-details.component';
 import { CacheService } from '@shared/services/cache/cache.service';
