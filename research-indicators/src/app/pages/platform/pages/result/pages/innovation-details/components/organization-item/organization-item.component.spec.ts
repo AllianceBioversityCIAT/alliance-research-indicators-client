@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
 
 import { OrganizationItemComponent } from './organization-item.component';
 import { SubmissionService } from '@shared/services/submission.service';

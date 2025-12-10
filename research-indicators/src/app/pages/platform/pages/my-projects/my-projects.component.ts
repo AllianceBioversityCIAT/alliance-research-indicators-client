@@ -96,6 +96,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   ];
   myProjectsFilterItem = signal<MenuItem | undefined>(this.myProjectsFilterItems[0]);
 
+  //pinned tab filter items
   orderedFilterItems = computed(() => {
     const pinnedTab = this.pinnedTab();
     if (pinnedTab === 'my') {
