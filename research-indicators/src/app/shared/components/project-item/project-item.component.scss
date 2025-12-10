@@ -101,6 +101,8 @@
 
     .project-indicators {
       .indicator {
+        position: relative;
+
         .indicator-number-container {
           display: flex;
           align-items: center;
@@ -132,6 +134,20 @@
           line-height: 16px;
           color: #8d9299;
           text-transform: uppercase;
+        }
+
+        .indicator-filter-line {
+          position: absolute;
+          bottom: -4px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background-color: #035BA9;
+          border-radius: 1px;
+        }
+
+        &.indicator-filtered {
+          padding-bottom: 6px;
         }
       }
     }
