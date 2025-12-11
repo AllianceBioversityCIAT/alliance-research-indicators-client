@@ -528,8 +528,8 @@ export class ApiService {
     direction?: string;
     'end-date'?: string;
     query?: string;
-    page?: string;
-    limit?: string;
+    page?: number | string;
+    limit?: number | string;
     project?: string;
     'exclude-pooled-funding'?: boolean;
   }): Promise<MainResponse<FindContractsResponse>> => {
@@ -795,6 +795,8 @@ export class ApiService {
     limit?: string;
     project?: string;
     'exclude-pooled-funding'?: boolean;
+    'order-field'?: string;
+    direction?: string;
   }): HttpParams {
     let params = new HttpParams();
     if (!filters) return params;
@@ -811,7 +813,9 @@ export class ApiService {
       'page',
       'limit',
       'project',
-      'exclude-pooled-funding'
+      'exclude-pooled-funding',
+      'order-field',
+      'direction'
     ];
     filterKeys.forEach(key => {
       const value = filters[key];
