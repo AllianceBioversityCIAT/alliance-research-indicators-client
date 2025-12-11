@@ -94,7 +94,7 @@
         </ng-template>
         <p-accordion-panel value="0" class="!border-none">
           <p-accordion-header class="!border !py-4 !px-7 !font-medium" 
-          [class]="'!border !p-4 !font-medium ' + ((accordionActiveState() ?? isAccordionOpen()) ? '!border-b-0 !rounded-t-[13px] !rounded-b-none' : '!rounded-[13px]')"
+          [class]="'!border !p-4 !font-medium ' + (((accordionActiveState() ?? isAccordionOpen()) || !shouldShowBottomBorder()) ? '!border-b-0 !rounded-t-[13px] !rounded-b-none' : '!rounded-[13px]')"
           [style.border-color]="getColors().border" 
           [style.color]="getColors().text"
           [style.background-color]="getColors().background">

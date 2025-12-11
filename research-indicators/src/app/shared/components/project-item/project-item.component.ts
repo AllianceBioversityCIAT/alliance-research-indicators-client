@@ -1,5 +1,4 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, output, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { GetContractsByUser, IndicatorElement } from '@shared/interfaces/get-contracts-by-user.interface';
 import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/get-project-detail.interface';
@@ -10,7 +9,7 @@ import { ResultsCenterService } from '@pages/platform/pages/results-center/resul
 
 @Component({
   selector: 'app-project-item',
-  imports: [RouterLink, DatePipe, CustomTagComponent],
+  imports: [ DatePipe, CustomTagComponent],
   templateUrl: './project-item.component.html',
   styleUrl: './project-item.component.scss'
 })
