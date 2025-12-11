@@ -59,7 +59,7 @@
   @if (cache.currentMetadata().status_id !== 6 && cache.currentMetadata().status_id !== 7 && cache.currentMetadata().status_id !== 8) {
   @if ((roles.isAdmin() || cache.currentMetadata().is_principal_investigator) && cache.currentMetadata().status_id !== 5 && cache.currentMetadata().status_id !== 4) {
       <button
-        class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm bg-[#509C55] text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl"
+        class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm bg-[#509C55] text-white mx-[25px] mb-[16px] px-6 py-2.5 rounded-xl"
         [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
         tooltipPosition="bottom"
         [disabled]="!this.cache.allGreenChecksAreTrue() || !submissionService.isSubmitted()"
@@ -68,8 +68,7 @@
         <i class="pi pi-pencil pl-2 !text-[12px]"></i>
       </button>
   }
-
-  @if (cache.currentMetadata().status_id !== 5 && cache.currentMetadata().status_id !== 4 && (roles.isAdmin() || cache.currentMetadata().is_principal_investigator || this.cache.isMyResult())) {
+  @if (cache.currentMetadata().status_id !== 5 && (roles.isAdmin() || cache.currentMetadata().is_principal_investigator || this.cache.isMyResult())) {
       <button
         class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl transition-all duration-300"
         [ngClass]="{
