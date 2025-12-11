@@ -93,13 +93,40 @@ export class CreateOicrFormComponent implements OnInit {
   // Accordion state
   isAccordionOpen = signal(false);
   accordionActiveState = signal<boolean | null>(null);
+  shouldShowBottomBorder = signal(true); // Inicialmente true para acordeón cerrado
+  private borderTimeout: ReturnType<typeof setTimeout> | null = null;
+  private isFirstOpen = true; // Bandera para detectar primera apertura
   
-  updateAccordionActiveState(active: boolean): boolean {
-    // Usar queueMicrotask para actualizar el signal fuera del contexto computed
+  updateAccordionActiveState(active: boolean): void {
     queueMicrotask(() => {
       this.accordionActiveState.set(active);
+      
+      if (active) {
+        if (this.isFirstOpen) {
+          this.isFirstOpen = false;
+        }
+        if (this.borderTimeout) {
+          clearTimeout(this.borderTimeout);
+          this.borderTimeout = null;
+        }
+        this.shouldShowBottomBorder.set(false);
+        return;
+      }
+      
+      if (this.isFirstOpen) {
+        this.shouldShowBottomBorder.set(true);
+        this.isFirstOpen = false;
+        return;
+      }
+      
+      if (this.borderTimeout) {
+        clearTimeout(this.borderTimeout);
+      }
+      this.shouldShowBottomBorder.set(false);
+      this.borderTimeout = setTimeout(() => {
+        this.shouldShowBottomBorder.set(true);
+      }, 450);
     });
-    return active;
   }
   
   // Submission history data
@@ -621,10 +648,34 @@ export class CreateOicrFormComponent implements OnInit {
   onAccordionToggle(event: number | number[] | null) {
     if (event === null || (Array.isArray(event) && event.length === 0)) {
       this.isAccordionOpen.set(false);
+      if (this.isFirstOpen) {
+        this.shouldShowBottomBorder.set(true);
+        this.isFirstOpen = false;
+      } else {
+        if (this.borderTimeout) {
+          clearTimeout(this.borderTimeout);
+        }
+        this.shouldShowBottomBorder.set(false);
+        this.borderTimeout = setTimeout(() => {
+          this.shouldShowBottomBorder.set(true);
+        }, 450);
+      }
       return;
     }
     const index = Array.isArray(event) ? event[0] : event;
-    this.isAccordionOpen.set(index === 0);
+    const isOpening = index === 0;
+    this.isAccordionOpen.set(isOpening);
+    
+    if (isOpening) {
+      if (this.isFirstOpen) {
+        this.isFirstOpen = false;
+      }
+      if (this.borderTimeout) {
+        clearTimeout(this.borderTimeout);
+        this.borderTimeout = null;
+      }
+      this.shouldShowBottomBorder.set(false);
+    }
   }
 
   getFirstHistoryItem() {

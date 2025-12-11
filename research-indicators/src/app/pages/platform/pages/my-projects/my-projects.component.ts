@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
 import { MyProjectsService } from '@shared/services/my-projects.service';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
-import { SlicePipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MenuItem } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -32,7 +32,6 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 @Component({
   selector: 'app-my-projects',
   imports: [
-    SlicePipe,
     S3ImageUrlPipe,
     DatePipe,
     FormsModule,
