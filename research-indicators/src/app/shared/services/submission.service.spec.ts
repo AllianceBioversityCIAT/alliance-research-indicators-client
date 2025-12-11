@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SubmissionService } from './submission.service';
 import { signal } from '@angular/core';
+import { RolesService } from './cache/roles.service';
 
 const cacheMock = {
   allGreenChecksAreTrue: jest.fn(),
@@ -15,7 +16,11 @@ describe('SubmissionService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [SubmissionService, { provide: 'CacheService', useValue: cacheMock }]
+      providers: [
+        SubmissionService,
+        { provide: 'CacheService', useValue: cacheMock },
+        { provide: RolesService, useValue: { isAdmin: jest.fn().mockReturnValue(false) } }
+      ]
     });
     service = TestBed.inject(SubmissionService);
     service.cache = cacheMock as any;
