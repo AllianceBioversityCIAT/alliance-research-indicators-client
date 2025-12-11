@@ -136,12 +136,8 @@ describe('SelectLinkedResultsModalComponent', () => {
   });
 
   describe('basic behaviors', () => {
-    it('should set searchInput from event', () => {
-      const event = {
-        target: { value: 'search text' }
-      } as any;
-
-      component.setSearchInputFilter(event);
+    it('should set searchInput from query string', () => {
+      component.setSearchInputFilter('search text');
       expect(component.searchInput()).toBe('search text');
     });
 
