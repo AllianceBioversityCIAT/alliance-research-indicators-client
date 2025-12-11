@@ -58,7 +58,7 @@ export class MyProjectsService {
     return { 'current-user': currentTab?.id === 'my' };
   }
 
-  private resetFilters(): void {
+  resetFilters(): void {
     this.tableFilters.set(new MyProjectsFilters());
     this.appliedFilters.set(new MyProjectsFilters());
     this.searchInput.set('');

@@ -54,7 +54,7 @@
               [searchPlaceholder]="'Find a project by code, title or principal investigator'"
               (searchChange)="setSearchInputFilter($event)"
               (apply)="showFiltersSidebar()"
-              (clear)="myProjectsService.clearFilters()">
+              (clear)="handleClearFilters()">
             </app-search-export-controls>
 
             <app-filters-action-buttons

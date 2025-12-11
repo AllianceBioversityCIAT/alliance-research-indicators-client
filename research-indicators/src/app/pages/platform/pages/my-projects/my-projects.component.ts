@@ -299,23 +299,34 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     this.togglePin(tabId);
   }
 
-  setSearchInputFilter($event: Event) {
-    const target = $event.target as HTMLInputElement;
-    const value = target.value;
-
+  setSearchInputFilter(query: string) {
     if (this.myProjectsFilterItem()?.id === 'my') {
-      this._searchValue.set(value);
+      this._searchValue.set(query);
       this.myProjectsFirst.set(0);
-      this.loadMyProjectsWithPagination();
+      this.loadMyProjectsWithPagination(query);
     } else {
-      this.myProjectsService.searchInput.set(value);
+      this.myProjectsService.searchInput.set(query);
       this.allProjectsFirst.set(0);
-      this.loadAllProjectsWithPagination();
+      this.loadAllProjectsWithPagination(query);
     }
   }
 
   showFiltersSidebar() {
     this.myProjectsService.showFilterSidebar();
+  }
+
+  handleClearFilters() {
+    this._searchValue.set('');
+    this.myProjectsService.searchInput.set('');
+    this.myProjectsService.resetFilters();
+    // Reload with current pagination after clearing
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this.myProjectsFirst.set(0);
+      this.loadMyProjectsWithPagination();
+    } else {
+      this.allProjectsFirst.set(0);
+      this.loadAllProjectsWithPagination();
+    }
   }
 
   showConfigurationsSidebar() {
@@ -400,13 +411,21 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsRows() : this.allProjectsRows();
   }
 
-  private loadMyProjectsWithPagination() {
+  private loadMyProjectsWithPagination(query?: string) {
     const page = Math.floor((this.myProjectsFirst() ?? 0) / (this.myProjectsRows() || 1)) + 1;
-    this.myProjectsService.main({ 'current-user': true, page, limit: this.myProjectsRows() });
+    const params: Record<string, unknown> = { 'current-user': true, page, limit: this.myProjectsRows() };
+    if (query) {
+      params['query'] = query;
+    }
+    this.myProjectsService.main(params);
   }
 
-  private loadAllProjectsWithPagination() {
+  private loadAllProjectsWithPagination(query?: string) {
     const page = Math.floor((this.allProjectsFirst() ?? 0) / (this.allProjectsRows() || 1)) + 1;
-    this.myProjectsService.main({ 'current-user': false, page, limit: this.allProjectsRows() });
+    const params: Record<string, unknown> = { 'current-user': false, page, limit: this.allProjectsRows() };
+    if (query) {
+      params['query'] = query;
+    }
+    this.myProjectsService.main(params);
   }
 }
