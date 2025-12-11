@@ -99,8 +99,8 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.syncSelectedResultsWatcher.destroy();
   }
 
-  setSearchInputFilter($event: Event) {
-    this.searchInput.set(($event.target as HTMLInputElement).value);
+  setSearchInputFilter(query: string) {
+    this.searchInput.set(query);
   }
 
   getResultHref(result: Result, platformCode?: string): string {

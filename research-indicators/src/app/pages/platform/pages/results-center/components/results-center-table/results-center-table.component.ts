@@ -62,8 +62,8 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     }
   });
 
-  setSearchInputFilter($event: Event) {
-    this.resultsCenterService.searchInput.set(($event.target as HTMLInputElement).value);
+  setSearchInputFilter(query: string) {
+    this.resultsCenterService.searchInput.set(query);
   }
 
   getScrollHeight = computed(

@@ -4,6 +4,7 @@ import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { MultiselectComponent } from '../components/custom-fields/multiselect/multiselect.component';
 import { MenuItem } from 'primeng/api';
 import { CacheService } from './cache/cache.service';
+import { ContractsResponseWithMeta } from '../interfaces/contracts-response-with-meta.interface';
 
 export class MyProjectsFilters {
   contractCode = '';
@@ -25,6 +26,7 @@ export class MyProjectsService {
   list = signal<FindContracts[]>([]);
   loading = signal(true);
   isOpenSearch = signal(false);
+  totalRecords = signal(0);
 
   tableFilters = signal(new MyProjectsFilters());
   appliedFilters = signal(new MyProjectsFilters());
@@ -56,7 +58,7 @@ export class MyProjectsService {
     return { 'current-user': currentTab?.id === 'my' };
   }
 
-  private resetFilters(): void {
+  resetFilters(): void {
     this.tableFilters.set(new MyProjectsFilters());
     this.appliedFilters.set(new MyProjectsFilters());
     this.searchInput.set('');
@@ -87,8 +89,17 @@ export class MyProjectsService {
     this.loading.set(true);
     try {
       const response = await this.api.GET_FindContracts(params);
-      if (response?.data?.data) {
-        this.list.set(response.data.data);
+      const listData = response?.data?.data;
+      const metaTotalRaw = (response as ContractsResponseWithMeta)?.metadata?.total ?? response?.data?.metadata?.total;
+
+      if (listData) {
+        this.list.set(listData);
+        const parsedTotal = metaTotalRaw === undefined || metaTotalRaw === null ? undefined : Number(metaTotalRaw);
+        let totalValue = listData.length ?? 0;
+        if (parsedTotal !== undefined && Number.isFinite(parsedTotal)) {
+          totalValue = parsedTotal;
+        }
+        this.totalRecords.set(totalValue);
         this.list.update(current =>
           current.map(item => ({
             ...item,
@@ -99,18 +110,22 @@ export class MyProjectsService {
         );
       } else {
         this.list.set([]);
+        this.totalRecords.set(0);
       }
     } catch (e) {
       console.error('Failed to fetch find contracts:', e);
       this.list.set([]);
+      this.totalRecords.set(0);
     } finally {
       this.loading.set(false);
     }
   }
 
-  applyFilters = () => {
+  applyFilters = (pagination?: { page: number; limit: number }) => {
     const filters = this.tableFilters();
     const params = this.getBaseParams();
+    params['page'] = pagination?.page ?? 1;
+    params['limit'] = pagination?.limit ?? 10;
 
     if (filters.contractCode) {
       params['contract-code'] = filters.contractCode;
@@ -167,7 +182,7 @@ export class MyProjectsService {
     const formatDate = (iso: string): string => {
       if (!iso) return '';
       const d = new Date(iso);
-      if (isNaN(d.getTime())) return iso;
+      if (Number.isNaN(d.getTime())) return iso;
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const mm = months[d.getMonth()];
       const dd = d.getDate().toString().padStart(2, '0');
@@ -208,10 +223,18 @@ export class MyProjectsService {
       const next: MyProjectsFilters = { ...prev };
       switch (key) {
         case 'statusCodes':
-          next.statusCodes = id != null ? next.statusCodes.filter(s => s.value !== id) : [];
+          if (id == null) {
+            next.statusCodes = [];
+          } else {
+            next.statusCodes = next.statusCodes.filter(s => s.value !== id);
+          }
           break;
         case 'levers':
-          next.levers = id != null ? next.levers.filter(l => l.id !== id) : [];
+          if (id == null) {
+            next.levers = [];
+          } else {
+            next.levers = next.levers.filter(l => l.id !== id);
+          }
           break;
         case 'contractCode':
           next.contractCode = '';
@@ -280,21 +303,22 @@ export class MyProjectsService {
 
   clearAllFilters() {
     this.resetFilters();
-    this.main(this.getBaseParams());
+    this.main({ ...this.getBaseParams(), page: 1, limit: 10 });
   }
 
   clearFilters() {
     this.resetFilters();
-    this.main(this.getBaseParams());
+    this.main({ ...this.getBaseParams(), page: 1, limit: 10 });
   }
 
   refresh() {
-    this.main(this.getBaseParams());
+    this.main({ ...this.getBaseParams(), page: 1, limit: 10 });
   }
 
   resetState() {
     this.resetFilters();
     this.list.set([]);
+    this.totalRecords.set(0);
     this.loading.set(true);
     this.isOpenSearch.set(false);
     this.showFiltersSidebar.set(false);

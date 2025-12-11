@@ -7,7 +7,7 @@
       pInputText
       type="text"
       [ngModel]="searchValue"
-      (input)="searchChange.emit($event)"
+      (input)="onInputChange($event)"
       [placeholder]="searchPlaceholder"
       class="w-full !pl-9 !rounded-[8px] py-2 border !max-h-[27px] !text-[12px] !py-1 !border-[#B9C0C5] !text-[#6B7280] rounded-lg" />
   </div>

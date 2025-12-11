@@ -112,8 +112,7 @@ describe('ResultsCenterTableComponent', () => {
   });
 
   it('setSearchInputFilter should update service searchInput', () => {
-    const event = { target: { value: 'q' } } as any;
-    component.setSearchInputFilter(event);
+    component.setSearchInputFilter('q');
     expect(mockService.searchInput()).toBe('q');
   });
 
