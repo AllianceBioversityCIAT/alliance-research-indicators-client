@@ -95,7 +95,6 @@
             </div>
             @if (getCurrentProjects().length > 0) {
               <div #cardRppScope class="rpp-dropup flex justify-end w-full bg-white py-2 border border-[#E8EBED]">
-                {{ myProjectsService.totalRecords() }}
                 <p-paginator
                   (onPageChange)="onCurrentPageChange($event)"
                   [first]="getCurrentFirst()"
@@ -115,6 +114,7 @@
               <p-table
                 [value]="getCurrentProjects()"
                 [paginator]="true"
+                [lazy]="true"
                 [rows]="getCurrentRows()"
                 [loading]="getLoadingState()"
                 [showCurrentPageReport]="true"

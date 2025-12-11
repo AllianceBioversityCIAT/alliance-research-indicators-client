@@ -4,6 +4,7 @@ import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { MultiselectComponent } from '../components/custom-fields/multiselect/multiselect.component';
 import { MenuItem } from 'primeng/api';
 import { CacheService } from './cache/cache.service';
+import { ContractsResponseWithMeta } from '../interfaces/contracts-response-with-meta.interface';
 
 export class MyProjectsFilters {
   contractCode = '';
@@ -89,7 +90,7 @@ export class MyProjectsService {
     try {
       const response = await this.api.GET_FindContracts(params);
       const listData = response?.data?.data;
-      const metaTotalRaw = (response as any)?.metadata?.total ?? response?.data?.metadata?.total;
+      const metaTotalRaw = (response as ContractsResponseWithMeta)?.metadata?.total ?? response?.data?.metadata?.total;
 
       if (listData) {
         this.list.set(listData);
