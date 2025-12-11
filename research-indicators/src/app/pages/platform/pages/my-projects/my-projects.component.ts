@@ -74,6 +74,8 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   myProjectsRows = signal(10);
   private readonly _searchValue = signal('');
   isTableView = signal(true);
+  sortField = signal<string>('start_date');
+  sortOrder = signal<number>(-1);
 
   pinnedTab = signal<string>('all');
   selectedTab = signal<string>('all');
@@ -287,11 +289,25 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   };
 
   loadMyProjects() {
-    this.myProjectsService.main({ 'current-user': true, page: 1, limit: this.myProjectsRows() });
+    const params: Record<string, unknown> = { 'current-user': true, page: 1, limit: this.myProjectsRows() };
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    if (sortField) {
+      params['order-field'] = sortField;
+      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    }
+    this.myProjectsService.main(params);
   }
 
   loadAllProjects() {
-    this.myProjectsService.main({ 'current-user': false, page: 1, limit: this.allProjectsRows() });
+    const params: Record<string, unknown> = { 'current-user': false, page: 1, limit: this.allProjectsRows() };
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    if (sortField) {
+      params['order-field'] = sortField;
+      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    }
+    this.myProjectsService.main(params);
   }
 
   onPinIconClick(tabId: string, event: Event) {
@@ -395,10 +411,24 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     this.onPageChange(event);
   }
 
+  onSort(event: { field: string; order: number }): void {
+    this.sortField.set(event.field);
+    this.sortOrder.set(event.order);
+    
+    // Reload data with new sort parameters
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this.loadMyProjectsWithPagination();
+    } else {
+      this.loadAllProjectsWithPagination();
+    }
+  }
+
   applyFilters(): void {
     const page = this.getCurrentPage();
     const limit = this.getCurrentLimit();
-    this.myProjectsService.applyFilters({ page, limit });
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    this.myProjectsService.applyFilters({ page, limit, sortField, sortOrder });
   }
 
   private getCurrentPage(): number {
@@ -417,6 +447,13 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     if (query) {
       params['query'] = query;
     }
+    // Add sort parameters
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    if (sortField) {
+      params['order-field'] = sortField;
+      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    }
     this.myProjectsService.main(params);
   }
 
@@ -425,6 +462,13 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     const params: Record<string, unknown> = { 'current-user': false, page, limit: this.allProjectsRows() };
     if (query) {
       params['query'] = query;
+    }
+    // Add sort parameters
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    if (sortField) {
+      params['order-field'] = sortField;
+      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
     }
     this.myProjectsService.main(params);
   }

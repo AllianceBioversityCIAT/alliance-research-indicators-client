@@ -121,7 +121,7 @@ export class MyProjectsService {
     }
   }
 
-  applyFilters = (pagination?: { page: number; limit: number }) => {
+  applyFilters = (pagination?: { page: number; limit: number; sortField?: string; sortOrder?: number }) => {
     const filters = this.tableFilters();
     const params = this.getBaseParams();
     params['page'] = pagination?.page ?? 1;
@@ -155,6 +155,12 @@ export class MyProjectsService {
     if (filters.endDate) {
       const endDate = new Date(filters.endDate);
       params['end-date'] = endDate.toISOString().slice(0, 23);
+    }
+
+    // Add sort parameters
+    if (pagination?.sortField) {
+      params['order-field'] = pagination.sortField;
+      params['direction'] = pagination.sortOrder === 1 ? 'asc' : 'desc';
     }
 
     this.appliedFilters.set({ ...filters });

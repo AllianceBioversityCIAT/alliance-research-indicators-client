@@ -124,10 +124,11 @@
                 [totalRecords]="myProjectsService.totalRecords()"
                 [first]="getCurrentFirst()"
                 (onPage)="onCurrentPageChange($event)"
+                (onSort)="onSort($event)"
                 [paginatorDropdownAppendTo]="tableRppScope"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
-                [sortField]="'start_date'"
-                [sortOrder]="-1"
+                [sortField]="sortField()"
+                [sortOrder]="sortOrder()"
                 [globalFilterFields]="[
                   'agreement_id',
                   'full_name',
@@ -171,10 +172,10 @@
                         <p-sortIcon field="display_lever_name"></p-sortIcon>
                       </div>
                     </th>
-                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="display_lever_name" style="min-width: 200px">
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="lead_center" style="min-width: 200px">
                       <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                         Lead Center
-                        <p-sortIcon field="display_lever_name"></p-sortIcon>
+                        <p-sortIcon field="lead_center"></p-sortIcon>
                       </div>
                     </th>
                     <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date" style="min-width: 120px">
