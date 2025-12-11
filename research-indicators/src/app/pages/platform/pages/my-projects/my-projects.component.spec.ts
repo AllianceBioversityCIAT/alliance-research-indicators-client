@@ -315,9 +315,8 @@ describe('MyProjectsComponent', () => {
   describe('setSearchInputFilter', () => {
     it('should set search value for my projects', () => {
       component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
-      const event = { target: { value: 'test search' } } as any;
 
-      component.setSearchInputFilter(event);
+      component.setSearchInputFilter('test search');
 
       expect(component.searchValue).toBe('test search');
       expect(component.myProjectsFirst()).toBe(0);
@@ -325,9 +324,8 @@ describe('MyProjectsComponent', () => {
 
     it('should set search input for all projects', () => {
       component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
-      const event = { target: { value: 'test search' } } as any;
 
-      component.setSearchInputFilter(event);
+      component.setSearchInputFilter('test search');
 
       expect(mockMyProjectsService.searchInput()).toBe('test search');
       expect(component.allProjectsFirst()).toBe(0);
