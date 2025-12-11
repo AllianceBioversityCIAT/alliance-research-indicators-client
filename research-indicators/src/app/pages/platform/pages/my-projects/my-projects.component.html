@@ -89,17 +89,18 @@
           <!-- Card view -->
           @if (!isTableView()) {
             <div class="analyze-result-content max-h-[calc(90vh-300px)] overflow-y-auto">
-              @for (project of filteredProjects() | slice: getCurrentFirst() : getCurrentFirst() + getCurrentRows(); track project.agreement_id) {
+              @for (project of filteredProjects(); track project.agreement_id) {
                 <app-project-item [project]="project"></app-project-item>
               }
             </div>
             @if (getCurrentProjects().length > 0) {
               <div #cardRppScope class="rpp-dropup flex justify-end w-full bg-white py-2 border border-[#E8EBED]">
+                {{ myProjectsService.totalRecords() }}
                 <p-paginator
                   (onPageChange)="onCurrentPageChange($event)"
                   [first]="getCurrentFirst()"
                   [rows]="getCurrentRows()"
-                  [totalRecords]="getCurrentProjects().length"
+                  [totalRecords]="myProjectsService.totalRecords()"
                   [showCurrentPageReport]="true"
                   [rowsPerPageOptions]="[5, 10, 25, 50]"
                   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
@@ -114,12 +115,15 @@
               <p-table
                 [value]="getCurrentProjects()"
                 [paginator]="true"
-                [rows]="10"
+                [rows]="getCurrentRows()"
                 [loading]="getLoadingState()"
                 [showCurrentPageReport]="true"
                 [scrollable]="true"
                 [tableStyle]="{ 'min-width': '100%' }"
                 [rowsPerPageOptions]="[5, 10, 25, 50]"
+                [totalRecords]="myProjectsService.totalRecords()"
+                [first]="getCurrentFirst()"
+                (onPage)="onCurrentPageChange($event)"
                 [paginatorDropdownAppendTo]="tableRppScope"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
                 [sortField]="'start_date'"
@@ -314,7 +318,7 @@
   [description]="'Filter your table data by applying custom criteria.'"
   [showSignal]="this.myProjectsService.showFiltersSidebar"
   confirmText="Apply filters"
-  (confirm)="this.myProjectsService.applyFilters()">
+  (confirm)="applyFilters()">
   <div class="body">
     <div class="mb-6">
       <app-multiselect

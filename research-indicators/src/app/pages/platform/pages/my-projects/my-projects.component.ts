@@ -164,15 +164,18 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     if (this.myProjectsFilterItem()?.id === 'my') {
       this.myProjectsFirst.set(event.first ?? 0);
       this.myProjectsRows.set(event.rows ?? 10);
+      this.loadMyProjectsWithPagination();
     } else {
       this.allProjectsFirst.set(event.first ?? 0);
       this.allProjectsRows.set(event.rows ?? 10);
+      this.loadAllProjectsWithPagination();
     }
   }
 
   onAllProjectsPageChange(event: PaginatorState) {
     this.allProjectsFirst.set(event.first ?? 0);
     this.allProjectsRows.set(event.rows ?? 10);
+    this.loadAllProjectsWithPagination();
   }
 
   ngOnInit(): void {
@@ -284,11 +287,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   };
 
   loadMyProjects() {
-    this.myProjectsService.main({ 'current-user': true });
+    this.myProjectsService.main({ 'current-user': true, page: 1, limit: this.myProjectsRows() });
   }
 
   loadAllProjects() {
-    this.myProjectsService.main({ 'current-user': false });
+    this.myProjectsService.main({ 'current-user': false, page: 1, limit: this.allProjectsRows() });
   }
 
   onPinIconClick(tabId: string, event: Event) {
@@ -303,9 +306,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     if (this.myProjectsFilterItem()?.id === 'my') {
       this._searchValue.set(value);
       this.myProjectsFirst.set(0);
+      this.loadMyProjectsWithPagination();
     } else {
       this.myProjectsService.searchInput.set(value);
       this.allProjectsFirst.set(0);
+      this.loadAllProjectsWithPagination();
     }
   }
 
@@ -377,5 +382,31 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   onCurrentPageChange(event: PaginatorState): void {
     this.onPageChange(event);
+  }
+
+  applyFilters(): void {
+    const page = this.getCurrentPage();
+    const limit = this.getCurrentLimit();
+    this.myProjectsService.applyFilters({ page, limit });
+  }
+
+  private getCurrentPage(): number {
+    const first = this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsFirst() : this.allProjectsFirst();
+    const rows = this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsRows() : this.allProjectsRows();
+    return Math.floor((first ?? 0) / (rows || 1)) + 1;
+  }
+
+  private getCurrentLimit(): number {
+    return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsRows() : this.allProjectsRows();
+  }
+
+  private loadMyProjectsWithPagination() {
+    const page = Math.floor((this.myProjectsFirst() ?? 0) / (this.myProjectsRows() || 1)) + 1;
+    this.myProjectsService.main({ 'current-user': true, page, limit: this.myProjectsRows() });
+  }
+
+  private loadAllProjectsWithPagination() {
+    const page = Math.floor((this.allProjectsFirst() ?? 0) / (this.allProjectsRows() || 1)) + 1;
+    this.myProjectsService.main({ 'current-user': false, page, limit: this.allProjectsRows() });
   }
 }

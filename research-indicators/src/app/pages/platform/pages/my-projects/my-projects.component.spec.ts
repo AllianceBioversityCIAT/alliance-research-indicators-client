@@ -33,11 +33,17 @@ describe('MyProjectsComponent', () => {
       clearFilters: jest.fn(),
       cleanMultiselects: jest.fn(),
       showFilterSidebar: jest.fn(),
+      applyFilters: jest.fn(),
       searchInput: signal(''),
       list: signal([]),
       loading: signal(false),
       myProjectsFilterItem: signal({ id: 'all', label: 'All Projects' }),
-      multiselectRefs: signal({})
+      multiselectRefs: signal({}),
+      showFiltersSidebar: signal(false),
+      countFiltersSelected: jest.fn().mockReturnValue(0),
+      getActiveFilters: jest.fn().mockReturnValue([]),
+      hasFilters: jest.fn().mockReturnValue(false),
+      totalRecords: signal(0)
     } as any;
 
     mockCacheService = {
@@ -283,14 +289,14 @@ describe('MyProjectsComponent', () => {
   describe('loadMyProjects', () => {
     it('should call service main with current-user true', () => {
       component.loadMyProjects();
-      expect(mockMyProjectsService.main).toHaveBeenCalledWith({ 'current-user': true });
+      expect(mockMyProjectsService.main).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': true }));
     });
   });
 
   describe('loadAllProjects', () => {
     it('should call service main with current-user false', () => {
       component.loadAllProjects();
-      expect(mockMyProjectsService.main).toHaveBeenCalledWith({ 'current-user': false });
+      expect(mockMyProjectsService.main).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false }));
     });
   });
 
