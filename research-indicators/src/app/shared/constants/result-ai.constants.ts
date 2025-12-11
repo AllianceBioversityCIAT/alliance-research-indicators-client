@@ -43,10 +43,12 @@ export const getIndicatorTypeIcon = (type: string): IndicatorIconResult => {
 export const PROMPT_OICR_DETAILS =
 `Summarize the following text in no more than 80 words, keeping the same language as the input.
 
-Produce a clear, professional, results-oriented summary that highlights:
-– the purpose and context of the work,
-– key stakeholders and geographic scope,
-– the most concrete and measurable outcomes (use numbers, locations, and years when available),
-– policy relevance, institutional uptake, innovations, capacity building, and any demonstrated environmental or social benefits.
+Your output must follow this format:
 
-Focus only on the essential results and their significance. No introductions or explanations—return only the summary.`;
+OVERVIEW OF RESULTS
+Write 1 short paragraph capturing the core context, purpose, stakeholders, and significance of the work. Highlight why it matters and any relevant geographic or temporal scope.
+
+HIGHLIGHTS
+Provide 5–7 very brief bullet points capturing only the most concrete outcomes — quantitative results, institutional uptake, tools/innovations, capacity building, geographic reach, and key environmental or social effects. Use numbers and proper names when available. Each bullet must begin with a short, outcome-focused phrase.
+
+Return only the summary.`;

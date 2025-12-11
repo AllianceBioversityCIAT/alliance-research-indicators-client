@@ -791,8 +791,8 @@ export class ApiService {
     'start-date'?: string;
     'end-date'?: string;
     query?: string;
-    page?: string;
-    limit?: string;
+    page?: number | string;
+    limit?: number | string;
     project?: string;
     'exclude-pooled-funding'?: boolean;
     'order-field'?: string;
