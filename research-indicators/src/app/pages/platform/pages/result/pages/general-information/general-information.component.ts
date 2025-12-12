@@ -86,11 +86,24 @@ export default class GeneralInformationComponent {
         current.main_contact_person = { user_id: current.user_id };
         return { ...current };
       });
-      await this.api.PATCH_GeneralInformation(this.cache.getCurrentNumericResultId(), this.body());
-      this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
-      this.getResultsService.updateList();
-      await this.getData();
-      await this.metadata.update(this.cache.getCurrentNumericResultId());
+      
+      const response = await this.api.PATCH_GeneralInformation(this.cache.getCurrentNumericResultId(), this.body());
+      
+      if (response.successfulRequest && response.status !== 409) {
+        this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
+        this.getResultsService.updateList();
+        await this.getData();
+        await this.metadata.update(this.cache.getCurrentNumericResultId());
+      } else {
+        const errorMessage = response.errorDetail?.errors || response.errorDetail?.detail || 'Unable to save data, please try again';
+        this.actions.showToast({
+          severity: 'error',
+          summary: 'Error',
+          detail: errorMessage
+        });
+        this.loading.set(false);
+        return;
+      }
     }
 
     if (page === 'next') {
