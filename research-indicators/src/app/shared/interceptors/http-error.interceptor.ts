@@ -54,7 +54,16 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         // Send error to tracking endpoint
         from(api.saveErrors(errorObj)).subscribe();
 
-        if (cache.isLoggedIn() && error.status !== 409 && error.status !== 401 && !req.url.includes('refresh-token')) {
+        const isAiFormalizeError =
+          error.status === 502 && req.url.includes('results/ai/formalize');
+
+        if (
+          cache.isLoggedIn() &&
+          error.status !== 409 &&
+          error.status !== 401 &&
+          !req.url.includes('refresh-token') &&
+          !isAiFormalizeError
+        ) {
           actions.showToast({ detail: error.error.errors, severity: 'error', summary: 'Error' });
         }
 

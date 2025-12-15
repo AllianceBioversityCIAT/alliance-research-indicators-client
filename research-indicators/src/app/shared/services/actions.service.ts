@@ -10,6 +10,7 @@ import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-respons
 import { Result } from '@shared/interfaces/result/result.interface';
 import { CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
 import { ServiceLocatorService } from './service-locator.service';
+import { ErrorDetailLike } from '@shared/interfaces/error-detail-like.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -44,27 +45,98 @@ export class ActionsService {
   }
 
   handleBadRequest(result: MainResponse<CreateResultResponse | Result | ExtendedHttpErrorResponse>, action?: () => void) {
+    const errorDetail = (result.errorDetail ?? {}) as ErrorDetailLike;
+
+    // 1) AI assistant / capacity sharing style error: message_error in data
+    const aiMessageError: string | undefined = errorDetail?.data?.message_error || errorDetail?.message_error;
+    if (aiMessageError) {
+      const aiId = errorDetail?.data?.result_official_code;
+      const aiPlatform = (errorDetail?.data as { platform_code?: string } | undefined)?.platform_code || 'STAR';
+      const resultCode = aiId ? `${aiPlatform}-${aiId}` : null;
+      const linkUrl = resultCode ? `result/${resultCode}/general-information` : '#';
+
+      const [initialText, existingResult = ''] = aiMessageError.split(':').map((s: string) => s.trim());
+      const [boldText, ...regularParts] = existingResult.split('-').map((s: string) => s.trim());
+
+      const detailHtml = `
+        ${initialText}:
+        <a href="${linkUrl}" target="_blank" class="alert-link-custom">
+          <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
+        </a>
+      `;
+
+      this.showGlobalAlert({
+        severity: 'secondary',
+        summary: 'Title Already Exists',
+        detail: detailHtml,
+        hasNoCancelButton: true,
+        generalButton: true,
+        confirmCallback: {
+          label: 'Enter other title',
+          event: () => {
+            if (action) {
+              action();
+            }
+          }
+        },
+        buttonColor: '#035BA9'
+      });
+      return;
+    }
+
+    // 2) Classic 409 conflict (existing result with link)
     const isWarning = result.status === 409;
-    const errorDetail = result.errorDetail;
+    const hasConflictShape =
+      typeof errorDetail?.description === 'string' &&
+      (typeof errorDetail?.errors === 'string' || typeof errorDetail?.errors === 'object');
 
-    const id = typeof errorDetail.errors === 'object' && errorDetail.errors !== null ? errorDetail.errors['result_official_code'] : undefined;
+    if (hasConflictShape) {
+      const id =
+        typeof errorDetail.errors === 'object' && errorDetail.errors !== null
+          ? errorDetail.errors['result_official_code']
+          : undefined;
 
-    const linkUrl = id ? `result/${id}/general-information` : '#';
+      const linkUrl = id ? `result/${id}/general-information` : '#';
 
-    const [initialText, existingResult = ''] = errorDetail.description.split(':').map(s => s.trim());
-    const [boldText, ...regularParts] = existingResult.split('-').map(s => s.trim());
+      const [initialText, existingResult = ''] = (errorDetail.description as string).split(':').map((s: string) => s.trim());
+      const [boldText, ...regularParts] = existingResult.split('-').map((s: string) => s.trim());
 
-    const detailHtml = `
-      ${initialText}:
-      <a href="${linkUrl}" target="_blank" class="alert-link-custom">
-        <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
-      </a>
-    `;
+      const detailHtml = `
+        ${initialText}:
+        <a href="${linkUrl}" target="_blank" class="alert-link-custom">
+          <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
+        </a>
+      `;
+
+      this.showGlobalAlert({
+        severity: isWarning ? 'secondary' : 'error',
+        summary: isWarning ? 'Title Already Exists' : 'Error',
+        detail: detailHtml,
+        hasNoCancelButton: true,
+        generalButton: true,
+        confirmCallback: {
+          label: 'Enter other title',
+          event: () => {
+            if (action) {
+              action();
+            }
+          }
+        },
+        buttonColor: '#035BA9'
+      });
+      return;
+    }
+
+    // 3) Fallback generic error
+    const fallbackDetail: string =
+      (typeof errorDetail?.errors === 'string' && errorDetail.errors) ||
+      (typeof errorDetail?.detail === 'string' && errorDetail.detail) ||
+      'An unexpected error occurred. Please try again.';
 
     this.showGlobalAlert({
-      severity: isWarning ? 'secondary' : 'error',
-      summary: isWarning ? 'Title Already Exists' : 'Error',
-      detail: detailHtml,
+      severity: 'error',
+      summary: 'Error',
+      detail: fallbackDetail,
       hasNoCancelButton: true,
       generalButton: true,
       confirmCallback: {
