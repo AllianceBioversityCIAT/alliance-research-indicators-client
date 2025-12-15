@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-search-export-controls',
@@ -9,12 +10,41 @@ import { InputTextModule } from 'primeng/inputtext';
   imports: [FormsModule, ButtonModule, InputTextModule],
   templateUrl: './search-export-controls.component.html'
 })
-export class SearchExportControlsComponent {
-  @Input() showExportButton = true;
-  @Input() exportLabel = 'Export Results';
+export class SearchExportControlsComponent implements OnInit, OnDestroy {
+  @Input() applyLabel = 'Apply Filters';
+  @Input() badge?: string | number;
+  @Input() showOverlayDot = false;
+  @Input() showClear = true;
   @Input() searchValue = '';
   @Input() searchPlaceholder = 'Find a result by code, title or creator';
 
-  @Output() export = new EventEmitter<void>();
-  @Output() searchChange = new EventEmitter<Event>();
+  @Output() apply = new EventEmitter<void>();
+  @Output() clear = new EventEmitter<void>();
+  @Output() searchChange = new EventEmitter<string>();
+
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
+
+  ngOnInit() {
+    this.searchSubject
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(value => {
+        this.searchChange.emit(value);
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onInputChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const value = target.value.trim();
+    this.searchSubject.next(value);
+  }
 }

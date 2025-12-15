@@ -14,6 +14,7 @@ import { GetProjectDetail } from '../../interfaces/get-project-detail.interface'
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { DownloadOicrTemplateComponent } from '../download-oicr-template/download-oicr-template.component';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 export interface BreadcrumbItem {
   label: string;
@@ -33,6 +34,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
   route = inject(ActivatedRoute);
   elementRef = inject(ElementRef);
   actions = inject(ActionsService);
+  rolesService = inject(RolesService);
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
 
@@ -44,7 +46,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
   private currentResultId = signal('');
   showDeleteOption = computed(() => {
     const statusId = this.cache.currentMetadata()?.status_id;
-    return statusId === 5 || statusId === 7 || (statusId === 4 && this.cache.isMyResult());
+    return statusId === 5 || statusId === 7 || (statusId === 4 && this.cache.isMyResult()) || this.rolesService.isAdmin();
   });
   resultTitle = signal('');
   items = computed((): MenuItem[] => {

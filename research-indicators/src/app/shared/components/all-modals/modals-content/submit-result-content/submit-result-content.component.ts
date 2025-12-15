@@ -39,6 +39,24 @@ export class SubmitResultContentComponent {
 
   form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
 
+  // Adjust header status for latest flow so that tag shows correct status (e.g., Rejected for 7, Postponed for 11)
+  headerData = computed(() => {
+    const base = this.allModalsService.submitHeader();
+    if (!base) return null;
+
+    if (this.allModalsService.submitResultOrigin?.() === 'latest') {
+      const currentStatusId = this.cache.currentMetadata()?.status_id;
+      if (currentStatusId === 7 || currentStatusId === 11) {
+        return {
+          ...base,
+          status_id: String(currentStatusId)
+        };
+      }
+    }
+
+    return base;
+  });
+
   constructor() {
     this.allModalsService.setSubmitReview(() => this.submitReview());
     this.allModalsService.setDisabledSubmitReview(() => this.disabledConfirmSubmit());
@@ -54,6 +72,11 @@ export class SubmitResultContentComponent {
           sharepoint_link: this.submissionService.sharePointFolderLink()
         });
       }
+      if (wasVisible && !visible) {
+        // Reset disabled options when modal closes
+        this.allModalsService.disablePostponeOption.set(false);
+        this.allModalsService.disableRejectOption.set(false);
+      }
       wasVisible = visible;
     });
   }
@@ -62,8 +85,11 @@ export class SubmitResultContentComponent {
     if (currentStatusId == null) return;
 
     const matchingOption = this.reviewOptions().find(option => option.statusId === currentStatusId);
-    if (matchingOption) {
+    
+    if (matchingOption && !matchingOption.disabled) {
       this.submissionService.statusSelected.set(matchingOption);
+    } else {
+      this.submissionService.statusSelected.set(null);
     }
   }
 
@@ -108,16 +134,26 @@ export class SubmitResultContentComponent {
 
   reviewOptions = computed<ReviewOption[]>(() => {
     const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
+    const disablePostpone = this.allModalsService.disablePostponeOption?.() ?? false;
+    const disableReject = this.allModalsService.disableRejectOption?.() ?? false;
     return this.baseReviewOptions.map(opt => {
       if (!isLatest) return opt;
       if (opt.key === 'approve') {
-        return { ...opt, description: 'OICR development will continue with PISA support.', statusId: 4 };
+        return { ...opt, description: 'The development of the OICR will continue with backstopping from the PISA-SPRM team.', statusId: 4 };
       }
       if (opt.key === 'revise') {
-        return { ...opt, label: 'Postpone', description: 'Not enough evidence for this reporting year.', commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', statusId: 11 };
+        return { 
+          ...opt, 
+          label: 'Postpone', 
+          description: 'Not enough evidence for this reporting year.', 
+          commentLabel: 'Justification', 
+          placeholder: 'Please briefly elaborate your decision', 
+          statusId: 11,
+          disabled: disablePostpone
+        };
       }
       if (opt.key === 'reject') {
-        return { ...opt, commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision' };
+        return { ...opt, label: 'Do not approve', commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', disabled: disableReject };
       }
       return opt;
     });
@@ -130,6 +166,7 @@ export class SubmitResultContentComponent {
   setComment = (event: Event) => this.submissionService.comment.set((event.target as HTMLTextAreaElement).value);
 
   selectOption(option: ReviewOption): void {
+    if (option.disabled) return;
     this.submissionService.statusSelected.set(option);
   }
 
@@ -151,7 +188,7 @@ export class SubmitResultContentComponent {
       case 'ArrowDown': {
         event.preventDefault();
         const nextIndex = (currentIndex + 1) % options.length;
-        this.focusOption(options[nextIndex]);
+        this.focusNextEnabledOption(options, nextIndex, 1);
         break;
       }
         
@@ -159,25 +196,56 @@ export class SubmitResultContentComponent {
       case 'ArrowUp': {
         event.preventDefault();
         const prevIndex = currentIndex === 0 ? options.length - 1 : currentIndex - 1;
-        this.focusOption(options[prevIndex]);
+        this.focusNextEnabledOption(options, prevIndex, -1);
         break;
       }
         
       case ' ':
       case 'Enter':
         event.preventDefault();
-        this.selectOption(option);
+        if (!option.disabled) {
+          this.selectOption(option);
+        }
         break;
         
-      case 'Home':
+      case 'Home': {
         event.preventDefault();
-        this.focusOption(options[0]);
+        const firstEnabled = options.findIndex(opt => !opt.disabled);
+        if (firstEnabled !== -1) {
+          this.focusOption(options[firstEnabled]);
+        }
         break;
+      }
         
-      case 'End':
+      case 'End': {
         event.preventDefault();
-        this.focusOption(options.at(-1)!);
+        let lastEnabled = -1;
+        for (let i = options.length - 1; i >= 0; i--) {
+          if (!options[i].disabled) {
+            lastEnabled = i;
+            break;
+          }
+        }
+        if (lastEnabled !== -1) {
+          this.focusOption(options[lastEnabled]);
+        }
         break;
+      }
+    }
+  }
+
+  private focusNextEnabledOption(options: ReviewOption[], startIndex: number, direction: number): void {
+    let currentIndex = startIndex;
+    const maxAttempts = options.length;
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+      if (!options[currentIndex].disabled) {
+        this.focusOption(options[currentIndex]);
+        return;
+      }
+      currentIndex = (currentIndex + direction + options.length) % options.length;
+      attempts++;
     }
   }
 
@@ -299,7 +367,7 @@ export class SubmitResultContentComponent {
         severity: 'success',
         summary: 'Review submitted successfully',
         hasNoCancelButton: true,
-        detail: 'Your review has been submitted and the OICR development process will continue with PISA support.',
+        detail: 'Your review has been submitted and the OICR development process will continue with backstopping from the PISA-SPRM team.',
         confirmCallback: {
           label: 'Done',
           event: () => {

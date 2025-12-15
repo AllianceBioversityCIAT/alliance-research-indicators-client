@@ -86,7 +86,9 @@ describe('CreateOicrFormComponent', () => {
       setSubmitBackStep: jest.fn(),
       setSubmitHeader: jest.fn(),
       setSubmitBackAction: jest.fn(),
-      openModal: jest.fn()
+      openModal: jest.fn(),
+      disablePostponeOption: Object.assign(() => false, { set: jest.fn() }) as any,
+      disableRejectOption: Object.assign(() => false, { set: jest.fn() }) as any
     };
 
     mockApiService = {

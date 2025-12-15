@@ -177,7 +177,7 @@ export class InputComponent {
   });
 
   inputValid = computed(() => {
-    const value = this.signal()[this.optionValue];
+    const value = this.utils.getNestedProperty(this.signal(), this.optionValue);
     if (this.isRequired && (!value || value.length === 0)) {
       return { valid: false, class: 'ng-invalid ng-dirty', message: 'This field is required' };
     }

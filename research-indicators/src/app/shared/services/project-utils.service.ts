@@ -56,7 +56,7 @@ export class ProjectUtilsService {
   }
 
   sortIndicators(indicators: IndicatorType[]): IndicatorType[] {
-    const order = ['Capacity Sharing for Development', 'Innovation Development', 'Knowledge Product', 'Innovation Use', 'OICRS', 'Policy Change'];
+    const order = ['Capacity Sharing for Development', 'Innovation Development', 'Knowledge Product', 'Innovation Use', 'Outcome Impact Case Report (OICR)', 'Policy Change'];
 
     if (indicators && indicators.length > 0) {
       const uniqueIndicatorsMap = new Map<string, IndicatorType>();

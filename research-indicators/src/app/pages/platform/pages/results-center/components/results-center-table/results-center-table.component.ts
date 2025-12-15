@@ -1,4 +1,4 @@
-import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed, HostListener } from '@angular/core';
+import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -18,6 +18,7 @@ import { SearchExportControlsComponent } from '../../../../../../shared/componen
 import { PLATFORM_COLOR_MAP } from '../../../../../../shared/constants/platform-colors';
 import { PLATFORM_CODES } from '../../../../../../shared/constants/platform-codes';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 @Component({
   selector: 'app-results-center-table',
   imports: [
@@ -40,6 +41,9 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   private readonly router = inject(Router);
   private readonly cacheService = inject(CacheService);
   private readonly allModalsService = inject(AllModalsService);
+  private readonly createResultManagementService = inject(CreateResultManagementService);
+
+  @Input() showNewProjectResultButton = false;
   @ViewChild('dt2') dt2!: Table;
   tableRef = signal<Table | undefined>(undefined);
   private lastClickedElement: Element | null = null;
@@ -58,8 +62,8 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     }
   });
 
-  setSearchInputFilter($event: Event) {
-    this.resultsCenterService.searchInput.set(($event.target as HTMLInputElement).value);
+  setSearchInputFilter(query: string) {
+    this.resultsCenterService.searchInput.set(query);
   }
 
   getScrollHeight = computed(
@@ -83,6 +87,14 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       return `Project: ${filter.value}`;
     }
     return filter.value || filter.label;
+  }
+
+  getVisibleColumns() {
+    const columns = this.resultsCenterService.tableColumns();
+    if (!this.showNewProjectResultButton) {
+      return columns;
+    }
+    return columns.filter(column => column.field !== 'project' && column.field !== 'lever');
   }
 
   getPlatformColors(platformCode: string): { text: string; background: string } | undefined {
@@ -231,6 +243,16 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     this.resultsCenterService.showConfigurationsSidebar.set(true);
   }
 
+  openCreateResultForProject() {
+    const contractId = this.resultsCenterService.primaryContractId();
+    if (!contractId) {
+      return;
+    }
+    this.createResultManagementService.setContractId(contractId);
+    this.createResultManagementService.setPresetFromProjectResultsTable(true);
+    this.allModalsService.openModal('createResult');
+  }
+
   getStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'help' | 'primary' | 'secondary' | 'contrast' | null | undefined {
     const severityMap: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'help' | 'primary' | 'secondary' | 'contrast' | null | undefined> = {
       SUBMITTED: 'info',
@@ -242,7 +264,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   openResult(result: Result) {
     this.resultsCenterService.clearAllFilters();
-    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP) {
+    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.AICCRA) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
       return;
@@ -257,7 +279,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResultByYear(result: number, year: string | number, platformCode: string) {
-    if (platformCode === PLATFORM_CODES.PRMS) {
+    if (platformCode === PLATFORM_CODES.PRMS || platformCode === PLATFORM_CODES.AICCRA || platformCode === PLATFORM_CODES.TIP) {
       return;
     }
     this.resultsCenterService.clearAllFilters();
@@ -268,7 +290,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   getResultHref(result: Result): string {
-    if (result.platform_code === PLATFORM_CODES.PRMS) {
+    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.AICCRA || result.platform_code === PLATFORM_CODES.TIP) {
       this.onResultLinkClick(result);
       return '';
     }
@@ -308,7 +330,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   onResultLinkClick(result: Result): void {
-    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS) {
+    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.AICCRA) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
     } 
@@ -329,35 +351,39 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   private processRowClick(target: Element, event: MouseEvent) {
-    this.lastClickedElement = target;
-    
-    if (target.closest('.project-link') || target.classList.contains('project-link')) {
+    if (this.allModalsService.isAnyModalOpen()) {
       return;
     }
-    
-    if (target.closest('.p-calendar') || 
-        target.closest('.p-datepicker') || 
-        target.closest('.p-calendar-panel') || 
+
+    if (!this.dt2?.el?.nativeElement) {
+      return;
+    }
+    const tableElement = this.dt2.el.nativeElement;
+    if (!tableElement.contains(target)) {
+      return;
+    }
+
+    this.lastClickedElement = target;
+
+    if (target.closest('.p-calendar') ||
+        target.closest('.p-datepicker') ||
+        target.closest('.p-calendar-panel') ||
         target.closest('.p-datepicker-panel') ||
         target.closest('[class*="p-calendar"]') ||
         target.closest('[class*="p-datepicker"]')) {
       return;
     }
-    
-    if (target.closest('a[routerLink], span[routerLink], [ng-reflect-router-link]')) {
-      return;
-    }
-    
+
     if (target.closest('thead') || target.closest('th') || target.tagName.toLowerCase() === 'th') {
       return;
     }
-    
+
     const rowEl = target.closest('tr');
     if (!rowEl) return;
-    
+
     const tbody = rowEl.parentElement;
     if (!tbody || tbody.tagName.toLowerCase() !== 'tbody') return;
-    
+
     const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
     const rowIndex = rows.indexOf(rowEl);
     if (rowIndex < 0) return;
@@ -365,7 +391,27 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     const pageStart: number = this.dt2.first || 0;
     const idx = pageStart + rowIndex;
     const result = data[idx] as Result | undefined;
-    if (result && (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP)) {
+
+    if (!result) {
+      return;
+    }
+
+    if (target.closest('.project-cell') || target.closest('.project-link') || target.classList.contains('project-link')) {
+      if (result.result_contracts?.contract_id) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.router.navigate(['/project-detail', result.result_contracts.contract_id, 'project-results']);
+      }
+      return;
+    }
+
+    if (result.platform_code !== PLATFORM_CODES.PRMS &&
+        result.platform_code !== PLATFORM_CODES.TIP && result.platform_code !== PLATFORM_CODES.AICCRA &&
+        target.closest('a[routerLink], span[routerLink], [ng-reflect-router-link]')) {
+      return;
+    }
+
+    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.AICCRA) {
       event.preventDefault();
       event.stopPropagation();
       this.allModalsService.selectedResultForInfo.set(result);

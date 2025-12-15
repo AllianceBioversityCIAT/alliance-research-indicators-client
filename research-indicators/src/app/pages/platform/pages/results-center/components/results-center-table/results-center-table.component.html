@@ -1,27 +1,43 @@
 <!-- Results Table -->
 <div class="flex flex-col">
-  <div class="flex flex-col px-5 py-4">
+  <div class="flex flex-col px-5 py-4 bg-white">
     <div class="flex items-center justify-between w-full">
       <app-search-export-controls
-        [showExportButton]="true"
-        [exportLabel]="'Export Results'"
-        [searchValue]="this.resultsCenterService.searchInput()"
-        [searchPlaceholder]="'Find a result by code, title or creator'"
-        (export)="exportTable()"
-        (searchChange)="setSearchInputFilter($event)">
-      </app-search-export-controls>
-
-      <app-filters-action-buttons
         [applyLabel]="'Apply Filters'"
         [badge]="resultsCenterService.countTableFiltersSelected()"
         [showOverlayDot]="!!resultsCenterService.countTableFiltersSelected()"
         [showClear]="true"
-        [showViewToggleButtons]="false"
-        [showConfigButton]="true"
+        [searchValue]="this.resultsCenterService.searchInput()"
+        [searchPlaceholder]="'Find a result by code, title or creator'"
+        (searchChange)="setSearchInputFilter($event)"
         (apply)="showFiltersSidebar()"
-        (clear)="this.resultsCenterService.clearAllFilters()"
-        (config)="showConfiguratiosnSidebar()">
-      </app-filters-action-buttons>
+        (clear)="this.resultsCenterService.clearAllFilters()">
+      </app-search-export-controls>
+
+      <div class="flex items-center gap-5">
+
+
+        @if (showNewProjectResultButton) {
+          <p-button
+            label="New Project Result"
+            icon="pi pi-plus !text-[12px]"
+            severity="info"
+            size="small"
+            styleClass="!rounded-[9px] !max-h-[27px] !text-[13px]"
+            [style]="{ 'min-width': '95px' }"
+            (onClick)="openCreateResultForProject()">
+          </p-button>
+        }
+
+        <app-filters-action-buttons
+          [showExportButton]="true"
+          [exportLabel]="'Export Results'"
+          [showViewToggleButtons]="false"
+          [showConfigButton]="true"
+          (config)="showConfiguratiosnSidebar()"
+          (export)="exportTable()">
+        </app-filters-action-buttons>
+      </div>
     </div>
 
     @if (shouldShowFilterMessage()) {
@@ -47,7 +63,6 @@
     [paginator]="true"
     [rows]="10"
     [loading]="resultsCenterService.loading()"
-    [scrollHeight]="this.getScrollHeight()"
     [showCurrentPageReport]="true"
     [scrollable]="true"
     [tableStyle]="{ 'min-width': '100%' }"
@@ -59,7 +74,7 @@
     styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
     <ng-template pTemplate="header">
       <tr>
-        @for (column of resultsCenterService.tableColumns(); track column.field) {
+        @for (column of getVisibleColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
             <th
               class="{{ column.minWidth }} {{ column.maxWidth }}   !text-[#173F6F]"
@@ -81,7 +96,7 @@
         (keydown.enter)="openResult(result)"
         (click)="openResult(result)"
         class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
-        @for (column of resultsCenterService.tableColumns(); track column.field) {
+        @for (column of getVisibleColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
             @if (column.field === 'status') {
               <td>
@@ -110,7 +125,7 @@
               <td>
                 <div class="flex items-center text-[13px]">
                   <span
-                    class="py-1 px-2 rounded-l-lg font-[600] min-w-[50px] max-w-[50px] text-center"
+                    class="py-1 px-2 rounded-l-lg font-[600] min-w-[58px] max-w-[58px] text-center"
                     [style.color]="getPlatformColors(result.platform_code)?.text"
                     [style.background-color]="getPlatformColors(result.platform_code)?.background">
                     {{ result.platform_code }}
@@ -121,7 +136,7 @@
                 </div>
               </td>
             } @else if (column.field === 'project') {
-              <td>
+              <td class="project-cell">
                 @if (result.result_contracts?.contract_id) {
                   <a (keydown.enter)="$event.stopPropagation()"
                     class="project-link cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"
@@ -199,7 +214,7 @@
       @if (!resultsCenterService.loading()) {
         @if (resultsCenterService.countFiltersSelected()) {
           <tr>
-            <td [attr.colspan]="resultsCenterService.tableColumns().length" class="text-center p-8">
+            <td [attr.colspan]="getVisibleColumns().length" class="text-center p-8">
               <div class="flex flex-col items-center gap-4 bg-surface-ground p-6 rounded-xl">
                 <div class="flex flex-col items-center gap-2">
                   <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-primary-50">
@@ -225,7 +240,7 @@
           </tr>
         } @else {
           <tr>
-            <td [attr.colspan]="resultsCenterService.tableColumns().length" class="text-center p-8">
+            <td [attr.colspan]="getVisibleColumns().length" class="text-center p-8">
               <div class="flex flex-col items-center gap-4 bg-surface-ground p-6 rounded-xl">
                 <div class="flex flex-col items-center gap-2">
                   <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-50">

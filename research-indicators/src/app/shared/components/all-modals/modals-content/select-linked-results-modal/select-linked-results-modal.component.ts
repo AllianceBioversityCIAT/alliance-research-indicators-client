@@ -21,7 +21,7 @@ import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-cent
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { Router, RouterLink, UrlTree } from '@angular/router';
 
-const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
+const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
 
 @Component({
   selector: 'app-select-linked-results-modal',
@@ -72,6 +72,20 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
 
   selectedCount = computed(() => this.selectedResults().length);
 
+  private readonly syncSelectedResultsWatcher = effect(
+    () => {
+      const syncedResults = this.allModalsService.syncSelectedResults();
+      const currentSelected = this.selectedResults();
+      const syncedIds = syncedResults.map(r => r.result_id).sort((a, b) => a - b);
+      const currentIds = currentSelected.map(r => r.result_id).sort((a, b) => a - b);
+      
+      if (JSON.stringify(syncedIds) !== JSON.stringify(currentIds)) {
+        this.selectedResults.set(syncedResults);
+      }
+    },
+    { allowSignalWrites: true }
+  );
+
   onSearchInputChange = effect(() => {
     const searchValue = this.searchInput();
     if (this.dt2) {
@@ -82,18 +96,21 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.modalVisibilityWatcher.destroy();
     this.onSearchInputChange.destroy();
+    this.syncSelectedResultsWatcher.destroy();
   }
 
-  setSearchInputFilter($event: Event) {
-    this.searchInput.set(($event.target as HTMLInputElement).value);
+  setSearchInputFilter(query: string) {
+    this.searchInput.set(query);
   }
 
-  getResultHref(result: Result): string {
-    if (result.platform_code === PLATFORM_CODES.PRMS) {
-      this.onResultLinkClick(result);
-      return '';
+  getResultHref(result: Result, platformCode?: string): string {
+    const effectivePlatform = platformCode ?? result.platform_code;
+
+    if (effectivePlatform === PLATFORM_CODES.TIP) {
+      return result.external_link ?? '';
     }
-    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+
+    const resultCode = `${effectivePlatform}-${result.result_official_code}`;
     let urlTree: UrlTree;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
@@ -107,14 +124,23 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   }
 
   openResult(result: Result) {
-    this.resultsCenterService.clearAllFilters();
-    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP) {
-      this.allModalsService.selectedResultForInfo.set(result);
-      this.allModalsService.openModal('resultInformation');
+    if (result.platform_code === PLATFORM_CODES.TIP && result.external_link) {
+      this.openExternalLink(result);
       return;
     }
+    this.resultsCenterService.clearAllFilters();
     const href = this.getResultHref(result);
     this.openHrefInNewTab(href);
+  }
+
+  openExternalLink(result: Result): void {
+    const link = result.external_link;
+    if (!link) return;
+
+    const isSupportedPlatform = result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS;
+    if (isSupportedPlatform) {
+      globalThis.open(link, '_blank', 'noopener');
+    }
   }
 
   openResultByYear(result: number, year: string | number, platformCode: string) {
@@ -128,13 +154,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     });
     const href = this.router.serializeUrl(tree);
     this.openHrefInNewTab(href);
-  }
-
-  onResultLinkClick(result: Result): void {
-    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS) {
-      this.allModalsService.selectedResultForInfo.set(result);
-      this.allModalsService.openModal('resultInformation');
-    }
   }
 
   private openHrefInNewTab(href: string): void {
@@ -164,9 +183,13 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     const index = current.findIndex(r => r.result_id === result.result_id);
     
     if (index >= 0) {
-      this.selectedResults.set(current.filter(r => r.result_id !== result.result_id));
+      const updated = current.filter(r => r.result_id !== result.result_id);
+      this.selectedResults.set(updated);
+      this.allModalsService.syncSelectedResults.set(updated);
     } else {
-      this.selectedResults.set([...current, result]);
+      const updated = [...current, result];
+      this.selectedResults.set(updated);
+      this.allModalsService.syncSelectedResults.set(updated);
     }
   }
 
@@ -310,7 +333,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       ...prev,
       'lever-codes': filters.levers.map(lever => lever.id),
       'status-codes': filters.statusCodes.map(status => status.result_status_id),
-      years: filters.years.map(year => year.id),
+      years: filters.years.map(year => year.report_year),
       'contract-codes': filters.contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': filters.indicators.map(indicator => indicator.indicator_id)
     });

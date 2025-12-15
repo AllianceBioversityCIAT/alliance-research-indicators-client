@@ -41,14 +41,13 @@ export const getIndicatorTypeIcon = (type: string): IndicatorIconResult => {
 };
 
 export const PROMPT_OICR_DETAILS =
-`Summarize the following text using the following two-part structured format:
-  OVERVIEW OF THE RESULTS
-  Provide a concise introductory paragraph that captures the key context, stakeholders, and purpose of the initiative or project. Emphasize the transformative change, policy relevance, or strategic importance of the work. The tone should be professional and policy- or results-oriented, highlighting the "why it matters" dimension. Include geographic and temporal scope, and briefly mention methodologies or frameworks used if relevant.
-  HIGHLIGHTS Use 5–7 bullet points to present the most concrete, measurable, and policy-relevant outcomes. Focus on:
-  – Quantitative results (e.g. yield increases, farmer adoption rates, income gains)
-  – Institutional uptake (e.g. government use, policy integration, scaling)
-  – Tools and innovations developed (e.g. digital platforms, decision-support tools)
-  – Capacity-building activities (e.g. training numbers, stakeholder engagement)
-  – Geographic spread (e.g. number of provinces, districts, countries) – Environmental or social impact (e.g. improved soil health, resilience, equity)
-  – Lessons or enablers (e.g. community engagement, technology adoption, co-design)
-  Be precise. Use numbers, names, locations, and years where available. Begin each bullet point with a bold, outcome-oriented phrase. Avoid fluff—each bullet should represent a key result or actionable insight. The output must not exceed 80 words, and it must be in the same language as the input statement`;
+`Summarize the following text in no more than 80 words, keeping the same language as the input. 
+Your output must follow this format: 
+
+OVERVIEW OF RESULTS: 
+Write a short, highly concise sentence capturing the core context, purpose, main stakeholders, and significance of the work. Do not include detailed results here, and do not repeat information that will appear in the highlights. 
+
+HIGHLIGHTS: 
+Provide 3–5 very brief bullet points with non-repetitive information. Each bullet must be a simple outcome statement without subtitles, labels, or category headers. Do not begin bullets with thematic headings Focus only on concrete results such as quantitative outcomes, institutional uptake, innovations, capacity building, geographic reach, or environmental/social effects. Use numbers and names only when essential. 
+
+Return only the summary in no more than 80 words.`;

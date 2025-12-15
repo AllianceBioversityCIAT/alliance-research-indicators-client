@@ -9,4 +9,5 @@ export interface ReviewOption {
   commentLabel?: string;
   statusId: number;
   selected: boolean;
+  disabled?: boolean;
 }

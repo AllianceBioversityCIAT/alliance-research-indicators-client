@@ -327,7 +327,7 @@ describe('ResultsCenterService', () => {
         ...prev,
         statusCodes: [{ result_status_id: 1, name: 'A' }] as any,
         levers: [{ id: 2, short_name: 'L2' }] as any,
-        years: [{ id: 2024, name: '2024' }]
+        years: [{ report_year: 2024 }]
       }));
 
       const filters = service.getActiveFilters();
@@ -463,7 +463,7 @@ describe('ResultsCenterService', () => {
     it('should update resultsFilter and appliedFilters with table filters and call main', () => {
       const mockLevers = [{ id: 1, name: 'Lever 1' }] as any;
       const mockStatuses = [{ result_status_id: 1, name: 'Status 1' }] as any;
-      const mockYears = [{ id: 2024, name: '2024' }] as any;
+      const mockYears = [{ report_year: 2024 }] as any;
       const mockContracts = [{ agreement_id: 1, name: 'Contract 1' }] as any;
       const mockIndicators = [{ indicator_id: 1, name: 'Indicator 1' }] as any;
 
@@ -604,7 +604,21 @@ describe('ResultsCenterService', () => {
     it('should load results successfully', async () => {
       await service.main();
 
-      expect(service.list()).toEqual(mockResults);
+      const results = service.list();
+      expect(results).toHaveLength(1);
+      expect(results[0]).toMatchObject({
+        result_official_code: 'RES001',
+        title: 'Test Result',
+        indicators: { name: 'Test Indicator' },
+        result_status: { name: 'SUBMITTED' },
+        result_contracts: { contract_id: 'CON001' },
+        result_levers: { lever: { short_name: 'LEV1' } },
+        report_year_id: 2024,
+        snapshot_years: [2023, 2024],
+        created_by_user: { first_name: 'John', last_name: 'Doe' },
+        created_at: '2024-01-01T00:00:00Z'
+      });
+      expect(results[0]).toHaveProperty('primaryLeverSort');
       expect(service.loading()).toBe(false);
     });
 

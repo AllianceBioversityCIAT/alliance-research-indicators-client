@@ -19,6 +19,7 @@ describe('ResultsCenterComponent', () => {
     jest.useFakeTimers();
     mockResultsCenterService = {
       resetState: jest.fn(),
+      primaryContractId: signal<string | null>(null),
       myResultsFilterItem: signal({ id: 'all', label: 'All Results' }),
       myResultsFilterItems: [
         { id: 'all', label: 'All Results' },

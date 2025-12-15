@@ -31,8 +31,8 @@ export class StatusDropdownComponent {
 
   private readonly SPECIAL_TRANSITIONS: Record<number, StatusOption[]> = {
     4: [
-      // { id: 11, name: 'Postpone', direction: 'previous', icon: 'postpone' },
-      // { id: 7, name: 'Reject', direction: 'previous', icon: 'reject' },
+      { id: 11, name: 'Postpone', direction: 'previous', icon: 'postpone' },
+      { id: 7, name: 'Do not approve', direction: 'previous', icon: 'reject' },
     ]
   };
 

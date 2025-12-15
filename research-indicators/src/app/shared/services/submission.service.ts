@@ -1,6 +1,7 @@
 import { computed, Injectable, signal, inject } from '@angular/core';
 import { CacheService } from './cache/cache.service';
 import { ReviewOption } from '../interfaces/review-option.interface';
+import { RolesService } from './cache/roles.service';
 
 export interface SubmissionStatus {
   id: number;
@@ -12,6 +13,7 @@ export interface SubmissionStatus {
 })
 export class SubmissionService {
   cache = inject(CacheService);
+  rolesService = inject(RolesService);
   comment = signal('');
   melRegionalExpert = signal('');
   oicrNo = signal('');
@@ -21,7 +23,7 @@ export class SubmissionService {
     return (
       this.cache.allGreenChecksAreTrue() &&
       Object.values(this.cache.greenChecks()).length &&
-      (this.cache.isMyResult() || this.cache.currentMetadata().is_principal_investigator)
+      (this.cache.isMyResult() || this.cache.currentMetadata().is_principal_investigator || this.rolesService.isAdmin())
     );
   });
   submissionStatuses = signal<SubmissionStatus[]>([
@@ -29,9 +31,9 @@ export class SubmissionService {
     { id: 2, name: 'Submitted' },
     { id: 3, name: 'Accepted' },
     { id: 4, name: 'Draft' },
-    { id: 5, name: 'Revised' },
+    { id: 5, name: 'Pending Revision' },
     { id: 6, name: 'Approved' },
-    { id: 7, name: 'Rejected' },
+    { id: 7, name: 'Do not approve' },
     { id: 8, name: 'Deleted' },
     { id: 9, name: 'Requested' },
     { id: 10, name: 'Approved' },

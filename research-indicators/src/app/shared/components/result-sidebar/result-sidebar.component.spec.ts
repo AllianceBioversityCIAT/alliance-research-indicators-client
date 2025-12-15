@@ -70,6 +70,7 @@ describe('ResultSidebarComponent', () => {
     submissionService = {
       currentResultIsSubmitted: jest.fn().mockReturnValue(false) as any,
       canSubmitResult: jest.fn().mockReturnValue(true) as any,
+      isSubmitted: jest.fn().mockReturnValue(false) as any,
       refreshSubmissionHistory: signal(0)
     };
 

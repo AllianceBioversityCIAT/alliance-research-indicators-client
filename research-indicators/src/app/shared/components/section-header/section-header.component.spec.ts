@@ -9,6 +9,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
 import { MenuItemCommandEvent } from 'primeng/api';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 // Mock ResizeObserver
 class ResizeObserverMock {
@@ -33,6 +34,7 @@ describe('SectionHeaderComponent', () => {
   let cacheService: Partial<CacheService>;
   let actionsService: Partial<ActionsService>;
   let apiService: Partial<ApiService>;
+  let rolesService: Partial<RolesService>;
 
   beforeEach(async () => {
     routerSpy = {
@@ -93,6 +95,11 @@ describe('SectionHeaderComponent', () => {
     // Mock isMyResult method separately
     (cacheService as any).isMyResult = jest.fn().mockReturnValue(false);
 
+    // Default rolesService behavior: non-admin, tests will override when needed
+    rolesService = {
+      isAdmin: jest.fn().mockReturnValue(false) as any
+    };
+
     actionsService = {
       validateToken: jest.fn(),
       logOut: jest.fn(),
@@ -139,6 +146,10 @@ describe('SectionHeaderComponent', () => {
         {
           provide: ApiService,
           useValue: apiService
+        },
+        {
+          provide: RolesService,
+          useValue: rolesService
         }
       ]
     }).compileComponents();

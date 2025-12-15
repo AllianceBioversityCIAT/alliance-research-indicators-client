@@ -136,8 +136,13 @@ describe('GeneralInformationComponent', () => {
     };
     component.body.set(mockData);
     (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
-    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ success: true });
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: true, 
+      status: 200,
+      data: mockData
+    });
     (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
+    (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: mockData });
 
     await component.saveData();
 
@@ -148,7 +153,10 @@ describe('GeneralInformationComponent', () => {
 
   it('should not call PATCH_GeneralInformation if not editable', async () => {
     (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(false);
-    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ success: true });
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: true, 
+      status: 200
+    });
     (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
 
     await component.saveData();
@@ -167,8 +175,13 @@ describe('GeneralInformationComponent', () => {
     };
     component.body.set(mockData);
     (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
-    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ success: true });
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: true, 
+      status: 200,
+      data: mockData
+    });
     (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
+    (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: mockData });
 
     await component.saveData('next');
 
@@ -186,19 +199,31 @@ describe('GeneralInformationComponent', () => {
   });
 
   it('should handle error in saveData gracefully', async () => {
+    const mockData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2024',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    component.body.set(mockData);
     (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
-    (apiService as any).PATCH_GeneralInformation = jest.fn().mockRejectedValue(new Error('API Error'));
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: false, 
+      status: 409,
+      errorDetail: { errors: 'The name of the result is already registered' }
+    });
     (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
 
-    try {
-      await component.saveData();
-    } catch (error) {
-      // Error expected
-    }
+    await component.saveData();
 
-    // Loading should be true because the error occurs after setting loading to true
-    // and the component doesn't have explicit error handling
-    expect(component.loading()).toBe(true);
+    expect((actionsService as any).showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'The name of the result is already registered'
+    });
+    expect(component.loading()).toBe(false);
   });
 
   it('should handle getData when response has no main_contact_person', async () => {
@@ -236,9 +261,23 @@ describe('GeneralInformationComponent', () => {
   });
 
   it('should navigate to next page without version query param', async () => {
+    const mockData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2024',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    component.body.set(mockData);
     (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
-    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ success: true });
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: true, 
+      status: 200,
+      data: mockData
+    });
     (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
+    (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: mockData });
     (route as any).snapshot = { paramMap: { get: jest.fn().mockReturnValue('123') }, queryParamMap: { get: jest.fn().mockReturnValue(null) } };
 
     await component.saveData('next');
@@ -256,9 +295,23 @@ describe('GeneralInformationComponent', () => {
   });
 
   it('should handle saveData when editable but no page parameter', async () => {
+    const mockData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2024',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    component.body.set(mockData);
     (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
-    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ success: true });
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: true, 
+      status: 200,
+      data: mockData
+    });
     (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
+    (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: mockData });
 
     // Reset router mock calls
     (routerMock.navigate as jest.Mock).mockClear();

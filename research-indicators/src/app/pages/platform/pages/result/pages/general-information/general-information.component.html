@@ -15,9 +15,11 @@
               [signal]="this.body"
               optionValue="title"
               placeholder="Write the title"
-              [maxLength]="30"></app-input>
+              [maxLength]="cache.currentMetadata().indicator_id !== 5 ? 30 : 15"></app-input>
           </div>
 
+
+          @if (cache.currentMetadata().indicator_id !== 5) {
           <div class="flex flex-col">
             <app-textarea
               [isRequired]="true"
@@ -29,7 +31,7 @@
               [optionValue]="'description'"
               placeholder="Describe the result"></app-textarea>
           </div>
-
+          }
           <div class="flex flex-col xl:flex-row gap-5">
             <div class="flex-1 xl:max-w-[144px]">
               <app-select

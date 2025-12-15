@@ -1,4 +1,4 @@
-<a class="card" [routerLink]="['/project-detail', project.agreement_id]" [class.header-project-details]="isHeader">
+<a class="card" [class.header-project-details]="isHeader">
   <div class="card-content">
     <div class="organization-identifier">
       <div class="project">
@@ -13,7 +13,7 @@
         >
       </div>
     </div>
-    <div class="project-info">
+    <div class="project-info -mt-1">
       <div class="principal-investigator">
         <app-custom-tag [statusId]="getStatusDisplay().statusId" [statusName]="getStatusDisplay().statusName" [tiny]="true"> </app-custom-tag>
       </div>
@@ -48,7 +48,13 @@
     </div>
     <div class="project-indicators w-full flex flex-wrap gap-16 gap-y-6">
       @for (indicator of processedIndicators; track indicator.indicator?.indicator_id) {
-        <div class="indicator {{ indicator.indicator.name === 'Capacity Sharing for Development' ? 'max-w-[126px]' : 'max-w-[178px]' }}">
+        <div 
+          class="indicator {{ indicator.indicator.name === 'Capacity Sharing for Development' ? 'max-w-[126px]' : 'max-w-[178px]' }} {{ enableIndicatorFilter ? 'cursor-pointer hover:opacity-80 transition-opacity' : '' }} {{ isIndicatorFiltered(indicator) ? 'indicator-filtered' : '' }}"
+          (click)="onIndicatorClick(indicator, $event)"
+          (keydown.enter)="onIndicatorClick(indicator, $event)"
+          [attr.tabindex]="enableIndicatorFilter ? 0 : -1"
+          [attr.role]="enableIndicatorFilter ? 'button' : null"
+          [attr.aria-label]="enableIndicatorFilter ? 'Filter by ' + indicator.indicator.name : null">
           <div class="indicator-number-container">
             <i
               class="pi {{ indicator.indicator.icon_src }} !text-[18px] {{
@@ -58,6 +64,9 @@
             <label class="indicator-number" for="username">{{ indicator.count_results }}</label>
           </div>
           <label class="indicator-type" for="username">{{ indicator.indicator.name }}</label>
+          @if (isIndicatorFiltered(indicator)) {
+            <div class="indicator-filter-line"></div>
+          }
         </div>
       }
     </div>

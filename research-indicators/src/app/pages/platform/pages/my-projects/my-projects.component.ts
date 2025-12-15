@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
 import { MyProjectsService } from '@shared/services/my-projects.service';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
-import { SlicePipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MenuItem } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -32,7 +32,6 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 @Component({
   selector: 'app-my-projects',
   imports: [
-    SlicePipe,
     S3ImageUrlPipe,
     DatePipe,
     FormsModule,
@@ -74,6 +73,8 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   myProjectsRows = signal(10);
   private readonly _searchValue = signal('');
   isTableView = signal(true);
+  sortField = signal<string>('start_date');
+  sortOrder = signal<number>(-1);
 
   pinnedTab = signal<string>('all');
   selectedTab = signal<string>('all');
@@ -96,6 +97,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   ];
   myProjectsFilterItem = signal<MenuItem | undefined>(this.myProjectsFilterItems[0]);
 
+  //pinned tab filter items
   orderedFilterItems = computed(() => {
     const pinnedTab = this.pinnedTab();
     if (pinnedTab === 'my') {
@@ -163,15 +165,18 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     if (this.myProjectsFilterItem()?.id === 'my') {
       this.myProjectsFirst.set(event.first ?? 0);
       this.myProjectsRows.set(event.rows ?? 10);
+      this.loadMyProjectsWithPagination();
     } else {
       this.allProjectsFirst.set(event.first ?? 0);
       this.allProjectsRows.set(event.rows ?? 10);
+      this.loadAllProjectsWithPagination();
     }
   }
 
   onAllProjectsPageChange(event: PaginatorState) {
     this.allProjectsFirst.set(event.first ?? 0);
     this.allProjectsRows.set(event.rows ?? 10);
+    this.loadAllProjectsWithPagination();
   }
 
   ngOnInit(): void {
@@ -283,11 +288,25 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   };
 
   loadMyProjects() {
-    this.myProjectsService.main({ 'current-user': true });
+    const params: Record<string, unknown> = { 'current-user': true, page: 1, limit: this.myProjectsRows() };
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    if (sortField) {
+      params['order-field'] = sortField;
+      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    }
+    this.myProjectsService.main(params);
   }
 
   loadAllProjects() {
-    this.myProjectsService.main({ 'current-user': false });
+    const params: Record<string, unknown> = { 'current-user': false, page: 1, limit: this.allProjectsRows() };
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    if (sortField) {
+      params['order-field'] = sortField;
+      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    }
+    this.myProjectsService.main(params);
   }
 
   onPinIconClick(tabId: string, event: Event) {
@@ -295,21 +314,34 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     this.togglePin(tabId);
   }
 
-  setSearchInputFilter($event: Event) {
-    const target = $event.target as HTMLInputElement;
-    const value = target.value;
-
+  setSearchInputFilter(query: string) {
     if (this.myProjectsFilterItem()?.id === 'my') {
-      this._searchValue.set(value);
+      this._searchValue.set(query);
       this.myProjectsFirst.set(0);
+      this.loadMyProjectsWithPagination(query);
     } else {
-      this.myProjectsService.searchInput.set(value);
+      this.myProjectsService.searchInput.set(query);
       this.allProjectsFirst.set(0);
+      this.loadAllProjectsWithPagination(query);
     }
   }
 
   showFiltersSidebar() {
     this.myProjectsService.showFilterSidebar();
+  }
+
+  handleClearFilters() {
+    this._searchValue.set('');
+    this.myProjectsService.searchInput.set('');
+    this.myProjectsService.resetFilters();
+    // Reload with current pagination after clearing
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this.myProjectsFirst.set(0);
+      this.loadMyProjectsWithPagination();
+    } else {
+      this.allProjectsFirst.set(0);
+      this.loadAllProjectsWithPagination();
+    }
   }
 
   showConfigurationsSidebar() {
@@ -376,5 +408,67 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   onCurrentPageChange(event: PaginatorState): void {
     this.onPageChange(event);
+  }
+
+  onSort(event: { field: string; order: number }): void {
+    this.sortField.set(event.field);
+    this.sortOrder.set(event.order);
+    
+    // Reload data with new sort parameters
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this.loadMyProjectsWithPagination();
+    } else {
+      this.loadAllProjectsWithPagination();
+    }
+  }
+
+  applyFilters(): void {
+    const page = this.getCurrentPage();
+    const limit = this.getCurrentLimit();
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    this.myProjectsService.applyFilters({ page, limit, sortField, sortOrder });
+  }
+
+  private getCurrentPage(): number {
+    const first = this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsFirst() : this.allProjectsFirst();
+    const rows = this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsRows() : this.allProjectsRows();
+    return Math.floor((first ?? 0) / (rows || 1)) + 1;
+  }
+
+  private getCurrentLimit(): number {
+    return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsRows() : this.allProjectsRows();
+  }
+
+  private loadMyProjectsWithPagination(query?: string) {
+    const page = Math.floor((this.myProjectsFirst() ?? 0) / (this.myProjectsRows() || 1)) + 1;
+    const params: Record<string, unknown> = { 'current-user': true, page, limit: this.myProjectsRows() };
+    if (query) {
+      params['query'] = query;
+    }
+    // Add sort parameters
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    if (sortField) {
+      params['order-field'] = sortField;
+      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    }
+    this.myProjectsService.main(params);
+  }
+
+  private loadAllProjectsWithPagination(query?: string) {
+    const page = Math.floor((this.allProjectsFirst() ?? 0) / (this.allProjectsRows() || 1)) + 1;
+    const params: Record<string, unknown> = { 'current-user': false, page, limit: this.allProjectsRows() };
+    if (query) {
+      params['query'] = query;
+    }
+    // Add sort parameters
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    if (sortField) {
+      params['order-field'] = sortField;
+      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    }
+    this.myProjectsService.main(params);
   }
 }

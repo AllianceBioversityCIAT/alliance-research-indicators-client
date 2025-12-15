@@ -93,13 +93,40 @@ export class CreateOicrFormComponent implements OnInit {
   // Accordion state
   isAccordionOpen = signal(false);
   accordionActiveState = signal<boolean | null>(null);
+  shouldShowBottomBorder = signal(true); // Inicialmente true para acordeón cerrado
+  private borderTimeout: ReturnType<typeof setTimeout> | null = null;
+  private isFirstOpen = true; // Bandera para detectar primera apertura
   
-  updateAccordionActiveState(active: boolean): boolean {
-    // Usar queueMicrotask para actualizar el signal fuera del contexto computed
+  updateAccordionActiveState(active: boolean): void {
     queueMicrotask(() => {
       this.accordionActiveState.set(active);
+      
+      if (active) {
+        if (this.isFirstOpen) {
+          this.isFirstOpen = false;
+        }
+        if (this.borderTimeout) {
+          clearTimeout(this.borderTimeout);
+          this.borderTimeout = null;
+        }
+        this.shouldShowBottomBorder.set(false);
+        return;
+      }
+      
+      if (this.isFirstOpen) {
+        this.shouldShowBottomBorder.set(true);
+        this.isFirstOpen = false;
+        return;
+      }
+      
+      if (this.borderTimeout) {
+        clearTimeout(this.borderTimeout);
+      }
+      this.shouldShowBottomBorder.set(false);
+      this.borderTimeout = setTimeout(() => {
+        this.shouldShowBottomBorder.set(true);
+      }, 450);
     });
-    return active;
   }
   
   // Submission history data
@@ -507,6 +534,45 @@ export class CreateOicrFormComponent implements OnInit {
   }
 
   openSubmitResultModal() {
+    this.allModalsService.disablePostponeOption.set(false);
+    this.allModalsService.disableRejectOption.set(false);
+    this.allModalsService.setSubmitResultOrigin('latest');
+    this.allModalsService.closeModal('createResult');
+    this.allModalsService.setSubmitBackStep(this.activeIndex());
+    const contract = this.currentContract?.();
+    
+    // Map the new lever structure - levers come directly in the contract object
+    const levers = contract?.levers ? {
+      id: contract.levers.id,
+      full_name: contract.levers.full_name,
+      short_name: contract.levers.short_name,
+      other_names: contract.levers.other_names,
+      lever_url: contract.levers.lever_url
+    } : null;
+    
+    this.allModalsService.setSubmitHeader({
+      title: this.createResultManagementService.resultTitle?.() || this.createResultManagementService.createOicrBody()?.base_information?.title || undefined,
+      agreement_id: contract?.agreement_id,
+      description: contract?.description,
+      project_lead_description: contract?.project_lead_description,
+      start_date: contract?.start_date,
+      endDateGlobal: contract?.endDateGlobal || undefined,
+      levers: levers || undefined,
+      status_id: this.createResultManagementService.statusId()?.toString() || undefined
+    });
+    
+    // Set up the cancel action to call handleSubmitBack
+    this.allModalsService.setSubmitBackAction(() => this.handleSubmitBack());
+    
+    this.allModalsService.openModal('submitResult');
+  }
+
+  openSubmitResultModalForReviewAgain() {
+    const statusId = this.createResultManagementService.statusId();
+    // If current status is Postponed (11), disable Postpone in the modal.
+    // If current status is Rejected (7), disable Reject in the modal.
+    this.allModalsService.disablePostponeOption.set(statusId === 11);
+    this.allModalsService.disableRejectOption.set(statusId === 7);
     this.allModalsService.setSubmitResultOrigin('latest');
     this.allModalsService.closeModal('createResult');
     this.allModalsService.setSubmitBackStep(this.activeIndex());
@@ -582,10 +648,34 @@ export class CreateOicrFormComponent implements OnInit {
   onAccordionToggle(event: number | number[] | null) {
     if (event === null || (Array.isArray(event) && event.length === 0)) {
       this.isAccordionOpen.set(false);
+      if (this.isFirstOpen) {
+        this.shouldShowBottomBorder.set(true);
+        this.isFirstOpen = false;
+      } else {
+        if (this.borderTimeout) {
+          clearTimeout(this.borderTimeout);
+        }
+        this.shouldShowBottomBorder.set(false);
+        this.borderTimeout = setTimeout(() => {
+          this.shouldShowBottomBorder.set(true);
+        }, 450);
+      }
       return;
     }
     const index = Array.isArray(event) ? event[0] : event;
-    this.isAccordionOpen.set(index === 0);
+    const isOpening = index === 0;
+    this.isAccordionOpen.set(isOpening);
+    
+    if (isOpening) {
+      if (this.isFirstOpen) {
+        this.isFirstOpen = false;
+      }
+      if (this.borderTimeout) {
+        clearTimeout(this.borderTimeout);
+        this.borderTimeout = null;
+      }
+      this.shouldShowBottomBorder.set(false);
+    }
   }
 
   getFirstHistoryItem() {

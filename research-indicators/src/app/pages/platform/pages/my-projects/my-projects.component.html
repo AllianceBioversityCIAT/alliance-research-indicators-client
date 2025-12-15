@@ -1,6 +1,6 @@
 <div class="content flex-col gap-3 px-6 pt-8">
   <!-- Projects Section -->
-  <div class="flex flex-col bg-white">
+  <div class="flex flex-col bg-white mb-5">
     <!-- Custom Tab Menu with Pin Icons -->
     <div class="bg-white border-b border-[#E8EBED]">
       <div class="flex items-center gap-0">
@@ -46,21 +46,20 @@
 
           <div class="flex items-center justify-between w-full">
             <app-search-export-controls
-              [showExportButton]="false"
-              [searchValue]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput()"
-              [searchPlaceholder]="'Find a project by code, title or principal investigator'"
-              (searchChange)="setSearchInputFilter($event)">
-            </app-search-export-controls>
-
-            <app-filters-action-buttons
               [applyLabel]="applyFiltersLabel"
               [badge]="myProjectsService.countFiltersSelected()"
               [showOverlayDot]="!!myProjectsService.countFiltersSelected()"
               [showClear]="true"
+              [searchValue]="myProjectsFilterItem()?.id === 'my' ? searchValue : myProjectsService.searchInput()"
+              [searchPlaceholder]="'Find a project by code, title or principal investigator'"
+              (searchChange)="setSearchInputFilter($event)"
+              (apply)="showFiltersSidebar()"
+              (clear)="handleClearFilters()">
+            </app-search-export-controls>
+
+            <app-filters-action-buttons
               [showViewToggleButtons]="true"
               [isTableView]="isTableView()"
-              (apply)="showFiltersSidebar()"
-              (clear)="myProjectsService.clearFilters()"
               (tableView)="toggleTableView()"
               (cardView)="toggleCardView()">
             </app-filters-action-buttons>
@@ -90,7 +89,7 @@
           <!-- Card view -->
           @if (!isTableView()) {
             <div class="analyze-result-content max-h-[calc(90vh-300px)] overflow-y-auto">
-              @for (project of filteredProjects() | slice: getCurrentFirst() : getCurrentFirst() + getCurrentRows(); track project.agreement_id) {
+              @for (project of filteredProjects(); track project.agreement_id) {
                 <app-project-item [project]="project"></app-project-item>
               }
             </div>
@@ -100,7 +99,7 @@
                   (onPageChange)="onCurrentPageChange($event)"
                   [first]="getCurrentFirst()"
                   [rows]="getCurrentRows()"
-                  [totalRecords]="getCurrentProjects().length"
+                  [totalRecords]="myProjectsService.totalRecords()"
                   [showCurrentPageReport]="true"
                   [rowsPerPageOptions]="[5, 10, 25, 50]"
                   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
@@ -115,17 +114,21 @@
               <p-table
                 [value]="getCurrentProjects()"
                 [paginator]="true"
-                [rows]="10"
+                [lazy]="true"
+                [rows]="getCurrentRows()"
                 [loading]="getLoadingState()"
-                [scrollHeight]="getScrollHeight()"
                 [showCurrentPageReport]="true"
                 [scrollable]="true"
                 [tableStyle]="{ 'min-width': '100%' }"
                 [rowsPerPageOptions]="[5, 10, 25, 50]"
+                [totalRecords]="myProjectsService.totalRecords()"
+                [first]="getCurrentFirst()"
+                (onPage)="onCurrentPageChange($event)"
+                (onSort)="onSort($event)"
                 [paginatorDropdownAppendTo]="tableRppScope"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
-                [sortField]="'start_date'"
-                [sortOrder]="-1"
+                [sortField]="sortField()"
+                [sortOrder]="sortOrder()"
                 [globalFilterFields]="[
                   'agreement_id',
                   'full_name',
@@ -169,13 +172,19 @@
                         <p-sortIcon field="display_lever_name"></p-sortIcon>
                       </div>
                     </th>
-                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date" style="width: 8%">
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="lead_center" style="min-width: 200px">
+                      <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
+                        Lead Center
+                        <p-sortIcon field="lead_center"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date" style="min-width: 120px">
                       <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                         Start Date
                         <p-sortIcon field="start_date"></p-sortIcon>
                       </div>
                     </th>
-                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="end_date" style="width: 8%">
+                    <th class="!text-[#173F6F]" scope="col" pSortableColumn="end_date" style="min-width: 120px">
                       <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
                         End Date
                         <p-sortIcon field="end_date"></p-sortIcon>
@@ -251,6 +260,14 @@
                         (click)="$event.stopPropagation()"
                         class="block"
                         style="color: inherit; text-decoration: none">
+                        {{ project.ubwClientDescription ? (project.ubwClientDescription) : '-' }}
+                      </a>
+                    </td><td>
+                      <a
+                        [routerLink]="['/project-detail', project.agreement_id]"
+                        (click)="$event.stopPropagation()"
+                        class="block"
+                        style="color: inherit; text-decoration: none">
                         {{ project.start_date ? (project.start_date | date: 'shortDate') : '-' }}
                       </a>
                     </td>
@@ -302,7 +319,7 @@
   [description]="'Filter your table data by applying custom criteria.'"
   [showSignal]="this.myProjectsService.showFiltersSidebar"
   confirmText="Apply filters"
-  (confirm)="this.myProjectsService.applyFilters()">
+  (confirm)="applyFilters()">
   <div class="body">
     <div class="mb-6">
       <app-multiselect

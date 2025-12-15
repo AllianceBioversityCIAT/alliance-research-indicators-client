@@ -63,6 +63,8 @@ export class ResultsCenterService {
     {
       field: 'indicator_id',
       path: 'indicators.name',
+      minWidth: 'min-w-[165px]',
+      maxWidth: 'max-w-[165px]',
       header: 'Indicator',
       hideIf: computed(() =>
         this.api.indicatorTabs
@@ -76,8 +78,8 @@ export class ResultsCenterService {
       field: 'status',
       path: 'result_status.name',
       header: 'Status',
-      minWidth: 'min-w-[150px]',
-      maxWidth: 'max-w-[150px]',
+      minWidth: 'min-w-[155px]',
+      maxWidth: 'max-w-[155px]',
       getValue: (result: Result) => result.result_status?.name ?? '-'
     },
     {
@@ -89,7 +91,7 @@ export class ResultsCenterService {
     },
     {
       field: 'lever',
-      path: 'result_levers.lever.short_name',
+      path: 'primaryLeverSort',
       header: 'Primary Lever',
       maxWidth: 'max-w-[100px]',
       getValue: (result: Result) => {
@@ -126,7 +128,8 @@ export class ResultsCenterService {
       field: 'creation_date',
       path: 'created_at',
       header: 'Creation Date',
-      minWidth: 'min-w-[120px]',
+      minWidth: 'min-w-[110px]',
+      maxWidth: 'max-w-[110px]',
 
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
     }
@@ -139,6 +142,7 @@ export class ResultsCenterService {
   );
 
   resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
+  primaryContractId = signal<string | null>(null);
   resultsConfig = signal<ResultConfig>({
     indicators: true,
     'result-status': true,
@@ -194,9 +198,9 @@ export class ResultsCenterService {
     }
 
     if ((active['years'] ?? []).length > 0) {
-      const selected = this.tableFilters().years as { id: number; name: string }[];
+      const selected = this.tableFilters().years;
       selected.forEach(y => {
-        if (y) filters.push({ label: 'YEAR', value: y.name ?? String(y.id), id: y.id });
+        if (y) filters.push({ label: 'YEAR', value: String(y.report_year), id: y.report_year });
       });
     }
 
@@ -222,7 +226,7 @@ export class ResultsCenterService {
       STATUS: { update: mkUpdater<{ result_status_id: number }>('statusCodes', s => s?.result_status_id !== id), ref: 'status' },
       PROJECT: { update: mkUpdater<{ agreement_id: string }>('contracts', c => c?.agreement_id !== id), ref: 'project' },
       LEVER: { update: mkUpdater<{ id: number }>('levers', l => l?.id !== id), ref: 'lever' },
-      YEAR: { update: mkUpdater<{ id: number }>('years', y => y?.id !== id), ref: 'year' }
+      YEAR: { update: mkUpdater<{ report_year: number }>('years', y => y?.report_year !== id), ref: 'year' }
     };
 
     const handler = map[label];
@@ -286,8 +290,35 @@ export class ResultsCenterService {
   async main() {
     this.loading.set(true);
     try {
-      const response = await this.getResultsService.getInstance(this.resultsFilter(), this.resultsConfig());
-      this.list.set(response());
+      const baseFilter = this.resultsFilter();
+      const primaryContractId = this.primaryContractId();
+      const finalFilter = primaryContractId
+        ? ({ ...baseFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter)
+        : baseFilter;
+
+      const response = await this.getResultsService.getInstance(finalFilter, this.resultsConfig());
+      const rawResults = response();
+
+      const enhancedResults = rawResults.map(result => {
+        const primaryLevers = Array.isArray(result.result_levers)
+          ? result.result_levers.filter(rl => rl.is_primary === 1)
+          : [];
+        const primaryLeverSort =
+          primaryLevers.length === 0
+            ? ''
+            : primaryLevers
+                .map(rl => rl.lever?.short_name || '')
+                .filter(Boolean)
+                .join(', ')
+                .toLowerCase();
+
+        return {
+          ...result,
+          primaryLeverSort
+        } as Result & { primaryLeverSort: string };
+      });
+
+      this.list.set(enhancedResults);
     } catch (error) {
       console.error('Error loading results:', error);
       this.list.set([]);
@@ -346,7 +377,7 @@ export class ResultsCenterService {
       ...prev,
       'lever-codes': this.tableFilters().levers.map(lever => lever.id),
       'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
-      years: this.tableFilters().years.map(year => year.id),
+      years: this.tableFilters().years.map(year => year.report_year),
       'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
     }));
@@ -355,11 +386,10 @@ export class ResultsCenterService {
       ...prev,
       'lever-codes': this.tableFilters().levers.map(lever => lever.id),
       'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
-      years: this.tableFilters().years.map(year => year.id),
+      years: this.tableFilters().years.map(year => year.report_year),
       'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id)
     }));
-
     this.main();
   };
 
@@ -387,7 +417,6 @@ export class ResultsCenterService {
       ...prev,
       indicators: []
     }));
-
     this.main();
   }
 

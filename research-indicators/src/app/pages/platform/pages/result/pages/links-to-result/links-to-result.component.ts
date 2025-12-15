@@ -15,7 +15,7 @@ import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.com
 import { getIndicatorIcon } from '@shared/constants/indicator-icon.constants';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 
-const MODAL_INDICATOR_CODES = [1, 2, 4, 6] as const;
+const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
 
 @Component({
   selector: 'app-links-to-result',
@@ -96,6 +96,7 @@ export default class LinksToResultComponent implements OnInit, OnDestroy {
       
       this.linkedResults.set(matched);
       this.originalLinkedResults.set([...matched]);
+      this.allModalsService.syncSelectedResults.set(matched);
     } catch (error) {
       console.error('Error loading linked results', error);
       this.linkedResults.set([]);
@@ -116,10 +117,10 @@ export default class LinksToResultComponent implements OnInit, OnDestroy {
 
   removeLinkedResult(resultId: number): void {
     if (!this.submission.isEditableStatus()) return;
-
     const currentResults = this.linkedResults();
     const updatedResults = currentResults.filter(r => r.result_id !== resultId);
     this.linkedResults.set(updatedResults);
+    this.allModalsService.syncSelectedResults.set(updatedResults);
   }
 
   async saveData(): Promise<void> {

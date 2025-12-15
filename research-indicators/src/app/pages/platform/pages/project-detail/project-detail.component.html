@@ -1,10 +1,28 @@
 <div class="w-full">
-  <app-project-item [project]="currentProject()" [isHeader]="true"></app-project-item>
+  <app-project-item 
+    [project]="currentProject()" 
+    [isHeader]="true"
+    [enableIndicatorFilter]="true"
+    (indicatorClick)="onIndicatorClick($event)"></app-project-item>
 </div>
-<div class="py-[30px] px-[40px] w-full">
-  <div class="header">
-    <span class="title-text">PROJECT RESULTS</span>
-    <span class="description-text">View and track your project results.</span>
-  </div>
-  <app-project-results-table [contractId]="contractId()"></app-project-results-table>
+<div class="py-[30px] px-[20px] w-full">
+  <app-results-center-table [showNewProjectResultButton]="true"></app-results-center-table>
 </div>
+
+<app-section-sidebar
+  [title]="'Table Filters'"
+  [description]="'Filter your table data by applying custom criteria.'"
+  [showSignal]="this.resultsCenterService.showFiltersSidebar"
+  confirmText="Apply filters"
+  (confirm)="this.resultsCenterService.applyFilters()">
+  <app-table-filters-sidebar [hideProjectFilter]="true"></app-table-filters-sidebar>
+</app-section-sidebar>
+
+<app-section-sidebar
+  [title]="'Table Configuration'"
+  [description]="'Customize your table by enabling, disabling, or reordering columns.'"
+  [showSignal]="this.resultsCenterService.showConfigurationsSidebar"
+  confirmText="Save table settings"
+  (confirm)="sidebarConfigurations.applyConfigurations()">
+  <app-table-configuration #sidebarConfigurations [excludedColumns]="['Platform', 'Reporting Project', 'Primary Lever']"></app-table-configuration>
+</app-section-sidebar>

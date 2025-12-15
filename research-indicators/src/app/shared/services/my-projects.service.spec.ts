@@ -722,10 +722,14 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        'current-user': false,
-        'contract-code': 'A001'
-      });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          'contract-code': 'A001',
+          page: 1,
+          limit: 10
+        })
+      );
       expect(service.appliedFilters().contractCode).toBe('A001');
     });
 
@@ -737,10 +741,14 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        'current-user': false,
-        'project-name': 'Test Project'
-      });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          'project-name': 'Test Project',
+          page: 1,
+          limit: 10
+        })
+      );
       expect(service.appliedFilters().projectName).toBe('Test Project');
     });
 
@@ -752,10 +760,14 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        'current-user': false,
-        'principal-investigator': 'Test PI'
-      });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          'principal-investigator': 'Test PI',
+          page: 1,
+          limit: 10
+        })
+      );
       expect(service.appliedFilters().principalInvestigator).toBe('Test PI');
     });
 
@@ -770,10 +782,14 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        'current-user': false,
-        lever: '1,2'
-      });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          lever: '1,2',
+          page: 1,
+          limit: 10
+        })
+      );
       expect(service.appliedFilters().levers).toHaveLength(2);
     });
 
@@ -788,10 +804,14 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        'current-user': false,
-        status: 'active,inactive'
-      });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          status: 'active,inactive',
+          page: 1,
+          limit: 10
+        })
+      );
       expect(service.appliedFilters().statusCodes).toHaveLength(2);
     });
 
@@ -803,10 +823,14 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        'current-user': false,
-        'start-date': '2024-01-01T00:00:00.000'
-      });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          'start-date': '2024-01-01T00:00:00.000',
+          page: 1,
+          limit: 10
+        })
+      );
       expect(service.appliedFilters().startDate).toBe('2024-01-01');
     });
 
@@ -818,10 +842,14 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        'current-user': false,
-        'end-date': '2024-12-31T00:00:00.000'
-      });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          'end-date': '2024-12-31T00:00:00.000',
+          page: 1,
+          limit: 10
+        })
+      );
       expect(service.appliedFilters().endDate).toBe('2024-12-31');
     });
 
@@ -835,12 +863,16 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        'current-user': false,
-        'contract-code': 'A001',
-        'project-name': 'Test Project',
-        lever: '1'
-      });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          'contract-code': 'A001',
+          'project-name': 'Test Project',
+          lever: '1',
+          page: 1,
+          limit: 10
+        })
+      );
     });
 
     it('should apply filters for my projects', () => {
@@ -852,10 +884,14 @@ describe('MyProjectsService', () => {
 
       service.applyFilters();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        'current-user': true,
-        'contract-code': 'A001'
-      });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': true,
+          'contract-code': 'A001',
+          page: 1,
+          limit: 10
+        })
+      );
     });
   });
 
@@ -982,7 +1018,9 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': false });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ 'current-user': false, page: 1, limit: 10 })
+      );
     });
   });
 
@@ -993,7 +1031,9 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': false });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ 'current-user': false, page: 1, limit: 10 })
+      );
     });
   });
 
@@ -1001,7 +1041,9 @@ describe('MyProjectsService', () => {
     it('should refresh data', () => {
       service.refresh();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': false });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ 'current-user': false, page: 1, limit: 10 })
+      );
     });
   });
 
