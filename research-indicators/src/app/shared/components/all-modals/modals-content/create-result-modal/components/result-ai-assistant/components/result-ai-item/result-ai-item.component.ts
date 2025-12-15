@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input, signal, ViewChild, ElementRef, ChangeDetectionStrategy, HostListener, OnChanges, SimpleChanges } from '@angular/core';
-import { AIAssistantResult } from '../../../../models/AIAssistantResult';
+import { AIAssistantResult, CreateResultResponse } from '../../../../models/AIAssistantResult';
 import { CreateResultManagementService } from '../../../../services/create-result-management.service';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
@@ -11,6 +11,8 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { FormsModule } from '@angular/forms';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 import { EXPANDED_ITEM_DETAILS, getIndicatorTypeIcon, INDICATOR_TYPE_ICONS } from '@shared/constants/result-ai.constants';
+import { MainResponse } from '@shared/interfaces/responses.interface';
+import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 
 @Component({
   selector: 'app-result-ai-item',
@@ -75,16 +77,17 @@ export class ResultAiItemComponent implements OnChanges {
     }
     this.api
       .POST_CreateResult({ ...item })
-      .then(response => {
-        if (!response.successfulRequest) {
-          this.isCreated.set(false);
-          this.actions.handleBadRequest(response);
-        } else {
+      .then((response: MainResponse<CreateResultResponse | ExtendedHttpErrorResponse>) => {
+        if (response.successfulRequest) {
           this.isCreated.set(true);
           if ('data' in response && 'result_official_code' in response.data) {
             item.result_official_code = response.data.result_official_code as string;
           }
+          return;
         }
+
+        this.isCreated.set(false);
+        this.actions.handleBadRequest(response);
       })
       .catch(err => {
         console.error('Error creating result:', err);
