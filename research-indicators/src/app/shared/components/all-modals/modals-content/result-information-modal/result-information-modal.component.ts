@@ -45,7 +45,7 @@ export class ResultInformationModalComponent {
     const link = currentResult?.external_link;
     if (!currentResult || !link) return;
 
-    const isSupportedPlatform = currentResult.platform_code === PLATFORM_CODES.TIP || currentResult.platform_code === PLATFORM_CODES.PRMS;
+    const isSupportedPlatform = currentResult.platform_code === PLATFORM_CODES.TIP || currentResult.platform_code === PLATFORM_CODES.AICCRA || currentResult.platform_code === PLATFORM_CODES.PRMS;
     if (isSupportedPlatform) {
       globalThis.open(link, '_blank', 'noopener');
     }

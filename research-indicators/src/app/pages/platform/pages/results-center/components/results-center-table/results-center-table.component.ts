@@ -264,7 +264,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   openResult(result: Result) {
     this.resultsCenterService.clearAllFilters();
-    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP) {
+    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.AICCRA) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
       return;
@@ -279,7 +279,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResultByYear(result: number, year: string | number, platformCode: string) {
-    if (platformCode === PLATFORM_CODES.PRMS) {
+    if (platformCode === PLATFORM_CODES.PRMS || platformCode === PLATFORM_CODES.AICCRA || platformCode === PLATFORM_CODES.TIP) {
       return;
     }
     this.resultsCenterService.clearAllFilters();
@@ -290,7 +290,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   getResultHref(result: Result): string {
-    if (result.platform_code === PLATFORM_CODES.PRMS) {
+    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.AICCRA || result.platform_code === PLATFORM_CODES.TIP) {
       this.onResultLinkClick(result);
       return '';
     }
@@ -330,7 +330,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   onResultLinkClick(result: Result): void {
-    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS) {
+    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.AICCRA) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
     } 
@@ -406,12 +406,12 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     }
 
     if (result.platform_code !== PLATFORM_CODES.PRMS &&
-        result.platform_code !== PLATFORM_CODES.TIP &&
+        result.platform_code !== PLATFORM_CODES.TIP && result.platform_code !== PLATFORM_CODES.AICCRA &&
         target.closest('a[routerLink], span[routerLink], [ng-reflect-router-link]')) {
       return;
     }
 
-    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP) {
+    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.AICCRA) {
       event.preventDefault();
       event.stopPropagation();
       this.allModalsService.selectedResultForInfo.set(result);
