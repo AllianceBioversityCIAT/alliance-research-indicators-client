@@ -41,13 +41,13 @@ export const getIndicatorTypeIcon = (type: string): IndicatorIconResult => {
 };
 
 export const PROMPT_OICR_DETAILS =
-`Summarize the following text in no more than 80 words, keeping the same language as the input. 
-Your output must follow this format: 
+`Summarize the following text in the same language as the input. 
+Your output must follow this format and must not exceed 80 words in total: 
 
-OVERVIEW OF RESULTS: 
-Write a short, highly concise sentence capturing the core context, purpose, main stakeholders, and significance of the work. Do not include detailed results here, and do not repeat information that will appear in the highlights. 
+OVERVIEW: 
+Write one short and highly concise sentence (maximum 20 words) capturing the core context, purpose, main stakeholders, and significance of the work. Do not include detailed results here, and do not repeat information that will appear in the highlights. 
 
 HIGHLIGHTS: 
-Provide 3–5 very brief bullet points with non-repetitive information. Each bullet must be a simple outcome statement without subtitles, labels, or category headers. Do not begin bullets with thematic headings Focus only on concrete results such as quantitative outcomes, institutional uptake, innovations, capacity building, geographic reach, or environmental/social effects. Use numbers and names only when essential. 
+Provide 3–5 very brief bullet points, each no more than 10 words, with non-repetitive information. Each bullet must be a simple outcome statement without subtitles, labels, or category headers. Do not begin bullets with thematic headings. Focus only on concrete results such as quantitative outcomes, institutional uptake, innovations, capacity building, geographic reach, or environmental/social effects. Use numbers and names only when essential. 
 
 Return only the summary in no more than 80 words.`;
