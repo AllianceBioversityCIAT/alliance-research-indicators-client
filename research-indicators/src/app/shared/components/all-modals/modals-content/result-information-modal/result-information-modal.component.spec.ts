@@ -79,7 +79,7 @@ describe('ResultInformationModalComponent', () => {
       expect(component.getValue(r)).toBe('-');
     });
 
-    it('should join short_name of primary levers and filter empties', () => {
+    it('should return the first primary lever short_name only', () => {
       const r: any = {
         result_levers: [
           { is_primary: 1, lever: { short_name: 'A' } },
@@ -87,7 +87,7 @@ describe('ResultInformationModalComponent', () => {
           { is_primary: 1, lever: { short_name: 'B' } },
         ],
       };
-      expect(component.getValue(r)).toBe('A, B');
+      expect(component.getValue(r)).toBe('A');
     });
 
     it('should return - when primary levers have undefined lever/short_name (nullish coalescing branch)', () => {
@@ -99,14 +99,14 @@ describe('ResultInformationModalComponent', () => {
       expect(component.getValue(r)).toBe('-');
     });
 
-    it('should return - when after filtering empty names nothing remains', () => {
+    it('should return empty string when primary lever has empty short_name', () => {
       const r: any = {
         result_levers: [
           { is_primary: 1, lever: { short_name: '' } },
           { is_primary: '1', lever: { short_name: '' } },
         ],
       };
-      expect(component.getValue(r)).toBe('-');
+      expect(component.getValue(r)).toBe('');
     });
   });
 });

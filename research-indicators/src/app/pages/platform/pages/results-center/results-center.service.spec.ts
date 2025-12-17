@@ -118,7 +118,7 @@ describe('ResultsCenterService', () => {
       expect(config.indicators).toBe(true);
       expect(config['result-status']).toBe(true);
       expect(config.contracts).toBe(true);
-      expect(config['primary-contract']).toBe(true);
+      expect(config['primary-contract']).toBe(false);
       expect(config['primary-lever']).toBe(true);
       expect(config.levers).toBe(true);
       expect(config['audit-data']).toBe(true);
