@@ -92,15 +92,17 @@ export class MyProjectsService {
       const listData = response?.data?.data;
       const metaTotalRaw = (response as ContractsResponseWithMeta)?.metadata?.total ?? response?.data?.metadata?.total;
 
-      if (listData) {
+      if (listData && Array.isArray(listData)) {
         this.list.set(listData);
         const parsedTotal = metaTotalRaw === undefined || metaTotalRaw === null ? undefined : Number(metaTotalRaw);
-        let totalValue = listData.length ?? 0;
+        let totalValue = 0;
         
         if (listData.length === 0) {
           totalValue = 0;
         } else if (parsedTotal !== undefined && Number.isFinite(parsedTotal)) {
           totalValue = parsedTotal;
+        } else {
+          totalValue = listData.length;
         }
         
         this.totalRecords.set(totalValue);
@@ -125,11 +127,15 @@ export class MyProjectsService {
     }
   }
 
-  applyFilters = (pagination?: { page: number; limit: number; sortField?: string; sortOrder?: number }) => {
+  applyFilters = (pagination?: { page: number; limit: number; sortField?: string; sortOrder?: number; query?: string }) => {
     const filters = this.tableFilters();
     const params = this.getBaseParams();
     params['page'] = pagination?.page ?? 1;
     params['limit'] = pagination?.limit ?? 10;
+
+    if (pagination?.query) {
+      params['query'] = pagination.query;
+    }
 
     if (filters.contractCode) {
       params['contract-code'] = filters.contractCode;
@@ -283,7 +289,6 @@ export class MyProjectsService {
       }
     }
 
-    this.applyFilters();
   }
 
   onActiveItemChange = (event: MenuItem): void => {
