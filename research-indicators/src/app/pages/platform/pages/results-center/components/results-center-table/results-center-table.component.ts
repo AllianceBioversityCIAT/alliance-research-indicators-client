@@ -89,6 +89,15 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     return filter.value || filter.label;
   }
 
+  getPrimaryContractId(result: Result): string | null {
+    if (!result.result_contracts) return null;
+    const contracts = Array.isArray(result.result_contracts) ? result.result_contracts : [result.result_contracts];
+    const primaryContract = contracts.find((contract: { is_primary?: number | string; contract_id?: string }) => 
+      Number(contract.is_primary) === 1
+    );
+    return primaryContract?.contract_id ?? null;
+  }
+
   getVisibleColumns() {
     const columns = this.resultsCenterService.tableColumns();
     if (!this.showNewProjectResultButton) {

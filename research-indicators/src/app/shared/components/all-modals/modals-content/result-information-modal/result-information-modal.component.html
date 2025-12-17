@@ -25,9 +25,9 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <i class="pi pi-calendar !text-[8px] text-[#B9C0C5]"></i>
+          <i class="pi pi-calendar !text-[9px] text-[#B9C0C5]"></i>
           <span
-            class="text-[8px] uppercase leading-[18px] tracking-[0.18em] font-[400] text-[#B9C0C5] font-['Space_Grotesk']">{{
+            class="text-[9px] uppercase leading-[18px] tracking-[0.18em] font-[400] text-[#B9C0C5] font-['Space_Grotesk']">{{
             result()?.report_year_id }} result version
           </span>
         </div>
@@ -36,18 +36,18 @@
 
     <div class="text-[#173F6F] pt-1">
       <div class="flex items-center gap-2 pb-1">
-        <i class="pi {{ result()?.indicators?.icon_src }} !text-[10px] text-[#7CB580]"></i>
-        <span class="text-[11px] text-[#8D9299] font-[400] uppercase">{{ result()?.indicators?.name }}</span>
+        <i class="pi {{ result()?.indicators?.icon_src }} !text-[11px] text-[#7CB580]"></i>
+        <span class="text-[12px] text-[#8D9299] font-[400] uppercase">{{ result()?.indicators?.name }}</span>
       </div>
 
       <p class="text-[18px] font-[700] leading-5 mb-4">{{ result()?.title }}</p>
       <div class="flex flex-wrap gap-4 gap-y-2 text-sm mb-2">
         <div class="flex items-center">
           <span
-            class="font-normal text-[12px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Status</span>
-          <div class="pb-1">
+            class="font-normal text-[13px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Status</span>
+          <div class="pb-0.5">
             <i class="pi pi-arrow-right !text-[10px] px-2 !text-[#8D9299]"></i>
-            <app-custom-tag [statusId]="(result()?.result_status?.result_status_id ?? 0)" [tiny]="true"
+            <app-custom-tag [statusId]="(result()?.result_status?.result_status_id ?? 0)" [tiny]="false"
               [statusName]="(result()?.result_status?.name ?? '')">
             </app-custom-tag>
           </div>
@@ -55,18 +55,20 @@
 
         @if (getPrimaryContract()) {
         <div class="flex items-center">
-          <span class="font-normal text-[12px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Primary
+          <span class="font-normal text-[13px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Primary
             project</span>
           <div class="pb-1">
             <i class="pi pi-arrow-right !text-[10px] px-2 !text-[#8D9299]"></i>
-            <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">{{
+            <span
+              class="text-[12px] uppercase leading-[18px] bg-[#F4F7F9] text-[#1689CA] border-1 border-[#B9C0C5] rounded-[8px] px-2 py-1 font-['Space_Grotesk']">{{
               getPrimaryContract() }}
             </span>
           </div>
         </div>
         }
+        @if (getValue() !== '-') {
         <div class="flex items-center">
-          <span class="font-normal text-[12px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Primary
+          <span class="font-normal text-[13px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Primary
             lever</span>
           <div class="pb-1">
             <i class="pi pi-arrow-right !text-[10px] px-2 !text-[#8D9299]"></i>
@@ -76,8 +78,9 @@
             </span>
           </div>
         </div>
+        }
         <div class="flex items-center">
-          <span class="font-normal text-[12px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Reporting
+          <span class="font-normal text-[13px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Reporting
             year</span>
           <div class="pb-1">
             <i class="pi pi-arrow-right !text-[10px] px-2 !text-[#8D9299]"></i>
@@ -90,12 +93,13 @@
         @if (getContributingProjects().length > 0) {
         <div class="flex items-center">
           <span
-            class="font-normal text-[12px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Contributing
+            class="font-normal text-[13px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Contributing
             projects</span>
           <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
           <span class="text-[13px] uppercase leading-[18px] text-[#345b8f] font-['Space_Grotesk']">
             @for (item of getContributingProjects(); track item) {
-            <span class="px-2 py-1 bg-[#F4F7F9] rounded-md text-[#1689CA] text-[11px] cursor-pointer">
+            <span
+              class="text-[12px] uppercase leading-[18px] bg-[#F4F7F9] text-[#1689CA] border-1 border-[#B9C0C5] rounded-[8px] px-2 py-1 font-['Space_Grotesk']">
               {{ item }}
             </span>
             }
@@ -104,7 +108,7 @@
         }
 
         <div class="flex items-center">
-          <span class="font-normal text-[12px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Main
+          <span class="font-normal text-[13px] text-[#8D9299] !font-[300] !font-['Space_Grotesk'] leading-4">Main
             contact person</span>
           <div class="pb-1">
             <i class="pi pi-arrow-right !text-[10px] px-2 !text-[#8D9299]"></i>
