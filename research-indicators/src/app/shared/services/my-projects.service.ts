@@ -96,9 +96,13 @@ export class MyProjectsService {
         this.list.set(listData);
         const parsedTotal = metaTotalRaw === undefined || metaTotalRaw === null ? undefined : Number(metaTotalRaw);
         let totalValue = listData.length ?? 0;
-        if (parsedTotal !== undefined && Number.isFinite(parsedTotal)) {
+        
+        if (listData.length === 0) {
+          totalValue = 0;
+        } else if (parsedTotal !== undefined && Number.isFinite(parsedTotal)) {
           totalValue = parsedTotal;
         }
+        
         this.totalRecords.set(totalValue);
         this.list.update(current =>
           current.map(item => ({

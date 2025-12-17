@@ -430,12 +430,16 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     this.sortField.set(event.field);
     this.sortOrder.set(event.order);
     
+    const currentQuery = this.myProjectsFilterItem()?.id === 'my' 
+      ? this._searchValue() 
+      : this.myProjectsService.searchInput();
+    
     if (this.myProjectsFilterItem()?.id === 'my') {
       this.myProjectsFirst.set(0);
-      this.loadMyProjectsWithPagination();
+      this.loadMyProjectsWithPagination(currentQuery || undefined);
     } else {
       this.allProjectsFirst.set(0);
-      this.loadAllProjectsWithPagination();
+      this.loadAllProjectsWithPagination(currentQuery || undefined);
     }
   }
 
