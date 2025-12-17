@@ -328,12 +328,23 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     if (this.myProjectsFilterItem()?.id === 'my') {
       this._searchValue.set(query);
       this.myProjectsFirst.set(0);
-      this.loadMyProjectsWithPagination(query);
     } else {
       this.myProjectsService.searchInput.set(query);
       this.allProjectsFirst.set(0);
-      this.loadAllProjectsWithPagination(query);
     }
+    
+    const limit = this.getCurrentLimit();
+    const tableField = this.sortField();
+    const sortOrder = this.sortOrder();
+    const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
+    
+    this.myProjectsService.applyFilters({ 
+      page: 1, // Reset to first page when searching
+      limit, 
+      sortField: apiField, 
+      sortOrder,
+      query: query || undefined
+    });
   }
 
   showFiltersSidebar() {
