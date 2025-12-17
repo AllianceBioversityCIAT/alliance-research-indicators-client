@@ -33,6 +33,7 @@ import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
 import { environment } from '../../../environments/environment';
 import { PostError } from '../interfaces/post-error.interface';
 import { GetContractsByUser } from '@shared/interfaces/get-contracts-by-user.interface';
+import { GeneralReportItem } from '@shared/interfaces/get-general-report.interface';
 import { GetOsSubNationals, OpenSearchFilters } from '../interfaces/get-os-subnational.interface';
 import { GetAnnouncementSettingAvailable } from '../interfaces/get-announcement-setting-available.interface';
 import { GetAllIndicators } from '../interfaces/get-all-indicators.interface';
@@ -540,6 +541,11 @@ export class ApiService {
 
   GET_ResultsCount = (agreementId: string): Promise<MainResponse<GetProjectDetail>> => {
     const url = () => `agresso/contracts/${agreementId}/results/count`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_GeneralReport = (): Promise<MainResponse<GeneralReportItem[]>> => {
+    const url = () => `results/general-report/all`;
     return this.TP.get(url(), {});
   };
 

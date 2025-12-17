@@ -10,7 +10,9 @@ import { ResultsCenterService } from '../../results-center.service';
 import * as ExcelJS from 'exceljs';
 import { Router, RouterLink } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
+import { ApiService } from '@shared/services/api.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
+import { GeneralReportItem } from '@shared/interfaces/get-general-report.interface';
 import { PopoverModule } from 'primeng/popover';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { FiltersActionButtonsComponent } from '../../../../../../shared/components/filters-action-buttons/filters-action-buttons.component';
@@ -42,6 +44,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   private readonly cacheService = inject(CacheService);
   private readonly allModalsService = inject(AllModalsService);
   private readonly createResultManagementService = inject(CreateResultManagementService);
+  private readonly apiService = inject(ApiService);
 
   @Input() showNewProjectResultButton = false;
   @ViewChild('dt2') dt2!: Table;
@@ -175,72 +178,155 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   async exportTable() {
-    // Test data
-    const exportData =
-      (this.dt2.filteredValue ?? this.resultsCenterService.list())?.map(result => ({
-        Code: result.result_official_code,
-        Title: result.title,
-        Indicator: result.indicators?.name ?? '',
-        Status: result.result_status?.name ?? '',
-        Project: result.result_contracts?.contract_id ?? '',
-        Lever: result.result_levers?.lever?.short_name ?? '',
-        Year: result.report_year_id ?? '',
-        Creator: result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '',
-        'Creation date': result.created_at ? new Date(result.created_at).toLocaleDateString() : ''
-      })) ?? [];
-
-    // Create a new workbook and worksheet
-    const workbook = new ExcelJS.Workbook();
-    workbook.creator = 'Research Indicators';
-    workbook.created = new Date();
-
-    const worksheet = workbook.addWorksheet('Results', {
-      views: [{ state: 'frozen', ySplit: 1 }],
-      properties: {
-        defaultRowHeight: 20,
-        showGridLines: false
-      }
-    });
-
-    // Add headers and set basic column widths
-    worksheet.columns = Object.keys(exportData[0]).map(header => ({
-      header,
-      key: header,
-      width: 15,
-      hidden: false
-    }));
-
-    // Add data
-    exportData.forEach(row => {
-      worksheet.addRow(row);
-    });
-
-    // Adjust column widths with specific minimums for each column
-    this.adjustColumnWidth(worksheet, 2, 70); // Title column
-    this.adjustColumnWidth(worksheet, 3, 100); // Description column
-    this.adjustColumnWidth(worksheet, 5, 70); // Indicator Name column
-    this.adjustColumnWidth(worksheet, 8, 70); // Status column
-    this.adjustColumnWidth(worksheet, 9, 70, 20); // Project column
-
-    // Style header columns
-    this.styleHeaderColumns(worksheet, Object.keys(exportData[0]).length);
-
     try {
-      // Generate Excel file
+      const response = await this.apiService.GET_GeneralReport();
+      const exportData: GeneralReportItem[] = response?.data ?? [];
+
+      if (exportData.length === 0) {
+        console.warn('No data to export');
+        return;
+      }
+
+      const cleanString = (str: string): string => {
+        let cleaned = '';
+        for (let i = 0; i < str.length; i++) {
+          const char = str[i];
+          const code = str.codePointAt(i) ?? 0;
+          if (code >= 32 || code === 9 || code === 10 || code === 13) {
+            cleaned += char;
+          }
+        }
+        return cleaned;
+      };
+
+      const sanitizeValue = (value: unknown): string | number => {
+        if (value === null || value === undefined || value === '') {
+          return '';
+        }
+        const valueType = typeof value;
+        if (valueType === 'number') {
+          const numValue = value as number;
+          return Number.isNaN(numValue) || !Number.isFinite(numValue) ? '' : numValue;
+        }
+        if (valueType === 'boolean') {
+          return (value as boolean) ? 'TRUE' : 'FALSE';
+        }
+        if (valueType === 'object') {
+          try {
+            const jsonStr = JSON.stringify(value);
+            return jsonStr.length > 32767 ? jsonStr.substring(0, 32764) + '...' : jsonStr;
+          } catch {
+            return '';
+          }
+        }
+        if (valueType === 'string') {
+          const strValue = value as string;
+          const trimmed = strValue.trim();
+          if (trimmed.length === 0) {
+            return '';
+          }
+          const cleaned = cleanString(trimmed);
+          return cleaned.length > 32767 ? cleaned.substring(0, 32764) + '...' : cleaned;
+        }
+        return '';
+      };
+
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = 'Research Indicators';
+      workbook.created = new Date();
+
+      const worksheet = workbook.addWorksheet('Results', {
+        views: [{ state: 'frozen', ySplit: 1 }],
+        properties: {
+          defaultRowHeight: 20,
+          showGridLines: false
+        }
+      });
+
+      const allKeys = new Set<string>();
+      exportData.forEach((row: GeneralReportItem) => {
+        if (row && typeof row === 'object') {
+          Object.keys(row).forEach(key => allKeys.add(key));
+        }
+      });
+      const headers = Array.from(allKeys);
+
+      if (headers.length === 0) {
+        console.warn('No headers found in data');
+        return;
+      }
+
+      worksheet.columns = headers.map(header => ({
+        header,
+        key: header,
+        width: 15,
+        hidden: false
+      }));
+
+      exportData.forEach((row: GeneralReportItem, rowIndex: number) => {
+        try {
+          const rowValues: (string | number)[] = [];
+          headers.forEach((header) => {
+            try {
+              const value = (row as Record<string, unknown>)[header];
+              const sanitized = sanitizeValue(value);
+              rowValues.push(sanitized);
+            } catch (error) {
+              console.warn(`Error accessing property "${header}" in row ${rowIndex}:`, error);
+              rowValues.push('');
+            }
+          });
+          if (rowValues.length === headers.length) {
+            worksheet.addRow(rowValues);
+          } else {
+            console.warn(`Row ${rowIndex} has ${rowValues.length} values but expected ${headers.length}, skipping`);
+          }
+        } catch (error) {
+          console.warn(`Error processing row ${rowIndex}, skipping:`, error);
+        }
+      });
+
+      headers.forEach((header, index) => {
+        const column = worksheet.getColumn(index + 1);
+        if (header.includes('Title') || header.includes('Description')) {
+          column.width = 50;
+        } else if (header.includes('Project') || header.includes('Creator')) {
+          column.width = 30;
+        } else {
+          column.width = 20;
+        }
+      });
+
+      this.styleHeaderColumns(worksheet, headers.length);
+
       const buffer = await workbook.xlsx.writeBuffer();
+      
+      if (!buffer || buffer.byteLength === 0) {
+        console.error('Generated buffer is empty or invalid');
+        return;
+      }
+      
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = window.URL.createObjectURL(blob);
+      const url = globalThis.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       const now = new Date();
       const formattedDate = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
       const userData = this.cacheService.dataCache().user;
       const userName = `${userData.first_name}_${userData.last_name}`.toLowerCase().replace(' ', '_');
-      link.download = `export_${userName}_${formattedDate}.xlsx`;
+      link.download = `general_report_${userName}_${formattedDate}.xlsx`;
+      link.style.display = 'none';
+      document.body.appendChild(link);
       link.click();
-      window.URL.revokeObjectURL(url);
+      setTimeout(() => {
+        link.remove();
+        globalThis.URL.revokeObjectURL(url);
+      }, 100);
     } catch (error) {
       console.error('Error exporting file:', error);
+      if (error instanceof Error) {
+        console.error('Error details:', error.message, error.stack);
+      }
     }
   }
 
