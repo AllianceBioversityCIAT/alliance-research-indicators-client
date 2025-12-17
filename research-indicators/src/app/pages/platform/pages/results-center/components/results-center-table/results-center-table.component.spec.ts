@@ -407,14 +407,22 @@ describe('ResultsCenterTableComponent', () => {
       return originalAppendChild.call(document.body, node);
     }) as any;
 
+    jest.useFakeTimers();
     (component as any).dt2 = { filteredValue: undefined } as any;
-    await component.exportTable();
-
+    
+    const exportPromise = component.exportTable();
+    
+    // Wait for all async operations to complete
+    await jest.runAllTimersAsync();
+    await exportPromise;
+    
     expect(mockApiService.GET_GeneralReport).toHaveBeenCalled();
     expect(worksheet.addRow).toHaveBeenCalled();
     expect(createObjectURLSpy).toHaveBeenCalled();
     expect(clickSpy).toHaveBeenCalled();
     expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:123');
+    
+    jest.useRealTimers();
     (document as any).createElement = originalCreate;
     document.body.appendChild = originalAppendChild;
     globalThis.URL = originalURL;
@@ -468,13 +476,22 @@ describe('ResultsCenterTableComponent', () => {
       return originalAppendChild.call(document.body, node);
     }) as any;
 
+    jest.useFakeTimers();
     (component as any).dt2 = { filteredValue: [mockResult] } as any;
-    await component.exportTable();
+    
+    const exportPromise = component.exportTable();
+    
+    // Wait for all async operations to complete
+    await jest.runAllTimersAsync();
+    await exportPromise;
+    
     expect(mockApiService.GET_GeneralReport).toHaveBeenCalled();
     expect(worksheet.addRow).toHaveBeenCalled();
     expect(createObjectURLSpy).toHaveBeenCalled();
     expect(clickSpy).toHaveBeenCalled();
     expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:456');
+    
+    jest.useRealTimers();
     (document as any).createElement = originalCreate;
     document.body.appendChild = originalAppendChild;
     globalThis.URL = originalURL;
