@@ -92,13 +92,19 @@ export class MyProjectsService {
       const listData = response?.data?.data;
       const metaTotalRaw = (response as ContractsResponseWithMeta)?.metadata?.total ?? response?.data?.metadata?.total;
 
-      if (listData) {
+      if (listData && Array.isArray(listData)) {
         this.list.set(listData);
         const parsedTotal = metaTotalRaw === undefined || metaTotalRaw === null ? undefined : Number(metaTotalRaw);
-        let totalValue = listData.length ?? 0;
-        if (parsedTotal !== undefined && Number.isFinite(parsedTotal)) {
+        let totalValue = 0;
+        
+        if (listData.length === 0) {
+          totalValue = 0;
+        } else if (parsedTotal !== undefined && Number.isFinite(parsedTotal)) {
           totalValue = parsedTotal;
+        } else {
+          totalValue = listData.length;
         }
+        
         this.totalRecords.set(totalValue);
         this.list.update(current =>
           current.map(item => ({
@@ -121,11 +127,15 @@ export class MyProjectsService {
     }
   }
 
-  applyFilters = (pagination?: { page: number; limit: number; sortField?: string; sortOrder?: number }) => {
+  applyFilters = (pagination?: { page: number; limit: number; sortField?: string; sortOrder?: number; query?: string }) => {
     const filters = this.tableFilters();
     const params = this.getBaseParams();
     params['page'] = pagination?.page ?? 1;
     params['limit'] = pagination?.limit ?? 10;
+
+    if (pagination?.query) {
+      params['query'] = pagination.query;
+    }
 
     if (filters.contractCode) {
       params['contract-code'] = filters.contractCode;
@@ -160,7 +170,7 @@ export class MyProjectsService {
     // Add sort parameters
     if (pagination?.sortField) {
       params['order-field'] = pagination.sortField;
-      params['direction'] = pagination.sortOrder === 1 ? 'asc' : 'desc';
+      params['direction'] = pagination.sortOrder === 1 ? 'ASC' : 'DESC';
     }
 
     this.appliedFilters.set({ ...filters });
@@ -279,7 +289,6 @@ export class MyProjectsService {
       }
     }
 
-    this.applyFilters();
   }
 
   onActiveItemChange = (event: MenuItem): void => {
