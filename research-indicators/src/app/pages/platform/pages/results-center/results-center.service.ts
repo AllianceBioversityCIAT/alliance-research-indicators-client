@@ -147,7 +147,7 @@ export class ResultsCenterService {
     indicators: true,
     'result-status': true,
     contracts: true,
-    'primary-contract': true,
+    'primary-contract': false,
     'primary-lever': true,
     levers: true,
     'audit-data': true,

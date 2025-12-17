@@ -34,10 +34,41 @@ export class ResultInformationModalComponent {
     if (!r) return '-';
     const levers = (r.result_levers as { is_primary: number | string; lever?: { short_name?: string } }[] | undefined) ?? [];
     if (!Array.isArray(levers) || levers.length === 0) return '-';
-    const primaryLevers = levers.filter(l => Number(l.is_primary) === 1);
-    if (primaryLevers.length === 0) return '-';
-    const text = primaryLevers.map(l => l.lever?.short_name ?? '').filter(v => v.length > 0).join(', ');
-    return text || '-';
+    const primaryLever = levers.find(l => Number(l.is_primary) === 1);
+    if (!primaryLever) return '-';
+    return primaryLever.lever?.short_name ?? '-';
+  }
+
+  getPrimaryContract(): string | null {
+    const r = this.result();
+    if (!r?.result_contracts) return null;
+    
+    const contracts = Array.isArray(r.result_contracts) ? r.result_contracts : [r.result_contracts];
+    const primaryContract = contracts.find((contract: { is_primary?: number | string; contract_id?: string }) => 
+      Number(contract.is_primary) === 1
+    );
+    
+    return primaryContract?.contract_id ?? null;
+  }
+
+  getContributingContracts(): string[] {
+    const r = this.result();
+    if (!r?.result_contracts) return [];
+    
+    const contracts = Array.isArray(r.result_contracts) ? r.result_contracts : [r.result_contracts];
+    const contributing = contracts
+      .filter((contract: { is_primary?: number | string; contract_id?: string }) => 
+        Number(contract.is_primary) !== 1 && contract.contract_id
+      )
+      .map((contract: { contract_id: string }) => contract.contract_id);
+    
+    return contributing;
+  }
+
+  getContributingProjects(): (string | number)[] {
+    const contracts = this.getContributingContracts();
+    const snapshotYears = this.result()?.snapshot_years ?? [];
+    return [...contracts, ...snapshotYears];
   }
 
   openExternalLink(): void {
