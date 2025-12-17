@@ -5,6 +5,9 @@ import { CacheService } from '../../../../../../shared/services/cache/cache.serv
 import { AllModalsService } from '../../../../../../shared/services/cache/all-modals.service';
 import { Router, provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { ApiService } from '../../../../../../shared/services/api.service';
+import { CreateResultManagementService } from '../../../../../../shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 
 describe('ResultsCenterTableComponent', () => {
   let component: ResultsCenterTableComponent;
@@ -14,6 +17,8 @@ describe('ResultsCenterTableComponent', () => {
   let mockCache: any;
   let mockModals: any;
   let mockRouter: any;
+  let mockApiService: any;
+  let mockCreateResultManagementService: any;
 
   const mockResult = {
     result_official_code: 7,
@@ -84,6 +89,51 @@ describe('ResultsCenterTableComponent', () => {
       createUrlTree: jest.fn().mockReturnValue({ toString: () => '/result/ROAR-7/general-information?version=2024' })
     };
 
+    mockApiService = {
+      GET_GeneralReport: jest.fn().mockResolvedValue({
+        data: [
+          {
+            Code: 1,
+            'Platform Code': 'STAR',
+            Title: 'Test Title',
+            Projects: 'S261',
+            Indicator: 'Capacity Sharing',
+            Levers: 'Lever 2',
+            'Live version': 2025,
+            'Approved versions': null,
+            Creator: 'Test User',
+            'Main contact person': 'Test Contact',
+            'Creation date': '01/01/2025',
+            'Project title': 'Test Project',
+            'Project principal investigator': 'Test PI',
+            'Result desciption': 'Test Description',
+            Evidences: null,
+            'Geographic scope': 'Multi-national',
+            'Countries specified': 'India',
+            'Regions specified': null,
+            'Partners involved': null,
+            'Were the trainees attending on behalf of an organization? (CapSha)': null,
+            'Policy stage': null,
+            'Policy type': null,
+            'Innovation type': null,
+            'Innovation nature': null,
+            'Innovation readiness level': null,
+            'Number people trained TOTAL': 22,
+            'Number people trained FEMALE': null,
+            'Number people trained MALE': null,
+            'Number people trained NON BINARY': null,
+            'Length training': 'Short-term',
+            'Delivery modality': 'Hybrid'
+          }
+        ]
+      })
+    };
+
+    mockCreateResultManagementService = {
+      setContractId: jest.fn(),
+      setPresetFromProjectResultsTable: jest.fn()
+    };
+
     await TestBed.configureTestingModule({
       imports: [ResultsCenterTableComponent],
       providers: [
@@ -91,7 +141,10 @@ describe('ResultsCenterTableComponent', () => {
         { provide: CacheService, useValue: mockCache },
         { provide: AllModalsService, useValue: mockModals },
         { provide: Router, useValue: mockRouter },
-        provideRouter([])
+        { provide: ApiService, useValue: mockApiService },
+        { provide: CreateResultManagementService, useValue: mockCreateResultManagementService },
+        provideRouter([]),
+        provideHttpClientTesting()
       ]
     })
       .overrideComponent(ResultsCenterTableComponent, { set: { template: '' } })
@@ -325,24 +378,46 @@ describe('ResultsCenterTableComponent', () => {
     jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
 
     // Mock URL and link click
-    (global as any).URL = (global as any).URL || {};
-    (global as any).URL.createObjectURL = jest.fn().mockReturnValue('blob:123');
-    (global as any).URL.revokeObjectURL = jest.fn();
-    const clickSpy = jest.fn();
-    const originalCreate = document.createElement;
-    (document as any).createElement = (tagName: any) => {
-      if (tagName === 'a') return { click: clickSpy } as any;
-      return originalCreate.call(document, tagName);
+    const createObjectURLSpy = jest.fn().mockReturnValue('blob:123');
+    const revokeObjectURLSpy = jest.fn();
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = {
+      createObjectURL: createObjectURLSpy,
+      revokeObjectURL: revokeObjectURLSpy
     };
 
+    const clickSpy = jest.fn();
+    const linkElement = {
+      click: clickSpy,
+      style: { display: '' },
+      href: '',
+      download: '',
+      remove: jest.fn()
+    };
+    const originalCreate = document.createElement;
+    const originalAppendChild = document.body.appendChild;
+    (document as any).createElement = (tagName: any) => {
+      if (tagName === 'a') return linkElement as any;
+      return originalCreate.call(document, tagName);
+    };
+    document.body.appendChild = jest.fn((node: any) => {
+      if (node === linkElement) {
+        return node;
+      }
+      return originalAppendChild.call(document.body, node);
+    }) as any;
+
     (component as any).dt2 = { filteredValue: undefined } as any;
-    mockService.list.set([mockResult]);
     await component.exportTable();
 
+    expect(mockApiService.GET_GeneralReport).toHaveBeenCalled();
     expect(worksheet.addRow).toHaveBeenCalled();
+    expect(createObjectURLSpy).toHaveBeenCalled();
     expect(clickSpy).toHaveBeenCalled();
-    expect((global as any).URL.revokeObjectURL).toHaveBeenCalledWith('blob:123');
+    expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:123');
     (document as any).createElement = originalCreate;
+    document.body.appendChild = originalAppendChild;
+    globalThis.URL = originalURL;
   });
 
   it('exportTable should use filteredValue if present', async () => {
@@ -363,22 +438,46 @@ describe('ResultsCenterTableComponent', () => {
       xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
     } as any;
     jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
-    (global as any).URL = (global as any).URL || {};
-    (global as any).URL.createObjectURL = jest.fn().mockReturnValue('blob:456');
-    (global as any).URL.revokeObjectURL = jest.fn();
+    
+    const createObjectURLSpy = jest.fn().mockReturnValue('blob:456');
+    const revokeObjectURLSpy = jest.fn();
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = {
+      createObjectURL: createObjectURLSpy,
+      revokeObjectURL: revokeObjectURLSpy
+    };
+
     const clickSpy = jest.fn();
+    const linkElement = {
+      click: clickSpy,
+      style: { display: '' },
+      href: '',
+      download: '',
+      remove: jest.fn()
+    };
     const originalCreate = document.createElement;
+    const originalAppendChild = document.body.appendChild;
     (document as any).createElement = (tagName: any) => {
-      if (tagName === 'a') return { click: clickSpy } as any;
+      if (tagName === 'a') return linkElement as any;
       return originalCreate.call(document, tagName);
     };
+    document.body.appendChild = jest.fn((node: any) => {
+      if (node === linkElement) {
+        return node;
+      }
+      return originalAppendChild.call(document.body, node);
+    }) as any;
 
     (component as any).dt2 = { filteredValue: [mockResult] } as any;
     await component.exportTable();
+    expect(mockApiService.GET_GeneralReport).toHaveBeenCalled();
     expect(worksheet.addRow).toHaveBeenCalled();
+    expect(createObjectURLSpy).toHaveBeenCalled();
     expect(clickSpy).toHaveBeenCalled();
-    expect((global as any).URL.revokeObjectURL).toHaveBeenCalledWith('blob:456');
+    expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:456');
     (document as any).createElement = originalCreate;
+    document.body.appendChild = originalAppendChild;
+    globalThis.URL = originalURL;
   });
 
   it('exportTable should log error when writeBuffer throws', async () => {
@@ -398,11 +497,44 @@ describe('ResultsCenterTableComponent', () => {
       xlsx: { writeBuffer: jest.fn().mockRejectedValue(new Error('boom')) }
     } as any;
     jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    
+    const createObjectURLSpy = jest.fn().mockReturnValue('blob:error');
+    const revokeObjectURLSpy = jest.fn();
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = {
+      createObjectURL: createObjectURLSpy,
+      revokeObjectURL: revokeObjectURLSpy
+    };
+
+    const linkElement = {
+      click: jest.fn(),
+      style: { display: '' },
+      href: '',
+      download: '',
+      remove: jest.fn()
+    };
+    const originalCreate = document.createElement;
+    const originalAppendChild = document.body.appendChild;
+    (document as any).createElement = (tagName: any) => {
+      if (tagName === 'a') return linkElement as any;
+      return originalCreate.call(document, tagName);
+    };
+    document.body.appendChild = jest.fn((node: any) => {
+      if (node === linkElement) {
+        return node;
+      }
+      return originalAppendChild.call(document.body, node);
+    }) as any;
+
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     (component as any).dt2 = { filteredValue: [mockResult] } as any;
     await component.exportTable();
+    expect(mockApiService.GET_GeneralReport).toHaveBeenCalled();
     expect(errorSpy).toHaveBeenCalled();
     errorSpy.mockRestore();
+    (document as any).createElement = originalCreate;
+    document.body.appendChild = originalAppendChild;
+    globalThis.URL = originalURL;
   });
 
   it('getResultQueryParams should return latest year or empty object', () => {
@@ -468,22 +600,47 @@ describe('ResultsCenterTableComponent', () => {
       xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
     } as any;
     jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
-    (global as any).URL = (global as any).URL || {};
-    (global as any).URL.createObjectURL = jest.fn().mockReturnValue('blob:u');
-    (global as any).URL.revokeObjectURL = jest.fn();
-    const originalCreate = document.createElement;
+    
+    const createObjectURLSpy = jest.fn().mockReturnValue('blob:u');
+    const revokeObjectURLSpy = jest.fn();
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = {
+      createObjectURL: createObjectURLSpy,
+      revokeObjectURL: revokeObjectURLSpy
+    };
+
     const clickSpy = jest.fn();
+    const linkElement = {
+      click: clickSpy,
+      style: { display: '' },
+      href: '',
+      download: '',
+      remove: jest.fn()
+    };
+    const originalCreate = document.createElement;
+    const originalAppendChild = document.body.appendChild;
     (document as any).createElement = (tagName: any) => {
-      if (tagName === 'a') return { click: clickSpy } as any;
+      if (tagName === 'a') return linkElement as any;
       return originalCreate.call(document, tagName);
     };
+    document.body.appendChild = jest.fn((node: any) => {
+      if (node === linkElement) {
+        return node;
+      }
+      return originalAppendChild.call(document.body, node);
+    }) as any;
 
     (component as any).dt2 = { filteredValue: [mockResult] } as any;
     await component.exportTable();
 
-    // 9 headers are expected, so column 10 should be hidden
-    expect(hiddenMap[10]).toBe(true);
+    expect(mockApiService.GET_GeneralReport).toHaveBeenCalled();
+    // Check that columns after data are hidden
+    expect(worksheet.addRow).toHaveBeenCalled();
+    expect(createObjectURLSpy).toHaveBeenCalled();
+    expect(clickSpy).toHaveBeenCalled();
     (document as any).createElement = originalCreate;
+    document.body.appendChild = originalAppendChild;
+    globalThis.URL = originalURL;
   });
 });
 

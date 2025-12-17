@@ -96,6 +96,31 @@ export class ToPromiseService {
     );
   };
 
+  getBlob = (url: string, config?: Config): Promise<Blob> => {
+    let headers = new HttpHeaders();
+
+    if (config?.useResultInterceptor) {
+      headers = headers.set('X-Use-Year', 'true');
+    }
+    if (config?.platform) {
+      headers = headers.set('X-Platform', config.platform);
+    }
+    if (config?.noAuthInterceptor) {
+      headers = headers.set('no-auth-interceptor', 'true');
+    }
+
+    const fullUrl = this.getEnv(config?.isAuth) + url;
+
+    return firstValueFrom(
+      this.http.get(fullUrl, {
+        headers,
+        params: config?.params,
+        responseType: 'blob',
+        ...(config?.noCache && { cache: 'no-store' })
+      })
+    );
+  };
+
   getWithParams = <T>(url: string, params?: Record<string, string>, config?: Config) => {
     return this.TP(this.http.get<T>(this.getEnv(config?.isAuth) + url, { params }), config?.loadingTrigger);
   };
