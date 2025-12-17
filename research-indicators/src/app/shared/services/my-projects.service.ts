@@ -160,7 +160,7 @@ export class MyProjectsService {
     // Add sort parameters
     if (pagination?.sortField) {
       params['order-field'] = pagination.sortField;
-      params['direction'] = pagination.sortOrder === 1 ? 'asc' : 'desc';
+      params['direction'] = pagination.sortOrder === 1 ? 'ASC' : 'DESC';
     }
 
     this.appliedFilters.set({ ...filters });

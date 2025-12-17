@@ -289,22 +289,24 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   loadMyProjects() {
     const params: Record<string, unknown> = { 'current-user': true, page: 1, limit: this.myProjectsRows() };
-    const sortField = this.sortField();
+    const tableField = this.sortField();
     const sortOrder = this.sortOrder();
-    if (sortField) {
-      params['order-field'] = sortField;
-      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    if (tableField) {
+      const apiField = this.mapTableFieldToApiField(tableField);
+      params['order-field'] = apiField;
+      params['direction'] = sortOrder === 1 ? 'ASC' : 'DESC';
     }
     this.myProjectsService.main(params);
   }
 
   loadAllProjects() {
     const params: Record<string, unknown> = { 'current-user': false, page: 1, limit: this.allProjectsRows() };
-    const sortField = this.sortField();
+    const tableField = this.sortField();
     const sortOrder = this.sortOrder();
-    if (sortField) {
-      params['order-field'] = sortField;
-      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    if (tableField) {
+      const apiField = this.mapTableFieldToApiField(tableField);
+      params['order-field'] = apiField;
+      params['direction'] = sortOrder === 1 ? 'ASC' : 'DESC';
     }
     this.myProjectsService.main(params);
   }
@@ -410,14 +412,29 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     this.onPageChange(event);
   }
 
+  private mapTableFieldToApiField(tableField: string): string {
+    const fieldMapping: Record<string, string> = {
+      'agreement_id': 'contract-code',
+      'description': 'project-name',
+      'contract_status': 'status',
+      'display_principal_investigator': 'principal-investigator',
+      'display_lever_name': 'lever',
+      'lead_center': 'lead-center',
+      'start_date': 'start-date',
+      'end_date': 'end-date'
+    };
+    return fieldMapping[tableField] || tableField;
+  }
+
   onSort(event: { field: string; order: number }): void {
     this.sortField.set(event.field);
     this.sortOrder.set(event.order);
     
-    // Reload data with new sort parameters
     if (this.myProjectsFilterItem()?.id === 'my') {
+      this.myProjectsFirst.set(0);
       this.loadMyProjectsWithPagination();
     } else {
+      this.allProjectsFirst.set(0);
       this.loadAllProjectsWithPagination();
     }
   }
@@ -425,9 +442,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   applyFilters(): void {
     const page = this.getCurrentPage();
     const limit = this.getCurrentLimit();
-    const sortField = this.sortField();
+    const tableField = this.sortField();
     const sortOrder = this.sortOrder();
-    this.myProjectsService.applyFilters({ page, limit, sortField, sortOrder });
+    const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
+    this.myProjectsService.applyFilters({ page, limit, sortField: apiField, sortOrder });
   }
 
   private getCurrentPage(): number {
@@ -446,12 +464,12 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     if (query) {
       params['query'] = query;
     }
-    // Add sort parameters
-    const sortField = this.sortField();
+    const tableField = this.sortField();
     const sortOrder = this.sortOrder();
-    if (sortField) {
-      params['order-field'] = sortField;
-      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    if (tableField) {
+      const apiField = this.mapTableFieldToApiField(tableField);
+      params['order-field'] = apiField;
+      params['direction'] = sortOrder === 1 ? 'ASC' : 'DESC';
     }
     this.myProjectsService.main(params);
   }
@@ -462,12 +480,12 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     if (query) {
       params['query'] = query;
     }
-    // Add sort parameters
-    const sortField = this.sortField();
+    const tableField = this.sortField();
     const sortOrder = this.sortOrder();
-    if (sortField) {
-      params['order-field'] = sortField;
-      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    if (tableField) {
+      const apiField = this.mapTableFieldToApiField(tableField);
+      params['order-field'] = apiField;
+      params['direction'] = sortOrder === 1 ? 'ASC' : 'DESC';
     }
     this.myProjectsService.main(params);
   }
