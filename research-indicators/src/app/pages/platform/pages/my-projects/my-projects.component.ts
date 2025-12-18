@@ -72,8 +72,9 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   myProjectsFirst = signal(0);
   myProjectsRows = signal(10);
   private readonly _searchValue = signal('');
+  private readonly _isQuerySentToBackend = signal(false);
   isTableView = signal(true);
-  sortField = signal<string>('start_date');
+  sortField = signal<string>('agreement_id');
   sortOrder = signal<number>(-1);
 
   pinnedTab = signal<string>('all');
@@ -139,6 +140,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   filteredProjects = computed(() => {
     const projects = this.myProjectsService.list();
+    
+    if (this.myProjectsService.hasFilters() || this._isQuerySentToBackend()) {
+      return projects;
+    }
+    
     const searchTerm =
       this.myProjectsFilterItem()?.id === 'my' ? this._searchValue().toLowerCase() : this.myProjectsService.searchInput().toLowerCase();
 
@@ -289,22 +295,24 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
 
   loadMyProjects() {
     const params: Record<string, unknown> = { 'current-user': true, page: 1, limit: this.myProjectsRows() };
-    const sortField = this.sortField();
+    const tableField = this.sortField();
     const sortOrder = this.sortOrder();
-    if (sortField) {
-      params['order-field'] = sortField;
-      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    if (tableField) {
+      const apiField = this.mapTableFieldToApiField(tableField);
+      params['order-field'] = apiField;
+      params['direction'] = sortOrder === 1 ? 'ASC' : 'DESC';
     }
     this.myProjectsService.main(params);
   }
 
   loadAllProjects() {
     const params: Record<string, unknown> = { 'current-user': false, page: 1, limit: this.allProjectsRows() };
-    const sortField = this.sortField();
+    const tableField = this.sortField();
     const sortOrder = this.sortOrder();
-    if (sortField) {
-      params['order-field'] = sortField;
-      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    if (tableField) {
+      const apiField = this.mapTableFieldToApiField(tableField);
+      params['order-field'] = apiField;
+      params['direction'] = sortOrder === 1 ? 'ASC' : 'DESC';
     }
     this.myProjectsService.main(params);
   }
@@ -315,24 +323,60 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   setSearchInputFilter(query: string) {
+    this._isQuerySentToBackend.set(query.length > 0);
+    
     if (this.myProjectsFilterItem()?.id === 'my') {
       this._searchValue.set(query);
       this.myProjectsFirst.set(0);
-      this.loadMyProjectsWithPagination(query);
     } else {
       this.myProjectsService.searchInput.set(query);
       this.allProjectsFirst.set(0);
-      this.loadAllProjectsWithPagination(query);
     }
+    
+    const limit = this.getCurrentLimit();
+    const tableField = this.sortField();
+    const sortOrder = this.sortOrder();
+    const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
+    
+    this.myProjectsService.applyFilters({ 
+      page: 1, // Reset to first page when searching
+      limit, 
+      sortField: apiField, 
+      sortOrder,
+      query: query || undefined
+    });
   }
 
   showFiltersSidebar() {
     this.myProjectsService.showFilterSidebar();
   }
 
+  handleRemoveFilter(label: string, id?: string | number): void {
+    this.myProjectsService.removeFilter(label, id);
+    
+    const currentQuery = this.myProjectsFilterItem()?.id === 'my' 
+      ? this._searchValue() 
+      : this.myProjectsService.searchInput();
+    
+    const page = this.getCurrentPage();
+    const limit = this.getCurrentLimit();
+    const tableField = this.sortField();
+    const sortOrder = this.sortOrder();
+    const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
+    
+    this.myProjectsService.applyFilters({ 
+      page, 
+      limit, 
+      sortField: apiField, 
+      sortOrder,
+      query: currentQuery || undefined
+    });
+  }
+
   handleClearFilters() {
     this._searchValue.set('');
     this.myProjectsService.searchInput.set('');
+    this._isQuerySentToBackend.set(false);
     this.myProjectsService.resetFilters();
     // Reload with current pagination after clearing
     if (this.myProjectsFilterItem()?.id === 'my') {
@@ -410,24 +454,60 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     this.onPageChange(event);
   }
 
+  private mapTableFieldToApiField(tableField: string): string {
+    const fieldMapping: Record<string, string> = {
+      'agreement_id': 'contract-code',
+      'description': 'project-name',
+      'contract_status': 'status',
+      'display_principal_investigator': 'principal-investigator',
+      'display_lever_name': 'lever',
+      'lead_center': 'lead-center',
+      'start_date': 'start-date',
+      'end_date': 'end-date'
+    };
+    return fieldMapping[tableField] || tableField;
+  }
+
   onSort(event: { field: string; order: number }): void {
     this.sortField.set(event.field);
     this.sortOrder.set(event.order);
     
-    // Reload data with new sort parameters
+    const currentQuery = this.myProjectsFilterItem()?.id === 'my' 
+      ? this._searchValue() 
+      : this.myProjectsService.searchInput();
+    
     if (this.myProjectsFilterItem()?.id === 'my') {
-      this.loadMyProjectsWithPagination();
+      this.myProjectsFirst.set(0);
+      this.loadMyProjectsWithPagination(currentQuery || undefined);
     } else {
-      this.loadAllProjectsWithPagination();
+      this.allProjectsFirst.set(0);
+      this.loadAllProjectsWithPagination(currentQuery || undefined);
     }
   }
 
   applyFilters(): void {
     const page = this.getCurrentPage();
     const limit = this.getCurrentLimit();
-    const sortField = this.sortField();
+    const tableField = this.sortField();
     const sortOrder = this.sortOrder();
-    this.myProjectsService.applyFilters({ page, limit, sortField, sortOrder });
+    const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
+    
+    // Get current search query to preserve it when applying filters
+    const currentQuery = this.myProjectsFilterItem()?.id === 'my' 
+      ? this._searchValue() 
+      : this.myProjectsService.searchInput();
+    
+    if (currentQuery) {
+      this._isQuerySentToBackend.set(true);
+    }
+    
+    this.myProjectsService.applyFilters({ 
+      page, 
+      limit, 
+      sortField: apiField, 
+      sortOrder,
+      query: currentQuery || undefined
+    });
   }
 
   private getCurrentPage(): number {
@@ -446,12 +526,12 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     if (query) {
       params['query'] = query;
     }
-    // Add sort parameters
-    const sortField = this.sortField();
+    const tableField = this.sortField();
     const sortOrder = this.sortOrder();
-    if (sortField) {
-      params['order-field'] = sortField;
-      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    if (tableField) {
+      const apiField = this.mapTableFieldToApiField(tableField);
+      params['order-field'] = apiField;
+      params['direction'] = sortOrder === 1 ? 'ASC' : 'DESC';
     }
     this.myProjectsService.main(params);
   }
@@ -462,12 +542,12 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     if (query) {
       params['query'] = query;
     }
-    // Add sort parameters
-    const sortField = this.sortField();
+    const tableField = this.sortField();
     const sortOrder = this.sortOrder();
-    if (sortField) {
-      params['order-field'] = sortField;
-      params['direction'] = sortOrder === 1 ? 'asc' : 'desc';
+    if (tableField) {
+      const apiField = this.mapTableFieldToApiField(tableField);
+      params['order-field'] = apiField;
+      params['direction'] = sortOrder === 1 ? 'ASC' : 'DESC';
     }
     this.myProjectsService.main(params);
   }
