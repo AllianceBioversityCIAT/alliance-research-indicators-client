@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute, UrlTree } from '@angular/router';
+import { signal } from '@angular/core';
 
 import { SelectLinkedResultsModalComponent } from './select-linked-results-modal.component';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
@@ -14,7 +15,7 @@ describe('SelectLinkedResultsModalComponent', () => {
   let component: SelectLinkedResultsModalComponent;
   let fixture: ComponentFixture<SelectLinkedResultsModalComponent>;
 
-  let allModalsService: jest.Mocked<AllModalsService>;
+  let allModalsService: jest.Mocked<AllModalsService> & { modalConfig: ReturnType<typeof signal> };
   let resultsCenterService: jest.Mocked<ResultsCenterService>;
   let cacheService: jest.Mocked<CacheService>;
   let apiService: jest.Mocked<ApiService>;
@@ -34,8 +35,17 @@ describe('SelectLinkedResultsModalComponent', () => {
     } as any);
 
   beforeEach(async () => {
+    modalConfigSignal = signal({
+      selectLinkedResults: { isOpen: false },
+      createResult: { isOpen: false },
+      submitResult: { isOpen: false },
+      requestPartner: { isOpen: false },
+      askForHelp: { isOpen: false }
+    } as any);
+    
     const mockAllModalsService: jest.Mocked<AllModalsService> = {
-      isModalOpen: jest.fn().mockReturnValue({ isOpen: false }),
+      modalConfig: modalConfigSignal,
+      isModalOpen: jest.fn((name: string) => modalConfigSignal()[name as any]),
       syncSelectedResults: Object.assign(jest.fn().mockReturnValue([]) as any, {
         set: jest.fn()
       }),
@@ -60,11 +70,11 @@ describe('SelectLinkedResultsModalComponent', () => {
       }),
       resultsFilter: Object.assign(
         jest.fn().mockReturnValue({ 'indicator-codes-filter': [] }) as any,
-        { update: jest.fn() }
+        { update: jest.fn((updater: (prev: any) => any) => updater({})) }
       ),
       appliedFilters: Object.assign(
         jest.fn().mockReturnValue({}) as any,
-        { update: jest.fn() }
+        { update: jest.fn((updater: (prev: any) => any) => updater({})) }
       ),
       countTableFiltersSelected: jest.fn().mockReturnValue(0),
       getAllPathsAsArray: jest.fn().mockReturnValue([]),
@@ -123,12 +133,15 @@ describe('SelectLinkedResultsModalComponent', () => {
     fixture = TestBed.createComponent(SelectLinkedResultsModalComponent);
     component = fixture.componentInstance;
 
-    allModalsService = TestBed.inject(AllModalsService) as jest.Mocked<AllModalsService>;
+    allModalsService = TestBed.inject(AllModalsService) as jest.Mocked<AllModalsService> & { modalConfig: ReturnType<typeof signal> };
     resultsCenterService = TestBed.inject(ResultsCenterService) as jest.Mocked<ResultsCenterService>;
     cacheService = TestBed.inject(CacheService) as jest.Mocked<CacheService>;
     apiService = TestBed.inject(ApiService) as jest.Mocked<ApiService>;
     actionsService = TestBed.inject(ActionsService) as jest.Mocked<ActionsService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
+    
+    // Ensure modalConfig is the signal we created
+    allModalsService.modalConfig = modalConfigSignal;
   });
 
   it('should create', () => {
@@ -442,7 +455,7 @@ describe('SelectLinkedResultsModalComponent', () => {
       resultsCenterService.tableFilters.mockReturnValue({
         levers: [{ id: 1 }] as any,
         statusCodes: [{ result_status_id: 2 }] as any,
-        years: [{ id: 2024 }] as any,
+        years: [{ report_year: 2024 }] as any,
         contracts: [{ agreement_id: 'AGR-1' }] as any,
         indicators: []
       } as any);
@@ -452,6 +465,294 @@ describe('SelectLinkedResultsModalComponent', () => {
       expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
       expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
       expect(loadSpy).toHaveBeenCalled();
+    });
+
+    it('should update filters with indicator codes when indicators are selected', async () => {
+      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
+      const applyModalIndicatorFilterSpy = jest.spyOn<any, any>(component as any, 'applyModalIndicatorFilter').mockImplementation(() => {});
+
+      resultsCenterService.tableFilters.mockReturnValue({
+        levers: [{ id: 1 }] as any,
+        statusCodes: [{ result_status_id: 2 }] as any,
+        years: [{ report_year: 2024 }] as any,
+        contracts: [{ agreement_id: 'AGR-1' }] as any,
+        indicators: [{ indicator_id: 1 }, { indicator_id: 2 }] as any
+      } as any);
+
+      await component.onFiltersConfirm();
+
+      expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
+      expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
+      expect(applyModalIndicatorFilterSpy).toHaveBeenCalledWith({ tabsOverride: [] });
+      expect(loadSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('modal visibility watcher effect', () => {
+    it('should call onModalOpened when modal opens', async () => {
+      const onModalOpenedSpy = jest.spyOn<any, any>(component as any, 'onModalOpened').mockResolvedValue(undefined);
+      
+      // Set modal to open
+      modalConfigSignal.update(config => ({
+        ...config,
+        selectLinkedResults: { isOpen: true }
+      }));
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      expect(onModalOpenedSpy).toHaveBeenCalled();
+    });
+
+    it('should call resetModalFilters when modal closes', async () => {
+      const resetSpy = jest.spyOn<any, any>(component as any, 'resetModalFilters').mockImplementation(() => {});
+      
+      // First set modal to open
+      modalConfigSignal.update(config => ({
+        ...config,
+        selectLinkedResults: { isOpen: true }
+      }));
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Then close it
+      modalConfigSignal.update(config => ({
+        ...config,
+        selectLinkedResults: { isOpen: false }
+      }));
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      expect(resetSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('syncSelectedResultsWatcher effect', () => {
+    it('should update selectedResults when synced results change', () => {
+      const r1 = createResult({ result_id: 1 });
+      const r2 = createResult({ result_id: 2 });
+      component.selectedResults.set([r1]);
+      
+      allModalsService.syncSelectedResults.mockReturnValue([r1, r2] as any);
+      fixture.detectChanges();
+      
+      expect(component.selectedResults()).toEqual([r1, r2]);
+    });
+
+    it('should not update selectedResults when synced results are the same', () => {
+      const r1 = createResult({ result_id: 1 });
+      component.selectedResults.set([r1]);
+      
+      allModalsService.syncSelectedResults.mockReturnValue([r1] as any);
+      fixture.detectChanges();
+      
+      // Should remain the same
+      expect(component.selectedResults()).toEqual([r1]);
+    });
+  });
+
+  describe('onSearchInputChange effect', () => {
+    it('should call filterGlobal when dt2 is available', () => {
+      const mockTable = {
+        filterGlobal: jest.fn()
+      };
+      (component as any).dt2 = mockTable;
+      
+      component.searchInput.set('test search');
+      fixture.detectChanges();
+      
+      expect(mockTable.filterGlobal).toHaveBeenCalledWith('test search', 'contains');
+    });
+
+    it('should not call filterGlobal when dt2 is not available', () => {
+      (component as any).dt2 = undefined;
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      
+      component.searchInput.set('test search');
+      fixture.detectChanges();
+      
+      // Should not throw error
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('onModalOpened', () => {
+    it('should apply indicator filter and load results', async () => {
+      const applySpy = jest.spyOn<any, any>(component as any, 'applyModalIndicatorFilter').mockImplementation(() => {});
+      const ensureSpy = jest.spyOn<any, any>(component as any, 'ensureResultsListLoaded').mockResolvedValue(undefined);
+      const loadSpy = jest.spyOn<any, any>(component as any, 'loadExistingLinkedResults').mockResolvedValue(undefined);
+      
+      await (component as any).onModalOpened();
+      
+      expect(applySpy).toHaveBeenCalledWith({ resetIndicatorFilters: true });
+      expect(ensureSpy).toHaveBeenCalled();
+      expect(loadSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('loadExistingLinkedResults', () => {
+    it('should load and set selected results from API', async () => {
+      const r1 = createResult({ result_id: 1 });
+      const r2 = createResult({ result_id: 2 });
+      resultsCenterService.list.mockReturnValue([r1, r2] as any);
+      
+      apiService.GET_LinkedResults.mockResolvedValue({
+        data: {
+          link_results: [
+            { other_result_id: 1 },
+            { other_result_id: 2 }
+          ]
+        }
+      } as any);
+      
+      await (component as any).loadExistingLinkedResults();
+      
+      expect(component.selectedResults()).toEqual([r1, r2]);
+    });
+
+    it('should set empty array when no linked results', async () => {
+      apiService.GET_LinkedResults.mockResolvedValue({
+        data: { link_results: [] }
+      } as any);
+      
+      await (component as any).loadExistingLinkedResults();
+      
+      expect(component.selectedResults()).toEqual([]);
+    });
+
+    it('should set empty array when response has no data', async () => {
+      apiService.GET_LinkedResults.mockResolvedValue({} as any);
+      
+      await (component as any).loadExistingLinkedResults();
+      
+      expect(component.selectedResults()).toEqual([]);
+    });
+
+    it('should handle error when loading linked results fails', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      apiService.GET_LinkedResults.mockRejectedValue(new Error('API Error'));
+      
+      await (component as any).loadExistingLinkedResults();
+      
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading linked results', expect.any(Error));
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('ensureResultsListLoaded', () => {
+    it('should load results when list is empty', async () => {
+      resultsCenterService.list.mockReturnValue([]);
+      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
+      
+      await (component as any).ensureResultsListLoaded();
+      
+      expect(loadSpy).toHaveBeenCalled();
+    });
+
+    it('should not load results when list is not empty', async () => {
+      resultsCenterService.list.mockReturnValue([createResult()] as any);
+      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
+      
+      await (component as any).ensureResultsListLoaded();
+      
+      expect(loadSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('loadResultsForModal', () => {
+    it('should load results successfully', async () => {
+      resultsCenterService.main.mockResolvedValue(undefined);
+      
+      await (component as any).loadResultsForModal();
+      
+      expect(resultsCenterService.list.set).toHaveBeenCalledWith([]);
+      expect(resultsCenterService.loading.set).toHaveBeenCalledWith(true);
+      expect(resultsCenterService.main).toHaveBeenCalled();
+      expect(resultsCenterService.loading.set).toHaveBeenLastCalledWith(false);
+    });
+
+    it('should handle error when loading results fails', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      resultsCenterService.main.mockRejectedValue(new Error('API Error'));
+      
+      await (component as any).loadResultsForModal();
+      
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading results for modal', expect.any(Error));
+      expect(resultsCenterService.list.set).toHaveBeenCalledWith([]);
+      expect(resultsCenterService.loading.set).toHaveBeenLastCalledWith(false);
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('applyModalIndicatorFilter', () => {
+    it('should use tabsOverride when provided', () => {
+      (component as any).applyModalIndicatorFilter({ tabsOverride: [1, 2, 3] });
+      
+      expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
+      expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
+    });
+
+    it('should use default tabs when resetIndicatorFilters is true', () => {
+      resultsCenterService.tableFilters.mockReturnValue({
+        indicators: [],
+        levers: [],
+        statusCodes: [],
+        years: [],
+        contracts: []
+      } as any);
+      resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': [] } as any);
+      
+      (component as any).applyModalIndicatorFilter({ resetIndicatorFilters: true });
+      
+      expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
+      expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
+    });
+
+    it('should use default tabs when no active indicator filter', () => {
+      resultsCenterService.tableFilters.mockReturnValue({
+        indicators: [],
+        levers: [],
+        statusCodes: [],
+        years: [],
+        contracts: []
+      } as any);
+      resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': [] } as any);
+      
+      (component as any).applyModalIndicatorFilter({ resetIndicatorFilters: false });
+      
+      expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
+      expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
+    });
+
+    it('should use empty tabs when active indicator filter exists', () => {
+      resultsCenterService.tableFilters.mockReturnValue({
+        indicators: [{ indicator_id: 1 }],
+        levers: [],
+        statusCodes: [],
+        years: [],
+        contracts: []
+      } as any);
+      resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': [1] } as any);
+      
+      (component as any).applyModalIndicatorFilter({ resetIndicatorFilters: false });
+      
+      expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
+      expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
+    });
+  });
+
+  describe('resetModalFilters', () => {
+    it('should reset all modal filters and state', async () => {
+      component.selectedResults.set([createResult()]);
+      component.searchInput.set('test');
+      const clearSpy = jest.spyOn(component, 'clearFilters').mockResolvedValue(undefined);
+      
+      (component as any).resetModalFilters();
+      
+      expect(resultsCenterService.showFiltersSidebar.set).toHaveBeenCalledWith(false);
+      expect(component.selectedResults()).toEqual([]);
+      expect(component.searchInput()).toBe('');
+      expect(clearSpy).toHaveBeenCalled();
     });
   });
 });
