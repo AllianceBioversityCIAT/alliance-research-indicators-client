@@ -362,4 +362,25 @@ describe('SelectComponent', () => {
     expect(result.arr[0].prop).toBe(42);
   });
 
+  it('should bind service signals when service has getList and getLoading', () => {
+    const listSignal = signal([{ id: 1, name: 'Option 1' }]);
+    const loadingSignal = signal(false);
+    
+    const serviceWithGetMethods = {
+      getList: jest.fn().mockReturnValue(listSignal),
+      getLoading: jest.fn().mockReturnValue(loadingSignal)
+    };
+
+    mockServiceLocator.getService.mockReturnValue(serviceWithGetMethods);
+    component.serviceName = 'testService';
+    component.serviceParams = { param: 'value' };
+    
+    component.ngOnInit();
+    
+    expect(serviceWithGetMethods.getList).toHaveBeenCalledWith({ param: 'value' });
+    expect(serviceWithGetMethods.getLoading).toHaveBeenCalledWith({ param: 'value' });
+    expect(component.optionsSig).toBe(listSignal);
+    expect(component.loadingSig).toBe(loadingSignal);
+  });
+
 });
