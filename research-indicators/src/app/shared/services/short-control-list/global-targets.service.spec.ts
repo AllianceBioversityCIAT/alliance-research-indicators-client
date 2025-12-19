@@ -186,4 +186,82 @@ describe('GlobalTargetsService', () => {
     // Assert
     expect(service.getLoading(impactAreaId)()).toBe(false);
   });
+
+  it('should return early from main when impactAreaId is undefined', async () => {
+    // Act
+    await service.main(undefined);
+
+    // Assert
+    expect(mockApiService.GET_GlobalTargets).not.toHaveBeenCalled();
+  });
+
+  it('should return early from main when impactAreaId is null', async () => {
+    // Act
+    await service.main(null as any);
+
+    // Assert
+    expect(mockApiService.GET_GlobalTargets).not.toHaveBeenCalled();
+  });
+
+  it('should return early from main when impactAreaId is a string', async () => {
+    // Act
+    await service.main('1' as any);
+
+    // Assert
+    expect(mockApiService.GET_GlobalTargets).not.toHaveBeenCalled();
+  });
+
+  it('should return default loading signal when impactAreaId is undefined', () => {
+    // Act
+    const loadingSignal = service.getLoading(undefined);
+
+    // Assert
+    expect(loadingSignal).toBe(service.getLoading());
+    expect(loadingSignal()).toBe(false);
+  });
+
+  it('should return default loading signal when impactAreaId is null', () => {
+    // Act
+    const loadingSignal = service.getLoading(null as any);
+
+    // Assert
+    expect(loadingSignal).toBe(service.getLoading());
+    expect(loadingSignal()).toBe(false);
+  });
+
+  it('should return default loading signal when impactAreaId is a string', () => {
+    // Act
+    const loadingSignal = service.getLoading('1' as any);
+
+    // Assert
+    expect(loadingSignal).toBe(service.getLoading());
+    expect(loadingSignal()).toBe(false);
+  });
+
+  it('should return default list signal when impactAreaId is undefined', () => {
+    // Act
+    const listSignal = service.getList(undefined);
+
+    // Assert
+    expect(listSignal).toBe(service.getList());
+    expect(listSignal()).toEqual([]);
+  });
+
+  it('should return default list signal when impactAreaId is null', () => {
+    // Act
+    const listSignal = service.getList(null as any);
+
+    // Assert
+    expect(listSignal).toBe(service.getList());
+    expect(listSignal()).toEqual([]);
+  });
+
+  it('should return default list signal when impactAreaId is a string', () => {
+    // Act
+    const listSignal = service.getList('1' as any);
+
+    // Assert
+    expect(listSignal).toBe(service.getList());
+    expect(listSignal()).toEqual([]);
+  });
 });
