@@ -537,6 +537,20 @@ describe('ActionsService', () => {
     setItemSpy.mockRestore();
   });
 
+  it('should updateLocalStorage with user without user_role_list', () => {
+    const loginResponse = {
+      data: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        user: { ...mockUser, user_role_list: undefined }
+      },
+      successfulRequest: true
+    };
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    service.updateLocalStorage(loginResponse as any, false);
+    expect(setItemSpy).toHaveBeenCalled();
+    setItemSpy.mockRestore();
+  });
+
   it('should handle error in refreshToken in isTokenExpired', async () => {
     const dataCacheSignal: WritableSignal<any> = signal({
       access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
@@ -776,6 +790,308 @@ describe('ActionsService', () => {
     eventFunction();
 
     expect(mockAction).toHaveBeenCalled();
+  });
+
+  describe('handleBadRequest AI message error', () => {
+    it('should handle AI message error from errorDetail.data.message_error', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 400,
+        errorDetail: {
+          data: {
+            message_error: 'Title already exists: STAR-12345 - Test Title',
+            result_official_code: 12345,
+            platform_code: 'STAR'
+          }
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'secondary',
+          summary: 'Title Already Exists',
+          detail: expect.stringContaining('Title already exists:'),
+          detail: expect.stringContaining('result/STAR-12345/general-information')
+        })
+      );
+    });
+
+    it('should handle AI message error from errorDetail.message_error', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 400,
+        errorDetail: {
+          message_error: 'Title already exists: TIP-67890 - Another Title',
+          data: {
+            result_official_code: 67890,
+            platform_code: 'TIP'
+          }
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'secondary',
+          summary: 'Title Already Exists',
+          detail: expect.stringContaining('result/TIP-67890/general-information')
+        })
+      );
+    });
+
+    it('should use default platform STAR when platform_code is not provided', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 400,
+        errorDetail: {
+          data: {
+            message_error: 'Title already exists: - Test Title',
+            result_official_code: 99999
+          }
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          detail: expect.stringContaining('result/STAR-99999/general-information')
+        })
+      );
+    });
+
+    it('should use # as linkUrl when result_official_code is not provided', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 400,
+        errorDetail: {
+          data: {
+            message_error: 'Title already exists: - Test Title'
+          }
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          detail: expect.stringContaining('#')
+        })
+      );
+    });
+
+    it('should execute action callback when provided for AI error', () => {
+      const mockAction = jest.fn();
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest(
+        {
+          status: 400,
+          errorDetail: {
+            data: {
+              message_error: 'Title already exists: STAR-12345 - Test Title',
+              result_official_code: 12345,
+              platform_code: 'STAR'
+            }
+          }
+        } as any,
+        mockAction
+      );
+
+      const alertCall = spy.mock.calls[0][0];
+      const eventFunction = alertCall.confirmCallback.event;
+      eventFunction();
+
+      expect(mockAction).toHaveBeenCalled();
+    });
+
+    it('should handle AI message error with message split by colon', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 400,
+        errorDetail: {
+          data: {
+            message_error: 'Error message: STAR-123 - Title Part 1 - Title Part 2',
+            result_official_code: 123,
+            platform_code: 'STAR'
+          }
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          detail: expect.stringContaining('Error message:')
+        })
+      );
+    });
+
+    it('should handle AI message error with empty existingResult', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 400,
+        errorDetail: {
+          data: {
+            message_error: 'Error message: ',
+            result_official_code: 123,
+            platform_code: 'STAR'
+          }
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should handle AI message error without colon', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 400,
+        errorDetail: {
+          data: {
+            message_error: 'Error message without colon',
+            result_official_code: 123,
+            platform_code: 'STAR'
+          }
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalled();
+      const alertCall = spy.mock.calls[0][0];
+      expect(alertCall.detail).toBeDefined();
+    });
+
+    it('should handle handleBadRequest with null errorDetail', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 500,
+        errorDetail: null
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'An unexpected error occurred. Please try again.'
+        })
+      );
+    });
+
+    it('should handle handleBadRequest with undefined errorDetail', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 500,
+        errorDetail: undefined
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'An unexpected error occurred. Please try again.'
+        })
+      );
+    });
+  });
+
+  describe('handleBadRequest fallback generic error', () => {
+    it('should show fallback error when errorDetail.errors is a string', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 500,
+        errorDetail: {
+          errors: 'Generic error message'
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Generic error message'
+        })
+      );
+    });
+
+    it('should show fallback error when errorDetail.detail is a string', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 500,
+        errorDetail: {
+          detail: 'Error detail message'
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error detail message'
+        })
+      );
+    });
+
+    it('should show default fallback message when no error details available', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 500,
+        errorDetail: {}
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'An unexpected error occurred. Please try again.'
+        })
+      );
+    });
+
+    it('should execute action callback when provided for fallback error', () => {
+      const mockAction = jest.fn();
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest(
+        {
+          status: 500,
+          errorDetail: {
+            errors: 'Generic error'
+          }
+        } as any,
+        mockAction
+      );
+
+      const alertCall = spy.mock.calls[0][0];
+      const eventFunction = alertCall.confirmCallback.event;
+      eventFunction();
+
+      expect(mockAction).toHaveBeenCalled();
+    });
+
+    it('should prioritize errors string over detail string', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 500,
+        errorDetail: {
+          errors: 'Errors message',
+          detail: 'Detail message'
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          detail: 'Errors message'
+        })
+      );
+    });
+
+    it('should handle errorDetail.errors as non-string object', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 500,
+        errorDetail: {
+          errors: { field: 'error' },
+          detail: 'Detail message'
+        }
+      } as any);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          detail: 'Detail message'
+        })
+      );
+    });
   });
 
   it('should reject with error message in isTokenExpired catch block', async () => {
