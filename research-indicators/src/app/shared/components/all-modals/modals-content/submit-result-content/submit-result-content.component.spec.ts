@@ -120,6 +120,11 @@ describe('SubmitResultContentComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => {
+    // Clean up any spies
+    jest.restoreAllMocks();
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -1012,9 +1017,9 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should handle disabledConfirmSubmit with latest origin and statusId 4 and all fields filled', () => {
-    mockAllModalsService.submitResultOrigin = signal('latest');
-    mockSubmissionService.statusSelected = signal({ statusId: 4, commentLabel: undefined });
-    mockSubmissionService.comment = signal('');
+    mockAllModalsService.submitResultOrigin.set('latest');
+    mockSubmissionService.statusSelected.set({ statusId: 4, commentLabel: undefined } as any);
+    mockSubmissionService.comment.set('');
     
     component.form.set({
       mel_regional_expert: 'test expert',
@@ -1028,9 +1033,9 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should handle disabledConfirmSubmit with latest origin and statusId 4 and missing fields', () => {
-    mockAllModalsService.submitResultOrigin = signal('latest');
-    mockSubmissionService.statusSelected = signal({ statusId: 4, commentLabel: undefined });
-    mockSubmissionService.comment = signal('');
+    mockAllModalsService.submitResultOrigin.set('latest');
+    mockSubmissionService.statusSelected.set({ statusId: 4, commentLabel: undefined } as any);
+    mockSubmissionService.comment.set('');
     
     component.form.set({
       mel_regional_expert: 'test expert',
@@ -1055,7 +1060,7 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should handle reviewOptions with non-latest origin', () => {
-    mockAllModalsService.submitResultOrigin = signal(null);
+    mockAllModalsService.submitResultOrigin.set(null);
     
     const result = component.reviewOptions();
     
@@ -1063,7 +1068,7 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should handle reviewOptions with latest origin', () => {
-    mockAllModalsService.submitResultOrigin = signal('latest');
+    mockAllModalsService.submitResultOrigin.set('latest');
     
     const result = component.reviewOptions();
     
@@ -1075,7 +1080,7 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should handle reviewOptions mapping with all conditions', () => {
-    mockAllModalsService.submitResultOrigin = signal('latest');
+    mockAllModalsService.submitResultOrigin.set('latest');
     
     // This test covers the return opt; line in the map function
     const result = component.reviewOptions();
@@ -1093,5 +1098,587 @@ describe('SubmitResultContentComponent', () => {
     });
   });
 
+  it('should return base headerData when submitResultOrigin is not latest', () => {
+    const baseHeader = { status_id: '6', indicator_id: 1 };
+    mockAllModalsService.submitResultOrigin.set(null);
+    mockAllModalsService.submitHeader.set(baseHeader);
+    
+    const result = component.headerData();
+    
+    expect(result).toEqual(baseHeader);
+  });
+
+  it('should return base headerData when submitHeader is null', () => {
+    mockAllModalsService.submitHeader.set(null);
+    
+    const result = component.headerData();
+    
+    expect(result).toBeNull();
+  });
+
+  it('should return base headerData when latest origin but status_id is not 7 or 11', () => {
+    const baseHeader = { status_id: '6', indicator_id: 1 };
+    mockAllModalsService.submitResultOrigin.set('latest');
+    mockAllModalsService.submitHeader.set(baseHeader);
+    mockCacheService.currentMetadata.set({ status_id: 5 });
+    
+    const result = component.headerData();
+    
+    expect(result).toEqual(baseHeader);
+  });
+
+  it('should return modified headerData when latest origin and status_id is 7', () => {
+    const baseHeader = { status_id: '6', indicator_id: 1 };
+    mockAllModalsService.submitResultOrigin.set('latest');
+    mockAllModalsService.submitHeader.set(baseHeader);
+    mockCacheService.currentMetadata.set({ status_id: 7 });
+    
+    const result = component.headerData();
+    
+    expect(result).toEqual({
+      ...baseHeader,
+      status_id: '7'
+    });
+  });
+
+  it('should return modified headerData when latest origin and status_id is 11', () => {
+    const baseHeader = { status_id: '6', indicator_id: 1 };
+    mockAllModalsService.submitResultOrigin.set('latest');
+    mockAllModalsService.submitHeader.set(baseHeader);
+    mockCacheService.currentMetadata.set({ status_id: 11 });
+    
+    const result = component.headerData();
+    
+    expect(result).toEqual({
+      ...baseHeader,
+      status_id: '11'
+    });
+  });
+
+  it('should not select option when disabled', () => {
+    const disabledOption = { statusId: 5, key: 'revise', disabled: true };
+    const setSpy = jest.spyOn(mockSubmissionService.statusSelected, 'set');
+    
+    component.selectOption(disabledOption);
+    
+    expect(setSpy).not.toHaveBeenCalled();
+  });
+
+  it('should select option when not disabled', () => {
+    const enabledOption = { statusId: 5, key: 'revise', disabled: false };
+    const setSpy = jest.spyOn(mockSubmissionService.statusSelected, 'set');
+    
+    component.selectOption(enabledOption);
+    
+    expect(setSpy).toHaveBeenCalledWith(enabledOption);
+  });
+
+  it('should handle onOptionFocus', () => {
+    const option = { key: 'approve', statusId: 6 };
+    const options = [
+      { key: 'approve', statusId: 6 },
+      { key: 'revise', statusId: 5 },
+      { key: 'reject', statusId: 7 }
+    ];
+    
+    // Mock document.querySelector
+    const mockElement1 = { setAttribute: jest.fn() };
+    const mockElement2 = { setAttribute: jest.fn() };
+    const mockElement3 = { setAttribute: jest.fn() };
+    
+    jest.spyOn(document, 'querySelector')
+      .mockReturnValueOnce(mockElement1 as any)
+      .mockReturnValueOnce(mockElement2 as any)
+      .mockReturnValueOnce(mockElement3 as any);
+    
+    // Mock submittionOptions to return our test options
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    
+    component.onOptionFocus(option);
+    
+    expect(mockElement1.setAttribute).toHaveBeenCalledWith('tabindex', '0');
+    expect(mockElement2.setAttribute).toHaveBeenCalledWith('tabindex', '-1');
+    expect(mockElement3.setAttribute).toHaveBeenCalledWith('tabindex', '-1');
+  });
+
+  it('should handle onOptionFocus when element not found', () => {
+    const option = { key: 'approve', statusId: 6 };
+    const options = [
+      { key: 'approve', statusId: 6 },
+      { key: 'revise', statusId: 5 }
+    ];
+    
+    jest.spyOn(document, 'querySelector').mockReturnValue(null);
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    
+    // Should not throw
+    expect(() => component.onOptionFocus(option)).not.toThrow();
+  });
+
+  it('should handle onOptionKeydown ArrowRight', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false },
+      { key: 'revise', statusId: 5, disabled: false },
+      { key: 'reject', statusId: 7, disabled: false }
+    ];
+    const event = { key: 'ArrowRight', preventDefault: jest.fn() } as any;
+    const option = options[0];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component.onOptionKeydown(event, option, 0);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(focusOptionSpy).toHaveBeenCalledWith(options[1]);
+  });
+
+  it('should handle onOptionKeydown ArrowDown', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false },
+      { key: 'revise', statusId: 5, disabled: false }
+    ];
+    const event = { key: 'ArrowDown', preventDefault: jest.fn() } as any;
+    const option = options[0];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component.onOptionKeydown(event, option, 0);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(focusOptionSpy).toHaveBeenCalledWith(options[1]);
+  });
+
+  it('should handle onOptionKeydown ArrowLeft', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false },
+      { key: 'revise', statusId: 5, disabled: false }
+    ];
+    const event = { key: 'ArrowLeft', preventDefault: jest.fn() } as any;
+    const option = options[1];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component.onOptionKeydown(event, option, 1);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(focusOptionSpy).toHaveBeenCalledWith(options[0]);
+  });
+
+  it('should handle onOptionKeydown ArrowUp', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false },
+      { key: 'revise', statusId: 5, disabled: false }
+    ];
+    const event = { key: 'ArrowUp', preventDefault: jest.fn() } as any;
+    const option = options[1];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component.onOptionKeydown(event, option, 1);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(focusOptionSpy).toHaveBeenCalledWith(options[0]);
+  });
+
+  it('should handle onOptionKeydown ArrowLeft at first index', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false },
+      { key: 'revise', statusId: 5, disabled: false }
+    ];
+    const event = { key: 'ArrowLeft', preventDefault: jest.fn() } as any;
+    const option = options[0];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component.onOptionKeydown(event, option, 0);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(focusOptionSpy).toHaveBeenCalledWith(options[1]);
+  });
+
+  it('should handle onOptionKeydown Space', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false }
+    ];
+    const event = { key: ' ', preventDefault: jest.fn() } as any;
+    const option = options[0];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const selectOptionSpy = jest.spyOn(component, 'selectOption');
+    
+    component.onOptionKeydown(event, option, 0);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(selectOptionSpy).toHaveBeenCalledWith(option);
+  });
+
+  it('should handle onOptionKeydown Enter', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false }
+    ];
+    const event = { key: 'Enter', preventDefault: jest.fn() } as any;
+    const option = options[0];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const selectOptionSpy = jest.spyOn(component, 'selectOption');
+    
+    component.onOptionKeydown(event, option, 0);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(selectOptionSpy).toHaveBeenCalledWith(option);
+  });
+
+  it('should not select option on Space/Enter when disabled', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: true }
+    ];
+    const event = { key: ' ', preventDefault: jest.fn() } as any;
+    const option = options[0];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const selectOptionSpy = jest.spyOn(component, 'selectOption');
+    
+    component.onOptionKeydown(event, option, 0);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(selectOptionSpy).not.toHaveBeenCalled();
+  });
+
+  it('should handle onOptionKeydown Home', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false },
+      { key: 'revise', statusId: 5, disabled: false }
+    ];
+    const event = { key: 'Home', preventDefault: jest.fn() } as any;
+    const option = options[1];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component.onOptionKeydown(event, option, 1);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(focusOptionSpy).toHaveBeenCalledWith(options[0]);
+  });
+
+  it('should handle onOptionKeydown End', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false },
+      { key: 'revise', statusId: 5, disabled: false }
+    ];
+    const event = { key: 'End', preventDefault: jest.fn() } as any;
+    const option = options[0];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component.onOptionKeydown(event, option, 0);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(focusOptionSpy).toHaveBeenCalledWith(options[1]);
+  });
+
+  it('should handle onOptionKeydown End with disabled last option', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false },
+      { key: 'revise', statusId: 5, disabled: true },
+      { key: 'reject', statusId: 7, disabled: false }
+    ];
+    const event = { key: 'End', preventDefault: jest.fn() } as any;
+    const option = options[0];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component.onOptionKeydown(event, option, 0);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(focusOptionSpy).toHaveBeenCalledWith(options[2]);
+  });
+
+  it('should handle onOptionKeydown Home with no enabled options', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: true },
+      { key: 'revise', statusId: 5, disabled: true }
+    ];
+    const event = { key: 'Home', preventDefault: jest.fn() } as any;
+    const option = options[0];
+    
+    jest.spyOn(component, 'submittionOptions').mockReturnValue(options as any);
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component.onOptionKeydown(event, option, 0);
+    
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(focusOptionSpy).not.toHaveBeenCalled();
+  });
+
+  it('should handle focusNextEnabledOption with all disabled', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: true },
+      { key: 'revise', statusId: 5, disabled: true }
+    ];
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component['focusNextEnabledOption'](options as any, 0, 1);
+    
+    expect(focusOptionSpy).not.toHaveBeenCalled();
+  });
+
+  it('should handle focusNextEnabledOption with enabled option', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: false },
+      { key: 'revise', statusId: 5, disabled: true }
+    ];
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component['focusNextEnabledOption'](options as any, 0, 1);
+    
+    expect(focusOptionSpy).toHaveBeenCalledWith(options[0]);
+  });
+
+  it('should handle focusNextEnabledOption with wrap around', () => {
+    const options = [
+      { key: 'approve', statusId: 6, disabled: true },
+      { key: 'revise', statusId: 5, disabled: false }
+    ];
+    const focusOptionSpy = jest.spyOn(component as any, 'focusOption');
+    
+    component['focusNextEnabledOption'](options as any, 0, 1);
+    
+    expect(focusOptionSpy).toHaveBeenCalledWith(options[1]);
+  });
+
+  it('should handle focusOption when element exists', () => {
+    const option = { key: 'approve', statusId: 6 };
+    const mockElement = { focus: jest.fn() };
+    
+    jest.spyOn(document, 'querySelector').mockReturnValue(mockElement as any);
+    
+    component['focusOption'](option);
+    
+    expect(mockElement.focus).toHaveBeenCalled();
+  });
+
+  it('should handle focusOption when element does not exist', () => {
+    const option = { key: 'approve', statusId: 6 };
+    
+    jest.spyOn(document, 'querySelector').mockReturnValue(null);
+    
+    // Should not throw
+    expect(() => component['focusOption'](option)).not.toThrow();
+  });
+
+  it('should validateWebsite return false for undefined', () => {
+    const result = component.validateWebsite(undefined);
+    expect(result).toBe(false);
+  });
+
+  it('should validateWebsite return false for empty string', () => {
+    const result = component.validateWebsite('');
+    expect(result).toBe(false);
+  });
+
+  it('should validateWebsite return true for valid URL', () => {
+    const result = component.validateWebsite('https://example.com');
+    expect(result).toBe(true);
+  });
+
+  it('should validateWebsite return true for URL without protocol', () => {
+    const result = component.validateWebsite('www.example.com');
+    expect(result).toBe(true);
+  });
+
+  it('should validateWebsite return false for invalid URL', () => {
+    const result = component.validateWebsite('not-a-url');
+    expect(result).toBe(false);
+  });
+
+  it('should handle disabledConfirmSubmit with latest origin and statusId 10', () => {
+    mockAllModalsService.submitResultOrigin.set('latest');
+    mockSubmissionService.statusSelected.set({ statusId: 10, commentLabel: undefined } as any);
+    mockSubmissionService.comment.set('');
+    
+    component.form.set({
+      mel_regional_expert: 'test expert',
+      oicr_internal_code: 'test code',
+      sharepoint_link: 'https://example.com/sharepoint'
+    });
+    
+    const result = component.disabledConfirmSubmit();
+    
+    expect(result).toBe(false);
+  });
+
+  it('should handle disabledConfirmSubmit with latest origin, statusId 4 and invalid sharepoint', () => {
+    mockAllModalsService.submitResultOrigin.set('latest');
+    mockSubmissionService.statusSelected.set({ statusId: 4, commentLabel: undefined } as any);
+    mockSubmissionService.comment.set('');
+    
+    component.form.set({
+      mel_regional_expert: 'test expert',
+      oicr_internal_code: 'test code',
+      sharepoint_link: 'invalid-url'
+    });
+    
+    const result = component.disabledConfirmSubmit();
+    
+    expect(result).toBe(true);
+  });
+
+  it('should handle disabledConfirmSubmit with latest origin, statusId 4 and empty sharepoint', () => {
+    mockAllModalsService.submitResultOrigin.set('latest');
+    mockSubmissionService.statusSelected.set({ statusId: 4, commentLabel: undefined } as any);
+    mockSubmissionService.comment.set('');
+    
+    component.form.set({
+      mel_regional_expert: 'test expert',
+      oicr_internal_code: 'test code',
+      sharepoint_link: ''
+    });
+    
+    const result = component.disabledConfirmSubmit();
+    
+    expect(result).toBe(false);
+  });
+
+  it('should handle disabledConfirmSubmit with latest origin, statusId 4 and whitespace fields', () => {
+    mockAllModalsService.submitResultOrigin.set('latest');
+    mockSubmissionService.statusSelected.set({ statusId: 4, commentLabel: undefined } as any);
+    mockSubmissionService.comment.set('');
+    
+    component.form.set({
+      mel_regional_expert: '   ',
+      oicr_internal_code: 'test code',
+      sharepoint_link: ''
+    });
+    
+    const result = component.disabledConfirmSubmit();
+    
+    expect(result).toBe(true);
+  });
+
+  it('should handle refreshTables without contractId', async () => {
+    mockProjectResultsTableService.contractId = null;
+    mockResultsCenterService.main = jest.fn().mockResolvedValue(undefined);
+    
+    await component['refreshTables']();
+    
+    expect(mockProjectResultsTableService.getData).not.toHaveBeenCalled();
+    expect(mockResultsCenterService.main).toHaveBeenCalled();
+  });
+
+  it('should reset disabled options when modal closes', () => {
+    const setPostponeSpy = jest.spyOn(mockAllModalsService.disablePostponeOption, 'set');
+    const setRejectSpy = jest.spyOn(mockAllModalsService.disableRejectOption, 'set');
+    
+    // Clear any previous calls
+    setPostponeSpy.mockClear();
+    setRejectSpy.mockClear();
+    
+    // Simulate modal opening first (so wasVisible becomes true)
+    mockAllModalsService.modalConfig!.set({
+      submitResult: { isOpen: true },
+      createResult: { isOpen: false },
+      requestPartner: { isOpen: false },
+      askForHelp: { isOpen: false }
+    });
+    
+    // Wait for effect to process
+    fixture.detectChanges();
+    
+    // Now simulate modal closing (this should trigger the reset)
+    mockAllModalsService.modalConfig!.set({
+      submitResult: { isOpen: false },
+      createResult: { isOpen: false },
+      requestPartner: { isOpen: false },
+      askForHelp: { isOpen: false }
+    });
+    
+    // Wait for effect to process
+    fixture.detectChanges();
+    
+    expect(setPostponeSpy).toHaveBeenCalledWith(false);
+    expect(setRejectSpy).toHaveBeenCalledWith(false);
+  });
+
+  it('should handle reviewOptions return opt for non-latest flow', () => {
+    // This test covers line 158: return opt; when isLatest is false
+    mockAllModalsService.submitResultOrigin.set(null);
+    
+    const options = component.reviewOptions();
+    
+    // Should return original options without modification
+    expect(options).toHaveLength(3);
+    expect(options[0].statusId).toBe(6);
+    expect(options[1].statusId).toBe(5);
+    expect(options[2].statusId).toBe(7);
+  });
+
+  it('should handle reviewOptions return opt for latest flow with unknown key', () => {
+    // This test covers line 158: return opt; when isLatest is true but key is not approve/revise/reject
+    mockAllModalsService.submitResultOrigin.set('latest');
+    
+    // Temporarily add an option with a different key to baseReviewOptions
+    const originalBaseOptions = component['baseReviewOptions'];
+    const testOption = { 
+      key: 'unknown', 
+      label: 'Unknown', 
+      description: 'Test', 
+      icon: 'pi-question', 
+      color: 'text-gray', 
+      message: 'Test', 
+      commentLabel: undefined, 
+      placeholder: '', 
+      statusId: 99, 
+      selected: false 
+    };
+    component['baseReviewOptions'] = [...originalBaseOptions, testOption];
+    
+    const options = component.reviewOptions();
+    
+    // Should return the unknown option without modification (line 158)
+    const unknownOption = options.find(opt => opt.key === 'unknown');
+    expect(unknownOption).toBeDefined();
+    expect(unknownOption?.statusId).toBe(99);
+    
+    // Restore original baseReviewOptions
+    component['baseReviewOptions'] = originalBaseOptions;
+  });
+
+  it('should handle reviewOptions with undefined disablePostponeOption', () => {
+    // This test covers line 137: disablePostpone = ... ?? false when disablePostponeOption is undefined
+    mockAllModalsService.submitResultOrigin.set('latest');
+    const originalDisablePostpone = mockAllModalsService.disablePostponeOption;
+    delete (mockAllModalsService as any).disablePostponeOption;
+    
+    const options = component.reviewOptions();
+    
+    // Should use false as default when disablePostponeOption is undefined
+    expect(options[1].disabled).toBe(false);
+    
+    // Restore
+    mockAllModalsService.disablePostponeOption = originalDisablePostpone;
+  });
+
+  it('should handle reviewOptions with undefined disableRejectOption', () => {
+    // This test covers line 138: disableReject = ... ?? false when disableRejectOption is undefined
+    mockAllModalsService.submitResultOrigin.set('latest');
+    const originalDisableReject = mockAllModalsService.disableRejectOption;
+    delete (mockAllModalsService as any).disableRejectOption;
+    
+    const options = component.reviewOptions();
+    
+    // Should use false as default when disableRejectOption is undefined
+    expect(options[2].disabled).toBe(false);
+    
+    // Restore
+    mockAllModalsService.disableRejectOption = originalDisableReject;
+  });
 
 });
