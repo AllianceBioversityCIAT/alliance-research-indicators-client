@@ -217,7 +217,7 @@ export class ResultSidebarComponent implements OnInit {
 
     this.router.navigate(commands, {
       queryParams,
-      replaceUrl: true
+      replaceUrl: false
     });
   }
 

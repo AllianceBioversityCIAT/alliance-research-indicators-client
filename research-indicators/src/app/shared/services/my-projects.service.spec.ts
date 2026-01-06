@@ -3,6 +3,7 @@ import { MyProjectsService, MyProjectsFilters } from './my-projects.service';
 import { ApiService } from './api.service';
 import { CacheService } from './cache/cache.service';
 import { MenuItem } from 'primeng/api';
+import { ContractsResponseWithMeta } from '../interfaces/contracts-response-with-meta.interface';
 
 describe('MyProjectsService', () => {
   let service: MyProjectsService;
@@ -707,6 +708,99 @@ describe('MyProjectsService', () => {
       const item = service.list()[0] as any;
       expect(item.display_principal_investigator).toBe('Valid Lead Description');
     });
+
+    it('should set totalRecords to 0 when listData is empty array', async () => {
+      const mockResponse = {
+        data: { data: [] },
+        metadata: { total: 100 },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.totalRecords()).toBe(0);
+      expect(service.list()).toEqual([]);
+    });
+
+    it('should use parsedTotal when metadata.total is valid', async () => {
+      const mockResponse = {
+        data: { data: mockFindContractsResponseData },
+        metadata: { total: 50 },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.totalRecords()).toBe(50);
+    });
+
+    it('should use listData.length when metadata.total is not finite', async () => {
+      const mockResponse = {
+        data: { data: mockFindContractsResponseData },
+        metadata: { total: Infinity },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.totalRecords()).toBe(2);
+    });
+
+    it('should use metadata.total from response.metadata when available', async () => {
+      const mockResponse = {
+        data: { data: mockFindContractsResponseData },
+        metadata: { total: 75 },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      } as ContractsResponseWithMeta;
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.totalRecords()).toBe(75);
+    });
+
+    it('should use metadata.total from response.data.metadata when response.metadata is not available', async () => {
+      const mockResponse = {
+        data: {
+          data: mockFindContractsResponseData,
+          metadata: { total: 88 }
+        },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce(mockResponse);
+
+      await service.main();
+
+      expect(service.totalRecords()).toBe(88);
+    });
   });
 
   describe('applyFilters', () => {
@@ -893,6 +987,78 @@ describe('MyProjectsService', () => {
         })
       );
     });
+
+    it('should include query parameter when provided', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        contractCode: 'A001'
+      });
+
+      service.applyFilters({ page: 1, limit: 10, query: 'test query' });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          'contract-code': 'A001',
+          page: 1,
+          limit: 10,
+          query: 'test query'
+        })
+      );
+    });
+
+    it('should include sort parameters when sortField is provided', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        contractCode: 'A001'
+      });
+
+      service.applyFilters({ page: 1, limit: 10, sortField: 'contract-code', sortOrder: 1 });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          'contract-code': 'A001',
+          page: 1,
+          limit: 10,
+          'order-field': 'contract-code',
+          direction: 'ASC'
+        })
+      );
+    });
+
+    it('should set direction to DESC when sortOrder is not 1', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        contractCode: 'A001'
+      });
+
+      service.applyFilters({ page: 1, limit: 10, sortField: 'contract-code', sortOrder: -1 });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'order-field': 'contract-code',
+          direction: 'DESC'
+        })
+      );
+    });
+
+    it('should include both query and sort parameters', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        contractCode: 'A001'
+      });
+
+      service.applyFilters({ page: 1, limit: 10, query: 'test', sortField: 'contract-code', sortOrder: 1 });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          query: 'test',
+          'order-field': 'contract-code',
+          direction: 'ASC'
+        })
+      );
+    });
   });
 
   describe('countFiltersSelected computed', () => {
@@ -914,6 +1080,51 @@ describe('MyProjectsService', () => {
 
       // contractCode (1) + projectName (1) + levers (2) + status (1) = 5
       expect(service.countFiltersSelected()).toBe('5');
+    });
+
+    it('should count principalInvestigator filter', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        principalInvestigator: 'Test PI'
+      });
+
+      expect(service.countFiltersSelected()).toBe('1');
+    });
+
+    it('should count startDate filter', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        startDate: '2024-01-01'
+      });
+
+      expect(service.countFiltersSelected()).toBe('1');
+    });
+
+    it('should count endDate filter', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        endDate: '2024-12-31'
+      });
+
+      expect(service.countFiltersSelected()).toBe('1');
+    });
+
+    it('should handle levers with null/undefined length', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        levers: undefined as any
+      });
+
+      expect(service.countFiltersSelected()).toBeUndefined();
+    });
+
+    it('should handle statusCodes with null/undefined length', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: undefined as any
+      });
+
+      expect(service.countFiltersSelected()).toBeUndefined();
     });
   });
 
@@ -938,6 +1149,142 @@ describe('MyProjectsService', () => {
           expect.objectContaining({ label: 'LEVER' })
         ])
       );
+    });
+
+    it('should format start date correctly', () => {
+      // Use a date that will work in all timezones
+      const dateStr = '2024-01-15T12:00:00.000Z';
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        startDate: dateStr
+      });
+
+      const activeFilters = service.getActiveFilters();
+      expect(activeFilters).toHaveLength(1);
+      expect(activeFilters[0].label).toBe('START DATE');
+      // The date format should be: "MMM, DD /YYYY"
+      expect(activeFilters[0].value).toMatch(/^[A-Z][a-z]{2}, \d{2} \/\d{4}$/);
+      expect(activeFilters[0].value).toContain('2024');
+    });
+
+    it('should format end date correctly', () => {
+      // Use a date that will work in all timezones
+      const dateStr = '2024-12-25T12:00:00.000Z';
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        endDate: dateStr
+      });
+
+      const activeFilters = service.getActiveFilters();
+      expect(activeFilters).toHaveLength(1);
+      expect(activeFilters[0].label).toBe('END DATE');
+      // The date format should be: "MMM, DD /YYYY"
+      expect(activeFilters[0].value).toMatch(/^[A-Z][a-z]{2}, \d{2} \/\d{4}$/);
+      expect(activeFilters[0].value).toContain('2024');
+    });
+
+    it('should handle invalid date in formatDate', () => {
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        startDate: 'invalid-date'
+      });
+
+      const activeFilters = service.getActiveFilters();
+      expect(activeFilters).toEqual([
+        expect.objectContaining({ label: 'START DATE', value: 'invalid-date' })
+      ]);
+    });
+
+    it('should return empty string for empty date', () => {
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        startDate: ''
+      });
+
+      const activeFilters = service.getActiveFilters();
+      expect(activeFilters).toEqual([]);
+    });
+
+    it('should handle lever without short_name', () => {
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        levers: [{ id: 5 } as any]
+      });
+
+      const activeFilters = service.getActiveFilters();
+      expect(activeFilters).toEqual([
+        expect.objectContaining({ label: 'LEVER', value: '5', id: 5 })
+      ]);
+    });
+
+    it('should include principalInvestigator in active filters', () => {
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        principalInvestigator: 'Test PI'
+      });
+
+      const activeFilters = service.getActiveFilters();
+      expect(activeFilters).toEqual([
+        expect.objectContaining({ label: 'PRINCIPAL INVESTIGATOR', value: 'Test PI' })
+      ]);
+    });
+
+    it('should handle empty date string in formatDate', () => {
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        startDate: ''
+      });
+
+      const activeFilters = service.getActiveFilters();
+      expect(activeFilters).toEqual([]);
+    });
+
+    it('should handle null date in formatDate', () => {
+      // Set a truthy value first, then override to null
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        startDate: null as any
+      });
+
+      const activeFilters = service.getActiveFilters();
+      // formatDate will receive null and return empty string, but the filter won't be added because of the outer if check
+      expect(activeFilters).toEqual([]);
+    });
+
+    it('should handle date with whitespace only', () => {
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        startDate: '   ' as any
+      });
+
+      const activeFilters = service.getActiveFilters();
+      // Whitespace is truthy, so formatDate will be called
+      expect(activeFilters.length).toBeGreaterThan(0);
+      expect(activeFilters[0].label).toBe('START DATE');
+    });
+
+    it('should handle zero as date value', () => {
+      // Zero is falsy, so formatDate should handle it
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        startDate: 0 as any
+      });
+
+      const activeFilters = service.getActiveFilters();
+      // Zero is falsy, so the filter won't be added
+      expect(activeFilters).toEqual([]);
+    });
+
+    it('should handle false as date value', () => {
+      // False is falsy, so formatDate should handle it
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        startDate: false as any
+      });
+
+      const activeFilters = service.getActiveFilters();
+      // False is falsy, so the filter won't be added
+      expect(activeFilters).toEqual([]);
     });
   });
 
@@ -1060,6 +1407,264 @@ describe('MyProjectsService', () => {
       expect(service.showFiltersSidebar()).toBe(false);
       expect(service.multiselectRefs()).toEqual({});
       expect(service.myProjectsFilterItem()).toEqual(service.myProjectsFilterItems[0]);
+    });
+  });
+
+  describe('removeFilter', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should remove contractCode filter', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        contractCode: 'A001'
+      });
+
+      service.removeFilter('CONTRACT CODE');
+
+      expect(service.tableFilters().contractCode).toBe('');
+    });
+
+    it('should remove projectName filter', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        projectName: 'Test Project'
+      });
+
+      service.removeFilter('PROJECT NAME');
+
+      expect(service.tableFilters().projectName).toBe('');
+    });
+
+    it('should remove principalInvestigator filter', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        principalInvestigator: 'Test PI'
+      });
+
+      service.removeFilter('PRINCIPAL INVESTIGATOR');
+
+      expect(service.tableFilters().principalInvestigator).toBe('');
+    });
+
+    it('should remove startDate filter', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        startDate: '2024-01-01'
+      });
+
+      service.removeFilter('START DATE');
+
+      expect(service.tableFilters().startDate).toBe('');
+    });
+
+    it('should remove endDate filter', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        endDate: '2024-12-31'
+      });
+
+      service.removeFilter('END DATE');
+
+      expect(service.tableFilters().endDate).toBe('');
+    });
+
+    it('should remove all statusCodes when id is null', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: [
+          { name: 'Active', value: 'active' },
+          { name: 'Inactive', value: 'inactive' }
+        ]
+      });
+
+      service.removeFilter('STATUS');
+
+      expect(service.tableFilters().statusCodes).toEqual([]);
+    });
+
+    it('should remove specific statusCode when id is provided', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: [
+          { name: 'Active', value: 'active' },
+          { name: 'Inactive', value: 'inactive' }
+        ]
+      });
+
+      service.removeFilter('STATUS', 'active');
+
+      expect(service.tableFilters().statusCodes).toEqual([
+        { name: 'Inactive', value: 'inactive' }
+      ]);
+    });
+
+    it('should remove all levers when id is null', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        levers: [
+          { id: 1, short_name: 'Test' },
+          { id: 2, short_name: 'Test2' }
+        ]
+      });
+
+      service.removeFilter('LEVER');
+
+      expect(service.tableFilters().levers).toEqual([]);
+    });
+
+    it('should remove specific lever when id is provided', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        levers: [
+          { id: 1, short_name: 'Test' },
+          { id: 2, short_name: 'Test2' }
+        ]
+      });
+
+      service.removeFilter('LEVER', 1);
+
+      expect(service.tableFilters().levers).toEqual([
+        { id: 2, short_name: 'Test2' }
+      ]);
+    });
+
+    it('should call removeById on multiselect ref when id is provided', () => {
+      const mockMultiselect = {
+        removeById: jest.fn()
+      } as any;
+
+      service.multiselectRefs.set({
+        status: mockMultiselect
+      });
+
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: [{ name: 'Active', value: 'active' }]
+      });
+
+      service.removeFilter('STATUS', 'active');
+
+      expect(mockMultiselect.removeById).toHaveBeenCalledWith('active');
+    });
+
+    it('should call clear on multiselect ref when id is null', () => {
+      const mockMultiselect = {
+        clear: jest.fn()
+      } as any;
+
+      service.multiselectRefs.set({
+        status: mockMultiselect
+      });
+
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: [{ name: 'Active', value: 'active' }]
+      });
+
+      service.removeFilter('STATUS');
+
+      expect(mockMultiselect.clear).toHaveBeenCalled();
+    });
+
+    it('should handle removeById error gracefully', () => {
+      const mockMultiselect = {
+        removeById: jest.fn().mockImplementation(() => {
+          throw new Error('Remove error');
+        })
+      } as any;
+
+      service.multiselectRefs.set({
+        status: mockMultiselect
+      });
+
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: [{ name: 'Active', value: 'active' }]
+      });
+
+      expect(() => service.removeFilter('STATUS', 'active')).not.toThrow();
+    });
+
+    it('should handle clear error gracefully', () => {
+      const mockMultiselect = {
+        clear: jest.fn().mockImplementation(() => {
+          throw new Error('Clear error');
+        })
+      } as any;
+
+      service.multiselectRefs.set({
+        status: mockMultiselect
+      });
+
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: [{ name: 'Active', value: 'active' }]
+      });
+
+      expect(() => service.removeFilter('STATUS')).not.toThrow();
+    });
+
+    it('should handle multiselect ref without removeById method', () => {
+      const mockMultiselect = {} as any;
+
+      service.multiselectRefs.set({
+        status: mockMultiselect
+      });
+
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: [{ name: 'Active', value: 'active' }]
+      });
+
+      expect(() => service.removeFilter('STATUS', 'active')).not.toThrow();
+    });
+
+    it('should handle multiselect ref without clear method', () => {
+      const mockMultiselect = {} as any;
+
+      service.multiselectRefs.set({
+        status: mockMultiselect
+      });
+
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: [{ name: 'Active', value: 'active' }]
+      });
+
+      expect(() => service.removeFilter('STATUS')).not.toThrow();
+    });
+
+    it('should do nothing when label is not found in mapping', () => {
+      const initialFilters = {
+        ...new MyProjectsFilters(),
+        contractCode: 'A001'
+      };
+      service.tableFilters.set(initialFilters);
+
+      service.removeFilter('UNKNOWN LABEL');
+
+      expect(service.tableFilters().contractCode).toBe('A001');
+    });
+
+    it('should handle lever multiselect ref', () => {
+      const mockMultiselect = {
+        removeById: jest.fn()
+      } as any;
+
+      service.multiselectRefs.set({
+        lever: mockMultiselect
+      });
+
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        levers: [{ id: 1, short_name: 'Test' }]
+      });
+
+      service.removeFilter('LEVER', 1);
+
+      expect(mockMultiselect.removeById).toHaveBeenCalledWith(1);
     });
   });
 });

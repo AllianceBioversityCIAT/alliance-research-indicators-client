@@ -96,7 +96,14 @@ describe('CreateResultFormComponent', () => {
       },
       oicrPrimaryOptionsDisabled: signal([]),
       updateOicrBody: jest.fn()
-    } as Partial<CreateResultManagementService>
+    } as Partial<CreateResultManagementService>;
+    
+    // Add update method to oicrPrimaryOptionsDisabled signal
+    (createResultManagementServiceMock.oicrPrimaryOptionsDisabled as any).update = jest.fn((fn: any) => {
+      const current = (createResultManagementServiceMock.oicrPrimaryOptionsDisabled as any)();
+      const newValue = fn(current);
+      (createResultManagementServiceMock.oicrPrimaryOptionsDisabled as any).set(newValue);
+    });
 
     wordCountServiceMock = {
       getWordCount: jest.fn(),
@@ -695,5 +702,354 @@ describe('CreateResultFormComponent', () => {
     expect(createResultManagementServiceMock.setResultTitle).toHaveBeenCalledWith('Test');
     expect(createResultManagementServiceMock.setYear).toHaveBeenCalledWith(2024);
     expect(createResultManagementServiceMock.createOicrBody.update).toHaveBeenCalled();
+  });
+
+  it('buildW1W2RestrictionHtml should handle contract with projectSecond part', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: 'First Part - Second Part - Third Part' } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
+    ]);
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('First Part');
+    expect(html).toContain('Second Part - Third Part');
+    expect(html).toContain('Test Indicator');
+  });
+
+  it('buildW1W2RestrictionHtml should handle contract without projectSecond part', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: 'Single Project Name' } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
+    ]);
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('Single Project Name');
+    expect(html).not.toContain(' - ');
+    expect(html).toContain('Test Indicator');
+  });
+
+  it('buildW1W2RestrictionHtml should handle contract found in list', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: 'Project Name' } as any,
+      { agreement_id: '456', select_label: 'Other Project' } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
+    ]);
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('Project Name');
+    expect(html).toContain('Test Indicator');
+  });
+
+  it('buildW1W2RestrictionHtml should handle groups with indicators array', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: 'Project Name' } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: [{ indicator_id: 1, name: 'Indicator 1' }] },
+      { indicators: [{ indicator_id: 2, name: 'Indicator 2' }] }
+    ]);
+    
+    component.body.set({ contract_id: '123', indicator_id: 2 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('Indicator 2');
+  });
+
+  it('buildW1W2RestrictionHtml should handle groups with null indicators', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: 'Project Name' } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: null },
+      { indicators: [{ indicator_id: 1, name: 'Indicator 1' }] }
+    ]);
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('Indicator 1');
+  });
+
+  it('buildW1W2RestrictionHtml should handle groups with undefined indicators', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: 'Project Name' } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: undefined },
+      { indicators: [{ indicator_id: 1, name: 'Indicator 1' }] }
+    ]);
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('Indicator 1');
+  });
+
+  it('navigateToOicr should include primary_lever when getPrimaryLeverId returns a value', () => {
+    component.body.set({ title: 'Test Title', contract_id: '123', year: 2024 });
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 456 } as any
+    ]);
+    
+    component.navigateToOicr();
+    
+    expect(createResultManagementServiceMock.setContractId).toHaveBeenCalledWith('123');
+    expect(createResultManagementServiceMock.setResultTitle).toHaveBeenCalledWith('Test Title');
+    expect(createResultManagementServiceMock.setYear).toHaveBeenCalledWith(2024);
+    expect(createResultManagementServiceMock.createOicrBody.update).toHaveBeenCalled();
+    
+    // Verify that the update callback includes primary_lever
+    const updateCall = createResultManagementServiceMock.createOicrBody.update.mock.calls[0][0];
+    const mockBody = { base_information: {}, step_two: {} };
+    const result = updateCall(mockBody);
+    expect(result.step_two.primary_lever).toEqual([
+      {
+        result_lever_id: 0,
+        result_id: 0,
+        lever_id: 456,
+        lever_role_id: 0,
+        is_primary: true
+      }
+    ]);
+  });
+
+  it('navigateToOicr should handle when body values are falsy and use empty strings', () => {
+    component.body.set({ title: null, contract_id: null, year: null });
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 456 } as any
+    ]);
+    
+    component.navigateToOicr();
+    
+    expect(createResultManagementServiceMock.createOicrBody.update).toHaveBeenCalled();
+    
+    // Verify that the update callback uses empty strings for falsy values
+    const updateCall = createResultManagementServiceMock.createOicrBody.update.mock.calls[0][0];
+    const mockBody = { base_information: {}, step_two: {} };
+    const result = updateCall(mockBody);
+    expect(result.base_information.title).toBe('');
+    expect(result.base_information.contract_id).toBe('');
+    expect(result.base_information.year).toBe('');
+  });
+
+  it('navigateToOicr should handle when body values are undefined and use empty strings', () => {
+    component.body.set({ title: undefined, contract_id: undefined, year: undefined });
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 456 } as any
+    ]);
+    
+    component.navigateToOicr();
+    
+    expect(createResultManagementServiceMock.createOicrBody.update).toHaveBeenCalled();
+    
+    // Verify that the update callback uses empty strings for undefined values
+    const updateCall = createResultManagementServiceMock.createOicrBody.update.mock.calls[0][0];
+    const mockBody = { base_information: {}, step_two: {} };
+    const result = updateCall(mockBody);
+    expect(result.base_information.title).toBe('');
+    expect(result.base_information.contract_id).toBe('');
+    expect(result.base_information.year).toBe('');
+  });
+
+  it('navigateToOicr should handle when contract_id is empty string in getPrimaryLeverId call', () => {
+    component.body.set({ title: 'Test', contract_id: '', year: 2024 });
+    contractsServiceMock.list.set([]);
+    
+    component.navigateToOicr();
+    
+    expect(createResultManagementServiceMock.createOicrBody.update).toHaveBeenCalled();
+    
+    // Verify that getPrimaryLeverId is called with empty string
+    const updateCall = createResultManagementServiceMock.createOicrBody.update.mock.calls[0][0];
+    const mockBody = { base_information: {}, step_two: {} };
+    const result = updateCall(mockBody);
+    expect(result.step_two.primary_lever).toEqual([]);
+  });
+
+  it('navigateToOicr should set empty primary_lever when getPrimaryLeverId returns undefined', () => {
+    component.body.set({ title: 'Test Title', contract_id: '999', year: 2024 });
+    contractsServiceMock.list.set([]);
+    
+    component.navigateToOicr();
+    
+    expect(createResultManagementServiceMock.createOicrBody.update).toHaveBeenCalled();
+    
+    // Verify that the update callback includes empty primary_lever
+    const updateCall = createResultManagementServiceMock.createOicrBody.update.mock.calls[0][0];
+    const mockBody = { base_information: {}, step_two: {} };
+    const result = updateCall(mockBody);
+    expect(result.step_two.primary_lever).toEqual([]);
+  });
+
+  it('buildW1W2RestrictionHtml should handle when indicators function exists', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: 'Project Name' } as any
+    ]);
+    const indicatorsFn = jest.fn().mockReturnValue([
+      { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
+    ]);
+    (indicatorsServiceMock as any).indicators = indicatorsFn;
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('Test Indicator');
+    expect(indicatorsFn).toHaveBeenCalled();
+  });
+
+  it('buildW1W2RestrictionHtml should handle when indicators function does not exist', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: 'Project Name' } as any
+    ]);
+    (indicatorsServiceMock as any).indicators = undefined;
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('selected');
+  });
+
+  it('buildW1W2RestrictionHtml should handle when contract is found in list', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: 'Found Project' } as any,
+      { agreement_id: '456', select_label: 'Other Project' } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
+    ]);
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('Found Project');
+    expect(html).toContain('Test Indicator');
+  });
+
+  it('buildW1W2RestrictionHtml should handle when contract is not found but agreementId exists', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '456', select_label: 'Other Project' } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
+    ]);
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('123');
+    expect(html).toContain('Test Indicator');
+  });
+
+  it('buildW1W2RestrictionHtml should handle when contract is not found and agreementId is null', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '456', select_label: 'Other Project' } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
+    ]);
+    
+    component.body.set({ contract_id: null, indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('selected');
+  });
+
+  it('buildW1W2RestrictionHtml should handle when contract.select_label is null', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: null } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
+    ]);
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('123');
+    expect(html).toContain('Test Indicator');
+  });
+
+  it('buildW1W2RestrictionHtml should handle when projectFirst is empty string', () => {
+    contractsServiceMock.list.set([
+      { agreement_id: '123', select_label: '' } as any
+    ]);
+    indicatorsServiceMock.indicators = jest.fn().mockReturnValue([
+      { indicators: [{ indicator_id: 1, name: 'Test Indicator' }] }
+    ]);
+    
+    component.body.set({ contract_id: '123', indicator_id: 1 });
+    
+    const html = (component as any).buildW1W2RestrictionHtml();
+    expect(html).toContain('Test Indicator');
+  });
+
+  it('navigateToOicr should update oicrPrimaryOptionsDisabled with primary lever when lever exists', () => {
+    component.body.set({ title: 'Test Title', contract_id: '123', year: 2024 });
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: 999 } as any
+    ]);
+    
+    const oicrUpdateSpy = (createResultManagementServiceMock.oicrPrimaryOptionsDisabled as any).update;
+    oicrUpdateSpy.mockClear();
+    
+    component.navigateToOicr();
+    
+    expect(oicrUpdateSpy).toHaveBeenCalled();
+    
+    // Verify that the update callback includes the lever
+    const updateCall = oicrUpdateSpy.mock.calls[0][0];
+    const mockDisabled: any[] = [];
+    const result = updateCall(mockDisabled);
+    expect(result).toEqual([
+      {
+        result_lever_id: 0,
+        result_id: 0,
+        lever_id: 999,
+        lever_role_id: 0,
+        is_primary: true
+      }
+    ]);
+  });
+
+  it('navigateToOicr should call getPrimaryLeverId with empty string when contract_id is null in Number() call', () => {
+    component.body.set({ title: 'Test', contract_id: null, year: 2024 });
+    contractsServiceMock.list.set([
+      { agreement_id: '', lever_id: 111 } as any
+    ]);
+    
+    const getPrimaryLeverIdSpy = jest.spyOn(component, 'getPrimaryLeverId');
+    component.navigateToOicr();
+    
+    // getPrimaryLeverId should be called with empty string when contract_id is null
+    expect(getPrimaryLeverIdSpy).toHaveBeenCalledWith('');
+    
+    getPrimaryLeverIdSpy.mockRestore();
+  });
+
+  it('navigateToOicr should call getPrimaryLeverId with empty string when contract_id is undefined in Number() call', () => {
+    component.body.set({ title: 'Test', contract_id: undefined, year: 2024 });
+    contractsServiceMock.list.set([
+      { agreement_id: '', lever_id: 111 } as any
+    ]);
+    
+    const getPrimaryLeverIdSpy = jest.spyOn(component, 'getPrimaryLeverId');
+    component.navigateToOicr();
+    
+    // getPrimaryLeverId should be called with empty string when contract_id is undefined
+    expect(getPrimaryLeverIdSpy).toHaveBeenCalledWith('');
+    
+    getPrimaryLeverIdSpy.mockRestore();
   });
 });

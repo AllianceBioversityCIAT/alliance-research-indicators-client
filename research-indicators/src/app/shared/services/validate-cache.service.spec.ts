@@ -154,6 +154,32 @@ describe('ValidateCacheService', () => {
       expect(applySilentUpdateSpy).not.toHaveBeenCalled();
       expect(requestUpdateSpy).not.toHaveBeenCalled();
     });
+
+    it('should request update when currentVersion differs from lastValidatedVersion (covering OR condition)', async () => {
+      const oldVersion = '1.0.0';
+      const newVersion = '2.0.0';
+      localStorage.setItem('lastVersionValidated', oldVersion);
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
+      const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
+
+      await service.validateVersions();
+
+      // This covers the case where currentVersion !== lastValidatedVersion is true
+      expect(requestUpdateSpy).toHaveBeenCalledWith(newVersion);
+    });
+
+    it('should request update when lastValidatedVersion is null (covering OR condition)', async () => {
+      const newVersion = '1.5.0';
+      // Ensure lastVersionValidated is null (not set)
+      localStorage.removeItem('lastVersionValidated');
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { simple_value: newVersion } });
+      const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
+
+      await service.validateVersions();
+
+      // This covers the case where !lastValidatedVersion is true
+      expect(requestUpdateSpy).toHaveBeenCalledWith(newVersion);
+    });
   });
 
   describe('requeestUpdateFrontVersion', () => {
@@ -617,6 +643,12 @@ describe('ValidateCacheService', () => {
       await (service as any).clearApplicationCache();
 
       expect((indexedDB as any).deleteDatabase).not.toHaveBeenCalled();
+    });
+
+    it('should handle case when indexedDB is not in window', async () => {
+      Object.defineProperty(window, 'indexedDB', { value: undefined, configurable: true, writable: true });
+
+      await expect((service as any).clearApplicationCache()).resolves.not.toThrow();
     });
   });
 });

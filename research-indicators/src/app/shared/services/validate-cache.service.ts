@@ -34,9 +34,8 @@ export class ValidateCacheService {
     if (currentVersion === lastValidatedVersion) return;
 
     // New version detected, prompt user for update
-    if (currentVersion !== lastValidatedVersion || !lastValidatedVersion) {
-      this.requeestUpdateFrontVersion(currentVersion);
-    }
+    // After the check above, currentVersion !== lastValidatedVersion is always true here
+    this.requeestUpdateFrontVersion(currentVersion);
   }
 
   private async clearStaticResourceCaches(): Promise<void> {

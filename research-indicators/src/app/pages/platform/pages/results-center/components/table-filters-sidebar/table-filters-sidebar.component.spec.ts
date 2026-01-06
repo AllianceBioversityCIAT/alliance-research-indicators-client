@@ -19,4 +19,48 @@ describe('TableFiltersSidebarComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  describe('indicatorOptionFilter', () => {
+    it('should return true when indicator is null', () => {
+      expect(component.indicatorOptionFilter(null)).toBe(true);
+    });
+
+    it('should return true when indicator_id is null', () => {
+      expect(component.indicatorOptionFilter({ indicator_id: null })).toBe(true);
+    });
+
+    it('should return true when indicator_id is undefined', () => {
+      expect(component.indicatorOptionFilter({ indicator_id: undefined })).toBe(true);
+    });
+
+    it('should return true when indicator_id is NaN', () => {
+      expect(component.indicatorOptionFilter({ indicator_id: 'not-a-number' as any })).toBe(true);
+    });
+
+    it('should return false when indicator_id is in hiddenIds', () => {
+      component.indicatorHiddenIds = [1, 2, 3];
+      expect(component.indicatorOptionFilter({ indicator_id: 1 })).toBe(false);
+    });
+
+    it('should return true when indicator_id is not in hiddenIds', () => {
+      component.indicatorHiddenIds = [1, 2, 3];
+      expect(component.indicatorOptionFilter({ indicator_id: 4 })).toBe(true);
+    });
+  });
+
+  describe('toggleSidebar', () => {
+    it('should toggle showSignal from false to true', () => {
+      const showSignal = component.showSignal;
+      showSignal.set(false);
+      component.toggleSidebar();
+      expect(showSignal()).toBe(true);
+    });
+
+    it('should toggle showSignal from true to false', () => {
+      const showSignal = component.showSignal;
+      showSignal.set(true);
+      component.toggleSidebar();
+      expect(showSignal()).toBe(false);
+    });
+  });
 });

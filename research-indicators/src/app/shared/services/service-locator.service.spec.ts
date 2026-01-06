@@ -376,6 +376,30 @@ describe('ServiceLocatorService', () => {
       expect(result).toBe(serviceMock);
     });
 
+    it('returns informativeRoles service', () => {
+      const result = (service as any).getQuaternaryServices('informativeRoles');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns globalTargets service', () => {
+      const result = (service as any).getQuaternaryServices('globalTargets');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns impactAreaScores service', () => {
+      const result = (service as any).getQuaternaryServices('impactAreaScores');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns impactAreas service', () => {
+      const result = (service as any).getQuaternaryServices('impactAreas');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('returns null for unknown', () => {
       expect((service as any).getQuaternaryServices('unknown')).toBeNull();
     });
@@ -462,6 +486,12 @@ describe('ServiceLocatorService', () => {
 
     it('returns levers service', () => {
       const result = (service as any).getOtherServices('levers');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns leverStrategicOutcomes service', () => {
+      const result = (service as any).getOtherServices('leverStrategicOutcomes');
       expect(injectorMock.get).toHaveBeenCalled();
       expect(result).toBe(serviceMock);
     });

@@ -627,4 +627,28 @@ describe('InputComponent', () => {
       expect(component.body().value).toBe('start');
     });
   });
+
+  describe('checkMaxLength', () => {
+    it('should return null when wordCount is less than or equal to maxLength', () => {
+      wordCountService.getWordCount.mockReturnValue(5);
+      component.maxWords = 10;
+
+      const result = component.checkMaxLength(10, 'test value');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return validation object when wordCount exceeds maxLength', () => {
+      wordCountService.getWordCount.mockReturnValue(15);
+      component.maxWords = 10;
+
+      const result = component.checkMaxLength(10, 'test value');
+
+      expect(result).toEqual({
+        valid: false,
+        class: 'ng-invalid ng-dirty',
+        message: 'Maximum 10 words allowed'
+      });
+    });
+  });
 });
