@@ -348,7 +348,7 @@ describe('ResultAiAssistantComponent', () => {
   it('closeFeedbackPanel should reset state and remove listener', () => {
     const removeSpy = jest.spyOn(document, 'removeEventListener');
     component.showFeedbackPanel.set(true);
-    component.feedbackType.set('bad');
+    component.feedbackType.set('negative');
     component.body.update(b => ({ ...b, feedbackText: 'x' }));
     component.closeFeedbackPanel();
     expect(component.showFeedbackPanel()).toBe(false);
@@ -428,7 +428,7 @@ describe('ResultAiAssistantComponent', () => {
     component.documentAnalyzed.set(true);
     component.noResults.set(true);
     component.feedbackSent = true;
-    component.lastFeedbackType = 'good';
+    component.lastFeedbackType = 'positive';
     component.goBackToCreateResult();
     expect(component.selectedFile).toBeNull();
     expect(component.documentAnalyzed()).toBe(false);
@@ -449,13 +449,13 @@ describe('ResultAiAssistantComponent', () => {
     }
   });
 
-  it('isRequired false when type is good', () => {
-    component.toggleFeedback('good');
+  it('isRequired false when type is positive', () => {
+    component.toggleFeedback('positive');
     expect(component.isRequired()).toBe(false);
   });
 
   it('mapResultRawAiToAIAssistantResult should coalesce optional fields and contract_code', () => {
-    component.body.update(b => ({ ...b, contract_id: 123 }));
+    component.body.update(b => ({ ...b, contract_id: '123' }));
     const input = [{
       indicator: 'i', title: 't', description: 'd', keywords: [], geoscope_level: 'global', regions: [], countries: [],
       training_type: 'tt', length_of_training: 1, start_date: 's', end_date: 'e', degree: 'deg', delivery_modality: 'dm',
@@ -503,6 +503,287 @@ describe('ResultAiAssistantComponent', () => {
     
     expect(component.contractId).toBe(null);
     expect(component.body().contract_id).toBe(null);
+  });
+
+  it('extractResultsFromMiningResponse should set interactionId when present', async () => {
+    const file = createFile('a.pdf');
+    component.selectedFile = file;
+    const interactionId = 'interaction-123';
+    textMiningServiceMock.executeTextMining.mockResolvedValueOnce({
+      content: [{ text: JSON.stringify({ interaction_id: interactionId, json_content: { results: [{ title: 'test' }] } }) }]
+    });
+    await component.handleAnalyzingDocument();
+    expect(component.interactionId).toBe(interactionId);
+  });
+
+  it('extractResultsFromMiningResponse should aggregate json_content when present', async () => {
+    const file = createFile('a.pdf');
+    component.selectedFile = file;
+    textMiningServiceMock.executeTextMining.mockResolvedValueOnce({
+      content: [
+        { text: JSON.stringify({ json_content: { results: [{ title: 'first' }] } }) },
+        { text: JSON.stringify({ json_content: { results: [{ title: 'second' }] } }) }
+      ]
+    });
+    await component.handleAnalyzingDocument();
+    expect(component.documentAnalyzed()).toBe(true);
+    expect(createResultManagementServiceMock.items().length).toBeGreaterThan(0);
+  });
+
+  it('aggregateJsonContent should return existing aggregatedJsonContent when currentResults is empty', () => {
+    const existing = { results: [{ title: 'existing' }], other: 'data' };
+    const jsonContent = { results: [] };
+    const result = (component as any).aggregateJsonContent(jsonContent, existing);
+    expect(result).toBe(existing);
+    expect(result.results).toEqual([{ title: 'existing' }]);
+  });
+
+  it('extractResultsFromParsedData should use parsedText results when jsonContent has no results', () => {
+    const jsonContent = { other: 'data' };
+    const parsedText = { results: [{ title: 'from parsed' }] };
+    const result = (component as any).extractResultsFromParsedData(jsonContent, parsedText);
+    expect(result).toEqual([{ title: 'from parsed' }]);
+  });
+
+  it('extractResultsFromParsedData should return empty array when both jsonContent and parsedText have no results', () => {
+    const jsonContent = { other: 'data' };
+    const parsedText = { other: 'data' };
+    const result = (component as any).extractResultsFromParsedData(jsonContent, parsedText);
+    expect(result).toEqual([]);
+  });
+
+  it('extractResultsFromParsedData should handle null jsonContent and parsedText', () => {
+    const result = (component as any).extractResultsFromParsedData(null, {});
+    expect(result).toEqual([]);
+  });
+
+  it('submitFeedback should handle positive feedback without selected types', async () => {
+    component.feedbackType.set('positive');
+    component.body.update(b => ({ ...b, feedbackText: 'Great job!' }));
+    component.miningResponse = [{ text: 'x' }];
+    component.interactionId = 'test-id';
+    await component.submitFeedback();
+    expect(apiServiceMock.POST_feedback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        feedback_type: 'positive',
+        feedback_comment: 'Great job!'
+      })
+    );
+    expect(component.feedbackSent).toBe(true);
+    expect(component.lastFeedbackType).toBe('positive');
+  });
+
+  it('goBack should return early when analyzingDocument is true', () => {
+    component.analyzingDocument.set(true);
+    component.documentAnalyzed.set(true);
+    component.selectedFile = createFile('a.pdf');
+    component.goBack();
+    // Should not reset anything when analyzing
+    expect(component.selectedFile).not.toBeNull();
+    expect(component.documentAnalyzed()).toBe(true);
+  });
+
+  it('goBack should reset feedback state when navigating back', () => {
+    component.feedbackSent = true;
+    component.lastFeedbackType = 'positive';
+    component.analyzingDocument.set(false);
+    component.documentAnalyzed.set(false);
+    component.goBack();
+    expect(component.feedbackSent).toBe(false);
+    expect(component.lastFeedbackType).toBeNull();
+  });
+
+  it('handleAnalyzingDocument should handle error and show toast', async () => {
+    const file = createFile('a.pdf');
+    component.selectedFile = file;
+    fileManagerServiceMock.uploadFile.mockRejectedValueOnce(new Error('Upload failed'));
+    try {
+      await component.handleAnalyzingDocument();
+    } catch (error) {
+      // Error is expected to be thrown
+    }
+    expect(actionsServiceMock.showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Something went wrong. Please try again.'
+    });
+    expect(component.analyzingDocument()).toBe(false);
+  });
+
+  it('extractResultsFromMiningResponse should handle items without text property', async () => {
+    const file = createFile('a.pdf');
+    component.selectedFile = file;
+    textMiningServiceMock.executeTextMining.mockResolvedValueOnce({
+      content: [
+        { text: JSON.stringify({ json_content: { results: [{ title: 'valid' }] } }) },
+        { notext: 'should be skipped' }
+      ]
+    });
+    await component.handleAnalyzingDocument();
+    expect(component.documentAnalyzed()).toBe(true);
+  });
+
+  it('extractResultsFromMiningResponse should handle jsonContent that is not an object', async () => {
+    const file = createFile('a.pdf');
+    component.selectedFile = file;
+    textMiningServiceMock.executeTextMining.mockResolvedValueOnce({
+      content: [{ text: JSON.stringify({ json_content: 'not an object', results: [{ title: 'test' }] }) }]
+    });
+    await component.handleAnalyzingDocument();
+    expect(component.documentAnalyzed()).toBe(true);
+  });
+
+  it('aggregateJsonContent should merge results when both aggregatedJsonContent and currentResults exist', () => {
+    const existing = { results: [{ title: 'existing' }] };
+    const jsonContent = { results: [{ title: 'new' }] };
+    const result = (component as any).aggregateJsonContent(jsonContent, existing);
+    expect(result.results).toEqual([{ title: 'existing' }, { title: 'new' }]);
+    expect(result).toBe(existing); // Should return the same object reference
+  });
+
+  it('aggregateJsonContent should merge results when aggregatedJsonContent has no results property', () => {
+    const existing = { other: 'data' };
+    const jsonContent = { results: [{ title: 'new' }] };
+    const result = (component as any).aggregateJsonContent(jsonContent, existing);
+    expect(result.results).toEqual([{ title: 'new' }]);
+    expect(result).toBe(existing);
+  });
+
+  it('extractResultsFromParsedData should return empty array when results is not an array', () => {
+    const jsonContent = { results: 'not an array' };
+    const parsedText = {};
+    const result = (component as any).extractResultsFromParsedData(jsonContent, parsedText);
+    expect(result).toEqual([]);
+  });
+
+  it('extractResultsFromParsedData should return empty array when results array is empty', () => {
+    const jsonContent = { results: [] };
+    const parsedText = {};
+    const result = (component as any).extractResultsFromParsedData(jsonContent, parsedText);
+    expect(result).toEqual([]);
+  });
+
+  it('extractResultsFromMiningResponse should not set interactionId if already set', async () => {
+    const file = createFile('a.pdf');
+    component.selectedFile = file;
+    component.interactionId = 'existing-id';
+    textMiningServiceMock.executeTextMining.mockResolvedValueOnce({
+      content: [{ text: JSON.stringify({ interaction_id: 'new-id', json_content: { results: [{ title: 'test' }] } }) }]
+    });
+    await component.handleAnalyzingDocument();
+    expect(component.interactionId).toBe('existing-id');
+  });
+
+  it('extractResultsFromMiningResponse should handle jsonContent that is null', async () => {
+    const file = createFile('a.pdf');
+    component.selectedFile = file;
+    textMiningServiceMock.executeTextMining.mockResolvedValueOnce({
+      content: [{ text: JSON.stringify({ json_content: null, results: [{ title: 'test' }] }) }]
+    });
+    await component.handleAnalyzingDocument();
+    expect(component.documentAnalyzed()).toBe(true);
+  });
+
+  it('extractResultsFromMiningResponse should handle jsonContent that is not an object type', async () => {
+    const file = createFile('a.pdf');
+    component.selectedFile = file;
+    textMiningServiceMock.executeTextMining.mockResolvedValueOnce({
+      content: [{ text: JSON.stringify({ json_content: 123, results: [{ title: 'test' }] }) }]
+    });
+    await component.handleAnalyzingDocument();
+    expect(component.documentAnalyzed()).toBe(true);
+  });
+
+  it('aggregateJsonContent should create new object when aggregatedJsonContent is null', () => {
+    const jsonContent = { results: [{ title: 'new' }], other: 'data' };
+    const result = (component as any).aggregateJsonContent(jsonContent, null);
+    expect(result).toEqual({
+      results: [{ title: 'new' }],
+      other: 'data'
+    });
+  });
+
+  it('submitFeedback should handle negative feedback without selected types', async () => {
+    component.feedbackType.set('negative');
+    component.selectedType = [];
+    component.body.update(b => ({ ...b, feedbackText: 'Not good' }));
+    component.miningResponse = [{ text: 'x' }];
+    component.interactionId = 'test-id';
+    await component.submitFeedback();
+    expect(apiServiceMock.POST_feedback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        feedback_type: 'negative',
+        feedback_comment: 'Not good'
+      })
+    );
+  });
+
+  it('handleAnalyzingDocument should handle upload error', async () => {
+    const file = createFile('a.pdf');
+    component.selectedFile = file;
+    fileManagerServiceMock.uploadFile.mockRejectedValueOnce(new Error('Upload error'));
+    await expect(component.handleAnalyzingDocument()).rejects.toThrow();
+    expect(component.analyzingDocument()).toBe(false);
+  });
+
+  it('effect should set modal width when documentAnalyzed is true', () => {
+    allModalsServiceMock.setModalWidth.mockClear();
+    component.documentAnalyzed.set(false);
+    component.noResults.set(false);
+    fixture.detectChanges();
+    allModalsServiceMock.setModalWidth.mockClear();
+    component.documentAnalyzed.set(true);
+    fixture.detectChanges();
+    expect(allModalsServiceMock.setModalWidth).toHaveBeenCalledWith('createResult', true);
+  });
+
+  it('effect should set modal width when noResults is true', () => {
+    allModalsServiceMock.setModalWidth.mockClear();
+    component.documentAnalyzed.set(false);
+    component.noResults.set(false);
+    fixture.detectChanges();
+    allModalsServiceMock.setModalWidth.mockClear();
+    component.noResults.set(true);
+    fixture.detectChanges();
+    expect(allModalsServiceMock.setModalWidth).toHaveBeenCalledWith('createResult', true);
+  });
+
+  it('loadContractsOnStepChange effect should call mainForAiAssistant when modal opens and step is 1', () => {
+    allModalsServiceMock.isModalOpen.mockReturnValue({ isOpen: true });
+    createResultManagementServiceMock.resultPageStep.set(0);
+    fixture.detectChanges();
+    getContractsServiceMock.mainForAiAssistant.mockClear();
+    createResultManagementServiceMock.resultPageStep.set(1);
+    fixture.detectChanges();
+    expect(getContractsServiceMock.mainForAiAssistant).toHaveBeenCalled();
+  });
+
+  it('loadContractsOnStepChange effect should handle null modalConfig', () => {
+    allModalsServiceMock.isModalOpen.mockReturnValue(null);
+    createResultManagementServiceMock.resultPageStep.set(1);
+    fixture.detectChanges();
+    // Should not throw error
+    expect(component).toBeTruthy();
+  });
+
+  it('aggregateJsonContent should handle jsonContent with non-array results', () => {
+    const jsonContent = { results: 'not an array', other: 'data' };
+    const result = (component as any).aggregateJsonContent(jsonContent, null);
+    expect(result.results).toEqual([]);
+  });
+
+  it('aggregateJsonContent should handle jsonContent without results property', () => {
+    const jsonContent = { other: 'data' };
+    const result = (component as any).aggregateJsonContent(jsonContent, null);
+    expect(result.results).toEqual([]);
+  });
+
+  it('aggregateJsonContent should not merge when currentResults is empty but aggregatedJsonContent exists', () => {
+    const existing = { results: [{ title: 'existing' }], other: 'data' };
+    const jsonContent = { results: [] };
+    const result = (component as any).aggregateJsonContent(jsonContent, existing);
+    expect(result).toBe(existing);
+    expect(result.results).toEqual([{ title: 'existing' }]);
   });
 });
 
