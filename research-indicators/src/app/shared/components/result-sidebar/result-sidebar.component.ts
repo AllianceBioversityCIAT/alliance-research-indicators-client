@@ -211,7 +211,7 @@ export class ResultSidebarComponent {
 
     this.router.navigate(commands, {
       queryParams,
-      replaceUrl: true
+      replaceUrl: false
     });
   }
 

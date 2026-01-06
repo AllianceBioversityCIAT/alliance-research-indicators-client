@@ -409,7 +409,7 @@ describe('ResultSidebarComponent', () => {
       expect(mockEvent.preventDefault).not.toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/result', '123', 'enabled'], {
         queryParams: { version: '123' },
-        replaceUrl: true
+        replaceUrl: false
       });
     });
 
@@ -431,7 +431,7 @@ describe('ResultSidebarComponent', () => {
 
       expect(router.navigate).toHaveBeenCalledWith(['/result', null, 'enabled'], {
         queryParams: {},
-        replaceUrl: true
+        replaceUrl: false
       });
     });
   });
