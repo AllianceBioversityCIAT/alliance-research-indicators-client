@@ -5,26 +5,35 @@
     </span>
 
     <div class="flex items-center gap-2 mt-[0.5px]">
-      <span class="{{ cache.currentMetadata().indicator_name === 'Policy Change' ? 'text-[#F58220]' : 'text-[#7CB580]' }}">
-        <i class="{{ cache.currentMetadata().indicator_name === 'Policy Change' ? 'pi pi-folder-open' : 'pi pi-users' }} !text-[16px]"> </i>
+      <span
+        class="{{ cache.currentMetadata().indicator_name === 'Policy Change' ? 'text-[#F58220]' : 'text-[#7CB580]' }}">
+        <i
+          class="{{ cache.currentMetadata().indicator_name === 'Policy Change' ? 'pi pi-folder-open' : 'pi pi-users' }} !text-[16px]">
+        </i>
       </span>
 
-      <span class="text-[#153C71] leading-4 font-bold uppercase text-[14px]">{{ cache.currentMetadata().indicator_name}}</span>
+      <span class="text-[#153C71] leading-4 font-bold uppercase text-[14px]">{{
+        cache.currentMetadata().indicator_name}}</span>
     </div>
   </div>
 
   <hr class="!my-0" />
 
-  <div class="flex p-[25px] pb-4 flex-wrap items-center justify-between font-medium full text-[13px] mb-[15px] text-[#777c83] title">
+  <div
+    class="flex p-[25px] pb-4 flex-wrap items-center justify-between font-medium full text-[13px] mb-[15px] text-[#777c83] title">
     FORM PROGRESS
     @if (roles.isAdmin() && cache.currentMetadata().indicator_id === 5) {
-      <app-status-dropdown 
-        [statusId]="cache.currentMetadata().status_id ?? 0" 
-        [statusName]="cache.currentMetadata().status_name ?? ''"
-        (statusChange)="onStatusChange($event)" class="cursor-pointer -mt-1">
-      </app-status-dropdown>
+    <app-status-dropdown [statusId]="cache.currentMetadata().status_id ?? 0"
+      [statusName]="cache.currentMetadata().status_name ?? ''" (statusChange)="onStatusChange($event)"
+      class="cursor-pointer -mt-1">
+    </app-status-dropdown>
     } @else {
-      <app-custom-tag [statusId]="cache.currentMetadata().status_id ?? ''" [statusName]="cache.currentMetadata().status_name ?? ''" class="-mt-1"></app-custom-tag>
+    <app-custom-tag [statusId]="cache.currentMetadata().status_id ?? ''"
+      [statusName]="cache.currentMetadata().status_name ?? ''"
+      [statusColor]="cache.currentMetadata().result_status?.config?.color?.text ?? ''"
+      [statusBackground]="cache.currentMetadata().result_status?.config?.color?.background ?? ''"
+      [statusBorder]="cache.currentMetadata().result_status?.config?.color?.border ?? ''"
+      class="-mt-1"></app-custom-tag>
     }
     <div class="flex w-full text-[14px] font-normal">
       <span class="text-[#70ae74] pr-1">{{ getCompletedCount() }}/{{ getTotalCount() }}</span> sections completed
@@ -33,56 +42,53 @@
 
   <div class="options-container px-[25px] pb-2">
     @for (option of allOptionsWithGreenChecks(); track option.path) {
-      @if (!option.hide) {
-        <div
-          class="options"
-          [class.disabled]="option.disabled"
-          (click)="navigateTo(option, $event)"
-          (keydown.enter)="navigateTo(option, $event)"
-          [routerLink]="option.disabled ? null : option.path"
-          routerLinkActive="active">
-          <div
-            class="w-4 h-4 rounded-full flex items-center justify-center greenCheckBorder {{ option.greenCheck && 'greenCheckActive' }} {{
+    @if (!option.hide) {
+    <div class="options" [class.disabled]="option.disabled" (click)="navigateTo(option, $event)"
+      (keydown.enter)="navigateTo(option, $event)" [routerLink]="option.disabled ? null : option.path"
+      routerLinkActive="active">
+      <div class="w-4 h-4 rounded-full flex items-center justify-center greenCheckBorder {{ option.greenCheck && 'greenCheckActive' }} {{
               option.greenCheck ? 'bg-[#509c55]' : 'bg-[#A2A9AF]'
             }}">
-            <div class="w-3 h-3 rounded-full {{ option.greenCheck ? 'bg-[#a8ceab]' : 'bg-[#ffffff]' }}"></div>
-          </div>
+        <div class="w-3 h-3 rounded-full {{ option.greenCheck ? 'bg-[#a8ceab]' : 'bg-[#ffffff]' }}"></div>
+      </div>
 
-          <div class="option">{{ option.label }}</div>
-          @if (option.underConstruction) {
-            <img [src]="'construction.png' | s3ImageUrl" alt="" class="construction-icon-x1" />
-          }
-        </div>
+      <div class="option">{{ option.label }}</div>
+      @if (option.underConstruction) {
+      <img [src]="'construction.png' | s3ImageUrl" alt="" class="construction-icon-x1" />
       }
+    </div>
+    }
     }
   </div>
-  @if (cache.currentMetadata().status_id !== 6 && cache.currentMetadata().status_id !== 7 && cache.currentMetadata().status_id !== 8) {
-  @if ((roles.isAdmin() || cache.currentMetadata().is_principal_investigator) && cache.currentMetadata().status_id !== 5 && cache.currentMetadata().status_id !== 4) {
-      <button
-        class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm bg-[#509C55] text-white mx-[25px] mb-[16px] px-6 py-2.5 rounded-xl"
-        [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
-        tooltipPosition="bottom"
-        [disabled]="!this.cache.allGreenChecksAreTrue() || !submissionService.isSubmitted()"
-        (click)="this.allModalsService.openModal('submitResult')">
-        Review Result
-        <i class="pi pi-pencil pl-2 !text-[12px]"></i>
-      </button>
+  @if (cache.currentMetadata().status_id !== 6 && cache.currentMetadata().status_id !== 7 &&
+  cache.currentMetadata().status_id !== 8) {
+  @if ((roles.isAdmin() || cache.currentMetadata().is_principal_investigator) && cache.currentMetadata().status_id !== 5
+  && cache.currentMetadata().status_id !== 4) {
+  <button
+    class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm bg-[#509C55] text-white mx-[25px] mb-[16px] px-6 py-2.5 rounded-xl"
+    [pTooltip]="!cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
+    tooltipPosition="bottom" [disabled]="!this.cache.allGreenChecksAreTrue() || !submissionService.isSubmitted()"
+    (click)="this.allModalsService.openModal('submitResult')">
+    Review Result
+    <i class="pi pi-pencil pl-2 !text-[12px]"></i>
+  </button>
   }
-  @if (cache.currentMetadata().status_id !== 5 && (roles.isAdmin() || cache.currentMetadata().is_principal_investigator || this.cache.isMyResult())) {
-      <button
-        class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl transition-all duration-300"
-        [ngClass]="{
+  @if (cache.currentMetadata().status_id !== 5 && (roles.isAdmin() || cache.currentMetadata().is_principal_investigator
+  || this.cache.isMyResult())) {
+  <button
+    class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl transition-all duration-300"
+    [ngClass]="{
           'bg-[#f97316]': submissionService.currentResultIsSubmitted(),
           'bg-[#035BA9]': submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted(),
           'bg-[#E8EBED] !text-[#8D9299]': !submissionService.canSubmitResult() && !submissionService.currentResultIsSubmitted()
         }"
-        [pTooltip]="!submissionService.currentResultIsSubmitted() && !cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
-        tooltipPosition="bottom"
-        [disabled]="!submissionService.currentResultIsSubmitted() && !submissionService.canSubmitResult() "
-        (click)="submmitConfirm()">
-        {{ submissionService.currentResultIsSubmitted() ? 'Unsubmit Result' : 'Submit Result' }}
-        <i [ngClass]="submissionService.currentResultIsSubmitted() ? '' : 'pi pi-check'" class="pl-2 !text-[12px]"></i>
-      </button>
-    }
+    [pTooltip]="!submissionService.currentResultIsSubmitted() && !cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
+    tooltipPosition="bottom"
+    [disabled]="!submissionService.currentResultIsSubmitted() && !submissionService.canSubmitResult() "
+    (click)="submmitConfirm()">
+    {{ submissionService.currentResultIsSubmitted() ? 'Unsubmit Result' : 'Submit Result' }}
+    <i [ngClass]="submissionService.currentResultIsSubmitted() ? '' : 'pi pi-check'" class="pl-2 !text-[12px]"></i>
+  </button>
+  }
   }
 </div>
