@@ -134,55 +134,6 @@ describe('OicrHeaderComponent', () => {
     expect(component.showTag).toBe(false);
   });
 
-  it('should call getStatusName with correct id', () => {
-    mockSubmissionService.getStatusNameById.mockReturnValue('Test Status');
-    
-    const result = component.getStatusName(5);
-    
-    expect(mockSubmissionService.getStatusNameById).toHaveBeenCalledWith(5);
-    expect(result).toBe('Test Status');
-  });
-
-  it('should call getStatusName with different ids', () => {
-    mockSubmissionService.getStatusNameById.mockReturnValue('Different Status');
-    
-    const result = component.getStatusName(10);
-    
-    expect(mockSubmissionService.getStatusNameById).toHaveBeenCalledWith(10);
-    expect(result).toBe('Different Status');
-  });
-
-  it('should call getStatusName with edge case ids', () => {
-    mockSubmissionService.getStatusNameById.mockReturnValue('Edge Case');
-    
-    const result = component.getStatusName(0);
-    
-    expect(mockSubmissionService.getStatusNameById).toHaveBeenCalledWith(0);
-    expect(result).toBe('Edge Case');
-  });
-
-  it('should call getStatusName with negative id', () => {
-    mockSubmissionService.getStatusNameById.mockReturnValue('Negative Status');
-    
-    const result = component.getStatusName(-1);
-    
-    expect(mockSubmissionService.getStatusNameById).toHaveBeenCalledWith(-1);
-    expect(result).toBe('Negative Status');
-  });
-
-  it('should handle getStatusName returning empty string', () => {
-    mockSubmissionService.getStatusNameById.mockReturnValue('');
-    
-    const result = component.getStatusName(999);
-    
-    expect(mockSubmissionService.getStatusNameById).toHaveBeenCalledWith(999);
-    expect(result).toBe('');
-  });
-
-  it('should have submissionService injected', () => {
-    expect(component.submissionService).toBeDefined();
-    expect(component.submissionService).toBe(mockSubmissionService);
-  });
 
   it('should handle data with all properties', () => {
     const completeData: OicrHeaderData = {

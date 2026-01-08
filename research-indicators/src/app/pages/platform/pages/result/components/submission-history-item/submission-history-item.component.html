@@ -7,22 +7,32 @@
 
   <div class="info-content">
     <div class="text-content">
-      <span class="title">{{ historyItem.created_by_object.first_name }} {{ historyItem.created_by_object.last_name }} 
-      <span class="description-text">&nbsp;has&nbsp;</span>
-      <span class="title lowercase">{{ getStatusName(historyItem.to_status_id) }}</span>
-      <span class="description-text">&nbsp;the result.</span>
+      <span class="title">{{ historyItem.created_by_object.first_name }} {{ historyItem.created_by_object.last_name }}
+        <span class="description-text">&nbsp;has&nbsp;</span>
+        <span class="title lowercase">{{ historyItem.to_status?.name ?? ''
+          }}</span>
+        <span class="description-text">&nbsp;the result.</span>
       </span>
     </div>
     <div class="status-content">
-      <app-custom-tag [statusId]="historyItem.from_status_id" [statusName]="getStatusName(historyItem.from_status_id)"></app-custom-tag>
+      <app-custom-tag [statusId]="historyItem.from_status_id" [statusName]="historyItem.from_status?.name ?? ''"
+        [statusColor]="historyItem.from_status?.config?.color?.text ?? ''"
+        [statusBackground]="historyItem.from_status?.config?.color?.background ?? ''"
+        [statusBorder]="historyItem.from_status?.config?.color?.border ?? ''"></app-custom-tag>
       <i class="material-symbols-rounded">arrow_forward</i>
-      <app-custom-tag [statusId]="historyItem.to_status_id" [statusName]="getStatusName(historyItem.to_status_id)"></app-custom-tag>
+      <app-custom-tag [statusId]="historyItem.to_status_id" [statusName]="historyItem.to_status?.name ?? ''"
+        [statusColor]="historyItem.to_status?.config?.color?.text ?? ''"
+        [statusBackground]="historyItem.to_status?.config?.color?.background ?? ''"
+        [statusBorder]="historyItem.to_status?.config?.color?.border ?? ''"></app-custom-tag>
     </div>
-    @if (historyItem.submission_comment && historyItem.submission_comment !== '' && historyItem.submission_comment !== null) {
-      <span class="text-[#4C5158] py-1"> <span class="font-bold">Comment:</span> {{ historyItem.submission_comment }} </span>
+    @if (historyItem.submission_comment && historyItem.submission_comment !== '' && historyItem.submission_comment !==
+    null) {
+    <span class="text-[#4C5158] py-1"> <span class="font-bold">Comment:</span> {{ historyItem.submission_comment }}
+    </span>
     }
     <div class="date-content">
-      <span class="date">{{ historyItem.updated_at | date: 'dd/MM/yyyy' }} at {{ historyItem.updated_at | date: 'HH:mm' }}</span>
+      <span class="date">{{ historyItem.updated_at | date: 'dd/MM/yyyy' }} at {{ historyItem.updated_at | date: 'HH:mm'
+        }}</span>
     </div>
   </div>
 </div>

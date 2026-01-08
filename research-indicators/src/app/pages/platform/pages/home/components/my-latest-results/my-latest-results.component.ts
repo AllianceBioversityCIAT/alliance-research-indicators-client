@@ -8,6 +8,7 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
+import { StatusConfig } from '@shared/interfaces/result-config.interface';
 
 export interface LatestResult {
   updated_at: Date;
@@ -29,6 +30,7 @@ export interface ResultStatus {
   result_status_id: number;
   name: string;
   description: string | null;
+  config: StatusConfig;
 }
 
 export interface Indicator {

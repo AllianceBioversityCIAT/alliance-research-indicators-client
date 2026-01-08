@@ -48,7 +48,10 @@
           <div class="pb-0.5">
             <i class="pi pi-arrow-right !text-[10px] px-2 !text-[#8D9299]"></i>
             <app-custom-tag [statusId]="(result()?.result_status?.result_status_id ?? 0)" [tiny]="false"
-              [statusName]="(result()?.result_status?.name ?? '')">
+              [statusName]="(result()?.result_status?.name ?? '')"
+              [statusColor]="result()?.result_status?.config?.color?.text ?? ''"
+              [statusBackground]="result()?.result_status?.config?.color?.background ?? ''"
+              [statusBorder]="result()?.result_status?.config?.color?.border ?? ''">
             </app-custom-tag>
           </div>
         </div>

@@ -78,14 +78,18 @@
           <a target="_blank" (click)="$event.stopPropagation()" class="block"
             style="color: inherit; text-decoration: none">
             <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true"
-              [statusName]="result.result_status?.name">
+              [statusName]="result.result_status?.name" [statusColor]="result.result_status?.config?.color?.text ?? ''"
+              [statusBackground]="result.result_status?.config?.color?.background ?? ''"
+              [statusBorder]="result.result_status?.config?.color?.border ?? ''">
             </app-custom-tag>
           </a>
           } @else {
           <a [routerLink]="getResultRouteArray(result)" [queryParams]="getResultQueryParams(result)"
             (click)="$event.stopPropagation()" class="block" style="color: inherit; text-decoration: none">
             <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true"
-              [statusName]="result.result_status?.name">
+              [statusName]="result.result_status?.name" [statusColor]="result.result_status?.config?.color?.text ?? ''"
+              [statusBackground]="result.result_status?.config?.color?.background ?? ''"
+              [statusBorder]="result.result_status?.config?.color?.border ?? ''">
             </app-custom-tag>
           </a>
           }
