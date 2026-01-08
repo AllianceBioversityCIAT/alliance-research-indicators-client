@@ -49,7 +49,8 @@ export class SubmitResultContentComponent {
       if (currentStatusId === 7 || currentStatusId === 11) {
         return {
           ...base,
-          status_id: String(currentStatusId)
+          status_id: String(currentStatusId),
+          status_config: this.cache.currentMetadata()?.result_status
         };
       }
     }

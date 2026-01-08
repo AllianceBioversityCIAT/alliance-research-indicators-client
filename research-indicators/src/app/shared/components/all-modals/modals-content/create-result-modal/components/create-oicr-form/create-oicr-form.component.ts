@@ -623,10 +623,6 @@ export class CreateOicrFormComponent implements OnInit {
     return String(this.createResultManagementService.statusId() || 9);
   }
 
-  getStatusName(id: number): string {
-    return this.submissionService.getStatusNameById(id);
-  }
-
   getColors() {
     const status = String(this.getStatusIdAsString());
     return STATUS_COLOR_MAP[status] || STATUS_COLOR_MAP[''];
