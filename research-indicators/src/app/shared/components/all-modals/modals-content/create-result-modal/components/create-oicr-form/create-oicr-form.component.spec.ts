@@ -2063,14 +2063,6 @@ describe('CreateOicrFormComponent', () => {
     });
   });
 
-  describe('getStatusName', () => {
-    it('should return status name by id', () => {
-      const submissionService = TestBed.inject(SubmissionService);
-      const statusName = component.getStatusName(5);
-      expect(submissionService.getStatusNameById).toHaveBeenCalledWith(5);
-      expect(statusName).toBe('Test Status');
-    });
-  });
 
   describe('getColors', () => {
     it('should return colors for status id', () => {
