@@ -1,3 +1,5 @@
+import { ResultStatus } from './result-config.interface';
+
 export class SubmissionHistoryItem {
   created_by_object = {
     first_name: '',
@@ -6,5 +8,7 @@ export class SubmissionHistoryItem {
   updated_at = '';
   from_status_id = 0;
   to_status_id = 0;
+  from_status?: ResultStatus;
+  to_status?: ResultStatus;
   submission_comment = '';
 }

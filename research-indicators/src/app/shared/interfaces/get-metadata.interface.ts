@@ -1,3 +1,5 @@
+import { ResultStatus } from './result-config.interface';
+
 export interface GetMetadata {
   indicator_id?: number;
   indicator_name?: string;
@@ -6,7 +8,9 @@ export interface GetMetadata {
   status_id?: number;
   status_name?: string;
   result_title?: string;
-  created_by?: string;
+  created_by?: number;
+  report_year?: number;
   is_principal_investigator?: boolean;
   result_contract_id?: string;
+  result_status?: ResultStatus;
 }

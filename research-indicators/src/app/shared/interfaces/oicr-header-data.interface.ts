@@ -1,3 +1,5 @@
+import { ResultStatus } from "./result-config.interface";
+
 export interface LeverData {
   id: number;
   full_name: string;
@@ -20,6 +22,7 @@ export interface OicrHeaderData {
   levers?: LeverData;
   status_id?: string;
   status_name?: string;
+  status_config?: ResultStatus;
 }
 
 
