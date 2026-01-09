@@ -22,4 +22,3 @@ export interface ResultStatus {
   editable_roles?: number[];
   config?: StatusConfig;
 }
-
