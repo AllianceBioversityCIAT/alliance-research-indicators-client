@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
 import ResultsCenterComponent from './results-center.component';
 import { ResultsCenterService } from './results-center.service';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
@@ -14,9 +16,16 @@ describe('ResultsCenterComponent', () => {
   let mockCacheService: jest.Mocked<CacheService>;
   let mockApiService: jest.Mocked<ApiService>;
   let mockActionsService: jest.Mocked<ActionsService>;
+  let mockRouter: any;
+  let routerEventsSubject: Subject<any>;
 
   beforeEach(async () => {
     jest.useFakeTimers();
+    routerEventsSubject = new Subject();
+    mockRouter = {
+      events: routerEventsSubject.asObservable()
+    };
+
     mockResultsCenterService = {
       resetState: jest.fn(),
       primaryContractId: signal<string | null>(null),
@@ -26,6 +35,7 @@ describe('ResultsCenterComponent', () => {
         { id: 'my', label: 'My Results' }
       ],
       clearAllFilters: jest.fn(),
+      onSelectFilterTab: jest.fn(),
       onActiveItemChange: jest.fn(),
       resultsFilter: signal({
         'create-user-codes': [],
@@ -87,7 +97,8 @@ describe('ResultsCenterComponent', () => {
         { provide: ResultsCenterService, useValue: mockResultsCenterService },
         { provide: CacheService, useValue: mockCacheService },
         { provide: ApiService, useValue: mockApiService },
-        { provide: ActionsService, useValue: mockActionsService }
+        { provide: ActionsService, useValue: mockActionsService },
+        { provide: Router, useValue: mockRouter }
       ]
     }).compileComponents();
 
@@ -96,6 +107,10 @@ describe('ResultsCenterComponent', () => {
   });
 
   afterEach(() => {
+    // Clean up router subscription if it exists
+    if (component && component['routerSubscription'] && !component['routerSubscription'].closed) {
+      component['routerSubscription'].unsubscribe();
+    }
     jest.useRealTimers();
   });
 
