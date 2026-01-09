@@ -1,4 +1,6 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, computed } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
 import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
@@ -24,11 +26,13 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
   templateUrl: './results-center.component.html',
   styleUrls: ['./results-center.component.scss']
 })
-export default class ResultsCenterComponent implements OnInit {
+export default class ResultsCenterComponent implements OnInit, OnDestroy {
   api = inject(ApiService);
   resultsCenterService = inject(ResultsCenterService);
   cache = inject(CacheService);
   actions = inject(ActionsService);
+  router = inject(Router);
+  private routerSubscription?: Subscription;
 
   // Pin functionality
   pinnedTab = signal<string>('all');
@@ -65,6 +69,28 @@ export default class ResultsCenterComponent implements OnInit {
   ngOnInit(): void {
     this.resultsCenterService.primaryContractId.set(null);
     this.loadPinnedTab();
+    
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        if (!event.urlAfterRedirects.includes('/results-center')) {
+          this.cleanFiltersOnRouteLeave();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.cleanFiltersOnRouteLeave();
+    
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  private cleanFiltersOnRouteLeave(): void {
+    this.resultsCenterService.onSelectFilterTab(0);
+    this.resultsCenterService.clearAllFilters();
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
   }
 
   showSignal = signal(false);

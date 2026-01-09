@@ -46,7 +46,10 @@
             <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status.name"
               [statusColor]="result.result_status.config?.color?.text ?? ''"
               [statusBackground]="result.result_status.config?.color?.background ?? ''"
-              [statusBorder]="result.result_status.config?.color?.border ?? ''"></app-custom-tag>
+              [statusBorder]="result.result_status.config?.color?.border ?? ''" [icon]="true"
+              [iconName]="result.result_status.config?.icon?.name ?? ''"
+              [iconColor]="result.result_status.config?.icon?.color ?? ''"
+              [tooltip]="result.result_status.description ?? ''"></app-custom-tag>
             <div class="progress-bar-content">
               <div class="progress" [style.background-color]="getStatusColor(result)"
                 [style.width.%]="calculateProgressFor(result)"></div>

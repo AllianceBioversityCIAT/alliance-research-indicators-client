@@ -26,7 +26,6 @@ import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
 import { GetIndicatorsResultsAmount } from '../interfaces/get-indicators-results-amount.interface';
 import { GetResultsStatus } from '../interfaces/get-results-status.interface';
 import { GetRegion } from '../interfaces/get-region.interface';
-import { LatestResult } from '@pages/platform/pages/home/components/my-latest-results/my-latest-results.component';
 import { GetGeoSearch } from '../interfaces/get-geo-search.interface';
 import { GetOsCountries } from '../interfaces/get-os-countries.interface';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
@@ -76,6 +75,7 @@ import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
 import { ImpactArea } from '@shared/interfaces/impact-area.interface';
 import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
+import { LatestResult } from '@shared/interfaces/latest-result.interface';
 
 
 @Injectable({

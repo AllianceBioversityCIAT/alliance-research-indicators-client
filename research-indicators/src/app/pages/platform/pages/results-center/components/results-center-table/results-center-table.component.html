@@ -80,7 +80,10 @@
             <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true"
               [statusName]="result.result_status?.name" [statusColor]="result.result_status?.config?.color?.text ?? ''"
               [statusBackground]="result.result_status?.config?.color?.background ?? ''"
-              [statusBorder]="result.result_status?.config?.color?.border ?? ''">
+              [statusBorder]="result.result_status?.config?.color?.border ?? ''" [icon]="true"
+              [iconName]="result.result_status?.config?.icon?.name ?? ''"
+              [iconColor]="result.result_status?.config?.icon?.color ?? ''"
+              [tooltip]="result.result_status?.description ?? ''">
             </app-custom-tag>
           </a>
           } @else {
@@ -89,7 +92,10 @@
             <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true"
               [statusName]="result.result_status?.name" [statusColor]="result.result_status?.config?.color?.text ?? ''"
               [statusBackground]="result.result_status?.config?.color?.background ?? ''"
-              [statusBorder]="result.result_status?.config?.color?.border ?? ''">
+              [statusBorder]="result.result_status?.config?.color?.border ?? ''" [icon]="true"
+              [iconName]="result.result_status?.config?.icon?.name ?? ''"
+              [iconColor]="result.result_status?.config?.icon?.color ?? ''"
+              [tooltip]="result.result_status?.description ?? ''">
             </app-custom-tag>
           </a>
           }

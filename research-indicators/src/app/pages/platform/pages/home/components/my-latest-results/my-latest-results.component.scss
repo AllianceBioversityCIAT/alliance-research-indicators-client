@@ -161,8 +161,14 @@
         align-items: center;
         gap: 10px;
 
+        app-custom-tag {
+          flex-shrink: 0;
+          white-space: nowrap;
+        }
+
         .progress-bar-content {
-          width: 100%;
+          flex: 1;
+          min-width: 0;
           height: 10px;
           background-color: #e8ebed;
           border-radius: 3px;
