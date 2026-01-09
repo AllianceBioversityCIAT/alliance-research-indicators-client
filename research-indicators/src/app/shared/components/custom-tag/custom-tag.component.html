@@ -2,5 +2,9 @@
     !tiny ? 'text-[12px]' : 'xl:text-[12px] text-[9px]'
   }} font-medium uppercase" [style.border-color]="statusBorder ?? getColors().border"
   [style.color]="statusColor ?? getColors().text" [style.background]="statusBackground">
+  @if (icon) {
+  <i class="pi {{iconName ? iconName : 'pi-exclamation-circle'}} xl:!text-[12px] !text-[10px] pr-1.5 pt-0.5"
+    [style.color]="iconColor ?? statusColor" [pTooltip]="tooltip" tooltipPosition="right"></i>
+  }
   <span class="font-semibold">{{ statusName }}</span>
 </div>
