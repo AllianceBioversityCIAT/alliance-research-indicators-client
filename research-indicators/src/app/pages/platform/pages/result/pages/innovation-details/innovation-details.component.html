@@ -407,7 +407,10 @@
                       [statusName]="result.result_status.name"
                       [statusColor]="result.result_status?.config?.color?.text ?? ''"
                       [statusBackground]="result.result_status?.config?.color?.background ?? ''"
-                      [statusBorder]="result.result_status?.config?.color?.border ?? ''"></app-custom-tag>
+                      [statusBorder]="result.result_status?.config?.color?.border ?? ''" [icon]="true"
+                      [iconName]="result.result_status?.config?.icon?.name ?? ''"
+                      [iconColor]="result.result_status?.config?.icon?.color ?? ''"
+                      [tooltip]="result.result_status?.description ?? ''"></app-custom-tag>
 
                     @if (result.result_contracts) {
                     <div class="flex items-center">

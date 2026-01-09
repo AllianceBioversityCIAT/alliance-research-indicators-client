@@ -18,12 +18,18 @@
       <app-custom-tag [statusId]="historyItem.from_status_id" [statusName]="historyItem.from_status?.name ?? ''"
         [statusColor]="historyItem.from_status?.config?.color?.text ?? ''"
         [statusBackground]="historyItem.from_status?.config?.color?.background ?? ''"
-        [statusBorder]="historyItem.from_status?.config?.color?.border ?? ''"></app-custom-tag>
+        [statusBorder]="historyItem.from_status?.config?.color?.border ?? ''" [icon]="true"
+        [iconName]="historyItem.from_status?.config?.icon?.name ?? ''"
+        [iconColor]="historyItem.from_status?.config?.icon?.color ?? ''"
+        [tooltip]="historyItem.from_status?.description ?? ''"></app-custom-tag>
       <i class="material-symbols-rounded">arrow_forward</i>
       <app-custom-tag [statusId]="historyItem.to_status_id" [statusName]="historyItem.to_status?.name ?? ''"
         [statusColor]="historyItem.to_status?.config?.color?.text ?? ''"
         [statusBackground]="historyItem.to_status?.config?.color?.background ?? ''"
-        [statusBorder]="historyItem.to_status?.config?.color?.border ?? ''"></app-custom-tag>
+        [statusBorder]="historyItem.to_status?.config?.color?.border ?? ''" [icon]="true"
+        [iconName]="historyItem.to_status?.config?.icon?.name ?? ''"
+        [iconColor]="historyItem.to_status?.config?.icon?.color ?? ''"
+        [tooltip]="historyItem.to_status?.description ?? ''"></app-custom-tag>
     </div>
     @if (historyItem.submission_comment && historyItem.submission_comment !== '' && historyItem.submission_comment !==
     null) {

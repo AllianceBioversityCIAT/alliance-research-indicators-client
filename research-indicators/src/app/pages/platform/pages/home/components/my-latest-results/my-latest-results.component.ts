@@ -8,7 +8,7 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
-import { LatestResult } from '@shared/interfaces/user-latest-result.interface';
+import { LatestResult } from '@shared/interfaces/latest-result.interface';
 
 @Component({
   selector: 'app-my-latest-results',
