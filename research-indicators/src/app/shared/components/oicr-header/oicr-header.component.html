@@ -7,7 +7,10 @@
       <app-custom-tag [statusId]="data?.['status_id'] ?? 9" [statusName]="data?.['status_config']?.name ?? ''"
         [statusColor]="data?.['status_config']?.config?.color?.text ?? ''"
         [statusBackground]="data?.['status_config']?.config?.color?.background ?? ''"
-        [statusBorder]="data?.['status_config']?.config?.color?.border ?? ''" class="pb-1"></app-custom-tag>
+        [statusBorder]="data?.['status_config']?.config?.color?.border ?? ''" [icon]="true"
+        [iconName]="data?.['status_config']?.config?.icon?.name ?? ''"
+        [iconColor]="data?.['status_config']?.config?.icon?.color ?? ''"
+        [tooltip]="data?.['status_config']?.description ?? ''" class="pb-1"></app-custom-tag>
       }
     </div>
     <div class="text-[17px] text-[#173F6F] font-[600] pb-1">{{ data?.['title'] || 'Enter OICR title' }}</div>
