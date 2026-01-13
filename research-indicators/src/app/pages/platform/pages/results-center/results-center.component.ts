@@ -133,19 +133,22 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
 
   onActiveItemChange = (event: MenuItem): void => {
     this.resultsCenterService.myResultsFilterItem.set(event);
+    
+    // Clear filters first (this will preserve create-user-codes if tab is "my")
+    this.resultsCenterService.clearAllFilters();
+    this.resultsCenterService.searchInput.set('');
+    
+    // Then load results based on the selected tab
     if (event.id === 'my') {
       this.loadMyResults();
     } else {
       this.loadAllResults();
     }
-
-    this.resultsCenterService.clearAllFilters();
-    this.resultsCenterService.searchInput.set('');
   };
 
   loadMyResults() {
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
-    this.resultsCenterService.resultsFilter.update(() => ({
+    this.resultsCenterService.resultsFilter.set({
       'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
       'indicator-codes': [],
       'status-codes': [],
@@ -154,8 +157,8 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       years: [],
       'indicator-codes-filter': [],
       'indicator-codes-tabs': []
-    }));
-    this.resultsCenterService.appliedFilters.update(() => ({
+    });
+    this.resultsCenterService.appliedFilters.set({
       'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
       'indicator-codes': [],
       'status-codes': [],
@@ -164,13 +167,13 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       years: [],
       'indicator-codes-filter': [],
       'indicator-codes-tabs': []
-    }));
+    });
     this.resultsCenterService.main();
   }
 
   loadAllResults() {
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
-    this.resultsCenterService.resultsFilter.update(() => ({
+    this.resultsCenterService.resultsFilter.set({
       'create-user-codes': [],
       'indicator-codes': [],
       'status-codes': [],
@@ -179,8 +182,8 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       years: [],
       'indicator-codes-filter': [],
       'indicator-codes-tabs': []
-    }));
-    this.resultsCenterService.appliedFilters.update(() => ({
+    });
+    this.resultsCenterService.appliedFilters.set({
       'create-user-codes': [],
       'indicator-codes': [],
       'status-codes': [],
@@ -189,7 +192,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       years: [],
       'indicator-codes-filter': [],
       'indicator-codes-tabs': []
-    }));
+    });
     this.resultsCenterService.main();
   }
 
