@@ -228,16 +228,20 @@ export class ResultsCenterService {
         (state as unknown as Record<string, unknown[]>)[key as string] = id != null ? arr.filter(pred) : [];
       };
 
-    const map: Record<string, { update: Updater; ref?: keyof Record<string, MultiselectComponent> }> = {
-      INDICATOR: { update: mkUpdater<{ indicator_id: number }>('indicators', i => i?.indicator_id !== id), ref: 'indicator' },
-      STATUS: { update: mkUpdater<{ result_status_id: number }>('statusCodes', s => s?.result_status_id !== id), ref: 'status' },
-      PROJECT: { update: mkUpdater<{ agreement_id: string }>('contracts', c => c?.agreement_id !== id), ref: 'project' },
-      LEVER: { update: mkUpdater<{ id: number }>('levers', l => l?.id !== id), ref: 'lever' },
-      YEAR: { update: mkUpdater<{ report_year: number }>('years', y => y?.report_year !== id), ref: 'year' }
+    const map: Record<string, { update: Updater; ref?: keyof Record<string, MultiselectComponent>; key: keyof TableFilters }> = {
+      INDICATOR: { update: mkUpdater<{ indicator_id: number }>('indicators', i => i?.indicator_id !== id), ref: 'indicator', key: 'indicators' },
+      STATUS: { update: mkUpdater<{ result_status_id: number }>('statusCodes', s => s?.result_status_id !== id), ref: 'status', key: 'statusCodes' },
+      PROJECT: { update: mkUpdater<{ agreement_id: string }>('contracts', c => c?.agreement_id !== id), ref: 'project', key: 'contracts' },
+      LEVER: { update: mkUpdater<{ id: number }>('levers', l => l?.id !== id), ref: 'lever', key: 'levers' },
+      YEAR: { update: mkUpdater<{ report_year: number }>('years', y => y?.report_year !== id), ref: 'year', key: 'years' }
     };
 
     const handler = map[label];
     if (!handler) return;
+
+    const currentState = this.tableFilters();
+    const currentArray = (currentState[handler.key] as unknown[]) ?? [];
+    const willBeEmpty = id != null ? currentArray.length === 1 : true;
 
     this.tableFilters.update(prev => {
       const next = { ...prev } as TableFilters;
@@ -246,7 +250,15 @@ export class ResultsCenterService {
     });
 
     const ref = handler.ref ? this.multiselectRefs()?.[handler.ref] : undefined;
-    if (ref && id != null && typeof ref.removeById === 'function') ref.removeById(id);
+    if (ref) {
+      if (willBeEmpty || id == null) {
+        if (typeof ref.clear === 'function') {
+          ref.clear();
+        }
+      } else if (id != null && typeof ref.removeById === 'function') {
+        ref.removeById(id);
+      }
+    }
 
     this.applyFilters();
   }
@@ -448,6 +460,8 @@ export class ResultsCenterService {
   }
 
   clearAllFilters() {
+    this.cleanMultiselects();
+    
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
@@ -472,7 +486,11 @@ export class ResultsCenterService {
 
     // clear search input
     this.searchInput.set('');
-    this.cleanMultiselects();
+    
+    setTimeout(() => {
+      this.cleanMultiselects();
+    }, 0);
+    
     const table = this.tableRef();
     if (table) {
       table.clear();
@@ -522,7 +540,11 @@ export class ResultsCenterService {
     const refs = this.multiselectRefs();
     Object.values(refs).forEach(multiselect => {
       if (multiselect && typeof multiselect.clear === 'function') {
-        multiselect.clear();
+        try {
+          multiselect.clear();
+        } catch (error) {
+          console.warn('Error clearing multiselect:', error);
+        }
       }
     });
   }
