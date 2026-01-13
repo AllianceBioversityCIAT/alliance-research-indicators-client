@@ -481,18 +481,40 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     const tbody = rowEl.parentElement;
     if (!tbody || tbody.tagName.toLowerCase() !== 'tbody') return;
 
-    const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
-    const rowIndex = rows.indexOf(rowEl);
-    if (rowIndex < 0) return;
-    const data: Result[] = (this.dt2.filteredValue as Result[] | undefined) ?? this.resultsCenterService.list();
-    const pageStart: number = this.dt2.first || 0;
-    const idx = pageStart + rowIndex;
-    const result = data[idx] as Result | undefined;
+    const resultId = rowEl.dataset['resultId'];
+    const platformCode = rowEl.dataset['platform'];
+    
+    if (!resultId || !platformCode) {
+      const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
+      const rowIndex = rows.indexOf(rowEl);
+      if (rowIndex < 0) return;
+      const data: Result[] = (this.dt2.value as Result[] | undefined) ?? this.resultsCenterService.list();
+      const pageStart: number = this.dt2.first || 0;
+      const idx = pageStart + rowIndex;
+      const result = data[idx];
+      
+      if (!result) {
+        return;
+      }
+      
+      this.handleRowClickResult(result, target, event);
+      return;
+    }
+
+    const data: Result[] = (this.dt2.value as Result[] | undefined) ?? this.resultsCenterService.list();
+    const result = data.find(r => 
+      r.result_official_code?.toString() === resultId && 
+      r.platform_code === platformCode
+    );
 
     if (!result) {
       return;
     }
 
+    this.handleRowClickResult(result, target, event);
+  }
+
+  private handleRowClickResult(result: Result, target: Element, event: MouseEvent): void {
     if (result.platform_code === PLATFORM_CODES.STAR) {
       this.closeResultInformationModal();
       return;

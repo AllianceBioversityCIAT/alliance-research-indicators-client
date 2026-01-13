@@ -69,6 +69,7 @@
     </ng-template>
     <ng-template pTemplate="body" let-result>
       <tr (keydown.enter)="openResult(result)" (click)="openResult(result)"
+        [attr.data-result-id]="result.result_official_code" [attr.data-platform]="result.platform_code"
         class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
         @for (column of getVisibleColumns(); track column.field) {
         @if (!column.hideIf || !column.hideIf()) {
