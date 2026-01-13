@@ -80,6 +80,9 @@ describe('ResultsCenterTableComponent', () => {
     mockModals = {
       selectedResultForInfo: signal<any>(null),
       openModal: jest.fn(),
+      closeModal: jest.fn(),
+      closeAllModals: jest.fn(),
+      isModalOpen: jest.fn(() => ({ isOpen: false })),
       // New helper used by processRowClick to avoid interfering when a modal is already open
       isAnyModalOpen: jest.fn(() => false)
     };
@@ -375,13 +378,17 @@ describe('ResultsCenterTableComponent', () => {
     const tbody = document.createElement('tbody');
     const row = document.createElement('tr');
     const td = document.createElement('td');
+    const prmsResult = { ...mockResult, platform_code: 'PRMS' };
+    // Set data attributes for the row
+    row.setAttribute('data-result-id', prmsResult.result_official_code.toString());
+    row.setAttribute('data-platform', prmsResult.platform_code);
     tbody.appendChild(row);
     row.appendChild(td);
     tableElement.appendChild(tbody);
     
     (component as any).dt2 = {
       first: 0,
-      filteredValue: [{ ...mockResult, platform_code: 'PRMS' }],
+      value: [prmsResult],
       el: { nativeElement: tableElement }
     } as any;
     
