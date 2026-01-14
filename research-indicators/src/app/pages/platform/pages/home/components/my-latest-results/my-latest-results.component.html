@@ -51,7 +51,7 @@
               [iconColor]="result.result_status.config?.icon?.color ?? ''"
               [tooltip]="result.result_status.description ?? ''"></app-custom-tag>
             <div class="progress-bar-content">
-              <div class="progress" [style.background-color]="getStatusColor(result)"
+              <div class="progress" [style.background-color]="result.result_status.config?.color?.text ?? '#00B6FF'"
                 [style.width.%]="calculateProgressFor(result)"></div>
             </div>
           </div>
