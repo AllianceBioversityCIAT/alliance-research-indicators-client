@@ -34,13 +34,30 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
   }
 
   if (currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
-    const isDraft = (status_id ?? 0) === 4 || (status_id ?? 0) === 14 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
-    if (!isDraft) {
+    // Accepted (10), Science Edition (12), KM Curation (13), Published (14) are intermediate workflow stages
+    const isIntermediateStatus = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13 || (status_id ?? 0) === 14;
+    
+    // Check if user is admin (role_id 9 or 1)
+    const userRoles = cacheService.dataCache().user?.user_role_list ?? [];
+    const isAdmin = userRoles.some(role => role.role_id === 9 || role.role_id === 1);
+    
+    // For intermediate statuses (10, 12, 13, 14), regular users cannot access the full form
+    // Only admins can edit OICRs in these statuses
+    if (isIntermediateStatus && !isAdmin) {
+      // Regular users: prevent navigation to detailed OICR form
+      router.navigate(['/results-center']);
+      return false;
+    }
+    
+    // For other statuses (non-intermediate), open the modal as before
+    if (!isIntermediateStatus) {
       router.navigate(['/project-detail', result_contract_id]);
       if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');
       currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
       return false;
     }
+    
+    // Admins can access intermediate statuses - allow navigation
     return true;
   }
 
