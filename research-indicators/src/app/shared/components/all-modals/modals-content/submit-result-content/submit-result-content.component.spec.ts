@@ -11,6 +11,7 @@ import { signal } from '@angular/core';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 import { ProjectResultsTableService } from '@pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
+import { ResultStatus } from '@shared/interfaces/result-config.interface';
 
 describe('SubmitResultContentComponent', () => {
   let component: SubmitResultContentComponent;
@@ -51,7 +52,18 @@ describe('SubmitResultContentComponent', () => {
 
     mockApiService = {
       PATCH_SubmitResult: jest.fn(),
-      GET_Versions: jest.fn()
+      GET_Versions: jest.fn(),
+      GET_ResultStatus: jest.fn().mockImplementation((statusId: number) => {
+        const statusMap: Record<number, any> = {
+          6: { successfulRequest: true, data: { result_status_id: 6, name: 'Approve' } },
+          5: { successfulRequest: true, data: { result_status_id: 5, name: 'Revise' } },
+          7: { successfulRequest: true, data: { result_status_id: 7, name: 'Reject' } },
+          10: { successfulRequest: true, data: { result_status_id: 10, name: 'OICR Accepted' } },
+          11: { successfulRequest: true, data: { result_status_id: 11, name: 'Postpone' } },
+          15: { successfulRequest: true, data: { result_status_id: 15, name: 'OICR Not Accepted' } }
+        };
+        return Promise.resolve(statusMap[statusId] || { successfulRequest: false });
+      })
     };
 
     mockCacheService = {
@@ -130,6 +142,13 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should initialize with correct review options', () => {
+    // Set statusData with the expected labels
+    component.statusData.set({
+      6: { result_status_id: 6, name: 'Approve' } as ResultStatus,
+      5: { result_status_id: 5, name: 'Revise' } as ResultStatus,
+      7: { result_status_id: 7, name: 'Reject' } as ResultStatus
+    });
+
     const options = component.reviewOptions();
     expect(options).toHaveLength(3);
     
@@ -216,6 +235,13 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should set initial selected review option when modal opens', () => {
+    // Set statusData with the expected labels
+    component.statusData.set({
+      6: { result_status_id: 6, name: 'Approve' } as ResultStatus,
+      5: { result_status_id: 5, name: 'Revise' } as ResultStatus,
+      7: { result_status_id: 7, name: 'Reject' } as ResultStatus
+    });
+
     const matchingOption = { 
       key: 'revise', 
       label: 'Revise', 
@@ -460,6 +486,13 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should handle latest flow review options', () => {
+    // Set statusData with the expected labels for latest flow
+    component.statusData.set({
+      10: { result_status_id: 10, name: 'OICR Accepted' } as ResultStatus,
+      11: { result_status_id: 11, name: 'Postpone' } as ResultStatus,
+      15: { result_status_id: 15, name: 'OICR Not Accepted' } as ResultStatus
+    });
+
     mockAllModalsService.submitResultOrigin!.set('latest');
     
     const options = component.reviewOptions();
@@ -468,14 +501,14 @@ describe('SubmitResultContentComponent', () => {
     // Check approve option for latest flow
     expect(options[0]).toEqual({
       key: 'approve',
-      label: 'Approve',
+      label: 'OICR Accepted',
       description: 'The development of the OICR will continue with backstopping from the PISA-SPRM team.',
       icon: 'pi-check-circle',
       color: 'text-[#509C55]',
       message: 'Once this result is approved, no further changes will be allowed.',
       commentLabel: undefined,
       placeholder: '',
-      statusId: 4,
+      statusId: 10,
       selected: false
     });
 
@@ -497,14 +530,14 @@ describe('SubmitResultContentComponent', () => {
     // Check reject option for latest flow
     expect(options[2]).toEqual({
       key: 'reject',
-      label: 'Do not approve',
+      label: 'OICR Not Accepted',
       description: 'Reject this result and specify the reason.',
       icon: 'pi-times-circle',
       color: 'text-[#cf0808]',
       message: 'If the result is rejected, it can no longer be edited or resubmitted.',
       commentLabel: 'Justification',
       placeholder: 'Please briefly elaborate your decision',
-      statusId: 7,
+      statusId: 15,
       selected: false,
       disabled: false
     });
@@ -515,7 +548,7 @@ describe('SubmitResultContentComponent', () => {
     mockCacheService.currentMetadata!.set({ indicator_id: 5, status_id: 9 });
     mockCacheService.getCurrentNumericResultId!.mockReturnValue(123);
     
-    const selectedOption = { statusId: 4, commentLabel: undefined };
+    const selectedOption = { statusId: 10, commentLabel: undefined };
     mockSubmissionService.statusSelected.set(selectedOption);
     mockSubmissionService.comment.set('Test comment');
     
@@ -531,7 +564,7 @@ describe('SubmitResultContentComponent', () => {
       {
         resultCode: 123,
         comment: 'Test comment',
-        status: 4
+        status: 10
       },
       {
         mel_regional_expert: 'expert1',
@@ -593,7 +626,7 @@ describe('SubmitResultContentComponent', () => {
   it('should handle latest flow submit review with unsuccessful request', async () => {
     mockAllModalsService.submitResultOrigin!.set('latest');
     
-    const selectedOption = { statusId: 4, commentLabel: undefined };
+    const selectedOption = { statusId: 10, commentLabel: undefined };
     mockSubmissionService.statusSelected.set(selectedOption);
     
     const mockResponse = { successfulRequest: false };
@@ -610,7 +643,7 @@ describe('SubmitResultContentComponent', () => {
     mockAllModalsService.submitResultOrigin!.set('latest');
     mockCacheService.currentMetadata!.set(null);
     
-    const selectedOption = { statusId: 4, commentLabel: undefined };
+    const selectedOption = { statusId: 10, commentLabel: undefined };
     mockSubmissionService.statusSelected.set(selectedOption);
     
     const mockResponse = { successfulRequest: true };
@@ -1016,9 +1049,9 @@ describe('SubmitResultContentComponent', () => {
     });
   });
 
-  it('should handle disabledConfirmSubmit with latest origin and statusId 4 and all fields filled', () => {
+  it('should handle disabledConfirmSubmit with latest origin and statusId 10 and all fields filled', () => {
     mockAllModalsService.submitResultOrigin.set('latest');
-    mockSubmissionService.statusSelected.set({ statusId: 4, commentLabel: undefined } as any);
+    mockSubmissionService.statusSelected.set({ statusId: 10, commentLabel: undefined } as any);
     mockSubmissionService.comment.set('');
     
     component.form.set({
@@ -1032,9 +1065,9 @@ describe('SubmitResultContentComponent', () => {
     expect(result).toBe(false);
   });
 
-  it('should handle disabledConfirmSubmit with latest origin and statusId 4 and missing fields', () => {
+  it('should handle disabledConfirmSubmit with latest origin and statusId 10 and missing fields', () => {
     mockAllModalsService.submitResultOrigin.set('latest');
-    mockSubmissionService.statusSelected.set({ statusId: 4, commentLabel: undefined } as any);
+    mockSubmissionService.statusSelected.set({ statusId: 10, commentLabel: undefined } as any);
     mockSubmissionService.comment.set('');
     
     component.form.set({
@@ -1515,9 +1548,9 @@ describe('SubmitResultContentComponent', () => {
     expect(result).toBe(false);
   });
 
-  it('should handle disabledConfirmSubmit with latest origin, statusId 4 and invalid sharepoint', () => {
+  it('should handle disabledConfirmSubmit with latest origin, statusId 10 and invalid sharepoint', () => {
     mockAllModalsService.submitResultOrigin.set('latest');
-    mockSubmissionService.statusSelected.set({ statusId: 4, commentLabel: undefined } as any);
+    mockSubmissionService.statusSelected.set({ statusId: 10, commentLabel: undefined } as any);
     mockSubmissionService.comment.set('');
     
     component.form.set({
@@ -1531,9 +1564,9 @@ describe('SubmitResultContentComponent', () => {
     expect(result).toBe(true);
   });
 
-  it('should handle disabledConfirmSubmit with latest origin, statusId 4 and empty sharepoint', () => {
+  it('should handle disabledConfirmSubmit with latest origin, statusId 10 and empty sharepoint', () => {
     mockAllModalsService.submitResultOrigin.set('latest');
-    mockSubmissionService.statusSelected.set({ statusId: 4, commentLabel: undefined } as any);
+    mockSubmissionService.statusSelected.set({ statusId: 10, commentLabel: undefined } as any);
     mockSubmissionService.comment.set('');
     
     component.form.set({
@@ -1547,9 +1580,9 @@ describe('SubmitResultContentComponent', () => {
     expect(result).toBe(false);
   });
 
-  it('should handle disabledConfirmSubmit with latest origin, statusId 4 and whitespace fields', () => {
+  it('should handle disabledConfirmSubmit with latest origin, statusId 10 and whitespace fields', () => {
     mockAllModalsService.submitResultOrigin.set('latest');
-    mockSubmissionService.statusSelected.set({ statusId: 4, commentLabel: undefined } as any);
+    mockSubmissionService.statusSelected.set({ statusId: 10, commentLabel: undefined } as any);
     mockSubmissionService.comment.set('');
     
     component.form.set({

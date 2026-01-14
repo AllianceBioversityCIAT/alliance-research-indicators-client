@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter, signal, HostListener } from '@angular/core';
-import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
+import { Component, Input, Output, EventEmitter, signal, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CacheService } from '@shared/services/cache/cache.service';
 
 interface StatusOption {
   id: number;
@@ -18,7 +18,7 @@ export class StatusDropdownComponent {
   @Input() statusId = 0;
   @Input() statusName = '';
   @Output() statusChange = new EventEmitter<number>();
-
+  cache = inject(CacheService);
   isOpen = signal(false);
 
   // Status sequence: Draft (4) -> Science Edition (12) -> KM Curation (13) -> Published (14)
@@ -32,14 +32,9 @@ export class StatusDropdownComponent {
   private readonly SPECIAL_TRANSITIONS: Record<number, StatusOption[]> = {
     4: [
       { id: 11, name: 'Postpone', direction: 'previous', icon: 'postpone' },
-      { id: 7, name: 'Do not approve', direction: 'previous', icon: 'reject' },
+      { id: 15, name: 'Do not approve', direction: 'previous', icon: 'reject' },
     ]
   };
-
-  getColors() {
-    const status = String(this.statusId);
-    return STATUS_COLOR_MAP[status] || STATUS_COLOR_MAP[''];
-  }
 
   getAvailableStatuses(): StatusOption[] {
     const currentIndex = this.STATUS_SEQUENCE.findIndex(s => s.id === this.statusId);

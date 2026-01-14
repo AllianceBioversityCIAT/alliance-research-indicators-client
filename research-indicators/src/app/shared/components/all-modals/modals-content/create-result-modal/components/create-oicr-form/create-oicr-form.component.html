@@ -14,7 +14,7 @@
 </ng-template>
 
 <ng-template #createButton>
-  @if (this.createResultManagementService.statusId() !== 10 && this.createResultManagementService.statusId() !== 7 &&
+  @if (this.createResultManagementService.statusId() !== 10 && this.createResultManagementService.statusId() !== 15 &&
   this.createResultManagementService.statusId() !== 11) {
   @if (this.createResultManagementService.editingOicr() && !canEditOicr) {
   <div class="bg-[#F6FAF7] border border-[#358540] rounded-[13px] px-4 py-3 flex items-center gap-3">
@@ -77,7 +77,7 @@
   }
 
   <div class="px-5 flex flex-col mx-10 mt-8">
-    @if ((this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 7)
+    @if ((this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 15)
     && submissionHistory().length > 0) {
     <p-accordion (activeIndexChange)="onAccordionToggle($event)">
       <ng-template #globalToggleIcon let-active="active">
@@ -92,8 +92,9 @@
       <p-accordion-panel value="0" class="!border-none">
         <p-accordion-header class="!border !py-4 !px-7 !font-medium"
           [class]="'!border !p-4 !font-medium ' + (((accordionActiveState() ?? isAccordionOpen()) || !shouldShowBottomBorder()) ? '!border-b-0 !rounded-t-[13px] !rounded-b-none' : '!rounded-[13px]')"
-          [style.border-color]="getColors().border" [style.color]="getColors().text"
-          [style.background-color]="getColors().background">
+          [style.border-color]="cache.currentMetadata()?.result_status?.config?.color?.text"
+          [style.color]="cache.currentMetadata()?.result_status?.config?.color?.text"
+          [style.background-color]="cache.currentMetadata()?.result_status?.config?.color?.background">
           <div class="flex flex-col w-full">
             <ng-template #toggleicon let-active="active">
               <ng-container [ngTemplateOutlet]="globalToggleIcon"
@@ -103,7 +104,8 @@
               }
             </ng-template>
             <div class="flex items-center gap-3">
-              <i [class]="getStatusIcon()" [style.color]="getColors().text"></i>
+              <i [class]="getStatusIcon()"
+                [style.color]="cache.currentMetadata()?.result_status?.config?.color?.text"></i>
               <span class="font-medium">{{ cache.currentMetadata()?.result_status?.name || '' }}</span>
             </div>
             <div class="flex gap-x-5 mt-2">
@@ -137,7 +139,7 @@
           </div>
 
           @if ((this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId()
-          === 7) && this.createResultManagementService.editingOicr()) {
+          === 15) && this.createResultManagementService.editingOicr()) {
           <button
             class="font-medium cursor-pointer min-w-[136px] text-[14px] ml-4 text-[#035BA9] border border-[#035BA9] px-4 py-1.5 rounded-lg flex items-center gap-2 hover:bg-[#035BA9]/5 transition-colors"
             (click)="openSubmitResultModalForReviewAgain(); $event.stopPropagation()">
@@ -148,10 +150,11 @@
         </p-accordion-header>
         <p-accordion-content
           class="!border !border-t-0 !rounded-b-[13px] !px-7 !pb-4 !mb-8 !-mt-px custom-accordion-content"
-          [style.border-color]="getColors().border" [style.color]="getColors().text"
-          [style.background-color]="getColors().background + ' !important'">
+          [style.border-color]="cache.currentMetadata()?.result_status?.config?.color?.text"
+          [style.color]="cache.currentMetadata()?.result_status?.config?.color?.text"
+          [style.background-color]="cache.currentMetadata()?.result_status?.config?.color?.background + ' !important'">
           <div class="text-[#4C5158] text-[14px] leading-relaxed"
-            [style.background-color]="getColors().background + ' !important'">
+            [style.background-color]="cache.currentMetadata()?.result_status?.config?.color?.background + ' !important'">
             <span class="font-medium mb-2">Reason:
               <span class="font-normal">{{ getSubmissionComment() || 'No justification provided.' }}</span></span>
           </div>
@@ -196,7 +199,7 @@
       <div class="grid gap-[10px]">
         <div class="flex flex-col pt-2">
           <app-multiselect label="Primary Levers"
-            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
+            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
             [signal]="createResultManagementService.createOicrBody" optionValue="lever_id"
             [textSpan]="'Levers selected'" signalOptionValue="step_two.primary_lever" [isRequired]="true"
             [columnsOnXl]="true" scrollHeight="260px" serviceName="levers" [optionsDisabled]="primaryOptionsDisabled"
@@ -231,7 +234,7 @@
 
         <div class="flex flex-col pt-2">
           <app-multiselect label="Other Contributing Levers"
-            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
+            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
             [signal]="createResultManagementService.createOicrBody" optionValue="lever_id"
             signalOptionValue="step_two.contributor_lever" [columnsOnXl]="true" [textSpan]="'Levers selected'"
             scrollHeight="260px" serviceName="levers" [optionsDisabled]="optionsDisabled"
@@ -282,7 +285,7 @@
       <div class="grid gap-[10px]">
         <div class="flex flex-col gap-8">
           <app-radio-button [isRequired]="true"
-            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
+            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
             label="What is the main geographic focus of the Impact?"
             helperText="This should reflect where the Impact has taken place/contributed to benefit."
             [signal]="createResultManagementService.createOicrBody" [optionLabel]="'label'" direction="horizontal"
@@ -291,7 +294,7 @@
 
           @if (getMultiselectLabel().region.label) {
           <app-multiselect [signal]="createResultManagementService.createOicrBody" [optionLabel]="'name'"
-            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
+            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
             class="-mt-5" [optionValue]="'region_id'" [signalOptionValue]="'step_three.regions'"
             [isRequired]="isRegionsRequired()" serviceName="regions" label="{{ getMultiselectLabel().region.label }}"
             helperText="{{ getMultiselectLabel().region.description }}" placeholder="Select the regions">
@@ -300,7 +303,7 @@
           @if (getMultiselectLabel().country.label) {
           @if (isGeoScopeId(5) && !createResultManagementService.autofillinOicr()) {
           <app-multiselect
-            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
+            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
             (selectEvent)="onSelect()" [signal]="createResultManagementService.createOicrBody"
             [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
             [disabledSelectedScroll]="isGeoScopeId(5)" [optionLabel]="'name'" class="-mt-4"
@@ -342,7 +345,7 @@
                 <!-- Right column: Multiselect -->
                 <div class="w-[300px]">
                   <app-multiselect-instance [signal]="c.result_countries_sub_nationals_signal" [optionLabel]="'name'"
-                    [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
+                    [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
                     (valueChange)="updateCountryRegions(c.isoAlpha2, $event)" [optionValue]="'sub_national_id'"
                     [signalOptionValue]="'regions'" serviceName="GetSubnationalByIsoAlpha" [hideSelected]="true"
                     [endpointParams]="{ isoAlpha2: c.isoAlpha2 }">
@@ -362,7 +365,7 @@
           } @else {
           <app-multiselect (selectEvent)="onSelect()" [signal]="createResultManagementService.createOicrBody"
             class="-mt-3"
-            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
+            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
             [flagAttributes]="{ isoAlpha2: 'isoAlpha2', institution_location_name: 'name' }"
             [disabledSelectedScroll]="isGeoScopeId(5)" [optionLabel]="'name'" [isRequired]="isCountriesRequired()"
             [optionValue]="'isoAlpha2'" [signalOptionValue]="'step_three.countries'"
@@ -375,7 +378,7 @@
 
         <div class="flex flex-col pt-2">
           <app-textarea [rows]="5"
-            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
+            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
             label="Comments Geographic Scope"
             helperText="Provide additional information about the geographic scope, if necessary." [maxLength]="1000"
             [signal]="this.createResultManagementService.createOicrBody" [optionValue]="'step_three.comment_geo_scope'"
@@ -400,7 +403,7 @@
       <div class="grid gap-[10px]">
         <div class="flex flex-col">
           <app-textarea [rows]="5"
-            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
+            [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
             label="Comments, questions or anything else?" [maxLength]="400"
             [signal]="this.createResultManagementService.createOicrBody" [maxLength]="3000"
             [optionValue]="'step_four.general_comment'" placeholder="Write the comments"></app-textarea>

@@ -19,6 +19,7 @@ import { PatchSubmitResultLatest } from '@shared/interfaces/patch_submit-result.
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 import { ProjectResultsTableService } from '@pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
+import { ResultStatus } from '@shared/interfaces/result-config.interface';
 
 @Component({
   selector: 'app-submit-result-content',
@@ -38,6 +39,7 @@ export class SubmitResultContentComponent {
   private readonly router = inject(Router);
 
   form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
+  statusData = signal<Record<number, ResultStatus>>({});
 
   // Adjust header status for latest flow so that tag shows correct status (e.g., Rejected for 7, Postponed for 11)
   headerData = computed(() => {
@@ -72,6 +74,7 @@ export class SubmitResultContentComponent {
           oicr_internal_code: this.submissionService.oicrNo(),
           sharepoint_link: this.submissionService.sharePointFolderLink()
         });
+        this.loadStatuses();
       }
       if (wasVisible && !visible) {
         // Reset disabled options when modal closes
@@ -80,6 +83,24 @@ export class SubmitResultContentComponent {
       }
       wasVisible = visible;
     });
+  }
+
+  private async loadStatuses(): Promise<void> {
+    const statusMap: Record<number, ResultStatus> = {};
+    const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
+    const statusIdsToLoad = isLatest ? [10, 11, 15] : [6, 5, 7];
+    
+    for (const statusId of statusIdsToLoad) {
+      try {
+        const response = await this.api.GET_ResultStatus(statusId);
+        if (response.successfulRequest && response.data) {
+          statusMap[statusId] = response.data;
+        }
+      } catch (error) {
+        console.error(`Error loading status for statusId ${statusId}:`, error);
+      }
+    }
+    this.statusData.set(statusMap);
   }
   setInitialSelectedReviewOption(): void {
     const currentStatusId = this.cache.currentMetadata()?.status_id;
@@ -97,7 +118,7 @@ export class SubmitResultContentComponent {
   private readonly baseReviewOptions: ReviewOption[] = [
     {
       key: 'approve',
-      label: 'Approve',
+      label: '',
       description: 'Approve this result without changes.',
       icon: 'pi-check-circle',
       color: 'text-[#509C55]',
@@ -109,7 +130,7 @@ export class SubmitResultContentComponent {
     },
     {
       key: 'revise',
-      label: 'Revise',
+      label: '',
       description: 'Provide recommendations and changes.',
       icon: 'pi-minus-circle',
       color: 'text-[#e69f00]',
@@ -121,7 +142,7 @@ export class SubmitResultContentComponent {
     },
     {
       key: 'reject',
-      label: 'Reject',
+      label: '',
       description: 'Reject this result and specify the reason.',
       icon: 'pi-times-circle',
       color: 'text-[#cf0808]',
@@ -137,15 +158,24 @@ export class SubmitResultContentComponent {
     const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
     const disablePostpone = this.allModalsService.disablePostponeOption?.() ?? false;
     const disableReject = this.allModalsService.disableRejectOption?.() ?? false;
+    const statusMap = this.statusData();
     return this.baseReviewOptions.map(opt => {
-      if (!isLatest) return opt;
+      const status = statusMap[opt.statusId];
+      const label = status?.name ?? opt.label;
+      const baseOpt = { ...opt, label };
+      
+      if (!isLatest) return baseOpt;
       if (opt.key === 'approve') {
-        return { ...opt, description: 'The development of the OICR will continue with backstopping from the PISA-SPRM team.', statusId: 4 };
+        const approveStatus = statusMap[10];
+        const approveLabel = approveStatus?.name ?? baseOpt.label;
+        return { ...baseOpt, label: approveLabel, description: 'The development of the OICR will continue with backstopping from the PISA-SPRM team.', statusId: 10 };
       }
       if (opt.key === 'revise') {
+        const postponeStatus = statusMap[11];
+        const postponeLabel = postponeStatus?.name ?? '';
         return { 
-          ...opt, 
-          label: 'Postpone', 
+          ...baseOpt, 
+          label: postponeLabel, 
           description: 'Not enough evidence for this reporting year.', 
           commentLabel: 'Justification', 
           placeholder: 'Please briefly elaborate your decision', 
@@ -154,9 +184,11 @@ export class SubmitResultContentComponent {
         };
       }
       if (opt.key === 'reject') {
-        return { ...opt, label: 'Do not approve', commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', disabled: disableReject };
+        const rejectStatus = statusMap[15];
+        const rejectLabel = rejectStatus?.name ?? 'Do not approve';
+        return { ...baseOpt, label: rejectLabel, commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', statusId: 15, disabled: disableReject };
       }
-      return opt;
+      return baseOpt;
     });
   });
 
@@ -270,7 +302,7 @@ export class SubmitResultContentComponent {
     
     if (!selected) return true;
     
-    if (isLatest && (selected?.statusId === 4 || selected?.statusId === 10)) {
+    if (isLatest && selected?.statusId === 10) {
       const form = this.form();
       const allFieldsFilled = form.mel_regional_expert?.trim() && form.oicr_internal_code?.trim();
       const sharepointLink = form.sharepoint_link?.trim();
@@ -344,7 +376,7 @@ export class SubmitResultContentComponent {
 
   async submitReview(): Promise<void> {
     if (this.allModalsService.submitResultOrigin?.() === 'latest') {
-      const isApprove = this.submissionService.statusSelected()?.statusId === 4;
+      const isApprove = this.submissionService.statusSelected()?.statusId === 10;
       const formValue = this.form();
       const body = this.buildLatestBody(isApprove, formValue);
       const response = await this.api.PATCH_SubmitResult(

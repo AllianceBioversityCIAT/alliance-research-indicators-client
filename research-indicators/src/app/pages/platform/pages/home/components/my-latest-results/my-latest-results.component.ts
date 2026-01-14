@@ -7,7 +7,6 @@ import { RouterLink } from '@angular/router';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
-import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 import { LatestResult } from '@shared/interfaces/latest-result.interface';
 
 @Component({
@@ -43,15 +42,21 @@ export class MyLatestResultsComponent implements OnInit {
 
   calculateProgressFor(result: LatestResult): number {
     if (!result) return 0;
-    const greenChecks = this.greenChecksByResult()[result.result_official_code];
+    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+    const greenChecks = this.greenChecksByResult()[resultCode];
     if (!greenChecks) return 0;
     if (!result.indicator) return 0;
+    
+    if (greenChecks.completness === 1) {
+      return 100;
+    }
+    
     const indicatorId = result.indicator.indicator_id;
-
     const steps = this.getSteps(indicatorId);
 
-    const total = steps.length;
-    const completed = steps.filter(key => greenChecks[key] === 1).length;
+    const stepsToUse = steps.filter(key => key !== 'completness');
+    const total = stepsToUse.length;
+    const completed = stepsToUse.filter(key => greenChecks[key] === 1).length;
 
     return total === 0 ? 0 : Math.round((completed / total) * 100);
   }
@@ -66,11 +71,6 @@ export class MyLatestResultsComponent implements OnInit {
       'geo_location',
       'evidences'
     ] as (keyof GreenChecks)[];
-  }
-
-  getStatusColor(result: LatestResult) {
-    const statusId = String(result.result_status?.result_status_id ?? '');
-    return STATUS_COLOR_MAP[statusId]?.text || STATUS_COLOR_MAP[''].text;
   }
 
   truncateTitle(title: string | null | undefined): string {
