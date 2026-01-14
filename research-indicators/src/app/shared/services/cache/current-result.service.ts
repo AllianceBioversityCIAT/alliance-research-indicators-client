@@ -32,6 +32,7 @@ export class CurrentResultService {
   }
 
   validateOpenResult(indicatorId: number, resultStatusId: number) {
-    return indicatorId === 5 || resultStatusId === 9;
+    const isIntermediateStatus = resultStatusId === 10 || resultStatusId === 12 || resultStatusId === 13 || resultStatusId === 14;
+    return indicatorId === 5 || resultStatusId === 9 || isIntermediateStatus;
   }
 }

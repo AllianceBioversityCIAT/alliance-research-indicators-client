@@ -48,6 +48,7 @@ import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
 import { GetYear } from '@shared/interfaces/get-year.interface';
+import { GetNextStep } from '@shared/interfaces/get-next-step.interface';
 import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 import { GetVersions } from '@shared/interfaces/get-versions.interface';
 import { AskForHelp } from '../components/all-modals/modals-content/ask-for-help-modal/interfaces/ask-for-help.interface';
@@ -674,6 +675,28 @@ export class ApiService {
 
   GET_ResultStatus = (id: string | number): Promise<MainResponse<ResultStatus>> => {
     const url = () => `results/status/${id}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_NextStep = (
+    resultCode: number,
+    reportingPlatforms?: string,
+    reportYear?: number
+  ): Promise<MainResponse<GetNextStep>> => {
+    const url = () => {
+      const baseUrl = `results/status/workflow/result/${resultCode}/next-step`;
+      const params: string[] = [];
+      
+      if (reportingPlatforms) {
+        params.push(`reportingPlatforms=${reportingPlatforms}`);
+      }
+      if (reportYear) {
+        params.push(`reportYear=${reportYear}`);
+      }
+      
+      return params.length > 0 ? `${baseUrl}?${params.join('&')}` : baseUrl;
+    };
+    
     return this.TP.get(url(), {});
   };
 

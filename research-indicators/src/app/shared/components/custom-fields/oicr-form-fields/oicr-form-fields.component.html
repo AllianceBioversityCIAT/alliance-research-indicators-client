@@ -8,7 +8,7 @@
         helperText="Pick a contact person from the Alliance staff database who is associated with the result and can provide information as needed. Only one person can be selected."
         [isRequired]="true"
         [signal]="body"
-        [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
+        [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 12 || this.createResultManagementService.statusId() === 13 || this.createResultManagementService.statusId() === 7 || this.createResultManagementService.statusId() === 11"
         [optionValue]="mainContactPersonOptionValue"
         optionLabel="full_name"
         serviceName="userStaff"
