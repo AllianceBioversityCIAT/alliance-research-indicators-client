@@ -362,22 +362,22 @@ describe('ApiService', () => {
 
     it('should call PATCH_SubmitResult with comment', () => {
       const params = { resultCode: 123, comment: 'test comment', status: 1 } as any;
-      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', {}, {
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { submission_comment: 'test comment' }, {
         useResultInterceptor: true
       });
     });
 
     it('should call PATCH_SubmitResult without comment', () => {
       const params = { resultCode: 123, status: 1 } as any;
-      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&status=1', {}, {
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { submission_comment: '' }, {
         useResultInterceptor: true
       });
     });
@@ -385,11 +385,11 @@ describe('ApiService', () => {
     it('should call PATCH_SubmitResult with body', () => {
       const params = { resultCode: 123, comment: 'test comment', status: 1 } as any;
       const body = { test: 'data' } as any;
-      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_SubmitResult(params, body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', body, {
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { ...body, submission_comment: 'test comment' }, {
         useResultInterceptor: true
       });
     });
