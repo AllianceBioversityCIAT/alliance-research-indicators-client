@@ -7,4 +7,7 @@ export interface GreenChecks {
   policy_change?: number;
   cap_sharing_ip?: number;
   completness?: number;
+  link_result?: number;
+  innovation_dev?: number;
+  oicr?: number;
 }
