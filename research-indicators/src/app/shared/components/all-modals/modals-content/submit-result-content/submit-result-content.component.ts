@@ -41,7 +41,6 @@ export class SubmitResultContentComponent {
   form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
   statusData = signal<Record<number, ResultStatus>>({});
 
-  // Adjust header status for latest flow so that tag shows correct status from cache
   headerData = computed(() => {
     const base = this.allModalsService.submitHeader();
     if (!base) return null;

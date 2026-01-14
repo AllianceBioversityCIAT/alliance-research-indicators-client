@@ -142,11 +142,11 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should initialize with correct review options', () => {
-    // Set statusData with the expected labels
+    // Set statusData with the expected labels and action_description
     component.statusData.set({
-      6: { result_status_id: 6, name: 'Approve' } as ResultStatus,
-      5: { result_status_id: 5, name: 'Revise' } as ResultStatus,
-      7: { result_status_id: 7, name: 'Reject' } as ResultStatus
+      6: { result_status_id: 6, name: 'Approve', action_description: 'Approve this result without changes.' } as ResultStatus,
+      5: { result_status_id: 5, name: 'Revise', action_description: 'Provide recommendations and changes.' } as ResultStatus,
+      7: { result_status_id: 7, name: 'Reject', action_description: 'Reject this result and specify the reason.' } as ResultStatus
     });
 
     const options = component.reviewOptions();
@@ -235,11 +235,11 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should set initial selected review option when modal opens', () => {
-    // Set statusData with the expected labels
+    // Set statusData with the expected labels and action_description
     component.statusData.set({
-      6: { result_status_id: 6, name: 'Approve' } as ResultStatus,
-      5: { result_status_id: 5, name: 'Revise' } as ResultStatus,
-      7: { result_status_id: 7, name: 'Reject' } as ResultStatus
+      6: { result_status_id: 6, name: 'Approve', action_description: 'Approve this result without changes.' } as ResultStatus,
+      5: { result_status_id: 5, name: 'Revise', action_description: 'Provide recommendations and changes.' } as ResultStatus,
+      7: { result_status_id: 7, name: 'Reject', action_description: 'Reject this result and specify the reason.' } as ResultStatus
     });
 
     const matchingOption = { 
@@ -486,11 +486,11 @@ describe('SubmitResultContentComponent', () => {
   });
 
   it('should handle latest flow review options', () => {
-    // Set statusData with the expected labels for latest flow
+    // Set statusData with the expected labels and action_description for latest flow
     component.statusData.set({
-      10: { result_status_id: 10, name: 'OICR Accepted' } as ResultStatus,
-      11: { result_status_id: 11, name: 'Postpone' } as ResultStatus,
-      15: { result_status_id: 15, name: 'OICR Not Accepted' } as ResultStatus
+      10: { result_status_id: 10, name: 'OICR Accepted', action_description: 'The development of the OICR will continue with backstopping from the PISA-SPRM team.' } as ResultStatus,
+      11: { result_status_id: 11, name: 'Postpone', action_description: 'Not enough evidence for this reporting year.' } as ResultStatus,
+      15: { result_status_id: 15, name: 'OICR Not Accepted', action_description: 'Reject this result and specify the reason.' } as ResultStatus
     });
 
     mockAllModalsService.submitResultOrigin!.set('latest');
@@ -1162,29 +1162,33 @@ describe('SubmitResultContentComponent', () => {
 
   it('should return modified headerData when latest origin and status_id is 7', () => {
     const baseHeader = { status_id: '6', indicator_id: 1 };
+    const mockResultStatus = { result_status_id: 7, name: 'Reject' } as ResultStatus;
     mockAllModalsService.submitResultOrigin.set('latest');
     mockAllModalsService.submitHeader.set(baseHeader);
-    mockCacheService.currentMetadata.set({ status_id: 7 });
+    mockCacheService.currentMetadata.set({ status_id: 7, result_status: mockResultStatus });
     
     const result = component.headerData();
     
     expect(result).toEqual({
       ...baseHeader,
-      status_id: '7'
+      status_id: '7',
+      status_config: mockResultStatus
     });
   });
 
   it('should return modified headerData when latest origin and status_id is 11', () => {
     const baseHeader = { status_id: '6', indicator_id: 1 };
+    const mockResultStatus = { result_status_id: 11, name: 'Postpone' } as ResultStatus;
     mockAllModalsService.submitResultOrigin.set('latest');
     mockAllModalsService.submitHeader.set(baseHeader);
-    mockCacheService.currentMetadata.set({ status_id: 11 });
+    mockCacheService.currentMetadata.set({ status_id: 11, result_status: mockResultStatus });
     
     const result = component.headerData();
     
     expect(result).toEqual({
       ...baseHeader,
-      status_id: '11'
+      status_id: '11',
+      status_config: mockResultStatus
     });
   });
 
