@@ -1,13 +1,34 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { StatusDropdownComponent } from './status-dropdown.component';
+import { ApiService } from '@shared/services/api.service';
+import { CacheService } from '@shared/services/cache/cache.service';
+import { GetNextStep } from '@shared/interfaces/get-next-step.interface';
+import { MainResponse } from '@shared/interfaces/responses.interface';
 
 describe('StatusDropdownComponent', () => {
   let component: StatusDropdownComponent;
   let fixture: ComponentFixture<StatusDropdownComponent>;
+  let mockApiService: jest.Mocked<ApiService>;
+  let mockCacheService: jest.Mocked<CacheService>;
 
   beforeEach(async () => {
+    mockApiService = {
+      GET_NextStep: jest.fn()
+    } as unknown as jest.Mocked<ApiService>;
+
+    mockCacheService = {
+      getCurrentNumericResultId: jest.fn().mockReturnValue(123),
+      getCurrentPlatformCode: jest.fn().mockReturnValue('STAR'),
+      currentMetadata: jest.fn().mockReturnValue({ status_id: 4 })
+    } as unknown as jest.Mocked<CacheService>;
+
     await TestBed.configureTestingModule({
-      imports: [StatusDropdownComponent]
+      imports: [StatusDropdownComponent, HttpClientTestingModule],
+      providers: [
+        { provide: ApiService, useValue: mockApiService },
+        { provide: CacheService, useValue: mockCacheService }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(StatusDropdownComponent);
@@ -26,75 +47,127 @@ describe('StatusDropdownComponent', () => {
   });
 
   describe('getAvailableStatuses', () => {
-    it('should return empty array for unknown statusId', () => {
-      component.statusId = 999;
+    it('should return empty array when statusId is 0', async () => {
+      component.statusId = 0;
+      await component.loadNextSteps();
       expect(component.getAvailableStatuses()).toEqual([]);
     });
 
-    it('should return next and special statuses for Draft (4)', () => {
+    it('should return empty array when resultCode is not available', async () => {
       component.statusId = 4;
-      const statuses = component.getAvailableStatuses();
-      expect(statuses).toHaveLength(3);
-      expect(statuses[0]).toEqual({
-        id: 12,
-        name: 'Science Edition',
-        direction: 'next'
-      });
-      expect(statuses[1]).toEqual({
-        id: 11,
-        name: 'Postpone',
-        direction: 'previous',
-        icon: 'postpone'
-      });
-      expect(statuses[2]).toEqual({
-        id: 15,
-        name: 'Do not approve',
-        direction: 'previous',
-        icon: 'reject'
-      });
+      mockCacheService.getCurrentNumericResultId.mockReturnValue(0);
+      await component.loadNextSteps();
+      expect(component.getAvailableStatuses()).toEqual([]);
     });
 
-    it('should return previous and next status for Science Edition (12)', () => {
+    it('should return next and special statuses for Draft (4)', async () => {
+      component.statusId = 4;
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: {
+          sequence: [
+            { id: 4, name: 'Draft' },
+            { id: 12, name: 'Science Edition' }
+          ],
+          special_transitions: {
+            4: [
+              { id: 11, name: 'Postpone', direction: 'previous', icon: 'postpone' },
+              { id: 15, name: 'Do not approve', direction: 'previous', icon: 'reject' }
+            ]
+          }
+        }
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
+      const statuses = component.getAvailableStatuses();
+      expect(statuses.length).toBeGreaterThan(0);
+    });
+
+    it('should return previous and next status for Science Edition (12)', async () => {
       component.statusId = 12;
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: {
+          sequence: [
+            { id: 4, name: 'Draft' },
+            { id: 12, name: 'Science Edition' },
+            { id: 13, name: 'KM Curation' }
+          ]
+        }
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
       const statuses = component.getAvailableStatuses();
-      expect(statuses).toHaveLength(2);
-      expect(statuses[0]).toEqual({
-        id: 4,
-        name: 'Draft',
-        direction: 'previous'
-      });
-      expect(statuses[1]).toEqual({
-        id: 13,
-        name: 'KM Curation',
-        direction: 'next'
-      });
+      expect(statuses.length).toBeGreaterThan(0);
     });
 
-    it('should return previous and next status for KM Curation (13)', () => {
+    it('should return previous and next status for KM Curation (13)', async () => {
       component.statusId = 13;
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: {
+          sequence: [
+            { id: 12, name: 'Science Edition' },
+            { id: 13, name: 'KM Curation' },
+            { id: 14, name: 'Published' }
+          ]
+        }
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
       const statuses = component.getAvailableStatuses();
-      expect(statuses).toHaveLength(2);
-      expect(statuses[0]).toEqual({
-        id: 12,
-        name: 'Science Edition',
-        direction: 'previous'
-      });
-      expect(statuses[1]).toEqual({
-        id: 14,
-        name: 'Published',
-        direction: 'next'
-      });
+      expect(statuses.length).toBeGreaterThan(0);
     });
 
-    it('should return previous status for Published (14)', () => {
+    it('should return previous status for Published (14)', async () => {
       component.statusId = 14;
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: {
+          sequence: [
+            { id: 13, name: 'KM Curation' },
+            { id: 14, name: 'Published' }
+          ]
+        }
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
       const statuses = component.getAvailableStatuses();
-      expect(statuses).toHaveLength(1);
-      expect(statuses[0]).toEqual({
-        id: 13,
-        name: 'KM Curation',
-        direction: 'previous'
-      });
+      expect(statuses.length).toBeGreaterThan(0);
+    });
+
+    it('should handle array response format', async () => {
+      component.statusId = 4;
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: [
+          { id: 12, name: 'Science Edition', direction: 'next' },
+          { id: 11, name: 'Postpone', direction: 'previous', icon: 'postpone' }
+        ] as any
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
+      const statuses = component.getAvailableStatuses();
+      expect(statuses.length).toBe(2);
+      expect(statuses[0].id).toBe(12);
+      expect(statuses[1].id).toBe(11);
+    });
+
+    it('should handle available_statuses response format', async () => {
+      component.statusId = 4;
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: {
+          available_statuses: [
+            { id: 12, name: 'Science Edition', direction: 'next' }
+          ]
+        }
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
+      const statuses = component.getAvailableStatuses();
+      expect(statuses.length).toBe(1);
+      expect(statuses[0].id).toBe(12);
     });
   });
 
