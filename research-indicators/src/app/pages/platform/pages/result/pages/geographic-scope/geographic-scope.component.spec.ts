@@ -48,6 +48,7 @@ describe('GeographicScopeComponent', () => {
   const cacheMock = {
     getCurrentNumericResultId: jest.fn().mockReturnValue(123),
     currentResultId: jest.fn().mockReturnValue('PR-1'),
+    currentMetadata: jest.fn().mockReturnValue({ indicator_id: 5 }),
   } as unknown as jest.Mocked<CacheService>;
 
   const actionsMock = {

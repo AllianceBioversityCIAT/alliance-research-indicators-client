@@ -82,8 +82,16 @@ export default class EvidenceComponent {
         await this.getData();
       }
 
-      if (page === 'back') this.cache.currentMetadata().indicator_id === 5 ? this.navigateTo('links-to-result') : this.navigateTo('geographic-scope');
-      if (page === 'next') this.navigateTo('ip-rights');
+      if (page === 'back') {
+        if (this.cache.currentMetadata().indicator_id === 5) {
+          this.navigateTo('links-to-result');
+        } else {
+          this.navigateTo('geographic-scope');
+        }
+      }
+      if (page === 'next') {
+        this.navigateTo('ip-rights');
+      }
     } finally {
       this.setLoading(false);
     }
