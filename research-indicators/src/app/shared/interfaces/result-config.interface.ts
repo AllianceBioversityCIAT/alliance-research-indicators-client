@@ -19,6 +19,7 @@ export interface ResultStatus {
   result_status_id?: number;
   name?: string;
   description?: string;
+  action_description?: string;
   editable_roles?: number[];
   config?: StatusConfig;
 }

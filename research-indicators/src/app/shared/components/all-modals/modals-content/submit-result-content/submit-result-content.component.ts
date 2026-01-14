@@ -41,18 +41,20 @@ export class SubmitResultContentComponent {
   form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
   statusData = signal<Record<number, ResultStatus>>({});
 
-  // Adjust header status for latest flow so that tag shows correct status (e.g., Rejected for 7, Postponed for 11)
   headerData = computed(() => {
     const base = this.allModalsService.submitHeader();
     if (!base) return null;
 
     if (this.allModalsService.submitResultOrigin?.() === 'latest') {
-      const currentStatusId = this.cache.currentMetadata()?.status_id;
-      if (currentStatusId === 7 || currentStatusId === 11) {
+      const currentMetadata = this.cache.currentMetadata();
+      const currentStatusId = currentMetadata?.status_id;
+      const resultStatus = currentMetadata?.result_status;
+      
+      if (currentStatusId != null && resultStatus) {
         return {
           ...base,
           status_id: String(currentStatusId),
-          status_config: this.cache.currentMetadata()?.result_status
+          status_config: resultStatus
         };
       }
     }
@@ -119,7 +121,7 @@ export class SubmitResultContentComponent {
     {
       key: 'approve',
       label: '',
-      description: 'Approve this result without changes.',
+      description: '',
       icon: 'pi-check-circle',
       color: 'text-[#509C55]',
       message: 'Once this result is approved, no further changes will be allowed.',
@@ -131,7 +133,7 @@ export class SubmitResultContentComponent {
     {
       key: 'revise',
       label: '',
-      description: 'Provide recommendations and changes.',
+      description: '',
       icon: 'pi-minus-circle',
       color: 'text-[#e69f00]',
       message: 'The result submitter will address the provided recommendations and resubmit for review.',
@@ -143,7 +145,7 @@ export class SubmitResultContentComponent {
     {
       key: 'reject',
       label: '',
-      description: 'Reject this result and specify the reason.',
+      description: '',
       icon: 'pi-times-circle',
       color: 'text-[#cf0808]',
       message: 'If the result is rejected, it can no longer be edited or resubmitted.',
@@ -162,21 +164,24 @@ export class SubmitResultContentComponent {
     return this.baseReviewOptions.map(opt => {
       const status = statusMap[opt.statusId];
       const label = status?.name ?? opt.label;
-      const baseOpt = { ...opt, label };
+      const description = status?.action_description ?? opt.description;
+      const baseOpt = { ...opt, label, description };
       
       if (!isLatest) return baseOpt;
       if (opt.key === 'approve') {
         const approveStatus = statusMap[10];
         const approveLabel = approveStatus?.name ?? baseOpt.label;
-        return { ...baseOpt, label: approveLabel, description: 'The development of the OICR will continue with backstopping from the PISA-SPRM team.', statusId: 10 };
+        const approveDescription = approveStatus?.action_description ?? baseOpt.description;
+        return { ...baseOpt, label: approveLabel, description: approveDescription, statusId: 10 };
       }
       if (opt.key === 'revise') {
         const postponeStatus = statusMap[11];
         const postponeLabel = postponeStatus?.name ?? '';
+        const postponeDescription = postponeStatus?.action_description ?? baseOpt.description;
         return { 
           ...baseOpt, 
           label: postponeLabel, 
-          description: 'Not enough evidence for this reporting year.', 
+          description: postponeDescription, 
           commentLabel: 'Justification', 
           placeholder: 'Please briefly elaborate your decision', 
           statusId: 11,
@@ -186,7 +191,8 @@ export class SubmitResultContentComponent {
       if (opt.key === 'reject') {
         const rejectStatus = statusMap[15];
         const rejectLabel = rejectStatus?.name ?? 'Do not approve';
-        return { ...baseOpt, label: rejectLabel, commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', statusId: 15, disabled: disableReject };
+        const rejectDescription = rejectStatus?.action_description ?? baseOpt.description;
+        return { ...baseOpt, label: rejectLabel, description: rejectDescription, commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', statusId: 15, disabled: disableReject };
       }
       return baseOpt;
     });

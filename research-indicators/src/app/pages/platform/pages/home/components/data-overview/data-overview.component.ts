@@ -5,7 +5,6 @@ import { ApiService } from '@shared/services/api.service';
 import { ChartModule } from 'primeng/chart';
 import { Chart } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 interface Indicator {
@@ -68,8 +67,7 @@ export class DataOverviewComponent implements OnInit {
     const labels = filteredData.map((item: any) => item.name);
     const amounts = filteredData.map((item: any) => item.amount_results);
     const backgroundColors = filteredData.map((item: any) => {
-    const statusKey = String(item.result_status_id);
-    return STATUS_COLOR_MAP[statusKey]?.text || STATUS_COLOR_MAP[''].border;
+      return item.result_status?.config?.color?.text || '#1689CA';
     });
     
     this.chartLegend.set(

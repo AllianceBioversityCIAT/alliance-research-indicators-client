@@ -579,9 +579,51 @@ export const submissionServiceMock = {
 
 export const mockResultsStatus = {
   data: [
-    { name: 'Status 1', amount_results: 5, result_status_id: 1 },
-    { name: 'Status 2', amount_results: 3, result_status_id: 2 },
-    { name: 'Status 3', amount_results: 0, result_status_id: 3 }
+    { 
+      name: 'Status 1', 
+      amount_results: 5, 
+      result_status_id: 1,
+      result_status: {
+        name: 'Status 1',
+        config: {
+          color: {
+            text: '#173F6F',
+            border: '#7C9CB9',
+            background: null
+          }
+        }
+      }
+    },
+    { 
+      name: 'Status 2', 
+      amount_results: 3, 
+      result_status_id: 2,
+      result_status: {
+        name: 'Status 2',
+        config: {
+          color: {
+            text: '#7CB580',
+            border: '#A8CEAB',
+            background: null
+          }
+        }
+      }
+    },
+    { 
+      name: 'Status 3', 
+      amount_results: 0, 
+      result_status_id: 3,
+      result_status: {
+        name: 'Status 3',
+        config: {
+          color: {
+            text: '#F58220',
+            border: '#F58220',
+            background: null
+          }
+        }
+      }
+    }
   ]
 };
 
