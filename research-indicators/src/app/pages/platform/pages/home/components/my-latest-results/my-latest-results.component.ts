@@ -67,6 +67,8 @@ export class MyLatestResultsComponent implements OnInit {
       'alignment',
       ...(indicatorId === 1 ? ['cap_sharing', 'cap_sharing_ip'] as (keyof GreenChecks)[] : []),
       ...(indicatorId === 4 ? ['policy_change'] as (keyof GreenChecks)[] : []),
+      ...(indicatorId === 5 ? ['link_result', 'oicr'] as (keyof GreenChecks)[] : []),
+      ...(indicatorId === 2 ? ['innovation_dev'] as (keyof GreenChecks)[] : []),
       'partners',
       'geo_location',
       'evidences'

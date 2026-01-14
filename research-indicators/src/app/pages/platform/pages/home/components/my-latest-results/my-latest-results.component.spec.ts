@@ -132,6 +132,7 @@ describe('MyLatestResultsComponent', () => {
         [resultCode]: {
           general_information: 1,
           alignment: 1,
+          innovation_dev: 1,
           partners: 1,
           geo_location: 1,
           evidences: 1
