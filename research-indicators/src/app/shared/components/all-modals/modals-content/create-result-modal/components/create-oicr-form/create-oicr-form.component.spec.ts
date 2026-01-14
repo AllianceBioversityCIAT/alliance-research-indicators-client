@@ -1850,8 +1850,8 @@ describe('CreateOicrFormComponent', () => {
       expect(mockApiService.GET_SubmitionHistory).toHaveBeenCalled();
     });
 
-    it('should load submission history when statusId is 7', async () => {
-      mockCreateResultManagementService.statusId.set(7);
+    it('should load submission history when statusId is 15', async () => {
+      mockCreateResultManagementService.statusId.set(15);
       mockApiService.GET_SubmitionHistory.mockResolvedValue({
         data: [{ id: 1, submission_comment: 'Test' }]
       });
@@ -1864,7 +1864,7 @@ describe('CreateOicrFormComponent', () => {
       expect(mockApiService.GET_SubmitionHistory).toHaveBeenCalled();
     });
 
-    it('should not load submission history when statusId is not 11 or 7', () => {
+    it('should not load submission history when statusId is not 11 or 15', () => {
       mockCreateResultManagementService.statusId.set(5);
       mockApiService.GET_SubmitionHistory.mockClear();
       
@@ -2064,19 +2064,6 @@ describe('CreateOicrFormComponent', () => {
   });
 
 
-  describe('getColors', () => {
-    it('should return colors for status id', () => {
-      mockCreateResultManagementService.statusId.set(5);
-      const colors = component.getColors();
-      expect(colors).toBeDefined();
-    });
-
-    it('should return default colors when status not found', () => {
-      mockCreateResultManagementService.statusId.set(999);
-      const colors = component.getColors();
-      expect(colors).toBeDefined();
-    });
-  });
 
   describe('getStatusIcon', () => {
     it('should return correct icon for status 11', () => {
@@ -2084,8 +2071,8 @@ describe('CreateOicrFormComponent', () => {
       expect(component.getStatusIcon()).toBe('pi pi-minus-circle');
     });
 
-    it('should return correct icon for status 7', () => {
-      mockCreateResultManagementService.statusId.set(7);
+    it('should return correct icon for status 15', () => {
+      mockCreateResultManagementService.statusId.set(15);
       expect(component.getStatusIcon()).toBe('pi pi-times-circle');
     });
 
@@ -2295,8 +2282,8 @@ describe('CreateOicrFormComponent', () => {
       expect(mockAllModalsService.disableRejectOption.set).toHaveBeenCalledWith(false);
     });
 
-    it('should disable reject option when statusId is 7', () => {
-      mockCreateResultManagementService.statusId.set(7);
+    it('should disable reject option when statusId is 15', () => {
+      mockCreateResultManagementService.statusId.set(15);
       const mockContract = {
         agreement_id: '123',
         description: 'Test',
