@@ -22,7 +22,8 @@ describe('resultExistsResolver', () => {
     };
 
     const routerMock = {
-      navigate: jest.fn()
+      navigate: jest.fn(),
+      url: ''
     };
 
     const routeMock = {
@@ -39,7 +40,12 @@ describe('resultExistsResolver', () => {
     const cacheServiceMock = {
       projectResultsSearchValue: {
         set: jest.fn()
-      }
+      },
+      dataCache: jest.fn().mockReturnValue({
+        user: {
+          user_role_list: []
+        }
+      })
     };
 
     TestBed.configureTestingModule({
@@ -593,6 +599,7 @@ describe('resultExistsResolver', () => {
       result_title: 'Test Project'
     });
     currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
 
     // Act
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
@@ -600,10 +607,10 @@ describe('resultExistsResolver', () => {
     // Assert
     expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 4);
-    expect(router.navigate).not.toHaveBeenCalled();
-    expect(cacheService.projectResultsSearchValue.set).not.toHaveBeenCalled();
-    expect(currentResultService.openEditRequestdOicrsModal).not.toHaveBeenCalled();
-    expect(result).toBe(true);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 4, 3);
+    expect(result).toBe(false);
   });
 
   it('should return true when validateOpenResult returns true and status_id is draft (14)', async () => {
@@ -619,6 +626,11 @@ describe('resultExistsResolver', () => {
       result_title: 'Test Project'
     });
     currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    cacheService.dataCache = jest.fn().mockReturnValue({
+      user: {
+        user_role_list: [{ role_id: 9 }] // Admin user
+      }
+    });
 
     // Act
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
@@ -643,6 +655,11 @@ describe('resultExistsResolver', () => {
       result_title: 'Test Project'
     });
     currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    cacheService.dataCache = jest.fn().mockReturnValue({
+      user: {
+        user_role_list: [{ role_id: 9 }] // Admin user
+      }
+    });
 
     // Act
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
@@ -667,6 +684,11 @@ describe('resultExistsResolver', () => {
       result_title: 'Test Project'
     });
     currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    cacheService.dataCache = jest.fn().mockReturnValue({
+      user: {
+        user_role_list: [{ role_id: 9 }] // Admin user
+      }
+    });
 
     // Act
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
