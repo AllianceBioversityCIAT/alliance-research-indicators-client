@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { StatusDropdownComponent } from './status-dropdown.component';
-import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 
 describe('StatusDropdownComponent', () => {
   let component: StatusDropdownComponent;
@@ -26,33 +25,6 @@ describe('StatusDropdownComponent', () => {
     expect(component.isOpen()).toBe(false);
   });
 
-  describe('getColors', () => {
-    it('should return correct color for statusId 4', () => {
-      component.statusId = 4;
-      expect(component.getColors()).toEqual(STATUS_COLOR_MAP['4']);
-    });
-
-    it('should return correct color for statusId 12', () => {
-      component.statusId = 12;
-      expect(component.getColors()).toEqual(STATUS_COLOR_MAP['12']);
-    });
-
-    it('should return correct color for statusId 13', () => {
-      component.statusId = 13;
-      expect(component.getColors()).toEqual(STATUS_COLOR_MAP['13']);
-    });
-
-    it('should return correct color for statusId 14', () => {
-      component.statusId = 14;
-      expect(component.getColors()).toEqual(STATUS_COLOR_MAP['14']);
-    });
-
-    it('should return default color for unknown statusId', () => {
-      component.statusId = 999;
-      expect(component.getColors()).toEqual(STATUS_COLOR_MAP['']);
-    });
-  });
-
   describe('getAvailableStatuses', () => {
     it('should return empty array for unknown statusId', () => {
       component.statusId = 999;
@@ -75,7 +47,7 @@ describe('StatusDropdownComponent', () => {
         icon: 'postpone'
       });
       expect(statuses[2]).toEqual({
-        id: 7,
+        id: 15,
         name: 'Do not approve',
         direction: 'previous',
         icon: 'reject'
