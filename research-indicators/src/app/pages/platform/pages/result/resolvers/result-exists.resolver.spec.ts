@@ -613,7 +613,7 @@ describe('resultExistsResolver', () => {
     expect(result).toBe(false);
   });
 
-  it('should return true when validateOpenResult returns true and status_id is draft (14)', async () => {
+  it('should return false and open modal when validateOpenResult returns true and status_id is Published (14)', async () => {
     // Arrange
     const id = 123;
     route.paramMap.get = jest.fn().mockReturnValue(id.toString());
@@ -626,6 +626,7 @@ describe('resultExistsResolver', () => {
       result_title: 'Test Project'
     });
     currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
     cacheService.dataCache = jest.fn().mockReturnValue({
       user: {
         user_role_list: [{ role_id: 9 }] // Admin user
@@ -638,11 +639,13 @@ describe('resultExistsResolver', () => {
     // Assert
     expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 14);
-    expect(router.navigate).not.toHaveBeenCalled();
-    expect(result).toBe(true);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 14, 3);
+    expect(result).toBe(false);
   });
 
-  it('should return true when validateOpenResult returns true and status_id is draft (12)', async () => {
+  it('should return false and open modal when validateOpenResult returns true and status_id is Science Edition (12)', async () => {
     // Arrange
     const id = 123;
     route.paramMap.get = jest.fn().mockReturnValue(id.toString());
@@ -655,6 +658,7 @@ describe('resultExistsResolver', () => {
       result_title: 'Test Project'
     });
     currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
     cacheService.dataCache = jest.fn().mockReturnValue({
       user: {
         user_role_list: [{ role_id: 9 }] // Admin user
@@ -667,11 +671,13 @@ describe('resultExistsResolver', () => {
     // Assert
     expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 12);
-    expect(router.navigate).not.toHaveBeenCalled();
-    expect(result).toBe(true);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 12, 3);
+    expect(result).toBe(false);
   });
 
-  it('should return true when validateOpenResult returns true and status_id is draft (13)', async () => {
+  it('should return false and open modal when validateOpenResult returns true and status_id is KM Curation (13)', async () => {
     // Arrange
     const id = 123;
     route.paramMap.get = jest.fn().mockReturnValue(id.toString());
@@ -684,6 +690,7 @@ describe('resultExistsResolver', () => {
       result_title: 'Test Project'
     });
     currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
     cacheService.dataCache = jest.fn().mockReturnValue({
       user: {
         user_role_list: [{ role_id: 9 }] // Admin user
@@ -696,7 +703,9 @@ describe('resultExistsResolver', () => {
     // Assert
     expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 13);
-    expect(router.navigate).not.toHaveBeenCalled();
-    expect(result).toBe(true);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 13, 3);
+    expect(result).toBe(false);
   });
 });
