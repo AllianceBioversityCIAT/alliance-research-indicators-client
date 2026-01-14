@@ -4,6 +4,7 @@ import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { Result, ResultConfig, ResultFilter } from '../interfaces/result/result.interface';
+import { ResultStatus } from '../interfaces/result-config.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
 import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
@@ -663,6 +664,11 @@ export class ApiService {
 
   GET_ReviewStatuses = () => {
     const url = () => `results/status/review-statuses`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ResultStatus = (id: string | number): Promise<MainResponse<ResultStatus>> => {
+    const url = () => `results/status/${id}`;
     return this.TP.get(url(), {});
   };
 
