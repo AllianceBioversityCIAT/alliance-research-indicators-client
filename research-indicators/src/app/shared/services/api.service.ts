@@ -654,9 +654,11 @@ export class ApiService {
     { resultCode, comment, status }: PatchSubmitResult,
     body?: PatchSubmitResultLatest
   ): Promise<MainResponse<PatchSubmitResult | ExtendedHttpErrorResponse>> => {
-    const commentQuery = comment ? `&comment=${comment}` : '';
-    const url = () => `results/green-checks/change/status?resultCode=${resultCode}${commentQuery}&status=${status}`;
-    return this.TP.patch(url(), body ?? {}, { useResultInterceptor: true });
+    const url = () => `results/status/workflow/change-status/${resultCode}/to-status/${status}`;
+    const requestBody: PatchSubmitResultLatest = body 
+      ? { ...body, submission_comment: comment ?? '' }
+      : { submission_comment: comment ?? '' };
+    return this.TP.post(url(), requestBody, { useResultInterceptor: true });
   };
 
   GET_ReviewStatuses = () => {
