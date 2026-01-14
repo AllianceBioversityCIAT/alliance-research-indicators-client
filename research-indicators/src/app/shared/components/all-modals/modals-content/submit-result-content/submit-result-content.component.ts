@@ -41,18 +41,21 @@ export class SubmitResultContentComponent {
   form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
   statusData = signal<Record<number, ResultStatus>>({});
 
-  // Adjust header status for latest flow so that tag shows correct status (e.g., Rejected for 7, Postponed for 11)
+  // Adjust header status for latest flow so that tag shows correct status from cache
   headerData = computed(() => {
     const base = this.allModalsService.submitHeader();
     if (!base) return null;
 
     if (this.allModalsService.submitResultOrigin?.() === 'latest') {
-      const currentStatusId = this.cache.currentMetadata()?.status_id;
-      if (currentStatusId === 7 || currentStatusId === 11) {
+      const currentMetadata = this.cache.currentMetadata();
+      const currentStatusId = currentMetadata?.status_id;
+      const resultStatus = currentMetadata?.result_status;
+      
+      if (currentStatusId != null && resultStatus) {
         return {
           ...base,
           status_id: String(currentStatusId),
-          status_config: this.cache.currentMetadata()?.result_status
+          status_config: resultStatus
         };
       }
     }
