@@ -48,7 +48,7 @@ export default class EvidenceComponent {
     this.loading.set(isLoading);
   }
 
-  private navigateTo(path: 'links-to-result' | 'ip-rights'): void {
+  private navigateTo(path: 'links-to-result' | 'ip-rights' | 'geographic-scope'): void {
     const version = this.route.snapshot.queryParamMap.get('version');
     const queryParams = version ? { version } : undefined;
     this.router.navigate(['result', this.cache.currentResultId(), path], {
@@ -82,7 +82,7 @@ export default class EvidenceComponent {
         await this.getData();
       }
 
-      if (page === 'back') this.navigateTo('links-to-result');
+      if (page === 'back') this.cache.currentMetadata().indicator_id === 5 ? this.navigateTo('links-to-result') : this.navigateTo('geographic-scope');
       if (page === 'next') this.navigateTo('ip-rights');
     } finally {
       this.setLoading(false);
