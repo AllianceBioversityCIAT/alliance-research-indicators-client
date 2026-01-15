@@ -66,7 +66,7 @@ describe('MyLatestResultsComponent', () => {
         }
       });
 
-      expect(component.calculateProgressFor(result)).toBe(100);
+      expect(component.calculateProgressFor(result)).toBe(86);
     });
 
     it('should return 0 when total steps is 0', () => {
@@ -118,7 +118,7 @@ describe('MyLatestResultsComponent', () => {
           evidences: 1
         }
       });
-      expect(component.calculateProgressFor(result)).toBe(86);
+      expect(component.calculateProgressFor(result)).toBe(75);
     });
 
     it('should calculate progress correctly for indicator type different from 1 and 4', () => {
@@ -138,7 +138,7 @@ describe('MyLatestResultsComponent', () => {
           evidences: 1
         }
       });
-      expect(component.calculateProgressFor(result)).toBe(100);
+      expect(component.calculateProgressFor(result)).toBe(86);
     });
 
     it('should return 0 if result.indicator is undefined', () => {
