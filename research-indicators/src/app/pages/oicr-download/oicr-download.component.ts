@@ -7,21 +7,7 @@ import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 @Component({
   selector: 'app-oicr-download',
   standalone: true,
-  template: `
-    <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; gap: 1rem;">
-      @if (processing()) {
-        <div>
-          <p>Generating OICR template...</p>
-          <p>Please wait while we prepare your document.</p>
-        </div>
-      } @else if (result && !result.success) {
-        <div style="color: red;">
-          <p>Error generating template:</p>
-          <p>{{ result.error || result.message || 'Unknown error' }}</p>
-        </div>
-      }
-    </div>
-  `
+  templateUrl: './oicr-download.component.html'
 })
 export default class OicrDownloadComponent implements OnInit {
   wasm = inject(WasmService);
