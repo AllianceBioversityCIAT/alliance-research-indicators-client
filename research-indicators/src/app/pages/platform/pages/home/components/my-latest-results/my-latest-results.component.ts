@@ -71,7 +71,8 @@ export class MyLatestResultsComponent implements OnInit {
       ...(indicatorId === 2 ? ['innovation_dev'] as (keyof GreenChecks)[] : []),
       'partners',
       'geo_location',
-      'evidences'
+      'evidences',
+      indicatorId === 1 || indicatorId === 2 ? 'ip_rights' : []
     ] as (keyof GreenChecks)[];
   }
 
