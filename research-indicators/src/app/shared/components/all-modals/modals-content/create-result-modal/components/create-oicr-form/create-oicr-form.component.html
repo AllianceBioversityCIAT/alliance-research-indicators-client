@@ -15,7 +15,8 @@
 
 <ng-template #createButton>
   @if (this.createResultManagementService.statusId() !== 10 && this.createResultManagementService.statusId() !== 15 &&
-  this.createResultManagementService.statusId() !== 11) {
+  this.createResultManagementService.statusId() !== 11 && this.createResultManagementService.statusId() !== 12 &&
+  this.createResultManagementService.statusId() !== 13 && this.createResultManagementService.statusId() !== 14) {
   @if (this.createResultManagementService.editingOicr() && !canEditOicr) {
   <div class="bg-[#F6FAF7] border border-[#358540] rounded-[13px] px-4 py-3 flex items-center gap-3">
     <i class="pi pi-check-circle text-[#358540]"></i>
