@@ -37,7 +37,6 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
 
   if (currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
     const isDraft =  (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
-    console.log(isDraft, rolesService.isAdmin());
     if (!isDraft || (isDraft && !rolesService.isAdmin())) {
       router.navigate(['/project-detail', result_contract_id]);
       if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');

@@ -7,6 +7,7 @@ import { resultExistsResolver } from './result-exists.resolver';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
 import { CacheService } from '@shared/services/cache/cache.service';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 describe('resultExistsResolver', () => {
   let metadataService: any;
@@ -15,6 +16,7 @@ describe('resultExistsResolver', () => {
   let injector: any;
   let currentResultService: any;
   let cacheService: any;
+  let rolesService: any;
 
   beforeEach(() => {
     const metadataServiceMock = {
@@ -48,6 +50,10 @@ describe('resultExistsResolver', () => {
       })
     };
 
+    const rolesServiceMock = {
+      isAdmin: jest.fn().mockReturnValue(false)
+    };
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -55,7 +61,8 @@ describe('resultExistsResolver', () => {
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: routeMock },
         { provide: CurrentResultService, useValue: currentResultServiceMock },
-        { provide: CacheService, useValue: cacheServiceMock }
+        { provide: CacheService, useValue: cacheServiceMock },
+        { provide: RolesService, useValue: rolesServiceMock }
       ]
     });
 
@@ -65,6 +72,7 @@ describe('resultExistsResolver', () => {
     route = TestBed.inject(ActivatedRoute);
     currentResultService = TestBed.inject(CurrentResultService);
     cacheService = TestBed.inject(CacheService);
+    rolesService = TestBed.inject(RolesService);
   });
 
   it('should return true when metadata service update succeeds', async () => {
@@ -659,11 +667,7 @@ describe('resultExistsResolver', () => {
     });
     currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
     router.url = '/some-other-path';
-    cacheService.dataCache = jest.fn().mockReturnValue({
-      user: {
-        user_role_list: [{ role_id: 9 }] // Admin user
-      }
-    });
+    rolesService.isAdmin = jest.fn().mockReturnValue(false); // Not admin - should open modal
 
     // Act
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
@@ -691,11 +695,7 @@ describe('resultExistsResolver', () => {
     });
     currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
     router.url = '/some-other-path';
-    cacheService.dataCache = jest.fn().mockReturnValue({
-      user: {
-        user_role_list: [{ role_id: 9 }] // Admin user
-      }
-    });
+    rolesService.isAdmin = jest.fn().mockReturnValue(false); // Not admin - should open modal
 
     // Act
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
