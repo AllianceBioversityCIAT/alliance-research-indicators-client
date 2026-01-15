@@ -48,7 +48,7 @@ export class SubmissionService {
   refreshSubmissionHistory = signal(0);
 
   isEditableStatus = computed(() => {
-    const editableStatuses = [4, 5, 12, 13,14];
+    const editableStatuses = [4, 5, 12, 13, 10];
     const hasEditableStatus = editableStatuses.includes(this.cache.currentMetadata().status_id ?? -1);
     const platformCode = this.cache.getCurrentPlatformCode();
     const isStarPlatform = platformCode === 'STAR';
