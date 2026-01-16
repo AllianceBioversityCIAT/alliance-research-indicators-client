@@ -15,19 +15,19 @@
     <div class="flex items-center gap-2.5 py-2 px-5 cursor-pointer hover:bg-[#F4F7F9] transition-colors"
       (click)="selectStatus(status.id, $event)" (keydown.enter)="selectStatus(status.id, $event)">
       <div class="w-4 h-4 flex items-center justify-center">
-        @if (status.icon === 'reject') {
+        @if (status.transition_direction === 'unknown' && status.result_status_id === 15) {
         <div class="p-1.5 bg-[#FFF3F3] rounded-sm flex items-center justify-center">
           <i class="pi pi-times-circle !text-[13px] text-[#cf0808]"></i>
         </div>
-        } @else if (status.icon === 'postpone') {
+        } @else if (status.transition_direction === 'unknown' && status.result_status_id === 11) {
         <div class="p-1.5 bg-[#FFF6ED] rounded-sm flex items-center justify-center">
           <i class="pi pi-minus-circle !text-[13px] text-[#e69f00]"></i>
         </div>
-        } @else if (status.direction === 'previous') {
+        } @else if (status.transition_direction === 'backward' || status.direction === 'previous') {
         <div class="p-1.5 bg-[#E8EBED] rounded-sm flex items-center justify-center">
           <i class="pi pi-arrow-left !text-[12px] text-[#212121]"></i>
         </div>
-        } @else {
+        } @else if (status.transition_direction === 'forward' || status.direction === 'next') {
         <div class="p-1.5 bg-[#E8EBED] rounded-sm flex items-center justify-center">
           <i class="pi pi-arrow-right !text-[12px] text-[#212121]"></i>
         </div>

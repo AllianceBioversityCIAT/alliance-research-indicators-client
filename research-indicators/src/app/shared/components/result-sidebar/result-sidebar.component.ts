@@ -259,11 +259,24 @@ export class ResultSidebarComponent {
       return {
         severity: 'warning',
         summary: 'POSTPONE THIS OICR?',
-        detail: `You are about to postpone the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
-        placeholder: 'Provide the justification to postpone this OICR',
+        detail: `You are about to <span class="font-medium">postpone</span> the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
+        placeholder: 'TProvide the justification to reject this OICR.',
         icon: 'pi pi-minus-circle',
-        iconClass: 'text-[#e69f00]',
-        color: '#FFB547',
+        iconClass: 'text-[#E69F00]',
+        color: '#E69F00',
+        commentAsTextArea: true
+      };
+    }
+
+    if (statusId === 15) {
+      return {
+        severity: 'error',
+        summary: 'REJECT THIS OICR?',
+        detail: `You are about to <span class="font-medium">reject</span> the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
+        placeholder: 'Provide the justification to reject this OICR',
+        icon: 'pi pi-times-circle',
+        iconClass: 'text-[#CF0808]',
+        color: '#CF0808',
         commentAsTextArea: true
       };
     }
@@ -301,7 +314,7 @@ export class ResultSidebarComponent {
           detail: 'The status has been updated successfully'
         });
 
-        if (status === 11 || status === 7) {
+        if (status === 11 || status === 15 || status === 7) {
           await this.handlePostponeOrRejectRedirect();
         }
       } else {

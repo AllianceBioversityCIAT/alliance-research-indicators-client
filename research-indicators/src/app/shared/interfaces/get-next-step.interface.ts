@@ -2,6 +2,7 @@ export interface NextStepOption {
   id: number;
   name: string;
   direction?: 'previous' | 'next';
+  transition_direction?: 'forward' | 'backward' | 'unknown';
   icon?: 'reject' | 'postpone';
   result_status_id?: number;
   [key: string]: string | number | undefined;

@@ -532,7 +532,7 @@ describe('ResultSidebarComponent', () => {
           severity: 'warning',
           summary: 'POSTPONE THIS OICR?',
           detail: expect.stringContaining('Test Result'),
-          placeholder: 'Provide the justification to postpone this OICR'
+          placeholder: 'TProvide the justification to reject this OICR.'
         })
       );
     });
