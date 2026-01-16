@@ -61,14 +61,10 @@ export class StatusDropdownComponent implements OnInit, OnChanges {
             icon: item.icon
           })));
         } else if (response.data.available_statuses) {
-          this.availableStatuses.set(response.data.available_statuses.map((item: any) => ({
+          this.availableStatuses.set(response.data.available_statuses.map((item: NextStepOption) => ({
+            ...item,
             id: item.result_status_id || item.id,
-            result_status_id: item.result_status_id,
-            name: item.name,
-            direction: item.direction,
-            transition_direction: item.transition_direction,
-            icon: item.icon,
-            ...item
+            result_status_id: item.result_status_id
           })));
         } else if (response.data.data && Array.isArray(response.data.data)) {
           this.availableStatuses.set(response.data.data.map(item => ({
