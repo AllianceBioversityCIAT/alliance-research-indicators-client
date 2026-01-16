@@ -321,6 +321,27 @@ export class ResultSidebarComponent implements OnInit {
       if (response.successfulRequest) {
         await this.metadata.update(this.cache.getCurrentNumericResultId());
         
+        const { indicator_id, status_id, result_contract_id, result_title, result_official_code } = 
+          this.cache.currentMetadata() || {};
+
+        if (this.currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
+          const isDraft = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
+          if (!isDraft || (isDraft && !this.roles.isAdmin())) {
+            if (result_contract_id) {
+              this.router.navigate(['/project-detail', result_contract_id]);
+              if (!this.router.url.includes('/project-detail/')) {
+                this.cache.projectResultsSearchValue.set(result_title ?? '');
+              }
+              await this.currentResultService.openEditRequestdOicrsModal(
+                indicator_id ?? 0,
+                status_id ?? 0,
+                result_official_code ?? 0
+              );
+              return;
+            }
+          }
+        }
+
         this.actions.showToast({
           severity: 'success',
           summary: 'Status updated',
