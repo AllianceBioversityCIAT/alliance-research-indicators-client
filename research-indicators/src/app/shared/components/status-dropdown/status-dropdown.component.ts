@@ -54,17 +54,25 @@ export class StatusDropdownComponent implements OnInit, OnChanges {
         if (Array.isArray(response.data)) {
           this.availableStatuses.set(response.data.map(item => ({
             id: item.result_status_id || item.id,
+            result_status_id: item.result_status_id,
             name: item.name,
             direction: item.direction,
+            transition_direction: item.transition_direction,
             icon: item.icon
           })));
         } else if (response.data.available_statuses) {
-          this.availableStatuses.set(response.data.available_statuses);
+          this.availableStatuses.set(response.data.available_statuses.map((item: NextStepOption) => ({
+            ...item,
+            id: item.result_status_id || item.id,
+            result_status_id: item.result_status_id
+          })));
         } else if (response.data.data && Array.isArray(response.data.data)) {
           this.availableStatuses.set(response.data.data.map(item => ({
             id: item.result_status_id || item.id,
+            result_status_id: item.result_status_id,
             name: item.name,
             direction: item.direction,
+            transition_direction: item.transition_direction,
             icon: item.icon
           })));
         } else {
@@ -117,7 +125,15 @@ export class StatusDropdownComponent implements OnInit, OnChanges {
   }
 
   getAvailableStatuses(): NextStepOption[] {
-    return this.availableStatuses();
+    const statuses = this.availableStatuses();
+    return [...statuses].sort((a, b) => {
+      const aIsBackward = a.transition_direction === 'backward' || a.direction === 'previous';
+      const bIsBackward = b.transition_direction === 'backward' || b.direction === 'previous';
+      
+      if (aIsBackward && !bIsBackward) return 1;
+      if (!aIsBackward && bIsBackward) return -1;
+      return 0;
+    });
   }
 
   toggleDropdown(event: Event) {
