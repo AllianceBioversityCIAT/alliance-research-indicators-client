@@ -74,9 +74,8 @@
     <i class="pi pi-pencil pl-2 !text-[12px]"></i>
   </button>
   }
-  @if (cache.currentMetadata().indicator_id !== 5 && (roles.isAdmin() ||
-  cache.currentMetadata().is_principal_investigator
-  || this.cache.isMyResult())) {
+  @if (cache.currentMetadata().indicator_id !== 5 && !cache.currentMetadata().is_principal_investigator &&
+  (roles.isAdmin() || this.cache.isMyResult())) {
   <button
     class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl transition-all duration-300"
     [ngClass]="{
@@ -89,6 +88,21 @@
     [disabled]="!submissionService.currentResultIsSubmitted() && !submissionService.canSubmitResult() "
     (click)="submmitConfirm()">
     {{ submissionService.currentResultIsSubmitted() ? 'Unsubmit Result' : 'Submit Result' }}
+    <i [ngClass]="submissionService.currentResultIsSubmitted() ? '' : 'pi pi-check'" class="pl-2 !text-[12px]"></i>
+  </button>
+  }
+  @if (cache.currentMetadata().indicator_id !== 5 && cache.currentMetadata().is_principal_investigator) {
+  <button
+    class="font-medium cursor-pointer disabled:cursor-default disabled:bg-[#E8EBED] disabled:text-[#A2A9AF] text-sm text-white mx-[25px] mb-[25px] px-6 py-2.5 rounded-xl transition-all duration-300"
+    [ngClass]="{
+          'bg-[#035BA9]': cache.currentMetadata().status_id !== 6,
+          'bg-[#E8EBED] !text-[#8D9299]': cache.currentMetadata().status_id === 6
+        }"
+    [pTooltip]="!submissionService.currentResultIsSubmitted() && !cache.allGreenChecksAreTrue() ? 'This button will become available once all sections are completed.' : ''"
+    tooltipPosition="bottom"
+    [disabled]="!submissionService.currentResultIsSubmitted() && !submissionService.canSubmitResult() "
+    (click)="approveResult()">
+    Approve Result
     <i [ngClass]="submissionService.currentResultIsSubmitted() ? '' : 'pi pi-check'" class="pl-2 !text-[12px]"></i>
   </button>
   }

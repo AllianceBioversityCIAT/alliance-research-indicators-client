@@ -197,6 +197,13 @@ export class ResultSidebarComponent {
     });
   }
 
+  async approveResult() {
+    await this.api.PATCH_SubmitResult({
+      resultCode: this.cache.getCurrentNumericResultId(),
+      status: 6
+    });
+  }
+
   navigateTo(option: SidebarOption, event: Event) {
     if (option.disabled) {
       event.preventDefault();
