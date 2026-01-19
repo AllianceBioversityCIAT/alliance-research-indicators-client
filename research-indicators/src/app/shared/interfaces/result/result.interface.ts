@@ -9,6 +9,7 @@ export interface Result {
   title: string;
   platform_code: string;
   external_link?: string;
+  public_link?: string;
   description: null | string;
   indicator_id: number;
   geo_scope_id: null;
