@@ -313,38 +313,7 @@ export class ResultSidebarComponent {
       });
 
       if (response.successfulRequest) {
-        await this.metadata.update(this.cache.getCurrentNumericResultId());
-        
-        const { indicator_id, status_id, result_contract_id, result_title, result_official_code } = 
-          this.cache.currentMetadata() || {};
-
-        if (this.currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
-          const isDraft = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
-          if (!isDraft || (isDraft && !this.roles.isAdmin())) {
-            if (result_contract_id) {
-              this.router.navigate(['/project-detail', result_contract_id]);
-              if (!this.router.url.includes('/project-detail/')) {
-                this.cache.projectResultsSearchValue.set(result_title ?? '');
-              }
-              await this.currentResultService.openEditRequestdOicrsModal(
-                indicator_id ?? 0,
-                status_id ?? 0,
-                result_official_code ?? 0
-              );
-              return;
-            }
-          }
-        }
-
-        this.actions.showToast({
-          severity: 'success',
-          summary: 'Status updated',
-          detail: 'The status has been updated successfully'
-        });
-
-        if (status === 11 || status === 15 || status === 7) {
-          await this.handlePostponeOrRejectRedirect();
-        }
+        await this.handleSuccessfulStatusUpdate(status);
       } else {
         this.actions.showToast({
           severity: 'error',
@@ -359,6 +328,41 @@ export class ResultSidebarComponent {
         summary: 'Error',
         detail: 'Unable to update status, please try again'
       });
+    }
+  }
+
+  private async handleSuccessfulStatusUpdate(status: number): Promise<void> {
+    await this.metadata.update(this.cache.getCurrentNumericResultId());
+    
+    const { indicator_id, status_id, result_contract_id, result_title, result_official_code } = 
+      this.cache.currentMetadata() || {};
+
+    if (this.currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
+      const isDraft = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
+      if (!isDraft || (isDraft && !this.roles.isAdmin())) {
+        if (result_contract_id) {
+          this.router.navigate(['/project-detail', result_contract_id]);
+          if (!this.router.url.includes('/project-detail/')) {
+            this.cache.projectResultsSearchValue.set(result_title ?? '');
+          }
+          await this.currentResultService.openEditRequestdOicrsModal(
+            indicator_id ?? 0,
+            status_id ?? 0,
+            result_official_code ?? 0
+          );
+          return;
+        }
+      }
+    }
+
+    this.actions.showToast({
+      severity: 'success',
+      summary: 'Status updated',
+      detail: 'The status has been updated successfully'
+    });
+
+    if (status === 11 || status === 15 || status === 7) {
+      await this.handlePostponeOrRejectRedirect();
     }
   }
 
