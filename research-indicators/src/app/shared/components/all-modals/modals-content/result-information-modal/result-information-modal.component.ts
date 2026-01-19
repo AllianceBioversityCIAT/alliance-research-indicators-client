@@ -81,6 +81,16 @@ export class ResultInformationModalComponent {
       globalThis.open(link, '_blank', 'noopener');
     }
   }
+
+  openDocumentLink(): void {
+    const currentResult = this.result();
+    const link = currentResult?.public_link;
+    if (!currentResult || !link) return;
+
+    if (currentResult.platform_code === PLATFORM_CODES.AICCRA) {
+      globalThis.open(link, '_blank', 'noopener');
+    }
+  }
 }
 
 
