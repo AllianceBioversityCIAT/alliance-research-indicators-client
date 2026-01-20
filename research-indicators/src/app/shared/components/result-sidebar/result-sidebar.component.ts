@@ -284,25 +284,12 @@ export class ResultSidebarComponent implements OnInit {
     if (statusId === 15) {
       return {
         severity: 'error',
-        summary: 'REJECT THIS OICR?',
-        detail: `You are about to <span class="font-medium">reject</span> the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
+        summary: 'DO NOT ACCEPT this OICR?',
+        detail: `You are about to <span class="font-medium">not accept</span> the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
         placeholder: 'Provide the justification to reject this OICR',
         icon: 'pi pi-times-circle',
         iconClass: 'text-[#CF0808]',
         color: '#CF0808',
-        commentAsTextArea: true
-      };
-    }
-
-    if (statusId === 7) {
-      return {
-        severity: 'error',
-        summary: 'REJECT THIS OICR?',
-        detail: `You are about to reject the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
-        placeholder: 'Provide the justification to reject this OICR',
-        icon: 'pi pi-times-circle',
-        iconClass: 'text-[#CF0808]',
-        color: '#FF5050',
         commentAsTextArea: true
       };
     }

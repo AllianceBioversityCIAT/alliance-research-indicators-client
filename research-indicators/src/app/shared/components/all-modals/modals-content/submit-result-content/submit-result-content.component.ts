@@ -400,6 +400,14 @@ export class SubmitResultContentComponent {
       this.submissionService.comment.set('');
       this.submissionService.statusSelected.set(null);
       
+      // Clean up all data when confirming
+      this.allModalsService.setSubmitResultOrigin(null);
+      this.allModalsService.setSubmitHeader(null);
+      this.allModalsService.setSubmitBackStep(null);
+      this.allModalsService.clearSubmissionData();
+      this.allModalsService.submitBackAction = undefined;
+      this.allModalsService.createResultManagementService.resetModal();
+      
       this.allModalsService.closeModal('submitResult');
       await this.refreshTables();
       this.actions.showGlobalAlert({

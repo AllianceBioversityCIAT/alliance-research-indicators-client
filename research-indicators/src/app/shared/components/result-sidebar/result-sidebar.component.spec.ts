@@ -538,19 +538,19 @@ describe('ResultSidebarComponent', () => {
       );
     });
 
-    it('should show special alert for status 7 (reject)', async () => {
+    it('should show special alert for status 15 (not accept)', async () => {
       cacheService.currentMetadata?.set({
         indicator_id: 1,
         result_title: 'Test Result',
         status_id: 1
       });
 
-      await component.onStatusChange(7);
+      await component.onStatusChange(15);
 
       expect(actionsService.showGlobalAlert).toHaveBeenCalledWith(
         expect.objectContaining({
           severity: 'error',
-          summary: 'REJECT THIS OICR?',
+          summary: 'DO NOT ACCEPT this OICR?',
           detail: expect.stringContaining('Test Result'),
           placeholder: 'Provide the justification to reject this OICR'
         })
@@ -641,18 +641,18 @@ describe('ResultSidebarComponent', () => {
       expect(alertCall.summary).toBe('POSTPONE THIS OICR?');
     });
 
-    it('should handle getSpecialStatusAlert with null result_title for status 7', async () => {
+    it('should handle getSpecialStatusAlert with null result_title for status 15', async () => {
       cacheService.currentMetadata?.set({
         indicator_id: 1,
         result_title: null as any,
         status_id: 1
       });
 
-      await component.onStatusChange(7);
+      await component.onStatusChange(15);
 
       const alertCall = (actionsService.showGlobalAlert as jest.Mock).mock.calls[0][0];
       expect(alertCall).toBeDefined();
-      expect(alertCall.summary).toBe('REJECT THIS OICR?');
+      expect(alertCall.summary).toBe('DO NOT ACCEPT this OICR?');
     });
   });
 
