@@ -164,14 +164,6 @@ export class AllModalsService {
       }
     }));
 
-    if (modalName === 'submitResult' && !this.modalConfig().submitResult.isOpen) {
-      this.setSubmitResultOrigin(null);
-      this.setSubmitHeader(null);
-      this.setSubmitBackStep(null);
-      this.clearSubmissionData();
-      this.createResultManagementService.resetModal();
-    }
-
     if (modalName === 'createResult') {
       this.createResultManagementService.resetModal();
     }
@@ -206,14 +198,6 @@ export class AllModalsService {
         isWide: false
       }
     }));
-
-    if (modalName === 'submitResult') {
-      this.setSubmitResultOrigin(null);
-      this.setSubmitHeader(null);
-      this.setSubmitBackStep(null);
-      this.clearSubmissionData();
-      this.createResultManagementService.resetModal();
-    }
 
     if (modalName === 'createResult') {
       this.createResultManagementService.resetModal();

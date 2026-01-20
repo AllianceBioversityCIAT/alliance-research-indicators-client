@@ -34,8 +34,17 @@ describe('SubmitResultContentComponent', () => {
       setSubmitBackAction: jest.fn(),
       closeModal: jest.fn(),
       closeAllModals: jest.fn(),
+      setSubmitResultOrigin: jest.fn(),
+      setSubmitHeader: jest.fn(),
+      setSubmitBackStep: jest.fn(),
+      clearSubmissionData: jest.fn(),
       submitResultOrigin: signal(null),
       submitHeader: signal(null),
+      submitBackStep: signal(null),
+      submitBackAction: undefined,
+      createResultManagementService: {
+        resetModal: jest.fn()
+      },
       disablePostponeOption: Object.assign(() => false, { set: jest.fn() }) as any,
       disableRejectOption: Object.assign(() => false, { set: jest.fn() }) as any,
       modalConfig: signal({
@@ -573,6 +582,11 @@ describe('SubmitResultContentComponent', () => {
       }
     );
 
+    expect(mockAllModalsService.setSubmitResultOrigin).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitBackStep).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.clearSubmissionData).toHaveBeenCalled();
+    expect(mockAllModalsService.createResultManagementService.resetModal).toHaveBeenCalled();
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
     expect(mockActionsService.showGlobalAlert).toHaveBeenCalledWith({
       severity: 'success',
@@ -610,6 +624,11 @@ describe('SubmitResultContentComponent', () => {
       undefined
     );
 
+    expect(mockAllModalsService.setSubmitResultOrigin).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitBackStep).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.clearSubmissionData).toHaveBeenCalled();
+    expect(mockAllModalsService.createResultManagementService.resetModal).toHaveBeenCalled();
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
     expect(mockActionsService.showGlobalAlert).toHaveBeenCalledWith({
       severity: 'success',
@@ -652,6 +671,11 @@ describe('SubmitResultContentComponent', () => {
     await component.submitReview();
 
     expect(mockApiService.PATCH_SubmitResult).toHaveBeenCalled();
+    expect(mockAllModalsService.setSubmitResultOrigin).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitBackStep).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.clearSubmissionData).toHaveBeenCalled();
+    expect(mockAllModalsService.createResultManagementService.resetModal).toHaveBeenCalled();
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
     expect(mockActionsService.showGlobalAlert).toHaveBeenCalledWith({
       severity: 'success',
@@ -1016,6 +1040,11 @@ describe('SubmitResultContentComponent', () => {
 
     await component.submitReview();
 
+    expect(mockAllModalsService.setSubmitResultOrigin).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitBackStep).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.clearSubmissionData).toHaveBeenCalled();
+    expect(mockAllModalsService.createResultManagementService.resetModal).toHaveBeenCalled();
     expect(mockActionsService.showGlobalAlert).toHaveBeenCalledWith({
       severity: 'success',
       summary: 'Review submitted successfully',

@@ -76,7 +76,8 @@ describe('CreateOicrFormComponent', () => {
       statusId: signal(9),
       setModalTitle: jest.fn(),
       setStatusId: jest.fn(),
-      clearOicrBody: jest.fn()
+      clearOicrBody: jest.fn(),
+      resetModal: jest.fn()
     };
 
     mockAllModalsService = {
@@ -86,7 +87,10 @@ describe('CreateOicrFormComponent', () => {
       setSubmitBackStep: jest.fn(),
       setSubmitHeader: jest.fn(),
       setSubmitBackAction: jest.fn(),
+      clearSubmissionData: jest.fn(),
       openModal: jest.fn(),
+      submitBackAction: undefined,
+      createResultManagementService: mockCreateResultManagementService,
       disablePostponeOption: Object.assign(() => false, { set: jest.fn() }) as any,
       disableRejectOption: Object.assign(() => false, { set: jest.fn() }) as any
     };
@@ -836,8 +840,12 @@ describe('CreateOicrFormComponent', () => {
     
     await component.handleSubmitBack();
     
+    expect(mockAllModalsService.setSubmitResultOrigin).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitBackStep).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.clearSubmissionData).toHaveBeenCalled();
+    expect(mockAllModalsService.createResultManagementService.resetModal).toHaveBeenCalled();
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
-    expect(mockCreateResultManagementService.setStatusId).toHaveBeenCalledWith(null);
     // This test covers the handleSubmitBack method logic
   });
 
@@ -848,8 +856,12 @@ describe('CreateOicrFormComponent', () => {
     
     await component.handleSubmitBack();
     
+    expect(mockAllModalsService.setSubmitResultOrigin).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.setSubmitBackStep).toHaveBeenCalledWith(null);
+    expect(mockAllModalsService.clearSubmissionData).toHaveBeenCalled();
+    expect(mockAllModalsService.createResultManagementService.resetModal).toHaveBeenCalled();
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
-    expect(mockCreateResultManagementService.setStatusId).toHaveBeenCalledWith(null);
     // This test covers the handleSubmitBack method with no metadata
   });
 

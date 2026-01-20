@@ -604,8 +604,15 @@ export class CreateOicrFormComponent implements OnInit {
   }
 
   async handleSubmitBack(): Promise<void> {
+    // Clean up all data when canceling
+    this.allModalsService.setSubmitResultOrigin(null);
+    this.allModalsService.setSubmitHeader(null);
+    this.allModalsService.setSubmitBackStep(null);
+    this.allModalsService.clearSubmissionData();
+    this.allModalsService.submitBackAction = undefined;
+    this.allModalsService.createResultManagementService.resetModal();
+    
     this.allModalsService.closeModal('submitResult');
-    this.createResultManagementService.setStatusId(null);
     
     const currentMetadata = this.cache.currentMetadata();
     if (currentMetadata?.indicator_id && currentMetadata?.status_id) {

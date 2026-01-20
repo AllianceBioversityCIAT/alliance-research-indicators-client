@@ -254,7 +254,7 @@ describe('AllModalsService', () => {
       expect(service.modalConfig().createResult.isOpen).toBe(false);
     });
 
-    it('should handle submitResult modal toggle with cleanup', () => {
+    it('should handle submitResult modal toggle without cleanup', () => {
       service.setSubmitResultOrigin('latest');
       service.setSubmitHeader(mockOicrHeaderData);
       service.setSubmitBackStep(5);
@@ -263,9 +263,10 @@ describe('AllModalsService', () => {
       expect(service.modalConfig().submitResult.isOpen).toBe(true);
       
       service.toggleModal('submitResult');
-      expect(service.submitResultOrigin()).toBeNull();
-      expect(service.submitHeader()).toBeNull();
-      expect(service.submitBackStep()).toBeNull();
+      // Data should NOT be cleaned up when toggling (only on Confirm/Cancel)
+      expect(service.submitResultOrigin()).toBe('latest');
+      expect(service.submitHeader()).toBe(mockOicrHeaderData);
+      expect(service.submitBackStep()).toBe(5);
     });
 
     it('should handle createResult modal toggle', () => {
@@ -301,16 +302,17 @@ describe('AllModalsService', () => {
       expect(config.createResult.isWide).toBe(false);
     });
 
-    it('should handle submitResult modal close with cleanup', () => {
+    it('should handle submitResult modal close without cleanup', () => {
       service.setSubmitResultOrigin('latest');
       service.setSubmitHeader(mockOicrHeaderData);
       service.setSubmitBackStep(5);
       
       service.closeModal('submitResult');
       
-      expect(service.submitResultOrigin()).toBeNull();
-      expect(service.submitHeader()).toBeNull();
-      expect(service.submitBackStep()).toBeNull();
+      // Data should NOT be cleaned up when closing (only on Confirm/Cancel)
+      expect(service.submitResultOrigin()).toBe('latest');
+      expect(service.submitHeader()).toBe(mockOicrHeaderData);
+      expect(service.submitBackStep()).toBe(5);
     });
 
     it('should handle createResult modal close', () => {
