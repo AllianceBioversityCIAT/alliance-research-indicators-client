@@ -43,7 +43,19 @@ describe('SubmitResultContentComponent', () => {
       submitBackStep: signal(null),
       submitBackAction: undefined,
       createResultManagementService: {
-        resetModal: jest.fn()
+        resetModal: jest.fn(),
+        currentRequestedResultCode: { set: jest.fn() },
+        createOicrBody: signal({
+          base_information: {
+            title: 'Test OICR Title'
+          }
+        }),
+        clearOicrBody: jest.fn(),
+        setStatusId: jest.fn(),
+        editingOicr: { set: jest.fn() },
+        autofillinOicr: { set: jest.fn() },
+        year: { set: jest.fn() },
+        oicrPrimaryOptionsDisabled: { set: jest.fn() }
       },
       disablePostponeOption: Object.assign(() => false, { set: jest.fn() }) as any,
       disableRejectOption: Object.assign(() => false, { set: jest.fn() }) as any,
@@ -81,7 +93,8 @@ describe('SubmitResultContentComponent', () => {
       lastVersionParam: { set: jest.fn() },
       liveVersionData: { set: jest.fn() },
       versionsList: { set: jest.fn() },
-      currentMetadata: signal({ status_id: 2 })
+      currentMetadata: signal({ status_id: 2 }),
+      projectResultsSearchValue: { set: jest.fn() }
     };
 
     mockSubmissionService = {

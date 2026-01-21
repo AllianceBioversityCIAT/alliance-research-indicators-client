@@ -134,6 +134,10 @@ export class CreateResultFormComponent {
     { allowSignalWrites: true }
   );
 
+  get currentYear(): number {
+    return new Date().getFullYear();
+  }
+
   get isYearMissing(): boolean {
     return !this.body()?.year;
   }
@@ -170,7 +174,14 @@ export class CreateResultFormComponent {
   }
 
   onIndicatorChange(newIndicatorId: number | null) {
-    this.body.update(b => ({ ...b, indicator_id: newIndicatorId }));
+    this.body.update(b => {
+      const updatedBody = { ...b, indicator_id: newIndicatorId };
+      // If indicator is OICR (5), preselect year 2025
+      if (newIndicatorId === 5) {
+        updatedBody.year = 2025;
+      }
+      return updatedBody;
+    });
     this.maybeShowW1W2Alert();
   }
 

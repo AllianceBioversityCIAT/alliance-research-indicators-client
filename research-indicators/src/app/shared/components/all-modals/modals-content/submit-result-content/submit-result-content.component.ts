@@ -20,6 +20,7 @@ import { CurrentResultService } from '@shared/services/cache/current-result.serv
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 import { ProjectResultsTableService } from '@pages/platform/pages/project-detail/pages/project-results-table/project-results-table.service';
 import { ResultStatus } from '@shared/interfaces/result-config.interface';
+import { CreateResultManagementService } from '../create-result-modal/services/create-result-management.service';
 
 @Component({
   selector: 'app-submit-result-content',
@@ -37,7 +38,7 @@ export class SubmitResultContentComponent {
   projectResultsTableService = inject(ProjectResultsTableService);
   resultsCenterService = inject(ResultsCenterService);
   private readonly router = inject(Router);
-
+  createResultManagementService = inject(CreateResultManagementService);
   form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
   statusData = signal<Record<number, ResultStatus>>({});
 
@@ -352,7 +353,6 @@ export class SubmitResultContentComponent {
     this.cache.lastVersionParam.set(null);
     this.cache.liveVersionData.set(null);
     this.cache.versionsList.set([]);
-
     const currentPath = this.router.url.split('?')[0];
     await this.router.navigate([currentPath], { queryParams: {}, replaceUrl: true });
 
@@ -400,13 +400,7 @@ export class SubmitResultContentComponent {
       this.submissionService.comment.set('');
       this.submissionService.statusSelected.set(null);
       
-      // Clean up all data when confirming
-      this.allModalsService.setSubmitResultOrigin(null);
-      this.allModalsService.setSubmitHeader(null);
-      this.allModalsService.setSubmitBackStep(null);
-      this.allModalsService.clearSubmissionData();
-      this.allModalsService.submitBackAction = undefined;
-      this.allModalsService.createResultManagementService.resetModal();
+  this.cleanUpSubmitResultData();
       
       this.allModalsService.closeModal('submitResult');
       await this.refreshTables();
@@ -430,4 +424,25 @@ export class SubmitResultContentComponent {
       }
     }
   }
+
+  private cleanUpSubmitResultData(): void {
+    // Clean up all data when confirming
+    this.allModalsService.setSubmitResultOrigin(null);
+    this.allModalsService.setSubmitHeader(null);
+    this.allModalsService.setSubmitBackStep(null);
+    this.allModalsService.clearSubmissionData();
+    this.allModalsService.submitBackAction = undefined;
+    this.allModalsService.createResultManagementService.resetModal();
+
+    this.createResultManagementService.currentRequestedResultCode.set(null);
+    this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
+    this.createResultManagementService.clearOicrBody();
+    this.createResultManagementService.setStatusId(null);
+    this.createResultManagementService.editingOicr.set(false);
+    this.createResultManagementService.autofillinOicr.set(false);
+    this.createResultManagementService.currentRequestedResultCode.set(null);
+    this.createResultManagementService.year.set(null);
+    this.createResultManagementService.oicrPrimaryOptionsDisabled.set([]);
+    this.createResultManagementService.clearOicrBody();
+  };
 }
