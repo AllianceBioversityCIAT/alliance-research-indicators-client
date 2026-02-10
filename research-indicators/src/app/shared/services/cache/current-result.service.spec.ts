@@ -154,7 +154,7 @@ describe('CurrentResultService', () => {
       await service.openEditRequestdOicrsModal(5, 1, 123);
 
       expect(mockCreateResultManagement.createOicrBody.set).toHaveBeenCalledWith({
-        step_three: { comment_geo_scope: '' },
+        step_three: { comment_geo_scope: '', countries: [], regions: [], geo_scope_id: undefined },
         base_information: { contract_id: 'C-456', title: 'Title' }
       });
     });
@@ -169,7 +169,7 @@ describe('CurrentResultService', () => {
       await service.openEditRequestdOicrsModal(5, 1, 123);
 
       expect(mockCreateResultManagement.createOicrBody.set).toHaveBeenCalledWith({
-        step_three: { comment_geo_scope: '' },
+        step_three: { comment_geo_scope: '', countries: [], regions: [], geo_scope_id: undefined },
         base_information: { contract_id: 'C-456', title: 'Title' }
       });
     });
@@ -184,7 +184,7 @@ describe('CurrentResultService', () => {
       await service.openEditRequestdOicrsModal(5, 1, 123);
 
       expect(mockCreateResultManagement.createOicrBody.set).toHaveBeenCalledWith({
-        step_three: { comment_geo_scope: 'existing comment' },
+        step_three: { comment_geo_scope: 'existing comment', countries: [], regions: [], geo_scope_id: undefined },
         base_information: { contract_id: 'C-456', title: 'Title' }
       });
     });
