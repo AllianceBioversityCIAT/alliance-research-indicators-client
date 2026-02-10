@@ -198,10 +198,25 @@ export class ResultSidebarComponent {
   }
 
   async approveResult() {
-    await this.api.PATCH_SubmitResult({
+    const response = await this.api.PATCH_SubmitResult({
       resultCode: this.cache.getCurrentNumericResultId(),
       status: 6
     });
+    if (response.successfulRequest) {
+      await this.metadata.update(this.cache.getCurrentNumericResultId());
+      this.submissionService.refreshSubmissionHistory.update(v => v + 1);
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Result approved',
+        detail: 'The result has been approved successfully.'
+      });
+    } else {
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Error',
+        detail: response.errorDetail?.errors || 'Unable to approve result, please try again.'
+      });
+    }
   }
 
   navigateTo(option: SidebarOption, event: Event) {
