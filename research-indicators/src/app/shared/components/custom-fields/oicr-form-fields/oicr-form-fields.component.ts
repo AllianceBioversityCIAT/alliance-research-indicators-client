@@ -14,6 +14,7 @@ import { WordCountService } from '@shared/services/word-count.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { CreateResultManagementService } from '../../all-modals/modals-content/create-result-modal/services/create-result-management.service';
+import { normalizeStepThree } from '@shared/utils/geographic-scope.util';
 
 type OicrFormBody = OicrCreation | PatchOicr;
 
@@ -95,7 +96,8 @@ export class OicrFormFieldsComponent {
     const response = await this.api.GET_OICRMetadata(externalOicrId);
     if (!response.successfulRequest) return;
     // Pre-fill OICR form fields with metadata
-    response.data.step_three.comment_geo_scope = response.data.step_three.comment_geo_scope || '';
+    const stepThree = normalizeStepThree(response.data.step_three);
+    stepThree.comment_geo_scope = stepThree.comment_geo_scope || '';
     this.createResultManagementService.createOicrBody.update(b => {
       const primaryLeverIds = b.step_two.primary_lever.map(pl => Number(pl.lever_id));
       return {
@@ -113,7 +115,7 @@ export class OicrFormFieldsComponent {
               lever_id: Number(cl.lever_id)
             }))
         },
-        step_three: response.data.step_three
+        step_three: stepThree
       };
     });
     this.createResultManagementService.autofillinOicr.set(false);

@@ -101,3 +101,31 @@ export function shouldShowSubnationalError(geoScopeId: number, countries?: Count
     country => !country.result_countries_sub_nationals_signal?.() || (country.result_countries_sub_nationals_signal()?.regions?.length ?? 0) === 0
   );
 }
+
+export function normalizeStepThree<
+  T extends { geo_scope_id?: number; countries?: unknown[]; regions?: unknown[]; comment_geo_scope?: string | null }
+>(stepThree: T): T {
+  const geoScopeId = stepThree?.geo_scope_id != null ? Number(stepThree.geo_scope_id) : undefined;
+  const isGlobal = geoScopeId === 1;
+  const rawCountries = Array.isArray(stepThree?.countries) ? stepThree.countries : [];
+  const rawRegions = Array.isArray(stepThree?.regions) ? stepThree.regions : [];
+  const countries = isGlobal
+    ? []
+    : rawCountries.filter((c: unknown) => {
+        const co = c as { isoAlpha2?: string };
+        return co?.isoAlpha2 != null && String(co.isoAlpha2).trim() !== '';
+      });
+  const regions = isGlobal
+    ? []
+    : rawRegions.filter((r: unknown) => {
+        const re = r as { region_id?: number | null };
+        return re?.region_id != null;
+      });
+  return {
+    ...stepThree,
+    geo_scope_id: geoScopeId,
+    countries,
+    regions,
+    comment_geo_scope: stepThree?.comment_geo_scope ?? ''
+  } as T;
+}
