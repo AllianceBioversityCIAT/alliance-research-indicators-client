@@ -4,11 +4,16 @@
   flex-direction: column;
   background-color: #fcfcfc;
   height: 100%;
+  max-height: 100vh;
   max-width: 339px;
   border-left: 1px solid #e8ebed;
   width: 339px;
   z-index: 1;
   right: 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 5.5rem;
   hr {
     border: 0;
     border-top: 1px solid #dee2e6;
