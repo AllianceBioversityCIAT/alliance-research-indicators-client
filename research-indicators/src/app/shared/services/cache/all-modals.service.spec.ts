@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { AllModalsService } from './all-modals.service';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { SubmissionService } from '@shared/services/submission.service';
@@ -31,8 +32,9 @@ describe('AllModalsService', () => {
   };
 
   beforeEach(() => {
+    const resultPageStepSignal = signal(1);
     const createResultManagementServiceSpy = {
-      resultPageStep: jest.fn().mockReturnValue(1),
+      resultPageStep: resultPageStepSignal,
       editingOicr: jest.fn().mockReturnValue(false),
       resetModal: jest.fn()
     };
@@ -163,6 +165,38 @@ describe('AllModalsService', () => {
       service.setSubmitBackAction(mockFn);
       expect(service.submitBackAction).toBe(mockFn);
     });
+
+    it('should set selectLinkedResultsConfirm', () => {
+      const mockFn = jest.fn();
+      service.setSelectLinkedResultsConfirm(mockFn);
+      expect(service.selectLinkedResultsConfirm).toBe(mockFn);
+    });
+
+    it('should set disabledSelectLinkedResults', () => {
+      const mockFn = jest.fn().mockReturnValue(true);
+      service.setDisabledSelectLinkedResults(mockFn);
+      expect(service.disabledSelectLinkedResults).toBe(mockFn);
+    });
+
+    it('should set refreshLinkedResults', () => {
+      const mockFn = jest.fn().mockResolvedValue(undefined);
+      service.setRefreshLinkedResults(mockFn);
+      expect(service.refreshLinkedResults).toBe(mockFn);
+    });
+
+    it('should set refreshLinkedResults to undefined', () => {
+      service.setRefreshLinkedResults(undefined);
+      expect(service.refreshLinkedResults).toBeUndefined();
+    });
+
+    it('should initialize syncSelectedResults signal', () => {
+      expect(service.syncSelectedResults()).toEqual([]);
+    });
+
+    it('should set syncSelectedResults signal', () => {
+      service.syncSelectedResults.set([mockResult]);
+      expect(service.syncSelectedResults()).toEqual([mockResult]);
+    });
   });
 
   describe('setSubmitResultOrigin', () => {
@@ -220,7 +254,7 @@ describe('AllModalsService', () => {
       expect(service.modalConfig().createResult.isOpen).toBe(false);
     });
 
-    it('should handle submitResult modal toggle with cleanup', () => {
+    it('should handle submitResult modal toggle without cleanup', () => {
       service.setSubmitResultOrigin('latest');
       service.setSubmitHeader(mockOicrHeaderData);
       service.setSubmitBackStep(5);
@@ -229,9 +263,10 @@ describe('AllModalsService', () => {
       expect(service.modalConfig().submitResult.isOpen).toBe(true);
       
       service.toggleModal('submitResult');
-      expect(service.submitResultOrigin()).toBeNull();
-      expect(service.submitHeader()).toBeNull();
-      expect(service.submitBackStep()).toBeNull();
+      // Data should NOT be cleaned up when toggling (only on Confirm/Cancel)
+      expect(service.submitResultOrigin()).toBe('latest');
+      expect(service.submitHeader()).toBe(mockOicrHeaderData);
+      expect(service.submitBackStep()).toBe(5);
     });
 
     it('should handle createResult modal toggle', () => {
@@ -267,16 +302,17 @@ describe('AllModalsService', () => {
       expect(config.createResult.isWide).toBe(false);
     });
 
-    it('should handle submitResult modal close with cleanup', () => {
+    it('should handle submitResult modal close without cleanup', () => {
       service.setSubmitResultOrigin('latest');
       service.setSubmitHeader(mockOicrHeaderData);
       service.setSubmitBackStep(5);
       
       service.closeModal('submitResult');
       
-      expect(service.submitResultOrigin()).toBeNull();
-      expect(service.submitHeader()).toBeNull();
-      expect(service.submitBackStep()).toBeNull();
+      // Data should NOT be cleaned up when closing (only on Confirm/Cancel)
+      expect(service.submitResultOrigin()).toBe('latest');
+      expect(service.submitHeader()).toBe(mockOicrHeaderData);
+      expect(service.submitBackStep()).toBe(5);
     });
 
     it('should handle createResult modal close', () => {
@@ -451,11 +487,24 @@ describe('AllModalsService', () => {
   });
 
   describe('Effect in constructor', () => {
-    it('should update modal when resultPageStep changes', () => {
-      // The effect is already triggered in the constructor
-      // We just need to verify the service is working correctly
+    it('should update modal when resultPageStep changes', async () => {
+      // Wait for the effect to run initially
+      await new Promise(resolve => setTimeout(resolve, 0));
+      
+      // Verify initial state
       expect(service).toBeTruthy();
       expect(mockCreateResultManagementService.resultPageStep).toBeDefined();
+      
+      // Change the resultPageStep signal to trigger the effect
+      const resultPageStepSignal = mockCreateResultManagementService.resultPageStep as ReturnType<typeof signal>;
+      resultPageStepSignal.set(2);
+      
+      // Wait for the effect to run
+      await new Promise(resolve => setTimeout(resolve, 0));
+      
+      // Verify updateModal was called (indirectly through the effect)
+      const config = service.modalConfig();
+      expect(config.createResult.title).toBe('Create A Result');
     });
   });
 
@@ -499,15 +548,26 @@ describe('AllModalsService', () => {
       expect(config.createResult.iconAction).toBeUndefined();
     });
 
-    it('should cover lines 121-122 in constructor effect', () => {
+    it('should cover constructor effect execution', async () => {
       // This test ensures the effect in the constructor is properly covered
       // The effect calls updateModal with the current step from createResultManagementService
-      const currentStep = mockCreateResultManagementService.resultPageStep();
+      await new Promise(resolve => setTimeout(resolve, 0));
+      
+      const resultPageStepSignal = mockCreateResultManagementService.resultPageStep as ReturnType<typeof signal>;
+      const currentStep = resultPageStepSignal();
       expect(currentStep).toBe(1);
       
       // Verify the service is properly initialized
       expect(service).toBeTruthy();
       expect(service.modalConfig()).toBeDefined();
+      
+      // Change the step to trigger the effect again and cover lines 135-136
+      resultPageStepSignal.set(3);
+      await new Promise(resolve => setTimeout(resolve, 0));
+      
+      // Verify updateModal was called through the effect
+      const config = service.modalConfig();
+      expect(config.createResult.title).toBe('Create A Result');
     });
   });
 });

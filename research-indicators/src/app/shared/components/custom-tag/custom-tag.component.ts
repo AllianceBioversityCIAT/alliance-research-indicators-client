@@ -1,15 +1,23 @@
 import { Component, Input } from '@angular/core';
 import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-custom-tag',
-  imports: [],
+  imports: [TooltipModule],
   templateUrl: './custom-tag.component.html'
 })
 export class CustomTagComponent {
   @Input() statusId: string | number = '';
   @Input() statusName = '';
+  @Input() statusColor?: string;
+  @Input() statusBackground?: string;
+  @Input() statusBorder?: string;
   @Input() tiny = false;
+  @Input() icon = false;
+  @Input() iconColor?: string;
+  @Input() iconName?: string;
+  @Input() tooltip?: string;
 
   getColors() {
     const status = String(this.statusId);

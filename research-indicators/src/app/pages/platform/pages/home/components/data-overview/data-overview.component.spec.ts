@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DataOverviewComponent } from './data-overview.component';
 import { ChartModule } from 'primeng/chart';
-import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 import { apiServiceMock, mockResultsStatus, mockIndicatorsResults, cacheServiceMock, httpClientMock } from 'src/app/testing/mock-services.mock';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
@@ -101,7 +100,7 @@ describe('DataOverviewComponent', () => {
     const legend = component.chartLegend();
     expect(legend).toHaveLength(2);
     expect(legend[0]).toEqual({
-      color: STATUS_COLOR_MAP['1']?.text || STATUS_COLOR_MAP[''].border,
+      color: mockResultsStatus.data[0].result_status?.config?.color?.text || '#1689CA',
       label: 'Status 1',
       value: 5
     });
@@ -125,12 +124,12 @@ describe('DataOverviewComponent', () => {
     expect(component.options.plugins.datalabels.display).toBe(false);
   });
 
-  it('should use fallback color when statusKey is not in STATUS_COLOR_MAP', async () => {
+  it('should use fallback color when result_status.config.color.text is not available', async () => {
     mockApiService.GET_ResultsStatus = jest.fn().mockResolvedValue({
-      data: [{ name: 'Status X', amount_results: 2, result_status_id: 999 }]
+      data: [{ name: 'Status X', amount_results: 2, result_status_id: 999, result_status: null }]
     });
     await component.getData();
-    expect(component.data.datasets[0].backgroundColor[0]).toBe(STATUS_COLOR_MAP[''].border);
-    expect(component.chartLegend()[0].color).toBe(STATUS_COLOR_MAP[''].border);
+    expect(component.data.datasets[0].backgroundColor[0]).toBe('#1689CA');
+    expect(component.chartLegend()[0].color).toBe('#1689CA');
   });
 });

@@ -42,7 +42,7 @@ describe('EvidenceComponent', () => {
         { provide: ActionsService, useValue: { ...actionsServiceMock, showToast: jest.fn(), saveCurrentSection: jest.fn() } },
         {
           provide: CacheService,
-          useValue: { ...cacheServiceMock, currentMetadata: jest.fn(() => ({ indicator_id: 1, status_id: 4 })), currentResultId: jest.fn(() => 123) }
+          useValue: { ...cacheServiceMock, currentMetadata: jest.fn(() => ({ indicator_id: 5, status_id: 4 })), currentResultId: jest.fn(() => 123) }
         },
         {
           provide: ApiService,

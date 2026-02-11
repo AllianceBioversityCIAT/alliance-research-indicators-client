@@ -364,6 +364,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       this.allModalsService.openModal('resultInformation');
       return;
     }
+    this.closeResultInformationModal();
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
@@ -377,6 +378,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     if (platformCode === PLATFORM_CODES.PRMS || platformCode === PLATFORM_CODES.AICCRA || platformCode === PLATFORM_CODES.TIP) {
       return;
     }
+    this.closeResultInformationModal();
     this.resultsCenterService.clearAllFilters();
     const resultCode = `${platformCode}-${result}`;
     this.router.navigate(['/result', resultCode], {
@@ -400,7 +402,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   getResultRouteArray(result: Result): string | string[] {
-    if (result.platform_code === PLATFORM_CODES.TIP) {
+    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.AICCRA) {
       return [];
     }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
@@ -428,7 +430,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.AICCRA) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
-    } 
+    }
   }
 
   ngAfterViewInit() {
@@ -479,15 +481,42 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     const tbody = rowEl.parentElement;
     if (!tbody || tbody.tagName.toLowerCase() !== 'tbody') return;
 
-    const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
-    const rowIndex = rows.indexOf(rowEl);
-    if (rowIndex < 0) return;
-    const data: Result[] = (this.dt2.filteredValue as Result[] | undefined) ?? this.resultsCenterService.list();
-    const pageStart: number = this.dt2.first || 0;
-    const idx = pageStart + rowIndex;
-    const result = data[idx] as Result | undefined;
+    const resultId = rowEl.dataset['resultId'];
+    const platformCode = rowEl.dataset['platform'];
+    
+    if (!resultId || !platformCode) {
+      const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
+      const rowIndex = rows.indexOf(rowEl);
+      if (rowIndex < 0) return;
+      const data: Result[] = (this.dt2.value as Result[] | undefined) ?? this.resultsCenterService.list();
+      const pageStart: number = this.dt2.first || 0;
+      const idx = pageStart + rowIndex;
+      const result = data[idx];
+      
+      if (!result) {
+        return;
+      }
+      
+      this.handleRowClickResult(result, target, event);
+      return;
+    }
+
+    const data: Result[] = (this.dt2.value as Result[] | undefined) ?? this.resultsCenterService.list();
+    const result = data.find(r => 
+      r.result_official_code?.toString() === resultId && 
+      r.platform_code === platformCode
+    );
 
     if (!result) {
+      return;
+    }
+
+    this.handleRowClickResult(result, target, event);
+  }
+
+  private handleRowClickResult(result: Result, target: Element, event: MouseEvent): void {
+    if (result.platform_code === PLATFORM_CODES.STAR) {
+      this.closeResultInformationModal();
       return;
     }
 
@@ -512,5 +541,12 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
     }
+  }
+
+  private closeResultInformationModal(): void {
+    if (this.allModalsService.isModalOpen('resultInformation').isOpen) {
+      this.allModalsService.closeModal('resultInformation');
+    }
+    this.allModalsService.selectedResultForInfo.set(null);
   }
 }

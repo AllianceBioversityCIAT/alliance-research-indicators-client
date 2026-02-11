@@ -1,8 +1,11 @@
-<div
-  class="inline-flex items-center px-2.5  py-0.5 border-1 rounded-[6px] {{
+<div class="inline-flex items-center px-2.5  py-0.5 border-1 rounded-[6px] {{
     !tiny ? 'text-[12px]' : 'xl:text-[12px] text-[9px]'
-  }} font-medium uppercase"
-  [style.border-color]="getColors().border"
-  [style.color]="getColors().text">
+  }} font-medium uppercase" [style.border-color]="statusBorder ?? getColors().border"
+  [style.color]="statusColor ?? getColors().text">
+  @if (icon) {
+  <i class="pi {{iconName ? iconName : 'pi-exclamation-circle'}} xl:!text-[12px] !text-[10px] pl-1.5 pb-0.5"
+    [style.color]="iconColor ?? statusColor" [style.transform]="'rotate(180deg)'" [pTooltip]="tooltip"
+    tooltipPosition="right"></i>
+  }
   <span class="font-semibold">{{ statusName }}</span>
 </div>

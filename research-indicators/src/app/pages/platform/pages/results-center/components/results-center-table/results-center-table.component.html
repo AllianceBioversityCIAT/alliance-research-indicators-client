@@ -69,6 +69,7 @@
     </ng-template>
     <ng-template pTemplate="body" let-result>
       <tr (keydown.enter)="openResult(result)" (click)="openResult(result)"
+        [attr.data-result-id]="result.result_official_code" [attr.data-platform]="result.platform_code"
         class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
         @for (column of getVisibleColumns(); track column.field) {
         @if (!column.hideIf || !column.hideIf()) {
@@ -78,14 +79,24 @@
           <a target="_blank" (click)="$event.stopPropagation()" class="block"
             style="color: inherit; text-decoration: none">
             <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true"
-              [statusName]="result.result_status?.name">
+              [statusName]="result.result_status?.name" [statusColor]="result.result_status?.config?.color?.text ?? ''"
+              [statusBackground]="result.result_status?.config?.color?.background ?? ''"
+              [statusBorder]="result.result_status?.config?.color?.border ?? ''" [icon]="true"
+              [iconName]="result.result_status?.config?.icon?.name ?? ''"
+              [iconColor]="result.result_status?.config?.icon?.color ?? ''"
+              [tooltip]="result.result_status?.description ?? ''">
             </app-custom-tag>
           </a>
           } @else {
           <a [routerLink]="getResultRouteArray(result)" [queryParams]="getResultQueryParams(result)"
             (click)="$event.stopPropagation()" class="block" style="color: inherit; text-decoration: none">
             <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true"
-              [statusName]="result.result_status?.name">
+              [statusName]="result.result_status?.name" [statusColor]="result.result_status?.config?.color?.text ?? ''"
+              [statusBackground]="result.result_status?.config?.color?.background ?? ''"
+              [statusBorder]="result.result_status?.config?.color?.border ?? ''" [icon]="true"
+              [iconName]="result.result_status?.config?.icon?.name ?? ''"
+              [iconColor]="result.result_status?.config?.icon?.color ?? ''"
+              [tooltip]="result.result_status?.description ?? ''">
             </app-custom-tag>
           </a>
           }

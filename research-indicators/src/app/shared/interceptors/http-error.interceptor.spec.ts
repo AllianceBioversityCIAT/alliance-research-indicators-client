@@ -555,4 +555,27 @@ describe('httpErrorInterceptor', () => {
       }
     });
   });
+
+  it('should not show toast when error is 502 from AI formalize service', done => {
+    const aiFormalizeRequest = new HttpRequest('POST', 'http://test.com/results/ai/formalize');
+    const errorResponse = new HttpErrorResponse({
+      error: { errors: 'AI formalize error' },
+      status: 502,
+      statusText: 'Bad Gateway'
+    });
+
+    mockHandler = jest.fn().mockReturnValue(throwError(() => errorResponse));
+    mockCacheService.isLoggedIn.mockReturnValue(true);
+    mockApiService.saveErrors.mockResolvedValue(undefined);
+
+    interceptor(aiFormalizeRequest, mockHandler).subscribe({
+      next: () => done.fail('Should have thrown an error'),
+      error: error => {
+        expect(error).toBe(errorResponse);
+        expect(mockApiService.saveErrors).toHaveBeenCalled();
+        expect(mockActionsService.showToast).not.toHaveBeenCalled();
+        done();
+      }
+    });
+  });
 });

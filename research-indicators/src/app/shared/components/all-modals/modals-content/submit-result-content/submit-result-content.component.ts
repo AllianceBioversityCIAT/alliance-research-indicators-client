@@ -19,6 +19,8 @@ import { PatchSubmitResultLatest } from '@shared/interfaces/patch_submit-result.
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
 import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
+import { ResultStatus } from '@shared/interfaces/result-config.interface';
+import { CreateResultManagementService } from '../create-result-modal/services/create-result-management.service';
 
 @Component({
   selector: 'app-submit-result-content',
@@ -36,20 +38,24 @@ export class SubmitResultContentComponent {
   projectResultsTableService = inject(ProjectResultsTableService);
   resultsCenterService = inject(ResultsCenterService);
   private readonly router = inject(Router);
-
+  createResultManagementService = inject(CreateResultManagementService);
   form = signal<PatchSubmitResultLatest>({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
+  statusData = signal<Record<number, ResultStatus>>({});
 
-  // Adjust header status for latest flow so that tag shows correct status (e.g., Rejected for 7, Postponed for 11)
   headerData = computed(() => {
     const base = this.allModalsService.submitHeader();
     if (!base) return null;
 
     if (this.allModalsService.submitResultOrigin?.() === 'latest') {
-      const currentStatusId = this.cache.currentMetadata()?.status_id;
-      if (currentStatusId === 7 || currentStatusId === 11) {
+      const currentMetadata = this.cache.currentMetadata();
+      const currentStatusId = currentMetadata?.status_id;
+      const resultStatus = currentMetadata?.result_status;
+      
+      if (currentStatusId != null && resultStatus) {
         return {
           ...base,
-          status_id: String(currentStatusId)
+          status_id: String(currentStatusId),
+          status_config: resultStatus
         };
       }
     }
@@ -71,6 +77,7 @@ export class SubmitResultContentComponent {
           oicr_internal_code: this.submissionService.oicrNo(),
           sharepoint_link: this.submissionService.sharePointFolderLink()
         });
+        this.loadStatuses();
       }
       if (wasVisible && !visible) {
         // Reset disabled options when modal closes
@@ -79,6 +86,24 @@ export class SubmitResultContentComponent {
       }
       wasVisible = visible;
     });
+  }
+
+  private async loadStatuses(): Promise<void> {
+    const statusMap: Record<number, ResultStatus> = {};
+    const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
+    const statusIdsToLoad = isLatest ? [10, 11, 15] : [6, 5, 7];
+    
+    for (const statusId of statusIdsToLoad) {
+      try {
+        const response = await this.api.GET_ResultStatus(statusId);
+        if (response.successfulRequest && response.data) {
+          statusMap[statusId] = response.data;
+        }
+      } catch (error) {
+        console.error(`Error loading status for statusId ${statusId}:`, error);
+      }
+    }
+    this.statusData.set(statusMap);
   }
   setInitialSelectedReviewOption(): void {
     const currentStatusId = this.cache.currentMetadata()?.status_id;
@@ -96,8 +121,8 @@ export class SubmitResultContentComponent {
   private readonly baseReviewOptions: ReviewOption[] = [
     {
       key: 'approve',
-      label: 'Approve',
-      description: 'Approve this result without changes.',
+      label: '',
+      description: '',
       icon: 'pi-check-circle',
       color: 'text-[#509C55]',
       message: 'Once this result is approved, no further changes will be allowed.',
@@ -108,8 +133,8 @@ export class SubmitResultContentComponent {
     },
     {
       key: 'revise',
-      label: 'Revise',
-      description: 'Provide recommendations and changes.',
+      label: '',
+      description: '',
       icon: 'pi-minus-circle',
       color: 'text-[#e69f00]',
       message: 'The result submitter will address the provided recommendations and resubmit for review.',
@@ -120,8 +145,8 @@ export class SubmitResultContentComponent {
     },
     {
       key: 'reject',
-      label: 'Reject',
-      description: 'Reject this result and specify the reason.',
+      label: '',
+      description: '',
       icon: 'pi-times-circle',
       color: 'text-[#cf0808]',
       message: 'If the result is rejected, it can no longer be edited or resubmitted.',
@@ -136,16 +161,28 @@ export class SubmitResultContentComponent {
     const isLatest = this.allModalsService.submitResultOrigin?.() === 'latest';
     const disablePostpone = this.allModalsService.disablePostponeOption?.() ?? false;
     const disableReject = this.allModalsService.disableRejectOption?.() ?? false;
+    const statusMap = this.statusData();
     return this.baseReviewOptions.map(opt => {
-      if (!isLatest) return opt;
+      const status = statusMap[opt.statusId];
+      const label = status?.name ?? opt.label;
+      const description = status?.action_description ?? opt.description;
+      const baseOpt = { ...opt, label, description };
+      
+      if (!isLatest) return baseOpt;
       if (opt.key === 'approve') {
-        return { ...opt, description: 'The development of the OICR will continue with backstopping from the PISA-SPRM team.', statusId: 4 };
+        const approveStatus = statusMap[10];
+        const approveLabel = approveStatus?.name ?? baseOpt.label;
+        const approveDescription = approveStatus?.action_description ?? baseOpt.description;
+        return { ...baseOpt, label: approveLabel, description: approveDescription, statusId: 10 };
       }
       if (opt.key === 'revise') {
+        const postponeStatus = statusMap[11];
+        const postponeLabel = postponeStatus?.name ?? '';
+        const postponeDescription = postponeStatus?.action_description ?? baseOpt.description;
         return { 
-          ...opt, 
-          label: 'Postpone', 
-          description: 'Not enough evidence for this reporting year.', 
+          ...baseOpt, 
+          label: postponeLabel, 
+          description: postponeDescription, 
           commentLabel: 'Justification', 
           placeholder: 'Please briefly elaborate your decision', 
           statusId: 11,
@@ -153,9 +190,12 @@ export class SubmitResultContentComponent {
         };
       }
       if (opt.key === 'reject') {
-        return { ...opt, label: 'Do not approve', commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', disabled: disableReject };
+        const rejectStatus = statusMap[15];
+        const rejectLabel = rejectStatus?.name ?? 'Do not approve';
+        const rejectDescription = rejectStatus?.action_description ?? baseOpt.description;
+        return { ...baseOpt, label: rejectLabel, description: rejectDescription, commentLabel: 'Justification', placeholder: 'Please briefly elaborate your decision', statusId: 15, disabled: disableReject };
       }
-      return opt;
+      return baseOpt;
     });
   });
 
@@ -269,7 +309,7 @@ export class SubmitResultContentComponent {
     
     if (!selected) return true;
     
-    if (isLatest && (selected?.statusId === 4 || selected?.statusId === 10)) {
+    if (isLatest && selected?.statusId === 10) {
       const form = this.form();
       const allFieldsFilled = form.mel_regional_expert?.trim() && form.oicr_internal_code?.trim();
       const sharepointLink = form.sharepoint_link?.trim();
@@ -313,7 +353,6 @@ export class SubmitResultContentComponent {
     this.cache.lastVersionParam.set(null);
     this.cache.liveVersionData.set(null);
     this.cache.versionsList.set([]);
-
     const currentPath = this.router.url.split('?')[0];
     await this.router.navigate([currentPath], { queryParams: {}, replaceUrl: true });
 
@@ -343,7 +382,7 @@ export class SubmitResultContentComponent {
 
   async submitReview(): Promise<void> {
     if (this.allModalsService.submitResultOrigin?.() === 'latest') {
-      const isApprove = this.submissionService.statusSelected()?.statusId === 4;
+      const isApprove = this.submissionService.statusSelected()?.statusId === 10;
       const formValue = this.form();
       const body = this.buildLatestBody(isApprove, formValue);
       const response = await this.api.PATCH_SubmitResult(
@@ -360,6 +399,8 @@ export class SubmitResultContentComponent {
       this.form.set({ mel_regional_expert: '', oicr_internal_code: '', sharepoint_link: '' });
       this.submissionService.comment.set('');
       this.submissionService.statusSelected.set(null);
+      
+  this.cleanUpSubmitResultData();
       
       this.allModalsService.closeModal('submitResult');
       await this.refreshTables();
@@ -383,4 +424,25 @@ export class SubmitResultContentComponent {
       }
     }
   }
+
+  private cleanUpSubmitResultData(): void {
+    // Clean up all data when confirming
+    this.allModalsService.setSubmitResultOrigin(null);
+    this.allModalsService.setSubmitHeader(null);
+    this.allModalsService.setSubmitBackStep(null);
+    this.allModalsService.clearSubmissionData();
+    this.allModalsService.submitBackAction = undefined;
+    this.allModalsService.createResultManagementService.resetModal();
+
+    this.createResultManagementService.currentRequestedResultCode.set(null);
+    this.cache.projectResultsSearchValue.set(this.createResultManagementService.createOicrBody().base_information.title);
+    this.createResultManagementService.clearOicrBody();
+    this.createResultManagementService.setStatusId(null);
+    this.createResultManagementService.editingOicr.set(false);
+    this.createResultManagementService.autofillinOicr.set(false);
+    this.createResultManagementService.currentRequestedResultCode.set(null);
+    this.createResultManagementService.year.set(null);
+    this.createResultManagementService.oicrPrimaryOptionsDisabled.set([]);
+    this.createResultManagementService.clearOicrBody();
+  };
 }

@@ -7,6 +7,7 @@ import { resultExistsResolver } from './result-exists.resolver';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
 import { CacheService } from '@shared/services/cache/cache.service';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 describe('resultExistsResolver', () => {
   let metadataService: any;
@@ -15,6 +16,7 @@ describe('resultExistsResolver', () => {
   let injector: any;
   let currentResultService: any;
   let cacheService: any;
+  let rolesService: any;
 
   beforeEach(() => {
     const metadataServiceMock = {
@@ -22,7 +24,8 @@ describe('resultExistsResolver', () => {
     };
 
     const routerMock = {
-      navigate: jest.fn()
+      navigate: jest.fn(),
+      url: ''
     };
 
     const routeMock = {
@@ -39,7 +42,16 @@ describe('resultExistsResolver', () => {
     const cacheServiceMock = {
       projectResultsSearchValue: {
         set: jest.fn()
-      }
+      },
+      dataCache: jest.fn().mockReturnValue({
+        user: {
+          user_role_list: []
+        }
+      })
+    };
+
+    const rolesServiceMock = {
+      isAdmin: jest.fn().mockReturnValue(false)
     };
 
     TestBed.configureTestingModule({
@@ -49,7 +61,8 @@ describe('resultExistsResolver', () => {
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: routeMock },
         { provide: CurrentResultService, useValue: currentResultServiceMock },
-        { provide: CacheService, useValue: cacheServiceMock }
+        { provide: CacheService, useValue: cacheServiceMock },
+        { provide: RolesService, useValue: rolesServiceMock }
       ]
     });
 
@@ -59,6 +72,7 @@ describe('resultExistsResolver', () => {
     route = TestBed.inject(ActivatedRoute);
     currentResultService = TestBed.inject(CurrentResultService);
     cacheService = TestBed.inject(CacheService);
+    rolesService = TestBed.inject(RolesService);
   });
 
   it('should return true when metadata service update succeeds', async () => {
@@ -577,6 +591,121 @@ describe('resultExistsResolver', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', undefined]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('');
     expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0);
+    expect(result).toBe(false);
+  });
+
+  it('should return true when validateOpenResult returns true and status_id is draft (4)', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 4,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 4);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 4, 3);
+    expect(result).toBe(false);
+  });
+
+  it('should return false and open modal when validateOpenResult returns true and status_id is Published (14)', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 14,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+    cacheService.dataCache = jest.fn().mockReturnValue({
+      user: {
+        user_role_list: [{ role_id: 9 }] // Admin user
+      }
+    });
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 14);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 14, 3);
+    expect(result).toBe(false);
+  });
+
+  it('should return false and open modal when validateOpenResult returns true and status_id is Science Edition (12)', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 12,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+    rolesService.isAdmin = jest.fn().mockReturnValue(false); // Not admin - should open modal
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 12);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 12, 3);
+    expect(result).toBe(false);
+  });
+
+  it('should return false and open modal when validateOpenResult returns true and status_id is KM Curation (13)', async () => {
+    // Arrange
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({ 
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 13,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+    rolesService.isAdmin = jest.fn().mockReturnValue(false); // Not admin - should open modal
+
+    // Act
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    // Assert
+    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 13);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 13, 3);
     expect(result).toBe(false);
   });
 });

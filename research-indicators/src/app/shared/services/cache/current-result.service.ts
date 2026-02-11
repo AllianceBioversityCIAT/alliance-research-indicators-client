@@ -3,6 +3,7 @@ import { AllModalsService } from './all-modals.service';
 import { CreateResultManagementService } from '../../components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { ApiService } from '../api.service';
 import { CacheService } from './cache.service';
+import { normalizeStepThree } from '@shared/utils/geographic-scope.util';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,7 @@ export class CurrentResultService {
     this.createResultManagementService.currentRequestedResultCode.set(resultCode);
     this.createResultManagementService.editingOicr.set(true);
     await this.api.GET_OICRModal(resultCode).then(response => {
+      response.data.step_three = normalizeStepThree(response.data.step_three);
       response.data.step_three.comment_geo_scope = response.data.step_three.comment_geo_scope || '';
       this.createResultManagementService.createOicrBody.set(response.data);
       this.allModalsService.openModal('createResult');
@@ -32,6 +34,7 @@ export class CurrentResultService {
   }
 
   validateOpenResult(indicatorId: number, resultStatusId: number) {
-    return indicatorId === 5 || resultStatusId === 9;
+    const isIntermediateStatus = resultStatusId === 10 || resultStatusId === 12 || resultStatusId === 13 || resultStatusId === 14;
+    return indicatorId === 5 || resultStatusId === 9 || isIntermediateStatus;
   }
 }

@@ -8,6 +8,7 @@ describe('RolesService', () => {
 
   let userRoles: Array<{ role_id: number }>;
   let editingOicr: boolean;
+  let statusId: number | null;
 
   const mockCacheService: Partial<CacheService> = {
     dataCache: jest.fn((): any => ({
@@ -16,12 +17,14 @@ describe('RolesService', () => {
   };
 
   const mockCreateResultManagementService: Partial<CreateResultManagementService> = {
-    editingOicr: jest.fn(() => editingOicr) as unknown as CreateResultManagementService['editingOicr']
+    editingOicr: jest.fn(() => editingOicr) as unknown as CreateResultManagementService['editingOicr'],
+    statusId: jest.fn(() => statusId) as unknown as CreateResultManagementService['statusId']
   };
 
   beforeEach(() => {
     userRoles = [];
     editingOicr = false;
+    statusId = null;
 
     TestBed.configureTestingModule({
       providers: [
@@ -60,12 +63,28 @@ describe('RolesService', () => {
 
   it('canEditOicr should be true when editing and user is admin', () => {
     editingOicr = true;
+    statusId = 4; // Non-intermediate status
     userRoles = [{ role_id: 9 }];
     expect(service.canEditOicr()).toBe(true);
   });
 
   it('canEditOicr should be false when editing and user is not admin', () => {
     editingOicr = true;
+    statusId = 4; // Non-intermediate status
+    userRoles = [{ role_id: 2 }];
+    expect(service.canEditOicr()).toBe(false);
+  });
+
+  it('canEditOicr should be true when editing, user is admin, and status is intermediate', () => {
+    editingOicr = true;
+    statusId = 10; // Intermediate status (Accepted)
+    userRoles = [{ role_id: 9 }];
+    expect(service.canEditOicr()).toBe(true);
+  });
+
+  it('canEditOicr should be false when editing, user is not admin, and status is intermediate', () => {
+    editingOicr = true;
+    statusId = 12; // Intermediate status (Science Edition)
     userRoles = [{ role_id: 2 }];
     expect(service.canEditOicr()).toBe(false);
   });

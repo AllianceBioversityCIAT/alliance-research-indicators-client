@@ -54,9 +54,15 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
 
   alertList = computed(() => {
     const list = this.actions.globalAlertsStatus().map((alert: GlobalAlert) => {
-      alert.icon = this.getIcon(alert.severity).icon;
-      alert.color = this.getIcon(alert.severity).color;
-      alert.buttonColor = this.getIcon(alert.severity).buttonColor;
+      if (!alert.icon) {
+        alert.icon = this.getIcon(alert.severity).icon;
+      }
+      if (!alert.color) {
+        alert.color = this.getIcon(alert.severity).color;
+      }
+      if (!alert.buttonColor) {
+        alert.buttonColor = this.getIcon(alert.severity).buttonColor;
+      }
       if (alert.serviceName) {
         const foundService = this.serviceLocator.getService(alert.serviceName);
         this.service = foundService === null ? undefined : (foundService as unknown as ListService);

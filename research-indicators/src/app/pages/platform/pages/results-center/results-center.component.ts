@@ -1,4 +1,6 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, computed } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
 import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
@@ -24,11 +26,13 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
   templateUrl: './results-center.component.html',
   styleUrls: ['./results-center.component.scss']
 })
-export default class ResultsCenterComponent implements OnInit {
+export default class ResultsCenterComponent implements OnInit, OnDestroy {
   api = inject(ApiService);
   resultsCenterService = inject(ResultsCenterService);
   cache = inject(CacheService);
   actions = inject(ActionsService);
+  router = inject(Router);
+  private routerSubscription?: Subscription;
 
   // Pin functionality
   pinnedTab = signal<string>('all');
@@ -65,6 +69,28 @@ export default class ResultsCenterComponent implements OnInit {
   ngOnInit(): void {
     this.resultsCenterService.primaryContractId.set(null);
     this.loadPinnedTab();
+    
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        if (!event.urlAfterRedirects.includes('/results-center')) {
+          this.cleanFiltersOnRouteLeave();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.cleanFiltersOnRouteLeave();
+    
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  private cleanFiltersOnRouteLeave(): void {
+    this.resultsCenterService.onSelectFilterTab(0);
+    this.resultsCenterService.clearAllFilters();
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
   }
 
   showSignal = signal(false);
@@ -107,19 +133,22 @@ export default class ResultsCenterComponent implements OnInit {
 
   onActiveItemChange = (event: MenuItem): void => {
     this.resultsCenterService.myResultsFilterItem.set(event);
+    
+    // Clear filters first (this will preserve create-user-codes if tab is "my")
+    this.resultsCenterService.clearAllFilters();
+    this.resultsCenterService.searchInput.set('');
+    
+    // Then load results based on the selected tab
     if (event.id === 'my') {
       this.loadMyResults();
     } else {
       this.loadAllResults();
     }
-
-    this.resultsCenterService.clearAllFilters();
-    this.resultsCenterService.searchInput.set('');
   };
 
   loadMyResults() {
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
-    this.resultsCenterService.resultsFilter.update(() => ({
+    this.resultsCenterService.resultsFilter.set({
       'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
       'indicator-codes': [],
       'status-codes': [],
@@ -128,8 +157,8 @@ export default class ResultsCenterComponent implements OnInit {
       years: [],
       'indicator-codes-filter': [],
       'indicator-codes-tabs': []
-    }));
-    this.resultsCenterService.appliedFilters.update(() => ({
+    });
+    this.resultsCenterService.appliedFilters.set({
       'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
       'indicator-codes': [],
       'status-codes': [],
@@ -138,13 +167,13 @@ export default class ResultsCenterComponent implements OnInit {
       years: [],
       'indicator-codes-filter': [],
       'indicator-codes-tabs': []
-    }));
+    });
     this.resultsCenterService.main();
   }
 
   loadAllResults() {
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
-    this.resultsCenterService.resultsFilter.update(() => ({
+    this.resultsCenterService.resultsFilter.set({
       'create-user-codes': [],
       'indicator-codes': [],
       'status-codes': [],
@@ -153,8 +182,8 @@ export default class ResultsCenterComponent implements OnInit {
       years: [],
       'indicator-codes-filter': [],
       'indicator-codes-tabs': []
-    }));
-    this.resultsCenterService.appliedFilters.update(() => ({
+    });
+    this.resultsCenterService.appliedFilters.set({
       'create-user-codes': [],
       'indicator-codes': [],
       'status-codes': [],
@@ -163,7 +192,7 @@ export default class ResultsCenterComponent implements OnInit {
       years: [],
       'indicator-codes-filter': [],
       'indicator-codes-tabs': []
-    }));
+    });
     this.resultsCenterService.main();
   }
 

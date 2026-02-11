@@ -4,6 +4,7 @@ import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 import { Result, ResultConfig, ResultFilter } from '../interfaces/result/result.interface';
+import { ResultStatus } from '../interfaces/result-config.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
 import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interface';
@@ -26,7 +27,6 @@ import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
 import { GetIndicatorsResultsAmount } from '../interfaces/get-indicators-results-amount.interface';
 import { GetResultsStatus } from '../interfaces/get-results-status.interface';
 import { GetRegion } from '../interfaces/get-region.interface';
-import { LatestResult } from '@pages/platform/pages/home/components/my-latest-results/my-latest-results.component';
 import { GetGeoSearch } from '../interfaces/get-geo-search.interface';
 import { GetOsCountries } from '../interfaces/get-os-countries.interface';
 import { GetOsResult } from '@shared/interfaces/get-os-result.interface';
@@ -48,6 +48,7 @@ import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { PatchIpOwner } from '@shared/interfaces/patch-ip-owners';
 import { AIAssistantResult, CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
 import { GetYear } from '@shared/interfaces/get-year.interface';
+import { GetNextStep } from '@shared/interfaces/get-next-step.interface';
 import { ExtendedHttpErrorResponse } from '@shared/interfaces/http-error-response.interface';
 import { GetVersions } from '@shared/interfaces/get-versions.interface';
 import { AskForHelp } from '../components/all-modals/modals-content/ask-for-help-modal/interfaces/ask-for-help.interface';
@@ -71,6 +72,7 @@ import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
 import { ImpactArea } from '@shared/interfaces/impact-area.interface';
 import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
+import { LatestResult } from '@shared/interfaces/latest-result.interface';
 
 
 @Injectable({
@@ -654,13 +656,42 @@ export class ApiService {
     { resultCode, comment, status }: PatchSubmitResult,
     body?: PatchSubmitResultLatest
   ): Promise<MainResponse<PatchSubmitResult | ExtendedHttpErrorResponse>> => {
-    const commentQuery = comment ? `&comment=${comment}` : '';
-    const url = () => `results/green-checks/change/status?resultCode=${resultCode}${commentQuery}&status=${status}`;
-    return this.TP.patch(url(), body ?? {}, { useResultInterceptor: true });
+    const url = () => `results/status/workflow/change-status/${resultCode}/to-status/${status}`;
+    const requestBody: PatchSubmitResultLatest = body 
+      ? { ...body, submission_comment: comment ?? '' }
+      : { submission_comment: comment ?? '' };
+    return this.TP.post(url(), requestBody, { useResultInterceptor: true });
   };
 
   GET_ReviewStatuses = () => {
     const url = () => `results/status/review-statuses`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ResultStatus = (id: string | number): Promise<MainResponse<ResultStatus>> => {
+    const url = () => `results/status/${id}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_NextStep = (
+    resultCode: number,
+    reportingPlatforms?: string,
+    reportYear?: number
+  ): Promise<MainResponse<GetNextStep>> => {
+    const url = () => {
+      const baseUrl = `results/status/workflow/result/${resultCode}/next-step`;
+      const params: string[] = [];
+      
+      if (reportingPlatforms) {
+        params.push(`reportingPlatforms=${reportingPlatforms}`);
+      }
+      if (reportYear) {
+        params.push(`reportYear=${reportYear}`);
+      }
+      
+      return params.length > 0 ? `${baseUrl}?${params.join('&')}` : baseUrl;
+    };
+    
     return this.TP.get(url(), {});
   };
 

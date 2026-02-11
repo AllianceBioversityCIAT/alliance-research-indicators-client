@@ -919,4 +919,22 @@ describe('MultiselectComponent', () => {
 
     expect(component.body().value).toBeUndefined();
   });
+
+  it('should handle optionFilter throwing an error', () => {
+    component.optionFilter = jest.fn().mockImplementation(() => {
+      throw new Error('Filter error');
+    });
+    component.service = mockService;
+    component.optionsSig = signal([
+      { id: 1, name: 'Option 1' },
+      { id: 2, name: 'Option 2' }
+    ]);
+    component.useDisabled = signal(false);
+
+    // Access availableOptions computed which uses the filter
+    const result = component.availableOptions();
+
+    // Should return options even if filter throws (catch returns true)
+    expect(result.length).toBe(2);
+  });
 });

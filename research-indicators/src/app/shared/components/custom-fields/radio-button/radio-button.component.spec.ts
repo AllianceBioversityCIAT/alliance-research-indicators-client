@@ -316,4 +316,28 @@ describe('RadioButtonComponent', () => {
     expect(component.body().value).toBe(objectValue);
     expect(emitSpy).toHaveBeenCalledWith(objectValue);
   });
+
+  it('should handle getUniqueId when optionLabel is missing', () => {
+    component.optionLabel = 'name';
+    component.optionValue = { body: 'test.field', option: 'id' };
+    const item = { id: 1 }; // No 'name' property
+    
+    const uniqueId = component.getUniqueId(item);
+    
+    expect(uniqueId).toBeDefined();
+    expect(uniqueId).toContain('test-field');
+    expect(uniqueId).toContain('1'); // Should use the option value
+  });
+
+  it('should handle getUniqueId when optionLabel is null', () => {
+    component.optionLabel = 'name';
+    component.optionValue = { body: 'test.field', option: 'id' };
+    const item = { name: null, id: 1 };
+    
+    const uniqueId = component.getUniqueId(item);
+    
+    expect(uniqueId).toBeDefined();
+    expect(uniqueId).toContain('test-field');
+    expect(uniqueId).toContain('1');
+  });
 });

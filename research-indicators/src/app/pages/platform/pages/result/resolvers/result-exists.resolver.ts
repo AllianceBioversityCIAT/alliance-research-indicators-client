@@ -4,6 +4,7 @@ import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { CurrentResultService } from '../../../../../shared/services/cache/current-result.service';
 import { CacheService } from '../../../../../shared/services/cache/cache.service';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 export const resultExistsResolver: ResolveFn<boolean> = async route => {
   const metadataService = inject(GetMetadataService);
@@ -11,6 +12,7 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
   const currentResultService = inject(CurrentResultService);
   const router = inject(Router);
   const idParam = route.paramMap.get('id');
+  const rolesService = inject(RolesService);
 
   let id: number;
   let platform: string | null = null;
@@ -34,8 +36,8 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
   }
 
   if (currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
-    const isDraft = (status_id ?? 0) === 4 || (status_id ?? 0) === 14 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
-    if (!isDraft) {
+    const isDraft =  (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
+    if (!isDraft || (isDraft && !rolesService.isAdmin())) {
       router.navigate(['/project-detail', result_contract_id]);
       if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');
       currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);

@@ -80,6 +80,9 @@ describe('ResultsCenterTableComponent', () => {
     mockModals = {
       selectedResultForInfo: signal<any>(null),
       openModal: jest.fn(),
+      closeModal: jest.fn(),
+      closeAllModals: jest.fn(),
+      isModalOpen: jest.fn(() => ({ isOpen: false })),
       // New helper used by processRowClick to avoid interfering when a modal is already open
       isAnyModalOpen: jest.fn(() => false)
     };
@@ -268,6 +271,84 @@ describe('ResultsCenterTableComponent', () => {
     expect(component.getResultRouteArray(r as any)).toEqual(['/result', 'ROAR-7']);
   });
 
+  it('getResultRouteArray should return empty array for TIP platform', () => {
+    const tipResult = { ...mockResult, platform_code: 'TIP' };
+    expect(component.getResultRouteArray(tipResult as any)).toEqual([]);
+  });
+
+  it('getPrimaryContractId should return null when result_contracts is null', () => {
+    const result = { ...mockResult, result_contracts: null };
+    expect(component.getPrimaryContractId(result as any)).toBeNull();
+  });
+
+  it('getPrimaryContractId should return null when result_contracts is undefined', () => {
+    const result = { ...mockResult, result_contracts: undefined };
+    expect(component.getPrimaryContractId(result as any)).toBeNull();
+  });
+
+  it('getPrimaryContractId should return contract_id when primary contract exists in array', () => {
+    const result = {
+      ...mockResult,
+      result_contracts: [
+        { is_primary: 0, contract_id: 'A123' },
+        { is_primary: 1, contract_id: 'B456' },
+        { is_primary: 0, contract_id: 'C789' }
+      ]
+    };
+    expect(component.getPrimaryContractId(result as any)).toBe('B456');
+  });
+
+  it('getPrimaryContractId should return contract_id when primary contract exists as single object', () => {
+    const result = {
+      ...mockResult,
+      result_contracts: { is_primary: 1, contract_id: 'D012' }
+    };
+    expect(component.getPrimaryContractId(result as any)).toBe('D012');
+  });
+
+  it('getPrimaryContractId should return null when no primary contract exists', () => {
+    const result = {
+      ...mockResult,
+      result_contracts: [
+        { is_primary: 0, contract_id: 'A123' },
+        { is_primary: '0', contract_id: 'B456' }
+      ]
+    };
+    expect(component.getPrimaryContractId(result as any)).toBeNull();
+  });
+
+  it('getPrimaryContractId should handle string is_primary value', () => {
+    const result = {
+      ...mockResult,
+      result_contracts: [
+        { is_primary: '1', contract_id: 'E345' }
+      ]
+    };
+    expect(component.getPrimaryContractId(result as any)).toBe('E345');
+  });
+
+  it('getVisibleColumns should return all columns when showNewProjectResultButton is false', () => {
+    (component as any).showNewProjectResultButton = false;
+    const columns = mockService.tableColumns();
+    expect(component.getVisibleColumns()).toBe(columns);
+  });
+
+  it('getVisibleColumns should filter out project and lever columns when showNewProjectResultButton is true', () => {
+    (component as any).showNewProjectResultButton = true;
+    const columns = [
+      { field: 'project', header: 'Project' },
+      { field: 'lever', header: 'Lever' },
+      { field: 'title', header: 'Title' },
+      { field: 'code', header: 'Code' }
+    ];
+    mockService.tableColumns.set(columns as any);
+    const visible = component.getVisibleColumns();
+    expect(visible).toEqual([
+      { field: 'title', header: 'Title' },
+      { field: 'code', header: 'Code' }
+    ]);
+  });
+
   it('ngAfterViewInit should set table refs and add document listener', () => {
     const addSpy = jest.spyOn(document, 'addEventListener');
     component.ngAfterViewInit();
@@ -297,13 +378,17 @@ describe('ResultsCenterTableComponent', () => {
     const tbody = document.createElement('tbody');
     const row = document.createElement('tr');
     const td = document.createElement('td');
+    const prmsResult = { ...mockResult, platform_code: 'PRMS' };
+    // Set data attributes for the row
+    row.setAttribute('data-result-id', prmsResult.result_official_code.toString());
+    row.setAttribute('data-platform', prmsResult.platform_code);
     tbody.appendChild(row);
     row.appendChild(td);
     tableElement.appendChild(tbody);
     
     (component as any).dt2 = {
       first: 0,
-      filteredValue: [{ ...mockResult, platform_code: 'PRMS' }],
+      value: [prmsResult],
       el: { nativeElement: tableElement }
     } as any;
     
@@ -658,6 +743,254 @@ describe('ResultsCenterTableComponent', () => {
     (document as any).createElement = originalCreate;
     document.body.appendChild = originalAppendChild;
     globalThis.URL = originalURL;
+  });
+
+  it('exportTable should return early when no data to export', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    mockApiService.GET_GeneralReport.mockResolvedValue({ data: [] });
+    
+    await component.exportTable();
+    
+    expect(consoleWarnSpy).toHaveBeenCalledWith('No data to export');
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('exportTable should return early when no headers found', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    mockApiService.GET_GeneralReport.mockResolvedValue({ data: [{}] });
+    
+    const worksheet = {
+      getColumn: jest.fn(() => ({
+        header: 'H',
+        eachCell: jest.fn(),
+        width: 0
+      })),
+      columnCount: 0,
+      views: [] as any,
+      autoFilter: {} as any,
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({} as any)), height: 0 })),
+      addRow: jest.fn(),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    
+    await component.exportTable();
+    
+    expect(consoleWarnSpy).toHaveBeenCalledWith('No headers found in data');
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('exportTable should handle error when accessing property in row', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    mockApiService.GET_GeneralReport.mockResolvedValue({ 
+      data: [
+        { 'Code': 1, 'Title': 'Test' },
+        { 'Code': 2 }
+      ]
+    });
+    
+    const worksheet = {
+      getColumn: jest.fn(() => ({
+        header: 'H',
+        eachCell: jest.fn(),
+        width: 0
+      })),
+      columnCount: 2,
+      views: [] as any,
+      autoFilter: {} as any,
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({} as any)), height: 0 })),
+      addRow: jest.fn(),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    
+    const createObjectURLSpy = jest.fn().mockReturnValue('blob:u');
+    const revokeObjectURLSpy = jest.fn();
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = {
+      createObjectURL: createObjectURLSpy,
+      revokeObjectURL: revokeObjectURLSpy
+    };
+    
+    const linkElement = {
+      click: jest.fn(),
+      style: { display: '' },
+      href: '',
+      download: '',
+      remove: jest.fn()
+    };
+    const originalCreate = document.createElement;
+    (document as any).createElement = (tagName: any) => {
+      if (tagName === 'a') return linkElement as any;
+      return originalCreate.call(document, tagName);
+    };
+    
+    jest.useFakeTimers();
+    await component.exportTable();
+    await jest.runAllTimersAsync();
+    jest.useRealTimers();
+    
+    (document as any).createElement = originalCreate;
+    globalThis.URL = originalURL;
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('exportTable should handle error when buffer is empty', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    mockApiService.GET_GeneralReport.mockResolvedValue({ 
+      data: [{ 'Code': 1, 'Title': 'Test' }]
+    });
+    
+    const worksheet = {
+      getColumn: jest.fn(() => ({
+        header: 'H',
+        eachCell: jest.fn(),
+        width: 0
+      })),
+      columnCount: 2,
+      views: [] as any,
+      autoFilter: {} as any,
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({} as any)), height: 0 })),
+      addRow: jest.fn(),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(0)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    
+    await component.exportTable();
+    
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Generated buffer is empty or invalid');
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('processRowClick should return early when modal is open', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(true);
+    const target = document.createElement('div');
+    const event = new MouseEvent('click');
+    
+    (component as any).processRowClick(target, event);
+    
+    expect(mockModals.isAnyModalOpen).toHaveBeenCalled();
+  });
+
+  it('processRowClick should return early when dt2.el.nativeElement is not available', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    (component as any).dt2 = { el: null };
+    const target = document.createElement('div');
+    const event = new MouseEvent('click');
+    
+    (component as any).processRowClick(target, event);
+    
+    // Should not throw or navigate
+  });
+
+  it('processRowClick should return early when target is not in table', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tableElement = document.createElement('div');
+    (component as any).dt2 = { el: { nativeElement: tableElement } };
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    const event = new MouseEvent('click');
+    
+    (component as any).processRowClick(target, event);
+    
+    document.body.removeChild(target);
+  });
+
+  it('processRowClick should return early when target is in calendar/datepicker', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tableElement = document.createElement('div');
+    const calendarElement = document.createElement('div');
+    calendarElement.className = 'p-calendar';
+    tableElement.appendChild(calendarElement);
+    (component as any).dt2 = { el: { nativeElement: tableElement } };
+    const event = new MouseEvent('click');
+    
+    (component as any).processRowClick(calendarElement, event);
+    
+    // Should not navigate
+  });
+
+  it('processRowClick should return early when target is in thead or th', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tableElement = document.createElement('table');
+    const thead = document.createElement('thead');
+    const th = document.createElement('th');
+    thead.appendChild(th);
+    tableElement.appendChild(thead);
+    (component as any).dt2 = { el: { nativeElement: tableElement } };
+    const event = new MouseEvent('click');
+    
+    (component as any).processRowClick(th, event);
+    
+    // Should not navigate
+  });
+
+  it('processRowClick should navigate to project-detail when clicking project-cell', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tableElement = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.className = 'project-cell';
+    row.appendChild(cell);
+    tbody.appendChild(row);
+    tableElement.appendChild(tbody);
+    (component as any).dt2 = {
+      el: { nativeElement: tableElement },
+      filteredValue: [{ ...mockResult, result_contracts: { contract_id: 'C-1' } }],
+      first: 0
+    };
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+    const stopPropagationSpy = jest.spyOn(event, 'stopPropagation');
+    
+    (component as any).processRowClick(cell, event);
+    
+    expect(preventDefaultSpy).toHaveBeenCalled();
+    expect(stopPropagationSpy).toHaveBeenCalled();
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/project-detail', 'C-1', 'project-results']);
+  });
+
+  it('processRowClick should return early for non-PRMS/TIP/AICCRA when clicking routerLink', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tableElement = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    const link = document.createElement('a');
+    link.setAttribute('routerLink', '/some-path');
+    cell.appendChild(link);
+    row.appendChild(cell);
+    tbody.appendChild(row);
+    tableElement.appendChild(tbody);
+    (component as any).dt2 = {
+      el: { nativeElement: tableElement },
+      filteredValue: [{ ...mockResult, platform_code: 'ROAR' }],
+      first: 0
+    };
+    const event = new MouseEvent('click');
+    
+    (component as any).processRowClick(link, event);
+    
+    // Should not navigate
   });
 });
 

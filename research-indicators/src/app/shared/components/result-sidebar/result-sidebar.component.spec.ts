@@ -13,6 +13,7 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { of } from 'rxjs';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
+import { CurrentResultService } from '@shared/services/cache/current-result.service';
 
 describe('ResultSidebarComponent', () => {
   let component: ResultSidebarComponent;
@@ -26,6 +27,7 @@ describe('ResultSidebarComponent', () => {
   let router: Partial<Router>;
   let route: Partial<ActivatedRoute>;
   let rolesService: Partial<RolesService>;
+  let currentResultService: Partial<CurrentResultService>;
 
   beforeEach(async () => {
     cacheService = {
@@ -47,7 +49,8 @@ describe('ResultSidebarComponent', () => {
         evidences: 0,
         ip_rights: 1
       } as GreenChecks),
-      allGreenChecksAreTrue: signal(true)
+      allGreenChecksAreTrue: signal(true),
+      projectResultsSearchValue: signal('')
     };
 
     actionsService = {
@@ -98,6 +101,11 @@ describe('ResultSidebarComponent', () => {
       isAdmin: computed(() => true)
     };
 
+    currentResultService = {
+      validateOpenResult: jest.fn().mockReturnValue(true),
+      openEditRequestdOicrsModal: jest.fn().mockResolvedValue(undefined)
+    };
+
     await TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, RouterTestingModule, ResultSidebarComponent],
       providers: [
@@ -109,7 +117,8 @@ describe('ResultSidebarComponent', () => {
         { provide: SubmissionService, useValue: submissionService },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: route },
-        { provide: RolesService, useValue: rolesService }
+        { provide: RolesService, useValue: rolesService },
+        { provide: CurrentResultService, useValue: currentResultService }
       ]
     }).compileComponents();
 
@@ -400,7 +409,7 @@ describe('ResultSidebarComponent', () => {
       expect(mockEvent.preventDefault).not.toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/result', '123', 'enabled'], {
         queryParams: { version: '123' },
-        replaceUrl: true
+        replaceUrl: false
       });
     });
 
@@ -422,7 +431,7 @@ describe('ResultSidebarComponent', () => {
 
       expect(router.navigate).toHaveBeenCalledWith(['/result', null, 'enabled'], {
         queryParams: {},
-        replaceUrl: true
+        replaceUrl: false
       });
     });
   });
@@ -505,6 +514,461 @@ describe('ResultSidebarComponent', () => {
 
       expect(component.getCompletedCount()).toBe(0);
       expect(component.getTotalCount()).toBe(0);
+    });
+  });
+
+  describe('onStatusChange', () => {
+    it('should show special alert for status 11 (postpone)', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        result_title: 'Test Result',
+        status_id: 1
+      });
+
+      await component.onStatusChange(11);
+
+      expect(actionsService.showGlobalAlert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'warning',
+          summary: 'POSTPONE THIS OICR?',
+          detail: expect.stringContaining('Test Result'),
+          placeholder: 'TProvide the justification to reject this OICR.'
+        })
+      );
+    });
+
+    it('should show special alert for status 15 (not accept)', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        result_title: 'Test Result',
+        status_id: 1
+      });
+
+      await component.onStatusChange(15);
+
+      expect(actionsService.showGlobalAlert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+          summary: 'DO NOT ACCEPT this OICR?',
+          detail: expect.stringContaining('Test Result'),
+          placeholder: 'Provide the justification to reject this OICR'
+        })
+      );
+    });
+
+    it('should update status directly for non-special status', async () => {
+      await component.onStatusChange(5);
+
+      expect(apiService.PATCH_SubmitResult).toHaveBeenCalledWith({
+        resultCode: 123,
+        comment: '',
+        status: 5
+      });
+    });
+
+    it('should execute confirmCallback with comment for status 11', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        result_title: 'Test Result',
+        status_id: 1
+      });
+
+      await component.onStatusChange(11);
+
+      const alertCall = (actionsService.showGlobalAlert as jest.Mock).mock.calls[0][0];
+      const confirmCallback = alertCall.confirmCallback.event;
+      await confirmCallback({ comment: 'Test comment' });
+
+      expect(apiService.PATCH_SubmitResult).toHaveBeenCalledWith({
+        resultCode: 123,
+        comment: 'Test comment',
+        status: 11
+      });
+    });
+
+    it('should execute confirmCallback without comment (undefined) for status 11', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        result_title: 'Test Result',
+        status_id: 1
+      });
+
+      await component.onStatusChange(11);
+
+      const alertCall = (actionsService.showGlobalAlert as jest.Mock).mock.calls[0][0];
+      const confirmCallback = alertCall.confirmCallback.event;
+      await confirmCallback({ comment: undefined });
+
+      expect(apiService.PATCH_SubmitResult).toHaveBeenCalledWith({
+        resultCode: 123,
+        comment: '',
+        status: 11
+      });
+    });
+
+    it('should execute confirmCallback without data parameter for status 11', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        result_title: 'Test Result',
+        status_id: 1
+      });
+
+      await component.onStatusChange(11);
+
+      const alertCall = (actionsService.showGlobalAlert as jest.Mock).mock.calls[0][0];
+      const confirmCallback = alertCall.confirmCallback.event;
+      await confirmCallback();
+
+      expect(apiService.PATCH_SubmitResult).toHaveBeenCalledWith({
+        resultCode: 123,
+        comment: '',
+        status: 11
+      });
+    });
+
+    it('should handle getSpecialStatusAlert with undefined result_title for status 11', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        result_title: undefined,
+        status_id: 1
+      });
+
+      await component.onStatusChange(11);
+
+      const alertCall = (actionsService.showGlobalAlert as jest.Mock).mock.calls[0][0];
+      expect(alertCall).toBeDefined();
+      expect(alertCall.summary).toBe('POSTPONE THIS OICR?');
+    });
+
+    it('should handle getSpecialStatusAlert with null result_title for status 15', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        result_title: null as any,
+        status_id: 1
+      });
+
+      await component.onStatusChange(15);
+
+      const alertCall = (actionsService.showGlobalAlert as jest.Mock).mock.calls[0][0];
+      expect(alertCall).toBeDefined();
+      expect(alertCall.summary).toBe('DO NOT ACCEPT this OICR?');
+    });
+  });
+
+  describe('updateResultStatus', () => {
+    it('should update status successfully and show success toast', async () => {
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({
+        successfulRequest: true
+      });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+
+      await (component as any).updateResultStatus(5, '');
+
+      expect(apiService.PATCH_SubmitResult).toHaveBeenCalled();
+      expect(metadataService.update).toHaveBeenCalledWith(123);
+      expect(actionsService.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Status updated',
+        detail: 'The status has been updated successfully'
+      });
+    });
+
+    it('should handle unsuccessful request', async () => {
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({
+        successfulRequest: false,
+        errorDetail: { errors: 'Error message' }
+      });
+
+      await (component as any).updateResultStatus(5, '');
+
+      expect(actionsService.showToast).toHaveBeenCalledWith({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error message'
+      });
+    });
+
+    it('should handle error without errorDetail', async () => {
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({
+        successfulRequest: false,
+        errorDetail: null
+      });
+
+      await (component as any).updateResultStatus(5, '');
+
+      expect(actionsService.showToast).toHaveBeenCalledWith({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Unable to update status, please try again'
+      });
+    });
+
+    it('should handle catch error', async () => {
+      (apiService.PATCH_SubmitResult as jest.Mock).mockRejectedValue(new Error('API Error'));
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      await (component as any).updateResultStatus(5, '');
+
+      expect(consoleSpy).toHaveBeenCalledWith('Error updating status:', expect.any(Error));
+      expect(actionsService.showToast).toHaveBeenCalledWith({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Unable to update status, please try again'
+      });
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should redirect after postpone status', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 11,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({
+        successfulRequest: true
+      });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).updateResultStatus(11, '');
+
+      expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 'A123']);
+    });
+
+    it('should redirect after reject status', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 7,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({
+        successfulRequest: true
+      });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).updateResultStatus(7, '');
+
+      expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 'A123']);
+    });
+  });
+
+  describe('handlePostponeOrRejectRedirect', () => {
+    it('should not redirect if validateOpenResult returns false', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 11,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(false);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not redirect if status is draft', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 4,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not redirect if result_contract_id is missing', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 11,
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not redirect if status_id is 14 (draft)', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 14,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not redirect if status_id is 12 (draft)', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 12,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not redirect if status_id is 13 (draft)', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 13,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should set projectResultsSearchValue if not on project-detail page', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 11,
+        result_contract_id: 'A123',
+        result_title: 'Test Title',
+        result_official_code: 12345
+      });
+      const searchValueSignal = signal('');
+      cacheService.projectResultsSearchValue = searchValueSignal;
+      (router.url as string) = '/other-page';
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(searchValueSignal()).toBe('Test Title');
+    });
+
+    it('should not set projectResultsSearchValue if already on project-detail page', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 11,
+        result_contract_id: 'A123',
+        result_title: 'Test Title',
+        result_official_code: 12345
+      });
+      const searchValueSignal = signal('');
+      cacheService.projectResultsSearchValue = searchValueSignal;
+      (router.url as string) = '/project-detail/A123';
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(searchValueSignal()).toBe(''); // Should remain empty
+    });
+
+    it('should handle handlePostponeOrRejectRedirect with undefined currentMetadata', async () => {
+      cacheService.currentMetadata = signal(undefined as any);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(false);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should set projectResultsSearchValue with undefined result_title', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 11,
+        result_contract_id: 'A123',
+        result_title: undefined,
+        result_official_code: 12345
+      });
+      const searchValueSignal = signal('');
+      cacheService.projectResultsSearchValue = searchValueSignal;
+      (router.url as string) = '/other-page';
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(searchValueSignal()).toBe(''); // Should be empty string when result_title is undefined
+    });
+
+    it('should handle handlePostponeOrRejectRedirect with null status_id', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: null as any,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 'A123']);
+    });
+
+    it('should handle handlePostponeOrRejectRedirect with undefined indicator_id', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: undefined,
+        status_id: 11,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 11, 12345);
+    });
+
+    it('should handle handlePostponeOrRejectRedirect with undefined result_official_code', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 11,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: undefined
+      });
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 11, 0);
+    });
+
+    it('should call openEditRequestdOicrsModal', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 11,
+        result_contract_id: 'A123',
+        result_title: 'Test',
+        result_official_code: 12345
+      });
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).handlePostponeOrRejectRedirect();
+
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 11, 12345);
     });
   });
 });

@@ -367,4 +367,22 @@ describe('GlobalAlertComponent', () => {
 
     jest.useRealTimers();
   });
+
+  it('should handle onCommentInput with null event.target', () => {
+    component.body.set({ commentValue: 'initial', selectValue: null });
+    const event = { target: null } as unknown as Event;
+    
+    component.onCommentInput(event);
+    
+    expect(component.body().commentValue).toBe('');
+  });
+
+  it('should handle onCommentInput with undefined event.target', () => {
+    component.body.set({ commentValue: 'initial', selectValue: null });
+    const event = { target: undefined } as unknown as Event;
+    
+    component.onCommentInput(event);
+    
+    expect(component.body().commentValue).toBe('');
+  });
 });

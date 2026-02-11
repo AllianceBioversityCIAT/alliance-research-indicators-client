@@ -57,7 +57,6 @@ import { CurrentResultService } from '@shared/services/cache/current-result.serv
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { AccordionModule } from 'primeng/accordion';
 import { SubmissionService } from '@shared/services/submission.service';
-import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 
 @Component({
   selector: 'app-create-oicr-form',
@@ -207,7 +206,7 @@ export class CreateOicrFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    if(this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 7) {
+    if(this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 15) {
       this.api.GET_SubmitionHistory(this.cache.getCurrentNumericResultId()).then((response) => {
         if (response.data && Array.isArray(response.data) && response.data.length > 0) {
           this.submissionHistory.set(response.data);
@@ -570,9 +569,9 @@ export class CreateOicrFormComponent implements OnInit {
   openSubmitResultModalForReviewAgain() {
     const statusId = this.createResultManagementService.statusId();
     // If current status is Postponed (11), disable Postpone in the modal.
-    // If current status is Rejected (7), disable Reject in the modal.
+    // If current status is Rejected (15), disable Reject in the modal.
     this.allModalsService.disablePostponeOption.set(statusId === 11);
-    this.allModalsService.disableRejectOption.set(statusId === 7);
+    this.allModalsService.disableRejectOption.set(statusId === 15);
     this.allModalsService.setSubmitResultOrigin('latest');
     this.allModalsService.closeModal('createResult');
     this.allModalsService.setSubmitBackStep(this.activeIndex());
@@ -605,8 +604,15 @@ export class CreateOicrFormComponent implements OnInit {
   }
 
   async handleSubmitBack(): Promise<void> {
+    // Clean up all data when canceling
+    this.allModalsService.setSubmitResultOrigin(null);
+    this.allModalsService.setSubmitHeader(null);
+    this.allModalsService.setSubmitBackStep(null);
+    this.allModalsService.clearSubmissionData();
+    this.allModalsService.submitBackAction = undefined;
+    this.allModalsService.createResultManagementService.resetModal();
+    
     this.allModalsService.closeModal('submitResult');
-    this.createResultManagementService.setStatusId(null);
     
     const currentMetadata = this.cache.currentMetadata();
     if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
@@ -623,22 +629,13 @@ export class CreateOicrFormComponent implements OnInit {
     return String(this.createResultManagementService.statusId() || 9);
   }
 
-  getStatusName(id: number): string {
-    return this.submissionService.getStatusNameById(id);
-  }
-
-  getColors() {
-    const status = String(this.getStatusIdAsString());
-    return STATUS_COLOR_MAP[status] || STATUS_COLOR_MAP[''];
-  }
-
   getStatusIcon(): string {
     const statusId = this.createResultManagementService.statusId();
     
     switch (statusId) {
       case 11: 
         return 'pi pi-minus-circle';
-      case 7: 
+      case 15: 
         return 'pi pi-times-circle';
       default: 
         return 'pi pi-check-circle';

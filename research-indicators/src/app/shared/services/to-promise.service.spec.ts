@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { ToPromiseService } from './to-promise.service';
 import { cacheServiceMock, mockGreenChecks } from 'src/app/testing/mock-services.mock';
@@ -242,5 +242,102 @@ describe('ToPromiseService', () => {
     const res = await service.get('/test-url');
     expect(res.successfulRequest).toBe(false);
     expect(res.errorDetail).toBeUndefined();
+  });
+
+  describe('getBlob', () => {
+    it('should call http.get with blob responseType', async () => {
+      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+      httpClientMock.get = jest.fn().mockReturnValue(of(mockBlob));
+      const res = await service.getBlob('/test-url');
+      expect(res).toBe(mockBlob);
+      expect(httpClientMock.get).toHaveBeenCalled();
+      const options = (httpClientMock.get as jest.Mock).mock.calls[0][1];
+      expect(options.responseType).toBe('blob');
+    });
+
+    it('should set X-Use-Year header when useResultInterceptor is true', async () => {
+      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+      httpClientMock.get = jest.fn().mockReturnValue(of(mockBlob));
+      await service.getBlob('/test-url', { useResultInterceptor: true });
+      const headers = (httpClientMock.get as jest.Mock).mock.calls[0][1].headers;
+      expect(headers.get('X-Use-Year')).toBe('true');
+    });
+
+    it('should set X-Platform header when platform is provided', async () => {
+      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+      httpClientMock.get = jest.fn().mockReturnValue(of(mockBlob));
+      await service.getBlob('/test-url', { platform: 'STAR' });
+      const headers = (httpClientMock.get as jest.Mock).mock.calls[0][1].headers;
+      expect(headers.get('X-Platform')).toBe('STAR');
+    });
+
+    it('should set no-auth-interceptor header when noAuthInterceptor is true', async () => {
+      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+      httpClientMock.get = jest.fn().mockReturnValue(of(mockBlob));
+      await service.getBlob('/test-url', { noAuthInterceptor: true });
+      const headers = (httpClientMock.get as jest.Mock).mock.calls[0][1].headers;
+      expect(headers.get('no-auth-interceptor')).toBe('true');
+    });
+
+    it('should set cache no-store when noCache is true', async () => {
+      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+      httpClientMock.get = jest.fn().mockReturnValue(of(mockBlob));
+      await service.getBlob('/test-url', { noCache: true });
+      const options = (httpClientMock.get as jest.Mock).mock.calls[0][1];
+      expect(options.cache).toBe('no-store');
+    });
+
+    it('should use managementApiUrl when isAuth is true', async () => {
+      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+      httpClientMock.get = jest.fn().mockReturnValue(of(mockBlob));
+      await service.getBlob('/test-url', { isAuth: true });
+      const url = (httpClientMock.get as jest.Mock).mock.calls[0][0];
+      expect(url).toContain('management');
+    });
+
+    it('should use mainApiUrl when isAuth is false', async () => {
+      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+      httpClientMock.get = jest.fn().mockReturnValue(of(mockBlob));
+      await service.getBlob('/test-url', { isAuth: false });
+      const url = (httpClientMock.get as jest.Mock).mock.calls[0][0];
+      expect(url).toContain('main');
+    });
+
+    it('should use custom URL when isAuth is a string', async () => {
+      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+      httpClientMock.get = jest.fn().mockReturnValue(of(mockBlob));
+      await service.getBlob('/test-url', { isAuth: 'https://custom-api.com' });
+      const url = (httpClientMock.get as jest.Mock).mock.calls[0][0];
+      expect(url).toBe('https://custom-api.com/test-url');
+    });
+
+    it('should pass params when provided', async () => {
+      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+      httpClientMock.get = jest.fn().mockReturnValue(of(mockBlob));
+      const params = new HttpParams().set('param1', 'value1');
+      await service.getBlob('/test-url', { params });
+      const options = (httpClientMock.get as jest.Mock).mock.calls[0][1];
+      expect(options.params).toBe(params);
+    });
+
+    it('should combine multiple headers', async () => {
+      const mockBlob = new Blob(['test'], { type: 'application/pdf' });
+      httpClientMock.get = jest.fn().mockReturnValue(of(mockBlob));
+      await service.getBlob('/test-url', {
+        useResultInterceptor: true,
+        platform: 'STAR',
+        noAuthInterceptor: true
+      });
+      const headers = (httpClientMock.get as jest.Mock).mock.calls[0][1].headers;
+      expect(headers.get('X-Use-Year')).toBe('true');
+      expect(headers.get('X-Platform')).toBe('STAR');
+      expect(headers.get('no-auth-interceptor')).toBe('true');
+    });
+
+    it('should handle error when getBlob fails', async () => {
+      const error = new Error('Blob fetch failed');
+      httpClientMock.get = jest.fn().mockReturnValue(throwError(() => error));
+      await expect(service.getBlob('/test-url')).rejects.toThrow('Blob fetch failed');
+    });
   });
 });

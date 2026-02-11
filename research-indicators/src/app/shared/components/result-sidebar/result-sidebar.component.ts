@@ -197,6 +197,28 @@ export class ResultSidebarComponent {
     });
   }
 
+  async approveResult() {
+    const response = await this.api.PATCH_SubmitResult({
+      resultCode: this.cache.getCurrentNumericResultId(),
+      status: 6
+    });
+    if (response.successfulRequest) {
+      await this.metadata.update(this.cache.getCurrentNumericResultId());
+      this.submissionService.refreshSubmissionHistory.update(v => v + 1);
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Result approved',
+        detail: 'The result has been approved successfully.'
+      });
+    } else {
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Error',
+        detail: response.errorDetail?.errors || 'Unable to approve result, please try again.'
+      });
+    }
+  }
+
   navigateTo(option: SidebarOption, event: Event) {
     if (option.disabled) {
       event.preventDefault();
@@ -211,7 +233,7 @@ export class ResultSidebarComponent {
 
     this.router.navigate(commands, {
       queryParams,
-      replaceUrl: true
+      replaceUrl: false
     });
   }
 
@@ -259,24 +281,24 @@ export class ResultSidebarComponent {
       return {
         severity: 'warning',
         summary: 'POSTPONE THIS OICR?',
-        detail: `You are about to postpone the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
-        placeholder: 'Provide the justification to postpone this OICR',
+        detail: `You are about to <span class="font-medium">postpone</span> the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
+        placeholder: 'TProvide the justification to reject this OICR.',
         icon: 'pi pi-minus-circle',
-        iconClass: 'text-[#e69f00]',
-        color: '#FFB547',
+        iconClass: 'text-[#E69F00]',
+        color: '#E69F00',
         commentAsTextArea: true
       };
     }
 
-    if (statusId === 7) {
+    if (statusId === 15) {
       return {
         severity: 'error',
-        summary: 'REJECT THIS OICR?',
-        detail: `You are about to reject the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
+        summary: 'DO NOT ACCEPT this OICR?',
+        detail: `You are about to <span class="font-medium">not accept</span> the result "<span class="font-medium">${resultTitle}</span>". To continue, please provide a brief reason.`,
         placeholder: 'Provide the justification to reject this OICR',
         icon: 'pi pi-times-circle',
         iconClass: 'text-[#CF0808]',
-        color: '#FF5050',
+        color: '#CF0808',
         commentAsTextArea: true
       };
     }
@@ -293,17 +315,7 @@ export class ResultSidebarComponent {
       });
 
       if (response.successfulRequest) {
-        await this.metadata.update(this.cache.getCurrentNumericResultId());
-        
-        this.actions.showToast({
-          severity: 'success',
-          summary: 'Status updated',
-          detail: 'The status has been updated successfully'
-        });
-
-        if (status === 11 || status === 7) {
-          await this.handlePostponeOrRejectRedirect();
-        }
+        await this.handleSuccessfulStatusUpdate(status);
       } else {
         this.actions.showToast({
           severity: 'error',
@@ -318,6 +330,41 @@ export class ResultSidebarComponent {
         summary: 'Error',
         detail: 'Unable to update status, please try again'
       });
+    }
+  }
+
+  private async handleSuccessfulStatusUpdate(status: number): Promise<void> {
+    await this.metadata.update(this.cache.getCurrentNumericResultId());
+    
+    const { indicator_id, status_id, result_contract_id, result_title, result_official_code } = 
+      this.cache.currentMetadata() || {};
+
+    if (this.currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
+      const isDraft = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
+      if (!isDraft || (isDraft && !this.roles.isAdmin())) {
+        if (result_contract_id) {
+          this.router.navigate(['/project-detail', result_contract_id]);
+          if (!this.router.url.includes('/project-detail/')) {
+            this.cache.projectResultsSearchValue.set(result_title ?? '');
+          }
+          await this.currentResultService.openEditRequestdOicrsModal(
+            indicator_id ?? 0,
+            status_id ?? 0,
+            result_official_code ?? 0
+          );
+          return;
+        }
+      }
+    }
+
+    this.actions.showToast({
+      severity: 'success',
+      summary: 'Status updated',
+      detail: 'The status has been updated successfully'
+    });
+
+    if (status === 11 || status === 15 || status === 7) {
+      await this.handlePostponeOrRejectRedirect();
     }
   }
 

@@ -362,22 +362,22 @@ describe('ApiService', () => {
 
     it('should call PATCH_SubmitResult with comment', () => {
       const params = { resultCode: 123, comment: 'test comment', status: 1 } as any;
-      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', {}, {
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { submission_comment: 'test comment' }, {
         useResultInterceptor: true
       });
     });
 
     it('should call PATCH_SubmitResult without comment', () => {
       const params = { resultCode: 123, status: 1 } as any;
-      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&status=1', {}, {
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { submission_comment: '' }, {
         useResultInterceptor: true
       });
     });
@@ -385,11 +385,11 @@ describe('ApiService', () => {
     it('should call PATCH_SubmitResult with body', () => {
       const params = { resultCode: 123, comment: 'test comment', status: 1 } as any;
       const body = { test: 'data' } as any;
-      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_SubmitResult(params, body);
 
-      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/change/status?resultCode=123&comment=test comment&status=1', body, {
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { ...body, submission_comment: 'test comment' }, {
         useResultInterceptor: true
       });
     });
@@ -1285,6 +1285,100 @@ describe('ApiService', () => {
       service.GET_Results(resultFilter);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results', {});
+    });
+  });
+
+  describe('Additional GET methods', () => {
+    it('should call GET_InformativeRoles', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_InformativeRoles();
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('informative-roles', {});
+    });
+
+    it('should call GET_GlobalTargets with impactAreaId', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_GlobalTargets(1);
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/global-targets/impact-area/1', {});
+    });
+
+    it('should call GET_ImpactAreaScores', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_ImpactAreaScores();
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('impact-area-score', {});
+    });
+
+    it('should call GET_ReferencesType', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_ReferencesType();
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('notable-reference-types', {});
+    });
+
+    it('should call GET_GeneralReport', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_GeneralReport();
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/general-report/all', {});
+    });
+
+    it('should call GET_LinkedResults with id', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+      service.GET_LinkedResults(123);
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('link-results/details/123', {
+        loadingTrigger: true,
+        useResultInterceptor: true
+      });
+    });
+
+    it('should call PATCH_LinkedResults with id and body', () => {
+      const body = { id: 123, linked_results: [] };
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+      service.PATCH_LinkedResults(123, body);
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('link-results/details/123', body, {
+        useResultInterceptor: true
+      });
+    });
+
+    it('should call GET_ImpactAreas', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_ImpactAreas();
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/impact-areas', {});
+    });
+
+    it('should call POST_feedback with body', () => {
+      const body = { interaction_id: 1, feedback: 'positive' };
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
+      service.POST_feedback(body);
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('interactions', body, {
+        isAuth: environment.feedbackUrl
+      });
+    });
+
+    it('should call GET_LeverStrategicOutcomes with leverId', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_LeverStrategicOutcomes(5);
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('lever-strategic-outcome/by-lever/5', {});
+    });
+
+    it('should call GET_AutorContact with resultCode', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+      service.GET_AutorContact(12345);
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('result-user/author-contact/by-result/12345', {
+        useResultInterceptor: true
+      });
+    });
+
+    it('should call POST_AutorContact with body and resultCode', () => {
+      const body = { user_id: 1, informative_role_id: 2 };
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
+      service.POST_AutorContact(body, 12345);
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('result-user/author-contact/save-by-result/12345', body, {});
+    });
+
+    it('should call DELETE_AutorContact with resultUserId and resultId', () => {
+      (mockToPromiseService.delete as jest.Mock).mockResolvedValue({ data: {} });
+      service.DELETE_AutorContact(10, 12345);
+      expect(mockToPromiseService.delete).toHaveBeenCalledWith('result-user/author-contact/10/by-result/12345', {
+        useResultInterceptor: true
+      });
     });
   });
 });

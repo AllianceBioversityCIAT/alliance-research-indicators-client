@@ -149,8 +149,17 @@ export default class GeographicScopeComponent {
         detail: 'Data saved successfully'
       });
     }
-    if (page === 'back') navigateTo('partners');
-    if (page === 'next') navigateTo('links-to-result');
+    if (page === 'back') {
+      navigateTo('partners');
+    }
+    if (page === 'next') {
+      if (this.cache.currentMetadata().indicator_id === 5) {
+        navigateTo('links-to-result');
+      } else {
+        navigateTo('evidence');
+      }
+    }
+   
 
     this.loading.set(false);
   }

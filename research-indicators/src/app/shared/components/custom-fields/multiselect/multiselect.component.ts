@@ -176,6 +176,29 @@ export class MultiselectComponent implements OnInit, OnChanges {
     { allowSignalWrites: true }
   );
 
+  syncBodyWithSignal = effect(
+    () => {
+      const signalValue = this.utils.getNestedProperty(this.signal(), this.signalOptionValue);
+      
+      if (Array.isArray(signalValue) && signalValue.length > 0) {
+        const bodyValue = signalValue.map((item: any) => item[this.optionValue]);
+        const currentBodyValue = this.body().value;
+        const currentArray = Array.isArray(currentBodyValue) ? currentBodyValue : [];
+        
+        if (currentArray.length !== bodyValue.length || 
+            !currentArray.every((val, idx) => val === bodyValue[idx])) {
+          this.body.set({ value: bodyValue });
+        }
+      } else {
+        const currentBodyValue = this.body().value;
+        if (currentBodyValue !== null && currentBodyValue !== undefined) {
+          this.body.set({ value: null });
+        }
+      }
+    },
+    { allowSignalWrites: true }
+  );
+
   ngOnInit(): void {
     this.service = this.serviceLocator.getService(this.serviceName);
     this.bindServiceSignals();
@@ -217,11 +240,11 @@ export class MultiselectComponent implements OnInit, OnChanges {
   }
 
   clear() {
-    this.body.set({ value: null });
     this.signal.update(prev => ({
       ...prev,
       [this.signalOptionValue]: []
     }));
+    this.body.set({ value: null });
   }
 
   setValue(event: number[]) {
