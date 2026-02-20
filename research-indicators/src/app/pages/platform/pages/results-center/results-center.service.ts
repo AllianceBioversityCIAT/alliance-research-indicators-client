@@ -308,6 +308,7 @@ export class ResultsCenterService {
 
   async main() {
     this.loading.set(true);
+    const primaryContractIdAtRequest = this.primaryContractId();
     try {
       const currentTab = this.myResultsFilterItem();
       const baseFilter = { ...this.resultsFilter() };
@@ -364,10 +365,14 @@ export class ResultsCenterService {
         } as Result & { primaryLeverSort: string };
       });
 
-      this.list.set(enhancedResults);
+      if (this.primaryContractId() === primaryContractIdAtRequest) {
+        this.list.set(enhancedResults);
+      }
     } catch (error) {
       console.error('Error loading results:', error);
-      this.list.set([]);
+      if (this.primaryContractId() === primaryContractIdAtRequest) {
+        this.list.set([]);
+      }
     } finally {
       this.loading.set(false);
     }
