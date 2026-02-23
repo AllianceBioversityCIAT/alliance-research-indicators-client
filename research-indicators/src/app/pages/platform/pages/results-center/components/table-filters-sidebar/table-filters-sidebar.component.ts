@@ -42,16 +42,13 @@ export class TableFiltersSidebarComponent implements AfterViewInit {
     return !this.indicatorHiddenIds.includes(id);
   };
 
-  /** Códigos seleccionados para el multiselect. Propiedad estable (no getter) para evitar bucle de change detection. */
   selectedSourceCodes: string[] = [];
 
   constructor() {
     effect(() => {
       const sources = this.resultsCenterService.tableFilters().sources;
       const codes = sources.map(s => s.platform_code);
-      const same =
-        codes.length === this.selectedSourceCodes.length &&
-        codes.every((c, i) => c === this.selectedSourceCodes[i]);
+      const same = codes.length === this.selectedSourceCodes.length && codes.every((c, i) => c === this.selectedSourceCodes[i]);
       if (!same) {
         this.selectedSourceCodes = [...codes];
       }

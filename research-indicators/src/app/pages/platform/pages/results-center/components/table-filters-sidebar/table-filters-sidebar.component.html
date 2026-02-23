@@ -62,10 +62,11 @@
   </app-multiselect>
 
   <div class="mb-6">
-    <label class="label inline-block flex items-center mb-2">Source</label>
-    <p-multiSelect [options]="sourceOptions" optionLabel="name" optionValue="platform_code"
+    <label class="label inline-block flex items-center mb-2" for="sourceFilterSelect">Source</label>
+    <p-multiSelect id="sourceFilterSelect" [options]="sourceOptions" optionLabel="name" optionValue="platform_code"
       [ngModel]="selectedSourceCodes" (ngModelChange)="onSourceChange($event)" placeholder="Select sources"
-      [filter]="true" [showToggleAll]="false" styleClass="w-full" appendTo="body">
+      [filter]="true" [showToggleAll]="false" styleClass="w-full" appendTo="body"
+      inputId="sourceFilterSelect">
       <ng-template pTemplate="item" let-item>
         <div class="flex items-center gap-2">
           @if (item.image) {
