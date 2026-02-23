@@ -7,7 +7,8 @@ import {
   isSubNationalRequiredByScope,
   updateCountryRegions,
   removeSubnationalRegionFromCountries,
-  shouldShowSubnationalError
+  shouldShowSubnationalError,
+  normalizeStepThree
 } from './geographic-scope.util';
 
 describe('geographic-scope.util', () => {
@@ -191,6 +192,66 @@ describe('geographic-scope.util', () => {
       const signalMock: any = Object.assign(() => ({ regions: undefined }));
       const countries: any[] = [{ isoAlpha2: 'CO', result_countries_sub_nationals_signal: signalMock }];
       expect(shouldShowSubnationalError(5, countries as any)).toBe(true);
+    });
+  });
+
+  describe('normalizeStepThree', () => {
+    it('returns empty countries and regions when geo_scope_id is 1 (global)', () => {
+      const step = { geo_scope_id: 1, countries: [{ isoAlpha2: 'CO' }], regions: [{ region_id: 1 }], comment_geo_scope: null };
+      const out = normalizeStepThree(step);
+      expect(out.countries).toEqual([]);
+      expect(out.regions).toEqual([]);
+      expect(out.geo_scope_id).toBe(1);
+      expect(out.comment_geo_scope).toBe('');
+    });
+
+    it('filters countries: keeps only items with non-empty isoAlpha2', () => {
+      const step = {
+        geo_scope_id: 2,
+        countries: [
+          { isoAlpha2: 'CO' },
+          { isoAlpha2: '' },
+          { isoAlpha2: '  ' },
+          { isoAlpha2: null },
+          {},
+          { isoAlpha2: 'PE' }
+        ],
+        regions: [],
+        comment_geo_scope: 'x'
+      };
+      const out = normalizeStepThree(step);
+      expect(out.countries).toHaveLength(2);
+      expect(out.countries).toEqual([{ isoAlpha2: 'CO' }, { isoAlpha2: 'PE' }]);
+      expect(out.comment_geo_scope).toBe('x');
+    });
+
+    it('filters regions: keeps only items with non-null region_id', () => {
+      const step = {
+        geo_scope_id: 2,
+        countries: [],
+        regions: [{ region_id: 1 }, { region_id: null }, {}, { region_id: 2 }],
+        comment_geo_scope: null
+      };
+      const out = normalizeStepThree(step);
+      expect(out.regions).toHaveLength(2);
+      expect(out.regions).toEqual([{ region_id: 1 }, { region_id: 2 }]);
+    });
+
+    it('handles missing or non-array countries/regions', () => {
+      const step = { geo_scope_id: 3, comment_geo_scope: '' };
+      const out = normalizeStepThree(step);
+      expect(out.countries).toEqual([]);
+      expect(out.regions).toEqual([]);
+      expect(out.geo_scope_id).toBe(3);
+    });
+
+    it('handles null stepThree and undefined geo_scope_id', () => {
+      const step = { countries: [], regions: [], comment_geo_scope: null };
+      const out = normalizeStepThree(step);
+      expect(out.geo_scope_id).toBeUndefined();
+      expect(out.countries).toEqual([]);
+      expect(out.regions).toEqual([]);
+      expect(out.comment_geo_scope).toBe('');
     });
   });
 });
