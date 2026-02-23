@@ -87,16 +87,20 @@ export class MyProjectsService {
 
   async main(params?: Record<string, unknown>) {
     this.loading.set(true);
+    const activeTabIdAtRequest = this.myProjectsFilterItem()?.id;
     try {
       const response = await this.api.GET_FindContracts(params);
       const listData = response?.data?.data;
       const metaTotalRaw = (response as ContractsResponseWithMeta)?.metadata?.total ?? response?.data?.metadata?.total;
 
+      const stillSameTab = this.myProjectsFilterItem()?.id === activeTabIdAtRequest;
+      if (!stillSameTab) return;
+
       if (listData && Array.isArray(listData)) {
         this.list.set(listData);
         const parsedTotal = metaTotalRaw === undefined || metaTotalRaw === null ? undefined : Number(metaTotalRaw);
         let totalValue = 0;
-        
+
         if (listData.length === 0) {
           totalValue = 0;
         } else if (parsedTotal !== undefined && Number.isFinite(parsedTotal)) {
@@ -104,7 +108,7 @@ export class MyProjectsService {
         } else {
           totalValue = listData.length;
         }
-        
+
         this.totalRecords.set(totalValue);
         this.list.update(current =>
           current.map(item => ({
@@ -120,8 +124,10 @@ export class MyProjectsService {
       }
     } catch (e) {
       console.error('Failed to fetch find contracts:', e);
-      this.list.set([]);
-      this.totalRecords.set(0);
+      if (this.myProjectsFilterItem()?.id === activeTabIdAtRequest) {
+        this.list.set([]);
+        this.totalRecords.set(0);
+      }
     } finally {
       this.loading.set(false);
     }

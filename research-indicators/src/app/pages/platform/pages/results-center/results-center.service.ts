@@ -309,6 +309,7 @@ export class ResultsCenterService {
   async main() {
     this.loading.set(true);
     const primaryContractIdAtRequest = this.primaryContractId();
+    const activeTabIdAtRequest = this.myResultsFilterItem()?.id;
     try {
       const currentTab = this.myResultsFilterItem();
       const baseFilter = { ...this.resultsFilter() };
@@ -365,12 +366,18 @@ export class ResultsCenterService {
         } as Result & { primaryLeverSort: string };
       });
 
-      if (this.primaryContractId() === primaryContractIdAtRequest) {
+      const stillSameContext =
+        this.primaryContractId() === primaryContractIdAtRequest &&
+        this.myResultsFilterItem()?.id === activeTabIdAtRequest;
+      if (stillSameContext) {
         this.list.set(enhancedResults);
       }
     } catch (error) {
       console.error('Error loading results:', error);
-      if (this.primaryContractId() === primaryContractIdAtRequest) {
+      const stillSameContext =
+        this.primaryContractId() === primaryContractIdAtRequest &&
+        this.myResultsFilterItem()?.id === activeTabIdAtRequest;
+      if (stillSameContext) {
         this.list.set([]);
       }
     } finally {
