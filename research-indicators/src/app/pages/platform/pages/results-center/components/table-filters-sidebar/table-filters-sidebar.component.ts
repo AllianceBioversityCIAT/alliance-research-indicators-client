@@ -6,12 +6,14 @@ import { MultiselectComponent } from '../../../../../../shared/components/custom
 import { ResultsCenterService } from '../../results-center.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
+import { PlatformSourceFilter } from '@shared/interfaces/platform-source-filter.interface';
+import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 @Component({
-    selector: 'app-table-filters-sidebar',
-    imports: [FormsModule, MultiSelectModule, ButtonModule, MultiselectComponent, TooltipModule],
-    templateUrl: './table-filters-sidebar.component.html',
-    styleUrl: './table-filters-sidebar.component.scss'
+  selector: 'app-table-filters-sidebar',
+  imports: [FormsModule, MultiSelectModule, ButtonModule, MultiselectComponent, TooltipModule, S3ImageUrlPipe],
+  templateUrl: './table-filters-sidebar.component.html',
+  styleUrl: './table-filters-sidebar.component.scss'
 })
 export class TableFiltersSidebarComponent implements AfterViewInit {
   @ViewChild('indicatorSelect') indicatorSelect?: MultiselectComponent;
@@ -23,6 +25,14 @@ export class TableFiltersSidebarComponent implements AfterViewInit {
 
   resultsCenterService = inject(ResultsCenterService);
   getContractStatusClasses = getContractStatusClasses;
+
+  sourceOptions: PlatformSourceFilter[] = [
+    { platform_code: 'STAR', name: 'STAR', image: 'images/prms-reporting-tool.svg' },
+    { platform_code: 'TIP', name: 'TIP', image: 'images/tracking.svg' },
+    { platform_code: 'PRMS', name: 'PRMS', image: 'images/prms-reporting-tool.svg' },
+    { platform_code: 'AICCRA', name: 'AICCRA', image: 'images/AICCRA.png' },
+    { platform_code: 'ICRA', name: 'ICRA', image: 'images/AICCRA.png' }
+  ];
 
   @Input() showSignal = signal(false);
   @Input() confirmSidebarEvent = output<void>();
@@ -37,11 +47,24 @@ export class TableFiltersSidebarComponent implements AfterViewInit {
     return !this.indicatorHiddenIds.includes(id);
   };
 
+  /** Códigos seleccionados para el multiselect. Propiedad estable (no getter) para evitar bucle de change detection. */
+  selectedSourceCodes: string[] = [];
+
   toggleSidebar() {
     this.showSignal.update(prev => !prev);
   }
 
+  onSourceChange(value: string[] | PlatformSourceFilter[]): void {
+    const codes = Array.isArray(value) ? value : [];
+    this.selectedSourceCodes = typeof codes[0] === 'string' ? [...(codes as string[])] : (codes as PlatformSourceFilter[]).map(s => s.platform_code);
+    const sources: PlatformSourceFilter[] = this.selectedSourceCodes.length
+      ? (this.selectedSourceCodes.map(code => this.sourceOptions.find(o => o.platform_code === code)).filter(Boolean) as PlatformSourceFilter[])
+      : [];
+    this.resultsCenterService.tableFilters.update(prev => ({ ...prev, sources }));
+  }
+
   ngAfterViewInit() {
+    this.selectedSourceCodes = this.resultsCenterService.tableFilters().sources.map(s => s.platform_code);
     this.resultsCenterService.multiselectRefs.set({
       indicator: this.indicatorSelect!,
       status: this.statusSelect!,
