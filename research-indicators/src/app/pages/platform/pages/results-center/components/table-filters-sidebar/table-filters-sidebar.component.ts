@@ -1,4 +1,4 @@
-import { Component, inject, Input, output, signal, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, effect, inject, Input, output, signal, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -44,6 +44,19 @@ export class TableFiltersSidebarComponent implements AfterViewInit {
 
   /** Códigos seleccionados para el multiselect. Propiedad estable (no getter) para evitar bucle de change detection. */
   selectedSourceCodes: string[] = [];
+
+  constructor() {
+    effect(() => {
+      const sources = this.resultsCenterService.tableFilters().sources;
+      const codes = sources.map(s => s.platform_code);
+      const same =
+        codes.length === this.selectedSourceCodes.length &&
+        codes.every((c, i) => c === this.selectedSourceCodes[i]);
+      if (!same) {
+        this.selectedSourceCodes = [...codes];
+      }
+    });
+  }
 
   toggleSidebar() {
     this.showSignal.update(prev => !prev);
