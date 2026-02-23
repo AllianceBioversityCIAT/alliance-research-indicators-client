@@ -195,7 +195,7 @@ export class ResultsCenterService {
       });
     }
 
-    if ((active['platform-codes'] ?? []).length > 0) {
+    if ((active['platform-code'] ?? []).length > 0) {
       const selected = this.tableFilters().sources as { platform_code: string; name: string }[];
       selected.forEach(s => {
         if (s) filters.push({ label: 'SOURCE', value: s.name ?? '', id: s.platform_code });
@@ -281,7 +281,7 @@ export class ResultsCenterService {
     const total =
       (rf['indicator-codes-filter']?.length ?? 0) +
       (rf['status-codes']?.length ?? 0) +
-      (rf['platform-codes']?.length ?? 0) +
+      (rf['platform-code']?.length ?? 0) +
       (rf['contract-codes']?.length ?? 0) +
       (rf['lever-codes']?.length ?? 0) +
       (rf.years?.length ?? 0);
@@ -415,7 +415,7 @@ export class ResultsCenterService {
       'indicator-codes': [],
       'status-codes': [],
       'contract-codes': [],
-      'platform-codes': [],
+      'platform-code': [],
       'lever-codes': [],
       years: [],
       'indicator-codes-filter': [],
@@ -451,7 +451,7 @@ export class ResultsCenterService {
       ...prev,
       'lever-codes': this.tableFilters().levers.map(lever => lever.id),
       'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
-      'platform-codes': this.tableFilters().sources.map(source => source.platform_code),
+      'platform-code': this.tableFilters().sources.map(source => source.platform_code),
       years: this.tableFilters().years.map(year => year.report_year),
       'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id),
@@ -462,7 +462,7 @@ export class ResultsCenterService {
       ...prev,
       'lever-codes': this.tableFilters().levers.map(lever => lever.id),
       'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
-      'platform-codes': this.tableFilters().sources.map(source => source.platform_code),
+      'platform-code': this.tableFilters().sources.map(source => source.platform_code),
       years: this.tableFilters().years.map(year => year.report_year),
       'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id),
@@ -550,7 +550,7 @@ export class ResultsCenterService {
       'indicator-codes-filter': [],
       'status-codes': [],
       'contract-codes': [],
-      'platform-codes': [],
+      'platform-code': [],
       years: [],
       'create-user-codes': preserveCreateUserCodes
     });
@@ -563,7 +563,7 @@ export class ResultsCenterService {
       'indicator-codes-filter': [],
       'status-codes': [],
       'contract-codes': [],
-      'platform-codes': [],
+      'platform-code': [],
       years: [],
       'create-user-codes': preserveCreateUserCodes
     });

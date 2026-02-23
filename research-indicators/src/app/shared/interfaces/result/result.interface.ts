@@ -38,7 +38,7 @@ export interface ResultFilter {
   'indicator-codes-filter'?: number[];
   'status-codes'?: number[];
   'contract-codes'?: string[];
-  'platform-codes'?: string[];
+  'platform-code'?: string[];
   years?: number[];
 }
 
