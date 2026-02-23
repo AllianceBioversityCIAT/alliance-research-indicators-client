@@ -24,6 +24,30 @@
     placeholder="Select statuses">
   </app-multiselect>
 
+  <div class="mb-6">
+    <label class="label inline-block flex items-center mb-2">Source</label>
+    <p-multiSelect
+      [options]="sourceOptions"
+      optionLabel="name"
+      optionValue="platform_code"
+      [ngModel]="selectedSourceCodes"
+      (ngModelChange)="onSourceChange($event)"
+      placeholder="Select sources"
+      [filter]="true"
+      [showToggleAll]="false"
+      styleClass="w-full"
+      appendTo="body">
+      <ng-template pTemplate="item" let-item>
+        <div class="flex items-center gap-2">
+          @if (item.image) {
+            <img [src]="item.image | s3ImageUrl" [alt]="item.name" class="w-8 h-8 object-contain flex-shrink-0" />
+          }
+          <span>{{ item.name }}</span>
+        </div>
+      </ng-template>
+    </p-multiSelect>
+  </div>
+
   @if (!hideProjectFilter) {
     <div #containerRef>
       <app-multiselect
