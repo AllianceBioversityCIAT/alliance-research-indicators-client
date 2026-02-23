@@ -8,6 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 import { PlatformSourceFilter } from '@shared/interfaces/platform-source-filter.interface';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { SOURCE_FILTER_OPTIONS } from '@shared/constants/source-filter-options.constants';
 
 @Component({
   selector: 'app-table-filters-sidebar',
@@ -26,13 +27,7 @@ export class TableFiltersSidebarComponent implements AfterViewInit {
   resultsCenterService = inject(ResultsCenterService);
   getContractStatusClasses = getContractStatusClasses;
 
-  sourceOptions: PlatformSourceFilter[] = [
-    { platform_code: 'STAR', name: 'STAR', image: 'images/prms-reporting-tool.svg' },
-    { platform_code: 'TIP', name: 'TIP', image: 'images/tracking.svg' },
-    { platform_code: 'PRMS', name: 'PRMS', image: 'images/prms-reporting-tool.svg' },
-    { platform_code: 'AICCRA', name: 'AICCRA', image: 'images/AICCRA.png' },
-    { platform_code: 'ICRA', name: 'ICRA', image: 'images/AICCRA.png' }
-  ];
+  sourceOptions = SOURCE_FILTER_OPTIONS;
 
   @Input() showSignal = signal(false);
   @Input() confirmSidebarEvent = output<void>();
@@ -58,7 +53,7 @@ export class TableFiltersSidebarComponent implements AfterViewInit {
     const codes = Array.isArray(value) ? value : [];
     this.selectedSourceCodes = typeof codes[0] === 'string' ? [...(codes as string[])] : (codes as PlatformSourceFilter[]).map(s => s.platform_code);
     const sources: PlatformSourceFilter[] = this.selectedSourceCodes.length
-      ? (this.selectedSourceCodes.map(code => this.sourceOptions.find(o => o.platform_code === code)).filter(Boolean) as PlatformSourceFilter[])
+      ? (this.selectedSourceCodes.map(code => SOURCE_FILTER_OPTIONS.find(o => o.platform_code === code)).filter(Boolean) as PlatformSourceFilter[])
       : [];
     this.resultsCenterService.tableFilters.update(prev => ({ ...prev, sources }));
   }
