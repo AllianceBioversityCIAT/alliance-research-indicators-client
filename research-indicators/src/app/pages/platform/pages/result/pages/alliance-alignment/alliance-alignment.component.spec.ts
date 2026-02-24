@@ -197,6 +197,40 @@ describe('AllianceAlignmentComponent', () => {
     expect(actions.saveCurrentSection).toHaveBeenCalled();
   });
 
+  it('should toggle lever to non-primary when already primary', () => {
+    const lever1 = { is_primary: true, lever_id: 1, result_lever_strategic_outcomes: [] };
+    component.body.set({ contracts: [], result_sdgs: [], primary_levers: [lever1], contributor_levers: [] });
+    component.markAsPrimary(lever1, 'lever');
+    const updatedLevers = component.body().primary_levers;
+    expect(updatedLevers.find(l => l.lever_id === 1)?.is_primary).toBe(false);
+  });
+
+  it('should call markAsPrimary for sdg', () => {
+    const sdg1 = { sdg_id: 1, is_primary: false } as any;
+    const sdg2 = { sdg_id: 2, is_primary: true } as any;
+    component.body.set({
+      contracts: [],
+      result_sdgs: [sdg1, sdg2],
+      primary_levers: [],
+      contributor_levers: []
+    });
+    component.markAsPrimary(sdg1, 'sdg');
+    const updatedSdgs = component.body().result_sdgs;
+    const withSdgId = (sdg: any) => (sdg as { sdg_id?: number }).sdg_id;
+    expect(updatedSdgs.find(s => withSdgId(s) === 1)).toBeDefined();
+    expect((updatedSdgs.find(s => withSdgId(s) === 1) as any).is_primary).toBe(true);
+    expect((updatedSdgs.find(s => withSdgId(s) === 2) as any).is_primary).toBe(false);
+    expect(actions.saveCurrentSection).toHaveBeenCalled();
+  });
+
+  it('should leave body unchanged when markAsPrimary is called with unknown type', () => {
+    const prev = { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] };
+    component.body.set(prev);
+    component.markAsPrimary({ is_primary: false }, 'unknown' as 'contract');
+    expect(component.body()).toBe(prev);
+    expect(actions.saveCurrentSection).toHaveBeenCalled();
+  });
+
   it('should call canRemove and return true if editable', () => {
     submission.isEditableStatus.mockReturnValue(true);
     expect(component.canRemove()).toBe(true);
@@ -564,6 +598,17 @@ describe('AllianceAlignmentComponent', () => {
       expect(disabled).toEqual([primaryLever]);
     }));
 
+    it('should set optionsDisabled to empty array when primary_levers is falsy', fakeAsync(() => {
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: undefined as any,
+        contributor_levers: []
+      });
+      tick();
+      flush();
+      expect(component.optionsDisabled()).toEqual([]);
+    }));
 
     it('should update primaryOptionsDisabled when contributor_levers change', fakeAsync(() => {
       const contributorLever = { lever_id: 2, name: 'Lever 2' };
@@ -580,6 +625,18 @@ describe('AllianceAlignmentComponent', () => {
       
       const disabled = component.primaryOptionsDisabled();
       expect(disabled).toEqual([contributorLever]);
+    }));
+
+    it('should set primaryOptionsDisabled to empty array when contributor_levers is falsy', fakeAsync(() => {
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [],
+        contributor_levers: undefined as any
+      });
+      tick();
+      flush();
+      expect(component.primaryOptionsDisabled()).toEqual([]);
     }));
 
   });

@@ -89,7 +89,15 @@ export class MyProjectsService {
     this.loading.set(true);
     const activeTabIdAtRequest = this.myProjectsFilterItem()?.id;
     try {
-      const response = await this.api.GET_FindContracts(params);
+      const finalParams: Record<string, unknown> = { ...(params ?? {}) };
+
+      if (finalParams['current-user'] === true) {
+        if (!('direction' in finalParams) || finalParams['direction'] == null || finalParams['direction'] === '') {
+          finalParams['direction'] = 'DESC';
+        }
+      }
+
+      const response = await this.api.GET_FindContracts(finalParams);
       const listData = response?.data?.data;
       const metaTotalRaw = (response as ContractsResponseWithMeta)?.metadata?.total ?? response?.data?.metadata?.total;
 

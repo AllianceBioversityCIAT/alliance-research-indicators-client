@@ -219,7 +219,7 @@ describe('MyProjectsService', () => {
     it('should fetch and process data successfully', async () => {
       await service.main();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(undefined);
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({});
       expect(service.loading()).toBe(false);
       expect(service.list()).toHaveLength(2);
 
@@ -1367,7 +1367,7 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': true });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': true, direction: 'DESC' });
     });
   });
 
