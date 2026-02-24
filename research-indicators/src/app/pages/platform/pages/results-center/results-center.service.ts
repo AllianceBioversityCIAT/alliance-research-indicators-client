@@ -468,6 +468,11 @@ export class ResultsCenterService {
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id),
       'create-user-codes': preserveCreateUserCodes
     }));
+
+    const table = this.tableRef();
+    if (table) {
+      table.first = 0;
+    }
     this.main();
   };
 
