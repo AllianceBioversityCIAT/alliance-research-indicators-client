@@ -103,7 +103,8 @@
         </td>
         } @else if (column.field === 'result_official_code') {
         <td class="{{ column.maxWidth }} {{ column.minWidth }}">
-          <div class="flex flex-col gap-0.5 items-center text-[13px]">
+          <div
+            class="flex flex-col gap-0.5 items-center text-[13px] {{result.platform_code !== 'STAR' ? 'pt-1.5' : ''}}">
             <div class="flex">
               <span class="py-1 px-2 rounded-l-lg font-[600] min-w-[58px] max-w-[58px] text-center"
                 [style.color]="getPlatformColors(result.platform_code)?.text"
