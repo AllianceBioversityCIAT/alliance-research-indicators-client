@@ -74,7 +74,7 @@ describe('ResultSidebarComponent', () => {
       currentResultIsSubmitted: jest.fn().mockReturnValue(false) as any,
       canSubmitResult: jest.fn().mockReturnValue(true) as any,
       isSubmitted: jest.fn().mockReturnValue(false) as any,
-      refreshSubmissionHistory: signal(0)
+      refreshSubmissionHistory: signal(0) as any
     };
 
     router = {
@@ -476,6 +476,41 @@ describe('ResultSidebarComponent', () => {
       const result = component.getRouterLink(enabledOption);
 
       expect(result).toEqual(['/result', null, 'enabled']);
+    });
+  });
+
+  describe('approveResult', () => {
+    it('should call PATCH_SubmitResult and on success update metadata and show toast', async () => {
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({ successfulRequest: true });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+
+      await component.approveResult();
+
+      expect(apiService.PATCH_SubmitResult).toHaveBeenCalledWith({
+        resultCode: 123,
+        status: 6
+      });
+      expect(metadataService.update).toHaveBeenCalledWith(123);
+      expect(actionsService.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Result approved',
+        detail: 'The result has been approved successfully.'
+      });
+    });
+
+    it('should show error toast when PATCH_SubmitResult fails', async () => {
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({
+        successfulRequest: false,
+        errorDetail: { errors: 'Not allowed' }
+      });
+
+      await component.approveResult();
+
+      expect(actionsService.showToast).toHaveBeenCalledWith({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Not allowed'
+      });
     });
   });
 

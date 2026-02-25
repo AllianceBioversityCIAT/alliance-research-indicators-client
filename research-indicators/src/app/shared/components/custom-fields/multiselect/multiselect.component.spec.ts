@@ -74,6 +74,15 @@ describe('MultiselectComponent', () => {
     component.optionLabel = 'name';
   });
 
+  it('syncBodyWithSignal should set body value to null when signal has empty value and body had value', () => {
+    component.signal = signal({ testField: [] });
+    component.signalOptionValue = 'testField';
+    mockUtilsService.getNestedProperty.mockReturnValue([]);
+    component.body.set({ value: [1, 2] });
+    TestBed.flushEffects();
+    expect(component.body().value).toBeNull();
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
