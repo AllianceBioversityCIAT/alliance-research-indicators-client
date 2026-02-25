@@ -26,6 +26,7 @@ export default class ProjectDetailComponent implements OnInit {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
     this.resultsCenterService.primaryContractId.set(this.contractId());
     this.resultsCenterService.resetState();
+    this.resultsCenterService.main();
     this.getProjectDetail();
   }
 

@@ -42,6 +42,8 @@ export class ResultsCenterService {
       field: 'result_official_code',
       path: 'result_official_code',
       header: 'Code',
+      maxWidth: '!max-w-[125px]',
+      minWidth: '!min-w-[125px]',
       filter: true,
       getValue: (result: Result) => result.result_official_code
     },
@@ -90,8 +92,8 @@ export class ResultsCenterService {
       getValue: (result: Result) => {
         if (!result.result_contracts) return '-';
         const contracts = Array.isArray(result.result_contracts) ? result.result_contracts : [result.result_contracts];
-        const primaryContract = contracts.find((contract: { is_primary?: number | string; contract_id?: string }) => 
-          Number(contract.is_primary) === 1
+        const primaryContract = contracts.find(
+          (contract: { is_primary?: number | string; contract_id?: string }) => Number(contract.is_primary) === 1
         );
         return primaryContract?.contract_id ?? '-';
       }
@@ -105,7 +107,10 @@ export class ResultsCenterService {
         if (!result.result_levers || !Array.isArray(result.result_levers)) return '-';
         const primaryLevers = result.result_levers.filter(rl => rl.is_primary === 1);
         if (primaryLevers.length === 0) return '-';
-        return primaryLevers.map(rl => rl.lever?.short_name).filter(Boolean).join(', ');
+        return primaryLevers
+          .map(rl => rl.lever?.short_name)
+          .filter(Boolean)
+          .join(', ');
       }
     },
     {
@@ -190,6 +195,13 @@ export class ResultsCenterService {
       });
     }
 
+    if ((active['platform-code'] ?? []).length > 0) {
+      const selected = (this.tableFilters().sources ?? []) as { platform_code: string; name: string }[];
+      selected.forEach(s => {
+        if (s) filters.push({ label: 'SOURCE', value: s.name ?? '', id: s.platform_code });
+      });
+    }
+
     if ((active['contract-codes'] ?? []).length > 0) {
       const selected = this.tableFilters().contracts as { agreement_id: string; display_label?: string }[];
       selected.forEach(c => {
@@ -231,6 +243,7 @@ export class ResultsCenterService {
     const map: Record<string, { update: Updater; ref?: keyof Record<string, MultiselectComponent>; key: keyof TableFilters }> = {
       INDICATOR: { update: mkUpdater<{ indicator_id: number }>('indicators', i => i?.indicator_id !== id), ref: 'indicator', key: 'indicators' },
       STATUS: { update: mkUpdater<{ result_status_id: number }>('statusCodes', s => s?.result_status_id !== id), ref: 'status', key: 'statusCodes' },
+      SOURCE: { update: mkUpdater<{ platform_code: string }>('sources', s => s?.platform_code !== id), key: 'sources' },
       PROJECT: { update: mkUpdater<{ agreement_id: string }>('contracts', c => c?.agreement_id !== id), ref: 'project', key: 'contracts' },
       LEVER: { update: mkUpdater<{ id: number }>('levers', l => l?.id !== id), ref: 'lever', key: 'levers' },
       YEAR: { update: mkUpdater<{ report_year: number }>('years', y => y?.report_year !== id), ref: 'year', key: 'years' }
@@ -268,6 +281,7 @@ export class ResultsCenterService {
     const total =
       (rf['indicator-codes-filter']?.length ?? 0) +
       (rf['status-codes']?.length ?? 0) +
+      (rf['platform-code']?.length ?? 0) +
       (rf['contract-codes']?.length ?? 0) +
       (rf['lever-codes']?.length ?? 0) +
       (rf.years?.length ?? 0);
@@ -277,7 +291,12 @@ export class ResultsCenterService {
   countTableFiltersSelected = computed(() => {
     const tf = this.tableFilters();
     const total =
-      (tf.indicators?.length ?? 0) + (tf.statusCodes?.length ?? 0) + (tf.contracts?.length ?? 0) + (tf.levers?.length ?? 0) + (tf.years?.length ?? 0);
+      (tf.indicators?.length ?? 0) +
+      (tf.statusCodes?.length ?? 0) +
+      (tf.sources?.length ?? 0) +
+      (tf.contracts?.length ?? 0) +
+      (tf.levers?.length ?? 0) +
+      (tf.years?.length ?? 0);
     return total > 0 ? total.toString() : undefined;
   });
 
@@ -308,10 +327,12 @@ export class ResultsCenterService {
 
   async main() {
     this.loading.set(true);
+    const primaryContractIdAtRequest = this.primaryContractId();
+    const activeTabIdAtRequest = this.myResultsFilterItem()?.id;
     try {
       const currentTab = this.myResultsFilterItem();
       const baseFilter = { ...this.resultsFilter() };
-      
+
       if (currentTab?.id === 'my') {
         const userId = this.cache.dataCache().user.sec_user_id.toString();
         if (!baseFilter['create-user-codes'] || baseFilter['create-user-codes'].length === 0) {
@@ -336,19 +357,15 @@ export class ResultsCenterService {
           'create-user-codes': []
         }));
       }
-      
+
       const primaryContractId = this.primaryContractId();
-      const finalFilter = primaryContractId
-        ? ({ ...baseFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter)
-        : baseFilter;
+      const finalFilter = primaryContractId ? ({ ...baseFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter) : baseFilter;
 
       const response = await this.getResultsService.getInstance(finalFilter, this.resultsConfig());
       const rawResults = response();
 
       const enhancedResults = rawResults.map(result => {
-        const primaryLevers = Array.isArray(result.result_levers)
-          ? result.result_levers.filter(rl => rl.is_primary === 1)
-          : [];
+        const primaryLevers = Array.isArray(result.result_levers) ? result.result_levers.filter(rl => rl.is_primary === 1) : [];
         const primaryLeverSort =
           primaryLevers.length === 0
             ? ''
@@ -364,10 +381,16 @@ export class ResultsCenterService {
         } as Result & { primaryLeverSort: string };
       });
 
-      this.list.set(enhancedResults);
+      const stillSameContext = this.primaryContractId() === primaryContractIdAtRequest && this.myResultsFilterItem()?.id === activeTabIdAtRequest;
+      if (stillSameContext) {
+        this.list.set(enhancedResults);
+      }
     } catch (error) {
       console.error('Error loading results:', error);
-      this.list.set([]);
+      const stillSameContext = this.primaryContractId() === primaryContractIdAtRequest && this.myResultsFilterItem()?.id === activeTabIdAtRequest;
+      if (stillSameContext) {
+        this.list.set([]);
+      }
     } finally {
       this.loading.set(false);
     }
@@ -392,6 +415,7 @@ export class ResultsCenterService {
       'indicator-codes': [],
       'status-codes': [],
       'contract-codes': [],
+      'platform-code': [],
       'lever-codes': [],
       years: [],
       'indicator-codes-filter': [],
@@ -421,14 +445,13 @@ export class ResultsCenterService {
   applyFilters = () => {
     // Preserve create-user-codes if tab is "my"
     const currentTab = this.myResultsFilterItem();
-    const preserveCreateUserCodes = currentTab?.id === 'my' 
-      ? (this.resultsFilter()['create-user-codes'] || [])
-      : [];
+    const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
 
     this.resultsFilter.update(prev => ({
       ...prev,
       'lever-codes': this.tableFilters().levers.map(lever => lever.id),
       'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
+      'platform-code': (this.tableFilters().sources ?? []).map(source => source.platform_code),
       years: this.tableFilters().years.map(year => year.report_year),
       'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id),
@@ -439,11 +462,17 @@ export class ResultsCenterService {
       ...prev,
       'lever-codes': this.tableFilters().levers.map(lever => lever.id),
       'status-codes': this.tableFilters().statusCodes.map(status => status.result_status_id),
+      'platform-code': (this.tableFilters().sources ?? []).map(source => source.platform_code),
       years: this.tableFilters().years.map(year => year.report_year),
       'contract-codes': this.tableFilters().contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': this.tableFilters().indicators.map(indicator => indicator.indicator_id),
       'create-user-codes': preserveCreateUserCodes
     }));
+
+    const table = this.tableRef();
+    if (table) {
+      table.first = 0;
+    }
     this.main();
   };
 
@@ -456,9 +485,7 @@ export class ResultsCenterService {
     );
 
     const currentTab = this.myResultsFilterItem();
-    const preserveCreateUserCodes = currentTab?.id === 'my' 
-      ? (this.resultsFilter()['create-user-codes'] || [])
-      : [];
+    const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
 
     this.resultsFilter.update(prev => ({
       ...prev,
@@ -495,6 +522,7 @@ export class ResultsCenterService {
       ...prev,
       indicators: [],
       statusCodes: [],
+      sources: [],
       years: [],
       contracts: [],
       levers: []
@@ -503,12 +531,13 @@ export class ResultsCenterService {
 
   clearAllFilters() {
     this.cleanMultiselects();
-    
+
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
       indicators: [],
       statusCodes: [],
+      sources: [],
       years: [],
       contracts: [],
       levers: []
@@ -516,9 +545,7 @@ export class ResultsCenterService {
 
     // Preserve create-user-codes if tab is "my", otherwise clear it
     const currentTab = this.myResultsFilterItem();
-    const preserveCreateUserCodes = currentTab?.id === 'my' 
-      ? this.resultsFilter()['create-user-codes'] || []
-      : [];
+    const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
 
     // Clear ALL fields in resultsFilter, but preserve create-user-codes if tab is "my"
     this.resultsFilter.set({
@@ -528,6 +555,7 @@ export class ResultsCenterService {
       'indicator-codes-filter': [],
       'status-codes': [],
       'contract-codes': [],
+      'platform-code': [],
       years: [],
       'create-user-codes': preserveCreateUserCodes
     });
@@ -540,6 +568,7 @@ export class ResultsCenterService {
       'indicator-codes-filter': [],
       'status-codes': [],
       'contract-codes': [],
+      'platform-code': [],
       years: [],
       'create-user-codes': preserveCreateUserCodes
     });
@@ -558,11 +587,11 @@ export class ResultsCenterService {
 
     // clear search input
     this.searchInput.set('');
-    
+
     setTimeout(() => {
       this.cleanMultiselects();
     }, 0);
-    
+
     const table = this.tableRef();
     if (table) {
       table.clear();
@@ -571,13 +600,14 @@ export class ResultsCenterService {
     }
     this.onSelectFilterTab(0);
   }
-  
+
   clearAllFiltersWithPreserve(preserveIndicatorCodes: readonly number[]): void {
     this.tableFilters.set(new TableFilters());
     this.tableFilters.update(prev => ({
       ...prev,
       indicators: [],
       statusCodes: [],
+      sources: [],
       years: [],
       contracts: [],
       levers: []

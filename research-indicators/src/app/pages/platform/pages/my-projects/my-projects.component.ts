@@ -521,7 +521,21 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   private loadMyProjectsWithPagination(query?: string) {
-    const page = Math.floor((this.myProjectsFirst() ?? 0) / (this.myProjectsRows() || 1)) + 1;
+    const firstRaw = this.myProjectsFirst();
+    let first: number;
+    if (firstRaw == null) {
+      first = 0;
+    } else {
+      first = firstRaw;
+    }
+    const rowsPerPage = this.myProjectsRows();
+    let divisor: number;
+    if (rowsPerPage <= 0) {
+      divisor = 1;
+    } else {
+      divisor = rowsPerPage;
+    }
+    const page = Math.floor(first / divisor) + 1;
     const params: Record<string, unknown> = { 'current-user': true, page, limit: this.myProjectsRows() };
     if (query) {
       params['query'] = query;
@@ -537,7 +551,21 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   private loadAllProjectsWithPagination(query?: string) {
-    const page = Math.floor((this.allProjectsFirst() ?? 0) / (this.allProjectsRows() || 1)) + 1;
+    const firstRaw = this.allProjectsFirst();
+    let first: number;
+    if (firstRaw == null) {
+      first = 0;
+    } else {
+      first = firstRaw;
+    }
+    const rowsPerPage = this.allProjectsRows();
+    let divisor: number;
+    if (rowsPerPage <= 0) {
+      divisor = 1;
+    } else {
+      divisor = rowsPerPage;
+    }
+    const page = Math.floor(first / divisor) + 1;
     const params: Record<string, unknown> = { 'current-user': false, page, limit: this.allProjectsRows() };
     if (query) {
       params['query'] = query;

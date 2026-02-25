@@ -18,8 +18,8 @@ describe('ActorItemComponent', () => {
   let actorServiceMock: Partial<GetActorTypesService>;
 
   beforeEach(async () => {
-    submissionServiceMock = {};
-    actorServiceMock = {};
+    submissionServiceMock = { isEditableStatus: jest.fn(() => true) };
+    actorServiceMock = { list: jest.fn(() => []) };
     await TestBed.configureTestingModule({
       imports: [ActorItemComponent, CheckboxModule, NgTemplateOutlet, FormsModule, InputTextModule, TextareaModule, SelectModule],
       providers: [
@@ -308,5 +308,47 @@ describe('ActorItemComponent', () => {
       done();
     });
     component.deleteActor();
+  });
+
+  it('syncBody effect should set body from parentActor when parentActor exists and differs from body', () => {
+    const parentActor = { ...new Actor(), actor_type_id: 99 };
+    const bodySignal: WritableSignal<GetInnovationDetails> = signal({
+      actors: [parentActor]
+    } as GetInnovationDetails);
+    component.index = 0;
+    component.bodySignal = bodySignal;
+    component.actor = { ...parentActor };
+    component.body.set({ ...new Actor(), actor_type_id: 1 });
+    fixture.detectChanges();
+    bodySignal.update(prev => ({ ...prev }));
+    fixture.detectChanges();
+    expect(component.body().actor_type_id).toBe(99);
+  });
+
+  it('syncBody effect should set body from actor input when parentActor missing and actor differs from body', () => {
+    const bodySignal: WritableSignal<GetInnovationDetails> = signal({ actors: [] } as GetInnovationDetails);
+    component.index = 0;
+    component.bodySignal = bodySignal;
+    component.actor = { ...new Actor(), actor_type_id: 5 };
+    component.body.set(new Actor());
+    fixture.detectChanges();
+    bodySignal.update(prev => ({ ...prev }));
+    fixture.detectChanges();
+    expect(component.body().actor_type_id).toBe(5);
+  });
+
+  it('syncFromParent effect should set body from parentActor when index and parentActor exist', () => {
+    const parentActor = { ...new Actor(), actor_type_id: 42 };
+    const bodySignal: WritableSignal<GetInnovationDetails> = signal({
+      actors: [new Actor(), parentActor]
+    } as GetInnovationDetails);
+    component.index = 1;
+    component.bodySignal = bodySignal;
+    component.actor = { ...parentActor };
+    component.body.set(new Actor());
+    fixture.detectChanges();
+    bodySignal.update(prev => ({ ...prev }));
+    fixture.detectChanges();
+    expect(component.body().actor_type_id).toBe(42);
   });
 });

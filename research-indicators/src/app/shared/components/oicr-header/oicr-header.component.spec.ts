@@ -194,6 +194,44 @@ describe('OicrHeaderComponent', () => {
     expect(component.data.leverFirst).toBeUndefined();
     expect(component.data.leverSecond).toBeUndefined();
   });
+
+  describe('shouldShowWorkflow', () => {
+    it('should return false when data is null', () => {
+      expect(component.shouldShowWorkflow()).toBe(false);
+    });
+
+    it('should return false when data has no status_id', () => {
+      const f = TestBed.createComponent(OicrHeaderComponent);
+      const c = f.componentInstance;
+      c.data = { title: 'No status' } as OicrHeaderData;
+      f.detectChanges();
+      expect(c.shouldShowWorkflow()).toBe(false);
+    });
+
+    it('should return true when status_id is in intermediateStatusIds', () => {
+      const f = TestBed.createComponent(OicrHeaderComponent);
+      const c = f.componentInstance;
+      c.data = { status_id: 12 } as OicrHeaderData;
+      f.detectChanges();
+      expect(c.shouldShowWorkflow()).toBe(true);
+    });
+
+    it('should return true when status_id is string and in intermediateStatusIds', () => {
+      const f = TestBed.createComponent(OicrHeaderComponent);
+      const c = f.componentInstance;
+      c.data = { status_id: '14' } as OicrHeaderData;
+      f.detectChanges();
+      expect(c.shouldShowWorkflow()).toBe(true);
+    });
+
+    it('should return false when status_id is not in intermediateStatusIds', () => {
+      const f = TestBed.createComponent(OicrHeaderComponent);
+      const c = f.componentInstance;
+      c.data = { status_id: 99 } as OicrHeaderData;
+      f.detectChanges();
+      expect(c.shouldShowWorkflow()).toBe(false);
+    });
+  });
 });
 
 
