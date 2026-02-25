@@ -345,6 +345,23 @@ describe('SubmitResultContentComponent', () => {
     protoSpy.mockRestore();
   });
 
+  it('loadStatuses should catch GET_ResultStatus errors and still set statusData for successful requests', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    (mockApiService.GET_ResultStatus as jest.Mock).mockImplementation((statusId: number) => {
+      if (statusId === 5) return Promise.reject(new Error('Network error'));
+      return Promise.resolve({
+        successfulRequest: true,
+        data: { result_status_id: statusId, name: statusId === 6 ? 'Approve' : 'Reject' }
+      });
+    });
+    await (component as any).loadStatuses();
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading status for statusId 5:', expect.any(Error));
+    expect(component.statusData()[6]).toBeDefined();
+    expect(component.statusData()[7]).toBeDefined();
+    expect(component.statusData()[5]).toBeUndefined();
+    consoleErrorSpy.mockRestore();
+  });
+
   it('should submit review successfully', async () => {
     const mockResponse = { successfulRequest: true };
     mockApiService.PATCH_SubmitResult!.mockResolvedValue(mockResponse);
