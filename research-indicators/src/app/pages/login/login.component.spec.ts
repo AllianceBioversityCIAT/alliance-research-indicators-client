@@ -27,10 +27,10 @@ describe('LoginComponent', () => {
 
   describe('ngOnInit', () => {
     it('should redirect to home if user is logged in', () => {
-      jest.spyOn(router, 'navigate');
+      jest.spyOn(router, 'navigateByUrl');
       jest.spyOn(component.cache, 'isLoggedIn').mockReturnValue(true);
       component.ngOnInit();
-      expect(router.navigate).toHaveBeenCalledWith(['/']);
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/');
     });
   });
 });
