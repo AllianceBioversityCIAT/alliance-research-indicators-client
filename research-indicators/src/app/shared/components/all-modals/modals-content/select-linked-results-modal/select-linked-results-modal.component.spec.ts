@@ -14,6 +14,7 @@ import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 describe('SelectLinkedResultsModalComponent', () => {
   let component: SelectLinkedResultsModalComponent;
   let fixture: ComponentFixture<SelectLinkedResultsModalComponent>;
+  let modalConfigSignal: ReturnType<typeof signal>;
 
   let allModalsService: jest.Mocked<AllModalsService> & { modalConfig: ReturnType<typeof signal> };
   let resultsCenterService: jest.Mocked<ResultsCenterService>;
@@ -733,6 +734,22 @@ describe('SelectLinkedResultsModalComponent', () => {
         contracts: []
       } as any);
       resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': [1] } as any);
+      
+      (component as any).applyModalIndicatorFilter({ resetIndicatorFilters: false });
+      
+      expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
+      expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
+    });
+
+    it('should use empty tabs when only resultsFilter indicator-codes-filter is set', () => {
+      resultsCenterService.tableFilters.mockReturnValue({
+        indicators: [],
+        levers: [],
+        statusCodes: [],
+        years: [],
+        contracts: []
+      } as any);
+      resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': [1, 2] } as any);
       
       (component as any).applyModalIndicatorFilter({ resetIndicatorFilters: false });
       
