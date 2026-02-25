@@ -18,7 +18,12 @@ export class CognitoService {
   actions = inject(ActionsService);
   clarity = inject(ClarityService);
 
-  redirectToCognito() {
+  private readonly loginReturnUrlKey = 'loginReturnUrl';
+
+  redirectToCognito(returnUrl?: string) {
+    if (returnUrl && returnUrl.startsWith('/')) {
+      sessionStorage.setItem(this.loginReturnUrlKey, returnUrl);
+    }
     window.location.href =
       `${environment.cognitoDomain}oauth2/authorize` +
       `?response_type=code` +
@@ -53,8 +58,16 @@ export class CognitoService {
     this.actions.updateLocalStorage(loginResponse);
 
     this.updateCacheService();
+    const returnUrl = sessionStorage.getItem(this.loginReturnUrlKey);
+    if (returnUrl) {
+      sessionStorage.removeItem(this.loginReturnUrlKey);
+    }
     setTimeout(() => {
-      this.router.navigate(['/']);
+      if (returnUrl && returnUrl.startsWith('/')) {
+        this.router.navigateByUrl(returnUrl);
+      } else {
+        this.router.navigate(['/']);
+      }
     }, 2000);
   }
 
