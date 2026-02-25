@@ -271,5 +271,69 @@ describe('StatusDropdownComponent', () => {
       expect(component.statusName).toBe('Science Edition');
     });
   });
+
+  describe('ngOnChanges', () => {
+    it('should call loadNextSteps when statusId changes and is not first change', async () => {
+      const loadSpy = jest.spyOn(component, 'loadNextSteps');
+      mockApiService.GET_NextStep.mockResolvedValue({ successfulRequest: true, data: { sequence: [] } });
+      component.ngOnChanges({
+        statusId: {
+          firstChange: false,
+          previousValue: 4,
+          currentValue: 12,
+          isFirstChange: () => false
+        }
+      } as any);
+      expect(loadSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('loadNextSteps branches', () => {
+    it('should handle response.data.data array format', async () => {
+      component.statusId = 4;
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: {
+          data: [
+            { id: 12, result_status_id: 12, name: 'Science Edition', direction: 'next' },
+            { id: 11, result_status_id: 11, name: 'Postpone', direction: 'previous', icon: 'postpone' }
+          ]
+        } as any
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
+      expect(component.availableStatuses().length).toBe(2);
+    });
+
+    it('should use buildOptionsFromResponse when data has sequence only', async () => {
+      component.statusId = 12;
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: {
+          sequence: [
+            { id: 4, name: 'Draft' },
+            { id: 12, name: 'Science Edition' },
+            { id: 13, name: 'KM Curation' }
+          ]
+        }
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
+      const statuses = component.getAvailableStatuses();
+      expect(statuses.length).toBeGreaterThan(0);
+    });
+
+    it('should set empty array and log on GET_NextStep error', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      component.statusId = 4;
+      mockApiService.GET_NextStep.mockRejectedValue(new Error('Network error'));
+
+      await component.loadNextSteps();
+
+      expect(component.availableStatuses()).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalled();
+      consoleSpy.mockRestore();
+    });
+  });
 });
 
