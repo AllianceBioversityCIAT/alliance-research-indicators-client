@@ -335,6 +335,24 @@ describe('StatusDropdownComponent', () => {
       expect(component.availableStatuses().length).toBe(2);
     });
 
+    it('should map data.data items using id when result_status_id is falsy (cover line 71)', async () => {
+      component.statusId = 4;
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: {
+          data: [
+            { id: 99, result_status_id: undefined, name: 'Custom', direction: 'next' }
+          ] as any
+        }
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
+      const statuses = component.getAvailableStatuses();
+      expect(statuses.length).toBe(1);
+      expect(statuses[0].id).toBe(99);
+      expect(statuses[0].result_status_id).toBeUndefined();
+    });
+
     it('should use buildOptionsFromResponse when data has sequence only', async () => {
       component.statusId = 12;
       const mockResponse: MainResponse<GetNextStep> = {

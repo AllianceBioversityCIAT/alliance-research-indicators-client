@@ -62,6 +62,19 @@ describe('rolesGuard', () => {
       expect(result).toBe(mockUrlTree);
       expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/projects' } });
     });
+
+    it('should use path from segments when non-empty and router.url when segments empty (cover lines 12-13)', () => {
+      mockCacheService.isLoggedIn.set(false);
+      mockRouter.url = '/dashboard';
+      const result = rolesGuard(mockRoute, []);
+      expect(result).toBe(mockUrlTree);
+      expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/dashboard' } });
+
+      mockRouter.createUrlTree.mockClear();
+      mockRouter.url = '';
+      rolesGuard(mockRoute, []);
+      expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/' } });
+    });
   });
 
   describe('when route data has isLoggedIn: false', () => {
