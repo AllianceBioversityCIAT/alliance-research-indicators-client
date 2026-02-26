@@ -26,7 +26,7 @@ export class ActorItemComponent implements OnInit {
   isPrivate = false;
   actorService = inject(GetActorTypesService);
 
-  syncBody = effect(() => {
+  syncBodyFromParentOrInput(): void {
     if (this.index === null) return;
     const parentActor = this.bodySignal().actors?.[this.index];
     if (parentActor && JSON.stringify(parentActor) !== JSON.stringify(this.body())) {
@@ -36,15 +36,19 @@ export class ActorItemComponent implements OnInit {
     if (this.actor && JSON.stringify(this.actor) !== JSON.stringify(this.body())) {
       this.body.set(this.actor);
     }
-  });
+  }
 
-  syncFromParent = effect(() => {
+  syncBody = effect(() => this.syncBodyFromParentOrInput());
+
+  syncFromParentData(): void {
     if (this.index === null) return;
     const parentActor = this.bodySignal().actors?.[this.index];
     if (parentActor) {
       this.body.set(parentActor);
     }
-  });
+  }
+
+  syncFromParent = effect(() => this.syncFromParentData());
 
   ngOnInit() {
     this.body.set(this.actor);

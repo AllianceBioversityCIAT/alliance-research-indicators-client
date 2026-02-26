@@ -1,11 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { PatchResultEvidences } from '../../../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { EvidenceItemComponent } from './evidence-item.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Evidence } from '../../../../../../../../shared/interfaces/patch-result-evidences.interface';
 import { SubmissionService } from '@shared/services/submission.service';
 import { submissionServiceMock } from 'src/app/testing/mock-services.mock';
-import { fakeAsync, tick } from '@angular/core/testing';
-import { SimpleChange } from '@angular/core';
 
 describe('EvidenceItemComponent', () => {
   let component: EvidenceItemComponent;
@@ -317,10 +316,10 @@ describe('EvidenceItemComponent', () => {
     // Test the syncBody effect by setting up the conditions that would trigger it
     const parentEvidence = new Evidence();
     parentEvidence.evidence_url = 'parent-url';
-    
+
     component.index = 0;
     component.bodySignal.set({ evidence: [parentEvidence] });
-    
+
     // This test covers the syncBody effect setup and conditions
     expect(component.syncBody).toBeDefined();
     expect(component.index).toBe(0);
@@ -331,11 +330,11 @@ describe('EvidenceItemComponent', () => {
     // Test the onChange effect by setting up the conditions that would trigger it
     const currentEvidence = new Evidence();
     currentEvidence.evidence_url = 'test-url';
-    
+
     component.index = 0;
     component.body.set(currentEvidence);
     component.bodySignal.set({ evidence: [] });
-    
+
     // This test covers the onChange effect setup and conditions
     expect(component.onChange).toBeDefined();
     expect(component.index).toBe(0);
@@ -345,28 +344,28 @@ describe('EvidenceItemComponent', () => {
   it('should not update body when parentEvidence is null in syncBody', () => {
     const currentBody = new Evidence();
     currentBody.evidence_url = 'current-url';
-    
+
     component.index = 0;
     component.bodySignal.set({ evidence: [null as any] });
     component.body.set(currentBody);
-    
+
     // Trigger syncBody effect
     void component.syncBody;
-    
+
     expect(component.body().evidence_url).toBe('current-url');
   });
 
   it('should not update body when parentEvidence is undefined in syncBody', () => {
     const currentBody = new Evidence();
     currentBody.evidence_url = 'current-url';
-    
+
     component.index = 0;
     component.bodySignal.set({ evidence: [undefined as any] });
     component.body.set(currentBody);
-    
+
     // Trigger syncBody effect
     void component.syncBody;
-    
+
     expect(component.body().evidence_url).toBe('current-url');
   });
 
@@ -433,20 +432,81 @@ describe('EvidenceItemComponent', () => {
     const currentEvidence = new Evidence();
     currentEvidence.evidence_url = 'test-url';
     currentEvidence.evidence_description = 'test-desc';
-    
+
     const existingEvidence = new Evidence();
     existingEvidence.evidence_url = 'test-url';
     existingEvidence.evidence_description = 'test-desc';
-    
+
     component.index = 0;
     component.body.set(currentEvidence);
     component.bodySignal.set({ evidence: [existingEvidence] });
-    
+
     const prevEvidence = component.bodySignal().evidence[0];
-    
+
     // Trigger onChange effect
     void component.onChange;
-    
+
     expect(component.bodySignal().evidence[0]).toBe(prevEvidence);
+  });
+
+  it('syncBodyFromParentOrInput should set body from parentEvidence when it differs', () => {
+    const parentEvidence = new Evidence();
+    parentEvidence.evidence_url = 'parent-url';
+    component.index = 0;
+    component.bodySignal.set({ evidence: [parentEvidence] } as PatchResultEvidences);
+    component.body.set(new Evidence());
+    component.syncBodyFromParentOrInput();
+    expect(component.body().evidence_url).toBe('parent-url');
+  });
+
+  it('syncBodyFromParentOrInput should set body from evidence input when parent missing and differs', () => {
+    component.index = 0;
+    component.bodySignal.set({ evidence: [] } as PatchResultEvidences);
+    component.evidence = Object.assign(new Evidence(), { evidence_url: 'input-url' });
+    component.body.set(new Evidence());
+    component.syncBodyFromParentOrInput();
+    expect(component.body().evidence_url).toBe('input-url');
+  });
+
+  it('syncBodyFromParentOrInput should no-op when index is null', () => {
+    component.index = null;
+    component.body.set(Object.assign(new Evidence(), { evidence_url: 'keep' }));
+    component.syncBodyFromParentOrInput();
+    expect(component.body().evidence_url).toBe('keep');
+  });
+
+  it('applyOnChangeUpdate should init evidence array when undefined', () => {
+    component.index = 0;
+    const body = new PatchResultEvidences();
+    (body as any).evidence = undefined;
+    component.body.set(new Evidence());
+    const out = component.applyOnChangeUpdate(body);
+    expect(Array.isArray(out.evidence)).toBe(true);
+    expect(out.evidence!.length).toBe(1);
+  });
+
+  it('applyOnChangeUpdate should copy currentEvidence when JSON differs', () => {
+    component.index = 0;
+    const body: PatchResultEvidences = { evidence: [new Evidence()] };
+    body.evidence![0].evidence_url = 'old';
+    component.body.set(Object.assign(new Evidence(), { evidence_url: 'new', evidence_description: 'desc' }));
+    const out = component.applyOnChangeUpdate(body);
+    expect(out.evidence![0].evidence_url).toBe('new');
+    expect(out.evidence![0].evidence_description).toBe('desc');
+  });
+
+  it('applyOnChangeUpdate should only set evidence_url when JSON equal', () => {
+    component.index = 0;
+    const same = Object.assign(new Evidence(), { evidence_url: 'same', evidence_description: 'd' });
+    const body: PatchResultEvidences = { evidence: [{ ...same }] };
+    component.body.set(same);
+    const out = component.applyOnChangeUpdate(body);
+    expect(out.evidence![0].evidence_url).toBe('same');
+  });
+
+  it('applyOnChangeUpdate should return body when index is null', () => {
+    component.index = null;
+    const body = new PatchResultEvidences();
+    expect(component.applyOnChangeUpdate(body)).toBe(body);
   });
 });

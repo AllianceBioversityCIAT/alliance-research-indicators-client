@@ -138,6 +138,18 @@ describe('OrganizationItemComponent', () => {
 
       expect(component.showSubTypeSelect()).toBe(false);
     });
+
+    it('ngOnInit should catch initializeSubTypes error', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      subTypesService.getSubTypes.mockRejectedValue(new Error('Network error'));
+
+      component.organization = createInstitution({ institution_type_id: 5 });
+      component.ngOnInit();
+      await new Promise(resolve => setImmediate(resolve));
+
+      expect(consoleSpy).toHaveBeenCalledWith('Error initializing subtypes:', expect.any(Error));
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('syncBody effect', () => {
@@ -175,10 +187,22 @@ describe('OrganizationItemComponent', () => {
       expect(initSpy).toHaveBeenCalledWith(parentOrg);
     }));
 
-    it('should sync from parent even when is_organization_known differs', fakeAsync(() => {
-      const parentOrg = createInstitution({ institution_type_id: 20, institution_id: 3, is_organization_known: false });
+    it('should sync from parent preserving is_organization_known when type and institution match', fakeAsync(() => {
+      const parentOrg = createInstitution({
+        institution_type_id: 20,
+        institution_id: 3,
+        is_organization_known: false,
+        institution_type_custom_name: 'From parent'
+      });
       component.index = 0;
-      component.body.set(createInstitution({ institution_type_id: 20, institution_id: 3, is_organization_known: true }));
+      component.body.set(
+        createInstitution({
+          institution_type_id: 20,
+          institution_id: 3,
+          is_organization_known: true,
+          institution_type_custom_name: 'From body'
+        })
+      );
       component.bodySignal.set(
         Object.assign(new GetInnovationDetails(), {
           institution_types: [parentOrg]
@@ -188,8 +212,7 @@ describe('OrganizationItemComponent', () => {
       fixture.detectChanges();
       tick();
 
-      // El componente actualmente toma el valor de is_organization_known del parent
-      expect(component.body().is_organization_known).toBe(false);
+      expect(component.body().institution_type_custom_name).toBe('From parent');
     }));
 
     it('should early return when index is null', fakeAsync(() => {
@@ -202,6 +225,27 @@ describe('OrganizationItemComponent', () => {
       // No error means effect handled null index gracefully
       expect(component).toBeTruthy();
     }));
+
+    it('syncBodyFromParent should preserve is_organization_known when type and institution match', () => {
+      const parentOrg = createInstitution({
+        institution_type_id: 20,
+        institution_id: 3,
+        is_organization_known: false
+      });
+      component.index = 0;
+      component.bodySignal.set(
+        Object.assign(new GetInnovationDetails(), { institution_types: [parentOrg] })
+      );
+      component.body.set(
+        createInstitution({
+          institution_type_id: 20,
+          institution_id: 3,
+          is_organization_known: true
+        })
+      );
+      component.syncBodyFromParent();
+      expect(component.body().is_organization_known).toBe(true);
+    });
   });
 
   describe('onChange effect', () => {
@@ -218,6 +262,35 @@ describe('OrganizationItemComponent', () => {
 
       const body = component.bodySignal();
       expect(body.institution_types).toEqual(initial.institution_types);
+    }));
+
+    it('should pad institution_types when index is beyond length', fakeAsync(() => {
+      const initial = Object.assign(new GetInnovationDetails(), {
+        institution_types: [createInstitution({ institution_id: 1 })]
+      });
+      component.index = 2;
+      component.bodySignal.set(initial);
+
+      fixture.detectChanges();
+      tick();
+
+      const body = component.bodySignal();
+      expect(body.institution_types!.length).toBe(3);
+    }));
+
+    it('should init institution_types and pad when undefined', fakeAsync(() => {
+      const initial = Object.assign(new GetInnovationDetails(), {
+        institution_types: undefined as any
+      });
+      component.index = 0;
+      component.bodySignal.set(initial);
+
+      fixture.detectChanges();
+      tick();
+
+      const body = component.bodySignal();
+      expect(Array.isArray(body.institution_types)).toBe(true);
+      expect(body.institution_types!.length).toBe(1);
     }));
   });
 
@@ -267,7 +340,36 @@ describe('OrganizationItemComponent', () => {
       expect(updated.institution_types![0].institution_type_custom_name).toBe('New Name');
     }));
 
-    // No se prueba explícitamente clearTimeout para evitar conflictos con fakeTimers + zone.js
+    it('should clear previous timeout when setValue is called again before debounce', fakeAsync(() => {
+      component.index = 0;
+      component.body.set(createInstitution({ institution_type_custom_name: 'Initial' }));
+      component.bodySignal.set(
+        Object.assign(new GetInnovationDetails(), {
+          institution_types: [createInstitution({ institution_type_custom_name: 'Initial' })]
+        })
+      );
+
+      component.setValue('First');
+      component.setValue('Second');
+      tick(350);
+
+      expect(component.body().institution_type_custom_name).toBe('Second');
+    }));
+
+    it('should not update body when setValue equals current institution_type_custom_name', fakeAsync(() => {
+      component.index = 0;
+      component.body.set(createInstitution({ institution_type_custom_name: 'Same' }));
+      component.bodySignal.set(
+        Object.assign(new GetInnovationDetails(), {
+          institution_types: [createInstitution({ institution_type_custom_name: 'Same' })]
+        })
+      );
+
+      component.setValue('Same');
+      tick(350);
+
+      expect(component.body().institution_type_custom_name).toBe('Same');
+    }));
   });
 
   describe('getters', () => {
@@ -349,6 +451,12 @@ describe('OrganizationItemComponent', () => {
       expect(inst?.institution_id).toBe(2);
     });
 
+    it('getSelectedInstitution should return undefined when no match', () => {
+      component.body.set(createInstitution({ institution_id: 999 }));
+      const inst = component.getSelectedInstitution();
+      expect(inst).toBeUndefined();
+    });
+
     it('filteredInstitutions should return list from service', () => {
       const list = component.filteredInstitutions();
       expect(list.length).toBe(2);
@@ -372,6 +480,17 @@ describe('OrganizationItemComponent', () => {
       const body = component.bodySignal();
       expect(body.institution_types![0].institution_id).toBe(2);
     });
+
+    it('should only update body when index is null', () => {
+      component.index = null;
+      component.body.set(createInstitution({ institution_id: 1 }));
+      const setSpy = jest.spyOn(component.bodySignal, 'update');
+
+      component.onInstitutionChange(2);
+
+      expect(component.body().institution_id).toBe(2);
+      expect(setSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('onCheckboxChange', () => {
@@ -392,6 +511,17 @@ describe('OrganizationItemComponent', () => {
       expect(component.body().is_organization_known).toBe(true);
       const body = component.bodySignal();
       expect(body.institution_types![0].is_organization_known).toBe(true);
+    });
+
+    it('should only update body when index is null', () => {
+      component.index = null;
+      component.body.set(createInstitution({ is_organization_known: false }));
+      const setSpy = jest.spyOn(component.bodySignal, 'update');
+
+      component.onCheckboxChange({ checked: true } as CheckboxChangeEvent);
+
+      expect(component.body().is_organization_known).toBe(true);
+      expect(setSpy).not.toHaveBeenCalled();
     });
   });
 });

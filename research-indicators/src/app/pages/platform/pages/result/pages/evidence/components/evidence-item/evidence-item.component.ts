@@ -41,7 +41,7 @@ export class EvidenceItemComponent implements OnInit {
   isPrivate = false;
   private updateTimeout: ReturnType<typeof setTimeout> | undefined;
 
-  syncBody = effect(() => {
+  syncBodyFromParentOrInput(): void {
     if (this.index === null) return;
     const parentEvidence = this.bodySignal().evidence?.[this.index];
     if (parentEvidence && JSON.stringify(parentEvidence) !== JSON.stringify(this.body())) {
@@ -51,31 +51,32 @@ export class EvidenceItemComponent implements OnInit {
     if (this.evidence && JSON.stringify(this.evidence) !== JSON.stringify(this.body())) {
       this.body.set(this.evidence);
     }
-  });
+  }
+
+  syncBody = effect(() => this.syncBodyFromParentOrInput());
+
+  applyOnChangeUpdate(body: PatchResultEvidences): PatchResultEvidences {
+    if (this.index === null) return body;
+    if (!body.evidence) {
+      body.evidence = [];
+    }
+    while (body.evidence.length <= this.index!) {
+      body.evidence.push(new Evidence());
+    }
+    const currentEvidence = this.body();
+    if (currentEvidence) {
+      body.evidence[this.index!].evidence_url = currentEvidence.evidence_url;
+      if (JSON.stringify(body.evidence[this.index!]) !== JSON.stringify(currentEvidence)) {
+        body.evidence[this.index!] = { ...currentEvidence };
+      }
+    }
+    return { ...body };
+  }
 
   onChange = effect(
     () => {
       if (this.index === null) return;
-
-      this.bodySignal.update((body: PatchResultEvidences) => {
-        if (!body.evidence) {
-          body.evidence = [];
-        }
-
-        while (body.evidence.length <= this.index!) {
-          body.evidence.push(new Evidence());
-        }
-
-        const currentEvidence = this.body();
-        if (currentEvidence) {
-          body.evidence[this.index!].evidence_url = currentEvidence.evidence_url;
-          if (JSON.stringify(body.evidence[this.index!]) !== JSON.stringify(currentEvidence)) {
-            body.evidence[this.index!] = { ...currentEvidence };
-          }
-        }
-
-        return { ...body };
-      });
+      this.bodySignal.update(body => this.applyOnChangeUpdate(body));
     },
     { allowSignalWrites: true }
   );
