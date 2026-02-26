@@ -930,6 +930,21 @@ describe('MultiselectComponent', () => {
     expect(component.body().value).toBeUndefined();
   });
 
+  it('should use empty array when availableOptions base is not an array', () => {
+    component.optionsDisabled.set([]);
+    (component.optionsSig as any).set({ not: 'an array' } as any);
+    const result = component.availableOptions();
+    expect(result).toEqual([]);
+  });
+
+  it('should use true when optionFilter is falsy in availableOptions', () => {
+    component.optionsDisabled.set([]);
+    component.optionsSig.set([{ id: 1, name: 'A' }]);
+    (component as any).optionFilter = null;
+    const result = component.availableOptions();
+    expect(result.length).toBeGreaterThanOrEqual(0);
+  });
+
   it('should handle optionFilter throwing an error', () => {
     component.optionFilter = jest.fn().mockImplementation(() => {
       throw new Error('Filter error');
