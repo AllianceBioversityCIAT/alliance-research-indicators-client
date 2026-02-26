@@ -151,6 +151,10 @@ describe('CreateResultFormComponent', () => {
     expect(newComponent.body().year).toBeNull();
   });
 
+  it('currentYear getter should return current calendar year', () => {
+    expect(component.currentYear).toBe(new Date().getFullYear());
+  });
+
   it('getters for missing fields should reflect body state', () => {
     component.body.set({ indicator_id: null, title: null, year: null, contract_id: null });
     expect(component.isYearMissing).toBe(true);

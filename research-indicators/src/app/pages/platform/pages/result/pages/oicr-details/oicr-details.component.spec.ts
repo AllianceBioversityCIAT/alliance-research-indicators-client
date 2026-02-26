@@ -122,6 +122,22 @@ describe('OicrDetailsComponent', () => {
     expect(versionWatcher.onVersionChange).toHaveBeenCalled();
   });
 
+  it('version change callback should call getData', () => {
+    const getDataSpy = jest.spyOn(component, 'getData').mockResolvedValue();
+    const callback = (versionWatcher.onVersionChange as jest.Mock).mock.calls[0][0];
+    callback();
+    expect(getDataSpy).toHaveBeenCalled();
+  });
+
+  it('should pass isAddContactPersonDisabled to setDisabledAddContactPerson', () => {
+    const setDisabled = allModalsService.setDisabledAddContactPerson as jest.Mock;
+    const disabledCallback = setDisabled.mock.calls[0][0];
+    submissionService.isEditableStatus.mockReturnValue(true);
+    expect(disabledCallback()).toBe(false);
+    submissionService.isEditableStatus.mockReturnValue(false);
+    expect(disabledCallback()).toBe(true);
+  });
+
   describe('quantifications handlers', () => {
     it('should add and remove quantification when editable', () => {
       submissionService.isEditableStatus.mockReturnValue(true);

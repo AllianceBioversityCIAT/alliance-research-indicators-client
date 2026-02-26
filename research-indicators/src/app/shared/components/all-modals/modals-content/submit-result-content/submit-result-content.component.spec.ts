@@ -345,6 +345,40 @@ describe('SubmitResultContentComponent', () => {
     protoSpy.mockRestore();
   });
 
+  it('loadStatuses should catch GET_ResultStatus errors and still set statusData for successful requests', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    (mockApiService.GET_ResultStatus as jest.Mock).mockImplementation((statusId: number) => {
+      if (statusId === 5) return Promise.reject(new Error('Network error'));
+      return Promise.resolve({
+        successfulRequest: true,
+        data: { result_status_id: statusId, name: statusId === 6 ? 'Approve' : 'Reject' }
+      });
+    });
+    await (component as any).loadStatuses();
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading status for statusId 5:', expect.any(Error));
+    expect(component.statusData()[6]).toBeDefined();
+    expect(component.statusData()[7]).toBeDefined();
+    expect(component.statusData()[5]).toBeUndefined();
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('loadStatuses should load status ids 10, 11, 15 when submitResultOrigin is latest', async () => {
+    mockAllModalsService.submitResultOrigin!.set('latest');
+    (mockApiService.GET_ResultStatus as jest.Mock).mockImplementation((statusId: number) =>
+      Promise.resolve({
+        successfulRequest: true,
+        data: { result_status_id: statusId, name: statusId === 10 ? 'OICR Accepted' : statusId === 11 ? 'Postpone' : 'OICR Not Accepted' }
+      })
+    );
+    await (component as any).loadStatuses();
+    expect(mockApiService.GET_ResultStatus).toHaveBeenCalledWith(10);
+    expect(mockApiService.GET_ResultStatus).toHaveBeenCalledWith(11);
+    expect(mockApiService.GET_ResultStatus).toHaveBeenCalledWith(15);
+    expect(component.statusData()[10]).toBeDefined();
+    expect(component.statusData()[11]).toBeDefined();
+    expect(component.statusData()[15]).toBeDefined();
+  });
+
   it('should submit review successfully', async () => {
     const mockResponse = { successfulRequest: true };
     mockApiService.PATCH_SubmitResult!.mockResolvedValue(mockResponse);

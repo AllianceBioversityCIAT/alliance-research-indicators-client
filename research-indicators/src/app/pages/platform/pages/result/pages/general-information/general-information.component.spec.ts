@@ -339,4 +339,17 @@ describe('GeneralInformationComponent', () => {
 
     expect(component.body().title).toBeUndefined();
   });
+
+  it('should call getData when version watcher callback is invoked', async () => {
+    const vw = TestBed.inject(VersionWatcherService) as jest.Mocked<VersionWatcherService>;
+    const getDataSpy = jest.spyOn(component, 'getData').mockResolvedValue();
+    // Component registers its callback in constructor; find the one that invokes our getData
+    const calls = vw.onVersionChange.mock.calls;
+    for (let i = 0; i < calls.length; i++) {
+      getDataSpy.mockClear();
+      await calls[i][0]();
+      if (getDataSpy.mock.calls.length > 0) break;
+    }
+    expect(getDataSpy).toHaveBeenCalled();
+  });
 });

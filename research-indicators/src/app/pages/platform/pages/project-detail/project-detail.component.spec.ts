@@ -96,4 +96,27 @@ describe('ProjectComponent', () => {
     await component.getProjectDetail();
     expect(component.currentProject()).toBe(undefined);
   });
+
+  describe('onIndicatorClick', () => {
+    it('should clear indicator filters, set the clicked indicator, and apply filters', () => {
+      const updateSpy = jest.spyOn(component.resultsCenterService.tableFilters, 'update');
+      const applyFiltersSpy = jest.spyOn(component.resultsCenterService, 'applyFilters');
+      const indicator = { indicator_id: 1, name: 'Innovation Development' };
+
+      component.onIndicatorClick(indicator);
+
+      expect(updateSpy).toHaveBeenCalledTimes(2);
+      expect(updateSpy).toHaveBeenNthCalledWith(1, expect.any(Function));
+      const firstUpdateFn = updateSpy.mock.calls[0][0];
+      expect(firstUpdateFn({ indicators: [{ indicator_id: 99 }] })).toEqual({ indicators: [] });
+
+      expect(updateSpy).toHaveBeenNthCalledWith(2, expect.any(Function));
+      const secondUpdateFn = updateSpy.mock.calls[1][0];
+      expect(secondUpdateFn({})).toEqual({
+        indicators: [{ indicator_id: 1, name: 'Innovation Development' }]
+      });
+
+      expect(applyFiltersSpy).toHaveBeenCalled();
+    });
+  });
 });

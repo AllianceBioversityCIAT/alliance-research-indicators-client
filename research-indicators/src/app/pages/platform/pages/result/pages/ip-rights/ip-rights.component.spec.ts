@@ -91,6 +91,13 @@ describe('IpRightsComponent', () => {
     expect(versionWatcherMock.onVersionChange).toHaveBeenCalled();
   });
 
+  it('should call getData when version watcher callback is invoked', async () => {
+    const getDataSpy = jest.spyOn(component, 'getData').mockResolvedValue();
+    const versionCb = versionWatcherMock.onVersionChange.mock.calls[0][0];
+    await versionCb();
+    expect(getDataSpy).toHaveBeenCalled();
+  });
+
   describe('getData', () => {
     it('should load and normalize data correctly', async () => {
       await component.getData();

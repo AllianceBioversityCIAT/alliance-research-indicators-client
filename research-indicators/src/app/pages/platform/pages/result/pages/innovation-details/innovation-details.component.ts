@@ -85,23 +85,25 @@ export default class InnovationDetailsComponent {
   scalingHelperText2 =
     'For more information please visit the following <a class="text-[#1689CA] underline" href="https://alliancebioversityciat.org/tools-innovations" target="_blank">  Resource</a>.';
 
+  syncSelectedStepFromReadiness(): void {
+    const levels = this.getInnovationReadinessLevelsService.list();
+    const readinessId = this.body().innovation_readiness_id;
+    if (levels.length && readinessId) {
+      const levelObj = levels.find(l => l.id === readinessId);
+      if (levelObj) {
+        this.selectedStep.set(levelObj.level);
+      }
+    }
+  }
+
   constructor() {
     this.versionWatcher.onVersionChange(() => this.getData());
 
-    effect(() => {
-      const levels = this.getInnovationReadinessLevelsService.list();
-      const readinessId = this.body().innovation_readiness_id;
-      if (levels.length && readinessId) {
-        const levelObj = levels.find(l => l.id === readinessId);
-        if (levelObj) {
-          this.selectedStep.set(levelObj.level);
-        }
-      }
-    });
+    effect(() => this.syncSelectedStepFromReadiness());
   }
 
   async getData() {
-    const response = await this.apiService.GET_InnovationDetails  (this.cache.getCurrentNumericResultId());
+    const response = await this.apiService.GET_InnovationDetails(this.cache.getCurrentNumericResultId());
     if (Array.isArray(response.data.knowledge_sharing_form?.link_to_result)) {
       response.data.knowledge_sharing_form.link_to_result = response.data.knowledge_sharing_form.link_to_result.map(link => {
         if (link.other_result_id) {
@@ -294,7 +296,7 @@ export default class InnovationDetailsComponent {
     }
 
     if (Array.isArray(cleanedBody.knowledge_sharing_form.tool_function_id)) {
-      (cleanedBody.knowledge_sharing_form).tool_function_id = cleanedBody.knowledge_sharing_form.tool_function_id
+      cleanedBody.knowledge_sharing_form.tool_function_id = cleanedBody.knowledge_sharing_form.tool_function_id
         .filter(tf => tf?.id)
         .map(tf => ({
           tool_function_id: tf.id

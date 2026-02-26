@@ -155,6 +155,18 @@ describe('InputComponent', () => {
     expect(component.inputValid().valid).toBe(true);
   });
 
+  it('should return pattern validation result with class and message from getPattern', () => {
+    component.pattern = 'email';
+    component.signal = signal({ testField: 'bad' });
+    utilsService.getNestedProperty.mockReturnValue('bad');
+
+    const result = component.inputValid();
+
+    expect(result.valid).toBe(false);
+    expect(result.class).toBe('ng-invalid ng-dirty');
+    expect(result.message).toBe('Please enter a valid email address.');
+  });
+
   it('should handle isInvalid computed property', () => {
     component.isRequired = true;
     component.body.set({ value: '' });

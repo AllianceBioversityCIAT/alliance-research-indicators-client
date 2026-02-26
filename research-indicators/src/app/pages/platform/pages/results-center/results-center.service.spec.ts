@@ -148,6 +148,18 @@ describe('ResultsCenterService', () => {
       }
     });
 
+    it('should return title as-is when not a string (title getValue)', () => {
+      const columns = service.tableColumns();
+      const titleColumn = columns.find(col => col.field === 'title');
+      const getValue = titleColumn?.getValue;
+
+      if (getValue) {
+        expect(getValue({ title: null } as Result)).toBeNull();
+        expect(getValue({ title: undefined } as Result)).toBeUndefined();
+        expect(getValue({ title: 123 } as any)).toBe(123);
+      }
+    });
+
     it('should get indicator value correctly', () => {
       const columns = service.tableColumns();
       const indicatorColumn = columns.find(col => col.field === 'indicator_id');
@@ -497,6 +509,33 @@ describe('ResultsCenterService', () => {
 
       expect(mainSpy).toHaveBeenCalled();
     });
+
+    it('should reset table first to 0 when tableRef is set', () => {
+      const tableMock = { first: 10, clear: jest.fn(), sortField: '', sortOrder: 0 };
+      service.tableRef.set(tableMock as any);
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }] as any }));
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.applyFilters();
+
+      expect(tableMock.first).toBe(0);
+    });
+
+    it('should map platform-code from sources with null/undefined as empty array', () => {
+      service.tableFilters.update(prev => ({
+        ...prev,
+        levers: [],
+        statusCodes: [],
+        years: [],
+        contracts: [],
+        indicators: [],
+        sources: undefined
+      } as any));
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+      service.applyFilters();
+      expect(service.resultsFilter()['platform-code']).toEqual([]);
+      expect(service.appliedFilters()['platform-code']).toEqual([]);
+    });
   });
 
   describe('onSelectFilterTab', () => {
@@ -636,6 +675,17 @@ describe('ResultsCenterService', () => {
       service.clearAllFilters();
       expect(service.resultsFilter()['indicator-codes-filter']).toEqual([]);
     });
+
+    it('should call cleanMultiselects after clearAllFilters via setTimeout', () => {
+      jest.useFakeTimers();
+      const cleanSpy = jest.spyOn(service, 'cleanMultiselects');
+      jest.spyOn(service, 'onSelectFilterTab').mockImplementation(() => {});
+      service.clearAllFilters();
+      const callsBeforeFlush = cleanSpy.mock.calls.length;
+      jest.runAllTimers();
+      expect(cleanSpy.mock.calls.length).toBeGreaterThan(callsBeforeFlush);
+      jest.useRealTimers();
+    });
   });
 
   describe('cleanMultiselects', () => {
@@ -652,6 +702,24 @@ describe('ResultsCenterService', () => {
       service.cleanMultiselects();
 
       expect(mockMultiselect.clear).toHaveBeenCalledTimes(2);
+    });
+
+    it('should catch and warn when a multiselect clear throws', () => {
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const okMultiselect = { clear: jest.fn() };
+      const failingMultiselect = { clear: jest.fn().mockImplementation(() => { throw new Error('clear failed'); }) };
+
+      service.multiselectRefs.set({
+        ok: okMultiselect as any,
+        fail: failingMultiselect as any
+      });
+
+      service.cleanMultiselects();
+
+      expect(okMultiselect.clear).toHaveBeenCalled();
+      expect(failingMultiselect.clear).toHaveBeenCalled();
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Error clearing multiselect:', expect.any(Error));
+      consoleWarnSpy.mockRestore();
     });
   });
 

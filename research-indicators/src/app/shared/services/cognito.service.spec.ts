@@ -15,7 +15,8 @@ const activatedRouteMock = {
 };
 
 const routerMock = {
-  navigate: jest.fn()
+  navigate: jest.fn(),
+  navigateByUrl: jest.fn().mockResolvedValue(true)
 };
 
 const cacheMock = {
@@ -79,6 +80,15 @@ describe('CognitoService', () => {
   });
 
   describe('redirectToCognito', () => {
+    it('should store returnUrl in sessionStorage when returnUrl starts with /', () => {
+      const mockLocation = { href: '' };
+      Object.defineProperty(window, 'location', { value: mockLocation, writable: true });
+
+      service.redirectToCognito('/dashboard');
+
+      expect(sessionStorage.getItem('loginReturnUrl')).toBe('/dashboard');
+    });
+
     it('should redirect to cognito with correct URL', () => {
       const mockLocation = { href: '' };
       Object.defineProperty(window, 'location', {
@@ -138,6 +148,7 @@ describe('CognitoService', () => {
     });
 
     it('should handle successful login', async () => {
+      sessionStorage.removeItem('loginReturnUrl');
       const code = 'test-code';
       const loginResponse = { successfulRequest: true, data: { token: 'test-token' } };
       activatedRoute.snapshot.queryParams = { code };
@@ -153,6 +164,23 @@ describe('CognitoService', () => {
       expect(api.login).toHaveBeenCalledWith(code);
       expect(actions.updateLocalStorage).toHaveBeenCalledWith(loginResponse);
       expect(router.navigate).toHaveBeenCalledWith(['/']);
+    });
+
+    it('should remove returnUrl from sessionStorage and navigateByUrl when returnUrl exists and starts with /', async () => {
+      sessionStorage.setItem('loginReturnUrl', '/results-center');
+      const code = 'test-code';
+      const loginResponse = { successfulRequest: true, data: { token: 'test-token' } };
+      activatedRoute.snapshot.queryParams = { code };
+      api.login.mockResolvedValue(loginResponse);
+      jest.spyOn(global, 'setTimeout').mockImplementation(cb => {
+        cb();
+        return 1 as any;
+      });
+
+      await service.validateCognitoCode();
+
+      expect(sessionStorage.getItem('loginReturnUrl')).toBeNull();
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/results-center');
     });
 
     it('should handle failed login with error alert', async () => {

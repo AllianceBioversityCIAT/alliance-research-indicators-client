@@ -8,7 +8,11 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { GetInnovationReadinessLevelsService } from '@shared/services/control-list/get-innovation-readiness-levels.service';
 import InnovationDetailsComponent from './innovation-details.component';
-import { Actor, InstitutionType } from '@shared/interfaces/get-innovation-details.interface';
+import {
+  Actor,
+  InstitutionType,
+  KnowledgeSharingForm
+} from '@shared/interfaces/get-innovation-details.interface';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { GetInnovationCharacteristicsService } from '@shared/services/control-list/get-innovation-characteristics.service';
 import { GetInnovationTypesService } from '@shared/services/control-list/get-innovation-types.service';
@@ -183,9 +187,87 @@ describe('InnovationDetailsComponent', () => {
 
   it('should get data and set body', fakeAsync(async () => {
     await component.getData();
+    TestBed.flushEffects();
     expect(apiService.GET_InnovationDetails).toHaveBeenCalled();
     expect(component.body().short_title).toBe('Test');
     expect(component.selectedStep()).toBe(1);
+  }));
+
+  it('syncSelectedStepFromReadiness should set selectedStep when level matches', () => {
+    component.body.set({ ...component.body(), innovation_readiness_id: 4 });
+    component.syncSelectedStepFromReadiness();
+    expect(component.selectedStep()).toBe(2);
+  });
+
+  it('should map link_to_result other_result_id to result_id in getData', fakeAsync(async () => {
+    const ksForm = new KnowledgeSharingForm();
+    ksForm.link_to_result = [{ other_result_id: 42, link_result_id: 1 } as any];
+    apiService.GET_InnovationDetails.mockReturnValue(
+      Promise.resolve({
+        data: {
+          short_title: 'Test',
+          innovation_readiness_id: 3,
+          actors: [new Actor()],
+          institution_types: [new InstitutionType()],
+          knowledge_sharing_form: ksForm
+        }
+      })
+    );
+    await component.getData();
+    expect(component.body().knowledge_sharing_form?.link_to_result?.[0].result_id).toBe(42);
+  }));
+
+  it('should leave link_to_result unchanged when no other_result_id', fakeAsync(async () => {
+    const ksForm = new KnowledgeSharingForm();
+    ksForm.link_to_result = [{ result_id: 10 } as any];
+    apiService.GET_InnovationDetails.mockReturnValue(
+      Promise.resolve({
+        data: {
+          short_title: 'Test',
+          innovation_readiness_id: 3,
+          actors: [new Actor()],
+          institution_types: [new InstitutionType()],
+          knowledge_sharing_form: ksForm
+        }
+      })
+    );
+    await component.getData();
+    expect(component.body().knowledge_sharing_form?.link_to_result?.[0].result_id).toBe(10);
+  }));
+
+  it('should map tool_function_id in getData', fakeAsync(async () => {
+    const ksForm = new KnowledgeSharingForm();
+    (ksForm as any).tool_function_id = [{ tool_function_id: 10 }];
+    apiService.GET_InnovationDetails.mockReturnValue(
+      Promise.resolve({
+        data: {
+          short_title: 'Test',
+          innovation_readiness_id: 3,
+          actors: [new Actor()],
+          institution_types: [new InstitutionType()],
+          knowledge_sharing_form: ksForm
+        }
+      })
+    );
+    await component.getData();
+    expect((component.body().knowledge_sharing_form as any).tool_function_id).toEqual([{ id: 10 }]);
+  }));
+
+  it('should set new_or_improved_varieties_count to 1 when true and count null in getData', fakeAsync(async () => {
+    apiService.GET_InnovationDetails.mockReturnValue(
+      Promise.resolve({
+        data: {
+          short_title: 'Test',
+          innovation_readiness_id: 3,
+          actors: [new Actor()],
+          institution_types: [new InstitutionType()],
+          is_new_or_improved_variety: true,
+          new_or_improved_varieties_count: null
+        }
+      })
+    );
+    await component.getData();
+    expect(component.body().new_or_improved_varieties_count).toBe(1);
   }));
 
   it('should add and delete actor', () => {
@@ -352,5 +434,79 @@ describe('InnovationDetailsComponent', () => {
     jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
     await component.saveData('next');
     expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: { version: 'v1' }, replaceUrl: true });
+  }));
+
+  it('saveData should clean institution_types is_organization_known and filter', fakeAsync(async () => {
+    const instKnown = new InstitutionType();
+    instKnown.is_organization_known = true;
+    instKnown.institution_id = 5;
+    const instUnknown = new InstitutionType();
+    instUnknown.institution_type_id = 10;
+    instUnknown.institution_type_custom_name = 'Custom';
+    component.body.set({
+      ...component.body(),
+      institution_types: [instKnown, instUnknown]
+    });
+    apiService.PATCH_InnovationDetails.mockReturnValue(Promise.resolve({ successfulRequest: true }));
+    jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
+    await component.saveData('next');
+    const patchCall = apiService.PATCH_InnovationDetails.mock.calls[0][1];
+    expect(patchCall.institution_types).toBeDefined();
+    expect(patchCall.institution_types.some((i: any) => i.is_organization_known === true && i.institution_id === 5)).toBe(true);
+    expect(patchCall.institution_types.some((i: any) => i.institution_type_custom_name === 'Custom')).toBe(true);
+  }));
+
+  it('saveData should transform link_to_result and tool_function_id', fakeAsync(async () => {
+    const ksForm = new KnowledgeSharingForm();
+    (ksForm as any).link_to_result = [
+      { link_result_id: 1, result_id: 10, other_result_id: 11, link_result_role_id: 2 },
+      { result_id: 20 }
+    ];
+    (ksForm as any).tool_function_id = [{ id: 5 }, { id: 6 }];
+    component.body.set({
+      ...component.body(),
+      knowledge_sharing_form: ksForm
+    });
+    apiService.PATCH_InnovationDetails.mockReturnValue(Promise.resolve({ successfulRequest: true }));
+    jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
+    await component.saveData('back');
+    const patchCall = apiService.PATCH_InnovationDetails.mock.calls[0][1];
+    expect(patchCall.knowledge_sharing_form.link_to_result).toBeDefined();
+    expect(patchCall.knowledge_sharing_form.tool_function_id).toEqual([{ tool_function_id: 5 }, { tool_function_id: 6 }]);
+  }));
+
+  it('saveData should navigate without queryParams when version is missing', fakeAsync(async () => {
+    const routeNoVersion = {
+      snapshot: {
+        paramMap: { get: (key: string) => (key === 'id' ? '1' : null) },
+        queryParamMap: { get: () => null }
+      }
+    };
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [InnovationDetailsComponent],
+      providers: [
+        { provide: ApiService, useClass: ApiServiceMock },
+        { provide: CacheService, useClass: CacheServiceMock },
+        { provide: ActionsService, useClass: ActionsServiceMock },
+        { provide: SubmissionService, useClass: SubmissionServiceMock },
+        { provide: VersionWatcherService, useClass: VersionWatcherServiceMock },
+        { provide: Router, useValue: routerSpy },
+        { provide: ActivatedRoute, useValue: routeNoVersion },
+        { provide: GetInnovationReadinessLevelsService, useClass: GetInnovationReadinessLevelsServiceMock },
+        { provide: ServiceLocatorService, useClass: ServiceLocatorServiceMock },
+        { provide: GetInnovationCharacteristicsService, useClass: GetInnovationCharacteristicsServiceMock },
+        { provide: GetInnovationTypesService, useClass: GetInnovationTypesServiceMock },
+        { provide: GetAnticipatedUsersService, useClass: GetAnticipatedUsersServiceMock },
+        { provide: GetActorTypesService, useClass: GetActorTypesServiceMock },
+        { provide: GetInstitutionTypesService, useClass: GetInstitutionTypesServiceMock },
+        { provide: UtilsService, useClass: UtilsServiceMock }
+      ]
+    });
+    const fixture2 = TestBed.createComponent(InnovationDetailsComponent);
+    const comp = fixture2.componentInstance;
+    submission.isEditableStatus.mockReturnValue(false);
+    await comp.saveData('next');
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'partners'], { queryParams: undefined, replaceUrl: true });
   }));
 });

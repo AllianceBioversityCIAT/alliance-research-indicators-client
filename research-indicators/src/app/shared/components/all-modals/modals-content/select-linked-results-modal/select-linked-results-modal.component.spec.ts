@@ -14,6 +14,7 @@ import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 describe('SelectLinkedResultsModalComponent', () => {
   let component: SelectLinkedResultsModalComponent;
   let fixture: ComponentFixture<SelectLinkedResultsModalComponent>;
+  let modalConfigSignal: ReturnType<typeof signal>;
 
   let allModalsService: jest.Mocked<AllModalsService> & { modalConfig: ReturnType<typeof signal> };
   let resultsCenterService: jest.Mocked<ResultsCenterService>;
@@ -208,6 +209,30 @@ describe('SelectLinkedResultsModalComponent', () => {
       expect(component.getResultHref(result)).toBe('https://external.com');
     });
 
+    it('should use platformCode override in getResultHref when provided', () => {
+      const result = createResult({
+        platform_code: PLATFORM_CODES.PRMS,
+        external_link: 'https://override-tip.com'
+      });
+      expect(component.getResultHref(result, PLATFORM_CODES.TIP)).toBe('https://override-tip.com');
+    });
+
+    it('should return empty string when external_link is null in getResultHref for TIP', () => {
+      const result = createResult({
+        platform_code: PLATFORM_CODES.TIP,
+        external_link: null as any
+      });
+      expect(component.getResultHref(result)).toBe('');
+    });
+
+    it('should not open when openExternalLink has no link', () => {
+      const openSpy = jest.spyOn(globalThis, 'open' as any).mockImplementation(() => null);
+      const result = createResult({ platform_code: PLATFORM_CODES.TIP, external_link: '' });
+      component.openExternalLink(result);
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
+
     it('should build internal href without version when no snapshots', () => {
       const urlTree = {} as UrlTree;
       router.createUrlTree.mockReturnValue(urlTree);
@@ -358,6 +383,16 @@ describe('SelectLinkedResultsModalComponent', () => {
 
       expect(globalOpenSpy).toHaveBeenCalledWith('https://base.com/relative/path', '_blank', 'noopener');
 
+      globalThis.location = originalLocation;
+      globalOpenSpy.mockRestore();
+    });
+
+    it('should use empty baseOrigin when location has no origin (absolute href)', () => {
+      const globalOpenSpy = jest.spyOn(globalThis, 'open' as any).mockImplementation(() => null);
+      const originalLocation = globalThis.location;
+      (globalThis as any).location = {};
+      (component as any)['openHrefInNewTab']('https://example.com/page');
+      expect(globalOpenSpy).toHaveBeenCalledWith('https://example.com/page', '_blank', 'noopener');
       globalThis.location = originalLocation;
       globalOpenSpy.mockRestore();
     });
@@ -733,6 +768,22 @@ describe('SelectLinkedResultsModalComponent', () => {
         contracts: []
       } as any);
       resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': [1] } as any);
+      
+      (component as any).applyModalIndicatorFilter({ resetIndicatorFilters: false });
+      
+      expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
+      expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
+    });
+
+    it('should use empty tabs when only resultsFilter indicator-codes-filter is set', () => {
+      resultsCenterService.tableFilters.mockReturnValue({
+        indicators: [],
+        levers: [],
+        statusCodes: [],
+        years: [],
+        contracts: []
+      } as any);
+      resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': [1, 2] } as any);
       
       (component as any).applyModalIndicatorFilter({ resetIndicatorFilters: false });
       
