@@ -708,4 +708,23 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 13, 3);
     expect(result).toBe(false);
   });
+
+  it('should return true when validateOpenResult returns true, status is draft (10) and user is admin', async () => {
+    route.paramMap.get = jest.fn().mockReturnValue('123');
+    metadataService.update = jest.fn().mockResolvedValue({
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 10,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    rolesService.isAdmin = jest.fn().mockReturnValue(true);
+
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
 });
