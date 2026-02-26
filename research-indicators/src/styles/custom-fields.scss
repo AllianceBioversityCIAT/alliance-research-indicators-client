@@ -6,10 +6,20 @@
 }
 
 .label {
-  font-family: 'Barlow', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
   color: #153c71;
+}
+
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 450;
+  color: #a2a9af;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+  margin-top: 0;
 }
 
 .description {
