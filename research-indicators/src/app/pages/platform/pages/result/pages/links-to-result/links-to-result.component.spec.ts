@@ -205,6 +205,17 @@ describe('LinksToResultComponent', () => {
     expect(loadSpy).toHaveBeenCalled();
   });
 
+  it('should call loadLinkedResults when selectLinkedResults modal closes (effect)', () => {
+    const loadSpy = jest.spyOn(component, 'loadLinkedResults').mockResolvedValue();
+    const modalConfigSignal = allModalsService.modalConfig as { set: (v: unknown) => void; update: (fn: (v: unknown) => unknown) => void };
+    const base = allModalsService.modalConfig();
+    modalConfigSignal.update((c: any) => ({ ...c, selectLinkedResults: { ...c.selectLinkedResults, isOpen: true } }));
+    fixture.detectChanges();
+    modalConfigSignal.update((c: any) => ({ ...c, selectLinkedResults: { ...c.selectLinkedResults, isOpen: false } }));
+    fixture.detectChanges();
+    expect(loadSpy).toHaveBeenCalled();
+  });
+
   it('should handle loadLinkedResults with empty linkedResultIds', async () => {
     apiService.GET_LinkedResults.mockResolvedValueOnce({ data: { link_results: [] } } as any);
     apiService.GET_Results.mockClear();
