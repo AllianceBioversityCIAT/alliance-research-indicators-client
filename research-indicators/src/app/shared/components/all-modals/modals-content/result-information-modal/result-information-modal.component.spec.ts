@@ -390,6 +390,50 @@ describe('ResultInformationModalComponent', () => {
       openSpy.mockRestore();
     });
   });
+
+  describe('openDocumentLink', () => {
+    it('should do nothing when result is null', () => {
+      selectedResultSignal.set(null);
+      fixture.detectChanges();
+      const openSpy = jest.spyOn(globalThis, 'open').mockImplementation(() => null);
+      component.openDocumentLink();
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
+
+    it('should do nothing when public_link is missing', () => {
+      selectedResultSignal.set({ platform_code: 'AICCRA', public_link: null } as any);
+      fixture.detectChanges();
+      const openSpy = jest.spyOn(globalThis, 'open').mockImplementation(() => null);
+      component.openDocumentLink();
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
+
+    it('should open public_link for AICCRA platform', () => {
+      selectedResultSignal.set({
+        platform_code: 'AICCRA',
+        public_link: 'https://doc.aiccra.org/view/123'
+      } as any);
+      fixture.detectChanges();
+      const openSpy = jest.spyOn(globalThis, 'open').mockImplementation(() => null);
+      component.openDocumentLink();
+      expect(openSpy).toHaveBeenCalledWith('https://doc.aiccra.org/view/123', '_blank', 'noopener');
+      openSpy.mockRestore();
+    });
+
+    it('should not open when platform is not AICCRA', () => {
+      selectedResultSignal.set({
+        platform_code: 'PRMS',
+        public_link: 'https://doc.example.com'
+      } as any);
+      fixture.detectChanges();
+      const openSpy = jest.spyOn(globalThis, 'open').mockImplementation(() => null);
+      component.openDocumentLink();
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
+  });
 });
 
 

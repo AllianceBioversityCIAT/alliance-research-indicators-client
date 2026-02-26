@@ -1031,6 +1031,36 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results/status/review-statuses', {});
     });
 
+    it('should call GET_ResultStatus with id', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      await service.GET_ResultStatus('456');
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/status/456', {});
+    });
+
+    it('should call GET_NextStep with only resultCode', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      await service.GET_NextStep(123);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(
+        'results/status/workflow/result/123/next-step',
+        {}
+      );
+    });
+
+    it('should call GET_NextStep with reportingPlatforms and reportYear', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      await service.GET_NextStep(123, 'STAR', 2024);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(
+        'results/status/workflow/result/123/next-step?reportingPlatforms=STAR&reportYear=2024',
+        {}
+      );
+    });
+
     it('should call GET_GreenChecks', () => {
       const resultCode = 123;
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });

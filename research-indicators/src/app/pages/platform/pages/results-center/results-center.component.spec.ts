@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { Subject } from 'rxjs';
 import ResultsCenterComponent from './results-center.component';
 import { ResultsCenterService } from './results-center.service';
@@ -125,6 +125,24 @@ describe('ResultsCenterComponent', () => {
       component.ngOnInit();
 
       expect(loadPinnedTabSpy).toHaveBeenCalled();
+    });
+
+    it('should call cleanFiltersOnRouteLeave when NavigationEnd url does not include results-center', () => {
+      const cleanSpy = jest.spyOn(component as any, 'cleanFiltersOnRouteLeave');
+      component.ngOnInit();
+
+      routerEventsSubject.next(new NavigationEnd(1, '/project-detail/1', '/project-detail/1'));
+
+      expect(cleanSpy).toHaveBeenCalled();
+    });
+
+    it('should not call cleanFiltersOnRouteLeave when NavigationEnd url includes results-center', () => {
+      const cleanSpy = jest.spyOn(component as any, 'cleanFiltersOnRouteLeave');
+      component.ngOnInit();
+
+      routerEventsSubject.next(new NavigationEnd(1, '/results-center', '/results-center'));
+
+      expect(cleanSpy).not.toHaveBeenCalled();
     });
   });
 

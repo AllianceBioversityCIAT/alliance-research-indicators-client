@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 
 import LoginComponent from './login.component';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -26,11 +27,69 @@ describe('LoginComponent', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should redirect to home if user is logged in', () => {
-      jest.spyOn(router, 'navigate');
+    it('should not navigate when user is not logged in', () => {
+      const navigateByUrlSpy = jest.spyOn(router, 'navigateByUrl');
+      jest.spyOn(component.cache, 'isLoggedIn').mockReturnValue(false);
+      component.ngOnInit();
+      expect(navigateByUrlSpy).not.toHaveBeenCalled();
+    });
+
+    it('should redirect to home when user is logged in and no returnUrl', () => {
+      jest.spyOn(router, 'navigateByUrl');
       jest.spyOn(component.cache, 'isLoggedIn').mockReturnValue(true);
       component.ngOnInit();
-      expect(router.navigate).toHaveBeenCalledWith(['/']);
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/');
+    });
+
+    it('should redirect to returnUrl when user is logged in and returnUrl starts with /', async () => {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [LoginComponent, RouterTestingModule, HttpClientTestingModule],
+        providers: [{ provide: ActivatedRoute, useValue: { snapshot: { queryParams: { returnUrl: '/projects' } } } }]
+      }).compileComponents();
+      const f = TestBed.createComponent(LoginComponent);
+      const comp = f.componentInstance;
+      const r = TestBed.inject(Router);
+      jest.spyOn(r, 'navigateByUrl');
+      jest.spyOn(comp.cache, 'isLoggedIn').mockReturnValue(true);
+      comp.ngOnInit();
+      expect(r.navigateByUrl).toHaveBeenCalledWith('/projects');
+    });
+
+    it('should redirect to home when user is logged in and returnUrl does not start with /', async () => {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [LoginComponent, RouterTestingModule, HttpClientTestingModule],
+        providers: [{ provide: ActivatedRoute, useValue: { snapshot: { queryParams: { returnUrl: 'http://other.com' } } } }]
+      }).compileComponents();
+      const f = TestBed.createComponent(LoginComponent);
+      const comp = f.componentInstance;
+      const r = TestBed.inject(Router);
+      jest.spyOn(r, 'navigateByUrl');
+      jest.spyOn(comp.cache, 'isLoggedIn').mockReturnValue(true);
+      comp.ngOnInit();
+      expect(r.navigateByUrl).toHaveBeenCalledWith('/');
+    });
+  });
+
+  describe('redirectToCognito', () => {
+    it('should call cognito.redirectToCognito with undefined when no returnUrl', () => {
+      const redirectSpy = jest.spyOn(component.cognito, 'redirectToCognito').mockImplementation(() => {});
+      component.redirectToCognito();
+      expect(redirectSpy).toHaveBeenCalledWith(undefined);
+    });
+
+    it('should call cognito.redirectToCognito with returnUrl when present in queryParams', async () => {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [LoginComponent, RouterTestingModule, HttpClientTestingModule],
+        providers: [{ provide: ActivatedRoute, useValue: { snapshot: { queryParams: { returnUrl: '/results-center' } } } }]
+      }).compileComponents();
+      const f = TestBed.createComponent(LoginComponent);
+      const comp = f.componentInstance;
+      const redirectSpy = jest.spyOn(comp.cognito, 'redirectToCognito').mockImplementation(() => {});
+      comp.redirectToCognito();
+      expect(redirectSpy).toHaveBeenCalledWith('/results-center');
     });
   });
 });

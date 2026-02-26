@@ -215,7 +215,15 @@ describe('GeographicScopeComponent', () => {
     expect(component.loading()).toBe(false);
   });
 
+  it('saveData next should navigate to evidence when indicator_id is not 5', async () => {
+    (cacheMock.currentMetadata as any).mockReturnValue({ indicator_id: 1 });
+    (submissionMock.isEditableStatus as any).mockReturnValue(false);
+    await component.saveData('next');
+    expect(routerMock.navigate).toHaveBeenCalledWith(['result', 'PR-1', 'evidence'], expect.any(Object));
+  });
+
   it('saveData should not PATCH when not editable and still navigate with/without version', async () => {
+    (cacheMock.currentMetadata as any).mockReturnValue({ indicator_id: 5 });
     (submissionMock.isEditableStatus as any).mockReturnValue(false);
     // version present case
     await component.saveData('next');

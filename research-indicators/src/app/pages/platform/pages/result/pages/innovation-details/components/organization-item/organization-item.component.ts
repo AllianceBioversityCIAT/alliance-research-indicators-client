@@ -43,7 +43,7 @@ export class OrganizationItemComponent implements OnInit {
   showSubTypeSelect = signal(false);
   allModalsService = inject(AllModalsService);
 
-  syncBody = effect(() => {
+  syncBodyFromParent(): void {
     if (this.index === null) return;
     const parentOrganization = this.bodySignal().institution_types?.[this.index];
     const currentTypeId = this.body().institution_type_id;
@@ -55,14 +55,16 @@ export class OrganizationItemComponent implements OnInit {
       this.body.set({ ...this.body(), institution_id: parentInstitutionId });
     }
 
-    if (parentTypeId !== currentTypeId) {
+    if (parentTypeId !== currentTypeId && parentOrganization) {
       this.body.set(parentOrganization);
       this.initializeSubTypes(parentOrganization);
     } else if (parentOrganization && JSON.stringify(parentOrganization) !== JSON.stringify(this.body())) {
       const currentIsKnown = this.body().is_organization_known;
       this.body.set({ ...parentOrganization, is_organization_known: currentIsKnown });
     }
-  });
+  }
+
+  syncBody = effect(() => this.syncBodyFromParent());
 
   onChange = effect(
     () => {

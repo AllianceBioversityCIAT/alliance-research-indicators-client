@@ -153,10 +153,18 @@ describe('EvidenceComponent', () => {
     expect(spyGetData).toHaveBeenCalled();
   });
 
-  it('should navigate to back page', async () => {
+  it('should navigate to back page (links-to-result when indicator_id is 5)', async () => {
     const spy = jest.spyOn(router, 'navigate');
+    cache.currentMetadata = jest.fn(() => ({ indicator_id: 5, status_id: 4 }));
     await component.saveData('back');
     expect(spy).toHaveBeenCalledWith(['result', 123, 'links-to-result'], expect.anything());
+  });
+
+  it('should navigate to geographic-scope when going back and indicator_id is not 5', async () => {
+    const spy = jest.spyOn(router, 'navigate');
+    cache.currentMetadata = jest.fn(() => ({ indicator_id: 1, status_id: 4 }));
+    await component.saveData('back');
+    expect(spy).toHaveBeenCalledWith(['result', 123, 'geographic-scope'], expect.anything());
   });
 
   it('should navigate to next page', async () => {
@@ -342,5 +350,80 @@ describe('EvidenceComponent', () => {
   it('should handle getData when response is undefined', async () => {
     api.GET_ResultEvidences.mockResolvedValueOnce(undefined);
     await expect(component.getData()).rejects.toThrow();
+  });
+
+  it('should set otherReferences from notable_references when getData returns them', async () => {
+    api.GET_ResultEvidences.mockResolvedValueOnce({
+      data: {
+        evidence: [],
+        notable_references: [
+          { notable_reference_type_id: 1, link: 'https://a.com' },
+          { notable_reference_type_id: 2, link: null }
+        ]
+      }
+    });
+    await component.getData();
+    expect(component.otherReferences().length).toBe(2);
+    expect(component.otherReferences()[0]).toEqual({ type_id: 1, link: 'https://a.com' });
+    expect(component.otherReferences()[1]).toEqual({ type_id: 2, link: '' });
+  });
+
+  it('should set otherReferences to empty when getData returns no notable_references', async () => {
+    api.GET_ResultEvidences.mockResolvedValueOnce({
+      data: { evidence: [], notable_references: [] }
+    });
+    await component.getData();
+    expect(component.otherReferences()).toEqual([]);
+  });
+
+  it('should set otherReferences to empty when getData returns undefined notable_references', async () => {
+    api.GET_ResultEvidences.mockResolvedValueOnce({
+      data: { evidence: [] }
+    });
+    await component.getData();
+    expect(component.otherReferences()).toEqual([]);
+  });
+
+  it('should add other reference when editable', () => {
+    submission.isEditableStatus.mockReturnValue(true);
+    component.otherReferences.set([]);
+    component.addOtherReference();
+    expect(component.otherReferences().length).toBe(1);
+    expect(component.otherReferences()[0]).toEqual({ type_id: null, link: '' });
+  });
+
+  it('should not add other reference when not editable', () => {
+    submission.isEditableStatus.mockReturnValue(false);
+    component.otherReferences.set([]);
+    component.addOtherReference();
+    expect(component.otherReferences().length).toBe(0);
+  });
+
+  it('should remove other reference when editable', () => {
+    submission.isEditableStatus.mockReturnValue(true);
+    component.otherReferences.set([
+      { type_id: 1, link: 'a' },
+      { type_id: 2, link: 'b' }
+    ]);
+    component.removeOtherReference(0);
+    expect(component.otherReferences().length).toBe(1);
+    expect(component.otherReferences()[0]).toEqual({ type_id: 2, link: 'b' });
+  });
+
+  it('should not remove other reference when not editable', () => {
+    submission.isEditableStatus.mockReturnValue(false);
+    component.otherReferences.set([{ type_id: 1, link: 'a' }]);
+    component.removeOtherReference(0);
+    expect(component.otherReferences().length).toBe(1);
+  });
+
+  it('should update other reference at index', () => {
+    component.otherReferences.set([
+      { type_id: 1, link: 'old' },
+      { type_id: 2, link: 'b' }
+    ]);
+    component.updateOtherReference(0, { type_id: 10, link: 'new' });
+    expect(component.otherReferences()[0]).toEqual({ type_id: 10, link: 'new' });
+    expect(component.otherReferences()[1]).toEqual({ type_id: 2, link: 'b' });
   });
 });

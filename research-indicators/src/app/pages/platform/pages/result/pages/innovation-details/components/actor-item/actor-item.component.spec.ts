@@ -312,29 +312,67 @@ describe('ActorItemComponent', () => {
 
   it('syncBody effect should set body from parentActor when parentActor exists and differs from body', () => {
     const parentActor = { ...new Actor(), actor_type_id: 99 };
-    const bodySignal: WritableSignal<GetInnovationDetails> = signal({
-      actors: [parentActor]
-    } as GetInnovationDetails);
     component.index = 0;
-    component.bodySignal = bodySignal;
     component.actor = { ...parentActor };
     component.body.set({ ...new Actor(), actor_type_id: 1 });
+    component.bodySignal.update(prev => ({ ...prev, actors: [parentActor] }));
     fixture.detectChanges();
-    bodySignal.update(prev => ({ ...prev }));
-    fixture.detectChanges();
+    TestBed.flushEffects();
     expect(component.body().actor_type_id).toBe(99);
   });
 
   it('syncBody effect should set body from actor input when parentActor missing and actor differs from body', () => {
-    const bodySignal: WritableSignal<GetInnovationDetails> = signal({ actors: [] } as GetInnovationDetails);
     component.index = 0;
-    component.bodySignal = bodySignal;
+    component.bodySignal.update(_ => ({ ...new GetInnovationDetails(), actors: [] }));
     component.actor = { ...new Actor(), actor_type_id: 5 };
     component.body.set(new Actor());
     fixture.detectChanges();
-    bodySignal.update(prev => ({ ...prev }));
-    fixture.detectChanges();
+    TestBed.flushEffects();
     expect(component.body().actor_type_id).toBe(5);
+  });
+
+  it('syncBodyFromParentOrInput should set body from parentActor when parent differs from body', () => {
+    const parentActor = { ...new Actor(), actor_type_id: 99 };
+    component.index = 0;
+    component.bodySignal.update(prev => ({ ...prev, actors: [parentActor] }));
+    component.body.set({ ...new Actor(), actor_type_id: 1 });
+    component.syncBodyFromParentOrInput();
+    expect(component.body().actor_type_id).toBe(99);
+  });
+
+  it('syncBodyFromParentOrInput should set body from actor when parent missing and actor differs from body', () => {
+    component.index = 0;
+    component.bodySignal.update(_ => ({ ...new GetInnovationDetails(), actors: [] }));
+    component.actor = { ...new Actor(), actor_type_id: 5 };
+    component.body.set(new Actor());
+    component.syncBodyFromParentOrInput();
+    expect(component.body().actor_type_id).toBe(5);
+  });
+
+  it('syncBodyFromParentOrInput should no-op when index is null', () => {
+    component.index = null;
+    component.body.set({ ...new Actor(), actor_type_id: 1 });
+    component.syncBodyFromParentOrInput();
+    expect(component.body().actor_type_id).toBe(1);
+  });
+
+  it('syncFromParentData should set body from parentActor when present', () => {
+    const parentActor = { ...new Actor(), actor_type_id: 42 };
+    component.index = 0;
+    component.bodySignal.update(prev => ({ ...prev, actors: [parentActor] }));
+    component.body.set(new Actor());
+    component.syncFromParentData();
+    expect(component.body().actor_type_id).toBe(42);
+  });
+
+  it('syncFromParentData should no-op when index is null or parentActor missing', () => {
+    component.index = null;
+    component.syncFromParentData();
+    component.index = 0;
+    component.bodySignal.update(_ => ({ ...new GetInnovationDetails(), actors: [] }));
+    component.body.set({ ...new Actor(), actor_type_id: 1 });
+    component.syncFromParentData();
+    expect(component.body().actor_type_id).toBe(1);
   });
 
   it('syncFromParent effect should set body from parentActor when index and parentActor exist', () => {

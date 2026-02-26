@@ -1,8 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { CanMatchFn } from '@angular/router';
+import { CanMatchFn, Router, UrlTree } from '@angular/router';
 import { rolesGuard } from './roles.guard';
 import { CacheService } from '@services/cache/cache.service';
 import { cacheServiceMock } from 'src/app/testing/mock-services.mock';
+
+const mockUrlTree = {} as UrlTree;
+const mockRouter = {
+  url: '/projects',
+  createUrlTree: jest.fn().mockReturnValue(mockUrlTree)
+};
 
 // Mock the entire @angular/core module
 jest.mock('@angular/core', () => ({
@@ -22,7 +28,10 @@ describe('rolesGuard', () => {
     // Get the mocked inject function
     const { inject } = require('@angular/core');
     injectMock = inject as jest.MockedFunction<any>;
-    injectMock.mockReturnValue(mockCacheService);
+    injectMock.mockImplementation((token: unknown) => {
+      if (token === Router) return mockRouter;
+      return mockCacheService;
+    });
   });
 
   afterEach(() => {
@@ -46,10 +55,12 @@ describe('rolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should return false when user is not logged in', () => {
+    it('should return UrlTree to /login with returnUrl when user is not logged in', () => {
       mockCacheService.isLoggedIn.set(false);
-      const result = rolesGuard(mockRoute, []);
-      expect(result).toBe(false);
+      const segments = [{ path: 'projects', parameters: {} }];
+      const result = rolesGuard(mockRoute, segments);
+      expect(result).toBe(mockUrlTree);
+      expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/projects' } });
     });
   });
 
