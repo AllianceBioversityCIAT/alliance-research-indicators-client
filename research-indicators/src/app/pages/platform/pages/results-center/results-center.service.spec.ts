@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
+import { fakeAsync, tick } from '@angular/core/testing';
 import { MenuItem } from 'primeng/api';
 
 import { ResultsCenterService } from './results-center.service';
@@ -81,6 +82,41 @@ describe('ResultsCenterService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  describe('onChangeList effect', () => {
+    it('should prepend All Indicators and set able by indicator_id when isLoading is false', fakeAsync(() => {
+      const listSignal = signal<GetAllIndicators[]>([
+        { indicator_id: 1, name: 'Indicator 1', able: true, active: false },
+        { indicator_id: 2, name: 'Indicator 2', able: true, active: false },
+        { indicator_id: 7, name: 'Indicator 7', able: false, active: false }
+      ]);
+      const mockIndicatorTabsLoaded = {
+        lazy: () => ({
+          list: listSignal,
+          isLoading: signal(false),
+          hasValue: signal(true)
+        })
+      };
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [HttpClientTestingModule],
+        providers: [
+          ResultsCenterService,
+          { provide: ApiService, useValue: { indicatorTabs: mockIndicatorTabsLoaded } as any },
+          { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
+          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockReturnValue(signal(mockResults)) } }
+        ]
+      });
+      TestBed.inject(ResultsCenterService);
+      tick();
+
+      expect(listSignal().length).toBe(4);
+      expect(listSignal()[0]).toEqual({ name: 'All Indicators', indicator_id: 0, able: true, active: true });
+      expect(listSignal()[1].able).toBe(true);
+      expect(listSignal()[2].able).toBe(true);
+      expect(listSignal()[3].able).toBe(false);
+    }));
   });
 
   describe('Initial state', () => {
@@ -247,6 +283,16 @@ describe('ResultsCenterService', () => {
       }
     });
 
+    it('should return empty array for versions when snapshot_years is not array', () => {
+      const columns = service.tableColumns();
+      const versionsColumn = columns.find(col => col.field === 'versions');
+      const getValue = versionsColumn?.getValue;
+      if (getValue) {
+        expect(getValue({ snapshot_years: null } as Result)).toEqual([]);
+        expect(getValue({ snapshot_years: {} } as Result)).toEqual([]);
+      }
+    });
+
     it('should evaluate indicator column hideIf computed', () => {
       const columns = service.tableColumns();
       const indicatorColumn = columns.find(col => col.field === 'indicator_id');
@@ -254,6 +300,14 @@ describe('ResultsCenterService', () => {
       if (typeof hideIf === 'function') {
         expect(typeof hideIf()).toBe('boolean');
       }
+    });
+
+    it('should evaluate creator column hideFilterIf when create-user-codes is empty', () => {
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [] }));
+      const columns = service.tableColumns();
+      const creatorColumn = columns.find(col => col.field === 'creator');
+      const hideFilterIf = creatorColumn?.hideFilterIf;
+      if (hideFilterIf) expect(hideFilterIf()).toBe(false);
     });
 
     it('should evaluate creator column hideFilterIf when create-user-codes has items', () => {
@@ -394,6 +448,17 @@ describe('ResultsCenterService', () => {
       expect(filters).toEqual(expect.arrayContaining([expect.objectContaining({ label: 'SOURCE', value: 'ROAR', id: 'ROAR' })]));
     });
 
+    it('should skip falsy items in tableFilters when building getActiveFilters', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'indicator-codes-filter': [1] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        indicators: [null, { indicator_id: 1, name: 'Ind A' }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'INDICATOR', id: 1 }));
+      expect(filters.filter(f => f.label === 'INDICATOR')).toHaveLength(1);
+    });
+
     it('should return multiple filters when multiple are active', () => {
       service.appliedFilters.update(prev => ({
         ...prev,
@@ -521,6 +586,19 @@ describe('ResultsCenterService', () => {
       expect(service.resultsFilter()['indicator-codes-tabs']).toEqual([]);
       expect(service.resultsFilter()['create-user-codes']).toEqual(['123']);
     });
+
+    it('should clear and reset table when tableRef is set', () => {
+      const tableMock = { clear: jest.fn(), sortField: '', sortOrder: 0, first: 5 };
+      service.tableRef.set(tableMock as any);
+
+      const event: MenuItem = { id: 'all', label: 'All Results' };
+      service.onActiveItemChange(event);
+
+      expect(tableMock.clear).toHaveBeenCalled();
+      expect(tableMock.sortField).toBe('result_official_code');
+      expect(tableMock.sortOrder).toBe(-1);
+      expect(tableMock.first).toBe(0);
+    });
   });
 
   describe('showFilterSidebar', () => {
@@ -611,6 +689,24 @@ describe('ResultsCenterService', () => {
       service.applyFilters();
       expect(service.resultsFilter()['create-user-codes']).toEqual([100, 200]);
       expect(service.appliedFilters()['create-user-codes']).toEqual([100, 200]);
+    });
+
+    it('should not preserve create-user-codes when tab is all', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[0]);
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [99] }));
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }] as any }));
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+      service.applyFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+      expect(service.appliedFilters()['create-user-codes']).toEqual([]);
+    });
+
+    it('should not set table.first when tableRef is null', () => {
+      service.tableRef.set(undefined as any);
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }] as any }));
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+      service.applyFilters();
+      expect(mainSpy).toHaveBeenCalled();
     });
 
     it('should map platform-code from sources when sources is defined', () => {
@@ -719,6 +815,14 @@ describe('ResultsCenterService', () => {
 
 
   describe('clearAllFilters', () => {
+    it('should preserve create-user-codes when tab is my', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
+      service.resultsFilter.set({ 'create-user-codes': [99, 100], 'indicator-codes': [1] } as any);
+      service.clearAllFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([99, 100]);
+      expect(service.resultsFilter()['indicator-codes']).toEqual([]);
+    });
+
     it('should clear all filters and reset state', () => {
       service.resultsFilter.update(prev => ({
         ...prev,
@@ -858,6 +962,50 @@ describe('ResultsCenterService', () => {
       }
     });
 
+    it('should return "-" when result_contracts has no primary contract', () => {
+      const columns = service.tableColumns();
+      const projectColumn = columns.find(col => col.field === 'project');
+      const getValue = projectColumn?.getValue;
+
+      if (getValue) {
+        const result = {
+          result_contracts: [
+            { is_primary: 0, contract_id: 'A123' },
+            { is_primary: 0, contract_id: 'B456' }
+          ]
+        } as Result;
+        expect(getValue(result)).toBe('-');
+      }
+    });
+
+    it('should return "-" for indicator getValue when indicators is undefined', () => {
+      const columns = service.tableColumns();
+      const indicatorColumn = columns.find(col => col.field === 'indicator');
+      const getValue = indicatorColumn?.getValue;
+      if (getValue) expect(getValue({} as Result)).toBe('-');
+    });
+
+    it('should return "-" for status getValue when result_status is undefined', () => {
+      const columns = service.tableColumns();
+      const statusColumn = columns.find(col => col.field === 'status');
+      const getValue = statusColumn?.getValue;
+      if (getValue) expect(getValue({} as Result)).toBe('-');
+    });
+
+    it('should return "-" for creator getValue when created_by_user is null', () => {
+      const columns = service.tableColumns();
+      const creatorColumn = columns.find(col => col.field === 'creator');
+      const getValue = creatorColumn?.getValue;
+      if (getValue) expect(getValue({ created_by_user: null } as Result)).toBe('-');
+    });
+
+    it('should return "-" for creation_date getValue when created_at is null', () => {
+      const columns = service.tableColumns();
+      const dateColumn = columns.find(col => col.field === 'creation_date');
+      const getValue = dateColumn?.getValue;
+      if (getValue) expect(getValue({ created_at: null } as Result)).toBe('-');
+    });
+
     it('should get lever value correctly with primary levers', () => {
       const columns = service.tableColumns();
       const leverColumn = columns.find(col => col.field === 'lever');
@@ -894,6 +1042,21 @@ describe('ResultsCenterService', () => {
       if (getValue) {
         const result = { result_levers: {} } as Result;
         expect(getValue(result)).toBe('-');
+      }
+    });
+
+    it('should get lever value with lever missing short_name using empty string', () => {
+      const columns = service.tableColumns();
+      const leverColumn = columns.find(col => col.field === 'lever');
+      const getValue = leverColumn?.getValue;
+      if (getValue) {
+        const result = {
+          result_levers: [
+            { is_primary: 1, lever: {} },
+            { is_primary: 1, lever: { short_name: 'L2' } }
+          ]
+        } as Result;
+        expect(getValue(result)).toBe('L2');
       }
     });
 
@@ -1057,6 +1220,14 @@ describe('ResultsCenterService', () => {
     });
 
     it('should clear filter array when id is not provided', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'lever-codes': [1, 2] }));
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }, { id: 2 }] as any }));
+      service.removeFilter('LEVER');
+      expect(service.tableFilters().levers).toEqual([]);
+      expect(service.resultsFilter()['lever-codes']).toEqual([]);
+    });
+
+    it('should clear filter array when id is undefined for INDICATOR', () => {
       service.tableFilters.set({
         indicators: [{ indicator_id: 1 }],
         statusCodes: [],
@@ -1135,6 +1306,15 @@ describe('ResultsCenterService', () => {
   });
 
   describe('main', () => {
+    it('should pass filter-primary-contract when primaryContractId is set', async () => {
+      service.primaryContractId.set('contract-123');
+      await service.main();
+      expect(mockGetResultsService.getInstance).toHaveBeenCalledWith(
+        expect.objectContaining({ 'filter-primary-contract': ['contract-123'] }),
+        expect.anything()
+      );
+    });
+
     it('should load results successfully', async () => {
       await service.main();
 
@@ -1209,6 +1389,20 @@ describe('ResultsCenterService', () => {
 
       expect(service.resultsFilter()['create-user-codes']).toEqual(['123']);
       expect(service.appliedFilters()['create-user-codes']).toEqual(['123']);
+    });
+
+    it('should not update list when context changes during request', async () => {
+      const initialList = [{ result_official_code: 'OLD' }] as any;
+      service.list.set(initialList);
+      let resolveInstance: (v: unknown) => void;
+      const instancePromise = new Promise<ReturnType<typeof signal>>(r => { resolveInstance = r; });
+      mockGetResultsService.getInstance.mockImplementationOnce(() => instancePromise as any);
+      const mainPromise = service.main();
+      await Promise.resolve();
+      service.primaryContractId.set('other-contract');
+      resolveInstance!(signal(mockResults));
+      await mainPromise;
+      expect(service.list()).toEqual(initialList);
     });
 
     it('should clear create-user-codes when tab is not my and create-user-codes has items', async () => {
