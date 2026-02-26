@@ -163,6 +163,17 @@ describe('OicrDetailsComponent', () => {
       component.updateQuantification(0, data);
       expect(component.quantifications()[0]).toEqual(data);
     });
+
+    it('should update only item at index when multiple quantifications (cover map branches)', () => {
+      component.quantifications.set([
+        { number: 1, unit: 'a', comments: 'c1' },
+        { number: 2, unit: 'b', comments: 'c2' }
+      ]);
+      const data = { number: 99, unit: 'kg', comments: 'updated' };
+      component.updateQuantification(1, data);
+      expect(component.quantifications()[0]).toEqual({ number: 1, unit: 'a', comments: 'c1' });
+      expect(component.quantifications()[1]).toEqual(data);
+    });
   });
 
   describe('extrapolated estimates handlers', () => {
@@ -189,6 +200,17 @@ describe('OicrDetailsComponent', () => {
       const data = { number: 5, unit: 'ha', comments: 'extrapolated' };
       component.updateExtrapolatedEstimate(0, data);
       expect(component.extrapolatedEstimates()[0]).toEqual(data);
+    });
+
+    it('should update only item at index when multiple extrapolated estimates (cover map branches)', () => {
+      component.extrapolatedEstimates.set([
+        { number: 1, unit: 'x', comments: 'e1' },
+        { number: 2, unit: 'y', comments: 'e2' }
+      ]);
+      const data = { number: 50, unit: 'ha', comments: 'updated' };
+      component.updateExtrapolatedEstimate(1, data);
+      expect(component.extrapolatedEstimates()[0]).toEqual({ number: 1, unit: 'x', comments: 'e1' });
+      expect(component.extrapolatedEstimates()[1]).toEqual(data);
     });
   });
 
@@ -266,8 +288,47 @@ describe('OicrDetailsComponent', () => {
       });
     });
 
+    it('should map contact person with all fallbacks when user fields missing', async () => {
+      const oneItem: ContactPersonResponse = {
+        result_user_id: 3,
+        user_id: 12,
+        informative_role_id: 22,
+        user: {
+          first_name: '',
+          last_name: '',
+          position: undefined,
+          affiliation: undefined,
+          email: undefined,
+          center: undefined
+        } as any,
+        informativeRole: undefined as any
+      } as any;
+
+      apiService.GET_AutorContact.mockResolvedValue({ data: oneItem } as any);
+
+      await component.loadContactPersons();
+
+      const rows = component.contactPersons();
+      expect(rows[0]).toMatchObject({
+        id: 3,
+        name: '',
+        position: '-',
+        affiliation: '-',
+        email: '-',
+        role: '-',
+        user_id: 12,
+        informative_role_id: 22
+      });
+    });
+
     it('should clear contact persons when response has no data', async () => {
       apiService.GET_AutorContact.mockResolvedValue({ data: null } as any);
+      await component.loadContactPersons();
+      expect(component.contactPersons()).toEqual([]);
+    });
+
+    it('should clear contact persons when response is undefined (no res.data)', async () => {
+      apiService.GET_AutorContact.mockResolvedValue({} as any);
       await component.loadContactPersons();
       expect(component.contactPersons()).toEqual([]);
     });
@@ -291,6 +352,20 @@ describe('OicrDetailsComponent', () => {
     it('should not delete contact person if row has no id', async () => {
       await component.onDeleteContactPerson({} as any);
       expect(apiService.DELETE_AutorContact).not.toHaveBeenCalled();
+    });
+
+    it('should not reload or show toast when DELETE_AutorContact returns unsuccessful', async () => {
+      const row = { id: 5 } as any;
+      apiService.DELETE_AutorContact.mockResolvedValue({ successfulRequest: false } as any);
+      const loadSpy = jest.spyOn(component, 'loadContactPersons').mockResolvedValue();
+
+      await component.onDeleteContactPerson(row);
+
+      expect(apiService.DELETE_AutorContact).toHaveBeenCalledWith(5, cacheService.getCurrentNumericResultId());
+      expect(loadSpy).not.toHaveBeenCalled();
+      expect(actionsService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'success', detail: 'Deleted successfully' })
+      );
     });
   });
 
@@ -391,6 +466,88 @@ describe('OicrDetailsComponent', () => {
       expect(component.quantifications()).toEqual([{ number: null, unit: '', comments: '' }]);
       expect(component.extrapolatedEstimates()).toEqual([{ number: null, unit: '', comments: '' }]);
     });
+
+    it('should use empty object when response.data is falsy', async () => {
+      apiService.GET_Oicr.mockResolvedValue({} as any);
+      const loadContactsSpy = jest.spyOn(component, 'loadContactPersons').mockResolvedValue();
+
+      await component.getData();
+
+      expect(component.body()).toEqual({});
+      expect(loadContactsSpy).toHaveBeenCalled();
+    });
+
+    it('should parse quantification number as string and handle NaN', async () => {
+      apiService.GET_Oicr.mockResolvedValue({
+        data: {
+          actual_count: [
+            { quantification_number: '42', unit: 'kg', description: 'd1' },
+            { quantification_number: 'invalid', unit: 'ha', description: 'd2' }
+          ],
+          extrapolate_estimates: [
+            { quantification_number: 10, unit: 'm', description: 'e1' },
+            { quantification_number: null, unit: '', description: '' }
+          ]
+        }
+      } as any);
+      jest.spyOn(component, 'loadContactPersons').mockResolvedValue();
+
+      await component.getData();
+
+      expect(component.quantifications()[0]).toEqual({ number: 42, unit: 'kg', comments: 'd1' });
+      expect(component.quantifications()[1]).toEqual({ number: null, unit: 'ha', comments: 'd2' });
+      expect(component.extrapolatedEstimates()[0]).toEqual({ number: 10, unit: 'm', comments: 'e1' });
+      expect(component.extrapolatedEstimates()[1]).toEqual({ number: null, unit: '', comments: '' });
+    });
+
+    it('should parse quantification when raw is number and when undefined (cover all parse branches)', async () => {
+      apiService.GET_Oicr.mockResolvedValue({
+        data: {
+          actual_count: [
+            { quantification_number: 100, unit: 'kg', description: 'num' },
+            { quantification_number: undefined, unit: undefined, description: undefined }
+          ],
+          extrapolate_estimates: [
+            { quantification_number: '200', unit: 'm', description: 'ext' },
+            { quantification_number: undefined, unit: undefined, description: undefined }
+          ]
+        }
+      } as any);
+      jest.spyOn(component, 'loadContactPersons').mockResolvedValue();
+
+      await component.getData();
+
+      expect(component.quantifications()[0]).toEqual({ number: 100, unit: 'kg', comments: 'num' });
+      expect(component.quantifications()[1]).toEqual({ number: null, unit: '', comments: '' });
+      expect(component.extrapolatedEstimates()[0]).toEqual({ number: 200, unit: 'm', comments: 'ext' });
+      expect(component.extrapolatedEstimates()[1]).toEqual({ number: null, unit: '', comments: '' });
+    });
+
+    it('should map result_impact_areas when present', async () => {
+      apiService.GET_Oicr.mockResolvedValue({
+        data: {
+          result_impact_areas: [
+            { impact_area_id: 1, impact_area_score_id: 2, global_target_id: 3 },
+            { impact_area_id: 4, impact_area_score_id: undefined, global_target_id: undefined }
+          ]
+        }
+      } as any);
+      jest.spyOn(component, 'loadContactPersons').mockResolvedValue();
+
+      await component.getData();
+
+      expect(component.body().result_impact_areas).toHaveLength(2);
+      expect(component.body().result_impact_areas![0]).toEqual({
+        impact_area_id: 1,
+        impact_area_score_id: 2,
+        global_target_id: 3
+      });
+      expect(component.body().result_impact_areas![1]).toEqual({
+        impact_area_id: 4,
+        impact_area_score_id: undefined,
+        global_target_id: undefined
+      });
+    });
   });
 
   describe('saveData', () => {
@@ -412,6 +569,39 @@ describe('OicrDetailsComponent', () => {
         detail: 'Data saved successfully'
       });
       expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should map null number and empty unit/comments to payload defaults (cover ?? 0 and ?? "")', async () => {
+      submissionService.isEditableStatus.mockReturnValue(true);
+      apiService.PATCH_Oicr.mockResolvedValue({ successfulRequest: true } as any);
+      jest.spyOn(component, 'getData').mockResolvedValue();
+
+      component.quantifications.set([{ number: null, unit: '', comments: '' }]);
+      component.extrapolatedEstimates.set([{ number: null, unit: '', comments: '' }]);
+      component.body.set({} as any);
+
+      await component.saveData();
+
+      const payload = (apiService.PATCH_Oicr as jest.Mock).mock.calls[0][1];
+      expect(payload.actual_count[0]).toEqual({ quantification_number: 0, unit: '', description: '' });
+      expect(payload.extrapolate_estimates[0]).toEqual({ quantification_number: 0, unit: '', description: '' });
+      expect(payload.result_impact_areas).toEqual([]);
+    });
+
+    it('should map payload with undefined unit and comments (cover ?? in map)', async () => {
+      submissionService.isEditableStatus.mockReturnValue(true);
+      apiService.PATCH_Oicr.mockResolvedValue({ successfulRequest: true } as any);
+      jest.spyOn(component, 'getData').mockResolvedValue();
+
+      component.quantifications.set([{ number: 5, unit: undefined as any, comments: undefined as any }]);
+      component.extrapolatedEstimates.set([{ number: 10, unit: undefined as any, comments: undefined as any }]);
+      component.body.set({} as any);
+
+      await component.saveData();
+
+      const payload = (apiService.PATCH_Oicr as jest.Mock).mock.calls[0][1];
+      expect(payload.actual_count[0]).toEqual({ quantification_number: 5, unit: '', description: '' });
+      expect(payload.extrapolate_estimates[0]).toEqual({ quantification_number: 10, unit: '', description: '' });
     });
 
     it('should not proceed when PATCH_Oicr fails', async () => {

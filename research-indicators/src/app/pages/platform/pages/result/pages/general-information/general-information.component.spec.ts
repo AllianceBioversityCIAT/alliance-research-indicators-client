@@ -226,6 +226,88 @@ describe('GeneralInformationComponent', () => {
     expect(component.loading()).toBe(false);
   });
 
+  it('should show error toast with errorDetail.detail when errors is absent', async () => {
+    const mockData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2024',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    component.body.set(mockData);
+    (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: false, 
+      errorDetail: { detail: 'Conflict detail message' }
+    });
+    (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
+
+    await component.saveData();
+
+    expect((actionsService as any).showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Conflict detail message'
+    });
+    expect(component.loading()).toBe(false);
+  });
+
+  it('should show error toast with fallback message when errorDetail has no errors or detail', async () => {
+    const mockData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2024',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    component.body.set(mockData);
+    (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: false, 
+      errorDetail: {}
+    });
+    (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
+
+    await component.saveData();
+
+    expect((actionsService as any).showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Unable to save data, please try again'
+    });
+    expect(component.loading()).toBe(false);
+  });
+
+  it('should show error toast when status is 409 (conflict)', async () => {
+    const mockData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2024',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    component.body.set(mockData);
+    (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: true, 
+      status: 409,
+      errorDetail: { detail: 'Version conflict' }
+    });
+    (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
+
+    await component.saveData();
+
+    expect((actionsService as any).showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Version conflict'
+    });
+    expect(component.loading()).toBe(false);
+  });
+
   it('should handle getData when response has no main_contact_person', async () => {
     const mockData = {
       title: 'Test Title',

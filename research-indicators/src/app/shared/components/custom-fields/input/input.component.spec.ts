@@ -164,6 +164,17 @@ describe('InputComponent', () => {
 
     expect(result.valid).toBe(false);
     expect(result.class).toBe('ng-invalid ng-dirty');
+  });
+
+  it('should return class empty string when pattern validates (cover line 200 valid branch)', () => {
+    component.pattern = 'email';
+    component.signal = signal({ testField: 'valid@test.com' });
+    utilsService.getNestedProperty.mockReturnValue('valid@test.com');
+
+    const result = component.inputValid();
+
+    expect(result.valid).toBe(true);
+    expect(result.class).toBe('');
     expect(result.message).toBe('Please enter a valid email address.');
   });
 

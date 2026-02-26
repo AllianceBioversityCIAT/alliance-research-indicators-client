@@ -5,18 +5,45 @@
   margin-bottom: 10px;
 }
 
-.label {
-  font-family: 'Barlow', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
+.label,
+body .label,
+.label span,
+body .label span,
+.label *,
+body .label * {
+  font-family: 'Space Grotesk', 'Space_Grotesk', sans-serif !important;
+  font-size: 14px;
+  font-weight: 450 !important;
+}
+
+.label,
+body .label {
   color: #153c71;
+}
+
+.section-title {
+  font-family: 'Space Grotesk', 'Space_Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 450;
+  color: #a2a9af;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  margin-top: 0;
 }
 
 .description {
   color: #777c83;
   font-family: 'Barlow', sans-serif;
-  font-size: 16px;
+  font-size: 14.5px;
   font-weight: 400;
   line-height: 17px;
   text-align: left;
+}
+
+.option-label {
+  color: #4c5158;
+  font-family: Barlow, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 17px;
 }

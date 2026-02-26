@@ -227,6 +227,29 @@ describe('LinksToResultComponent', () => {
     expect(component.loading()).toBe(false);
   });
 
+  it('should use empty array when response has no data or link_results (line 67 fallback)', async () => {
+    apiService.GET_LinkedResults.mockResolvedValueOnce({ data: undefined } as any);
+    await component.loadLinkedResults();
+    expect(component.linkedResults()).toEqual([]);
+    expect(apiService.GET_Results).not.toHaveBeenCalled();
+
+    apiService.GET_LinkedResults.mockResolvedValueOnce({ data: {} } as any);
+    await component.loadLinkedResults();
+    expect(component.linkedResults()).toEqual([]);
+  });
+
+  it('should use empty array when GET_Results returns non-array data (line 91 fallback)', async () => {
+    apiService.GET_LinkedResults.mockResolvedValueOnce({
+      data: { link_results: [{ other_result_id: 1 }] }
+    } as any);
+    apiService.GET_Results.mockResolvedValueOnce({ data: null } as any);
+
+    await component.loadLinkedResults();
+
+    expect(apiService.GET_Results).toHaveBeenCalled();
+    expect(component.linkedResults()).toEqual([]);
+  });
+
   it('should load and map linked results when ids exist', async () => {
     const linkedIds = [{ other_result_id: 1 }, { other_result_id: 2 }];
     const allResults: Result[] = [

@@ -394,6 +394,20 @@ describe('ApiService', () => {
       });
     });
 
+    it('should call PATCH_SubmitResult with body and null comment using empty string for submission_comment', () => {
+      const params = { resultCode: 123, comment: null, status: 1 } as any;
+      const body = { extra: 'field' } as any;
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_SubmitResult(params, body);
+
+      expect(mockToPromiseService.post).toHaveBeenCalledWith(
+        'results/status/workflow/change-status/123/to-status/1',
+        { ...body, submission_comment: '' },
+        { useResultInterceptor: true }
+      );
+    });
+
     it('should call PATCH_Feedback', () => {
       const body = { test: 'data' } as any;
       (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });

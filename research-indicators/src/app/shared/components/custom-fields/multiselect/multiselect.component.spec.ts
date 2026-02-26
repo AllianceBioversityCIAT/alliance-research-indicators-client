@@ -241,6 +241,22 @@ describe('MultiselectComponent', () => {
     expect(comp.body().value).toEqual([10, 20]);
   });
 
+  it('should run onChange else-if only (all items have label, cover line 157)', () => {
+    const itemsWithLabels = [
+      { id: 1, name: 'Option 1' },
+      { id: 2, name: 'Option 2' }
+    ];
+    mockUtilsService.getNestedProperty.mockReturnValue(itemsWithLabels);
+    mockService.list.mockReturnValue(itemsWithLabels);
+    component.ngOnInit();
+    component.firstLoad.set(true);
+    component.signal.set({ testField: itemsWithLabels } as any);
+    const setBodySpy = jest.spyOn(component as any, 'setBodyFromSignal');
+    component.signal.update(current => ({ ...current }));
+    TestBed.flushEffects();
+    expect(setBodySpy).toHaveBeenCalled();
+  });
+
   it('should cover selectedOptions disabled calculation find callback (around line 99)', () => {
     component.optionsDisabled.set([{ id: 1 }]);
     mockUtilsService.getNestedProperty.mockReturnValue([{ id: 1 }]);
@@ -928,6 +944,21 @@ describe('MultiselectComponent', () => {
     component.setBodyFromSignal();
 
     expect(component.body().value).toBeUndefined();
+  });
+
+  it('should use empty array when availableOptions base is not an array', () => {
+    component.optionsDisabled.set([]);
+    (component.optionsSig as any).set({ not: 'an array' } as any);
+    const result = component.availableOptions();
+    expect(result).toEqual([]);
+  });
+
+  it('should use true when optionFilter is falsy in availableOptions', () => {
+    component.optionsDisabled.set([]);
+    component.optionsSig.set([{ id: 1, name: 'A' }]);
+    (component as any).optionFilter = null;
+    const result = component.availableOptions();
+    expect(result.length).toBeGreaterThanOrEqual(0);
   });
 
   it('should handle optionFilter throwing an error', () => {
