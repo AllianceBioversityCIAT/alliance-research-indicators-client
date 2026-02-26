@@ -141,6 +141,27 @@ describe('MyLatestResultsComponent', () => {
       expect(component.calculateProgressFor(result)).toBe(86);
     });
 
+    it('should calculate progress for indicator type 5 (link_result, oicr) covering getSteps branches', () => {
+      const result = {
+        ...mockLatestResults.data[0],
+        indicator: { ...mockLatestResults.data[0].indicator, indicator_id: 5 },
+        platform_code: 'STAR'
+      } as any;
+      const resultCode = `${result.platform_code}-${result.result_official_code}`;
+      component.greenChecksByResult.set({
+        [resultCode]: {
+          general_information: 1,
+          alignment: 1,
+          link_result: 1,
+          oicr: 1,
+          partners: 1,
+          geo_location: 1,
+          evidences: 1
+        }
+      });
+      expect(component.calculateProgressFor(result)).toBe(88);
+    });
+
     it('should return 0 if result.indicator is undefined', () => {
       const result: any = { ...mockLatestResults.data[0], indicator: undefined, platform_code: 'STAR' };
       const resultCode = `${result.platform_code}-${result.result_official_code}`;
