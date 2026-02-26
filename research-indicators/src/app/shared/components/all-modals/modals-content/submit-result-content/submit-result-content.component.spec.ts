@@ -362,6 +362,23 @@ describe('SubmitResultContentComponent', () => {
     consoleErrorSpy.mockRestore();
   });
 
+  it('loadStatuses should load status ids 10, 11, 15 when submitResultOrigin is latest', async () => {
+    mockAllModalsService.submitResultOrigin!.set('latest');
+    (mockApiService.GET_ResultStatus as jest.Mock).mockImplementation((statusId: number) =>
+      Promise.resolve({
+        successfulRequest: true,
+        data: { result_status_id: statusId, name: statusId === 10 ? 'OICR Accepted' : statusId === 11 ? 'Postpone' : 'OICR Not Accepted' }
+      })
+    );
+    await (component as any).loadStatuses();
+    expect(mockApiService.GET_ResultStatus).toHaveBeenCalledWith(10);
+    expect(mockApiService.GET_ResultStatus).toHaveBeenCalledWith(11);
+    expect(mockApiService.GET_ResultStatus).toHaveBeenCalledWith(15);
+    expect(component.statusData()[10]).toBeDefined();
+    expect(component.statusData()[11]).toBeDefined();
+    expect(component.statusData()[15]).toBeDefined();
+  });
+
   it('should submit review successfully', async () => {
     const mockResponse = { successfulRequest: true };
     mockApiService.PATCH_SubmitResult!.mockResolvedValue(mockResponse);
