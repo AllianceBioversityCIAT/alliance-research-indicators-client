@@ -116,7 +116,7 @@
               (deleteClicked)="onDeleteContactPerson($event)"></app-authors-contact-persons-table>
           </div>
 
-          <span class="text-[16px] font-semibold text-[#173f6f] py-4">Further communication opportunities</span>
+          <span class="label py-4">Further communication opportunities</span>
           <div class="flex items-center gap-2">
             <p-checkbox id="external_use" [disabled]="!submission.isEditableStatus()"
               [(ngModel)]="body().for_external_use" binary="true" styleClass="w-4 h-4" />
