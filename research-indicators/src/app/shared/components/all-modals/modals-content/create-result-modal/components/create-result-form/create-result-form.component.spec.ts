@@ -351,6 +351,20 @@ describe('CreateResultFormComponent', () => {
     expect(component.getPrimaryLeverId('999')).toBeUndefined();
   });
 
+  it('getPrimaryLeverForOicr should return array with lever when getPrimaryLeverId returns value', () => {
+    component.body.set({ contract_id: '123' } as any);
+    contractsServiceMock.list.set([{ agreement_id: '123', lever_id: 456 }] as any);
+    expect(component.getPrimaryLeverForOicr()).toEqual([
+      { result_lever_id: 0, result_id: 0, lever_id: 456, lever_role_id: 0, is_primary: true }
+    ]);
+  });
+
+  it('getPrimaryLeverForOicr should return empty array when getPrimaryLeverId returns falsy', () => {
+    component.body.set({ contract_id: '999' } as any);
+    contractsServiceMock.list.set([]);
+    expect(component.getPrimaryLeverForOicr()).toEqual([]);
+  });
+
   it('CreateOicr should navigate to OICR when title is valid', async () => {
     const spy = jest.spyOn(component, 'navigateToOicr');
     apiServiceMock.GET_ValidateTitle.mockResolvedValue({ successfulRequest: true, data: { isValid: true } });
@@ -814,7 +828,7 @@ describe('CreateResultFormComponent', () => {
     expect(createResultManagementServiceMock.setYear).toHaveBeenCalledWith(2024);
     expect(createResultManagementServiceMock.createOicrBody.update).toHaveBeenCalled();
     
-    // Verify that the update callback includes primary_lever
+    // Verify that the update callback includes primary_lever (covers line 252 lever_id: Number(...))
     const updateCall = createResultManagementServiceMock.createOicrBody.update.mock.calls[0][0];
     const mockBody = { base_information: {}, step_two: {} };
     const result = updateCall(mockBody);
@@ -827,6 +841,18 @@ describe('CreateResultFormComponent', () => {
         is_primary: true
       }
     ]);
+    expect(typeof (result.step_two.primary_lever as any[])[0].lever_id).toBe('number');
+  });
+
+  it('navigateToOicr should set lever_id via Number() when getPrimaryLeverId returns string number (cover line 252 branch)', () => {
+    component.body.set({ title: 'T', contract_id: '123', year: 2024 });
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: '789' } as any
+    ]);
+    component.navigateToOicr();
+    const updateCall = createResultManagementServiceMock.createOicrBody.update.mock.calls[0][0];
+    const result = updateCall({ base_information: {}, step_two: {} });
+    expect((result.step_two.primary_lever as any[])[0].lever_id).toBe(789);
   });
 
   it('navigateToOicr should handle when body values are falsy and use empty strings', () => {

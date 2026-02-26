@@ -209,6 +209,21 @@ export class CreateResultFormComponent {
     return contract?.lever_id;
   }
 
+  /** Build primary_lever array for OICR; used by navigateToOicr and tests for branch coverage */
+  getPrimaryLeverForOicr(): Lever[] {
+    const leverId = this.getPrimaryLeverId(this.body().contract_id || '');
+    if (!leverId) return [];
+    return [
+      {
+        result_lever_id: 0,
+        result_id: 0,
+        lever_id: Number(leverId),
+        lever_role_id: 0,
+        is_primary: true
+      } as Lever
+    ];
+  }
+
   async CreateOicr() {
     const title = this.body().title?.trim() ?? '';
     const res = await this.api.GET_ValidateTitle(title);
@@ -244,29 +259,17 @@ export class CreateResultFormComponent {
       } as BaseInformation,
       step_two: {
         ...b.step_two,
-        primary_lever: this.getPrimaryLeverId(this.body().contract_id || '')
-          ? [
-              {
-                result_lever_id: 0,
-                result_id: 0,
-                lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || '')),
-                lever_role_id: 0,
-                is_primary: true
-              } as Lever
-            ]
-          : []
+        primary_lever: this.getPrimaryLeverForOicr()
       } as StepTwo
     }));
-    this.createResultManagementService.oicrPrimaryOptionsDisabled.update(b => [
-      ...b,
-      {
-        result_lever_id: 0,
-        result_id: 0,
-        lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || '')),
-        lever_role_id: 0,
-        is_primary: true
-      } as Lever
-    ]);
+    const primaryLeverEntry = this.getPrimaryLeverForOicr()[0] ?? {
+      result_lever_id: 0,
+      result_id: 0,
+      lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || '')),
+      lever_role_id: 0,
+      is_primary: true
+    } as Lever;
+    this.createResultManagementService.oicrPrimaryOptionsDisabled.update(b => [...b, primaryLeverEntry]);
     this.createResultManagementService.resultPageStep.set(2);
   }
 
