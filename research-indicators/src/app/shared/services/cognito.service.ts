@@ -21,7 +21,7 @@ export class CognitoService {
   private readonly loginReturnUrlKey = 'loginReturnUrl';
 
   redirectToCognito(returnUrl?: string) {
-    if (returnUrl && returnUrl.startsWith('/')) {
+    if (returnUrl?.startsWith('/')) {
       sessionStorage.setItem(this.loginReturnUrlKey, returnUrl);
     }
     window.location.href =
@@ -63,7 +63,7 @@ export class CognitoService {
       sessionStorage.removeItem(this.loginReturnUrlKey);
     }
     setTimeout(() => {
-      if (returnUrl && returnUrl.startsWith('/')) {
+      if (returnUrl?.startsWith('/')) {
         this.router.navigateByUrl(returnUrl);
       } else {
         this.router.navigate(['/']);

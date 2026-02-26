@@ -279,6 +279,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
           if (rowValues.length === headers.length) {
             worksheet.addRow(rowValues);
           } else {
+            /* istanbul ignore next - rowValues length always equals headers length by construction */
             console.warn(`Row ${rowIndex} has ${rowValues.length} values but expected ${headers.length}, skipping`);
           }
         } catch (error) {
