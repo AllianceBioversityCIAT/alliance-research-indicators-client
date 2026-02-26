@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MultiselectComponent } from './multiselect.component';
 import { signal } from '@angular/core';
+import { SimpleChanges } from '@angular/core';
 import { ActionsService } from '../../../services/actions.service';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { CacheService } from '../../../services/cache/cache.service';
@@ -945,5 +946,34 @@ describe('MultiselectComponent', () => {
 
     // Should return options even if filter throws (catch returns true)
     expect(result.length).toBe(2);
+  });
+
+  it('ngOnChanges should rebind service and load when serviceName or serviceParams change', () => {
+    const loadDataSpy = jest.spyOn(component as any, 'loadData').mockResolvedValue(undefined);
+    const bindSpy = jest.spyOn(component as any, 'bindServiceSignals').mockImplementation(() => {});
+    const otherService = { list: jest.fn().mockReturnValue([]), loading: jest.fn().mockReturnValue(false) };
+    mockServiceLocator.getService.mockReturnValue(otherService);
+    component.serviceName = 'regions';
+
+    component.ngOnChanges({
+      serviceName: { firstChange: false, previousValue: 'countries', currentValue: 'regions' } as any
+    });
+
+    expect(mockServiceLocator.getService).toHaveBeenCalledWith('regions');
+    expect(bindSpy).toHaveBeenCalled();
+    expect(loadDataSpy).toHaveBeenCalled();
+  });
+
+  it('ngOnChanges should rebind when serviceParams change', () => {
+    const loadDataSpy = jest.spyOn(component as any, 'loadData').mockResolvedValue(undefined);
+    const bindSpy = jest.spyOn(component as any, 'bindServiceSignals').mockImplementation(() => {});
+    component.serviceParams = { id: 2 };
+
+    component.ngOnChanges({
+      serviceParams: { firstChange: false, previousValue: { id: 1 }, currentValue: { id: 2 } } as any
+    });
+
+    expect(bindSpy).toHaveBeenCalled();
+    expect(loadDataSpy).toHaveBeenCalled();
   });
 });

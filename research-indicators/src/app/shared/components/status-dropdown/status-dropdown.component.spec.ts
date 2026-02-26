@@ -334,6 +334,15 @@ describe('StatusDropdownComponent', () => {
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
     });
+
+    it('should set availableStatuses to [] when response has no data', async () => {
+      component.statusId = 4;
+      mockApiService.GET_NextStep.mockResolvedValue({ successfulRequest: true } as MainResponse<GetNextStep>);
+
+      await component.loadNextSteps();
+
+      expect(component.availableStatuses()).toEqual([]);
+    });
   });
 });
 
