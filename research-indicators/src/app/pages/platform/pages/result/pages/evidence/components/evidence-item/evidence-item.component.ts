@@ -60,14 +60,14 @@ export class EvidenceItemComponent implements OnInit {
     if (!body.evidence) {
       body.evidence = [];
     }
-    while (body.evidence.length <= this.index!) {
+    while (body.evidence.length <= this.index) {
       body.evidence.push(new Evidence());
     }
     const currentEvidence = this.body();
     if (currentEvidence) {
-      body.evidence[this.index!].evidence_url = currentEvidence.evidence_url;
-      if (JSON.stringify(body.evidence[this.index!]) !== JSON.stringify(currentEvidence)) {
-        body.evidence[this.index!] = { ...currentEvidence };
+      body.evidence[this.index].evidence_url = currentEvidence.evidence_url;
+      if (JSON.stringify(body.evidence[this.index]) !== JSON.stringify(currentEvidence)) {
+        body.evidence[this.index] = { ...currentEvidence };
       }
     }
     return { ...body };
