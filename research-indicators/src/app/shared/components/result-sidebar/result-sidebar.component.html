@@ -1,7 +1,7 @@
 <div class="card-content -mt-2" [style.margin-left.px]="cache.isSidebarCollapsed() ? 70 : 250">
-  <div class="flex flex-col p-[25px] pb-4 pt-9 !bg-[#ffffff]">
-    <span class="text-[#345B8F] text-[14px] font-semibold">
-      RESULT CODE <span class="text-[#153C71] font-bold">#{{ cache.currentMetadata().result_official_code }}</span>
+  <div class="flex flex-col p-[25px] pb-4 pt-9 !bg-[#F5F5F54D]">
+    <span class="text-[#8D9299] text-[14px] font-[space-grotesk] tracking-[2.5px]">
+      Result code <span>#{{ cache.currentMetadata().result_official_code }}</span>
     </span>
 
     <div class="flex items-center gap-2 mt-[0.5px]">
@@ -12,7 +12,7 @@
         </i>
       </span>
 
-      <span class="text-[#153C71] leading-4 font-bold uppercase text-[14px]">{{
+      <span class="text-[#153C71] uppercase leading-4 font-[space-grotesk]  text-[14px]">{{
         cache.currentMetadata().indicator_name}}</span>
     </div>
   </div>
@@ -20,8 +20,7 @@
   <hr class="!my-0" />
 
   <div
-    class="flex p-[25px] pb-4 flex-wrap items-center justify-between font-medium full text-[13px] mb-[15px] text-[#777c83] title">
-    FORM PROGRESS
+    class="flex p-[25px] pb-4 flex-wrap items-center justify-between font-medium full text-[13px]  text-[#777c83] title">
     @if (roles.isAdmin() && cache.currentMetadata().indicator_id === 5) {
     <app-status-dropdown [statusId]="cache.currentMetadata().status_id ?? 0"
       [statusName]="cache.currentMetadata().status_name ?? ''" (statusChange)="onStatusChange($event)"
@@ -35,8 +34,8 @@
       [statusBorder]="cache.currentMetadata().result_status?.config?.color?.border ?? ''"
       class="-mt-1"></app-custom-tag>
     }
-    <div class="flex w-full text-[14px] font-normal">
-      <span class="text-[#70ae74] pr-1">{{ getCompletedCount() }}/{{ getTotalCount() }}</span> sections completed
+    <div class="flex w-full text-[14px] font-normal pt-3">
+      <span class="text-[#E69F00] pr-1">{{ getCompletedCount() }}/{{ getTotalCount() }}</span> sections completed
     </div>
   </div>
 
