@@ -1,4 +1,4 @@
-<div class="card-content -mt-2">
+<div class="card-content -mt-2" [style.margin-left.px]="cache.isSidebarCollapsed() ? 70 : 250">
   <div class="flex flex-col p-[25px] pb-4 pt-9 !bg-[#ffffff]">
     <span class="text-[#345B8F] text-[14px] font-semibold">
       RESULT CODE <span class="text-[#153C71] font-bold">#{{ cache.currentMetadata().result_official_code }}</span>
