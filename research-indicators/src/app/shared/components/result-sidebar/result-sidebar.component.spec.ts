@@ -51,7 +51,8 @@ describe('ResultSidebarComponent', () => {
       } as GreenChecks),
       onlyMvpUsers: signal(false),
       allGreenChecksAreTrue: signal(true),
-      projectResultsSearchValue: signal('')
+      projectResultsSearchValue: signal(''),
+      isSidebarCollapsed: jest.fn().mockReturnValue(false)
     };
 
     actionsService = {
@@ -637,6 +638,128 @@ describe('ResultSidebarComponent', () => {
         summary: 'Status updated',
         detail: 'The status has been updated successfully'
       });
+    });
+
+    it('should use empty object when currentMetadata is undefined in handleSuccessfulStatusUpdate', async () => {
+      (cacheService as any).currentMetadata = signal(undefined as any);
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({ successfulRequest: true });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(false);
+
+      await (component as any).updateResultStatus(6, '');
+
+      expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(0, 0);
+      expect(actionsService.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Status updated',
+        detail: 'The status has been updated successfully'
+      });
+    });
+
+    it('should show toast and not navigate when validateOpenResult true but result_contract_id missing', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 6,
+        result_contract_id: undefined as any,
+        result_title: 'My Result',
+        result_official_code: 999
+      });
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({ successfulRequest: true });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).updateResultStatus(6, '');
+
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(currentResultService.openEditRequestdOicrsModal).not.toHaveBeenCalled();
+      expect(actionsService.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Status updated',
+        detail: 'The status has been updated successfully'
+      });
+    });
+
+    it('should only show toast when isDraft status 12 and isAdmin (skip navigate block)', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 12,
+        result_contract_id: 'CONTRACT-1',
+        result_title: 'My Result',
+        result_official_code: 999
+      });
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({ successfulRequest: true });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).updateResultStatus(12, '');
+
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(actionsService.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Status updated',
+        detail: 'The status has been updated successfully'
+      });
+    });
+
+    it('should only show toast when isDraft status 13 and isAdmin (skip navigate block)', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 13,
+        result_contract_id: 'CONTRACT-1',
+        result_title: 'My Result',
+        result_official_code: 999
+      });
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({ successfulRequest: true });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).updateResultStatus(13, '');
+
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(actionsService.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Status updated',
+        detail: 'The status has been updated successfully'
+      });
+    });
+
+    it('should set projectResultsSearchValue to empty string when result_title is undefined in handleSuccessfulStatusUpdate', async () => {
+      const searchValueSignal = signal('');
+      (cacheService as any).projectResultsSearchValue = searchValueSignal;
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 6,
+        result_contract_id: 'CONTRACT-1',
+        result_title: undefined as any,
+        result_official_code: 999
+      });
+      (router as any).url = '/other-page';
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({ successfulRequest: true });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).updateResultStatus(6, '');
+
+      expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 'CONTRACT-1']);
+      expect(searchValueSignal()).toBe('');
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 6, 999);
+    });
+
+    it('should call openEditRequestdOicrsModal with 0 for undefined indicator_id, status_id, result_official_code', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: undefined as any,
+        status_id: undefined as any,
+        result_contract_id: 'CONTRACT-1',
+        result_title: 'My Result',
+        result_official_code: undefined as any
+      });
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({ successfulRequest: true });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).updateResultStatus(6, '');
+
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0);
     });
   });
 
