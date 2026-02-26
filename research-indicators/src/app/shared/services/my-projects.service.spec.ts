@@ -519,6 +519,51 @@ describe('MyProjectsService', () => {
       expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(customParams);
     });
 
+    it('should set direction to DESC when current-user is true and direction is missing', async () => {
+      await service.main({ 'current-user': true });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ 'current-user': true, direction: 'DESC' })
+      );
+    });
+
+    it('should set direction to DESC when current-user is true and direction is null or empty string', async () => {
+      await service.main({ 'current-user': true, direction: null as any });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ 'current-user': true, direction: 'DESC' })
+      );
+      mockApiService.GET_FindContracts.mockClear();
+      await service.main({ 'current-user': true, direction: '' });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ 'current-user': true, direction: 'DESC' })
+      );
+    });
+
+    it('should not update list when tab changes before response (stillSameTab false)', async () => {
+      service.myProjectsFilterItem.set(service.myProjectsFilterItems[1]);
+      let resolveApi: (value: any) => void;
+      mockApiService.GET_FindContracts.mockImplementationOnce(
+        () =>
+          new Promise(resolve => {
+            resolveApi = resolve;
+          })
+      );
+      const mainPromise = service.main();
+      service.myProjectsFilterItem.set(service.myProjectsFilterItems[0]);
+      resolveApi!({
+        data: { data: mockFindContractsResponseData },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
+      await mainPromise;
+
+      expect(service.list()).toEqual([]);
+    });
+
     it('should handle item with no principal_investigator and no project_lead_description', async () => {
     const mockResponse = {
       data: { data: [

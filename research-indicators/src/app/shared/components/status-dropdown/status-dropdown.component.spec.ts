@@ -169,6 +169,36 @@ describe('StatusDropdownComponent', () => {
       expect(statuses.length).toBe(1);
       expect(statuses[0].id).toBe(12);
     });
+
+    it('should map available_statuses using item.id when result_status_id is missing', async () => {
+      component.statusId = 4;
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: {
+          available_statuses: [
+            { id: 99, name: 'Custom Status', direction: 'next', result_status_id: undefined }
+          ] as any
+        }
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
+      const statuses = component.getAvailableStatuses();
+      expect(statuses.length).toBe(1);
+      expect(statuses[0].id).toBe(99);
+      expect(statuses[0].result_status_id).toBeUndefined();
+    });
+
+    it('should call GET_NextStep with undefined platformCode when getCurrentPlatformCode returns falsy', async () => {
+      component.statusId = 4;
+      mockCacheService.getCurrentPlatformCode.mockReturnValue('');
+      const mockResponse: MainResponse<GetNextStep> = {
+        successfulRequest: true,
+        data: { sequence: [{ id: 4, name: 'Draft' }], special_transitions: {} }
+      };
+      mockApiService.GET_NextStep.mockResolvedValue(mockResponse);
+      await component.loadNextSteps();
+      expect(mockApiService.GET_NextStep).toHaveBeenCalledWith(123, undefined);
+    });
   });
 
   describe('toggleDropdown', () => {
