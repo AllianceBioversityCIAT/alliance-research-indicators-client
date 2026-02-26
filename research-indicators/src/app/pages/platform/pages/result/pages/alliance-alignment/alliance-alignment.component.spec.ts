@@ -177,6 +177,13 @@ describe('AllianceAlignmentComponent', () => {
     expect(api.PATCH_Alignments).not.toHaveBeenCalled();
   });
 
+  it('should navigate to next when not editable and saveData("next") (cover line 194)', async () => {
+    submission.isEditableStatus.mockReturnValue(false);
+    await component.saveData('next');
+    expect(api.PATCH_Alignments).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['result', 1, 'next-section'], { queryParams: { version: 'v1' }, replaceUrl: true });
+  });
+
   it('should call markAsPrimary for contract', () => {
     const contract1 = { is_primary: false, is_active: true, result_contract_id: 1, result_id: 1, contract_id: '1', contract_role_id: 1 };
     const contract2 = { is_primary: true, is_active: true, result_contract_id: 2, result_id: 1, contract_id: '2', contract_role_id: 1 };
@@ -598,6 +605,20 @@ describe('AllianceAlignmentComponent', () => {
       expect(disabled).toEqual([primaryLever]);
     }));
 
+    it('should set optionsDisabled from primary_levers when truthy (cover line 89-90)', fakeAsync(() => {
+      const levers = [{ lever_id: 1, name: 'L1' }];
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: levers as any,
+        contributor_levers: []
+      });
+      fixture.detectChanges();
+      tick();
+      flush();
+      expect(component.optionsDisabled()).toEqual(levers);
+    }));
+
     it('should set optionsDisabled to empty array when primary_levers is falsy', fakeAsync(() => {
       component.body.set({
         contracts: [],
@@ -625,6 +646,20 @@ describe('AllianceAlignmentComponent', () => {
       
       const disabled = component.primaryOptionsDisabled();
       expect(disabled).toEqual([contributorLever]);
+    }));
+
+    it('should set primaryOptionsDisabled from contributor_levers when truthy (cover line 96-97)', fakeAsync(() => {
+      const levers = [{ lever_id: 2, name: 'L2' }];
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [],
+        contributor_levers: levers as any
+      });
+      fixture.detectChanges();
+      tick();
+      flush();
+      expect(component.primaryOptionsDisabled()).toEqual(levers);
     }));
 
     it('should set primaryOptionsDisabled to empty array when contributor_levers is falsy', fakeAsync(() => {

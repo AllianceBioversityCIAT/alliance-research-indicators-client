@@ -660,6 +660,20 @@ describe('ResultsCenterService', () => {
       const count = service.countFiltersSelected();
       expect(count).toBe('1');
     });
+
+    it('should count all result filter types when all have length (cover line 286 and each 282-287 branch)', () => {
+      service.resultsFilter.update(prev => ({
+        ...prev,
+        'indicator-codes-filter': [1],
+        'status-codes': [2],
+        'platform-code': ['STAR'],
+        'contract-codes': ['C1'],
+        'lever-codes': [3],
+        years: [2024]
+      }));
+      const count = service.countFiltersSelected();
+      expect(count).toBe('6');
+    });
   });
 
   describe('countTableFiltersSelected', () => {
@@ -680,6 +694,30 @@ describe('ResultsCenterService', () => {
 
       const count = service.countTableFiltersSelected();
       expect(count).toBe('3');
+    });
+
+    it('should include sources in count when table filters have sources (cover 294-299)', () => {
+      service.tableFilters.update(prev => ({
+        ...prev,
+        sources: [{ platform_code: 'STAR' }, { platform_code: 'ROAR' }] as any,
+        indicators: [{ indicator_id: 1 }] as any
+      }));
+      const count = service.countTableFiltersSelected();
+      expect(count).toBe('3');
+    });
+
+    it('should count all table filter types when all have length (cover each 294-299 branch)', () => {
+      service.tableFilters.update(prev => ({
+        ...prev,
+        indicators: [{ indicator_id: 1 }] as any,
+        statusCodes: [{ result_status_id: 1 }] as any,
+        sources: [{ platform_code: 'X' }] as any,
+        contracts: [{ contract_id: 'C1' }] as any,
+        levers: [{ id: 1 }] as any,
+        years: [2024]
+      }));
+      const count = service.countTableFiltersSelected();
+      expect(count).toBe('6');
     });
   });
 
@@ -1015,6 +1053,13 @@ describe('ResultsCenterService', () => {
       expect(service.resultsFilter()['create-user-codes']).toEqual([]);
     });
 
+    it('should clear create-user-codes when currentTab id is not my (cover line 548 else branch)', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[0]);
+      service.resultsFilter.set({ 'create-user-codes': [1, 2], 'indicator-codes': [1] } as any);
+      service.clearAllFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+    });
+
     it('should clear all filters and reset state', () => {
       service.resultsFilter.update(prev => ({
         ...prev,
@@ -1177,11 +1222,32 @@ describe('ResultsCenterService', () => {
       if (getValue) expect(getValue({} as unknown as Result)).toBe('-');
     });
 
+    it('should return indicator name for indicator getValue when indicators.name is set (cover line 77)', () => {
+      const columns = service.tableColumns();
+      const indicatorColumn = columns.find(col => col.field === 'indicator');
+      const getValue = indicatorColumn?.getValue;
+      if (getValue) expect(getValue({ indicators: { name: 'Capacity Sharing' } } as unknown as Result)).toBe('Capacity Sharing');
+    });
+
+    it('should return "-" for indicator getValue when indicators exists but name is undefined (cover line 77 branch)', () => {
+      const columns = service.tableColumns();
+      const indicatorColumn = columns.find(col => col.field === 'indicator');
+      const getValue = indicatorColumn?.getValue;
+      if (getValue) expect(getValue({ indicators: {} } as unknown as Result)).toBe('-');
+    });
+
     it('should return "-" for status getValue when result_status is undefined', () => {
       const columns = service.tableColumns();
       const statusColumn = columns.find(col => col.field === 'status');
       const getValue = statusColumn?.getValue;
       if (getValue) expect(getValue({} as unknown as Result)).toBe('-');
+    });
+
+    it('should return "-" for status getValue when result_status has no name (cover line 86)', () => {
+      const columns = service.tableColumns();
+      const statusColumn = columns.find(col => col.field === 'status');
+      const getValue = statusColumn?.getValue;
+      if (getValue) expect(getValue({ result_status: {} } as unknown as Result)).toBe('-');
     });
 
     it('should return "-" for creator getValue when created_by_user is null', () => {
