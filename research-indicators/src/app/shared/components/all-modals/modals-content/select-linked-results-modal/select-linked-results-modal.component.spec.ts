@@ -149,6 +149,13 @@ describe('SelectLinkedResultsModalComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should treat modal as closed when isModalOpen returns undefined (cover line 61 branch)', () => {
+    allModalsService.isModalOpen = jest.fn().mockReturnValue(undefined);
+    modalConfigSignal.update(() => ({} as any));
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
+  });
+
   describe('basic behaviors', () => {
     it('should set searchInput from query string', () => {
       component.setSearchInputFilter('search text');
@@ -789,6 +796,71 @@ describe('SelectLinkedResultsModalComponent', () => {
       
       expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
       expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
+    });
+
+    it('should use empty tabs when applyModalIndicatorFilter called with no options and active filter (cover 296, 300-301)', () => {
+      resultsCenterService.tableFilters.mockReturnValue({
+        indicators: [{ indicator_id: 1 }],
+        levers: [],
+        statusCodes: [],
+        years: [],
+        contracts: []
+      } as any);
+      resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': [1] } as any);
+
+      (component as any).applyModalIndicatorFilter();
+
+      expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
+      const updater = resultsCenterService.resultsFilter.update.mock.calls[0][0];
+      const next = updater({ 'indicator-codes-tabs': [99] } as any);
+      expect(next['indicator-codes-tabs']).toEqual([]);
+      expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
+    });
+
+    it('should set tabs to empty array when tabsOverride is not array and hasActiveIndicatorFilter is true (cover else 300-301)', () => {
+      resultsCenterService.tableFilters.mockReturnValue({
+        indicators: [{ indicator_id: 2 }],
+        levers: [],
+        statusCodes: [],
+        years: [],
+        contracts: []
+      } as any);
+      resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': [2, 3] } as any);
+
+      (component as any).applyModalIndicatorFilter({ resetIndicatorFilters: false, tabsOverride: undefined });
+
+      const updater = resultsCenterService.resultsFilter.update.mock.calls[0][0];
+      const next = updater({} as any);
+      expect(next['indicator-codes-tabs']).toEqual([]);
+    });
+
+    it('getTabsForIndicatorFilter returns [] when no tabsOverride and hasActiveIndicatorFilter true (100% branch)', () => {
+      expect(
+        component.getTabsForIndicatorFilter({ resetIndicatorFilters: false, tabsOverride: undefined }, true)
+      ).toEqual([]);
+    });
+
+    it('getTabsForIndicatorFilter returns tabsOverride when array', () => {
+      expect(component.getTabsForIndicatorFilter({ tabsOverride: [1, 2, 3] }, false)).toEqual([1, 2, 3]);
+    });
+
+    it('getTabsForIndicatorFilter returns MODAL_INDICATOR_CODES when resetIndicatorFilters true', () => {
+      expect(
+        component.getTabsForIndicatorFilter({ resetIndicatorFilters: true, tabsOverride: undefined }, true)
+      ).toEqual([1, 2, 3, 4, 6]);
+    });
+
+    it('getTabsForIndicatorFilter returns MODAL_INDICATOR_CODES when no active filter', () => {
+      expect(
+        component.getTabsForIndicatorFilter({ resetIndicatorFilters: false, tabsOverride: undefined }, false)
+      ).toEqual([1, 2, 3, 4, 6]);
+    });
+
+    it('applyModalIndicatorFilter uses indicators?.length and indicator-codes-filter?.length (cover 311-312)', () => {
+      resultsCenterService.tableFilters.mockReturnValue({ indicators: undefined } as any);
+      resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': undefined } as any);
+      (component as any).applyModalIndicatorFilter({});
+      expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
     });
   });
 
