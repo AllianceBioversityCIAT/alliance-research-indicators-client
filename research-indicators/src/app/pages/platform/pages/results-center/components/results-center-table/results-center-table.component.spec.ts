@@ -53,6 +53,7 @@ describe('ResultsCenterTableComponent', () => {
       searchInput: signal(''),
       list: signal([mockResult]),
       loading: signal(false),
+      primaryContractId: jest.fn().mockReturnValue(null),
       getAllPathsAsArray: jest.fn(() => ['title']),
       getActiveFilters: jest.fn(() => [
         { label: 'INDICATOR TAB', value: 'X' },
@@ -223,6 +224,21 @@ describe('ResultsCenterTableComponent', () => {
     expect(mockModals.selectedResultForInfo()).toEqual(prms);
     expect(mockModals.openModal).toHaveBeenCalledWith('resultInformation');
     expect(mockRouter.navigate).not.toHaveBeenCalled();
+  });
+
+  it('openCreateResultForProject should open create modal when primaryContractId is set', () => {
+    (mockService.primaryContractId as jest.Mock).mockReturnValue('CONTRACT-123');
+    component.openCreateResultForProject();
+    expect(mockCreateResultManagementService.setContractId).toHaveBeenCalledWith('CONTRACT-123');
+    expect(mockCreateResultManagementService.setPresetFromProjectResultsTable).toHaveBeenCalledWith(true);
+    expect(mockModals.openModal).toHaveBeenCalledWith('createResult');
+  });
+
+  it('openCreateResultForProject should do nothing when primaryContractId is null', () => {
+    (mockService.primaryContractId as jest.Mock).mockReturnValue(null);
+    component.openCreateResultForProject();
+    expect(mockCreateResultManagementService.setContractId).not.toHaveBeenCalled();
+    expect(mockModals.openModal).not.toHaveBeenCalledWith('createResult');
   });
 
   it('openResult should navigate with version for non-PRMS with snapshots', () => {
@@ -991,6 +1007,40 @@ describe('ResultsCenterTableComponent', () => {
     (component as any).processRowClick(link, event);
     
     // Should not navigate
+  });
+
+  it('processRowClick with STAR platform should close result information modal and clear selected result', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    mockModals.isModalOpen.mockReturnValue({ isOpen: true });
+    const setSelectedSpy = jest.spyOn(mockModals.selectedResultForInfo, 'set');
+    const tableElement = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const td = document.createElement('td');
+    const starResult = { ...mockResult, platform_code: 'STAR', result_official_code: 7 };
+    row.setAttribute('data-result-id', String(starResult.result_official_code));
+    row.setAttribute('data-platform', starResult.platform_code);
+    tbody.appendChild(row);
+    row.appendChild(td);
+    tableElement.appendChild(tbody);
+    (component as any).dt2 = {
+      el: { nativeElement: tableElement },
+      value: [starResult],
+      filteredValue: [starResult],
+      first: 0
+    };
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    (component as any).processRowClick(td, event);
+    expect(mockModals.closeModal).toHaveBeenCalledWith('resultInformation');
+    expect(setSelectedSpy).toHaveBeenCalledWith(null);
+  });
+
+  it('closeResultInformationModal should only close modal when resultInformation is open', () => {
+    mockModals.isModalOpen.mockReturnValue({ isOpen: true });
+    const setSelectedSpy = jest.spyOn(mockModals.selectedResultForInfo, 'set');
+    (component as any).closeResultInformationModal();
+    expect(mockModals.closeModal).toHaveBeenCalledWith('resultInformation');
+    expect(setSelectedSpy).toHaveBeenCalledWith(null);
   });
 });
 
