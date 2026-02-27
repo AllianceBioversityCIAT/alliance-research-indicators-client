@@ -39,6 +39,7 @@ export interface ResultFilter {
   'status-codes'?: number[];
   'contract-codes'?: string[];
   'platform-code'?: string[];
+  'result-codes'?: string[];
   years?: number[];
 }
 
