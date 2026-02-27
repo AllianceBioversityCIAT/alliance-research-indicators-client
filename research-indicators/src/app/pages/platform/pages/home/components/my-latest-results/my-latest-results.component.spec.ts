@@ -175,6 +175,38 @@ describe('MyLatestResultsComponent', () => {
     });
   });
 
+  describe('getSteps', () => {
+    it('should include cap_sharing and cap_sharing_ip for indicator 1', () => {
+      const steps = (component as any).getSteps(1);
+      expect(steps).toContain('cap_sharing');
+      expect(steps).toContain('cap_sharing_ip');
+      expect(steps).toContain('ip_rights');
+    });
+
+    it('should include policy_change for indicator 4', () => {
+      const steps = (component as any).getSteps(4);
+      expect(steps).toContain('policy_change');
+    });
+
+    it('should include link_result and oicr for indicator 5', () => {
+      const steps = (component as any).getSteps(5);
+      expect(steps).toContain('link_result');
+      expect(steps).toContain('oicr');
+    });
+
+    it('should include innovation_dev and ip_rights for indicator 2', () => {
+      const steps = (component as any).getSteps(2);
+      expect(steps).toContain('innovation_dev');
+      expect(steps).toContain('ip_rights');
+    });
+
+    it('should not include ip_rights for indicator 3', () => {
+      const steps = (component as any).getSteps(3);
+      expect(steps).not.toContain('ip_rights');
+      expect(steps[steps.length - 1]).toEqual([]);
+    });
+  });
+
   describe('ngOnInit', () => {
     it('should call loadLatestResultsWithGreenChecks', async () => {
       const loadLatestResultsSpy = jest.spyOn(component, 'loadLatestResultsWithGreenChecks');

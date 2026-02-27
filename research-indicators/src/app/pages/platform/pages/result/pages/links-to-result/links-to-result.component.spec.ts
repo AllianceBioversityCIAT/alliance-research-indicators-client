@@ -216,6 +216,24 @@ describe('LinksToResultComponent', () => {
     expect(loadSpy).toHaveBeenCalled();
   });
 
+  it('should set linkedResults to empty and loading false when GET_LinkedResults returns no links', async () => {
+    apiService.GET_LinkedResults.mockResolvedValue({ data: { link_results: [] } });
+    await component.loadLinkedResults();
+    expect(component.linkedResults()).toEqual([]);
+    expect(component.loading()).toBe(false);
+  });
+
+  it('should handle loadLinkedResults error and set empty arrays', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    apiService.GET_LinkedResults.mockRejectedValue(new Error('Network error'));
+    await component.loadLinkedResults();
+    expect(component.linkedResults()).toEqual([]);
+    expect(component.originalLinkedResults()).toEqual([]);
+    expect(component.loading()).toBe(false);
+    expect(consoleSpy).toHaveBeenCalledWith('Error loading linked results', expect.any(Error));
+    consoleSpy.mockRestore();
+  });
+
   it('should handle loadLinkedResults with empty linkedResultIds', async () => {
     apiService.GET_LinkedResults.mockResolvedValueOnce({ data: { link_results: [] } } as any);
     apiService.GET_Results.mockClear();

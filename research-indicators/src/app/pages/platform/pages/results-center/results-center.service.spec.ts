@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { MenuItem } from 'primeng/api';
@@ -521,6 +521,19 @@ describe('ResultsCenterService', () => {
       expect(service.resultsFilter()['indicator-codes-tabs']).toEqual([]);
       expect(service.resultsFilter()['create-user-codes']).toEqual(['123']);
     });
+
+    it('should clear table and set sort when tableRef is set', () => {
+      const tableMock = { clear: jest.fn(), sortField: '', sortOrder: 0, first: 10 };
+      service.tableRef.set(tableMock as any);
+      const event: MenuItem = { id: 'all', label: 'All Results' };
+
+      service.onActiveItemChange(event);
+
+      expect(tableMock.clear).toHaveBeenCalled();
+      expect(tableMock.sortField).toBe('result_official_code');
+      expect(tableMock.sortOrder).toBe(-1);
+      expect(tableMock.first).toBe(0);
+    });
   });
 
   describe('showFilterSidebar', () => {
@@ -535,6 +548,46 @@ describe('ResultsCenterService', () => {
       service.showConfigSidebar();
       expect(service.showConfigurationsSidebar()).toBe(true);
     });
+  });
+
+  describe('onChangeList effect', () => {
+    it('should update indicator list when isLoading is false', fakeAsync(() => {
+      const listSignal = signal<GetAllIndicators[]>([
+        { indicator_id: 1, name: 'Indicator 1', able: true, active: false },
+        { indicator_id: 99, name: 'Other', able: false, active: false }
+      ]);
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [HttpClientTestingModule],
+        providers: [
+          ResultsCenterService,
+          {
+            provide: ApiService,
+            useValue: {
+              indicatorTabs: {
+                lazy: () => ({
+                  list: listSignal,
+                  isLoading: signal(false),
+                  hasValue: signal(true)
+                })
+              }
+            }
+          },
+          { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
+          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockReturnValue(signal(mockResults)) } }
+        ]
+      });
+      TestBed.inject(ResultsCenterService);
+      tick();
+      const list = listSignal();
+      expect(list.length).toBeGreaterThan(0);
+      expect(list[0].name).toBe('All Indicators');
+      expect(list[0].indicator_id).toBe(0);
+      const indicator1 = list.find(i => i.indicator_id === 1);
+      expect(indicator1?.able).toBe(true);
+      const indicator99 = list.find(i => i.indicator_id === 99);
+      expect(indicator99?.able).toBe(false);
+    }));
   });
 
   describe('applyFilters', () => {

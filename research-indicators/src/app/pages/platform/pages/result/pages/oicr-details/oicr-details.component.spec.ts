@@ -418,9 +418,17 @@ describe('OicrDetailsComponent', () => {
       submissionService.isEditableStatus.mockReturnValue(true);
       apiService.PATCH_Oicr.mockResolvedValue({ successfulRequest: false } as any);
       const getDataSpy = jest.spyOn(component, 'getData').mockResolvedValue();
+      component.quantifications.set([{ number: 1, unit: 'kg', comments: 'q' }]);
+      component.extrapolatedEstimates.set([{ number: 2, unit: 'ha', comments: 'e' }]);
 
       await component.saveData();
 
+      expect(apiService.PATCH_Oicr).toHaveBeenCalledWith(
+        expect.any(Number),
+        expect.objectContaining({
+          extrapolate_estimates: [{ quantification_number: 2, unit: 'ha', description: 'e' }]
+        })
+      );
       expect(getDataSpy).not.toHaveBeenCalled();
     });
 

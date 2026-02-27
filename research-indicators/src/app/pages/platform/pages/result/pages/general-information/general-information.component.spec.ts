@@ -226,6 +226,60 @@ describe('GeneralInformationComponent', () => {
     expect(component.loading()).toBe(false);
   });
 
+  it('should use errorDetail.detail when errors is not present on save failure', async () => {
+    const mockData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2024',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    component.body.set(mockData);
+    (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: false, 
+      errorDetail: { detail: 'Server validation failed' }
+    });
+    (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
+
+    await component.saveData();
+
+    expect((actionsService as any).showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Server validation failed'
+    });
+    expect(component.loading()).toBe(false);
+  });
+
+  it('should use default error message when errorDetail has no errors or detail', async () => {
+    const mockData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2024',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    component.body.set(mockData);
+    (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ 
+      successfulRequest: false, 
+      errorDetail: {}
+    });
+    (cacheService as any).currentResultId = jest.fn().mockReturnValue(123);
+
+    await component.saveData();
+
+    expect((actionsService as any).showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Unable to save data, please try again'
+    });
+    expect(component.loading()).toBe(false);
+  });
+
   it('should handle getData when response has no main_contact_person', async () => {
     const mockData = {
       title: 'Test Title',
