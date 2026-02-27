@@ -1074,6 +1074,59 @@ describe('ResultsCenterTableComponent', () => {
     consoleWarnSpy.mockRestore();
   });
 
+  it('exportTable should warn and skip row when rowValues length does not match headers length', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    mockApiService.GET_GeneralReport.mockResolvedValue({
+      data: [
+        { Code: 1, Title: 'First' },
+        { Code: 2, Title: 'Second' }
+      ]
+    });
+    const originalPush = Array.prototype.push;
+    let pushCallCount = 0;
+    Array.prototype.push = function (this: any, ...args: any[]) {
+      pushCallCount++;
+      if (pushCallCount === 3) return this.length;
+      return originalPush.apply(this, args);
+    };
+    const worksheet = {
+      getColumn: jest.fn(() => ({
+        header: 'H',
+        eachCell: jest.fn(),
+        width: 0
+      })),
+      columnCount: 2,
+      views: [] as any,
+      autoFilter: {} as any,
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({}) as any), height: 0 })),
+      addRow: jest.fn(),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = { createObjectURL: jest.fn().mockReturnValue('blob:x'), revokeObjectURL: jest.fn() };
+    const linkEl = { click: jest.fn(), style: {}, href: '', download: '', remove: jest.fn() };
+    const origCreate = document.createElement;
+    (document as any).createElement = (tagName: any) => (tagName === 'a' ? linkEl : origCreate.call(document, tagName));
+    jest.useFakeTimers();
+    await component.exportTable();
+    await jest.runAllTimersAsync();
+    jest.useRealTimers();
+    Array.prototype.push = originalPush;
+    (document as any).createElement = origCreate;
+    globalThis.URL = originalURL;
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/^Row \d+ has \d+ values but expected \d+, skipping$/)
+    );
+    consoleWarnSpy.mockRestore();
+  });
+
   it('shouldShowFilterMessage should be false when only INDICATOR TAB is present', () => {
     mockService.getActiveFilters.mockReturnValue([{ label: 'INDICATOR TAB', value: 'X' }]);
     expect(component.shouldShowFilterMessage()).toBe(false);

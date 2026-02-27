@@ -265,6 +265,15 @@ describe('ActionsService', () => {
     spy.mockRestore();
   });
 
+  it('should update windowHeight on window resize after listenToWindowHeight', () => {
+    const spy = jest.spyOn(cacheMock.windowHeight!, 'set');
+    service.listenToWindowHeight();
+    spy.mockClear();
+    window.dispatchEvent(new Event('resize'));
+    expect(spy).toHaveBeenCalledWith(window.innerHeight);
+    spy.mockRestore();
+  });
+
   it('should handle bad request with warning status', () => {
     const spy = jest.spyOn(service, 'showGlobalAlert');
     service.handleBadRequest({
@@ -537,6 +546,33 @@ describe('ActionsService', () => {
     setItemSpy.mockRestore();
   });
 
+  it('should use preferredRole from role_id 9 when role_id 1 is not present', () => {
+    const userWithRole9 = {
+      ...mockUser,
+      user_role_list: [
+        {
+          is_active: true,
+          user_id: 1,
+          role_id: 9,
+          role: { is_active: true, justification_update: null, sec_role_id: 9, name: 'Other', focus_id: 0 }
+        }
+      ]
+    };
+    const loginResponse = {
+      data: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzR9.signature',
+        user: userWithRole9
+      },
+      successfulRequest: true
+    };
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    service.updateLocalStorage(loginResponse as any, false);
+    expect(setItemSpy).toHaveBeenCalled();
+    const stored = JSON.parse(setItemSpy.mock.calls[0][1]);
+    expect(stored.user.roleName).toBe('Other');
+    setItemSpy.mockRestore();
+  });
+
   it('should updateLocalStorage with user without user_role_list', () => {
     const loginResponse = {
       data: {
@@ -792,6 +828,41 @@ describe('ActionsService', () => {
     expect(mockAction).toHaveBeenCalled();
   });
 
+  it('should call onOpenExistingResult when onDetailLinkClick is triggered for non-STAR conflict shape', () => {
+    const onOpenExistingResult = jest.fn();
+    const spy = jest.spyOn(service, 'showGlobalAlert');
+    service.handleBadRequest(
+      {
+        status: 409,
+        errorDetail: {
+          description: 'Ya existe: TIP-999 - Título',
+          errors: { result_official_code: 999, platform_code: 'TIP' }
+        }
+      } as any,
+      undefined,
+      { onOpenExistingResult }
+    );
+
+    const alertCall = spy.mock.calls[0][0];
+    expect(alertCall.onDetailLinkClick).toBeDefined();
+    alertCall.onDetailLinkClick!();
+    expect(onOpenExistingResult).toHaveBeenCalledWith('TIP', '999');
+  });
+
+  it('should not throw when confirmCallback event is triggered without action for conflict shape', () => {
+    const spy = jest.spyOn(service, 'showGlobalAlert');
+    service.handleBadRequest({
+      status: 409,
+      errorDetail: {
+        description: 'Ya existe: 1234 - Título',
+        errors: { result_official_code: 1234 }
+      }
+    } as any);
+
+    const alertCall = spy.mock.calls[0][0];
+    expect(() => alertCall.confirmCallback.event()).not.toThrow();
+  });
+
   describe('handleBadRequest AI message error', () => {
     it('should handle AI message error from errorDetail.data.message_error', () => {
       const spy = jest.spyOn(service, 'showGlobalAlert');
@@ -953,6 +1024,47 @@ describe('ActionsService', () => {
       expect(alertCall.detail).toBeDefined();
     });
 
+    it('should call onOpenExistingResult when onDetailLinkClick is triggered for non-STAR AI error', () => {
+      const onOpenExistingResult = jest.fn();
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest(
+        {
+          status: 400,
+          errorDetail: {
+            data: {
+              message_error: 'Title already exists: TIP-67890 - Another Title',
+              result_official_code: 67890,
+              platform_code: 'TIP'
+            }
+          }
+        } as any,
+        undefined,
+        { onOpenExistingResult }
+      );
+
+      const alertCall = spy.mock.calls[0][0];
+      expect(alertCall.onDetailLinkClick).toBeDefined();
+      alertCall.onDetailLinkClick!();
+      expect(onOpenExistingResult).toHaveBeenCalledWith('TIP', '67890');
+    });
+
+    it('should not throw when confirmCallback event is triggered without action for AI error', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 400,
+        errorDetail: {
+          data: {
+            message_error: 'Title already exists: STAR-1 - Test',
+            result_official_code: 1,
+            platform_code: 'STAR'
+          }
+        }
+      } as any);
+
+      const alertCall = spy.mock.calls[0][0];
+      expect(() => alertCall.confirmCallback.event()).not.toThrow();
+    });
+
     it('should handle handleBadRequest with null errorDetail', () => {
       const spy = jest.spyOn(service, 'showGlobalAlert');
       service.handleBadRequest({
@@ -1057,6 +1169,17 @@ describe('ActionsService', () => {
       eventFunction();
 
       expect(mockAction).toHaveBeenCalled();
+    });
+
+    it('should not throw when confirmCallback event is triggered without action for fallback error', () => {
+      const spy = jest.spyOn(service, 'showGlobalAlert');
+      service.handleBadRequest({
+        status: 500,
+        errorDetail: { errors: 'Generic error' }
+      } as any);
+
+      const alertCall = spy.mock.calls[0][0];
+      expect(() => alertCall.confirmCallback.event()).not.toThrow();
     });
 
     it('should prioritize errors string over detail string', () => {
