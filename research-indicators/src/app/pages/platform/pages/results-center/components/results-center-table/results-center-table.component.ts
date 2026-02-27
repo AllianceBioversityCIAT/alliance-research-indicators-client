@@ -95,9 +95,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   getPrimaryContractId(result: Result): string | null {
     if (!result.result_contracts) return null;
     const contracts = Array.isArray(result.result_contracts) ? result.result_contracts : [result.result_contracts];
-    const primaryContract = contracts.find((contract: { is_primary?: number | string; contract_id?: string }) => 
-      Number(contract.is_primary) === 1
-    );
+    const primaryContract = contracts.find((contract: { is_primary?: number | string; contract_id?: string }) => Number(contract.is_primary) === 1);
     return primaryContract?.contract_id ?? null;
   }
 
@@ -266,7 +264,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       exportData.forEach((row: GeneralReportItem, rowIndex: number) => {
         try {
           const rowValues: (string | number)[] = [];
-          headers.forEach((header) => {
+          headers.forEach(header => {
             try {
               const value = (row as Record<string, unknown>)[header];
               const sanitized = sanitizeValue(value);
@@ -279,7 +277,6 @@ export class ResultsCenterTableComponent implements AfterViewInit {
           if (rowValues.length === headers.length) {
             worksheet.addRow(rowValues);
           } else {
-            /* istanbul ignore next - rowValues length always equals headers length by construction */
             console.warn(`Row ${rowIndex} has ${rowValues.length} values but expected ${headers.length}, skipping`);
           }
         } catch (error) {
@@ -301,12 +298,12 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       this.styleHeaderColumns(worksheet, headers.length);
 
       const buffer = await workbook.xlsx.writeBuffer();
-      
+
       if (!buffer || buffer.byteLength === 0) {
         console.error('Generated buffer is empty or invalid');
         return;
       }
-      
+
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = globalThis.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -360,7 +357,11 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   openResult(result: Result) {
     this.resultsCenterService.clearAllFilters();
-    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.AICCRA) {
+    if (
+      result.platform_code === PLATFORM_CODES.PRMS ||
+      result.platform_code === PLATFORM_CODES.TIP ||
+      result.platform_code === PLATFORM_CODES.AICCRA
+    ) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
       return;
@@ -388,22 +389,32 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   getResultHref(result: Result): string {
-    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.AICCRA || result.platform_code === PLATFORM_CODES.TIP) {
+    if (
+      result.platform_code === PLATFORM_CODES.PRMS ||
+      result.platform_code === PLATFORM_CODES.AICCRA ||
+      result.platform_code === PLATFORM_CODES.TIP
+    ) {
       this.onResultLinkClick(result);
       return '';
     }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
-      return this.router.createUrlTree(['/result', resultCode, 'general-information'], { 
-        queryParams: { version: latestYear } 
-      }).toString();
+      return this.router
+        .createUrlTree(['/result', resultCode, 'general-information'], {
+          queryParams: { version: latestYear }
+        })
+        .toString();
     }
     return `/result/${resultCode}`;
   }
 
   getResultRouteArray(result: Result): string | string[] {
-    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.AICCRA) {
+    if (
+      result.platform_code === PLATFORM_CODES.TIP ||
+      result.platform_code === PLATFORM_CODES.PRMS ||
+      result.platform_code === PLATFORM_CODES.AICCRA
+    ) {
       return [];
     }
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
@@ -428,7 +439,11 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   onResultLinkClick(result: Result): void {
-    if (result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.AICCRA) {
+    if (
+      result.platform_code === PLATFORM_CODES.TIP ||
+      result.platform_code === PLATFORM_CODES.PRMS ||
+      result.platform_code === PLATFORM_CODES.AICCRA
+    ) {
       this.allModalsService.selectedResultForInfo.set(result);
       this.allModalsService.openModal('resultInformation');
     }
@@ -463,12 +478,14 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
     this.lastClickedElement = target;
 
-    if (target.closest('.p-calendar') ||
-        target.closest('.p-datepicker') ||
-        target.closest('.p-calendar-panel') ||
-        target.closest('.p-datepicker-panel') ||
-        target.closest('[class*="p-calendar"]') ||
-        target.closest('[class*="p-datepicker"]')) {
+    if (
+      target.closest('.p-calendar') ||
+      target.closest('.p-datepicker') ||
+      target.closest('.p-calendar-panel') ||
+      target.closest('.p-datepicker-panel') ||
+      target.closest('[class*="p-calendar"]') ||
+      target.closest('[class*="p-datepicker"]')
+    ) {
       return;
     }
 
@@ -484,7 +501,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
     const resultId = rowEl.dataset['resultId'];
     const platformCode = rowEl.dataset['platform'];
-    
+
     if (!resultId || !platformCode) {
       const rows = Array.from(tbody.children).filter(el => el.tagName.toLowerCase() === 'tr');
       const rowIndex = rows.indexOf(rowEl);
@@ -493,20 +510,17 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       const pageStart: number = this.dt2.first || 0;
       const idx = pageStart + rowIndex;
       const result = data[idx];
-      
+
       if (!result) {
         return;
       }
-      
+
       this.handleRowClickResult(result, target, event);
       return;
     }
 
     const data: Result[] = (this.dt2.value as Result[] | undefined) ?? this.resultsCenterService.list();
-    const result = data.find(r => 
-      r.result_official_code?.toString() === resultId && 
-      r.platform_code === platformCode
-    );
+    const result = data.find(r => r.result_official_code?.toString() === resultId && r.platform_code === platformCode);
 
     if (!result) {
       return;
@@ -530,13 +544,20 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       return;
     }
 
-    if (result.platform_code !== PLATFORM_CODES.PRMS &&
-        result.platform_code !== PLATFORM_CODES.TIP && result.platform_code !== PLATFORM_CODES.AICCRA &&
-        target.closest('a[routerLink], span[routerLink], [ng-reflect-router-link]')) {
+    if (
+      result.platform_code !== PLATFORM_CODES.PRMS &&
+      result.platform_code !== PLATFORM_CODES.TIP &&
+      result.platform_code !== PLATFORM_CODES.AICCRA &&
+      target.closest('a[routerLink], span[routerLink], [ng-reflect-router-link]')
+    ) {
       return;
     }
 
-    if (result.platform_code === PLATFORM_CODES.PRMS || result.platform_code === PLATFORM_CODES.TIP || result.platform_code === PLATFORM_CODES.AICCRA) {
+    if (
+      result.platform_code === PLATFORM_CODES.PRMS ||
+      result.platform_code === PLATFORM_CODES.TIP ||
+      result.platform_code === PLATFORM_CODES.AICCRA
+    ) {
       event.preventDefault();
       event.stopPropagation();
       this.allModalsService.selectedResultForInfo.set(result);
