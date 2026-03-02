@@ -4,7 +4,6 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { ButtonModule } from 'primeng/button';
 
 const RESULT_SIDEBAR_WIDTH_PX = 322;
-const SECTION_SIDEBAR_WIDTH_PX = 400;
 const CONTENT_RIGHT_OFFSET_PX = 12;
 
 @Component({
