@@ -8,6 +8,8 @@ import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { SubmissionHistoryItem } from '@shared/interfaces/submission-history-item.interface';
+import { RolesService } from '@shared/services/cache/roles.service';
+import { formatUtcToCet } from '@shared/utils/date-cet.util';
 
 const OICR_INDICATOR_ID = 5;
 
@@ -23,6 +25,7 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
   private readonly cache = inject(CacheService);
   private readonly submissionService = inject(SubmissionService);
   private readonly actions = inject(ActionsService);
+  readonly rolesService = inject(RolesService);
 
   @Input() historyItem: SubmissionHistoryItem = new SubmissionHistoryItem();
 
@@ -50,6 +53,10 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
     if (this.historyItem.editable_timestamp === false) return false;
     return !!this.submissionHistoryId();
   });
+
+  updatedAtCetFormatted = computed(() => formatUtcToCet(this.historyItem.updated_at));
+
+  customDateCetFormatted = computed(() => formatUtcToCet(this.historyItem.custom_date));
 
   isEditPanelVisible = computed(
     () => this.showEditModal() && this.panelStyle() != null && this.cache.editStatusDateOpenId() === this.submissionHistoryId()
