@@ -1,8 +1,8 @@
 <div class="status-dropdown-container relative inline-block">
   <div
     class="inline-flex items-center px-2.5 py-0.5 border-1 rounded-[6px] text-[12px] font-medium uppercase cursor-pointer"
-    [style.border-color]="cache.currentMetadata()?.result_status?.config?.color?.border"
-    (keydown.enter)="toggleDropdown($event)" [style.color]="cache.currentMetadata()?.result_status?.config?.color?.text"
+    [style.border-color]="cache.currentMetadata().result_status?.config?.color?.border"
+    (keydown.enter)="toggleDropdown($event)" [style.color]="cache.currentMetadata().result_status?.config?.color?.text"
     (click)="toggleDropdown($event)">
     <span class="font-semibold">{{ statusName }}</span>
     <span class="font-[300] text-[#B9C0C5] px-2">|</span>
