@@ -513,6 +513,12 @@ describe('OrganizationItemComponent', () => {
       expect(list.length).toBe(2);
       expect(institutionsService.list).toHaveBeenCalled();
     });
+
+    it('getSelectedInstitution should return undefined when list is empty', () => {
+      institutionsService.list.mockReturnValue([]);
+      component.body.set(createInstitution({ institution_id: 1 }));
+      expect(component.getSelectedInstitution()).toBeUndefined();
+    });
   });
 
   describe('onInstitutionChange', () => {

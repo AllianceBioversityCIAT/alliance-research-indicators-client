@@ -320,7 +320,6 @@ describe('ResultsCenterService', () => {
       if (typeof hideIf === 'function') expect(hideIf()).toBe(false);
     });
 
-
     it('should evaluate creator column hideFilterIf when create-user-codes is empty', () => {
       service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [] }));
       const columns = service.tableColumns();
@@ -447,10 +446,7 @@ describe('ResultsCenterService', () => {
       }));
       service.tableFilters.update(prev => ({
         ...prev,
-        years: [
-          { report_year: 2023 } as any,
-          { report_year: 2024 } as any
-        ]
+        years: [{ report_year: 2023 } as any, { report_year: 2024 } as any]
       }));
 
       const filters = service.getActiveFilters();
@@ -805,6 +801,46 @@ describe('ResultsCenterService', () => {
     });
   });
 
+  describe('onChangeList effect', () => {
+    it('should update indicator list when isLoading is false', fakeAsync(() => {
+      const listSignal = signal<GetAllIndicators[]>([
+        { indicator_id: 1, name: 'Indicator 1', able: true, active: false },
+        { indicator_id: 99, name: 'Other', able: false, active: false }
+      ]);
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [HttpClientTestingModule],
+        providers: [
+          ResultsCenterService,
+          {
+            provide: ApiService,
+            useValue: {
+              indicatorTabs: {
+                lazy: () => ({
+                  list: listSignal,
+                  isLoading: signal(false),
+                  hasValue: signal(true)
+                })
+              }
+            }
+          },
+          { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
+          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockReturnValue(signal(mockResults)) } }
+        ]
+      });
+      TestBed.inject(ResultsCenterService);
+      tick();
+      const list = listSignal();
+      expect(list.length).toBeGreaterThan(0);
+      expect(list[0].name).toBe('All Indicators');
+      expect(list[0].indicator_id).toBe(0);
+      const indicator1 = list.find(i => i.indicator_id === 1);
+      expect(indicator1?.able).toBe(true);
+      const indicator99 = list.find(i => i.indicator_id === 99);
+      expect(indicator99?.able).toBe(false);
+    }));
+  });
+
   describe('applyFilters', () => {
     it('should update resultsFilter and appliedFilters with table filters and call main', () => {
       const mockLevers = [{ id: 1, name: 'Lever 1' }] as any;
@@ -856,15 +892,18 @@ describe('ResultsCenterService', () => {
     });
 
     it('should map platform-code from sources with null/undefined as empty array', () => {
-      service.tableFilters.update(prev => ({
-        ...prev,
-        levers: [],
-        statusCodes: [],
-        years: [],
-        contracts: [],
-        indicators: [],
-        sources: undefined
-      } as any));
+      service.tableFilters.update(
+        prev =>
+          ({
+            ...prev,
+            levers: [],
+            statusCodes: [],
+            years: [],
+            contracts: [],
+            indicators: [],
+            sources: undefined
+          }) as any
+      );
       jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
       service.applyFilters();
       expect(service.resultsFilter()['platform-code']).toEqual([]);
@@ -1036,7 +1075,6 @@ describe('ResultsCenterService', () => {
     });
   });
 
-
   describe('clearAllFilters', () => {
     it('should preserve create-user-codes when tab is my', () => {
       service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
@@ -1141,7 +1179,11 @@ describe('ResultsCenterService', () => {
     it('should catch and warn when a multiselect clear throws', () => {
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       const okMultiselect = { clear: jest.fn() };
-      const failingMultiselect = { clear: jest.fn().mockImplementation(() => { throw new Error('clear failed'); }) };
+      const failingMultiselect = {
+        clear: jest.fn().mockImplementation(() => {
+          throw new Error('clear failed');
+        })
+      };
 
       service.multiselectRefs.set({
         ok: okMultiselect as any,
@@ -1325,9 +1367,7 @@ describe('ResultsCenterService', () => {
 
       if (getValue) {
         const result = {
-          result_levers: [
-            { is_primary: 0, lever: { short_name: 'Lever 1' } }
-          ]
+          result_levers: [{ is_primary: 0, lever: { short_name: 'Lever 1' } }]
         } as unknown as Result;
         expect(getValue(result)).toBe('-');
       }
@@ -1640,10 +1680,12 @@ describe('ResultsCenterService', () => {
     });
 
     it('should handle results with no primary levers', async () => {
-      const resultsWithoutPrimary = [{
-        ...mockResults[0],
-        result_levers: [{ is_primary: 0, lever: { short_name: 'Lever 1' } }]
-      }];
+      const resultsWithoutPrimary = [
+        {
+          ...mockResults[0],
+          result_levers: [{ is_primary: 0, lever: { short_name: 'Lever 1' } }]
+        }
+      ];
       mockGetResultsService.getInstance.mockReturnValueOnce(signal(resultsWithoutPrimary) as any);
 
       await service.main();
@@ -1670,13 +1712,15 @@ describe('ResultsCenterService', () => {
     });
 
     it('should handle results with primary levers', async () => {
-      const resultsWithPrimary = [{
-        ...mockResults[0],
-        result_levers: [
-          { is_primary: 1, lever: { short_name: 'Lever 1' } },
-          { is_primary: 1, lever: { short_name: 'Lever 2' } }
-        ]
-      }];
+      const resultsWithPrimary = [
+        {
+          ...mockResults[0],
+          result_levers: [
+            { is_primary: 1, lever: { short_name: 'Lever 1' } },
+            { is_primary: 1, lever: { short_name: 'Lever 2' } }
+          ]
+        }
+      ];
       mockGetResultsService.getInstance.mockReturnValueOnce(signal(resultsWithPrimary) as any);
 
       await service.main();
@@ -1715,7 +1759,9 @@ describe('ResultsCenterService', () => {
       const initialList = [{ result_official_code: 'OLD' }] as any;
       service.list.set(initialList);
       let resolveInstance!: (v: WritableSignal<Result[]>) => void;
-      const instancePromise = new Promise<WritableSignal<Result[]>>(r => { resolveInstance = r; });
+      const instancePromise = new Promise<WritableSignal<Result[]>>(r => {
+        resolveInstance = r;
+      });
       mockGetResultsService.getInstance.mockImplementationOnce(() => instancePromise as any);
       const mainPromise = service.main();
       await Promise.resolve();

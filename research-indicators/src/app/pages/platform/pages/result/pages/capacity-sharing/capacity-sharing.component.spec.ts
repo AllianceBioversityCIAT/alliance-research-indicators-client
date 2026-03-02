@@ -82,6 +82,7 @@ class CacheServiceMock {
   currentMetadata = jest.fn().mockReturnValue({ result_title: 'Test Title' });
   currentResultIsLoading = jest.fn().mockReturnValue(false);
   showSectionHeaderActions = jest.fn().mockReturnValue(false);
+  hasSmallScreen = jest.fn().mockReturnValue(false);
   isSidebarCollapsed = jest.fn().mockReturnValue(false);
   loadingCurrentResult = {
     set: jest.fn()

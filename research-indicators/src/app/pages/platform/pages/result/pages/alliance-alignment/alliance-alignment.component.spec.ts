@@ -23,6 +23,7 @@ class CacheServiceMock {
   currentMetadata = jest.fn().mockReturnValue({});
   currentResultIsLoading = jest.fn().mockReturnValue(false);
   showSectionHeaderActions = jest.fn().mockReturnValue(false);
+  hasSmallScreen = jest.fn().mockReturnValue(false);
   isSidebarCollapsed = jest.fn().mockReturnValue(false);
 }
 class ActionsServiceMock {
@@ -60,11 +61,16 @@ describe('AllianceAlignmentComponent', () => {
     actions = new ActionsServiceMock();
     router = new RouterMock();
     submission = new SubmissionServiceMock();
-    route = { snapshot: { paramMap: { get: (k: string) => (k === 'id' ? '1' : null) }, queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) } } };
-    
+    route = {
+      snapshot: {
+        paramMap: { get: (k: string) => (k === 'id' ? '1' : null) },
+        queryParamMap: { get: (k: string) => (k === 'version' ? 'v1' : null) }
+      }
+    };
+
     // Mock GET_Alignments before component creation to avoid constructor error
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
-    
+
     await TestBed.configureTestingModule({
       imports: [AllianceAlignmentComponent, HttpClientTestingModule],
       providers: [
@@ -100,8 +106,8 @@ describe('AllianceAlignmentComponent', () => {
   it('should handle getData with empty response', async () => {
     api.GET_Alignments.mockResolvedValue({ data: {} });
     await component.getData();
-    expect(component.body()).toEqual({ 
-      contracts: [], 
+    expect(component.body()).toEqual({
+      contracts: [],
       result_sdgs: [],
       primary_levers: [],
       contributor_levers: []
@@ -112,7 +118,7 @@ describe('AllianceAlignmentComponent', () => {
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [{ id: 1 }] } });
     jest.spyOn(component, 'getData');
-    
+
     // Set result_sdgs to ensure line 145 is covered
     component.body.set({
       contracts: [],
@@ -120,7 +126,7 @@ describe('AllianceAlignmentComponent', () => {
       primary_levers: [],
       contributor_levers: []
     });
-    
+
     await component.saveData();
     expect(api.PATCH_Alignments).toHaveBeenCalledWith(
       1,
@@ -212,6 +218,30 @@ describe('AllianceAlignmentComponent', () => {
     expect(updatedLevers.find(l => l.lever_id === 1)?.is_primary).toBe(false);
   });
 
+  it('should set non-target levers to is_primary false when marking one lever', () => {
+    const lever1 = { is_primary: false, lever_id: 10, result_lever_strategic_outcomes: [] };
+    const lever2 = { is_primary: true, lever_id: 20, result_lever_strategic_outcomes: [] };
+    component.body.set({ contracts: [], result_sdgs: [], primary_levers: [lever1, lever2], contributor_levers: [] });
+    component.markAsPrimary(lever1, 'lever');
+    const updatedLevers = component.body().primary_levers;
+    expect(updatedLevers.find(l => l.lever_id === 10)?.is_primary).toBe(true);
+    expect(updatedLevers.find(l => l.lever_id === 20)?.is_primary).toBe(false);
+  });
+
+  it('should update optionsDisabled and primary_levers when body has primary_levers and contributor_levers', () => {
+    const primaryLevers = [{ lever_id: 1, is_primary: true }];
+    const contributorLevers = [{ lever_id: 2, is_primary: false }];
+    component.body.set({
+      contracts: [],
+      result_sdgs: [],
+      primary_levers: primaryLevers,
+      contributor_levers: contributorLevers
+    });
+    fixture.detectChanges();
+    expect(component.optionsDisabled()).toEqual(primaryLevers);
+    expect(component.primaryOptionsDisabled()).toEqual(contributorLevers);
+  });
+
   it('should call markAsPrimary for sdg', () => {
     const sdg1 = { sdg_id: 1, is_primary: false } as any;
     const sdg2 = { sdg_id: 2, is_primary: true } as any;
@@ -252,20 +282,20 @@ describe('AllianceAlignmentComponent', () => {
     it('should normalize outcomes when value is a number', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
-      component.body.set({ 
-        contracts: [], 
+      component.body.set({
+        contracts: [],
         result_sdgs: [],
         primary_levers: [lever],
         contributor_levers: []
       });
-      
+
       const signal = component.getLeverSignal(lever);
       signal.set({ result_lever_strategic_outcomes: [5] as any });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes[0]).toEqual({ lever_strategic_outcome_id: 5 });
@@ -274,20 +304,20 @@ describe('AllianceAlignmentComponent', () => {
     it('should normalize outcomes when value is an object with lever_strategic_outcome_id', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
-      component.body.set({ 
-        contracts: [], 
+      component.body.set({
+        contracts: [],
         result_sdgs: [],
         primary_levers: [lever],
         contributor_levers: []
       });
-      
+
       const signal = component.getLeverSignal(lever);
       signal.set({ result_lever_strategic_outcomes: [{ lever_strategic_outcome_id: 10 }] as any });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes[0]).toEqual({ lever_strategic_outcome_id: 10 });
@@ -296,20 +326,20 @@ describe('AllianceAlignmentComponent', () => {
     it('should normalize outcomes when value is an object with id', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
-      component.body.set({ 
-        contracts: [], 
+      component.body.set({
+        contracts: [],
         result_sdgs: [],
         primary_levers: [lever],
         contributor_levers: []
       });
-      
+
       const signal = component.getLeverSignal(lever);
       signal.set({ result_lever_strategic_outcomes: [{ id: 15 }] as any });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes[0]).toEqual({ id: 15, lever_strategic_outcome_id: 15 });
@@ -318,20 +348,20 @@ describe('AllianceAlignmentComponent', () => {
     it('should normalize outcomes when value is invalid', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
-      component.body.set({ 
-        contracts: [], 
+      component.body.set({
+        contracts: [],
         result_sdgs: [],
         primary_levers: [lever],
         contributor_levers: []
       });
-      
+
       const signal = component.getLeverSignal(lever);
       signal.set({ result_lever_strategic_outcomes: [null] as any });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes[0]).toEqual({ lever_strategic_outcome_id: 0 });
@@ -340,20 +370,20 @@ describe('AllianceAlignmentComponent', () => {
     it('should handle array of outcomes', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
-      component.body.set({ 
-        contracts: [], 
+      component.body.set({
+        contracts: [],
         result_sdgs: [],
         primary_levers: [lever],
         contributor_levers: []
       });
-      
+
       const signal = component.getLeverSignal(lever);
       signal.set({ result_lever_strategic_outcomes: [1, 2, 3] as any });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes).toHaveLength(3);
@@ -362,20 +392,20 @@ describe('AllianceAlignmentComponent', () => {
     it('should handle single number outcome', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
-      component.body.set({ 
-        contracts: [], 
+      component.body.set({
+        contracts: [],
         result_sdgs: [],
         primary_levers: [lever],
         contributor_levers: []
       });
-      
+
       const signal = component.getLeverSignal(lever);
       signal.set({ result_lever_strategic_outcomes: 7 as any });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes).toHaveLength(1);
@@ -385,20 +415,20 @@ describe('AllianceAlignmentComponent', () => {
     it('should handle single object outcome', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       const lever = { lever_id: 1, result_lever_strategic_outcomes: [] };
-      component.body.set({ 
-        contracts: [], 
+      component.body.set({
+        contracts: [],
         result_sdgs: [],
         primary_levers: [lever],
         contributor_levers: []
       });
-      
+
       const signal = component.getLeverSignal(lever);
       signal.set({ result_lever_strategic_outcomes: { lever_strategic_outcome_id: 20 } as any });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].primary_levers[0].result_lever_strategic_outcomes).toHaveLength(1);
@@ -408,17 +438,17 @@ describe('AllianceAlignmentComponent', () => {
     it('should handle lever without signal', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       const lever = { lever_id: 999, result_lever_strategic_outcomes: [] };
-      component.body.set({ 
-        contracts: [], 
+      component.body.set({
+        contracts: [],
         result_sdgs: [],
         primary_levers: [lever],
         contributor_levers: []
       });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].primary_levers[0]).toEqual(lever);
@@ -427,18 +457,16 @@ describe('AllianceAlignmentComponent', () => {
     it('should map result_sdgs correctly', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
-      component.body.set({ 
-        contracts: [], 
-        result_sdgs: [
-          { id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01' }
-        ],
+
+      component.body.set({
+        contracts: [],
+        result_sdgs: [{ id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01' }],
         primary_levers: [],
         contributor_levers: []
       });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].result_sdgs[0]).toEqual({
@@ -545,9 +573,9 @@ describe('AllianceAlignmentComponent', () => {
           contributor_levers: []
         }
       });
-      
+
       await component.getData();
-      
+
       expect(component.body().result_sdgs[0].sdg_id).toBe(1);
       expect(component.body().result_sdgs[0].is_primary).toBe(false);
       expect(component.body().result_sdgs[1].sdg_id).toBe(2);
@@ -561,9 +589,9 @@ describe('AllianceAlignmentComponent', () => {
           contributor_levers: []
         }
       });
-      
+
       await component.getData();
-      
+
       expect(component.body().result_sdgs).toEqual([]);
     });
   });
@@ -578,11 +606,11 @@ describe('AllianceAlignmentComponent', () => {
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
       const versionWatcher = TestBed.inject(VersionWatcherService);
       const getDataSpy = jest.spyOn(component, 'getData').mockResolvedValue();
-      
+
       // Get the callback that was registered
       const callback = (versionWatcher.onVersionChange as jest.Mock).mock.calls[0][0];
       await callback();
-      
+
       expect(getDataSpy).toHaveBeenCalled();
     });
   });
@@ -596,11 +624,11 @@ describe('AllianceAlignmentComponent', () => {
         primary_levers: [primaryLever],
         contributor_levers: []
       });
-      
+
       tick();
       flush();
       fixture.detectChanges();
-      
+
       const disabled = component.optionsDisabled();
       expect(disabled).toEqual([primaryLever]);
     }));
@@ -639,11 +667,11 @@ describe('AllianceAlignmentComponent', () => {
         primary_levers: [],
         contributor_levers: [contributorLever]
       });
-      
+
       tick();
       flush();
       fixture.detectChanges();
-      
+
       const disabled = component.primaryOptionsDisabled();
       expect(disabled).toEqual([contributorLever]);
     }));
@@ -673,21 +701,20 @@ describe('AllianceAlignmentComponent', () => {
       flush();
       expect(component.primaryOptionsDisabled()).toEqual([]);
     }));
-
   });
 
   describe('saveData result_sdgs mapping', () => {
     it('should map result_sdgs with all properties', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       component.body.set({
         contracts: [],
         result_sdgs: [
-          { 
-            id: 5, 
-            created_at: '2024-01-01', 
-            is_active: true, 
+          {
+            id: 5,
+            created_at: '2024-01-01',
+            is_active: true,
             updated_at: '2024-01-02',
             sdg_id: 5,
             is_primary: false
@@ -696,9 +723,9 @@ describe('AllianceAlignmentComponent', () => {
         primary_levers: [],
         contributor_levers: []
       });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].result_sdgs[0]).toEqual({
@@ -713,7 +740,7 @@ describe('AllianceAlignmentComponent', () => {
     it('should map result_sdgs when array exists', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       component.body.set({
         contracts: [],
         result_sdgs: [
@@ -723,9 +750,9 @@ describe('AllianceAlignmentComponent', () => {
         primary_levers: [],
         contributor_levers: []
       });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].result_sdgs).toHaveLength(2);
@@ -736,16 +763,16 @@ describe('AllianceAlignmentComponent', () => {
     it('should handle result_sdgs as undefined', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
-      
+
       component.body.set({
         contracts: [],
         result_sdgs: undefined as any,
         primary_levers: [],
         contributor_levers: []
       });
-      
+
       await component.saveData();
-      
+
       expect(api.PATCH_Alignments).toHaveBeenCalled();
       const callArgs = api.PATCH_Alignments.mock.calls[0];
       expect(callArgs[1].result_sdgs).toEqual([]);

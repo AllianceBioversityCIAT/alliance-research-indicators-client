@@ -7,9 +7,9 @@ export interface GlobalAlert {
   callbacks?: Callback[];
   placeholder?: string;
   icon?: string;
-  iconClass?: string; 
+  iconClass?: string;
   color?: string;
-  buttonIconClass?: string; 
+  buttonIconClass?: string;
   selectorLabel?: string;
   selectorRequired?: boolean;
   commentLabel?: string;
@@ -25,6 +25,7 @@ export interface GlobalAlert {
   autoHideDuration?: number;
   hideCancelButton?: boolean;
   hideCloseButton?: boolean;
+  onDetailLinkClick?: () => void;
 }
 
 interface Callback {

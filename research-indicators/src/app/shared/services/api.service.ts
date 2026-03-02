@@ -203,7 +203,9 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_ValidateTitle = (title: string): Promise<MainResponse<{ isValid: boolean }>> => {
+  GET_ValidateTitle = (
+    title: string
+  ): Promise<MainResponse<{ isValid: boolean; result_official_code?: number; platform_code?: string }>> => {
     const queryString = title ? `?title=${title}` : '';
     const url = () => `results/validate-title${queryString}`;
     return this.TP.get(url(), {});

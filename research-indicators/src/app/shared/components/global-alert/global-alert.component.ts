@@ -127,6 +127,18 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
     this.body.update(body => ({ ...body, commentValue: '', selectValue: null }));
   }
 
+  onDetailLinkClick(event: MouseEvent, index: number) {
+    const target = (event.target as Element)?.closest?.('a.alert-link-custom');
+    if (!target) return;
+    const alerts = this.alertList();
+    const alert = alerts[index];
+    if (alert?.onDetailLinkClick) {
+      event.preventDefault();
+      event.stopPropagation();
+      alert.onDetailLinkClick();
+    }
+  }
+
   getIcon(severity: 'success' | 'info' | 'warning' | 'error' | 'secondary' | 'contrast' | 'confirm' | 'delete' | 'processing'): {
     icon: string;
     color: string;
