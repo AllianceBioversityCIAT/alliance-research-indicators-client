@@ -77,6 +77,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
   @Input() scrollHeight = '268px';
   @Input() itemHeight = 41;
   @Input() enableVirtualScroll = true;
+  @Input() appendTo: 'body' | 'self' = 'body';
   @Input() dark = false;
   @Input() optionFilter: (item: any) => boolean = () => true;
   selectEvent = output<any>();
@@ -109,12 +110,12 @@ export class MultiselectComponent implements OnInit, OnChanges {
         return true;
       }
     });
-    
+
     const selected = this.selectedOptions();
     const missingSelected = selected.filter((item: any) => {
       return !filtered.some((option: any) => option[this.optionValue] === item[this.optionValue]);
     });
-    
+
     return [...filtered, ...missingSelected];
   });
 
@@ -153,7 +154,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
         });
         this.setBodyFromSignal();
         this.firstLoad.set(false);
-      /* istanbul ignore next */
+        /* istanbul ignore next */
       } else if (
         this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.length &&
         !this.currentResultIsLoading() &&
@@ -179,14 +180,13 @@ export class MultiselectComponent implements OnInit, OnChanges {
   syncBodyWithSignal = effect(
     () => {
       const signalValue = this.utils.getNestedProperty(this.signal(), this.signalOptionValue);
-      
+
       if (Array.isArray(signalValue) && signalValue.length > 0) {
         const bodyValue = signalValue.map((item: any) => item[this.optionValue]);
         const currentBodyValue = this.body().value;
         const currentArray = Array.isArray(currentBodyValue) ? currentBodyValue : [];
-        
-        if (currentArray.length !== bodyValue.length || 
-            !currentArray.every((val, idx) => val === bodyValue[idx])) {
+
+        if (currentArray.length !== bodyValue.length || !currentArray.every((val, idx) => val === bodyValue[idx])) {
           this.body.set({ value: bodyValue });
         }
       } else {
@@ -254,8 +254,9 @@ export class MultiselectComponent implements OnInit, OnChanges {
       const existingValues = this.objectArrayToIdArray(this.utils.getNestedProperty(current, this.signalOptionValue), this.optionValue);
 
       // Find new options to add
-      const newOption = this.optionsSig()
-        .find((option: any) => event?.includes(option[this.optionValue]) && !existingValues?.includes(option[this.optionValue]));
+      const newOption = this.optionsSig().find(
+        (option: any) => event?.includes(option[this.optionValue]) && !existingValues?.includes(option[this.optionValue])
+      );
 
       if (newOption) {
         /* istanbul ignore next */
@@ -280,9 +281,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
 
   setBodyFromSignal(): void {
     this.body.set({
-      value: this.utils
-        .getNestedProperty(this.signal(), this.signalOptionValue)
-        ?.map((item: any) => item[this.optionValue])
+      value: this.utils.getNestedProperty(this.signal(), this.signalOptionValue)?.map((item: any) => item[this.optionValue])
     });
   }
 

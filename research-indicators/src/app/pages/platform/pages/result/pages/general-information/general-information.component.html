@@ -2,7 +2,7 @@
   <app-form-header />
   <div class="flex flex-col gap-5 w-full">
     <div class="content-section w-full">
-      <div class="flex flex-col w-full bg-[#fcfcfc] rounded-[10px] p-[30px] mb-6">
+      <div class="flex flex-col w-full bg-[#fcfcfc] rounded-[10px] p-[30px] mb-10">
         <div class="section-title">GENERAL INFORMATION</div>
         <div class="grid gap-[25px]">
           <div class="flex flex-col">
@@ -45,7 +45,7 @@
               the content of your result.
             </small>
 
-            <div class="card p-fluid pb-1">
+            <div class="card p-fluid pb-1 keywords-autocomplete">
               <p-autocomplete [(ngModel)]="body().keywords" [disabled]="!submission.isEditableStatus()"
                 inputId="multiple-ac-2" multiple fluid [typeahead]="false" placeholder="Write the keywords" />
               <small class="text-[#8D9299] text-[14px] pt-1 block">
