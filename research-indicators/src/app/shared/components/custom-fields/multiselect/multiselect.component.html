@@ -23,7 +23,7 @@
       [optionValue]="this.optionValue" [(ngModel)]="this.body().value" (ngModelChange)="this.setValue($event)"
       [disabled]="disabled" [virtualScroll]="enableVirtualScroll" [placeholder]="placeholder"
       [virtualScrollItemSize]="this.itemHeight" [scrollHeight]="this.scrollHeight"
-      [panelStyle]="{ width: '100%', minWidth: '100%' }" appendTo="self">
+      [panelStyle]="{ width: '100%', minWidth: '100%' }" [appendTo]="appendTo">
       @if (this.service?.isOpenSearch()) {
       <ng-template pTemplate="header">
         <div class="p-dropdown-header">
