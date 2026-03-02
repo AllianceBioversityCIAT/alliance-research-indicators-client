@@ -74,7 +74,6 @@ import { ImpactArea } from '@shared/interfaces/impact-area.interface';
 import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 import { LatestResult } from '@shared/interfaces/latest-result.interface';
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -203,9 +202,7 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_ValidateTitle = (
-    title: string
-  ): Promise<MainResponse<{ isValid: boolean; result_official_code?: number; platform_code?: string }>> => {
+  GET_ValidateTitle = (title: string): Promise<MainResponse<{ isValid: boolean; result_official_code?: number; platform_code?: string }>> => {
     const queryString = title ? `?title=${title}` : '';
     const url = () => `results/validate-title${queryString}`;
     return this.TP.get(url(), {});
@@ -585,7 +582,7 @@ export class ApiService {
 
   GET_LinkedResults = (id: number): Promise<MainResponse<LinkResultsResponse>> => {
     const url = () => `link-results/details/${id}`;
-    return this.TP.get(url(), {loadingTrigger: true, useResultInterceptor: true});
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   PATCH_LinkedResults = (id: number, body: LinkResultsResponse): Promise<MainResponse<LinkResultsResponse>> => {
@@ -659,9 +656,7 @@ export class ApiService {
     body?: PatchSubmitResultLatest
   ): Promise<MainResponse<PatchSubmitResult | ExtendedHttpErrorResponse>> => {
     const url = () => `results/status/workflow/change-status/${resultCode}/to-status/${status}`;
-    const requestBody: PatchSubmitResultLatest = body 
-      ? { ...body, submission_comment: comment ?? '' }
-      : { submission_comment: comment ?? '' };
+    const requestBody: PatchSubmitResultLatest = body ? { ...body, submission_comment: comment ?? '' } : { submission_comment: comment ?? '' };
     return this.TP.post(url(), requestBody, { useResultInterceptor: true });
   };
 
@@ -675,25 +670,21 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_NextStep = (
-    resultCode: number,
-    reportingPlatforms?: string,
-    reportYear?: number
-  ): Promise<MainResponse<GetNextStep>> => {
+  GET_NextStep = (resultCode: number, reportingPlatforms?: string, reportYear?: number): Promise<MainResponse<GetNextStep>> => {
     const url = () => {
       const baseUrl = `results/status/workflow/result/${resultCode}/next-step`;
       const params: string[] = [];
-      
+
       if (reportingPlatforms) {
         params.push(`reportingPlatforms=${reportingPlatforms}`);
       }
       if (reportYear) {
         params.push(`reportYear=${reportYear}`);
       }
-      
+
       return params.length > 0 ? `${baseUrl}?${params.join('&')}` : baseUrl;
     };
-    
+
     return this.TP.get(url(), {});
   };
 
@@ -707,6 +698,12 @@ export class ApiService {
   GET_SubmitionHistory = (resultCode: number) => {
     const url = () => `results/green-checks/history/${resultCode}`;
     return this.TP.get(url(), { useResultInterceptor: true });
+  };
+
+  PATCH_StatusChangeDate = (resultCode: number, submissionHistoryId: number, newDate: string): Promise<MainResponse<unknown>> => {
+    const url = () =>
+      `results/green-checks/change/status/date/${resultCode}/submission-history/${submissionHistoryId}?newDate=${encodeURIComponent(newDate)}`;
+    return this.TP.patch(url(), {}, { useResultInterceptor: true });
   };
 
   DELETE_Result = (resultCode: number) => {
@@ -827,7 +824,7 @@ export class ApiService {
 
   GET_AutorContact = (resultCode: number): Promise<MainResponse<ContactPersonResponse | ContactPersonResponse[]>> => {
     const url = () => `result-user/author-contact/by-result/${resultCode}`;
-    return this.TP.get(url(), {useResultInterceptor: true});
+    return this.TP.get(url(), { useResultInterceptor: true });
   };
 
   POST_AutorContact = (body: { user_id: number; informative_role_id: number }, resultCode: number): Promise<MainResponse<ContactPersonResponse>> => {
@@ -839,5 +836,4 @@ export class ApiService {
     const url = () => `result-user/author-contact/${resultUserId}/by-result/${resultId}`;
     return this.TP.delete(url(), { useResultInterceptor: true });
   };
-
 }
