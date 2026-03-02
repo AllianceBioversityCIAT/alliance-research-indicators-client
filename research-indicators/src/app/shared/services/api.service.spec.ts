@@ -360,6 +360,21 @@ describe('ApiService', () => {
       expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/new-reporting-cycle/123/year/2024', {});
     });
 
+    it('should call PATCH_StatusChangeDate with newDate as query param', () => {
+      const resultCode = 19547;
+      const submissionHistoryId = 4687;
+      const newDate = '2026-03-02T16:46:00.000Z';
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_StatusChangeDate(resultCode, submissionHistoryId, newDate);
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith(
+        'results/green-checks/change/status/date/19547/submission-history/4687?newDate=2026-03-02T16%3A46%3A00.000Z',
+        {},
+        { useResultInterceptor: true }
+      );
+    });
+
     it('should call PATCH_SubmitResult with comment', () => {
       const params = { resultCode: 123, comment: 'test comment', status: 1 } as any;
       (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
