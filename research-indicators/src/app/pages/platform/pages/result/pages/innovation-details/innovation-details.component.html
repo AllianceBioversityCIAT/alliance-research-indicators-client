@@ -35,19 +35,19 @@
             <app-select label="Innovation nature" [disabled]="!submission.isEditableStatus()"
               placeholder="Select an option" [signal]="body"
               helperText="Select the option that best characterizes the nature of this innovation."
-              [scrollHeight]="'190px'" [isRequired]="true" [optionLabel]="'name'"
+              [scrollHeight]="'172px'" [isRequired]="true" [optionLabel]="'name'"
               [optionValue]="{ body: 'innovation_nature_id', option: 'id' }" [serviceName]="'innovationCharacteristics'"
               placeholder="Select the innovation nature">
               <ng-template #itemTemplate let-item>
                 <div class="flex items-center block whitespace-normal break-words">
-                  <p class="text-[#4C5158] text-[15px] font-[400]">
+                  <p class="text-[#4C5158] text-[14px] font-[400]">
                     <b>{{ item?.name }} -</b>
                     {{ item?.definition }}
                   </p>
                 </div>
               </ng-template>
               <ng-template #selectedItemTemplate let-selected>
-                <div class="flex items-center block whitespace-normal !text-[16px] break-words">
+                <div class="flex items-center block whitespace-normal !text-[14px] break-words">
                   <p class="text-[#4C5158] font-[400]">
                     <b>{{ selected?.name }} -</b>
                     {{ selected?.definition }}
@@ -58,19 +58,19 @@
 
             <app-select label="Innovation type" [disabled]="!submission.isEditableStatus()"
               placeholder="Select the innovation type" [signal]="body" [isRequired]="true"
-              helperText="Select the type that best fits the nature of the innovation." [scrollHeight]="'240px'"
+              helperText="Select the type that best fits the nature of the innovation." [scrollHeight]="'172px'"
               [optionLabel]="'name'" [optionValue]="{ body: 'innovation_type_id', option: 'code' }"
               [serviceName]="'innovationTypes'">
               <ng-template #itemTemplate let-item>
                 <div class="flex items-center block whitespace-normal break-words">
-                  <p class="text-[#4C5158] text-[15px] font-[400]">
+                  <p class="text-[#4C5158] text-[14px] font-[400]">
                     <b>{{ item?.name }} -</b>
                     {{ item?.definition }}
                   </p>
                 </div>
               </ng-template>
               <ng-template #selectedItemTemplate let-selected>
-                <div class="flex items-center block whitespace-normal text-[16px] break-words">
+                <div class="flex items-center block whitespace-normal text-[14px] break-words">
                   <p class="text-[#4C5158] font-[400]">
                     <b>{{ selected?.name }} -</b>
                     {{ selected?.definition }}
