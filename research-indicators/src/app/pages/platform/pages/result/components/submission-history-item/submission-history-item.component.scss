@@ -71,3 +71,10 @@
     color: #777c83;
   }
 }
+
+:host ::ng-deep .edit-date-calendar-input.p-inputtext,
+:host ::ng-deep .edit-date-calendar .p-inputtext {
+  color: #4c5158 !important;
+  font-size: 13px !important;
+  font-family: Barlow, sans-serif !important;
+}
