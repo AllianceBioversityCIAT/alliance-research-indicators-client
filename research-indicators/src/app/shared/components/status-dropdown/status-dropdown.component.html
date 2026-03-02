@@ -10,7 +10,7 @@
   </div>
 
   @if (isOpen()) {
-  <div class="absolute top-full right-0 py-2 bg-white border border-[#E4EAEE] rounded-lg shadow-lg z-50 min-w-[200px]">
+  <div class="absolute top-full left-0 py-2 bg-white border border-[#E4EAEE] rounded-lg shadow-lg z-50 min-w-[200px]">
     @for (status of getAvailableStatuses(); track status.id) {
     <div class="flex items-center gap-2.5 py-2 px-5 cursor-pointer hover:bg-[#F4F7F9] transition-colors"
       (click)="selectStatus(status.id, $event)" (keydown.enter)="selectStatus(status.id, $event)">
