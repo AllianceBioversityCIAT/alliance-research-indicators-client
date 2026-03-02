@@ -47,7 +47,8 @@ describe('CreateResultFormComponent', () => {
 
     apiServiceMock = {
       POST_Result: jest.fn(),
-      GET_ValidateTitle: jest.fn()
+      GET_ValidateTitle: jest.fn(),
+      GET_Results: jest.fn()
     } as Partial<ApiService> 
 
     actionsServiceMock = {
@@ -76,7 +77,9 @@ describe('CreateResultFormComponent', () => {
     } 
 
     allModalsServiceMock = {
-      closeModal: jest.fn()
+      closeModal: jest.fn(),
+      openModal: jest.fn(),
+      selectedResultForInfo: { set: jest.fn() }
     } as Partial<AllModalsService> 
 
     cacheServiceMock = {
@@ -225,12 +228,98 @@ describe('CreateResultFormComponent', () => {
     expect(resultsServiceMock.updateList).toHaveBeenCalled();
     expect(navigateSpy).not.toHaveBeenCalled();
 
-    // with openresult = true
+    // with openresult = true (STAR -> navigate)
     component.body.update(b => ({ ...b, title: 'Another Title' }));
     component.successRequest(result, true);
     expect(cacheServiceMock.currentResultId()).toBe(999);
     expect(navigateSpy).toHaveBeenCalledWith(['result', 'STAR-999'], { replaceUrl: true });
     expect(allModalsServiceMock.closeModal).toHaveBeenCalledWith('createResult');
+  });
+
+  it('successRequest with openresult true and non-STAR platform should open result info modal', () => {
+    const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true as any);
+    const resultData = { result_official_code: '123', platform_code: 'TIP', title: 'Tip Result' };
+    const result = { data: resultData } as any;
+
+    component.successRequest(result, true);
+
+    expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(resultData);
+    expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    expect(navigateSpy).not.toHaveBeenCalled();
+    expect(allModalsServiceMock.closeModal).toHaveBeenCalledWith('createResult');
+  });
+
+  describe('openExistingResultModal', () => {
+    it('should set selectedResultForInfo and open modal when response.data is array', async () => {
+      const resultItem = {
+        result_official_code: 456,
+        platform_code: 'TIP',
+        title: 'Existing',
+        result_id: 1
+      };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: [resultItem] } as any);
+
+      await component.openExistingResultModal('TIP', '456');
+
+      expect(apiServiceMock.GET_Results).toHaveBeenCalled();
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '456',
+          platform_code: 'TIP',
+          title: 'Existing'
+        })
+      );
+      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+
+    it('should handle response.data as object with results array', async () => {
+      const resultItem = {
+        result_official_code: 789,
+        platform_code: 'PRMS',
+        title: 'From results',
+        result_id: 2
+      };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: [resultItem] } } as any);
+
+      await component.openExistingResultModal('PRMS', '789');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '789',
+          platform_code: 'PRMS'
+        })
+      );
+      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+
+    it('should handle response.data as single result object', async () => {
+      const resultItem = {
+        result_official_code: 111,
+        platform_code: 'TIP',
+        title: 'Single',
+        result_id: 3
+      };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: resultItem } as any);
+
+      await component.openExistingResultModal('TIP', '111');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '111',
+          platform_code: 'TIP'
+        })
+      );
+      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+
+    it('should ignore fetch errors and not open modal', async () => {
+      apiServiceMock.GET_Results!.mockRejectedValue(new Error('Network error'));
+
+      await component.openExistingResultModal('TIP', '999');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).not.toHaveBeenCalled();
+      expect(allModalsServiceMock.openModal).not.toHaveBeenCalled();
+    });
   });
 
   it('getWordCount and getWordCounterColor should work as expected', () => {
@@ -387,6 +476,43 @@ describe('CreateResultFormComponent', () => {
         buttonColor: '#035BA9'
       })
     );
+  });
+
+  it('CreateOicr should pass onDetailLinkClick for non-STAR when title exists and invoke openExistingResultModal', async () => {
+    apiServiceMock.GET_ValidateTitle.mockResolvedValue({
+      successfulRequest: true,
+      data: { isValid: false, result_official_code: 456, platform_code: 'TIP' }
+    });
+    const openExistingSpy = jest.spyOn(component, 'openExistingResultModal').mockResolvedValue();
+    await component.CreateOicr();
+
+    const alertArg = (actionsServiceMock.showGlobalAlert as jest.Mock).mock.calls[0][0];
+    expect(alertArg.onDetailLinkClick).toBeDefined();
+    alertArg.onDetailLinkClick();
+    await Promise.resolve();
+    expect(openExistingSpy).toHaveBeenCalledWith('TIP', '456');
+  });
+
+  it('createResult should pass onOpenExistingResult to handleBadRequest and call openExistingResultModal when invoked', async () => {
+    apiServiceMock.POST_Result.mockResolvedValue({
+      successfulRequest: false,
+      errorDetail: {
+        description: 'Exists',
+        errors: { result_official_code: 789, platform_code: 'TIP' }
+      }
+    } as any);
+
+    await component.createResult(true);
+
+    expect(actionsServiceMock.handleBadRequest).toHaveBeenCalledWith(
+      expect.any(Object),
+      undefined,
+      expect.objectContaining({ onOpenExistingResult: expect.any(Function) })
+    );
+    const options = (actionsServiceMock.handleBadRequest as jest.Mock).mock.calls[0][2];
+    const openExistingSpy = jest.spyOn(component, 'openExistingResultModal').mockResolvedValue();
+    await options.onOpenExistingResult('TIP', '789');
+    expect(openExistingSpy).toHaveBeenCalledWith('TIP', '789');
   });
 
   it('navigateToOicr should set all management service values and update OICR body', () => {

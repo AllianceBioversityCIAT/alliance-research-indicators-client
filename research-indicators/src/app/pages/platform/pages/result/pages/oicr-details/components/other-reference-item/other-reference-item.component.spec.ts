@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { SubmissionService } from '@shared/services/submission.service';
 
 import { OtherReferenceItemComponent, OtherReferenceItemData } from './other-reference-item.component';
@@ -120,6 +120,21 @@ describe('OtherReferenceItemComponent', () => {
 
       expect(updateSpy).toHaveBeenCalledWith({ type_id: 1, link: 'https://initial.com' });
     });
+
+    it('should emit update when body changes after initialization (valueEffect)', fakeAsync(() => {
+      component.item = { type_id: 1, link: 'https://one.com' };
+      component.ngOnInit();
+      const updateSpy = jest.spyOn(component.update, 'emit').mockImplementation(() => {});
+      fixture.detectChanges();
+      tick();
+      updateSpy.mockClear();
+
+      component.body.set({ type_id: 2, link: 'https://two.com' });
+      fixture.detectChanges();
+      tick();
+
+      expect(updateSpy).toHaveBeenCalledWith({ type_id: 2, link: 'https://two.com' });
+    }));
   });
 
   describe('delete behavior', () => {

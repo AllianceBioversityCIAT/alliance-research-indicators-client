@@ -47,6 +47,7 @@ class CacheServiceMock {
   currentMetadata = jest.fn().mockReturnValue({});
   currentResultIsLoading = jest.fn().mockReturnValue(false);
   showSectionHeaderActions = jest.fn().mockReturnValue(false);
+  hasSmallScreen = jest.fn().mockReturnValue(false);
   isSidebarCollapsed = jest.fn().mockReturnValue(false);
 }
 class ActionsServiceMock {
@@ -359,6 +360,36 @@ describe('InnovationDetailsComponent', () => {
     submission.isEditableStatus.mockReturnValue(false);
     expect(component.canRemove()).toBeFalsy();
   });
+
+  it('should clean institution_types with custom name when saving', fakeAsync(async () => {
+    component.body.set({
+      ...component.body(),
+      institution_types: [
+        {
+          is_organization_known: false,
+          institution_type_id: null,
+          result_institution_type_id: null,
+          sub_institution_type_id: null,
+          institution_id: null,
+          institution_type_custom_name: 'Custom'
+        } as any
+      ]
+    });
+    apiService.PATCH_InnovationDetails.mockReturnValue(Promise.resolve({ successfulRequest: true }));
+    jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
+    await component.saveData();
+    expect(apiService.PATCH_InnovationDetails).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        institution_types: expect.arrayContaining([
+          expect.objectContaining({
+            is_organization_known: false,
+            institution_type_custom_name: 'Custom'
+          })
+        ])
+      })
+    );
+  }));
 
   it('should not show toast or call getData if PATCH is not successful', fakeAsync(async () => {
     apiService.PATCH_InnovationDetails.mockReturnValue(Promise.resolve({ successfulRequest: false }));
