@@ -670,6 +670,22 @@ describe('ResultsCenterService', () => {
       const count = service.countFiltersSelected();
       expect(count).toBe('6');
     });
+
+    it('should use 0 when lever-codes is undefined in resultsFilter (cover line 286 ?? 0 branch)', () => {
+      service.resultsFilter.set({
+        'indicator-codes': [],
+        'indicator-codes-filter': [1],
+        'status-codes': [],
+        'platform-code': [],
+        'contract-codes': [],
+        'lever-codes': undefined as any,
+        'indicator-codes-tabs': [],
+        'create-user-codes': [],
+        years: []
+      } as any);
+      const count = service.countFiltersSelected();
+      expect(count).toBe('1');
+    });
   });
 
   describe('countTableFiltersSelected', () => {
@@ -714,6 +730,32 @@ describe('ResultsCenterService', () => {
       }));
       const count = service.countTableFiltersSelected();
       expect(count).toBe('6');
+    });
+
+    it('should use 0 when tableFilters has undefined indicators and years (cover 294-299 ?? 0 branches)', () => {
+      service.tableFilters.set({
+        indicators: undefined as any,
+        statusCodes: [{ result_status_id: 1 }] as any,
+        sources: [],
+        contracts: [],
+        levers: [],
+        years: undefined as any
+      } as any);
+      const count = service.countTableFiltersSelected();
+      expect(count).toBe('1');
+    });
+
+    it('should use 0 for each undefined tableFilter key (cover lines 295-298 ?? 0)', () => {
+      service.tableFilters.set({
+        indicators: [{ indicator_id: 1 }] as any,
+        statusCodes: undefined as any,
+        sources: undefined as any,
+        contracts: undefined as any,
+        levers: undefined as any,
+        years: undefined as any
+      } as any);
+      const count = service.countTableFiltersSelected();
+      expect(count).toBe('1');
     });
   });
 
@@ -1098,6 +1140,15 @@ describe('ResultsCenterService', () => {
       expect(service.resultsFilter()['create-user-codes']).toEqual([]);
     });
 
+    it('should use [] when tab is my and create-user-codes is falsy (cover line 548 || [] branch)', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': undefined as any }));
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => {});
+      service.clearAllFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+      mainSpy.mockRestore();
+    });
+
     it('should clear all filters and reset state', () => {
       service.resultsFilter.update(prev => ({
         ...prev,
@@ -1273,9 +1324,19 @@ describe('ResultsCenterService', () => {
 
     it('should return "-" for indicator getValue when indicators exists but name is undefined (cover line 77 branch)', () => {
       const columns = service.tableColumns();
-      const indicatorColumn = columns.find(col => col.field === 'indicator');
+      const indicatorColumn = columns.find(col => col.field === 'indicator_id');
       const getValue = indicatorColumn?.getValue;
       if (getValue) expect(getValue({ indicators: {} } as unknown as Result)).toBe('-');
+    });
+
+    it('should cover indicator getValue branches for line 77 (indicators null and indicators.name set)', () => {
+      const columns = service.tableColumns();
+      const indicatorColumn = columns.find(col => col.field === 'indicator_id');
+      const getValue = indicatorColumn?.getValue;
+      if (getValue) {
+        expect(getValue({ indicators: null } as unknown as Result)).toBe('-');
+        expect(getValue({ indicators: { name: 'Cap' } } as unknown as Result)).toBe('Cap');
+      }
     });
 
     it('should return "-" for status getValue when result_status is undefined', () => {
