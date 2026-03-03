@@ -11,8 +11,6 @@ import { SubmissionHistoryItem } from '@shared/interfaces/submission-history-ite
 import { RolesService } from '@shared/services/cache/roles.service';
 import { formatUtcToCet, getParisDateAndTime, parisLocalToUtc } from '@shared/utils/date-cet.util';
 
-const OICR_INDICATOR_ID = 5;
-
 @Component({
   selector: 'app-submission-history-item',
   standalone: true,
@@ -41,7 +39,9 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
   saving = signal(false);
   panelStyle = signal<{ top: string; left: string } | null>(null);
 
-  isOicr = computed(() => this.cache.currentMetadata()?.indicator_id === OICR_INDICATOR_ID);
+  showCustomDateAndEdit = computed(
+    () => (this.historyItem().is_editable_date === true || this.historyItem().editable_timestamp === true) && this.rolesService.isAdmin()
+  );
 
   submissionHistoryId = computed(() => {
     const item = this.historyItem() as SubmissionHistoryItem & { id?: number };
@@ -49,8 +49,7 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
   });
 
   canEditTimestamp = computed(() => {
-    if (!this.isOicr()) return false;
-    if (this.historyItem().editable_timestamp === false) return false;
+    if (!this.showCustomDateAndEdit()) return false;
     return !!this.submissionHistoryId();
   });
 
@@ -75,8 +74,7 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
     const id = this.submissionHistoryId();
     if (id == null) return;
     this.cache.editStatusDateOpenId.set(id);
-    const source =
-      this.isOicr() && this.rolesService.isAdmin() && this.historyItem().custom_date ? this.historyItem().custom_date : this.historyItem().updated_at;
+    const source = this.showCustomDateAndEdit() && this.historyItem().custom_date ? this.historyItem().custom_date : this.historyItem().updated_at;
     const raw = source ? new Date(source) : new Date();
     const paris = getParisDateAndTime(raw);
     if (paris) {

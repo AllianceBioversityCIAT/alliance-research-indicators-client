@@ -14,4 +14,5 @@ export class SubmissionHistoryItem {
   custom_date = '';
   submission_history_id?: number;
   editable_timestamp?: boolean;
+  is_editable_date?: boolean;
 }

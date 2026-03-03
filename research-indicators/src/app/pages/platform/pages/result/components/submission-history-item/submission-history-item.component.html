@@ -39,7 +39,7 @@
     }
     <div class="date-content flex flex-nowrap items-center gap-2">
       <span class="date">
-        @if (isOicr() && rolesService.isAdmin()) {
+        @if (showCustomDateAndEdit()) {
         @if (customDateCetFormatted(); as cet) {
         {{ cet.date }} at {{ cet.time }} (CET)
         } @else {
