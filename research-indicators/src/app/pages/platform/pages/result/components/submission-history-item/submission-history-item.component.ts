@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, effect, inject, Input, OnDestroy, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
@@ -9,7 +9,7 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { SubmissionHistoryItem } from '@shared/interfaces/submission-history-item.interface';
 import { RolesService } from '@shared/services/cache/roles.service';
-import { formatUtcToCet } from '@shared/utils/date-cet.util';
+import { formatUtcToCet, getParisDateAndTime, parisLocalToUtc } from '@shared/utils/date-cet.util';
 
 const OICR_INDICATOR_ID = 5;
 
@@ -27,7 +27,7 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
   private readonly actions = inject(ActionsService);
   readonly rolesService = inject(RolesService);
 
-  @Input() historyItem: SubmissionHistoryItem = new SubmissionHistoryItem();
+  historyItem = input.required<SubmissionHistoryItem>();
 
   showEditModal = signal(false);
 
@@ -44,19 +44,19 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
   isOicr = computed(() => this.cache.currentMetadata()?.indicator_id === OICR_INDICATOR_ID);
 
   submissionHistoryId = computed(() => {
-    const item = this.historyItem as SubmissionHistoryItem & { id?: number };
-    return this.historyItem.submission_history_id ?? item.id;
+    const item = this.historyItem() as SubmissionHistoryItem & { id?: number };
+    return this.historyItem().submission_history_id ?? item.id;
   });
 
   canEditTimestamp = computed(() => {
     if (!this.isOicr()) return false;
-    if (this.historyItem.editable_timestamp === false) return false;
+    if (this.historyItem().editable_timestamp === false) return false;
     return !!this.submissionHistoryId();
   });
 
-  updatedAtCetFormatted = computed(() => formatUtcToCet(this.historyItem.updated_at));
+  updatedAtCetFormatted = computed(() => formatUtcToCet(this.historyItem().updated_at));
 
-  customDateCetFormatted = computed(() => formatUtcToCet(this.historyItem.custom_date));
+  customDateCetFormatted = computed(() => formatUtcToCet(this.historyItem().custom_date));
 
   isEditPanelVisible = computed(
     () => this.showEditModal() && this.panelStyle() != null && this.cache.editStatusDateOpenId() === this.submissionHistoryId()
@@ -75,13 +75,21 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
     const id = this.submissionHistoryId();
     if (id == null) return;
     this.cache.editStatusDateOpenId.set(id);
-    const raw = this.historyItem.updated_at ? new Date(this.historyItem.updated_at) : new Date();
-    this.editDate.set(new Date(raw.getFullYear(), raw.getMonth(), raw.getDate()));
-    this.editTime.set(new Date(0, 0, 0, raw.getHours(), raw.getMinutes()));
+    const source =
+      this.isOicr() && this.rolesService.isAdmin() && this.historyItem().custom_date ? this.historyItem().custom_date : this.historyItem().updated_at;
+    const raw = source ? new Date(source) : new Date();
+    const paris = getParisDateAndTime(raw);
+    if (paris) {
+      this.editDate.set(paris.date);
+      this.editTime.set(paris.time);
+    } else {
+      this.editDate.set(new Date(raw.getFullYear(), raw.getMonth(), raw.getDate()));
+      this.editTime.set(new Date(0, 0, 0, raw.getHours(), raw.getMinutes()));
+    }
     const btn = ev?.currentTarget as HTMLElement | undefined;
     const rect = btn?.getBoundingClientRect();
     if (rect) {
-      const offsetPx = 130;
+      const offsetPx = 180;
       this.panelStyle.set({
         top: `${rect.bottom + 4}px`,
         left: `${Math.max(0, rect.left - offsetPx)}px`
@@ -112,8 +120,8 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
     if (!date || !time || !id || resultCode == null) return;
     this.saving.set(true);
     try {
-      const combined = new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), 0);
-      await this.api.PATCH_StatusChangeDate(resultCode, id, combined.toISOString());
+      const utcDate = parisLocalToUtc(date, time);
+      await this.api.PATCH_StatusChangeDate(resultCode, id, utcDate.toISOString());
       this.actions.showToast({
         severity: 'success',
         summary: 'Date updated',
