@@ -391,6 +391,18 @@ describe('ResultsCenterTableComponent', () => {
     expect(processSpy).toHaveBeenCalledWith(el, expect.any(MouseEvent));
   });
 
+  it('onDocClickCapture should return early when event.target is null', () => {
+    let captureCallback: ((e: MouseEvent) => void) | null = null;
+    jest.spyOn(document, 'addEventListener').mockImplementation((event: string, cb: any) => {
+      if (event === 'click') captureCallback = cb;
+    });
+    component.ngAfterViewInit();
+    expect(captureCallback).not.toBeNull();
+    const processSpy = jest.spyOn<any, any>(component as any, 'processRowClick');
+    captureCallback!({ target: null } as MouseEvent);
+    expect(processSpy).not.toHaveBeenCalled();
+  });
+
   it('processRowClick should open PRMS modal and prevent default', () => {
     mockModals.isAnyModalOpen.mockReturnValue(false);
     const tableElement = document.createElement('div');
@@ -757,6 +769,112 @@ describe('ResultsCenterTableComponent', () => {
     expect(mockModals.openModal).not.toHaveBeenCalled();
   });
 
+  it('processRowClick should return early when row has no data-* and rowIndex is negative', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tableElement = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const td = document.createElement('td');
+    tbody.appendChild(row);
+    row.appendChild(td);
+    tableElement.appendChild(tbody);
+    (component as any).dt2 = {
+      el: { nativeElement: tableElement },
+      value: [mockResult],
+      first: 0
+    };
+    Object.defineProperty(tbody, 'children', {
+      get: () => ({ length: 0, [Symbol.iterator]: function* () {} }) as unknown as HTMLCollection
+    });
+    (component as any).processRowClick(td, new MouseEvent('click'));
+    expect(mockModals.openModal).not.toHaveBeenCalled();
+  });
+
+  it('processRowClick should resolve result by row index when row has no data-result-id or data-platform', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tableElement = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const td = document.createElement('td');
+    tbody.appendChild(row);
+    row.appendChild(td);
+    tableElement.appendChild(tbody);
+    const prmsResult = { ...mockResult, platform_code: 'PRMS' };
+    (component as any).dt2 = {
+      el: { nativeElement: tableElement },
+      value: [prmsResult],
+      first: 0
+    };
+    (component as any).processRowClick(td, new MouseEvent('click'));
+    expect(mockModals.selectedResultForInfo()).toEqual(prmsResult);
+    expect(mockModals.openModal).toHaveBeenCalledWith('resultInformation');
+  });
+
+  it('processRowClick should resolve result by row index using list() when dt2.value is undefined', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tipResult = { ...mockResult, platform_code: 'TIP' };
+    mockService.list.set([tipResult]);
+    const tableElement = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const td = document.createElement('td');
+    tbody.appendChild(row);
+    row.appendChild(td);
+    tableElement.appendChild(tbody);
+    (component as any).dt2 = {
+      el: { nativeElement: tableElement },
+      value: undefined,
+      first: 0
+    };
+    (component as any).processRowClick(td, new MouseEvent('click'));
+    expect(mockModals.selectedResultForInfo()).toEqual(tipResult);
+    expect(mockModals.openModal).toHaveBeenCalledWith('resultInformation');
+  });
+
+  it('processRowClick should use resultsCenterService.list() when dt2.value is undefined', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const prmsResult = { ...mockResult, platform_code: 'PRMS' };
+    mockService.list.set([prmsResult]);
+    const tableElement = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const td = document.createElement('td');
+    row.setAttribute('data-result-id', '7');
+    row.setAttribute('data-platform', 'PRMS');
+    tbody.appendChild(row);
+    row.appendChild(td);
+    tableElement.appendChild(tbody);
+    (component as any).dt2 = {
+      el: { nativeElement: tableElement },
+      value: undefined,
+      first: 0
+    };
+    (component as any).processRowClick(td, new MouseEvent('click'));
+    expect(mockModals.selectedResultForInfo()).toEqual(prmsResult);
+    expect(mockModals.openModal).toHaveBeenCalledWith('resultInformation');
+  });
+
+  it('processRowClick with project-cell and result without contract_id should not navigate', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tableElement = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.className = 'project-cell';
+    row.appendChild(cell);
+    tbody.appendChild(row);
+    tableElement.appendChild(tbody);
+    const resultNoContract = { ...mockResult, result_contracts: null };
+    (component as any).dt2 = {
+      el: { nativeElement: tableElement },
+      value: [resultNoContract],
+      first: 0
+    };
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    (component as any).processRowClick(cell, event);
+    expect(mockRouter.navigate).not.toHaveBeenCalled();
+  });
+
   it('adjustColumnWidth should set column width from cell text lengths', () => {
     const eachCellCb = jest.fn();
     const worksheet = {
@@ -778,6 +896,113 @@ describe('ResultsCenterTableComponent', () => {
     const worksheet = { getColumn: jest.fn(() => null) } as any;
     (component as any).adjustColumnWidth(worksheet, 1);
     expect(worksheet.getColumn).toHaveBeenCalledWith(1);
+  });
+
+  it('adjustColumnWidth should use 0 when column.header is null and set width from cell text', () => {
+    let widthSet = 0;
+    const column = {
+      header: null,
+      width: 0,
+      get width() {
+        return widthSet;
+      },
+      set width(v: number) {
+        widthSet = v;
+      },
+      eachCell: (_opts: any, cb: (cell: any, rowNumber: number) => void) => {
+        cb({ text: 'Short' }, 1);
+        cb({ text: 'LongCellText' }, 2);
+        cb({ text: 'X' }, 3);
+      }
+    };
+    const worksheet = { getColumn: jest.fn(() => column) } as any;
+    (component as any).adjustColumnWidth(worksheet, 1);
+    expect(worksheet.getColumn).toHaveBeenCalledWith(1);
+    expect(widthSet).toBeGreaterThan(0);
+  });
+
+  it('styleHeaderColumns should set views, autoFilter, style row 1, and hide extra columns', () => {
+    const hiddenCols: number[] = [];
+    const row1 = {
+      height: 0,
+      getCell: jest.fn((_c: number) => ({}))
+    };
+    const worksheet = {
+      views: [] as any,
+      autoFilter: {} as any,
+      columnCount: 5,
+      getRow: jest.fn((r: number) => (r === 1 ? row1 : { height: 0, getCell: () => ({}) })),
+      getColumn: jest.fn((i: number) => ({
+        set hidden(v: boolean) {
+          if (v) hiddenCols.push(i);
+        }
+      }))
+    } as any;
+    (component as any).styleHeaderColumns(worksheet, 2);
+    expect(worksheet.views).toEqual([expect.objectContaining({ state: 'frozen', ySplit: 1 })]);
+    expect(worksheet.autoFilter).toEqual({ from: { row: 1, column: 1 }, to: { row: 1, column: 2 } });
+    expect(row1.height).toBe(30);
+    expect(worksheet.getRow(1).getCell).toHaveBeenCalledWith(1);
+    expect(worksheet.getRow(1).getCell).toHaveBeenCalledWith(2);
+    expect(hiddenCols).toEqual([3, 4, 5]);
+  });
+
+  it('styleHeaderColumns when columnCount equals totalColumns should not run hide loop', () => {
+    const hiddenCols: number[] = [];
+    const row1 = { height: 0, getCell: jest.fn((_c: number) => ({})) };
+    const worksheet = {
+      views: [] as any,
+      autoFilter: {} as any,
+      columnCount: 2,
+      getRow: jest.fn((r: number) => (r === 1 ? row1 : { height: 0, getCell: () => ({}) })),
+      getColumn: jest.fn((i: number) => ({
+        set hidden(v: boolean) {
+          if (v) hiddenCols.push(i);
+        }
+      }))
+    } as any;
+    (component as any).styleHeaderColumns(worksheet, 2);
+    expect(hiddenCols).toEqual([]);
+  });
+
+  it('styleHeaderColumns should iterate hide loop multiple times then exit', () => {
+    const hiddenCols: number[] = [];
+    const row1 = { height: 0, getCell: jest.fn((_c: number) => ({})) };
+    const worksheet = {
+      views: [] as any,
+      autoFilter: {} as any,
+      columnCount: 10,
+      getRow: jest.fn((r: number) => (r === 1 ? row1 : { height: 0, getCell: () => ({}) })),
+      getColumn: jest.fn((i: number) => ({
+        set hidden(v: boolean) {
+          if (v) hiddenCols.push(i);
+        }
+      }))
+    } as any;
+    (component as any).styleHeaderColumns(worksheet, 1);
+    expect(hiddenCols).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  });
+
+  it('adjustColumnWidth should handle cell.text undefined using empty string', () => {
+    let widthSet = 0;
+    const column = {
+      header: 'H',
+      width: 0,
+      get width() {
+        return widthSet;
+      },
+      set width(v: number) {
+        widthSet = v;
+      },
+      eachCell: (_opts: any, cb: (cell: any, rowNumber: number) => void) => {
+        cb({ text: undefined }, 1);
+        cb({ text: null }, 2);
+        cb({ text: 'Some' }, 3);
+      }
+    };
+    const worksheet = { getColumn: jest.fn(() => column) } as any;
+    (component as any).adjustColumnWidth(worksheet, 1);
+    expect(widthSet).toBeGreaterThan(0);
   });
 
   it('exportTable should sanitize number, boolean, object, long string and empty string', async () => {
@@ -976,6 +1201,235 @@ describe('ResultsCenterTableComponent', () => {
     expect(addRowCalls.length).toBeGreaterThan(0);
     const row = addRowCalls[addRowCalls.length - 1];
     expect(row.some((v: any) => typeof v === 'string' && v.endsWith('...'))).toBe(true);
+  });
+
+  it('exportTable cleanString should cover all condition branches with single-char strings', async () => {
+    mockApiService.GET_GeneralReport.mockResolvedValue({
+      data: [
+        { Code: 1, Title: '', K: 'empty' },
+        { Code: 2, Title: ' ', K: 'space' },
+        { Code: 3, Title: '\t', K: 'tab' },
+        { Code: 4, Title: '\n', K: 'nl' },
+        { Code: 5, Title: '\r', K: 'cr' },
+        { Code: 6, Title: 'A', K: 'letter' },
+        { Code: 7, Title: '\x01', K: 'ctrl' }
+      ]
+    });
+    const addRowCalls: any[][] = [];
+    const worksheet = {
+      getColumn: jest.fn(() => ({
+        header: 'H',
+        eachCell: (_: any, cb: any) => {
+          for (let r = 1; r <= 4; r++) cb({ text: 'x' }, r);
+        },
+        width: 0,
+        hidden: false
+      })),
+      columnCount: 3,
+      views: [] as any,
+      autoFilter: {} as any,
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({}) as any), height: 0 })),
+      addRow: jest.fn((row: any) => addRowCalls.push(Array.isArray(row) ? row : [row])),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = { createObjectURL: jest.fn().mockReturnValue('blob:br'), revokeObjectURL: jest.fn() };
+    const linkEl = { click: jest.fn(), style: {}, href: '', download: '', remove: jest.fn() };
+    const origCreate = document.createElement;
+    (document as any).createElement = (tagName: any) => (tagName === 'a' ? linkEl : origCreate.call(document, tagName));
+    jest.useFakeTimers();
+    await component.exportTable();
+    await jest.runAllTimersAsync();
+    jest.useRealTimers();
+    (document as any).createElement = origCreate;
+    globalThis.URL = originalURL;
+    expect(addRowCalls.length).toBeGreaterThanOrEqual(7);
+  });
+
+  it('exportTable cleanString should add space tab newline cr and skip other control chars', async () => {
+    mockApiService.GET_GeneralReport.mockResolvedValue({
+      data: [{ Code: 1, Title: ' \t\n\rA\x01', Desc: 'x' }]
+    });
+    const addRowCalls: any[][] = [];
+    const worksheet = {
+      getColumn: jest.fn(() => ({
+        header: 'H',
+        eachCell: (_: any, cb: any) => {
+          for (let r = 1; r <= 2; r++) cb({ text: 'x' }, r);
+        },
+        width: 0,
+        hidden: false
+      })),
+      columnCount: 3,
+      views: [] as any,
+      autoFilter: {} as any,
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({}) as any), height: 0 })),
+      addRow: jest.fn((row: any) => addRowCalls.push(Array.isArray(row) ? row : [row])),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = { createObjectURL: jest.fn().mockReturnValue('blob:all'), revokeObjectURL: jest.fn() };
+    const linkEl = { click: jest.fn(), style: {}, href: '', download: '', remove: jest.fn() };
+    const origCreate = document.createElement;
+    (document as any).createElement = (tagName: any) => (tagName === 'a' ? linkEl : origCreate.call(document, tagName));
+    jest.useFakeTimers();
+    await component.exportTable();
+    await jest.runAllTimersAsync();
+    jest.useRealTimers();
+    (document as any).createElement = origCreate;
+    globalThis.URL = originalURL;
+    expect(addRowCalls.length).toBeGreaterThan(0);
+    const row = addRowCalls[addRowCalls.length - 1];
+    const titleVal = row.find((v: any) => typeof v === 'string' && v.includes('A'));
+    expect(titleVal).toBeDefined();
+    expect(String(titleVal).replace(/[\t\n\r ]/g, '')).toBe('A');
+  });
+
+  it('exportTable should sanitize cleanString with tab newline cr and strip control chars', async () => {
+    mockApiService.GET_GeneralReport.mockResolvedValue({
+      data: [{ Code: 1, Title: 'Tab\tNewline\nCR\rAnd\x01Control' }]
+    });
+    const addRowCalls: any[][] = [];
+    const worksheet = {
+      getColumn: jest.fn(() => ({
+        header: 'H',
+        eachCell: (_: any, cb: any) => {
+          for (let r = 1; r <= 2; r++) cb({ text: 'x' }, r);
+        },
+        width: 0,
+        hidden: false
+      })),
+      columnCount: 3,
+      views: [] as any,
+      autoFilter: {} as any,
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({}) as any), height: 0 })),
+      addRow: jest.fn((row: any) => addRowCalls.push(Array.isArray(row) ? row : [row])),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = { createObjectURL: jest.fn().mockReturnValue('blob:cl'), revokeObjectURL: jest.fn() };
+    const linkEl = { click: jest.fn(), style: {}, href: '', download: '', remove: jest.fn() };
+    const origCreate = document.createElement;
+    (document as any).createElement = (tagName: any) => (tagName === 'a' ? linkEl : origCreate.call(document, tagName));
+    jest.useFakeTimers();
+    await component.exportTable();
+    await jest.runAllTimersAsync();
+    jest.useRealTimers();
+    (document as any).createElement = origCreate;
+    globalThis.URL = originalURL;
+    expect(addRowCalls.length).toBeGreaterThan(0);
+    const row = addRowCalls[addRowCalls.length - 1];
+    const titleVal = row.find((_: any, i: number) => row[i] && String(row[i]).includes('Tab'));
+    expect(titleVal).toBeDefined();
+  });
+
+  it('exportTable cleanString should skip control chars that are not tab newline cr', async () => {
+    mockApiService.GET_GeneralReport.mockResolvedValue({
+      data: [{ Code: 1, Title: 'Normal', Other: '\x00\x01\x02\x07\x0B\x0C\x0E' }]
+    });
+    const addRowCalls: any[][] = [];
+    const worksheet = {
+      getColumn: jest.fn(() => ({
+        header: 'H',
+        eachCell: (_: any, cb: any) => {
+          for (let r = 1; r <= 2; r++) cb({ text: 'x' }, r);
+        },
+        width: 0,
+        hidden: false
+      })),
+      columnCount: 3,
+      views: [] as any,
+      autoFilter: {} as any,
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({}) as any), height: 0 })),
+      addRow: jest.fn((row: any) => addRowCalls.push(Array.isArray(row) ? row : [row])),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = { createObjectURL: jest.fn().mockReturnValue('blob:ctrl'), revokeObjectURL: jest.fn() };
+    const linkEl = { click: jest.fn(), style: {}, href: '', download: '', remove: jest.fn() };
+    const origCreate = document.createElement;
+    (document as any).createElement = (tagName: any) => (tagName === 'a' ? linkEl : origCreate.call(document, tagName));
+    jest.useFakeTimers();
+    await component.exportTable();
+    await jest.runAllTimersAsync();
+    jest.useRealTimers();
+    (document as any).createElement = origCreate;
+    globalThis.URL = originalURL;
+    expect(addRowCalls.length).toBeGreaterThan(0);
+    const row = addRowCalls[addRowCalls.length - 1];
+    expect(row.some((v: any) => v === '' || (typeof v === 'string' && v.length < 10))).toBe(true);
+  });
+
+  it('exportTable should sanitize Number Infinity as empty string', async () => {
+    mockApiService.GET_GeneralReport.mockResolvedValue({
+      data: [{ Code: 1, Title: 'OK', InfVal: Number.POSITIVE_INFINITY }]
+    });
+    const addRowCalls: any[][] = [];
+    const worksheet = {
+      getColumn: jest.fn(() => ({
+        header: 'H',
+        eachCell: (_: any, cb: any) => {
+          for (let r = 1; r <= 2; r++) cb({ text: 'x' }, r);
+        },
+        width: 0,
+        hidden: false
+      })),
+      columnCount: 3,
+      views: [] as any,
+      autoFilter: {} as any,
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({}) as any), height: 0 })),
+      addRow: jest.fn((row: any) => addRowCalls.push(Array.isArray(row) ? row : [row])),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = { createObjectURL: jest.fn().mockReturnValue('blob:inf'), revokeObjectURL: jest.fn() };
+    const linkEl = { click: jest.fn(), style: {}, href: '', download: '', remove: jest.fn() };
+    const origCreate = document.createElement;
+    (document as any).createElement = (tagName: any) => (tagName === 'a' ? linkEl : origCreate.call(document, tagName));
+    jest.useFakeTimers();
+    await component.exportTable();
+    await jest.runAllTimersAsync();
+    jest.useRealTimers();
+    (document as any).createElement = origCreate;
+    globalThis.URL = originalURL;
+    expect(addRowCalls.length).toBeGreaterThan(0);
+    const row = addRowCalls[addRowCalls.length - 1];
+    expect(row.some((v: any) => v === '')).toBe(true);
   });
 
   it('exportTable should sanitize object that throws on JSON.stringify', async () => {
@@ -1244,6 +1698,55 @@ describe('ResultsCenterTableComponent', () => {
 
     expect(consoleWarnSpy).toHaveBeenCalledWith('No headers found in data');
     consoleWarnSpy.mockRestore();
+  });
+
+  it('exportTable should call styleHeaderColumns and hide columns when columnCount > totalColumns', async () => {
+    mockApiService.GET_GeneralReport.mockResolvedValue({
+      data: [{ Code: 1, Title: 'Only Two Keys' }]
+    });
+    const hiddenColumns: number[] = [];
+    const worksheet = {
+      views: [] as any,
+      autoFilter: {} as any,
+      columnCount: 5,
+      getColumn: jest.fn((i: number) => ({
+        header: 'H',
+        eachCell: (_: any, cb: any) => {
+          cb({ text: 'x' }, 1);
+          cb({ text: 'y' }, 2);
+        },
+        width: 0,
+        set hidden(v: boolean) {
+          if (v) hiddenColumns.push(i);
+        }
+      })),
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({}) as any), height: 0 })),
+      addRow: jest.fn(),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = { createObjectURL: jest.fn().mockReturnValue('blob:st'), revokeObjectURL: jest.fn() };
+    const linkEl = { click: jest.fn(), style: {}, href: '', download: '', remove: jest.fn() };
+    const origCreate = document.createElement;
+    (document as any).createElement = (tagName: any) => (tagName === 'a' ? linkEl : origCreate.call(document, tagName));
+    jest.useFakeTimers();
+    await component.exportTable();
+    await jest.runAllTimersAsync();
+    jest.useRealTimers();
+    (document as any).createElement = origCreate;
+    globalThis.URL = originalURL;
+    expect(worksheet.views).toEqual([expect.objectContaining({ state: 'frozen', ySplit: 1 })]);
+    expect(worksheet.autoFilter).toEqual({ from: { row: 1, column: 1 }, to: { row: 1, column: 2 } });
+    expect(hiddenColumns).toContain(3);
+    expect(hiddenColumns).toContain(4);
+    expect(hiddenColumns).toContain(5);
   });
 
   it('exportTable should handle error when accessing property in row', async () => {

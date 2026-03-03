@@ -279,12 +279,36 @@ describe('InnovationDetailsComponent', () => {
     expect(component.body().actors.length).toBe(0);
   });
 
+  it('should add actor when body already has actors (cover line 158 actors branch)', () => {
+    component.body.set({ ...component.body(), actors: [new Actor()] });
+    component.addActor();
+    expect(component.body().actors!.length).toBe(2);
+  });
+
+  it('should no-op deleteActor when actors is undefined (cover line 164 false branch)', () => {
+    component.body.set({ ...component.body(), actors: undefined });
+    component.deleteActor(0);
+    expect(component.body().actors).toBeUndefined();
+  });
+
   it('should add and delete institution type', () => {
     component.body.set({ ...component.body(), institution_types: [] });
     component.addInstitutionType();
     expect(component.body().institution_types.length).toBe(1);
     component.deleteInstitutionType(0);
     expect(component.body().institution_types.length).toBe(0);
+  });
+
+  it('should add institution type when body already has institution_types (cover line 174)', () => {
+    component.body.set({ ...component.body(), institution_types: [new InstitutionType()] });
+    component.addInstitutionType();
+    expect(component.body().institution_types!.length).toBe(2);
+  });
+
+  it('should no-op deleteInstitutionType when institution_types is undefined (cover line 180 false branch)', () => {
+    component.body.set({ ...component.body(), institution_types: undefined });
+    component.deleteInstitutionType(0);
+    expect(component.body().institution_types).toBeUndefined();
   });
 
   it('should return stepNumbers and stepLevels', () => {
