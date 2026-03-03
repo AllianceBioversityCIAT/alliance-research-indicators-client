@@ -40,14 +40,14 @@ describe('SubmissionHistoryItemComponent', () => {
 
     fixture = TestBed.createComponent(SubmissionHistoryItemComponent);
     component = fixture.componentInstance;
-    component.historyItem = {
+    fixture.componentRef.setInput('historyItem', {
       created_by_object: { first_name: 'Test', last_name: 'User' },
       from_status_id: 1,
       to_status_id: 2,
       from_status: { name: 'A', config: { color: {}, icon: {} } } as any,
       to_status: { name: 'B', config: { color: {}, icon: {} } } as any,
       updated_at: '2026-02-02T12:00:00.000Z'
-    } as SubmissionHistoryItem;
+    } as SubmissionHistoryItem);
     fixture.detectChanges();
   });
 
