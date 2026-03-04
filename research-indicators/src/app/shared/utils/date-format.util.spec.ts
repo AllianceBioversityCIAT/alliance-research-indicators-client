@@ -1,8 +1,8 @@
 import {
   formatUtcToCet,
   formatUtcToCetDisplay,
-  getParisDateAndTime,
-  parisLocalToUtc
+  getLocalDateAndTime,
+  cetCestLocalToUtc
 } from './date-format.util';
 
 describe('date-format.util', () => {
@@ -57,10 +57,10 @@ describe('date-format.util', () => {
     });
   });
 
-  describe('getParisDateAndTime', () => {
-    it('should return Paris date and time for valid UTC Date', () => {
+  describe('getLocalDateAndTime', () => {
+    it('should return local (CET/CEST) date and time for valid UTC Date', () => {
       const utc = new Date('2026-02-26T12:00:00.000Z');
-      const result = getParisDateAndTime(utc);
+      const result = getLocalDateAndTime(utc);
       expect(result).not.toBeNull();
       expect(result!.date).toBeInstanceOf(Date);
       expect(result!.time).toBeInstanceOf(Date);
@@ -69,7 +69,7 @@ describe('date-format.util', () => {
     });
 
     it('should return null for NaN Date (cover line 59)', () => {
-      expect(getParisDateAndTime(new Date('invalid'))).toBeNull();
+      expect(getLocalDateAndTime(new Date('invalid'))).toBeNull();
     });
 
     it('should use fallback 0 when a part type is missing (cover ?? 0 branch in get)', () => {
@@ -81,18 +81,18 @@ describe('date-format.util', () => {
         { type: 'hour', value: '13' }
         // omit 'minute' so get('minute') returns undefined and we use '0'
       ] as Intl.DateTimeFormatPart[]);
-      const result = getParisDateAndTime(utc);
+      const result = getLocalDateAndTime(utc);
       expect(result).not.toBeNull();
       expect(result!.time.getMinutes()).toBe(0);
       formatToPartsSpy.mockRestore();
     });
   });
 
-  describe('parisLocalToUtc', () => {
-    it('should convert Paris local date and time to UTC Date', () => {
+  describe('cetCestLocalToUtc', () => {
+    it('should convert local (CET/CEST) date and time to UTC Date', () => {
       const date = new Date(2026, 0, 15);
       const time = new Date(0, 0, 0, 14, 30, 0);
-      const utc = parisLocalToUtc(date, time);
+      const utc = cetCestLocalToUtc(date, time);
       expect(utc).toBeInstanceOf(Date);
       expect(Number.isNaN(utc.getTime())).toBe(false);
     });
@@ -100,14 +100,14 @@ describe('date-format.util', () => {
     it('should handle midnight', () => {
       const date = new Date(2026, 5, 1);
       const time = new Date(0, 0, 0, 0, 0, 0);
-      const utc = parisLocalToUtc(date, time);
+      const utc = cetCestLocalToUtc(date, time);
       expect(utc).toBeInstanceOf(Date);
     });
 
     it('should handle single-digit hour and minute (padStart branches)', () => {
       const date = new Date(2026, 0, 5);
       const time = new Date(0, 0, 0, 9, 5, 0);
-      const utc = parisLocalToUtc(date, time);
+      const utc = cetCestLocalToUtc(date, time);
       expect(utc).toBeInstanceOf(Date);
       expect(utc.getUTCHours()).toBeDefined();
     });

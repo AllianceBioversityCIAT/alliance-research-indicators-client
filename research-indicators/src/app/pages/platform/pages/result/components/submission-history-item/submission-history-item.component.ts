@@ -11,7 +11,7 @@ import { RolesService } from '@shared/services/cache/roles.service';
 import {
   formatUtcWithConfig,
   getCalendarFormatsFromConfig,
-  getParisDateAndTime,
+  getLocalDateAndTime,
   getTimezoneLabelForEdit,
   getUtcDateAndTime,
   isConfigCetCest,
@@ -49,9 +49,7 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
   panelStyle = signal<{ top: string; left: string } | null>(null);
 
   showCustomDateAndEdit = computed(
-    () =>
-      (!!this.historyItem().is_editable_date || !!this.historyItem().editable_timestamp) &&
-      this.rolesService.isAdmin()
+    () => (!!this.historyItem().is_editable_date || !!this.historyItem().editable_timestamp) && this.rolesService.isAdmin()
   );
 
   submissionHistoryId = computed(() => {
@@ -67,11 +65,8 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
   updatedAtFormatted = computed(() => formatUtcWithConfig(this.historyItem().updated_at, this.dateFormatConfig.config()));
   customDateFormatted = computed(() => formatUtcWithConfig(this.historyItem().custom_date, this.dateFormatConfig.config()));
 
-  editTimezoneLabel = computed(() =>
-    getTimezoneLabelForEdit(this.dateFormatConfig.config(), this.editDate() ?? undefined)
-  );
+  editTimezoneLabel = computed(() => getTimezoneLabelForEdit(this.dateFormatConfig.config(), this.editDate() ?? undefined));
 
-  /** Date and time format for the edit calendars (from date-format config). */
   editCalendarFormats = computed(() => getCalendarFormatsFromConfig(this.dateFormatConfig.config()));
 
   isEditPanelVisible = computed(
@@ -95,10 +90,10 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
     const raw = source ? new Date(source) : new Date();
     const config = this.dateFormatConfig.config();
     if (isConfigCetCest(config)) {
-      const paris = getParisDateAndTime(raw);
-      if (paris) {
-        this.editDate.set(paris.date);
-        this.editTime.set(paris.time);
+      const local = getLocalDateAndTime(raw);
+      if (local) {
+        this.editDate.set(local.date);
+        this.editTime.set(local.time);
       } else {
         this.editDate.set(new Date(raw.getFullYear(), raw.getMonth(), raw.getDate()));
         this.editTime.set(new Date(0, 0, 0, raw.getHours(), raw.getMinutes()));

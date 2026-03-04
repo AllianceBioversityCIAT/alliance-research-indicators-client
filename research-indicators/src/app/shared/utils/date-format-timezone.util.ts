@@ -2,7 +2,7 @@ import type { DateFormatJsonValue } from '@shared/interfaces/date-format-config.
 import type { DateAndTime } from '@shared/interfaces/date-format.interface';
 import { CET_CEST_DISPLAY_NAMES, CET_TZ, SUPPORTED_TZ_IANA } from '@shared/constants/date-format.constants';
 
-export function getParisTimezoneAbbr(date: Date): string {
+export function getTimezoneAbbr(date: Date): string {
   const parts = new Intl.DateTimeFormat('en-GB', {
     timeZone: CET_TZ,
     timeZoneName: 'short'
@@ -21,7 +21,7 @@ export function isConfigCetCest(config: DateFormatJsonValue | null): boolean {
 
 export function getTimezoneLabelForEdit(config: DateFormatJsonValue | null, when?: Date): string {
   if (!isConfigCetCest(config)) return 'UTC';
-  return getParisTimezoneAbbr(when ?? new Date());
+  return getTimezoneAbbr(when ?? new Date());
 }
 
 export function getResolvedTimezone(config: DateFormatJsonValue | null): string {
@@ -49,7 +49,7 @@ export function formatUtcToUtcDisplay(d: Date): string {
   return `${dateStr} at ${timeStr} (UTC)`;
 }
 
-export function getParisDateAndTime(utcDate: Date): DateAndTime | null {
+export function getLocalDateAndTime(utcDate: Date): DateAndTime | null {
   if (Number.isNaN(utcDate.getTime())) return null;
   const formatter = new Intl.DateTimeFormat('en-GB', {
     timeZone: CET_TZ,
@@ -86,19 +86,20 @@ export function getUtcDateAndTime(utcDate: Date): DateAndTime | null {
   };
 }
 
-export function parisLocalToUtc(date: Date, time: Date): Date {
+/** Converts local date/time to UTC when timezone is CET/CEST (Europe/Paris). */
+export function cetCestLocalToUtc(date: Date, time: Date): Date {
   const y = date.getFullYear();
   const m = date.getMonth();
   const d = date.getDate();
   const h = time.getHours();
   const min = time.getMinutes();
   const noonUtc = Date.UTC(y, m, d, 12, 0, 0);
-  const parisHourAtNoon = new Intl.DateTimeFormat('en-GB', {
+  const hourAtNoon = new Intl.DateTimeFormat('en-GB', {
     timeZone: CET_TZ,
     hour: 'numeric',
     hour12: false
   }).format(new Date(noonUtc));
-  const offsetHours = Number.parseInt(parisHourAtNoon, 10) - 12;
+  const offsetHours = Number.parseInt(hourAtNoon, 10) - 12;
   const offsetSign = offsetHours >= 0 ? '+' : '-';
   const offsetStr = `${offsetSign}${String(Math.abs(offsetHours)).padStart(2, '0')}:00`;
   const isoParis = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00${offsetStr}`;
@@ -106,6 +107,6 @@ export function parisLocalToUtc(date: Date, time: Date): Date {
 }
 
 export function localDateAndTimeToUtc(date: Date, time: Date, config: DateFormatJsonValue | null): Date {
-  if (isConfigCetCest(config)) return parisLocalToUtc(date, time);
+  if (isConfigCetCest(config)) return cetCestLocalToUtc(date, time);
   return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), 0, 0));
 }

@@ -5,16 +5,16 @@ import { buildDateString, getCalendarDateFormat } from './date-format-date.util'
 import { buildDisplaySuffix, buildTimeString, getCalendarTimeFormat } from './date-format-time.util';
 import {
   formatUtcToUtcDisplay,
-  getParisTimezoneAbbr,
-  getResolvedTimezone
+  getResolvedTimezone,
+  getTimezoneAbbr
 } from './date-format-timezone.util';
 export {
-  getParisDateAndTime,
+  getLocalDateAndTime,
   getUtcDateAndTime,
   getTimezoneLabelForEdit,
   isConfigCetCest,
   localDateAndTimeToUtc,
-  parisLocalToUtc
+  cetCestLocalToUtc
 } from './date-format-timezone.util';
 
 function toUtcString(raw: DateInput): string | null {
@@ -63,7 +63,7 @@ export function formatUtcWithConfig(raw: DateInput, config: DateFormatJsonValue 
   const tz = getResolvedTimezone(config);
   const locale = config.locale ?? 'en-GB';
   const sep = config.display?.separator ?? ' at ';
-  const tzLabel = tz === 'UTC' ? 'UTC' : getParisTimezoneAbbr(d);
+  const tzLabel = tz === 'UTC' ? 'UTC' : getTimezoneAbbr(d);
 
   const dateStr = buildDateString(d, config, locale, tz);
   const timeStr = buildTimeString(d, config, locale, tz);
@@ -93,7 +93,7 @@ export function formatUtcWithConfigParts(raw: DateInput, config: DateFormatJsonV
 
   const tz = getResolvedTimezone(config);
   const locale = config.locale ?? 'en-GB';
-  const tzLabel = tz === 'UTC' ? 'UTC' : getParisTimezoneAbbr(d);
+  const tzLabel = tz === 'UTC' ? 'UTC' : getTimezoneAbbr(d);
 
   const dateStr = buildDateString(d, config, locale, tz);
   const timeStr = buildTimeString(d, config, locale, tz);
