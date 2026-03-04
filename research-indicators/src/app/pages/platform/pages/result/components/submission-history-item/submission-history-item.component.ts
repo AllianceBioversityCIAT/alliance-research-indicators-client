@@ -16,7 +16,7 @@ import {
   getUtcDateAndTime,
   isConfigCetCest,
   localDateAndTimeToUtc
-} from '@shared/utils/date-cet.util';
+} from '@shared/utils/date-format.util';
 import { DateFormatConfigService } from '@shared/services/date-format-config.service';
 
 @Component({
