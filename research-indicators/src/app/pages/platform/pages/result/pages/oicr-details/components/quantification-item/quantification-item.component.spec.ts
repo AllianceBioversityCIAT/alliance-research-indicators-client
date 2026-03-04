@@ -25,6 +25,12 @@ describe('QuantificationItemComponent', () => {
     component = fixture.componentInstance;
   });
 
+  it('should not emit from effect when not initialized (cover line 32 branch)', () => {
+    const emitSpy = jest.spyOn(component.update, 'emit');
+    TestBed.flushEffects();
+    expect(emitSpy).not.toHaveBeenCalled();
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
