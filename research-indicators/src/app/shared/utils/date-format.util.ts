@@ -5,11 +5,13 @@ import { buildDateString, getCalendarDateFormat } from './date-format-date.util'
 import { buildDisplaySuffix, buildTimeString, getCalendarTimeFormat } from './date-format-time.util';
 import {
   formatUtcToUtcDisplay,
-  getParisDateAndTime,
   getParisTimezoneAbbr,
-  getResolvedTimezone,
-  getTimezoneLabelForEdit,
+  getResolvedTimezone
+} from './date-format-timezone.util';
+export {
+  getParisDateAndTime,
   getUtcDateAndTime,
+  getTimezoneLabelForEdit,
   isConfigCetCest,
   localDateAndTimeToUtc,
   parisLocalToUtc
@@ -56,7 +58,7 @@ export function formatUtcToCetDisplay(raw: DateInput): string | null {
 export function formatUtcWithConfig(raw: DateInput, config: DateFormatJsonValue | null): string | null {
   const d = toDate(raw);
   if (d == null) return null;
-  if (config == null || config.timezone == null) return formatUtcToUtcDisplay(d);
+  if (config?.timezone == null) return formatUtcToUtcDisplay(d);
 
   const tz = getResolvedTimezone(config);
   const locale = config.locale ?? 'en-GB';
@@ -73,7 +75,7 @@ export function formatUtcWithConfig(raw: DateInput, config: DateFormatJsonValue 
 export function formatUtcWithConfigParts(raw: DateInput, config: DateFormatJsonValue | null): (CetFormatted & { timezoneLabel: string }) | null {
   const d = toDate(raw);
   if (d == null) return null;
-  if (config == null || config.timezone == null) {
+  if (config?.timezone == null) {
     const dateStr = new Intl.DateTimeFormat('en-GB', {
       timeZone: 'UTC',
       day: '2-digit',
@@ -98,8 +100,6 @@ export function formatUtcWithConfigParts(raw: DateInput, config: DateFormatJsonV
 
   return { date: dateStr, time: timeStr, timezoneLabel: tzLabel };
 }
-
-export { getParisDateAndTime, getUtcDateAndTime, getTimezoneLabelForEdit, isConfigCetCest, localDateAndTimeToUtc, parisLocalToUtc };
 
 export function getCalendarFormatsFromConfig(config: DateFormatJsonValue | null): {
   dateFormat: string;

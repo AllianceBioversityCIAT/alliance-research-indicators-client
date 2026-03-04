@@ -33,7 +33,12 @@ export function getCalendarDateFormat(config: DateFormatJsonValue | null): strin
   const date = config.date;
   const sep = date.separator ?? '/';
   const dayPart = date.twoDigitDay === false ? 'd' : 'dd';
-  const monthPart = date.monthName?.enabled === true ? (date.monthName.format === 'long' ? 'MM' : 'M') : date.twoDigitMonth === false ? 'm' : 'mm';
+  let monthPart: string;
+  if (date.monthName?.enabled === true) {
+    monthPart = date.monthName.format === 'long' ? 'MM' : 'M';
+  } else {
+    monthPart = date.twoDigitMonth === false ? 'm' : 'mm';
+  }
   const yearPart = date.fourDigitYear === false ? 'y' : 'yy';
   const order = date.order ?? 'DMY';
   if (order === 'DMY') return `${dayPart}${sep}${monthPart}${sep}${yearPart}`;
