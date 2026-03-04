@@ -1,18 +1,29 @@
-import { FormatCetPipe } from './format-cet.pipe';
+import { TestBed } from '@angular/core/testing';
+import { FormatDatePipe } from './format-date.pipe';
+import { DateFormatConfigService } from '@shared/services/date-format-config.service';
+import { signal } from '@angular/core';
 
-describe('FormatCetPipe', () => {
-  const pipe = new FormatCetPipe();
+describe('FormatDatePipe', () => {
+  let pipe: FormatDatePipe;
 
-  it('should return formatted CET string for valid UTC date string', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        FormatDatePipe,
+        { provide: DateFormatConfigService, useValue: { config: signal(null) } }
+      ]
+    });
+    pipe = TestBed.inject(FormatDatePipe);
+  });
+
+  it('should return formatted string for valid UTC date string', () => {
     const result = pipe.transform('2026-02-26T21:43:03.683Z');
     expect(result).toContain(' at ');
-    expect(result).toContain('(CET)');
     expect(result).not.toBe('');
   });
 
-  it('should return formatted CET string for valid Date', () => {
+  it('should return formatted string for valid Date', () => {
     const result = pipe.transform(new Date('2026-02-26T21:43:03.683Z'));
-    expect(result).toContain('(CET)');
     expect(result).not.toBe('');
   });
 
