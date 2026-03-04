@@ -8,6 +8,7 @@ import { CustomTagComponent } from '../../../../../../shared/components/custom-t
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { LatestResult } from '@shared/interfaces/latest-result.interface';
 import { FormatCetPipe } from '@shared/pipes/format-cet.pipe';
+import { DateFormatConfigService } from '@shared/services/date-format-config.service';
 
 @Component({
   selector: 'app-my-latest-results',
@@ -18,6 +19,7 @@ import { FormatCetPipe } from '@shared/pipes/format-cet.pipe';
 export class MyLatestResultsComponent implements OnInit {
   api = inject(ApiService);
   allModalsService = inject(AllModalsService);
+  dateFormatConfig = inject(DateFormatConfigService);
   greenChecksByResult: WritableSignal<Record<string, GreenChecks>> = signal({});
 
   latestResultList: WritableSignal<LatestResult[]> = signal([]);

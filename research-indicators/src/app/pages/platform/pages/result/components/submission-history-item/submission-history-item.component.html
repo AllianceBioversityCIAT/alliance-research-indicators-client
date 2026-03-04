@@ -40,17 +40,9 @@
     <div class="date-content flex flex-nowrap items-center gap-2">
       <span class="date">
         @if (showCustomDateAndEdit()) {
-        @if (customDateCetFormatted(); as cet) {
-        {{ cet.date }} at {{ cet.time }} (CET)
+        {{ customDateFormatted() ?? '—' }}
         } @else {
-        —
-        }
-        } @else {
-        @if (updatedAtCetFormatted(); as cet) {
-        {{ cet.date }} at {{ cet.time }} (CET)
-        } @else {
-        —
-        }
+        {{ updatedAtFormatted() ?? '—' }}
         }
       </span>
       @if (canEditTimestamp()) {
@@ -72,14 +64,14 @@
     <div class="flex flex-col gap-1">
       <label class="label !text-[13px]" for="edit-status-date">Update Date</label>
       <p-calendar id="edit-status-date" [ngModel]="editDate()" (ngModelChange)="editDate.set($event)"
-        [dateFormat]="'dd/mm/yy'" [showTime]="false" styleClass="w-full edit-date-calendar"
+        [dateFormat]="editCalendarFormats().dateFormat" [showTime]="false" styleClass="w-full edit-date-calendar"
         inputStyleClass="w-full edit-date-calendar-input" appendTo="body" />
     </div>
     <div class="flex flex-col gap-1">
-      <label class="label !text-[13px]" for="edit-status-time">Update Time (CET)</label>
+      <label class="label !text-[13px]" for="edit-status-time">Update Time ({{ editTimezoneLabel() }})</label>
       <p-calendar id="edit-status-time" [ngModel]="editTime()" (ngModelChange)="editTime.set($event)" [timeOnly]="true"
-        hourFormat="12" [dateFormat]="'h:mm a'" styleClass="w-full edit-date-calendar"
-        inputStyleClass="w-full edit-date-calendar-input" appendTo="body" />
+        [hourFormat]="editCalendarFormats().hourFormat" [dateFormat]="editCalendarFormats().timeFormat"
+        styleClass="w-full edit-date-calendar" inputStyleClass="w-full edit-date-calendar-input" appendTo="body" />
     </div>
   </div>
   <div class="flex justify-star gap-3 mt-10">

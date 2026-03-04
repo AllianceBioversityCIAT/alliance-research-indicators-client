@@ -55,7 +55,7 @@
                 [style.width.%]="calculateProgressFor(result)"></div>
             </div>
           </div>
-          <label class="last-update" for="username"> Last update on {{ result.updated_at | formatCet }} </label>
+          <label class="last-update" for="username"> Last update on {{ result.updated_at | formatCet:dateFormatConfig.config() }} </label>
         </div>
       </div>
     </div>

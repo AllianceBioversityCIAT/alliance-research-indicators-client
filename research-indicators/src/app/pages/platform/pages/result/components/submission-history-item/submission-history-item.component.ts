@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
@@ -9,12 +8,21 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { SubmissionHistoryItem } from '@shared/interfaces/submission-history-item.interface';
 import { RolesService } from '@shared/services/cache/roles.service';
-import { formatUtcToCet, getParisDateAndTime, parisLocalToUtc } from '@shared/utils/date-cet.util';
+import {
+  formatUtcWithConfig,
+  getCalendarFormatsFromConfig,
+  getParisDateAndTime,
+  getTimezoneLabelForEdit,
+  getUtcDateAndTime,
+  isConfigCetCest,
+  localDateAndTimeToUtc
+} from '@shared/utils/date-cet.util';
+import { DateFormatConfigService } from '@shared/services/date-format-config.service';
 
 @Component({
   selector: 'app-submission-history-item',
   standalone: true,
-  imports: [DatePipe, CustomTagComponent, CalendarModule, FormsModule],
+  imports: [CustomTagComponent, CalendarModule, FormsModule],
   templateUrl: './submission-history-item.component.html',
   styleUrl: './submission-history-item.component.scss'
 })
@@ -23,6 +31,7 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
   private readonly cache = inject(CacheService);
   private readonly submissionService = inject(SubmissionService);
   private readonly actions = inject(ActionsService);
+  private readonly dateFormatConfig = inject(DateFormatConfigService);
   readonly rolesService = inject(RolesService);
 
   historyItem = input.required<SubmissionHistoryItem>();
@@ -40,7 +49,9 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
   panelStyle = signal<{ top: string; left: string } | null>(null);
 
   showCustomDateAndEdit = computed(
-    () => (this.historyItem().is_editable_date === true || this.historyItem().editable_timestamp === true) && this.rolesService.isAdmin()
+    () =>
+      (!!this.historyItem().is_editable_date || !!this.historyItem().editable_timestamp) &&
+      this.rolesService.isAdmin()
   );
 
   submissionHistoryId = computed(() => {
@@ -53,9 +64,15 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
     return !!this.submissionHistoryId();
   });
 
-  updatedAtCetFormatted = computed(() => formatUtcToCet(this.historyItem().updated_at));
+  updatedAtFormatted = computed(() => formatUtcWithConfig(this.historyItem().updated_at, this.dateFormatConfig.config()));
+  customDateFormatted = computed(() => formatUtcWithConfig(this.historyItem().custom_date, this.dateFormatConfig.config()));
 
-  customDateCetFormatted = computed(() => formatUtcToCet(this.historyItem().custom_date));
+  editTimezoneLabel = computed(() =>
+    getTimezoneLabelForEdit(this.dateFormatConfig.config(), this.editDate() ?? undefined)
+  );
+
+  /** Date and time format for the edit calendars (from date-format config). */
+  editCalendarFormats = computed(() => getCalendarFormatsFromConfig(this.dateFormatConfig.config()));
 
   isEditPanelVisible = computed(
     () => this.showEditModal() && this.panelStyle() != null && this.cache.editStatusDateOpenId() === this.submissionHistoryId()
@@ -76,13 +93,25 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
     this.cache.editStatusDateOpenId.set(id);
     const source = this.showCustomDateAndEdit() && this.historyItem().custom_date ? this.historyItem().custom_date : this.historyItem().updated_at;
     const raw = source ? new Date(source) : new Date();
-    const paris = getParisDateAndTime(raw);
-    if (paris) {
-      this.editDate.set(paris.date);
-      this.editTime.set(paris.time);
+    const config = this.dateFormatConfig.config();
+    if (isConfigCetCest(config)) {
+      const paris = getParisDateAndTime(raw);
+      if (paris) {
+        this.editDate.set(paris.date);
+        this.editTime.set(paris.time);
+      } else {
+        this.editDate.set(new Date(raw.getFullYear(), raw.getMonth(), raw.getDate()));
+        this.editTime.set(new Date(0, 0, 0, raw.getHours(), raw.getMinutes()));
+      }
     } else {
-      this.editDate.set(new Date(raw.getFullYear(), raw.getMonth(), raw.getDate()));
-      this.editTime.set(new Date(0, 0, 0, raw.getHours(), raw.getMinutes()));
+      const utc = getUtcDateAndTime(raw);
+      if (utc) {
+        this.editDate.set(utc.date);
+        this.editTime.set(utc.time);
+      } else {
+        this.editDate.set(new Date(raw.getUTCFullYear(), raw.getUTCMonth(), raw.getUTCDate()));
+        this.editTime.set(new Date(0, 0, 0, raw.getUTCHours(), raw.getUTCMinutes()));
+      }
     }
     const btn = ev?.currentTarget as HTMLElement | undefined;
     const rect = btn?.getBoundingClientRect();
@@ -118,7 +147,7 @@ export class SubmissionHistoryItemComponent implements OnDestroy {
     if (!date || !time || !id || resultCode == null) return;
     this.saving.set(true);
     try {
-      const utcDate = parisLocalToUtc(date, time);
+      const utcDate = localDateAndTimeToUtc(date, time, this.dateFormatConfig.config());
       await this.api.PATCH_StatusChangeDate(resultCode, id, utcDate.toISOString());
       this.actions.showToast({
         severity: 'success',
