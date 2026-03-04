@@ -65,6 +65,7 @@ import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
+import { DateFormatApiResponse } from '@shared/interfaces/date-format-config.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
@@ -259,6 +260,11 @@ export class ApiService {
   PATCH_Configuration = (id: string, section: string, body: Configuration): Promise<MainResponse<Configuration>> => {
     const url = () => `user/configuration/${id}?component=${section}`;
     return this.TP.patch(url(), body, {});
+  };
+
+  GET_DateFormatConfiguration = (): Promise<MainResponse<DateFormatApiResponse>> => {
+    const url = () => `configuration/date-format`;
+    return this.TP.get(url(), { noAuthInterceptor: true });
   };
 
   // create partner request
