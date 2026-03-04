@@ -3,9 +3,9 @@ import {
   formatUtcToCetDisplay,
   getParisDateAndTime,
   parisLocalToUtc
-} from './date-cet.util';
+} from './date-format.util';
 
-describe('date-cet.util', () => {
+describe('date-format.util', () => {
   describe('formatUtcToCet', () => {
     it('should return date and time in CET for UTC string', () => {
       const result = formatUtcToCet('2026-02-26T21:43:03.683Z');
