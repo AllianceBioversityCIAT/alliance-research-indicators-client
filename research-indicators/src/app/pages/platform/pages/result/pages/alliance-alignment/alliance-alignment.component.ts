@@ -84,18 +84,24 @@ export default class AllianceAlignmentComponent {
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
   primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
 
+  getPrimaryLeversForOptions(): Lever[] {
+    return this.body().primary_levers || [];
+  }
+
+  getContributorLeversForOptions(): Lever[] {
+    return this.body().contributor_levers || [];
+  }
+
   updateOptionsDisabledEffect = effect(
     () => {
-      const primaryLevers = this.body().primary_levers || [];
-      this.optionsDisabled.set(primaryLevers);
+      this.optionsDisabled.set(this.getPrimaryLeversForOptions());
     },
     { allowSignalWrites: true }
   );
 
   updatePrimaryOptionsDisabledEffect = effect(
     () => {
-      const contributorLevers = this.body().contributor_levers || [];
-      this.primaryOptionsDisabled.set(contributorLevers);
+      this.primaryOptionsDisabled.set(this.getContributorLeversForOptions());
     },
     { allowSignalWrites: true }
   );
@@ -175,7 +181,10 @@ export default class AllianceAlignmentComponent {
     this.loading.set(false);
   }
 
-  markAsPrimary(item: { is_primary: boolean; contract_id?: string | number; lever_id?: string | number; sdg_id?: number }, type: 'contract' | 'lever' | 'sdg') {
+  markAsPrimary(
+    item: { is_primary: boolean; contract_id?: string | number; lever_id?: string | number; sdg_id?: number },
+    type: 'contract' | 'lever' | 'sdg'
+  ) {
     this.body.update(current => {
       if (type === 'contract') {
         const contracts = current.contracts.map(contract => {
