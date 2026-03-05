@@ -62,6 +62,20 @@ describe('IndicatorsTabFilterComponent', () => {
     expect(cacheMock.tableFiltersSidebarHeight.set).toHaveBeenCalledWith(123);
   });
 
+  it('ngAfterViewInit should wire both filtersContainer and section-sidebar when both exist', () => {
+    const container = document.createElement('div');
+    (component as any).filtersContainer = new ElementRef(container);
+    const section = document.createElement('div');
+    jest.spyOn(section, 'getBoundingClientRect').mockReturnValue({ height: 200 } as any);
+    (component as any).elementRef = { nativeElement: { querySelector: jest.fn().mockReturnValue(section) } } as any;
+    const cacheMock = TestBed.inject(CacheService) as any;
+    cacheMock.tableFiltersSidebarHeight = { set: jest.fn() };
+
+    component.ngAfterViewInit();
+    (ResizeObserverMock.lastInstance as any).trigger();
+    expect(cacheMock.tableFiltersSidebarHeight.set).toHaveBeenCalledWith(200);
+  });
+
   it('fallback path without ResizeObserver should add/remove resize listener and call updateArrowVisibility', () => {
     // simulate absence of ResizeObserver
     (global as any).ResizeObserver = undefined;
@@ -130,4 +144,35 @@ describe('IndicatorsTabFilterComponent', () => {
     expect(container.scrollLeft).toBe(0);
     component.scrollRight();
     expect(container.scrollLeft).toBe(200);
+  });
+
+  it('ngAfterViewInit should skip scroll/ResizeObserver when filtersContainer is null', () => {
+    (component as any).filtersContainer = null;
+    (component as any).elementRef = { nativeElement: { querySelector: jest.fn().mockReturnValue(null) } };
+    expect(() => component.ngAfterViewInit()).not.toThrow();
+  });
+
+  it('scrollLeft and scrollRight should no-op when filtersContainer is null', () => {
+    (component as any).filtersContainer = null;
+    expect(() => component.scrollLeft()).not.toThrow();
+    expect(() => component.scrollRight()).not.toThrow();
+  });
+
+  it('ngOnDestroy should disconnect ResizeObserver when it was set', () => {
+    const container = document.createElement('div');
+    (component as any).filtersContainer = new ElementRef(container);
+    component.ngAfterViewInit();
+    const disconnectSpy = jest.spyOn(ResizeObserverMock.lastInstance as any, 'disconnect');
+    component.ngOnDestroy();
+    expect(disconnectSpy).toHaveBeenCalled();
+  });
+
+  it('scroll event on container should call updateArrowVisibility', () => {
+    const container = document.createElement('div');
+    (component as any).filtersContainer = new ElementRef(container);
+    const updateSpy = jest.spyOn(component, 'updateArrowVisibility');
+    component.ngAfterViewInit();
+    updateSpy.mockClear();
+    container.dispatchEvent(new Event('scroll'));
+    expect(updateSpy).toHaveBeenCalled();
   });
