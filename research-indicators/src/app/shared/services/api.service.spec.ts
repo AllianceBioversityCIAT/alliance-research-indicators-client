@@ -31,9 +31,14 @@ describe('ApiService', () => {
     mockControlListCacheService = {};
 
     mockSignalEndpointService = {
-      createEndpoint: jest.fn().mockReturnValue({
-        get: jest.fn(),
-        post: jest.fn()
+      createEndpoint: jest.fn().mockImplementation((urlFn: () => string) => {
+        if (typeof urlFn === 'function') {
+          urlFn();
+        }
+        return {
+          get: jest.fn(),
+          post: jest.fn()
+        };
       })
     };
 
@@ -51,6 +56,14 @@ describe('ApiService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  it('should create signal endpoints with correct URLs', () => {
+    expect(mockSignalEndpointService.createEndpoint).toHaveBeenCalledTimes(2);
+    const firstUrlFn = mockSignalEndpointService.createEndpoint.mock.calls[0][0];
+    const secondUrlFn = mockSignalEndpointService.createEndpoint.mock.calls[1][0];
+    expect(firstUrlFn()).toBe('indicators/with/result');
+    expect(secondUrlFn()).toBe('indicators');
   });
 
   describe('Authentication methods', () => {
@@ -472,6 +485,17 @@ describe('ApiService', () => {
       expect(updateSpy).toHaveBeenCalledWith(expect.any(Function));
     });
 
+    it('should invoke update callback so body is merged (cover update callback)', () => {
+      const newBody = { a: 1, b: null };
+      const updateSpy = jest.fn((fn: (prev: Record<string, unknown>) => Record<string, unknown>) => fn({ existing: true }));
+
+      service.updateSignalBody({ update: updateSpy } as any, newBody);
+
+      expect(updateSpy).toHaveBeenCalled();
+      const result = updateSpy.mock.results[0].value;
+      expect(result).toEqual({ existing: true, a: 1 });
+    });
+
     it('should build find contracts params correctly', () => {
       const filters = {
         'current-user': true,
@@ -517,6 +541,18 @@ describe('ApiService', () => {
       expect(result.get('project-name')).toBeNull();
       expect(result.get('lever')).toBeNull();
     });
+
+    it('should build find contracts params with zero and false values', () => {
+      const filters = {
+        limit: 0,
+        'exclude-pooled-funding': false
+      };
+
+      const result = (service as any).buildFindContractsParams(filters);
+
+      expect(result.get('limit')).toBe('0');
+      expect(result.get('exclude-pooled-funding')).toBe('false');
+    });
   });
 
   describe('Special methods', () => {
@@ -556,6 +592,14 @@ describe('ApiService', () => {
       service.GET_Configuration(id, section);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('user/configuration/123?component=test', {});
+    });
+
+    it('should call GET_DateFormatConfiguration', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_DateFormatConfiguration();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration/date-format', { noAuthInterceptor: true });
     });
 
     it('should call GET_UserStaff', () => {

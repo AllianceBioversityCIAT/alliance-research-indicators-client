@@ -512,6 +512,30 @@ describe('MyProjectsService', () => {
       consoleSpy.mockRestore();
     });
 
+    it('should not clear list on API error when tab changed before response', async () => {
+      await service.main();
+      expect(service.list()).toHaveLength(2);
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      service.myProjectsFilterItem.set(service.myProjectsFilterItems[1]);
+      let rejectApi: (reason: any) => void;
+      mockApiService.GET_FindContracts.mockImplementationOnce(
+        () =>
+          new Promise((_, reject) => {
+            rejectApi = reject;
+          })
+      );
+      const mainPromise = service.main();
+      service.myProjectsFilterItem.set(service.myProjectsFilterItems[0]);
+      rejectApi!(new Error('API Error'));
+      await mainPromise;
+
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch find contracts:', expect.any(Error));
+      expect(service.list()).toHaveLength(2);
+      expect(service.loading()).toBe(false);
+      consoleSpy.mockRestore();
+    });
+
     it('should call API with custom params', async () => {
       const customParams = { 'test-param': 'test-value' };
       await service.main(customParams);
@@ -536,6 +560,14 @@ describe('MyProjectsService', () => {
       await service.main({ 'current-user': true, direction: '' });
       expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
         expect.objectContaining({ 'current-user': true, direction: 'DESC' })
+      );
+    });
+
+    it('should not overwrite direction when current-user is true and direction is already set', async () => {
+      await service.main({ 'current-user': true, direction: 'ASC' });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ 'current-user': true, direction: 'ASC' })
       );
     });
 
@@ -851,6 +883,32 @@ describe('MyProjectsService', () => {
       await service.main();
 
       expect(service.totalRecords()).toBe(88);
+    });
+
+    it('should set display_lever_name from lever.name when lever has no short_name (cover getLeverDisplayName path from main)', async () => {
+      const itemWithLeverNameOnly = {
+        agreement_id: 'A010',
+        projectDescription: 'P',
+        description: 'D',
+        project_lead_description: 'L',
+        principal_investigator: 'PI',
+        lever_name: null,
+        lever: { name: 'Lever Name Only' }
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: { data: [itemWithLeverNameOnly] },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
+
+      await service.main();
+
+      expect(service.list()).toHaveLength(1);
+      expect((service.list()[0] as any).display_lever_name).toBe('Lever Name Only');
     });
   });
 
@@ -1202,6 +1260,25 @@ describe('MyProjectsService', () => {
       );
     });
 
+    it('should include statusCodes in getActiveFilters (cover statusCodes forEach)', () => {
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: [
+          { name: 'Active', value: 'active' },
+          { name: 'Draft', value: 'draft' }
+        ]
+      });
+
+      const activeFilters = service.getActiveFilters();
+      expect(activeFilters).toHaveLength(2);
+      expect(activeFilters).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ label: 'STATUS', value: 'Active', id: 'active' }),
+          expect.objectContaining({ label: 'STATUS', value: 'Draft', id: 'draft' })
+        ])
+      );
+    });
+
     it('should format start date correctly', () => {
       // Use a date that will work in all timezones
       const dateStr = '2024-01-15T12:00:00.000Z';
@@ -1469,6 +1546,16 @@ describe('MyProjectsService', () => {
     it('should handle empty multiselect refs', () => {
       service.multiselectRefs.set({});
       expect(() => service.cleanMultiselects()).not.toThrow();
+    });
+
+    it('should skip null/undefined ref values in cleanMultiselects (cover falsy multiselect branch)', () => {
+      const mockClear = jest.fn();
+      service.multiselectRefs.set({
+        status: { clear: mockClear } as any,
+        lever: null as any
+      });
+      service.cleanMultiselects();
+      expect(mockClear).toHaveBeenCalledTimes(1);
     });
   });
 
