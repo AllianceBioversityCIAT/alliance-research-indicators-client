@@ -29,8 +29,9 @@ export class QuantificationItemComponent implements OnInit, OnChanges {
   private initialized = false;
 
   valueEffect = effect(() => {
-    if (!this.initialized) return;
-    this.update.emit(this.body());
+    if (this.initialized) {
+      this.update.emit(this.body());
+    }
   });
 
   ngOnInit(): void {

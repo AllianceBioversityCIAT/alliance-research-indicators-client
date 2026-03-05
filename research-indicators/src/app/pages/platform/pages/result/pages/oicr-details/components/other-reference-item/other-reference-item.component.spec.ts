@@ -27,6 +27,12 @@ describe('OtherReferenceItemComponent', () => {
     submissionService = TestBed.inject(SubmissionService) as jest.Mocked<SubmissionService>;
   });
 
+  it('should not emit from effect when not initialized (cover line 31 branch)', () => {
+    const emitSpy = jest.spyOn(component.update, 'emit');
+    TestBed.flushEffects();
+    expect(emitSpy).not.toHaveBeenCalled();
+  });
+
   it('should create', () => {
     component.item = { type_id: 1, link: 'https://example.com' };
     fixture.detectChanges();
@@ -108,6 +114,33 @@ describe('OtherReferenceItemComponent', () => {
       });
 
       expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should not run item update when ngOnChanges has no item key (cover line 40 branch)', () => {
+      component.item = { type_id: 1, link: 'https://a.com' };
+      component.ngOnInit();
+      const setSpy = jest.spyOn(component.body, 'set');
+
+      component.ngOnChanges({});
+
+      expect(setSpy).not.toHaveBeenCalled();
+    });
+
+    it('should use default item when ngOnChanges item is undefined (cover line 41 fallback)', () => {
+      const initial = { type_id: 1, link: 'https://a.com' };
+      component.item = initial;
+      component.ngOnInit();
+      component.item = undefined as any;
+      component.ngOnChanges({
+        item: {
+          currentValue: undefined,
+          previousValue: initial,
+          firstChange: false,
+          isFirstChange: () => false
+        }
+      });
+
+      expect(component.body()).toEqual({ type_id: null, link: '' });
     });
   });
 

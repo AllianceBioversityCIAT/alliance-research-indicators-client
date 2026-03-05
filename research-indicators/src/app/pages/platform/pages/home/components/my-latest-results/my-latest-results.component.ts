@@ -7,17 +7,19 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { LatestResult } from '@shared/interfaces/latest-result.interface';
-import { FormatCetPipe } from '@shared/pipes/format-cet.pipe';
+import { FormatDatePipe } from '@shared/pipes/format-date.pipe';
+import { DateFormatConfigService } from '@shared/services/date-format-config.service';
 
 @Component({
   selector: 'app-my-latest-results',
-  imports: [ButtonModule, AboutIndicatorsComponent, RouterLink, CustomTagComponent, FormatCetPipe],
+  imports: [ButtonModule, AboutIndicatorsComponent, RouterLink, CustomTagComponent, FormatDatePipe],
   templateUrl: './my-latest-results.component.html',
   styleUrl: './my-latest-results.component.scss'
 })
 export class MyLatestResultsComponent implements OnInit {
   api = inject(ApiService);
   allModalsService = inject(AllModalsService);
+  dateFormatConfig = inject(DateFormatConfigService);
   greenChecksByResult: WritableSignal<Record<string, GreenChecks>> = signal({});
 
   latestResultList: WritableSignal<LatestResult[]> = signal([]);
@@ -46,11 +48,11 @@ export class MyLatestResultsComponent implements OnInit {
     const greenChecks = this.greenChecksByResult()[resultCode];
     if (!greenChecks) return 0;
     if (!result.indicator) return 0;
-    
+
     if (greenChecks.completness === 1) {
       return 100;
     }
-    
+
     const indicatorId = result.indicator.indicator_id;
     const steps = this.getSteps(indicatorId);
 
@@ -65,10 +67,10 @@ export class MyLatestResultsComponent implements OnInit {
     return [
       'general_information',
       'alignment',
-      ...(indicatorId === 1 ? ['cap_sharing', 'cap_sharing_ip'] as (keyof GreenChecks)[] : []),
-      ...(indicatorId === 4 ? ['policy_change'] as (keyof GreenChecks)[] : []),
-      ...(indicatorId === 5 ? ['link_result', 'oicr'] as (keyof GreenChecks)[] : []),
-      ...(indicatorId === 2 ? ['innovation_dev'] as (keyof GreenChecks)[] : []),
+      ...(indicatorId === 1 ? (['cap_sharing', 'cap_sharing_ip'] as (keyof GreenChecks)[]) : []),
+      ...(indicatorId === 4 ? (['policy_change'] as (keyof GreenChecks)[]) : []),
+      ...(indicatorId === 5 ? (['link_result', 'oicr'] as (keyof GreenChecks)[]) : []),
+      ...(indicatorId === 2 ? (['innovation_dev'] as (keyof GreenChecks)[]) : []),
       'partners',
       'geo_location',
       'evidences',

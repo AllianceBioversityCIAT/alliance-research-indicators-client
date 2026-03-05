@@ -1344,6 +1344,54 @@ describe('ResultsCenterTableComponent', () => {
     expect(titleVal).toBeDefined();
   });
 
+  it('exportTable cleanString should use 0 when codePointAt returns undefined (cover line 192 ?? 0)', async () => {
+    const origCodePointAt = String.prototype.codePointAt;
+    String.prototype.codePointAt = function (this: string, pos: number) {
+      if (pos === 0 && this === 'x') return undefined;
+      return origCodePointAt.call(this, pos);
+    };
+    mockApiService.GET_GeneralReport.mockResolvedValue({
+      data: [{ Code: 1, Title: 'x', Desc: 'y' }]
+    });
+    const addRowCalls: any[][] = [];
+    const worksheet = {
+      getColumn: jest.fn(() => ({
+        header: 'H',
+        eachCell: (_: any, cb: any) => {
+          for (let r = 1; r <= 2; r++) cb({ text: 'x' }, r);
+        },
+        width: 0,
+        hidden: false
+      })),
+      columnCount: 3,
+      views: [] as any,
+      autoFilter: {} as any,
+      getRow: jest.fn(() => ({ getCell: jest.fn(() => ({}) as any), height: 0 })),
+      addRow: jest.fn((row: any) => addRowCalls.push(Array.isArray(row) ? row : [row])),
+      columns: [] as any
+    } as any;
+    const workbookMock = {
+      creator: '',
+      created: new Date(),
+      addWorksheet: jest.fn(() => worksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)) }
+    } as any;
+    jest.spyOn<any, any>(require('exceljs'), 'Workbook').mockImplementation(() => workbookMock);
+    const originalURL = globalThis.URL;
+    (globalThis as any).URL = { createObjectURL: jest.fn().mockReturnValue('blob:cp'), revokeObjectURL: jest.fn() };
+    const linkEl = { click: jest.fn(), style: {}, href: '', download: '', remove: jest.fn() };
+    const origCreate = document.createElement;
+    (document as any).createElement = (tagName: any) => (tagName === 'a' ? linkEl : origCreate.call(document, tagName));
+    jest.useFakeTimers();
+    await component.exportTable();
+    await jest.runAllTimersAsync();
+    jest.useRealTimers();
+    (document as any).createElement = origCreate;
+    globalThis.URL = originalURL;
+    String.prototype.codePointAt = origCodePointAt;
+    expect(addRowCalls.length).toBeGreaterThan(0);
+  });
+
   it('exportTable cleanString should skip control chars that are not tab newline cr', async () => {
     mockApiService.GET_GeneralReport.mockResolvedValue({
       data: [{ Code: 1, Title: 'Normal', Other: '\x00\x01\x02\x07\x0B\x0C\x0E' }]
@@ -1662,6 +1710,16 @@ describe('ResultsCenterTableComponent', () => {
   it('exportTable should return early when no data to export', async () => {
     const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     mockApiService.GET_GeneralReport.mockResolvedValue({ data: [] });
+
+    await component.exportTable();
+
+    expect(consoleWarnSpy).toHaveBeenCalledWith('No data to export');
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('exportTable should use empty array when response or response.data is nullish (cover line 181 ?? [])', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    mockApiService.GET_GeneralReport.mockResolvedValue(undefined);
 
     await component.exportTable();
 

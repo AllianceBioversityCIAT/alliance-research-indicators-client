@@ -209,6 +209,19 @@ describe('CreateOicrFormComponent', () => {
     }
   });
 
+  it('should execute all step command callbacks to cover each command function', () => {
+    const stepItems = mockCreateResultManagementService.stepItems();
+    if (!stepItems || stepItems.length < 4) return;
+    const onStepClickSpy = jest.spyOn(component, 'onStepClick');
+    stepItems[1].command();
+    expect(onStepClickSpy).toHaveBeenCalledWith(1, expect.any(String));
+    stepItems[2].command();
+    expect(onStepClickSpy).toHaveBeenCalledWith(2, expect.any(String));
+    stepItems[3].command();
+    expect(onStepClickSpy).toHaveBeenCalledWith(3, expect.any(String));
+    onStepClickSpy.mockRestore();
+  });
+
   it('should initialize with default values', () => {
     expect(component.activeIndex()).toBe(0);
     expect(component.step4opened()).toBe(false);
@@ -681,6 +694,28 @@ describe('CreateOicrFormComponent', () => {
     expect(component.multiselectInstances.find).toHaveBeenCalled();
   });
 
+  it('should call removeRegionById when removedId is defined', () => {
+    const subNationalSignal = signal({ regions: [{ sub_national_id: 42 }] });
+    const mockCountry = {
+      isoAlpha2: 'US',
+      result_countries_sub_nationals: [{ sub_national_id: 42 }],
+      result_countries_sub_nationals_signal: subNationalSignal
+    };
+    const mockRegion = { sub_national_id: 42 };
+    const mockInstance = { removeRegionById: jest.fn(), endpointParams: { isoAlpha2: 'US' } };
+    component.multiselectInstances = { find: jest.fn().mockReturnValue(mockInstance) } as any;
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      step_three: {
+        countries: [mockCountry],
+        regions: [],
+        geo_scope_id: undefined
+      }
+    });
+    component.removeSubnationalRegion(mockCountry, mockRegion);
+    expect(mockInstance.removeRegionById).toHaveBeenCalledWith(42);
+  });
+
   it('should handle updateCountryRegions', () => {
     const mockBody = {
       step_three: {
@@ -762,6 +797,22 @@ describe('CreateOicrFormComponent', () => {
     
     expect(mockApiService.POST_CreateOicr).toHaveBeenCalled();
     expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
+  });
+
+  it('should show summary with update text when currentRequestedResultCode is set', async () => {
+    const mockResponse = { status: 200, data: { result_official_code: 'RES123' } };
+    mockApiService.POST_CreateOicr.mockResolvedValue(mockResponse);
+    mockCreateResultManagementService.createOicrBody.set({
+      base_information: { indicator_id: 1, contract_id: 1, title: 'Test' }
+    });
+    mockCreateResultManagementService.currentRequestedResultCode.set(12345 as any);
+    mockActionsService.showGlobalAlert = jest.fn();
+    await component.createResult();
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        summary: expect.stringContaining('update')
+      })
+    );
   });
 
   it('should handle onSelect with currentId 5 and not first select', () => {
@@ -1084,6 +1135,27 @@ describe('CreateOicrFormComponent', () => {
     expect(mockAllModalsService.openModal).toHaveBeenCalledWith('submitResult');
   });
 
+  it('should handle openSubmitResultModal with contract without levers', () => {
+    (component as any).currentContract = signal({
+      agreement_id: 'A101',
+      description: 'Test',
+      project_lead_description: 'Lead',
+      start_date: '2023-01-01',
+      endDateGlobal: '2023-12-31',
+      levers: undefined
+    });
+    component.activeIndex.set(1);
+    mockCreateResultManagementService.resultTitle.set('Test Result');
+    mockCreateResultManagementService.statusId.set(5);
+    component.openSubmitResultModal();
+    expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith(
+      expect.objectContaining({
+        levers: undefined,
+        agreement_id: 'A101'
+      })
+    );
+  });
+
   it('should handle initializeCountriesWithSignals effect', () => {
     // Mock countries with missing signals
     const mockCountries = [
@@ -1216,8 +1288,8 @@ describe('CreateOicrFormComponent', () => {
     const mockCacheService = TestBed.inject(CacheService);
     mockCacheService.projectResultsSearchValue = signal('');
     
-    // Mock setTimeout to avoid actual delays in tests
-    jest.spyOn(global, 'setTimeout').mockImplementation((fn) => {
+    // Mock setTimeout to run callback synchronously so .then -> setTimeout -> navigate() all run
+    jest.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
       fn();
       return 1 as any;
     });
@@ -1226,12 +1298,18 @@ describe('CreateOicrFormComponent', () => {
     
     expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
     
-    // Execute the callback to trigger navigation
+    // Execute the callback to trigger navigation (enters if branch, calls router.navigate(['/home']).then(...))
     if (capturedCallback) {
       capturedCallback();
+      // Flush promise so .then callback runs (which calls setTimeout -> navigate())
+      await Promise.resolve();
+      await Promise.resolve();
     }
     
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/home']);
+    // Inner navigate() should have run (from setTimeout mock), so closeModal and updateList called
+    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('createResult');
+    expect(mockGetResultsService.updateList).toHaveBeenCalled();
     
     // Restore setTimeout
     (global.setTimeout as jest.Mock).mockRestore();
@@ -1279,7 +1357,7 @@ describe('CreateOicrFormComponent', () => {
     
     expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
     
-    // Execute the callback to trigger navigation
+    // Execute the callback to trigger navigation (else branch: navigate() called directly)
     if (capturedCallback) {
       capturedCallback();
     }
@@ -1289,6 +1367,9 @@ describe('CreateOicrFormComponent', () => {
       ['project-detail/', '123'],
       { replaceUrl: true, onSameUrlNavigation: 'reload' }
     );
+    // navigate() body should have run: closeModal, updateList, etc.
+    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('createResult');
+    expect(mockGetResultsService.updateList).toHaveBeenCalled();
   });
 
   it('should handle createResult with success response and indicator_id not 5 - direct navigation', async () => {
@@ -1835,6 +1916,21 @@ describe('CreateOicrFormComponent', () => {
       expect(component.isHeaderDataLoaded()).toBe(false);
     });
 
+    it('isHeaderDataLoaded should return false when title is undefined', () => {
+      const mockContracts = [
+        { contract_id: '123', agreement_id: '123' }
+      ];
+      (component as any).contracts.set(mockContracts);
+      (component as any).headerDataLoading.set(false);
+      mockCreateResultManagementService.resultTitle.set(undefined as any);
+      mockCreateResultManagementService.statusId.set(5);
+      mockCreateResultManagementService.createOicrBody.set({
+        ...mockCreateResultManagementService.createOicrBody(),
+        base_information: { contract_id: '123' }
+      });
+      expect(component.isHeaderDataLoaded()).toBe(false);
+    });
+
     it('isHeaderDataLoaded should return false when statusId is null', () => {
       const mockContracts = [
         { contract_id: '123', agreement_id: '123' }
@@ -2002,6 +2098,19 @@ describe('CreateOicrFormComponent', () => {
       newFixture.detectChanges();
       
       expect(mockAllModalsService.setGoBackFunction).toHaveBeenCalled();
+    });
+
+    it('should call goBackToCreateResult when registered goBack function is invoked', () => {
+      mockCreateResultManagementService.resultPageStep.set(2);
+      mockAllModalsService.setGoBackFunction.mockClear();
+      const newFixture = TestBed.createComponent(CreateOicrFormComponent);
+      const newComponent = newFixture.componentInstance;
+      newFixture.detectChanges();
+      const goBackFn = mockAllModalsService.setGoBackFunction.mock.calls[0][0];
+      expect(typeof goBackFn).toBe('function');
+      goBackFn();
+      expect(mockCreateResultManagementService.setModalTitle).toHaveBeenCalledWith('Create A Result');
+      expect(mockCreateResultManagementService.setStatusId).toHaveBeenCalledWith(null);
     });
 
     it('should not set goBack function when resultPageStep is not 2', () => {
@@ -2397,6 +2506,27 @@ describe('CreateOicrFormComponent', () => {
       expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith(
         expect.objectContaining({
           status_id: undefined
+        })
+      );
+    });
+
+    it('should handle contract without levers in openSubmitResultModalForReviewAgain', () => {
+      mockCreateResultManagementService.statusId.set(5);
+      (component as any).currentContract = signal({
+        agreement_id: 'B202',
+        description: 'Desc',
+        project_lead_description: 'Lead',
+        start_date: '2023-01-01',
+        endDateGlobal: undefined,
+        levers: null
+      });
+      mockCreateResultManagementService.resultTitle.set('Title');
+      component.activeIndex.set(0);
+      component.openSubmitResultModalForReviewAgain();
+      expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith(
+        expect.objectContaining({
+          levers: undefined,
+          endDateGlobal: undefined
         })
       );
     });

@@ -385,6 +385,17 @@ describe('OicrDetailsComponent', () => {
       expect(apiService.POST_AutorContact).not.toHaveBeenCalled();
     });
 
+    it('should invoke setAddContactPersonConfirm callback (cover line 137)', async () => {
+      apiService.POST_AutorContact.mockResolvedValue({} as any);
+      jest.spyOn(component, 'loadContactPersons').mockResolvedValue();
+      const confirmCallback = (allModalsService.setAddContactPersonConfirm as jest.Mock).mock.calls[0][0];
+      await confirmCallback({ contact_person_id: 5, role_id: 10 });
+      expect(apiService.POST_AutorContact).toHaveBeenCalledWith(
+        { user_id: 5, informative_role_id: 10 },
+        cacheService.getCurrentNumericResultId()
+      );
+    });
+
     it('should add contact person and close modal on success', async () => {
       const data = { contact_person_id: 99, role_id: 7 } as any;
       apiService.POST_AutorContact.mockResolvedValue({} as any);
@@ -521,6 +532,25 @@ describe('OicrDetailsComponent', () => {
       expect(component.quantifications()[1]).toEqual({ number: null, unit: '', comments: '' });
       expect(component.extrapolatedEstimates()[0]).toEqual({ number: 200, unit: 'm', comments: 'ext' });
       expect(component.extrapolatedEstimates()[1]).toEqual({ number: null, unit: '', comments: '' });
+    });
+
+    it('should parse extrapolate_estimates string to number and NaN (cover line 207 branches)', async () => {
+      apiService.GET_Oicr.mockResolvedValue({
+        data: {
+          actual_count: [],
+          extrapolate_estimates: [
+            { quantification_number: '99', unit: 'u1', description: 'd1' },
+            { quantification_number: 'not-a-number', unit: 'u2', description: 'd2' }
+          ]
+        }
+      } as any);
+      jest.spyOn(component, 'loadContactPersons').mockResolvedValue();
+
+      await component.getData();
+
+      expect(component.extrapolatedEstimates().length).toBe(2);
+      expect(component.extrapolatedEstimates()[0]).toEqual({ number: 99, unit: 'u1', comments: 'd1' });
+      expect(component.extrapolatedEstimates()[1]).toEqual({ number: null, unit: 'u2', comments: 'd2' });
     });
 
     it('should map result_impact_areas when present', async () => {

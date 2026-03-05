@@ -103,6 +103,15 @@ describe('ResultAiAssistantComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should load badTypes from GET_IssueCategories in constructor', async () => {
+    const categories = [{ id: 1, name: 'Category A' }, { id: 2, name: 'Category B' }];
+    (apiServiceMock.GET_IssueCategories as jest.Mock).mockResolvedValue({ data: categories });
+    const f = TestBed.createComponent(ResultAiAssistantComponent);
+    f.detectChanges();
+    await f.whenStable();
+    expect(f.componentInstance.badTypes).toEqual(categories);
+  });
+
   it('should execute goBack function registered in constructor', () => {
     const registered = allModalsServiceMock.setGoBackFunction.mock.calls[0][0] as () => void;
     component.analyzingDocument.set(false);
@@ -145,6 +154,13 @@ describe('ResultAiAssistantComponent', () => {
     expect(res).toBe(false);
     expect(errSpy).toHaveBeenCalled();
     errSpy.mockRestore();
+  });
+
+  it('isValidPageCount should return password when error message includes Password', async () => {
+    const { getDocument } = jest.requireMock('pdfjs-dist');
+    (getDocument as jest.Mock).mockImplementationOnce(() => ({ promise: Promise.reject({ message: 'Document is Password protected' }) }));
+    const res = await component.isValidPageCount(createFile('a.pdf'));
+    expect(res).toBe('password');
   });
 
   it('handleFile should accept valid file and set selectedFile', async () => {
@@ -378,6 +394,18 @@ describe('ResultAiAssistantComponent', () => {
     expect(removeSpy).toHaveBeenCalledWith('click', component.handleOutsideClick);
     fakePanel.remove();
     outside.remove();
+  });
+
+  it('handleOutsideClick should not close when feedbackPanelRef is not in DOM', () => {
+    component.showFeedbackPanel.set(true);
+    const closeSpy = jest.spyOn(component, 'closeFeedbackPanel');
+    const existingPanel = document.getElementById('feedbackPanelRef');
+    existingPanel?.remove();
+    component.handleOutsideClick({ target: document.body } as MouseEvent);
+    expect(closeSpy).not.toHaveBeenCalled();
+    expect(component.showFeedbackPanel()).toBe(true);
+    closeSpy.mockRestore();
+    if (existingPanel) document.body.appendChild(existingPanel);
   });
 
   it('startProgress, runStep and timers should progress through steps', () => {
@@ -714,6 +742,26 @@ describe('ResultAiAssistantComponent', () => {
       expect.objectContaining({
         feedback_type: 'negative',
         feedback_comment: 'Not good'
+      })
+    );
+  });
+
+  it('submitFeedback should include selected issue category names in comment when negative', async () => {
+    component.badTypes = [{ id: 1, name: 'Wrong format' }, { id: 2, name: 'Incomplete data' }];
+    component.feedbackType.set('negative');
+    component.selectedType = ['1', '2'];
+    component.body.update(b => ({ ...b, feedbackText: 'Extra notes' }));
+    component.interactionId = 'test-id';
+    await component.submitFeedback();
+    expect(apiServiceMock.POST_feedback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        feedback_type: 'negative',
+        feedback_comment: expect.stringContaining('Wrong format')
+      })
+    );
+    expect(apiServiceMock.POST_feedback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        feedback_comment: expect.stringContaining('Extra notes')
       })
     );
   });

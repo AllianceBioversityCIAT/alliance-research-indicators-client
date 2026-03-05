@@ -15,6 +15,7 @@ import { MyPreset } from './theme/roartheme';
 import { TrackingToolsService } from './shared/services/tracking-tools.service';
 import { resultInterceptor } from '@shared/interceptors/result.interceptor';
 import { ValidateCacheService } from '@shared/services/validate-cache.service';
+import { DateFormatConfigService } from '@shared/services/date-format-config.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -38,6 +39,8 @@ export const appConfig: ApplicationConfig = {
       trackingToolsService.init();
       const validateCacheService = inject(ValidateCacheService);
       validateCacheService.validateVersions();
+      const dateFormatConfigService = inject(DateFormatConfigService);
+      return dateFormatConfigService.loadConfig();
     }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),

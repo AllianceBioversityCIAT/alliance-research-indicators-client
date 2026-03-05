@@ -647,17 +647,27 @@ describe('AllianceAlignmentComponent', () => {
       expect(component.optionsDisabled()).toEqual(levers);
     }));
 
-    it('should set optionsDisabled to empty array when primary_levers is falsy', fakeAsync(() => {
+    it('should set optionsDisabled to empty array when primary_levers is falsy (cover || [] branch line 89)', fakeAsync(() => {
       component.body.set({
         contracts: [],
         result_sdgs: [],
         primary_levers: undefined as any,
         contributor_levers: []
       });
-      tick();
-      flush();
+      tick(0);
+      TestBed.flushEffects();
       expect(component.optionsDisabled()).toEqual([]);
     }));
+
+    it('getPrimaryLeversForOptions should return [] when primary_levers is undefined (cover || [] branch)', () => {
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: undefined as any,
+        contributor_levers: []
+      });
+      expect(component.getPrimaryLeversForOptions()).toEqual([]);
+    });
 
     it('should update primaryOptionsDisabled when contributor_levers change', fakeAsync(() => {
       const contributorLever = { lever_id: 2, name: 'Lever 2' };
@@ -690,17 +700,27 @@ describe('AllianceAlignmentComponent', () => {
       expect(component.primaryOptionsDisabled()).toEqual(levers);
     }));
 
-    it('should set primaryOptionsDisabled to empty array when contributor_levers is falsy', fakeAsync(() => {
+    it('should set primaryOptionsDisabled to empty array when contributor_levers is falsy (cover || [] branch line 97)', fakeAsync(() => {
       component.body.set({
         contracts: [],
         result_sdgs: [],
         primary_levers: [],
         contributor_levers: undefined as any
       });
-      tick();
-      flush();
+      tick(0);
+      TestBed.flushEffects();
       expect(component.primaryOptionsDisabled()).toEqual([]);
     }));
+
+    it('getContributorLeversForOptions should return [] when contributor_levers is undefined (cover || [] branch)', () => {
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [],
+        contributor_levers: undefined as any
+      });
+      expect(component.getContributorLeversForOptions()).toEqual([]);
+    });
   });
 
   describe('saveData result_sdgs mapping', () => {

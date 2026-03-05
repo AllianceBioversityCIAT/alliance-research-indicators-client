@@ -645,6 +645,29 @@ describe('ValidateCacheService', () => {
       expect((indexedDB as any).deleteDatabase).not.toHaveBeenCalled();
     });
 
+    it('should handle deleteDatabase onerror (reject path)', async () => {
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      let captureReq: { onsuccess?: () => void; onerror?: () => void } = {};
+      // @ts-expect-error add databases
+      global.indexedDB = {
+        databases: jest.fn().mockResolvedValue([{ name: 'db1' }]),
+        deleteDatabase: jest.fn().mockImplementation(() => {
+          const req = { onsuccess: undefined as (() => void) | undefined, onerror: undefined as (() => void) | undefined };
+          captureReq = req;
+          return req;
+        })
+      };
+
+      const p = (service as any).clearApplicationCache();
+      await Promise.resolve();
+      expect(captureReq.onerror).toBeDefined();
+      captureReq.onerror!();
+
+      await expect(p).resolves.not.toThrow();
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Could not clear IndexedDB:', expect.any(Error));
+      consoleWarnSpy.mockRestore();
+    });
+
     it('should handle case when indexedDB is not in window', async () => {
       Object.defineProperty(window, 'indexedDB', { value: undefined, configurable: true, writable: true });
 
