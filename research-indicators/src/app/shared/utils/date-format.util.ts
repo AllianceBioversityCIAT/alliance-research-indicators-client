@@ -3,11 +3,7 @@ import type { CetFormatted, DateInput } from '@shared/interfaces/date-format.int
 import { CET_TZ, HAS_UTC_OR_OFFSET } from '@shared/constants/date-format.constants';
 import { buildDateString, getCalendarDateFormat } from './date-format-date.util';
 import { buildDisplaySuffix, buildTimeString, getCalendarTimeFormat } from './date-format-time.util';
-import {
-  formatUtcToUtcDisplay,
-  getResolvedTimezone,
-  getTimezoneAbbr
-} from './date-format-timezone.util';
+import { formatUtcToUtcDisplay, getResolvedTimezone, getTimezoneAbbr } from './date-format-timezone.util';
 export {
   getLocalDateAndTime,
   getUtcDateAndTime,
@@ -16,6 +12,11 @@ export {
   localDateAndTimeToUtc,
   cetCestLocalToUtc
 } from './date-format-timezone.util';
+
+export function tzLabelFromResolved(tz: string, d: Date): string {
+  if (tz === 'UTC') return 'UTC';
+  return getTimezoneAbbr(d);
+}
 
 function toUtcString(raw: DateInput): string | null {
   if (raw == null) return null;
@@ -63,8 +64,7 @@ export function formatUtcWithConfig(raw: DateInput, config: DateFormatJsonValue 
   const tz = getResolvedTimezone(config);
   const locale = config.locale ?? 'en-GB';
   const sep = config.display?.separator ?? ' at ';
-  const tzLabel = tz === 'UTC' ? 'UTC' : getTimezoneAbbr(d);
-
+  const tzLabel = tzLabelFromResolved(tz, d);
   const dateStr = buildDateString(d, config, locale, tz);
   const timeStr = buildTimeString(d, config, locale, tz);
   const suffix = buildDisplaySuffix(config, tzLabel);
@@ -93,8 +93,7 @@ export function formatUtcWithConfigParts(raw: DateInput, config: DateFormatJsonV
 
   const tz = getResolvedTimezone(config);
   const locale = config.locale ?? 'en-GB';
-  const tzLabel = tz === 'UTC' ? 'UTC' : getTimezoneAbbr(d);
-
+  const tzLabel = tzLabelFromResolved(tz, d);
   const dateStr = buildDateString(d, config, locale, tz);
   const timeStr = buildTimeString(d, config, locale, tz);
 

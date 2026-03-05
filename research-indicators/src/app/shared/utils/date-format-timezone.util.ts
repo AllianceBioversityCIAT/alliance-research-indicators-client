@@ -29,8 +29,18 @@ export function getResolvedTimezone(config: DateFormatJsonValue | null): string 
   const iana = config.timezone.iana;
   const suffixCfg = config.display?.suffix;
   const displayName = (config.timezone.displayName ?? suffixCfg?.fallback ?? '').toUpperCase();
-  const useEuropeParis = (typeof iana === 'string' && SUPPORTED_TZ_IANA.has(iana)) || CET_CEST_DISPLAY_NAMES.has(displayName);
-  return useEuropeParis ? CET_TZ : 'UTC';
+  return resolvedTimezoneFromFlag(useEuropeParisFromIanaAndDisplay(iana, displayName));
+}
+
+export function useEuropeParisFromIanaAndDisplay(iana: unknown, displayName: string): boolean {
+  const ianaMatch = typeof iana === 'string' && SUPPORTED_TZ_IANA.has(iana);
+  if (ianaMatch) return true;
+  return CET_CEST_DISPLAY_NAMES.has(displayName);
+}
+
+export function resolvedTimezoneFromFlag(useEuropeParis: boolean): string {
+  if (useEuropeParis) return CET_TZ;
+  return 'UTC';
 }
 
 export function formatUtcToUtcDisplay(d: Date): string {
