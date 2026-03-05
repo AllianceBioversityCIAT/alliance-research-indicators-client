@@ -8,10 +8,7 @@ describe('FormatDatePipe', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        FormatDatePipe,
-        { provide: DateFormatConfigService, useValue: { config: signal(null) } }
-      ]
+      providers: [FormatDatePipe, { provide: DateFormatConfigService, useValue: { config: signal(null) } }]
     });
     pipe = TestBed.inject(FormatDatePipe);
   });
