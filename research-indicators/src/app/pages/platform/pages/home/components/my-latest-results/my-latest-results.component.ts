@@ -48,11 +48,11 @@ export class MyLatestResultsComponent implements OnInit {
     const greenChecks = this.greenChecksByResult()[resultCode];
     if (!greenChecks) return 0;
     if (!result.indicator) return 0;
-    
+
     if (greenChecks.completness === 1) {
       return 100;
     }
-    
+
     const indicatorId = result.indicator.indicator_id;
     const steps = this.getSteps(indicatorId);
 
@@ -67,10 +67,10 @@ export class MyLatestResultsComponent implements OnInit {
     return [
       'general_information',
       'alignment',
-      ...(indicatorId === 1 ? ['cap_sharing', 'cap_sharing_ip'] as (keyof GreenChecks)[] : []),
-      ...(indicatorId === 4 ? ['policy_change'] as (keyof GreenChecks)[] : []),
-      ...(indicatorId === 5 ? ['link_result', 'oicr'] as (keyof GreenChecks)[] : []),
-      ...(indicatorId === 2 ? ['innovation_dev'] as (keyof GreenChecks)[] : []),
+      ...(indicatorId === 1 ? (['cap_sharing', 'cap_sharing_ip'] as (keyof GreenChecks)[]) : []),
+      ...(indicatorId === 4 ? (['policy_change'] as (keyof GreenChecks)[]) : []),
+      ...(indicatorId === 5 ? (['link_result', 'oicr'] as (keyof GreenChecks)[]) : []),
+      ...(indicatorId === 2 ? (['innovation_dev'] as (keyof GreenChecks)[]) : []),
       'partners',
       'geo_location',
       'evidences',
