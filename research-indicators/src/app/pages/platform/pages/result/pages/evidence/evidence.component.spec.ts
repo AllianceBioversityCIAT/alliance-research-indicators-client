@@ -426,4 +426,17 @@ describe('EvidenceComponent', () => {
     expect(component.otherReferences()[0]).toEqual({ type_id: 10, link: 'new' });
     expect(component.otherReferences()[1]).toEqual({ type_id: 2, link: 'b' });
   });
+
+  it('should buildPayload map notableReferences correctly', () => {
+    component.body.set({ evidence: [new Evidence()] } as any);
+    component.otherReferences.set([
+      { type_id: 1, link: 'https://example.com' },
+      { type_id: 2, link: '' }
+    ]);
+    const payload = (component as any).buildPayload();
+    expect(payload.notable_references).toEqual([
+      { notable_reference_type_id: 1, link: 'https://example.com' },
+      { notable_reference_type_id: 2, link: '' }
+    ]);
+  });
 });
