@@ -19,7 +19,10 @@ export class ValidateCacheService {
 
   async validateVersions(): Promise<void> {
     const response = await this.getConfiguration();
-    const currentVersion = response.data.simple_value;
+    const currentVersion = response?.data?.simple_value;
+    if (currentVersion == null) {
+      return;
+    }
     const lastValidatedVersion = localStorage.getItem('lastVersionValidated');
     const pendingUpdateVersion = localStorage.getItem('pendingUpdateVersion');
 
