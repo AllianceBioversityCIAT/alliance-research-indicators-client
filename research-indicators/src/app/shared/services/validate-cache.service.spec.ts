@@ -74,6 +74,24 @@ describe('ValidateCacheService', () => {
   });
 
   describe('validateVersions', () => {
+    it('should return early when response or response.data is null', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: null });
+      const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
+
+      await service.validateVersions();
+
+      expect(requestUpdateSpy).not.toHaveBeenCalled();
+    });
+
+    it('should return early when response.data.simple_value is undefined', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+      const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
+
+      await service.validateVersions();
+
+      expect(requestUpdateSpy).not.toHaveBeenCalled();
+    });
+
     it('should not request update if versions are the same', async () => {
       const version = '1.0.0';
       localStorage.setItem('lastVersionValidated', version);
