@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, ViewChild, OnInit, AfterViewInit } from '@angular/core';
+import { Component, computed, effect, inject, signal, ViewChild, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '@shared/services/api.service';
 import { FormsModule } from '@angular/forms';
@@ -57,7 +57,11 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
   templateUrl: './my-projects.component.html',
   styleUrl: './my-projects.component.scss'
 })
-export default class MyProjectsComponent implements OnInit, AfterViewInit {
+export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly serviceStateKey = 'my-projects';
+  private readonly viewStateKey = 'my-projects-component-state';
+  private readonly persistViewStateEnabled = signal(false);
+  private restoredState = false;
   api = inject(ApiService);
   myProjectsService = inject(MyProjectsService);
   cache = inject(CacheService);
@@ -97,6 +101,27 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
     }
   ];
   myProjectsFilterItem = signal<MenuItem | undefined>(this.myProjectsFilterItems[0]);
+  persistViewState = effect(() => {
+    if (!this.persistViewStateEnabled()) {
+      return;
+    }
+
+    globalThis.sessionStorage?.setItem(
+      this.viewStateKey,
+      JSON.stringify({
+        allProjectsFirst: this.allProjectsFirst(),
+        allProjectsRows: this.allProjectsRows(),
+        myProjectsFirst: this.myProjectsFirst(),
+        myProjectsRows: this.myProjectsRows(),
+        searchValue: this._searchValue(),
+        isQuerySentToBackend: this._isQuerySentToBackend(),
+        isTableView: this.isTableView(),
+        sortField: this.sortField(),
+        sortOrder: this.sortOrder(),
+        selectedTab: this.selectedTab()
+      })
+    );
+  });
 
   //pinned tab filter items
   orderedFilterItems = computed(() => {
@@ -186,8 +211,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.myProjectsService.resetState();
-    this.loadPinnedTab();
+    void this.initializeState();
   }
 
   ngAfterViewInit() {
@@ -197,45 +221,76 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
         lever: this.leverSelect
       });
 
-      setTimeout(() => {
-        this.myProjectsService.cleanMultiselects();
-      }, 100);
+      if (!this.restoredState) {
+        setTimeout(() => {
+          this.myProjectsService.cleanMultiselects();
+        }, 100);
+      }
     }
   }
 
-  async loadPinnedTab() {
-    this.loadingPin.set(true);
-    const response = await this.api.GET_Configuration(this.tableId, 'tab');
-    if (response?.data) {
-      const pinValue = response.data as unknown as { all: string; self: string };
+  ngOnDestroy(): void {
+    this.persistViewStateEnabled.set(false);
+    this.myProjectsService.deactivateStatePersistence(this.serviceStateKey);
+    this.myProjectsService.showFiltersSidebar.set(false);
+  }
 
-      const allPinned = pinValue.all === '1';
-      const selfPinned = pinValue.self === '1';
+  private async initializeState(): Promise<void> {
+    const restoredServiceState = this.myProjectsService.restorePersistedState(this.serviceStateKey);
+    const restoredViewState = this.restoreViewState();
 
-      if (allPinned) {
-        this.pinnedTab.set('all');
-        this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
-        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
-        this.selectedTab.set('all');
-        this.loadAllProjects();
-      } else if (selfPinned) {
-        this.pinnedTab.set('my');
-        this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
-        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
-        this.selectedTab.set('my');
-        this.loadMyProjects();
-      } else {
-        this.selectedTab.set('all');
-        this.loadAllProjects();
-      }
-    } else {
-      this.pinnedTab.set('all');
-      this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
-      this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
-      this.selectedTab.set('all');
-      this.loadAllProjects();
+    this.restoredState = restoredServiceState || restoredViewState;
+    this.myProjectsService.activateStatePersistence(this.serviceStateKey);
+    this.persistViewStateEnabled.set(true);
+
+    const preferredTab = await this.loadPinnedTabPreference();
+
+    if (this.restoredState) {
+      const activeTab = this.myProjectsService.myProjectsFilterItem() ?? this.myProjectsFilterItems[0];
+      this.myProjectsFilterItem.set(activeTab);
+      this.selectedTab.set(activeTab.id === 'my' ? 'my' : 'all');
+      this.loadCurrentTabState();
+      return;
     }
-    this.loadingPin.set(false);
+
+    this.applyPinnedTabDefault(preferredTab);
+  }
+
+  private async loadPinnedTabPreference(): Promise<'all' | 'my'> {
+    this.loadingPin.set(true);
+
+    try {
+      const response = await this.api.GET_Configuration(this.tableId, 'tab');
+      if (response?.data) {
+        const pinValue = response.data as unknown as { all: string; self: string };
+        const allPinned = pinValue.all === '1';
+        const selfPinned = pinValue.self === '1';
+        const preferredTab = selfPinned && !allPinned ? 'my' : 'all';
+
+        this.pinnedTab.set(preferredTab);
+        return preferredTab;
+      }
+
+      this.pinnedTab.set('all');
+      return 'all';
+    } finally {
+      this.loadingPin.set(false);
+    }
+  }
+
+  private applyPinnedTabDefault(preferredTab: 'all' | 'my'): void {
+    if (preferredTab === 'my') {
+      this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+      this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+      this.selectedTab.set('my');
+      this.loadMyProjects();
+      return;
+    }
+
+    this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+    this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+    this.selectedTab.set('all');
+    this.loadAllProjects();
   }
 
   async togglePin(tabId: string) {
@@ -267,7 +322,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
         detail: `${tabId === 'all' ? 'All Projects' : 'My Projects'} tab pinned successfully`
       });
       this.loadingPin.set(false);
-      this.loadPinnedTab();
+      void this.loadPinnedTabPreference();
     }
   }
 
@@ -578,5 +633,73 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit {
       params['direction'] = sortOrder === 1 ? 'ASC' : 'DESC';
     }
     this.myProjectsService.main(params);
+  }
+
+  private restoreViewState(): boolean {
+    const rawState = globalThis.sessionStorage?.getItem(this.viewStateKey);
+    if (!rawState) {
+      return false;
+    }
+
+    try {
+      const state = JSON.parse(rawState) as Partial<{
+        allProjectsFirst: number;
+        allProjectsRows: number;
+        myProjectsFirst: number;
+        myProjectsRows: number;
+        searchValue: string;
+        isQuerySentToBackend: boolean;
+        isTableView: boolean;
+        sortField: string;
+        sortOrder: number;
+        selectedTab: string;
+      }>;
+
+      this.allProjectsFirst.set(state.allProjectsFirst ?? 0);
+      this.allProjectsRows.set(state.allProjectsRows ?? 10);
+      this.myProjectsFirst.set(state.myProjectsFirst ?? 0);
+      this.myProjectsRows.set(state.myProjectsRows ?? 10);
+      this._searchValue.set(state.searchValue ?? '');
+      this._isQuerySentToBackend.set(state.isQuerySentToBackend ?? false);
+      this.isTableView.set(state.isTableView ?? true);
+      this.sortField.set(state.sortField ?? 'agreement_id');
+      this.sortOrder.set(state.sortOrder ?? -1);
+      this.selectedTab.set(state.selectedTab === 'my' ? 'my' : 'all');
+
+      return true;
+    } catch (error) {
+      console.warn('Error restoring persisted my-projects component state:', error);
+      globalThis.sessionStorage?.removeItem(this.viewStateKey);
+      return false;
+    }
+  }
+
+  private loadCurrentTabState(): void {
+    const activeTab = this.myProjectsService.myProjectsFilterItem()?.id === 'my' ? 'my' : 'all';
+    const currentQuery = activeTab === 'my' ? this._searchValue() : this.myProjectsService.searchInput();
+    const page = this.getCurrentPage();
+    const limit = this.getCurrentLimit();
+    const tableField = this.sortField();
+    const sortOrder = this.sortOrder();
+    const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
+
+    if (this.myProjectsService.hasFilters() || currentQuery) {
+      this._isQuerySentToBackend.set(!!currentQuery);
+      this.myProjectsService.applyFilters({
+        page,
+        limit,
+        sortField: apiField,
+        sortOrder,
+        query: currentQuery || undefined
+      });
+      return;
+    }
+
+    if (activeTab === 'my') {
+      this.loadMyProjectsWithPagination(currentQuery || undefined);
+      return;
+    }
+
+    this.loadAllProjectsWithPagination(currentQuery || undefined);
   }
 }

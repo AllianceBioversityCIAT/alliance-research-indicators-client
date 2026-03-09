@@ -1,6 +1,4 @@
 import { Component, inject, signal, OnInit, OnDestroy, computed } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
 import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
 import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
@@ -27,12 +25,11 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
   styleUrls: ['./results-center.component.scss']
 })
 export default class ResultsCenterComponent implements OnInit, OnDestroy {
+  private readonly stateKey = 'results-center';
   api = inject(ApiService);
   resultsCenterService = inject(ResultsCenterService);
   cache = inject(CacheService);
   actions = inject(ActionsService);
-  router = inject(Router);
-  private routerSubscription?: Subscription;
 
   // Pin functionality
   pinnedTab = signal<string>('all');
@@ -67,30 +64,36 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    this.resultsCenterService.primaryContractId.set(null);
-    this.loadPinnedTab();
-    
-    this.routerSubscription = this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        if (!event.urlAfterRedirects.includes('/results-center')) {
-          this.cleanFiltersOnRouteLeave();
-        }
-      });
+    void this.initializeState();
   }
 
   ngOnDestroy(): void {
-    this.cleanFiltersOnRouteLeave();
-    
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
+    this.resultsCenterService.deactivateStatePersistence(this.stateKey);
+    this.resultsCenterService.showFiltersSidebar.set(false);
+    this.resultsCenterService.showConfigurationsSidebar.set(false);
   }
 
-  private cleanFiltersOnRouteLeave(): void {
-    this.resultsCenterService.onSelectFilterTab(0);
-    this.resultsCenterService.clearAllFilters();
-    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+  private async initializeState(): Promise<void> {
+    this.resultsCenterService.primaryContractId.set(null);
+    this.resultsCenterService.showFiltersSidebar.set(false);
+    this.resultsCenterService.showConfigurationsSidebar.set(false);
+
+    const restoredState = this.resultsCenterService.restorePersistedState(this.stateKey);
+    this.resultsCenterService.primaryContractId.set(null);
+    this.resultsCenterService.activateStatePersistence(this.stateKey);
+
+    const preferredTab = await this.loadPinnedTabPreference();
+    if (restoredState) {
+      await this.resultsCenterService.main();
+      return;
+    }
+
+    if (preferredTab === 'my') {
+      this.loadMyResults();
+      return;
+    }
+
+    this.loadAllResults();
   }
 
   showSignal = signal(false);
@@ -104,31 +107,26 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
   }
 
   // Pin functionality methods
-  async loadPinnedTab() {
+  private async loadPinnedTabPreference(): Promise<'all' | 'my'> {
     this.loadingPin.set(true);
-    const response = await this.api.GET_Configuration(this.tableId, 'tab');
-    if (response?.data) {
-      const pinValue = response.data as unknown as { all: string; self: string };
 
-      const allPinned = pinValue.all === '1';
-      const selfPinned = pinValue.self === '1';
+    try {
+      const response = await this.api.GET_Configuration(this.tableId, 'tab');
+      if (response?.data) {
+        const pinValue = response.data as unknown as { all: string; self: string };
+        const allPinned = pinValue.all === '1';
+        const selfPinned = pinValue.self === '1';
+        const preferredTab = allPinned || !selfPinned ? 'all' : 'my';
 
-      const showAll = allPinned || !selfPinned;
-      if (showAll) {
-        this.pinnedTab.set('all');
-        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
-        this.loadAllResults();
-      } else {
-        this.pinnedTab.set('my');
-        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
-        this.loadMyResults();
+        this.pinnedTab.set(preferredTab);
+        return preferredTab;
       }
-    } else {
+
       this.pinnedTab.set('all');
-      this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
-      this.loadAllResults();
+      return 'all';
+    } finally {
+      this.loadingPin.set(false);
     }
-    this.loadingPin.set(false);
   }
 
   onActiveItemChange = (event: MenuItem): void => {
@@ -223,7 +221,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
         detail: `${tabId === 'all' ? 'All Results' : 'My Results'} tab pinned successfully`
       });
       this.loadingPin.set(false);
-      this.loadPinnedTab();
+      void this.loadPinnedTabPreference();
     }
   }
 

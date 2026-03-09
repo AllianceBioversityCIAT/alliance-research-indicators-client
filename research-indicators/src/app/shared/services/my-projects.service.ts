@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, computed } from '@angular/core';
+import { inject, Injectable, signal, computed, effect } from '@angular/core';
 import { ApiService } from './api.service';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { MultiselectComponent } from '../components/custom-fields/multiselect/multiselect.component';
@@ -16,10 +16,18 @@ export class MyProjectsFilters {
   endDate = '';
 }
 
+interface MyProjectsPersistedState {
+  myProjectsFilterItemId: string;
+  tableFilters: MyProjectsFilters;
+  appliedFilters: MyProjectsFilters;
+  searchInput: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class MyProjectsService {
+  private readonly storagePrefix = 'my-projects-view-state:';
   api = inject(ApiService);
   cache = inject(CacheService);
 
@@ -52,6 +60,22 @@ export class MyProjectsService {
     { id: 'my', label: 'My Projects' }
   ];
   myProjectsFilterItem = signal<MenuItem | undefined>(this.myProjectsFilterItems[0]);
+  activeStateKey = signal<string | null>(null);
+  persistViewState = effect(() => {
+    const activeKey = this.activeStateKey();
+    if (!activeKey) {
+      return;
+    }
+
+    const state: MyProjectsPersistedState = {
+      myProjectsFilterItemId: this.myProjectsFilterItem()?.id ?? 'all',
+      tableFilters: this.tableFilters(),
+      appliedFilters: this.appliedFilters(),
+      searchInput: this.searchInput()
+    };
+
+    globalThis.sessionStorage?.setItem(this.getStorageKey(activeKey), JSON.stringify(state));
+  });
 
   private getBaseParams(): Record<string, unknown> {
     const currentTab = this.myProjectsFilterItem();
@@ -353,5 +377,42 @@ export class MyProjectsService {
     this.showFiltersSidebar.set(false);
     this.multiselectRefs.set({});
     this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+  }
+
+  activateStatePersistence(key: string): void {
+    this.activeStateKey.set(key);
+  }
+
+  deactivateStatePersistence(key: string): void {
+    if (this.activeStateKey() === key) {
+      this.activeStateKey.set(null);
+    }
+  }
+
+  restorePersistedState(key: string): boolean {
+    const rawState = globalThis.sessionStorage?.getItem(this.getStorageKey(key));
+    if (!rawState) {
+      return false;
+    }
+
+    try {
+      const state = JSON.parse(rawState) as Partial<MyProjectsPersistedState>;
+      const selectedTab = this.myProjectsFilterItems.find(item => item.id === state.myProjectsFilterItemId) ?? this.myProjectsFilterItems[0];
+
+      this.myProjectsFilterItem.set(selectedTab);
+      this.tableFilters.set(Object.assign(new MyProjectsFilters(), state.tableFilters ?? {}));
+      this.appliedFilters.set(Object.assign(new MyProjectsFilters(), state.appliedFilters ?? {}));
+      this.searchInput.set(state.searchInput ?? '');
+
+      return true;
+    } catch (error) {
+      console.warn('Error restoring persisted my-projects state:', error);
+      globalThis.sessionStorage?.removeItem(this.getStorageKey(key));
+      return false;
+    }
+  }
+
+  private getStorageKey(key: string): string {
+    return `${this.storagePrefix}${key}`;
   }
 }

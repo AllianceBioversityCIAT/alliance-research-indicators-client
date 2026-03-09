@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ResultsCenterTableComponent } from '../results-center/components/results-center-table/results-center-table.component';
 import { TableFiltersSidebarComponent } from '../results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from '../results-center/components/table-configuration/table-configuration.component';
@@ -15,7 +15,7 @@ import { ResultsCenterService } from '../results-center/results-center.service';
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
-export default class ProjectDetailComponent implements OnInit {
+export default class ProjectDetailComponent implements OnInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);
   api = inject(ApiService);
   resultsCenterService = inject(ResultsCenterService);
@@ -24,10 +24,26 @@ export default class ProjectDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
+    const stateKey = this.getStateKey();
+    const restoredState = this.resultsCenterService.restorePersistedState(stateKey);
+
     this.resultsCenterService.primaryContractId.set(this.contractId());
-    this.resultsCenterService.resetState();
-    this.resultsCenterService.main();
+    this.resultsCenterService.activateStatePersistence(stateKey);
+
+    if (restoredState) {
+      void this.resultsCenterService.main();
+    } else {
+      this.resultsCenterService.resetState();
+    }
+
     this.getProjectDetail();
+  }
+
+  ngOnDestroy(): void {
+    const stateKey = this.getStateKey();
+    this.resultsCenterService.deactivateStatePersistence(stateKey);
+    this.resultsCenterService.showFiltersSidebar.set(false);
+    this.resultsCenterService.showConfigurationsSidebar.set(false);
   }
 
   async getProjectDetail() {
@@ -59,5 +75,9 @@ export default class ProjectDetailComponent implements OnInit {
 
     // Aplicar los filtros
     this.resultsCenterService.applyFilters();
+  }
+
+  private getStateKey(): string {
+    return `project-detail:${this.contractId()}`;
   }
 }
