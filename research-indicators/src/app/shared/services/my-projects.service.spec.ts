@@ -149,19 +149,19 @@ describe('MyProjectsService', () => {
     it('should return correct params for all projects', () => {
       service.myProjectsFilterItem.set(service.myProjectsFilterItems[0]);
       const params = (service as any).getBaseParams();
-      expect(params).toEqual({ 'current-user': false });
+      expect(params).toEqual({ 'current-user': false, 'with-indicators': false });
     });
 
     it('should return correct params for my projects', () => {
       service.myProjectsFilterItem.set(service.myProjectsFilterItems[1]);
       const params = (service as any).getBaseParams();
-      expect(params).toEqual({ 'current-user': true });
+      expect(params).toEqual({ 'current-user': true, 'with-indicators': false });
     });
 
     it('should return correct params when myProjectsFilterItem is undefined', () => {
       service.myProjectsFilterItem.set(undefined);
       const params = (service as any).getBaseParams();
-      expect(params).toEqual({ 'current-user': false });
+      expect(params).toEqual({ 'current-user': false, 'with-indicators': false });
     });
   });
 
@@ -219,7 +219,7 @@ describe('MyProjectsService', () => {
     it('should fetch and process data successfully', async () => {
       await service.main();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({});
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'with-indicators': false });
       expect(service.loading()).toBe(false);
       expect(service.list()).toHaveLength(2);
 
@@ -516,7 +516,10 @@ describe('MyProjectsService', () => {
       const customParams = { 'test-param': 'test-value' };
       await service.main(customParams);
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(customParams);
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
+        ...customParams,
+        'with-indicators': false
+      });
     });
 
     it('should handle item with no principal_investigator and no project_lead_description', async () => {
@@ -1367,7 +1370,11 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': true, direction: 'DESC' });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
+        'current-user': true,
+        'with-indicators': false,
+        direction: 'DESC'
+      });
     });
   });
 

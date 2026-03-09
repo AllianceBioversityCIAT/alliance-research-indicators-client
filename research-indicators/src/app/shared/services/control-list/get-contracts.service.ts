@@ -38,6 +38,7 @@ export class GetContractsService {
     limit?: string;
     project?: string;
     'exclude-pooled-funding'?: boolean;
+    'with-indicators'?: boolean;
   }) {
     // Use filteredList if exclude-pooled-funding filter is present
     const useFilteredList = filters?.['exclude-pooled-funding'] !== undefined;
@@ -46,7 +47,10 @@ export class GetContractsService {
 
     targetLoading.set(true);
     try {
-      const response = await this.api.GET_FindContracts(filters);
+      const response = await this.api.GET_FindContracts({
+        ...filters,
+        'with-indicators': false
+      });
 
       if (response?.data?.data && Array.isArray(response.data.data)) {
         targetList.set(response.data.data as GetContracts[]);
@@ -87,7 +91,10 @@ export class GetContractsService {
   async mainForAiAssistant() {
     this.aiAssistantLoading.set(true);
     try {
-      const response = await this.api.GET_FindContracts({ 'exclude-pooled-funding': true });
+      const response = await this.api.GET_FindContracts({
+        'exclude-pooled-funding': true,
+        'with-indicators': false
+      });
 
       if (response?.data?.data && Array.isArray(response.data.data)) {
         this.aiAssistantList.set(response.data.data as GetContracts[]);

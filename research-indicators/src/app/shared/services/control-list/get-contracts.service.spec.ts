@@ -43,6 +43,7 @@ describe('GetContractsService', () => {
       select_label: 'A2 - Contract 2',
       contract_id: 'A2'
     });
+    expect(apiMock.GET_FindContracts).toHaveBeenCalledWith({ 'with-indicators': false });
     expect(service.loading()).toBe(false);
   });
 
@@ -141,7 +142,7 @@ describe('GetContractsService', () => {
         contract_id: 'A2'
       });
       expect(service.aiAssistantLoading()).toBe(false);
-      expect(apiMock.GET_FindContracts).toHaveBeenCalledWith({ 'exclude-pooled-funding': true });
+      expect(apiMock.GET_FindContracts).toHaveBeenCalledWith({ 'exclude-pooled-funding': true, 'with-indicators': false });
     });
 
     it('should handle non-array response for AI assistant', async () => {
