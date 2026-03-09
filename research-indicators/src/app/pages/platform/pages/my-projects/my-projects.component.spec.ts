@@ -45,7 +45,10 @@ describe('MyProjectsComponent', () => {
       countFiltersSelected: jest.fn().mockReturnValue(0),
       getActiveFilters: jest.fn().mockReturnValue([]),
       hasFilters: jest.fn().mockReturnValue(false),
-      totalRecords: signal(0)
+      totalRecords: signal(0),
+      activateStatePersistence: jest.fn(),
+      deactivateStatePersistence: jest.fn(),
+      restorePersistedState: jest.fn().mockReturnValue(false)
     } as any;
 
     mockCacheService = {
@@ -61,6 +64,9 @@ describe('MyProjectsComponent', () => {
     mockRouter = {
       navigate: jest.fn()
     } as any;
+
+    mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '0', self: '0' } } as any);
+    sessionStorage.clear();
 
     await TestBed.configureTestingModule({
       imports: [MyProjectsComponent, HttpClientTestingModule],
@@ -79,10 +85,22 @@ describe('MyProjectsComponent', () => {
           }
         }
       ]
-    }).compileComponents();
+    })
+      .overrideComponent(MyProjectsComponent, {
+        set: {
+          imports: [],
+          template: `<div></div>`
+        }
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MyProjectsComponent);
     component = fixture.componentInstance;
+  });
+
+  afterEach(() => {
+    sessionStorage.clear();
+    jest.clearAllMocks();
   });
 
   it('should create', () => {
@@ -90,14 +108,12 @@ describe('MyProjectsComponent', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should reset state and load pinned tab', async () => {
-      mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '0', self: '0' } } as any);
-      jest.spyOn(component, 'loadPinnedTab').mockResolvedValue();
+    it('should initialize state', () => {
+      const initializeStateSpy = jest.spyOn(component as any, 'initializeState').mockResolvedValue(undefined);
 
       component.ngOnInit();
 
-      expect(mockMyProjectsService.resetState).toHaveBeenCalled();
-      expect(component.loadPinnedTab).toHaveBeenCalled();
+      expect(initializeStateSpy).toHaveBeenCalled();
     });
   });
 
@@ -130,52 +146,305 @@ describe('MyProjectsComponent', () => {
     });
   });
 
-  describe('loadPinnedTab', () => {
-    it('should load all tab when all is pinned', async () => {
+  describe('persistViewState effect', () => {
+    it('should not persist state while persistence is disabled', () => {
+      jest.spyOn(component as any, 'initializeState').mockResolvedValue(undefined);
+      component.allProjectsFirst.set(11);
+      fixture.detectChanges();
+      TestBed.flushEffects();
+
+      expect(sessionStorage.getItem('my-projects-component-state')).toBeNull();
+    });
+
+    it('should persist component state when persistence is enabled', () => {
+      component['persistViewStateEnabled'].set(true);
+      component.allProjectsFirst.set(11);
+      component.allProjectsRows.set(22);
+      component.myProjectsFirst.set(33);
+      component.myProjectsRows.set(44);
+      component.searchValue = 'persisted';
+      component['_isQuerySentToBackend'].set(true);
+      component.isTableView.set(false);
+      component.sortField.set('description');
+      component.sortOrder.set(1);
+      component.selectedTab.set('my');
+      component.pinnedTab.set('my');
+      fixture.detectChanges();
+      TestBed.flushEffects();
+
+      expect(JSON.parse(sessionStorage.getItem('my-projects-component-state')!)).toEqual({
+        allProjectsFirst: 11,
+        allProjectsRows: 22,
+        myProjectsFirst: 33,
+        myProjectsRows: 44,
+        searchValue: 'persisted',
+        isQuerySentToBackend: true,
+        isTableView: false,
+        sortField: 'description',
+        sortOrder: 1,
+        selectedTab: 'my'
+      });
+    });
+  });
+
+  describe('loadPinnedTabPreference', () => {
+    it('should resolve all when all is pinned', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '1', self: '0' } } as any);
-      jest.spyOn(component, 'loadAllProjects');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
+      expect(result).toBe('all');
       expect(component.pinnedTab()).toBe('all');
-      expect(component.selectedTab()).toBe('all');
-      expect(component.loadAllProjects).toHaveBeenCalled();
       expect(component.loadingPin()).toBe(false);
     });
 
-    it('should load my tab when self is pinned', async () => {
+    it('should resolve my when self is pinned', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '0', self: '1' } } as any);
-      jest.spyOn(component, 'loadMyProjects');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
+      expect(result).toBe('my');
       expect(component.pinnedTab()).toBe('my');
-      expect(component.selectedTab()).toBe('my');
-      expect(component.loadMyProjects).toHaveBeenCalled();
       expect(component.loadingPin()).toBe(false);
     });
 
-    it('should load all tab when nothing is pinned', async () => {
+    it('should resolve all when nothing is pinned', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '0', self: '0' } } as any);
-      jest.spyOn(component, 'loadAllProjects');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
-      expect(component.selectedTab()).toBe('all');
-      expect(component.loadAllProjects).toHaveBeenCalled();
+      expect(result).toBe('all');
       expect(component.loadingPin()).toBe(false);
     });
 
-    it('should load all tab when response has no data', async () => {
+    it('should resolve all when response has no data', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({ data: null } as any);
-      jest.spyOn(component, 'loadAllProjects');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
+      expect(result).toBe('all');
       expect(component.pinnedTab()).toBe('all');
-      expect(component.selectedTab()).toBe('all');
-      expect(component.loadAllProjects).toHaveBeenCalled();
       expect(component.loadingPin()).toBe(false);
+    });
+  });
+
+  describe('applyPinnedTabDefault', () => {
+    it('should apply my tab default', () => {
+      const loadMyProjectsSpy = jest.spyOn(component, 'loadMyProjects').mockImplementation();
+
+      (component as any).applyPinnedTabDefault('my');
+
+      expect(component.myProjectsFilterItem()?.id).toBe('my');
+      expect(mockMyProjectsService.myProjectsFilterItem()?.id).toBe('my');
+      expect(component.selectedTab()).toBe('my');
+      expect(loadMyProjectsSpy).toHaveBeenCalled();
+    });
+
+    it('should apply all tab default', () => {
+      const loadAllProjectsSpy = jest.spyOn(component, 'loadAllProjects').mockImplementation();
+
+      (component as any).applyPinnedTabDefault('all');
+
+      expect(component.myProjectsFilterItem()?.id).toBe('all');
+      expect(mockMyProjectsService.myProjectsFilterItem()?.id).toBe('all');
+      expect(component.selectedTab()).toBe('all');
+      expect(loadAllProjectsSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('initializeState', () => {
+    it('should restore persisted state and load current tab state when persisted data exists', async () => {
+      mockMyProjectsService.restorePersistedState.mockReturnValue(true);
+      mockMyProjectsService.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' } as any);
+      const restoreViewStateSpy = jest.spyOn(component as any, 'restoreViewState').mockReturnValue(false);
+      const loadPinnedTabPreferenceSpy = jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const loadCurrentTabStateSpy = jest.spyOn(component as any, 'loadCurrentTabState').mockImplementation();
+      const applyPinnedTabDefaultSpy = jest.spyOn(component as any, 'applyPinnedTabDefault').mockImplementation();
+
+      await (component as any).initializeState();
+
+      expect(mockMyProjectsService.restorePersistedState).toHaveBeenCalledWith('my-projects');
+      expect(restoreViewStateSpy).toHaveBeenCalled();
+      expect(mockMyProjectsService.activateStatePersistence).toHaveBeenCalledWith('my-projects');
+      expect(component['persistViewStateEnabled']()).toBe(true);
+      expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
+      expect(component.myProjectsFilterItem()?.id).toBe('my');
+      expect(component.selectedTab()).toBe('my');
+      expect(loadCurrentTabStateSpy).toHaveBeenCalled();
+      expect(applyPinnedTabDefaultSpy).not.toHaveBeenCalled();
+    });
+
+    it('should fallback to all tab when restored state has no active tab', async () => {
+      mockMyProjectsService.restorePersistedState.mockReturnValue(true);
+      mockMyProjectsService.myProjectsFilterItem.set(undefined as any);
+      jest.spyOn(component as any, 'restoreViewState').mockReturnValue(false);
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const loadCurrentTabStateSpy = jest.spyOn(component as any, 'loadCurrentTabState').mockImplementation();
+
+      await (component as any).initializeState();
+
+      expect(component.myProjectsFilterItem()?.id).toBe('all');
+      expect(component.selectedTab()).toBe('all');
+      expect(loadCurrentTabStateSpy).toHaveBeenCalled();
+    });
+
+    it('should apply pinned tab default when there is no restored state', async () => {
+      mockMyProjectsService.restorePersistedState.mockReturnValue(false);
+      const restoreViewStateSpy = jest.spyOn(component as any, 'restoreViewState').mockReturnValue(false);
+      const loadPinnedTabPreferenceSpy = jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('my');
+      const applyPinnedTabDefaultSpy = jest.spyOn(component as any, 'applyPinnedTabDefault').mockImplementation();
+      const loadCurrentTabStateSpy = jest.spyOn(component as any, 'loadCurrentTabState').mockImplementation();
+
+      await (component as any).initializeState();
+
+      expect(restoreViewStateSpy).toHaveBeenCalled();
+      expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
+      expect(applyPinnedTabDefaultSpy).toHaveBeenCalledWith('my');
+      expect(loadCurrentTabStateSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('restoreViewState', () => {
+    it('should return false when there is no persisted view state', () => {
+      const result = (component as any).restoreViewState();
+
+      expect(result).toBe(false);
+    });
+
+    it('should restore persisted view state values', () => {
+      sessionStorage.setItem(
+        'my-projects-component-state',
+        JSON.stringify({
+          allProjectsFirst: 20,
+          allProjectsRows: 25,
+          myProjectsFirst: 5,
+          myProjectsRows: 15,
+          searchValue: 'abc',
+          isQuerySentToBackend: true,
+          isTableView: false,
+          sortField: 'description',
+          sortOrder: 1,
+          selectedTab: 'my'
+        })
+      );
+
+      const result = (component as any).restoreViewState();
+
+      expect(result).toBe(true);
+      expect(component.allProjectsFirst()).toBe(20);
+      expect(component.allProjectsRows()).toBe(25);
+      expect(component.myProjectsFirst()).toBe(5);
+      expect(component.myProjectsRows()).toBe(15);
+      expect(component.searchValue).toBe('abc');
+      expect(component['_isQuerySentToBackend']()).toBe(true);
+      expect(component.isTableView()).toBe(false);
+      expect(component.sortField()).toBe('description');
+      expect(component.sortOrder()).toBe(1);
+      expect(component.selectedTab()).toBe('my');
+    });
+
+    it('should restore default values when persisted state is partial', () => {
+      sessionStorage.setItem('my-projects-component-state', JSON.stringify({ selectedTab: 'other' }));
+
+      const result = (component as any).restoreViewState();
+
+      expect(result).toBe(true);
+      expect(component.allProjectsFirst()).toBe(0);
+      expect(component.allProjectsRows()).toBe(10);
+      expect(component.myProjectsFirst()).toBe(0);
+      expect(component.myProjectsRows()).toBe(10);
+      expect(component.searchValue).toBe('');
+      expect(component['_isQuerySentToBackend']()).toBe(false);
+      expect(component.isTableView()).toBe(true);
+      expect(component.sortField()).toBe('agreement_id');
+      expect(component.sortOrder()).toBe(-1);
+      expect(component.selectedTab()).toBe('all');
+    });
+
+    it('should return false and remove invalid persisted view state', () => {
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      sessionStorage.setItem('my-projects-component-state', '{invalid-json');
+
+      const result = (component as any).restoreViewState();
+
+      expect(result).toBe(false);
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      expect(sessionStorage.getItem('my-projects-component-state')).toBeNull();
+
+      consoleWarnSpy.mockRestore();
+    });
+  });
+
+  describe('loadCurrentTabState', () => {
+    it('should apply filters when filters exist even without query', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(true);
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      mockMyProjectsService.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' } as any);
+      component.allProjectsFirst.set(20);
+      component.allProjectsRows.set(10);
+      component.sortField.set('');
+      mockMyProjectsService.searchInput.set('');
+
+      (component as any).loadCurrentTabState();
+
+      expect(component['_isQuerySentToBackend']()).toBe(false);
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith({
+        page: 3,
+        limit: 10,
+        sortField: undefined,
+        sortOrder: -1,
+        query: undefined
+      });
+    });
+
+    it('should apply filters with current my-projects query', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
+      component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
+      mockMyProjectsService.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' } as any);
+      component.searchValue = 'term';
+      component.myProjectsFirst.set(0);
+      component.myProjectsRows.set(10);
+      component.sortField.set('agreement_id');
+      component.sortOrder.set(1);
+
+      (component as any).loadCurrentTabState();
+
+      expect(component['_isQuerySentToBackend']()).toBe(true);
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+        sortField: 'contract-code',
+        sortOrder: 1,
+        query: 'term'
+      });
+    });
+
+    it('should load my projects with pagination when there are no filters or query', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
+      component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
+      mockMyProjectsService.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' } as any);
+      component.searchValue = '';
+      const loadMyProjectsWithPaginationSpy = jest.spyOn(component as any, 'loadMyProjectsWithPagination').mockImplementation();
+      const loadAllProjectsWithPaginationSpy = jest.spyOn(component as any, 'loadAllProjectsWithPagination').mockImplementation();
+
+      (component as any).loadCurrentTabState();
+
+      expect(loadMyProjectsWithPaginationSpy).toHaveBeenCalledWith(undefined);
+      expect(loadAllProjectsWithPaginationSpy).not.toHaveBeenCalled();
+    });
+
+    it('should load all projects with pagination when active tab is all and there are no filters or query', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      mockMyProjectsService.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' } as any);
+      mockMyProjectsService.searchInput.set('');
+      const loadMyProjectsWithPaginationSpy = jest.spyOn(component as any, 'loadMyProjectsWithPagination').mockImplementation();
+      const loadAllProjectsWithPaginationSpy = jest.spyOn(component as any, 'loadAllProjectsWithPagination').mockImplementation();
+
+      (component as any).loadCurrentTabState();
+
+      expect(loadAllProjectsWithPaginationSpy).toHaveBeenCalledWith(undefined);
+      expect(loadMyProjectsWithPaginationSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -183,7 +452,7 @@ describe('MyProjectsComponent', () => {
     it('should pin all tab', async () => {
       component.pinnedTab.set('my');
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
-      jest.spyOn(component, 'loadPinnedTab').mockResolvedValue();
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
       jest.useFakeTimers();
 
       const promise = component.togglePin('all');
@@ -200,7 +469,7 @@ describe('MyProjectsComponent', () => {
     it('should pin my tab', async () => {
       component.pinnedTab.set('all');
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
-      jest.spyOn(component, 'loadPinnedTab').mockResolvedValue();
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('my');
       jest.useFakeTimers();
 
       const promise = component.togglePin('my');
@@ -217,7 +486,7 @@ describe('MyProjectsComponent', () => {
     it('should unpin when clicking same tab', async () => {
       component.pinnedTab.set('all');
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
-      jest.spyOn(component, 'loadPinnedTab').mockResolvedValue();
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
       jest.useFakeTimers();
 
       const promise = component.togglePin('all');
@@ -231,7 +500,7 @@ describe('MyProjectsComponent', () => {
     it('should handle error when toggling pin', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       mockApiService.PATCH_Configuration.mockRejectedValue(new Error('API Error'));
-      jest.spyOn(component, 'loadPinnedTab').mockResolvedValue();
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
       jest.useFakeTimers();
 
       const promise = component.togglePin('all');

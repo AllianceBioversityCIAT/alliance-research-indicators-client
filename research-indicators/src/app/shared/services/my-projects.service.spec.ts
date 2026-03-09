@@ -56,6 +56,12 @@ describe('MyProjectsService', () => {
     });
 
     service = TestBed.inject(MyProjectsService);
+    globalThis.sessionStorage?.clear();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    globalThis.sessionStorage?.clear();
   });
 
   it('should be created', () => {
@@ -149,19 +155,19 @@ describe('MyProjectsService', () => {
     it('should return correct params for all projects', () => {
       service.myProjectsFilterItem.set(service.myProjectsFilterItems[0]);
       const params = (service as any).getBaseParams();
-      expect(params).toEqual({ 'current-user': false });
+      expect(params).toEqual({ 'current-user': false, 'with-indicators': false });
     });
 
     it('should return correct params for my projects', () => {
       service.myProjectsFilterItem.set(service.myProjectsFilterItems[1]);
       const params = (service as any).getBaseParams();
-      expect(params).toEqual({ 'current-user': true });
+      expect(params).toEqual({ 'current-user': true, 'with-indicators': false });
     });
 
     it('should return correct params when myProjectsFilterItem is undefined', () => {
       service.myProjectsFilterItem.set(undefined);
       const params = (service as any).getBaseParams();
-      expect(params).toEqual({ 'current-user': false });
+      expect(params).toEqual({ 'current-user': false, 'with-indicators': false });
     });
   });
 
@@ -219,7 +225,7 @@ describe('MyProjectsService', () => {
     it('should fetch and process data successfully', async () => {
       await service.main();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({});
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'with-indicators': false });
       expect(service.loading()).toBe(false);
       expect(service.list()).toHaveLength(2);
 
@@ -540,7 +546,10 @@ describe('MyProjectsService', () => {
       const customParams = { 'test-param': 'test-value' };
       await service.main(customParams);
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(customParams);
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
+        ...customParams,
+        'with-indicators': false
+      });
     });
 
     it('should set direction to DESC when current-user is true and direction is missing', async () => {
@@ -1489,7 +1498,11 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'current-user': true, direction: 'DESC' });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
+        'current-user': true,
+        'with-indicators': false,
+        direction: 'DESC'
+      });
     });
   });
 
@@ -1887,6 +1900,136 @@ describe('MyProjectsService', () => {
       service.removeFilter('LEVER', 1);
 
       expect(mockMultiselect.removeById).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('state persistence', () => {
+    it('should persist current view state when persistence is activated', () => {
+      service.myProjectsFilterItem.set(service.myProjectsFilterItems[1]);
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        contractCode: 'A001'
+      });
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        projectName: 'Persisted Project'
+      });
+      service.searchInput.set('persist me');
+
+      service.activateStatePersistence('project-1');
+      TestBed.flushEffects();
+
+      const rawState = globalThis.sessionStorage?.getItem('my-projects-view-state:project-1');
+      expect(rawState).toBeTruthy();
+      expect(JSON.parse(rawState!)).toEqual({
+        myProjectsFilterItemId: 'my',
+        tableFilters: expect.objectContaining({ contractCode: 'A001' }),
+        appliedFilters: expect.objectContaining({ projectName: 'Persisted Project' }),
+        searchInput: 'persist me'
+      });
+    });
+
+    it('should persist the default tab id when no tab is selected', () => {
+      service.myProjectsFilterItem.set(undefined);
+
+      service.activateStatePersistence('project-1');
+      TestBed.flushEffects();
+
+      const rawState = globalThis.sessionStorage?.getItem('my-projects-view-state:project-1');
+      expect(rawState).toBeTruthy();
+      expect(JSON.parse(rawState!).myProjectsFilterItemId).toBe('all');
+    });
+
+    it('should clear the active persistence key only when the key matches', () => {
+      service.activateStatePersistence('project-1');
+      expect(service.activeStateKey()).toBe('project-1');
+
+      service.deactivateStatePersistence('other-key');
+      expect(service.activeStateKey()).toBe('project-1');
+
+      service.deactivateStatePersistence('project-1');
+      expect(service.activeStateKey()).toBeNull();
+    });
+
+    it('should skip persisting when there is no active persistence key', () => {
+      const setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+
+      service.activateStatePersistence('project-1');
+      TestBed.flushEffects();
+      setItemSpy.mockClear();
+
+      service.deactivateStatePersistence('project-1');
+      TestBed.flushEffects();
+
+      expect(setItemSpy).not.toHaveBeenCalled();
+    });
+
+    it('should restore persisted state successfully', () => {
+      globalThis.sessionStorage?.setItem(
+        'my-projects-view-state:project-1',
+        JSON.stringify({
+          myProjectsFilterItemId: 'my',
+          tableFilters: { contractCode: 'A001', startDate: '2024-01-01' },
+          appliedFilters: { projectName: 'Restored Project', endDate: '2024-12-31' },
+          searchInput: 'restored search'
+        })
+      );
+
+      const restored = service.restorePersistedState('project-1');
+
+      expect(restored).toBe(true);
+      expect(service.myProjectsFilterItem()).toEqual(service.myProjectsFilterItems[1]);
+      expect(service.tableFilters()).toEqual(expect.objectContaining({ contractCode: 'A001', startDate: '2024-01-01' }));
+      expect(service.appliedFilters()).toEqual(expect.objectContaining({ projectName: 'Restored Project', endDate: '2024-12-31' }));
+      expect(service.searchInput()).toBe('restored search');
+    });
+
+    it('should fall back to the default tab when persisted tab id is unknown', () => {
+      globalThis.sessionStorage?.setItem(
+        'my-projects-view-state:project-1',
+        JSON.stringify({
+          myProjectsFilterItemId: 'unknown',
+          tableFilters: {},
+          appliedFilters: {},
+          searchInput: ''
+        })
+      );
+
+      const restored = service.restorePersistedState('project-1');
+
+      expect(restored).toBe(true);
+      expect(service.myProjectsFilterItem()).toEqual(service.myProjectsFilterItems[0]);
+    });
+
+    it('should restore default filter objects and empty search when persisted values are missing', () => {
+      globalThis.sessionStorage?.setItem(
+        'my-projects-view-state:project-1',
+        JSON.stringify({
+          myProjectsFilterItemId: 'all'
+        })
+      );
+
+      const restored = service.restorePersistedState('project-1');
+
+      expect(restored).toBe(true);
+      expect(service.tableFilters()).toEqual(new MyProjectsFilters());
+      expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
+      expect(service.searchInput()).toBe('');
+    });
+
+    it('should return false when there is no persisted state to restore', () => {
+      expect(service.restorePersistedState('missing-project')).toBe(false);
+    });
+
+    it('should remove invalid persisted state when restore fails', () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      globalThis.sessionStorage?.setItem('my-projects-view-state:project-1', '{invalid json');
+
+      const restored = service.restorePersistedState('project-1');
+
+      expect(restored).toBe(false);
+      expect(warnSpy).toHaveBeenCalledWith('Error restoring persisted my-projects state:', expect.any(SyntaxError));
+      expect(globalThis.sessionStorage?.getItem('my-projects-view-state:project-1')).toBeNull();
     });
   });
 });

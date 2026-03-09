@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
 import { ApiService } from '../../../../shared/services/api.service';
 import { ActivatedRoute, PRIMARY_OUTLET, Router, RouterLink, RouterOutlet } from '@angular/router';
@@ -21,14 +21,26 @@ interface ViewTab {
   hidden?: boolean;
 }
 
-
 @Component({
   selector: 'app-project-detail',
-  imports: [ResultsCenterTableComponent, ProjectItemComponent, TableFiltersSidebarComponent, TableConfigurationComponent, SectionSidebarComponent, NgTemplateOutlet, RouterOutlet, RouterLink, TabsModule, SplitterModule, CommonModule, ProgressDetailContentComponent],
+  imports: [
+    ResultsCenterTableComponent,
+    ProjectItemComponent,
+    TableFiltersSidebarComponent,
+    TableConfigurationComponent,
+    SectionSidebarComponent,
+    NgTemplateOutlet,
+    RouterOutlet,
+    RouterLink,
+    TabsModule,
+    SplitterModule,
+    CommonModule,
+    ProgressDetailContentComponent
+  ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
-export default class ProjectDetailComponent implements OnInit {
+export default class ProjectDetailComponent implements OnInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);
   api = inject(ApiService);
   cache = inject(CacheService);
@@ -60,9 +72,18 @@ export default class ProjectDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
+    const stateKey = this.getStateKey();
+    const restoredState = this.resultsCenterService.restorePersistedState(stateKey);
+
     this.resultsCenterService.primaryContractId.set(this.contractId());
-    this.resultsCenterService.resetState();
-    this.resultsCenterService.main();
+    this.resultsCenterService.activateStatePersistence(stateKey);
+
+    if (restoredState) {
+      void this.resultsCenterService.main();
+    } else {
+      this.resultsCenterService.resetState();
+    }
+
     this.getProjectDetail();
     this.cache.currentProjectId.set(this.contractId());
     this.getLastSegment();
@@ -81,6 +102,13 @@ export default class ProjectDetailComponent implements OnInit {
     if (tab.route !== 'project-results') {
       this.router.navigate([tab.route], { relativeTo: this.activatedRoute });
     }
+  }
+
+  ngOnDestroy(): void {
+    const stateKey = this.getStateKey();
+    this.resultsCenterService.deactivateStatePersistence(stateKey);
+    this.resultsCenterService.showFiltersSidebar.set(false);
+    this.resultsCenterService.showConfigurationsSidebar.set(false);
   }
 
   async getProjectDetail() {
@@ -112,5 +140,9 @@ export default class ProjectDetailComponent implements OnInit {
 
     // Aplicar los filtros
     this.resultsCenterService.applyFilters();
+  }
+
+  private getStateKey(): string {
+    return `project-detail:${this.contractId()}`;
   }
 }

@@ -1709,6 +1709,155 @@ describe('ResultsCenterService', () => {
     });
   });
 
+  describe('state persistence', () => {
+    it('should activate persistence and save current state to sessionStorage', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
+      service.searchInput.set('abc');
+      service.primaryContractId.set('contract-1');
+      service.resultsFilter.update(prev => ({ ...prev, 'indicator-codes-tabs': [2] }));
+
+      service.activateStatePersistence('demo');
+      TestBed.flushEffects();
+
+      const savedState = JSON.parse(sessionStorage.getItem('results-center-view-state:demo') ?? '{}');
+
+      expect(service.activeStateKey()).toBe('demo');
+      expect(savedState.myResultsFilterItemId).toBe('my');
+      expect(savedState.primaryContractId).toBe('contract-1');
+      expect(savedState.searchInput).toBe('abc');
+    });
+
+    it('should persist all as default tab id when myResultsFilterItem is undefined', () => {
+      service.myResultsFilterItem.set(undefined as any);
+
+      service.activateStatePersistence('fallback');
+      TestBed.flushEffects();
+
+      const savedState = JSON.parse(sessionStorage.getItem('results-center-view-state:fallback') ?? '{}');
+      expect(savedState.myResultsFilterItemId).toBe('all');
+    });
+
+    it('should clear active key only when deactivating the matching persistence key', () => {
+      service.activateStatePersistence('demo');
+
+      service.deactivateStatePersistence('other');
+      expect(service.activeStateKey()).toBe('demo');
+
+      service.deactivateStatePersistence('demo');
+      expect(service.activeStateKey()).toBeNull();
+    });
+
+    it('should return false when there is no persisted state', () => {
+      const getItemSpy = jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+
+      expect(service.restorePersistedState('missing')).toBe(false);
+      expect(getItemSpy).toHaveBeenCalledWith('results-center-view-state:missing');
+    });
+
+    it('should restore persisted state and sync active indicator tab', () => {
+      const persistedState = {
+        myResultsFilterItemId: 'my',
+        tableFilters: {
+          indicators: [{ indicator_id: 2, name: 'Indicator 2' }],
+          statusCodes: [{ result_status_id: 9, name: 'Submitted' }],
+          contracts: [{ agreement_id: 'C1', display_label: 'Contract 1' }],
+          levers: [{ id: 4, short_name: 'L4' }],
+          years: [{ report_year: 2025 }],
+          sources: [{ platform_code: 'STAR', name: 'STAR' }]
+        },
+        resultsFilter: {
+          'create-user-codes': ['123'],
+          'indicator-codes': [2],
+          'status-codes': [9],
+          'contract-codes': ['C1'],
+          'platform-code': ['STAR'],
+          'lever-codes': [4],
+          years: [2025],
+          'indicator-codes-filter': [2],
+          'indicator-codes-tabs': [2]
+        },
+        appliedFilters: {
+          'create-user-codes': ['123'],
+          'indicator-codes': [2],
+          'status-codes': [9],
+          'contract-codes': ['C1'],
+          'platform-code': ['STAR'],
+          'lever-codes': [4],
+          years: [2025],
+          'indicator-codes-filter': [2],
+          'indicator-codes-tabs': [2]
+        },
+        searchInput: 'saved search',
+        primaryContractId: 'contract-2'
+      };
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(JSON.stringify(persistedState));
+
+      const restored = service.restorePersistedState('demo');
+
+      expect(restored).toBe(true);
+      expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[1]);
+      expect(service.tableFilters().contracts).toEqual(persistedState.tableFilters.contracts);
+      expect(service.resultsFilter()['platform-code']).toEqual(['STAR']);
+      expect(service.appliedFilters()['indicator-codes-tabs']).toEqual([2]);
+      expect(service.searchInput()).toBe('saved search');
+      expect(service.primaryContractId()).toBe('contract-2');
+      expect(mockApiService.indicatorTabs.lazy().list().find(item => item.indicator_id === 2)?.active).toBe(true);
+      expect(mockApiService.indicatorTabs.lazy().list().find(item => item.indicator_id === 1)?.active).toBe(false);
+    });
+
+    it('should fall back to defaults when persisted filters are missing', () => {
+      const persistedState = {
+        myResultsFilterItemId: 'unknown',
+        searchInput: undefined,
+        primaryContractId: undefined
+      };
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(JSON.stringify(persistedState));
+
+      const restored = service.restorePersistedState('defaults');
+
+      expect(restored).toBe(true);
+      expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[0]);
+      expect(service.resultsFilter()).toEqual({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'platform-code': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(service.appliedFilters()).toEqual({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'platform-code': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(service.searchInput()).toBe('');
+      expect(service.primaryContractId()).toBeNull();
+      expect(mockApiService.indicatorTabs.lazy().list().every(item => item.active === false)).toBe(true);
+    });
+
+    it('should remove invalid persisted state and return false when parsing fails', () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const removeItemSpy = jest.spyOn(Storage.prototype, 'removeItem');
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue('{invalid-json');
+
+      const restored = service.restorePersistedState('broken');
+
+      expect(restored).toBe(false);
+      expect(warnSpy).toHaveBeenCalledWith('Error restoring persisted results-center state:', expect.any(Error));
+      expect(removeItemSpy).toHaveBeenCalledWith('results-center-view-state:broken');
+      warnSpy.mockRestore();
+    });
+  });
+
   describe('main', () => {
     it('should pass filter-primary-contract when primaryContractId is set', async () => {
       service.primaryContractId.set('contract-123');
