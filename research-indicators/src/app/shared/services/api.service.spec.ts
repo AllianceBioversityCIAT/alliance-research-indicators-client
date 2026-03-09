@@ -366,9 +366,13 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { submission_comment: 'test comment' }, {
-        useResultInterceptor: true
-      });
+      expect(mockToPromiseService.post).toHaveBeenCalledWith(
+        'results/status/workflow/change-status/123/to-status/1',
+        { submission_comment: 'test comment' },
+        {
+          useResultInterceptor: true
+        }
+      );
     });
 
     it('should call PATCH_SubmitResult without comment', () => {
@@ -377,9 +381,13 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { submission_comment: '' }, {
-        useResultInterceptor: true
-      });
+      expect(mockToPromiseService.post).toHaveBeenCalledWith(
+        'results/status/workflow/change-status/123/to-status/1',
+        { submission_comment: '' },
+        {
+          useResultInterceptor: true
+        }
+      );
     });
 
     it('should call PATCH_SubmitResult with body', () => {
@@ -389,9 +397,13 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params, body);
 
-      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { ...body, submission_comment: 'test comment' }, {
-        useResultInterceptor: true
-      });
+      expect(mockToPromiseService.post).toHaveBeenCalledWith(
+        'results/status/workflow/change-status/123/to-status/1',
+        { ...body, submission_comment: 'test comment' },
+        {
+          useResultInterceptor: true
+        }
+      );
     });
 
     it('should call PATCH_Feedback', () => {
@@ -452,7 +464,8 @@ describe('ApiService', () => {
         lever: 'test-lever',
         status: 'active',
         'start-date': '2024-01-01',
-        'end-date': '2024-12-31'
+        'end-date': '2024-12-31',
+        'with-indicators': false
       };
 
       const result = (service as any).buildFindContractsParams(filters);
@@ -465,6 +478,7 @@ describe('ApiService', () => {
       expect(result.get('status')).toBe('active');
       expect(result.get('start-date')).toBe('2024-01-01');
       expect(result.get('end-date')).toBe('2024-12-31');
+      expect(result.get('with-indicators')).toBe('false');
     });
 
     it('should build find contracts params with empty filters', () => {
@@ -487,6 +501,20 @@ describe('ApiService', () => {
       expect(result.get('contract-code')).toBeNull();
       expect(result.get('project-name')).toBeNull();
       expect(result.get('lever')).toBeNull();
+    });
+
+    it('should build find contracts params with zero and false values', () => {
+      const filters = {
+        limit: 0,
+        'exclude-pooled-funding': false,
+        'with-indicators': false
+      };
+
+      const result = (service as any).buildFindContractsParams(filters);
+
+      expect(result.get('limit')).toBe('0');
+      expect(result.get('exclude-pooled-funding')).toBe('false');
+      expect(result.get('with-indicators')).toBe('false');
     });
   });
 
@@ -1044,10 +1072,7 @@ describe('ApiService', () => {
 
       await service.GET_NextStep(123);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith(
-        'results/status/workflow/result/123/next-step',
-        {}
-      );
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/status/workflow/result/123/next-step', {});
     });
 
     it('should call GET_NextStep with reportingPlatforms and reportYear', async () => {
