@@ -45,7 +45,10 @@ describe('MyProjectsComponent', () => {
       countFiltersSelected: jest.fn().mockReturnValue(0),
       getActiveFilters: jest.fn().mockReturnValue([]),
       hasFilters: jest.fn().mockReturnValue(false),
-      totalRecords: signal(0)
+      totalRecords: signal(0),
+      activateStatePersistence: jest.fn(),
+      deactivateStatePersistence: jest.fn(),
+      restorePersistedState: jest.fn().mockReturnValue(false)
     } as any;
 
     mockCacheService = {
@@ -61,6 +64,9 @@ describe('MyProjectsComponent', () => {
     mockRouter = {
       navigate: jest.fn()
     } as any;
+
+    mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '0', self: '0' } } as any);
+    sessionStorage.clear();
 
     await TestBed.configureTestingModule({
       imports: [MyProjectsComponent, HttpClientTestingModule],
@@ -85,19 +91,22 @@ describe('MyProjectsComponent', () => {
     component = fixture.componentInstance;
   });
 
+  afterEach(() => {
+    sessionStorage.clear();
+    jest.clearAllMocks();
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   describe('ngOnInit', () => {
-    it('should reset state and load pinned tab', async () => {
-      mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '0', self: '0' } } as any);
-      jest.spyOn(component, 'loadPinnedTab').mockResolvedValue();
+    it('should initialize state', () => {
+      const initializeStateSpy = jest.spyOn(component as any, 'initializeState').mockResolvedValue(undefined);
 
       component.ngOnInit();
 
-      expect(mockMyProjectsService.resetState).toHaveBeenCalled();
-      expect(component.loadPinnedTab).toHaveBeenCalled();
+      expect(initializeStateSpy).toHaveBeenCalled();
     });
   });
 
@@ -130,52 +139,68 @@ describe('MyProjectsComponent', () => {
     });
   });
 
-  describe('loadPinnedTab', () => {
-    it('should load all tab when all is pinned', async () => {
+  describe('loadPinnedTabPreference', () => {
+    it('should resolve all when all is pinned', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '1', self: '0' } } as any);
-      jest.spyOn(component, 'loadAllProjects');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
+      expect(result).toBe('all');
       expect(component.pinnedTab()).toBe('all');
-      expect(component.selectedTab()).toBe('all');
-      expect(component.loadAllProjects).toHaveBeenCalled();
       expect(component.loadingPin()).toBe(false);
     });
 
-    it('should load my tab when self is pinned', async () => {
+    it('should resolve my when self is pinned', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '0', self: '1' } } as any);
-      jest.spyOn(component, 'loadMyProjects');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
+      expect(result).toBe('my');
       expect(component.pinnedTab()).toBe('my');
-      expect(component.selectedTab()).toBe('my');
-      expect(component.loadMyProjects).toHaveBeenCalled();
       expect(component.loadingPin()).toBe(false);
     });
 
-    it('should load all tab when nothing is pinned', async () => {
+    it('should resolve all when nothing is pinned', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '0', self: '0' } } as any);
-      jest.spyOn(component, 'loadAllProjects');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
-      expect(component.selectedTab()).toBe('all');
-      expect(component.loadAllProjects).toHaveBeenCalled();
+      expect(result).toBe('all');
       expect(component.loadingPin()).toBe(false);
     });
 
-    it('should load all tab when response has no data', async () => {
+    it('should resolve all when response has no data', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({ data: null } as any);
-      jest.spyOn(component, 'loadAllProjects');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
+      expect(result).toBe('all');
       expect(component.pinnedTab()).toBe('all');
-      expect(component.selectedTab()).toBe('all');
-      expect(component.loadAllProjects).toHaveBeenCalled();
       expect(component.loadingPin()).toBe(false);
+    });
+  });
+
+  describe('applyPinnedTabDefault', () => {
+    it('should apply my tab default', () => {
+      const loadMyProjectsSpy = jest.spyOn(component, 'loadMyProjects').mockImplementation();
+
+      (component as any).applyPinnedTabDefault('my');
+
+      expect(component.myProjectsFilterItem()?.id).toBe('my');
+      expect(mockMyProjectsService.myProjectsFilterItem()?.id).toBe('my');
+      expect(component.selectedTab()).toBe('my');
+      expect(loadMyProjectsSpy).toHaveBeenCalled();
+    });
+
+    it('should apply all tab default', () => {
+      const loadAllProjectsSpy = jest.spyOn(component, 'loadAllProjects').mockImplementation();
+
+      (component as any).applyPinnedTabDefault('all');
+
+      expect(component.myProjectsFilterItem()?.id).toBe('all');
+      expect(mockMyProjectsService.myProjectsFilterItem()?.id).toBe('all');
+      expect(component.selectedTab()).toBe('all');
+      expect(loadAllProjectsSpy).toHaveBeenCalled();
     });
   });
 
@@ -183,7 +208,7 @@ describe('MyProjectsComponent', () => {
     it('should pin all tab', async () => {
       component.pinnedTab.set('my');
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
-      jest.spyOn(component, 'loadPinnedTab').mockResolvedValue();
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
       jest.useFakeTimers();
 
       const promise = component.togglePin('all');
@@ -200,7 +225,7 @@ describe('MyProjectsComponent', () => {
     it('should pin my tab', async () => {
       component.pinnedTab.set('all');
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
-      jest.spyOn(component, 'loadPinnedTab').mockResolvedValue();
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('my');
       jest.useFakeTimers();
 
       const promise = component.togglePin('my');
@@ -217,7 +242,7 @@ describe('MyProjectsComponent', () => {
     it('should unpin when clicking same tab', async () => {
       component.pinnedTab.set('all');
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
-      jest.spyOn(component, 'loadPinnedTab').mockResolvedValue();
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
       jest.useFakeTimers();
 
       const promise = component.togglePin('all');
@@ -231,7 +256,7 @@ describe('MyProjectsComponent', () => {
     it('should handle error when toggling pin', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       mockApiService.PATCH_Configuration.mockRejectedValue(new Error('API Error'));
-      jest.spyOn(component, 'loadPinnedTab').mockResolvedValue();
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
       jest.useFakeTimers();
 
       const promise = component.togglePin('all');
