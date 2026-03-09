@@ -123,6 +123,51 @@ describe('ResultsCenterComponent', () => {
     });
   });
 
+  describe('initializeState', () => {
+    it('should restore persisted state and call main', async () => {
+      mockResultsCenterService.restorePersistedState.mockReturnValue(true);
+      mockResultsCenterService.main.mockResolvedValue(undefined);
+      const loadPinnedTabPreferenceSpy = jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+
+      await (component as any).initializeState();
+
+      expect(mockResultsCenterService.primaryContractId()).toBeNull();
+      expect(mockResultsCenterService.showFiltersSidebar()).toBe(false);
+      expect(mockResultsCenterService.showConfigurationsSidebar()).toBe(false);
+      expect(mockResultsCenterService.restorePersistedState).toHaveBeenCalledWith('results-center');
+      expect(mockResultsCenterService.activateStatePersistence).toHaveBeenCalledWith('results-center');
+      expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
+      expect(mockResultsCenterService.main).toHaveBeenCalled();
+    });
+
+    it('should load my results when no restored state and preferred tab is my', async () => {
+      mockResultsCenterService.restorePersistedState.mockReturnValue(false);
+      const loadPinnedTabPreferenceSpy = jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('my');
+      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults').mockImplementation();
+      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults').mockImplementation();
+
+      await (component as any).initializeState();
+
+      expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
+      expect(loadMyResultsSpy).toHaveBeenCalled();
+      expect(loadAllResultsSpy).not.toHaveBeenCalled();
+      expect(mockResultsCenterService.main).not.toHaveBeenCalled();
+    });
+
+    it('should load all results when no restored state and preferred tab is all', async () => {
+      mockResultsCenterService.restorePersistedState.mockReturnValue(false);
+      const loadPinnedTabPreferenceSpy = jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults').mockImplementation();
+      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults').mockImplementation();
+
+      await (component as any).initializeState();
+
+      expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
+      expect(loadAllResultsSpy).toHaveBeenCalled();
+      expect(loadMyResultsSpy).not.toHaveBeenCalled();
+    });
+  });
+
   describe('ngOnDestroy', () => {
     it('should deactivate persistence and hide sidebars', () => {
       mockResultsCenterService.showFiltersSidebar.set(true);
