@@ -505,7 +505,8 @@ describe('ApiService', () => {
         lever: 'test-lever',
         status: 'active',
         'start-date': '2024-01-01',
-        'end-date': '2024-12-31'
+        'end-date': '2024-12-31',
+        'with-indicators': false
       };
 
       const result = (service as any).buildFindContractsParams(filters);
@@ -518,6 +519,7 @@ describe('ApiService', () => {
       expect(result.get('status')).toBe('active');
       expect(result.get('start-date')).toBe('2024-01-01');
       expect(result.get('end-date')).toBe('2024-12-31');
+      expect(result.get('with-indicators')).toBe('false');
     });
 
     it('should build find contracts params with empty filters', () => {
@@ -545,13 +547,15 @@ describe('ApiService', () => {
     it('should build find contracts params with zero and false values', () => {
       const filters = {
         limit: 0,
-        'exclude-pooled-funding': false
+        'exclude-pooled-funding': false,
+        'with-indicators': false
       };
 
       const result = (service as any).buildFindContractsParams(filters);
 
       expect(result.get('limit')).toBe('0');
       expect(result.get('exclude-pooled-funding')).toBe('false');
+      expect(result.get('with-indicators')).toBe('false');
     });
   });
 

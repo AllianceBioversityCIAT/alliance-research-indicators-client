@@ -79,7 +79,10 @@ export class MyProjectsService {
 
   private getBaseParams(): Record<string, unknown> {
     const currentTab = this.myProjectsFilterItem();
-    return { 'current-user': currentTab?.id === 'my' };
+    return {
+      'current-user': currentTab?.id === 'my',
+      'with-indicators': false
+    };
   }
 
   resetFilters(): void {
@@ -113,7 +116,10 @@ export class MyProjectsService {
     this.loading.set(true);
     const activeTabIdAtRequest = this.myProjectsFilterItem()?.id;
     try {
-      const finalParams: Record<string, unknown> = { ...(params ?? {}) };
+      const finalParams: Record<string, unknown> = {
+        'with-indicators': false,
+        ...(params ?? {})
+      };
 
       if (finalParams['current-user'] === true) {
         if (!('direction' in finalParams) || finalParams['direction'] == null || finalParams['direction'] === '') {

@@ -535,6 +535,7 @@ export class ApiService {
     limit?: number | string;
     project?: string;
     'exclude-pooled-funding'?: boolean;
+    'with-indicators'?: boolean;
   }): Promise<MainResponse<FindContractsResponse>> => {
     const url = () => 'agresso/contracts/find-contracts';
     const params = this.buildFindContractsParams(filters);
@@ -782,6 +783,7 @@ export class ApiService {
     limit?: number | string;
     project?: string;
     'exclude-pooled-funding'?: boolean;
+    'with-indicators'?: boolean;
     'order-field'?: string;
     direction?: string;
   }): HttpParams {
@@ -801,6 +803,7 @@ export class ApiService {
       'limit',
       'project',
       'exclude-pooled-funding',
+      'with-indicators',
       'order-field',
       'direction'
     ];
