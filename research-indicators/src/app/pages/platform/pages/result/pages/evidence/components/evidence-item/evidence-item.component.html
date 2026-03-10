@@ -38,7 +38,7 @@
       </div>
 
       <input pInputText id="evidence_url" aria-describedby="evidence_url" [(ngModel)]="body().evidence_url" type="url"
-        [disabled]="!submission.isEditableStatus()" (ngModelChange)="setValue($event)" class="w-full !text-base"
+        [disabled]="!submission.isEditableStatus()" (ngModelChange)="setValue($event)" class="w-full"
         [style]="(!validateWebsite(body().evidence_url) || isFieldInvalid()) && submission.isEditableStatus() ? { border: '2px solid #E69F00' } : {}"
         [class.ng-invalid]="!validateWebsite(body().evidence_url)" placeholder="Paste the evidence link" />
     </div>
