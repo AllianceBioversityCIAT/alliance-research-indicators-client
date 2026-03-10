@@ -162,10 +162,11 @@ describe('ResultsCenterTableComponent', () => {
   });
 
   it('onSearchInputChange should call table.filterGlobal when search changes', () => {
-    (component as any).dt2 = { filterGlobal: jest.fn(), first: 0 } as any;
+    const mockTable = { filterGlobal: jest.fn(), first: 0 } as any;
+    component.tableRef.set(mockTable);
     mockService.searchInput.set('abc');
     fixture.detectChanges();
-    expect((component as any).dt2.filterGlobal).toHaveBeenCalledWith('abc', 'contains');
+    expect(mockTable.filterGlobal).toHaveBeenCalledWith('abc', 'contains');
   });
 
   it('setSearchInputFilter should update service searchInput', () => {
