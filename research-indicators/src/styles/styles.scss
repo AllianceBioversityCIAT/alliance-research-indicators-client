@@ -226,6 +226,11 @@ body {
   color: #a2a9af !important;
 }
 
+.p-select-label.p-placeholder,
+.p-multiselect-label.p-placeholder {
+  color: #a2a9af !important;
+}
+
 input::placeholder {
   color: #a2a9af !important;
 }

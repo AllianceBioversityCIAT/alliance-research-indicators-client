@@ -61,4 +61,5 @@ export type ControlListServices =
   | 'impactAreaScores'
   | 'impactAreas'
   | 'allianceStaffByGroup'
+  | 'sourceFilterOptions'
   | '';
