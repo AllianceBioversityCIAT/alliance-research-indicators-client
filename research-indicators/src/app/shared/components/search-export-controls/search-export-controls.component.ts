@@ -47,4 +47,9 @@ export class SearchExportControlsComponent implements OnInit, OnDestroy {
     const value = target.value.trim();
     this.searchSubject.next(value);
   }
+
+  onEnter(event: Event) {
+    const value = (event.target as HTMLInputElement).value.trim();
+    this.searchChange.emit(value);
+  }
 }

@@ -76,5 +76,13 @@ describe('SearchExportControlsComponent', () => {
     tick(500);
     expect(spy).toHaveBeenCalledTimes(1);
   }));
+
+  it('onEnter should emit searchChange with trimmed value from input', () => {
+    const spy = jest.spyOn(component.searchChange, 'emit');
+    const input = document.createElement('input');
+    input.value = '  query on enter  ';
+    component.onEnter({ target: input } as unknown as Event);
+    expect(spy).toHaveBeenCalledWith('query on enter');
+  });
 });
 
