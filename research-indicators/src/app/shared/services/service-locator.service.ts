@@ -58,6 +58,7 @@ import { InformativeRolesService } from './short-control-list/informative-roles.
 import { GlobalTargetsService } from './short-control-list/global-targets.service';
 import { ImpactAreaScoresService } from './short-control-list/impact-area-scores.service';
 import { ImpactAreasService } from './short-control-list/impact-areas.service';
+import { SourceFilterOptionsService } from './short-control-list/source-filter-options.service';
 
 @Injectable({
   providedIn: 'root'
@@ -243,6 +244,8 @@ export class ServiceLocatorService {
         return this.injector.get(GetProjectStatusService);
       case 'allianceStaffByGroup':
         return this.injector.get(GetAllianceStaffByGroupService);
+      case 'sourceFilterOptions':
+        return this.injector.get(SourceFilterOptionsService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;
