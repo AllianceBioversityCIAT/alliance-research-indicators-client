@@ -89,6 +89,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   onSearchInputChange = effect(() => {
     const searchValue = this.searchInput();
     if (this.dt2) {
+      this.dt2.first = 0;
       this.dt2.filterGlobal(searchValue, 'contains');
     }
   });
@@ -242,6 +243,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   clearFilters(): void {
     this.resultsCenterService.clearAllFiltersWithPreserve([...MODAL_INDICATOR_CODES]);
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
+    this.resetTableToFirstPage();
     void this.loadResultsForModal();
   }
 
@@ -337,6 +339,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       ...prev,
       'lever-codes': filters.levers.map(lever => lever.id),
       'status-codes': filters.statusCodes.map(status => status.result_status_id),
+      'platform-code': (filters.sources ?? []).map(source => source.platform_code),
       years: filters.years.map(year => year.report_year),
       'contract-codes': filters.contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': filters.indicators.map(indicator => indicator.indicator_id)
@@ -350,7 +353,14 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.applyModalIndicatorFilter({
       tabsOverride: shouldUseDefaultIndicatorTabs ? [...MODAL_INDICATOR_CODES] : []
     });
+    this.resetTableToFirstPage();
     void this.loadResultsForModal();
+  }
+
+  private resetTableToFirstPage(): void {
+    if (this.dt2) {
+      this.dt2.first = 0;
+    }
   }
 }
 
