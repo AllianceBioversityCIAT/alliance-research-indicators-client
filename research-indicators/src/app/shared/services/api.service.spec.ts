@@ -1216,7 +1216,7 @@ describe('ApiService', () => {
 
       service.GET_Oicr(id);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/oicr/123', { useResultInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/oicr/123', { loadingTrigger: true, useResultInterceptor: true });
     });
 
     it('should call GET_AllianceStaff', () => {

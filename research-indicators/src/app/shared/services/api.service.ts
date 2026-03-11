@@ -226,7 +226,7 @@ export class ApiService {
 
   GET_Oicr = (id: number): Promise<MainResponse<PatchOicr>> => {
     const url = () => `results/oicr/${id}`;
-    return this.TP.get(url(), { useResultInterceptor: true });
+    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
   };
 
   // create result
