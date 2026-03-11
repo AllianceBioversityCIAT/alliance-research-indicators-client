@@ -4,8 +4,8 @@
 
     <app-select label="Author / Contact Person" [isRequired]="true" [signal]="body"
       [optionValue]="{ body: 'contact_person_id', option: 'user_id' }" [optionLabel]="'first_name'"
-      [customFilterBy]="'first_name,last_name,email'"
-      serviceName="userStaff" [scrollHeight]="'263px'" placeholder="Select a contact person">
+      [customFilterBy]="'first_name,last_name,email'" serviceName="userStaff" [scrollHeight]="'263px'"
+      placeholder="Select a contact person">
       <ng-template #item let-item>
         <div class="flex flex-col gap-1">
           <div class="text-[15px] leading-tight">
@@ -15,11 +15,13 @@
             <span class="text-[#777c83] lowercase"> - {{ item?.email || '-' }}</span>
           </div>
           <div class="flex flex-wrap items-center">
+            @if (item?.position) {
             <span class="font-normal text-[15px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Position</span>
             <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
             <span class="text-[15px] leading-[18px] text-[#345b8f] !font-['Space_Grotesk'] uppercase">{{ (item?.position
               | properCase) || 'undefined' }}</span>
             <span class="text-[#B9C0C5] px-2">|</span>
+            }
             <span class="font-normal text-[15px] text-[#777c83] !font-['Space_Grotesk'] leading-4">Affiliation</span>
             <i class="pi pi-arrow-right !text-[8px] px-2 !text-[#8D9299]"></i>
             <span class="text-[15px] uppercase leading-[18px] text-[#345b8f] !font-['Space_Grotesk']">{{
