@@ -127,7 +127,7 @@ export class GlobalAlertComponent implements OnInit, OnDestroy {
     this.body.update(body => ({ ...body, commentValue: '', selectValue: null }));
   }
 
-  onDetailLinkClick(event: MouseEvent, index: number) {
+  onDetailLinkClick(event: MouseEvent | KeyboardEvent, index: number) {
     const target = (event.target as Element)?.closest?.('a.alert-link-custom');
     if (!target) return;
     const alerts = this.alertList();

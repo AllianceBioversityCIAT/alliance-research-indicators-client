@@ -15,7 +15,7 @@
 
     <div class="summary !font-[Space_Grotesk] !text-[{{ alert.color }}]">{{ alert.summary }}</div>
     <div class="detail -mt-1.5 leading-[22px] text-[#4C5158]" [innerHTML]="alert.detail"
-      (click)="onDetailLinkClick($event, $index)"></div>
+      (click)="onDetailLinkClick($event, $index)" (keydown)="onDetailLinkClick($event, $index)"></div>
     @if (alert.selectorLabel) {
     <div class="w-full flex flex-col pb-2">
       <label class="label inline-block self-start" for="username">{{ alert.selectorLabel }}

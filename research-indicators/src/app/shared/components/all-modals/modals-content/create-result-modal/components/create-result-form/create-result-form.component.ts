@@ -240,7 +240,8 @@ export class CreateResultFormComponent {
     const resultCode = code != null ? `${platform}-${code}` : null;
     const isNonStar = platform !== PLATFORM_CODES.STAR;
     const openModalOnLinkClick = isNonStar && code != null;
-    const linkHref = openModalOnLinkClick ? '#' : (resultCode ? `result/${resultCode}/general-information` : '#');
+    const canNavigateDirectly = resultCode && !openModalOnLinkClick;
+    const linkHref = canNavigateDirectly ? `result/${resultCode}/general-information` : '#';
     const detail = resultCode
       ? `Please enter a different title. Existing result: <a href="${linkHref}" target="_blank" class="alert-link-custom"><span class="alert-link-bold">${resultCode}</span></a>`
       : 'Please enter a different title.';

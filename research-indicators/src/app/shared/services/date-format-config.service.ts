@@ -6,7 +6,7 @@ function normalizeDateFormatConfig(raw: unknown): DateFormatJsonValue | null {
   if (raw == null || typeof raw !== 'object') return null;
   const obj = raw as Record<string, unknown>;
   const inner = obj['json_value'];
-  if (inner != null && typeof inner === 'object' && 'timezone' in (inner as object)) {
+  if (inner != null && typeof inner === 'object' && 'timezone' in inner) {
     return inner as DateFormatJsonValue;
   }
   if ('timezone' in obj) return raw as DateFormatJsonValue;
