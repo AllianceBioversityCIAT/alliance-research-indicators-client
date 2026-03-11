@@ -4,7 +4,7 @@
 
     <app-select label="Author / Contact Person" [isRequired]="true" [signal]="body"
       [optionValue]="{ body: 'contact_person_id', option: 'user_id' }" [optionLabel]="'first_name'"
-      [customFilterBy]="'first_name,last_name,email'" serviceName="userStaff" [scrollHeight]="'263px'"
+      [customFilterBy]="'first_name,last_name,email,_search'" serviceName="userStaff" [scrollHeight]="'263px'"
       placeholder="Select a contact person">
       <ng-template #item let-item>
         <div class="flex flex-col gap-1">

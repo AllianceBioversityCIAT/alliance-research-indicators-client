@@ -10,4 +10,5 @@ export interface UserStaff {
   center: string;
   full_name?: string;
   user_id?: string;
+  _search?: string;
 }

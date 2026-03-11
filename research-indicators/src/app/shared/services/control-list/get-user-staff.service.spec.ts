@@ -33,25 +33,36 @@ describe('GetUserStaffService', () => {
     await service.main();
     expect(loadingMock.set).toHaveBeenCalledWith(true);
     expect(apiMock.GET_UserStaff).toHaveBeenCalled();
-    expect(listMock.set).toHaveBeenCalledWith([
-      {
-        carnet: '123',
-        first_name: 'John',
-        last_name: 'Doe',
-        email: 'john@doe.com',
-        full_name: 'Doe, John  - john@doe.com',
-        user_id: '123'
-      },
-      {
-        carnet: '456',
-        first_name: 'Jane',
-        last_name: 'Smith',
-        email: 'jane@smith.com',
-        full_name: 'Smith, Jane  - jane@smith.com',
-        user_id: '456'
-      }
-    ]);
+    const setArg = listMock.set.mock.calls[0][0];
+    expect(setArg).toHaveLength(2);
+    expect(setArg[0]).toMatchObject({
+      carnet: '123',
+      first_name: 'John',
+      last_name: 'Doe',
+      email: 'john@doe.com',
+      full_name: 'Doe, John  - john@doe.com',
+      user_id: '123'
+    });
+    expect(setArg[0]._search).toBeDefined();
+    expect(setArg[1]).toMatchObject({
+      carnet: '456',
+      first_name: 'Jane',
+      last_name: 'Smith',
+      email: 'jane@smith.com',
+      full_name: 'Smith, Jane  - jane@smith.com',
+      user_id: '456'
+    });
+    expect(setArg[1]._search).toBeDefined();
     expect(loadingMock.set).toHaveBeenCalledWith(false);
+  });
+
+  it('buildSearchField should generate all word-pair permutations for cross-field matching', () => {
+    const result = service.buildSearchField('Dan', 'Zuniga Pinto', 'dan@email.com');
+    expect(result).toContain('dan zuniga');
+    expect(result).toContain('dan pinto');
+    expect(result).toContain('zuniga dan');
+    expect(result).toContain('pinto dan');
+    expect(result).toContain('dan zuniga pinto dan@email.com');
   });
 
   it('main should handle errors correctly', async () => {
