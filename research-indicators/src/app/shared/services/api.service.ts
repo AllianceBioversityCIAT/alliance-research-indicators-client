@@ -177,15 +177,14 @@ export class ApiService {
   GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<Result[]>> => {
     const queryParams: string[] = [];
 
+    const indicatorKeysHandled = new Set(['indicator-codes', 'indicator-codes-tabs', 'indicator-codes-filter']);
+
     if (resultFilter['indicator-codes-tabs']?.length) {
-      if (resultFilter['indicator-codes-tabs'].length) {
-        queryParams.push(`indicator-codes=${resultFilter['indicator-codes-tabs'].join(',')}`);
-      }
+      queryParams.push(`indicator-codes=${resultFilter['indicator-codes-tabs'].join(',')}`);
     } else if (resultFilter['indicator-codes-filter']?.length) {
-      queryParams.push(`indicator-codes=${resultFilter['indicator-codes-filter']?.join(',')}`);
+      queryParams.push(`indicator-codes=${resultFilter['indicator-codes-filter'].join(',')}`);
     }
 
-    // Dynamic handling of boolean config parameters
     if (resultConfig) {
       Object.entries(resultConfig).forEach(([key, value]) => {
         if (value) {
@@ -194,9 +193,9 @@ export class ApiService {
       });
     }
 
-    // Dynamic handling of filter parameters
     if (resultFilter) {
       Object.entries(resultFilter).forEach(([key, value]) => {
+        if (indicatorKeysHandled.has(key)) return;
         if (Array.isArray(value) && value.length) {
           queryParams.push(`${key}=${value.join(',')}`);
         }

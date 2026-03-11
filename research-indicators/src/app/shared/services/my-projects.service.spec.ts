@@ -882,6 +882,42 @@ describe('MyProjectsService', () => {
     });
   });
 
+  describe('main method - direction and tab-change branches', () => {
+    it('should set direction to DESC when current-user is true and direction is null', async () => {
+      await service.main({ 'current-user': true, direction: null });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ direction: 'DESC' })
+      );
+    });
+
+    it('should set direction to DESC when current-user is true and direction is empty string', async () => {
+      await service.main({ 'current-user': true, direction: '' });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ direction: 'DESC' })
+      );
+    });
+
+    it('should not update list when tab changes during request', async () => {
+      let resolveApi!: (value: any) => void;
+      mockApiService.GET_FindContracts.mockImplementationOnce(
+        () => new Promise(resolve => { resolveApi = resolve; })
+      );
+
+      const mainPromise = service.main();
+      service.myProjectsFilterItem.set({ id: 'different-tab', label: 'Other' });
+      resolveApi({
+        data: {
+          data: [{ agreement_id: 'X', projectDescription: 'P', description: 'D', project_lead_description: 'L', principal_investigator: 'PI', lever_name: 'Lv' }]
+        }
+      });
+      await mainPromise;
+
+      expect(service.list()).toEqual([]);
+    });
+  });
+
   describe('applyFilters', () => {
     beforeEach(() => {
       jest.clearAllMocks();

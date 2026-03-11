@@ -19,7 +19,7 @@ import { ActionsService } from '@shared/services/actions.service';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
-import { Router, RouterLink, UrlTree } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 
 const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
 
@@ -36,8 +36,7 @@ const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
     FiltersActionButtonsComponent,
     SearchExportControlsComponent,
     SectionSidebarComponent,
-    TableFiltersSidebarComponent,
-    RouterLink
+    TableFiltersSidebarComponent
   ],
   templateUrl: './select-linked-results-modal.component.html'
 })
@@ -89,6 +88,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   onSearchInputChange = effect(() => {
     const searchValue = this.searchInput();
     if (this.dt2) {
+      this.dt2.first = 0;
       this.dt2.filterGlobal(searchValue, 'contains');
     }
   });
@@ -174,6 +174,20 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     return PLATFORM_COLOR_MAP[platformCode];
   }
 
+  getProjectHref(contractId: string): string {
+    const tree = this.router.createUrlTree(['/project-detail', contractId, 'project-results']);
+    return this.router.serializeUrl(tree);
+  }
+
+  isNonStarPlatform(result: Result): boolean {
+    return result.platform_code !== PLATFORM_CODES.STAR;
+  }
+
+  openResultInfoModal(result: Result): void {
+    this.allModalsService.selectedResultForInfo.set(result);
+    this.allModalsService.openModal('resultInformation');
+  }
+
   isSelected(result: Result): boolean {
     return this.selectedResults().some(r => r.result_id === result.result_id);
   }
@@ -242,6 +256,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   clearFilters(): void {
     this.resultsCenterService.clearAllFiltersWithPreserve([...MODAL_INDICATOR_CODES]);
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
+    this.resetTableToFirstPage();
     void this.loadResultsForModal();
   }
 
@@ -337,6 +352,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       ...prev,
       'lever-codes': filters.levers.map(lever => lever.id),
       'status-codes': filters.statusCodes.map(status => status.result_status_id),
+      'platform-code': (filters.sources ?? []).map(source => source.platform_code),
       years: filters.years.map(year => year.report_year),
       'contract-codes': filters.contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': filters.indicators.map(indicator => indicator.indicator_id)
@@ -350,7 +366,14 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.applyModalIndicatorFilter({
       tabsOverride: shouldUseDefaultIndicatorTabs ? [...MODAL_INDICATOR_CODES] : []
     });
+    this.resetTableToFirstPage();
     void this.loadResultsForModal();
+  }
+
+  private resetTableToFirstPage(): void {
+    if (this.dt2) {
+      this.dt2.first = 0;
+    }
   }
 }
 

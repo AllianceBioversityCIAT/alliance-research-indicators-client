@@ -1670,7 +1670,7 @@ describe('ResultsCenterService', () => {
       const filter = service.resultsFilter();
       // Note: onSelectFilterTab(0) is called at the end, which resets indicator-codes-tabs to []
       expect(filter['indicator-codes-tabs']).toEqual([]);
-      expect(filter['indicator-codes']).toEqual([1, 2]);
+      expect(filter['indicator-codes']).toEqual([]);
       expect(filter['indicator-codes-filter']).toEqual([]);
       expect(filter['create-user-codes']).toEqual([]);
       expect(service.searchInput()).toBe('');
@@ -1685,7 +1685,7 @@ describe('ResultsCenterService', () => {
       const filter = service.resultsFilter();
       // Note: onSelectFilterTab(0) is called at the end, which resets indicator-codes-tabs to []
       expect(filter['indicator-codes-tabs']).toEqual([]);
-      expect(filter['indicator-codes']).toEqual([1]);
+      expect(filter['indicator-codes']).toEqual([]);
     });
   });
 

@@ -864,6 +864,82 @@ describe('SelectLinkedResultsModalComponent', () => {
     });
   });
 
+  describe('getProjectHref', () => {
+    it('should build project detail URL', () => {
+      const urlTree = {} as any;
+      router.createUrlTree.mockReturnValue(urlTree);
+      router.serializeUrl.mockReturnValue('/project-detail/AGR-1/project-results');
+
+      const href = component.getProjectHref('AGR-1');
+
+      expect(router.createUrlTree).toHaveBeenCalledWith(['/project-detail', 'AGR-1', 'project-results']);
+      expect(href).toBe('/project-detail/AGR-1/project-results');
+    });
+  });
+
+  describe('isNonStarPlatform', () => {
+    it('should return true for non-STAR platform', () => {
+      const result = createResult({ platform_code: PLATFORM_CODES.PRMS });
+      expect(component.isNonStarPlatform(result)).toBe(true);
+    });
+
+    it('should return false for STAR platform', () => {
+      const result = createResult({ platform_code: PLATFORM_CODES.STAR });
+      expect(component.isNonStarPlatform(result)).toBe(false);
+    });
+  });
+
+  describe('openResultInfoModal', () => {
+    it('should set selectedResultForInfo and open modal', () => {
+      allModalsService.selectedResultForInfo = { set: jest.fn() } as any;
+      allModalsService.openModal = jest.fn();
+      const result = createResult({ result_id: 42 });
+
+      component.openResultInfoModal(result);
+
+      expect(allModalsService.selectedResultForInfo.set).toHaveBeenCalledWith(result);
+      expect(allModalsService.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+  });
+
+  describe('resetTableToFirstPage', () => {
+    it('should reset dt2.first to 0 when dt2 exists', () => {
+      const mockTable = { first: 5, filterGlobal: jest.fn() };
+      (component as any).dt2 = mockTable;
+
+      (component as any).resetTableToFirstPage();
+
+      expect(mockTable.first).toBe(0);
+    });
+
+    it('should not throw when dt2 is undefined', () => {
+      (component as any).dt2 = undefined;
+      expect(() => (component as any).resetTableToFirstPage()).not.toThrow();
+    });
+  });
+
+  describe('onFiltersConfirm with sources', () => {
+    it('should map sources platform_code when sources are present', async () => {
+      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
+
+      resultsCenterService.tableFilters.mockReturnValue({
+        levers: [],
+        statusCodes: [],
+        years: [],
+        contracts: [],
+        indicators: [],
+        sources: [{ platform_code: 'PRMS' }, { platform_code: 'TIP' }]
+      } as any);
+
+      await component.onFiltersConfirm();
+
+      const updater = resultsCenterService.resultsFilter.update.mock.calls[0][0];
+      const result = updater({} as any);
+      expect(result['platform-code']).toEqual(['PRMS', 'TIP']);
+      expect(loadSpy).toHaveBeenCalled();
+    });
+  });
+
   describe('resetModalFilters', () => {
     it('should reset all modal filters and state', async () => {
       component.selectedResults.set([createResult()]);

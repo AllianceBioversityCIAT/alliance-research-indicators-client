@@ -1343,7 +1343,7 @@ describe('ApiService', () => {
 
       service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?indicator-codes=101,102&indicator-codes-tabs=101,102', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?indicator-codes=101,102', {});
     });
 
     it('should call GET_Results with indicator-codes-filter', () => {
@@ -1352,7 +1352,7 @@ describe('ApiService', () => {
 
       service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?indicator-codes=101,102&indicator-codes-filter=101,102', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?indicator-codes=101,102', {});
     });
 
     it('should call GET_Results with resultConfig', () => {
@@ -1377,7 +1377,7 @@ describe('ApiService', () => {
       service.GET_Results(resultFilter, resultConfig);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith(
-        'results?indicator-codes=101&audit-data=true&indicator-codes-tabs=101&status-codes=1,2&years=2024',
+        'results?indicator-codes=101&audit-data=true&status-codes=1,2&years=2024',
         {}
       );
     });

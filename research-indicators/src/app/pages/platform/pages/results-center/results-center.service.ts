@@ -648,7 +648,12 @@ export class ResultsCenterService {
       ...prev,
       'indicator-codes-filter': [],
       'indicator-codes-tabs': preserved,
-      'indicator-codes': preserved,
+      'indicator-codes': [],
+      'platform-code': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
       'create-user-codes': []
     });
 
