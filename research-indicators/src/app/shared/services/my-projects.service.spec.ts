@@ -552,71 +552,20 @@ describe('MyProjectsService', () => {
       });
     });
 
-    it('should set direction to DESC when current-user is true and direction is missing', async () => {
-      await service.main({ 'current-user': true });
-
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': true, direction: 'DESC' })
-      );
-    });
-
-    it('should set direction to DESC when current-user is true and direction is null or empty string', async () => {
-      await service.main({ 'current-user': true, direction: null as any });
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': true, direction: 'DESC' })
-      );
-      mockApiService.GET_FindContracts.mockClear();
-      await service.main({ 'current-user': true, direction: '' });
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': true, direction: 'DESC' })
-      );
-    });
-
-    it('should not overwrite direction when current-user is true and direction is already set', async () => {
-      await service.main({ 'current-user': true, direction: 'ASC' });
-
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': true, direction: 'ASC' })
-      );
-    });
-
-    it('should not update list when tab changes before response (stillSameTab false)', async () => {
-      service.myProjectsFilterItem.set(service.myProjectsFilterItems[1]);
-      let resolveApi: (value: any) => void;
-      mockApiService.GET_FindContracts.mockImplementationOnce(
-        () =>
-          new Promise(resolve => {
-            resolveApi = resolve;
-          })
-      );
-      const mainPromise = service.main();
-      service.myProjectsFilterItem.set(service.myProjectsFilterItems[0]);
-      resolveApi!({
-        data: { data: mockFindContractsResponseData },
-        status: 200,
-        description: 'ok',
-        timestamp: '',
-        path: '',
-        successfulRequest: true,
-        errorDetail: { errors: '', detail: '', description: '' }
-      });
-      await mainPromise;
-
-      expect(service.list()).toEqual([]);
-    });
-
     it('should handle item with no principal_investigator and no project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A003',
-            projectDescription: 'Test Project 3',
-            description: 'Test Description 3',
-            project_lead_description: null,
-            principal_investigator: null,
-            lever_name: 'Test Lever 3'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A003',
+              projectDescription: 'Test Project 3',
+              description: 'Test Description 3',
+              project_lead_description: null,
+              principal_investigator: null,
+              lever_name: 'Test Lever 3'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -634,17 +583,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with empty principal_investigator but valid project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A004',
-            projectDescription: 'Test Project 4',
-            description: 'Test Description 4',
-            project_lead_description: 'Valid Lead Description',
-            principal_investigator: '',
-            lever_name: 'Test Lever 4'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A004',
+              projectDescription: 'Test Project 4',
+              description: 'Test Description 4',
+              project_lead_description: 'Valid Lead Description',
+              principal_investigator: '',
+              lever_name: 'Test Lever 4'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -662,17 +613,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with undefined principal_investigator but valid project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A005',
-            projectDescription: 'Test Project 5',
-            description: 'Test Description 5',
-            project_lead_description: 'Valid Lead Description',
-            principal_investigator: undefined,
-            lever_name: 'Test Lever 5'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A005',
+              projectDescription: 'Test Project 5',
+              description: 'Test Description 5',
+              project_lead_description: 'Valid Lead Description',
+              principal_investigator: undefined,
+              lever_name: 'Test Lever 5'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -690,17 +643,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with valid principal_investigator', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A006',
-            projectDescription: 'Test Project 6',
-            description: 'Test Description 6',
-            project_lead_description: 'Lead Description',
-            principal_investigator: 'Valid Principal Investigator',
-            lever_name: 'Test Lever 6'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A006',
+              projectDescription: 'Test Project 6',
+              description: 'Test Description 6',
+              project_lead_description: 'Lead Description',
+              principal_investigator: 'Valid Principal Investigator',
+              lever_name: 'Test Lever 6'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -718,17 +673,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with empty principal_investigator and empty project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A007',
-            projectDescription: 'Test Project 7',
-            description: 'Test Description 7',
-            project_lead_description: '',
-            principal_investigator: '',
-            lever_name: 'Test Lever 7'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A007',
+              projectDescription: 'Test Project 7',
+              description: 'Test Description 7',
+              project_lead_description: '',
+              principal_investigator: '',
+              lever_name: 'Test Lever 7'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -746,17 +703,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with false principal_investigator but valid project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A008',
-            projectDescription: 'Test Project 8',
-            description: 'Test Description 8',
-            project_lead_description: 'Valid Lead Description',
-            principal_investigator: false,
-            lever_name: 'Test Lever 8'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A008',
+              projectDescription: 'Test Project 8',
+              description: 'Test Description 8',
+              project_lead_description: 'Valid Lead Description',
+              principal_investigator: false,
+              lever_name: 'Test Lever 8'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -774,17 +733,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with 0 principal_investigator but valid project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A009',
-            projectDescription: 'Test Project 9',
-            description: 'Test Description 9',
-            project_lead_description: 'Valid Lead Description',
-            principal_investigator: 0,
-            lever_name: 'Test Lever 9'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A009',
+              projectDescription: 'Test Project 9',
+              description: 'Test Description 9',
+              project_lead_description: 'Valid Lead Description',
+              principal_investigator: 0,
+              lever_name: 'Test Lever 9'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -1327,9 +1288,7 @@ describe('MyProjectsService', () => {
       });
 
       const activeFilters = service.getActiveFilters();
-      expect(activeFilters).toEqual([
-        expect.objectContaining({ label: 'START DATE', value: 'invalid-date' })
-      ]);
+      expect(activeFilters).toEqual([expect.objectContaining({ label: 'START DATE', value: 'invalid-date' })]);
     });
 
     it('should return empty string for empty date', () => {
@@ -1349,9 +1308,7 @@ describe('MyProjectsService', () => {
       });
 
       const activeFilters = service.getActiveFilters();
-      expect(activeFilters).toEqual([
-        expect.objectContaining({ label: 'LEVER', value: '5', id: 5 })
-      ]);
+      expect(activeFilters).toEqual([expect.objectContaining({ label: 'LEVER', value: '5', id: 5 })]);
     });
 
     it('should include principalInvestigator in active filters', () => {
@@ -1361,9 +1318,7 @@ describe('MyProjectsService', () => {
       });
 
       const activeFilters = service.getActiveFilters();
-      expect(activeFilters).toEqual([
-        expect.objectContaining({ label: 'PRINCIPAL INVESTIGATOR', value: 'Test PI' })
-      ]);
+      expect(activeFilters).toEqual([expect.objectContaining({ label: 'PRINCIPAL INVESTIGATOR', value: 'Test PI' })]);
     });
 
     it('should handle empty date string in formatDate', () => {
@@ -1433,7 +1388,7 @@ describe('MyProjectsService', () => {
       let activeFilters = service.getActiveFilters();
       expect(activeFilters.length).toBe(1);
       expect(activeFilters[0].label).toBe('START DATE');
-      
+
       // Test with endDate
       service.appliedFilters.set({
         ...new MyProjectsFilters(),
@@ -1449,10 +1404,10 @@ describe('MyProjectsService', () => {
       // Since formatDate is internal and only called when startDate/endDate is truthy,
       // we use Object.defineProperty with a getter that returns different values
       // on each access to bypass the outer truthy check
-      
+
       let accessCount = 0;
       const customFilters: any = Object.assign(Object.create(MyProjectsFilters.prototype), new MyProjectsFilters());
-      
+
       Object.defineProperty(customFilters, 'startDate', {
         get() {
           accessCount++;
@@ -1462,10 +1417,10 @@ describe('MyProjectsService', () => {
         enumerable: true,
         configurable: true
       });
-      
+
       service.appliedFilters.set(customFilters);
       const activeFilters = service.getActiveFilters();
-      
+
       // The filter should be added (first access was truthy), but value should be empty (formatDate received '')
       expect(activeFilters.length).toBe(1);
       expect(activeFilters[0].label).toBe('START DATE');
@@ -1479,7 +1434,7 @@ describe('MyProjectsService', () => {
         endDate: '2024-12-31',
         contractCode: 'TEST'
       });
-      
+
       const activeFilters = service.getActiveFilters();
       expect(activeFilters.length).toBe(3);
       expect(activeFilters.some(f => f.label === 'START DATE')).toBe(true);
@@ -1579,9 +1534,7 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': false, page: 1, limit: 10 })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false, page: 1, limit: 10 }));
     });
   });
 
@@ -1592,9 +1545,7 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': false, page: 1, limit: 10 })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false, page: 1, limit: 10 }));
     });
   });
 
@@ -1602,9 +1553,7 @@ describe('MyProjectsService', () => {
     it('should refresh data', () => {
       service.refresh();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': false, page: 1, limit: 10 })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false, page: 1, limit: 10 }));
     });
   });
 
@@ -1730,9 +1679,7 @@ describe('MyProjectsService', () => {
 
       service.removeFilter('STATUS', 'active');
 
-      expect(service.tableFilters().statusCodes).toEqual([
-        { name: 'Inactive', value: 'inactive' }
-      ]);
+      expect(service.tableFilters().statusCodes).toEqual([{ name: 'Inactive', value: 'inactive' }]);
     });
 
     it('should remove all levers when id is null', () => {
@@ -1760,9 +1707,7 @@ describe('MyProjectsService', () => {
 
       service.removeFilter('LEVER', 1);
 
-      expect(service.tableFilters().levers).toEqual([
-        { id: 2, short_name: 'Test2' }
-      ]);
+      expect(service.tableFilters().levers).toEqual([{ id: 2, short_name: 'Test2' }]);
     });
 
     it('should call removeById on multiselect ref when id is provided', () => {

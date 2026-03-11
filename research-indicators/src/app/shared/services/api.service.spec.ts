@@ -394,9 +394,13 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { submission_comment: 'test comment' }, {
-        useResultInterceptor: true
-      });
+      expect(mockToPromiseService.post).toHaveBeenCalledWith(
+        'results/status/workflow/change-status/123/to-status/1',
+        { submission_comment: 'test comment' },
+        {
+          useResultInterceptor: true
+        }
+      );
     });
 
     it('should call PATCH_SubmitResult without comment', () => {
@@ -405,9 +409,13 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params);
 
-      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { submission_comment: '' }, {
-        useResultInterceptor: true
-      });
+      expect(mockToPromiseService.post).toHaveBeenCalledWith(
+        'results/status/workflow/change-status/123/to-status/1',
+        { submission_comment: '' },
+        {
+          useResultInterceptor: true
+        }
+      );
     });
 
     it('should call PATCH_SubmitResult with body', () => {
@@ -417,9 +425,13 @@ describe('ApiService', () => {
 
       service.PATCH_SubmitResult(params, body);
 
-      expect(mockToPromiseService.post).toHaveBeenCalledWith('results/status/workflow/change-status/123/to-status/1', { ...body, submission_comment: 'test comment' }, {
-        useResultInterceptor: true
-      });
+      expect(mockToPromiseService.post).toHaveBeenCalledWith(
+        'results/status/workflow/change-status/123/to-status/1',
+        { ...body, submission_comment: 'test comment' },
+        {
+          useResultInterceptor: true
+        }
+      );
     });
 
     it('should call PATCH_SubmitResult with body and null comment using empty string for submission_comment', () => {
@@ -1121,10 +1133,7 @@ describe('ApiService', () => {
 
       await service.GET_NextStep(123);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith(
-        'results/status/workflow/result/123/next-step',
-        {}
-      );
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/status/workflow/result/123/next-step', {});
     });
 
     it('should call GET_NextStep with reportingPlatforms and reportYear', async () => {
