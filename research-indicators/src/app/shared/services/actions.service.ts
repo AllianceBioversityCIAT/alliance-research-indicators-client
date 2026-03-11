@@ -11,6 +11,11 @@ import { Result } from '@shared/interfaces/result/result.interface';
 import { CreateResultResponse } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
 import { ServiceLocatorService } from './service-locator.service';
 import { ErrorDetailLike } from '@shared/interfaces/error-detail-like.interface';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
+
+export interface HandleBadRequestOptions {
+  onOpenExistingResult?: (platformCode: string, resultOfficialCode: string) => void;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -43,43 +48,18 @@ export class ActionsService {
     });
   }
 
-  handleBadRequest(result: MainResponse<CreateResultResponse | Result | ExtendedHttpErrorResponse>, action?: () => void) {
+  handleBadRequest(
+    result: MainResponse<CreateResultResponse | Result | ExtendedHttpErrorResponse>,
+    action?: () => void,
+    options?: HandleBadRequestOptions
+  ) {
     const errorDetail = (result.errorDetail ?? {}) as ErrorDetailLike;
+    const onOpenExistingResult = options?.onOpenExistingResult;
 
     // 1) AI assistant / capacity sharing style error: message_error in data
     const aiMessageError: string | undefined = errorDetail?.data?.message_error || errorDetail?.message_error;
     if (aiMessageError) {
-      const aiId = errorDetail?.data?.result_official_code;
-      const aiPlatform = (errorDetail?.data as { platform_code?: string } | undefined)?.platform_code || 'STAR';
-      const resultCode = aiId ? `${aiPlatform}-${aiId}` : null;
-      const linkUrl = resultCode ? `result/${resultCode}/general-information` : '#';
-
-      const [initialText, existingResult = ''] = aiMessageError.split(':').map((s: string) => s.trim());
-      const [boldText, ...regularParts] = existingResult.split('-').map((s: string) => s.trim());
-
-      const detailHtml = `
-        ${initialText}:
-        <a href="${linkUrl}" target="_blank" class="alert-link-custom">
-          <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
-        </a>
-      `;
-
-      this.showGlobalAlert({
-        severity: 'secondary',
-        summary: 'Title Already Exists',
-        detail: detailHtml,
-        hasNoCancelButton: true,
-        generalButton: true,
-        confirmCallback: {
-          label: 'Enter other title',
-          event: () => {
-            if (action) {
-              action();
-            }
-          }
-        },
-        buttonColor: '#035BA9'
-      });
+      this.showAiMessageErrorAlert(aiMessageError, errorDetail, onOpenExistingResult, action);
       return;
     }
 
@@ -90,39 +70,7 @@ export class ActionsService {
       (typeof errorDetail?.errors === 'string' || typeof errorDetail?.errors === 'object');
 
     if (hasConflictShape) {
-      const id =
-        typeof errorDetail.errors === 'object' && errorDetail.errors !== null
-          ? errorDetail.errors['result_official_code']
-          : undefined;
-
-      const linkUrl = id ? `result/${id}/general-information` : '#';
-
-      const [initialText, existingResult = ''] = (errorDetail.description as string).split(':').map((s: string) => s.trim());
-      const [boldText, ...regularParts] = existingResult.split('-').map((s: string) => s.trim());
-
-      const detailHtml = `
-        ${initialText}:
-        <a href="${linkUrl}" target="_blank" class="alert-link-custom">
-          <span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}
-        </a>
-      `;
-
-      this.showGlobalAlert({
-        severity: isWarning ? 'secondary' : 'error',
-        summary: isWarning ? 'Title Already Exists' : 'Error',
-        detail: detailHtml,
-        hasNoCancelButton: true,
-        generalButton: true,
-        confirmCallback: {
-          label: 'Enter other title',
-          event: () => {
-            if (action) {
-              action();
-            }
-          }
-        },
-        buttonColor: '#035BA9'
-      });
+      this.showConflictShapeAlert(errorDetail, isWarning, onOpenExistingResult, action);
       return;
     }
 
@@ -146,6 +94,79 @@ export class ActionsService {
           }
         }
       },
+      buttonColor: '#035BA9'
+    });
+  }
+
+  private showAiMessageErrorAlert(
+    aiMessageError: string,
+    errorDetail: ErrorDetailLike,
+    onOpenExistingResult?: (platformCode: string, resultOfficialCode: string) => void,
+    action?: () => void
+  ): void {
+    const aiId = errorDetail?.data?.result_official_code;
+    const aiPlatform = (errorDetail?.data as { platform_code?: string } | undefined)?.platform_code || 'STAR';
+    const resultCode = aiId == null ? null : `${aiPlatform}-${aiId}`;
+    const isStar = aiPlatform === PLATFORM_CODES.STAR;
+    const openModalOnLinkClick = !isStar && onOpenExistingResult && resultCode;
+
+    const [initialText, existingResult = ''] = aiMessageError.split(':').map((s: string) => s.trim());
+    const [boldText, ...regularParts] = existingResult.split('-').map((s: string) => s.trim());
+    const linkHref = openModalOnLinkClick || resultCode === null ? '#' : `result/${resultCode}/general-information`;
+    const detailHtml = `${initialText}: <a href="${linkHref}" target="_blank" class="alert-link-custom"><span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}</a>`;
+
+    this.showGlobalAlert({
+      severity: 'secondary',
+      summary: 'Title Already Exists',
+      detail: detailHtml,
+      hasNoCancelButton: true,
+      generalButton: true,
+      confirmCallback: {
+        label: 'Enter other title',
+        event: () => {
+          if (action) action();
+        }
+      },
+      ...(openModalOnLinkClick && onOpenExistingResult && { onDetailLinkClick: () => onOpenExistingResult(aiPlatform, String(aiId)) }),
+      buttonColor: '#035BA9'
+    });
+  }
+
+  private showConflictShapeAlert(
+    errorDetail: ErrorDetailLike,
+    isWarning: boolean,
+    onOpenExistingResult?: (platformCode: string, resultOfficialCode: string) => void,
+    action?: () => void
+  ): void {
+    const errors = typeof errorDetail.errors === 'object' && errorDetail.errors !== null ? errorDetail.errors : {};
+    const rawCode = errors['result_official_code'];
+    const resultOfficialCode =
+      typeof rawCode === 'number' || typeof rawCode === 'string' ? String(rawCode) : undefined;
+    const platformCode = typeof errors['platform_code'] === 'string' ? errors['platform_code'] : 'STAR';
+    const resultCode =
+      resultOfficialCode === undefined ? null : `${platformCode}-${resultOfficialCode}`;
+    const isStar = platformCode === PLATFORM_CODES.STAR;
+    const openModalOnLinkClick = !isStar && onOpenExistingResult && resultOfficialCode;
+
+    const [initialText, existingResult = ''] = (errorDetail.description as string).split(':').map((s: string) => s.trim());
+    const [boldText, ...regularParts] = existingResult.split('-').map((s: string) => s.trim());
+    const linkHref =
+      openModalOnLinkClick || resultCode === null ? '#' : `result/${resultCode}/general-information`;
+    const detailHtml = `${initialText}: <a href="${linkHref}" target="_blank" class="alert-link-custom"><span class="alert-link-bold">${boldText}</span> - ${regularParts.join(' - ')}</a>`;
+
+    this.showGlobalAlert({
+      severity: isWarning ? 'secondary' : 'error',
+      summary: isWarning ? 'Title Already Exists' : 'Error',
+      detail: detailHtml,
+      hasNoCancelButton: true,
+      generalButton: true,
+      confirmCallback: {
+        label: 'Enter other title',
+        event: () => {
+          if (action) action();
+        }
+      },
+      ...(openModalOnLinkClick && onOpenExistingResult && { onDetailLinkClick: () => onOpenExistingResult(platformCode, resultOfficialCode) }),
       buttonColor: '#035BA9'
     });
   }

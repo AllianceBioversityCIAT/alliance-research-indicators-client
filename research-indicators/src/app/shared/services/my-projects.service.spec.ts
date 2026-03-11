@@ -56,6 +56,12 @@ describe('MyProjectsService', () => {
     });
 
     service = TestBed.inject(MyProjectsService);
+    globalThis.sessionStorage?.clear();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    globalThis.sessionStorage?.clear();
   });
 
   it('should be created', () => {
@@ -512,6 +518,30 @@ describe('MyProjectsService', () => {
       consoleSpy.mockRestore();
     });
 
+    it('should not clear list on API error when tab changed before response', async () => {
+      await service.main();
+      expect(service.list()).toHaveLength(2);
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      service.myProjectsFilterItem.set(service.myProjectsFilterItems[1]);
+      let rejectApi: (reason: any) => void;
+      mockApiService.GET_FindContracts.mockImplementationOnce(
+        () =>
+          new Promise((_, reject) => {
+            rejectApi = reject;
+          })
+      );
+      const mainPromise = service.main();
+      service.myProjectsFilterItem.set(service.myProjectsFilterItems[0]);
+      rejectApi!(new Error('API Error'));
+      await mainPromise;
+
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch find contracts:', expect.any(Error));
+      expect(service.list()).toHaveLength(2);
+      expect(service.loading()).toBe(false);
+      consoleSpy.mockRestore();
+    });
+
     it('should call API with custom params', async () => {
       const customParams = { 'test-param': 'test-value' };
       await service.main(customParams);
@@ -523,17 +553,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with no principal_investigator and no project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A003',
-            projectDescription: 'Test Project 3',
-            description: 'Test Description 3',
-            project_lead_description: null,
-            principal_investigator: null,
-            lever_name: 'Test Lever 3'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A003',
+              projectDescription: 'Test Project 3',
+              description: 'Test Description 3',
+              project_lead_description: null,
+              principal_investigator: null,
+              lever_name: 'Test Lever 3'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -551,17 +583,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with empty principal_investigator but valid project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A004',
-            projectDescription: 'Test Project 4',
-            description: 'Test Description 4',
-            project_lead_description: 'Valid Lead Description',
-            principal_investigator: '',
-            lever_name: 'Test Lever 4'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A004',
+              projectDescription: 'Test Project 4',
+              description: 'Test Description 4',
+              project_lead_description: 'Valid Lead Description',
+              principal_investigator: '',
+              lever_name: 'Test Lever 4'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -579,17 +613,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with undefined principal_investigator but valid project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A005',
-            projectDescription: 'Test Project 5',
-            description: 'Test Description 5',
-            project_lead_description: 'Valid Lead Description',
-            principal_investigator: undefined,
-            lever_name: 'Test Lever 5'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A005',
+              projectDescription: 'Test Project 5',
+              description: 'Test Description 5',
+              project_lead_description: 'Valid Lead Description',
+              principal_investigator: undefined,
+              lever_name: 'Test Lever 5'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -607,17 +643,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with valid principal_investigator', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A006',
-            projectDescription: 'Test Project 6',
-            description: 'Test Description 6',
-            project_lead_description: 'Lead Description',
-            principal_investigator: 'Valid Principal Investigator',
-            lever_name: 'Test Lever 6'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A006',
+              projectDescription: 'Test Project 6',
+              description: 'Test Description 6',
+              project_lead_description: 'Lead Description',
+              principal_investigator: 'Valid Principal Investigator',
+              lever_name: 'Test Lever 6'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -635,17 +673,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with empty principal_investigator and empty project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A007',
-            projectDescription: 'Test Project 7',
-            description: 'Test Description 7',
-            project_lead_description: '',
-            principal_investigator: '',
-            lever_name: 'Test Lever 7'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A007',
+              projectDescription: 'Test Project 7',
+              description: 'Test Description 7',
+              project_lead_description: '',
+              principal_investigator: '',
+              lever_name: 'Test Lever 7'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -663,17 +703,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with false principal_investigator but valid project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A008',
-            projectDescription: 'Test Project 8',
-            description: 'Test Description 8',
-            project_lead_description: 'Valid Lead Description',
-            principal_investigator: false,
-            lever_name: 'Test Lever 8'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A008',
+              projectDescription: 'Test Project 8',
+              description: 'Test Description 8',
+              project_lead_description: 'Valid Lead Description',
+              principal_investigator: false,
+              lever_name: 'Test Lever 8'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -691,17 +733,19 @@ describe('MyProjectsService', () => {
     });
 
     it('should handle item with 0 principal_investigator but valid project_lead_description', async () => {
-    const mockResponse = {
-      data: { data: [
-          {
-            agreement_id: 'A009',
-            projectDescription: 'Test Project 9',
-            description: 'Test Description 9',
-            project_lead_description: 'Valid Lead Description',
-            principal_investigator: 0,
-            lever_name: 'Test Lever 9'
-        }
-      ] },
+      const mockResponse = {
+        data: {
+          data: [
+            {
+              agreement_id: 'A009',
+              projectDescription: 'Test Project 9',
+              description: 'Test Description 9',
+              project_lead_description: 'Valid Lead Description',
+              principal_investigator: 0,
+              lever_name: 'Test Lever 9'
+            }
+          ]
+        },
         status: 200,
         description: 'ok',
         timestamp: '',
@@ -809,6 +853,32 @@ describe('MyProjectsService', () => {
       await service.main();
 
       expect(service.totalRecords()).toBe(88);
+    });
+
+    it('should set display_lever_name from lever.name when lever has no short_name (cover getLeverDisplayName path from main)', async () => {
+      const itemWithLeverNameOnly = {
+        agreement_id: 'A010',
+        projectDescription: 'P',
+        description: 'D',
+        project_lead_description: 'L',
+        principal_investigator: 'PI',
+        lever_name: null,
+        lever: { name: 'Lever Name Only' }
+      };
+      mockApiService.GET_FindContracts.mockResolvedValueOnce({
+        data: { data: [itemWithLeverNameOnly] },
+        status: 200,
+        description: 'ok',
+        timestamp: '',
+        path: '',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      });
+
+      await service.main();
+
+      expect(service.list()).toHaveLength(1);
+      expect((service.list()[0] as any).display_lever_name).toBe('Lever Name Only');
     });
   });
 
@@ -1160,6 +1230,25 @@ describe('MyProjectsService', () => {
       );
     });
 
+    it('should include statusCodes in getActiveFilters (cover statusCodes forEach)', () => {
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        statusCodes: [
+          { name: 'Active', value: 'active' },
+          { name: 'Draft', value: 'draft' }
+        ]
+      });
+
+      const activeFilters = service.getActiveFilters();
+      expect(activeFilters).toHaveLength(2);
+      expect(activeFilters).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ label: 'STATUS', value: 'Active', id: 'active' }),
+          expect.objectContaining({ label: 'STATUS', value: 'Draft', id: 'draft' })
+        ])
+      );
+    });
+
     it('should format start date correctly', () => {
       // Use a date that will work in all timezones
       const dateStr = '2024-01-15T12:00:00.000Z';
@@ -1199,9 +1288,7 @@ describe('MyProjectsService', () => {
       });
 
       const activeFilters = service.getActiveFilters();
-      expect(activeFilters).toEqual([
-        expect.objectContaining({ label: 'START DATE', value: 'invalid-date' })
-      ]);
+      expect(activeFilters).toEqual([expect.objectContaining({ label: 'START DATE', value: 'invalid-date' })]);
     });
 
     it('should return empty string for empty date', () => {
@@ -1221,9 +1308,7 @@ describe('MyProjectsService', () => {
       });
 
       const activeFilters = service.getActiveFilters();
-      expect(activeFilters).toEqual([
-        expect.objectContaining({ label: 'LEVER', value: '5', id: 5 })
-      ]);
+      expect(activeFilters).toEqual([expect.objectContaining({ label: 'LEVER', value: '5', id: 5 })]);
     });
 
     it('should include principalInvestigator in active filters', () => {
@@ -1233,9 +1318,7 @@ describe('MyProjectsService', () => {
       });
 
       const activeFilters = service.getActiveFilters();
-      expect(activeFilters).toEqual([
-        expect.objectContaining({ label: 'PRINCIPAL INVESTIGATOR', value: 'Test PI' })
-      ]);
+      expect(activeFilters).toEqual([expect.objectContaining({ label: 'PRINCIPAL INVESTIGATOR', value: 'Test PI' })]);
     });
 
     it('should handle empty date string in formatDate', () => {
@@ -1305,7 +1388,7 @@ describe('MyProjectsService', () => {
       let activeFilters = service.getActiveFilters();
       expect(activeFilters.length).toBe(1);
       expect(activeFilters[0].label).toBe('START DATE');
-      
+
       // Test with endDate
       service.appliedFilters.set({
         ...new MyProjectsFilters(),
@@ -1321,10 +1404,10 @@ describe('MyProjectsService', () => {
       // Since formatDate is internal and only called when startDate/endDate is truthy,
       // we use Object.defineProperty with a getter that returns different values
       // on each access to bypass the outer truthy check
-      
+
       let accessCount = 0;
       const customFilters: any = Object.assign(Object.create(MyProjectsFilters.prototype), new MyProjectsFilters());
-      
+
       Object.defineProperty(customFilters, 'startDate', {
         get() {
           accessCount++;
@@ -1334,10 +1417,10 @@ describe('MyProjectsService', () => {
         enumerable: true,
         configurable: true
       });
-      
+
       service.appliedFilters.set(customFilters);
       const activeFilters = service.getActiveFilters();
-      
+
       // The filter should be added (first access was truthy), but value should be empty (formatDate received '')
       expect(activeFilters.length).toBe(1);
       expect(activeFilters[0].label).toBe('START DATE');
@@ -1351,7 +1434,7 @@ describe('MyProjectsService', () => {
         endDate: '2024-12-31',
         contractCode: 'TEST'
       });
-      
+
       const activeFilters = service.getActiveFilters();
       expect(activeFilters.length).toBe(3);
       expect(activeFilters.some(f => f.label === 'START DATE')).toBe(true);
@@ -1432,6 +1515,16 @@ describe('MyProjectsService', () => {
       service.multiselectRefs.set({});
       expect(() => service.cleanMultiselects()).not.toThrow();
     });
+
+    it('should skip null/undefined ref values in cleanMultiselects (cover falsy multiselect branch)', () => {
+      const mockClear = jest.fn();
+      service.multiselectRefs.set({
+        status: { clear: mockClear } as any,
+        lever: null as any
+      });
+      service.cleanMultiselects();
+      expect(mockClear).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('clearAllFilters', () => {
@@ -1441,9 +1534,7 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': false, page: 1, limit: 10 })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false, page: 1, limit: 10 }));
     });
   });
 
@@ -1454,9 +1545,7 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': false, page: 1, limit: 10 })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false, page: 1, limit: 10 }));
     });
   });
 
@@ -1464,9 +1553,7 @@ describe('MyProjectsService', () => {
     it('should refresh data', () => {
       service.refresh();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': false, page: 1, limit: 10 })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false, page: 1, limit: 10 }));
     });
   });
 
@@ -1592,9 +1679,7 @@ describe('MyProjectsService', () => {
 
       service.removeFilter('STATUS', 'active');
 
-      expect(service.tableFilters().statusCodes).toEqual([
-        { name: 'Inactive', value: 'inactive' }
-      ]);
+      expect(service.tableFilters().statusCodes).toEqual([{ name: 'Inactive', value: 'inactive' }]);
     });
 
     it('should remove all levers when id is null', () => {
@@ -1622,9 +1707,7 @@ describe('MyProjectsService', () => {
 
       service.removeFilter('LEVER', 1);
 
-      expect(service.tableFilters().levers).toEqual([
-        { id: 2, short_name: 'Test2' }
-      ]);
+      expect(service.tableFilters().levers).toEqual([{ id: 2, short_name: 'Test2' }]);
     });
 
     it('should call removeById on multiselect ref when id is provided', () => {
@@ -1762,6 +1845,136 @@ describe('MyProjectsService', () => {
       service.removeFilter('LEVER', 1);
 
       expect(mockMultiselect.removeById).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('state persistence', () => {
+    it('should persist current view state when persistence is activated', () => {
+      service.myProjectsFilterItem.set(service.myProjectsFilterItems[1]);
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        contractCode: 'A001'
+      });
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        projectName: 'Persisted Project'
+      });
+      service.searchInput.set('persist me');
+
+      service.activateStatePersistence('project-1');
+      TestBed.flushEffects();
+
+      const rawState = globalThis.sessionStorage?.getItem('my-projects-view-state:project-1');
+      expect(rawState).toBeTruthy();
+      expect(JSON.parse(rawState!)).toEqual({
+        myProjectsFilterItemId: 'my',
+        tableFilters: expect.objectContaining({ contractCode: 'A001' }),
+        appliedFilters: expect.objectContaining({ projectName: 'Persisted Project' }),
+        searchInput: 'persist me'
+      });
+    });
+
+    it('should persist the default tab id when no tab is selected', () => {
+      service.myProjectsFilterItem.set(undefined);
+
+      service.activateStatePersistence('project-1');
+      TestBed.flushEffects();
+
+      const rawState = globalThis.sessionStorage?.getItem('my-projects-view-state:project-1');
+      expect(rawState).toBeTruthy();
+      expect(JSON.parse(rawState!).myProjectsFilterItemId).toBe('all');
+    });
+
+    it('should clear the active persistence key only when the key matches', () => {
+      service.activateStatePersistence('project-1');
+      expect(service.activeStateKey()).toBe('project-1');
+
+      service.deactivateStatePersistence('other-key');
+      expect(service.activeStateKey()).toBe('project-1');
+
+      service.deactivateStatePersistence('project-1');
+      expect(service.activeStateKey()).toBeNull();
+    });
+
+    it('should skip persisting when there is no active persistence key', () => {
+      const setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+
+      service.activateStatePersistence('project-1');
+      TestBed.flushEffects();
+      setItemSpy.mockClear();
+
+      service.deactivateStatePersistence('project-1');
+      TestBed.flushEffects();
+
+      expect(setItemSpy).not.toHaveBeenCalled();
+    });
+
+    it('should restore persisted state successfully', () => {
+      globalThis.sessionStorage?.setItem(
+        'my-projects-view-state:project-1',
+        JSON.stringify({
+          myProjectsFilterItemId: 'my',
+          tableFilters: { contractCode: 'A001', startDate: '2024-01-01' },
+          appliedFilters: { projectName: 'Restored Project', endDate: '2024-12-31' },
+          searchInput: 'restored search'
+        })
+      );
+
+      const restored = service.restorePersistedState('project-1');
+
+      expect(restored).toBe(true);
+      expect(service.myProjectsFilterItem()).toEqual(service.myProjectsFilterItems[1]);
+      expect(service.tableFilters()).toEqual(expect.objectContaining({ contractCode: 'A001', startDate: '2024-01-01' }));
+      expect(service.appliedFilters()).toEqual(expect.objectContaining({ projectName: 'Restored Project', endDate: '2024-12-31' }));
+      expect(service.searchInput()).toBe('restored search');
+    });
+
+    it('should fall back to the default tab when persisted tab id is unknown', () => {
+      globalThis.sessionStorage?.setItem(
+        'my-projects-view-state:project-1',
+        JSON.stringify({
+          myProjectsFilterItemId: 'unknown',
+          tableFilters: {},
+          appliedFilters: {},
+          searchInput: ''
+        })
+      );
+
+      const restored = service.restorePersistedState('project-1');
+
+      expect(restored).toBe(true);
+      expect(service.myProjectsFilterItem()).toEqual(service.myProjectsFilterItems[0]);
+    });
+
+    it('should restore default filter objects and empty search when persisted values are missing', () => {
+      globalThis.sessionStorage?.setItem(
+        'my-projects-view-state:project-1',
+        JSON.stringify({
+          myProjectsFilterItemId: 'all'
+        })
+      );
+
+      const restored = service.restorePersistedState('project-1');
+
+      expect(restored).toBe(true);
+      expect(service.tableFilters()).toEqual(new MyProjectsFilters());
+      expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
+      expect(service.searchInput()).toBe('');
+    });
+
+    it('should return false when there is no persisted state to restore', () => {
+      expect(service.restorePersistedState('missing-project')).toBe(false);
+    });
+
+    it('should remove invalid persisted state when restore fails', () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      globalThis.sessionStorage?.setItem('my-projects-view-state:project-1', '{invalid json');
+
+      const restored = service.restorePersistedState('project-1');
+
+      expect(restored).toBe(false);
+      expect(warnSpy).toHaveBeenCalledWith('Error restoring persisted my-projects state:', expect.any(SyntaxError));
+      expect(globalThis.sessionStorage?.getItem('my-projects-view-state:project-1')).toBeNull();
     });
   });
 });

@@ -47,6 +47,7 @@ class CacheServiceMock {
   currentMetadata = jest.fn().mockReturnValue({});
   currentResultIsLoading = jest.fn().mockReturnValue(false);
   showSectionHeaderActions = jest.fn().mockReturnValue(false);
+  hasSmallScreen = jest.fn().mockReturnValue(false);
   isSidebarCollapsed = jest.fn().mockReturnValue(false);
 }
 class ActionsServiceMock {
@@ -144,6 +145,7 @@ describe('InnovationDetailsComponent', () => {
   let router: any;
   let getInnovationReadinessLevelsService: GetInnovationReadinessLevelsServiceMock;
   let serviceLocator: ServiceLocatorServiceMock;
+  let versionWatcher: VersionWatcherServiceMock;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -178,12 +180,21 @@ describe('InnovationDetailsComponent', () => {
     router = TestBed.inject(Router) as any;
     getInnovationReadinessLevelsService = TestBed.inject(GetInnovationReadinessLevelsService) as any;
     serviceLocator = TestBed.inject(ServiceLocatorService) as any;
+    versionWatcher = TestBed.inject(VersionWatcherService) as any;
     fixture.detectChanges();
+    TestBed.flushEffects();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should call getData when version watcher fires (cover onVersionChange callback)', fakeAsync(async () => {
+    expect(versionWatcher.onVersionChange).toHaveBeenCalled();
+    const callback = versionWatcher.onVersionChange.mock.calls[0][0];
+    await callback();
+    expect(apiService.GET_InnovationDetails).toHaveBeenCalled();
+  }));
 
   it('should get data and set body', fakeAsync(async () => {
     await component.getData();
@@ -278,12 +289,72 @@ describe('InnovationDetailsComponent', () => {
     expect(component.body().actors.length).toBe(0);
   });
 
+  it('addActor should use empty array when actors is undefined (cover line 157 || branch)', () => {
+    component.body.set({ ...component.body(), actors: undefined });
+    component.addActor();
+    expect(component.body().actors).toHaveLength(1);
+  });
+
+  it('addInstitutionType should use empty array when institution_types is undefined (cover line 174 || branch)', () => {
+    component.body.set({ ...component.body(), institution_types: undefined });
+    component.addInstitutionType();
+    expect(component.body().institution_types).toHaveLength(1);
+  });
+
+  it('should add actor when body already has actors (cover line 158 actors branch)', () => {
+    component.body.set({ ...component.body(), actors: [new Actor()] });
+    component.addActor();
+    expect(component.body().actors!.length).toBe(2);
+  });
+
+  it('should no-op deleteActor when actors is undefined (cover line 164 false branch)', () => {
+    component.body.set({ ...component.body(), actors: undefined });
+    component.deleteActor(0);
+    expect(component.body().actors).toBeUndefined();
+  });
+
   it('should add and delete institution type', () => {
     component.body.set({ ...component.body(), institution_types: [] });
     component.addInstitutionType();
     expect(component.body().institution_types.length).toBe(1);
     component.deleteInstitutionType(0);
     expect(component.body().institution_types.length).toBe(0);
+  });
+
+  it('should add institution type when body already has institution_types (cover line 174)', () => {
+    component.body.set({ ...component.body(), institution_types: [new InstitutionType()] });
+    component.addInstitutionType();
+    expect(component.body().institution_types!.length).toBe(2);
+  });
+
+  it('should no-op deleteInstitutionType when institution_types is undefined (cover line 180 false branch)', () => {
+    component.body.set({ ...component.body(), institution_types: undefined });
+    component.deleteInstitutionType(0);
+    expect(component.body().institution_types).toBeUndefined();
+  });
+
+  it('updateArray should not push when action is add but item is null (cover line 158 branch)', () => {
+    const result = (component as any).updateArray([], null, 'add');
+    expect(result).toEqual([]);
+  });
+
+  it('updateArray should not splice when action is remove but index is undefined (cover line 160 branch)', () => {
+    const arr = [new Actor()];
+    const result = (component as any).updateArray(arr, null, 'remove');
+    expect(result).toHaveLength(1);
+    expect(result).toEqual(arr);
+  });
+
+  it('deleteActor should no-op when actors is null (cover line 165 falsy branch)', () => {
+    component.body.set({ ...component.body(), actors: null as any });
+    component.deleteActor(0);
+    expect(component.body().actors).toBeNull();
+  });
+
+  it('deleteInstitutionType should no-op when institution_types is null (cover line 174 falsy branch)', () => {
+    component.body.set({ ...component.body(), institution_types: null as any });
+    component.deleteInstitutionType(0);
+    expect(component.body().institution_types).toBeNull();
   });
 
   it('should return stepNumbers and stepLevels', () => {
@@ -359,6 +430,36 @@ describe('InnovationDetailsComponent', () => {
     submission.isEditableStatus.mockReturnValue(false);
     expect(component.canRemove()).toBeFalsy();
   });
+
+  it('should clean institution_types with custom name when saving', fakeAsync(async () => {
+    component.body.set({
+      ...component.body(),
+      institution_types: [
+        {
+          is_organization_known: false,
+          institution_type_id: null,
+          result_institution_type_id: null,
+          sub_institution_type_id: null,
+          institution_id: null,
+          institution_type_custom_name: 'Custom'
+        } as any
+      ]
+    });
+    apiService.PATCH_InnovationDetails.mockReturnValue(Promise.resolve({ successfulRequest: true }));
+    jest.spyOn(component, 'getData').mockReturnValue(Promise.resolve());
+    await component.saveData();
+    expect(apiService.PATCH_InnovationDetails).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        institution_types: expect.arrayContaining([
+          expect.objectContaining({
+            is_organization_known: false,
+            institution_type_custom_name: 'Custom'
+          })
+        ])
+      })
+    );
+  }));
 
   it('should not show toast or call getData if PATCH is not successful', fakeAsync(async () => {
     apiService.PATCH_InnovationDetails.mockReturnValue(Promise.resolve({ successfulRequest: false }));

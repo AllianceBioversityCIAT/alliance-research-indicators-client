@@ -67,7 +67,7 @@ export class ResultSidebarComponent {
       greenCheckKey: 'general_information'
     },
     {
-      label: 'Alliance Alignment',
+      label: 'Alliance alignment',
       path: 'alliance-alignment',
       greenCheckKey: 'alignment'
     },
@@ -96,7 +96,7 @@ export class ResultSidebarComponent {
       greenCheckKey: 'policy_change'
     },
     {
-      label: 'Results Partners',
+      label: 'Results partners',
       path: 'partners',
       greenCheckKey: 'partners'
     },
@@ -119,13 +119,13 @@ export class ResultSidebarComponent {
       greenCheckKey: 'evidences'
     },
     {
-      label: 'IP Rights',
+      label: 'IP rights',
       path: 'ip-rights',
       indicator_id: 1,
       greenCheckKey: 'ip_rights'
     },
     {
-      label: 'IP Rights',
+      label: 'IP rights',
       path: 'ip-rights',
       indicator_id: 2,
       greenCheckKey: 'ip_rights'
@@ -335,9 +335,8 @@ export class ResultSidebarComponent {
 
   private async handleSuccessfulStatusUpdate(status: number): Promise<void> {
     await this.metadata.update(this.cache.getCurrentNumericResultId());
-    
-    const { indicator_id, status_id, result_contract_id, result_title, result_official_code } = 
-      this.cache.currentMetadata() || {};
+
+    const { indicator_id, status_id, result_contract_id, result_title, result_official_code } = this.cache.currentMetadata() || {};
 
     if (this.currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
       const isDraft = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
@@ -347,11 +346,7 @@ export class ResultSidebarComponent {
           if (!this.router.url.includes('/project-detail/')) {
             this.cache.projectResultsSearchValue.set(result_title ?? '');
           }
-          await this.currentResultService.openEditRequestdOicrsModal(
-            indicator_id ?? 0,
-            status_id ?? 0,
-            result_official_code ?? 0
-          );
+          await this.currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
           return;
         }
       }
@@ -369,30 +364,24 @@ export class ResultSidebarComponent {
   }
 
   private async handlePostponeOrRejectRedirect(): Promise<void> {
-    const { indicator_id, status_id, result_contract_id, result_title, result_official_code } = 
-      this.cache.currentMetadata() || {};
+    const { indicator_id, status_id, result_contract_id, result_title, result_official_code } = this.cache.currentMetadata() || {};
 
     if (!this.currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
       return;
     }
 
-    const isDraft = (status_id ?? 0) === 4 || (status_id ?? 0) === 14 || 
-                   (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
-    
+    const isDraft = (status_id ?? 0) === 4 || (status_id ?? 0) === 14 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
+
     if (isDraft || !result_contract_id) {
       return;
     }
 
     this.router.navigate(['/project-detail', result_contract_id]);
-    
+
     if (!this.router.url.includes('/project-detail/')) {
       this.cache.projectResultsSearchValue.set(result_title ?? '');
     }
-    
-    await this.currentResultService.openEditRequestdOicrsModal(
-      indicator_id ?? 0,
-      status_id ?? 0,
-      result_official_code ?? 0
-    );
+
+    await this.currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
   }
 }

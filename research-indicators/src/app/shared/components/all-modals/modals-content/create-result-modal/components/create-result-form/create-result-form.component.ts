@@ -28,6 +28,8 @@ import { getContractStatusClasses } from '@shared/constants/status-classes.const
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { environment } from '../../../../../../../../environments/environment';
 import { BaseInformation, StepTwo, Lever } from '../../../../../../interfaces/oicr-creation.interface';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
+import { ResultFilter, ResultConfig } from '@shared/interfaces/result/result.interface';
 
 registerLocaleData(localeEs);
 
@@ -209,6 +211,21 @@ export class CreateResultFormComponent {
     return contract?.lever_id;
   }
 
+  /** Build primary_lever array for OICR; used by navigateToOicr and tests for branch coverage */
+  getPrimaryLeverForOicr(): Lever[] {
+    const leverId = this.getPrimaryLeverId(this.body().contract_id || '');
+    if (!leverId) return [];
+    return [
+      {
+        result_lever_id: 0,
+        result_id: 0,
+        lever_id: Number(leverId),
+        lever_role_id: 0,
+        is_primary: true
+      } as Lever
+    ];
+  }
+
   async CreateOicr() {
     const title = this.body().title?.trim() ?? '';
     const res = await this.api.GET_ValidateTitle(title);
@@ -218,13 +235,27 @@ export class CreateResultFormComponent {
       return;
     }
 
+    const code = res.data?.result_official_code;
+    const platform = res.data?.platform_code ?? 'STAR';
+    const resultCode = code != null ? `${platform}-${code}` : null;
+    const isNonStar = platform !== PLATFORM_CODES.STAR;
+    const openModalOnLinkClick = isNonStar && code != null;
+    const canNavigateDirectly = resultCode && !openModalOnLinkClick;
+    const linkHref = canNavigateDirectly ? `result/${resultCode}/general-information` : '#';
+    const detail = resultCode
+      ? `Please enter a different title. Existing result: <a href="${linkHref}" target="_blank" class="alert-link-custom"><span class="alert-link-bold">${resultCode}</span></a>`
+      : 'Please enter a different title.';
+
     this.actions.showGlobalAlert({
       severity: 'secondary',
       summary: 'Title Already Exists',
-      detail: 'Please enter a different title.',
+      detail,
       hasNoCancelButton: true,
       generalButton: true,
       confirmCallback: { label: 'Enter other title', event: () => null },
+      ...(openModalOnLinkClick && {
+        onDetailLinkClick: () => { void this.openExistingResultModal(platform, String(code)); }
+      }),
       buttonColor: '#035BA9'
     });
   }
@@ -244,29 +275,17 @@ export class CreateResultFormComponent {
       } as BaseInformation,
       step_two: {
         ...b.step_two,
-        primary_lever: this.getPrimaryLeverId(this.body().contract_id || '')
-          ? [
-              {
-                result_lever_id: 0,
-                result_id: 0,
-                lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || '')),
-                lever_role_id: 0,
-                is_primary: true
-              } as Lever
-            ]
-          : []
+        primary_lever: this.getPrimaryLeverForOicr()
       } as StepTwo
     }));
-    this.createResultManagementService.oicrPrimaryOptionsDisabled.update(b => [
-      ...b,
-      {
-        result_lever_id: 0,
-        result_id: 0,
-        lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || '')),
-        lever_role_id: 0,
-        is_primary: true
-      } as Lever
-    ]);
+    const primaryLeverEntry = this.getPrimaryLeverForOicr()[0] ?? {
+      result_lever_id: 0,
+      result_id: 0,
+      lever_id: Number(this.getPrimaryLeverId(this.body().contract_id || '')),
+      lever_role_id: 0,
+      is_primary: true
+    } as Lever;
+    this.createResultManagementService.oicrPrimaryOptionsDisabled.update(b => [...b, primaryLeverEntry]);
     this.createResultManagementService.resultPageStep.set(2);
   }
 
@@ -277,10 +296,65 @@ export class CreateResultFormComponent {
       if (result.successfulRequest) {
         this.successRequest(result, openresult);
       } else {
-        this.actions.handleBadRequest(result);
+        this.actions.handleBadRequest(result, undefined, {
+          onOpenExistingResult: (platformCode, resultOfficialCode) => {
+            void this.openExistingResultModal(platformCode, resultOfficialCode);
+          }
+        });
       }
     } finally {
       this.loading = false;
+    }
+  }
+
+  async openExistingResultModal(platformCode: string, resultOfficialCode: string): Promise<void> {
+    try {
+      const filter: ResultFilter = {
+        'platform-code': [platformCode],
+        'result-codes': [resultOfficialCode]
+      };
+      const resultConfig: ResultConfig = {
+        indicators: true,
+        'result-status': true,
+        contracts: true,
+        'primary-contract': true,
+        levers: true,
+        'primary-lever': true,
+        'audit-data': true,
+        'audit-data-object': true
+      };
+      const response = await this.api.GET_Results(filter, resultConfig);
+      const raw = response?.data;
+      let list: Result[] = [];
+      if (Array.isArray(raw)) {
+        list = raw;
+      } else if (raw != null && typeof raw === 'object') {
+        const maybeResults = (raw as { results?: Result[] }).results;
+        if (Array.isArray(maybeResults)) {
+          list = maybeResults;
+        } else if ('result_id' in raw || 'result_official_code' in raw) {
+          list = [raw as Result];
+        }
+      }
+      const result = list.find(
+        (r: Result) => String(r.result_official_code) === resultOfficialCode && r.platform_code === platformCode
+      ) ?? (list.length === 1 ? list[0] : null);
+      if (result) {
+        const normalized: Result = {
+          ...result,
+          result_official_code: String(result.result_official_code),
+          result_contracts: result.result_contracts ?? undefined,
+          result_levers: result.result_levers ?? undefined,
+          indicators: result.indicators ?? undefined,
+          result_status: result.result_status ?? undefined,
+          created_by_user: result.created_by_user ?? undefined,
+          snapshot_years: Array.isArray(result.snapshot_years) ? result.snapshot_years : []
+        };
+        this.allModalsService.selectedResultForInfo.set(normalized);
+        this.allModalsService.openModal('resultInformation');
+      }
+    } catch {
+      // ignore fetch errors
     }
   }
 
@@ -298,11 +372,15 @@ export class CreateResultFormComponent {
 
     if (openresult) {
       this.cache.currentResultId.set(Number(result.data.result_official_code));
-      const resultCode = `STAR-${result.data.result_official_code}`;
+      const platformCode = result.data.platform_code ?? 'STAR';
 
-      this.router.navigate(['result', resultCode], {
-        replaceUrl: true
-      });
+      if (platformCode !== PLATFORM_CODES.STAR) {
+        this.allModalsService.selectedResultForInfo.set(result.data);
+        this.allModalsService.openModal('resultInformation');
+      } else {
+        const resultCode = `${platformCode}-${result.data.result_official_code}`;
+        this.router.navigate(['result', resultCode], { replaceUrl: true });
+      }
 
       this.allModalsService.closeModal('createResult');
     }

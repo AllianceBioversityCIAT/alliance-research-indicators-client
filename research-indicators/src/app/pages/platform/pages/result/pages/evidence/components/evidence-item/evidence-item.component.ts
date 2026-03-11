@@ -27,6 +27,13 @@ import { NgTemplateOutlet } from '@angular/common';
       app-evidence-item input {
         color: #1689ca !important;
       }
+
+      app-evidence-item input::placeholder,
+      app-evidence-item textarea::placeholder {
+        color: #a2a9af !important;
+        font-size: 14px !important;
+        font-family: Barlow, sans-serif !important;
+      }
     `
   ]
 })

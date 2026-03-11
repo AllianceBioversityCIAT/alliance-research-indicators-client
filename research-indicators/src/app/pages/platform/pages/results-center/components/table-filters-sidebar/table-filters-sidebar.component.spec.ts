@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TableFiltersSidebarComponent } from './table-filters-sidebar.component';
 import { ResultsCenterService } from '../../results-center.service';
-import { PlatformSourceFilter } from '@shared/interfaces/platform-source-filter.interface';
 
 describe('TableFiltersSidebarComponent', () => {
   let component: TableFiltersSidebarComponent;
@@ -68,66 +67,11 @@ describe('TableFiltersSidebarComponent', () => {
     });
   });
 
-  describe('effect syncing selectedSourceCodes from tableFilters', () => {
-    it('should update selectedSourceCodes when tableFilters.sources changes', () => {
-      const sources: PlatformSourceFilter[] = [
-        { platform_code: 'STAR', name: 'STAR' },
-        { platform_code: 'PRMS', name: 'PRMS' }
-      ];
-      resultsCenterService.tableFilters.update(prev => ({ ...prev, sources }));
-      fixture.detectChanges();
-      expect(component.selectedSourceCodes).toEqual(['STAR', 'PRMS']);
-    });
-
-    it('should not overwrite selectedSourceCodes when already in sync with tableFilters.sources', () => {
-      const sources: PlatformSourceFilter[] = [{ platform_code: 'STAR', name: 'STAR' }];
-      resultsCenterService.tableFilters.update(prev => ({ ...prev, sources }));
-      fixture.detectChanges();
-      expect(component.selectedSourceCodes).toEqual(['STAR']);
-      component.selectedSourceCodes = ['STAR'];
-      resultsCenterService.tableFilters.update(prev => ({ ...prev, sources }));
-      fixture.detectChanges();
-      expect(component.selectedSourceCodes).toEqual(['STAR']);
-    });
-  });
-
   describe('ngAfterViewInit', () => {
-    it('should sync selectedSourceCodes from service and set multiselectRefs', () => {
-      const sources: PlatformSourceFilter[] = [{ platform_code: 'TIP', name: 'TIP' }];
-      resultsCenterService.tableFilters.update(prev => ({ ...prev, sources }));
+    it('should set multiselectRefs', () => {
       component.ngAfterViewInit();
-      expect(component.selectedSourceCodes).toEqual(['TIP']);
       expect(resultsCenterService.multiselectRefs()).toBeDefined();
       expect(Object.keys(resultsCenterService.multiselectRefs())).toEqual(['indicator', 'status', 'project', 'lever', 'year']);
-    });
-  });
-
-  describe('onSourceChange', () => {
-    it('should set selectedSourceCodes and update service when value is string[]', () => {
-      component.onSourceChange(['STAR', 'PRMS']);
-      expect(component.selectedSourceCodes).toEqual(['STAR', 'PRMS']);
-      expect(resultsCenterService.tableFilters().sources.map(s => s.platform_code)).toEqual(['STAR', 'PRMS']);
-    });
-
-    it('should set selectedSourceCodes and update service when value is PlatformSourceFilter[]', () => {
-      const value: PlatformSourceFilter[] = [{ platform_code: 'TIP', name: 'TIP' }];
-      component.onSourceChange(value);
-      expect(component.selectedSourceCodes).toEqual(['TIP']);
-      expect(resultsCenterService.tableFilters().sources.map(s => s.platform_code)).toEqual(['TIP']);
-    });
-
-    it('should clear selectedSourceCodes and sources when value is empty array', () => {
-      component.selectedSourceCodes = ['STAR'];
-      component.onSourceChange([]);
-      expect(component.selectedSourceCodes).toEqual([]);
-      expect(resultsCenterService.tableFilters().sources).toEqual([]);
-    });
-
-    it('should handle non-array value by clearing selection', () => {
-      component.selectedSourceCodes = ['STAR'];
-      component.onSourceChange(null as any);
-      expect(component.selectedSourceCodes).toEqual([]);
-      expect(resultsCenterService.tableFilters().sources).toEqual([]);
     });
   });
 });

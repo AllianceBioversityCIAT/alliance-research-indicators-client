@@ -1,6 +1,6 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 
 import { ResultsCenterService } from './results-center.service';
@@ -13,7 +13,6 @@ import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicato
 describe('ResultsCenterService', () => {
   let service: ResultsCenterService;
   let mockApiService: jest.Mocked<ApiService>;
-  let mockCacheService: jest.Mocked<CacheService>;
   let mockGetResultsService: jest.Mocked<GetResultsService>;
 
   const mockUser = {
@@ -24,12 +23,13 @@ describe('ResultsCenterService', () => {
     user: mockUser
   };
 
+  const indicatorListSignal = signal<GetAllIndicators[]>([
+    { indicator_id: 1, name: 'Indicator 1', able: true, active: false },
+    { indicator_id: 2, name: 'Indicator 2', able: true, active: false }
+  ]);
   const mockIndicatorTabs = {
     lazy: () => ({
-      list: signal<GetAllIndicators[]>([
-        { indicator_id: 1, name: 'Indicator 1', able: true, active: false },
-        { indicator_id: 2, name: 'Indicator 2', able: true, active: false }
-      ]),
+      list: indicatorListSignal,
       isLoading: signal(true),
       hasValue: signal(true)
     })
@@ -51,6 +51,10 @@ describe('ResultsCenterService', () => {
   ] as any;
 
   beforeEach(() => {
+    indicatorListSignal.set([
+      { indicator_id: 1, name: 'Indicator 1', able: true, active: false },
+      { indicator_id: 2, name: 'Indicator 2', able: true, active: false }
+    ]);
     const mockApiServiceObj = {
       indicatorTabs: mockIndicatorTabs
     } as any;
@@ -75,12 +79,46 @@ describe('ResultsCenterService', () => {
 
     service = TestBed.inject(ResultsCenterService);
     mockApiService = TestBed.inject(ApiService) as jest.Mocked<ApiService>;
-    mockCacheService = TestBed.inject(CacheService) as jest.Mocked<CacheService>;
     mockGetResultsService = TestBed.inject(GetResultsService) as jest.Mocked<GetResultsService>;
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  describe('onChangeList effect', () => {
+    it('should prepend All Indicators and set able by indicator_id when isLoading is false', fakeAsync(() => {
+      const listSignal = signal<GetAllIndicators[]>([
+        { indicator_id: 1, name: 'Indicator 1', able: true, active: false },
+        { indicator_id: 2, name: 'Indicator 2', able: true, active: false },
+        { indicator_id: 7, name: 'Indicator 7', able: false, active: false }
+      ]);
+      const mockIndicatorTabsLoaded = {
+        lazy: () => ({
+          list: listSignal,
+          isLoading: signal(false),
+          hasValue: signal(true)
+        })
+      };
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [HttpClientTestingModule],
+        providers: [
+          ResultsCenterService,
+          { provide: ApiService, useValue: { indicatorTabs: mockIndicatorTabsLoaded } as any },
+          { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
+          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockReturnValue(signal(mockResults)) } }
+        ]
+      });
+      TestBed.inject(ResultsCenterService);
+      tick();
+
+      expect(listSignal().length).toBe(4);
+      expect(listSignal()[0]).toEqual({ name: 'All Indicators', indicator_id: 0, able: true, active: true });
+      expect(listSignal()[1].able).toBe(true);
+      expect(listSignal()[2].able).toBe(true);
+      expect(listSignal()[3].able).toBe(false);
+    }));
   });
 
   describe('Initial state', () => {
@@ -183,8 +221,8 @@ describe('ResultsCenterService', () => {
       const getValue = titleColumn?.getValue;
 
       if (getValue) {
-        expect(getValue({ title: null } as Result)).toBeNull();
-        expect(getValue({ title: undefined } as Result)).toBeUndefined();
+        expect(getValue({ title: null } as unknown as Result)).toBeNull();
+        expect(getValue({ title: undefined } as unknown as Result)).toBeUndefined();
         expect(getValue({ title: 123 } as any)).toBe(123);
       }
     });
@@ -247,6 +285,16 @@ describe('ResultsCenterService', () => {
       }
     });
 
+    it('should return empty array for versions when snapshot_years is not array', () => {
+      const columns = service.tableColumns();
+      const versionsColumn = columns.find(col => col.field === 'versions');
+      const getValue = versionsColumn?.getValue;
+      if (getValue) {
+        expect(getValue({ snapshot_years: null } as unknown as Result)).toEqual([]);
+        expect(getValue({ snapshot_years: {} } as unknown as Result)).toEqual([]);
+      }
+    });
+
     it('should evaluate indicator column hideIf computed', () => {
       const columns = service.tableColumns();
       const indicatorColumn = columns.find(col => col.field === 'indicator_id');
@@ -256,14 +304,46 @@ describe('ResultsCenterService', () => {
       }
     });
 
+    it('should return hideIf true when list has active indicator with indicator_id !== 0', () => {
+      indicatorListSignal.update(prev => prev.map((x, i) => (i === 0 ? { ...x, active: true } : x)));
+      const columns = service.tableColumns();
+      const indicatorColumn = columns.find(col => col.field === 'indicator_id');
+      const hideIf = indicatorColumn?.hideIf;
+      if (typeof hideIf === 'function') expect(hideIf()).toBe(true);
+    });
+
+    it('should return hideIf false when active indicator has indicator_id 0', () => {
+      indicatorListSignal.set([{ indicator_id: 0, name: 'All Indicators', able: true, active: true }]);
+      const columns = service.tableColumns();
+      const indicatorColumn = columns.find(col => col.field === 'indicator_id');
+      const hideIf = indicatorColumn?.hideIf;
+      if (typeof hideIf === 'function') expect(hideIf()).toBe(false);
+    });
+
+    it('should evaluate creator column hideFilterIf when create-user-codes is empty', () => {
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [] }));
+      const columns = service.tableColumns();
+      const creatorColumn = columns.find(col => col.field === 'creator');
+      const hideFilterIf = creatorColumn?.hideFilterIf;
+      if (hideFilterIf) expect(hideFilterIf()).toBe(false);
+    });
+
     it('should evaluate creator column hideFilterIf when create-user-codes has items', () => {
-      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [123] }));
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [123] as any }));
       const columns = service.tableColumns();
       const creatorColumn = columns.find(col => col.field === 'creator');
       const hideFilterIf = creatorColumn?.hideFilterIf;
       if (typeof hideFilterIf === 'function') {
         expect(hideFilterIf()).toBe(true);
       }
+    });
+
+    it('should evaluate creator column hideFilterIf when create-user-codes is undefined', () => {
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': undefined as any }));
+      const columns = service.tableColumns();
+      const creatorColumn = columns.find(col => col.field === 'creator');
+      const hideFilterIf = creatorColumn?.hideFilterIf;
+      if (hideFilterIf) expect(hideFilterIf()).toBe(false);
     });
   });
 
@@ -366,10 +446,7 @@ describe('ResultsCenterService', () => {
       }));
       service.tableFilters.update(prev => ({
         ...prev,
-        years: [
-          { id: 2023, name: '2023' },
-          { id: 2024, name: '2024' }
-        ]
+        years: [{ report_year: 2023 } as any, { report_year: 2024 } as any]
       }));
 
       const filters = service.getActiveFilters();
@@ -394,6 +471,142 @@ describe('ResultsCenterService', () => {
       expect(filters).toEqual(expect.arrayContaining([expect.objectContaining({ label: 'SOURCE', value: 'ROAR', id: 'ROAR' })]));
     });
 
+    it('should skip falsy items in tableFilters when building getActiveFilters', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'indicator-codes-filter': [1] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        indicators: [null, { indicator_id: 1, name: 'Ind A' }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'INDICATOR', id: 1 }));
+      expect(filters.filter(f => f.label === 'INDICATOR')).toHaveLength(1);
+    });
+
+    it('should use empty string for INDICATOR value when name is undefined', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'indicator-codes-filter': [1] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        indicators: [{ indicator_id: 1, name: undefined }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'INDICATOR', value: '', id: 1 }));
+    });
+
+    it('should use empty string for STATUS value when name is undefined', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'status-codes': [1] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        statusCodes: [{ result_status_id: 1, name: undefined }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'STATUS', value: '', id: 1 }));
+    });
+
+    it('should use empty string for SOURCE value when name is undefined', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'platform-code': ['pc1'] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        sources: [{ platform_code: 'pc1', name: undefined }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'SOURCE', value: '', id: 'pc1' }));
+    });
+
+    it('should use empty array when sources is undefined in getActiveFilters', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'platform-code': ['pc1'] }));
+      service.tableFilters.update(prev => ({ ...prev, sources: undefined as any }));
+      const filters = service.getActiveFilters();
+      expect(filters.filter(f => f.label === 'SOURCE')).toHaveLength(0);
+    });
+
+    it('should use empty string for LEVER value when short_name and name are falsy', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'lever-codes': [1] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        levers: [{ id: 1, short_name: undefined, name: undefined }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'LEVER', value: '', id: 1 }));
+    });
+
+    it('should not add LEVER when lever-codes is null in appliedFilters', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'lever-codes': null as any }));
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }] as any }));
+      const filters = service.getActiveFilters();
+      expect(filters.filter(f => f.label === 'LEVER')).toHaveLength(0);
+    });
+
+    it('should skip falsy items in statusCodes when building getActiveFilters', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'status-codes': [1] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        statusCodes: [null, { result_status_id: 1, name: 'Submitted' }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters.filter(f => f.label === 'STATUS')).toHaveLength(1);
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'STATUS', id: 1 }));
+    });
+
+    it('should skip falsy items in sources when building getActiveFilters', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'platform-code': ['PC1'] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        sources: [undefined, { platform_code: 'PC1', name: 'Source 1' }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters.filter(f => f.label === 'SOURCE')).toHaveLength(1);
+    });
+
+    it('should use display_label for PROJECT when present', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'contract-codes': ['ag1'] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        contracts: [{ agreement_id: 'ag1', display_label: 'My Project Label' }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'PROJECT', value: 'My Project Label', id: 'ag1' }));
+    });
+
+    it('should use agreement_id for PROJECT when display_label is missing', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'contract-codes': ['ag2'] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        contracts: [{ agreement_id: 'ag2' }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'PROJECT', value: 'ag2', id: 'ag2' }));
+    });
+
+    it('should use name for LEVER when short_name is missing', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'lever-codes': [1] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        levers: [{ id: 1, name: 'Lever Full Name' }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'LEVER', value: 'Lever Full Name', id: 1 }));
+    });
+
+    it('should use short_name for LEVER when both short_name and name are set', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'lever-codes': [1] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        levers: [{ id: 1, short_name: 'Short', name: 'Long Name' }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters).toContainEqual(expect.objectContaining({ label: 'LEVER', value: 'Short', id: 1 }));
+    });
+
+    it('should skip falsy items in years when building getActiveFilters', () => {
+      service.appliedFilters.update(prev => ({ ...prev, years: [2024] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        years: [null, { report_year: 2024 }] as any
+      }));
+      const filters = service.getActiveFilters();
+      expect(filters.filter(f => f.label === 'YEAR')).toHaveLength(1);
+    });
+
     it('should return multiple filters when multiple are active', () => {
       service.appliedFilters.update(prev => ({
         ...prev,
@@ -405,7 +618,7 @@ describe('ResultsCenterService', () => {
         ...prev,
         statusCodes: [{ result_status_id: 1, name: 'A' }] as any,
         levers: [{ id: 2, short_name: 'L2' }] as any,
-        years: [{ report_year: 2024 }]
+        years: [{ report_year: 2024 } as any]
       }));
 
       const filters = service.getActiveFilters();
@@ -443,6 +656,36 @@ describe('ResultsCenterService', () => {
       const count = service.countFiltersSelected();
       expect(count).toBe('1');
     });
+
+    it('should count all result filter types when all have length (cover line 286 and each 282-287 branch)', () => {
+      service.resultsFilter.update(prev => ({
+        ...prev,
+        'indicator-codes-filter': [1],
+        'status-codes': [2],
+        'platform-code': ['STAR'],
+        'contract-codes': ['C1'],
+        'lever-codes': [3],
+        years: [2024]
+      }));
+      const count = service.countFiltersSelected();
+      expect(count).toBe('6');
+    });
+
+    it('should use 0 when lever-codes is undefined in resultsFilter (cover line 286 ?? 0 branch)', () => {
+      service.resultsFilter.set({
+        'indicator-codes': [],
+        'indicator-codes-filter': [1],
+        'status-codes': [],
+        'platform-code': [],
+        'contract-codes': [],
+        'lever-codes': undefined as any,
+        'indicator-codes-tabs': [],
+        'create-user-codes': [],
+        years: []
+      } as any);
+      const count = service.countFiltersSelected();
+      expect(count).toBe('1');
+    });
   });
 
   describe('countTableFiltersSelected', () => {
@@ -463,6 +706,56 @@ describe('ResultsCenterService', () => {
 
       const count = service.countTableFiltersSelected();
       expect(count).toBe('3');
+    });
+
+    it('should include sources in count when table filters have sources (cover 294-299)', () => {
+      service.tableFilters.update(prev => ({
+        ...prev,
+        sources: [{ platform_code: 'STAR' }, { platform_code: 'ROAR' }] as any,
+        indicators: [{ indicator_id: 1 }] as any
+      }));
+      const count = service.countTableFiltersSelected();
+      expect(count).toBe('3');
+    });
+
+    it('should count all table filter types when all have length (cover each 294-299 branch)', () => {
+      service.tableFilters.update(prev => ({
+        ...prev,
+        indicators: [{ indicator_id: 1 }] as any,
+        statusCodes: [{ result_status_id: 1 }] as any,
+        sources: [{ platform_code: 'X' }] as any,
+        contracts: [{ contract_id: 'C1' }] as any,
+        levers: [{ id: 1 }] as any,
+        years: [2024]
+      }));
+      const count = service.countTableFiltersSelected();
+      expect(count).toBe('6');
+    });
+
+    it('should use 0 when tableFilters has undefined indicators and years (cover 294-299 ?? 0 branches)', () => {
+      service.tableFilters.set({
+        indicators: undefined as any,
+        statusCodes: [{ result_status_id: 1 }] as any,
+        sources: [],
+        contracts: [],
+        levers: [],
+        years: undefined as any
+      } as any);
+      const count = service.countTableFiltersSelected();
+      expect(count).toBe('1');
+    });
+
+    it('should use 0 for each undefined tableFilter key (cover lines 295-298 ?? 0)', () => {
+      service.tableFilters.set({
+        indicators: [{ indicator_id: 1 }] as any,
+        statusCodes: undefined as any,
+        sources: undefined as any,
+        contracts: undefined as any,
+        levers: undefined as any,
+        years: undefined as any
+      } as any);
+      const count = service.countTableFiltersSelected();
+      expect(count).toBe('1');
     });
   });
 
@@ -521,6 +814,19 @@ describe('ResultsCenterService', () => {
       expect(service.resultsFilter()['indicator-codes-tabs']).toEqual([]);
       expect(service.resultsFilter()['create-user-codes']).toEqual(['123']);
     });
+
+    it('should clear and reset table when tableRef is set', () => {
+      const tableMock = { clear: jest.fn(), sortField: '', sortOrder: 0, first: 5 };
+      service.tableRef.set(tableMock as any);
+
+      const event: MenuItem = { id: 'all', label: 'All Results' };
+      service.onActiveItemChange(event);
+
+      expect(tableMock.clear).toHaveBeenCalled();
+      expect(tableMock.sortField).toBe('result_official_code');
+      expect(tableMock.sortOrder).toBe(-1);
+      expect(tableMock.first).toBe(0);
+    });
   });
 
   describe('showFilterSidebar', () => {
@@ -535,6 +841,46 @@ describe('ResultsCenterService', () => {
       service.showConfigSidebar();
       expect(service.showConfigurationsSidebar()).toBe(true);
     });
+  });
+
+  describe('onChangeList effect', () => {
+    it('should update indicator list when isLoading is false', fakeAsync(() => {
+      const listSignal = signal<GetAllIndicators[]>([
+        { indicator_id: 1, name: 'Indicator 1', able: true, active: false },
+        { indicator_id: 99, name: 'Other', able: false, active: false }
+      ]);
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [HttpClientTestingModule],
+        providers: [
+          ResultsCenterService,
+          {
+            provide: ApiService,
+            useValue: {
+              indicatorTabs: {
+                lazy: () => ({
+                  list: listSignal,
+                  isLoading: signal(false),
+                  hasValue: signal(true)
+                })
+              }
+            }
+          },
+          { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
+          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockReturnValue(signal(mockResults)) } }
+        ]
+      });
+      TestBed.inject(ResultsCenterService);
+      tick();
+      const list = listSignal();
+      expect(list.length).toBeGreaterThan(0);
+      expect(list[0].name).toBe('All Indicators');
+      expect(list[0].indicator_id).toBe(0);
+      const indicator1 = list.find(i => i.indicator_id === 1);
+      expect(indicator1?.able).toBe(true);
+      const indicator99 = list.find(i => i.indicator_id === 99);
+      expect(indicator99?.able).toBe(false);
+    }));
   });
 
   describe('applyFilters', () => {
@@ -588,15 +934,18 @@ describe('ResultsCenterService', () => {
     });
 
     it('should map platform-code from sources with null/undefined as empty array', () => {
-      service.tableFilters.update(prev => ({
-        ...prev,
-        levers: [],
-        statusCodes: [],
-        years: [],
-        contracts: [],
-        indicators: [],
-        sources: undefined
-      } as any));
+      service.tableFilters.update(
+        prev =>
+          ({
+            ...prev,
+            levers: [],
+            statusCodes: [],
+            years: [],
+            contracts: [],
+            indicators: [],
+            sources: undefined
+          }) as any
+      );
       jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
       service.applyFilters();
       expect(service.resultsFilter()['platform-code']).toEqual([]);
@@ -605,12 +954,47 @@ describe('ResultsCenterService', () => {
 
     it('should preserve create-user-codes when myResultsFilterItem is my tab', () => {
       service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
-      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [100, 200] }));
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [100, 200] as any }));
       service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }] as any }));
       jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
       service.applyFilters();
       expect(service.resultsFilter()['create-user-codes']).toEqual([100, 200]);
       expect(service.appliedFilters()['create-user-codes']).toEqual([100, 200]);
+    });
+
+    it('should not preserve create-user-codes when tab is all', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[0]);
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [99] as any }));
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }] as any }));
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+      service.applyFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+      expect(service.appliedFilters()['create-user-codes']).toEqual([]);
+    });
+
+    it('should use empty array when currentTab is undefined in applyFilters', () => {
+      service.myResultsFilterItem.set(undefined as any);
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }] as any }));
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+      service.applyFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+    });
+
+    it('should use empty array when tab is my and create-user-codes is undefined in applyFilters', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': undefined as any }));
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }] as any }));
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+      service.applyFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+    });
+
+    it('should not set table.first when tableRef is null', () => {
+      service.tableRef.set(undefined as any);
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }] as any }));
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+      service.applyFilters();
+      expect(mainSpy).toHaveBeenCalled();
     });
 
     it('should map platform-code from sources when sources is defined', () => {
@@ -648,6 +1032,22 @@ describe('ResultsCenterService', () => {
       expect(filter['indicator-codes-tabs']).toEqual([]);
       expect(appliedFilter['indicator-codes-tabs']).toEqual([]);
       expect(mainSpy).toHaveBeenCalled();
+    });
+
+    it('should use empty create-user-codes when currentTab is undefined in onSelectFilterTab', () => {
+      service.myResultsFilterItem.set(undefined as any);
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [999] as any }));
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+      service.onSelectFilterTab(1);
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+    });
+
+    it('should preserve empty array when tab is my and create-user-codes undefined in onSelectFilterTab', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': undefined as any }));
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+      service.onSelectFilterTab(1);
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
     });
 
     it('should set indicator-codes-tabs when indicatorId is not 0 and call main', () => {
@@ -710,15 +1110,45 @@ describe('ResultsCenterService', () => {
     });
 
     it('should handle when table is null', () => {
-      service.tableRef.set(null);
+      service.tableRef.set(undefined as any);
       service.cleanFilters();
       const filters = service.tableFilters();
       expect(filters.indicators).toEqual([]);
     });
   });
 
-
   describe('clearAllFilters', () => {
+    it('should preserve create-user-codes when tab is my', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
+      service.resultsFilter.set({ 'create-user-codes': [99, 100], 'indicator-codes': [1] } as any);
+      service.clearAllFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([99, 100]);
+      expect(service.resultsFilter()['indicator-codes']).toEqual([]);
+    });
+
+    it('should clear create-user-codes when currentTab is undefined in clearAllFilters', () => {
+      service.myResultsFilterItem.set(undefined as any);
+      service.resultsFilter.set({ 'create-user-codes': [1, 2], 'indicator-codes': [1] } as any);
+      service.clearAllFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+    });
+
+    it('should clear create-user-codes when currentTab id is not my (cover line 548 else branch)', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[0]);
+      service.resultsFilter.set({ 'create-user-codes': [1, 2], 'indicator-codes': [1] } as any);
+      service.clearAllFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+    });
+
+    it('should use [] when tab is my and create-user-codes is falsy (cover line 548 || [] branch)', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': undefined as any }));
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => {});
+      service.clearAllFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+      mainSpy.mockRestore();
+    });
+
     it('should clear all filters and reset state', () => {
       service.resultsFilter.update(prev => ({
         ...prev,
@@ -764,7 +1194,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should handle when table is null', () => {
-      service.tableRef.set(null);
+      service.tableRef.set(undefined as any);
       service.clearAllFilters();
       expect(service.resultsFilter()['indicator-codes-filter']).toEqual([]);
     });
@@ -800,7 +1230,11 @@ describe('ResultsCenterService', () => {
     it('should catch and warn when a multiselect clear throws', () => {
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       const okMultiselect = { clear: jest.fn() };
-      const failingMultiselect = { clear: jest.fn().mockImplementation(() => { throw new Error('clear failed'); }) };
+      const failingMultiselect = {
+        clear: jest.fn().mockImplementation(() => {
+          throw new Error('clear failed');
+        })
+      };
 
       service.multiselectRefs.set({
         ok: okMultiselect as any,
@@ -829,7 +1263,7 @@ describe('ResultsCenterService', () => {
             { is_primary: 1, contract_id: 'B456' },
             { is_primary: 0, contract_id: 'C789' }
           ]
-        } as Result;
+        } as unknown as Result;
         expect(getValue(result)).toBe('B456');
       }
     });
@@ -842,7 +1276,7 @@ describe('ResultsCenterService', () => {
       if (getValue) {
         const result = {
           result_contracts: { is_primary: 1, contract_id: 'D012' }
-        } as Result;
+        } as unknown as Result;
         expect(getValue(result)).toBe('D012');
       }
     });
@@ -853,9 +1287,84 @@ describe('ResultsCenterService', () => {
       const getValue = projectColumn?.getValue;
 
       if (getValue) {
-        const result = {} as Result;
+        const result = {} as unknown as Result;
         expect(getValue(result)).toBe('-');
       }
+    });
+
+    it('should return "-" when result_contracts has no primary contract', () => {
+      const columns = service.tableColumns();
+      const projectColumn = columns.find(col => col.field === 'project');
+      const getValue = projectColumn?.getValue;
+
+      if (getValue) {
+        const result = {
+          result_contracts: [
+            { is_primary: 0, contract_id: 'A123' },
+            { is_primary: 0, contract_id: 'B456' }
+          ]
+        } as unknown as Result;
+        expect(getValue(result)).toBe('-');
+      }
+    });
+
+    it('should return "-" for indicator getValue when indicators is undefined', () => {
+      const columns = service.tableColumns();
+      const indicatorColumn = columns.find(col => col.field === 'indicator');
+      const getValue = indicatorColumn?.getValue;
+      if (getValue) expect(getValue({} as unknown as Result)).toBe('-');
+    });
+
+    it('should return indicator name for indicator getValue when indicators.name is set (cover line 77)', () => {
+      const columns = service.tableColumns();
+      const indicatorColumn = columns.find(col => col.field === 'indicator');
+      const getValue = indicatorColumn?.getValue;
+      if (getValue) expect(getValue({ indicators: { name: 'Capacity Sharing' } } as unknown as Result)).toBe('Capacity Sharing');
+    });
+
+    it('should return "-" for indicator getValue when indicators exists but name is undefined (cover line 77 branch)', () => {
+      const columns = service.tableColumns();
+      const indicatorColumn = columns.find(col => col.field === 'indicator_id');
+      const getValue = indicatorColumn?.getValue;
+      if (getValue) expect(getValue({ indicators: {} } as unknown as Result)).toBe('-');
+    });
+
+    it('should cover indicator getValue branches for line 77 (indicators null and indicators.name set)', () => {
+      const columns = service.tableColumns();
+      const indicatorColumn = columns.find(col => col.field === 'indicator_id');
+      const getValue = indicatorColumn?.getValue;
+      if (getValue) {
+        expect(getValue({ indicators: null } as unknown as Result)).toBe('-');
+        expect(getValue({ indicators: { name: 'Cap' } } as unknown as Result)).toBe('Cap');
+      }
+    });
+
+    it('should return "-" for status getValue when result_status is undefined', () => {
+      const columns = service.tableColumns();
+      const statusColumn = columns.find(col => col.field === 'status');
+      const getValue = statusColumn?.getValue;
+      if (getValue) expect(getValue({} as unknown as Result)).toBe('-');
+    });
+
+    it('should return "-" for status getValue when result_status has no name (cover line 86)', () => {
+      const columns = service.tableColumns();
+      const statusColumn = columns.find(col => col.field === 'status');
+      const getValue = statusColumn?.getValue;
+      if (getValue) expect(getValue({ result_status: {} } as unknown as Result)).toBe('-');
+    });
+
+    it('should return "-" for creator getValue when created_by_user is null', () => {
+      const columns = service.tableColumns();
+      const creatorColumn = columns.find(col => col.field === 'creator');
+      const getValue = creatorColumn?.getValue;
+      if (getValue) expect(getValue({ created_by_user: null } as unknown as Result)).toBe('-');
+    });
+
+    it('should return "-" for creation_date getValue when created_at is null', () => {
+      const columns = service.tableColumns();
+      const dateColumn = columns.find(col => col.field === 'creation_date');
+      const getValue = dateColumn?.getValue;
+      if (getValue) expect(getValue({ created_at: null } as unknown as Result)).toBe('-');
     });
 
     it('should get lever value correctly with primary levers', () => {
@@ -870,7 +1379,7 @@ describe('ResultsCenterService', () => {
             { is_primary: 1, lever: { short_name: 'Lever 2' } },
             { is_primary: 1, lever: { short_name: 'Lever 3' } }
           ]
-        } as Result;
+        } as unknown as Result;
         expect(getValue(result)).toBe('Lever 2, Lever 3');
       }
     });
@@ -881,7 +1390,7 @@ describe('ResultsCenterService', () => {
       const getValue = leverColumn?.getValue;
 
       if (getValue) {
-        const result = {} as Result;
+        const result = {} as unknown as Result;
         expect(getValue(result)).toBe('-');
       }
     });
@@ -892,8 +1401,23 @@ describe('ResultsCenterService', () => {
       const getValue = leverColumn?.getValue;
 
       if (getValue) {
-        const result = { result_levers: {} } as Result;
+        const result = { result_levers: {} } as unknown as Result;
         expect(getValue(result)).toBe('-');
+      }
+    });
+
+    it('should get lever value with lever missing short_name using empty string', () => {
+      const columns = service.tableColumns();
+      const leverColumn = columns.find(col => col.field === 'lever');
+      const getValue = leverColumn?.getValue;
+      if (getValue) {
+        const result = {
+          result_levers: [
+            { is_primary: 1, lever: {} },
+            { is_primary: 1, lever: { short_name: 'L2' } }
+          ]
+        } as unknown as Result;
+        expect(getValue(result)).toBe('L2');
       }
     });
 
@@ -904,10 +1428,8 @@ describe('ResultsCenterService', () => {
 
       if (getValue) {
         const result = {
-          result_levers: [
-            { is_primary: 0, lever: { short_name: 'Lever 1' } }
-          ]
-        } as Result;
+          result_levers: [{ is_primary: 0, lever: { short_name: 'Lever 1' } }]
+        } as unknown as Result;
         expect(getValue(result)).toBe('-');
       }
     });
@@ -918,7 +1440,7 @@ describe('ResultsCenterService', () => {
       const getValue = yearColumn?.getValue;
 
       if (getValue) {
-        const result = { report_year_id: 2024 } as Result;
+        const result = { report_year_id: 2024 } as unknown as Result;
         expect(getValue(result)).toBe('2024');
       }
     });
@@ -929,7 +1451,7 @@ describe('ResultsCenterService', () => {
       const getValue = yearColumn?.getValue;
 
       if (getValue) {
-        const result = { report_year_id: null } as Result;
+        const result = { report_year_id: null } as unknown as Result;
         expect(getValue(result)).toBe('-');
       }
     });
@@ -1057,6 +1579,14 @@ describe('ResultsCenterService', () => {
     });
 
     it('should clear filter array when id is not provided', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'lever-codes': [1, 2] }));
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }, { id: 2 }] as any }));
+      service.removeFilter('LEVER');
+      expect(service.tableFilters().levers).toEqual([]);
+      expect(service.resultsFilter()['lever-codes']).toEqual([]);
+    });
+
+    it('should clear filter array when id is undefined for INDICATOR', () => {
       service.tableFilters.set({
         indicators: [{ indicator_id: 1 }],
         statusCodes: [],
@@ -1073,6 +1603,51 @@ describe('ResultsCenterService', () => {
       const initialFilters = service.tableFilters();
       service.removeFilter('UNKNOWN');
       expect(service.tableFilters()).toEqual(initialFilters);
+    });
+
+    it('should handle removeFilter when state key is undefined', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'platform-code': ['pc1'] }));
+      service.tableFilters.update(prev => ({ ...prev, sources: undefined as any }));
+      jest.spyOn(service, 'applyFilters').mockImplementation(() => {});
+      service.removeFilter('SOURCE', 'pc1');
+      expect(service.tableFilters().sources).toEqual([]);
+    });
+
+    it('should handle removeFilter when state key is null', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'status-codes': [1] }));
+      service.tableFilters.update(prev => ({ ...prev, statusCodes: null as any }));
+      jest.spyOn(service, 'applyFilters').mockImplementation(() => {});
+      service.removeFilter('STATUS', 1);
+      expect(service.tableFilters().statusCodes).toEqual([]);
+    });
+
+    it('should not throw when multiselect ref has no clear method', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'lever-codes': [1] }));
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }] as any }));
+      service.multiselectRefs.set({ lever: {} as any });
+      jest.spyOn(service, 'applyFilters').mockImplementation(() => {});
+      expect(() => service.removeFilter('LEVER', 1)).not.toThrow();
+    });
+
+    it('should not throw when multiselect ref has no removeById method', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'lever-codes': [1, 2] }));
+      service.tableFilters.update(prev => ({ ...prev, levers: [{ id: 1 }, { id: 2 }] as any }));
+      service.multiselectRefs.set({ lever: { clear: jest.fn() } as any });
+      jest.spyOn(service, 'applyFilters').mockImplementation(() => {});
+      service.removeFilter('LEVER', 1);
+      expect(service.tableFilters().levers).toHaveLength(1);
+    });
+
+    it('should handle filter with undefined item in array when removing by id', () => {
+      service.appliedFilters.update(prev => ({ ...prev, 'indicator-codes-filter': [1, 2] }));
+      service.tableFilters.update(prev => ({
+        ...prev,
+        indicators: [undefined, { indicator_id: 1, name: 'A' }] as any
+      }));
+      jest.spyOn(service, 'applyFilters').mockImplementation(() => {});
+      service.removeFilter('INDICATOR', 1);
+      expect(service.tableFilters().indicators).toHaveLength(1);
+      expect(service.tableFilters().indicators[0]).toBeUndefined();
     });
   });
 
@@ -1105,7 +1680,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should handle when table is null', () => {
-      service.tableRef.set(null);
+      service.tableRef.set(undefined as any);
       service.clearAllFiltersWithPreserve([1]);
       const filter = service.resultsFilter();
       // Note: onSelectFilterTab(0) is called at the end, which resets indicator-codes-tabs to []
@@ -1134,7 +1709,165 @@ describe('ResultsCenterService', () => {
     });
   });
 
+  describe('state persistence', () => {
+    it('should activate persistence and save current state to sessionStorage', () => {
+      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
+      service.searchInput.set('abc');
+      service.primaryContractId.set('contract-1');
+      service.resultsFilter.update(prev => ({ ...prev, 'indicator-codes-tabs': [2] }));
+
+      service.activateStatePersistence('demo');
+      TestBed.flushEffects();
+
+      const savedState = JSON.parse(sessionStorage.getItem('results-center-view-state:demo') ?? '{}');
+
+      expect(service.activeStateKey()).toBe('demo');
+      expect(savedState.myResultsFilterItemId).toBe('my');
+      expect(savedState.primaryContractId).toBe('contract-1');
+      expect(savedState.searchInput).toBe('abc');
+    });
+
+    it('should persist all as default tab id when myResultsFilterItem is undefined', () => {
+      service.myResultsFilterItem.set(undefined as any);
+
+      service.activateStatePersistence('fallback');
+      TestBed.flushEffects();
+
+      const savedState = JSON.parse(sessionStorage.getItem('results-center-view-state:fallback') ?? '{}');
+      expect(savedState.myResultsFilterItemId).toBe('all');
+    });
+
+    it('should clear active key only when deactivating the matching persistence key', () => {
+      service.activateStatePersistence('demo');
+
+      service.deactivateStatePersistence('other');
+      expect(service.activeStateKey()).toBe('demo');
+
+      service.deactivateStatePersistence('demo');
+      expect(service.activeStateKey()).toBeNull();
+    });
+
+    it('should return false when there is no persisted state', () => {
+      const getItemSpy = jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+
+      expect(service.restorePersistedState('missing')).toBe(false);
+      expect(getItemSpy).toHaveBeenCalledWith('results-center-view-state:missing');
+    });
+
+    it('should restore persisted state and sync active indicator tab', () => {
+      const persistedState = {
+        myResultsFilterItemId: 'my',
+        tableFilters: {
+          indicators: [{ indicator_id: 2, name: 'Indicator 2' }],
+          statusCodes: [{ result_status_id: 9, name: 'Submitted' }],
+          contracts: [{ agreement_id: 'C1', display_label: 'Contract 1' }],
+          levers: [{ id: 4, short_name: 'L4' }],
+          years: [{ report_year: 2025 }],
+          sources: [{ platform_code: 'STAR', name: 'STAR' }]
+        },
+        resultsFilter: {
+          'create-user-codes': ['123'],
+          'indicator-codes': [2],
+          'status-codes': [9],
+          'contract-codes': ['C1'],
+          'platform-code': ['STAR'],
+          'lever-codes': [4],
+          years: [2025],
+          'indicator-codes-filter': [2],
+          'indicator-codes-tabs': [2]
+        },
+        appliedFilters: {
+          'create-user-codes': ['123'],
+          'indicator-codes': [2],
+          'status-codes': [9],
+          'contract-codes': ['C1'],
+          'platform-code': ['STAR'],
+          'lever-codes': [4],
+          years: [2025],
+          'indicator-codes-filter': [2],
+          'indicator-codes-tabs': [2]
+        },
+        searchInput: 'saved search',
+        primaryContractId: 'contract-2'
+      };
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(JSON.stringify(persistedState));
+
+      const restored = service.restorePersistedState('demo');
+
+      expect(restored).toBe(true);
+      expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[1]);
+      expect(service.tableFilters().contracts).toEqual(persistedState.tableFilters.contracts);
+      expect(service.resultsFilter()['platform-code']).toEqual(['STAR']);
+      expect(service.appliedFilters()['indicator-codes-tabs']).toEqual([2]);
+      expect(service.searchInput()).toBe('saved search');
+      expect(service.primaryContractId()).toBe('contract-2');
+      expect(mockApiService.indicatorTabs.lazy().list().find(item => item.indicator_id === 2)?.active).toBe(true);
+      expect(mockApiService.indicatorTabs.lazy().list().find(item => item.indicator_id === 1)?.active).toBe(false);
+    });
+
+    it('should fall back to defaults when persisted filters are missing', () => {
+      const persistedState = {
+        myResultsFilterItemId: 'unknown',
+        searchInput: undefined,
+        primaryContractId: undefined
+      };
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(JSON.stringify(persistedState));
+
+      const restored = service.restorePersistedState('defaults');
+
+      expect(restored).toBe(true);
+      expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[0]);
+      expect(service.resultsFilter()).toEqual({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'platform-code': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(service.appliedFilters()).toEqual({
+        'create-user-codes': [],
+        'indicator-codes': [],
+        'status-codes': [],
+        'contract-codes': [],
+        'platform-code': [],
+        'lever-codes': [],
+        years: [],
+        'indicator-codes-filter': [],
+        'indicator-codes-tabs': []
+      });
+      expect(service.searchInput()).toBe('');
+      expect(service.primaryContractId()).toBeNull();
+      expect(mockApiService.indicatorTabs.lazy().list().every(item => item.active === false)).toBe(true);
+    });
+
+    it('should remove invalid persisted state and return false when parsing fails', () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const removeItemSpy = jest.spyOn(Storage.prototype, 'removeItem');
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue('{invalid-json');
+
+      const restored = service.restorePersistedState('broken');
+
+      expect(restored).toBe(false);
+      expect(warnSpy).toHaveBeenCalledWith('Error restoring persisted results-center state:', expect.any(Error));
+      expect(removeItemSpy).toHaveBeenCalledWith('results-center-view-state:broken');
+      warnSpy.mockRestore();
+    });
+  });
+
   describe('main', () => {
+    it('should pass filter-primary-contract when primaryContractId is set', async () => {
+      service.primaryContractId.set('contract-123');
+      await service.main();
+      expect(mockGetResultsService.getInstance).toHaveBeenCalledWith(
+        expect.objectContaining({ 'filter-primary-contract': ['contract-123'] }),
+        expect.anything()
+      );
+    });
+
     it('should load results successfully', async () => {
       await service.main();
 
@@ -1157,32 +1890,53 @@ describe('ResultsCenterService', () => {
     });
 
     it('should handle results with no primary levers', async () => {
-      const resultsWithoutPrimary = [{
-        ...mockResults[0],
-        result_levers: [{ is_primary: 0, lever: { short_name: 'Lever 1' } }]
-      }];
-      mockGetResultsService.getInstance.mockReturnValueOnce(signal(resultsWithoutPrimary));
+      const resultsWithoutPrimary = [
+        {
+          ...mockResults[0],
+          result_levers: [{ is_primary: 0, lever: { short_name: 'Lever 1' } }]
+        }
+      ];
+      mockGetResultsService.getInstance.mockReturnValueOnce(signal(resultsWithoutPrimary) as any);
 
       await service.main();
 
       const results = service.list();
-      expect(results[0].primaryLeverSort).toBe('');
+      expect((results[0] as any).primaryLeverSort).toBe('');
+    });
+
+    it('should compute primaryLeverSort with lever short_name missing using empty string', async () => {
+      const resultsWithLeverNoShortName = [
+        {
+          ...mockResults[0],
+          result_levers: [
+            { is_primary: 1, lever: {} },
+            { is_primary: 1, lever: { short_name: 'L2' } }
+          ]
+        }
+      ] as any;
+      mockGetResultsService.getInstance.mockReturnValueOnce(signal(resultsWithLeverNoShortName) as any);
+      await service.main();
+      const list = service.list();
+      expect(list).toHaveLength(1);
+      expect((list[0] as any).primaryLeverSort).toBe('l2');
     });
 
     it('should handle results with primary levers', async () => {
-      const resultsWithPrimary = [{
-        ...mockResults[0],
-        result_levers: [
-          { is_primary: 1, lever: { short_name: 'Lever 1' } },
-          { is_primary: 1, lever: { short_name: 'Lever 2' } }
-        ]
-      }];
-      mockGetResultsService.getInstance.mockReturnValueOnce(signal(resultsWithPrimary));
+      const resultsWithPrimary = [
+        {
+          ...mockResults[0],
+          result_levers: [
+            { is_primary: 1, lever: { short_name: 'Lever 1' } },
+            { is_primary: 1, lever: { short_name: 'Lever 2' } }
+          ]
+        }
+      ];
+      mockGetResultsService.getInstance.mockReturnValueOnce(signal(resultsWithPrimary) as any);
 
       await service.main();
 
       const results = service.list();
-      expect(results[0].primaryLeverSort).toBe('lever 1, lever 2');
+      expect((results[0] as any).primaryLeverSort).toBe('lever 1, lever 2');
     });
 
     it('should handle errors when loading results', async () => {
@@ -1211,10 +1965,26 @@ describe('ResultsCenterService', () => {
       expect(service.appliedFilters()['create-user-codes']).toEqual(['123']);
     });
 
+    it('should not update list when context changes during request', async () => {
+      const initialList = [{ result_official_code: 'OLD' }] as any;
+      service.list.set(initialList);
+      let resolveInstance!: (v: WritableSignal<Result[]>) => void;
+      const instancePromise = new Promise<WritableSignal<Result[]>>(r => {
+        resolveInstance = r;
+      });
+      mockGetResultsService.getInstance.mockImplementationOnce(() => instancePromise as any);
+      const mainPromise = service.main();
+      await Promise.resolve();
+      service.primaryContractId.set('other-contract');
+      resolveInstance(signal(mockResults));
+      await mainPromise;
+      expect(service.list()).toEqual(initialList);
+    });
+
     it('should clear create-user-codes when tab is not my and create-user-codes has items', async () => {
       service.myResultsFilterItem.set(service.myResultsFilterItems[0]);
-      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [999] }));
-      service.appliedFilters.update(prev => ({ ...prev, 'create-user-codes': [999] }));
+      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [999] as any }));
+      service.appliedFilters.update(prev => ({ ...prev, 'create-user-codes': [999] as any }));
 
       await service.main();
 

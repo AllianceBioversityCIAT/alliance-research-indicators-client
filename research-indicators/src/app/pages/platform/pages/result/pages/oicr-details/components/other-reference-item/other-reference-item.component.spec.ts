@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { SubmissionService } from '@shared/services/submission.service';
 
 import { OtherReferenceItemComponent, OtherReferenceItemData } from './other-reference-item.component';
@@ -25,6 +25,12 @@ describe('OtherReferenceItemComponent', () => {
     fixture = TestBed.createComponent(OtherReferenceItemComponent);
     component = fixture.componentInstance;
     submissionService = TestBed.inject(SubmissionService) as jest.Mocked<SubmissionService>;
+  });
+
+  it('should not emit from effect when not initialized (cover line 31 branch)', () => {
+    const emitSpy = jest.spyOn(component.update, 'emit');
+    TestBed.flushEffects();
+    expect(emitSpy).not.toHaveBeenCalled();
   });
 
   it('should create', () => {
@@ -109,6 +115,33 @@ describe('OtherReferenceItemComponent', () => {
 
       expect(spy).not.toHaveBeenCalled();
     });
+
+    it('should not run item update when ngOnChanges has no item key (cover line 40 branch)', () => {
+      component.item = { type_id: 1, link: 'https://a.com' };
+      component.ngOnInit();
+      const setSpy = jest.spyOn(component.body, 'set');
+
+      component.ngOnChanges({});
+
+      expect(setSpy).not.toHaveBeenCalled();
+    });
+
+    it('should use default item when ngOnChanges item is undefined (cover line 41 fallback)', () => {
+      const initial = { type_id: 1, link: 'https://a.com' };
+      component.item = initial;
+      component.ngOnInit();
+      component.item = undefined as any;
+      component.ngOnChanges({
+        item: {
+          currentValue: undefined,
+          previousValue: initial,
+          firstChange: false,
+          isFirstChange: () => false
+        }
+      });
+
+      expect(component.body()).toEqual({ type_id: null, link: '' });
+    });
   });
 
   describe('effects and events', () => {
@@ -120,6 +153,21 @@ describe('OtherReferenceItemComponent', () => {
 
       expect(updateSpy).toHaveBeenCalledWith({ type_id: 1, link: 'https://initial.com' });
     });
+
+    it('should emit update when body changes after initialization (valueEffect)', fakeAsync(() => {
+      component.item = { type_id: 1, link: 'https://one.com' };
+      component.ngOnInit();
+      const updateSpy = jest.spyOn(component.update, 'emit').mockImplementation(() => {});
+      fixture.detectChanges();
+      tick();
+      updateSpy.mockClear();
+
+      component.body.set({ type_id: 2, link: 'https://two.com' });
+      fixture.detectChanges();
+      tick();
+
+      expect(updateSpy).toHaveBeenCalledWith({ type_id: 2, link: 'https://two.com' });
+    }));
   });
 
   describe('delete behavior', () => {

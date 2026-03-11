@@ -293,21 +293,25 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     }
   }
 
+  /** Used by applyModalIndicatorFilter; exposed for branch coverage in tests */
+  getTabsForIndicatorFilter(
+    options: { resetIndicatorFilters?: boolean; tabsOverride?: readonly number[] },
+    hasActiveIndicatorFilter: boolean
+  ): number[] {
+    const { resetIndicatorFilters = false, tabsOverride } = options;
+    if (Array.isArray(tabsOverride)) return [...tabsOverride];
+    if (resetIndicatorFilters || !hasActiveIndicatorFilter) return [...MODAL_INDICATOR_CODES];
+    return [];
+  }
+
   private applyModalIndicatorFilter(options: { resetIndicatorFilters?: boolean; tabsOverride?: readonly number[] } = {}): void {
 
-    const { resetIndicatorFilters = false, tabsOverride } = options;
+    const { resetIndicatorFilters = false } = options;
     const hasActiveIndicatorFilter =
       (this.resultsCenterService.tableFilters().indicators?.length ?? 0) > 0 ||
       (this.resultsCenterService.resultsFilter()['indicator-codes-filter']?.length ?? 0) > 0;
 
-    let tabs: number[];
-    if (Array.isArray(tabsOverride)) {
-      tabs = [...tabsOverride];
-    } else if (resetIndicatorFilters || !hasActiveIndicatorFilter) {
-      tabs = [...MODAL_INDICATOR_CODES];
-    } else {
-      tabs = [];
-    }
+    const tabs = this.getTabsForIndicatorFilter(options, hasActiveIndicatorFilter);
 
     const setIndicators = (prev: ResultFilter) => ({
       ...prev,

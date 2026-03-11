@@ -23,7 +23,7 @@
               class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}">
             </div>
             }
-            <span>INNOVATIONS DETAILS</span>
+            <div class="section-title !mb-0">INNOVATIONS DETAILS</div>
           </div>
         </p-accordion-header>
         <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
@@ -35,19 +35,19 @@
             <app-select label="Innovation nature" [disabled]="!submission.isEditableStatus()"
               placeholder="Select an option" [signal]="body"
               helperText="Select the option that best characterizes the nature of this innovation."
-              [scrollHeight]="'190px'" [isRequired]="true" [optionLabel]="'name'"
+              [scrollHeight]="'172px'" [isRequired]="true" [optionLabel]="'name'"
               [optionValue]="{ body: 'innovation_nature_id', option: 'id' }" [serviceName]="'innovationCharacteristics'"
               placeholder="Select the innovation nature">
               <ng-template #itemTemplate let-item>
                 <div class="flex items-center block whitespace-normal break-words">
-                  <p class="text-[#4C5158] text-[15px] font-[400]">
+                  <p class="text-[#4C5158] text-[14px] font-[400]">
                     <b>{{ item?.name }} -</b>
                     {{ item?.definition }}
                   </p>
                 </div>
               </ng-template>
               <ng-template #selectedItemTemplate let-selected>
-                <div class="flex items-center block whitespace-normal !text-[16px] break-words">
+                <div class="flex items-center block whitespace-normal !text-[14px] break-words">
                   <p class="text-[#4C5158] font-[400]">
                     <b>{{ selected?.name }} -</b>
                     {{ selected?.definition }}
@@ -58,19 +58,19 @@
 
             <app-select label="Innovation type" [disabled]="!submission.isEditableStatus()"
               placeholder="Select the innovation type" [signal]="body" [isRequired]="true"
-              helperText="Select the type that best fits the nature of the innovation." [scrollHeight]="'240px'"
+              helperText="Select the type that best fits the nature of the innovation." [scrollHeight]="'172px'"
               [optionLabel]="'name'" [optionValue]="{ body: 'innovation_type_id', option: 'code' }"
               [serviceName]="'innovationTypes'">
               <ng-template #itemTemplate let-item>
                 <div class="flex items-center block whitespace-normal break-words">
-                  <p class="text-[#4C5158] text-[15px] font-[400]">
+                  <p class="text-[#4C5158] text-[14px] font-[400]">
                     <b>{{ item?.name }} -</b>
                     {{ item?.definition }}
                   </p>
                 </div>
               </ng-template>
               <ng-template #selectedItemTemplate let-selected>
-                <div class="flex items-center block whitespace-normal text-[16px] break-words">
+                <div class="flex items-center block whitespace-normal text-[14px] break-words">
                   <p class="text-[#4C5158] font-[400]">
                     <b>{{ selected?.name }} -</b>
                     {{ selected?.definition }}
@@ -177,7 +177,7 @@
           class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}">
         </div>
         }
-        <span>ANTICIPATED USERS</span>
+        <div class="section-title !mb-0">ANTICIPATED USERS</div>
       </div>
     </p-accordion-header>
     <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
@@ -269,7 +269,7 @@
           class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}">
         </div>
         }
-        <span>KNOWLEDGE SHARING</span>
+        <div class="section-title !mb-0">KNOWLEDGE SHARING</div>
       </div>
     </p-accordion-header>
     <p-accordion-content class="!-mt-4 !rounded-b-[16px]">
@@ -462,7 +462,7 @@
           class="w-4 h-4 rounded-full {{ flag() ? 'bg-[#A8CEAB] border-2 border-[#509C55]' : 'bg-white border-2 border-[#A2A9AF]' }}">
         </div>
         }
-        <span>SCALING POTENTIAL</span>
+        <div class="section-title !mb-0">SCALING POTENTIAL</div>
       </div>
     </p-accordion-header>
     <p-accordion-content class="!-mt-4 !rounded-b-[16px]">

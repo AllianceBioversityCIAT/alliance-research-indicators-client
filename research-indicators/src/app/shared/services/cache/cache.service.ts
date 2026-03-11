@@ -51,6 +51,7 @@ export class CacheService {
   windowHeight = signal(window.innerHeight);
   hasSmallScreen = computed(() => this.windowHeight() < 768);
   showSubmissionHistory = signal(false);
+  editStatusDateOpenId = signal<number | null>(null);
   currentResultIndicatorSectionPath = computed(() => {
     switch (this.currentMetadata().indicator_id) {
       case 1:

@@ -1,0 +1,44 @@
+import { inject, Injectable, signal } from '@angular/core';
+import { ApiService } from './api.service';
+import { DateFormatJsonValue } from '@shared/interfaces/date-format-config.interface';
+
+function normalizeDateFormatConfig(raw: unknown): DateFormatJsonValue | null {
+  if (raw == null || typeof raw !== 'object') return null;
+  const obj = raw as Record<string, unknown>;
+  const inner = obj['json_value'];
+  if (inner != null && typeof inner === 'object' && 'timezone' in inner) {
+    return inner as DateFormatJsonValue;
+  }
+  if ('timezone' in obj) return raw as DateFormatJsonValue;
+  return null;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DateFormatConfigService {
+  private readonly api = inject(ApiService);
+
+  private loadPromise: Promise<DateFormatJsonValue | null> | null = null;
+
+  readonly config = signal<DateFormatJsonValue | null>(null);
+
+  loadConfig(): Promise<DateFormatJsonValue | null> {
+    if (this.loadPromise != null) {
+      return this.loadPromise;
+    }
+    this.loadPromise = this.api
+      .GET_DateFormatConfiguration()
+      .then(res => {
+        const raw = res?.data?.json_value;
+        const value = normalizeDateFormatConfig(raw);
+        this.config.set(value);
+        return value;
+      })
+      .catch(() => {
+        this.config.set(null);
+        return null;
+      });
+    return this.loadPromise;
+  }
+}

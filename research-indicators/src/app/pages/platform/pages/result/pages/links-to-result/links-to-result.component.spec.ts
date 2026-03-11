@@ -36,6 +36,7 @@ describe('LinksToResultComponent', () => {
       getCurrentNumericResultId: jest.fn().mockReturnValue(123),
       showSectionHeaderActions: signal(false),
       currentMetadata: jest.fn().mockReturnValue({ result_title: 'Mock Result' }),
+      hasSmallScreen: jest.fn().mockReturnValue(false),
       isSidebarCollapsed: jest.fn().mockReturnValue(false),
       headerHeight: signal(0),
       navbarHeight: signal(0)
@@ -216,6 +217,24 @@ describe('LinksToResultComponent', () => {
     expect(loadSpy).toHaveBeenCalled();
   });
 
+  it('should set linkedResults to empty and loading false when GET_LinkedResults returns no links', async () => {
+    apiService.GET_LinkedResults.mockResolvedValue({ data: { link_results: [] } });
+    await component.loadLinkedResults();
+    expect(component.linkedResults()).toEqual([]);
+    expect(component.loading()).toBe(false);
+  });
+
+  it('should handle loadLinkedResults error and set empty arrays', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    apiService.GET_LinkedResults.mockRejectedValue(new Error('Network error'));
+    await component.loadLinkedResults();
+    expect(component.linkedResults()).toEqual([]);
+    expect(component.originalLinkedResults()).toEqual([]);
+    expect(component.loading()).toBe(false);
+    expect(consoleSpy).toHaveBeenCalledWith('Error loading linked results', expect.any(Error));
+    consoleSpy.mockRestore();
+  });
+
   it('should handle loadLinkedResults with empty linkedResultIds', async () => {
     apiService.GET_LinkedResults.mockResolvedValueOnce({ data: { link_results: [] } } as any);
     apiService.GET_Results.mockClear();
@@ -225,6 +244,29 @@ describe('LinksToResultComponent', () => {
     expect(component.linkedResults()).toEqual([]);
     expect(apiService.GET_Results).not.toHaveBeenCalled();
     expect(component.loading()).toBe(false);
+  });
+
+  it('should use empty array when response has no data or link_results (line 67 fallback)', async () => {
+    apiService.GET_LinkedResults.mockResolvedValueOnce({ data: undefined } as any);
+    await component.loadLinkedResults();
+    expect(component.linkedResults()).toEqual([]);
+    expect(apiService.GET_Results).not.toHaveBeenCalled();
+
+    apiService.GET_LinkedResults.mockResolvedValueOnce({ data: {} } as any);
+    await component.loadLinkedResults();
+    expect(component.linkedResults()).toEqual([]);
+  });
+
+  it('should use empty array when GET_Results returns non-array data (line 91 fallback)', async () => {
+    apiService.GET_LinkedResults.mockResolvedValueOnce({
+      data: { link_results: [{ other_result_id: 1 }] }
+    } as any);
+    apiService.GET_Results.mockResolvedValueOnce({ data: null } as any);
+
+    await component.loadLinkedResults();
+
+    expect(apiService.GET_Results).toHaveBeenCalled();
+    expect(component.linkedResults()).toEqual([]);
   });
 
   it('should load and map linked results when ids exist', async () => {

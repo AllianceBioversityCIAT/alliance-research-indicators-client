@@ -100,6 +100,11 @@ describe('AddContactPersonModalComponent', () => {
       // This tests the ternary operator in line 17: part ? part.charAt(0)...
       expect(pipe.transform('hello   world')).toBe('Hello World');
     });
+
+    it('should return empty string for whitespace-only input (covers line 17 falsy part branch)', () => {
+      // "   ".trim() => ""; "".split(/\s+/) => [""]; map part "" => part ? ... : ''
+      expect(pipe.transform('   ')).toBe('');
+    });
   });
 
   describe('constructor effects', () => {

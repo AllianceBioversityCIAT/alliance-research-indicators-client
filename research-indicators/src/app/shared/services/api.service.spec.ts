@@ -31,9 +31,14 @@ describe('ApiService', () => {
     mockControlListCacheService = {};
 
     mockSignalEndpointService = {
-      createEndpoint: jest.fn().mockReturnValue({
-        get: jest.fn(),
-        post: jest.fn()
+      createEndpoint: jest.fn().mockImplementation((urlFn: () => string) => {
+        if (typeof urlFn === 'function') {
+          urlFn();
+        }
+        return {
+          get: jest.fn(),
+          post: jest.fn()
+        };
       })
     };
 
@@ -51,6 +56,14 @@ describe('ApiService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  it('should create signal endpoints with correct URLs', () => {
+    expect(mockSignalEndpointService.createEndpoint).toHaveBeenCalledTimes(2);
+    const firstUrlFn = mockSignalEndpointService.createEndpoint.mock.calls[0][0];
+    const secondUrlFn = mockSignalEndpointService.createEndpoint.mock.calls[1][0];
+    expect(firstUrlFn()).toBe('indicators/with/result');
+    expect(secondUrlFn()).toBe('indicators');
   });
 
   describe('Authentication methods', () => {
@@ -360,6 +373,21 @@ describe('ApiService', () => {
       expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/green-checks/new-reporting-cycle/123/year/2024', {});
     });
 
+    it('should call PATCH_StatusChangeDate with newDate as query param', () => {
+      const resultCode = 19547;
+      const submissionHistoryId = 4687;
+      const newDate = '2026-03-02T16:46:00.000Z';
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_StatusChangeDate(resultCode, submissionHistoryId, newDate);
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith(
+        'results/green-checks/change/status/date/19547/submission-history/4687?newDate=2026-03-02T16%3A46%3A00.000Z',
+        {},
+        { useResultInterceptor: true }
+      );
+    });
+
     it('should call PATCH_SubmitResult with comment', () => {
       const params = { resultCode: 123, comment: 'test comment', status: 1 } as any;
       (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
@@ -403,6 +431,20 @@ describe('ApiService', () => {
         {
           useResultInterceptor: true
         }
+      );
+    });
+
+    it('should call PATCH_SubmitResult with body and null comment using empty string for submission_comment', () => {
+      const params = { resultCode: 123, comment: null, status: 1 } as any;
+      const body = { extra: 'field' } as any;
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_SubmitResult(params, body);
+
+      expect(mockToPromiseService.post).toHaveBeenCalledWith(
+        'results/status/workflow/change-status/123/to-status/1',
+        { ...body, submission_comment: '' },
+        { useResultInterceptor: true }
       );
     });
 
@@ -453,6 +495,17 @@ describe('ApiService', () => {
       service.updateSignalBody({ update: updateSpy } as any, newBody);
 
       expect(updateSpy).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    it('should invoke update callback so body is merged (cover update callback)', () => {
+      const newBody = { a: 1, b: null };
+      const updateSpy = jest.fn((fn: (prev: Record<string, unknown>) => Record<string, unknown>) => fn({ existing: true }));
+
+      service.updateSignalBody({ update: updateSpy } as any, newBody);
+
+      expect(updateSpy).toHaveBeenCalled();
+      const result = updateSpy.mock.results[0].value;
+      expect(result).toEqual({ existing: true, a: 1 });
     });
 
     it('should build find contracts params correctly', () => {
@@ -555,6 +608,14 @@ describe('ApiService', () => {
       service.GET_Configuration(id, section);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('user/configuration/123?component=test', {});
+    });
+
+    it('should call GET_DateFormatConfiguration', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_DateFormatConfiguration();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration/date-format', { noAuthInterceptor: true });
     });
 
     it('should call GET_UserStaff', () => {

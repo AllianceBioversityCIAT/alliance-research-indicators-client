@@ -385,4 +385,80 @@ describe('GlobalAlertComponent', () => {
     
     expect(component.body().commentValue).toBe('');
   });
+
+  it('should call onDetailLinkClick when click target is inside alert-link-custom and alert has onDetailLinkClick', () => {
+    const onDetailLinkClick = jest.fn();
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: '<a href="#" class="alert-link-custom">Link</a>',
+      onDetailLinkClick
+    };
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    const linkElement = document.createElement('a');
+    linkElement.className = 'alert-link-custom';
+    const preventDefault = jest.fn();
+    const stopPropagation = jest.fn();
+    const mockEvent = {
+      target: linkElement,
+      preventDefault,
+      stopPropagation
+    } as unknown as MouseEvent;
+    (linkElement as any).closest = jest.fn((sel: string) => (sel === 'a.alert-link-custom' ? linkElement : null));
+
+    component.onDetailLinkClick(mockEvent, 0);
+
+    expect(preventDefault).toHaveBeenCalled();
+    expect(stopPropagation).toHaveBeenCalled();
+    expect(onDetailLinkClick).toHaveBeenCalled();
+  });
+
+  it('should not call onDetailLinkClick when click target is not inside alert-link-custom', () => {
+    const onDetailLinkClick = jest.fn();
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Text',
+      onDetailLinkClick
+    };
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    const divElement = document.createElement('div');
+    const mockEvent = {
+      target: divElement,
+      preventDefault: jest.fn(),
+      stopPropagation: jest.fn()
+    } as unknown as MouseEvent;
+    (divElement as any).closest = jest.fn(() => null);
+
+    component.onDetailLinkClick(mockEvent, 0);
+
+    expect(onDetailLinkClick).not.toHaveBeenCalled();
+  });
+
+  it('should not call onDetailLinkClick when alert has no onDetailLinkClick', () => {
+    const mockAlert: GlobalAlert = {
+      severity: 'info',
+      summary: 'Test',
+      detail: 'Text'
+    };
+    actionsService.globalAlertsStatus.set([mockAlert]);
+    fixture.detectChanges();
+
+    const linkElement = document.createElement('a');
+    linkElement.className = 'alert-link-custom';
+    const mockEvent = {
+      target: linkElement,
+      preventDefault: jest.fn(),
+      stopPropagation: jest.fn()
+    } as unknown as MouseEvent;
+    (linkElement as any).closest = jest.fn((sel: string) => (sel === 'a.alert-link-custom' ? linkElement : null));
+
+    component.onDetailLinkClick(mockEvent, 0);
+
+    expect(mockEvent.preventDefault).not.toHaveBeenCalled();
+  });
 });

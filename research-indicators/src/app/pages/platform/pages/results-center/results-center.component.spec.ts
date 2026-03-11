@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, NavigationEnd } from '@angular/router';
-import { Subject } from 'rxjs';
 import ResultsCenterComponent from './results-center.component';
 import { ResultsCenterService } from './results-center.service';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
@@ -16,15 +14,9 @@ describe('ResultsCenterComponent', () => {
   let mockCacheService: jest.Mocked<CacheService>;
   let mockApiService: jest.Mocked<ApiService>;
   let mockActionsService: jest.Mocked<ActionsService>;
-  let mockRouter: any;
-  let routerEventsSubject: Subject<any>;
 
   beforeEach(async () => {
     jest.useFakeTimers();
-    routerEventsSubject = new Subject();
-    mockRouter = {
-      events: routerEventsSubject.asObservable()
-    };
 
     mockResultsCenterService = {
       resetState: jest.fn(),
@@ -58,20 +50,14 @@ describe('ResultsCenterComponent', () => {
         'indicator-codes-tabs': []
       }),
       searchInput: signal(''),
+      showFiltersSidebar: signal(false),
+      showConfigurationsSidebar: signal(false),
       main: jest.fn(),
       applyFilters: jest.fn(),
       cleanMultiselects: jest.fn(),
-      loadMyResults: jest.fn(),
-      loadAllResults: jest.fn(),
-      api: {
-        indicatorTabs: {
-          lazy: jest.fn().mockReturnValue({
-            list: signal([]),
-            isLoading: signal(false),
-            hasValue: signal(false)
-          })
-        }
-      }
+      activateStatePersistence: jest.fn(),
+      deactivateStatePersistence: jest.fn(),
+      restorePersistedState: jest.fn().mockReturnValue(false)
     } as any;
 
     mockCacheService = {
@@ -91,26 +77,35 @@ describe('ResultsCenterComponent', () => {
       showToast: jest.fn()
     } as any;
 
+    mockApiService.GET_Configuration.mockResolvedValue({
+      data: { all: '0', self: '0' }
+    } as any);
+    sessionStorage.clear();
+
     await TestBed.configureTestingModule({
       imports: [ResultsCenterComponent],
       providers: [
         { provide: ResultsCenterService, useValue: mockResultsCenterService },
         { provide: CacheService, useValue: mockCacheService },
         { provide: ApiService, useValue: mockApiService },
-        { provide: ActionsService, useValue: mockActionsService },
-        { provide: Router, useValue: mockRouter }
+        { provide: ActionsService, useValue: mockActionsService }
       ]
-    }).compileComponents();
+    })
+      .overrideComponent(ResultsCenterComponent, {
+        set: {
+          imports: [],
+          template: `<div></div>`
+        }
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ResultsCenterComponent);
     component = fixture.componentInstance;
   });
 
   afterEach(() => {
-    // Clean up router subscription if it exists
-    if (component && component['routerSubscription'] && !component['routerSubscription'].closed) {
-      component['routerSubscription'].unsubscribe();
-    }
+    sessionStorage.clear();
+    jest.clearAllMocks();
     jest.useRealTimers();
   });
 
@@ -119,30 +114,70 @@ describe('ResultsCenterComponent', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should load pinned tab', () => {
-      const loadPinnedTabSpy = jest.spyOn(component, 'loadPinnedTab');
+    it('should initialize state', () => {
+      const initializeStateSpy = jest.spyOn(component as any, 'initializeState').mockResolvedValue(undefined);
 
       component.ngOnInit();
 
-      expect(loadPinnedTabSpy).toHaveBeenCalled();
+      expect(initializeStateSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('initializeState', () => {
+    it('should restore persisted state and call main', async () => {
+      mockResultsCenterService.restorePersistedState.mockReturnValue(true);
+      mockResultsCenterService.main.mockResolvedValue(undefined);
+      const loadPinnedTabPreferenceSpy = jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+
+      await (component as any).initializeState();
+
+      expect(mockResultsCenterService.primaryContractId()).toBeNull();
+      expect(mockResultsCenterService.showFiltersSidebar()).toBe(false);
+      expect(mockResultsCenterService.showConfigurationsSidebar()).toBe(false);
+      expect(mockResultsCenterService.restorePersistedState).toHaveBeenCalledWith('results-center');
+      expect(mockResultsCenterService.activateStatePersistence).toHaveBeenCalledWith('results-center');
+      expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
+      expect(mockResultsCenterService.main).toHaveBeenCalled();
     });
 
-    it('should call cleanFiltersOnRouteLeave when NavigationEnd url does not include results-center', () => {
-      const cleanSpy = jest.spyOn(component as any, 'cleanFiltersOnRouteLeave');
-      component.ngOnInit();
+    it('should load my results when no restored state and preferred tab is my', async () => {
+      mockResultsCenterService.restorePersistedState.mockReturnValue(false);
+      const loadPinnedTabPreferenceSpy = jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('my');
+      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults').mockImplementation();
+      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults').mockImplementation();
 
-      routerEventsSubject.next(new NavigationEnd(1, '/project-detail/1', '/project-detail/1'));
+      await (component as any).initializeState();
 
-      expect(cleanSpy).toHaveBeenCalled();
+      expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
+      expect(loadMyResultsSpy).toHaveBeenCalled();
+      expect(loadAllResultsSpy).not.toHaveBeenCalled();
+      expect(mockResultsCenterService.main).not.toHaveBeenCalled();
     });
 
-    it('should not call cleanFiltersOnRouteLeave when NavigationEnd url includes results-center', () => {
-      const cleanSpy = jest.spyOn(component as any, 'cleanFiltersOnRouteLeave');
-      component.ngOnInit();
+    it('should load all results when no restored state and preferred tab is all', async () => {
+      mockResultsCenterService.restorePersistedState.mockReturnValue(false);
+      const loadPinnedTabPreferenceSpy = jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults').mockImplementation();
+      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults').mockImplementation();
 
-      routerEventsSubject.next(new NavigationEnd(1, '/results-center', '/results-center'));
+      await (component as any).initializeState();
 
-      expect(cleanSpy).not.toHaveBeenCalled();
+      expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
+      expect(loadAllResultsSpy).toHaveBeenCalled();
+      expect(loadMyResultsSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('ngOnDestroy', () => {
+    it('should deactivate persistence and hide sidebars', () => {
+      mockResultsCenterService.showFiltersSidebar.set(true);
+      mockResultsCenterService.showConfigurationsSidebar.set(true);
+
+      component.ngOnDestroy();
+
+      expect(mockResultsCenterService.deactivateStatePersistence).toHaveBeenCalledWith('results-center');
+      expect(mockResultsCenterService.showFiltersSidebar()).toBe(false);
+      expect(mockResultsCenterService.showConfigurationsSidebar()).toBe(false);
     });
   });
 
@@ -188,58 +223,50 @@ describe('ResultsCenterComponent', () => {
     });
   });
 
-  describe('loadPinnedTab', () => {
-    it('should load all results when all is pinned', async () => {
+  describe('loadPinnedTabPreference', () => {
+    it('should resolve all when all is pinned', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({
         data: { all: '1', self: '0' }
       } as any);
-      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
+      expect(result).toBe('all');
       expect(component.pinnedTab()).toBe('all');
-      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
-      expect(loadAllResultsSpy).toHaveBeenCalled();
       expect(component.loadingPin()).toBe(false);
     });
 
-    it('should load my results when self is pinned', async () => {
+    it('should resolve my when self is pinned', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({
         data: { all: '0', self: '1' }
       } as any);
-      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
+      expect(result).toBe('my');
       expect(component.pinnedTab()).toBe('my');
-      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[1]);
-      expect(loadMyResultsSpy).toHaveBeenCalled();
       expect(component.loadingPin()).toBe(false);
     });
 
-    it('should load all results when no tab is pinned', async () => {
+    it('should resolve all when no tab is pinned', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({
         data: { all: '0', self: '0' }
       } as any);
-      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
+      expect(result).toBe('all');
       expect(component.pinnedTab()).toBe('all');
-      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
-      expect(loadAllResultsSpy).toHaveBeenCalled();
       expect(component.loadingPin()).toBe(false);
     });
 
-    it('should load all results when no response data', async () => {
+    it('should resolve all when no response data', async () => {
       mockApiService.GET_Configuration.mockResolvedValue({} as any);
-      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults');
 
-      await component.loadPinnedTab();
+      const result = await (component as any).loadPinnedTabPreference();
 
+      expect(result).toBe('all');
       expect(component.pinnedTab()).toBe('all');
-      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(mockResultsCenterService.myResultsFilterItems[0]);
-      expect(loadAllResultsSpy).toHaveBeenCalled();
       expect(component.loadingPin()).toBe(false);
     });
   });
@@ -247,24 +274,26 @@ describe('ResultsCenterComponent', () => {
   describe('onActiveItemChange', () => {
     it('should handle my tab selection', () => {
       const event: MenuItem = { id: 'my', label: 'My Results' };
-      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults');
+      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults').mockImplementation();
 
       component.onActiveItemChange(event);
 
       expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
       expect(loadMyResultsSpy).toHaveBeenCalled();
       expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
+      expect(mockResultsCenterService.searchInput()).toBe('');
     });
 
     it('should handle all tab selection', () => {
       const event: MenuItem = { id: 'all', label: 'All Results' };
-      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults');
+      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults').mockImplementation();
 
       component.onActiveItemChange(event);
 
       expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
       expect(loadAllResultsSpy).toHaveBeenCalled();
       expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
+      expect(mockResultsCenterService.searchInput()).toBe('');
     });
   });
 
@@ -330,6 +359,7 @@ describe('ResultsCenterComponent', () => {
     it('should pin all tab when toggling from my', async () => {
       component.pinnedTab.set('my');
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
 
       await component.togglePin('all');
       jest.runAllTimers();
@@ -348,9 +378,7 @@ describe('ResultsCenterComponent', () => {
     it('should pin my tab when toggling from all', async () => {
       component.pinnedTab.set('all');
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
-      mockApiService.GET_Configuration.mockResolvedValue({
-        data: { all: '0', self: '1' }
-      } as any);
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('my');
 
       await component.togglePin('my');
       jest.runAllTimers();
@@ -369,6 +397,7 @@ describe('ResultsCenterComponent', () => {
     it('should unpin tab when toggling same tab', async () => {
       component.pinnedTab.set('all');
       mockApiService.PATCH_Configuration.mockResolvedValue({} as any);
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
 
       await component.togglePin('all');
       jest.runAllTimers();
@@ -381,6 +410,7 @@ describe('ResultsCenterComponent', () => {
     it('should handle error when API call fails', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       mockApiService.PATCH_Configuration.mockRejectedValue(new Error('API Error'));
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
 
       await component.togglePin('all');
       jest.runAllTimers();
@@ -411,7 +441,7 @@ describe('ResultsCenterComponent', () => {
     it('should stop event propagation and call togglePin', () => {
       const event = new Event('click');
       const stopPropagationSpy = jest.spyOn(event, 'stopPropagation');
-      const togglePinSpy = jest.spyOn(component, 'togglePin');
+      const togglePinSpy = jest.spyOn(component, 'togglePin').mockResolvedValue();
 
       component.onPinIconClick('all', event);
 

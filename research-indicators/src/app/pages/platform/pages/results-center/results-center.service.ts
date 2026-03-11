@@ -9,10 +9,20 @@ import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicato
 import { Table } from 'primeng/table';
 import { ApiService } from '../../../../shared/services/api.service';
 import { MultiselectComponent } from '../../../../shared/components/custom-fields/multiselect/multiselect.component';
+
+interface ResultsCenterPersistedState {
+  myResultsFilterItemId: string;
+  tableFilters: TableFilters;
+  resultsFilter: ResultFilter;
+  appliedFilters: ResultFilter;
+  searchInput: string;
+  primaryContractId: string | null;
+}
 @Injectable({
   providedIn: 'root'
 })
 export class ResultsCenterService {
+  private readonly storagePrefix = 'results-center-view-state:';
   api = inject(ApiService);
   hasFilters = signal(false);
   showFiltersSidebar = signal(false);
@@ -167,11 +177,29 @@ export class ResultsCenterService {
   });
   showConfigurationsSidebar = signal(false);
   confirmFiltersSignal = signal(false);
+  activeStateKey = signal<string | null>(null);
 
   getResultsService = inject(GetResultsService);
   cache = inject(CacheService);
 
   tableRef = signal<Table | undefined>(undefined);
+  persistViewState = effect(() => {
+    const activeKey = this.activeStateKey();
+    if (!activeKey) {
+      return;
+    }
+
+    const state: ResultsCenterPersistedState = {
+      myResultsFilterItemId: this.myResultsFilterItem()?.id ?? 'all',
+      tableFilters: this.tableFilters(),
+      resultsFilter: this.resultsFilter(),
+      appliedFilters: this.appliedFilters(),
+      searchInput: this.searchInput(),
+      primaryContractId: this.primaryContractId()
+    };
+
+    globalThis.sessionStorage?.setItem(this.getStorageKey(activeKey), JSON.stringify(state));
+  });
 
   getActiveFilters = computed(() => {
     const filters: { label: string; value: string; id?: string | number }[] = [];
@@ -237,7 +265,8 @@ export class ResultsCenterService {
       <T>(key: keyof TableFilters, pred: (item: T) => boolean): Updater =>
       (state: TableFilters) => {
         const arr = (state[key] as unknown as T[]) ?? [];
-        (state as unknown as Record<string, unknown[]>)[key as string] = id != null ? arr.filter(pred) : [];
+        const nextValues = id == null ? [] : arr.filter(pred);
+        (state as unknown as Record<string, unknown[]>)[key as string] = nextValues;
       };
 
     const map: Record<string, { update: Updater; ref?: keyof Record<string, MultiselectComponent>; key: keyof TableFilters }> = {
@@ -254,7 +283,7 @@ export class ResultsCenterService {
 
     const currentState = this.tableFilters();
     const currentArray = (currentState[handler.key] as unknown[]) ?? [];
-    const willBeEmpty = id != null ? currentArray.length === 1 : true;
+    const willBeEmpty = id == null || currentArray.length === 1;
 
     this.tableFilters.update(prev => {
       const next = { ...prev } as TableFilters;
@@ -659,5 +688,71 @@ export class ResultsCenterService {
     this.showConfigurationSidebar.set(false);
     this.multiselectRefs.set({});
     this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
+  }
+
+  activateStatePersistence(key: string): void {
+    this.activeStateKey.set(key);
+  }
+
+  deactivateStatePersistence(key: string): void {
+    if (this.activeStateKey() === key) {
+      this.activeStateKey.set(null);
+    }
+  }
+
+  restorePersistedState(key: string): boolean {
+    const rawState = globalThis.sessionStorage?.getItem(this.getStorageKey(key));
+    if (!rawState) {
+      return false;
+    }
+
+    try {
+      const state = JSON.parse(rawState) as Partial<ResultsCenterPersistedState>;
+      const selectedTab = this.myResultsFilterItems.find(item => item.id === state.myResultsFilterItemId) ?? this.myResultsFilterItems[0];
+      const resultsFilter = this.toResultsFilter(state.resultsFilter);
+      const appliedFilters = this.toResultsFilter(state.appliedFilters);
+      const tableFilters = Object.assign(new TableFilters(), state.tableFilters ?? {});
+
+      this.myResultsFilterItem.set(selectedTab);
+      this.tableFilters.set(tableFilters);
+      this.resultsFilter.set(resultsFilter);
+      this.appliedFilters.set(appliedFilters);
+      this.searchInput.set(state.searchInput ?? '');
+      this.primaryContractId.set(state.primaryContractId ?? null);
+      this.syncIndicatorTabSelection(resultsFilter['indicator-codes-tabs']?.[0] ?? 0);
+
+      return true;
+    } catch (error) {
+      console.warn('Error restoring persisted results-center state:', error);
+      globalThis.sessionStorage?.removeItem(this.getStorageKey(key));
+      return false;
+    }
+  }
+
+  private getStorageKey(key: string): string {
+    return `${this.storagePrefix}${key}`;
+  }
+
+  private toResultsFilter(filter?: Partial<ResultFilter>): ResultFilter {
+    return {
+      'create-user-codes': filter?.['create-user-codes'] ?? [],
+      'indicator-codes': filter?.['indicator-codes'] ?? [],
+      'status-codes': filter?.['status-codes'] ?? [],
+      'contract-codes': filter?.['contract-codes'] ?? [],
+      'platform-code': filter?.['platform-code'] ?? [],
+      'lever-codes': filter?.['lever-codes'] ?? [],
+      years: filter?.years ?? [],
+      'indicator-codes-filter': filter?.['indicator-codes-filter'] ?? [],
+      'indicator-codes-tabs': filter?.['indicator-codes-tabs'] ?? []
+    };
+  }
+
+  private syncIndicatorTabSelection(indicatorId: number): void {
+    this.api.indicatorTabs.lazy().list.update(prev =>
+      prev.map((item: GetAllIndicators) => ({
+        ...item,
+        active: item.indicator_id === indicatorId
+      }))
+    );
   }
 }

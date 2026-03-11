@@ -11,4 +11,8 @@ export class SubmissionHistoryItem {
   from_status?: ResultStatus;
   to_status?: ResultStatus;
   submission_comment = '';
+  custom_date = '';
+  submission_history_id?: number;
+  editable_timestamp?: boolean;
+  is_editable_date?: boolean;
 }

@@ -14,16 +14,76 @@
 .app-page-wrapper {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  width: 95%;
+  max-width: 95%;
+  min-width: 0;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: 70px;
-  margin-top: 40px;
-  margin-right: 40px;
-  margin-left: 30px;
+  margin-top: 25px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.result-nav-buttons-fixed {
+  position: fixed;
+  bottom: 0;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+.result-nav-buttons {
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.app-page-wrapper .content-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+
+.app-page-wrapper .content-section > div {
+  width: 100%;
+  min-width: 0;
 }
 
 .p-tooltip {
   --p-tooltip-background: #345b8f;
   --p-tooltip-max-width: 320px;
   --p-tooltip-border-radius: 8px;
+}
+
+.keywords-autocomplete {
+  .p-autocomplete-input-multiple {
+    gap: 8px !important;
+    padding-left: 13px !important;
+  }
+
+  .p-autocomplete-chip-item,
+  .p-autocomplete-chip,
+  .p-autocomplete-chip-item .p-chip {
+    background-color: #e8ebed !important;
+    border-radius: 1rem !important;
+    color: #4c5158 !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 18px !important;
+    text-transform: capitalize !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .p-autocomplete-chip-icon,
+  .p-chip-remove-icon {
+    color: #4c5158 !important;
+  }
 }
 
 .p-divider-vertical:before {
@@ -157,6 +217,11 @@ body {
 }
 
 .p-placeholder {
+  color: #a2a9af !important;
+}
+
+.p-select-label.p-placeholder,
+.p-multiselect-label.p-placeholder {
   color: #a2a9af !important;
 }
 

@@ -70,4 +70,11 @@ describe('SubmissionHistoryContentComponent', () => {
     expect(apiServiceMock.GET_SubmitionHistory).toHaveBeenCalledWith(123);
     expect(component.historyList()).toEqual([mockHistoryItem]);
   });
+
+  it('should set historyList to empty array when response.data is falsy', async () => {
+    (apiServiceMock.GET_SubmitionHistory as jest.Mock).mockResolvedValueOnce({ data: null });
+    component.getSubmitionHistory();
+    await fixture.whenStable();
+    expect(component.historyList()).toEqual([]);
+  });
 });

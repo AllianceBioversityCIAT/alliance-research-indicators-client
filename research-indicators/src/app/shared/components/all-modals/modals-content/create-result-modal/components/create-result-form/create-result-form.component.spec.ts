@@ -47,7 +47,8 @@ describe('CreateResultFormComponent', () => {
 
     apiServiceMock = {
       POST_Result: jest.fn(),
-      GET_ValidateTitle: jest.fn()
+      GET_ValidateTitle: jest.fn(),
+      GET_Results: jest.fn()
     } as Partial<ApiService> 
 
     actionsServiceMock = {
@@ -76,7 +77,9 @@ describe('CreateResultFormComponent', () => {
     } 
 
     allModalsServiceMock = {
-      closeModal: jest.fn()
+      closeModal: jest.fn(),
+      openModal: jest.fn(),
+      selectedResultForInfo: { set: jest.fn() }
     } as Partial<AllModalsService> 
 
     cacheServiceMock = {
@@ -225,12 +228,223 @@ describe('CreateResultFormComponent', () => {
     expect(resultsServiceMock.updateList).toHaveBeenCalled();
     expect(navigateSpy).not.toHaveBeenCalled();
 
-    // with openresult = true
+    // with openresult = true (STAR -> navigate)
     component.body.update(b => ({ ...b, title: 'Another Title' }));
     component.successRequest(result, true);
     expect(cacheServiceMock.currentResultId()).toBe(999);
     expect(navigateSpy).toHaveBeenCalledWith(['result', 'STAR-999'], { replaceUrl: true });
     expect(allModalsServiceMock.closeModal).toHaveBeenCalledWith('createResult');
+  });
+
+  it('successRequest with openresult true and non-STAR platform should open result info modal', () => {
+    const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true as any);
+    const resultData = { result_official_code: '123', platform_code: 'TIP', title: 'Tip Result' };
+    const result = { data: resultData } as any;
+
+    component.successRequest(result, true);
+
+    expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(resultData);
+    expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    expect(navigateSpy).not.toHaveBeenCalled();
+    expect(allModalsServiceMock.closeModal).toHaveBeenCalledWith('createResult');
+  });
+
+  describe('openExistingResultModal', () => {
+    it('should set selectedResultForInfo and open modal when response.data is array', async () => {
+      const resultItem = {
+        result_official_code: 456,
+        platform_code: 'TIP',
+        title: 'Existing',
+        result_id: 1
+      };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: [resultItem] } as any);
+
+      await component.openExistingResultModal('TIP', '456');
+
+      expect(apiServiceMock.GET_Results).toHaveBeenCalled();
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '456',
+          platform_code: 'TIP',
+          title: 'Existing'
+        })
+      );
+      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+
+    it('should handle response.data as object with results array', async () => {
+      const resultItem = {
+        result_official_code: 789,
+        platform_code: 'PRMS',
+        title: 'From results',
+        result_id: 2
+      };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: [resultItem] } } as any);
+
+      await component.openExistingResultModal('PRMS', '789');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '789',
+          platform_code: 'PRMS'
+        })
+      );
+      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+
+    it('should find correct result when response.data is array of multiple results', async () => {
+      const first = { result_official_code: '111', platform_code: 'TIP', title: 'First', result_id: 1 };
+      const second = { result_official_code: '999', platform_code: 'TIP', title: 'Target', result_id: 2 };
+      const third = { result_official_code: '999', platform_code: 'PRMS', title: 'Other platform', result_id: 3 };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: [first, second, third] } as any);
+
+      await component.openExistingResultModal('TIP', '999');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '999',
+          platform_code: 'TIP',
+          title: 'Target'
+        })
+      );
+      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+
+    it('should use single result when find returns undefined (list.length === 1 fallback)', async () => {
+      const single = { result_official_code: '111', platform_code: 'TIP', title: 'Only One', result_id: 1 };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: [single] } as any);
+
+      await component.openExistingResultModal('TIP', '999');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '111',
+          platform_code: 'TIP',
+          title: 'Only One'
+        })
+      );
+      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+
+    it('should not open modal when find returns undefined and list has multiple items', async () => {
+      const a = { result_official_code: '111', platform_code: 'TIP', title: 'A', result_id: 1 };
+      const b = { result_official_code: '222', platform_code: 'TIP', title: 'B', result_id: 2 };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: [a, b] } as any);
+
+      await component.openExistingResultModal('TIP', '999');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).not.toHaveBeenCalled();
+      expect(allModalsServiceMock.openModal).not.toHaveBeenCalled();
+    });
+
+    it('should handle response.data as single result object', async () => {
+      const resultItem = {
+        result_official_code: 111,
+        platform_code: 'TIP',
+        title: 'Single',
+        result_id: 3
+      };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: resultItem } as any);
+
+      await component.openExistingResultModal('TIP', '111');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '111',
+          platform_code: 'TIP'
+        })
+      );
+      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+
+    it('should handle response.data as object without results array but with result_official_code', async () => {
+      const resultItem = {
+        result_official_code: '777',
+        platform_code: 'TIP',
+        title: 'Direct object',
+        result_id: 4
+      };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: resultItem } as any);
+
+      await component.openExistingResultModal('TIP', '777');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '777',
+          platform_code: 'TIP'
+        })
+      );
+      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+
+    it('should handle response.data as object with results non-array but result_official_code present', async () => {
+      const resultItem = {
+        results: null,
+        result_official_code: '555',
+        platform_code: 'TIP',
+        title: 'Wrapper object',
+        result_id: 6
+      };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: resultItem } as any);
+
+      await component.openExistingResultModal('TIP', '555');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '555',
+          platform_code: 'TIP'
+        })
+      );
+      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+
+    it('should set normalized result with snapshot_years array when present', async () => {
+      const resultItem = {
+        result_official_code: 888,
+        platform_code: 'TIP',
+        title: 'With snapshot years',
+        result_id: 5,
+        snapshot_years: [2024, 2025]
+      };
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: [resultItem] } as any);
+
+      await component.openExistingResultModal('TIP', '888');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          result_official_code: '888',
+          platform_code: 'TIP',
+          snapshot_years: [2024, 2025]
+        })
+      );
+    });
+
+    it('should not open modal when response.data is null', async () => {
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: null } as any);
+
+      await component.openExistingResultModal('TIP', '999');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).not.toHaveBeenCalled();
+      expect(allModalsServiceMock.openModal).not.toHaveBeenCalled();
+    });
+
+    it('should not open modal when response.data is object without results array and without result_id/result_official_code', async () => {
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: null, other: 'field' } } as any);
+
+      await component.openExistingResultModal('TIP', '999');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).not.toHaveBeenCalled();
+      expect(allModalsServiceMock.openModal).not.toHaveBeenCalled();
+    });
+
+    it('should ignore fetch errors and not open modal', async () => {
+      apiServiceMock.GET_Results!.mockRejectedValue(new Error('Network error'));
+
+      await component.openExistingResultModal('TIP', '999');
+
+      expect((allModalsServiceMock as any).selectedResultForInfo.set).not.toHaveBeenCalled();
+      expect(allModalsServiceMock.openModal).not.toHaveBeenCalled();
+    });
   });
 
   it('getWordCount and getWordCounterColor should work as expected', () => {
@@ -351,6 +565,20 @@ describe('CreateResultFormComponent', () => {
     expect(component.getPrimaryLeverId('999')).toBeUndefined();
   });
 
+  it('getPrimaryLeverForOicr should return array with lever when getPrimaryLeverId returns value', () => {
+    component.body.set({ contract_id: '123' } as any);
+    contractsServiceMock.list.set([{ agreement_id: '123', lever_id: 456 }] as any);
+    expect(component.getPrimaryLeverForOicr()).toEqual([
+      { result_lever_id: 0, result_id: 0, lever_id: 456, lever_role_id: 0, is_primary: true }
+    ]);
+  });
+
+  it('getPrimaryLeverForOicr should return empty array when getPrimaryLeverId returns falsy', () => {
+    component.body.set({ contract_id: '999' } as any);
+    contractsServiceMock.list.set([]);
+    expect(component.getPrimaryLeverForOicr()).toEqual([]);
+  });
+
   it('CreateOicr should navigate to OICR when title is valid', async () => {
     const spy = jest.spyOn(component, 'navigateToOicr');
     apiServiceMock.GET_ValidateTitle.mockResolvedValue({ successfulRequest: true, data: { isValid: true } });
@@ -373,6 +601,60 @@ describe('CreateResultFormComponent', () => {
         buttonColor: '#035BA9'
       })
     );
+  });
+
+  it('CreateOicr should show alert with result link when title exists and platform is STAR', async () => {
+    apiServiceMock.GET_ValidateTitle.mockResolvedValue({
+      successfulRequest: true,
+      data: { isValid: false, result_official_code: '999', platform_code: 'STAR' }
+    });
+    await component.CreateOicr();
+
+    expect(actionsServiceMock.showGlobalAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        summary: 'Title Already Exists',
+        detail: expect.stringContaining('result/STAR-999/general-information')
+      })
+    );
+    const alertArg = (actionsServiceMock.showGlobalAlert as jest.Mock).mock.calls[0][0];
+    expect(alertArg.onDetailLinkClick).toBeUndefined();
+  });
+
+  it('CreateOicr should pass onDetailLinkClick for non-STAR when title exists and invoke openExistingResultModal', async () => {
+    apiServiceMock.GET_ValidateTitle.mockResolvedValue({
+      successfulRequest: true,
+      data: { isValid: false, result_official_code: 456, platform_code: 'TIP' }
+    });
+    const openExistingSpy = jest.spyOn(component, 'openExistingResultModal').mockResolvedValue();
+    await component.CreateOicr();
+
+    const alertArg = (actionsServiceMock.showGlobalAlert as jest.Mock).mock.calls[0][0];
+    expect(alertArg.onDetailLinkClick).toBeDefined();
+    alertArg.onDetailLinkClick();
+    await Promise.resolve();
+    expect(openExistingSpy).toHaveBeenCalledWith('TIP', '456');
+  });
+
+  it('createResult should pass onOpenExistingResult to handleBadRequest and call openExistingResultModal when invoked', async () => {
+    apiServiceMock.POST_Result.mockResolvedValue({
+      successfulRequest: false,
+      errorDetail: {
+        description: 'Exists',
+        errors: { result_official_code: 789, platform_code: 'TIP' }
+      }
+    } as any);
+
+    await component.createResult(true);
+
+    expect(actionsServiceMock.handleBadRequest).toHaveBeenCalledWith(
+      expect.any(Object),
+      undefined,
+      expect.objectContaining({ onOpenExistingResult: expect.any(Function) })
+    );
+    const options = (actionsServiceMock.handleBadRequest as jest.Mock).mock.calls[0][2];
+    const openExistingSpy = jest.spyOn(component, 'openExistingResultModal').mockResolvedValue();
+    await options.onOpenExistingResult('TIP', '789');
+    expect(openExistingSpy).toHaveBeenCalledWith('TIP', '789');
   });
 
   it('navigateToOicr should set all management service values and update OICR body', () => {
@@ -814,7 +1096,7 @@ describe('CreateResultFormComponent', () => {
     expect(createResultManagementServiceMock.setYear).toHaveBeenCalledWith(2024);
     expect(createResultManagementServiceMock.createOicrBody.update).toHaveBeenCalled();
     
-    // Verify that the update callback includes primary_lever
+    // Verify that the update callback includes primary_lever (covers line 252 lever_id: Number(...))
     const updateCall = createResultManagementServiceMock.createOicrBody.update.mock.calls[0][0];
     const mockBody = { base_information: {}, step_two: {} };
     const result = updateCall(mockBody);
@@ -827,6 +1109,18 @@ describe('CreateResultFormComponent', () => {
         is_primary: true
       }
     ]);
+    expect(typeof (result.step_two.primary_lever as any[])[0].lever_id).toBe('number');
+  });
+
+  it('navigateToOicr should set lever_id via Number() when getPrimaryLeverId returns string number (cover line 252 branch)', () => {
+    component.body.set({ title: 'T', contract_id: '123', year: 2024 });
+    contractsServiceMock.list.set([
+      { agreement_id: '123', lever_id: '789' } as any
+    ]);
+    component.navigateToOicr();
+    const updateCall = createResultManagementServiceMock.createOicrBody.update.mock.calls[0][0];
+    const result = updateCall({ base_information: {}, step_two: {} });
+    expect((result.step_two.primary_lever as any[])[0].lever_id).toBe(789);
   });
 
   it('navigateToOicr should handle when body values are falsy and use empty strings', () => {

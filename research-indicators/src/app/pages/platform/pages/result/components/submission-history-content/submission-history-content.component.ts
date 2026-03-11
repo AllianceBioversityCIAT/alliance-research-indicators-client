@@ -38,6 +38,6 @@ export class SubmissionHistoryContentComponent implements OnInit {
 
   async getSubmitionHistory() {
     const response = await this.api.GET_SubmitionHistory(this.cache.getCurrentNumericResultId());
-    this.historyList.set(response.data);
+    this.historyList.set(response.data ? [...response.data] : []);
   }
 }

@@ -72,7 +72,7 @@
       endDateGlobal: currentContract()?.endDateGlobal || undefined,
       levers: currentContract()?.levers,
       status_id: getStatusIdAsString(),
-      status_config: cache.currentMetadata()?.result_status
+      status_config: cache.currentMetadata().result_status
     }" [showTag]="this.createResultManagementService.editingOicr()"
     [showDownload]="this.createResultManagementService.editingOicr()"></app-oicr-header>
   }
@@ -93,9 +93,9 @@
       <p-accordion-panel value="0" class="!border-none">
         <p-accordion-header class="!border !py-4 !px-7 !font-medium"
           [class]="'!border !p-4 !font-medium ' + (((accordionActiveState() ?? isAccordionOpen()) || !shouldShowBottomBorder()) ? '!border-b-0 !rounded-t-[13px] !rounded-b-none' : '!rounded-[13px]')"
-          [style.border-color]="cache.currentMetadata()?.result_status?.config?.color?.text"
-          [style.color]="cache.currentMetadata()?.result_status?.config?.color?.text"
-          [style.background-color]="cache.currentMetadata()?.result_status?.config?.color?.background">
+          [style.border-color]="cache.currentMetadata().result_status?.config?.color?.text"
+          [style.color]="cache.currentMetadata().result_status?.config?.color?.text"
+          [style.background-color]="cache.currentMetadata().result_status?.config?.color?.background">
           <div class="flex flex-col w-full">
             <ng-template #toggleicon let-active="active">
               <ng-container [ngTemplateOutlet]="globalToggleIcon"
@@ -106,8 +106,8 @@
             </ng-template>
             <div class="flex items-center gap-3">
               <i [class]="getStatusIcon()"
-                [style.color]="cache.currentMetadata()?.result_status?.config?.color?.text"></i>
-              <span class="font-medium">{{ cache.currentMetadata()?.result_status?.name || '' }}</span>
+                [style.color]="cache.currentMetadata().result_status?.config?.color?.text"></i>
+              <span class="font-medium">{{ cache.currentMetadata().result_status?.name || '' }}</span>
             </div>
             <div class="flex gap-x-5 mt-2">
               <div class="flex items-center">
@@ -151,11 +151,11 @@
         </p-accordion-header>
         <p-accordion-content
           class="!border !border-t-0 !rounded-b-[13px] !px-7 !pb-4 !mb-8 !-mt-px custom-accordion-content"
-          [style.border-color]="cache.currentMetadata()?.result_status?.config?.color?.text"
-          [style.color]="cache.currentMetadata()?.result_status?.config?.color?.text"
-          [style.background-color]="cache.currentMetadata()?.result_status?.config?.color?.background + ' !important'">
+          [style.border-color]="cache.currentMetadata().result_status?.config?.color?.text"
+          [style.color]="cache.currentMetadata().result_status?.config?.color?.text"
+          [style.background-color]="cache.currentMetadata().result_status?.config?.color?.background + ' !important'">
           <div class="text-[#4C5158] text-[14px] leading-relaxed"
-            [style.background-color]="cache.currentMetadata()?.result_status?.config?.color?.background + ' !important'">
+            [style.background-color]="cache.currentMetadata().result_status?.config?.color?.background + ' !important'">
             <span class="font-medium mb-2">Reason:
               <span class="font-normal">{{ getSubmissionComment() || 'No justification provided.' }}</span></span>
           </div>
