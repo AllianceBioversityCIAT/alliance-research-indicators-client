@@ -19,7 +19,7 @@ import { ActionsService } from '@shared/services/actions.service';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
-import { Router, RouterLink, UrlTree } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 
 const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
 
@@ -36,8 +36,7 @@ const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
     FiltersActionButtonsComponent,
     SearchExportControlsComponent,
     SectionSidebarComponent,
-    TableFiltersSidebarComponent,
-    RouterLink
+    TableFiltersSidebarComponent
   ],
   templateUrl: './select-linked-results-modal.component.html'
 })
@@ -173,6 +172,20 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
 
   getPlatformColors(platformCode: string): { text: string; background: string } | undefined {
     return PLATFORM_COLOR_MAP[platformCode];
+  }
+
+  getProjectHref(contractId: string): string {
+    const tree = this.router.createUrlTree(['/project-detail', contractId, 'project-results']);
+    return this.router.serializeUrl(tree);
+  }
+
+  isNonStarPlatform(result: Result): boolean {
+    return result.platform_code !== PLATFORM_CODES.STAR;
+  }
+
+  openResultInfoModal(result: Result): void {
+    this.allModalsService.selectedResultForInfo.set(result);
+    this.allModalsService.openModal('resultInformation');
   }
 
   isSelected(result: Result): boolean {
