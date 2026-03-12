@@ -208,8 +208,7 @@ export class ApiService {
       });
     }
 
-    const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
-    const url = () => `results${queryString}`;
+    const url = () => `results?${queryParams.join('&')}`;
     return this.TP.get(url(), {});
   };
 

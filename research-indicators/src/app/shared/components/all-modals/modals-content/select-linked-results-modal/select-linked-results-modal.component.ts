@@ -58,6 +58,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   modalCurrentPage = signal(1);
   modalRowsPerPage = signal(10);
   private modalWasOpen = false;
+  private savedMyResultsFilterItem: import('primeng/api').MenuItem | undefined;
   private readonly modalVisibilityWatcher = effect(
     () => {
       const modalConfig = this.allModalsService.isModalOpen('selectLinkedResults');
@@ -81,7 +82,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       const currentSelected = this.selectedResults();
       const syncedIds = syncedResults.map(r => r.result_id).sort((a, b) => a - b);
       const currentIds = currentSelected.map(r => r.result_id).sort((a, b) => a - b);
-      
+
       if (JSON.stringify(syncedIds) !== JSON.stringify(currentIds)) {
         this.selectedResults.set(syncedResults);
       }
@@ -199,7 +200,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   toggleSelection(result: Result) {
     const current = this.selectedResults();
     const index = current.findIndex(r => r.result_id === result.result_id);
-    
+
     if (index >= 0) {
       const updated = current.filter(r => r.result_id !== result.result_id);
       this.selectedResults.set(updated);
@@ -251,7 +252,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       this.saving.set(false);
     }
   }
-  
 
   showFiltersSidebar() {
     this.resultsCenterService.showFiltersSidebar.set(true);
@@ -266,13 +266,14 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     void this.loadResultsForModal();
   }
 
-  getScrollHeight = computed(
-    () => `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + 400}px)`
-  );
+  getScrollHeight = computed(() => `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + 400}px)`);
 
   private async onModalOpened(): Promise<void> {
+    this.savedMyResultsFilterItem = this.resultsCenterService.myResultsFilterItem();
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
-    await this.ensureResultsListLoaded();
+    await this.loadResultsForModal();
     await this.loadExistingLinkedResults();
   }
 
@@ -291,12 +292,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       this.selectedResults.set(matched);
     } catch (error) {
       console.error('Error loading linked results', error);
-    }
-  }
-
-  private async ensureResultsListLoaded(): Promise<void> {
-    if (this.resultsCenterService.list().length === 0) {
-      await this.loadResultsForModal();
     }
   }
 
@@ -333,7 +328,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   }
 
   private applyModalIndicatorFilter(options: { resetIndicatorFilters?: boolean; tabsOverride?: readonly number[] } = {}): void {
-
     const { resetIndicatorFilters = false } = options;
     const hasActiveIndicatorFilter =
       (this.resultsCenterService.tableFilters().indicators?.length ?? 0) > 0 ||
@@ -344,7 +338,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     const setIndicators = (prev: ResultFilter) => ({
       ...prev,
       'indicator-codes-tabs': tabs,
-      'indicator-codes-filter': resetIndicatorFilters ? [] : prev['indicator-codes-filter'] ?? []
+      'indicator-codes-filter': resetIndicatorFilters ? [] : (prev['indicator-codes-filter'] ?? [])
     });
 
     this.resultsCenterService.resultsFilter.update(prev => setIndicators(prev));
@@ -352,6 +346,9 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   }
 
   private resetModalFilters(): void {
+    if (this.savedMyResultsFilterItem) {
+      this.resultsCenterService.myResultsFilterItem.set(this.savedMyResultsFilterItem);
+    }
     this.resultsCenterService.showFiltersSidebar.set(false);
     this.selectedResults.set([]);
     this.searchInput.set('');
@@ -391,4 +388,3 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     }
   }
 }
-

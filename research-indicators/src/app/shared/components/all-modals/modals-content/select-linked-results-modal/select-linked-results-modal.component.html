@@ -18,18 +18,16 @@
   </div>
 
   @if (resultsCenterService.loading()) {
-    <app-custom-progress-bar></app-custom-progress-bar>
+  <app-custom-progress-bar></app-custom-progress-bar>
   }
 
   <p-table #dt2 [value]="resultsCenterService.list()" [paginator]="true" [rows]="modalRowsPerPage()"
-    class="border border-[#E4EAEE] rounded-[18px] border-t-0"
-    [scrollHeight]="getScrollHeight()" [showCurrentPageReport]="true" [scrollable]="true"
-    [tableStyle]="{ 'min-width': '100%' }" [rowsPerPageOptions]="[5, 10, 25, 50]"
+    class="border border-[#E4EAEE] rounded-[18px] border-t-0" [scrollHeight]="getScrollHeight()"
+    [showCurrentPageReport]="true" [scrollable]="true" [tableStyle]="{ 'min-width': '100%' }"
+    [rowsPerPageOptions]="[5, 10, 25, 50]"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results" [sortField]="'result_official_code'"
-    [sortOrder]="1"
-    [lazy]="true" [totalRecords]="resultsCenterService.totalRecords()"
-    [first]="(modalCurrentPage() - 1) * modalRowsPerPage()"
-    (onPage)="onModalPageChange($event)"
+    [sortOrder]="1" [lazy]="true" [totalRecords]="resultsCenterService.totalRecords()"
+    [first]="(modalCurrentPage() - 1) * modalRowsPerPage()" (onPage)="onModalPageChange($event)"
     styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
     <ng-template pTemplate="header">
       <tr>
@@ -40,8 +38,8 @@
         </th>
         @for (column of resultsCenterService.tableColumns(); track column.field) {
         @if (column.field !== 'versions' && (!column.hideIf || !column.hideIf())) {
-        <th class="{{ column.minWidth }} {{ column.maxWidth }} !text-[#173F6F]"
-          [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path" scope="col">
+        <th class="{{ column.minWidth }} {{ column.maxWidth }} !text-[#173F6F]" [pSortableColumn]="column.path"
+          scope="col">
           <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] ">
             {{
             column.field === 'project'
@@ -52,9 +50,7 @@
             ? 'Year'
             : column.header
             }}
-            @if (!column?.hideFilterIf?.()) {
             <p-sortIcon field="{{ column.path }}"></p-sortIcon>
-            }
           </div>
         </th>
         }
@@ -104,7 +100,8 @@
         </td>
         } @else if (column.field === 'result_official_code') {
         <td>
-          <div class="flex flex-col gap-0.5 items-center text-[13px] {{result.platform_code !== 'STAR' ? 'pt-1.5' : ''}}">
+          <div
+            class="flex flex-col gap-0.5 items-center text-[13px] {{result.platform_code !== 'STAR' ? 'pt-1.5' : ''}}">
             <div class="flex">
               <span class="py-1 px-2 rounded-l-lg font-[600] min-w-[50px] max-w-[50px] text-center"
                 [style.color]="getPlatformColors(result.platform_code)?.text"
@@ -126,8 +123,8 @@
         } @else if (column.field === 'project') {
         <td>
           @if (result.result_contracts?.contract_id) {
-          <a [href]="getProjectHref(result.result_contracts.contract_id)" target="_blank"
-            rel="noopener noreferrer" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()"
+          <a [href]="getProjectHref(result.result_contracts.contract_id)" target="_blank" rel="noopener noreferrer"
+            (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()"
             class="cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"
             style="color: inherit; text-decoration: none">
             {{ result.result_contracts.contract_id }}
