@@ -756,19 +756,29 @@ export class ResultsCenterService {
     };
   }
 
-  private buildSearchField(...fields: string[]): string {
+  buildSearchField(...fields: string[]): string {
     const words = fields
       .join(' ')
       .split(/\s+/)
       .filter(w => w.length > 0)
       .map(w => w.toLowerCase());
-    const pairs: string[] = [];
-    for (let i = 0; i < words.length; i++) {
-      for (let j = 0; j < words.length; j++) {
-        if (i !== j) pairs.push(`${words[i]} ${words[j]}`);
+
+    if (words.length === 0) return '';
+    if (words.length === 1) return words[0];
+
+    const permutations: string[] = [];
+
+    const permute = (arr: string[], current: string[] = []) => {
+      if (current.length >= 2) {
+        permutations.push(current.join(' '));
       }
-    }
-    return [...pairs, words.join(' ')].join(' | ');
+      for (let i = 0; i < arr.length; i++) {
+        permute([...arr.slice(0, i), ...arr.slice(i + 1)], [...current, arr[i]]);
+      }
+    };
+    permute(words);
+
+    return [...words, ...permutations].join(' | ');
   }
 
   private syncIndicatorTabSelection(indicatorId: number): void {
