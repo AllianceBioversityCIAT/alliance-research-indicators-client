@@ -17,6 +17,8 @@ interface ResultsCenterPersistedState {
   appliedFilters: ResultFilter;
   searchInput: string;
   primaryContractId: string | null;
+  currentPage: number;
+  rowsPerPage: number;
 }
 @Injectable({
   providedIn: 'root'
@@ -35,6 +37,9 @@ export class ResultsCenterService {
   myResultsFilterItem = signal<MenuItem | undefined>(this.myResultsFilterItems[0]);
   loading = signal(false);
   list = signal<Result[]>([]);
+  totalRecords = signal(0);
+  currentPage = signal(1);
+  rowsPerPage = signal(10);
   tableFilters = signal(new TableFilters());
   appliedFilters = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
   searchInput = signal('');
@@ -196,7 +201,9 @@ export class ResultsCenterService {
       resultsFilter: this.resultsFilter(),
       appliedFilters: this.appliedFilters(),
       searchInput: this.searchInput(),
-      primaryContractId: this.primaryContractId()
+      primaryContractId: this.primaryContractId(),
+      currentPage: this.currentPage(),
+      rowsPerPage: this.rowsPerPage()
     };
 
     globalThis.sessionStorage?.setItem(this.getStorageKey(activeKey), JSON.stringify(state));
@@ -395,8 +402,19 @@ export class ResultsCenterService {
         ? ({ ...baseFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter)
         : baseFilter;
 
-      const response = await this.getResultsService.getInstance(finalFilter, this.resultsConfig());
-      const rawResults = response();
+      const paginatedFilter: ResultFilter = {
+        ...finalFilter,
+        page: this.currentPage(),
+        limit: this.rowsPerPage(),
+        ...(this.searchInput() ? { search: this.searchInput() } : {})
+      };
+
+      const response = await this.getResultsService.getInstance(paginatedFilter, this.resultsConfig());
+      const rawResults = response.data();
+
+      if (response.pagination) {
+        this.totalRecords.set(response.pagination.total);
+      }
 
       const enhancedResults = rawResults.map(result => {
         const primaryLevers = Array.isArray(result.result_levers) ? result.result_levers.filter(rl => rl.is_primary === 1) : [];
@@ -433,6 +451,12 @@ export class ResultsCenterService {
       this.loading.set(false);
     }
   }
+  onPageChange(page: number, rows: number) {
+    this.currentPage.set(page);
+    this.rowsPerPage.set(rows);
+    this.main();
+  }
+
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
     const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
       SUBMITTED: 'info',
@@ -446,6 +470,7 @@ export class ResultsCenterService {
     this.myResultsFilterItem.set(event);
 
     this.searchInput.set('');
+    this.currentPage.set(1);
     this.tableFilters.set(new TableFilters());
 
     this.resultsFilter.update(() => ({
@@ -506,6 +531,7 @@ export class ResultsCenterService {
       'create-user-codes': preserveCreateUserCodes
     }));
 
+    this.currentPage.set(1);
     const table = this.tableRef();
     if (table) {
       table.first = 0;
@@ -542,6 +568,7 @@ export class ResultsCenterService {
       ...prev,
       indicators: []
     }));
+    this.currentPage.set(1);
     this.main();
   }
 
@@ -620,6 +647,7 @@ export class ResultsCenterService {
     });
 
     this.searchInput.set('');
+    this.currentPage.set(1);
 
     setTimeout(() => {
       this.cleanMultiselects();
@@ -697,6 +725,9 @@ export class ResultsCenterService {
     this.showConfigurationSidebar.set(false);
     this.multiselectRefs.set({});
     this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
+    this.totalRecords.set(0);
+    this.currentPage.set(1);
+    this.rowsPerPage.set(10);
   }
 
   activateStatePersistence(key: string): void {
@@ -728,6 +759,8 @@ export class ResultsCenterService {
       this.appliedFilters.set(appliedFilters);
       this.searchInput.set(state.searchInput ?? '');
       this.primaryContractId.set(state.primaryContractId ?? null);
+      this.currentPage.set(state.currentPage ?? 1);
+      this.rowsPerPage.set(state.rowsPerPage ?? 10);
       this.syncIndicatorTabSelection(resultsFilter['indicator-codes-tabs']?.[0] ?? 0);
 
       return true;
