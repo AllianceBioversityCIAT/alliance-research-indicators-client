@@ -39,7 +39,7 @@
         @for (column of resultsCenterService.tableColumns(); track column.field) {
         @if (column.field !== 'versions' && (!column.hideIf || !column.hideIf())) {
         <th class="{{ column.minWidth }} {{ column.maxWidth }} !text-[#173F6F]"
-          [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path" scope="col">
+          [pSortableColumn]="column.path" scope="col">
           <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] ">
             {{
             column.field === 'project'
@@ -50,9 +50,7 @@
             ? 'Year'
             : column.header
             }}
-            @if (!column?.hideFilterIf?.()) {
             <p-sortIcon field="{{ column.path }}"></p-sortIcon>
-            }
           </div>
         </th>
         }

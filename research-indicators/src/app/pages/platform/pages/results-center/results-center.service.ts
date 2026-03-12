@@ -142,7 +142,6 @@ export class ResultsCenterService {
       path: 'created_by_user.first_name',
       header: 'Creator',
       minWidth: 'min-w-[90px]',
-      hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
       filterPaths: ['_creatorFullName'],
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
@@ -391,9 +390,7 @@ export class ResultsCenterService {
       }
 
       const primaryContractId = this.primaryContractId();
-      const finalFilter = primaryContractId
-        ? ({ ...baseFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter)
-        : baseFilter;
+      const finalFilter = primaryContractId ? ({ ...baseFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter) : baseFilter;
 
       const response = await this.getResultsService.getInstance(finalFilter, this.resultsConfig());
       const rawResults = response();
