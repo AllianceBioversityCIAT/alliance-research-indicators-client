@@ -119,10 +119,12 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
         const preferredTab = allPinned || !selfPinned ? 'all' : 'my';
 
         this.pinnedTab.set(preferredTab);
+        this.resultsCenterService.pinnedTab.set(preferredTab);
         return preferredTab;
       }
 
       this.pinnedTab.set('all');
+      this.resultsCenterService.pinnedTab.set('all');
       return 'all';
     } finally {
       this.loadingPin.set(false);
@@ -130,7 +132,6 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
   }
 
   onActiveItemChange = (event: MenuItem): void => {
-    this.resultsCenterService.searchInput.set('');
     this.resultsCenterService.cleanFilters();
 
     if (event.id === 'my') {
@@ -200,6 +201,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
 
       await this.api.PATCH_Configuration(this.tableId, 'tab', pinValue);
       this.pinnedTab.set(newPinnedTab);
+      this.resultsCenterService.pinnedTab.set(newPinnedTab);
 
       if (newPinnedTab === 'all') {
         this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);

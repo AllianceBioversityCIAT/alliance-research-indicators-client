@@ -62,6 +62,7 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   onSearchInputChange = effect(() => {
     const searchValue = this.resultsCenterService.searchInput();
+    this.resultsCenterService.list();
     if (this.dt2) {
       this.dt2.first = 0;
       this.dt2.filterGlobal(searchValue, 'contains');

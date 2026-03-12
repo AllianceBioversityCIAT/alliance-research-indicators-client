@@ -1084,11 +1084,11 @@ describe('ResultsCenterService', () => {
       expect(tableFilters.levers).toEqual([]);
     });
 
-    it('should clear table filters and reset sort when table exists', () => {
+    it('should reset sort and pagination when table exists without clearing global filter', () => {
       const tableMock = {
-        clear: jest.fn(),
         sortField: '',
-        sortOrder: 0
+        sortOrder: 0,
+        first: 10
       };
       service.tableRef.set(tableMock as any);
       service.tableFilters.set({
@@ -1101,9 +1101,9 @@ describe('ResultsCenterService', () => {
 
       service.cleanFilters();
 
-      expect(tableMock.clear).toHaveBeenCalled();
       expect(tableMock.sortField).toBe('result_official_code');
       expect(tableMock.sortOrder).toBe(-1);
+      expect(tableMock.first).toBe(0);
       const filters = service.tableFilters();
       expect(filters.indicators).toEqual([]);
       expect(filters.statusCodes).toEqual([]);
@@ -1118,35 +1118,18 @@ describe('ResultsCenterService', () => {
   });
 
   describe('clearAllFilters', () => {
-    it('should preserve create-user-codes when tab is my', () => {
-      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
-      service.resultsFilter.set({ 'create-user-codes': [99, 100], 'indicator-codes': [1] } as any);
+    it('should set create-user-codes from user id when pinnedTab is my', () => {
+      service.pinnedTab.set('my');
       service.clearAllFilters();
-      expect(service.resultsFilter()['create-user-codes']).toEqual([99, 100]);
-      expect(service.resultsFilter()['indicator-codes']).toEqual([]);
+      expect(service.resultsFilter()['create-user-codes']).toEqual(['123']);
+      expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[1]);
     });
 
-    it('should clear create-user-codes when currentTab is undefined in clearAllFilters', () => {
-      service.myResultsFilterItem.set(undefined as any);
-      service.resultsFilter.set({ 'create-user-codes': [1, 2], 'indicator-codes': [1] } as any);
+    it('should clear create-user-codes when pinnedTab is all', () => {
+      service.pinnedTab.set('all');
       service.clearAllFilters();
       expect(service.resultsFilter()['create-user-codes']).toEqual([]);
-    });
-
-    it('should clear create-user-codes when currentTab id is not my (cover line 548 else branch)', () => {
-      service.myResultsFilterItem.set(service.myResultsFilterItems[0]);
-      service.resultsFilter.set({ 'create-user-codes': [1, 2], 'indicator-codes': [1] } as any);
-      service.clearAllFilters();
-      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
-    });
-
-    it('should use [] when tab is my and create-user-codes is falsy (cover line 548 || [] branch)', () => {
-      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
-      service.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': undefined as any }));
-      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => {});
-      service.clearAllFilters();
-      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
-      mainSpy.mockRestore();
+      expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[0]);
     });
 
     it('should clear all filters and reset state', () => {
@@ -1169,9 +1152,9 @@ describe('ResultsCenterService', () => {
       const filter = service.resultsFilter();
       const appliedFilter = service.appliedFilters();
       expect(filter['indicator-codes-filter']).toEqual([]);
-      expect(filter['indicator-codes-tabs']).toEqual([3]);
+      expect(filter['indicator-codes-tabs']).toEqual([]);
       expect(appliedFilter['indicator-codes-filter']).toEqual([]);
-      expect(appliedFilter['indicator-codes-tabs']).toEqual([3]);
+      expect(appliedFilter['indicator-codes-tabs']).toEqual([]);
       expect(service.searchInput()).toBe('');
       expect(mainSpy).toHaveBeenCalled();
     });
@@ -2009,6 +1992,12 @@ describe('ResultsCenterService', () => {
 
       expect(service.resultsFilter()['create-user-codes']).toEqual([]);
       expect(service.appliedFilters()['create-user-codes']).toEqual([]);
+    });
+  });
+
+  describe('buildSearchField', () => {
+    it('should return the single word when only one word is provided', () => {
+      expect(service.buildSearchField('Daniela')).toBe('daniela');
     });
   });
 });

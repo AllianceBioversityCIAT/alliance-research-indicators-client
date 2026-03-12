@@ -33,6 +33,7 @@ export class ResultsCenterService {
     { id: 'my', label: 'My Results' }
   ];
   myResultsFilterItem = signal<MenuItem | undefined>(this.myResultsFilterItems[0]);
+  pinnedTab = signal<string>('all');
   loading = signal(false);
   list = signal<Result[]>([]);
   tableFilters = signal(new TableFilters());
@@ -544,12 +545,11 @@ export class ResultsCenterService {
 
   cleanFilters() {
     this.cleanMultiselects();
-    //? clear table filters and reset sort
     const table = this.tableRef();
     if (table) {
-      table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
+      table.first = 0;
     }
 
     this.tableFilters.update(prev => ({
@@ -577,32 +577,33 @@ export class ResultsCenterService {
       levers: []
     }));
 
-    const currentTab = this.myResultsFilterItem();
-    const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
-    const preserveIndicatorTabs = this.resultsFilter()['indicator-codes-tabs'] ?? [];
+    const pinnedItem = this.pinnedTab() === 'my' ? this.myResultsFilterItems[1] : this.myResultsFilterItems[0];
+    this.myResultsFilterItem.set(pinnedItem);
+
+    const createUserCodes = pinnedItem.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : [];
 
     this.resultsFilter.set({
       'indicator-codes': [],
       'lever-codes': [],
-      'indicator-codes-tabs': preserveIndicatorTabs,
+      'indicator-codes-tabs': [],
       'indicator-codes-filter': [],
       'status-codes': [],
       'contract-codes': [],
       'platform-code': [],
       years: [],
-      'create-user-codes': preserveCreateUserCodes
+      'create-user-codes': createUserCodes
     });
 
     this.appliedFilters.set({
       'indicator-codes': [],
       'lever-codes': [],
-      'indicator-codes-tabs': preserveIndicatorTabs,
+      'indicator-codes-tabs': [],
       'indicator-codes-filter': [],
       'status-codes': [],
       'contract-codes': [],
       'platform-code': [],
       years: [],
-      'create-user-codes': preserveCreateUserCodes
+      'create-user-codes': createUserCodes
     });
 
     this.resultsConfig.set({
@@ -617,6 +618,8 @@ export class ResultsCenterService {
     });
 
     this.searchInput.set('');
+
+    this.onSelectFilterTab(0);
 
     setTimeout(() => {
       this.cleanMultiselects();

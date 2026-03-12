@@ -90,6 +90,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
 
   onSearchInputChange = effect(() => {
     const searchValue = this.searchInput();
+    this.resultsCenterService.list();
     if (this.dt2) {
       this.dt2.first = 0;
       this.dt2.filterGlobal(searchValue, 'contains');
