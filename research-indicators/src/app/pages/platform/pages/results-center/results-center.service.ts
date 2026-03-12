@@ -17,6 +17,8 @@ interface ResultsCenterPersistedState {
   appliedFilters: ResultFilter;
   searchInput: string;
   primaryContractId: string | null;
+  currentPage?: number;
+  rowsPerPage?: number;
 }
 @Injectable({
   providedIn: 'root'
@@ -35,6 +37,9 @@ export class ResultsCenterService {
   myResultsFilterItem = signal<MenuItem | undefined>(this.myResultsFilterItems[0]);
   loading = signal(false);
   list = signal<Result[]>([]);
+  totalRecords = signal(0);
+  currentPage = signal(1);
+  rowsPerPage = signal(10);
   tableFilters = signal(new TableFilters());
   appliedFilters = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
   searchInput = signal('');
@@ -196,7 +201,9 @@ export class ResultsCenterService {
       resultsFilter: this.resultsFilter(),
       appliedFilters: this.appliedFilters(),
       searchInput: this.searchInput(),
-      primaryContractId: this.primaryContractId()
+      primaryContractId: this.primaryContractId(),
+      currentPage: this.currentPage(),
+      rowsPerPage: this.rowsPerPage()
     };
 
     globalThis.sessionStorage?.setItem(this.getStorageKey(activeKey), JSON.stringify(state));
@@ -333,17 +340,19 @@ export class ResultsCenterService {
   onChangeList = effect(
     () => {
       if (!this.api.indicatorTabs.lazy().isLoading()) {
+        const restoredTabId = this.resultsFilter()['indicator-codes-tabs']?.[0] ?? 0;
         this.api.indicatorTabs.lazy().list.update(prev => {
           return [
             {
               name: 'All Indicators',
               indicator_id: 0,
               able: true,
-              active: true
+              active: restoredTabId === 0
             },
             ...prev.map(indicator => ({
               ...indicator,
-              able: [0, 1, 2, 3, 4, 5].includes(indicator.indicator_id)
+              able: [0, 1, 2, 3, 4, 5].includes(indicator.indicator_id),
+              active: indicator.indicator_id === restoredTabId
             }))
           ];
         });
@@ -389,10 +398,21 @@ export class ResultsCenterService {
       }
 
       const primaryContractId = this.primaryContractId();
-      const finalFilter = primaryContractId ? ({ ...baseFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter) : baseFilter;
+      const searchQuery = this.searchInput()?.trim();
+      const paginatedFilter: ResultFilter = {
+        ...baseFilter,
+        page: this.currentPage(),
+        limit: this.rowsPerPage(),
+        ...(searchQuery ? { search: searchQuery } : {})
+      };
+      const finalFilter = primaryContractId ? ({ ...paginatedFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter) : paginatedFilter;
 
       const response = await this.getResultsService.getInstance(finalFilter, this.resultsConfig());
-      const rawResults = response();
+      const rawResults = response.data();
+
+      if (response.pagination) {
+        this.totalRecords.set(response.pagination.total);
+      }
 
       const enhancedResults = rawResults.map(result => {
         const primaryLevers = Array.isArray(result.result_levers) ? result.result_levers.filter(rl => rl.is_primary === 1) : [];
@@ -477,7 +497,7 @@ export class ResultsCenterService {
   }
 
   applyFilters = () => {
-    // Preserve create-user-codes if tab is "my"
+    this.currentPage.set(1);
     const currentTab = this.myResultsFilterItem();
     const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
 
@@ -510,7 +530,14 @@ export class ResultsCenterService {
     this.main();
   };
 
+  onPageChange(page: number, rows: number) {
+    this.currentPage.set(page);
+    this.rowsPerPage.set(rows);
+    this.main();
+  }
+
   onSelectFilterTab(indicatorId: number) {
+    this.currentPage.set(1);
     this.api.indicatorTabs.lazy().list.update(prev =>
       prev.map((item: GetAllIndicators) => ({
         ...item,
@@ -564,6 +591,7 @@ export class ResultsCenterService {
   }
 
   clearAllFilters() {
+    this.currentPage.set(1);
     this.cleanMultiselects();
 
     this.tableFilters.set(new TableFilters());
@@ -577,15 +605,14 @@ export class ResultsCenterService {
       levers: []
     }));
 
-    // Preserve create-user-codes if tab is "my", otherwise clear it
     const currentTab = this.myResultsFilterItem();
     const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
+    const preserveIndicatorTabs = this.resultsFilter()['indicator-codes-tabs'] ?? [];
 
-    // Clear ALL fields in resultsFilter, but preserve create-user-codes if tab is "my"
     this.resultsFilter.set({
       'indicator-codes': [],
       'lever-codes': [],
-      'indicator-codes-tabs': [],
+      'indicator-codes-tabs': preserveIndicatorTabs,
       'indicator-codes-filter': [],
       'status-codes': [],
       'contract-codes': [],
@@ -594,11 +621,10 @@ export class ResultsCenterService {
       'create-user-codes': preserveCreateUserCodes
     });
 
-    // Clear ALL fields in appliedFilters, but preserve create-user-codes if tab is "my"
     this.appliedFilters.set({
       'indicator-codes': [],
       'lever-codes': [],
-      'indicator-codes-tabs': [],
+      'indicator-codes-tabs': preserveIndicatorTabs,
       'indicator-codes-filter': [],
       'status-codes': [],
       'contract-codes': [],
@@ -607,7 +633,6 @@ export class ResultsCenterService {
       'create-user-codes': preserveCreateUserCodes
     });
 
-    // Reset resultsConfig (gear) to default values
     this.resultsConfig.set({
       indicators: true,
       'result-status': true,
@@ -619,7 +644,6 @@ export class ResultsCenterService {
       'audit-data-object': true
     });
 
-    // clear search input
     this.searchInput.set('');
 
     setTimeout(() => {
@@ -632,7 +656,7 @@ export class ResultsCenterService {
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
-    this.onSelectFilterTab(0);
+    this.main();
   }
 
   clearAllFiltersWithPreserve(preserveIndicatorCodes: readonly number[]): void {
@@ -693,6 +717,9 @@ export class ResultsCenterService {
   resetState() {
     this.clearAllFilters();
     this.list.set([]);
+    this.totalRecords.set(0);
+    this.currentPage.set(1);
+    this.rowsPerPage.set(10);
     this.loading.set(true);
     this.showFiltersSidebar.set(false);
     this.showConfigurationSidebar.set(false);
@@ -729,6 +756,8 @@ export class ResultsCenterService {
       this.appliedFilters.set(appliedFilters);
       this.searchInput.set(state.searchInput ?? '');
       this.primaryContractId.set(state.primaryContractId ?? null);
+      this.currentPage.set(state.currentPage ?? 1);
+      this.rowsPerPage.set(state.rowsPerPage ?? 10);
       this.syncIndicatorTabSelection(resultsFilter['indicator-codes-tabs']?.[0] ?? 0);
 
       return true;

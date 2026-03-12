@@ -1,4 +1,4 @@
-import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input } from '@angular/core';
+import { Component, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -17,6 +17,7 @@ import { PopoverModule } from 'primeng/popover';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { FiltersActionButtonsComponent } from '../../../../../../shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '../../../../../../shared/components/search-export-controls/search-export-controls.component';
+import { CustomProgressBarComponent } from '../../../../../../shared/components/custom-progress-bar/custom-progress-bar.component';
 import { PLATFORM_COLOR_MAP } from '../../../../../../shared/constants/platform-colors';
 import { PLATFORM_CODES } from '../../../../../../shared/constants/platform-codes';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
@@ -34,7 +35,8 @@ import { CreateResultManagementService } from '@shared/components/all-modals/mod
     RouterLink,
     CustomTagComponent,
     FiltersActionButtonsComponent,
-    SearchExportControlsComponent
+    SearchExportControlsComponent,
+    CustomProgressBarComponent
   ],
   templateUrl: './results-center-table.component.html'
 })
@@ -58,16 +60,15 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     { label: 'Export', icon: 'pi pi-download' }
   ];
 
-  onSearchInputChange = effect(() => {
-    const searchValue = this.resultsCenterService.searchInput();
-    const table = this.tableRef();
-    if (table) {
-      table.filterGlobal(searchValue, 'contains');
-    }
-  });
-
   setSearchInputFilter(query: string) {
     this.resultsCenterService.searchInput.set(query);
+    this.resultsCenterService.currentPage.set(1);
+    this.resultsCenterService.main();
+  }
+
+  onPageChange(event: { first: number; rows: number }) {
+    const page = Math.floor(event.first / event.rows) + 1;
+    this.resultsCenterService.onPageChange(page, event.rows);
   }
 
   getScrollHeight = computed(
@@ -357,7 +358,6 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResult(result: Result) {
-    this.resultsCenterService.clearAllFilters();
     if (
       result.platform_code === PLATFORM_CODES.PRMS ||
       result.platform_code === PLATFORM_CODES.TIP ||
@@ -382,7 +382,6 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       return;
     }
     this.closeResultInformationModal();
-    this.resultsCenterService.clearAllFilters();
     const resultCode = `${platformCode}-${result}`;
     this.router.navigate(['/result', resultCode], {
       queryParams: { version: year }

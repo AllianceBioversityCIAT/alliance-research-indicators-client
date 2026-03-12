@@ -67,7 +67,12 @@ describe('ResultsCenterTableComponent', () => {
       removeFilter: jest.fn(),
       showFiltersSidebar: signal(false),
       showConfigurationsSidebar: signal(false),
-      tableRef: signal<any>(undefined)
+      tableRef: signal<any>(undefined),
+      currentPage: signal(1),
+      rowsPerPage: signal(10),
+      totalRecords: signal(0),
+      main: jest.fn(),
+      onPageChange: jest.fn()
     };
 
     mockCache = {
@@ -161,17 +166,17 @@ describe('ResultsCenterTableComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('onSearchInputChange should call table.filterGlobal when search changes', () => {
-    const mockTable = { filterGlobal: jest.fn(), first: 0 } as any;
-    component.tableRef.set(mockTable);
-    mockService.searchInput.set('abc');
-    fixture.detectChanges();
-    expect(mockTable.filterGlobal).toHaveBeenCalledWith('abc', 'contains');
-  });
-
-  it('setSearchInputFilter should update service searchInput', () => {
+  it('setSearchInputFilter should update service searchInput, reset page and call main', () => {
+    mockService.currentPage.set(3);
     component.setSearchInputFilter('q');
     expect(mockService.searchInput()).toBe('q');
+    expect(mockService.currentPage()).toBe(1);
+    expect(mockService.main).toHaveBeenCalled();
+  });
+
+  it('onPageChange should calculate page and delegate to service', () => {
+    component.onPageChange({ first: 20, rows: 10 });
+    expect(mockService.onPageChange).toHaveBeenCalledWith(3, 10);
   });
 
   it('getActiveFiltersExcludingIndicatorTab and shouldShowFilterMessage', () => {
@@ -228,7 +233,6 @@ describe('ResultsCenterTableComponent', () => {
   it('openResult should open modal for PRMS and not navigate', () => {
     const prms = { ...mockResult, platform_code: 'PRMS' };
     component.openResult(prms);
-    expect(mockService.clearAllFilters).toHaveBeenCalled();
     expect(mockModals.selectedResultForInfo()).toEqual(prms);
     expect(mockModals.openModal).toHaveBeenCalledWith('resultInformation');
     expect(mockRouter.navigate).not.toHaveBeenCalled();
@@ -730,9 +734,11 @@ describe('ResultsCenterTableComponent', () => {
     expect(mockModals.openModal).toHaveBeenCalledWith('resultInformation');
   });
 
-  it('onSearchInputChange should ignore when table not ready', () => {
+  it('setSearchInputFilter should work even when table not ready', () => {
     (component as any).dt2 = undefined;
-    expect(() => mockService.searchInput.set('zzz')).not.toThrow();
+    expect(() => component.setSearchInputFilter('zzz')).not.toThrow();
+    expect(mockService.searchInput()).toBe('zzz');
+    expect(mockService.main).toHaveBeenCalled();
   });
 
   it('processRowClick should early return when row has no parent', () => {
