@@ -100,6 +100,11 @@ export class MyProjectsService {
   }
 
   private getLeverDisplayName(item: FindContracts): string {
+    if (item.levers) {
+      const leversArray = Array.isArray(item.levers) ? item.levers : [item.levers];
+      const names = leversArray.map(l => l.short_name).filter(Boolean);
+      if (names.length) return names.join(', ');
+    }
     if (item.lever_name) {
       return item.lever_name;
     }
