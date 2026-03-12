@@ -50,7 +50,7 @@ describe('GetInnoUseOutputService', () => {
     service.list.set([]);
     apiService.GET_Results.mockResolvedValueOnce(Promise.resolve(mockResults));
     await service.main();
-    expect(service.list()).toEqual(mockResults.data);
+    expect(service.list()).toEqual(mockResults.data.data);
   });
 
   it('should set list to empty array when response has no data', async () => {

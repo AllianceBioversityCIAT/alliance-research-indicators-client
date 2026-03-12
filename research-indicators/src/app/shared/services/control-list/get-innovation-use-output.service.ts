@@ -24,11 +24,8 @@ export class GetInnoUseOutputService {
       'indicator-codes': [6]
     });
 
-    if (response?.data) {
-      this.list.set(response.data);
-    } else {
-      this.list.set([]);
-    }
+    const data = response?.data?.data;
+    this.list.set(Array.isArray(data) ? data : []);
 
     this.loading.set(false);
   }
