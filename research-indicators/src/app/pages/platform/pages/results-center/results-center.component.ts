@@ -130,13 +130,9 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
   }
 
   onActiveItemChange = (event: MenuItem): void => {
-    this.resultsCenterService.myResultsFilterItem.set(event);
-    
-    // Clear filters first (this will preserve create-user-codes if tab is "my")
-    this.resultsCenterService.clearAllFilters();
     this.resultsCenterService.searchInput.set('');
-    
-    // Then load results based on the selected tab
+    this.resultsCenterService.cleanFilters();
+
     if (event.id === 'my') {
       this.loadMyResults();
     } else {
@@ -145,6 +141,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
   };
 
   loadMyResults() {
+    const preserveIndicatorTabs = this.resultsCenterService.resultsFilter()['indicator-codes-tabs'] ?? [];
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
     this.resultsCenterService.resultsFilter.set({
       'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
@@ -154,7 +151,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       'lever-codes': [],
       years: [],
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorTabs
     });
     this.resultsCenterService.appliedFilters.set({
       'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
@@ -164,12 +161,13 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       'lever-codes': [],
       years: [],
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorTabs
     });
     this.resultsCenterService.main();
   }
 
   loadAllResults() {
+    const preserveIndicatorTabs = this.resultsCenterService.resultsFilter()['indicator-codes-tabs'] ?? [];
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
     this.resultsCenterService.resultsFilter.set({
       'create-user-codes': [],
@@ -179,7 +177,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       'lever-codes': [],
       years: [],
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorTabs
     });
     this.resultsCenterService.appliedFilters.set({
       'create-user-codes': [],
@@ -189,7 +187,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       'lever-codes': [],
       years: [],
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorTabs
     });
     this.resultsCenterService.main();
   }

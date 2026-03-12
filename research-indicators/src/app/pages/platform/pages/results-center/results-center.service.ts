@@ -464,7 +464,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = 1;
+      table.sortOrder = -1;
       table.first = 0;
     }
   };
@@ -549,7 +549,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = 1;
+      table.sortOrder = -1;
     }
 
     this.tableFilters.update(prev => ({
@@ -626,7 +626,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = 1;
+      table.sortOrder = -1;
     }
     this.main();
   }
@@ -668,7 +668,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = 1;
+      table.sortOrder = -1;
     }
     this.onSelectFilterTab(0);
   }

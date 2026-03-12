@@ -55,6 +55,7 @@ describe('ResultsCenterComponent', () => {
       main: jest.fn(),
       applyFilters: jest.fn(),
       cleanMultiselects: jest.fn(),
+      cleanFilters: jest.fn(),
       activateStatePersistence: jest.fn(),
       deactivateStatePersistence: jest.fn(),
       restorePersistedState: jest.fn().mockReturnValue(false)
@@ -278,9 +279,8 @@ describe('ResultsCenterComponent', () => {
 
       component.onActiveItemChange(event);
 
-      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
       expect(loadMyResultsSpy).toHaveBeenCalled();
-      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
+      expect(mockResultsCenterService.cleanFilters).toHaveBeenCalled();
       expect(mockResultsCenterService.searchInput()).toBe('');
     });
 
@@ -290,9 +290,8 @@ describe('ResultsCenterComponent', () => {
 
       component.onActiveItemChange(event);
 
-      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
       expect(loadAllResultsSpy).toHaveBeenCalled();
-      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
+      expect(mockResultsCenterService.cleanFilters).toHaveBeenCalled();
       expect(mockResultsCenterService.searchInput()).toBe('');
     });
   });
@@ -312,17 +311,19 @@ describe('ResultsCenterComponent', () => {
         'indicator-codes-filter': [],
         'indicator-codes-tabs': []
       });
-      expect(mockResultsCenterService.appliedFilters()).toEqual({
-        'create-user-codes': ['123'],
-        'indicator-codes': [],
-        'status-codes': [],
-        'contract-codes': [],
-        'lever-codes': [],
-        years: [],
-        'indicator-codes-filter': [],
-        'indicator-codes-tabs': []
-      });
       expect(mockResultsCenterService.main).toHaveBeenCalled();
+    });
+
+    it('should preserve indicator-codes-tabs when switching', () => {
+      mockResultsCenterService.resultsFilter.set({
+        ...mockResultsCenterService.resultsFilter(),
+        'indicator-codes-tabs': [5]
+      });
+
+      component.loadMyResults();
+
+      expect(mockResultsCenterService.resultsFilter()['indicator-codes-tabs']).toEqual([5]);
+      expect(mockResultsCenterService.appliedFilters()['indicator-codes-tabs']).toEqual([5]);
     });
   });
 
@@ -341,17 +342,19 @@ describe('ResultsCenterComponent', () => {
         'indicator-codes-filter': [],
         'indicator-codes-tabs': []
       });
-      expect(mockResultsCenterService.appliedFilters()).toEqual({
-        'create-user-codes': [],
-        'indicator-codes': [],
-        'status-codes': [],
-        'contract-codes': [],
-        'lever-codes': [],
-        years: [],
-        'indicator-codes-filter': [],
-        'indicator-codes-tabs': []
-      });
       expect(mockResultsCenterService.main).toHaveBeenCalled();
+    });
+
+    it('should preserve indicator-codes-tabs when switching', () => {
+      mockResultsCenterService.resultsFilter.set({
+        ...mockResultsCenterService.resultsFilter(),
+        'indicator-codes-tabs': [3]
+      });
+
+      component.loadAllResults();
+
+      expect(mockResultsCenterService.resultsFilter()['indicator-codes-tabs']).toEqual([3]);
+      expect(mockResultsCenterService.appliedFilters()['indicator-codes-tabs']).toEqual([3]);
     });
   });
 
