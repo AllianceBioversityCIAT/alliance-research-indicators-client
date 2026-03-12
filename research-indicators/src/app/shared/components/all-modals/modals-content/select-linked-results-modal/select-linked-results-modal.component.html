@@ -26,7 +26,7 @@
     [scrollHeight]="getScrollHeight()" [showCurrentPageReport]="true" [scrollable]="true"
     [tableStyle]="{ 'min-width': '100%' }" [rowsPerPageOptions]="[5, 10, 25, 50]"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results" [sortField]="'result_official_code'"
-    [sortOrder]="-1"
+    [sortOrder]="1"
     [lazy]="true" [totalRecords]="resultsCenterService.totalRecords()"
     [first]="(modalCurrentPage() - 1) * modalRowsPerPage()"
     (onPage)="onModalPageChange($event)"

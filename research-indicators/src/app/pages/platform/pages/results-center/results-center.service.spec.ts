@@ -825,7 +825,7 @@ describe('ResultsCenterService', () => {
 
       expect(tableMock.clear).toHaveBeenCalled();
       expect(tableMock.sortField).toBe('result_official_code');
-      expect(tableMock.sortOrder).toBe(-1);
+      expect(tableMock.sortOrder).toBe(1);
       expect(tableMock.first).toBe(0);
     });
   });
@@ -1114,7 +1114,7 @@ describe('ResultsCenterService', () => {
 
       expect(tableMock.clear).toHaveBeenCalled();
       expect(tableMock.sortField).toBe('result_official_code');
-      expect(tableMock.sortOrder).toBe(-1);
+      expect(tableMock.sortOrder).toBe(1);
       const filters = service.tableFilters();
       expect(filters.indicators).toEqual([]);
       expect(filters.statusCodes).toEqual([]);
@@ -1200,7 +1200,7 @@ describe('ResultsCenterService', () => {
 
       expect(tableMock.clear).toHaveBeenCalled();
       expect(tableMock.sortField).toBe('result_official_code');
-      expect(tableMock.sortOrder).toBe(-1);
+      expect(tableMock.sortOrder).toBe(1);
       expect(tableMock.first).toBe(0);
     });
 
@@ -1687,7 +1687,7 @@ describe('ResultsCenterService', () => {
       expect(service.searchInput()).toBe('');
       expect(tableMock.clear).toHaveBeenCalled();
       expect(tableMock.sortField).toBe('result_official_code');
-      expect(tableMock.sortOrder).toBe(-1);
+      expect(tableMock.sortOrder).toBe(1);
     });
 
     it('should handle when table is null', () => {

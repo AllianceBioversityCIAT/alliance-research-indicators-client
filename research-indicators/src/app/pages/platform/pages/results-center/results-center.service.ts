@@ -403,9 +403,12 @@ export class ResultsCenterService {
         ...baseFilter,
         page: this.currentPage(),
         limit: this.rowsPerPage(),
+        'sort-order': 'DESC',
         ...(searchQuery ? { search: searchQuery } : {})
       };
-      const finalFilter = primaryContractId ? ({ ...paginatedFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter) : paginatedFilter;
+      const finalFilter = primaryContractId
+        ? ({ ...paginatedFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter)
+        : paginatedFilter;
 
       const response = await this.getResultsService.getInstance(finalFilter, this.resultsConfig());
       const rawResults = response.data();
@@ -483,7 +486,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = -1;
+      table.sortOrder = 1;
       table.first = 0;
     }
   };
@@ -576,7 +579,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = -1;
+      table.sortOrder = 1;
     }
 
     this.tableFilters.update(prev => ({
@@ -654,7 +657,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = -1;
+      table.sortOrder = 1;
     }
     this.main();
   }
@@ -696,7 +699,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = -1;
+      table.sortOrder = 1;
     }
     this.onSelectFilterTab(0);
   }
@@ -787,7 +790,11 @@ export class ResultsCenterService {
   }
 
   private buildSearchField(...fields: string[]): string {
-    const words = fields.join(' ').split(/\s+/).filter(w => w.length > 0).map(w => w.toLowerCase());
+    const words = fields
+      .join(' ')
+      .split(/\s+/)
+      .filter(w => w.length > 0)
+      .map(w => w.toLowerCase());
     const pairs: string[] = [];
     for (let i = 0; i < words.length; i++) {
       for (let j = 0; j < words.length; j++) {
