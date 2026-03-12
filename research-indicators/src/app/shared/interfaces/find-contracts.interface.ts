@@ -19,7 +19,7 @@ export interface FindContracts {
   status_name?: string;
   lever_name?: string;
   lever?: { short_name?: string; name?: string } | string;
-  levers?: LeverData;
+  levers?: LeverData | LeverData[];
   principal_investigator?: string;
   full_name?: string;
   center_amount?: string;
