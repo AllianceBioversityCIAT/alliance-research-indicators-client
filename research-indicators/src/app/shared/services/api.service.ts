@@ -177,7 +177,7 @@ export class ApiService {
   GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<PaginatedResult>> => {
     const queryParams: string[] = [];
 
-    const paginationKeys = new Set(['page', 'limit', 'search']);
+    const paginationKeys = new Set(['page', 'limit', 'search', 'sort-order']);
     const indicatorKeysHandled = new Set(['indicator-codes', 'indicator-codes-tabs', 'indicator-codes-filter']);
 
     if (resultFilter.page != null) {
@@ -188,6 +188,9 @@ export class ApiService {
     }
     if (resultFilter.search) {
       queryParams.push(`search=${encodeURIComponent(resultFilter.search)}`);
+    }
+    if (resultFilter['sort-order']) {
+      queryParams.push(`sort-order=${resultFilter['sort-order']}`);
     }
 
     if (resultFilter['indicator-codes-tabs']?.length) {

@@ -44,6 +44,7 @@ export interface ResultFilter {
   page?: number;
   limit?: number;
   search?: string;
+  'sort-order'?: 'ASC' | 'DESC';
 }
 
 export interface PaginationMeta {
