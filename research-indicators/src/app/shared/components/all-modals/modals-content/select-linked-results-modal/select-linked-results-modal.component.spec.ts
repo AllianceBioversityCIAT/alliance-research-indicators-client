@@ -81,6 +81,8 @@ describe('SelectLinkedResultsModalComponent', () => {
       getAllPathsAsArray: jest.fn().mockReturnValue([]),
       tableColumns: jest.fn().mockReturnValue([]),
       searchInput: Object.assign(jest.fn().mockReturnValue('') as any, { set: jest.fn() }),
+      myResultsFilterItem: Object.assign(jest.fn().mockReturnValue({ id: 'all', label: 'All Results' }) as any, { set: jest.fn() }),
+      myResultsFilterItems: [{ id: 'all', label: 'All Results' }, { id: 'my', label: 'My Results' }],
       // @ts-expect-error partial mock
     } as jest.Mocked<ResultsCenterService>;
 
@@ -620,16 +622,17 @@ describe('SelectLinkedResultsModalComponent', () => {
   });
 
   describe('onModalOpened', () => {
-    it('should apply indicator filter and load results', async () => {
+    it('should save tab, set to all, apply indicator filter and load results', async () => {
       const applySpy = jest.spyOn<any, any>(component as any, 'applyModalIndicatorFilter').mockImplementation(() => {});
-      const ensureSpy = jest.spyOn<any, any>(component as any, 'ensureResultsListLoaded').mockResolvedValue(undefined);
-      const loadSpy = jest.spyOn<any, any>(component as any, 'loadExistingLinkedResults').mockResolvedValue(undefined);
+      const loadResultsSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
+      const loadLinkedSpy = jest.spyOn<any, any>(component as any, 'loadExistingLinkedResults').mockResolvedValue(undefined);
       
       await (component as any).onModalOpened();
       
+      expect(resultsCenterService.myResultsFilterItem.set).toHaveBeenCalledWith({ id: 'all', label: 'All Results' });
       expect(applySpy).toHaveBeenCalledWith({ resetIndicatorFilters: true });
-      expect(ensureSpy).toHaveBeenCalled();
-      expect(loadSpy).toHaveBeenCalled();
+      expect(loadResultsSpy).toHaveBeenCalled();
+      expect(loadLinkedSpy).toHaveBeenCalled();
     });
   });
 
@@ -682,23 +685,16 @@ describe('SelectLinkedResultsModalComponent', () => {
     });
   });
 
-  describe('ensureResultsListLoaded', () => {
-    it('should load results when list is empty', async () => {
-      resultsCenterService.list.mockReturnValue([]);
-      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
-      
-      await (component as any).ensureResultsListLoaded();
-      
-      expect(loadSpy).toHaveBeenCalled();
-    });
+  describe('resetModalFilters', () => {
+    it('should restore saved myResultsFilterItem when closing modal', () => {
+      const savedTab = { id: 'my', label: 'My Results' };
+      (component as any).savedMyResultsFilterItem = savedTab;
+      const clearSpy = jest.spyOn(component, 'clearFilters').mockImplementation(() => {});
 
-    it('should not load results when list is not empty', async () => {
-      resultsCenterService.list.mockReturnValue([createResult()] as any);
-      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
-      
-      await (component as any).ensureResultsListLoaded();
-      
-      expect(loadSpy).not.toHaveBeenCalled();
+      (component as any).resetModalFilters();
+
+      expect(resultsCenterService.myResultsFilterItem.set).toHaveBeenCalledWith(savedTab);
+      expect(clearSpy).toHaveBeenCalled();
     });
   });
 

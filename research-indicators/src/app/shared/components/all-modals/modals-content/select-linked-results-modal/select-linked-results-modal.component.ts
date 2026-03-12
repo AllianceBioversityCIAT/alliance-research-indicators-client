@@ -56,6 +56,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   searchInput = signal('');
   saving = signal(false);
   private modalWasOpen = false;
+  private savedMyResultsFilterItem: import('primeng/api').MenuItem | undefined;
   private readonly modalVisibilityWatcher = effect(
     () => {
       const modalConfig = this.allModalsService.isModalOpen('selectLinkedResults');
@@ -268,8 +269,11 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   );
 
   private async onModalOpened(): Promise<void> {
+    this.savedMyResultsFilterItem = this.resultsCenterService.myResultsFilterItem();
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
-    await this.ensureResultsListLoaded();
+    await this.loadResultsForModal();
     await this.loadExistingLinkedResults();
   }
 
@@ -288,12 +292,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       this.selectedResults.set(matched);
     } catch (error) {
       console.error('Error loading linked results', error);
-    }
-  }
-
-  private async ensureResultsListLoaded(): Promise<void> {
-    if (this.resultsCenterService.list().length === 0) {
-      await this.loadResultsForModal();
     }
   }
 
@@ -348,6 +346,12 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.resultsCenterService.showFiltersSidebar.set(false);
     this.selectedResults.set([]);
     this.searchInput.set('');
+
+    if (this.savedMyResultsFilterItem) {
+      this.resultsCenterService.myResultsFilterItem.set(this.savedMyResultsFilterItem);
+      this.savedMyResultsFilterItem = undefined;
+    }
+
     this.clearFilters();
   }
 
