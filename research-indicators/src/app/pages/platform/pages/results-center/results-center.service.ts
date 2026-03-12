@@ -17,8 +17,6 @@ interface ResultsCenterPersistedState {
   appliedFilters: ResultFilter;
   searchInput: string;
   primaryContractId: string | null;
-  currentPage?: number;
-  rowsPerPage?: number;
 }
 @Injectable({
   providedIn: 'root'
@@ -37,9 +35,6 @@ export class ResultsCenterService {
   myResultsFilterItem = signal<MenuItem | undefined>(this.myResultsFilterItems[0]);
   loading = signal(false);
   list = signal<Result[]>([]);
-  totalRecords = signal(0);
-  currentPage = signal(1);
-  rowsPerPage = signal(10);
   tableFilters = signal(new TableFilters());
   appliedFilters = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
   searchInput = signal('');
@@ -201,9 +196,7 @@ export class ResultsCenterService {
       resultsFilter: this.resultsFilter(),
       appliedFilters: this.appliedFilters(),
       searchInput: this.searchInput(),
-      primaryContractId: this.primaryContractId(),
-      currentPage: this.currentPage(),
-      rowsPerPage: this.rowsPerPage()
+      primaryContractId: this.primaryContractId()
     };
 
     globalThis.sessionStorage?.setItem(this.getStorageKey(activeKey), JSON.stringify(state));
@@ -398,24 +391,12 @@ export class ResultsCenterService {
       }
 
       const primaryContractId = this.primaryContractId();
-      const searchQuery = this.searchInput()?.trim();
-      const paginatedFilter: ResultFilter = {
-        ...baseFilter,
-        page: this.currentPage(),
-        limit: this.rowsPerPage(),
-        'sort-order': 'DESC',
-        ...(searchQuery ? { search: searchQuery } : {})
-      };
       const finalFilter = primaryContractId
-        ? ({ ...paginatedFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter)
-        : paginatedFilter;
+        ? ({ ...baseFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter)
+        : baseFilter;
 
       const response = await this.getResultsService.getInstance(finalFilter, this.resultsConfig());
-      const rawResults = response.data();
-
-      if (response.pagination) {
-        this.totalRecords.set(response.pagination.total);
-      }
+      const rawResults = response();
 
       const enhancedResults = rawResults.map(result => {
         const primaryLevers = Array.isArray(result.result_levers) ? result.result_levers.filter(rl => rl.is_primary === 1) : [];
@@ -500,7 +481,6 @@ export class ResultsCenterService {
   }
 
   applyFilters = () => {
-    this.currentPage.set(1);
     const currentTab = this.myResultsFilterItem();
     const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
 
@@ -533,14 +513,7 @@ export class ResultsCenterService {
     this.main();
   };
 
-  onPageChange(page: number, rows: number) {
-    this.currentPage.set(page);
-    this.rowsPerPage.set(rows);
-    this.main();
-  }
-
   onSelectFilterTab(indicatorId: number) {
-    this.currentPage.set(1);
     this.api.indicatorTabs.lazy().list.update(prev =>
       prev.map((item: GetAllIndicators) => ({
         ...item,
@@ -594,7 +567,6 @@ export class ResultsCenterService {
   }
 
   clearAllFilters() {
-    this.currentPage.set(1);
     this.cleanMultiselects();
 
     this.tableFilters.set(new TableFilters());
@@ -720,9 +692,6 @@ export class ResultsCenterService {
   resetState() {
     this.clearAllFilters();
     this.list.set([]);
-    this.totalRecords.set(0);
-    this.currentPage.set(1);
-    this.rowsPerPage.set(10);
     this.loading.set(true);
     this.showFiltersSidebar.set(false);
     this.showConfigurationSidebar.set(false);
@@ -759,8 +728,6 @@ export class ResultsCenterService {
       this.appliedFilters.set(appliedFilters);
       this.searchInput.set(state.searchInput ?? '');
       this.primaryContractId.set(state.primaryContractId ?? null);
-      this.currentPage.set(state.currentPage ?? 1);
-      this.rowsPerPage.set(state.rowsPerPage ?? 10);
       this.syncIndicatorTabSelection(resultsFilter['indicator-codes-tabs']?.[0] ?? 0);
 
       return true;

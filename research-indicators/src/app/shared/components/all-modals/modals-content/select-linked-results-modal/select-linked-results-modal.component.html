@@ -21,15 +21,13 @@
     <app-custom-progress-bar></app-custom-progress-bar>
   }
 
-  <p-table #dt2 [value]="resultsCenterService.list()" [paginator]="true" [rows]="modalRowsPerPage()"
+  <p-table #dt2 [value]="resultsCenterService.list()" [paginator]="true" [rows]="10"
     class="border border-[#E4EAEE] rounded-[18px] border-t-0"
     [scrollHeight]="getScrollHeight()" [showCurrentPageReport]="true" [scrollable]="true"
     [tableStyle]="{ 'min-width': '100%' }" [rowsPerPageOptions]="[5, 10, 25, 50]"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results" [sortField]="'result_official_code'"
     [sortOrder]="1"
-    [lazy]="true" [totalRecords]="resultsCenterService.totalRecords()"
-    [first]="(modalCurrentPage() - 1) * modalRowsPerPage()"
-    (onPage)="onModalPageChange($event)"
+    [globalFilterFields]="resultsCenterService.getAllPathsAsArray()"
     styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
     <ng-template pTemplate="header">
       <tr>

@@ -48,14 +48,12 @@
     <app-custom-progress-bar></app-custom-progress-bar>
   }
 
-  <p-table #dt2 [value]="resultsCenterService.list()" [paginator]="true" [rows]="resultsCenterService.rowsPerPage()"
+  <p-table #dt2 [value]="resultsCenterService.list()" [paginator]="true" [rows]="10"
     [showCurrentPageReport]="true" [scrollable]="true"
     [tableStyle]="{ 'min-width': '100%' }" [rowsPerPageOptions]="[5, 10, 25, 50]"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results" [sortField]="'result_official_code'"
     [sortOrder]="1"
-    [lazy]="true" [totalRecords]="resultsCenterService.totalRecords()"
-    [first]="(resultsCenterService.currentPage() - 1) * resultsCenterService.rowsPerPage()"
-    (onPage)="onPageChange($event)"
+    [globalFilterFields]="resultsCenterService.getAllPathsAsArray()"
     styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
     <ng-template pTemplate="header">
       <tr>

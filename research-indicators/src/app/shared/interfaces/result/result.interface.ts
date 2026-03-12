@@ -41,24 +41,6 @@ export interface ResultFilter {
   'platform-code'?: string[];
   'result-codes'?: string[];
   years?: number[];
-  page?: number;
-  limit?: number;
-  search?: string;
-  'sort-order'?: 'ASC' | 'DESC';
-}
-
-export interface PaginationMeta {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
-export interface PaginatedResult {
-  data: Result[];
-  pagination: PaginationMeta;
 }
 
 export interface ResultConfig {

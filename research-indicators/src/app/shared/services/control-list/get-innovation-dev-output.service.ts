@@ -24,8 +24,7 @@ export class GetInnoDevOutputService {
     const response = await this.api.GET_Results({
       'indicator-codes': [2]
     });
-    const data = response?.data?.data;
-    this.list.set(Array.isArray(data) ? data : []);
+    this.list.set(Array.isArray(response?.data) ? response.data : []);
 
     this.loading.set(false);
   }

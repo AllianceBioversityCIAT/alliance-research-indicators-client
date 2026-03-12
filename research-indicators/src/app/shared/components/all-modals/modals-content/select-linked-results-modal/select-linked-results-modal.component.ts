@@ -55,8 +55,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   selectedResults = signal<Result[]>([]);
   searchInput = signal('');
   saving = signal(false);
-  modalCurrentPage = signal(1);
-  modalRowsPerPage = signal(10);
   private modalWasOpen = false;
   private readonly modalVisibilityWatcher = effect(
     () => {
@@ -89,22 +87,22 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     { allowSignalWrites: true }
   );
 
+  onSearchInputChange = effect(() => {
+    const searchValue = this.searchInput();
+    if (this.dt2) {
+      this.dt2.first = 0;
+      this.dt2.filterGlobal(searchValue, 'contains');
+    }
+  });
+
   ngOnDestroy(): void {
     this.modalVisibilityWatcher.destroy();
+    this.onSearchInputChange.destroy();
     this.syncSelectedResultsWatcher.destroy();
   }
 
   setSearchInputFilter(query: string) {
     this.searchInput.set(query);
-    this.modalCurrentPage.set(1);
-    void this.loadResultsForModal();
-  }
-
-  onModalPageChange(event: { first: number; rows: number }) {
-    const page = Math.floor(event.first / event.rows) + 1;
-    this.modalCurrentPage.set(page);
-    this.modalRowsPerPage.set(event.rows);
-    void this.loadResultsForModal();
   }
 
   getResultHref(result: Result, platformCode?: string): string {
@@ -260,7 +258,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   clearFilters(): void {
     this.resultsCenterService.clearAllFiltersWithPreserve([...MODAL_INDICATOR_CODES]);
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
-    this.modalCurrentPage.set(1);
     this.searchInput.set('');
     this.resetTableToFirstPage();
     void this.loadResultsForModal();
@@ -308,10 +305,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       this.resultsCenterService.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [] }));
       this.resultsCenterService.appliedFilters.update(prev => ({ ...prev, 'create-user-codes': [] }));
 
-      this.resultsCenterService.currentPage.set(this.modalCurrentPage());
-      this.resultsCenterService.rowsPerPage.set(this.modalRowsPerPage());
-      this.resultsCenterService.searchInput.set(this.searchInput());
-
       await this.resultsCenterService.main();
     } catch (error) {
       console.error('Error loading results for modal', error);
@@ -355,8 +348,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.resultsCenterService.showFiltersSidebar.set(false);
     this.selectedResults.set([]);
     this.searchInput.set('');
-    this.modalCurrentPage.set(1);
-    this.modalRowsPerPage.set(10);
     this.clearFilters();
   }
 
@@ -381,7 +372,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.applyModalIndicatorFilter({
       tabsOverride: shouldUseDefaultIndicatorTabs ? [...MODAL_INDICATOR_CODES] : []
     });
-    this.modalCurrentPage.set(1);
     this.resetTableToFirstPage();
     void this.loadResultsForModal();
   }
