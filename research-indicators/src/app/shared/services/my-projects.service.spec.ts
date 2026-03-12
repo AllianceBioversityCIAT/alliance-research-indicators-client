@@ -190,6 +190,21 @@ describe('MyProjectsService', () => {
   });
 
   describe('getLeverDisplayName', () => {
+    it('should return joined names from levers array', () => {
+      const item = { levers: [{ short_name: 'L1' }, { short_name: 'L2' }] };
+      expect((service as any).getLeverDisplayName(item)).toBe('L1, L2');
+    });
+
+    it('should return name from single levers object (non-array)', () => {
+      const item = { levers: { short_name: 'Single' } };
+      expect((service as any).getLeverDisplayName(item)).toBe('Single');
+    });
+
+    it('should filter out falsy short_name from levers and fall through when empty', () => {
+      const item = { levers: [{ short_name: '' }], lever_name: 'Fallback' };
+      expect((service as any).getLeverDisplayName(item)).toBe('Fallback');
+    });
+
     it('should return lever_name when available', () => {
       const item = { lever_name: 'Test Lever' };
       expect((service as any).getLeverDisplayName(item)).toBe('Test Lever');

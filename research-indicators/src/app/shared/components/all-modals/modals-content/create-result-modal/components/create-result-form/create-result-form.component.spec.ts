@@ -250,14 +250,16 @@ describe('CreateResultFormComponent', () => {
   });
 
   describe('openExistingResultModal', () => {
-    it('should set selectedResultForInfo and open modal when response.data is array', async () => {
+    const mockPagination = { total: 1, page: 1, limit: 10, totalPages: 1, hasNextPage: false, hasPreviousPage: false };
+
+    it('should set selectedResultForInfo and open modal when paginated response has data', async () => {
       const resultItem = {
         result_official_code: 456,
         platform_code: 'TIP',
         title: 'Existing',
         result_id: 1
       };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [resultItem] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { data: [resultItem], pagination: mockPagination } } as any);
 
       await component.openExistingResultModal('TIP', '456');
 
@@ -272,31 +274,11 @@ describe('CreateResultFormComponent', () => {
       expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
     });
 
-    it('should handle response.data as object with results array', async () => {
-      const resultItem = {
-        result_official_code: 789,
-        platform_code: 'PRMS',
-        title: 'From results',
-        result_id: 2
-      };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: [resultItem] } } as any);
-
-      await component.openExistingResultModal('PRMS', '789');
-
-      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
-        expect.objectContaining({
-          result_official_code: '789',
-          platform_code: 'PRMS'
-        })
-      );
-      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
-    });
-
-    it('should find correct result when response.data is array of multiple results', async () => {
+    it('should find correct result when paginated response has multiple results', async () => {
       const first = { result_official_code: '111', platform_code: 'TIP', title: 'First', result_id: 1 };
       const second = { result_official_code: '999', platform_code: 'TIP', title: 'Target', result_id: 2 };
       const third = { result_official_code: '999', platform_code: 'PRMS', title: 'Other platform', result_id: 3 };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [first, second, third] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { data: [first, second, third], pagination: mockPagination } } as any);
 
       await component.openExistingResultModal('TIP', '999');
 
@@ -312,7 +294,7 @@ describe('CreateResultFormComponent', () => {
 
     it('should use single result when find returns undefined (list.length === 1 fallback)', async () => {
       const single = { result_official_code: '111', platform_code: 'TIP', title: 'Only One', result_id: 1 };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [single] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { data: [single], pagination: mockPagination } } as any);
 
       await component.openExistingResultModal('TIP', '999');
 
@@ -329,73 +311,12 @@ describe('CreateResultFormComponent', () => {
     it('should not open modal when find returns undefined and list has multiple items', async () => {
       const a = { result_official_code: '111', platform_code: 'TIP', title: 'A', result_id: 1 };
       const b = { result_official_code: '222', platform_code: 'TIP', title: 'B', result_id: 2 };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [a, b] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { data: [a, b], pagination: mockPagination } } as any);
 
       await component.openExistingResultModal('TIP', '999');
 
       expect((allModalsServiceMock as any).selectedResultForInfo.set).not.toHaveBeenCalled();
       expect(allModalsServiceMock.openModal).not.toHaveBeenCalled();
-    });
-
-    it('should handle response.data as single result object', async () => {
-      const resultItem = {
-        result_official_code: 111,
-        platform_code: 'TIP',
-        title: 'Single',
-        result_id: 3
-      };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: resultItem } as any);
-
-      await component.openExistingResultModal('TIP', '111');
-
-      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
-        expect.objectContaining({
-          result_official_code: '111',
-          platform_code: 'TIP'
-        })
-      );
-      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
-    });
-
-    it('should handle response.data as object without results array but with result_official_code', async () => {
-      const resultItem = {
-        result_official_code: '777',
-        platform_code: 'TIP',
-        title: 'Direct object',
-        result_id: 4
-      };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: resultItem } as any);
-
-      await component.openExistingResultModal('TIP', '777');
-
-      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
-        expect.objectContaining({
-          result_official_code: '777',
-          platform_code: 'TIP'
-        })
-      );
-      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
-    });
-
-    it('should handle response.data as object with results non-array but result_official_code present', async () => {
-      const resultItem = {
-        results: null,
-        result_official_code: '555',
-        platform_code: 'TIP',
-        title: 'Wrapper object',
-        result_id: 6
-      };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: resultItem } as any);
-
-      await component.openExistingResultModal('TIP', '555');
-
-      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
-        expect.objectContaining({
-          result_official_code: '555',
-          platform_code: 'TIP'
-        })
-      );
-      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
     });
 
     it('should set normalized result with snapshot_years array when present', async () => {
@@ -406,7 +327,7 @@ describe('CreateResultFormComponent', () => {
         result_id: 5,
         snapshot_years: [2024, 2025]
       };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [resultItem] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { data: [resultItem], pagination: mockPagination } } as any);
 
       await component.openExistingResultModal('TIP', '888');
 
@@ -428,8 +349,8 @@ describe('CreateResultFormComponent', () => {
       expect(allModalsServiceMock.openModal).not.toHaveBeenCalled();
     });
 
-    it('should not open modal when response.data is object without results array and without result_id/result_official_code', async () => {
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: null, other: 'field' } } as any);
+    it('should not open modal when paginated data is empty', async () => {
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { data: [], pagination: mockPagination } } as any);
 
       await component.openExistingResultModal('TIP', '999');
 

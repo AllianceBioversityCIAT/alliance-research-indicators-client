@@ -8,6 +8,7 @@ export interface TableColumn {
   maxWidth?: string;
   getValue?: (result: Result) => string | (string | number)[];
   filter?: boolean;
+  filterPaths?: string[];
   hideIf?: () => boolean;
   hideFilterIf?: () => boolean;
 }

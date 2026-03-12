@@ -278,7 +278,7 @@ describe('LinksToResultComponent', () => {
     ];
 
     apiService.GET_LinkedResults.mockResolvedValueOnce({ data: { link_results: linkedIds } } as any);
-    apiService.GET_Results.mockResolvedValueOnce({ data: allResults } as any);
+    apiService.GET_Results.mockResolvedValueOnce({ data: { data: allResults, pagination: { total: 3, page: 1, limit: 10, totalPages: 1, hasNextPage: false, hasPreviousPage: false } } } as any);
 
     await component.loadLinkedResults();
 
