@@ -44,7 +44,7 @@ describe('LinksToResultComponent', () => {
 
     apiService = {
       GET_LinkedResults: jest.fn().mockResolvedValue({ data: { link_results: [] } }),
-      GET_Results: jest.fn().mockResolvedValue({ data: [] }),
+      GET_Results: jest.fn().mockResolvedValue({ data: { data: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0, hasNextPage: false, hasPreviousPage: false } } }),
       PATCH_LinkedResults: jest.fn().mockResolvedValue({ data: { link_results: [] } })
     } as unknown as jest.Mocked<ApiService>;
 
@@ -261,7 +261,7 @@ describe('LinksToResultComponent', () => {
     apiService.GET_LinkedResults.mockResolvedValueOnce({
       data: { link_results: [{ other_result_id: 1 }] }
     } as any);
-    apiService.GET_Results.mockResolvedValueOnce({ data: null } as any);
+    apiService.GET_Results.mockResolvedValueOnce({ data: { data: null } } as any);
 
     await component.loadLinkedResults();
 
@@ -278,7 +278,7 @@ describe('LinksToResultComponent', () => {
     ];
 
     apiService.GET_LinkedResults.mockResolvedValueOnce({ data: { link_results: linkedIds } } as any);
-    apiService.GET_Results.mockResolvedValueOnce({ data: allResults } as any);
+    apiService.GET_Results.mockResolvedValueOnce({ data: { data: allResults, pagination: { total: allResults.length, page: 1, limit: 10, totalPages: 1, hasNextPage: false, hasPreviousPage: false } } } as any);
 
     await component.loadLinkedResults();
 

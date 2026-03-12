@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input, effect } from '@angular/core';
+import { Component, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';

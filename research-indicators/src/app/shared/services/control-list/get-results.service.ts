@@ -13,10 +13,13 @@ export class GetResultsService {
     this.updateList();
   }
 
-  private extractPaginatedData(response: any): { data: Result[]; pagination: PaginationMeta | null } {
+  private extractPaginatedData(response: { data?: unknown }): { data: Result[]; pagination: PaginationMeta | null } {
     const payload = response?.data;
-    if (payload && typeof payload === 'object' && Array.isArray(payload.data)) {
-      return { data: payload.data, pagination: payload.pagination ?? null };
+    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+      const obj = payload as Record<string, unknown>;
+      if (Array.isArray(obj['data'])) {
+        return { data: obj['data'] as Result[], pagination: (obj['pagination'] as PaginationMeta) ?? null };
+      }
     }
     return { data: Array.isArray(payload) ? payload : [], pagination: null };
   }

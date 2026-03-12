@@ -12,8 +12,20 @@ describe('GetResultsService', () => {
     { id: 2, name: 'Result 2' }
   ];
 
+  const mockPagination = {
+    total: 2,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPreviousPage: false
+  };
+
   const mockResponse = {
-    data: mockData
+    data: {
+      data: mockData,
+      pagination: mockPagination
+    }
   };
 
   beforeEach(() => {
@@ -46,7 +58,7 @@ describe('GetResultsService', () => {
   });
 
   it('updateList handles empty response', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: [] });
+    apiService.GET_Results.mockResolvedValueOnce({ data: { data: [], pagination: mockPagination } });
     await service.updateList();
     expect(service.results()).toEqual([]);
     expect(service.loading()).toBe(false);
@@ -73,47 +85,48 @@ describe('GetResultsService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  it('updateList handles response with data not an array', async () => {
+  it('updateList handles response with data not an object with data array', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: 'not an array' });
     await service.updateList();
     expect(service.results()).toEqual([]);
     expect(service.loading()).toBe(false);
   });
 
-  it('updateList handles response with data as an object', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: { id: 1 } });
+  it('updateList handles response with flat array (backward compat)', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: mockData });
     await service.updateList();
-    expect(service.results()).toEqual([]);
+    expect(service.results()).toEqual(mockData);
     expect(service.loading()).toBe(false);
   });
 
-  it('getInstance returns a signal with the data', async () => {
+  it('getInstance returns data signal and pagination', async () => {
     const filter: ResultFilter = {} as any;
     const config: ResultConfig = {} as any;
-    apiService.GET_Results.mockResolvedValueOnce({ data: [{ id: 99 }] });
+    apiService.GET_Results.mockResolvedValueOnce({ data: { data: [{ id: 99 }], pagination: mockPagination } });
 
     const result = await service.getInstance(filter, config);
 
     expect(apiService.GET_Results).toHaveBeenCalledWith(filter, config);
-    expect(result()).toEqual([{ id: 99 }]);
+    expect(result.data()).toEqual([{ id: 99 }]);
+    expect(result.pagination).toEqual(mockPagination);
   });
 
   it('getInstance without resultConfig', async () => {
     const filter: ResultFilter = {} as any;
-    apiService.GET_Results.mockResolvedValueOnce({ data: [{ id: 77 }] });
+    apiService.GET_Results.mockResolvedValueOnce({ data: { data: [{ id: 77 }], pagination: mockPagination } });
 
     const result = await service.getInstance(filter);
 
     expect(apiService.GET_Results).toHaveBeenCalledWith(filter, undefined);
-    expect(result()).toEqual([{ id: 77 }]);
+    expect(result.data()).toEqual([{ id: 77 }]);
   });
 
   it('getInstance handles empty response', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: [] });
+    apiService.GET_Results.mockResolvedValueOnce({ data: { data: [], pagination: mockPagination } });
 
     const result = await service.getInstance({} as any);
 
-    expect(result()).toEqual([]);
+    expect(result.data()).toEqual([]);
   });
 
   it('getInstance handles response null', async () => {
@@ -121,7 +134,8 @@ describe('GetResultsService', () => {
 
     const result = await service.getInstance({} as any);
 
-    expect(result()).toEqual([]);
+    expect(result.data()).toEqual([]);
+    expect(result.pagination).toBeNull();
   });
 
   it('getInstance handles response undefined', async () => {
@@ -129,7 +143,8 @@ describe('GetResultsService', () => {
 
     const result = await service.getInstance({} as any);
 
-    expect(result()).toEqual([]);
+    expect(result.data()).toEqual([]);
+    expect(result.pagination).toBeNull();
   });
 
   it('getInstance handles response without data', async () => {
@@ -137,7 +152,7 @@ describe('GetResultsService', () => {
 
     const result = await service.getInstance({} as any);
 
-    expect(result()).toEqual([]);
+    expect(result.data()).toEqual([]);
   });
 
   it('getInstance handles response with data not an array', async () => {
@@ -145,15 +160,15 @@ describe('GetResultsService', () => {
 
     const result = await service.getInstance({} as any);
 
-    expect(result()).toEqual([]);
+    expect(result.data()).toEqual([]);
   });
 
-  it('getInstance handles response with data as an object', async () => {
+  it('getInstance handles response with data as an object without data array', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: { id: 1 } });
 
     const result = await service.getInstance({} as any);
 
-    expect(result()).toEqual([]);
+    expect(result.data()).toEqual([]);
   });
 
   it('updateList handles API error', async () => {
@@ -170,6 +185,7 @@ describe('GetResultsService', () => {
 
     const result = await service.getInstance({} as any);
 
-    expect(result()).toEqual([]);
+    expect(result.data()).toEqual([]);
+    expect(result.pagination).toBeNull();
   });
 });

@@ -67,7 +67,12 @@ describe('ResultsCenterTableComponent', () => {
       removeFilter: jest.fn(),
       showFiltersSidebar: signal(false),
       showConfigurationsSidebar: signal(false),
-      tableRef: signal<any>(undefined)
+      tableRef: signal<any>(undefined),
+      currentPage: signal(1),
+      rowsPerPage: signal(10),
+      totalRecords: signal(0),
+      main: jest.fn().mockResolvedValue(undefined),
+      onPageChange: jest.fn()
     };
 
     mockCache = {
@@ -161,9 +166,11 @@ describe('ResultsCenterTableComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('setSearchInputFilter should update service searchInput', () => {
+  it('setSearchInputFilter should update service searchInput and trigger main', () => {
     component.setSearchInputFilter('q');
     expect(mockService.searchInput()).toBe('q');
+    expect(mockService.currentPage()).toBe(1);
+    expect(mockService.main).toHaveBeenCalled();
   });
 
   it('getActiveFiltersExcludingIndicatorTab and shouldShowFilterMessage', () => {
@@ -725,6 +732,12 @@ describe('ResultsCenterTableComponent', () => {
     (component as any).dt2 = undefined;
     expect(() => component.setSearchInputFilter('zzz')).not.toThrow();
     expect(mockService.searchInput()).toBe('zzz');
+    expect(mockService.main).toHaveBeenCalled();
+  });
+
+  it('onPageChange should delegate to resultsCenterService.onPageChange', () => {
+    component.onPageChange({ first: 20, rows: 10 });
+    expect(mockService.onPageChange).toHaveBeenCalledWith(3, 10);
   });
 
   it('processRowClick should early return when row has no parent', () => {

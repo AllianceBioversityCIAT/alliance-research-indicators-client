@@ -10,6 +10,11 @@ import { GetResultsService } from '../../../../shared/services/control-list/get-
 import { Result } from '../../../../shared/interfaces/result/result.interface';
 import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicators.interface';
 
+const wrapPaginated = (results: any[]) => ({
+  data: signal(results),
+  pagination: { total: results.length, page: 1, limit: 10, totalPages: 1, hasNextPage: false, hasPreviousPage: false }
+});
+
 describe('ResultsCenterService', () => {
   let service: ResultsCenterService;
   let mockApiService: jest.Mocked<ApiService>;
@@ -64,7 +69,7 @@ describe('ResultsCenterService', () => {
     } as any;
 
     const mockGetResultsServiceObj = {
-      getInstance: jest.fn().mockResolvedValue(signal(mockResults))
+      getInstance: jest.fn().mockResolvedValue(wrapPaginated(mockResults))
     } as any;
 
     TestBed.configureTestingModule({
@@ -107,7 +112,7 @@ describe('ResultsCenterService', () => {
           ResultsCenterService,
           { provide: ApiService, useValue: { indicatorTabs: mockIndicatorTabsLoaded } as any },
           { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
-          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockResolvedValue(signal(mockResults)) } }
+          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockResolvedValue(wrapPaginated(mockResults)) } }
         ]
       });
       TestBed.inject(ResultsCenterService);
@@ -867,7 +872,7 @@ describe('ResultsCenterService', () => {
             }
           },
           { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
-          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockResolvedValue(signal(mockResults)) } }
+          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockResolvedValue(wrapPaginated(mockResults)) } }
         ]
       });
       TestBed.inject(ResultsCenterService);
@@ -1896,7 +1901,7 @@ describe('ResultsCenterService', () => {
           result_levers: [{ is_primary: 0, lever: { short_name: 'Lever 1' } }]
         }
       ];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithoutPrimary));
+      mockGetResultsService.getInstance.mockResolvedValueOnce(wrapPaginated(resultsWithoutPrimary));
 
       await service.main();
 
@@ -1914,7 +1919,7 @@ describe('ResultsCenterService', () => {
           ]
         }
       ] as any;
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithLeverNoShortName));
+      mockGetResultsService.getInstance.mockResolvedValueOnce(wrapPaginated(resultsWithLeverNoShortName));
       await service.main();
       const list = service.list();
       expect(list).toHaveLength(1);
@@ -1931,7 +1936,7 @@ describe('ResultsCenterService', () => {
           ]
         }
       ];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithPrimary));
+      mockGetResultsService.getInstance.mockResolvedValueOnce(wrapPaginated(resultsWithPrimary));
 
       await service.main();
 
@@ -1968,22 +1973,22 @@ describe('ResultsCenterService', () => {
     it('should not update list when context changes during request', async () => {
       const initialList = [{ result_official_code: 'OLD' }] as any;
       service.list.set(initialList);
-      let resolveInstance!: (v: WritableSignal<Result[]>) => void;
-      const instancePromise = new Promise<WritableSignal<Result[]>>(r => {
+      let resolveInstance!: (v: any) => void;
+      const instancePromise = new Promise<any>(r => {
         resolveInstance = r;
       });
       mockGetResultsService.getInstance.mockImplementationOnce(() => instancePromise as any);
       const mainPromise = service.main();
       await Promise.resolve();
       service.primaryContractId.set('other-contract');
-      resolveInstance(signal(mockResults));
+      resolveInstance(wrapPaginated(mockResults));
       await mainPromise;
       expect(service.list()).toEqual(initialList);
     });
 
     it('should handle results with no created_by_user', async () => {
       const resultsWithoutUser = [{ ...mockResults[0], created_by_user: undefined }];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithoutUser));
+      mockGetResultsService.getInstance.mockResolvedValueOnce(wrapPaginated(resultsWithoutUser));
 
       await service.main();
 
@@ -1992,7 +1997,7 @@ describe('ResultsCenterService', () => {
 
     it('should handle created_by_user with null first_name and last_name', async () => {
       const resultsWithNullNames = [{ ...mockResults[0], created_by_user: { first_name: null, last_name: null } }];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithNullNames));
+      mockGetResultsService.getInstance.mockResolvedValueOnce(wrapPaginated(resultsWithNullNames));
 
       await service.main();
 

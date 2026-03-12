@@ -81,6 +81,9 @@ describe('SelectLinkedResultsModalComponent', () => {
       getAllPathsAsArray: jest.fn().mockReturnValue([]),
       tableColumns: jest.fn().mockReturnValue([]),
       searchInput: Object.assign(jest.fn().mockReturnValue('') as any, { set: jest.fn() }),
+      currentPage: Object.assign(jest.fn().mockReturnValue(1) as any, { set: jest.fn() }),
+      rowsPerPage: Object.assign(jest.fn().mockReturnValue(10) as any, { set: jest.fn() }),
+      totalRecords: Object.assign(jest.fn().mockReturnValue(0) as any, { set: jest.fn() }),
       // @ts-expect-error partial mock
     } as jest.Mocked<ResultsCenterService>;
 
@@ -158,9 +161,12 @@ describe('SelectLinkedResultsModalComponent', () => {
   });
 
   describe('basic behaviors', () => {
-    it('should set searchInput from query string', () => {
+    it('should set searchInput from query string and trigger loadResultsForModal', () => {
+      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
       component.setSearchInputFilter('search text');
       expect(component.searchInput()).toBe('search text');
+      expect(component.modalCurrentPage()).toBe(1);
+      expect(loadSpy).toHaveBeenCalled();
     });
 
     it('should compute selectedCount based on selectedResults', () => {
@@ -593,29 +599,13 @@ describe('SelectLinkedResultsModalComponent', () => {
     });
   });
 
-  describe('onSearchInputChange effect', () => {
-    it('should call filterGlobal when dt2 is available', () => {
-      const mockTable = {
-        filterGlobal: jest.fn(),
-        first: 0
-      };
-      (component as any).dt2 = mockTable;
-      
-      component.searchInput.set('test search');
-      fixture.detectChanges();
-      
-      expect(mockTable.filterGlobal).toHaveBeenCalledWith('test search', 'contains');
-    });
-
-    it('should not call filterGlobal when dt2 is not available', () => {
-      (component as any).dt2 = undefined;
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      
-      component.searchInput.set('test search');
-      fixture.detectChanges();
-      
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
-      consoleErrorSpy.mockRestore();
+  describe('onModalPageChange', () => {
+    it('should update modalCurrentPage and modalRowsPerPage and trigger loadResultsForModal', () => {
+      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
+      component.onModalPageChange({ first: 20, rows: 10 });
+      expect(component.modalCurrentPage()).toBe(3);
+      expect(component.modalRowsPerPage()).toBe(10);
+      expect(loadSpy).toHaveBeenCalled();
     });
   });
 
@@ -712,6 +702,9 @@ describe('SelectLinkedResultsModalComponent', () => {
       expect(resultsCenterService.loading.set).toHaveBeenCalledWith(true);
       expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
       expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
+      expect(resultsCenterService.currentPage.set).toHaveBeenCalled();
+      expect(resultsCenterService.rowsPerPage.set).toHaveBeenCalled();
+      expect(resultsCenterService.searchInput.set).toHaveBeenCalled();
       expect(resultsCenterService.main).toHaveBeenCalled();
       expect(resultsCenterService.loading.set).toHaveBeenLastCalledWith(false);
     });

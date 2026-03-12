@@ -27,7 +27,7 @@ describe('InnResultsService', () => {
     await Promise.resolve();
   };
 
-  const wrapResponse = (data: any[]) => ({ data });
+  const wrapResponse = (data: any[]) => ({ data: { data, pagination: { total: data.length, page: 1, limit: 10, totalPages: 1, hasNextPage: false, hasPreviousPage: false } } });
 
   it('should create', async () => {
     await setup(wrapResponse([]));

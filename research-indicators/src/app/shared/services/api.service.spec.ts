@@ -1403,6 +1403,30 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC', {});
     });
 
+    it('should call GET_Results with pagination params', () => {
+      const resultFilter = { page: 2, limit: 25, search: 'test query' };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_Results(resultFilter);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(
+        'results?sort-order=DESC&page=2&limit=25&search=test%20query',
+        {}
+      );
+    });
+
+    it('should call GET_Results with page and limit but no search', () => {
+      const resultFilter = { page: 1, limit: 10 };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_Results(resultFilter);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(
+        'results?sort-order=DESC&page=1&limit=10',
+        {}
+      );
+    });
+
   });
 
   describe('Additional GET methods', () => {
