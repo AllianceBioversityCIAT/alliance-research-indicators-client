@@ -17,8 +17,6 @@ interface ResultsCenterPersistedState {
   appliedFilters: ResultFilter;
   searchInput: string;
   primaryContractId: string | null;
-  currentPage?: number;
-  rowsPerPage?: number;
 }
 @Injectable({
   providedIn: 'root'
@@ -35,11 +33,9 @@ export class ResultsCenterService {
     { id: 'my', label: 'My Results' }
   ];
   myResultsFilterItem = signal<MenuItem | undefined>(this.myResultsFilterItems[0]);
+  pinnedTab = signal<string>('all');
   loading = signal(false);
   list = signal<Result[]>([]);
-  totalRecords = signal(0);
-  currentPage = signal(1);
-  rowsPerPage = signal(10);
   tableFilters = signal(new TableFilters());
   appliedFilters = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
   searchInput = signal('');
@@ -147,7 +143,6 @@ export class ResultsCenterService {
       path: 'created_by_user.first_name',
       header: 'Creator',
       minWidth: 'min-w-[90px]',
-      hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
       filterPaths: ['_creatorFullName'],
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
@@ -201,9 +196,7 @@ export class ResultsCenterService {
       resultsFilter: this.resultsFilter(),
       appliedFilters: this.appliedFilters(),
       searchInput: this.searchInput(),
-      primaryContractId: this.primaryContractId(),
-      currentPage: this.currentPage(),
-      rowsPerPage: this.rowsPerPage()
+      primaryContractId: this.primaryContractId()
     };
 
     globalThis.sessionStorage?.setItem(this.getStorageKey(activeKey), JSON.stringify(state));
@@ -398,24 +391,10 @@ export class ResultsCenterService {
       }
 
       const primaryContractId = this.primaryContractId();
-      const searchQuery = this.searchInput()?.trim();
-      const paginatedFilter: ResultFilter = {
-        ...baseFilter,
-        page: this.currentPage(),
-        limit: this.rowsPerPage(),
-        'sort-order': 'DESC',
-        ...(searchQuery ? { search: searchQuery } : {})
-      };
-      const finalFilter = primaryContractId
-        ? ({ ...paginatedFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter)
-        : paginatedFilter;
+      const finalFilter = primaryContractId ? ({ ...baseFilter, 'filter-primary-contract': [primaryContractId] } as ResultFilter) : baseFilter;
 
       const response = await this.getResultsService.getInstance(finalFilter, this.resultsConfig());
-      const rawResults = response.data();
-
-      if (response.pagination) {
-        this.totalRecords.set(response.pagination.total);
-      }
+      const rawResults = response();
 
       const enhancedResults = rawResults.map(result => {
         const primaryLevers = Array.isArray(result.result_levers) ? result.result_levers.filter(rl => rl.is_primary === 1) : [];
@@ -486,7 +465,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = 1;
+      table.sortOrder = -1;
       table.first = 0;
     }
   };
@@ -500,7 +479,6 @@ export class ResultsCenterService {
   }
 
   applyFilters = () => {
-    this.currentPage.set(1);
     const currentTab = this.myResultsFilterItem();
     const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
 
@@ -533,14 +511,7 @@ export class ResultsCenterService {
     this.main();
   };
 
-  onPageChange(page: number, rows: number) {
-    this.currentPage.set(page);
-    this.rowsPerPage.set(rows);
-    this.main();
-  }
-
   onSelectFilterTab(indicatorId: number) {
-    this.currentPage.set(1);
     this.api.indicatorTabs.lazy().list.update(prev =>
       prev.map((item: GetAllIndicators) => ({
         ...item,
@@ -574,12 +545,11 @@ export class ResultsCenterService {
 
   cleanFilters() {
     this.cleanMultiselects();
-    //? clear table filters and reset sort
     const table = this.tableRef();
     if (table) {
-      table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = 1;
+      table.sortOrder = -1;
+      table.first = 0;
     }
 
     this.tableFilters.update(prev => ({
@@ -594,7 +564,6 @@ export class ResultsCenterService {
   }
 
   clearAllFilters() {
-    this.currentPage.set(1);
     this.cleanMultiselects();
 
     this.tableFilters.set(new TableFilters());
@@ -608,32 +577,33 @@ export class ResultsCenterService {
       levers: []
     }));
 
-    const currentTab = this.myResultsFilterItem();
-    const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
-    const preserveIndicatorTabs = this.resultsFilter()['indicator-codes-tabs'] ?? [];
+    const pinnedItem = this.pinnedTab() === 'my' ? this.myResultsFilterItems[1] : this.myResultsFilterItems[0];
+    this.myResultsFilterItem.set(pinnedItem);
+
+    const createUserCodes = pinnedItem.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : [];
 
     this.resultsFilter.set({
       'indicator-codes': [],
       'lever-codes': [],
-      'indicator-codes-tabs': preserveIndicatorTabs,
+      'indicator-codes-tabs': [],
       'indicator-codes-filter': [],
       'status-codes': [],
       'contract-codes': [],
       'platform-code': [],
       years: [],
-      'create-user-codes': preserveCreateUserCodes
+      'create-user-codes': createUserCodes
     });
 
     this.appliedFilters.set({
       'indicator-codes': [],
       'lever-codes': [],
-      'indicator-codes-tabs': preserveIndicatorTabs,
+      'indicator-codes-tabs': [],
       'indicator-codes-filter': [],
       'status-codes': [],
       'contract-codes': [],
       'platform-code': [],
       years: [],
-      'create-user-codes': preserveCreateUserCodes
+      'create-user-codes': createUserCodes
     });
 
     this.resultsConfig.set({
@@ -649,6 +619,8 @@ export class ResultsCenterService {
 
     this.searchInput.set('');
 
+    this.onSelectFilterTab(0);
+
     setTimeout(() => {
       this.cleanMultiselects();
     }, 0);
@@ -657,7 +629,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = 1;
+      table.sortOrder = -1;
     }
     this.main();
   }
@@ -699,7 +671,7 @@ export class ResultsCenterService {
     if (table) {
       table.clear();
       table.sortField = 'result_official_code';
-      table.sortOrder = 1;
+      table.sortOrder = -1;
     }
     this.onSelectFilterTab(0);
   }
@@ -720,9 +692,6 @@ export class ResultsCenterService {
   resetState() {
     this.clearAllFilters();
     this.list.set([]);
-    this.totalRecords.set(0);
-    this.currentPage.set(1);
-    this.rowsPerPage.set(10);
     this.loading.set(true);
     this.showFiltersSidebar.set(false);
     this.showConfigurationSidebar.set(false);
@@ -759,8 +728,6 @@ export class ResultsCenterService {
       this.appliedFilters.set(appliedFilters);
       this.searchInput.set(state.searchInput ?? '');
       this.primaryContractId.set(state.primaryContractId ?? null);
-      this.currentPage.set(state.currentPage ?? 1);
-      this.rowsPerPage.set(state.rowsPerPage ?? 10);
       this.syncIndicatorTabSelection(resultsFilter['indicator-codes-tabs']?.[0] ?? 0);
 
       return true;
@@ -789,19 +756,29 @@ export class ResultsCenterService {
     };
   }
 
-  private buildSearchField(...fields: string[]): string {
+  buildSearchField(...fields: string[]): string {
     const words = fields
       .join(' ')
       .split(/\s+/)
       .filter(w => w.length > 0)
       .map(w => w.toLowerCase());
-    const pairs: string[] = [];
-    for (let i = 0; i < words.length; i++) {
-      for (let j = 0; j < words.length; j++) {
-        if (i !== j) pairs.push(`${words[i]} ${words[j]}`);
+
+    if (words.length === 0) return '';
+    if (words.length === 1) return words[0];
+
+    const permutations: string[] = [];
+
+    const permute = (arr: string[], current: string[] = []) => {
+      if (current.length >= 2) {
+        permutations.push(current.join(' '));
       }
-    }
-    return [...pairs, words.join(' ')].join(' | ');
+      for (let i = 0; i < arr.length; i++) {
+        permute([...arr.slice(0, i), ...arr.slice(i + 1)], [...current, arr[i]]);
+      }
+    };
+    permute(words);
+
+    return [...words, ...permutations].join(' | ');
   }
 
   private syncIndicatorTabSelection(indicatorId: number): void {

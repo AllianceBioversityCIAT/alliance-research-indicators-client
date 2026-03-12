@@ -1,8 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { GetResultsService } from './get-results.service';
-import { ResultFilter, ResultConfig, Result } from '@interfaces/result/result.interface';
+import { ResultFilter, ResultConfig } from '@interfaces/result/result.interface';
 import { ApiService } from '@services/api.service';
-import { signal } from '@angular/core';
 
 describe('GetResultsService', () => {
   let service: GetResultsService;
@@ -13,16 +12,13 @@ describe('GetResultsService', () => {
     { id: 2, name: 'Result 2' }
   ];
 
-  const mockPaginatedResponse = {
-    data: {
-      data: mockData,
-      pagination: { total: 2, page: 1, limit: 10, totalPages: 1, hasNextPage: false, hasPreviousPage: false }
-    }
+  const mockResponse = {
+    data: mockData
   };
 
   beforeEach(() => {
     apiService = {
-      GET_Results: jest.fn().mockResolvedValue(mockPaginatedResponse)
+      GET_Results: jest.fn().mockResolvedValue(mockResponse)
     };
 
     TestBed.configureTestingModule({
@@ -91,35 +87,33 @@ describe('GetResultsService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  it('getInstance returns data signal and pagination', async () => {
+  it('getInstance returns a signal with the data', async () => {
     const filter: ResultFilter = {} as any;
     const config: ResultConfig = {} as any;
-    const pagination = { total: 1, page: 1, limit: 10, totalPages: 1, hasNextPage: false, hasPreviousPage: false };
-    apiService.GET_Results.mockResolvedValueOnce({ data: { data: [{ id: 99 }], pagination } });
+    apiService.GET_Results.mockResolvedValueOnce({ data: [{ id: 99 }] });
 
     const result = await service.getInstance(filter, config);
 
     expect(apiService.GET_Results).toHaveBeenCalledWith(filter, config);
-    expect(result.data()).toEqual([{ id: 99 }]);
-    expect(result.pagination).toEqual(pagination);
+    expect(result()).toEqual([{ id: 99 }]);
   });
 
   it('getInstance without resultConfig', async () => {
     const filter: ResultFilter = {} as any;
-    apiService.GET_Results.mockResolvedValueOnce({ data: { data: [{ id: 77 }], pagination: { total: 1, page: 1, limit: 10, totalPages: 1, hasNextPage: false, hasPreviousPage: false } } });
+    apiService.GET_Results.mockResolvedValueOnce({ data: [{ id: 77 }] });
 
     const result = await service.getInstance(filter);
 
     expect(apiService.GET_Results).toHaveBeenCalledWith(filter, undefined);
-    expect(result.data()).toEqual([{ id: 77 }]);
+    expect(result()).toEqual([{ id: 77 }]);
   });
 
   it('getInstance handles empty response', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: { data: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0, hasNextPage: false, hasPreviousPage: false } } });
+    apiService.GET_Results.mockResolvedValueOnce({ data: [] });
 
     const result = await service.getInstance({} as any);
 
-    expect(result.data()).toEqual([]);
+    expect(result()).toEqual([]);
   });
 
   it('getInstance handles response null', async () => {
@@ -127,8 +121,7 @@ describe('GetResultsService', () => {
 
     const result = await service.getInstance({} as any);
 
-    expect(result.data()).toEqual([]);
-    expect(result.pagination).toBeNull();
+    expect(result()).toEqual([]);
   });
 
   it('getInstance handles response undefined', async () => {
@@ -136,8 +129,7 @@ describe('GetResultsService', () => {
 
     const result = await service.getInstance({} as any);
 
-    expect(result.data()).toEqual([]);
-    expect(result.pagination).toBeNull();
+    expect(result()).toEqual([]);
   });
 
   it('getInstance handles response without data', async () => {
@@ -145,7 +137,7 @@ describe('GetResultsService', () => {
 
     const result = await service.getInstance({} as any);
 
-    expect(result.data()).toEqual([]);
+    expect(result()).toEqual([]);
   });
 
   it('getInstance handles response with data not an array', async () => {
@@ -153,28 +145,15 @@ describe('GetResultsService', () => {
 
     const result = await service.getInstance({} as any);
 
-    expect(result.data()).toEqual([]);
+    expect(result()).toEqual([]);
   });
 
-  it('getInstance handles response with data as an object without pagination', async () => {
+  it('getInstance handles response with data as an object', async () => {
     apiService.GET_Results.mockResolvedValueOnce({ data: { id: 1 } });
 
     const result = await service.getInstance({} as any);
 
-    expect(result.data()).toEqual([]);
-  });
-
-  it('extractPaginatedData returns empty array when paginated data is not an array', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: { data: 'not-array', pagination: null } });
-    await service.updateList();
-    expect(service.results()).toEqual([]);
-  });
-
-  it('getInstance returns null pagination when paginated pagination is undefined', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: { data: [{ id: 1 }], pagination: undefined } });
-    const result = await service.getInstance({} as any);
-    expect(result.data()).toEqual([{ id: 1 }]);
-    expect(result.pagination).toBeNull();
+    expect(result()).toEqual([]);
   });
 
   it('updateList handles API error', async () => {
@@ -191,7 +170,6 @@ describe('GetResultsService', () => {
 
     const result = await service.getInstance({} as any);
 
-    expect(result.data()).toEqual([]);
-    expect(result.pagination).toBeNull();
+    expect(result()).toEqual([]);
   });
 });

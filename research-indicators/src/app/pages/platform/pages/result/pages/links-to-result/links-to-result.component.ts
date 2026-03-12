@@ -88,7 +88,7 @@ export default class LinksToResultComponent implements OnInit, OnDestroy {
       };
 
       const resultsResponse = await this.api.GET_Results(resultFilter, resultConfig);
-      const allResults = Array.isArray(resultsResponse?.data?.data) ? resultsResponse.data.data : [];
+      const allResults = Array.isArray(resultsResponse?.data) ? resultsResponse.data : [];
       
       const matched = allResults.filter(result => 
         linkedResultIds.includes(result.result_id)

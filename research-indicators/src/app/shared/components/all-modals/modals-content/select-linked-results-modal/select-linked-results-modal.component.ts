@@ -55,9 +55,8 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   selectedResults = signal<Result[]>([]);
   searchInput = signal('');
   saving = signal(false);
-  modalCurrentPage = signal(1);
-  modalRowsPerPage = signal(10);
   private modalWasOpen = false;
+  private savedMyResultsFilterItem: import('primeng/api').MenuItem | undefined;
   private readonly modalVisibilityWatcher = effect(
     () => {
       const modalConfig = this.allModalsService.isModalOpen('selectLinkedResults');
@@ -89,22 +88,23 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     { allowSignalWrites: true }
   );
 
+  onSearchInputChange = effect(() => {
+    const searchValue = this.searchInput();
+    this.resultsCenterService.list();
+    if (this.dt2) {
+      this.dt2.first = 0;
+      this.dt2.filterGlobal(searchValue, 'contains');
+    }
+  });
+
   ngOnDestroy(): void {
     this.modalVisibilityWatcher.destroy();
+    this.onSearchInputChange.destroy();
     this.syncSelectedResultsWatcher.destroy();
   }
 
   setSearchInputFilter(query: string) {
     this.searchInput.set(query);
-    this.modalCurrentPage.set(1);
-    void this.loadResultsForModal();
-  }
-
-  onModalPageChange(event: { first: number; rows: number }) {
-    const page = Math.floor(event.first / event.rows) + 1;
-    this.modalCurrentPage.set(page);
-    this.modalRowsPerPage.set(event.rows);
-    void this.loadResultsForModal();
   }
 
   getResultHref(result: Result, platformCode?: string): string {
@@ -260,7 +260,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   clearFilters(): void {
     this.resultsCenterService.clearAllFiltersWithPreserve([...MODAL_INDICATOR_CODES]);
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
-    this.modalCurrentPage.set(1);
     this.searchInput.set('');
     this.resetTableToFirstPage();
     void this.loadResultsForModal();
@@ -271,8 +270,11 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   );
 
   private async onModalOpened(): Promise<void> {
+    this.savedMyResultsFilterItem = this.resultsCenterService.myResultsFilterItem();
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
-    await this.ensureResultsListLoaded();
+    await this.loadResultsForModal();
     await this.loadExistingLinkedResults();
   }
 
@@ -294,12 +296,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     }
   }
 
-  private async ensureResultsListLoaded(): Promise<void> {
-    if (this.resultsCenterService.list().length === 0) {
-      await this.loadResultsForModal();
-    }
-  }
-
   private async loadResultsForModal(): Promise<void> {
     try {
       this.resultsCenterService.list.set([]);
@@ -307,10 +303,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
 
       this.resultsCenterService.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [] }));
       this.resultsCenterService.appliedFilters.update(prev => ({ ...prev, 'create-user-codes': [] }));
-
-      this.resultsCenterService.currentPage.set(this.modalCurrentPage());
-      this.resultsCenterService.rowsPerPage.set(this.modalRowsPerPage());
-      this.resultsCenterService.searchInput.set(this.searchInput());
 
       await this.resultsCenterService.main();
     } catch (error) {
@@ -355,8 +347,12 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.resultsCenterService.showFiltersSidebar.set(false);
     this.selectedResults.set([]);
     this.searchInput.set('');
-    this.modalCurrentPage.set(1);
-    this.modalRowsPerPage.set(10);
+
+    if (this.savedMyResultsFilterItem) {
+      this.resultsCenterService.myResultsFilterItem.set(this.savedMyResultsFilterItem);
+      this.savedMyResultsFilterItem = undefined;
+    }
+
     this.clearFilters();
   }
 
@@ -381,7 +377,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.applyModalIndicatorFilter({
       tabsOverride: shouldUseDefaultIndicatorTabs ? [...MODAL_INDICATOR_CODES] : []
     });
-    this.modalCurrentPage.set(1);
     this.resetTableToFirstPage();
     void this.loadResultsForModal();
   }

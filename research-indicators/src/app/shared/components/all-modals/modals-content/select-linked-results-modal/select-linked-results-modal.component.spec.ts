@@ -80,10 +80,9 @@ describe('SelectLinkedResultsModalComponent', () => {
       countTableFiltersSelected: jest.fn().mockReturnValue(0),
       getAllPathsAsArray: jest.fn().mockReturnValue([]),
       tableColumns: jest.fn().mockReturnValue([]),
-      currentPage: Object.assign(jest.fn().mockReturnValue(1) as any, { set: jest.fn() }),
-      rowsPerPage: Object.assign(jest.fn().mockReturnValue(10) as any, { set: jest.fn() }),
-      totalRecords: jest.fn().mockReturnValue(0),
       searchInput: Object.assign(jest.fn().mockReturnValue('') as any, { set: jest.fn() }),
+      myResultsFilterItem: Object.assign(jest.fn().mockReturnValue({ id: 'all', label: 'All Results' }) as any, { set: jest.fn() }),
+      myResultsFilterItems: [{ id: 'all', label: 'All Results' }, { id: 'my', label: 'My Results' }],
       // @ts-expect-error partial mock
     } as jest.Mocked<ResultsCenterService>;
 
@@ -596,36 +595,44 @@ describe('SelectLinkedResultsModalComponent', () => {
     });
   });
 
-  describe('setSearchInputFilter', () => {
-    it('should set search input, reset page and trigger server-side search', async () => {
-      component.modalCurrentPage.set(3);
-      component.setSearchInputFilter('test search');
-      expect(component.searchInput()).toBe('test search');
-      expect(component.modalCurrentPage()).toBe(1);
-      expect(resultsCenterService.main).toHaveBeenCalled();
+  describe('onSearchInputChange effect', () => {
+    it('should call filterGlobal when dt2 is available', () => {
+      const mockTable = {
+        filterGlobal: jest.fn(),
+        first: 0
+      };
+      (component as any).dt2 = mockTable;
+      
+      component.searchInput.set('test search');
+      fixture.detectChanges();
+      
+      expect(mockTable.filterGlobal).toHaveBeenCalledWith('test search', 'contains');
     });
-  });
 
-  describe('onModalPageChange', () => {
-    it('should update page and rows then load results', async () => {
-      component.onModalPageChange({ first: 20, rows: 10 });
-      expect(component.modalCurrentPage()).toBe(3);
-      expect(component.modalRowsPerPage()).toBe(10);
-      expect(resultsCenterService.main).toHaveBeenCalled();
+    it('should not call filterGlobal when dt2 is not available', () => {
+      (component as any).dt2 = undefined;
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      
+      component.searchInput.set('test search');
+      fixture.detectChanges();
+      
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      consoleErrorSpy.mockRestore();
     });
   });
 
   describe('onModalOpened', () => {
-    it('should apply indicator filter and load results', async () => {
+    it('should save tab, set to all, apply indicator filter and load results', async () => {
       const applySpy = jest.spyOn<any, any>(component as any, 'applyModalIndicatorFilter').mockImplementation(() => {});
-      const ensureSpy = jest.spyOn<any, any>(component as any, 'ensureResultsListLoaded').mockResolvedValue(undefined);
-      const loadSpy = jest.spyOn<any, any>(component as any, 'loadExistingLinkedResults').mockResolvedValue(undefined);
+      const loadResultsSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
+      const loadLinkedSpy = jest.spyOn<any, any>(component as any, 'loadExistingLinkedResults').mockResolvedValue(undefined);
       
       await (component as any).onModalOpened();
       
+      expect(resultsCenterService.myResultsFilterItem.set).toHaveBeenCalledWith({ id: 'all', label: 'All Results' });
       expect(applySpy).toHaveBeenCalledWith({ resetIndicatorFilters: true });
-      expect(ensureSpy).toHaveBeenCalled();
-      expect(loadSpy).toHaveBeenCalled();
+      expect(loadResultsSpy).toHaveBeenCalled();
+      expect(loadLinkedSpy).toHaveBeenCalled();
     });
   });
 
@@ -678,23 +685,16 @@ describe('SelectLinkedResultsModalComponent', () => {
     });
   });
 
-  describe('ensureResultsListLoaded', () => {
-    it('should load results when list is empty', async () => {
-      resultsCenterService.list.mockReturnValue([]);
-      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
-      
-      await (component as any).ensureResultsListLoaded();
-      
-      expect(loadSpy).toHaveBeenCalled();
-    });
+  describe('resetModalFilters', () => {
+    it('should restore saved myResultsFilterItem when closing modal', () => {
+      const savedTab = { id: 'my', label: 'My Results' };
+      (component as any).savedMyResultsFilterItem = savedTab;
+      const clearSpy = jest.spyOn(component, 'clearFilters').mockImplementation(() => {});
 
-    it('should not load results when list is not empty', async () => {
-      resultsCenterService.list.mockReturnValue([createResult()] as any);
-      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
-      
-      await (component as any).ensureResultsListLoaded();
-      
-      expect(loadSpy).not.toHaveBeenCalled();
+      (component as any).resetModalFilters();
+
+      expect(resultsCenterService.myResultsFilterItem.set).toHaveBeenCalledWith(savedTab);
+      expect(clearSpy).toHaveBeenCalled();
     });
   });
 
@@ -708,9 +708,6 @@ describe('SelectLinkedResultsModalComponent', () => {
       expect(resultsCenterService.loading.set).toHaveBeenCalledWith(true);
       expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
       expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
-      expect(resultsCenterService.currentPage.set).toHaveBeenCalled();
-      expect(resultsCenterService.rowsPerPage.set).toHaveBeenCalled();
-      expect(resultsCenterService.searchInput.set).toHaveBeenCalled();
       expect(resultsCenterService.main).toHaveBeenCalled();
       expect(resultsCenterService.loading.set).toHaveBeenLastCalledWith(false);
     });

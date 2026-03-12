@@ -324,8 +324,7 @@ export class CreateResultFormComponent {
         'audit-data-object': true
       };
       const response = await this.api.GET_Results(filter, resultConfig);
-      const paginated = response?.data;
-      const list: Result[] = Array.isArray(paginated?.data) ? paginated.data : [];
+      const list: Result[] = Array.isArray(response?.data) ? response.data : [];
       const result = list.find(
         (r: Result) => String(r.result_official_code) === resultOfficialCode && r.platform_code === platformCode
       ) ?? (list.length === 1 ? list[0] : null);

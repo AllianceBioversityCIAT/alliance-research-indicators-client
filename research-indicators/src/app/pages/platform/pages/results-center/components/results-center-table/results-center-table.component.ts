@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input } from '@angular/core';
+import { Component, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -60,15 +60,17 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     { label: 'Export', icon: 'pi pi-download' }
   ];
 
+  onSearchInputChange = effect(() => {
+    const searchValue = this.resultsCenterService.searchInput();
+    this.resultsCenterService.list();
+    if (this.dt2) {
+      this.dt2.first = 0;
+      this.dt2.filterGlobal(searchValue, 'contains');
+    }
+  });
+
   setSearchInputFilter(query: string) {
     this.resultsCenterService.searchInput.set(query);
-    this.resultsCenterService.currentPage.set(1);
-    this.resultsCenterService.main();
-  }
-
-  onPageChange(event: { first: number; rows: number }) {
-    const page = Math.floor(event.first / event.rows) + 1;
-    this.resultsCenterService.onPageChange(page, event.rows);
   }
 
   getScrollHeight = computed(

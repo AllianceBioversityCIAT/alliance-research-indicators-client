@@ -119,10 +119,12 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
         const preferredTab = allPinned || !selfPinned ? 'all' : 'my';
 
         this.pinnedTab.set(preferredTab);
+        this.resultsCenterService.pinnedTab.set(preferredTab);
         return preferredTab;
       }
 
       this.pinnedTab.set('all');
+      this.resultsCenterService.pinnedTab.set('all');
       return 'all';
     } finally {
       this.loadingPin.set(false);
@@ -130,13 +132,8 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
   }
 
   onActiveItemChange = (event: MenuItem): void => {
-    this.resultsCenterService.myResultsFilterItem.set(event);
-    
-    // Clear filters first (this will preserve create-user-codes if tab is "my")
-    this.resultsCenterService.clearAllFilters();
-    this.resultsCenterService.searchInput.set('');
-    
-    // Then load results based on the selected tab
+    this.resultsCenterService.cleanFilters();
+
     if (event.id === 'my') {
       this.loadMyResults();
     } else {
@@ -145,6 +142,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
   };
 
   loadMyResults() {
+    const preserveIndicatorTabs = this.resultsCenterService.resultsFilter()['indicator-codes-tabs'] ?? [];
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
     this.resultsCenterService.resultsFilter.set({
       'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
@@ -154,7 +152,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       'lever-codes': [],
       years: [],
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorTabs
     });
     this.resultsCenterService.appliedFilters.set({
       'create-user-codes': [this.cache.dataCache().user.sec_user_id.toString()],
@@ -164,12 +162,13 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       'lever-codes': [],
       years: [],
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorTabs
     });
     this.resultsCenterService.main();
   }
 
   loadAllResults() {
+    const preserveIndicatorTabs = this.resultsCenterService.resultsFilter()['indicator-codes-tabs'] ?? [];
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
     this.resultsCenterService.resultsFilter.set({
       'create-user-codes': [],
@@ -179,7 +178,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       'lever-codes': [],
       years: [],
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorTabs
     });
     this.resultsCenterService.appliedFilters.set({
       'create-user-codes': [],
@@ -189,7 +188,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       'lever-codes': [],
       years: [],
       'indicator-codes-filter': [],
-      'indicator-codes-tabs': []
+      'indicator-codes-tabs': preserveIndicatorTabs
     });
     this.resultsCenterService.main();
   }
@@ -202,6 +201,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
 
       await this.api.PATCH_Configuration(this.tableId, 'tab', pinValue);
       this.pinnedTab.set(newPinnedTab);
+      this.resultsCenterService.pinnedTab.set(newPinnedTab);
 
       if (newPinnedTab === 'all') {
         this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);

@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@services/api.service';
-import { PaginatedResult, PaginationMeta, Result, ResultConfig, ResultFilter } from '@interfaces/result/result.interface';
+import { Result, ResultConfig, ResultFilter } from '@interfaces/result/result.interface';
 @Injectable({
   providedIn: 'root'
 })
@@ -13,26 +13,11 @@ export class GetResultsService {
     this.updateList();
   }
 
-  private extractPaginatedData(responseData: unknown): { data: Result[]; pagination: PaginationMeta | null } {
-    if (responseData && typeof responseData === 'object' && 'data' in responseData && 'pagination' in responseData) {
-      const paginated = responseData as PaginatedResult;
-      return {
-        data: Array.isArray(paginated.data) ? paginated.data : [],
-        pagination: paginated.pagination ?? null
-      };
-    }
-    return {
-      data: Array.isArray(responseData) ? responseData : [],
-      pagination: null
-    };
-  }
-
   updateList = async () => {
     this.loading.set(true);
     try {
       const response = await this.api.GET_Results({});
-      const { data } = this.extractPaginatedData(response?.data);
-      this.results.set(data);
+      this.results.set(Array.isArray(response?.data) ? response.data : []);
     } catch {
       this.results.set([]);
     } finally {
@@ -40,17 +25,14 @@ export class GetResultsService {
     }
   };
 
-  getInstance = async (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<{ data: WritableSignal<Result[]>; pagination: PaginationMeta | null }> => {
+  getInstance = async (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<WritableSignal<Result[]>> => {
     const newSignal = signal<Result[]>([]);
-    let pagination: PaginationMeta | null = null;
     try {
       const response = await this.api.GET_Results(resultFilter, resultConfig);
-      const extracted = this.extractPaginatedData(response?.data);
-      newSignal.set(extracted.data);
-      pagination = extracted.pagination;
+      newSignal.set(Array.isArray(response?.data) ? response.data : []);
     } catch {
       newSignal.set([]);
     }
-    return { data: newSignal, pagination };
+    return newSignal;
   };
 }

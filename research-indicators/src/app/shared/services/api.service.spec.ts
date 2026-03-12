@@ -1343,7 +1343,7 @@ describe('ApiService', () => {
 
       service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?indicator-codes=101,102', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC&indicator-codes=101,102', {});
     });
 
     it('should call GET_Results with indicator-codes-filter', () => {
@@ -1352,7 +1352,7 @@ describe('ApiService', () => {
 
       service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?indicator-codes=101,102', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC&indicator-codes=101,102', {});
     });
 
     it('should call GET_Results with resultConfig', () => {
@@ -1362,7 +1362,7 @@ describe('ApiService', () => {
 
       service.GET_Results(resultFilter, resultConfig);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?audit-data=true', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC&audit-data=true', {});
     });
 
     it('should call GET_Results with complex filters', () => {
@@ -1377,7 +1377,7 @@ describe('ApiService', () => {
       service.GET_Results(resultFilter, resultConfig);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith(
-        'results?indicator-codes=101&audit-data=true&status-codes=1,2&years=2024',
+        'results?sort-order=DESC&indicator-codes=101&audit-data=true&status-codes=1,2&years=2024',
         {}
       );
     });
@@ -1391,7 +1391,7 @@ describe('ApiService', () => {
 
       service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?status=active', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC&status=active', {});
     });
 
     it('should call GET_Results with no parameters', () => {
@@ -1400,20 +1400,9 @@ describe('ApiService', () => {
 
       service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC', {});
     });
 
-    it('should call GET_Results with page, limit, and search', () => {
-      const resultFilter = { page: 2, limit: 10, search: 'hello world' };
-      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
-
-      service.GET_Results(resultFilter);
-
-      expect(mockToPromiseService.get).toHaveBeenCalledWith(
-        'results?page=2&limit=10&search=hello%20world',
-        {}
-      );
-    });
   });
 
   describe('Additional GET methods', () => {
