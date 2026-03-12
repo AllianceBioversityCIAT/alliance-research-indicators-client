@@ -144,6 +144,7 @@ export class ResultsCenterService {
       minWidth: 'min-w-[90px]',
       hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
+      filterPaths: ['_creatorFullName'],
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
     },
     {
@@ -160,7 +161,7 @@ export class ResultsCenterService {
   getAllPathsAsArray = computed(() =>
     this.tableColumns()
       .filter(column => column.filter)
-      .map(column => column.path)
+      .flatMap(column => column.filterPaths ?? [column.path])
   );
 
   resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
@@ -404,10 +405,14 @@ export class ResultsCenterService {
                 .join(', ')
                 .toLowerCase();
 
+        const user = result.created_by_user;
+        const _creatorFullName = user ? this.buildSearchField(user.first_name ?? '', user.last_name ?? '') : '';
+
         return {
           ...result,
-          primaryLeverSort
-        } as Result & { primaryLeverSort: string };
+          primaryLeverSort,
+          _creatorFullName
+        } as Result & { primaryLeverSort: string; _creatorFullName: string };
       });
 
       const stillSameContext = this.primaryContractId() === primaryContractIdAtRequest && this.myResultsFilterItem()?.id === activeTabIdAtRequest;
@@ -750,6 +755,17 @@ export class ResultsCenterService {
       'indicator-codes-filter': filter?.['indicator-codes-filter'] ?? [],
       'indicator-codes-tabs': filter?.['indicator-codes-tabs'] ?? []
     };
+  }
+
+  private buildSearchField(...fields: string[]): string {
+    const words = fields.join(' ').split(/\s+/).filter(w => w.length > 0).map(w => w.toLowerCase());
+    const pairs: string[] = [];
+    for (let i = 0; i < words.length; i++) {
+      for (let j = 0; j < words.length; j++) {
+        if (i !== j) pairs.push(`${words[i]} ${words[j]}`);
+      }
+    }
+    return [...pairs, words.join(' ')].join(' | ');
   }
 
   private syncIndicatorTabSelection(indicatorId: number): void {
