@@ -3,7 +3,7 @@ import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
-import { Result, ResultConfig, ResultFilter } from '../interfaces/result/result.interface';
+import { Result, ResultConfig, ResultFilter, PaginatedResult } from '../interfaces/result/result.interface';
 import { ResultStatus } from '../interfaces/result-config.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
@@ -169,10 +169,21 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<Result[]>> => {
+  GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<PaginatedResult>> => {
     const queryParams: string[] = [];
 
+    const paginationKeys = new Set(['page', 'limit', 'search']);
     const indicatorKeysHandled = new Set(['indicator-codes', 'indicator-codes-tabs', 'indicator-codes-filter']);
+
+    if (resultFilter.page != null) {
+      queryParams.push(`page=${resultFilter.page}`);
+    }
+    if (resultFilter.limit != null) {
+      queryParams.push(`limit=${resultFilter.limit}`);
+    }
+    if (resultFilter.search) {
+      queryParams.push(`search=${encodeURIComponent(resultFilter.search)}`);
+    }
 
     if (resultFilter['indicator-codes-tabs']?.length) {
       queryParams.push(`indicator-codes=${resultFilter['indicator-codes-tabs'].join(',')}`);
@@ -190,7 +201,7 @@ export class ApiService {
 
     if (resultFilter) {
       Object.entries(resultFilter).forEach(([key, value]) => {
-        if (indicatorKeysHandled.has(key)) return;
+        if (indicatorKeysHandled.has(key) || paginationKeys.has(key)) return;
         if (Array.isArray(value) && value.length) {
           queryParams.push(`${key}=${value.join(',')}`);
         }

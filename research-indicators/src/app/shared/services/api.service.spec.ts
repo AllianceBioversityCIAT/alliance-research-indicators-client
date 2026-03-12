@@ -1402,6 +1402,18 @@ describe('ApiService', () => {
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('results', {});
     });
+
+    it('should call GET_Results with page, limit, and search', () => {
+      const resultFilter = { page: 2, limit: 10, search: 'hello world' };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_Results(resultFilter);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(
+        'results?page=2&limit=10&search=hello%20world',
+        {}
+      );
+    });
   });
 
   describe('Additional GET methods', () => {
