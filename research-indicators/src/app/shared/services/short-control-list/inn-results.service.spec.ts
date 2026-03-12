@@ -27,8 +27,11 @@ describe('InnResultsService', () => {
     await Promise.resolve();
   };
 
+  const mockPagination = { total: 0, page: 1, limit: 10, totalPages: 0, hasNextPage: false, hasPreviousPage: false };
+  const wrapPaginated = (data: any[]) => ({ data: { data, pagination: { ...mockPagination, total: data.length } } });
+
   it('should create', async () => {
-    await setup({ data: [] });
+    await setup(wrapPaginated([]));
     expect(service).toBeTruthy();
   });
 
@@ -37,7 +40,7 @@ describe('InnResultsService', () => {
       { id: 1, result_official_code: 'R-001', title: 'Result A' },
       { id: 2, result_official_code: 'R-002', title: 'Result B' }
     ];
-    await setup({ data });
+    await setup(wrapPaginated(data));
     expect(apiMock.GET_Results).toHaveBeenCalledWith(defaultFilter, defaultConfig);
     expect(service.list().length).toBe(2);
     expect((service.list()[0] as any).select_label).toBe('R-001 - Result A');
@@ -50,7 +53,7 @@ describe('InnResultsService', () => {
       { id: 1, result_official_code: undefined, title: 'Result A' },
       { id: 2, result_official_code: '', title: 'Result B' }
     ];
-    await setup({ data });
+    await setup(wrapPaginated(data));
     expect(service.list().length).toBe(2);
     expect((service.list()[0] as any).select_label).toBe('- Result A');
     expect((service.list()[1] as any).select_label).toBe('- Result B');
@@ -62,7 +65,7 @@ describe('InnResultsService', () => {
       { id: 1, result_official_code: 'R-001', title: undefined },
       { id: 2, result_official_code: 'R-002', title: '' }
     ];
-    await setup({ data });
+    await setup(wrapPaginated(data));
     expect(service.list().length).toBe(2);
     expect((service.list()[0] as any).select_label).toBe('R-001 -');
     expect((service.list()[1] as any).select_label).toBe('R-002 -');
@@ -82,9 +85,9 @@ describe('InnResultsService', () => {
   });
 
   it('uses default filter and config on manual main call', async () => {
-    await setup({ data: [] });
+    await setup(wrapPaginated([]));
 
-    apiMock.GET_Results.mockResolvedValueOnce({ data: [] });
+    apiMock.GET_Results.mockResolvedValueOnce(wrapPaginated([]));
     await service.main();
     expect(apiMock.GET_Results).toHaveBeenCalledWith(defaultFilter, defaultConfig);
     expect(service.loading()).toBe(false);
