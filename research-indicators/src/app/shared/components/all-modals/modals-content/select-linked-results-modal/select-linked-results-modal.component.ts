@@ -18,8 +18,9 @@ import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 import { ActionsService } from '@shared/services/actions.service';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-center/components/table-filters-sidebar/table-filters-sidebar.component';
+import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
-import { Router, RouterLink, UrlTree } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 
 const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
 
@@ -37,7 +38,7 @@ const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
     SearchExportControlsComponent,
     SectionSidebarComponent,
     TableFiltersSidebarComponent,
-    RouterLink
+    CustomProgressBarComponent
   ],
   templateUrl: './select-linked-results-modal.component.html'
 })
@@ -55,6 +56,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   searchInput = signal('');
   saving = signal(false);
   private modalWasOpen = false;
+  private savedMyResultsFilterItem: import('primeng/api').MenuItem | undefined;
   private readonly modalVisibilityWatcher = effect(
     () => {
       const modalConfig = this.allModalsService.isModalOpen('selectLinkedResults');
@@ -88,7 +90,9 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
 
   onSearchInputChange = effect(() => {
     const searchValue = this.searchInput();
+    this.resultsCenterService.list();
     if (this.dt2) {
+      this.dt2.first = 0;
       this.dt2.filterGlobal(searchValue, 'contains');
     }
   });
@@ -174,6 +178,20 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     return PLATFORM_COLOR_MAP[platformCode];
   }
 
+  getProjectHref(contractId: string): string {
+    const tree = this.router.createUrlTree(['/project-detail', contractId, 'project-results']);
+    return this.router.serializeUrl(tree);
+  }
+
+  isNonStarPlatform(result: Result): boolean {
+    return result.platform_code !== PLATFORM_CODES.STAR;
+  }
+
+  openResultInfoModal(result: Result): void {
+    this.allModalsService.selectedResultForInfo.set(result);
+    this.allModalsService.openModal('resultInformation');
+  }
+
   isSelected(result: Result): boolean {
     return this.selectedResults().some(r => r.result_id === result.result_id);
   }
@@ -242,6 +260,8 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   clearFilters(): void {
     this.resultsCenterService.clearAllFiltersWithPreserve([...MODAL_INDICATOR_CODES]);
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
+    this.searchInput.set('');
+    this.resetTableToFirstPage();
     void this.loadResultsForModal();
   }
 
@@ -250,8 +270,11 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   );
 
   private async onModalOpened(): Promise<void> {
+    this.savedMyResultsFilterItem = this.resultsCenterService.myResultsFilterItem();
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
-    await this.ensureResultsListLoaded();
+    await this.loadResultsForModal();
     await this.loadExistingLinkedResults();
   }
 
@@ -273,16 +296,13 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     }
   }
 
-  private async ensureResultsListLoaded(): Promise<void> {
-    if (this.resultsCenterService.list().length === 0) {
-      await this.loadResultsForModal();
-    }
-  }
-
   private async loadResultsForModal(): Promise<void> {
     try {
       this.resultsCenterService.list.set([]);
       this.resultsCenterService.loading.set(true);
+
+      this.resultsCenterService.resultsFilter.update(prev => ({ ...prev, 'create-user-codes': [] }));
+      this.resultsCenterService.appliedFilters.update(prev => ({ ...prev, 'create-user-codes': [] }));
 
       await this.resultsCenterService.main();
     } catch (error) {
@@ -327,6 +347,12 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.resultsCenterService.showFiltersSidebar.set(false);
     this.selectedResults.set([]);
     this.searchInput.set('');
+
+    if (this.savedMyResultsFilterItem) {
+      this.resultsCenterService.myResultsFilterItem.set(this.savedMyResultsFilterItem);
+      this.savedMyResultsFilterItem = undefined;
+    }
+
     this.clearFilters();
   }
 
@@ -337,6 +363,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       ...prev,
       'lever-codes': filters.levers.map(lever => lever.id),
       'status-codes': filters.statusCodes.map(status => status.result_status_id),
+      'platform-code': (filters.sources ?? []).map(source => source.platform_code),
       years: filters.years.map(year => year.report_year),
       'contract-codes': filters.contracts.map(contract => contract.agreement_id),
       'indicator-codes-filter': filters.indicators.map(indicator => indicator.indicator_id)
@@ -350,7 +377,14 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     this.applyModalIndicatorFilter({
       tabsOverride: shouldUseDefaultIndicatorTabs ? [...MODAL_INDICATOR_CODES] : []
     });
+    this.resetTableToFirstPage();
     void this.loadResultsForModal();
+  }
+
+  private resetTableToFirstPage(): void {
+    if (this.dt2) {
+      this.dt2.first = 0;
+    }
   }
 }
 

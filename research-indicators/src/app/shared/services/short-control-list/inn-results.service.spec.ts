@@ -27,8 +27,10 @@ describe('InnResultsService', () => {
     await Promise.resolve();
   };
 
+  const wrapResponse = (data: any[]) => ({ data });
+
   it('should create', async () => {
-    await setup({ data: [] });
+    await setup(wrapResponse([]));
     expect(service).toBeTruthy();
   });
 
@@ -37,7 +39,7 @@ describe('InnResultsService', () => {
       { id: 1, result_official_code: 'R-001', title: 'Result A' },
       { id: 2, result_official_code: 'R-002', title: 'Result B' }
     ];
-    await setup({ data });
+    await setup(wrapResponse(data));
     expect(apiMock.GET_Results).toHaveBeenCalledWith(defaultFilter, defaultConfig);
     expect(service.list().length).toBe(2);
     expect((service.list()[0] as any).select_label).toBe('R-001 - Result A');
@@ -50,7 +52,7 @@ describe('InnResultsService', () => {
       { id: 1, result_official_code: undefined, title: 'Result A' },
       { id: 2, result_official_code: '', title: 'Result B' }
     ];
-    await setup({ data });
+    await setup(wrapResponse(data));
     expect(service.list().length).toBe(2);
     expect((service.list()[0] as any).select_label).toBe('- Result A');
     expect((service.list()[1] as any).select_label).toBe('- Result B');
@@ -62,7 +64,7 @@ describe('InnResultsService', () => {
       { id: 1, result_official_code: 'R-001', title: undefined },
       { id: 2, result_official_code: 'R-002', title: '' }
     ];
-    await setup({ data });
+    await setup(wrapResponse(data));
     expect(service.list().length).toBe(2);
     expect((service.list()[0] as any).select_label).toBe('R-001 -');
     expect((service.list()[1] as any).select_label).toBe('R-002 -');
@@ -82,9 +84,9 @@ describe('InnResultsService', () => {
   });
 
   it('uses default filter and config on manual main call', async () => {
-    await setup({ data: [] });
+    await setup(wrapResponse([]));
 
-    apiMock.GET_Results.mockResolvedValueOnce({ data: [] });
+    apiMock.GET_Results.mockResolvedValueOnce(wrapResponse([]));
     await service.main();
     expect(apiMock.GET_Results).toHaveBeenCalledWith(defaultFilter, defaultConfig);
     expect(service.loading()).toBe(false);

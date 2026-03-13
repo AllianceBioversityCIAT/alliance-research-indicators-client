@@ -80,6 +80,9 @@ describe('SelectLinkedResultsModalComponent', () => {
       countTableFiltersSelected: jest.fn().mockReturnValue(0),
       getAllPathsAsArray: jest.fn().mockReturnValue([]),
       tableColumns: jest.fn().mockReturnValue([]),
+      searchInput: Object.assign(jest.fn().mockReturnValue('') as any, { set: jest.fn() }),
+      myResultsFilterItem: Object.assign(jest.fn().mockReturnValue({ id: 'all', label: 'All Results' }) as any, { set: jest.fn() }),
+      myResultsFilterItems: [{ id: 'all', label: 'All Results' }, { id: 'my', label: 'My Results' }],
       // @ts-expect-error partial mock
     } as jest.Mocked<ResultsCenterService>;
 
@@ -595,7 +598,8 @@ describe('SelectLinkedResultsModalComponent', () => {
   describe('onSearchInputChange effect', () => {
     it('should call filterGlobal when dt2 is available', () => {
       const mockTable = {
-        filterGlobal: jest.fn()
+        filterGlobal: jest.fn(),
+        first: 0
       };
       (component as any).dt2 = mockTable;
       
@@ -612,23 +616,23 @@ describe('SelectLinkedResultsModalComponent', () => {
       component.searchInput.set('test search');
       fixture.detectChanges();
       
-      // Should not throw error
       expect(consoleErrorSpy).not.toHaveBeenCalled();
       consoleErrorSpy.mockRestore();
     });
   });
 
   describe('onModalOpened', () => {
-    it('should apply indicator filter and load results', async () => {
+    it('should save tab, set to all, apply indicator filter and load results', async () => {
       const applySpy = jest.spyOn<any, any>(component as any, 'applyModalIndicatorFilter').mockImplementation(() => {});
-      const ensureSpy = jest.spyOn<any, any>(component as any, 'ensureResultsListLoaded').mockResolvedValue(undefined);
-      const loadSpy = jest.spyOn<any, any>(component as any, 'loadExistingLinkedResults').mockResolvedValue(undefined);
+      const loadResultsSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
+      const loadLinkedSpy = jest.spyOn<any, any>(component as any, 'loadExistingLinkedResults').mockResolvedValue(undefined);
       
       await (component as any).onModalOpened();
       
+      expect(resultsCenterService.myResultsFilterItem.set).toHaveBeenCalledWith({ id: 'all', label: 'All Results' });
       expect(applySpy).toHaveBeenCalledWith({ resetIndicatorFilters: true });
-      expect(ensureSpy).toHaveBeenCalled();
-      expect(loadSpy).toHaveBeenCalled();
+      expect(loadResultsSpy).toHaveBeenCalled();
+      expect(loadLinkedSpy).toHaveBeenCalled();
     });
   });
 
@@ -681,23 +685,16 @@ describe('SelectLinkedResultsModalComponent', () => {
     });
   });
 
-  describe('ensureResultsListLoaded', () => {
-    it('should load results when list is empty', async () => {
-      resultsCenterService.list.mockReturnValue([]);
-      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
-      
-      await (component as any).ensureResultsListLoaded();
-      
-      expect(loadSpy).toHaveBeenCalled();
-    });
+  describe('resetModalFilters', () => {
+    it('should restore saved myResultsFilterItem when closing modal', () => {
+      const savedTab = { id: 'my', label: 'My Results' };
+      (component as any).savedMyResultsFilterItem = savedTab;
+      const clearSpy = jest.spyOn(component, 'clearFilters').mockImplementation(() => {});
 
-    it('should not load results when list is not empty', async () => {
-      resultsCenterService.list.mockReturnValue([createResult()] as any);
-      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
-      
-      await (component as any).ensureResultsListLoaded();
-      
-      expect(loadSpy).not.toHaveBeenCalled();
+      (component as any).resetModalFilters();
+
+      expect(resultsCenterService.myResultsFilterItem.set).toHaveBeenCalledWith(savedTab);
+      expect(clearSpy).toHaveBeenCalled();
     });
   });
 
@@ -709,6 +706,8 @@ describe('SelectLinkedResultsModalComponent', () => {
       
       expect(resultsCenterService.list.set).toHaveBeenCalledWith([]);
       expect(resultsCenterService.loading.set).toHaveBeenCalledWith(true);
+      expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
+      expect(resultsCenterService.appliedFilters.update).toHaveBeenCalled();
       expect(resultsCenterService.main).toHaveBeenCalled();
       expect(resultsCenterService.loading.set).toHaveBeenLastCalledWith(false);
     });
@@ -861,6 +860,82 @@ describe('SelectLinkedResultsModalComponent', () => {
       resultsCenterService.resultsFilter.mockReturnValue({ 'indicator-codes-filter': undefined } as any);
       (component as any).applyModalIndicatorFilter({});
       expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
+    });
+  });
+
+  describe('getProjectHref', () => {
+    it('should build project detail URL', () => {
+      const urlTree = {} as any;
+      router.createUrlTree.mockReturnValue(urlTree);
+      router.serializeUrl.mockReturnValue('/project-detail/AGR-1/project-results');
+
+      const href = component.getProjectHref('AGR-1');
+
+      expect(router.createUrlTree).toHaveBeenCalledWith(['/project-detail', 'AGR-1', 'project-results']);
+      expect(href).toBe('/project-detail/AGR-1/project-results');
+    });
+  });
+
+  describe('isNonStarPlatform', () => {
+    it('should return true for non-STAR platform', () => {
+      const result = createResult({ platform_code: PLATFORM_CODES.PRMS });
+      expect(component.isNonStarPlatform(result)).toBe(true);
+    });
+
+    it('should return false for STAR platform', () => {
+      const result = createResult({ platform_code: PLATFORM_CODES.STAR });
+      expect(component.isNonStarPlatform(result)).toBe(false);
+    });
+  });
+
+  describe('openResultInfoModal', () => {
+    it('should set selectedResultForInfo and open modal', () => {
+      allModalsService.selectedResultForInfo = { set: jest.fn() } as any;
+      allModalsService.openModal = jest.fn();
+      const result = createResult({ result_id: 42 });
+
+      component.openResultInfoModal(result);
+
+      expect(allModalsService.selectedResultForInfo.set).toHaveBeenCalledWith(result);
+      expect(allModalsService.openModal).toHaveBeenCalledWith('resultInformation');
+    });
+  });
+
+  describe('resetTableToFirstPage', () => {
+    it('should reset dt2.first to 0 when dt2 exists', () => {
+      const mockTable = { first: 5, filterGlobal: jest.fn() };
+      (component as any).dt2 = mockTable;
+
+      (component as any).resetTableToFirstPage();
+
+      expect(mockTable.first).toBe(0);
+    });
+
+    it('should not throw when dt2 is undefined', () => {
+      (component as any).dt2 = undefined;
+      expect(() => (component as any).resetTableToFirstPage()).not.toThrow();
+    });
+  });
+
+  describe('onFiltersConfirm with sources', () => {
+    it('should map sources platform_code when sources are present', async () => {
+      const loadSpy = jest.spyOn<any, any>(component as any, 'loadResultsForModal').mockResolvedValue(undefined);
+
+      resultsCenterService.tableFilters.mockReturnValue({
+        levers: [],
+        statusCodes: [],
+        years: [],
+        contracts: [],
+        indicators: [],
+        sources: [{ platform_code: 'PRMS' }, { platform_code: 'TIP' }]
+      } as any);
+
+      await component.onFiltersConfirm();
+
+      const updater = resultsCenterService.resultsFilter.update.mock.calls[0][0];
+      const result = updater({} as any);
+      expect(result['platform-code']).toEqual(['PRMS', 'TIP']);
+      expect(loadSpy).toHaveBeenCalled();
     });
   });
 

@@ -46,8 +46,8 @@ export default class OicrDetailsComponent {
     for_external_use_description: ''
   });
 
-  quantifications = signal<QuantificationItemData[]>([{ number: null, unit: '', comments: '' }]);
-  extrapolatedEstimates = signal<QuantificationItemData[]>([{ number: null, unit: '', comments: '' }]);
+  quantifications = signal<QuantificationItemData[]>([]);
+  extrapolatedEstimates = signal<QuantificationItemData[]>([]);
   contactPersons = signal<ContactPersonRow[]>([]);
 
   addQuantification() {
@@ -192,7 +192,7 @@ export default class OicrDetailsComponent {
         })
       );
     } else {
-      this.quantifications.set([{ number: null, unit: '', comments: '' }]);
+      this.quantifications.set([]);
     }
 
     const apiExtrap = Array.isArray(apiData.extrapolate_estimates) ? apiData.extrapolate_estimates : [];
@@ -214,7 +214,7 @@ export default class OicrDetailsComponent {
         })
       );
     } else {
-      this.extrapolatedEstimates.set([{ number: null, unit: '', comments: '' }]);
+      this.extrapolatedEstimates.set([]);
     }
 
     // Map result_impact_areas

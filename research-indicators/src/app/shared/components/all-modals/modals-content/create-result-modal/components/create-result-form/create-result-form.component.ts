@@ -324,18 +324,7 @@ export class CreateResultFormComponent {
         'audit-data-object': true
       };
       const response = await this.api.GET_Results(filter, resultConfig);
-      const raw = response?.data;
-      let list: Result[] = [];
-      if (Array.isArray(raw)) {
-        list = raw;
-      } else if (raw != null && typeof raw === 'object') {
-        const maybeResults = (raw as { results?: Result[] }).results;
-        if (Array.isArray(maybeResults)) {
-          list = maybeResults;
-        } else if ('result_id' in raw || 'result_official_code' in raw) {
-          list = [raw as Result];
-        }
-      }
+      const list: Result[] = Array.isArray(response?.data) ? response.data : [];
       const result = list.find(
         (r: Result) => String(r.result_official_code) === resultOfficialCode && r.platform_code === platformCode
       ) ?? (list.length === 1 ? list[0] : null);

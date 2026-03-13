@@ -14,6 +14,17 @@ export class GetUserStaffService {
     this.main();
   }
 
+  buildSearchField(...fields: string[]): string {
+    const words = fields.join(' ').split(/\s+/).filter(w => w.length > 0).map(w => w.toLowerCase());
+    const pairs: string[] = [];
+    for (let i = 0; i < words.length; i++) {
+      for (let j = 0; j < words.length; j++) {
+        if (i !== j) pairs.push(`${words[i]} ${words[j]}`);
+      }
+    }
+    return [...pairs, words.join(' ')].join(' | ');
+  }
+
   async main() {
     this.loading.set(true);
     try {
@@ -21,6 +32,7 @@ export class GetUserStaffService {
       response.data.forEach(item => {
         item.full_name = `${item.last_name}, ${item.first_name}  - ${item.email}`;
         item.user_id = item.carnet;
+        item._search = this.buildSearchField(item.first_name, item.last_name, item.email);
       });
       this.list.set(response.data);
     } finally {

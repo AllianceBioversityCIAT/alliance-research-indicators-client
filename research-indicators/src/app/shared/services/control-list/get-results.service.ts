@@ -12,12 +12,12 @@ export class GetResultsService {
   constructor() {
     this.updateList();
   }
+
   updateList = async () => {
     this.loading.set(true);
     try {
       const response = await this.api.GET_Results({});
-      const data = Array.isArray(response?.data) ? response.data : [];
-      this.results.set(data);
+      this.results.set(Array.isArray(response?.data) ? response.data : []);
     } catch {
       this.results.set([]);
     } finally {
@@ -29,8 +29,7 @@ export class GetResultsService {
     const newSignal = signal<Result[]>([]);
     try {
       const response = await this.api.GET_Results(resultFilter, resultConfig);
-      const data = Array.isArray(response?.data) ? response.data : [];
-      newSignal.set(data);
+      newSignal.set(Array.isArray(response?.data) ? response.data : []);
     } catch {
       newSignal.set([]);
     }

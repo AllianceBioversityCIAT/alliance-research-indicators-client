@@ -141,13 +141,13 @@ describe('OicrDetailsComponent', () => {
   describe('quantifications handlers', () => {
     it('should add and remove quantification when editable', () => {
       submissionService.isEditableStatus.mockReturnValue(true);
-      expect(component.quantifications().length).toBe(1);
+      expect(component.quantifications().length).toBe(0);
 
       component.addQuantification();
-      expect(component.quantifications().length).toBe(2);
+      expect(component.quantifications().length).toBe(1);
 
       component.removeQuantification(0);
-      expect(component.quantifications().length).toBe(1);
+      expect(component.quantifications().length).toBe(0);
     });
 
     it('should not modify quantifications when not editable', () => {
@@ -159,6 +159,7 @@ describe('OicrDetailsComponent', () => {
     });
 
     it('should update quantification at index', () => {
+      component.quantifications.set([{ number: null, unit: '', comments: '' }]);
       const data = { number: 10, unit: 'kg', comments: 'test' };
       component.updateQuantification(0, data);
       expect(component.quantifications()[0]).toEqual(data);
@@ -179,13 +180,13 @@ describe('OicrDetailsComponent', () => {
   describe('extrapolated estimates handlers', () => {
     it('should add and remove extrapolated estimate when editable', () => {
       submissionService.isEditableStatus.mockReturnValue(true);
-      expect(component.extrapolatedEstimates().length).toBe(1);
+      expect(component.extrapolatedEstimates().length).toBe(0);
 
       component.addExtrapolatedEstimate();
-      expect(component.extrapolatedEstimates().length).toBe(2);
+      expect(component.extrapolatedEstimates().length).toBe(1);
 
       component.removeExtrapolatedEstimate(0);
-      expect(component.extrapolatedEstimates().length).toBe(1);
+      expect(component.extrapolatedEstimates().length).toBe(0);
     });
 
     it('should not modify extrapolated estimates when not editable', () => {
@@ -197,6 +198,7 @@ describe('OicrDetailsComponent', () => {
     });
 
     it('should update extrapolated estimate at index', () => {
+      component.extrapolatedEstimates.set([{ number: null, unit: '', comments: '' }]);
       const data = { number: 5, unit: 'ha', comments: 'extrapolated' };
       component.updateExtrapolatedEstimate(0, data);
       expect(component.extrapolatedEstimates()[0]).toEqual(data);
@@ -474,8 +476,8 @@ describe('OicrDetailsComponent', () => {
       await component.getData();
 
       expect(loadContactsSpy).toHaveBeenCalled();
-      expect(component.quantifications()).toEqual([{ number: null, unit: '', comments: '' }]);
-      expect(component.extrapolatedEstimates()).toEqual([{ number: null, unit: '', comments: '' }]);
+      expect(component.quantifications()).toEqual([]);
+      expect(component.extrapolatedEstimates()).toEqual([]);
     });
 
     it('should use empty object when response.data is falsy', async () => {

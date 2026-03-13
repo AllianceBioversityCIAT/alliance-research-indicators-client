@@ -152,6 +152,54 @@ describe('ProjectUtilsService', () => {
 
       expect(result).toBe('-');
     });
+
+    it('should return joined names from levers array', () => {
+      const project = {
+        levers: [
+          { short_name: 'Lever A' },
+          { short_name: 'Lever B' }
+        ]
+      } as FindContracts;
+
+      const result = service.getLeverName(project);
+
+      expect(result).toBe('Lever A, Lever B');
+    });
+
+    it('should return name from single levers object (non-array)', () => {
+      const project = {
+        levers: { short_name: 'Single Lever' }
+      } as FindContracts;
+
+      const result = service.getLeverName(project);
+
+      expect(result).toBe('Single Lever');
+    });
+
+    it('should filter out falsy short_name values from levers array', () => {
+      const project = {
+        levers: [
+          { short_name: 'Lever A' },
+          { short_name: '' },
+          { short_name: 'Lever C' }
+        ]
+      } as FindContracts;
+
+      const result = service.getLeverName(project);
+
+      expect(result).toBe('Lever A, Lever C');
+    });
+
+    it('should fall through to lever when levers has no valid short_names', () => {
+      const project = {
+        levers: [{ short_name: '' }],
+        lever: 'Fallback Lever'
+      } as unknown as FindContracts;
+
+      const result = service.getLeverName(project);
+
+      expect(result).toBe('Fallback Lever');
+    });
   });
 
   describe('hasField', () => {

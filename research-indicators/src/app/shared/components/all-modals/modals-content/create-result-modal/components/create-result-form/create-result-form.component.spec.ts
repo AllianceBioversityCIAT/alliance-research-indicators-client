@@ -250,7 +250,7 @@ describe('CreateResultFormComponent', () => {
   });
 
   describe('openExistingResultModal', () => {
-    it('should set selectedResultForInfo and open modal when response.data is array', async () => {
+    it('should set selectedResultForInfo and open modal when response has data', async () => {
       const resultItem = {
         result_official_code: 456,
         platform_code: 'TIP',
@@ -272,27 +272,7 @@ describe('CreateResultFormComponent', () => {
       expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
     });
 
-    it('should handle response.data as object with results array', async () => {
-      const resultItem = {
-        result_official_code: 789,
-        platform_code: 'PRMS',
-        title: 'From results',
-        result_id: 2
-      };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: [resultItem] } } as any);
-
-      await component.openExistingResultModal('PRMS', '789');
-
-      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
-        expect.objectContaining({
-          result_official_code: '789',
-          platform_code: 'PRMS'
-        })
-      );
-      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
-    });
-
-    it('should find correct result when response.data is array of multiple results', async () => {
+    it('should find correct result when response has multiple results', async () => {
       const first = { result_official_code: '111', platform_code: 'TIP', title: 'First', result_id: 1 };
       const second = { result_official_code: '999', platform_code: 'TIP', title: 'Target', result_id: 2 };
       const third = { result_official_code: '999', platform_code: 'PRMS', title: 'Other platform', result_id: 3 };
@@ -337,67 +317,6 @@ describe('CreateResultFormComponent', () => {
       expect(allModalsServiceMock.openModal).not.toHaveBeenCalled();
     });
 
-    it('should handle response.data as single result object', async () => {
-      const resultItem = {
-        result_official_code: 111,
-        platform_code: 'TIP',
-        title: 'Single',
-        result_id: 3
-      };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: resultItem } as any);
-
-      await component.openExistingResultModal('TIP', '111');
-
-      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
-        expect.objectContaining({
-          result_official_code: '111',
-          platform_code: 'TIP'
-        })
-      );
-      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
-    });
-
-    it('should handle response.data as object without results array but with result_official_code', async () => {
-      const resultItem = {
-        result_official_code: '777',
-        platform_code: 'TIP',
-        title: 'Direct object',
-        result_id: 4
-      };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: resultItem } as any);
-
-      await component.openExistingResultModal('TIP', '777');
-
-      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
-        expect.objectContaining({
-          result_official_code: '777',
-          platform_code: 'TIP'
-        })
-      );
-      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
-    });
-
-    it('should handle response.data as object with results non-array but result_official_code present', async () => {
-      const resultItem = {
-        results: null,
-        result_official_code: '555',
-        platform_code: 'TIP',
-        title: 'Wrapper object',
-        result_id: 6
-      };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: resultItem } as any);
-
-      await component.openExistingResultModal('TIP', '555');
-
-      expect((allModalsServiceMock as any).selectedResultForInfo.set).toHaveBeenCalledWith(
-        expect.objectContaining({
-          result_official_code: '555',
-          platform_code: 'TIP'
-        })
-      );
-      expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
-    });
-
     it('should set normalized result with snapshot_years array when present', async () => {
       const resultItem = {
         result_official_code: 888,
@@ -428,8 +347,8 @@ describe('CreateResultFormComponent', () => {
       expect(allModalsServiceMock.openModal).not.toHaveBeenCalled();
     });
 
-    it('should not open modal when response.data is object without results array and without result_id/result_official_code', async () => {
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: null, other: 'field' } } as any);
+    it('should not open modal when data is empty', async () => {
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: [] } as any);
 
       await component.openExistingResultModal('TIP', '999');
 

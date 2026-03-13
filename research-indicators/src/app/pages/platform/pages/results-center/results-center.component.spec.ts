@@ -55,6 +55,8 @@ describe('ResultsCenterComponent', () => {
       main: jest.fn(),
       applyFilters: jest.fn(),
       cleanMultiselects: jest.fn(),
+      cleanFilters: jest.fn(),
+      pinnedTab: signal('all'),
       activateStatePersistence: jest.fn(),
       deactivateStatePersistence: jest.fn(),
       restorePersistedState: jest.fn().mockReturnValue(false)
@@ -272,28 +274,28 @@ describe('ResultsCenterComponent', () => {
   });
 
   describe('onActiveItemChange', () => {
-    it('should handle my tab selection', () => {
+    it('should handle my tab selection and preserve search input', () => {
       const event: MenuItem = { id: 'my', label: 'My Results' };
       const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults').mockImplementation();
+      mockResultsCenterService.searchInput.set('ABC');
 
       component.onActiveItemChange(event);
 
-      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
       expect(loadMyResultsSpy).toHaveBeenCalled();
-      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
-      expect(mockResultsCenterService.searchInput()).toBe('');
+      expect(mockResultsCenterService.cleanFilters).toHaveBeenCalled();
+      expect(mockResultsCenterService.searchInput()).toBe('ABC');
     });
 
-    it('should handle all tab selection', () => {
+    it('should handle all tab selection and preserve search input', () => {
       const event: MenuItem = { id: 'all', label: 'All Results' };
       const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults').mockImplementation();
+      mockResultsCenterService.searchInput.set('test search');
 
       component.onActiveItemChange(event);
 
-      expect(mockResultsCenterService.myResultsFilterItem()).toEqual(event);
       expect(loadAllResultsSpy).toHaveBeenCalled();
-      expect(mockResultsCenterService.clearAllFilters).toHaveBeenCalled();
-      expect(mockResultsCenterService.searchInput()).toBe('');
+      expect(mockResultsCenterService.cleanFilters).toHaveBeenCalled();
+      expect(mockResultsCenterService.searchInput()).toBe('test search');
     });
   });
 
@@ -312,17 +314,35 @@ describe('ResultsCenterComponent', () => {
         'indicator-codes-filter': [],
         'indicator-codes-tabs': []
       });
-      expect(mockResultsCenterService.appliedFilters()).toEqual({
-        'create-user-codes': ['123'],
+      expect(mockResultsCenterService.main).toHaveBeenCalled();
+    });
+
+    it('should preserve indicator-codes-tabs when switching', () => {
+      mockResultsCenterService.resultsFilter.set({
+        ...mockResultsCenterService.resultsFilter(),
+        'indicator-codes-tabs': [5]
+      });
+
+      component.loadMyResults();
+
+      expect(mockResultsCenterService.resultsFilter()['indicator-codes-tabs']).toEqual([5]);
+      expect(mockResultsCenterService.appliedFilters()['indicator-codes-tabs']).toEqual([5]);
+    });
+
+    it('should default to empty array when indicator-codes-tabs is undefined', () => {
+      mockResultsCenterService.resultsFilter.set({
+        'create-user-codes': [],
         'indicator-codes': [],
         'status-codes': [],
         'contract-codes': [],
         'lever-codes': [],
         years: [],
-        'indicator-codes-filter': [],
-        'indicator-codes-tabs': []
-      });
-      expect(mockResultsCenterService.main).toHaveBeenCalled();
+        'indicator-codes-filter': []
+      } as any);
+
+      component.loadMyResults();
+
+      expect(mockResultsCenterService.resultsFilter()['indicator-codes-tabs']).toEqual([]);
     });
   });
 
@@ -341,17 +361,35 @@ describe('ResultsCenterComponent', () => {
         'indicator-codes-filter': [],
         'indicator-codes-tabs': []
       });
-      expect(mockResultsCenterService.appliedFilters()).toEqual({
+      expect(mockResultsCenterService.main).toHaveBeenCalled();
+    });
+
+    it('should preserve indicator-codes-tabs when switching', () => {
+      mockResultsCenterService.resultsFilter.set({
+        ...mockResultsCenterService.resultsFilter(),
+        'indicator-codes-tabs': [3]
+      });
+
+      component.loadAllResults();
+
+      expect(mockResultsCenterService.resultsFilter()['indicator-codes-tabs']).toEqual([3]);
+      expect(mockResultsCenterService.appliedFilters()['indicator-codes-tabs']).toEqual([3]);
+    });
+
+    it('should default to empty array when indicator-codes-tabs is undefined', () => {
+      mockResultsCenterService.resultsFilter.set({
         'create-user-codes': [],
         'indicator-codes': [],
         'status-codes': [],
         'contract-codes': [],
         'lever-codes': [],
         years: [],
-        'indicator-codes-filter': [],
-        'indicator-codes-tabs': []
-      });
-      expect(mockResultsCenterService.main).toHaveBeenCalled();
+        'indicator-codes-filter': []
+      } as any);
+
+      component.loadAllResults();
+
+      expect(mockResultsCenterService.resultsFilter()['indicator-codes-tabs']).toEqual([]);
     });
   });
 

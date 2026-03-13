@@ -190,6 +190,21 @@ describe('MyProjectsService', () => {
   });
 
   describe('getLeverDisplayName', () => {
+    it('should return joined names from levers array', () => {
+      const item = { levers: [{ short_name: 'L1' }, { short_name: 'L2' }] };
+      expect((service as any).getLeverDisplayName(item)).toBe('L1, L2');
+    });
+
+    it('should return name from single levers object (non-array)', () => {
+      const item = { levers: { short_name: 'Single' } };
+      expect((service as any).getLeverDisplayName(item)).toBe('Single');
+    });
+
+    it('should filter out falsy short_name from levers and fall through when empty', () => {
+      const item = { levers: [{ short_name: '' }], lever_name: 'Fallback' };
+      expect((service as any).getLeverDisplayName(item)).toBe('Fallback');
+    });
+
     it('should return lever_name when available', () => {
       const item = { lever_name: 'Test Lever' };
       expect((service as any).getLeverDisplayName(item)).toBe('Test Lever');
@@ -879,6 +894,42 @@ describe('MyProjectsService', () => {
 
       expect(service.list()).toHaveLength(1);
       expect((service.list()[0] as any).display_lever_name).toBe('Lever Name Only');
+    });
+  });
+
+  describe('main method - direction and tab-change branches', () => {
+    it('should set direction to DESC when current-user is true and direction is null', async () => {
+      await service.main({ 'current-user': true, direction: null });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ direction: 'DESC' })
+      );
+    });
+
+    it('should set direction to DESC when current-user is true and direction is empty string', async () => {
+      await service.main({ 'current-user': true, direction: '' });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({ direction: 'DESC' })
+      );
+    });
+
+    it('should not update list when tab changes during request', async () => {
+      let resolveApi!: (value: any) => void;
+      mockApiService.GET_FindContracts.mockImplementationOnce(
+        () => new Promise(resolve => { resolveApi = resolve; })
+      );
+
+      const mainPromise = service.main();
+      service.myProjectsFilterItem.set({ id: 'different-tab', label: 'Other' });
+      resolveApi({
+        data: {
+          data: [{ agreement_id: 'X', projectDescription: 'P', description: 'D', project_lead_description: 'L', principal_investigator: 'PI', lever_name: 'Lv' }]
+        }
+      });
+      await mainPromise;
+
+      expect(service.list()).toEqual([]);
     });
   });
 

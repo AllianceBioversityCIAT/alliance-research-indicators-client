@@ -37,6 +37,12 @@ export class ProjectUtilsService {
   }
 
   getLeverName(project: ProjectType): string {
+    if ('levers' in project && project.levers) {
+      const leversArray = Array.isArray(project.levers) ? project.levers : [project.levers];
+      const names = leversArray.map(l => l.short_name).filter(Boolean);
+      if (names.length) return names.join(', ');
+    }
+
     if ('lever' in project && project.lever) {
       if (typeof project.lever === 'string') {
         return project.lever;

@@ -1,4 +1,4 @@
-import { Component, effect, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input } from '@angular/core';
+import { Component, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -17,6 +17,7 @@ import { PopoverModule } from 'primeng/popover';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { FiltersActionButtonsComponent } from '../../../../../../shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '../../../../../../shared/components/search-export-controls/search-export-controls.component';
+import { CustomProgressBarComponent } from '../../../../../../shared/components/custom-progress-bar/custom-progress-bar.component';
 import { PLATFORM_COLOR_MAP } from '../../../../../../shared/constants/platform-colors';
 import { PLATFORM_CODES } from '../../../../../../shared/constants/platform-codes';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
@@ -34,7 +35,8 @@ import { CreateResultManagementService } from '@shared/components/all-modals/mod
     RouterLink,
     CustomTagComponent,
     FiltersActionButtonsComponent,
-    SearchExportControlsComponent
+    SearchExportControlsComponent,
+    CustomProgressBarComponent
   ],
   templateUrl: './results-center-table.component.html'
 })
@@ -60,9 +62,10 @@ export class ResultsCenterTableComponent implements AfterViewInit {
 
   onSearchInputChange = effect(() => {
     const searchValue = this.resultsCenterService.searchInput();
-    const table = this.tableRef();
-    if (table) {
-      table.filterGlobal(searchValue, 'contains');
+    this.resultsCenterService.list();
+    if (this.dt2) {
+      this.dt2.first = 0;
+      this.dt2.filterGlobal(searchValue, 'contains');
     }
   });
 
@@ -357,7 +360,6 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   openResult(result: Result) {
-    this.resultsCenterService.clearAllFilters();
     if (
       result.platform_code === PLATFORM_CODES.PRMS ||
       result.platform_code === PLATFORM_CODES.TIP ||
@@ -382,7 +384,6 @@ export class ResultsCenterTableComponent implements AfterViewInit {
       return;
     }
     this.closeResultInformationModal();
-    this.resultsCenterService.clearAllFilters();
     const resultCode = `${platformCode}-${result}`;
     this.router.navigate(['/result', resultCode], {
       queryParams: { version: year }

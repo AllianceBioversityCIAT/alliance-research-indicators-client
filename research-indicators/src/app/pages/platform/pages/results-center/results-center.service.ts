@@ -33,6 +33,7 @@ export class ResultsCenterService {
     { id: 'my', label: 'My Results' }
   ];
   myResultsFilterItem = signal<MenuItem | undefined>(this.myResultsFilterItems[0]);
+  pinnedTab = signal<string>('all');
   loading = signal(false);
   list = signal<Result[]>([]);
   tableFilters = signal(new TableFilters());
@@ -142,8 +143,8 @@ export class ResultsCenterService {
       path: 'created_by_user.first_name',
       header: 'Creator',
       minWidth: 'min-w-[90px]',
-      hideFilterIf: computed(() => (this.resultsFilter()['create-user-codes'] ?? []).length > 0),
       filter: true,
+      filterPaths: ['_creatorFullName'],
       getValue: (result: Result) => (result.created_by_user ? `${result.created_by_user.first_name} ${result.created_by_user.last_name}` : '-')
     },
     {
@@ -160,7 +161,7 @@ export class ResultsCenterService {
   getAllPathsAsArray = computed(() =>
     this.tableColumns()
       .filter(column => column.filter)
-      .map(column => column.path)
+      .flatMap(column => column.filterPaths ?? [column.path])
   );
 
   resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
@@ -332,17 +333,19 @@ export class ResultsCenterService {
   onChangeList = effect(
     () => {
       if (!this.api.indicatorTabs.lazy().isLoading()) {
+        const restoredTabId = this.resultsFilter()['indicator-codes-tabs']?.[0] ?? 0;
         this.api.indicatorTabs.lazy().list.update(prev => {
           return [
             {
               name: 'All Indicators',
               indicator_id: 0,
               able: true,
-              active: true
+              active: restoredTabId === 0
             },
             ...prev.map(indicator => ({
               ...indicator,
-              able: [0, 1, 2, 3, 4, 5].includes(indicator.indicator_id)
+              able: [0, 1, 2, 3, 4, 5].includes(indicator.indicator_id),
+              active: indicator.indicator_id === restoredTabId
             }))
           ];
         });
@@ -404,10 +407,14 @@ export class ResultsCenterService {
                 .join(', ')
                 .toLowerCase();
 
+        const user = result.created_by_user;
+        const _creatorFullName = user ? this.buildSearchField(user.first_name ?? '', user.last_name ?? '') : '';
+
         return {
           ...result,
-          primaryLeverSort
-        } as Result & { primaryLeverSort: string };
+          primaryLeverSort,
+          _creatorFullName
+        } as Result & { primaryLeverSort: string; _creatorFullName: string };
       });
 
       const stillSameContext = this.primaryContractId() === primaryContractIdAtRequest && this.myResultsFilterItem()?.id === activeTabIdAtRequest;
@@ -472,7 +479,6 @@ export class ResultsCenterService {
   }
 
   applyFilters = () => {
-    // Preserve create-user-codes if tab is "my"
     const currentTab = this.myResultsFilterItem();
     const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
 
@@ -539,12 +545,11 @@ export class ResultsCenterService {
 
   cleanFilters() {
     this.cleanMultiselects();
-    //? clear table filters and reset sort
     const table = this.tableRef();
     if (table) {
-      table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
+      table.first = 0;
     }
 
     this.tableFilters.update(prev => ({
@@ -572,11 +577,11 @@ export class ResultsCenterService {
       levers: []
     }));
 
-    // Preserve create-user-codes if tab is "my", otherwise clear it
-    const currentTab = this.myResultsFilterItem();
-    const preserveCreateUserCodes = currentTab?.id === 'my' ? this.resultsFilter()['create-user-codes'] || [] : [];
+    const pinnedItem = this.pinnedTab() === 'my' ? this.myResultsFilterItems[1] : this.myResultsFilterItems[0];
+    this.myResultsFilterItem.set(pinnedItem);
 
-    // Clear ALL fields in resultsFilter, but preserve create-user-codes if tab is "my"
+    const createUserCodes = pinnedItem.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : [];
+
     this.resultsFilter.set({
       'indicator-codes': [],
       'lever-codes': [],
@@ -586,10 +591,9 @@ export class ResultsCenterService {
       'contract-codes': [],
       'platform-code': [],
       years: [],
-      'create-user-codes': preserveCreateUserCodes
+      'create-user-codes': createUserCodes
     });
 
-    // Clear ALL fields in appliedFilters, but preserve create-user-codes if tab is "my"
     this.appliedFilters.set({
       'indicator-codes': [],
       'lever-codes': [],
@@ -599,10 +603,9 @@ export class ResultsCenterService {
       'contract-codes': [],
       'platform-code': [],
       years: [],
-      'create-user-codes': preserveCreateUserCodes
+      'create-user-codes': createUserCodes
     });
 
-    // Reset resultsConfig (gear) to default values
     this.resultsConfig.set({
       indicators: true,
       'result-status': true,
@@ -614,8 +617,9 @@ export class ResultsCenterService {
       'audit-data-object': true
     });
 
-    // clear search input
     this.searchInput.set('');
+
+    this.onSelectFilterTab(0);
 
     setTimeout(() => {
       this.cleanMultiselects();
@@ -627,7 +631,7 @@ export class ResultsCenterService {
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
-    this.onSelectFilterTab(0);
+    this.main();
   }
 
   clearAllFiltersWithPreserve(preserveIndicatorCodes: readonly number[]): void {
@@ -648,7 +652,12 @@ export class ResultsCenterService {
       ...prev,
       'indicator-codes-filter': [],
       'indicator-codes-tabs': preserved,
-      'indicator-codes': preserved,
+      'indicator-codes': [],
+      'platform-code': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'lever-codes': [],
+      years: [],
       'create-user-codes': []
     });
 
@@ -745,6 +754,31 @@ export class ResultsCenterService {
       'indicator-codes-filter': filter?.['indicator-codes-filter'] ?? [],
       'indicator-codes-tabs': filter?.['indicator-codes-tabs'] ?? []
     };
+  }
+
+  buildSearchField(...fields: string[]): string {
+    const words = fields
+      .join(' ')
+      .split(/\s+/)
+      .filter(w => w.length > 0)
+      .map(w => w.toLowerCase());
+
+    if (words.length === 0) return '';
+    if (words.length === 1) return words[0];
+
+    const permutations: string[] = [];
+
+    const permute = (arr: string[], current: string[] = []) => {
+      if (current.length >= 2) {
+        permutations.push(current.join(' '));
+      }
+      for (let i = 0; i < arr.length; i++) {
+        permute([...arr.slice(0, i), ...arr.slice(i + 1)], [...current, arr[i]]);
+      }
+    };
+    permute(words);
+
+    return [...words, ...permutations].join(' | ');
   }
 
   private syncIndicatorTabSelection(indicatorId: number): void {

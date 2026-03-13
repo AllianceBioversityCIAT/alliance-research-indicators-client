@@ -1,8 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { GetResultsService } from './get-results.service';
-import { ResultFilter, ResultConfig, Result } from '@interfaces/result/result.interface';
+import { ResultFilter, ResultConfig } from '@interfaces/result/result.interface';
 import { ApiService } from '@services/api.service';
-import { signal } from '@angular/core';
 
 describe('GetResultsService', () => {
   let service: GetResultsService;
@@ -13,9 +12,13 @@ describe('GetResultsService', () => {
     { id: 2, name: 'Result 2' }
   ];
 
+  const mockResponse = {
+    data: mockData
+  };
+
   beforeEach(() => {
     apiService = {
-      GET_Results: jest.fn().mockResolvedValue({ data: mockData })
+      GET_Results: jest.fn().mockResolvedValue(mockResponse)
     };
 
     TestBed.configureTestingModule({
