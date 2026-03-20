@@ -75,8 +75,12 @@ export class ResultAiItemComponent implements OnChanges {
     if (this.isEditingTitle()) {
       this.finishEditingTitle();
     }
+    const payload = { ...item };
+    delete payload.organization_type;
+    delete payload.organization_sub_type;
+    delete payload.organizations;
     this.api
-      .POST_CreateResult({ ...item })
+      .POST_CreateResult(payload)
       .then((response: MainResponse<CreateResultResponse | ExtendedHttpErrorResponse>) => {
         if (response.successfulRequest) {
           this.isCreated.set(true);
