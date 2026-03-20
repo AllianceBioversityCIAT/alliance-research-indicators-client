@@ -374,6 +374,7 @@ export class ResultAiAssistantComponent {
       organization_type: result.organization_type,
       organization_sub_type: result.organization_sub_type,
       organizations: result.organizations,
+      organizations_detailed: result.organizations_detailed,
       innovation_actors_detailed: result.innovation_actors_detailed
     }));
   }

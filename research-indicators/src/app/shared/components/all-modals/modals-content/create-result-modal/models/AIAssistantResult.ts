@@ -41,8 +41,18 @@ export interface AIAssistantResult {
   organization_type?: string[];
   organization_sub_type?: string;
   organizations?: string[];
+  organizations_detailed?: OrganizationDetailed[];
   innovation_actors_detailed?: InnovationActorDetailed[];
   result_id?: string;
+}
+
+export interface OrganizationDetailed {
+  institution_name?: string;
+  institution_id?: string;
+  similarity_score?: number;
+  type?: string;
+  sub_type?: string;
+  other_type?: string;
 }
 
 export interface CountryArea {
