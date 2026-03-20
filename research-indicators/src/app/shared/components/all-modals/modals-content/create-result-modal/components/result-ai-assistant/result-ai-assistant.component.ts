@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { ToPromiseService } from '../../../../../../services/to-promise.service';
 import { ActionsService } from '../../../../../../services/actions.service';
-import { AIAssistantResult } from '../../models/AIAssistantResult';
+import { AIAssistantResult, OrganizationDetailed } from '../../models/AIAssistantResult';
 import { ResultAiItemComponent } from './components/result-ai-item/result-ai-item.component';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { FileManagerService } from '@shared/services/file-manager.service';
@@ -371,12 +371,28 @@ export class ResultAiAssistantComponent {
       innovation_type: result.innovation_type,
       assess_readiness: result.assess_readiness,
       anticipated_users: result.anticipated_users,
-      organization_type: result.organization_type,
-      organization_sub_type: result.organization_sub_type,
-      organizations: result.organizations,
+      organization_type: result.organization_type ?? this.extractOrganizationTypes(result.organizations_detailed),
+      organization_sub_type: result.organization_sub_type ?? this.extractOrganizationSubTypes(result.organizations_detailed),
+      organizations: result.organizations ?? this.extractOrganizationNames(result.organizations_detailed),
       organizations_detailed: result.organizations_detailed,
       innovation_actors_detailed: result.innovation_actors_detailed
     }));
+  }
+
+  private extractOrganizationTypes(orgs?: OrganizationDetailed[]): string[] {
+    if (!orgs?.length) return [];
+    return [...new Set(orgs.map(o => o.type).filter((t): t is string => !!t))];
+  }
+
+  private extractOrganizationSubTypes(orgs?: OrganizationDetailed[]): string | undefined {
+    if (!orgs?.length) return undefined;
+    const subTypes = orgs.map(o => o.sub_type ?? o.other_type).filter((t): t is string => !!t);
+    return subTypes.length > 0 ? subTypes.join(', ') : undefined;
+  }
+
+  private extractOrganizationNames(orgs?: OrganizationDetailed[]): string[] {
+    if (!orgs?.length) return [];
+    return orgs.map(o => o.institution_name).filter((n): n is string => !!n);
   }
 
   private aggregateJsonContent(
