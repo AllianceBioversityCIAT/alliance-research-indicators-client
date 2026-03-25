@@ -207,31 +207,11 @@
             <p class="result-item-details-value-training-type">{{ item.anticipated_users || 'NOT COLLECTED' }}</p>
           </div>
           <div class="result-item-keywords">
-            <p class="result-item-keywords-title">Organization type</p>
-            <p class="result-item-keywords-arrow">&rarr;</p>
-            <p class="result-item-details-value-training-type">
-              @if (getOrganizationType(item).length > 0) {
-                @for (orgType of getOrganizationType(item); track $index) {
-                  {{ orgType }}
-                }
-              } @else {
-                NOT COLLECTED
-              }
-            </p>
-          </div>
-          <div class="result-item-keywords">
-            <p class="result-item-keywords-title">Organization sub type</p>
-            <p class="result-item-keywords-arrow">&rarr;</p>
-            <p class="result-item-details-value-training-type">{{ item.organization_sub_type || 'NOT COLLECTED' }}</p>
-          </div>
-          <div class="result-item-keywords">
             <p class="result-item-keywords-title">Organizations</p>
             <p class="result-item-keywords-arrow">&rarr;</p>
             <p class="result-item-details-value-training-type">
               @if (getOrganizations(item).length > 0) {
-                @for (org of getOrganizations(item); track $index) {
-                  {{ org }}
-                }
+                {{ getOrganizations(item).join(', ') }}
               } @else {
                 NOT COLLECTED
               }
