@@ -911,46 +911,50 @@ describe('MyProjectsService', () => {
     it('should set direction to DESC when direction is null', async () => {
       await service.main({ 'current-user': true, direction: null });
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ direction: 'DESC', 'order-field': 'contract-code' })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ direction: 'DESC', 'order-field': 'contract-code' }));
     });
 
     it('should set direction to DESC when direction is empty string', async () => {
       await service.main({ 'current-user': true, direction: '' });
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ direction: 'DESC', 'order-field': 'contract-code' })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ direction: 'DESC', 'order-field': 'contract-code' }));
     });
 
     it('should default order-field to contract-code when missing', async () => {
       await service.main({ 'current-user': false, page: 1, limit: 10 });
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'order-field': 'contract-code', direction: 'DESC' })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'order-field': 'contract-code', direction: 'DESC' }));
     });
 
     it('should keep explicit order-field when provided', async () => {
       await service.main({ 'current-user': false, 'order-field': 'project-name', direction: 'ASC' });
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ 'order-field': 'project-name', direction: 'ASC' })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'order-field': 'project-name', direction: 'ASC' }));
     });
 
     it('should not update list when tab changes during request', async () => {
       let resolveApi!: (value: any) => void;
       mockApiService.GET_FindContracts.mockImplementationOnce(
-        () => new Promise(resolve => { resolveApi = resolve; })
+        () =>
+          new Promise(resolve => {
+            resolveApi = resolve;
+          })
       );
 
       const mainPromise = service.main();
       service.myProjectsFilterItem.set({ id: 'different-tab', label: 'Other' });
       resolveApi({
         data: {
-          data: [{ agreement_id: 'X', projectDescription: 'P', description: 'D', project_lead_description: 'L', principal_investigator: 'PI', lever_name: 'Lv' }]
+          data: [
+            {
+              agreement_id: 'X',
+              projectDescription: 'P',
+              description: 'D',
+              project_lead_description: 'L',
+              principal_investigator: 'PI',
+              lever_name: 'Lv'
+            }
+          ]
         }
       });
       await mainPromise;

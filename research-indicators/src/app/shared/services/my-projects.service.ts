@@ -220,8 +220,7 @@ export class MyProjectsService {
     }
 
     const sortField = pagination?.sortField;
-    params['order-field'] =
-      sortField != null && String(sortField).trim() !== '' ? sortField : 'contract-code';
+    params['order-field'] = sortField != null && String(sortField).trim() !== '' ? sortField : 'contract-code';
     params['direction'] = pagination?.sortOrder === 1 ? 'ASC' : 'DESC';
 
     this.appliedFilters.set({ ...filters });
@@ -339,7 +338,6 @@ export class MyProjectsService {
         // do nothing
       }
     }
-
   }
 
   onActiveItemChange = (event: MenuItem): void => {
