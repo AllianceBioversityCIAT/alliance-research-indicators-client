@@ -602,10 +602,12 @@ describe('SelectLinkedResultsModalComponent', () => {
         first: 0
       };
       (component as any).dt2 = mockTable;
-      
+      component.linkedTablePaginatorFirst.set(40);
+
       component.searchInput.set('test search');
       fixture.detectChanges();
-      
+
+      expect(component.linkedTablePaginatorFirst()).toBe(0);
       expect(mockTable.filterGlobal).toHaveBeenCalledWith('test search', 'contains');
     });
 
@@ -902,18 +904,50 @@ describe('SelectLinkedResultsModalComponent', () => {
   });
 
   describe('resetTableToFirstPage', () => {
-    it('should reset dt2.first to 0 when dt2 exists', () => {
+    it('should reset dt2.first and linkedTablePaginatorFirst when dt2 exists', () => {
       const mockTable = { first: 5, filterGlobal: jest.fn() };
       (component as any).dt2 = mockTable;
+      component.linkedTablePaginatorFirst.set(30);
 
       (component as any).resetTableToFirstPage();
 
+      expect(component.linkedTablePaginatorFirst()).toBe(0);
       expect(mockTable.first).toBe(0);
     });
 
     it('should not throw when dt2 is undefined', () => {
       (component as any).dt2 = undefined;
+      component.linkedTablePaginatorFirst.set(10);
       expect(() => (component as any).resetTableToFirstPage()).not.toThrow();
+      expect(component.linkedTablePaginatorFirst()).toBe(0);
+    });
+  });
+
+  describe('onLinkedResultsTablePage', () => {
+    it('should use event.first when rows unchanged', () => {
+      const mockTable = { first: 0, rows: 10, totalRecords: 100 } as any;
+      (component as any).dt2 = mockTable;
+      component.linkedTablePaginatorFirst.set(10);
+      component.linkedTablePaginatorRows.set(10);
+
+      component.onLinkedResultsTablePage({ first: 20, rows: 10 });
+
+      expect(component.linkedTablePaginatorFirst()).toBe(20);
+      expect(mockTable.first).toBe(20);
+    });
+
+    it('should align first when rows per page changes even if event.first is 0', () => {
+      const mockTable = { first: 0, rows: 10, totalRecords: 100 } as any;
+      (component as any).dt2 = mockTable;
+      component.linkedTablePaginatorFirst.set(40);
+      component.linkedTablePaginatorRows.set(10);
+
+      component.onLinkedResultsTablePage({ first: 0, rows: 25 });
+
+      expect(component.linkedTablePaginatorFirst()).toBe(25);
+      expect(component.linkedTablePaginatorRows()).toBe(25);
+      expect(mockTable.first).toBe(25);
+      expect(mockTable.rows).toBe(25);
     });
   });
 
