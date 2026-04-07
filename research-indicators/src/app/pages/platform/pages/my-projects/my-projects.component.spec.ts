@@ -872,11 +872,22 @@ describe('MyProjectsComponent', () => {
   });
 
   describe('onAllProjectsPageChange', () => {
-    it('should update allProjectsFirst and allProjectsRows', () => {
+    it('should use event.first when rows are unchanged', () => {
+      component.allProjectsRows.set(40);
+      component.allProjectsFirst.set(10);
       const event = { first: 30, rows: 40 } as any;
       component.onAllProjectsPageChange(event);
       expect(component.allProjectsFirst()).toBe(30);
       expect(component.allProjectsRows()).toBe(40);
+    });
+
+    it('should align first when rows per page changes', () => {
+      component.allProjectsFirst.set(40);
+      component.allProjectsRows.set(10);
+      const event = { first: 0, rows: 25 } as any;
+      component.onAllProjectsPageChange(event);
+      expect(component.allProjectsFirst()).toBe(25);
+      expect(component.allProjectsRows()).toBe(25);
     });
   });
 
@@ -1030,10 +1041,27 @@ describe('MyProjectsComponent', () => {
   });
 
   describe('onPageChange', () => {
-    it('should set first and rows on page change (with values)', () => {
+    it('should align first from anchor when rows per page changes (not use event.first when Prime sends 0)', () => {
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.allProjectsFirst.set(40);
+      component.allProjectsRows.set(10);
+      component.onPageChange({ first: 0, rows: 25 });
+      expect(component.allProjectsFirst()).toBe(25);
+      expect(component.allProjectsRows()).toBe(25);
+    });
+
+    it('should set first from event when only the page changes (same rows)', () => {
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.allProjectsRows.set(10);
+      component.onPageChange({ first: 10, rows: 10 });
+      expect(component.allProjectsFirst()).toBe(10);
+      expect(component.allProjectsRows()).toBe(10);
+    });
+
+    it('should set first and rows on page change when rows unchanged from default (first from event)', () => {
       component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
       component.onPageChange({ first: 10, rows: 20 });
-      expect(component.allProjectsFirst()).toBe(10);
+      expect(component.allProjectsFirst()).toBe(0);
       expect(component.allProjectsRows()).toBe(20);
     });
 
@@ -1044,11 +1072,21 @@ describe('MyProjectsComponent', () => {
       expect(component.allProjectsRows()).toBe(10);
     });
 
-    it('should set first and rows for my projects tab with values', () => {
+    it('should align first for my tab when rows per page changes', () => {
       component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
-      component.onPageChange({ first: 15, rows: 25 });
-      expect(component.myProjectsFirst()).toBe(15);
+      component.myProjectsFirst.set(40);
+      component.myProjectsRows.set(10);
+      component.onPageChange({ first: 0, rows: 25 });
+      expect(component.myProjectsFirst()).toBe(25);
       expect(component.myProjectsRows()).toBe(25);
+    });
+
+    it('should set first from event for my tab when only page changes', () => {
+      component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
+      component.myProjectsRows.set(10);
+      component.onPageChange({ first: 15, rows: 10 });
+      expect(component.myProjectsFirst()).toBe(15);
+      expect(component.myProjectsRows()).toBe(10);
     });
 
     it('should set default values for my projects tab when undefined', () => {
@@ -1059,8 +1097,9 @@ describe('MyProjectsComponent', () => {
     });
   });
 
-  describe('onAllProjectsPageChange', () => {
-    it('should update allProjectsFirst and allProjectsRows with values', () => {
+  describe('onAllProjectsPageChange (defaults)', () => {
+    it('should use event.first when rows unchanged with explicit rows', () => {
+      component.allProjectsRows.set(40);
       const event = { first: 30, rows: 40 } as any;
       component.onAllProjectsPageChange(event);
       expect(component.allProjectsFirst()).toBe(30);
