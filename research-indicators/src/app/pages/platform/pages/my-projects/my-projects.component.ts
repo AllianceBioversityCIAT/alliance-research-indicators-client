@@ -329,10 +329,16 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       if (newPinnedTab === 'all') {
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
         this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.selectedTab.set('all');
+        this.allProjectsFirst.set(0);
       } else {
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
         this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.selectedTab.set('my');
+        this.myProjectsFirst.set(0);
       }
+
+      this.refreshProjectsWithCurrentContext();
 
       setTimeout(() => {
         this.myProjectsService.cleanMultiselects();
