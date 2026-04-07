@@ -1121,6 +1121,36 @@ describe('MyProjectsComponent', () => {
       expect(component.myProjectsFirst()).toBe(0);
       expect(component.myProjectsRows()).toBe(10);
     });
+
+    it('should call applyFilters on page change when filters are active (preserves status etc.)', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(true);
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.allProjectsFirst.set(20);
+      component.allProjectsRows.set(10);
+      component.sortField.set('agreement_id');
+      component.sortOrder.set(-1);
+
+      component.onPageChange({ first: 30, rows: 10 });
+
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 4, limit: 10, sortField: 'contract-code', sortOrder: -1, query: undefined })
+      );
+      expect(mockMyProjectsService.main).not.toHaveBeenCalled();
+    });
+
+    it('should call applyFilters on page change when search query is set on all tab', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
+      mockMyProjectsService.searchInput.set('find-me');
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.allProjectsFirst.set(0);
+      component.allProjectsRows.set(10);
+
+      component.onPageChange({ first: 10, rows: 10 });
+
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 2, limit: 10, query: 'find-me' })
+      );
+    });
   });
 
   describe('onAllProjectsPageChange (defaults)', () => {
@@ -1141,7 +1171,8 @@ describe('MyProjectsComponent', () => {
   });
 
   describe('onSort', () => {
-    it('should set sort, reset first and call loadMyProjectsWithPagination when on my tab', () => {
+    it('should set sort, reset first and call applyFilters when on my tab with search query', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
       component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
       component['_searchValue'].set('my-query');
       component.myProjectsFirst.set(10);
@@ -1152,20 +1183,21 @@ describe('MyProjectsComponent', () => {
       expect(component.sortField()).toBe('description');
       expect(component.sortOrder()).toBe(1);
       expect(component.myProjectsFirst()).toBe(0);
-      expect(mockMyProjectsService.main).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': true, page: 1, query: 'my-query', 'order-field': 'project-name', direction: 'ASC' })
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 1, limit: 10, query: 'my-query', sortField: 'project-name', sortOrder: 1 })
       );
     });
 
-    it('should call loadAllProjectsWithPagination when on all tab', () => {
+    it('should call applyFilters when on all tab with search query', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
       component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
       mockMyProjectsService.searchInput.set('all-query');
 
       component.onSort({ field: 'agreement_id', order: -1 });
 
       expect(component.allProjectsFirst()).toBe(0);
-      expect(mockMyProjectsService.main).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': false, 'order-field': 'contract-code', direction: 'DESC' })
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 1, limit: 10, query: 'all-query', sortField: 'contract-code', sortOrder: -1 })
       );
     });
 

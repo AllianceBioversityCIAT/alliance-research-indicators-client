@@ -200,14 +200,14 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       const nextFirst = previousRows === newRows ? (event.first ?? 0) : this.alignFirstAfterRowsChange(previousFirst, newRows);
       this.myProjectsFirst.set(nextFirst);
       this.myProjectsRows.set(newRows);
-      this.loadMyProjectsWithPagination();
+      this.refreshProjectsWithCurrentContext();
     } else {
       const previousFirst = this.allProjectsFirst();
       const previousRows = this.allProjectsRows();
       const nextFirst = previousRows === newRows ? (event.first ?? 0) : this.alignFirstAfterRowsChange(previousFirst, newRows);
       this.allProjectsFirst.set(nextFirst);
       this.allProjectsRows.set(newRows);
-      this.loadAllProjectsWithPagination();
+      this.refreshProjectsWithCurrentContext();
     }
   }
 
@@ -218,7 +218,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
     const nextFirst = previousRows === newRows ? (event.first ?? 0) : this.alignFirstAfterRowsChange(previousFirst, newRows);
     this.allProjectsFirst.set(nextFirst);
     this.allProjectsRows.set(newRows);
-    this.loadAllProjectsWithPagination();
+    this.refreshProjectsWithCurrentContext();
   }
 
   private alignFirstAfterRowsChange(anchorFirst: number, newRows: number): number {
@@ -549,15 +549,12 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
     this.sortField.set(event.field);
     this.sortOrder.set(event.order);
 
-    const currentQuery = this.myProjectsFilterItem()?.id === 'my' ? this._searchValue() : this.myProjectsService.searchInput();
-
     if (this.myProjectsFilterItem()?.id === 'my') {
       this.myProjectsFirst.set(0);
-      this.loadMyProjectsWithPagination(currentQuery || undefined);
     } else {
       this.allProjectsFirst.set(0);
-      this.loadAllProjectsWithPagination(currentQuery || undefined);
     }
+    this.refreshProjectsWithCurrentContext();
   }
 
   applyFilters(): void {
@@ -591,6 +588,36 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
 
   private getCurrentLimit(): number {
     return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsRows() : this.allProjectsRows();
+  }
+
+  /**
+   * After page/rows/sort change: reload via applyFilters when sidebar filters or backend search are active,
+   * otherwise use main() with pagination only (load*WithPagination).
+   */
+  private refreshProjectsWithCurrentContext(): void {
+    const currentQuery = this.myProjectsFilterItem()?.id === 'my' ? this._searchValue() : this.myProjectsService.searchInput();
+    const page = this.getCurrentPage();
+    const limit = this.getCurrentLimit();
+    const tableField = this.sortField();
+    const sortOrder = this.sortOrder();
+    const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
+
+    if (this.myProjectsService.hasFilters() || !!currentQuery) {
+      this.myProjectsService.applyFilters({
+        page,
+        limit,
+        sortField: apiField,
+        sortOrder,
+        query: currentQuery || undefined
+      });
+      return;
+    }
+
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this.loadMyProjectsWithPagination();
+    } else {
+      this.loadAllProjectsWithPagination();
+    }
   }
 
   private loadMyProjectsWithPagination(query?: string) {
