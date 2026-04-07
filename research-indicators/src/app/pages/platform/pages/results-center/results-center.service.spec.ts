@@ -853,13 +853,22 @@ describe('ResultsCenterService', () => {
       expect(tableMock.rows).toBe(25);
     });
 
-    it('should clamp first to last page when aligned index exceeds total', () => {
+    it('should clamp first to last standard page when aligned index exceeds total (no total - rows overlap)', () => {
       const tableMock = { first: 0, rows: 10, totalRecords: 60 } as any;
       service.tableRef.set(tableMock);
       service.resultsTablePaginatorFirst.set(50);
       service.resultsTablePaginatorRows.set(10);
       service.handleResultsTablePage({ first: 0, rows: 25 });
-      expect(service.resultsTablePaginatorFirst()).toBe(35);
+      expect(service.resultsTablePaginatorFirst()).toBe(50);
+    });
+
+    it('should clamp to lastPageFirst = floor((total-1)/rows)*rows when same rows (e.g. total 33, rows 10 → first 30)', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 33 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTablePaginatorFirst.set(0);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTablePage({ first: 50, rows: 10 });
+      expect(service.resultsTablePaginatorFirst()).toBe(30);
     });
   });
 

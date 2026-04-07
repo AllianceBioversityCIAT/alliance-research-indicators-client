@@ -239,7 +239,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
     if (this.myProjectsFilterItem()?.id === 'my') {
       const previousFirst = this.myProjectsFirst();
       const previousRows = this.myProjectsRows();
-      const nextFirst = previousRows === newRows ? (event.first ?? 0) : this.alignFirstAfterRowsChange(previousFirst, newRows);
+      const nextFirst =
+        previousRows === newRows
+          ? this.clampProjectsPaginatorFirst(event.first ?? 0, newRows)
+          : this.alignFirstAfterRowsChange(previousFirst, newRows);
       if (nextFirst === previousFirst && newRows === previousRows) {
         return;
       }
@@ -249,7 +252,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
     } else {
       const previousFirst = this.allProjectsFirst();
       const previousRows = this.allProjectsRows();
-      const nextFirst = previousRows === newRows ? (event.first ?? 0) : this.alignFirstAfterRowsChange(previousFirst, newRows);
+      const nextFirst =
+        previousRows === newRows
+          ? this.clampProjectsPaginatorFirst(event.first ?? 0, newRows)
+          : this.alignFirstAfterRowsChange(previousFirst, newRows);
       if (nextFirst === previousFirst && newRows === previousRows) {
         return;
       }
@@ -263,7 +269,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
     const newRows = event.rows ?? 10;
     const previousFirst = this.allProjectsFirst();
     const previousRows = this.allProjectsRows();
-    const nextFirst = previousRows === newRows ? (event.first ?? 0) : this.alignFirstAfterRowsChange(previousFirst, newRows);
+    const nextFirst =
+      previousRows === newRows
+        ? this.clampProjectsPaginatorFirst(event.first ?? 0, newRows)
+        : this.alignFirstAfterRowsChange(previousFirst, newRows);
     if (nextFirst === previousFirst && newRows === previousRows) {
       return;
     }
@@ -272,17 +281,23 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
     this.refreshProjectsWithCurrentContext();
   }
 
-  private alignFirstAfterRowsChange(anchorFirst: number, newRows: number): number {
-    const safeRows = newRows > 0 ? newRows : 10;
-    let newFirst = Math.floor(anchorFirst / safeRows) * safeRows;
+  private clampProjectsPaginatorFirst(first: number, rows: number): number {
+    const safeRows = rows > 0 ? rows : 10;
     const total = this.myProjectsService.totalRecords();
+    let f = Math.floor((first ?? 0) / safeRows) * safeRows;
     if (total > 0) {
-      const maxFirst = Math.max(0, total - safeRows);
-      if (newFirst > maxFirst) {
-        newFirst = maxFirst;
+      const lastPageFirst = Math.max(0, Math.floor((total - 1) / safeRows) * safeRows);
+      if (f > lastPageFirst) {
+        f = lastPageFirst;
       }
     }
-    return newFirst;
+    return Math.max(0, f);
+  }
+
+  private alignFirstAfterRowsChange(anchorFirst: number, newRows: number): number {
+    const safeRows = newRows > 0 ? newRows : 10;
+    const candidate = Math.floor(anchorFirst / safeRows) * safeRows;
+    return this.clampProjectsPaginatorFirst(candidate, newRows);
   }
 
   ngOnInit(): void {

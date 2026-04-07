@@ -899,12 +899,13 @@ describe('MyProjectsComponent', () => {
   });
 
   describe('onAllProjectsPageChange', () => {
-    it('should use event.first when rows are unchanged', () => {
+    it('should use event.first when rows are unchanged (first must align to rows grid)', () => {
+      mockMyProjectsService.totalRecords.set(120);
       component.allProjectsRows.set(40);
-      component.allProjectsFirst.set(10);
-      const event = { first: 30, rows: 40 } as any;
+      component.allProjectsFirst.set(40);
+      const event = { first: 80, rows: 40 } as any;
       component.onAllProjectsPageChange(event);
-      expect(component.allProjectsFirst()).toBe(30);
+      expect(component.allProjectsFirst()).toBe(80);
       expect(component.allProjectsRows()).toBe(40);
     });
 
@@ -917,7 +918,7 @@ describe('MyProjectsComponent', () => {
       expect(component.allProjectsRows()).toBe(25);
     });
 
-    it('should clamp first to maxFirst when aligned index exceeds total records', () => {
+    it('should clamp first to last standard page when aligned index exceeds total (floor((total-1)/rows)*rows)', () => {
       mockMyProjectsService.totalRecords.set(30);
       component.allProjectsFirst.set(40);
       component.allProjectsRows.set(10);
@@ -925,9 +926,19 @@ describe('MyProjectsComponent', () => {
 
       component.onAllProjectsPageChange({ first: 0, rows: 25 });
 
-      // floor(40/25)*25 = 25; maxFirst = max(0, 30 - 25) = 5 → clamp to 5
-      expect(component.allProjectsFirst()).toBe(5);
+      expect(component.allProjectsFirst()).toBe(25);
       expect(component.allProjectsRows()).toBe(25);
+    });
+
+    it('should clamp same-rows navigation to lastPageFirst for total 33 and rows 10', () => {
+      mockMyProjectsService.totalRecords.set(33);
+      component.allProjectsFirst.set(0);
+      component.allProjectsRows.set(10);
+      jest.spyOn(component as any, 'loadAllProjectsWithPagination').mockImplementation();
+
+      component.onAllProjectsPageChange({ first: 50, rows: 10 });
+
+      expect(component.allProjectsFirst()).toBe(30);
     });
 
     it('should use safeRows of 10 when event.rows is 0 (alignFirstAfterRowsChange)', () => {
@@ -1194,11 +1205,12 @@ describe('MyProjectsComponent', () => {
   });
 
   describe('onAllProjectsPageChange (defaults)', () => {
-    it('should use event.first when rows unchanged with explicit rows', () => {
+    it('should use event.first when rows unchanged with explicit rows (aligned to grid)', () => {
+      mockMyProjectsService.totalRecords.set(120);
       component.allProjectsRows.set(40);
-      const event = { first: 30, rows: 40 } as any;
+      const event = { first: 80, rows: 40 } as any;
       component.onAllProjectsPageChange(event);
-      expect(component.allProjectsFirst()).toBe(30);
+      expect(component.allProjectsFirst()).toBe(80);
       expect(component.allProjectsRows()).toBe(40);
     });
 

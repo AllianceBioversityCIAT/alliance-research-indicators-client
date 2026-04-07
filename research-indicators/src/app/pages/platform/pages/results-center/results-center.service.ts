@@ -464,7 +464,10 @@ export class ResultsCenterService {
     const previousRows = this.resultsTablePaginatorRows();
     const table = this.tableRef();
     const total = this.getResultsTablePaginatorTotalRecords(table);
-    const nextFirst = previousRows === newRows ? (event.first ?? 0) : this.alignResultsTableFirstAfterRowsChange(previousFirst, newRows, total);
+    const nextFirst =
+      previousRows === newRows
+        ? this.clampPaginatorFirstToStandardGrid(event.first ?? 0, newRows, total)
+        : this.alignResultsTableFirstAfterRowsChange(previousFirst, newRows, total);
     this.resultsTablePaginatorFirst.set(nextFirst);
     this.resultsTablePaginatorRows.set(newRows);
     if (table) {
@@ -480,16 +483,23 @@ export class ResultsCenterService {
     return this.resultsListForTable().length;
   }
 
-  private alignResultsTableFirstAfterRowsChange(anchorFirst: number, newRows: number, total: number): number {
-    const safeRows = newRows > 0 ? newRows : 10;
-    let newFirst = Math.floor(anchorFirst / safeRows) * safeRows;
+  /** Keeps `first` on a standard page boundary: multiples of `rows`, last page = floor((total-1)/rows)*rows. */
+  private clampPaginatorFirstToStandardGrid(first: number, rows: number, total: number): number {
+    const safeRows = rows > 0 ? rows : 10;
+    let f = Math.floor((first ?? 0) / safeRows) * safeRows;
     if (total > 0) {
-      const maxFirst = Math.max(0, total - safeRows);
-      if (newFirst > maxFirst) {
-        newFirst = maxFirst;
+      const lastPageFirst = Math.max(0, Math.floor((total - 1) / safeRows) * safeRows);
+      if (f > lastPageFirst) {
+        f = lastPageFirst;
       }
     }
-    return newFirst;
+    return Math.max(0, f);
+  }
+
+  private alignResultsTableFirstAfterRowsChange(anchorFirst: number, newRows: number, total: number): number {
+    const safeRows = newRows > 0 ? newRows : 10;
+    const candidate = Math.floor(anchorFirst / safeRows) * safeRows;
+    return this.clampPaginatorFirstToStandardGrid(candidate, newRows, total);
   }
 
   private resetResultsTablePaginatorToFirstPage(): void {
