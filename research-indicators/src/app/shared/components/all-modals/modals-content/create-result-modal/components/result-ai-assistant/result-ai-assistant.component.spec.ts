@@ -35,7 +35,7 @@ describe('ResultAiAssistantComponent', () => {
   function createFile(name: string, sizeBytes = 1000, content = 'dummy') {
     const file = new File([content], name, { type: 'application/octet-stream' });
     Object.defineProperty(file, 'size', { value: sizeBytes });
-    (file).arrayBuffer = jest.fn().mockResolvedValue(new TextEncoder().encode(content).buffer);
+    file.arrayBuffer = jest.fn().mockResolvedValue(new TextEncoder().encode(content).buffer);
     return file;
   }
 
@@ -105,7 +105,10 @@ describe('ResultAiAssistantComponent', () => {
   });
 
   it('should load badTypes from GET_IssueCategories in constructor', async () => {
-    const categories = [{ id: 1, name: 'Category A' }, { id: 2, name: 'Category B' }];
+    const categories = [
+      { id: 1, name: 'Category A' },
+      { id: 2, name: 'Category B' }
+    ];
     (apiServiceMock.GET_IssueCategories as jest.Mock).mockResolvedValue({ data: categories });
     const f = TestBed.createComponent(ResultAiAssistantComponent);
     f.detectChanges();
@@ -261,7 +264,11 @@ describe('ResultAiAssistantComponent', () => {
     component.selectedFile = file;
     textMiningServiceMock.executeTextMining.mockResolvedValueOnce({ content: [] });
     await component.handleAnalyzingDocument();
-    expect(actionsServiceMock.showToast).toHaveBeenCalledWith({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
+    expect(actionsServiceMock.showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Something went wrong. Please try again.'
+    });
     expect(component.documentAnalyzed()).toBe(false);
   });
 
@@ -485,14 +492,39 @@ describe('ResultAiAssistantComponent', () => {
 
   it('mapResultRawAiToAIAssistantResult should coalesce optional fields and contract_code', () => {
     component.body.update(b => ({ ...b, contract_id: '123' }));
-    const input = [{
-      indicator: 'i', title: 't', description: 'd', keywords: [], geoscope_level: 'global', regions: [], countries: [],
-      training_type: 'tt', length_of_training: 1, start_date: 's', end_date: 'e', degree: 'deg', delivery_modality: 'dm',
-      total_participants: 10, evidence_for_stage: 'ev', policy_type: 'pol',
-      main_contact_person: { name: 'n l', code: 'c', similarity_score: 0.8 }, stage_in_policy_process: 'st',
-      male_participants: undefined, female_participants: undefined, non_binary_participants: undefined,
-      innovation_nature: 'in', innovation_type: 'it', assess_readiness: 'ar', anticipated_users: 'au', organization_type: 'ot', organization_sub_type: 'ost', organizations: [], innovation_actors_detailed: []
-    }];
+    const input = [
+      {
+        indicator: 'i',
+        title: 't',
+        description: 'd',
+        keywords: [],
+        geoscope_level: 'global',
+        regions: [],
+        countries: [],
+        training_type: 'tt',
+        length_of_training: 1,
+        start_date: 's',
+        end_date: 'e',
+        degree: 'deg',
+        delivery_modality: 'dm',
+        total_participants: 10,
+        evidence_for_stage: 'ev',
+        policy_type: 'pol',
+        main_contact_person: { name: 'n l', code: 'c', similarity_score: 0.8 },
+        stage_in_policy_process: 'st',
+        male_participants: undefined,
+        female_participants: undefined,
+        non_binary_participants: undefined,
+        innovation_nature: 'in',
+        innovation_type: 'it',
+        assess_readiness: 'ar',
+        anticipated_users: 'au',
+        organization_type: 'ot',
+        organization_sub_type: 'ost',
+        organizations: [],
+        innovation_actors_detailed: []
+      }
+    ];
     const out = (component as any).mapResultRawAiToAIAssistantResult(input);
     expect(out[0].geoscope_level).toBe('global');
     expect(out[0].regions).toEqual([]);
@@ -533,13 +565,10 @@ describe('ResultAiAssistantComponent', () => {
     it('extractOrganizationNames should return [] when missing or empty and filter empty names', () => {
       expect((component as any).extractOrganizationNames(undefined)).toEqual([]);
       expect((component as any).extractOrganizationNames([])).toEqual([]);
-      expect(
-        (component as any).extractOrganizationNames([
-          { institution_name: 'A' },
-          { institution_name: '' },
-          { institution_name: 'B' }
-        ])
-      ).toEqual(['A', 'B']);
+      expect((component as any).extractOrganizationNames([{ institution_name: 'A' }, { institution_name: '' }, { institution_name: 'B' }])).toEqual([
+        'A',
+        'B'
+      ]);
     });
 
     it('mapResultRawAiToAIAssistantResult should derive org fields from organizations_detailed when omitted', () => {
@@ -590,7 +619,11 @@ describe('ResultAiAssistantComponent', () => {
     component.selectedFile = file;
     fileManagerServiceMock.uploadFile.mockResolvedValueOnce({ data: { filename: '' } });
     await expect(component.handleAnalyzingDocument()).rejects.toBeInstanceOf(Error);
-    expect(actionsServiceMock.showToast).toHaveBeenCalledWith({ severity: 'error', summary: 'Error', detail: 'Something went wrong. Please try again.' });
+    expect(actionsServiceMock.showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Something went wrong. Please try again.'
+    });
   });
 
   it('handleAnalyzingDocument should ignore parse errors and continue', async () => {
@@ -604,14 +637,14 @@ describe('ResultAiAssistantComponent', () => {
   it('onContractIdChange should update contractId and body', () => {
     const newContractId = 'contract-123';
     component.onContractIdChange(newContractId);
-    
+
     expect(component.contractId).toBe(newContractId);
     expect(component.body().contract_id).toBe(newContractId);
   });
 
   it('onContractIdChange should handle null contractId', () => {
     component.onContractIdChange(null);
-    
+
     expect(component.contractId).toBe(null);
     expect(component.body().contract_id).toBe(null);
   });
@@ -725,10 +758,7 @@ describe('ResultAiAssistantComponent', () => {
     const file = createFile('a.pdf');
     component.selectedFile = file;
     textMiningServiceMock.executeTextMining.mockResolvedValueOnce({
-      content: [
-        { text: JSON.stringify({ json_content: { results: [{ title: 'valid' }] } }) },
-        { notext: 'should be skipped' }
-      ]
+      content: [{ text: JSON.stringify({ json_content: { results: [{ title: 'valid' }] } }) }, { notext: 'should be skipped' }]
     });
     await component.handleAnalyzingDocument();
     expect(component.documentAnalyzed()).toBe(true);
@@ -830,7 +860,10 @@ describe('ResultAiAssistantComponent', () => {
   });
 
   it('submitFeedback should include selected issue category names in comment when negative', async () => {
-    component.badTypes = [{ id: 1, name: 'Wrong format' }, { id: 2, name: 'Incomplete data' }];
+    component.badTypes = [
+      { id: 1, name: 'Wrong format' },
+      { id: 2, name: 'Incomplete data' }
+    ];
     component.feedbackType.set('negative');
     component.selectedType = ['1', '2'];
     component.body.update(b => ({ ...b, feedbackText: 'Extra notes' }));
@@ -917,5 +950,3 @@ describe('ResultAiAssistantComponent', () => {
     expect(result.results).toEqual([{ title: 'existing' }]);
   });
 });
-
-
