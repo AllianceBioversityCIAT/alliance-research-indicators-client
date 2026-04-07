@@ -345,7 +345,6 @@ export class MyProjectsService {
   onActiveItemChange = (event: MenuItem): void => {
     this.myProjectsFilterItem.set(event);
     this.resetFilters();
-    this.main(this.getBaseParams());
   };
 
   showFilterSidebar(): void {
@@ -369,12 +368,10 @@ export class MyProjectsService {
 
   clearAllFilters() {
     this.resetFilters();
-    this.main({ ...this.getBaseParams(), page: 1, limit: 10 });
   }
 
   clearFilters() {
     this.resetFilters();
-    this.main({ ...this.getBaseParams(), page: 1, limit: 10 });
   }
 
   refresh() {

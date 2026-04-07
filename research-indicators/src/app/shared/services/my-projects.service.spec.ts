@@ -1522,6 +1522,7 @@ describe('MyProjectsService', () => {
 
   describe('onActiveItemChange', () => {
     it('should change filter item and reset filters', () => {
+      jest.clearAllMocks();
       const newItem: MenuItem = { id: 'my', label: 'My Projects' };
 
       service.onActiveItemChange(newItem);
@@ -1530,14 +1531,7 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({
-          'current-user': true,
-          'with-indicators': false,
-          'order-field': 'contract-code',
-          direction: 'DESC'
-        })
-      );
+      expect(mockApiService.GET_FindContracts).not.toHaveBeenCalled();
     });
   });
 
@@ -1608,24 +1602,26 @@ describe('MyProjectsService', () => {
   });
 
   describe('clearAllFilters', () => {
-    it('should clear all filters and refresh', () => {
+    it('should clear all filters without fetching (caller reloads)', () => {
+      jest.clearAllMocks();
       service.clearAllFilters();
 
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false, page: 1, limit: 10 }));
+      expect(mockApiService.GET_FindContracts).not.toHaveBeenCalled();
     });
   });
 
   describe('clearFilters', () => {
-    it('should clear filters and refresh', () => {
+    it('should clear filters without fetching (caller reloads)', () => {
+      jest.clearAllMocks();
       service.clearFilters();
 
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false, page: 1, limit: 10 }));
+      expect(mockApiService.GET_FindContracts).not.toHaveBeenCalled();
     });
   });
 

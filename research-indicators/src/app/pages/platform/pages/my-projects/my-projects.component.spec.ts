@@ -182,7 +182,9 @@ describe('MyProjectsComponent', () => {
         isTableView: false,
         sortField: 'description',
         sortOrder: 1,
-        selectedTab: 'my'
+        selectedTab: 'my',
+        tableScrollTopMy: 0,
+        tableScrollTopAll: 0
       });
     });
   });
@@ -301,6 +303,31 @@ describe('MyProjectsComponent', () => {
       expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
       expect(applyPinnedTabDefaultSpy).toHaveBeenCalledWith('my');
       expect(loadCurrentTabStateSpy).not.toHaveBeenCalled();
+    });
+
+    it('should sync service tab from view state when only component state was restored', async () => {
+      mockMyProjectsService.restorePersistedState.mockReturnValue(false);
+      sessionStorage.setItem(
+        'my-projects-component-state',
+        JSON.stringify({
+          selectedTab: 'my',
+          myProjectsFirst: 20,
+          myProjectsRows: 10,
+          allProjectsFirst: 0,
+          allProjectsRows: 10,
+          isTableView: true,
+          sortField: 'agreement_id',
+          sortOrder: -1
+        })
+      );
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const loadCurrentTabStateSpy = jest.spyOn(component as any, 'loadCurrentTabState').mockImplementation();
+
+      await (component as any).initializeState();
+
+      expect(mockMyProjectsService.myProjectsFilterItem()?.id).toBe('my');
+      expect(component.myProjectsFilterItem()?.id).toBe('my');
+      expect(loadCurrentTabStateSpy).toHaveBeenCalled();
     });
   });
 
@@ -538,7 +565,7 @@ describe('MyProjectsComponent', () => {
       expect(component.selectedTab()).toBe('my');
       expect(component.myProjectsFirst()).toBe(0);
       expect(component.searchValue).toBe('');
-      expect(mockMyProjectsService.clearFilters).toHaveBeenCalled();
+      expect(mockMyProjectsService.resetFilters).toHaveBeenCalled();
       expect(component.loadMyProjects).toHaveBeenCalled();
     });
 
@@ -552,7 +579,7 @@ describe('MyProjectsComponent', () => {
       expect(component.selectedTab()).toBe('all');
       expect(component.allProjectsFirst()).toBe(0);
       expect(component.searchValue).toBe('');
-      expect(mockMyProjectsService.clearFilters).toHaveBeenCalled();
+      expect(mockMyProjectsService.resetFilters).toHaveBeenCalled();
       expect(component.loadAllProjects).toHaveBeenCalled();
     });
   });
@@ -1150,6 +1177,19 @@ describe('MyProjectsComponent', () => {
       expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
         expect.objectContaining({ page: 2, limit: 10, query: 'find-me' })
       );
+    });
+
+    it('should not refetch when paginator repeats the same first and rows (avoids duplicate GET_FindContracts)', () => {
+      jest.clearAllMocks();
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.allProjectsFirst.set(0);
+      component.allProjectsRows.set(10);
+
+      component.onPageChange({ first: 0, rows: 10 });
+
+      expect(mockMyProjectsService.applyFilters).not.toHaveBeenCalled();
+      expect(mockMyProjectsService.main).not.toHaveBeenCalled();
     });
   });
 
