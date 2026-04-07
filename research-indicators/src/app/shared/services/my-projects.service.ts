@@ -126,10 +126,13 @@ export class MyProjectsService {
         ...(params ?? {})
       };
 
-      if (finalParams['current-user'] === true) {
-        if (!('direction' in finalParams) || finalParams['direction'] == null || finalParams['direction'] === '') {
-          finalParams['direction'] = 'DESC';
-        }
+      const orderFieldRaw = finalParams['order-field'];
+      if (orderFieldRaw == null || orderFieldRaw === '') {
+        finalParams['order-field'] = 'contract-code';
+      }
+
+      if (finalParams['direction'] == null || finalParams['direction'] === '') {
+        finalParams['direction'] = 'DESC';
       }
 
       const response = await this.api.GET_FindContracts(finalParams);
@@ -216,11 +219,10 @@ export class MyProjectsService {
       params['end-date'] = endDate.toISOString().slice(0, 23);
     }
 
-    // Add sort parameters
-    if (pagination?.sortField) {
-      params['order-field'] = pagination.sortField;
-      params['direction'] = pagination.sortOrder === 1 ? 'ASC' : 'DESC';
-    }
+    const sortField = pagination?.sortField;
+    params['order-field'] =
+      sortField != null && String(sortField).trim() !== '' ? sortField : 'contract-code';
+    params['direction'] = pagination?.sortOrder === 1 ? 'ASC' : 'DESC';
 
     this.appliedFilters.set({ ...filters });
 
