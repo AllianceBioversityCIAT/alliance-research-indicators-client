@@ -10,6 +10,7 @@ import { GetContractsService } from '@shared/services/control-list/get-contracts
 import { CreateResultManagementService } from '../../services/create-result-management.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { signal } from '@angular/core';
+import { OrganizationDetailed } from '../../models/AIAssistantResult';
 
 jest.mock('pdfjs-dist', () => {
   return {
@@ -500,6 +501,88 @@ describe('ResultAiAssistantComponent', () => {
     expect(out[0].female_participants).toBe(0);
     expect(out[0].non_binary_participants).toBe('0');
     expect(out[0].contract_code).toBe('123');
+  });
+
+  describe('organization extraction helpers', () => {
+    it('extractOrganizationTypes should return [] when missing or empty and unique types when present', () => {
+      expect((component as any).extractOrganizationTypes(undefined)).toEqual([]);
+      expect((component as any).extractOrganizationTypes([])).toEqual([]);
+      const orgs: OrganizationDetailed[] = [
+        { type: 'Gov', institution_name: 'a' },
+        { type: 'Gov', institution_name: 'b' },
+        { type: undefined, institution_name: 'c' },
+        { type: 'NGO', institution_name: 'd' }
+      ];
+      expect((component as any).extractOrganizationTypes(orgs)).toEqual(['Gov', 'NGO']);
+    });
+
+    it('extractOrganizationSubTypes should return undefined when empty or no subtypes', () => {
+      expect((component as any).extractOrganizationSubTypes(undefined)).toBeUndefined();
+      expect((component as any).extractOrganizationSubTypes([])).toBeUndefined();
+      expect((component as any).extractOrganizationSubTypes([{ type: 't', institution_name: 'n' }])).toBeUndefined();
+    });
+
+    it('extractOrganizationSubTypes should join sub_type and other_type', () => {
+      const orgs: OrganizationDetailed[] = [
+        { sub_type: 's1', institution_name: 'a' },
+        { other_type: 'o2', institution_name: 'b' }
+      ];
+      expect((component as any).extractOrganizationSubTypes(orgs)).toBe('s1, o2');
+    });
+
+    it('extractOrganizationNames should return [] when missing or empty and filter empty names', () => {
+      expect((component as any).extractOrganizationNames(undefined)).toEqual([]);
+      expect((component as any).extractOrganizationNames([])).toEqual([]);
+      expect(
+        (component as any).extractOrganizationNames([
+          { institution_name: 'A' },
+          { institution_name: '' },
+          { institution_name: 'B' }
+        ])
+      ).toEqual(['A', 'B']);
+    });
+
+    it('mapResultRawAiToAIAssistantResult should derive org fields from organizations_detailed when omitted', () => {
+      component.body.update(b => ({ ...b, contract_id: 'CID' }));
+      const base = {
+        indicator: 'Innovation Development',
+        title: 't',
+        description: 'd',
+        keywords: [] as string[],
+        geoscope_level: 'g',
+        regions: [] as string[],
+        countries: [],
+        training_type: '',
+        length_of_training: '',
+        start_date: '',
+        end_date: '',
+        degree: '',
+        delivery_modality: '',
+        total_participants: 0,
+        evidence_for_stage: '',
+        policy_type: '',
+        main_contact_person: { name: 'n', code: '', similarity_score: 0 },
+        stage_in_policy_process: '',
+        innovation_nature: 'in',
+        innovation_type: 'it',
+        assess_readiness: 1,
+        anticipated_users: 'au',
+        innovation_actors_detailed: [] as []
+      };
+      const input = [
+        {
+          ...base,
+          organizations_detailed: [
+            { type: 'Univ', sub_type: 'Dept', institution_name: 'U1' },
+            { type: 'Univ', other_type: 'Lab', institution_name: 'U2' }
+          ]
+        }
+      ];
+      const out = (component as any).mapResultRawAiToAIAssistantResult(input);
+      expect(out[0].organization_type).toEqual(['Univ']);
+      expect(out[0].organization_sub_type).toBe('Dept, Lab');
+      expect(out[0].organizations).toEqual(['U1', 'U2']);
+    });
   });
 
   it('handleAnalyzingDocument should throw and toast on upload missing filename', async () => {

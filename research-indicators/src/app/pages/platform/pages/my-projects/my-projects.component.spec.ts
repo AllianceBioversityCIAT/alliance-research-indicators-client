@@ -889,6 +889,32 @@ describe('MyProjectsComponent', () => {
       expect(component.allProjectsFirst()).toBe(25);
       expect(component.allProjectsRows()).toBe(25);
     });
+
+    it('should clamp first to maxFirst when aligned index exceeds total records', () => {
+      mockMyProjectsService.totalRecords.set(30);
+      component.allProjectsFirst.set(40);
+      component.allProjectsRows.set(10);
+      jest.spyOn(component as any, 'loadAllProjectsWithPagination').mockImplementation();
+
+      component.onAllProjectsPageChange({ first: 0, rows: 25 });
+
+      // floor(40/25)*25 = 25; maxFirst = max(0, 30 - 25) = 5 → clamp to 5
+      expect(component.allProjectsFirst()).toBe(5);
+      expect(component.allProjectsRows()).toBe(25);
+    });
+
+    it('should use safeRows of 10 when event.rows is 0 (alignFirstAfterRowsChange)', () => {
+      mockMyProjectsService.totalRecords.set(100);
+      component.allProjectsFirst.set(25);
+      component.allProjectsRows.set(10);
+      jest.spyOn(component as any, 'loadAllProjectsWithPagination').mockImplementation();
+
+      component.onAllProjectsPageChange({ first: 0, rows: 0 });
+
+      // newRows 0 → safeRows 10; floor(25/10)*10 = 20
+      expect(component.allProjectsFirst()).toBe(20);
+      expect(component.allProjectsRows()).toBe(0);
+    });
   });
 
   describe('orderedFilterItems', () => {
