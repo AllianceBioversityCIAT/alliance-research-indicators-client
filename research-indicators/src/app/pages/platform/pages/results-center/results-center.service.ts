@@ -7,6 +7,7 @@ import { TableColumn } from './result-center.interface';
 import { TableFilters } from './class/table.filters.class';
 import { GetAllIndicators } from '../../../../shared/interfaces/get-all-indicators.interface';
 import { Table } from 'primeng/table';
+import { ObjectUtils } from 'primeng/utils';
 import { ApiService } from '../../../../shared/services/api.service';
 import { MultiselectComponent } from '../../../../shared/components/custom-fields/multiselect/multiselect.component';
 
@@ -17,6 +18,8 @@ interface ResultsCenterPersistedState {
   appliedFilters: ResultFilter;
   searchInput: string;
   primaryContractId: string | null;
+  resultsTablePaginatorFirst: number;
+  resultsTablePaginatorRows: number;
 }
 @Injectable({
   providedIn: 'root'
@@ -164,6 +167,25 @@ export class ResultsCenterService {
       .flatMap(column => column.filterPaths ?? [column.path])
   );
 
+  resultsListForTable = computed(() => {
+    const items = this.list();
+    const q = (this.searchInput() ?? '').trim().toLowerCase();
+    if (!q) {
+      return items;
+    }
+    const paths = this.getAllPathsAsArray();
+    return items.filter(row =>
+      paths.some(path => {
+        const raw = ObjectUtils.resolveFieldData(row, path);
+        if (raw == null) {
+          return false;
+        }
+        const text = Array.isArray(raw) ? raw.map(String).join(' ') : String(raw);
+        return text.toLowerCase().includes(q);
+      })
+    );
+  });
+
   resultsFilter = signal<ResultFilter>({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
   primaryContractId = signal<string | null>(null);
   resultsConfig = signal<ResultConfig>({
@@ -199,7 +221,9 @@ export class ResultsCenterService {
       resultsFilter: this.resultsFilter(),
       appliedFilters: this.appliedFilters(),
       searchInput: this.searchInput(),
-      primaryContractId: this.primaryContractId()
+      primaryContractId: this.primaryContractId(),
+      resultsTablePaginatorFirst: this.resultsTablePaginatorFirst(),
+      resultsTablePaginatorRows: this.resultsTablePaginatorRows()
     };
 
     globalThis.sessionStorage?.setItem(this.getStorageKey(activeKey), JSON.stringify(state));
@@ -453,7 +477,7 @@ export class ResultsCenterService {
     if (table != null && typeof table.totalRecords === 'number') {
       return table.totalRecords;
     }
-    return this.list().length;
+    return this.resultsListForTable().length;
   }
 
   private alignResultsTableFirstAfterRowsChange(anchorFirst: number, newRows: number, total: number): number {
@@ -619,10 +643,8 @@ export class ResultsCenterService {
       levers: []
     }));
 
-    const pinnedItem = this.pinnedTab() === 'my' ? this.myResultsFilterItems[1] : this.myResultsFilterItems[0];
-    this.myResultsFilterItem.set(pinnedItem);
-
-    const createUserCodes = pinnedItem.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : [];
+    const activeTab = this.myResultsFilterItem() ?? this.myResultsFilterItems[0];
+    const createUserCodes = activeTab.id === 'my' ? [this.cache.dataCache().user.sec_user_id.toString()] : [];
 
     this.resultsFilter.set({
       'indicator-codes': [],
@@ -772,6 +794,8 @@ export class ResultsCenterService {
       this.appliedFilters.set(appliedFilters);
       this.searchInput.set(state.searchInput ?? '');
       this.primaryContractId.set(state.primaryContractId ?? null);
+      this.resultsTablePaginatorFirst.set(state.resultsTablePaginatorFirst ?? 0);
+      this.resultsTablePaginatorRows.set(state.resultsTablePaginatorRows ?? 10);
       this.syncIndicatorTabSelection(resultsFilter['indicator-codes-tabs']?.[0] ?? 0);
 
       return true;

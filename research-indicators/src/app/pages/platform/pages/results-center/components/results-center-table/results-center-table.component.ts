@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, signal, AfterViewInit, computed, HostListener, Input, effect } from '@angular/core';
+import { Component, inject, ViewChild, signal, AfterViewInit, OnDestroy, computed, HostListener, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -38,9 +38,10 @@ import { CreateResultManagementService } from '@shared/components/all-modals/mod
     SearchExportControlsComponent,
     CustomProgressBarComponent
   ],
-  templateUrl: './results-center-table.component.html'
+  templateUrl: './results-center-table.component.html',
+  styleUrl: './results-center-table.component.scss'
 })
-export class ResultsCenterTableComponent implements AfterViewInit {
+export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   resultsCenterService = inject(ResultsCenterService);
   private readonly router = inject(Router);
   private readonly cacheService = inject(CacheService);
@@ -49,7 +50,25 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   private readonly apiService = inject(ApiService);
 
   @Input() showNewProjectResultButton = false;
-  @ViewChild('dt2') dt2!: Table;
+
+  private dt2Table: Table | undefined;
+
+  @ViewChild('dt2')
+  set dt2(table: Table | undefined) {
+    this.dt2Table = table;
+    if (table) {
+      this.tableRef.set(table);
+      this.resultsCenterService.tableRef.set(table);
+    } else {
+      this.tableRef.set(undefined);
+      this.resultsCenterService.tableRef.set(undefined);
+    }
+  }
+
+  get dt2(): Table | undefined {
+    return this.dt2Table;
+  }
+
   tableRef = signal<Table | undefined>(undefined);
   private lastClickedElement: Element | null = null;
   private removeDocumentClickListener: (() => void) | null = null;
@@ -60,17 +79,12 @@ export class ResultsCenterTableComponent implements AfterViewInit {
     { label: 'Export', icon: 'pi pi-download' }
   ];
 
-  onSearchInputChange = effect(() => {
-    const searchValue = this.resultsCenterService.searchInput();
-    this.resultsCenterService.list();
-    if (this.dt2) {
-      this.resultsCenterService.resultsTablePaginatorFirst.set(0);
-      this.dt2.first = 0;
-      this.dt2.filterGlobal(searchValue, 'contains');
-    }
-  });
+  ngOnDestroy(): void {
+    this.removeDocumentClickListener?.();
+  }
 
   setSearchInputFilter(query: string) {
+    this.resultsCenterService.resultsTablePaginatorFirst.set(0);
     this.resultsCenterService.searchInput.set(query);
   }
 
@@ -453,9 +467,6 @@ export class ResultsCenterTableComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.tableRef.set(this.dt2);
-    this.resultsCenterService.tableRef.set(this.dt2);
-
     const onDocClickCapture = (event: MouseEvent) => {
       const target = event.target as Element | null;
       if (!target) return;

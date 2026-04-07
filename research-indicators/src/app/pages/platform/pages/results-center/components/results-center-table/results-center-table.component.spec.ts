@@ -4,7 +4,7 @@ import { ResultsCenterService } from '../../results-center.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { AllModalsService } from '../../../../../../shared/services/cache/all-modals.service';
 import { Router, provideRouter } from '@angular/router';
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { CreateResultManagementService } from '../../../../../../shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
@@ -41,6 +41,7 @@ describe('ResultsCenterTableComponent', () => {
     (component as any).dt2 = {
       filterGlobal: jest.fn(),
       first: 0,
+      rows: 10,
       filteredValue: undefined
     } as any;
     fixture.detectChanges();
@@ -49,9 +50,13 @@ describe('ResultsCenterTableComponent', () => {
   beforeEach(async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
+    const listSig = signal([mockResult]);
     mockService = {
       searchInput: signal(''),
-      list: signal([mockResult]),
+      list: listSig,
+      resultsListForTable: computed(() => listSig()),
+      resultsTablePaginatorFirst: signal(0),
+      resultsTablePaginatorRows: signal(10),
       loading: signal(false),
       primaryContractId: jest.fn().mockReturnValue(null),
       getAllPathsAsArray: jest.fn(() => ['title']),
@@ -68,8 +73,6 @@ describe('ResultsCenterTableComponent', () => {
       showFiltersSidebar: signal(false),
       showConfigurationsSidebar: signal(false),
       tableRef: signal<any>(undefined),
-      resultsTablePaginatorFirst: signal(0),
-      resultsTablePaginatorRows: signal(10),
       handleResultsTablePage: jest.fn()
     };
 
@@ -164,9 +167,11 @@ describe('ResultsCenterTableComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('setSearchInputFilter should update service searchInput', () => {
+  it('setSearchInputFilter should update service searchInput and reset paginator to first page', () => {
+    mockService.resultsTablePaginatorFirst.set(40);
     component.setSearchInputFilter('q');
     expect(mockService.searchInput()).toBe('q');
+    expect(mockService.resultsTablePaginatorFirst()).toBe(0);
   });
 
   it('getActiveFiltersExcludingIndicatorTab and shouldShowFilterMessage', () => {
@@ -726,8 +731,10 @@ describe('ResultsCenterTableComponent', () => {
 
   it('setSearchInputFilter should work even when table not ready', () => {
     (component as any).dt2 = undefined;
+    mockService.resultsTablePaginatorFirst.set(30);
     expect(() => component.setSearchInputFilter('zzz')).not.toThrow();
     expect(mockService.searchInput()).toBe('zzz');
+    expect(mockService.resultsTablePaginatorFirst()).toBe(0);
   });
 
   it('processRowClick should early return when row has no parent', () => {
