@@ -184,6 +184,9 @@ export class ResultsCenterService {
   cache = inject(CacheService);
 
   tableRef = signal<Table | undefined>(undefined);
+  resultsTablePaginatorFirst = signal(0);
+  resultsTablePaginatorRows = signal(10);
+
   persistViewState = effect(() => {
     const activeKey = this.activeStateKey();
     if (!activeKey) {
@@ -431,6 +434,48 @@ export class ResultsCenterService {
       this.loading.set(false);
     }
   }
+  handleResultsTablePage(event: { first: number; rows: number }): void {
+    const newRows = event.rows ?? 10;
+    const previousFirst = this.resultsTablePaginatorFirst();
+    const previousRows = this.resultsTablePaginatorRows();
+    const table = this.tableRef();
+    const total = this.getResultsTablePaginatorTotalRecords(table);
+    const nextFirst = previousRows === newRows ? (event.first ?? 0) : this.alignResultsTableFirstAfterRowsChange(previousFirst, newRows, total);
+    this.resultsTablePaginatorFirst.set(nextFirst);
+    this.resultsTablePaginatorRows.set(newRows);
+    if (table) {
+      table.first = nextFirst;
+      table.rows = newRows;
+    }
+  }
+
+  private getResultsTablePaginatorTotalRecords(table: Table | undefined): number {
+    if (table != null && typeof table.totalRecords === 'number') {
+      return table.totalRecords;
+    }
+    return this.list().length;
+  }
+
+  private alignResultsTableFirstAfterRowsChange(anchorFirst: number, newRows: number, total: number): number {
+    const safeRows = newRows > 0 ? newRows : 10;
+    let newFirst = Math.floor(anchorFirst / safeRows) * safeRows;
+    if (total > 0) {
+      const maxFirst = Math.max(0, total - safeRows);
+      if (newFirst > maxFirst) {
+        newFirst = maxFirst;
+      }
+    }
+    return newFirst;
+  }
+
+  private resetResultsTablePaginatorToFirstPage(): void {
+    this.resultsTablePaginatorFirst.set(0);
+    const table = this.tableRef();
+    if (table) {
+      table.first = 0;
+    }
+  }
+
   getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | undefined {
     const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
       SUBMITTED: 'info',
@@ -466,8 +511,8 @@ export class ResultsCenterService {
       table.clear();
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
-      table.first = 0;
     }
+    this.resetResultsTablePaginatorToFirstPage();
   };
 
   showFilterSidebar(): void {
@@ -504,10 +549,7 @@ export class ResultsCenterService {
       'create-user-codes': preserveCreateUserCodes
     }));
 
-    const table = this.tableRef();
-    if (table) {
-      table.first = 0;
-    }
+    this.resetResultsTablePaginatorToFirstPage();
     this.main();
   };
 
@@ -549,8 +591,8 @@ export class ResultsCenterService {
     if (table) {
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
-      table.first = 0;
     }
+    this.resetResultsTablePaginatorToFirstPage();
 
     this.tableFilters.update(prev => ({
       ...prev,
@@ -631,6 +673,7 @@ export class ResultsCenterService {
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
+    this.resetResultsTablePaginatorToFirstPage();
     this.main();
   }
 
@@ -673,6 +716,7 @@ export class ResultsCenterService {
       table.sortField = 'result_official_code';
       table.sortOrder = -1;
     }
+    this.resetResultsTablePaginatorToFirstPage();
     this.onSelectFilterTab(0);
   }
 

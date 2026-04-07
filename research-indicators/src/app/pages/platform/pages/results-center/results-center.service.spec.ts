@@ -826,6 +826,40 @@ describe('ResultsCenterService', () => {
       expect(tableMock.sortField).toBe('result_official_code');
       expect(tableMock.sortOrder).toBe(-1);
       expect(tableMock.first).toBe(0);
+      expect(service.resultsTablePaginatorFirst()).toBe(0);
+    });
+  });
+
+  describe('handleResultsTablePage', () => {
+    it('should use event.first when rows per page unchanged', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 100 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTablePaginatorFirst.set(10);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTablePage({ first: 20, rows: 10 });
+      expect(service.resultsTablePaginatorFirst()).toBe(20);
+      expect(tableMock.first).toBe(20);
+    });
+
+    it('should align first when rows per page changes even if event.first is 0', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 100 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTablePaginatorFirst.set(40);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTablePage({ first: 0, rows: 25 });
+      expect(service.resultsTablePaginatorFirst()).toBe(25);
+      expect(service.resultsTablePaginatorRows()).toBe(25);
+      expect(tableMock.first).toBe(25);
+      expect(tableMock.rows).toBe(25);
+    });
+
+    it('should clamp first to last page when aligned index exceeds total', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 60 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTablePaginatorFirst.set(50);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTablePage({ first: 0, rows: 25 });
+      expect(service.resultsTablePaginatorFirst()).toBe(35);
     });
   });
 

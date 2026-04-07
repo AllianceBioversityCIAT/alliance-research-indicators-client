@@ -67,7 +67,10 @@ describe('ResultsCenterTableComponent', () => {
       removeFilter: jest.fn(),
       showFiltersSidebar: signal(false),
       showConfigurationsSidebar: signal(false),
-      tableRef: signal<any>(undefined)
+      tableRef: signal<any>(undefined),
+      resultsTablePaginatorFirst: signal(0),
+      resultsTablePaginatorRows: signal(10),
+      handleResultsTablePage: jest.fn()
     };
 
     mockCache = {
