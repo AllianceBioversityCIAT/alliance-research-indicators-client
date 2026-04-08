@@ -1,0 +1,91 @@
+<div class="flex flex-col gap-4 flex-1 min-w-0 w-full py-3">
+  <div class="flex w-full min-w-0 items-start justify-between gap-3 pb-1.5">
+    <div class="flex min-w-0 flex-1 items-center gap-3.5">
+      @if (lever.icon) {
+      <img [src]="lever.icon" [alt]="lever.short_name || ''" class="h-[28px] w-[28px] shrink-0 rounded-[3px]" />
+      }
+      <span class="font-['Space_Grotesk'] text-[13px] font-[550] uppercase tracking-[2.8px] text-[#8D9299]">
+        {{ lever?.short_name }}{{ lever?.other_names ? ' - ' + lever.other_names : '' }}
+      </span>
+    </div>
+    @if (!disabled) {
+    <button type="button"
+      class="shrink-0 cursor-pointer border-0 bg-transparent p-0 leading-none text-[#CF0808] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CF0808]/30 rounded"
+      (click)="removeLever.emit()" (keydown.enter)="removeLever.emit()" aria-label="Remove lever">
+      <i class="pi pi-times-circle !text-[20px]"></i>
+    </button>
+    }
+  </div>
+
+  <div class="lever-card-fields w-full min-w-0">
+    @if (showStrategicOutcomes) {
+    <app-multiselect class="block w-full min-w-0" label="Strategic Outcome(s)" [signal]="outcomeSignal"
+      signalOptionValue="result_lever_strategic_outcomes" optionValue="id" optionLabel="strategic_outcome"
+      serviceName="leverStrategicOutcomes" [enableVirtualScroll]="false" [scrollHeight]="'200px'" [columnsOnXl]="true"
+      [textSpan]="'Outcomes selected'" [serviceParams]="lever.lever_id" [disabled]="disabled"
+      [isRequired]="strategicOutcomesRequired" placeholder="Select the outcomes">
+      <ng-template #selectedItems let-value>
+        @if (value?.length > 0) {
+        <div class="flex items-center gap-2">
+          <span>{{ value?.length }} outcome{{ value?.length === 1 ? '' : 's' }} selected</span>
+        </div>
+        }
+      </ng-template>
+      <ng-template #item let-item>
+        <div class="flex items-center gap-2 text-[#4C5158] whitespace-normal break-words leading-5">
+          @if (item?.strategic_outcome?.includes(':')) {
+          <span>
+            <b>{{ item?.strategic_outcome?.split(':')[0] }}:</b>
+            {{ item?.strategic_outcome?.split(':')[1]?.trim() }}
+          </span>
+          } @else {
+          <span>{{ item?.strategic_outcome }}</span>
+          }
+        </div>
+      </ng-template>
+      <ng-template #rows let-strategicOutcome>
+        <div class="flex flex-col w-full">
+          <div class="flex items-center gap-2 text-[#4C5158] whitespace-normal break-words leading-5">
+            @if (strategicOutcome?.strategic_outcome?.includes(':')) {
+            <span>
+              <b>{{ strategicOutcome?.strategic_outcome?.split(':')[0] }}:</b>
+              {{ strategicOutcome?.strategic_outcome?.split(':')[1]?.trim() }}
+            </span>
+            } @else {
+            <span>{{ strategicOutcome?.strategic_outcome }}</span>
+            }
+          </div>
+        </div>
+      </ng-template>
+    </app-multiselect>
+    }
+
+    <app-multiselect class="block w-full min-w-0" label="SDG target(s)" [signal]="sdgSignal" optionLabel="select_label"
+      optionValue="sdg_id" signalOptionValue="result_lever_sdgs" [disabled]="disabled" [removeCondition]="allowRemove"
+      [columnsOnXl]="true" [isRequired]="sdgTargetsRequired" serviceName="sdgs" placeholder="Select the SDG targets">
+      <ng-template #selectedItems let-value>
+        @if (value?.length > 0) {
+        <div class="flex items-center gap-2">
+          <span>{{ value?.length }} SDG{{ value?.length === 1 ? '' : 's' }} selected</span>
+        </div>
+        }
+      </ng-template>
+      <ng-template #rows let-sdg>
+        <div class="flex flex-col w-full">
+          <div
+            class="flex items-center pt-1 xl:pt-0.5 text-[13px] leading-[18px] text-[#4C5158] gap-x-1 font-['Barlow'] font-[600]">
+            @if (sdg.icon) {
+            <img [src]="sdg.icon" [alt]="sdg.short_name" class="w-[35px] h-[35px] mr-2 rounded-[3px]" />
+            }
+            @if (sdg.description) {
+            <span class="text-[15px] text-[#4C5158] font-[600]">
+              SDG {{ sdg.short_name?.split(':')[0] }} -
+              <span class="font-normal">{{ sdg.short_name?.split(':')[1]?.trim() }}</span>
+            </span>
+            }
+          </div>
+        </div>
+      </ng-template>
+    </app-multiselect>
+  </div>
+</div>

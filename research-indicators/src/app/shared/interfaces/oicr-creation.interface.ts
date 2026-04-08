@@ -1,5 +1,6 @@
 import { Country, Region } from './get-geo-location.interface';
 import { ResultImpactArea } from './impact-area.interface';
+import { GetSdgs } from './get-sdgs.interface';
 
 export interface OicrCreation {
   step_one: StepOne;
@@ -47,7 +48,7 @@ export interface Lever {
   lever_role_id: number;
   is_primary: boolean;
   result_lever_strategic_outcomes?: LeverStrategicOutcome[];
-  // Optional display fields when coming from control-list selections
+  result_lever_sdgs?: GetSdgs[];
   icon?: string;
   short_name?: string;
   other_names?: string;
@@ -100,8 +101,8 @@ export interface PatchOicr {
   extrapolate_estimates?: QuantificationPayload[];
   notable_references?: NotableReferencePayload[];
   result_impact_areas?: ResultImpactArea[];
-  for_external_use: boolean
-  for_external_use_description: string
+  for_external_use: boolean;
+  for_external_use_description: string;
 }
 
 export interface QuantificationPayload {
