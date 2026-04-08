@@ -119,11 +119,19 @@ describe('AllianceAlignmentComponent', () => {
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [{ id: 1 }] } });
     jest.spyOn(component, 'getData');
 
-    // Set result_sdgs to ensure line 145 is covered
     component.body.set({
       contracts: [],
-      result_sdgs: [{ id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01' }],
-      primary_levers: [],
+      result_sdgs: [],
+      primary_levers: [
+        {
+          lever_id: 1,
+          result_lever_id: 1,
+          result_id: 1,
+          lever_role_id: 1,
+          is_primary: true,
+          result_lever_sdgs: [{ id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01', clarisa_sdg_id: 1 } as any]
+        }
+      ],
       contributor_levers: []
     });
 
@@ -454,14 +462,23 @@ describe('AllianceAlignmentComponent', () => {
       expect(callArgs[1].primary_levers[0]).toEqual(lever);
     });
 
-    it('should map result_sdgs correctly', async () => {
+    it('should map result_sdgs correctly from lever selections', async () => {
       api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
       api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [] } });
 
       component.body.set({
         contracts: [],
-        result_sdgs: [{ id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01' }],
-        primary_levers: [],
+        result_sdgs: [],
+        primary_levers: [
+          {
+            lever_id: 1,
+            result_lever_id: 1,
+            result_id: 1,
+            lever_role_id: 1,
+            is_primary: true,
+            result_lever_sdgs: [{ id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01', clarisa_sdg_id: 1 } as any]
+          }
+        ],
         contributor_levers: []
       });
 
@@ -539,6 +556,21 @@ describe('AllianceAlignmentComponent', () => {
     });
   });
 
+  describe('getLeverSdgSignal', () => {
+    it('should return existing signal if already created', () => {
+      const lever = { lever_id: 1, result_lever_sdgs: [{ id: 1 } as any] };
+      const signal1 = component.getLeverSdgSignal(lever as any);
+      const signal2 = component.getLeverSdgSignal(lever as any);
+      expect(signal1).toBe(signal2);
+    });
+
+    it('should create new signal with sdgs from lever', () => {
+      const lever = { lever_id: 2, result_lever_sdgs: [{ id: 2, clarisa_sdg_id: 2 } as any] };
+      const s = component.getLeverSdgSignal(lever as any);
+      expect(s().result_lever_sdgs).toEqual([{ id: 2, clarisa_sdg_id: 2 }]);
+    });
+  });
+
   describe('getLeverSignal', () => {
     it('should return existing signal if already created', () => {
       const lever = { lever_id: 1, result_lever_strategic_outcomes: [{ lever_strategic_outcome_id: 1 }] };
@@ -561,24 +593,32 @@ describe('AllianceAlignmentComponent', () => {
   });
 
   describe('getData', () => {
-    it('should map result_sdgs with clarisa_sdg_id', async () => {
+    it('should migrate legacy flat result_sdgs onto a single primary lever', async () => {
       api.GET_Alignments.mockResolvedValue({
         data: {
           contracts: [],
           result_sdgs: [
-            { clarisa_sdg_id: 1, name: 'SDG 1' },
-            { clarisa_sdg_id: 2, name: 'SDG 2' }
+            { clarisa_sdg_id: 1, id: 1, created_at: '', updated_at: '', is_active: true },
+            { clarisa_sdg_id: 2, id: 2, created_at: '', updated_at: '', is_active: true }
           ],
-          primary_levers: [],
+          primary_levers: [
+            {
+              lever_id: 10,
+              result_lever_id: 1,
+              result_id: 1,
+              lever_role_id: 1,
+              is_primary: true
+            }
+          ],
           contributor_levers: []
         }
       });
 
       await component.getData();
 
-      expect(component.body().result_sdgs[0].sdg_id).toBe(1);
-      expect(component.body().result_sdgs[0].is_primary).toBe(false);
-      expect(component.body().result_sdgs[1].sdg_id).toBe(2);
+      expect(component.body().result_sdgs).toEqual([]);
+      expect(component.body().primary_levers[0].result_lever_sdgs?.[0].sdg_id).toBe(1);
+      expect(component.body().primary_levers[0].result_lever_sdgs?.[1].sdg_id).toBe(2);
     });
 
     it('should handle missing result_sdgs', async () => {
@@ -730,17 +770,25 @@ describe('AllianceAlignmentComponent', () => {
 
       component.body.set({
         contracts: [],
-        result_sdgs: [
+        result_sdgs: [],
+        primary_levers: [
           {
-            id: 5,
-            created_at: '2024-01-01',
-            is_active: true,
-            updated_at: '2024-01-02',
-            sdg_id: 5,
-            is_primary: false
+            lever_id: 1,
+            result_lever_id: 1,
+            result_id: 1,
+            lever_role_id: 1,
+            is_primary: true,
+            result_lever_sdgs: [
+              {
+                id: 5,
+                clarisa_sdg_id: 5,
+                created_at: '2024-01-01',
+                is_active: true,
+                updated_at: '2024-01-02'
+              } as any
+            ]
           }
         ],
-        primary_levers: [],
         contributor_levers: []
       });
 
@@ -763,11 +811,20 @@ describe('AllianceAlignmentComponent', () => {
 
       component.body.set({
         contracts: [],
-        result_sdgs: [
-          { id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01' },
-          { id: 2, created_at: '2024-01-02', is_active: true, updated_at: '2024-01-02' }
+        result_sdgs: [],
+        primary_levers: [
+          {
+            lever_id: 1,
+            result_lever_id: 1,
+            result_id: 1,
+            lever_role_id: 1,
+            is_primary: true,
+            result_lever_sdgs: [
+              { id: 1, created_at: '2024-01-01', is_active: true, updated_at: '2024-01-01', clarisa_sdg_id: 1 } as any,
+              { id: 2, created_at: '2024-01-02', is_active: true, updated_at: '2024-01-02', clarisa_sdg_id: 2 } as any
+            ]
+          }
         ],
-        primary_levers: [],
         contributor_levers: []
       });
 
