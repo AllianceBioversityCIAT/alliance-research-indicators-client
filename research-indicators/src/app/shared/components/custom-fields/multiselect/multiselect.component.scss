@@ -6,6 +6,15 @@
     display: flex;
     flex-direction: column;
 
+    &:not(.selected-items--stack-gap) {
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    &.selected-items--stack-gap .item {
+      border-radius: 6px;
+    }
+
     &.show-scroll {
       max-height: 380px;
       overflow-y: auto;

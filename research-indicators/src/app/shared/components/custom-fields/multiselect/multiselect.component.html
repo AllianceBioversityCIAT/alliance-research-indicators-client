@@ -106,7 +106,7 @@
     [class.selected-items--custom-surface]="!!selectedItemsSurfaceColor?.trim()"
     [style.--multiselect-selected-surface]="selectedItemsSurfaceColor?.trim() || null">
     @for (row of selectedOptions(); track $index) {
-    <div class="item  {{ dark ? ' !bg-[#e8ebed] !border-[#c6cdd1]/40' : 'abc-grey-100' }} rounded-[6px]"
+    <div class="item  {{ dark ? ' !bg-[#e8ebed] !border-[#c6cdd1]/40' : 'abc-grey-100' }}"
       [class.item--full-row]="hideRemoveIcon">
       <div class="selected-row-main">
         <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
