@@ -182,7 +182,9 @@ describe('MyProjectsComponent', () => {
         isTableView: false,
         sortField: 'description',
         sortOrder: 1,
-        selectedTab: 'my'
+        selectedTab: 'my',
+        tableScrollTopMy: 0,
+        tableScrollTopAll: 0
       });
     });
   });
@@ -301,6 +303,31 @@ describe('MyProjectsComponent', () => {
       expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
       expect(applyPinnedTabDefaultSpy).toHaveBeenCalledWith('my');
       expect(loadCurrentTabStateSpy).not.toHaveBeenCalled();
+    });
+
+    it('should sync service tab from view state when only component state was restored', async () => {
+      mockMyProjectsService.restorePersistedState.mockReturnValue(false);
+      sessionStorage.setItem(
+        'my-projects-component-state',
+        JSON.stringify({
+          selectedTab: 'my',
+          myProjectsFirst: 20,
+          myProjectsRows: 10,
+          allProjectsFirst: 0,
+          allProjectsRows: 10,
+          isTableView: true,
+          sortField: 'agreement_id',
+          sortOrder: -1
+        })
+      );
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const loadCurrentTabStateSpy = jest.spyOn(component as any, 'loadCurrentTabState').mockImplementation();
+
+      await (component as any).initializeState();
+
+      expect(mockMyProjectsService.myProjectsFilterItem()?.id).toBe('my');
+      expect(component.myProjectsFilterItem()?.id).toBe('my');
+      expect(loadCurrentTabStateSpy).toHaveBeenCalled();
     });
   });
 
@@ -538,7 +565,7 @@ describe('MyProjectsComponent', () => {
       expect(component.selectedTab()).toBe('my');
       expect(component.myProjectsFirst()).toBe(0);
       expect(component.searchValue).toBe('');
-      expect(mockMyProjectsService.clearFilters).toHaveBeenCalled();
+      expect(mockMyProjectsService.resetFilters).toHaveBeenCalled();
       expect(component.loadMyProjects).toHaveBeenCalled();
     });
 
@@ -552,7 +579,7 @@ describe('MyProjectsComponent', () => {
       expect(component.selectedTab()).toBe('all');
       expect(component.allProjectsFirst()).toBe(0);
       expect(component.searchValue).toBe('');
-      expect(mockMyProjectsService.clearFilters).toHaveBeenCalled();
+      expect(mockMyProjectsService.resetFilters).toHaveBeenCalled();
       expect(component.loadAllProjects).toHaveBeenCalled();
     });
   });
@@ -872,11 +899,59 @@ describe('MyProjectsComponent', () => {
   });
 
   describe('onAllProjectsPageChange', () => {
-    it('should update allProjectsFirst and allProjectsRows', () => {
-      const event = { first: 30, rows: 40 } as any;
+    it('should use event.first when rows are unchanged (first must align to rows grid)', () => {
+      mockMyProjectsService.totalRecords.set(120);
+      component.allProjectsRows.set(40);
+      component.allProjectsFirst.set(40);
+      const event = { first: 80, rows: 40 } as any;
       component.onAllProjectsPageChange(event);
-      expect(component.allProjectsFirst()).toBe(30);
+      expect(component.allProjectsFirst()).toBe(80);
       expect(component.allProjectsRows()).toBe(40);
+    });
+
+    it('should align first when rows per page changes', () => {
+      component.allProjectsFirst.set(40);
+      component.allProjectsRows.set(10);
+      const event = { first: 0, rows: 25 } as any;
+      component.onAllProjectsPageChange(event);
+      expect(component.allProjectsFirst()).toBe(25);
+      expect(component.allProjectsRows()).toBe(25);
+    });
+
+    it('should clamp first to last standard page when aligned index exceeds total (floor((total-1)/rows)*rows)', () => {
+      mockMyProjectsService.totalRecords.set(30);
+      component.allProjectsFirst.set(40);
+      component.allProjectsRows.set(10);
+      jest.spyOn(component as any, 'loadAllProjectsWithPagination').mockImplementation();
+
+      component.onAllProjectsPageChange({ first: 0, rows: 25 });
+
+      expect(component.allProjectsFirst()).toBe(25);
+      expect(component.allProjectsRows()).toBe(25);
+    });
+
+    it('should clamp same-rows navigation to lastPageFirst for total 33 and rows 10', () => {
+      mockMyProjectsService.totalRecords.set(33);
+      component.allProjectsFirst.set(0);
+      component.allProjectsRows.set(10);
+      jest.spyOn(component as any, 'loadAllProjectsWithPagination').mockImplementation();
+
+      component.onAllProjectsPageChange({ first: 50, rows: 10 });
+
+      expect(component.allProjectsFirst()).toBe(30);
+    });
+
+    it('should use safeRows of 10 when event.rows is 0 (alignFirstAfterRowsChange)', () => {
+      mockMyProjectsService.totalRecords.set(100);
+      component.allProjectsFirst.set(25);
+      component.allProjectsRows.set(10);
+      jest.spyOn(component as any, 'loadAllProjectsWithPagination').mockImplementation();
+
+      component.onAllProjectsPageChange({ first: 0, rows: 0 });
+
+      // newRows 0 → safeRows 10; floor(25/10)*10 = 20
+      expect(component.allProjectsFirst()).toBe(20);
+      expect(component.allProjectsRows()).toBe(0);
     });
   });
 
@@ -1030,10 +1105,27 @@ describe('MyProjectsComponent', () => {
   });
 
   describe('onPageChange', () => {
-    it('should set first and rows on page change (with values)', () => {
+    it('should align first from anchor when rows per page changes (not use event.first when Prime sends 0)', () => {
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.allProjectsFirst.set(40);
+      component.allProjectsRows.set(10);
+      component.onPageChange({ first: 0, rows: 25 });
+      expect(component.allProjectsFirst()).toBe(25);
+      expect(component.allProjectsRows()).toBe(25);
+    });
+
+    it('should set first from event when only the page changes (same rows)', () => {
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.allProjectsRows.set(10);
+      component.onPageChange({ first: 10, rows: 10 });
+      expect(component.allProjectsFirst()).toBe(10);
+      expect(component.allProjectsRows()).toBe(10);
+    });
+
+    it('should set first and rows on page change when rows unchanged from default (first from event)', () => {
       component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
       component.onPageChange({ first: 10, rows: 20 });
-      expect(component.allProjectsFirst()).toBe(10);
+      expect(component.allProjectsFirst()).toBe(0);
       expect(component.allProjectsRows()).toBe(20);
     });
 
@@ -1044,11 +1136,22 @@ describe('MyProjectsComponent', () => {
       expect(component.allProjectsRows()).toBe(10);
     });
 
-    it('should set first and rows for my projects tab with values', () => {
+    it('should align first for my tab when rows per page changes', () => {
       component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
-      component.onPageChange({ first: 15, rows: 25 });
-      expect(component.myProjectsFirst()).toBe(15);
+      component.myProjectsFirst.set(40);
+      component.myProjectsRows.set(10);
+      component.onPageChange({ first: 0, rows: 25 });
+      expect(component.myProjectsFirst()).toBe(25);
       expect(component.myProjectsRows()).toBe(25);
+    });
+
+    it('should set first from event for my tab when only page changes (aligned to rows grid)', () => {
+      mockMyProjectsService.totalRecords.set(100);
+      component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
+      component.myProjectsRows.set(10);
+      component.onPageChange({ first: 20, rows: 10 });
+      expect(component.myProjectsFirst()).toBe(20);
+      expect(component.myProjectsRows()).toBe(10);
     });
 
     it('should set default values for my projects tab when undefined', () => {
@@ -1057,13 +1160,58 @@ describe('MyProjectsComponent', () => {
       expect(component.myProjectsFirst()).toBe(0);
       expect(component.myProjectsRows()).toBe(10);
     });
+
+    it('should call applyFilters on page change when filters are active (preserves status etc.)', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(true);
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.allProjectsFirst.set(20);
+      component.allProjectsRows.set(10);
+      component.sortField.set('agreement_id');
+      component.sortOrder.set(-1);
+
+      component.onPageChange({ first: 30, rows: 10 });
+
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 4, limit: 10, sortField: 'contract-code', sortOrder: -1, query: undefined })
+      );
+      expect(mockMyProjectsService.main).not.toHaveBeenCalled();
+    });
+
+    it('should call applyFilters on page change when search query is set on all tab', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
+      mockMyProjectsService.searchInput.set('find-me');
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.allProjectsFirst.set(0);
+      component.allProjectsRows.set(10);
+
+      component.onPageChange({ first: 10, rows: 10 });
+
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 2, limit: 10, query: 'find-me' })
+      );
+    });
+
+    it('should not refetch when paginator repeats the same first and rows (avoids duplicate GET_FindContracts)', () => {
+      jest.clearAllMocks();
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.allProjectsFirst.set(0);
+      component.allProjectsRows.set(10);
+
+      component.onPageChange({ first: 0, rows: 10 });
+
+      expect(mockMyProjectsService.applyFilters).not.toHaveBeenCalled();
+      expect(mockMyProjectsService.main).not.toHaveBeenCalled();
+    });
   });
 
-  describe('onAllProjectsPageChange', () => {
-    it('should update allProjectsFirst and allProjectsRows with values', () => {
-      const event = { first: 30, rows: 40 } as any;
+  describe('onAllProjectsPageChange (defaults)', () => {
+    it('should use event.first when rows unchanged with explicit rows (aligned to grid)', () => {
+      mockMyProjectsService.totalRecords.set(120);
+      component.allProjectsRows.set(40);
+      const event = { first: 80, rows: 40 } as any;
       component.onAllProjectsPageChange(event);
-      expect(component.allProjectsFirst()).toBe(30);
+      expect(component.allProjectsFirst()).toBe(80);
       expect(component.allProjectsRows()).toBe(40);
     });
 
@@ -1076,7 +1224,8 @@ describe('MyProjectsComponent', () => {
   });
 
   describe('onSort', () => {
-    it('should set sort, reset first and call loadMyProjectsWithPagination when on my tab', () => {
+    it('should set sort, reset first and call applyFilters when on my tab with search query', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
       component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
       component['_searchValue'].set('my-query');
       component.myProjectsFirst.set(10);
@@ -1087,20 +1236,21 @@ describe('MyProjectsComponent', () => {
       expect(component.sortField()).toBe('description');
       expect(component.sortOrder()).toBe(1);
       expect(component.myProjectsFirst()).toBe(0);
-      expect(mockMyProjectsService.main).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': true, page: 1, query: 'my-query', 'order-field': 'project-name', direction: 'ASC' })
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 1, limit: 10, query: 'my-query', sortField: 'project-name', sortOrder: 1 })
       );
     });
 
-    it('should call loadAllProjectsWithPagination when on all tab', () => {
+    it('should call applyFilters when on all tab with search query', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
       component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
       mockMyProjectsService.searchInput.set('all-query');
 
       component.onSort({ field: 'agreement_id', order: -1 });
 
       expect(component.allProjectsFirst()).toBe(0);
-      expect(mockMyProjectsService.main).toHaveBeenCalledWith(
-        expect.objectContaining({ 'current-user': false, 'order-field': 'contract-code', direction: 'DESC' })
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 1, limit: 10, query: 'all-query', sortField: 'contract-code', sortOrder: -1 })
       );
     });
 
@@ -1262,6 +1412,289 @@ describe('MyProjectsComponent', () => {
       expect(mockMyProjectsService.main).toHaveBeenCalledWith(
         expect.objectContaining({ page: 1, limit: 10 })
       );
+    });
+  });
+
+  describe('coverage: view state, scroll helpers, pagination query', () => {
+    it('restoreViewState returns false and clears storage on invalid JSON', () => {
+      sessionStorage.setItem('my-projects-component-state', 'not-json');
+      const warn = jest.spyOn(console, 'warn').mockImplementation();
+      expect((component as any).restoreViewState()).toBe(false);
+      expect(sessionStorage.getItem('my-projects-component-state')).toBeNull();
+      warn.mockRestore();
+    });
+
+    it('getTableScrollContainer returns null when matching node is not HTMLElement', () => {
+      const host = document.createElement('div');
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', 'p-datatable-table-container');
+      host.appendChild(svg);
+      (component as any).tableRppScope = { nativeElement: host };
+      expect((component as any).getTableScrollContainer()).toBeNull();
+    });
+
+    it('readActiveTabScrollTop uses table container scrollTop', () => {
+      const tableContainer = document.createElement('div');
+      tableContainer.className = 'p-datatable-table-container';
+      tableContainer.scrollTop = 17;
+      const host = document.createElement('div');
+      host.appendChild(tableContainer);
+      (component as any).tableRppScope = { nativeElement: host };
+      expect((component as any).readActiveTabScrollTop()).toBe(17);
+    });
+
+    it('readStoredScrollPair returns zeros when JSON parse fails', () => {
+      sessionStorage.setItem('my-projects-component-state', 'x');
+      expect((component as any).readStoredScrollPair()).toEqual({ my: 0, all: 0 });
+    });
+
+    it('mergeScrollPositionsForPersist uses live scroll when container exists (my tab)', () => {
+      sessionStorage.setItem(
+        'my-projects-component-state',
+        JSON.stringify({ tableScrollTopMy: 0, tableScrollTopAll: 9 })
+      );
+      const tableContainer = document.createElement('div');
+      tableContainer.className = 'p-datatable-table-container';
+      tableContainer.scrollTop = 21;
+      const host = document.createElement('div');
+      host.appendChild(tableContainer);
+      (component as any).tableRppScope = { nativeElement: host };
+      component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
+      const r = (component as any).mergeScrollPositionsForPersist();
+      expect(r.scrollMy).toBe(21);
+      expect(r.scrollAll).toBe(9);
+    });
+
+    it('mergeScrollPositionsForPersist uses live scroll for all tab and keeps my from storage', () => {
+      sessionStorage.setItem(
+        'my-projects-component-state',
+        JSON.stringify({ tableScrollTopMy: 3, tableScrollTopAll: 0 })
+      );
+      const tableContainer = document.createElement('div');
+      tableContainer.className = 'p-datatable-table-container';
+      tableContainer.scrollTop = 40;
+      const host = document.createElement('div');
+      host.appendChild(tableContainer);
+      (component as any).tableRppScope = { nativeElement: host };
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      const r = (component as any).mergeScrollPositionsForPersist();
+      expect(r.scrollMy).toBe(3);
+      expect(r.scrollAll).toBe(40);
+    });
+
+    it('mergeScrollPositionsForPersist without container uses session scroll only', () => {
+      sessionStorage.setItem(
+        'my-projects-component-state',
+        JSON.stringify({ tableScrollTopMy: 2, tableScrollTopAll: 5 })
+      );
+      const host = document.createElement('div');
+      (component as any).tableRppScope = { nativeElement: host };
+      component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
+      const r = (component as any).mergeScrollPositionsForPersist();
+      expect(r.scrollMy).toBe(2);
+      expect(r.scrollAll).toBe(5);
+    });
+
+    it('onActiveItemChange stores scroll for my tab when switching away', () => {
+      jest.spyOn(component as any, 'readActiveTabScrollTop').mockReturnValue(66);
+      component.isTableView.set(true);
+      component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
+      (component as any).onActiveItemChange({ id: 'all', label: 'All Projects' });
+      expect((component as any).tableScrollTopMy).toBe(66);
+    });
+
+    it('onActiveItemChange stores scroll for all tab when switching away', () => {
+      jest.spyOn(component as any, 'readActiveTabScrollTop').mockReturnValue(77);
+      component.isTableView.set(true);
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      (component as any).onActiveItemChange({ id: 'my', label: 'My Projects' });
+      expect((component as any).tableScrollTopAll).toBe(77);
+    });
+
+    it('toggleTableView sets pendingScrollRestore when stored top > 0', () => {
+      (component as any).tableScrollTopMy = 4;
+      component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
+      component.isTableView.set(false);
+      component.toggleTableView();
+      expect((component as any).pendingScrollRestore()).toEqual({ top: 4 });
+    });
+
+    it('toggleCardView saves scrollTop for my tab', () => {
+      jest.spyOn(component as any, 'readActiveTabScrollTop').mockReturnValue(11);
+      component.isTableView.set(true);
+      component.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
+      component.toggleCardView();
+      expect((component as any).tableScrollTopMy).toBe(11);
+      expect(component.isTableView()).toBe(false);
+    });
+
+    it('toggleCardView saves scrollTop for all tab', () => {
+      jest.spyOn(component as any, 'readActiveTabScrollTop').mockReturnValue(22);
+      component.isTableView.set(true);
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      component.toggleCardView();
+      expect((component as any).tableScrollTopAll).toBe(22);
+    });
+
+    it('updatePendingScrollFromStoredTabScroll clears pending when not table view', () => {
+      (component as any).pendingScrollRestore.set({ top: 1 });
+      component.isTableView.set(false);
+      (component as any).updatePendingScrollFromStoredTabScroll();
+      expect((component as any).pendingScrollRestore()).toBeNull();
+    });
+
+    it('updatePendingScrollFromStoredTabScroll sets pending when table view and top > 0', () => {
+      (component as any).tableScrollTopAll = 6;
+      component.isTableView.set(true);
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      (component as any).updatePendingScrollFromStoredTabScroll();
+      expect((component as any).pendingScrollRestore()).toEqual({ top: 6 });
+    });
+
+    it('scheduleTableScrollRestore sets scrollTop when container is found', () => {
+      const el = document.createElement('div');
+      jest.spyOn(component as any, 'getTableScrollContainer').mockReturnValue(el);
+      jest.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
+        cb(0);
+        return 0;
+      });
+      (component as any).scheduleTableScrollRestore(88);
+      expect(el.scrollTop).toBe(88);
+      jest.restoreAllMocks();
+    });
+
+    it('scheduleTableScrollRestore stops after max attempts without container', () => {
+      jest.spyOn(component as any, 'getTableScrollContainer').mockReturnValue(null);
+      const raf = jest.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
+        cb(0);
+        return 0;
+      });
+      (component as any).scheduleTableScrollRestore(1);
+      expect(raf.mock.calls.length).toBeGreaterThanOrEqual(41);
+      raf.mockRestore();
+      jest.restoreAllMocks();
+    });
+
+    it('scrollRestoreEffect schedules table scroll when loading done and pending is set', async () => {
+      const spy = jest.spyOn(component as any, 'scheduleTableScrollRestore').mockImplementation();
+      mockMyProjectsService.loading.set(false);
+      component.isTableView.set(true);
+      (component as any).pendingScrollRestore.set({ top: 55 });
+      fixture.detectChanges();
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(spy).toHaveBeenCalledWith(55);
+      spy.mockRestore();
+    });
+
+    it('loadMyProjectsWithPagination adds query param when query provided', () => {
+      component.myProjectsFirst.set(0);
+      component.myProjectsRows.set(10);
+      (component as any).loadMyProjectsWithPagination('hello');
+      expect(mockMyProjectsService.main).toHaveBeenCalledWith(
+        expect.objectContaining({ query: 'hello', 'current-user': true })
+      );
+    });
+
+    it('loadAllProjectsWithPagination adds query param when query provided', () => {
+      component.allProjectsFirst.set(0);
+      component.allProjectsRows.set(10);
+      (component as any).loadAllProjectsWithPagination('world');
+      expect(mockMyProjectsService.main).toHaveBeenCalledWith(
+        expect.objectContaining({ query: 'world', 'current-user': false })
+      );
+    });
+
+    it('loadCurrentTabState calls loadMyProjectsWithPagination when my tab and no filters/query', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
+      mockMyProjectsService.myProjectsFilterItem.set({ id: 'my', label: 'My Projects' });
+      component['_searchValue'].set('');
+      jest.clearAllMocks();
+      (component as any).loadCurrentTabState();
+      expect(mockMyProjectsService.main).toHaveBeenCalled();
+      expect(mockMyProjectsService.applyFilters).not.toHaveBeenCalled();
+    });
+
+    it('loadCurrentTabState calls loadAllProjectsWithPagination when all tab and no filters/query', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(false);
+      mockMyProjectsService.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      mockMyProjectsService.searchInput.set('');
+      jest.clearAllMocks();
+      (component as any).loadCurrentTabState();
+      expect(mockMyProjectsService.main).toHaveBeenCalledWith(
+        expect.objectContaining({ 'current-user': false })
+      );
+    });
+
+    it('clampProjectsPaginatorFirst treats undefined first as 0 before flooring', () => {
+      mockMyProjectsService.totalRecords.set(100);
+      expect((component as any).clampProjectsPaginatorFirst(undefined as any, 10)).toBe(0);
+    });
+
+    it('initializeState uses myProjectsFilterItems[0] when restored selectedTab is all', async () => {
+      mockMyProjectsService.restorePersistedState.mockReturnValue(false);
+      sessionStorage.setItem(
+        'my-projects-component-state',
+        JSON.stringify({
+          selectedTab: 'all',
+          myProjectsFirst: 0,
+          myProjectsRows: 10,
+          allProjectsFirst: 0,
+          allProjectsRows: 10,
+          isTableView: true,
+          sortField: 'agreement_id',
+          sortOrder: -1
+        })
+      );
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      jest.spyOn(component as any, 'loadCurrentTabState').mockImplementation();
+
+      await (component as any).initializeState();
+
+      expect(mockMyProjectsService.myProjectsFilterItem()?.id).toBe('all');
+    });
+
+    it('refreshProjectsWithCurrentContext uses undefined sortField when sortField signal is empty', () => {
+      mockMyProjectsService.hasFilters.mockReturnValue(true);
+      component.sortField.set('');
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      jest.clearAllMocks();
+      (component as any).refreshProjectsWithCurrentContext();
+      expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ sortField: undefined })
+      );
+    });
+
+    it('loadMyProjectsWithPagination sets direction DESC when sortOrder is not 1', () => {
+      component.sortField.set('agreement_id');
+      component.sortOrder.set(-1);
+      component.myProjectsFirst.set(0);
+      component.myProjectsRows.set(10);
+      jest.clearAllMocks();
+      (component as any).loadMyProjectsWithPagination();
+      expect(mockMyProjectsService.main).toHaveBeenCalledWith(
+        expect.objectContaining({ direction: 'DESC' })
+      );
+    });
+
+    it('loadMyProjectsWithPagination sets direction ASC when sortOrder is 1', () => {
+      component.sortField.set('agreement_id');
+      component.sortOrder.set(1);
+      component.myProjectsFirst.set(0);
+      component.myProjectsRows.set(10);
+      jest.clearAllMocks();
+      (component as any).loadMyProjectsWithPagination();
+      expect(mockMyProjectsService.main).toHaveBeenCalledWith(
+        expect.objectContaining({ direction: 'ASC' })
+      );
+    });
+
+    it('readStoredScrollPair applies defaults when only one scroll key is stored', () => {
+      sessionStorage.setItem('my-projects-component-state', JSON.stringify({ tableScrollTopMy: 8 }));
+      expect((component as any).readStoredScrollPair()).toEqual({ my: 8, all: 0 });
+
+      sessionStorage.setItem('my-projects-component-state', JSON.stringify({ tableScrollTopAll: 9 }));
+      expect((component as any).readStoredScrollPair()).toEqual({ my: 0, all: 9 });
     });
   });
 });

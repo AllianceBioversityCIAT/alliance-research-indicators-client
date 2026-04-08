@@ -240,7 +240,13 @@ describe('MyProjectsService', () => {
     it('should fetch and process data successfully', async () => {
       await service.main();
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({ 'with-indicators': false });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'with-indicators': false,
+          'order-field': 'contract-code',
+          direction: 'DESC'
+        })
+      );
       expect(service.loading()).toBe(false);
       expect(service.list()).toHaveLength(2);
 
@@ -557,14 +563,18 @@ describe('MyProjectsService', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should call API with custom params', async () => {
+    it('should call API with custom params and default sort', async () => {
       const customParams = { 'test-param': 'test-value' };
       await service.main(customParams);
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        ...customParams,
-        'with-indicators': false
-      });
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...customParams,
+          'with-indicators': false,
+          'order-field': 'contract-code',
+          direction: 'DESC'
+        })
+      );
     });
 
     it('should handle item with no principal_investigator and no project_lead_description', async () => {
@@ -898,33 +908,53 @@ describe('MyProjectsService', () => {
   });
 
   describe('main method - direction and tab-change branches', () => {
-    it('should set direction to DESC when current-user is true and direction is null', async () => {
+    it('should set direction to DESC when direction is null', async () => {
       await service.main({ 'current-user': true, direction: null });
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ direction: 'DESC' })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ direction: 'DESC', 'order-field': 'contract-code' }));
     });
 
-    it('should set direction to DESC when current-user is true and direction is empty string', async () => {
+    it('should set direction to DESC when direction is empty string', async () => {
       await service.main({ 'current-user': true, direction: '' });
 
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
-        expect.objectContaining({ direction: 'DESC' })
-      );
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ direction: 'DESC', 'order-field': 'contract-code' }));
+    });
+
+    it('should default order-field to contract-code when missing', async () => {
+      await service.main({ 'current-user': false, page: 1, limit: 10 });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'order-field': 'contract-code', direction: 'DESC' }));
+    });
+
+    it('should keep explicit order-field when provided', async () => {
+      await service.main({ 'current-user': false, 'order-field': 'project-name', direction: 'ASC' });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'order-field': 'project-name', direction: 'ASC' }));
     });
 
     it('should not update list when tab changes during request', async () => {
       let resolveApi!: (value: any) => void;
       mockApiService.GET_FindContracts.mockImplementationOnce(
-        () => new Promise(resolve => { resolveApi = resolve; })
+        () =>
+          new Promise(resolve => {
+            resolveApi = resolve;
+          })
       );
 
       const mainPromise = service.main();
       service.myProjectsFilterItem.set({ id: 'different-tab', label: 'Other' });
       resolveApi({
         data: {
-          data: [{ agreement_id: 'X', projectDescription: 'P', description: 'D', project_lead_description: 'L', principal_investigator: 'PI', lever_name: 'Lv' }]
+          data: [
+            {
+              agreement_id: 'X',
+              projectDescription: 'P',
+              description: 'D',
+              project_lead_description: 'L',
+              principal_investigator: 'PI',
+              lever_name: 'Lv'
+            }
+          ]
         }
       });
       await mainPromise;
@@ -1496,6 +1526,7 @@ describe('MyProjectsService', () => {
 
   describe('onActiveItemChange', () => {
     it('should change filter item and reset filters', () => {
+      jest.clearAllMocks();
       const newItem: MenuItem = { id: 'my', label: 'My Projects' };
 
       service.onActiveItemChange(newItem);
@@ -1504,11 +1535,7 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith({
-        'current-user': true,
-        'with-indicators': false,
-        direction: 'DESC'
-      });
+      expect(mockApiService.GET_FindContracts).not.toHaveBeenCalled();
     });
   });
 
@@ -1579,24 +1606,26 @@ describe('MyProjectsService', () => {
   });
 
   describe('clearAllFilters', () => {
-    it('should clear all filters and refresh', () => {
+    it('should clear all filters without fetching (caller reloads)', () => {
+      jest.clearAllMocks();
       service.clearAllFilters();
 
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false, page: 1, limit: 10 }));
+      expect(mockApiService.GET_FindContracts).not.toHaveBeenCalled();
     });
   });
 
   describe('clearFilters', () => {
-    it('should clear filters and refresh', () => {
+    it('should clear filters without fetching (caller reloads)', () => {
+      jest.clearAllMocks();
       service.clearFilters();
 
       expect(service.tableFilters()).toEqual(new MyProjectsFilters());
       expect(service.appliedFilters()).toEqual(new MyProjectsFilters());
       expect(service.searchInput()).toBe('');
-      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'current-user': false, page: 1, limit: 10 }));
+      expect(mockApiService.GET_FindContracts).not.toHaveBeenCalled();
     });
   });
 

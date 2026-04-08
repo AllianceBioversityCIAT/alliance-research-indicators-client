@@ -826,6 +826,49 @@ describe('ResultsCenterService', () => {
       expect(tableMock.sortField).toBe('result_official_code');
       expect(tableMock.sortOrder).toBe(-1);
       expect(tableMock.first).toBe(0);
+      expect(service.resultsTablePaginatorFirst()).toBe(0);
+    });
+  });
+
+  describe('handleResultsTablePage', () => {
+    it('should use event.first when rows per page unchanged', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 100 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTablePaginatorFirst.set(10);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTablePage({ first: 20, rows: 10 });
+      expect(service.resultsTablePaginatorFirst()).toBe(20);
+      expect(tableMock.first).toBe(20);
+    });
+
+    it('should align first when rows per page changes even if event.first is 0', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 100 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTablePaginatorFirst.set(40);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTablePage({ first: 0, rows: 25 });
+      expect(service.resultsTablePaginatorFirst()).toBe(25);
+      expect(service.resultsTablePaginatorRows()).toBe(25);
+      expect(tableMock.first).toBe(25);
+      expect(tableMock.rows).toBe(25);
+    });
+
+    it('should clamp first to last standard page when aligned index exceeds total (no total - rows overlap)', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 60 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTablePaginatorFirst.set(50);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTablePage({ first: 0, rows: 25 });
+      expect(service.resultsTablePaginatorFirst()).toBe(50);
+    });
+
+    it('should clamp to lastPageFirst = floor((total-1)/rows)*rows when same rows (e.g. total 33, rows 10 → first 30)', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 33 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTablePaginatorFirst.set(0);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTablePage({ first: 50, rows: 10 });
+      expect(service.resultsTablePaginatorFirst()).toBe(30);
     });
   });
 
@@ -1118,15 +1161,17 @@ describe('ResultsCenterService', () => {
   });
 
   describe('clearAllFilters', () => {
-    it('should set create-user-codes from user id when pinnedTab is my', () => {
-      service.pinnedTab.set('my');
+    it('should set create-user-codes from user id when active tab is My Results (Clear Filters must not change tab)', () => {
+      service.pinnedTab.set('all');
+      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
       service.clearAllFilters();
       expect(service.resultsFilter()['create-user-codes']).toEqual(['123']);
       expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[1]);
     });
 
-    it('should clear create-user-codes when pinnedTab is all', () => {
-      service.pinnedTab.set('all');
+    it('should clear create-user-codes when active tab is All Results (Clear Filters must not switch to My Results)', () => {
+      service.pinnedTab.set('my');
+      service.myResultsFilterItem.set(service.myResultsFilterItems[0]);
       service.clearAllFilters();
       expect(service.resultsFilter()['create-user-codes']).toEqual([]);
       expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[0]);
@@ -1697,6 +1742,8 @@ describe('ResultsCenterService', () => {
       service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
       service.searchInput.set('abc');
       service.primaryContractId.set('contract-1');
+      service.resultsTablePaginatorFirst.set(50);
+      service.resultsTablePaginatorRows.set(25);
       service.resultsFilter.update(prev => ({ ...prev, 'indicator-codes-tabs': [2] }));
 
       service.activateStatePersistence('demo');
@@ -1708,6 +1755,8 @@ describe('ResultsCenterService', () => {
       expect(savedState.myResultsFilterItemId).toBe('my');
       expect(savedState.primaryContractId).toBe('contract-1');
       expect(savedState.searchInput).toBe('abc');
+      expect(savedState.resultsTablePaginatorFirst).toBe(50);
+      expect(savedState.resultsTablePaginatorRows).toBe(25);
     });
 
     it('should persist all as default tab id when myResultsFilterItem is undefined', () => {
@@ -1771,7 +1820,9 @@ describe('ResultsCenterService', () => {
           'indicator-codes-tabs': [2]
         },
         searchInput: 'saved search',
-        primaryContractId: 'contract-2'
+        primaryContractId: 'contract-2',
+        resultsTablePaginatorFirst: 100,
+        resultsTablePaginatorRows: 25
       };
       jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(JSON.stringify(persistedState));
 
@@ -1784,6 +1835,8 @@ describe('ResultsCenterService', () => {
       expect(service.appliedFilters()['indicator-codes-tabs']).toEqual([2]);
       expect(service.searchInput()).toBe('saved search');
       expect(service.primaryContractId()).toBe('contract-2');
+      expect(service.resultsTablePaginatorFirst()).toBe(100);
+      expect(service.resultsTablePaginatorRows()).toBe(25);
       expect(mockApiService.indicatorTabs.lazy().list().find(item => item.indicator_id === 2)?.active).toBe(true);
       expect(mockApiService.indicatorTabs.lazy().list().find(item => item.indicator_id === 1)?.active).toBe(false);
     });
@@ -1824,6 +1877,8 @@ describe('ResultsCenterService', () => {
       });
       expect(service.searchInput()).toBe('');
       expect(service.primaryContractId()).toBeNull();
+      expect(service.resultsTablePaginatorFirst()).toBe(0);
+      expect(service.resultsTablePaginatorRows()).toBe(10);
       expect(mockApiService.indicatorTabs.lazy().list().every(item => item.active === false)).toBe(true);
     });
 
