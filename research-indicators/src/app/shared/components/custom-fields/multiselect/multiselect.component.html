@@ -102,7 +102,9 @@
   }
   <div class="selected-items {{ !textSpan && selectedOptions().length ? 'mt-6' : '' }}"
     [class.show-scroll]="!this.disabledSelectedScroll" [class.columns-xl]="columnsOnXl"
-    [class.selected-items--stack-gap]="hideRemoveIcon">
+    [class.selected-items--stack-gap]="hideRemoveIcon"
+    [class.selected-items--custom-surface]="!!selectedItemsSurfaceColor?.trim()"
+    [style.--multiselect-selected-surface]="selectedItemsSurfaceColor?.trim() || null">
     @for (row of selectedOptions(); track $index) {
     <div class="item  {{ dark ? ' !bg-[#e8ebed] !border-[#c6cdd1]/40' : 'abc-grey-100' }}"
       [class.item--full-row]="hideRemoveIcon">

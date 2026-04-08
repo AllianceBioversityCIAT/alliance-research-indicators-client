@@ -14,6 +14,13 @@
     &.selected-items--stack-gap {
       gap: 14px;
     }
+
+    &.selected-items--custom-surface {
+      .item {
+        background-color: var(--multiselect-selected-surface);
+        border-color: #d1d6db;
+      }
+    }
   }
 
   .item {
@@ -45,8 +52,6 @@
 
 .selected-items.columns-xl .item {
   width: 100%;
-  background-color: #f6f6f6;
-  border-color: #d1d6db;
 }
 
 @media (min-width: 1280px) {

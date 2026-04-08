@@ -81,6 +81,8 @@ export class MultiselectComponent implements OnInit, OnChanges {
   @Input() dark = false;
   @Input() optionFilter: (item: any) => boolean = () => true;
   @Input() hideRemoveIcon = false;
+  /** Background for the selected-items area and each row; use with columns XL (e.g. `#E8EBED`). */
+  @Input() selectedItemsSurfaceColor = '';
   selectEvent = output<any>();
   environment = environment;
 

@@ -12,6 +12,7 @@ import { MultiselectComponent } from '@shared/components/custom-fields/multisele
 })
 export class AllianceLeverCardComponent {
   readonly allowRemove = (): boolean => true;
+  readonly selectedItemsSurfaceColor = '#f6f6f6';
 
   removeLever = output<void>();
 

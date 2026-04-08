@@ -22,7 +22,8 @@
     <app-multiselect class="block w-full min-w-0" label="Strategic Outcome(s)" [signal]="outcomeSignal"
       signalOptionValue="result_lever_strategic_outcomes" optionValue="id" optionLabel="strategic_outcome"
       serviceName="leverStrategicOutcomes" [enableVirtualScroll]="false" [scrollHeight]="'200px'" [columnsOnXl]="true"
-      [textSpan]="'Outcomes selected'" [serviceParams]="lever.lever_id" [disabled]="disabled"
+      [selectedItemsSurfaceColor]="selectedItemsSurfaceColor" [textSpan]="'Outcomes selected'"
+      [serviceParams]="lever.lever_id" [disabled]="disabled"
       [isRequired]="strategicOutcomesRequired" placeholder="Select the outcomes">
       <ng-template #selectedItems let-value>
         @if (value?.length > 0) {
@@ -62,7 +63,8 @@
 
     <app-multiselect class="block w-full min-w-0" label="SDG target(s)" [signal]="sdgSignal" optionLabel="select_label"
       optionValue="sdg_id" signalOptionValue="result_lever_sdgs" [disabled]="disabled" [removeCondition]="allowRemove"
-      [columnsOnXl]="true" [isRequired]="sdgTargetsRequired" serviceName="sdgs" placeholder="Select the SDG targets">
+      [columnsOnXl]="true" [selectedItemsSurfaceColor]="selectedItemsSurfaceColor" [isRequired]="sdgTargetsRequired"
+      serviceName="sdgs" placeholder="Select the SDG targets">
       <ng-template #selectedItems let-value>
         @if (value?.length > 0) {
         <div class="flex items-center gap-2">
