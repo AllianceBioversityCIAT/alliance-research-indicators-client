@@ -10,6 +10,10 @@
       max-height: 380px;
       overflow-y: auto;
     }
+
+    &.selected-items--stack-gap {
+      gap: 14px;
+    }
   }
 
   .item {
@@ -19,7 +23,18 @@
     justify-content: space-between;
     align-items: center;
     background-color: #f4f7f9;
-    gap: 20px;
+    gap: 12px;
+
+    .selected-row-main {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+    }
+
+    &.item--full-row {
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
   }
 }
 
@@ -27,8 +42,11 @@
   flex-direction: row !important;
   flex-wrap: wrap;
 }
+
 .selected-items.columns-xl .item {
   width: 100%;
+  background-color: #f6f6f6;
+  border-color: #d1d6db;
 }
 
 @media (min-width: 1280px) {

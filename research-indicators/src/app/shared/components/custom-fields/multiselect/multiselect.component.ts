@@ -80,6 +80,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
   @Input() appendTo: 'body' | 'self' = 'body';
   @Input() dark = false;
   @Input() optionFilter: (item: any) => boolean = () => true;
+  @Input() hideRemoveIcon = false;
   selectEvent = output<any>();
   environment = environment;
 
