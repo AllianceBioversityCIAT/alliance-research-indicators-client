@@ -24,7 +24,7 @@ export class GetInnoUseOutputService {
       'indicator-codes': [6]
     });
 
-    this.list.set(Array.isArray(response?.data) ? response.data : []);
+    this.list.set(response?.data?.results ?? []);
 
     this.loading.set(false);
   }
