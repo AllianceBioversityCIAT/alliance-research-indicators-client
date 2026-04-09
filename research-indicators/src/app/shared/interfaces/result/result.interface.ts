@@ -43,6 +43,30 @@ export interface ResultFilter {
   years?: number[];
 }
 
+export interface GetResultsPaginationOptions {
+  page?: number;
+  limit?: number;
+  sortField?: string;
+  sortOrder?: 'ASC' | 'DESC';
+  search?: string;
+}
+
+export interface V2ResultsPaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  pageSize?: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface GetResultsResponseData {
+  results: Result[];
+  total: number;
+  pagination?: V2ResultsPaginationMeta;
+}
+
 export interface ResultConfig {
   indicators?: boolean;
   'result-status'?: boolean;

@@ -523,7 +523,7 @@ export const apiServiceMock = {
   GET_IndicatorTypes: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_Years: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
   GET_Contracts: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
-  GET_Results: jest.fn().mockImplementation(() => Promise.resolve({ data: [] })),
+  GET_Results: jest.fn().mockImplementation(() => Promise.resolve({ data: { results: [], total: 0 } })),
   GET_IpOwners: jest.fn().mockResolvedValue({ data: [] }),
   GET_InstitutionsTypes: jest.fn().mockImplementation(() => Promise.resolve(mockInstitutionsTypes)),
   GET_Languages: jest.fn().mockImplementation(() => Promise.resolve(mockLanguages)),
