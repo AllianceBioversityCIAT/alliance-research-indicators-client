@@ -73,7 +73,8 @@ describe('ResultsCenterTableComponent', () => {
       showFiltersSidebar: signal(false),
       showConfigurationsSidebar: signal(false),
       tableRef: signal<any>(undefined),
-      handleResultsTablePage: jest.fn()
+      main: jest.fn(),
+      handleResultsTableLazyLoad: jest.fn()
     };
 
     mockCache = {

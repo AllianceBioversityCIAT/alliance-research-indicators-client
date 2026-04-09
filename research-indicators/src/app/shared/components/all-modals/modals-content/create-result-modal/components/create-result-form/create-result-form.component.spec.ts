@@ -257,7 +257,7 @@ describe('CreateResultFormComponent', () => {
         title: 'Existing',
         result_id: 1
       };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [resultItem] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: [resultItem], total: 1 } } as any);
 
       await component.openExistingResultModal('TIP', '456');
 
@@ -276,7 +276,7 @@ describe('CreateResultFormComponent', () => {
       const first = { result_official_code: '111', platform_code: 'TIP', title: 'First', result_id: 1 };
       const second = { result_official_code: '999', platform_code: 'TIP', title: 'Target', result_id: 2 };
       const third = { result_official_code: '999', platform_code: 'PRMS', title: 'Other platform', result_id: 3 };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [first, second, third] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: [first, second, third], total: 3 } } as any);
 
       await component.openExistingResultModal('TIP', '999');
 
@@ -292,7 +292,7 @@ describe('CreateResultFormComponent', () => {
 
     it('should use single result when find returns undefined (list.length === 1 fallback)', async () => {
       const single = { result_official_code: '111', platform_code: 'TIP', title: 'Only One', result_id: 1 };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [single] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: [single], total: 1 } } as any);
 
       await component.openExistingResultModal('TIP', '999');
 
@@ -309,7 +309,7 @@ describe('CreateResultFormComponent', () => {
     it('should not open modal when find returns undefined and list has multiple items', async () => {
       const a = { result_official_code: '111', platform_code: 'TIP', title: 'A', result_id: 1 };
       const b = { result_official_code: '222', platform_code: 'TIP', title: 'B', result_id: 2 };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [a, b] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: [a, b], total: 2 } } as any);
 
       await component.openExistingResultModal('TIP', '999');
 
@@ -325,7 +325,7 @@ describe('CreateResultFormComponent', () => {
         result_id: 5,
         snapshot_years: [2024, 2025]
       };
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [resultItem] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: [resultItem], total: 1 } } as any);
 
       await component.openExistingResultModal('TIP', '888');
 
@@ -348,7 +348,7 @@ describe('CreateResultFormComponent', () => {
     });
 
     it('should not open modal when data is empty', async () => {
-      apiServiceMock.GET_Results!.mockResolvedValue({ data: [] } as any);
+      apiServiceMock.GET_Results!.mockResolvedValue({ data: { results: [], total: 0 } } as any);
 
       await component.openExistingResultModal('TIP', '999');
 
