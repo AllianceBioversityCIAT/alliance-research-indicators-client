@@ -1,6 +1,6 @@
 import { Component, OnDestroy, computed, effect, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Table, TableModule } from 'primeng/table';
+import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -53,9 +53,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   @ViewChild('dt2') dt2!: Table;
 
   selectedResults = signal<Result[]>([]);
-  searchInput = signal('');
-  linkedTablePaginatorFirst = signal(0);
-  linkedTablePaginatorRows = signal(10);
   saving = signal(false);
   private modalWasOpen = false;
   private savedMyResultsFilterItem: import('primeng/api').MenuItem | undefined;
@@ -90,24 +87,22 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     { allowSignalWrites: true }
   );
 
-  onSearchInputChange = effect(() => {
-    const searchValue = this.searchInput();
-    this.resultsCenterService.list();
-    if (this.dt2) {
-      this.linkedTablePaginatorFirst.set(0);
-      this.dt2.first = 0;
-      this.dt2.filterGlobal(searchValue, 'contains');
-    }
-  });
-
   ngOnDestroy(): void {
     this.modalVisibilityWatcher.destroy();
-    this.onSearchInputChange.destroy();
     this.syncSelectedResultsWatcher.destroy();
   }
 
   setSearchInputFilter(query: string) {
-    this.searchInput.set(query);
+    this.resultsCenterService.resultsTablePaginatorFirst.set(0);
+    this.resultsCenterService.searchInput.set(query);
+    if (this.dt2) {
+      this.dt2.first = 0;
+    }
+    void this.resultsCenterService.main();
+  }
+
+  handleLinkedTableLazyLoad(event: TableLazyLoadEvent): void {
+    this.resultsCenterService.handleResultsTableLazyLoad(event);
   }
 
   getResultHref(result: Result, platformCode?: string): string {
@@ -262,50 +257,17 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   clearFilters(): void {
     this.resultsCenterService.clearAllFiltersWithPreserve([...MODAL_INDICATOR_CODES]);
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
-    this.searchInput.set('');
+    this.resultsCenterService.searchInput.set('');
     this.resetTableToFirstPage();
     void this.loadResultsForModal();
   }
 
   getScrollHeight = computed(() => `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + 400}px)`);
 
-  onLinkedResultsTablePage(event: { first: number; rows: number }): void {
-    const newRows = event.rows ?? 10;
-    const previousFirst = this.linkedTablePaginatorFirst();
-    const previousRows = this.linkedTablePaginatorRows();
-    const table = this.dt2;
-    const total = this.getLinkedTablePaginatorTotalRecords(table);
-    const nextFirst = previousRows === newRows ? (event.first ?? 0) : this.alignLinkedTableFirstAfterRowsChange(previousFirst, newRows, total);
-    this.linkedTablePaginatorFirst.set(nextFirst);
-    this.linkedTablePaginatorRows.set(newRows);
-    if (table) {
-      table.first = nextFirst;
-      table.rows = newRows;
-    }
-  }
-
-  private getLinkedTablePaginatorTotalRecords(table: Table | undefined): number {
-    if (table != null && typeof table.totalRecords === 'number') {
-      return table.totalRecords;
-    }
-    return this.resultsCenterService.list().length;
-  }
-
-  private alignLinkedTableFirstAfterRowsChange(anchorFirst: number, newRows: number, total: number): number {
-    const safeRows = newRows > 0 ? newRows : 10;
-    let newFirst = Math.floor(anchorFirst / safeRows) * safeRows;
-    if (total > 0) {
-      const maxFirst = Math.max(0, total - safeRows);
-      if (newFirst > maxFirst) {
-        newFirst = maxFirst;
-      }
-    }
-    return newFirst;
-  }
-
   private async onModalOpened(): Promise<void> {
-    this.linkedTablePaginatorFirst.set(0);
-    this.linkedTablePaginatorRows.set(10);
+    this.resultsCenterService.invalidateResultsListFetchCache();
+    this.resultsCenterService.resultsTablePaginatorFirst.set(0);
+    this.resultsCenterService.resultsTablePaginatorRows.set(10);
     this.savedMyResultsFilterItem = this.resultsCenterService.myResultsFilterItem();
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
 
@@ -334,6 +296,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
 
   private async loadResultsForModal(): Promise<void> {
     try {
+      this.resultsCenterService.invalidateResultsListFetchCache();
       this.resultsCenterService.list.set([]);
       this.resultsCenterService.loading.set(true);
 
@@ -381,7 +344,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   private resetModalFilters(): void {
     this.resultsCenterService.showFiltersSidebar.set(false);
     this.selectedResults.set([]);
-    this.searchInput.set('');
+    this.resultsCenterService.searchInput.set('');
 
     if (this.savedMyResultsFilterItem) {
       this.resultsCenterService.myResultsFilterItem.set(this.savedMyResultsFilterItem);
@@ -417,7 +380,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   }
 
   private resetTableToFirstPage(): void {
-    this.linkedTablePaginatorFirst.set(0);
+    this.resultsCenterService.resultsTablePaginatorFirst.set(0);
     if (this.dt2) {
       this.dt2.first = 0;
     }
