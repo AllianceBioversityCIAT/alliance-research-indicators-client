@@ -1,5 +1,7 @@
 import { Component, computed, effect, ElementRef, inject, signal, ViewChild, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
+import { GetLeversService } from '@services/control-list/get-levers.service';
+import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -37,6 +39,7 @@ import { AllianceLeverCardComponent } from './components/alliance-lever-card/all
 export default class AllianceAlignmentComponent {
   environment = environment;
   getContractsService = inject(GetContractsService);
+  private readonly getLeversService = inject(GetLeversService);
   body: WritableSignal<GetAllianceAlignment> = signal({
     contracts: [],
     result_sdgs: [],
@@ -126,6 +129,147 @@ export default class AllianceAlignmentComponent {
     return this.body().contributor_levers || [];
   }
 
+  getRequiredLeverIdsFromContracts(contracts: unknown[] | undefined): (string | number)[] {
+    const list = contracts ?? [];
+    const ordered: (string | number)[] = [];
+    const seen = new Set<string>();
+    for (const c of list) {
+      const id = this.getLeverIdFromContract(c);
+      if (id == null) continue;
+      const key = String(id);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      ordered.push(id);
+    }
+    return ordered;
+  }
+
+  isLeverRequiredFromContributingProject(lever: Lever): boolean {
+    return this.getRequiredLeverIdsFromContracts(this.body().contracts).some(id => String(id) === String(lever.lever_id));
+  }
+
+  private getLeverIdFromContract(contract: unknown): string | number | null {
+    if (contract == null || typeof contract !== 'object') return null;
+    const c = contract as Record<string, unknown>;
+    const raw = c['levers'];
+    let lv: unknown = raw;
+    if (Array.isArray(lv)) lv = lv[0];
+    if (lv && typeof lv === 'object') {
+      const levers = lv as Record<string, unknown>;
+      const name = levers['full_name'];
+      if (name === 'Not available') return null;
+      const id = levers['id'] ?? levers['lever_id'];
+      if (id != null && id !== '') return id as string | number;
+    }
+    const top = c['lever_id'];
+    if (top != null && top !== '') return top as string | number;
+    return null;
+  }
+
+  private leverFromCatalog(entry: GetLevers): Lever {
+    const lid = entry.lever_id ?? entry.id;
+    return {
+      result_lever_id: 0,
+      result_id: 0,
+      lever_id: lid,
+      lever_role_id: 1,
+      is_primary: true,
+      short_name: entry.short_name,
+      other_names: entry.other_names,
+      icon: undefined,
+      result_lever_sdgs: [],
+      result_lever_strategic_outcomes: []
+    };
+  }
+
+  private leverFromContractNested(
+    nested: { id?: number; short_name?: string; other_names?: string; lever_url?: string },
+    leverId: string | number
+  ): Lever {
+    return {
+      result_lever_id: 0,
+      result_id: 0,
+      lever_id: leverId,
+      lever_role_id: 1,
+      is_primary: true,
+      short_name: nested.short_name,
+      other_names: nested.other_names,
+      icon: nested.lever_url,
+      result_lever_sdgs: [],
+      result_lever_strategic_outcomes: []
+    };
+  }
+
+  private findCatalogLever(leverId: string | number): GetLevers | undefined {
+    const list = this.getLeversService.list() ?? [];
+    return list.find(l => String(l.lever_id ?? l.id) === String(leverId));
+  }
+
+  private findNestedLeverShape(
+    contracts: unknown[],
+    leverId: string | number
+  ): { short_name?: string; other_names?: string; lever_url?: string } | undefined {
+    for (const c of contracts) {
+      if (String(this.getLeverIdFromContract(c)) !== String(leverId)) continue;
+      const raw = (c as Record<string, unknown>)['levers'];
+      let lv: unknown = raw;
+      if (Array.isArray(lv)) lv = lv[0];
+      if (lv && typeof lv === 'object') return lv as { short_name?: string; other_names?: string; lever_url?: string };
+    }
+    return undefined;
+  }
+
+  private resolveLeverForPrimary(leverId: string | number, currentPrimaries: Lever[], contracts: unknown[]): Lever {
+    const existing = currentPrimaries.find(l => String(l.lever_id) === String(leverId));
+    if (existing) return existing;
+    const cat = this.findCatalogLever(leverId);
+    if (cat) return this.leverFromCatalog(cat);
+    const nested = this.findNestedLeverShape(contracts, leverId);
+    if (nested) return this.leverFromContractNested(nested, leverId);
+    return {
+      result_lever_id: 0,
+      result_id: 0,
+      lever_id: leverId,
+      lever_role_id: 1,
+      is_primary: true,
+      result_lever_sdgs: [],
+      result_lever_strategic_outcomes: []
+    };
+  }
+
+  private computeMergedPrimaryLevers(): Lever[] {
+    const b = this.body();
+    const contracts = b.contracts ?? [];
+    const current = b.primary_levers ?? [];
+    const requiredIds = this.getRequiredLeverIdsFromContracts(contracts);
+    const requiredSet = new Set(requiredIds.map(String));
+
+    const requiredLevers = requiredIds.map(id => this.resolveLeverForPrimary(id, current, contracts));
+
+    const optional = current.filter(l => !requiredSet.has(String(l.lever_id)));
+
+    return [...requiredLevers, ...optional];
+  }
+
+  private samePrimaryLeverSequence(a: Lever[], b: Lever[]): boolean {
+    if (a.length !== b.length) return false;
+    return a.every((x, i) => String(x.lever_id) === String(b[i]?.lever_id));
+  }
+
+  private readonly syncContractLeversToPrimaryEffect = effect(
+    () => {
+      this.body();
+      this.getLeversService.list();
+      const merged = this.computeMergedPrimaryLevers();
+      const current = this.body().primary_levers ?? [];
+      if (this.samePrimaryLeverSequence(current, merged)) {
+        return;
+      }
+      this.body.update(prev => ({ ...prev, primary_levers: merged }));
+    },
+    { allowSignalWrites: true }
+  );
+
   updateOptionsDisabledEffect = effect(
     () => {
       this.optionsDisabled.set(this.getPrimaryLeversForOptions());
@@ -135,7 +279,10 @@ export default class AllianceAlignmentComponent {
 
   updatePrimaryOptionsDisabledEffect = effect(
     () => {
-      this.primaryOptionsDisabled.set(this.getContributorLeversForOptions());
+      const contracts = this.body().contracts;
+      const contributor = this.getContributorLeversForOptions();
+      const lockedStubs = this.getRequiredLeverIdsFromContracts(contracts).map(id => ({ lever_id: id }) as Lever);
+      this.primaryOptionsDisabled.set([...contributor, ...lockedStubs]);
     },
     { allowSignalWrites: true }
   );
@@ -276,6 +423,7 @@ export default class AllianceAlignmentComponent {
 
   removePrimaryLever(lever: Lever) {
     if (!this.submission.isEditableStatus()) return;
+    if (this.isLeverRequiredFromContributingProject(lever)) return;
     this.leverOutcomeSignals.delete(lever.lever_id);
     this.leverSdgSignals.delete(lever.lever_id);
     this.body.update(current => ({

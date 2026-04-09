@@ -9,11 +9,24 @@
       </span>
     </div>
     @if (!disabled) {
+    @if (removeLocked) {
+    <span
+      class="inline-flex shrink-0 cursor-not-allowed"
+      pTooltip="The primary project lever cannot be removed."
+      tooltipPosition="top">
+      <button type="button" disabled
+        class="shrink-0 cursor-not-allowed border-0 bg-transparent p-0 leading-none text-[#A2A9AF] focus:outline-none rounded pointer-events-none"
+        aria-label="The primary project lever cannot be removed.">
+        <i class="pi pi-times-circle !text-[20px]" aria-hidden="true"></i>
+      </button>
+    </span>
+    } @else {
     <button type="button"
       class="shrink-0 cursor-pointer border-0 bg-transparent p-0 leading-none text-[#CF0808] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CF0808]/30 rounded"
       (click)="removeLever.emit()" (keydown.enter)="removeLever.emit()" aria-label="Remove lever">
       <i class="pi pi-times-circle !text-[20px]"></i>
     </button>
+    }
     }
   </div>
 
