@@ -360,28 +360,31 @@ export const mockResults = {
     detail: '',
     description: ''
   },
-  data: [
-    {
-      is_active: true,
-      result_id: 1,
-      result_official_code: 'R001',
-      version_id: null,
-      title: 'Innovación 1',
-      description: 'Desc 1',
-      indicator_id: 2,
-      geo_scope_id: null
-    },
-    {
-      is_active: false,
-      result_id: 2,
-      result_official_code: 'R002',
-      version_id: null,
-      title: 'Innovación 2',
-      description: null,
-      indicator_id: 2,
-      geo_scope_id: null
-    }
-  ]
+  data: {
+    results: [
+      {
+        is_active: true,
+        result_id: 1,
+        result_official_code: 'R001',
+        version_id: null,
+        title: 'Innovación 1',
+        description: 'Desc 1',
+        indicator_id: 2,
+        geo_scope_id: null
+      },
+      {
+        is_active: false,
+        result_id: 2,
+        result_official_code: 'R002',
+        version_id: null,
+        title: 'Innovación 2',
+        description: null,
+        indicator_id: 2,
+        geo_scope_id: null
+      }
+    ],
+    total: 2
+  }
 };
 
 export const mockInstitutionsTypes = {

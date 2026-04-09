@@ -382,7 +382,13 @@ describe('mock-services.mock', () => {
       expect(contracts).toEqual({ data: [] });
 
       const results = await apiServiceMock.GET_Results();
-      expect(results).toEqual({ data: [] });
+      expect(results).toEqual({ data: { results: [], total: 0 } });
+
+      const userStaff = await apiServiceMock.GET_UserStaff();
+      expect(userStaff).toEqual({ data: [] });
+
+      const findContracts = await apiServiceMock.GET_FindContracts();
+      expect(findContracts).toEqual({ data: [] });
 
       const institutionsTypesChildless = await apiServiceMock.GET_InstitutionsTypesChildless();
       expect(institutionsTypesChildless).toEqual({ data: [] });
