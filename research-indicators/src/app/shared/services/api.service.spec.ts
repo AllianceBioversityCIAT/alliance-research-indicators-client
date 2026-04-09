@@ -1337,72 +1337,135 @@ describe('ApiService', () => {
   });
 
   describe('GET_Results method', () => {
-    it('should call GET_Results with basic filter', () => {
+    const v2Base = 'v2/results?page=1&limit=10000&sort-order=DESC&sort-field=code';
+    const ownFalse = '&only-own-results=false';
+
+    it('should call GET_Results with basic filter', async () => {
       const resultFilter = { 'indicator-codes-tabs': [101, 102] };
-      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { data: [], total: 0 } });
 
-      service.GET_Results(resultFilter);
+      await service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC&indicator-codes=101,102', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(`${v2Base}&indicators=101%2C102${ownFalse}`, {});
     });
 
-    it('should call GET_Results with indicator-codes-filter', () => {
+    it('should call GET_Results with indicator-codes-filter', async () => {
       const resultFilter = { 'indicator-codes-filter': [101, 102] };
-      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { data: [], total: 0 } });
 
-      service.GET_Results(resultFilter);
+      await service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC&indicator-codes=101,102', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(`${v2Base}&indicators=101%2C102${ownFalse}`, {});
     });
 
-    it('should call GET_Results with resultConfig', () => {
+    it('should call GET_Results with resultConfig (ignored in v2 query string)', async () => {
       const resultFilter = {};
       const resultConfig: import('../interfaces/result/result.interface').ResultConfig = { 'audit-data': true, 'result-status': false };
-      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { data: [], total: 0 } });
 
-      service.GET_Results(resultFilter, resultConfig);
+      await service.GET_Results(resultFilter, resultConfig);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC&audit-data=true', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(`${v2Base}${ownFalse}`, {});
     });
 
-    it('should call GET_Results with complex filters', () => {
+    it('should call GET_Results with complex filters', async () => {
       const resultFilter: import('../interfaces/result/result.interface').ResultFilter = {
         'indicator-codes-tabs': [101],
         'status-codes': [1, 2],
         years: [2024]
       };
       const resultConfig: import('../interfaces/result/result.interface').ResultConfig = { 'audit-data': true };
-      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { data: [], total: 0 } });
 
-      service.GET_Results(resultFilter, resultConfig);
+      await service.GET_Results(resultFilter, resultConfig);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith(
-        'results?sort-order=DESC&indicator-codes=101&audit-data=true&status-codes=1,2&years=2024',
+        `${v2Base}&indicators=101&status-codes=1%2C2&years=2024${ownFalse}`,
         {}
       );
     });
 
-    it('should call GET_Results with empty arrays', () => {
+    it('should call GET_Results with empty arrays', async () => {
       const resultFilter = {
         'indicator-codes-tabs': [],
         status: ['active']
       };
-      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { data: [], total: 0 } });
 
-      service.GET_Results(resultFilter);
+      await service.GET_Results(resultFilter as import('../interfaces/result/result.interface').ResultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC&status=active', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(`${v2Base}&status=active${ownFalse}`, {});
     });
 
-    it('should call GET_Results with no parameters', () => {
+    it('should call GET_Results with no parameters', async () => {
       const resultFilter = {};
-      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { data: [], total: 0 } });
 
-      service.GET_Results(resultFilter);
+      await service.GET_Results(resultFilter);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results?sort-order=DESC', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(`${v2Base}${ownFalse}`, {});
     });
 
+    it('should map pagination and search query params', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { data: [], total: 0 } });
+
+      await service.GET_Results({}, undefined, {
+        page: 2,
+        limit: 25,
+        sortField: 'result-title',
+        sortOrder: 'ASC',
+        search: 'hello world'
+      });
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(
+        'v2/results?page=2&limit=25&sort-order=ASC&sort-field=result-title&search=hello%20world&only-own-results=false',
+        {}
+      );
+    });
+
+    it('should send only-own-results true when create-user-codes filter is set', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { data: [], total: 0 } });
+
+      await service.GET_Results({ 'create-user-codes': ['356'] } as import('../interfaces/result/result.interface').ResultFilter);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(
+        'v2/results?page=1&limit=10000&sort-order=DESC&sort-field=code&only-own-results=true',
+        {}
+      );
+    });
+
+    it('should unwrap v2 envelope with nested pagination.total for table totalRecords', async () => {
+      const row = {
+        result_id: 1,
+        result_official_code: 100,
+        platform_code: 'PRMS',
+        title: 'T',
+        indicator_id: 1,
+        status_id: 4,
+        status_name: 'Draft'
+      };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({
+        data: {
+          data: [row],
+          pagination: {
+            total: 3472,
+            page: 1,
+            limit: 25,
+            pageSize: 25,
+            totalPages: 139,
+            hasNextPage: true,
+            hasPreviousPage: false
+          }
+        }
+      });
+
+      const out = await service.GET_Results({}, undefined, { page: 1, limit: 25 });
+
+      expect(out.data?.total).toBe(3472);
+      expect(out.data?.results?.length).toBe(1);
+      expect(out.data?.pagination?.total).toBe(3472);
+      expect(out.data?.pagination?.hasNextPage).toBe(true);
+    });
   });
 
   describe('Additional GET methods', () => {

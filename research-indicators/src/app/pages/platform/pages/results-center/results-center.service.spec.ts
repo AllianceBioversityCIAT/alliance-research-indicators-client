@@ -64,7 +64,7 @@ describe('ResultsCenterService', () => {
     } as any;
 
     const mockGetResultsServiceObj = {
-      getInstance: jest.fn().mockResolvedValue(signal(mockResults))
+      fetchPaginated: jest.fn().mockResolvedValue({ results: mockResults, total: 1 })
     } as any;
 
     TestBed.configureTestingModule({
@@ -107,7 +107,7 @@ describe('ResultsCenterService', () => {
           ResultsCenterService,
           { provide: ApiService, useValue: { indicatorTabs: mockIndicatorTabsLoaded } as any },
           { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
-          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockResolvedValue(signal(mockResults)) } }
+          { provide: GetResultsService, useValue: { fetchPaginated: jest.fn().mockResolvedValue({ results: mockResults, total: 1 }) } }
         ]
       });
       TestBed.inject(ResultsCenterService);
@@ -910,7 +910,7 @@ describe('ResultsCenterService', () => {
             }
           },
           { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
-          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockResolvedValue(signal(mockResults)) } }
+          { provide: GetResultsService, useValue: { fetchPaginated: jest.fn().mockResolvedValue({ results: mockResults, total: 1 }) } }
         ]
       });
       TestBed.inject(ResultsCenterService);
@@ -1900,8 +1900,14 @@ describe('ResultsCenterService', () => {
     it('should pass filter-primary-contract when primaryContractId is set', async () => {
       service.primaryContractId.set('contract-123');
       await service.main();
-      expect(mockGetResultsService.getInstance).toHaveBeenCalledWith(
+      expect(mockGetResultsService.fetchPaginated).toHaveBeenCalledWith(
         expect.objectContaining({ 'filter-primary-contract': ['contract-123'] }),
+        expect.objectContaining({
+          page: 1,
+          limit: 10,
+          sortField: 'code',
+          sortOrder: 'DESC'
+        }),
         expect.anything()
       );
     });
@@ -1934,7 +1940,7 @@ describe('ResultsCenterService', () => {
           result_levers: [{ is_primary: 0, lever: { short_name: 'Lever 1' } }]
         }
       ];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithoutPrimary));
+      mockGetResultsService.fetchPaginated.mockResolvedValueOnce({ results: resultsWithoutPrimary, total: 1 });
 
       await service.main();
 
@@ -1952,7 +1958,7 @@ describe('ResultsCenterService', () => {
           ]
         }
       ] as any;
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithLeverNoShortName));
+      mockGetResultsService.fetchPaginated.mockResolvedValueOnce({ results: resultsWithLeverNoShortName, total: 1 });
       await service.main();
       const list = service.list();
       expect(list).toHaveLength(1);
@@ -1969,7 +1975,7 @@ describe('ResultsCenterService', () => {
           ]
         }
       ];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithPrimary));
+      mockGetResultsService.fetchPaginated.mockResolvedValueOnce({ results: resultsWithPrimary, total: 1 });
 
       await service.main();
 
@@ -1978,7 +1984,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should handle errors when loading results', async () => {
-      mockGetResultsService.getInstance.mockRejectedValueOnce(new Error('API Error'));
+      mockGetResultsService.fetchPaginated.mockRejectedValueOnce(new Error('API Error'));
 
       // Mock console.error to prevent error output in tests
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -2006,15 +2012,15 @@ describe('ResultsCenterService', () => {
     it('should not update list when context changes during request', async () => {
       const initialList = [{ result_official_code: 'OLD' }] as any;
       service.list.set(initialList);
-      let resolveInstance!: (v: WritableSignal<Result[]>) => void;
-      const instancePromise = new Promise<WritableSignal<Result[]>>(r => {
-        resolveInstance = r;
+      let resolveFetch!: (v: { results: Result[]; total: number }) => void;
+      const fetchPromise = new Promise<{ results: Result[]; total: number }>(r => {
+        resolveFetch = r;
       });
-      mockGetResultsService.getInstance.mockImplementationOnce(() => instancePromise as any);
+      mockGetResultsService.fetchPaginated.mockImplementationOnce(() => fetchPromise as any);
       const mainPromise = service.main();
       await Promise.resolve();
       service.primaryContractId.set('other-contract');
-      resolveInstance(signal(mockResults));
+      resolveFetch({ results: mockResults, total: 1 });
       await mainPromise;
       expect(service.list()).toEqual(initialList);
     });
@@ -2030,7 +2036,7 @@ describe('ResultsCenterService', () => {
 
     it('should handle created_by_user with null first_name and last_name', async () => {
       const resultsWithNullNames = [{ ...mockResults[0], created_by_user: { first_name: null, last_name: null } }];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithNullNames));
+      mockGetResultsService.fetchPaginated.mockResolvedValueOnce({ results: resultsWithNullNames, total: 1 });
 
       await service.main();
 

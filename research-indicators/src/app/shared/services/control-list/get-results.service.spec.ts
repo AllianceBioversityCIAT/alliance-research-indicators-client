@@ -5,7 +5,7 @@ import { ApiService } from '@services/api.service';
 
 describe('GetResultsService', () => {
   let service: GetResultsService;
-  let apiService: any;
+  let apiService: { GET_Results: jest.Mock };
 
   const mockData = [
     { id: 1, name: 'Result 1' },
@@ -13,7 +13,7 @@ describe('GetResultsService', () => {
   ];
 
   const mockResponse = {
-    data: mockData
+    data: { results: mockData, total: 2 }
   };
 
   beforeEach(() => {
@@ -40,13 +40,13 @@ describe('GetResultsService', () => {
 
   it('updateList sets loading and results correctly', async () => {
     await service.updateList();
-    expect(apiService.GET_Results).toHaveBeenCalledWith({});
+    expect(apiService.GET_Results).toHaveBeenCalledWith({}, undefined, { page: 1, limit: 10_000 });
     expect(service.results()).toEqual(mockData);
     expect(service.loading()).toBe(false);
   });
 
   it('updateList handles empty response', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: [] });
+    apiService.GET_Results.mockResolvedValueOnce({ data: { results: [], total: 0 } });
     await service.updateList();
     expect(service.results()).toEqual([]);
     expect(service.loading()).toBe(false);
@@ -73,87 +73,11 @@ describe('GetResultsService', () => {
     expect(service.loading()).toBe(false);
   });
 
-  it('updateList handles response with data not an array', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: 'not an array' });
+  it('updateList handles missing results array', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: { total: 0 } });
     await service.updateList();
     expect(service.results()).toEqual([]);
     expect(service.loading()).toBe(false);
-  });
-
-  it('updateList handles response with data as an object', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: { id: 1 } });
-    await service.updateList();
-    expect(service.results()).toEqual([]);
-    expect(service.loading()).toBe(false);
-  });
-
-  it('getInstance returns a signal with the data', async () => {
-    const filter: ResultFilter = {} as any;
-    const config: ResultConfig = {} as any;
-    apiService.GET_Results.mockResolvedValueOnce({ data: [{ id: 99 }] });
-
-    const result = await service.getInstance(filter, config);
-
-    expect(apiService.GET_Results).toHaveBeenCalledWith(filter, config);
-    expect(result()).toEqual([{ id: 99 }]);
-  });
-
-  it('getInstance without resultConfig', async () => {
-    const filter: ResultFilter = {} as any;
-    apiService.GET_Results.mockResolvedValueOnce({ data: [{ id: 77 }] });
-
-    const result = await service.getInstance(filter);
-
-    expect(apiService.GET_Results).toHaveBeenCalledWith(filter, undefined);
-    expect(result()).toEqual([{ id: 77 }]);
-  });
-
-  it('getInstance handles empty response', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: [] });
-
-    const result = await service.getInstance({} as any);
-
-    expect(result()).toEqual([]);
-  });
-
-  it('getInstance handles response null', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: null });
-
-    const result = await service.getInstance({} as any);
-
-    expect(result()).toEqual([]);
-  });
-
-  it('getInstance handles response undefined', async () => {
-    apiService.GET_Results.mockResolvedValueOnce(undefined);
-
-    const result = await service.getInstance({} as any);
-
-    expect(result()).toEqual([]);
-  });
-
-  it('getInstance handles response without data', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ status: 200 });
-
-    const result = await service.getInstance({} as any);
-
-    expect(result()).toEqual([]);
-  });
-
-  it('getInstance handles response with data not an array', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: 'not an array' });
-
-    const result = await service.getInstance({} as any);
-
-    expect(result()).toEqual([]);
-  });
-
-  it('getInstance handles response with data as an object', async () => {
-    apiService.GET_Results.mockResolvedValueOnce({ data: { id: 1 } });
-
-    const result = await service.getInstance({} as any);
-
-    expect(result()).toEqual([]);
   });
 
   it('updateList handles API error', async () => {
@@ -165,11 +89,42 @@ describe('GetResultsService', () => {
     expect(service.results()).toEqual([]);
   });
 
-  it('getInstance handles API error', async () => {
+  it('fetchPaginated returns results and total', async () => {
+    const filter: ResultFilter = {} as ResultFilter;
+    const config: ResultConfig = {} as ResultConfig;
+    const pagination = { page: 1, limit: 10, sortField: 'code' as const, sortOrder: 'DESC' as const };
+    apiService.GET_Results.mockResolvedValueOnce({ data: { results: [{ id: 99 }], total: 1 } });
+
+    const result = await service.fetchPaginated(filter, pagination, config);
+
+    expect(apiService.GET_Results).toHaveBeenCalledWith(filter, config, pagination);
+    expect(result).toEqual({ results: [{ id: 99 }], total: 1 });
+  });
+
+  it('fetchPaginated without resultConfig', async () => {
+    const filter: ResultFilter = {} as ResultFilter;
+    const pagination = { page: 2, limit: 5 };
+    apiService.GET_Results.mockResolvedValueOnce({ data: { results: [{ id: 77 }], total: 10 } });
+
+    const result = await service.fetchPaginated(filter, pagination, undefined);
+
+    expect(apiService.GET_Results).toHaveBeenCalledWith(filter, undefined, pagination);
+    expect(result).toEqual({ results: [{ id: 77 }], total: 10 });
+  });
+
+  it('fetchPaginated handles empty envelope', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: { results: [], total: 0 } });
+
+    const result = await service.fetchPaginated({} as ResultFilter, { page: 1, limit: 10 });
+
+    expect(result).toEqual({ results: [], total: 0 });
+  });
+
+  it('fetchPaginated handles API error', async () => {
     apiService.GET_Results.mockRejectedValueOnce(new Error('API Error'));
 
-    const result = await service.getInstance({} as any);
+    const result = await service.fetchPaginated({} as ResultFilter, { page: 1, limit: 10 });
 
-    expect(result()).toEqual([]);
+    expect(result).toEqual({ results: [], total: 0 });
   });
 });
