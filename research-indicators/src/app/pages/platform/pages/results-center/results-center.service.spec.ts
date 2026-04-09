@@ -128,6 +128,7 @@ describe('ResultsCenterService', () => {
       expect(service.showConfigurationSidebar()).toBe(false);
       expect(service.loading()).toBe(false);
       expect(service.list()).toEqual([]);
+      expect(service.resultsListForTable()).toEqual([]);
       expect(service.searchInput()).toBe('');
       expect(service.showConfigurationsSidebar()).toBe(false);
       expect(service.confirmFiltersSignal()).toBe(false);
@@ -830,45 +831,90 @@ describe('ResultsCenterService', () => {
     });
   });
 
-  describe('handleResultsTablePage', () => {
+  describe('handleResultsTableLazyLoad', () => {
     it('should use event.first when rows per page unchanged', () => {
       const tableMock = { first: 0, rows: 10, totalRecords: 100 } as any;
       service.tableRef.set(tableMock);
+      service.resultsTableTotalRecords.set(100);
       service.resultsTablePaginatorFirst.set(10);
       service.resultsTablePaginatorRows.set(10);
-      service.handleResultsTablePage({ first: 20, rows: 10 });
+      service.handleResultsTableLazyLoad({ first: 20, rows: 10 });
       expect(service.resultsTablePaginatorFirst()).toBe(20);
-      expect(tableMock.first).toBe(20);
     });
 
     it('should align first when rows per page changes even if event.first is 0', () => {
       const tableMock = { first: 0, rows: 10, totalRecords: 100 } as any;
       service.tableRef.set(tableMock);
+      service.resultsTableTotalRecords.set(100);
       service.resultsTablePaginatorFirst.set(40);
       service.resultsTablePaginatorRows.set(10);
-      service.handleResultsTablePage({ first: 0, rows: 25 });
+      service.handleResultsTableLazyLoad({ first: 0, rows: 25 });
       expect(service.resultsTablePaginatorFirst()).toBe(25);
       expect(service.resultsTablePaginatorRows()).toBe(25);
-      expect(tableMock.first).toBe(25);
-      expect(tableMock.rows).toBe(25);
     });
 
     it('should clamp first to last standard page when aligned index exceeds total (no total - rows overlap)', () => {
       const tableMock = { first: 0, rows: 10, totalRecords: 60 } as any;
       service.tableRef.set(tableMock);
+      service.resultsTableTotalRecords.set(60);
       service.resultsTablePaginatorFirst.set(50);
       service.resultsTablePaginatorRows.set(10);
-      service.handleResultsTablePage({ first: 0, rows: 25 });
+      service.handleResultsTableLazyLoad({ first: 0, rows: 25 });
       expect(service.resultsTablePaginatorFirst()).toBe(50);
     });
 
     it('should clamp to lastPageFirst = floor((total-1)/rows)*rows when same rows (e.g. total 33, rows 10 → first 30)', () => {
       const tableMock = { first: 0, rows: 10, totalRecords: 33 } as any;
       service.tableRef.set(tableMock);
+      service.resultsTableTotalRecords.set(33);
       service.resultsTablePaginatorFirst.set(0);
       service.resultsTablePaginatorRows.set(10);
-      service.handleResultsTablePage({ first: 50, rows: 10 });
+      service.handleResultsTableLazyLoad({ first: 50, rows: 10 });
       expect(service.resultsTablePaginatorFirst()).toBe(30);
+    });
+
+    it('should update sort signals when lazy load includes sortField', () => {
+      service.resultsTableTotalRecords.set(100);
+      service.handleResultsTableLazyLoad({
+        first: 0,
+        rows: 10,
+        sortField: 'title',
+        sortOrder: 1
+      } as any);
+      expect(service.resultsTableSortField()).toBe('title');
+      expect(service.resultsTableSortOrder()).toBe(1);
+
+      service.handleResultsTableLazyLoad({
+        first: 0,
+        rows: 10,
+        sortField: 'result_official_code',
+        sortOrder: -1
+      } as any);
+      expect(service.resultsTableSortField()).toBe('result_official_code');
+      expect(service.resultsTableSortOrder()).toBe(-1);
+    });
+
+    it('should default missing first and rows from signals', () => {
+      service.resultsTableTotalRecords.set(100);
+      service.resultsTablePaginatorFirst.set(5);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTableLazyLoad({} as any);
+      expect(service.resultsTablePaginatorFirst()).toBe(0);
+      expect(service.resultsTablePaginatorRows()).toBe(10);
+    });
+
+    it('should treat rows 0 as page size 10 when aligning paginator', () => {
+      service.resultsTableTotalRecords.set(50);
+      service.resultsTablePaginatorFirst.set(20);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTableLazyLoad({ first: 0, rows: 0 } as any);
+      expect(service.resultsTablePaginatorRows()).toBe(0);
+      expect(service.resultsTablePaginatorFirst()).toBe(20);
+    });
+
+    it('should coerce undefined first in clampPaginatorFirstToStandardGrid', () => {
+      const clamp = (service as any).clampPaginatorFirstToStandardGrid.bind(service);
+      expect(clamp(undefined, 10, 100)).toBe(0);
     });
   });
 
@@ -1175,6 +1221,12 @@ describe('ResultsCenterService', () => {
       service.clearAllFilters();
       expect(service.resultsFilter()['create-user-codes']).toEqual([]);
       expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[0]);
+    });
+
+    it('should treat undefined tab as All Results for create-user-codes', () => {
+      service.myResultsFilterItem.set(undefined as any);
+      service.clearAllFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
     });
 
     it('should clear all filters and reset state', () => {
@@ -1822,7 +1874,9 @@ describe('ResultsCenterService', () => {
         searchInput: 'saved search',
         primaryContractId: 'contract-2',
         resultsTablePaginatorFirst: 100,
-        resultsTablePaginatorRows: 25
+        resultsTablePaginatorRows: 25,
+        resultsTableSortField: 'title',
+        resultsTableSortOrder: 1
       };
       jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(JSON.stringify(persistedState));
 
@@ -1837,6 +1891,8 @@ describe('ResultsCenterService', () => {
       expect(service.primaryContractId()).toBe('contract-2');
       expect(service.resultsTablePaginatorFirst()).toBe(100);
       expect(service.resultsTablePaginatorRows()).toBe(25);
+      expect(service.resultsTableSortField()).toBe('title');
+      expect(service.resultsTableSortOrder()).toBe(1);
       expect(mockApiService.indicatorTabs.lazy().list().find(item => item.indicator_id === 2)?.active).toBe(true);
       expect(mockApiService.indicatorTabs.lazy().list().find(item => item.indicator_id === 1)?.active).toBe(false);
     });
@@ -1896,17 +1952,30 @@ describe('ResultsCenterService', () => {
     });
   });
 
+  describe('invalidateResultsListFetchCache', () => {
+    it('should clear fetch dedupe so main runs fetch again with same params', async () => {
+      await service.main();
+      expect(mockGetResultsService.fetchPaginated).toHaveBeenCalledTimes(1);
+      await service.main();
+      expect(mockGetResultsService.fetchPaginated).toHaveBeenCalledTimes(1);
+      service.invalidateResultsListFetchCache();
+      await service.main();
+      expect(mockGetResultsService.fetchPaginated).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('main', () => {
-    it('should pass filter-primary-contract when primaryContractId is set', async () => {
+    it('should pass contract-codes when primaryContractId is set', async () => {
       service.primaryContractId.set('contract-123');
       await service.main();
       expect(mockGetResultsService.fetchPaginated).toHaveBeenCalledWith(
-        expect.objectContaining({ 'filter-primary-contract': ['contract-123'] }),
+        expect.objectContaining({ 'contract-codes': ['contract-123'] }),
         expect.objectContaining({
           page: 1,
           limit: 10,
           sortField: 'code',
-          sortOrder: 'DESC'
+          sortOrder: 'DESC',
+          search: ''
         }),
         expect.anything()
       );
@@ -2027,7 +2096,7 @@ describe('ResultsCenterService', () => {
 
     it('should handle results with no created_by_user', async () => {
       const resultsWithoutUser = [{ ...mockResults[0], created_by_user: undefined }];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithoutUser));
+      mockGetResultsService.fetchPaginated.mockResolvedValueOnce({ results: resultsWithoutUser, total: 1 });
 
       await service.main();
 
