@@ -1,6 +1,7 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@services/api.service';
-import { Result, ResultConfig, ResultFilter } from '@interfaces/result/result.interface';
+import { GetResultsPaginationOptions, Result, ResultConfig, ResultFilter } from '@interfaces/result/result.interface';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,8 +17,8 @@ export class GetResultsService {
   updateList = async () => {
     this.loading.set(true);
     try {
-      const response = await this.api.GET_Results({});
-      this.results.set(Array.isArray(response?.data) ? response.data : []);
+      const response = await this.api.GET_Results({}, undefined, { page: 1, limit: 10_000 });
+      this.results.set(response?.data?.results ?? []);
     } catch {
       this.results.set([]);
     } finally {
@@ -25,14 +26,19 @@ export class GetResultsService {
     }
   };
 
-  getInstance = async (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<WritableSignal<Result[]>> => {
-    const newSignal = signal<Result[]>([]);
+  fetchPaginated = async (
+    resultFilter: ResultFilter,
+    pagination: GetResultsPaginationOptions,
+    resultConfig?: ResultConfig
+  ): Promise<{ results: Result[]; total: number }> => {
     try {
-      const response = await this.api.GET_Results(resultFilter, resultConfig);
-      newSignal.set(Array.isArray(response?.data) ? response.data : []);
+      const response = await this.api.GET_Results(resultFilter, resultConfig, pagination);
+      return {
+        results: response?.data?.results ?? [],
+        total: response?.data?.total ?? 0
+      };
     } catch {
-      newSignal.set([]);
+      return { results: [], total: 0 };
     }
-    return newSignal;
   };
 }
