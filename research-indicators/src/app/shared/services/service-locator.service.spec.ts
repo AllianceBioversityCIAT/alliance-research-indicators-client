@@ -496,6 +496,18 @@ describe('ServiceLocatorService', () => {
       expect(result).toBe(serviceMock);
     });
 
+    it('returns leverSdgTargets service', () => {
+      const result = (service as any).getOtherServices('leverSdgTargets');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
+    it('returns sourceFilterOptions service', () => {
+      const result = (service as any).getOtherServices('sourceFilterOptions');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('returns projectStatus service', () => {
       const result = (service as any).getOtherServices('projectStatus');
       expect(injectorMock.get).toHaveBeenCalled();
