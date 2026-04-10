@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MultiselectComponent } from './multiselect.component';
-import { ElementRef, signal } from '@angular/core';
+import { ElementRef, PLATFORM_ID, signal } from '@angular/core';
 import { SimpleChanges } from '@angular/core';
 import { ActionsService } from '../../../services/actions.service';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
@@ -971,7 +971,7 @@ describe('MultiselectComponent', () => {
       { id: 1, name: 'Option 1' },
       { id: 2, name: 'Option 2' }
     ]);
-    component.useDisabled = signal(false);
+    component.optionsDisabled.set([]);
 
     // Access availableOptions computed which uses the filter
     const result = component.availableOptions();
@@ -983,8 +983,12 @@ describe('MultiselectComponent', () => {
   it('ngOnChanges should rebind service and load when serviceName or serviceParams change', () => {
     const loadDataSpy = jest.spyOn(component as any, 'loadData').mockResolvedValue(undefined);
     const bindSpy = jest.spyOn(component as any, 'bindServiceSignals').mockImplementation(() => {});
-    const otherService = { list: jest.fn().mockReturnValue([]), loading: jest.fn().mockReturnValue(false) };
-    mockServiceLocator.getService.mockReturnValue(otherService);
+    const otherService = {
+      list: jest.fn().mockReturnValue([]),
+      loading: jest.fn().mockReturnValue(false),
+      isOpenSearch: jest.fn().mockReturnValue(false)
+    };
+    mockServiceLocator.getService.mockReturnValue(otherService as any);
     component.serviceName = 'regions';
 
     component.ngOnChanges({
@@ -1007,5 +1011,230 @@ describe('MultiselectComponent', () => {
 
     expect(bindSpy).toHaveBeenCalled();
     expect(loadDataSpy).toHaveBeenCalled();
+  });
+
+  describe('removeById', () => {
+    it('should remove option when service finds matching id', () => {
+      component.ngOnInit();
+      mockService.list.mockReturnValue([
+        { id: 1, name: 'A' },
+        { id: 2, name: 'B' }
+      ]);
+      mockUtilsService.getNestedProperty.mockReturnValue([
+        { id: 1, name: 'A' },
+        { id: 2, name: 'B' }
+      ]);
+      component.signal = signal({ testField: [
+        { id: 1, name: 'A' },
+        { id: 2, name: 'B' }
+      ] });
+      const removeSpy = jest.spyOn(component, 'removeOption');
+      component.removeById(2);
+      expect(removeSpy).toHaveBeenCalledWith({ id: 2, name: 'B' });
+    });
+
+    it('should not call removeOption when id not in service list', () => {
+      component.ngOnInit();
+      mockService.list.mockReturnValue([{ id: 1, name: 'A' }]);
+      const removeSpy = jest.spyOn(component, 'removeOption');
+      component.removeById(99);
+      expect(removeSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('multiselect overlay width (panel show/hide)', () => {
+    it('applyMultiselectPanelMaxWidth sets widths and calls alignOverlay when root, trigger, and panel exist', () => {
+      const host = document.createElement('div');
+      const trigger = document.createElement('div');
+      trigger.className = 'p-multiselect';
+      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 240 } as DOMRect);
+      host.appendChild(trigger);
+      (component as any).hostEl = { nativeElement: host };
+
+      const panel = document.createElement('div');
+      panel.className = 'p-multiselect-overlay';
+      const root = document.createElement('div');
+      root.appendChild(panel);
+      const alignOverlay = jest.fn();
+      (component as any).primeMultiSelect = { overlayViewChild: { overlayEl: root, alignOverlay } };
+
+      (component as any).applyMultiselectPanelMaxWidth();
+
+      expect(root.style.maxWidth).toBe('240px');
+      expect(panel.style.maxWidth).toBe('240px');
+      expect(alignOverlay).toHaveBeenCalled();
+    });
+
+    it('applyMultiselectPanelMaxWidth returns early when overlay root missing', () => {
+      (component as any).primeMultiSelect = { overlayViewChild: { overlayEl: null } };
+      expect(() => (component as any).applyMultiselectPanelMaxWidth()).not.toThrow();
+    });
+
+    it('applyMultiselectPanelMaxWidth returns early when primeMultiSelect is undefined', () => {
+      (component as any).primeMultiSelect = undefined;
+      expect(() => (component as any).applyMultiselectPanelMaxWidth()).not.toThrow();
+    });
+
+    it('applyMultiselectPanelMaxWidth sets root only when overlay panel element is absent', () => {
+      const host = document.createElement('div');
+      const trigger = document.createElement('div');
+      trigger.className = 'p-multiselect';
+      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 180 } as DOMRect);
+      host.appendChild(trigger);
+      (component as any).hostEl = { nativeElement: host };
+      const root = document.createElement('div');
+      const alignOverlay = jest.fn();
+      (component as any).primeMultiSelect = { overlayViewChild: { overlayEl: root, alignOverlay } };
+
+      (component as any).applyMultiselectPanelMaxWidth();
+
+      expect(root.style.maxWidth).toBe('180px');
+      expect(alignOverlay).toHaveBeenCalled();
+    });
+
+    it('applyMultiselectPanelMaxWidth returns early when trigger missing', () => {
+      const root = document.createElement('div');
+      (component as any).hostEl = { nativeElement: document.createElement('div') };
+      (component as any).primeMultiSelect = { overlayViewChild: { overlayEl: root } };
+      (component as any).applyMultiselectPanelMaxWidth();
+      expect(root.style.maxWidth).toBe('');
+    });
+
+    it('applyMultiselectPanelMaxWidth returns early when width under 1', () => {
+      const host = document.createElement('div');
+      const trigger = document.createElement('div');
+      trigger.className = 'p-multiselect';
+      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 0 } as DOMRect);
+      host.appendChild(trigger);
+      (component as any).hostEl = { nativeElement: host };
+      const root = document.createElement('div');
+      (component as any).primeMultiSelect = { overlayViewChild: { overlayEl: root } };
+      (component as any).applyMultiselectPanelMaxWidth();
+      expect(root.style.maxWidth).toBe('');
+    });
+
+    it('clearMultiselectPanelMaxWidth removes styles on root and panel', () => {
+      const panel = document.createElement('div');
+      panel.className = 'p-multiselect-overlay';
+      const root = document.createElement('div');
+      root.style.maxWidth = '100px';
+      root.appendChild(panel);
+      (component as any).primeMultiSelect = { overlayViewChild: { overlayEl: root } };
+      (component as any).clearMultiselectPanelMaxWidth();
+      expect(root.style.maxWidth).toBe('');
+      expect(panel.style.maxWidth).toBe('');
+    });
+
+    it('clearMultiselectPanelMaxWidth returns when root missing', () => {
+      (component as any).primeMultiSelect = { overlayViewChild: { overlayEl: null } };
+      expect(() => (component as any).clearMultiselectPanelMaxWidth()).not.toThrow();
+    });
+
+    it('clearMultiselectPanelMaxWidth clears root only when panel element is absent', () => {
+      const root = document.createElement('div');
+      root.style.maxWidth = '100px';
+      (component as any).primeMultiSelect = { overlayViewChild: { overlayEl: root } };
+      (component as any).clearMultiselectPanelMaxWidth();
+      expect(root.style.maxWidth).toBe('');
+    });
+
+    it('onMultiselectPanelShow runs apply path in browser (rAF + runOutsideAngular)', () => {
+      const ngZone = (component as any).ngZone;
+      jest.spyOn(ngZone, 'runOutsideAngular').mockImplementation((fn: any) => {
+        (fn as () => void)();
+      });
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
+        cb(0);
+        return 0;
+      });
+      const applySpy = jest.spyOn(component as any, 'applyMultiselectPanelMaxWidth').mockImplementation(() => {});
+
+      component.onMultiselectPanelShow();
+
+      expect(applySpy).toHaveBeenCalled();
+      jest.restoreAllMocks();
+    });
+
+    it('onMultiselectPanelHide clears width in browser', () => {
+      const clearSpy = jest.spyOn(component as any, 'clearMultiselectPanelMaxWidth').mockImplementation(() => {});
+      component.onMultiselectPanelHide();
+      expect(clearSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('bindServiceSignals getList/getLoading branch', () => {
+    it('should wire optionsSig and loadingSig from getList and getLoading', () => {
+      const listSig = signal([{ id: 1, name: 'A' }]);
+      const loadSig = signal(true);
+      (component as any).service = {
+        getList: jest.fn().mockReturnValue(listSig),
+        getLoading: jest.fn().mockReturnValue(loadSig)
+      };
+      (component as any).bindServiceSignals();
+      expect(component.optionsSig).toBe(listSig);
+      expect(component.loadingSig).toBe(loadSig);
+    });
+  });
+
+  it('multiselectPanelStyle returns full width when appendTo is self', () => {
+    component.appendTo = 'self';
+    expect(component.multiselectPanelStyle).toEqual({ width: '100%', minWidth: '100%' });
+  });
+
+  it('virtualScrollEstimateSize returns 60 when optionLabel2 is set', () => {
+    component.optionLabel2 = 'secondary';
+    expect(component.virtualScrollEstimateSize()).toBe(60);
+  });
+
+  describe('loadData', () => {
+    it('should await service.main when defined', async () => {
+      const main = jest.fn().mockResolvedValue(undefined);
+      (component as any).service = {
+        main,
+        list: signal([]),
+        loading: signal(false),
+        isOpenSearch: signal(false)
+      };
+      (component as any).bindServiceSignals();
+      await (component as any).loadData();
+      expect(main).toHaveBeenCalled();
+    });
+  });
+
+  describe('SSR (non-browser) panel callbacks', () => {
+    let ssrComponent: MultiselectComponent;
+
+    beforeEach(async () => {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        providers: [
+          MultiselectComponent,
+          { provide: ElementRef, useValue: new ElementRef(document.createElement('div')) },
+          { provide: ActionsService, useValue: mockActionsService },
+          { provide: ServiceLocatorService, useValue: mockServiceLocator },
+          { provide: CacheService, useValue: mockCacheService },
+          { provide: UtilsService, useValue: mockUtilsService },
+          { provide: AllModalsService, useValue: mockAllModalsService },
+          { provide: PLATFORM_ID, useValue: 'server' }
+        ]
+      }).compileComponents();
+      ssrComponent = TestBed.inject(MultiselectComponent);
+    });
+
+    afterEach(() => {
+      TestBed.resetTestingModule();
+    });
+
+    it('onMultiselectPanelShow does not apply when not browser', () => {
+      const spy = jest.spyOn(ssrComponent as any, 'applyMultiselectPanelMaxWidth');
+      ssrComponent.onMultiselectPanelShow();
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('onMultiselectPanelHide does not clear when not browser', () => {
+      const spy = jest.spyOn(ssrComponent as any, 'clearMultiselectPanelMaxWidth');
+      ssrComponent.onMultiselectPanelHide();
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
 });

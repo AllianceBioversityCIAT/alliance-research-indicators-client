@@ -127,7 +127,9 @@ export default class AllianceAlignmentComponent {
     let contributor_levers = mapLevers(response.data.contributor_levers);
 
     const legacyRootSdgs = normalizeSdgs(response.data.result_sdgs);
-    const anyLeverHasSdgs = [...primary_levers, ...contributor_levers].some(l => (l.result_lever_sdgs?.length ?? 0) > 0);
+    const anyLeverHasSdgs = [...primary_levers, ...contributor_levers].some(
+      l => l.result_lever_sdgs != null && l.result_lever_sdgs.length > 0
+    );
 
     if (legacyRootSdgs.length && !anyLeverHasSdgs) {
       const total = primary_levers.length + contributor_levers.length;

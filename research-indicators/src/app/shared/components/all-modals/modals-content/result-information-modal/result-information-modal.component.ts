@@ -2,6 +2,7 @@ import { Component, inject, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
@@ -10,10 +11,11 @@ import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 
 @Component({
   selector: 'app-result-information-modal',
-  imports: [CommonModule, ButtonModule, DatePipe, S3ImageUrlPipe, CustomTagComponent],
+  imports: [CommonModule, ButtonModule, TooltipModule, DatePipe, S3ImageUrlPipe, CustomTagComponent],
   templateUrl: './result-information-modal.component.html'
 })
 export class ResultInformationModalComponent {
+  readonly externalSystemRedirectTooltip = 'You will be redirected to the Information System where this information was captured.';
   allModals = inject(AllModalsService);
 
   result = computed(() => this.allModals.selectedResultForInfo());
@@ -42,26 +44,22 @@ export class ResultInformationModalComponent {
   getPrimaryContract(): string | null {
     const r = this.result();
     if (!r?.result_contracts) return null;
-    
+
     const contracts = Array.isArray(r.result_contracts) ? r.result_contracts : [r.result_contracts];
-    const primaryContract = contracts.find((contract: { is_primary?: number | string; contract_id?: string }) => 
-      Number(contract.is_primary) === 1
-    );
-    
+    const primaryContract = contracts.find((contract: { is_primary?: number | string; contract_id?: string }) => Number(contract.is_primary) === 1);
+
     return primaryContract?.contract_id ?? null;
   }
 
   getContributingContracts(): string[] {
     const r = this.result();
     if (!r?.result_contracts) return [];
-    
+
     const contracts = Array.isArray(r.result_contracts) ? r.result_contracts : [r.result_contracts];
     const contributing = contracts
-      .filter((contract: { is_primary?: number | string; contract_id?: string }) => 
-        Number(contract.is_primary) !== 1 && contract.contract_id
-      )
+      .filter((contract: { is_primary?: number | string; contract_id?: string }) => Number(contract.is_primary) !== 1 && contract.contract_id)
       .map((contract: { contract_id: string }) => contract.contract_id);
-    
+
     return contributing;
   }
 
@@ -76,7 +74,10 @@ export class ResultInformationModalComponent {
     const link = currentResult?.external_link;
     if (!currentResult || !link) return;
 
-    const isSupportedPlatform = currentResult.platform_code === PLATFORM_CODES.TIP || currentResult.platform_code === PLATFORM_CODES.AICCRA || currentResult.platform_code === PLATFORM_CODES.PRMS;
+    const isSupportedPlatform =
+      currentResult.platform_code === PLATFORM_CODES.TIP ||
+      currentResult.platform_code === PLATFORM_CODES.AICCRA ||
+      currentResult.platform_code === PLATFORM_CODES.PRMS;
     if (isSupportedPlatform) {
       globalThis.open(link, '_blank', 'noopener');
     }
@@ -92,5 +93,3 @@ export class ResultInformationModalComponent {
     }
   }
 }
-
-

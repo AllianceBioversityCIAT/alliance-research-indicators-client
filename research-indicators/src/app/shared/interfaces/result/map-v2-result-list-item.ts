@@ -25,6 +25,7 @@ export interface V2ResultListItem {
   create_user_first_name?: string;
   create_user_last_name?: string;
   external_link?: string;
+  public_link?: string;
 }
 
 export function mapV2ResultListItemToResult(row: V2ResultListItem): Result {
@@ -44,6 +45,7 @@ export function mapV2ResultListItemToResult(row: V2ResultListItem): Result {
     title: row.title ?? '',
     platform_code: row.platform_code ?? '',
     external_link: row.external_link,
+    public_link: row.public_link,
     description: null,
     indicator_id: row.indicator_id ?? 0,
     geo_scope_id: null,

@@ -1600,6 +1600,24 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('lever-strategic-outcome/by-lever/5', {});
     });
 
+    it('should call GET_LeverSdgTargets with only_sdg_targets query when second arg true (default)', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_LeverSdgTargets(3, true);
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('lever-sdg-targets/by-lever/3?only_sdg_targets=true', {});
+    });
+
+    it('should call GET_LeverSdgTargets with default onlySdgTargets when second arg omitted', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_LeverSdgTargets(4);
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('lever-sdg-targets/by-lever/4?only_sdg_targets=true', {});
+    });
+
+    it('should call GET_LeverSdgTargets without query when onlySdgTargets is false', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_LeverSdgTargets(3, false);
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('lever-sdg-targets/by-lever/3', {});
+    });
+
     it('should call GET_AutorContact with resultCode', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
       service.GET_AutorContact(12345);

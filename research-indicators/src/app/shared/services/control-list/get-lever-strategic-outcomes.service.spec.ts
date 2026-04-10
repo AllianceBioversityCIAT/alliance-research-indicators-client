@@ -55,7 +55,7 @@ describe('GetLeverStrategicOutcomesService', () => {
   it('main without lever_id should set default list empty and toggle default loading', async () => {
     const spySet = jest.spyOn(service.list, 'set');
     const spyLoadSet = jest.spyOn(service.loading, 'set');
-    await service.main(undefined);
+    await service.main();
     expect(spyLoadSet).toHaveBeenNthCalledWith(1, true);
     expect(spySet).toHaveBeenCalledWith([]);
     expect(spyLoadSet).toHaveBeenLastCalledWith(false);
@@ -91,6 +91,20 @@ describe('GetLeverStrategicOutcomesService', () => {
     await service.main(9);
     expect(spyList).toHaveBeenCalledWith([]);
     expect(spyLoad).toHaveBeenLastCalledWith(false);
+  });
+
+  it('main with numeric string lever_id should coerce and call API', async () => {
+    apiMock.GET_LeverStrategicOutcomes.mockResolvedValue({ data: [{ id: 1 }] });
+    await service.main('11');
+    expect(apiMock.GET_LeverStrategicOutcomes).toHaveBeenCalledWith(11);
+    expect(service.getList(11)()).toEqual([{ id: 1 }]);
+  });
+
+  it('main with non-numeric string lever_id should clear default list without API call', async () => {
+    const spy = jest.spyOn(service.list, 'set');
+    await service.main('xyz');
+    expect(apiMock.GET_LeverStrategicOutcomes).not.toHaveBeenCalled();
+    expect(spy).toHaveBeenCalledWith([]);
   });
 });
 
