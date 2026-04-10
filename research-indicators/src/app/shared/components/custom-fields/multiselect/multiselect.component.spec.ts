@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MultiselectComponent } from './multiselect.component';
-import { signal } from '@angular/core';
+import { ElementRef, signal } from '@angular/core';
 import { SimpleChanges } from '@angular/core';
 import { ActionsService } from '../../../services/actions.service';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
@@ -57,6 +57,7 @@ describe('MultiselectComponent', () => {
     await TestBed.configureTestingModule({
       providers: [
         MultiselectComponent,
+        { provide: ElementRef, useValue: new ElementRef(document.createElement('div')) },
         { provide: ActionsService, useValue: mockActionsService },
         { provide: ServiceLocatorService, useValue: mockServiceLocator },
         { provide: CacheService, useValue: mockCacheService },

@@ -22,8 +22,9 @@
       [filterBy]="this.filterBy || this.optionLabel" [optionLabel]="this.optionLabel" [showToggleAll]="false"
       [optionValue]="this.optionValue" [(ngModel)]="this.body().value" (ngModelChange)="this.setValue($event)"
       [disabled]="disabled" [virtualScroll]="enableVirtualScroll" [placeholder]="placeholder"
-      [virtualScrollItemSize]="this.itemHeight" [scrollHeight]="this.scrollHeight"
-      [panelStyle]="{ width: '100%', minWidth: '100%' }" [appendTo]="appendTo">
+      [virtualScrollItemSize]="virtualScrollEstimateSize()" [scrollHeight]="this.scrollHeight"
+      [panelStyle]="multiselectPanelStyle" [appendTo]="appendTo" (onPanelShow)="onMultiselectPanelShow()"
+      (onPanelHide)="onMultiselectPanelHide()">
       @if (this.service?.isOpenSearch()) {
       <ng-template pTemplate="header">
         <div class="p-dropdown-header">
@@ -45,7 +46,7 @@
       </ng-template>
 
       <ng-template let-item pTemplate="item">
-        <div class="flex items-center block whitespace-normal break-words gap-2">
+        <div class="flex w-full min-w-0 items-start whitespace-normal break-words gap-2">
           @if (this.item) {
           <ng-container *ngTemplateOutlet="this.item; context: { $implicit: item }"></ng-container>
           } @else {
