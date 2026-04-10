@@ -703,7 +703,11 @@ describe('CreateOicrFormComponent', () => {
     };
     const mockRegion = { sub_national_id: 42 };
     const mockInstance = { removeRegionById: jest.fn(), endpointParams: { isoAlpha2: 'US' } };
-    component.multiselectInstances = { find: jest.fn().mockReturnValue(mockInstance) } as any;
+    component.multiselectInstances = {
+      find: jest.fn((predicate: (m: { endpointParams?: { isoAlpha2?: string } }) => boolean) =>
+        predicate(mockInstance) ? mockInstance : undefined
+      )
+    } as any;
     mockCreateResultManagementService.createOicrBody.set({
       ...mockCreateResultManagementService.createOicrBody(),
       step_three: {
@@ -1133,6 +1137,19 @@ describe('CreateOicrFormComponent', () => {
     });
     expect(mockAllModalsService.setSubmitBackAction).toHaveBeenCalled();
     expect(mockAllModalsService.openModal).toHaveBeenCalledWith('submitResult');
+  });
+
+  it('should invoke setSubmitBackAction callback to run handleSubmitBack from openSubmitResultModal', async () => {
+    const backSpy = jest.spyOn(component, 'handleSubmitBack').mockResolvedValue(undefined);
+    (component as any).currentContract = signal(null);
+    component.activeIndex = signal(0);
+    mockCreateResultManagementService.resultTitle = signal(null);
+    mockCreateResultManagementService.statusId = signal(null);
+    component.openSubmitResultModal();
+    const submitBackFn = mockAllModalsService.setSubmitBackAction.mock.calls.pop()![0] as () => Promise<void>;
+    await submitBackFn();
+    expect(backSpy).toHaveBeenCalled();
+    backSpy.mockRestore();
   });
 
   it('should handle openSubmitResultModal with contract without levers', () => {
@@ -1761,6 +1778,14 @@ describe('CreateOicrFormComponent', () => {
   });
 
   describe('computed properties', () => {
+    it('isRegionsRequired should evaluate computed body', () => {
+      mockCreateResultManagementService.createOicrBody.set({
+        ...mockCreateResultManagementService.createOicrBody(),
+        step_three: { geo_scope_id: 2 }
+      });
+      expect(component.isRegionsRequired()).toBeDefined();
+    });
+
     it('isCountriesRequired should return correct value', () => {
       mockCreateResultManagementService.createOicrBody.set({
         ...mockCreateResultManagementService.createOicrBody(),
@@ -2401,6 +2426,34 @@ describe('CreateOicrFormComponent', () => {
       
       expect(mockAllModalsService.disablePostponeOption.set).toHaveBeenCalledWith(true);
       expect(mockAllModalsService.disableRejectOption.set).toHaveBeenCalledWith(false);
+    });
+
+    it('should invoke setSubmitBackAction callback to run handleSubmitBack', async () => {
+      const backSpy = jest.spyOn(component, 'handleSubmitBack').mockResolvedValue(undefined);
+      mockCreateResultManagementService.statusId.set(9);
+      (component as any).currentContract = signal({
+        agreement_id: '123',
+        description: 'Test',
+        project_lead_description: 'Lead',
+        start_date: '2023-01-01',
+        endDateGlobal: '2023-12-31',
+        levers: {
+          id: 1,
+          full_name: 'Test Lever',
+          short_name: 'TL',
+          other_names: 'Test',
+          lever_url: 'http://test.com'
+        }
+      });
+      mockCreateResultManagementService.resultTitle.set('Test Title');
+      component.activeIndex.set(2);
+
+      component.openSubmitResultModalForReviewAgain();
+
+      const submitBackFn = mockAllModalsService.setSubmitBackAction.mock.calls.pop()![0] as () => Promise<void>;
+      await submitBackFn();
+      expect(backSpy).toHaveBeenCalled();
+      backSpy.mockRestore();
     });
 
     it('should disable reject option when statusId is 15', () => {
