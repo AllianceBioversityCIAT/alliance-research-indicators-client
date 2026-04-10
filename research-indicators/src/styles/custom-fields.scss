@@ -51,9 +51,14 @@
   font-family: Barlow, sans-serif !important;
 }
 
-.p-select-option,
-.p-multiselect-option {
+.p-select-option {
   align-items: flex-start !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+.p-multiselect-option {
+  align-items: center !important;
   white-space: normal !important;
   overflow: visible !important;
 }
