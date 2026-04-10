@@ -1,6 +1,7 @@
 import { Component, Input, output, WritableSignal } from '@angular/core';
 import { Lever, LeverStrategicOutcome } from '@shared/interfaces/oicr-creation.interface';
 import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
+import { ResultLeverSdgTargetPayload } from '@shared/interfaces/lever-sdg-target.interface';
 import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -19,7 +20,10 @@ export class AllianceLeverCardComponent {
 
   @Input() removeLocked = false;
   @Input({ required: true }) lever!: Lever;
-  @Input({ required: true }) sdgSignal!: WritableSignal<{ result_lever_sdgs: GetSdgs[] }>;
+  @Input({ required: true }) sdgSignal!: WritableSignal<{
+    result_lever_sdgs: GetSdgs[];
+    result_lever_sdg_targets: ResultLeverSdgTargetPayload[];
+  }>;
   @Input({ required: true }) outcomeSignal!: WritableSignal<{ result_lever_strategic_outcomes: LeverStrategicOutcome[] }>;
   @Input() showStrategicOutcomes = false;
   @Input() strategicOutcomesRequired = false;

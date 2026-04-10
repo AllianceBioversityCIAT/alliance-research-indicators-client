@@ -20,6 +20,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 import { Lever, LeverStrategicOutcome } from '@shared/interfaces/oicr-creation.interface';
 import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
+import { ResultLeverSdgTargetPayload } from '@shared/interfaces/lever-sdg-target.interface';
 import { AllianceLeverCardComponent } from './components/alliance-lever-card/alliance-lever-card.component';
 
 @Component({
@@ -60,7 +61,13 @@ export default class AllianceAlignmentComponent {
   containerWidth = 0;
 
   private readonly leverOutcomeSignals = new Map<string | number, WritableSignal<{ result_lever_strategic_outcomes: LeverStrategicOutcome[] }>>();
-  private readonly leverSdgSignals = new Map<string | number, WritableSignal<{ result_lever_sdgs: GetSdgs[] }>>();
+  private readonly leverSdgSignals = new Map<
+    string | number,
+    WritableSignal<{
+      result_lever_sdgs: GetSdgs[];
+      result_lever_sdg_targets: ResultLeverSdgTargetPayload[];
+    }>
+  >();
 
   contractServiceParams = computed(() => {
     const indicatorId = this.cache.currentMetadata()?.indicator_id;
@@ -87,10 +94,33 @@ export default class AllianceAlignmentComponent {
         sdg_id: (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? sdg.clarisa_sdg_id ?? sdg.id
       }));
 
+    const normalizeSdgTargets = (raw: unknown): ResultLeverSdgTargetPayload[] => {
+      if (!Array.isArray(raw)) return [];
+      const out: ResultLeverSdgTargetPayload[] = [];
+      for (const x of raw) {
+        if (typeof x === 'number' && Number.isFinite(x)) {
+          out.push({ sdg_target_id: x });
+          continue;
+        }
+        if (x && typeof x === 'object') {
+          const o = x as Record<string, unknown>;
+          const id = o['sdg_target_id'] ?? o['id'];
+          let n = Number.NaN;
+          if (typeof id === 'number') n = id;
+          else if (typeof id === 'string' && id !== '') n = Number(id);
+          if (Number.isFinite(n) && n > 0) out.push({ sdg_target_id: n });
+        }
+      }
+      return out;
+    };
+
     const mapLevers = (levers: Lever[] | undefined): Lever[] =>
       (levers ?? []).map(l => ({
         ...l,
-        result_lever_sdgs: normalizeSdgs(l.result_lever_sdgs)
+        result_lever_sdgs: normalizeSdgs(l.result_lever_sdgs),
+        result_lever_sdg_targets: normalizeSdgTargets(
+          (l as Lever & { result_lever_sdg_targets?: unknown }).result_lever_sdg_targets
+        )
       }));
 
     let primary_levers = mapLevers(response.data.primary_levers);
@@ -178,6 +208,7 @@ export default class AllianceAlignmentComponent {
       other_names: entry.other_names,
       icon: undefined,
       result_lever_sdgs: [],
+      result_lever_sdg_targets: [],
       result_lever_strategic_outcomes: []
     };
   }
@@ -196,6 +227,7 @@ export default class AllianceAlignmentComponent {
       other_names: nested.other_names,
       icon: nested.lever_url,
       result_lever_sdgs: [],
+      result_lever_sdg_targets: [],
       result_lever_strategic_outcomes: []
     };
   }
@@ -233,6 +265,7 @@ export default class AllianceAlignmentComponent {
       lever_role_id: 1,
       is_primary: true,
       result_lever_sdgs: [],
+      result_lever_sdg_targets: [],
       result_lever_strategic_outcomes: []
     };
   }
@@ -335,7 +368,11 @@ export default class AllianceAlignmentComponent {
         }
         const sdgSig = this.leverSdgSignals.get(l.lever_id);
         if (sdgSig) {
-          next = { ...next, result_lever_sdgs: sdgSig().result_lever_sdgs };
+          const sig = sdgSig();
+          const targets = (sig.result_lever_sdg_targets ?? [])
+            .map(t => ({ sdg_target_id: t.sdg_target_id }))
+            .filter(t => Number.isFinite(t.sdg_target_id) && t.sdg_target_id > 0);
+          next = { ...next, result_lever_sdg_targets: targets, result_lever_sdgs: [] };
         }
         return next;
       };
@@ -476,8 +513,9 @@ export default class AllianceAlignmentComponent {
   getLeverSdgSignal(lever: Lever) {
     let s = this.leverSdgSignals.get(lever.lever_id);
     if (!s) {
-      s = signal<{ result_lever_sdgs: GetSdgs[] }>({
-        result_lever_sdgs: lever.result_lever_sdgs || []
+      s = signal({
+        result_lever_sdgs: lever.result_lever_sdgs || [],
+        result_lever_sdg_targets: lever.result_lever_sdg_targets || []
       });
       this.leverSdgSignals.set(lever.lever_id, s);
     }
