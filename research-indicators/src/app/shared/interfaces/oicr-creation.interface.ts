@@ -1,6 +1,7 @@
 import { Country, Region } from './get-geo-location.interface';
 import { ResultImpactArea } from './impact-area.interface';
 import { GetSdgs } from './get-sdgs.interface';
+import { ResultLeverSdgTargetPayload } from './lever-sdg-target.interface';
 
 export interface OicrCreation {
   step_one: StepOne;
@@ -49,12 +50,17 @@ export interface Lever {
   is_primary: boolean;
   result_lever_strategic_outcomes?: LeverStrategicOutcome[];
   result_lever_sdgs?: GetSdgs[];
+  /** Primary levers: PATCH uses this list (not result_lever_sdgs). */
+  result_lever_sdg_targets?: ResultLeverSdgTargetPayload[];
   icon?: string;
   short_name?: string;
   other_names?: string;
 }
+/** Saved on result; list rows from GET lever-strategic-outcome/by-lever/:lever_id also include id + strategic_outcome. */
 export interface LeverStrategicOutcome {
   lever_strategic_outcome_id: number;
+  id?: number;
+  strategic_outcome?: string;
 }
 export interface StepTwo {
   primary_lever: Lever[];
