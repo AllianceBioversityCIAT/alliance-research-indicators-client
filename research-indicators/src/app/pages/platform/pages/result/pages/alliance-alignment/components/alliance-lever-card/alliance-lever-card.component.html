@@ -47,7 +47,7 @@
         <div class="flex flex-col gap-2">
           @if (item?.strategic_outcome?.includes(':')) {
           <span>
-            <b>{{ item?.strategic_outcome?.split(':')[0] }}:</b>
+            <b>{{ item?.strategic_outcome?.split(':')[0] }} - </b>
             {{ item?.strategic_outcome?.split(':')[1]?.trim() }}
           </span>
           } @else {
@@ -60,7 +60,7 @@
           <div class="flex items-center gap-2 text-[#4C5158] whitespace-normal break-words leading-5">
             @if (strategicOutcome?.strategic_outcome?.includes(':')) {
             <span>
-              <b>{{ strategicOutcome?.strategic_outcome?.split(':')[0] }}:</b>
+              <b>{{ strategicOutcome?.strategic_outcome?.split(':')[0] }} - </b>
               {{ strategicOutcome?.strategic_outcome?.split(':')[1]?.trim() }}
             </span>
             } @else {
