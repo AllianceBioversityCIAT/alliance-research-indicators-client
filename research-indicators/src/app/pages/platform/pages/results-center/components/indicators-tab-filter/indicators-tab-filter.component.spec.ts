@@ -86,13 +86,15 @@ describe('IndicatorsTabFilterComponent', () => {
     const updateSpy = jest.spyOn(component, 'updateArrowVisibility');
 
     component.ngAfterViewInit();
-    expect(addSpy).toHaveBeenCalledWith('resize', expect.any(Function));
+    const resizeAdd = addSpy.mock.calls.find(c => c[0] === 'resize');
+    expect(resizeAdd).toBeDefined();
+    const resizeHandler = resizeAdd![1];
 
     window.dispatchEvent(new Event('resize'));
     expect(updateSpy).toHaveBeenCalled();
 
     component.ngOnDestroy();
-    expect(removeSpy).toHaveBeenCalledWith('resize', expect.any(Function));
+    expect(removeSpy).toHaveBeenCalledWith('resize', resizeHandler);
 
     // restore
     (global as any).ResizeObserver = ResizeObserverMock as any;

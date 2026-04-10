@@ -39,8 +39,8 @@ export abstract class BaseResultsService {
   async main() {
     this.loading.set(true);
     try {
-      const response = await this.apiService.GET_Results(this.resultsFilter, this.resultsConfig);
-      const data = Array.isArray(response?.data) ? response.data : [];
+      const response = await this.apiService.GET_Results(this.resultsFilter, this.resultsConfig, { page: 1, limit: 10_000 });
+      const data = response?.data?.results ?? [];
       const dataWithLabel = data.map((item: Result) => ({
         ...item,
         select_label: `${item.result_official_code || ''} - ${item.title || ''}`.trim()

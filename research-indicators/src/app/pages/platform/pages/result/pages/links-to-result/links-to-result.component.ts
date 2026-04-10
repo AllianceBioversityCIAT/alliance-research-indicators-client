@@ -7,13 +7,14 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { ApiService } from '@shared/services/api.service';
-import { Result, ResultConfig } from '@shared/interfaces/result/result.interface';
+import { Result } from '@shared/interfaces/result/result.interface';
 import { TooltipModule } from 'primeng/tooltip';
 import { ActionsService } from '@shared/services/actions.service';
 import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 import { getIndicatorIcon } from '@shared/constants/indicator-icon.constants';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
+import { mapOtherResultLinkPayloadToResult } from '@shared/utils/map-link-other-result-to-result';
 
 const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
 
@@ -64,36 +65,20 @@ export default class LinksToResultComponent implements OnInit, OnDestroy {
     try {
       const resultId = this.cache.getCurrentNumericResultId();
       const response = await this.api.GET_LinkedResults(resultId);
-      const linkedResultIds = response.data?.link_results?.map(item => item.other_result_id) ?? [];
-      
-      if (linkedResultIds.length === 0) {
+      const items = response.data?.link_results ?? [];
+
+      if (items.length === 0) {
         this.linkedResults.set([]);
+        this.originalLinkedResults.set([]);
+        this.allModalsService.syncSelectedResults.set([]);
         return;
       }
 
-      const resultFilter = {
-        'indicator-codes-tabs': [...MODAL_INDICATOR_CODES],
-        'indicator-codes-filter': []
-      };
-      
-      const resultConfig: ResultConfig = {
-        indicators: true,
-        'result-status': true,
-        contracts: true,
-        'primary-contract': true,
-        'primary-lever': true,
-        levers: true,
-        'audit-data': true,
-        'audit-data-object': true
-      };
+      const matched = items
+        .map(item => item.other_result)
+        .filter((o): o is NonNullable<typeof o> => o != null)
+        .map(mapOtherResultLinkPayloadToResult);
 
-      const resultsResponse = await this.api.GET_Results(resultFilter, resultConfig);
-      const allResults = Array.isArray(resultsResponse?.data) ? resultsResponse.data : [];
-      
-      const matched = allResults.filter(result => 
-        linkedResultIds.includes(result.result_id)
-      );
-      
       this.linkedResults.set(matched);
       this.originalLinkedResults.set([...matched]);
       this.allModalsService.syncSelectedResults.set(matched);
@@ -185,4 +170,3 @@ export default class LinksToResultComponent implements OnInit, OnDestroy {
     this.allModalsService.openModal('selectLinkedResults');
   }
 }
-

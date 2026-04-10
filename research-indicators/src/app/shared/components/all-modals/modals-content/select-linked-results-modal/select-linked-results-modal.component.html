@@ -9,7 +9,7 @@
     <app-search-export-controls [applyLabel]="'Apply Filters'"
       [badge]="resultsCenterService.countTableFiltersSelected()"
       [showOverlayDot]="!!resultsCenterService.countTableFiltersSelected()" [showClear]="true"
-      [searchValue]="searchInput()" [searchPlaceholder]="'Find a result by code, title or creator'"
+      [searchValue]="resultsCenterService.searchInput()" [searchPlaceholder]="'Find a result by code, title or creator'"
       (searchChange)="setSearchInputFilter($event)" (apply)="showFiltersSidebar()" (clear)="clearFilters()">
     </app-search-export-controls>
 
@@ -21,14 +21,18 @@
     <app-custom-progress-bar></app-custom-progress-bar>
   }
 
-  <p-table #dt2 [value]="resultsCenterService.list()" [paginator]="true"
-    [first]="linkedTablePaginatorFirst()" [rows]="linkedTablePaginatorRows()" (onPage)="onLinkedResultsTablePage($event)"
-    class="border border-[#E4EAEE] rounded-[18px] border-t-0"
+  <div class="w-full border border-[#E4EAEE] rounded-[18px] border-t-0 overflow-visible">
+  <p-table #dt2 [value]="resultsCenterService.list()" [paginator]="true" [lazy]="true"
+    [first]="resultsCenterService.resultsTablePaginatorFirst()" [rows]="resultsCenterService.resultsTablePaginatorRows()"
+    [totalRecords]="resultsCenterService.resultsTableTotalRecords()"
+    (onLazyLoad)="handleLinkedTableLazyLoad($event)"
+    [paginatorDropdownAppendTo]="'body'"
+    class="border-0 rounded-[18px]"
     [scrollHeight]="getScrollHeight()" [showCurrentPageReport]="true" [scrollable]="true"
     [tableStyle]="{ 'min-width': '100%' }" [rowsPerPageOptions]="[5, 10, 25, 50]"
-    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results" [sortField]="'result_official_code'"
-    [sortOrder]="-1"
-    [globalFilterFields]="resultsCenterService.getAllPathsAsArray()"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"
+    [sortField]="resultsCenterService.resultsTableSortField()" [sortOrder]="resultsCenterService.resultsTableSortOrder()"
+    [customSort]="true"
     styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
     <ng-template pTemplate="header">
       <tr>
@@ -40,7 +44,7 @@
         @for (column of resultsCenterService.tableColumns(); track column.field) {
         @if (column.field !== 'versions' && (!column.hideIf || !column.hideIf())) {
         <th class="{{ column.minWidth }} {{ column.maxWidth }} !text-[#173F6F]"
-          [pSortableColumn]="column.path" scope="col">
+          [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path" scope="col">
           <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] ">
             {{
             column.field === 'project'
@@ -51,7 +55,9 @@
             ? 'Year'
             : column.header
             }}
+            @if (!column?.hideFilterIf?.()) {
             <p-sortIcon field="{{ column.path }}"></p-sortIcon>
+            }
           </div>
         </th>
         }
@@ -177,6 +183,7 @@
       }
     </ng-template>
   </p-table>
+  </div>
 </div>
 
 

@@ -86,6 +86,7 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   setSearchInputFilter(query: string) {
     this.resultsCenterService.resultsTablePaginatorFirst.set(0);
     this.resultsCenterService.searchInput.set(query);
+    void this.resultsCenterService.main();
   }
 
   getScrollHeight = computed(

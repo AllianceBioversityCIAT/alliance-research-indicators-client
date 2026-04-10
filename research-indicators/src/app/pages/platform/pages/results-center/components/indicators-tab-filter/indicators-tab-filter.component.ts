@@ -18,6 +18,7 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
   showLeftArrow = signal(false);
   showRightArrow = signal(false);
   private resizeObserver: ResizeObserver | null = null;
+  private readonly onWindowResizeForArrows = () => this.updateArrowVisibility();
 
   indicatorTabs = this.resultsCenterService.api.indicatorTabs.lazy();
 
@@ -33,7 +34,7 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
 
         this.resizeObserver.observe(this.filtersContainer.nativeElement);
       } else {
-        window.addEventListener('resize', () => this.updateArrowVisibility());
+        window.addEventListener('resize', this.onWindowResizeForArrows);
       }
 
       // Initial validation
@@ -57,7 +58,7 @@ export class IndicatorsTabFilterComponent implements AfterViewInit, OnDestroy {
     }
     // clear the resize event listener if the fallback was used
     if (typeof ResizeObserver === 'undefined') {
-      window.removeEventListener('resize', () => this.updateArrowVisibility());
+      window.removeEventListener('resize', this.onWindowResizeForArrows);
     }
   }
 

@@ -48,14 +48,16 @@
     <app-custom-progress-bar></app-custom-progress-bar>
   } @else {
     <div #tableRppScope class="rpp-dropup w-full border border-[#E8EBED]">
-      <p-table #dt2 [value]="resultsCenterService.resultsListForTable()" [paginator]="true"
+      <p-table #dt2 [value]="resultsCenterService.resultsListForTable()" [paginator]="true" [lazy]="true"
         [first]="resultsCenterService.resultsTablePaginatorFirst()"
         [rows]="resultsCenterService.resultsTablePaginatorRows()"
-        (onPage)="resultsCenterService.handleResultsTablePage($event)"
+        [totalRecords]="resultsCenterService.resultsTableTotalRecords()"
+        (onLazyLoad)="resultsCenterService.handleResultsTableLazyLoad($event)"
         [paginatorDropdownAppendTo]="tableRppScope" [showCurrentPageReport]="true" [scrollable]="true"
         [tableStyle]="{ 'min-width': '100%' }" [rowsPerPageOptions]="[5, 10, 25, 50]"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"
-        [sortField]="'result_official_code'" [sortOrder]="-1"
+        [sortField]="resultsCenterService.resultsTableSortField()" [sortOrder]="resultsCenterService.resultsTableSortOrder()"
+        [customSort]="true"
         styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
     <ng-template pTemplate="header">
       <tr>

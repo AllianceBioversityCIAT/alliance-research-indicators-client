@@ -50,6 +50,7 @@ export type ControlListServices =
   | 'applicationOptions'
   | 'levers'
   | 'leverStrategicOutcomes'
+  | 'leverSdgTargets'
   | 'projectStatus'
   | 'getProjectIndicatorsHierarchy'
   | 'initiatives'

@@ -22,8 +22,9 @@
       [filterBy]="this.filterBy || this.optionLabel" [optionLabel]="this.optionLabel" [showToggleAll]="false"
       [optionValue]="this.optionValue" [(ngModel)]="this.body().value" (ngModelChange)="this.setValue($event)"
       [disabled]="disabled" [virtualScroll]="enableVirtualScroll" [placeholder]="placeholder"
-      [virtualScrollItemSize]="this.itemHeight" [scrollHeight]="this.scrollHeight"
-      [panelStyle]="{ width: '100%', minWidth: '100%' }" [appendTo]="appendTo">
+      [virtualScrollItemSize]="virtualScrollEstimateSize()" [scrollHeight]="this.scrollHeight"
+      [panelStyle]="multiselectPanelStyle" [appendTo]="appendTo" (onPanelShow)="onMultiselectPanelShow()"
+      (onPanelHide)="onMultiselectPanelHide()">
       @if (this.service?.isOpenSearch()) {
       <ng-template pTemplate="header">
         <div class="p-dropdown-header">
@@ -45,7 +46,7 @@
       </ng-template>
 
       <ng-template let-item pTemplate="item">
-        <div class="flex items-center block whitespace-normal break-words gap-2">
+        <div class="flex w-full min-w-0 items-start whitespace-normal break-words gap-2">
           @if (this.item) {
           <ng-container *ngTemplateOutlet="this.item; context: { $implicit: item }"></ng-container>
           } @else {
@@ -101,19 +102,31 @@
   <span class="block text-[14.5px] pb-3 pt-6 text-[#777C83]">{{ textSpan }}</span>
   }
   <div class="selected-items {{ !textSpan && selectedOptions().length ? 'mt-6' : '' }}"
-    [class.show-scroll]="!this.disabledSelectedScroll" [class.columns-xl]="columnsOnXl">
+    [class.show-scroll]="!this.disabledSelectedScroll" [class.columns-xl]="columnsOnXl"
+    [class.selected-items--stack-gap]="hideRemoveIcon"
+    [class.selected-items--custom-surface]="!!selectedItemsSurfaceColor?.trim()"
+    [style.--multiselect-selected-surface]="selectedItemsSurfaceColor?.trim() || null">
     @for (row of selectedOptions(); track $index) {
-    <div class="item  {{ dark ? ' !bg-[#e8ebed] !border-[#c6cdd1]/40' : 'abc-grey-100' }}">
-      <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
+    <div class="item  {{ dark ? ' !bg-[#e8ebed] !border-[#c6cdd1]/40' : 'abc-grey-100' }}"
+      [class.item--full-row]="hideRemoveIcon">
+      <div class="selected-row-main">
+        <ng-container *ngTemplateOutlet="rows || defaultTemplate; context: { $implicit: row }"></ng-container>
+      </div>
+      @if (!hideRemoveIcon) {
       @if (removeCondition(row) && !this.disabled) {
       @if (!row.disabled) {
-      <i class="text-[#CF0808] cursor-pointer material-symbols-rounded" (click)="removeOption(row)"
-        (keydown.enter)="removeOption(row)">
-        cancel
-      </i>
+      <button type="button"
+        class="multiselect-row-remove shrink-0 cursor-pointer border-0 bg-transparent p-0 leading-none text-[#CF0808] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CF0808]/30 rounded"
+        (click)="removeOption(row)" (keydown.enter)="removeOption(row)" aria-label="Remove">
+        <i class="pi pi-times-circle !text-[20px]"></i>
+      </button>
       }
       } @else {
-      <i class="text-[#A2A9AF] material-symbols-rounded" [pTooltip]="removeTooltip" tooltipPosition="top"> cancel </i>
+      <span class="inline-flex shrink-0 text-[#A2A9AF]" [pTooltip]="removeTooltip" tooltipPosition="top" tabindex="0"
+        role="img" [attr.aria-label]="removeTooltip || 'Cannot remove'">
+        <i class="pi pi-times-circle !text-[20px]"></i>
+      </span>
+      }
       }
     </div>
     }
