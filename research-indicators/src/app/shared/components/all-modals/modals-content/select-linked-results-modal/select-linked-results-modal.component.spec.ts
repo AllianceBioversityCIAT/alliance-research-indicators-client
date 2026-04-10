@@ -174,6 +174,13 @@ describe('SelectLinkedResultsModalComponent', () => {
       expect(resultsCenterService.main).toHaveBeenCalled();
     });
 
+    it('should reset PrimeNG table first when dt2 is available', () => {
+      const dt = { first: 40 };
+      (component as any).dt2 = dt;
+      component.setSearchInputFilter('x');
+      expect(dt.first).toBe(0);
+    });
+
     it('should compute selectedCount based on selectedResults', () => {
       expect(component.selectedCount()).toBe(0);
       component.selectedResults.set([createResult({ result_id: 1 }), createResult({ result_id: 2 })]);
