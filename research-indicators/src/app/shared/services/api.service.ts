@@ -77,6 +77,7 @@ import { DateFormatApiResponse } from '@shared/interfaces/date-format-config.int
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { LeverSdgTargetApi } from '@shared/interfaces/lever-sdg-target.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
 import { ImpactArea } from '@shared/interfaces/impact-area.interface';
@@ -881,6 +882,13 @@ export class ApiService {
 
   GET_LeverStrategicOutcomes = (leverId: number): Promise<MainResponse<LeverStrategicOutcome[]>> => {
     const url = () => `lever-strategic-outcome/by-lever/${leverId}`;
+    return this.TP.get(url(), {});
+  };
+
+  /** SDG targets available for a lever (use with onlySdgTargets=true for target list only). */
+  GET_LeverSdgTargets = (leverId: number, onlySdgTargets = true): Promise<MainResponse<LeverSdgTargetApi[]>> => {
+    const q = onlySdgTargets ? '?only_sdg_targets=true' : '';
+    const url = () => `lever-sdg-targets/by-lever/${leverId}${q}`;
     return this.TP.get(url(), {});
   };
 
