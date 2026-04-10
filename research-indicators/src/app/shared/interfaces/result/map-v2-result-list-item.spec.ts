@@ -122,4 +122,10 @@ describe('mapV2ResultListItemToResult', () => {
     expect(r.result_official_code).toBe('');
     expect(r.indicator_id).toBe(0);
   });
+
+  it('maps public_link from v2 list row', () => {
+    const url = 'https://sharepoint.example.com/doc';
+    const r = mapV2ResultListItemToResult({ ...minimal, public_link: url });
+    expect(r.public_link).toBe(url);
+  });
 });
