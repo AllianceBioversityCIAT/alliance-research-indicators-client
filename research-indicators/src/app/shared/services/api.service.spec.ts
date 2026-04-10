@@ -1434,6 +1434,68 @@ describe('ApiService', () => {
       );
     });
 
+    it('should use indicator-codes when tabs and filter are empty', async () => {
+      const resultFilter = { 'indicator-codes': [7, 8] };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: { data: [], total: 0 } });
+
+      await service.GET_Results(resultFilter);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(`${v2Base}&indicators=7%2C8${ownFalse}`, {});
+    });
+
+    it('should set total from rows length when envelope has no total or pagination.total', async () => {
+      const row = {
+        result_id: 2,
+        result_official_code: 200,
+        platform_code: 'PRMS',
+        title: 'Row',
+        indicator_id: 1
+      };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({
+        data: {
+          data: [row]
+        }
+      });
+
+      const out = await service.GET_Results({});
+
+      expect(out.data?.total).toBe(1);
+      expect(out.data?.results?.length).toBe(1);
+      expect(out.data?.pagination).toBeUndefined();
+    });
+
+    it('should use envelope total when data is not an array', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({
+        data: {
+          data: { notAnArray: true } as unknown as [],
+          total: 42
+        }
+      });
+
+      const out = await service.GET_Results({});
+
+      expect(out.data?.total).toBe(42);
+      expect(out.data?.results?.length).toBe(0);
+    });
+
+    it('should unwrap when raw.data is a row array', async () => {
+      const row = {
+        result_id: 3,
+        result_official_code: 300,
+        platform_code: 'STAR',
+        title: 'Arr',
+        indicator_id: 1
+      };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({
+        data: [row]
+      });
+
+      const out = await service.GET_Results({});
+
+      expect(out.data?.total).toBe(1);
+      expect(out.data?.results?.length).toBe(1);
+    });
+
     it('should unwrap v2 envelope with nested pagination.total for table totalRecords', async () => {
       const row = {
         result_id: 1,

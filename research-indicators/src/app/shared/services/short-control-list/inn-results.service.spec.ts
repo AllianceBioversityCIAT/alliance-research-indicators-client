@@ -27,7 +27,7 @@ describe('InnResultsService', () => {
     await Promise.resolve();
   };
 
-  const wrapResponse = (data: any[]) => ({ data });
+  const wrapResponse = (data: any[]) => ({ data: { results: data, total: data.length } });
 
   it('should create', async () => {
     await setup(wrapResponse([]));
@@ -40,7 +40,7 @@ describe('InnResultsService', () => {
       { id: 2, result_official_code: 'R-002', title: 'Result B' }
     ];
     await setup(wrapResponse(data));
-    expect(apiMock.GET_Results).toHaveBeenCalledWith(defaultFilter, defaultConfig);
+    expect(apiMock.GET_Results).toHaveBeenCalledWith(defaultFilter, defaultConfig, { page: 1, limit: 10000 });
     expect(service.list().length).toBe(2);
     expect((service.list()[0] as any).select_label).toBe('R-001 - Result A');
     expect(service.loading()).toBe(false);
@@ -88,7 +88,7 @@ describe('InnResultsService', () => {
 
     apiMock.GET_Results.mockResolvedValueOnce(wrapResponse([]));
     await service.main();
-    expect(apiMock.GET_Results).toHaveBeenCalledWith(defaultFilter, defaultConfig);
+    expect(apiMock.GET_Results).toHaveBeenCalledWith(defaultFilter, defaultConfig, { page: 1, limit: 10000 });
     expect(service.loading()).toBe(false);
   });
 });

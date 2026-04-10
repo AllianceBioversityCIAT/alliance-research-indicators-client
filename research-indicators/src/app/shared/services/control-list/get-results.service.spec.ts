@@ -106,7 +106,7 @@ describe('GetResultsService', () => {
     const pagination = { page: 2, limit: 5 };
     apiService.GET_Results.mockResolvedValueOnce({ data: { results: [{ id: 77 }], total: 10 } });
 
-    const result = await service.fetchPaginated(filter, pagination, undefined);
+    const result = await service.fetchPaginated(filter, pagination);
 
     expect(apiService.GET_Results).toHaveBeenCalledWith(filter, undefined, pagination);
     expect(result).toEqual({ results: [{ id: 77 }], total: 10 });
@@ -126,5 +126,23 @@ describe('GetResultsService', () => {
     const result = await service.fetchPaginated({} as ResultFilter, { page: 1, limit: 10 });
 
     expect(result).toEqual({ results: [], total: 0 });
+  });
+
+  it('fetchPaginated defaults total to 0 when response.data.total is missing', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: { results: [{ id: 1 } as any] } });
+
+    const result = await service.fetchPaginated({} as ResultFilter, { page: 1, limit: 10 });
+
+    expect(result.results).toEqual([{ id: 1 }]);
+    expect(result.total).toBe(0);
+  });
+
+  it('fetchPaginated defaults results to [] when response.data.results is missing', async () => {
+    apiService.GET_Results.mockResolvedValueOnce({ data: { total: 5 } as any });
+
+    const result = await service.fetchPaginated({} as ResultFilter, { page: 1, limit: 10 });
+
+    expect(result.results).toEqual([]);
+    expect(result.total).toBe(5);
   });
 });
