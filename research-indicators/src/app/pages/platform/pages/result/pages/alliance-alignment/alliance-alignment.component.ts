@@ -118,18 +118,14 @@ export default class AllianceAlignmentComponent {
       (levers ?? []).map(l => ({
         ...l,
         result_lever_sdgs: normalizeSdgs(l.result_lever_sdgs),
-        result_lever_sdg_targets: normalizeSdgTargets(
-          (l as Lever & { result_lever_sdg_targets?: unknown }).result_lever_sdg_targets
-        )
+        result_lever_sdg_targets: normalizeSdgTargets((l as Lever & { result_lever_sdg_targets?: unknown }).result_lever_sdg_targets)
       }));
 
     let primary_levers = mapLevers(response.data.primary_levers);
     let contributor_levers = mapLevers(response.data.contributor_levers);
 
     const legacyRootSdgs = normalizeSdgs(response.data.result_sdgs);
-    const anyLeverHasSdgs = [...primary_levers, ...contributor_levers].some(
-      l => l.result_lever_sdgs != null && l.result_lever_sdgs.length > 0
-    );
+    const anyLeverHasSdgs = [...primary_levers, ...contributor_levers].some(l => l.result_lever_sdgs != null && l.result_lever_sdgs.length > 0);
 
     if (legacyRootSdgs.length && !anyLeverHasSdgs) {
       const total = primary_levers.length + contributor_levers.length;
@@ -166,6 +162,7 @@ export default class AllianceAlignmentComponent {
     const ordered: (string | number)[] = [];
     const seen = new Set<string>();
     for (const c of list) {
+      if (!this.isPrimaryContributingContract(c)) continue;
       const id = this.getLeverIdFromContract(c);
       if (id == null) continue;
       const key = String(id);
@@ -174,6 +171,16 @@ export default class AllianceAlignmentComponent {
       ordered.push(id);
     }
     return ordered;
+  }
+
+  private isPrimaryContributingContract(contract: unknown): boolean {
+    if (contract == null || typeof contract !== 'object') return false;
+    const v = (contract as Record<string, unknown>)['is_primary'];
+    return Number(v) === 1;
+  }
+
+  private getPrimaryContracts(contracts: unknown[] | undefined): unknown[] {
+    return (contracts ?? []).filter(c => this.isPrimaryContributingContract(c));
   }
 
   isLeverRequiredFromContributingProject(lever: Lever): boolean {
@@ -258,7 +265,7 @@ export default class AllianceAlignmentComponent {
     if (existing) return existing;
     const cat = this.findCatalogLever(leverId);
     if (cat) return this.leverFromCatalog(cat);
-    const nested = this.findNestedLeverShape(contracts, leverId);
+    const nested = this.findNestedLeverShape(this.getPrimaryContracts(contracts), leverId);
     if (nested) return this.leverFromContractNested(nested, leverId);
     return {
       result_lever_id: 0,
