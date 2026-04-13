@@ -20,19 +20,20 @@
 
       <div class="relative w-full min-w-0 flex-1 flex-col">
         <div class="input-container">
-          <label class="label inline-block" [attr.for]="'impact-area-global-target-' + area.id"><span>Global Target</span>@if (isGlobalTargetRequired(area.id)) {<span class="text-red-500">*</span>}</label>
+          <label class="label inline-block" [attr.for]="'impact-area-global-target-' + area.id"><span>Global
+              Target</span>@if (isGlobalTargetRequired(area.id)) {<span class="text-red-500">*</span>}</label>
         </div>
         <div class="items">
-          <div>
-            <p-multiSelect [inputId]="'impact-area-global-target-' + area.id"
+          <div class="w-full min-w-0" #globalTargetTrigger>
+            <p-multiSelect #globalTargetMs [inputId]="'impact-area-global-target-' + area.id"
               [style]="isGlobalTargetInvalid(area.id) ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }"
-              [options]="globalTargetOptions(area.id) ?? []"
-              [loading]="globalTargetLoading(area.id)" [display]="'comma'" optionLabel="target" optionValue="targetId"
-              [showToggleAll]="false" [filter]="true" filterBy="smo_code,target"
-              [ngModel]="getGlobalTargetIdsSignal(area.id)()" (ngModelChange)="onGlobalTargetIdsChange(area.id, $event)"
-              [disabled]="disabled" [virtualScroll]="false" [scrollHeight]="'145px'"
-              placeholder="Select the Global Target" appendTo="self"
-              [panelStyle]="{ width: '100%', minWidth: '100%', maxWidth: '100%', boxSizing: 'border-box' }">
+              [options]="globalTargetOptions(area.id) ?? []" [loading]="globalTargetLoading(area.id)"
+              [display]="'comma'" optionLabel="target" optionValue="targetId" [showToggleAll]="false" [filter]="true"
+              filterBy="smo_code,target" [ngModel]="getGlobalTargetIdsSignal(area.id)()"
+              (ngModelChange)="onGlobalTargetIdsChange(area.id, $event)" [disabled]="disabled" [virtualScroll]="false"
+              [scrollHeight]="'145px'" placeholder="Select the Global Target" appendTo="body" [baseZIndex]="11000"
+              [panelStyle]="globalTargetPanelStyle(area.id)"
+              (onPanelShow)="onGlobalTargetPanelOpen(area.id, globalTargetMs, globalTargetTrigger)">
               <ng-template pTemplate="selectedItems" let-value>
                 @if (value?.length > 0) {
                 <span class="text-[#777C83]">{{ value.length }} selected</span>

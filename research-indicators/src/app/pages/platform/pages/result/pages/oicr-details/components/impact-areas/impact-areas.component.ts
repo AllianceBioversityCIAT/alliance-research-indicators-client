@@ -1,6 +1,6 @@
-import { Component, Input, signal, WritableSignal, inject, effect } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, signal, WritableSignal, inject, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelectModule, MultiSelect } from 'primeng/multiselect';
 import { RadioButtonComponent } from '@shared/components/custom-fields/radio-button/radio-button.component';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { GlobalTargetsService } from '@shared/services/short-control-list/global-targets.service';
@@ -18,6 +18,7 @@ export class ImpactAreasComponent {
   @Input() body: WritableSignal<ImpactAreasBody> = signal({});
   @Input() disabled = false;
 
+  private readonly cdr = inject(ChangeDetectorRef);
   serviceLocator = inject(ServiceLocatorService);
   impactAreasService = this.serviceLocator.getService('impactAreas') as BaseService & ImpactAreasService;
   private readonly globalTargetsService = inject(GlobalTargetsService);
@@ -25,6 +26,7 @@ export class ImpactAreasComponent {
 
   private readonly globalTargetIdLists = new Map<number, WritableSignal<number[]>>();
   private readonly impactAreaScoreSignals = new Map<number, WritableSignal<{ score: number | null }>>();
+  private readonly globalTargetPanelWidthsPx = signal<Record<number, number>>({});
 
   constructor() {
     effect(() => {
@@ -66,6 +68,32 @@ export class ImpactAreasComponent {
 
   isGlobalTargetInvalid(areaId: number): boolean {
     return this.isGlobalTargetRequired(areaId) && this.ensureGlobalTargetIdsSignal(areaId)().length === 0;
+  }
+
+  globalTargetPanelStyle(areaId: number): Record<string, string> {
+    const w = this.globalTargetPanelWidthsPx()[areaId];
+    const base: Record<string, string> = { boxSizing: 'border-box' };
+    if (w == null || w <= 0) {
+      return base;
+    }
+    return {
+      ...base,
+      width: `${w}px`,
+      maxWidth: `${w}px`,
+      minWidth: `${w}px`
+    };
+  }
+
+  onGlobalTargetPanelOpen(areaId: number, ms: MultiSelect, trigger: HTMLElement) {
+    const w = Math.round(trigger.getBoundingClientRect().width);
+    if (w <= 0) {
+      return;
+    }
+    this.globalTargetPanelWidthsPx.update(prev => ({ ...prev, [areaId]: w }));
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      ms.overlayViewChild?.alignOverlay();
+    });
   }
 
   getImpactAreaScore(areaId: number): WritableSignal<{ score: number | null }> {
