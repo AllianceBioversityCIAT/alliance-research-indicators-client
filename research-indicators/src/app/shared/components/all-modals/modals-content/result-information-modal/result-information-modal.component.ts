@@ -16,6 +16,8 @@ import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 })
 export class ResultInformationModalComponent {
   readonly externalSystemRedirectTooltip = 'You will be redirected to the Information System where this information was captured.';
+  readonly publicLinkTooltip =
+    'You will be redirected to the public source where the full result metadata is available.';
   allModals = inject(AllModalsService);
 
   result = computed(() => this.allModals.selectedResultForInfo());
