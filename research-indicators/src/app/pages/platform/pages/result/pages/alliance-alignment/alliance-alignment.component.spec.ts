@@ -1094,18 +1094,13 @@ describe('AllianceAlignmentComponent', () => {
     });
 
     it('leverFromContractNested maps nested contract fields', () => {
-      const lever = (component as any).leverFromContractNested(
-        { short_name: 'Sn', other_names: 'on', lever_url: 'http://x' },
-        66
-      );
+      const lever = (component as any).leverFromContractNested({ short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }, 66);
       expect(lever.lever_id).toBe(66);
       expect(lever.short_name).toBe('Sn');
     });
 
     it('findNestedLeverShape returns nested lever object', () => {
-      const contracts = [
-        { levers: [{ id: 66, full_name: 'N', short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }] }
-      ];
+      const contracts = [{ levers: [{ id: 66, full_name: 'N', short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }] }];
       expect((component as any).findNestedLeverShape(contracts, 66)?.short_name).toBe('Sn');
     });
 
@@ -1322,9 +1317,9 @@ describe('AllianceAlignmentComponent', () => {
     });
 
     it('samePrimaryLeverSequence is false when lever ids differ at same index', () => {
-      expect(
-        (component as any).samePrimaryLeverSequence([{ lever_id: 1 }, { lever_id: 2 }] as any, [{ lever_id: 1 }, { lever_id: 9 }] as any)
-      ).toBe(false);
+      expect((component as any).samePrimaryLeverSequence([{ lever_id: 1 }, { lever_id: 2 }] as any, [{ lever_id: 1 }, { lever_id: 9 }] as any)).toBe(
+        false
+      );
     });
 
     it('normalizeSdgs picks clarisa_sdg_id when sdg_id missing in getData', async () => {
@@ -1426,13 +1421,9 @@ describe('AllianceAlignmentComponent', () => {
     });
 
     it('getPrimaryContracts filters out non-objects and non-primary contracts', () => {
-      expect(
-        (component as any).getPrimaryContracts([
-          null,
-          { is_primary: false, lever_id: 1 },
-          { is_primary: true, lever_id: 2 }
-        ])
-      ).toEqual([{ is_primary: true, lever_id: 2 }]);
+      expect((component as any).getPrimaryContracts([null, { is_primary: false, lever_id: 1 }, { is_primary: true, lever_id: 2 }])).toEqual([
+        { is_primary: true, lever_id: 2 }
+      ]);
     });
 
     it('isPrimaryContributingContract returns false for null and non-objects', () => {
