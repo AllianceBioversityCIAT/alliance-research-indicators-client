@@ -20,12 +20,7 @@
 
       <div class="relative w-full min-w-0 flex-1 flex-col">
         <div class="input-container">
-          <label class="label inline-block flex items-center" [attr.for]="'impact-area-global-target-' + area.id">
-            Global Target
-            @if (isGlobalTargetRequired(area.id)) {
-            <span class="text-red-500">*</span>
-            }
-          </label>
+          <label class="label inline-block" [attr.for]="'impact-area-global-target-' + area.id"><span>Global Target</span>@if (isGlobalTargetRequired(area.id)) {<span class="text-red-500">*</span>}</label>
         </div>
         <div class="items">
           <div>
