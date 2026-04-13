@@ -14,7 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 })
 export class AllianceLeverCardComponent {
   readonly allowRemove = (): boolean => true;
-  readonly selectedItemsSurfaceColor = '#f6f6f6';
+  readonly selectedItemsSurfaceColor = '#E8EBED';
 
   removeLever = output<void>();
 

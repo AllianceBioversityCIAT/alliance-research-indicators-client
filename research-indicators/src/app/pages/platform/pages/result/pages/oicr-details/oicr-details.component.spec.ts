@@ -572,12 +572,57 @@ describe('OicrDetailsComponent', () => {
       expect(component.body().result_impact_areas![0]).toEqual({
         impact_area_id: 1,
         impact_area_score_id: 2,
-        global_target_id: 3
+        result_impact_area_global_targets: [{ global_target_id: 3 }]
       });
       expect(component.body().result_impact_areas![1]).toEqual({
         impact_area_id: 4,
         impact_area_score_id: undefined,
-        global_target_id: undefined
+        result_impact_area_global_targets: undefined
+      });
+    });
+
+    it('should map result_impact_area_global_targets when API returns nested array', async () => {
+      apiService.GET_Oicr.mockResolvedValue({
+        data: {
+          result_impact_areas: [
+            {
+              impact_area_id: 1,
+              impact_area_score_id: 2,
+              result_impact_area_global_targets: [{ global_target_id: 9 }, { global_target_id: 10 }]
+            }
+          ]
+        }
+      } as any);
+      jest.spyOn(component, 'loadContactPersons').mockResolvedValue();
+
+      await component.getData();
+
+      expect(component.body().result_impact_areas![0].result_impact_area_global_targets).toEqual([
+        { global_target_id: 9 },
+        { global_target_id: 10 }
+      ]);
+    });
+
+    it('should map global_target_ids when provided', async () => {
+      apiService.GET_Oicr.mockResolvedValue({
+        data: {
+          result_impact_areas: [
+            {
+              impact_area_id: 7,
+              impact_area_score_id: 1,
+              global_target_ids: [4, 5]
+            }
+          ]
+        }
+      } as any);
+      jest.spyOn(component, 'loadContactPersons').mockResolvedValue();
+
+      await component.getData();
+
+      expect(component.body().result_impact_areas![0]).toEqual({
+        impact_area_id: 7,
+        impact_area_score_id: 1,
+        result_impact_area_global_targets: [{ global_target_id: 4 }, { global_target_id: 5 }]
       });
     });
   });

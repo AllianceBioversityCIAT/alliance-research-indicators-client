@@ -220,11 +220,33 @@ export default class OicrDetailsComponent {
     // Map result_impact_areas
     const apiImpactAreas = Array.isArray(apiData.result_impact_areas) ? apiData.result_impact_areas : [];
     if (apiImpactAreas.length > 0) {
-      const mappedImpactAreas = apiImpactAreas.map((ia: { impact_area_id: number; impact_area_score_id: number | undefined; global_target_id: number | undefined }) => ({
-        impact_area_id: ia.impact_area_id,
-        impact_area_score_id: ia.impact_area_score_id,
-        global_target_id: ia.global_target_id,
-      }));
+      const mappedImpactAreas = apiImpactAreas.map(
+        (ia: {
+          impact_area_id: number;
+          impact_area_score_id: number | undefined;
+          result_impact_area_global_targets?: { global_target_id: number }[];
+          global_target_id?: number | undefined;
+          global_target_ids?: number[];
+        }) => {
+          let result_impact_area_global_targets: { global_target_id: number }[] | undefined;
+          if (Array.isArray(ia.result_impact_area_global_targets) && ia.result_impact_area_global_targets.length > 0) {
+            result_impact_area_global_targets = ia.result_impact_area_global_targets.map(t => ({
+              global_target_id: t.global_target_id
+            }));
+          } else if (Array.isArray(ia.global_target_ids) && ia.global_target_ids.length > 0) {
+            result_impact_area_global_targets = ia.global_target_ids.map(global_target_id => ({ global_target_id }));
+          } else if (ia.global_target_id != null && ia.global_target_id !== undefined) {
+            result_impact_area_global_targets = [{ global_target_id: ia.global_target_id }];
+          } else {
+            result_impact_area_global_targets = undefined;
+          }
+          return {
+            impact_area_id: ia.impact_area_id,
+            impact_area_score_id: ia.impact_area_score_id,
+            result_impact_area_global_targets
+          };
+        }
+      );
       
       // Update the body with the mapped impact areas
       const currentBody = this.body();

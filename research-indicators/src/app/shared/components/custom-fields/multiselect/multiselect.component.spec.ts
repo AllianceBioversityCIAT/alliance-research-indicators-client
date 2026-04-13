@@ -1186,6 +1186,102 @@ describe('MultiselectComponent', () => {
     expect(component.virtualScrollEstimateSize()).toBe(60);
   });
 
+  describe('trackSelectedOptionRow / optionRowTrackKeyFromRow', () => {
+    beforeEach(() => {
+      component.optionValue = 'id';
+    });
+
+    it('should stringify boolean option value as true/false', () => {
+      expect(component.trackSelectedOptionRow(0, { id: true })).toBe('true');
+      expect(component.trackSelectedOptionRow(1, { id: false })).toBe('false');
+    });
+
+    it('should stringify bigint option value', () => {
+      expect(component.trackSelectedOptionRow(0, { id: BigInt(99) })).toBe('99');
+    });
+
+    it('should return index when raw type is unsupported (e.g. object)', () => {
+      expect(component.trackSelectedOptionRow(3, { id: { nested: 1 } } as any)).toBe(3);
+    });
+
+    it('should return index when option key is empty string', () => {
+      expect(component.trackSelectedOptionRow(4, { id: '' })).toBe(4);
+    });
+
+    it('should return index when row is null or primitive', () => {
+      expect(component.trackSelectedOptionRow(2, null)).toBe(2);
+      expect(component.trackSelectedOptionRow(2, 'x' as any)).toBe(2);
+    });
+
+    it('should return index when optionValue is not set', () => {
+      component.optionValue = '';
+      expect(component.trackSelectedOptionRow(6, { id: 1 })).toBe(6);
+    });
+  });
+
+  describe('setValue merged[attr] fallback', () => {
+    it('should set id on merged object when prev and options lack the key', () => {
+      mockUtilsService.getNestedProperty.mockReturnValue([]);
+      mockService.list.mockReturnValue([]);
+      component.ngOnInit();
+
+      component.setValue([42]);
+
+      expect(component.body().value).toEqual([42]);
+    });
+
+    it('should use empty prevItems when getNestedProperty returns null (line 306 ?? branch)', () => {
+      mockUtilsService.getNestedProperty.mockReturnValue(null);
+      mockService.list.mockReturnValue([{ id: 7, name: 'X' }]);
+      component.ngOnInit();
+
+      component.setValue([7]);
+
+      expect(component.body().value).toEqual([7]);
+    });
+  });
+
+  it('syncBodyWithSignal should update body when lengths differ (cover line 207)', () => {
+    component.signal = signal({ testField: [{ id: 1 }, { id: 2 }] });
+    component.optionValue = 'id';
+    component.signalOptionValue = 'testField';
+    component.body.set({ value: [1] });
+    mockUtilsService.getNestedProperty.mockReturnValue([{ id: 1 }, { id: 2 }]);
+    TestBed.flushEffects();
+    expect(component.body().value).toEqual([1, 2]);
+  });
+
+  it('syncBodyWithSignal should coerce non-array body value to empty array before compare (line 204)', () => {
+    component.signal = signal({ testField: [{ id: 1 }, { id: 2 }] });
+    component.optionValue = 'id';
+    component.signalOptionValue = 'testField';
+    component.body.set({ value: 'not-an-array' as any });
+    mockUtilsService.getNestedProperty.mockReturnValue([{ id: 1 }, { id: 2 }]);
+    TestBed.flushEffects();
+    expect(component.body().value).toEqual([1, 2]);
+  });
+
+  it('availableOptions uses listWithDisabled when useDisabled is truthy (line 121)', () => {
+    component.optionsDisabled.set([{ id: 1 }]);
+    mockService.list.mockReturnValue([
+      { id: 1, name: 'A' },
+      { id: 2, name: 'B' }
+    ]);
+    component.ngOnInit();
+    mockUtilsService.getNestedProperty.mockReturnValue([]);
+    const opts = component.availableOptions();
+    expect(opts.some(o => o.id === 1)).toBe(true);
+  });
+
+  it('setValue uses empty event and options when event is not array and optionsSig is undefined-valued (lines 306-308)', () => {
+    mockUtilsService.getNestedProperty.mockReturnValue([]);
+    mockService.list.mockReturnValue([]);
+    component.ngOnInit();
+    (component as any).optionsSig = signal(undefined as any);
+    component.setValue(999 as any);
+    expect(component.body().value).toBe(999);
+  });
+
   describe('loadData', () => {
     it('should await service.main when defined', async () => {
       const main = jest.fn().mockResolvedValue(undefined);

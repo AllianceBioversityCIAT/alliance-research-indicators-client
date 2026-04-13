@@ -49,7 +49,7 @@ describe('AllianceLeverCardComponent', () => {
 
   it('should expose allowRemove and selectedItemsSurfaceColor', () => {
     expect(component.allowRemove()).toBe(true);
-    expect(component.selectedItemsSurfaceColor).toBe('#f6f6f6');
+    expect(component.selectedItemsSurfaceColor).toBe('#E8EBED');
   });
 
   it('should emit removeLever when remove is clicked', () => {
