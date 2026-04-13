@@ -7,6 +7,7 @@ import { ImpactAreasBody, BaseService } from '@shared/interfaces/impact-area.int
 import { GlobalTargetsService } from '@shared/services/short-control-list/global-targets.service';
 import { ImpactAreasService } from '@shared/services/short-control-list/impact-areas.service';
 import { GlobalTarget } from '@shared/interfaces/global-target.interface';
+import { MultiSelect } from 'primeng/multiselect';
 
 describe('ImpactAreasComponent', () => {
   let component: ImpactAreasComponent;
@@ -114,6 +115,72 @@ describe('ImpactAreasComponent', () => {
     });
   });
 
+  describe('globalTargetPanelStyle', () => {
+    it('returns only boxSizing when no width was recorded for the area', () => {
+      expect(component.globalTargetPanelStyle(999)).toEqual({ boxSizing: 'border-box' });
+    });
+
+    it('returns only boxSizing when stored width is zero or negative', () => {
+      (component as any).globalTargetPanelWidthsPx.set({ 701: 0 });
+      expect(component.globalTargetPanelStyle(701)).toEqual({ boxSizing: 'border-box' });
+      (component as any).globalTargetPanelWidthsPx.set({ 701: -3 });
+      expect(component.globalTargetPanelStyle(701)).toEqual({ boxSizing: 'border-box' });
+    });
+
+    it('returns width, maxWidth and minWidth when stored width is positive', () => {
+      (component as any).globalTargetPanelWidthsPx.set({ 702: 288 });
+      expect(component.globalTargetPanelStyle(702)).toEqual({
+        boxSizing: 'border-box',
+        width: '288px',
+        maxWidth: '288px',
+        minWidth: '288px'
+      });
+    });
+  });
+
+  describe('onGlobalTargetPanelOpen', () => {
+    it('returns early and does not record width when trigger rect width is zero', () => {
+      const trigger = { getBoundingClientRect: () => ({ width: 0 } as DOMRect) } as HTMLElement;
+      const ms = { overlayViewChild: { alignOverlay: jest.fn() } } as unknown as MultiSelect;
+      component.onGlobalTargetPanelOpen(801, ms, trigger);
+      expect(component.globalTargetPanelStyle(801)).toEqual({ boxSizing: 'border-box' });
+    });
+
+    it('records rounded width, runs change detection, and calls alignOverlay after timeout', fakeAsync(() => {
+      const alignOverlay = jest.fn();
+      const trigger = {
+        getBoundingClientRect: () => ({ width: 199.4 } as DOMRect)
+      } as HTMLElement;
+      const ms = { overlayViewChild: { alignOverlay } } as unknown as MultiSelect;
+      const cdr = (component as unknown as { cdr: { detectChanges: () => void } }).cdr;
+      const detectChangesSpy = jest.spyOn(cdr, 'detectChanges');
+
+      component.onGlobalTargetPanelOpen(802, ms, trigger);
+
+      expect(component.globalTargetPanelStyle(802)).toMatchObject({
+        width: '199px',
+        maxWidth: '199px',
+        minWidth: '199px'
+      });
+      expect(detectChangesSpy).toHaveBeenCalled();
+      expect(alignOverlay).not.toHaveBeenCalled();
+
+      tick();
+      expect(alignOverlay).toHaveBeenCalledTimes(1);
+
+      detectChangesSpy.mockRestore();
+    }));
+
+    it('does not throw when overlayViewChild is undefined', fakeAsync(() => {
+      const trigger = { getBoundingClientRect: () => ({ width: 50 } as DOMRect) } as HTMLElement;
+      const ms = { overlayViewChild: undefined } as unknown as MultiSelect;
+      expect(() => {
+        component.onGlobalTargetPanelOpen(803, ms, trigger);
+        tick();
+      }).not.toThrow();
+    }));
+  });
+
   describe('isGlobalTargetRequired', () => {
     it('should return true when score is 3', () => {
       const body: ImpactAreasBody = {
@@ -161,6 +228,59 @@ describe('ImpactAreasComponent', () => {
       component.body.set(body);
       expect(component.isGlobalTargetRequired(1)).toBe(false);
     });
+  });
+
+  describe('isGlobalTargetInvalid', () => {
+    it('returns true when score is 3 and no global targets selected', fakeAsync(() => {
+      const body: ImpactAreasBody = {
+        result_impact_areas: [
+          {
+            impact_area_id: 1,
+            impact_area_score_id: 3,
+            result_impact_area_global_targets: []
+          }
+        ]
+      };
+      component.body.set(body);
+      tick();
+      flush();
+      fixture.detectChanges();
+      expect(component.isGlobalTargetInvalid(1)).toBe(true);
+    }));
+
+    it('returns false when score is 3 but ids are selected', fakeAsync(() => {
+      const body: ImpactAreasBody = {
+        result_impact_areas: [
+          {
+            impact_area_id: 1,
+            impact_area_score_id: 3,
+            result_impact_area_global_targets: [{ global_target_id: 9 }]
+          }
+        ]
+      };
+      component.body.set(body);
+      tick();
+      flush();
+      fixture.detectChanges();
+      expect(component.isGlobalTargetInvalid(1)).toBe(false);
+    }));
+
+    it('returns false when global target is not required', fakeAsync(() => {
+      const body: ImpactAreasBody = {
+        result_impact_areas: [
+          {
+            impact_area_id: 1,
+            impact_area_score_id: 2,
+            result_impact_area_global_targets: []
+          }
+        ]
+      };
+      component.body.set(body);
+      tick();
+      flush();
+      fixture.detectChanges();
+      expect(component.isGlobalTargetInvalid(1)).toBe(false);
+    }));
   });
 
   describe('getImpactAreaScore', () => {
