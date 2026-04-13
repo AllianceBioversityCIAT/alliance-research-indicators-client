@@ -14,11 +14,14 @@ export interface ImpactAreaGlobalTarget {
   value: number | null;
 }
 
+export interface ResultImpactAreaGlobalTargetRef {
+  global_target_id: number;
+}
 
 export interface ResultImpactArea {
   impact_area_id: number;
   impact_area_score_id: number | undefined;
-  global_target_id: number | undefined;
+  result_impact_area_global_targets?: ResultImpactAreaGlobalTargetRef[];
 }
 
 export interface ImpactAreasBody {
