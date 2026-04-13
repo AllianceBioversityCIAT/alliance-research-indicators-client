@@ -1094,18 +1094,13 @@ describe('AllianceAlignmentComponent', () => {
     });
 
     it('leverFromContractNested maps nested contract fields', () => {
-      const lever = (component as any).leverFromContractNested(
-        { short_name: 'Sn', other_names: 'on', lever_url: 'http://x' },
-        66
-      );
+      const lever = (component as any).leverFromContractNested({ short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }, 66);
       expect(lever.lever_id).toBe(66);
       expect(lever.short_name).toBe('Sn');
     });
 
     it('findNestedLeverShape returns nested lever object', () => {
-      const contracts = [
-        { levers: [{ id: 66, full_name: 'N', short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }] }
-      ];
+      const contracts = [{ levers: [{ id: 66, full_name: 'N', short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }] }];
       expect((component as any).findNestedLeverShape(contracts, 66)?.short_name).toBe('Sn');
     });
 
@@ -1322,9 +1317,9 @@ describe('AllianceAlignmentComponent', () => {
     });
 
     it('samePrimaryLeverSequence is false when lever ids differ at same index', () => {
-      expect(
-        (component as any).samePrimaryLeverSequence([{ lever_id: 1 }, { lever_id: 2 }] as any, [{ lever_id: 1 }, { lever_id: 9 }] as any)
-      ).toBe(false);
+      expect((component as any).samePrimaryLeverSequence([{ lever_id: 1 }, { lever_id: 2 }] as any, [{ lever_id: 1 }, { lever_id: 9 }] as any)).toBe(
+        false
+      );
     });
 
     it('normalizeSdgs picks clarisa_sdg_id when sdg_id missing in getData', async () => {
@@ -1416,6 +1411,53 @@ describe('AllianceAlignmentComponent', () => {
     it('findNestedLeverShape returns on first contract when it matches', () => {
       const contracts = [{ levers: [{ id: 3, full_name: 'Y', short_name: 'First' }] }];
       expect((component as any).findNestedLeverShape(contracts, 3)?.short_name).toBe('First');
+    });
+  });
+
+  describe('getPrimaryContracts and contributorLeversExcludingPrimary', () => {
+    it('getPrimaryContracts returns empty array when contracts is undefined or null', () => {
+      expect((component as any).getPrimaryContracts(undefined)).toEqual([]);
+      expect((component as any).getPrimaryContracts(null)).toEqual([]);
+    });
+
+    it('getPrimaryContracts filters out non-objects and non-primary contracts', () => {
+      expect((component as any).getPrimaryContracts([null, { is_primary: false, lever_id: 1 }, { is_primary: true, lever_id: 2 }])).toEqual([
+        { is_primary: true, lever_id: 2 }
+      ]);
+    });
+
+    it('isPrimaryContributingContract returns false for null and non-objects', () => {
+      expect((component as any).isPrimaryContributingContract(null)).toBe(false);
+      expect((component as any).isPrimaryContributingContract('x')).toBe(false);
+    });
+
+    it('getLeverIdFromContract returns null when contract is null, undefined, or not an object', () => {
+      expect((component as any).getLeverIdFromContract(null)).toBeNull();
+      expect((component as any).getLeverIdFromContract(undefined)).toBeNull();
+      expect((component as any).getLeverIdFromContract(42)).toBeNull();
+    });
+
+    it('contributorLeversExcludingPrimary treats undefined primary as empty id set', () => {
+      const c = [{ lever_id: 1 } as any];
+      expect((component as any).contributorLeversExcludingPrimary(undefined, c)).toEqual(c);
+    });
+
+    it('contributorLeversExcludingPrimary treats undefined contributors as empty', () => {
+      expect((component as any).contributorLeversExcludingPrimary([{ lever_id: 1 } as any], undefined)).toEqual([]);
+    });
+
+    it('sync effect uses prev.contributor_levers ?? [] when contributor_levers was undefined', () => {
+      component.body.set({
+        contracts: [{ is_primary: true, lever_id: 9 }],
+        result_sdgs: [],
+        primary_levers: [],
+        contributor_levers: undefined as any
+      });
+      fixture.detectChanges();
+      TestBed.flushEffects();
+      fixture.detectChanges();
+      expect(component.body().primary_levers.some(l => String(l.lever_id) === '9')).toBe(true);
+      expect(component.body().contributor_levers).toEqual([]);
     });
   });
 });
