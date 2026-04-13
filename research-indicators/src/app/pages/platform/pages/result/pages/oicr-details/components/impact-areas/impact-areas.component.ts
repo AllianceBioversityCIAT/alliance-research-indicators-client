@@ -64,11 +64,14 @@ export class ImpactAreasComponent {
     return impactArea?.impact_area_score_id === 3;
   }
 
+  isGlobalTargetInvalid(areaId: number): boolean {
+    return this.isGlobalTargetRequired(areaId) && this.ensureGlobalTargetIdsSignal(areaId)().length === 0;
+  }
+
   getImpactAreaScore(areaId: number): WritableSignal<{ score: number | null }> {
     return this.ensureImpactAreaScoreSignal(areaId);
   }
 
-  /** Ids bound to `p-multiSelect` for this impact area. */
   getGlobalTargetIdsSignal(areaId: number): WritableSignal<number[]> {
     return this.ensureGlobalTargetIdsSignal(areaId);
   }
