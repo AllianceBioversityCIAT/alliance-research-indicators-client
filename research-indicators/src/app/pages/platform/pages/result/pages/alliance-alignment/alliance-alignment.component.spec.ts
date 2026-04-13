@@ -1050,6 +1050,20 @@ describe('AllianceAlignmentComponent', () => {
       expect(component.body().primary_levers.some(l => String(l.lever_id) === '88')).toBe(true);
     });
 
+    it('sync effect drops the same lever from contributor_levers when it becomes primary', () => {
+      component.body.set({
+        contracts: [{ is_primary: true, lever_id: 6 }],
+        result_sdgs: [],
+        primary_levers: [],
+        contributor_levers: [{ lever_id: 6, short_name: 'L6' } as any]
+      });
+      fixture.detectChanges();
+      TestBed.flushEffects();
+      fixture.detectChanges();
+      expect(component.body().primary_levers.some(l => String(l.lever_id) === '6')).toBe(true);
+      expect(component.body().contributor_levers.some(l => String(l.lever_id) === '6')).toBe(false);
+    });
+
     it('findCatalogLever returns matching catalog row', () => {
       getLeversServiceMock.list.set([{ lever_id: 77, id: 77, short_name: 'Cat', other_names: 'o' } as any]);
       expect((component as any).findCatalogLever(77)?.short_name).toBe('Cat');

@@ -298,16 +298,30 @@ export default class AllianceAlignmentComponent {
     return a.every((x, i) => String(x.lever_id) === String(b[i]?.lever_id));
   }
 
+  private contributorLeversExcludingPrimary(primary: Lever[], contributors: Lever[] | undefined): Lever[] {
+    const primaryIds = new Set((primary ?? []).map(l => String(l.lever_id)));
+    return (contributors ?? []).filter(c => !primaryIds.has(String(c.lever_id)));
+  }
+
   private readonly syncContractLeversToPrimaryEffect = effect(
     () => {
       this.body();
       this.getLeversService.list();
       const merged = this.computeMergedPrimaryLevers();
-      const current = this.body().primary_levers ?? [];
-      if (this.samePrimaryLeverSequence(current, merged)) {
+      const currentPrimary = this.body().primary_levers ?? [];
+      const currentContributors = this.body().contributor_levers ?? [];
+      const primaryIds = new Set(merged.map(l => String(l.lever_id)));
+      const contributorsOverlapPrimary = currentContributors.some(c => primaryIds.has(String(c.lever_id)));
+
+      if (this.samePrimaryLeverSequence(currentPrimary, merged) && !contributorsOverlapPrimary) {
         return;
       }
-      this.body.update(prev => ({ ...prev, primary_levers: merged }));
+
+      this.body.update(prev => ({
+        ...prev,
+        primary_levers: merged,
+        contributor_levers: this.contributorLeversExcludingPrimary(merged, prev.contributor_levers ?? [])
+      }));
     },
     { allowSignalWrites: true }
   );
