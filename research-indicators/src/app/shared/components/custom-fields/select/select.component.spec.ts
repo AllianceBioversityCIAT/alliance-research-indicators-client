@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SelectComponent } from './select.component';
-import { signal } from '@angular/core';
+import { signal, SimpleChange } from '@angular/core';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { CacheService } from '../../../services/cache/cache.service';
 import { UtilsService } from '../../../services/utils.service';
@@ -383,4 +383,72 @@ describe('SelectComponent', () => {
     expect(component.loadingSig).toBe(loadingSignal);
   });
 
+  it('ngOnChanges should call initializeService when only serviceParams change', () => {
+    const initSpy = jest.spyOn(component as any, 'initializeService').mockImplementation(() => {});
+    component.ngOnInit();
+    initSpy.mockClear();
+
+    component.ngOnChanges({
+      serviceParams: new SimpleChange({ a: 1 }, { a: 2 }, false)
+    });
+
+    expect(initSpy).toHaveBeenCalled();
+    initSpy.mockRestore();
+  });
+
+  it('ngOnChanges should update isRequiredSignal when isRequired input changes', () => {
+    component.isRequired = false;
+    component.ngOnInit();
+    expect(component.isRequiredSignal()).toBe(false);
+
+    component.isRequired = true;
+    component.ngOnChanges({
+      isRequired: new SimpleChange(false, true, false)
+    });
+
+    expect(component.isRequiredSignal()).toBe(true);
+  });
+
+  it('onSectionLoad uses getNestedProperty for dotted body when first segment is not an array (line 103)', () => {
+    mockCacheService.currentResultIsLoading.set(true);
+
+    const fixture = TestBed.createComponent(SelectComponent);
+    const comp = fixture.componentInstance;
+    comp.optionValue = { body: 'items.value', option: 'id' };
+    comp.body.set({ value: null });
+    comp.signal = signal<any>({ items: { notAnArray: true } });
+
+    mockUtilsService.getNestedProperty.mockImplementation((obj: any, path: string) => {
+      if (path === 'items.value') {
+        return 'FROM-NESTED';
+      }
+      return null;
+    });
+    mockUtilsService.setNestedPropertyWithReduce.mockImplementation((obj: any, _p: string, v: any) => {
+      obj.value = v;
+    });
+
+    mockCacheService.currentResultIsLoading.set(false);
+    fixture.detectChanges();
+
+    expect(comp.body().value).toBe('FROM-NESTED');
+  });
+
+  it('loadData should catch when service.main rejects', async () => {
+    const failingService = {
+      ...mockService,
+      main: jest.fn().mockRejectedValue(new Error('network'))
+    };
+    mockServiceLocator.getService.mockReturnValue(failingService);
+
+    const fixture = TestBed.createComponent(SelectComponent);
+    const comp = fixture.componentInstance;
+    comp.serviceName = 'getCountries';
+    comp.ngOnInit();
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(failingService.main).toHaveBeenCalled();
+  });
 });
