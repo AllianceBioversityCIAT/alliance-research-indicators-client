@@ -85,7 +85,7 @@
 
   @if (!this.hideSelected && !this.hideTemplate) {
   @if (this.currentResultIsLoading() || !(this.optionsSig().length)) {
-  @for (row of list; track $index) {
+  @for (row of list; track trackSelectedOptionRow($index, row)) {
   <p-skeleton width="100%" height="41px" styleClass="mb-2" />
   }
   } @else {
@@ -106,7 +106,7 @@
     [class.selected-items--stack-gap]="hideRemoveIcon"
     [class.selected-items--custom-surface]="!!selectedItemsSurfaceColor?.trim()"
     [style.--multiselect-selected-surface]="selectedItemsSurfaceColor?.trim() || null">
-    @for (row of selectedOptions(); track $index) {
+    @for (row of selectedOptions(); track trackSelectedOptionRow($index, row)) {
     <div class="item  {{ dark ? ' !bg-[#e8ebed] !border-[#c6cdd1]/40' : 'abc-grey-100' }}"
       [class.item--full-row]="hideRemoveIcon">
       <div class="selected-row-main">

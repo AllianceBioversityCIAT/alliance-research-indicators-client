@@ -246,6 +246,21 @@ export class MultiselectComponent implements OnInit, OnChanges {
     return this.optionLabel2 ? 60 : this.itemHeight;
   }
 
+  trackSelectedOptionRow(index: number, row: unknown): string | number {
+    return this.optionRowTrackKeyFromRow(row) ?? index;
+  }
+
+  private optionRowTrackKeyFromRow(row: unknown): string | number | undefined {
+    if (!this.optionValue || row === null || row === undefined || typeof row !== 'object') return undefined;
+    const raw = (row as Record<string, unknown>)[this.optionValue];
+    if (raw === undefined || raw === null || raw === '') return undefined;
+    const t = typeof raw;
+    if (t === 'number' || t === 'string') return raw as number | string;
+    if (t === 'boolean') return raw ? 'true' : 'false';
+    if (t === 'bigint') return (raw as bigint).toString();
+    return undefined;
+  }
+
   private loadKey(): string {
     return `${String(this.serviceName)}::${JSON.stringify(this.serviceParams)}`;
   }
@@ -287,24 +302,22 @@ export class MultiselectComponent implements OnInit, OnChanges {
     this.body.set({ value: event });
 
     this.signal.update((current: any) => {
-      const existingValues = this.objectArrayToIdArray(this.utils.getNestedProperty(current, this.signalOptionValue), this.optionValue);
+      const attr = this.optionValue;
+      const prevItems = this.utils.getNestedProperty(current, this.signalOptionValue) ?? [];
+      const eventIds = Array.isArray(event) ? event : [];
+      const optionsList = this.optionsSig() ?? [];
 
-      // Find new options to add
-      const newOption = this.optionsSig().find(
-        (option: any) => event?.includes(option[this.optionValue]) && !existingValues?.includes(option[this.optionValue])
-      );
+      const nextItems = eventIds.map((id: number) => {
+        const fromPrev = prevItems.find((item: any) => item[attr] == id);
+        const fromOptions = optionsList.find((option: any) => option[attr] == id);
+        const merged: Record<string, unknown> = { ...(fromPrev ?? {}), ...(fromOptions ?? {}) };
+        if (merged[attr] == null) {
+          merged[attr] = id;
+        }
+        return merged as any;
+      });
 
-      if (newOption) {
-        /* istanbul ignore next */
-        const currentValues = this.utils.getNestedProperty(current, this.signalOptionValue) ?? [];
-        this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, [...currentValues, newOption]);
-      }
-
-      // Remove options that are no longer selected
-      const filteredOptions = this.utils
-        .getNestedProperty(current, this.signalOptionValue)
-        .filter((item: any) => event?.includes(item[this.optionValue]));
-      this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, filteredOptions);
+      this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, nextItems);
 
       this.selectEvent.emit(current);
       return { ...current };
@@ -330,6 +343,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
       this.body.set({ value: this.objectArrayToIdArray(updatedOptions, this.optionValue) });
 
       this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, updatedOptions);
+      this.selectEvent.emit({ ...current });
       return { ...current };
     });
   }
