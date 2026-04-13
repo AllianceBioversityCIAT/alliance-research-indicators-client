@@ -890,13 +890,14 @@ describe('AllianceAlignmentComponent', () => {
   });
 
   describe('getRequiredLeverIdsFromContracts', () => {
-    it('should collect unique lever ids from nested levers and top-level lever_id', () => {
+    it('should collect unique lever ids only from primary contributing contracts', () => {
       const ids = component.getRequiredLeverIdsFromContracts([
         null,
-        { levers: [{ id: 1, full_name: 'Not available' }] },
-        { levers: [{ lever_id: 2, full_name: 'OK', short_name: 's' }] },
-        { lever_id: 3 },
-        { lever_id: 3 }
+        { is_primary: false, lever_id: 999 },
+        { is_primary: true, levers: [{ id: 1, full_name: 'Not available' }] },
+        { is_primary: true, levers: [{ lever_id: 2, full_name: 'OK', short_name: 's' }] },
+        { is_primary: true, lever_id: 3 },
+        { is_primary: true, lever_id: 3 }
       ]);
       expect(ids).toEqual([2, 3]);
     });
@@ -906,14 +907,23 @@ describe('AllianceAlignmentComponent', () => {
     });
 
     it('should skip contracts where nested lever has no resolvable id', () => {
-      expect(component.getRequiredLeverIdsFromContracts([{ levers: [{}] }])).toEqual([]);
+      expect(component.getRequiredLeverIdsFromContracts([{ is_primary: true, levers: [{}] }])).toEqual([]);
+    });
+
+    it('should ignore levers on non-primary contracts', () => {
+      expect(
+        component.getRequiredLeverIdsFromContracts([
+          { is_primary: false, lever_id: 50 },
+          { is_primary: true, lever_id: 7 }
+        ])
+      ).toEqual([7]);
     });
   });
 
   describe('isLeverRequiredFromContributingProject', () => {
-    it('should return true when lever id matches a required contract lever', () => {
+    it('should return true when lever id matches the primary contributing contract lever', () => {
       component.body.set({
-        contracts: [{ lever_id: 7 }],
+        contracts: [{ is_primary: true, lever_id: 7 }],
         result_sdgs: [],
         primary_levers: [],
         contributor_levers: []
@@ -923,12 +933,25 @@ describe('AllianceAlignmentComponent', () => {
 
     it('should return false when no match', () => {
       component.body.set({
-        contracts: [{ lever_id: 7 }],
+        contracts: [{ is_primary: true, lever_id: 7 }],
         result_sdgs: [],
         primary_levers: [],
         contributor_levers: []
       });
       expect(component.isLeverRequiredFromContributingProject({ lever_id: 99 } as any)).toBe(false);
+    });
+
+    it('should return false when lever is only on a non-primary contract', () => {
+      component.body.set({
+        contracts: [
+          { is_primary: true, lever_id: 1 },
+          { is_primary: false, lever_id: 50 }
+        ],
+        result_sdgs: [],
+        primary_levers: [],
+        contributor_levers: []
+      });
+      expect(component.isLeverRequiredFromContributingProject({ lever_id: 50 } as any)).toBe(false);
     });
   });
 
@@ -975,10 +998,10 @@ describe('AllianceAlignmentComponent', () => {
       expect(component.body().primary_levers).toHaveLength(1);
     });
 
-    it('should not remove primary when lever is required by contract', () => {
+    it('should not remove primary when lever is required by primary contract', () => {
       submission.isEditableStatus.mockReturnValue(true);
       component.body.set({
-        contracts: [{ lever_id: 42 }],
+        contracts: [{ is_primary: true, lever_id: 42 }],
         result_sdgs: [],
         primary_levers: [lever],
         contributor_levers: []
@@ -1016,7 +1039,7 @@ describe('AllianceAlignmentComponent', () => {
   describe('syncContractLeversToPrimaryEffect and lever resolution', () => {
     it('sync effect merges required levers into primary_levers', () => {
       component.body.set({
-        contracts: [{ lever_id: 88 }],
+        contracts: [{ is_primary: true, lever_id: 88 }],
         result_sdgs: [],
         primary_levers: [],
         contributor_levers: []
@@ -1079,7 +1102,7 @@ describe('AllianceAlignmentComponent', () => {
 
     it('resolveLeverForPrimary prefers catalog over nested contract', () => {
       getLeversServiceMock.list.set([{ lever_id: 77, id: 77, short_name: 'Cat', other_names: 'o' } as any]);
-      const contracts = [{ lever_id: 77 }];
+      const contracts = [{ is_primary: true, lever_id: 77 }];
       const lever = (component as any).resolveLeverForPrimary(77, [], contracts);
       expect(lever.short_name).toBe('Cat');
     });
@@ -1087,7 +1110,10 @@ describe('AllianceAlignmentComponent', () => {
     it('resolveLeverForPrimary uses nested contract when catalog misses', () => {
       getLeversServiceMock.list.set([]);
       const contracts = [
-        { levers: [{ id: 66, full_name: 'N', short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }] }
+        {
+          is_primary: true,
+          levers: [{ id: 66, full_name: 'N', short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }]
+        }
       ];
       const lever = (component as any).resolveLeverForPrimary(66, [], contracts);
       expect(lever.short_name).toBe('Sn');
@@ -1101,7 +1127,7 @@ describe('AllianceAlignmentComponent', () => {
 
     it('computeMergedPrimaryLevers combines required and optional primaries', () => {
       component.body.set({
-        contracts: [{ lever_id: 10 }],
+        contracts: [{ is_primary: true, lever_id: 10 }],
         result_sdgs: [],
         primary_levers: [{ lever_id: 20, short_name: 'Opt' } as any],
         contributor_levers: []
@@ -1271,7 +1297,7 @@ describe('AllianceAlignmentComponent', () => {
     it('sync effect skips body.update when merged sequence matches current', () => {
       const updateSpy = jest.spyOn(component.body, 'update');
       component.body.set({
-        contracts: [{ lever_id: 1 }],
+        contracts: [{ is_primary: true, lever_id: 1 }],
         result_sdgs: [],
         primary_levers: [{ lever_id: 1, result_lever_strategic_outcomes: [] } as any],
         contributor_levers: []
@@ -1336,7 +1362,7 @@ describe('AllianceAlignmentComponent', () => {
 
     it('sync effect handles undefined primary_levers on body', () => {
       component.body.set({
-        contracts: [{ lever_id: 3 }],
+        contracts: [{ is_primary: true, lever_id: 3 }],
         result_sdgs: [],
         primary_levers: undefined as any,
         contributor_levers: []
