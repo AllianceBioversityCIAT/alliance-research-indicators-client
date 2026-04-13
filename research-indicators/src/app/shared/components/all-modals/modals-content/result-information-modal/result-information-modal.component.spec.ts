@@ -422,7 +422,7 @@ describe('ResultInformationModalComponent', () => {
       openSpy.mockRestore();
     });
 
-    it('should not open when platform is not AICCRA', () => {
+    it('should open public_link for PRMS platform', () => {
       selectedResultSignal.set({
         platform_code: 'PRMS',
         public_link: 'https://doc.example.com'
@@ -430,7 +430,7 @@ describe('ResultInformationModalComponent', () => {
       fixture.detectChanges();
       const openSpy = jest.spyOn(globalThis, 'open').mockImplementation(() => null);
       component.openDocumentLink();
-      expect(openSpy).not.toHaveBeenCalled();
+      expect(openSpy).toHaveBeenCalledWith('https://doc.example.com', '_blank', 'noopener');
       openSpy.mockRestore();
     });
   });
