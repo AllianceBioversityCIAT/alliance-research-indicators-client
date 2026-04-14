@@ -5,7 +5,7 @@
       <img [src]="lever.icon" [alt]="lever.short_name || ''" class="h-[28px] w-[28px] shrink-0 rounded-[3px]" />
       }
       <span class="font-['Space_Grotesk'] text-[13px] font-[550] uppercase tracking-[2.8px] text-[#8D9299]">
-        {{ lever?.short_name }}{{ lever?.other_names ? ' - ' + lever.other_names : '' }}
+        {{ lever.short_name }}{{ lever.other_names ? ' - ' + lever.other_names : '' }}
       </span>
     </div>
     @if (!disabled) {

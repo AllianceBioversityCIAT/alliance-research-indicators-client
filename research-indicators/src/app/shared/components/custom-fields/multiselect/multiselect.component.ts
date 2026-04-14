@@ -311,9 +311,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
         const fromPrev = prevItems.find((item: any) => item[attr] == id);
         const fromOptions = optionsList.find((option: any) => option[attr] == id);
         const merged: Record<string, unknown> = { ...(fromPrev ?? {}), ...(fromOptions ?? {}) };
-        if (merged[attr] == null) {
-          merged[attr] = id;
-        }
+        merged[attr] ??= id;
         return merged as any;
       });
 

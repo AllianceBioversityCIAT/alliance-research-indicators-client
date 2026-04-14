@@ -59,7 +59,7 @@ export class GetLeverSdgTargetsService {
     loadingSig.set(true);
     try {
       const res = await this.api.GET_LeverSdgTargets(numericId, true);
-      const rows = Array.isArray(res?.data) ? (res.data as LeverSdgTargetApi[]) : [];
+      const rows = Array.isArray(res?.data) ? res.data : [];
       listSig.set(this.mapRows(rows));
     } catch {
       listSig.set([]);
