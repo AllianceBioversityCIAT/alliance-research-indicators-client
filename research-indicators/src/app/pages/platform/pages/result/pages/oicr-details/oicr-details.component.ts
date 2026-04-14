@@ -225,7 +225,7 @@ export default class OicrDetailsComponent {
           impact_area_id: number;
           impact_area_score_id: number | undefined;
           result_impact_area_global_targets?: { global_target_id: number }[];
-          global_target_id?: number | undefined;
+          global_target_id?: number;
           global_target_ids?: number[];
         }) => {
           let result_impact_area_global_targets: { global_target_id: number }[] | undefined;
