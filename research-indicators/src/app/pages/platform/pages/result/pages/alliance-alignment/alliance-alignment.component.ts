@@ -94,31 +94,11 @@ export default class AllianceAlignmentComponent {
         sdg_id: (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? sdg.clarisa_sdg_id ?? sdg.id
       }));
 
-    const normalizeSdgTargets = (raw: unknown): ResultLeverSdgTargetPayload[] => {
-      if (!Array.isArray(raw)) return [];
-      const out: ResultLeverSdgTargetPayload[] = [];
-      for (const x of raw) {
-        if (typeof x === 'number' && Number.isFinite(x)) {
-          out.push({ sdg_target_id: x });
-          continue;
-        }
-        if (x && typeof x === 'object') {
-          const o = x as Record<string, unknown>;
-          const id = o['sdg_target_id'] ?? o['id'];
-          let n = Number.NaN;
-          if (typeof id === 'number') n = id;
-          else if (typeof id === 'string' && id !== '') n = Number(id);
-          if (Number.isFinite(n) && n > 0) out.push({ sdg_target_id: n });
-        }
-      }
-      return out;
-    };
-
     const mapLevers = (levers: Lever[] | undefined): Lever[] =>
       (levers ?? []).map(l => ({
         ...l,
         result_lever_sdgs: normalizeSdgs(l.result_lever_sdgs),
-        result_lever_sdg_targets: normalizeSdgTargets((l as Lever & { result_lever_sdg_targets?: unknown }).result_lever_sdg_targets)
+        result_lever_sdg_targets: this.normalizeResultLeverSdgTargets((l as Lever & { result_lever_sdg_targets?: unknown }).result_lever_sdg_targets)
       }));
 
     let primary_levers = mapLevers(response.data.primary_levers);
@@ -185,6 +165,30 @@ export default class AllianceAlignmentComponent {
 
   isLeverRequiredFromContributingProject(lever: Lever): boolean {
     return this.getRequiredLeverIdsFromContracts(this.body().contracts).some(id => String(id) === String(lever.lever_id));
+  }
+
+  parseResultLeverSdgTargetEntry(x: unknown): ResultLeverSdgTargetPayload | null {
+    if (typeof x === 'number' && Number.isFinite(x)) {
+      return { sdg_target_id: x };
+    }
+    if (!x || typeof x !== 'object') return null;
+    const o = x as Record<string, unknown>;
+    const id = o['sdg_target_id'] ?? o['id'];
+    let n = Number.NaN;
+    if (typeof id === 'number') n = id;
+    else if (typeof id === 'string' && id !== '') n = Number(id);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return { sdg_target_id: n };
+  }
+
+  normalizeResultLeverSdgTargets(raw: unknown): ResultLeverSdgTargetPayload[] {
+    if (!Array.isArray(raw)) return [];
+    const out: ResultLeverSdgTargetPayload[] = [];
+    for (const x of raw) {
+      const parsed = this.parseResultLeverSdgTargetEntry(x);
+      if (parsed) out.push(parsed);
+    }
+    return out;
   }
 
   private getLeverIdFromContract(contract: unknown): string | number | null {
