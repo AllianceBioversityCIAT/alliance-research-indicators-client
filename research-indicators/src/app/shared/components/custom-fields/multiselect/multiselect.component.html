@@ -104,8 +104,8 @@
   <div class="selected-items {{ !textSpan && selectedOptions().length ? 'mt-6' : '' }}"
     [class.show-scroll]="!this.disabledSelectedScroll" [class.columns-xl]="columnsOnXl"
     [class.selected-items--stack-gap]="hideRemoveIcon"
-    [class.selected-items--custom-surface]="!!selectedItemsSurfaceColor?.trim()"
-    [style.--multiselect-selected-surface]="selectedItemsSurfaceColor?.trim() || null">
+    [class.selected-items--custom-surface]="!!selectedItemsSurfaceColor.trim()"
+    [style.--multiselect-selected-surface]="selectedItemsSurfaceColor.trim() || null">
     @for (row of selectedOptions(); track trackSelectedOptionRow($index, row)) {
     <div class="item  {{ dark ? ' !bg-[#e8ebed] !border-[#c6cdd1]/40' : 'abc-grey-100' }}"
       [class.item--full-row]="hideRemoveIcon">
@@ -122,8 +122,8 @@
       </button>
       }
       } @else {
-      <span class="inline-flex shrink-0 text-[#A2A9AF]" [pTooltip]="removeTooltip" tooltipPosition="top" tabindex="0"
-        role="img" [attr.aria-label]="removeTooltip || 'Cannot remove'">
+      <span class="inline-flex shrink-0 text-[#A2A9AF]" [pTooltip]="removeTooltip" tooltipPosition="top" role="img"
+        [attr.aria-label]="removeTooltip || 'Cannot remove'">
         <i class="pi pi-times-circle !text-[20px]"></i>
       </span>
       }
