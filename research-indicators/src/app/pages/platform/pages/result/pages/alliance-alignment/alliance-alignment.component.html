@@ -135,8 +135,8 @@
               <ng-template #rows let-lever>
                 <app-alliance-lever-card [lever]="lever" [sdgSignal]="getLeverSdgSignal(lever)"
                   [outcomeSignal]="getLeverSignal(lever)"
-                  [showStrategicOutcomes]="cache.currentMetadata()?.indicator_id === 5"
-                  [strategicOutcomesRequired]="cache.currentMetadata()?.indicator_id === 5" [sdgTargetsRequired]="true"
+                  [showStrategicOutcomes]="cache.currentMetadata().indicator_id === 5"
+                  [strategicOutcomesRequired]="cache.currentMetadata().indicator_id === 5" [sdgTargetsRequired]="true"
                   [removeLocked]="isLeverRequiredFromContributingProject(lever)"
                   [disabled]="!submission.isEditableStatus()" (removeLever)="removePrimaryLever(lever)" />
               </ng-template>
