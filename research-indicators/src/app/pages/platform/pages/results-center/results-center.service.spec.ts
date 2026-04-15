@@ -64,7 +64,7 @@ describe('ResultsCenterService', () => {
     } as any;
 
     const mockGetResultsServiceObj = {
-      getInstance: jest.fn().mockResolvedValue(signal(mockResults))
+      fetchPaginated: jest.fn().mockResolvedValue({ results: mockResults, total: 1 })
     } as any;
 
     TestBed.configureTestingModule({
@@ -107,7 +107,7 @@ describe('ResultsCenterService', () => {
           ResultsCenterService,
           { provide: ApiService, useValue: { indicatorTabs: mockIndicatorTabsLoaded } as any },
           { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
-          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockResolvedValue(signal(mockResults)) } }
+          { provide: GetResultsService, useValue: { fetchPaginated: jest.fn().mockResolvedValue({ results: mockResults, total: 1 }) } }
         ]
       });
       TestBed.inject(ResultsCenterService);
@@ -128,6 +128,7 @@ describe('ResultsCenterService', () => {
       expect(service.showConfigurationSidebar()).toBe(false);
       expect(service.loading()).toBe(false);
       expect(service.list()).toEqual([]);
+      expect(service.resultsListForTable()).toEqual([]);
       expect(service.searchInput()).toBe('');
       expect(service.showConfigurationsSidebar()).toBe(false);
       expect(service.confirmFiltersSignal()).toBe(false);
@@ -826,6 +827,94 @@ describe('ResultsCenterService', () => {
       expect(tableMock.sortField).toBe('result_official_code');
       expect(tableMock.sortOrder).toBe(-1);
       expect(tableMock.first).toBe(0);
+      expect(service.resultsTablePaginatorFirst()).toBe(0);
+    });
+  });
+
+  describe('handleResultsTableLazyLoad', () => {
+    it('should use event.first when rows per page unchanged', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 100 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTableTotalRecords.set(100);
+      service.resultsTablePaginatorFirst.set(10);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTableLazyLoad({ first: 20, rows: 10 });
+      expect(service.resultsTablePaginatorFirst()).toBe(20);
+    });
+
+    it('should align first when rows per page changes even if event.first is 0', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 100 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTableTotalRecords.set(100);
+      service.resultsTablePaginatorFirst.set(40);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTableLazyLoad({ first: 0, rows: 25 });
+      expect(service.resultsTablePaginatorFirst()).toBe(25);
+      expect(service.resultsTablePaginatorRows()).toBe(25);
+    });
+
+    it('should clamp first to last standard page when aligned index exceeds total (no total - rows overlap)', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 60 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTableTotalRecords.set(60);
+      service.resultsTablePaginatorFirst.set(50);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTableLazyLoad({ first: 0, rows: 25 });
+      expect(service.resultsTablePaginatorFirst()).toBe(50);
+    });
+
+    it('should clamp to lastPageFirst = floor((total-1)/rows)*rows when same rows (e.g. total 33, rows 10 → first 30)', () => {
+      const tableMock = { first: 0, rows: 10, totalRecords: 33 } as any;
+      service.tableRef.set(tableMock);
+      service.resultsTableTotalRecords.set(33);
+      service.resultsTablePaginatorFirst.set(0);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTableLazyLoad({ first: 50, rows: 10 });
+      expect(service.resultsTablePaginatorFirst()).toBe(30);
+    });
+
+    it('should update sort signals when lazy load includes sortField', () => {
+      service.resultsTableTotalRecords.set(100);
+      service.handleResultsTableLazyLoad({
+        first: 0,
+        rows: 10,
+        sortField: 'title',
+        sortOrder: 1
+      } as any);
+      expect(service.resultsTableSortField()).toBe('title');
+      expect(service.resultsTableSortOrder()).toBe(1);
+
+      service.handleResultsTableLazyLoad({
+        first: 0,
+        rows: 10,
+        sortField: 'result_official_code',
+        sortOrder: -1
+      } as any);
+      expect(service.resultsTableSortField()).toBe('result_official_code');
+      expect(service.resultsTableSortOrder()).toBe(-1);
+    });
+
+    it('should default missing first and rows from signals', () => {
+      service.resultsTableTotalRecords.set(100);
+      service.resultsTablePaginatorFirst.set(5);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTableLazyLoad({} as any);
+      expect(service.resultsTablePaginatorFirst()).toBe(0);
+      expect(service.resultsTablePaginatorRows()).toBe(10);
+    });
+
+    it('should treat rows 0 as page size 10 when aligning paginator', () => {
+      service.resultsTableTotalRecords.set(50);
+      service.resultsTablePaginatorFirst.set(20);
+      service.resultsTablePaginatorRows.set(10);
+      service.handleResultsTableLazyLoad({ first: 0, rows: 0 } as any);
+      expect(service.resultsTablePaginatorRows()).toBe(0);
+      expect(service.resultsTablePaginatorFirst()).toBe(20);
+    });
+
+    it('should coerce undefined first in clampPaginatorFirstToStandardGrid', () => {
+      const clamp = (service as any).clampPaginatorFirstToStandardGrid.bind(service);
+      expect(clamp(undefined, 10, 100)).toBe(0);
     });
   });
 
@@ -867,7 +956,7 @@ describe('ResultsCenterService', () => {
             }
           },
           { provide: CacheService, useValue: { dataCache: signal(mockDataCache) } },
-          { provide: GetResultsService, useValue: { getInstance: jest.fn().mockResolvedValue(signal(mockResults)) } }
+          { provide: GetResultsService, useValue: { fetchPaginated: jest.fn().mockResolvedValue({ results: mockResults, total: 1 }) } }
         ]
       });
       TestBed.inject(ResultsCenterService);
@@ -1118,18 +1207,26 @@ describe('ResultsCenterService', () => {
   });
 
   describe('clearAllFilters', () => {
-    it('should set create-user-codes from user id when pinnedTab is my', () => {
-      service.pinnedTab.set('my');
+    it('should set create-user-codes from user id when active tab is My Results (Clear Filters must not change tab)', () => {
+      service.pinnedTab.set('all');
+      service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
       service.clearAllFilters();
       expect(service.resultsFilter()['create-user-codes']).toEqual(['123']);
       expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[1]);
     });
 
-    it('should clear create-user-codes when pinnedTab is all', () => {
-      service.pinnedTab.set('all');
+    it('should clear create-user-codes when active tab is All Results (Clear Filters must not switch to My Results)', () => {
+      service.pinnedTab.set('my');
+      service.myResultsFilterItem.set(service.myResultsFilterItems[0]);
       service.clearAllFilters();
       expect(service.resultsFilter()['create-user-codes']).toEqual([]);
       expect(service.myResultsFilterItem()).toEqual(service.myResultsFilterItems[0]);
+    });
+
+    it('should treat undefined tab as All Results for create-user-codes', () => {
+      service.myResultsFilterItem.set(undefined as any);
+      service.clearAllFilters();
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
     });
 
     it('should clear all filters and reset state', () => {
@@ -1697,6 +1794,8 @@ describe('ResultsCenterService', () => {
       service.myResultsFilterItem.set(service.myResultsFilterItems[1]);
       service.searchInput.set('abc');
       service.primaryContractId.set('contract-1');
+      service.resultsTablePaginatorFirst.set(50);
+      service.resultsTablePaginatorRows.set(25);
       service.resultsFilter.update(prev => ({ ...prev, 'indicator-codes-tabs': [2] }));
 
       service.activateStatePersistence('demo');
@@ -1708,6 +1807,8 @@ describe('ResultsCenterService', () => {
       expect(savedState.myResultsFilterItemId).toBe('my');
       expect(savedState.primaryContractId).toBe('contract-1');
       expect(savedState.searchInput).toBe('abc');
+      expect(savedState.resultsTablePaginatorFirst).toBe(50);
+      expect(savedState.resultsTablePaginatorRows).toBe(25);
     });
 
     it('should persist all as default tab id when myResultsFilterItem is undefined', () => {
@@ -1771,7 +1872,11 @@ describe('ResultsCenterService', () => {
           'indicator-codes-tabs': [2]
         },
         searchInput: 'saved search',
-        primaryContractId: 'contract-2'
+        primaryContractId: 'contract-2',
+        resultsTablePaginatorFirst: 100,
+        resultsTablePaginatorRows: 25,
+        resultsTableSortField: 'title',
+        resultsTableSortOrder: 1
       };
       jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(JSON.stringify(persistedState));
 
@@ -1784,6 +1889,10 @@ describe('ResultsCenterService', () => {
       expect(service.appliedFilters()['indicator-codes-tabs']).toEqual([2]);
       expect(service.searchInput()).toBe('saved search');
       expect(service.primaryContractId()).toBe('contract-2');
+      expect(service.resultsTablePaginatorFirst()).toBe(100);
+      expect(service.resultsTablePaginatorRows()).toBe(25);
+      expect(service.resultsTableSortField()).toBe('title');
+      expect(service.resultsTableSortOrder()).toBe(1);
       expect(mockApiService.indicatorTabs.lazy().list().find(item => item.indicator_id === 2)?.active).toBe(true);
       expect(mockApiService.indicatorTabs.lazy().list().find(item => item.indicator_id === 1)?.active).toBe(false);
     });
@@ -1824,6 +1933,8 @@ describe('ResultsCenterService', () => {
       });
       expect(service.searchInput()).toBe('');
       expect(service.primaryContractId()).toBeNull();
+      expect(service.resultsTablePaginatorFirst()).toBe(0);
+      expect(service.resultsTablePaginatorRows()).toBe(10);
       expect(mockApiService.indicatorTabs.lazy().list().every(item => item.active === false)).toBe(true);
     });
 
@@ -1841,12 +1952,31 @@ describe('ResultsCenterService', () => {
     });
   });
 
+  describe('invalidateResultsListFetchCache', () => {
+    it('should clear fetch dedupe so main runs fetch again with same params', async () => {
+      await service.main();
+      expect(mockGetResultsService.fetchPaginated).toHaveBeenCalledTimes(1);
+      await service.main();
+      expect(mockGetResultsService.fetchPaginated).toHaveBeenCalledTimes(1);
+      service.invalidateResultsListFetchCache();
+      await service.main();
+      expect(mockGetResultsService.fetchPaginated).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('main', () => {
-    it('should pass filter-primary-contract when primaryContractId is set', async () => {
+    it('should pass contract-codes when primaryContractId is set', async () => {
       service.primaryContractId.set('contract-123');
       await service.main();
-      expect(mockGetResultsService.getInstance).toHaveBeenCalledWith(
-        expect.objectContaining({ 'filter-primary-contract': ['contract-123'] }),
+      expect(mockGetResultsService.fetchPaginated).toHaveBeenCalledWith(
+        expect.objectContaining({ 'contract-codes': ['contract-123'] }),
+        expect.objectContaining({
+          page: 1,
+          limit: 10,
+          sortField: 'code',
+          sortOrder: 'DESC',
+          search: ''
+        }),
         expect.anything()
       );
     });
@@ -1879,7 +2009,7 @@ describe('ResultsCenterService', () => {
           result_levers: [{ is_primary: 0, lever: { short_name: 'Lever 1' } }]
         }
       ];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithoutPrimary));
+      mockGetResultsService.fetchPaginated.mockResolvedValueOnce({ results: resultsWithoutPrimary, total: 1 });
 
       await service.main();
 
@@ -1897,7 +2027,7 @@ describe('ResultsCenterService', () => {
           ]
         }
       ] as any;
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithLeverNoShortName));
+      mockGetResultsService.fetchPaginated.mockResolvedValueOnce({ results: resultsWithLeverNoShortName, total: 1 });
       await service.main();
       const list = service.list();
       expect(list).toHaveLength(1);
@@ -1914,7 +2044,7 @@ describe('ResultsCenterService', () => {
           ]
         }
       ];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithPrimary));
+      mockGetResultsService.fetchPaginated.mockResolvedValueOnce({ results: resultsWithPrimary, total: 1 });
 
       await service.main();
 
@@ -1923,7 +2053,7 @@ describe('ResultsCenterService', () => {
     });
 
     it('should handle errors when loading results', async () => {
-      mockGetResultsService.getInstance.mockRejectedValueOnce(new Error('API Error'));
+      mockGetResultsService.fetchPaginated.mockRejectedValueOnce(new Error('API Error'));
 
       // Mock console.error to prevent error output in tests
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -1951,22 +2081,22 @@ describe('ResultsCenterService', () => {
     it('should not update list when context changes during request', async () => {
       const initialList = [{ result_official_code: 'OLD' }] as any;
       service.list.set(initialList);
-      let resolveInstance!: (v: WritableSignal<Result[]>) => void;
-      const instancePromise = new Promise<WritableSignal<Result[]>>(r => {
-        resolveInstance = r;
+      let resolveFetch!: (v: { results: Result[]; total: number }) => void;
+      const fetchPromise = new Promise<{ results: Result[]; total: number }>(r => {
+        resolveFetch = r;
       });
-      mockGetResultsService.getInstance.mockImplementationOnce(() => instancePromise as any);
+      mockGetResultsService.fetchPaginated.mockImplementationOnce(() => fetchPromise as any);
       const mainPromise = service.main();
       await Promise.resolve();
       service.primaryContractId.set('other-contract');
-      resolveInstance(signal(mockResults));
+      resolveFetch({ results: mockResults, total: 1 });
       await mainPromise;
       expect(service.list()).toEqual(initialList);
     });
 
     it('should handle results with no created_by_user', async () => {
       const resultsWithoutUser = [{ ...mockResults[0], created_by_user: undefined }];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithoutUser));
+      mockGetResultsService.fetchPaginated.mockResolvedValueOnce({ results: resultsWithoutUser, total: 1 });
 
       await service.main();
 
@@ -1975,7 +2105,7 @@ describe('ResultsCenterService', () => {
 
     it('should handle created_by_user with null first_name and last_name', async () => {
       const resultsWithNullNames = [{ ...mockResults[0], created_by_user: { first_name: null, last_name: null } }];
-      mockGetResultsService.getInstance.mockResolvedValueOnce(signal(resultsWithNullNames));
+      mockGetResultsService.fetchPaginated.mockResolvedValueOnce({ results: resultsWithNullNames, total: 1 });
 
       await service.main();
 

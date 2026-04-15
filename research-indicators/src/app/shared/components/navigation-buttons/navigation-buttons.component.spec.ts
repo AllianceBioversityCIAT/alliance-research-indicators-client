@@ -12,7 +12,7 @@ describe('NavigationButtonsComponent', () => {
   let isSidebarCollapsedSignal: ReturnType<typeof signal<boolean>>;
 
   const RESULT_SIDEBAR_WIDTH = 322;
-  const CONTENT_RIGHT_OFFSET = 12;
+  const CONTENT_RIGHT_OFFSET = 0;
 
   beforeEach(async () => {
     hasSmallScreenSignal = signal(false);

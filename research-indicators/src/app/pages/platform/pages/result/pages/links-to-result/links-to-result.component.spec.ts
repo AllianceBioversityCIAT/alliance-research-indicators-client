@@ -10,6 +10,7 @@ import { ApiService } from '@shared/services/api.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 import { Result } from '@shared/interfaces/result/result.interface';
+import { mapOtherResultLinkPayloadToResult } from '@shared/utils/map-link-other-result-to-result';
 
 jest.mock('@shared/constants/indicator-icon.constants', () => ({
   getIndicatorIcon: jest.fn().mockReturnValue({ icon: 'pi pi-star', color: '#000' })
@@ -44,7 +45,7 @@ describe('LinksToResultComponent', () => {
 
     apiService = {
       GET_LinkedResults: jest.fn().mockResolvedValue({ data: { link_results: [] } }),
-      GET_Results: jest.fn().mockResolvedValue({ data: [] }),
+      GET_Results: jest.fn(),
       PATCH_LinkedResults: jest.fn().mockResolvedValue({ data: { link_results: [] } })
     } as unknown as jest.Mocked<ApiService>;
 
@@ -183,6 +184,7 @@ describe('LinksToResultComponent', () => {
     submissionService.isEditableStatus.mockReturnValue(false);
     const current = [{ result_id: 1 } as unknown as Result];
     component.linkedResults.set(current);
+    allModalsService.syncSelectedResults.set.mockClear();
 
     component.removeLinkedResult(1);
 
@@ -257,36 +259,52 @@ describe('LinksToResultComponent', () => {
     expect(component.linkedResults()).toEqual([]);
   });
 
-  it('should use empty array when GET_Results returns non-array data (line 91 fallback)', async () => {
+  it('should map nothing when link rows have no embedded other_result', async () => {
     apiService.GET_LinkedResults.mockResolvedValueOnce({
       data: { link_results: [{ other_result_id: 1 }] }
     } as any);
-    apiService.GET_Results.mockResolvedValueOnce({ data: null } as any);
+    apiService.GET_Results.mockClear();
 
     await component.loadLinkedResults();
 
-    expect(apiService.GET_Results).toHaveBeenCalled();
+    expect(apiService.GET_Results).not.toHaveBeenCalled();
     expect(component.linkedResults()).toEqual([]);
   });
 
-  it('should load and map linked results when ids exist', async () => {
-    const linkedIds = [{ other_result_id: 1 }, { other_result_id: 2 }];
-    const allResults: Result[] = [
-      { result_id: 1, result_official_code: '001', title: 'R1' } as any,
-      { result_id: 2, result_official_code: '002', title: 'R2' } as any,
-      { result_id: 3, result_official_code: '003', title: 'R3' } as any
-    ];
+  it('should load and map linked results from embedded other_result (no GET_Results)', async () => {
+    const o1 = {
+      result_id: 1,
+      result_official_code: 1,
+      title: 'R1',
+      platform_code: 'STAR',
+      indicator_id: 1
+    };
+    const o2 = {
+      result_id: 2,
+      result_official_code: 2,
+      title: 'R2',
+      platform_code: 'STAR',
+      indicator_id: 2
+    };
+    const expected: Result[] = [mapOtherResultLinkPayloadToResult(o1), mapOtherResultLinkPayloadToResult(o2)];
 
-    apiService.GET_LinkedResults.mockResolvedValueOnce({ data: { link_results: linkedIds } } as any);
-    apiService.GET_Results.mockResolvedValueOnce({ data: allResults } as any);
+    apiService.GET_LinkedResults.mockResolvedValueOnce({
+      data: {
+        link_results: [
+          { other_result_id: 1, other_result: o1 },
+          { other_result_id: 2, other_result: o2 }
+        ]
+      }
+    } as any);
+    apiService.GET_Results.mockClear();
 
     await component.loadLinkedResults();
 
     expect(apiService.GET_LinkedResults).toHaveBeenCalledWith(123);
-    expect(apiService.GET_Results).toHaveBeenCalled();
-    expect(component.linkedResults()).toEqual(allResults.slice(0, 2));
-    expect(component.originalLinkedResults()).toEqual(allResults.slice(0, 2));
-    expect(allModalsService.syncSelectedResults.set).toHaveBeenCalledWith(allResults.slice(0, 2));
+    expect(apiService.GET_Results).not.toHaveBeenCalled();
+    expect(component.linkedResults()).toEqual(expected);
+    expect(component.originalLinkedResults()).toEqual(expected);
+    expect(allModalsService.syncSelectedResults.set).toHaveBeenCalledWith(expected);
     expect(component.loading()).toBe(false);
   });
 

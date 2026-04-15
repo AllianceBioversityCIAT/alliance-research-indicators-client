@@ -1,4 +1,15 @@
-import { Component, computed, effect, inject, signal, ViewChild, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  signal,
+  ViewChild,
+  OnInit,
+  AfterViewInit,
+  OnDestroy
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '@shared/services/api.service';
 import { FormsModule } from '@angular/forms';
@@ -61,6 +72,10 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   private readonly serviceStateKey = 'my-projects';
   private readonly viewStateKey = 'my-projects-component-state';
   private readonly persistViewStateEnabled = signal(false);
+  private readonly pendingScrollRestore = signal<{ top: number } | null>(null);
+  /** Vertical scroll for the contracts table, per tab (session restore / card toggle). */
+  private tableScrollTopMy = 0;
+  private tableScrollTopAll = 0;
   private restoredState = false;
   api = inject(ApiService);
   myProjectsService = inject(MyProjectsService);
@@ -89,6 +104,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
 
   @ViewChild('statusSelect') statusSelect?: MultiselectComponent;
   @ViewChild('leverSelect') leverSelect?: MultiselectComponent;
+  @ViewChild('tableRppScope') tableRppScope?: ElementRef<HTMLElement>;
 
   myProjectsFilterItems: MenuItem[] = [
     {
@@ -106,21 +122,47 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       return;
     }
 
+    const allProjectsFirst = this.allProjectsFirst();
+    const allProjectsRows = this.allProjectsRows();
+    const myProjectsFirst = this.myProjectsFirst();
+    const myProjectsRows = this.myProjectsRows();
+    const searchValue = this._searchValue();
+    const isQuerySentToBackend = this._isQuerySentToBackend();
+    const isTableView = this.isTableView();
+    const sortField = this.sortField();
+    const sortOrder = this.sortOrder();
+    const selectedTab = this.selectedTab();
+
+    const { scrollMy, scrollAll } = this.mergeScrollPositionsForPersist();
+
     globalThis.sessionStorage?.setItem(
       this.viewStateKey,
       JSON.stringify({
-        allProjectsFirst: this.allProjectsFirst(),
-        allProjectsRows: this.allProjectsRows(),
-        myProjectsFirst: this.myProjectsFirst(),
-        myProjectsRows: this.myProjectsRows(),
-        searchValue: this._searchValue(),
-        isQuerySentToBackend: this._isQuerySentToBackend(),
-        isTableView: this.isTableView(),
-        sortField: this.sortField(),
-        sortOrder: this.sortOrder(),
-        selectedTab: this.selectedTab()
+        allProjectsFirst,
+        allProjectsRows,
+        myProjectsFirst,
+        myProjectsRows,
+        searchValue,
+        isQuerySentToBackend,
+        isTableView,
+        sortField,
+        sortOrder,
+        selectedTab,
+        tableScrollTopMy: scrollMy,
+        tableScrollTopAll: scrollAll
       })
     );
+  });
+
+  private readonly scrollRestoreEffect = effect(() => {
+    const loading = this.myProjectsService.loading();
+    const isTable = this.isTableView();
+    const pending = this.pendingScrollRestore();
+    if (loading || !isTable || pending == null) {
+      return;
+    }
+
+    this.scheduleTableScrollRestore(pending.top);
   });
 
   //pinned tab filter items
@@ -165,11 +207,11 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
 
   filteredProjects = computed(() => {
     const projects = this.myProjectsService.list();
-    
+
     if (this.myProjectsService.hasFilters() || this._isQuerySentToBackend()) {
       return projects;
     }
-    
+
     const searchTerm =
       this.myProjectsFilterItem()?.id === 'my' ? this._searchValue().toLowerCase() : this.myProjectsService.searchInput().toLowerCase();
 
@@ -193,21 +235,69 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   });
 
   onPageChange(event: PaginatorState) {
+    const newRows = event.rows ?? 10;
     if (this.myProjectsFilterItem()?.id === 'my') {
-      this.myProjectsFirst.set(event.first ?? 0);
-      this.myProjectsRows.set(event.rows ?? 10);
-      this.loadMyProjectsWithPagination();
+      const previousFirst = this.myProjectsFirst();
+      const previousRows = this.myProjectsRows();
+      const nextFirst =
+        previousRows === newRows
+          ? this.clampProjectsPaginatorFirst(event.first ?? 0, newRows)
+          : this.alignFirstAfterRowsChange(previousFirst, newRows);
+      if (nextFirst === previousFirst && newRows === previousRows) {
+        return;
+      }
+      this.myProjectsFirst.set(nextFirst);
+      this.myProjectsRows.set(newRows);
+      this.refreshProjectsWithCurrentContext();
     } else {
-      this.allProjectsFirst.set(event.first ?? 0);
-      this.allProjectsRows.set(event.rows ?? 10);
-      this.loadAllProjectsWithPagination();
+      const previousFirst = this.allProjectsFirst();
+      const previousRows = this.allProjectsRows();
+      const nextFirst =
+        previousRows === newRows
+          ? this.clampProjectsPaginatorFirst(event.first ?? 0, newRows)
+          : this.alignFirstAfterRowsChange(previousFirst, newRows);
+      if (nextFirst === previousFirst && newRows === previousRows) {
+        return;
+      }
+      this.allProjectsFirst.set(nextFirst);
+      this.allProjectsRows.set(newRows);
+      this.refreshProjectsWithCurrentContext();
     }
   }
 
   onAllProjectsPageChange(event: PaginatorState) {
-    this.allProjectsFirst.set(event.first ?? 0);
-    this.allProjectsRows.set(event.rows ?? 10);
-    this.loadAllProjectsWithPagination();
+    const newRows = event.rows ?? 10;
+    const previousFirst = this.allProjectsFirst();
+    const previousRows = this.allProjectsRows();
+    const nextFirst =
+      previousRows === newRows
+        ? this.clampProjectsPaginatorFirst(event.first ?? 0, newRows)
+        : this.alignFirstAfterRowsChange(previousFirst, newRows);
+    if (nextFirst === previousFirst && newRows === previousRows) {
+      return;
+    }
+    this.allProjectsFirst.set(nextFirst);
+    this.allProjectsRows.set(newRows);
+    this.refreshProjectsWithCurrentContext();
+  }
+
+  private clampProjectsPaginatorFirst(first: number, rows: number): number {
+    const safeRows = rows > 0 ? rows : 10;
+    const total = this.myProjectsService.totalRecords();
+    let f = Math.floor((first ?? 0) / safeRows) * safeRows;
+    if (total > 0) {
+      const lastPageFirst = Math.max(0, Math.floor((total - 1) / safeRows) * safeRows);
+      if (f > lastPageFirst) {
+        f = lastPageFirst;
+      }
+    }
+    return Math.max(0, f);
+  }
+
+  private alignFirstAfterRowsChange(anchorFirst: number, newRows: number): number {
+    const safeRows = newRows > 0 ? newRows : 10;
+    const candidate = Math.floor(anchorFirst / safeRows) * safeRows;
+    return this.clampProjectsPaginatorFirst(candidate, newRows);
   }
 
   ngOnInit(): void {
@@ -230,6 +320,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   }
 
   ngOnDestroy(): void {
+    this.persistViewStateSnapshot();
     this.persistViewStateEnabled.set(false);
     this.myProjectsService.deactivateStatePersistence(this.serviceStateKey);
     this.myProjectsService.showFiltersSidebar.set(false);
@@ -238,6 +329,12 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   private async initializeState(): Promise<void> {
     const restoredServiceState = this.myProjectsService.restorePersistedState(this.serviceStateKey);
     const restoredViewState = this.restoreViewState();
+
+    if (restoredViewState && !restoredServiceState) {
+      const item =
+        this.selectedTab() === 'my' ? this.myProjectsFilterItems[1] : this.myProjectsFilterItems[0];
+      this.myProjectsService.myProjectsFilterItem.set(item);
+    }
 
     this.restoredState = restoredServiceState || restoredViewState;
     this.myProjectsService.activateStatePersistence(this.serviceStateKey);
@@ -249,6 +346,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       const activeTab = this.myProjectsService.myProjectsFilterItem() ?? this.myProjectsFilterItems[0];
       this.myProjectsFilterItem.set(activeTab);
       this.selectedTab.set(activeTab.id === 'my' ? 'my' : 'all');
+      this.updatePendingScrollFromStoredTabScroll();
       this.loadCurrentTabState();
       return;
     }
@@ -305,10 +403,16 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       if (newPinnedTab === 'all') {
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
         this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[0]);
+        this.selectedTab.set('all');
+        this.allProjectsFirst.set(0);
       } else {
         this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
         this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.selectedTab.set('my');
+        this.myProjectsFirst.set(0);
       }
+
+      this.refreshProjectsWithCurrentContext();
 
       setTimeout(() => {
         this.myProjectsService.cleanMultiselects();
@@ -331,17 +435,30 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   }
 
   onActiveItemChange = (event: MenuItem): void => {
+    if (this.isTableView()) {
+      const top = this.readActiveTabScrollTop();
+      const prevId = this.myProjectsFilterItem()?.id;
+      if (prevId === 'my') {
+        this.tableScrollTopMy = top;
+      } else if (prevId === 'all') {
+        this.tableScrollTopAll = top;
+      }
+    }
+    this.pendingScrollRestore.set(null);
+
     this.myProjectsFilterItem.set(event);
     this.myProjectsService.myProjectsFilterItem.set(event);
 
-    this.myProjectsService.clearFilters();
+    this.myProjectsService.resetFilters();
     this._searchValue.set('');
 
     if (event.id === 'my') {
+      this.tableScrollTopMy = 0;
       this.myProjectsFirst.set(0);
       this.selectedTab.set('my');
       this.loadMyProjects();
     } else {
+      this.tableScrollTopAll = 0;
       this.allProjectsFirst.set(0);
       this.selectedTab.set('all');
       this.loadAllProjects();
@@ -379,7 +496,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
 
   setSearchInputFilter(query: string) {
     this._isQuerySentToBackend.set(query.length > 0);
-    
+
     if (this.myProjectsFilterItem()?.id === 'my') {
       this._searchValue.set(query);
       this.myProjectsFirst.set(0);
@@ -387,16 +504,16 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       this.myProjectsService.searchInput.set(query);
       this.allProjectsFirst.set(0);
     }
-    
+
     const limit = this.getCurrentLimit();
     const tableField = this.sortField();
     const sortOrder = this.sortOrder();
     const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
-    
-    this.myProjectsService.applyFilters({ 
+
+    this.myProjectsService.applyFilters({
       page: 1, // Reset to first page when searching
-      limit, 
-      sortField: apiField, 
+      limit,
+      sortField: apiField,
       sortOrder,
       query: query || undefined
     });
@@ -408,21 +525,19 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
 
   handleRemoveFilter(label: string, id?: string | number): void {
     this.myProjectsService.removeFilter(label, id);
-    
-    const currentQuery = this.myProjectsFilterItem()?.id === 'my' 
-      ? this._searchValue() 
-      : this.myProjectsService.searchInput();
-    
+
+    const currentQuery = this.myProjectsFilterItem()?.id === 'my' ? this._searchValue() : this.myProjectsService.searchInput();
+
     const page = this.getCurrentPage();
     const limit = this.getCurrentLimit();
     const tableField = this.sortField();
     const sortOrder = this.sortOrder();
     const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
-    
-    this.myProjectsService.applyFilters({ 
-      page, 
-      limit, 
-      sortField: apiField, 
+
+    this.myProjectsService.applyFilters({
+      page,
+      limit,
+      sortField: apiField,
       sortOrder,
       query: currentQuery || undefined
     });
@@ -448,10 +563,24 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   }
 
   toggleTableView() {
+    const tab = this.myProjectsFilterItem()?.id === 'my' ? 'my' : 'all';
+    const top = tab === 'my' ? this.tableScrollTopMy : this.tableScrollTopAll;
     this.isTableView.set(true);
+    if (top > 0) {
+      this.pendingScrollRestore.set({ top });
+    }
   }
 
   toggleCardView() {
+    if (this.isTableView()) {
+      const top = this.readActiveTabScrollTop();
+      const tab = this.myProjectsFilterItem()?.id === 'my' ? 'my' : 'all';
+      if (tab === 'my') {
+        this.tableScrollTopMy = top;
+      } else {
+        this.tableScrollTopAll = top;
+      }
+    }
     this.isTableView.set(false);
   }
 
@@ -511,14 +640,14 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
 
   private mapTableFieldToApiField(tableField: string): string {
     const fieldMapping: Record<string, string> = {
-      'agreement_id': 'contract-code',
-      'description': 'project-name',
-      'contract_status': 'status',
-      'display_principal_investigator': 'principal-investigator',
-      'display_lever_name': 'lever',
-      'lead_center': 'lead-center',
-      'start_date': 'start-date',
-      'end_date': 'end-date'
+      agreement_id: 'contract-code',
+      description: 'project-name',
+      contract_status: 'status',
+      display_principal_investigator: 'principal-investigator',
+      display_lever_name: 'lever',
+      lead_center: 'lead-center',
+      start_date: 'start-date',
+      end_date: 'end-date'
     };
     return fieldMapping[tableField] || tableField;
   }
@@ -526,18 +655,13 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   onSort(event: { field: string; order: number }): void {
     this.sortField.set(event.field);
     this.sortOrder.set(event.order);
-    
-    const currentQuery = this.myProjectsFilterItem()?.id === 'my' 
-      ? this._searchValue() 
-      : this.myProjectsService.searchInput();
-    
+
     if (this.myProjectsFilterItem()?.id === 'my') {
       this.myProjectsFirst.set(0);
-      this.loadMyProjectsWithPagination(currentQuery || undefined);
     } else {
       this.allProjectsFirst.set(0);
-      this.loadAllProjectsWithPagination(currentQuery || undefined);
     }
+    this.refreshProjectsWithCurrentContext();
   }
 
   applyFilters(): void {
@@ -546,20 +670,18 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
     const tableField = this.sortField();
     const sortOrder = this.sortOrder();
     const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
-    
+
     // Get current search query to preserve it when applying filters
-    const currentQuery = this.myProjectsFilterItem()?.id === 'my' 
-      ? this._searchValue() 
-      : this.myProjectsService.searchInput();
-    
+    const currentQuery = this.myProjectsFilterItem()?.id === 'my' ? this._searchValue() : this.myProjectsService.searchInput();
+
     if (currentQuery) {
       this._isQuerySentToBackend.set(true);
     }
-    
-    this.myProjectsService.applyFilters({ 
-      page, 
-      limit, 
-      sortField: apiField, 
+
+    this.myProjectsService.applyFilters({
+      page,
+      limit,
+      sortField: apiField,
       sortOrder,
       query: currentQuery || undefined
     });
@@ -573,6 +695,36 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
 
   private getCurrentLimit(): number {
     return this.myProjectsFilterItem()?.id === 'my' ? this.myProjectsRows() : this.allProjectsRows();
+  }
+
+  /**
+   * After page/rows/sort change: reload via applyFilters when sidebar filters or backend search are active,
+   * otherwise use main() with pagination only (load*WithPagination).
+   */
+  private refreshProjectsWithCurrentContext(): void {
+    const currentQuery = this.myProjectsFilterItem()?.id === 'my' ? this._searchValue() : this.myProjectsService.searchInput();
+    const page = this.getCurrentPage();
+    const limit = this.getCurrentLimit();
+    const tableField = this.sortField();
+    const sortOrder = this.sortOrder();
+    const apiField = tableField ? this.mapTableFieldToApiField(tableField) : undefined;
+
+    if (this.myProjectsService.hasFilters() || !!currentQuery) {
+      this.myProjectsService.applyFilters({
+        page,
+        limit,
+        sortField: apiField,
+        sortOrder,
+        query: currentQuery || undefined
+      });
+      return;
+    }
+
+    if (this.myProjectsFilterItem()?.id === 'my') {
+      this.loadMyProjectsWithPagination();
+    } else {
+      this.loadAllProjectsWithPagination();
+    }
   }
 
   private loadMyProjectsWithPagination(query?: string) {
@@ -653,6 +805,8 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
         sortField: string;
         sortOrder: number;
         selectedTab: string;
+        tableScrollTopMy: number;
+        tableScrollTopAll: number;
       }>;
 
       this.allProjectsFirst.set(state.allProjectsFirst ?? 0);
@@ -665,6 +819,8 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       this.sortField.set(state.sortField ?? 'agreement_id');
       this.sortOrder.set(state.sortOrder ?? -1);
       this.selectedTab.set(state.selectedTab === 'my' ? 'my' : 'all');
+      this.tableScrollTopMy = Number(state.tableScrollTopMy ?? 0);
+      this.tableScrollTopAll = Number(state.tableScrollTopAll ?? 0);
 
       return true;
     } catch (error) {
@@ -672,6 +828,106 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       globalThis.sessionStorage?.removeItem(this.viewStateKey);
       return false;
     }
+  }
+
+  private getTableScrollContainer(): HTMLElement | null {
+    const host = this.tableRppScope?.nativeElement;
+    if (!host) {
+      return null;
+    }
+    const el = host.querySelector('.p-datatable-table-container');
+    return el instanceof HTMLElement ? el : null;
+  }
+
+  private readActiveTabScrollTop(): number {
+    return this.getTableScrollContainer()?.scrollTop ?? 0;
+  }
+
+  private readStoredScrollPair(): { my: number; all: number } {
+    try {
+      const raw = globalThis.sessionStorage?.getItem(this.viewStateKey);
+      if (!raw) {
+        return { my: 0, all: 0 };
+      }
+      const p = JSON.parse(raw) as Record<string, unknown>;
+      return {
+        my: Number(p['tableScrollTopMy'] ?? 0),
+        all: Number(p['tableScrollTopAll'] ?? 0)
+      };
+    } catch {
+      return { my: 0, all: 0 };
+    }
+  }
+
+  private mergeScrollPositionsForPersist(): { scrollMy: number; scrollAll: number } {
+    const existing = this.readStoredScrollPair();
+    const tab = this.myProjectsFilterItem()?.id === 'my' ? 'my' : 'all';
+    const container = this.getTableScrollContainer();
+    let scrollMy: number;
+    let scrollAll: number;
+    if (container) {
+      const currentScroll = container.scrollTop;
+      if (tab === 'my') {
+        scrollMy = currentScroll;
+        scrollAll = existing.all;
+      } else {
+        scrollMy = existing.my;
+        scrollAll = currentScroll;
+      }
+    } else {
+      scrollMy = existing.my;
+      scrollAll = existing.all;
+    }
+    this.tableScrollTopMy = scrollMy;
+    this.tableScrollTopAll = scrollAll;
+    return { scrollMy, scrollAll };
+  }
+
+  private persistViewStateSnapshot(): void {
+    const { scrollMy, scrollAll } = this.mergeScrollPositionsForPersist();
+    globalThis.sessionStorage?.setItem(
+      this.viewStateKey,
+      JSON.stringify({
+        allProjectsFirst: this.allProjectsFirst(),
+        allProjectsRows: this.allProjectsRows(),
+        myProjectsFirst: this.myProjectsFirst(),
+        myProjectsRows: this.myProjectsRows(),
+        searchValue: this._searchValue(),
+        isQuerySentToBackend: this._isQuerySentToBackend(),
+        isTableView: this.isTableView(),
+        sortField: this.sortField(),
+        sortOrder: this.sortOrder(),
+        selectedTab: this.selectedTab(),
+        tableScrollTopMy: scrollMy,
+        tableScrollTopAll: scrollAll
+      })
+    );
+  }
+
+  private updatePendingScrollFromStoredTabScroll(): void {
+    if (!this.isTableView()) {
+      this.pendingScrollRestore.set(null);
+      return;
+    }
+    const tab = this.myProjectsFilterItem()?.id === 'my' ? 'my' : 'all';
+    const top = tab === 'my' ? this.tableScrollTopMy : this.tableScrollTopAll;
+    this.pendingScrollRestore.set(top > 0 ? { top } : null);
+  }
+
+  private scheduleTableScrollRestore(top: number): void {
+    this.pendingScrollRestore.set(null);
+    let attempts = 0;
+    const run = (): void => {
+      const el = this.getTableScrollContainer();
+      if (el) {
+        el.scrollTop = top;
+        return;
+      }
+      if (attempts++ < 40) {
+        requestAnimationFrame(run);
+      }
+    };
+    requestAnimationFrame(run);
   }
 
   private loadCurrentTabState(): void {

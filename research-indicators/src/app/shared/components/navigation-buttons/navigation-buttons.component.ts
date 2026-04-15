@@ -4,7 +4,7 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { ButtonModule } from 'primeng/button';
 
 const RESULT_SIDEBAR_WIDTH_PX = 322;
-const CONTENT_RIGHT_OFFSET_PX = 12;
+const CONTENT_RIGHT_OFFSET_PX = 0;
 
 @Component({
   selector: 'app-navigation-buttons',
@@ -22,7 +22,6 @@ export class NavigationButtonsComponent {
   submission = inject(SubmissionService);
   cache = inject(CacheService);
 
-  /** Left offset so the bar aligns with result-content (platform padding + result sidebar). */
   navLeft = computed(() => {
     const hss = this.cache.hasSmallScreen();
     const collapsed = this.cache.isSidebarCollapsed();

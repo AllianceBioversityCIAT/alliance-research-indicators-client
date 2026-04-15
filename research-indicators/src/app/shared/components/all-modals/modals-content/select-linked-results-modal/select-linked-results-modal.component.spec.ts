@@ -81,6 +81,13 @@ describe('SelectLinkedResultsModalComponent', () => {
       getAllPathsAsArray: jest.fn().mockReturnValue([]),
       tableColumns: jest.fn().mockReturnValue([]),
       searchInput: Object.assign(jest.fn().mockReturnValue('') as any, { set: jest.fn() }),
+      resultsTablePaginatorFirst: Object.assign(jest.fn().mockReturnValue(0) as any, { set: jest.fn() }),
+      resultsTablePaginatorRows: Object.assign(jest.fn().mockReturnValue(10) as any, { set: jest.fn() }),
+      resultsTableTotalRecords: Object.assign(jest.fn().mockReturnValue(0) as any, { set: jest.fn() }),
+      resultsTableSortField: Object.assign(jest.fn().mockReturnValue('result_official_code') as any, { set: jest.fn() }),
+      resultsTableSortOrder: Object.assign(jest.fn().mockReturnValue(-1) as any, { set: jest.fn() }),
+      handleResultsTableLazyLoad: jest.fn(),
+      invalidateResultsListFetchCache: jest.fn(),
       myResultsFilterItem: Object.assign(jest.fn().mockReturnValue({ id: 'all', label: 'All Results' }) as any, { set: jest.fn() }),
       myResultsFilterItems: [{ id: 'all', label: 'All Results' }, { id: 'my', label: 'My Results' }],
       // @ts-expect-error partial mock
@@ -160,9 +167,18 @@ describe('SelectLinkedResultsModalComponent', () => {
   });
 
   describe('basic behaviors', () => {
-    it('should set searchInput from query string', () => {
+    it('should set service search, reset page and call main', () => {
       component.setSearchInputFilter('search text');
-      expect(component.searchInput()).toBe('search text');
+      expect(resultsCenterService.searchInput.set).toHaveBeenCalledWith('search text');
+      expect(resultsCenterService.resultsTablePaginatorFirst.set).toHaveBeenCalledWith(0);
+      expect(resultsCenterService.main).toHaveBeenCalled();
+    });
+
+    it('should reset PrimeNG table first when dt2 is available', () => {
+      const dt = { first: 40 };
+      (component as any).dt2 = dt;
+      component.setSearchInputFilter('x');
+      expect(dt.first).toBe(0);
     });
 
     it('should compute selectedCount based on selectedResults', () => {
@@ -595,29 +611,11 @@ describe('SelectLinkedResultsModalComponent', () => {
     });
   });
 
-  describe('onSearchInputChange effect', () => {
-    it('should call filterGlobal when dt2 is available', () => {
-      const mockTable = {
-        filterGlobal: jest.fn(),
-        first: 0
-      };
-      (component as any).dt2 = mockTable;
-      
-      component.searchInput.set('test search');
-      fixture.detectChanges();
-      
-      expect(mockTable.filterGlobal).toHaveBeenCalledWith('test search', 'contains');
-    });
-
-    it('should not call filterGlobal when dt2 is not available', () => {
-      (component as any).dt2 = undefined;
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      
-      component.searchInput.set('test search');
-      fixture.detectChanges();
-      
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
-      consoleErrorSpy.mockRestore();
+  describe('handleLinkedTableLazyLoad', () => {
+    it('should delegate to resultsCenterService.handleResultsTableLazyLoad', () => {
+      const ev = { first: 25, rows: 25 } as any;
+      component.handleLinkedTableLazyLoad(ev);
+      expect(resultsCenterService.handleResultsTableLazyLoad).toHaveBeenCalledWith(ev);
     });
   });
 
@@ -629,6 +627,9 @@ describe('SelectLinkedResultsModalComponent', () => {
       
       await (component as any).onModalOpened();
       
+      expect(resultsCenterService.invalidateResultsListFetchCache).toHaveBeenCalled();
+      expect(resultsCenterService.resultsTablePaginatorFirst.set).toHaveBeenCalledWith(0);
+      expect(resultsCenterService.resultsTablePaginatorRows.set).toHaveBeenCalledWith(10);
       expect(resultsCenterService.myResultsFilterItem.set).toHaveBeenCalledWith({ id: 'all', label: 'All Results' });
       expect(applySpy).toHaveBeenCalledWith({ resetIndicatorFilters: true });
       expect(loadResultsSpy).toHaveBeenCalled();
@@ -704,6 +705,7 @@ describe('SelectLinkedResultsModalComponent', () => {
       
       await (component as any).loadResultsForModal();
       
+      expect(resultsCenterService.invalidateResultsListFetchCache).toHaveBeenCalled();
       expect(resultsCenterService.list.set).toHaveBeenCalledWith([]);
       expect(resultsCenterService.loading.set).toHaveBeenCalledWith(true);
       expect(resultsCenterService.resultsFilter.update).toHaveBeenCalled();
@@ -902,18 +904,20 @@ describe('SelectLinkedResultsModalComponent', () => {
   });
 
   describe('resetTableToFirstPage', () => {
-    it('should reset dt2.first to 0 when dt2 exists', () => {
-      const mockTable = { first: 5, filterGlobal: jest.fn() };
+    it('should reset dt2.first and service paginator when dt2 exists', () => {
+      const mockTable = { first: 5 };
       (component as any).dt2 = mockTable;
 
       (component as any).resetTableToFirstPage();
 
+      expect(resultsCenterService.resultsTablePaginatorFirst.set).toHaveBeenCalledWith(0);
       expect(mockTable.first).toBe(0);
     });
 
     it('should not throw when dt2 is undefined', () => {
       (component as any).dt2 = undefined;
       expect(() => (component as any).resetTableToFirstPage()).not.toThrow();
+      expect(resultsCenterService.resultsTablePaginatorFirst.set).toHaveBeenCalledWith(0);
     });
   });
 
@@ -942,14 +946,13 @@ describe('SelectLinkedResultsModalComponent', () => {
   describe('resetModalFilters', () => {
     it('should reset all modal filters and state', async () => {
       component.selectedResults.set([createResult()]);
-      component.searchInput.set('test');
       const clearSpy = jest.spyOn(component, 'clearFilters').mockResolvedValue(undefined);
       
       (component as any).resetModalFilters();
       
       expect(resultsCenterService.showFiltersSidebar.set).toHaveBeenCalledWith(false);
       expect(component.selectedResults()).toEqual([]);
-      expect(component.searchInput()).toBe('');
+      expect(resultsCenterService.searchInput.set).toHaveBeenCalledWith('');
       expect(clearSpy).toHaveBeenCalled();
     });
   });

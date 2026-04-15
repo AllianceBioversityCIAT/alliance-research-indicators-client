@@ -3,7 +3,15 @@ import { ToPromiseService } from './to-promise.service';
 import { LoginRes, MainResponse } from '../interfaces/responses.interface';
 import { GetViewComponents, Indicator, IndicatorTypes } from '../interfaces/api.interface';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
-import { Result, ResultConfig, ResultFilter } from '../interfaces/result/result.interface';
+import {
+  GetResultsPaginationOptions,
+  GetResultsResponseData,
+  Result,
+  ResultConfig,
+  ResultFilter,
+  V2ResultsPaginationMeta
+} from '../interfaces/result/result.interface';
+import { mapV2ResultListItemToResult, V2ResultListItem } from '../interfaces/result/map-v2-result-list-item';
 import { ResultStatus } from '../interfaces/result-config.interface';
 import { GetInstitution } from '../interfaces/get-institutions.interface';
 import { PatchResultEvidences } from '../interfaces/patch-result-evidences.interface';
@@ -69,6 +77,7 @@ import { DateFormatApiResponse } from '@shared/interfaces/date-format-config.int
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
+import { LeverSdgTargetApi } from '@shared/interfaces/lever-sdg-target.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
 import { ImpactArea } from '@shared/interfaces/impact-area.interface';
@@ -169,36 +178,83 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Results = (resultFilter: ResultFilter, resultConfig?: ResultConfig): Promise<MainResponse<Result[]>> => {
-    const queryParams: string[] = ['sort-order=DESC'];
+  GET_Results = async (
+    resultFilter: ResultFilter,
+    _resultConfig?: ResultConfig,
+    pagination?: GetResultsPaginationOptions
+  ): Promise<MainResponse<GetResultsResponseData>> => {
+    const pairs: [string, string][] = [];
+
+    const page = Math.max(1, pagination?.page ?? 1);
+    const limit = Math.min(10_000, Math.max(1, pagination?.limit ?? 10_000));
+    pairs.push(['page', String(page)]);
+    pairs.push(['limit', String(limit)]);
+
+    const sortOrder = pagination?.sortOrder === 'ASC' ? 'ASC' : 'DESC';
+    pairs.push(['sort-order', sortOrder]);
+    pairs.push(['sort-field', pagination?.sortField?.trim() || 'code']);
+
+    const search = pagination?.search?.trim();
+    if (search) {
+      pairs.push(['search', search]);
+    }
 
     const indicatorKeysHandled = new Set(['indicator-codes', 'indicator-codes-tabs', 'indicator-codes-filter']);
 
     if (resultFilter['indicator-codes-tabs']?.length) {
-      queryParams.push(`indicator-codes=${resultFilter['indicator-codes-tabs'].join(',')}`);
+      pairs.push(['indicators', resultFilter['indicator-codes-tabs'].join(',')]);
     } else if (resultFilter['indicator-codes-filter']?.length) {
-      queryParams.push(`indicator-codes=${resultFilter['indicator-codes-filter'].join(',')}`);
-    }
-
-    if (resultConfig) {
-      Object.entries(resultConfig).forEach(([key, value]) => {
-        if (value) {
-          queryParams.push(`${key}=true`);
-        }
-      });
+      pairs.push(['indicators', resultFilter['indicator-codes-filter'].join(',')]);
+    } else if (resultFilter['indicator-codes']?.length) {
+      pairs.push(['indicators', resultFilter['indicator-codes'].join(',')]);
     }
 
     if (resultFilter) {
       Object.entries(resultFilter).forEach(([key, value]) => {
         if (indicatorKeysHandled.has(key)) return;
+        if (key === 'create-user-codes') return;
         if (Array.isArray(value) && value.length) {
-          queryParams.push(`${key}=${value.join(',')}`);
+          pairs.push([key, value.join(',')]);
         }
       });
     }
 
-    const url = () => `results?${queryParams.join('&')}`;
-    return this.TP.get(url(), {});
+    const onlyOwnResults =
+      Array.isArray(resultFilter?.['create-user-codes']) && resultFilter['create-user-codes'].length > 0;
+    pairs.push(['only-own-results', onlyOwnResults ? 'true' : 'false']);
+
+    const qs = pairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+    const raw = await this.TP.get(`v2/results?${qs}`, {});
+    return this.unwrapV2ResultsResponse(raw);
+  };
+
+  private unwrapV2ResultsResponse(raw: MainResponse<unknown>): MainResponse<GetResultsResponseData> {
+    const payload = raw?.data;
+    let rows: V2ResultListItem[] = [];
+    let total = 0;
+    let pagination: V2ResultsPaginationMeta | undefined;
+
+    if (payload != null && typeof payload === 'object' && !Array.isArray(payload) && 'data' in payload) {
+      const envelope = payload as { data?: unknown; total?: number; pagination?: V2ResultsPaginationMeta };
+      rows = Array.isArray(envelope.data) ? (envelope.data as V2ResultListItem[]) : [];
+      if (typeof envelope.pagination?.total === 'number') {
+        total = envelope.pagination.total;
+        pagination = envelope.pagination;
+      } else if (typeof envelope.total === 'number') {
+        total = envelope.total;
+      } else {
+        total = rows.length;
+      }
+    } else if (Array.isArray(payload)) {
+      rows = payload as V2ResultListItem[];
+      total = rows.length;
+    }
+
+    const results = rows.map(row => mapV2ResultListItemToResult(row));
+    return {
+      ...raw,
+      data: pagination ? { results, total, pagination } : { results, total }
+    };
   };
 
   GET_ValidateTitle = (title: string): Promise<MainResponse<{ isValid: boolean; result_official_code?: number; platform_code?: string }>> => {
@@ -826,6 +882,13 @@ export class ApiService {
 
   GET_LeverStrategicOutcomes = (leverId: number): Promise<MainResponse<LeverStrategicOutcome[]>> => {
     const url = () => `lever-strategic-outcome/by-lever/${leverId}`;
+    return this.TP.get(url(), {});
+  };
+
+  /** SDG targets available for a lever (use with onlySdgTargets=true for target list only). */
+  GET_LeverSdgTargets = (leverId: number, onlySdgTargets = true): Promise<MainResponse<LeverSdgTargetApi[]>> => {
+    const q = onlySdgTargets ? '?only_sdg_targets=true' : '';
+    const url = () => `lever-sdg-targets/by-lever/${leverId}${q}`;
     return this.TP.get(url(), {});
   };
 

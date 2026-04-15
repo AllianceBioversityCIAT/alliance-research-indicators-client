@@ -203,10 +203,10 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       this.pinnedTab.set(newPinnedTab);
       this.resultsCenterService.pinnedTab.set(newPinnedTab);
 
-      if (newPinnedTab === 'all') {
-        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+      if (newPinnedTab === 'my') {
+        this.loadMyResults();
       } else {
-        this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
+        this.loadAllResults();
       }
 
       setTimeout(() => {

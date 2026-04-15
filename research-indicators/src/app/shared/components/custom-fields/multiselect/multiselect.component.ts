@@ -8,17 +8,21 @@ import {
   effect,
   inject,
   Input,
+  PLATFORM_ID,
   signal,
   TemplateRef,
+  ViewChild,
   WritableSignal,
   OnInit,
   OnChanges,
   SimpleChanges,
-  output
+  output,
+  ElementRef,
+  NgZone
 } from '@angular/core';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelectModule, MultiSelect } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
-import { NgTemplateOutlet } from '@angular/common';
+import { isPlatformBrowser, NgTemplateOutlet } from '@angular/common';
 import { ActionsService } from '../../../services/actions.service';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { ControlListServices } from '../../../interfaces/services.interface';
@@ -43,6 +47,11 @@ export class MultiselectComponent implements OnInit, OnChanges {
   actions = inject(ActionsService);
   serviceLocator = inject(ServiceLocatorService);
   allModalsService = inject(AllModalsService);
+  private readonly hostEl = inject(ElementRef<HTMLElement>);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly ngZone = inject(NgZone);
+
+  @ViewChild(MultiSelect) private primeMultiSelect?: MultiSelect;
 
   @ContentChild('rows') rows!: TemplateRef<any>;
   @ContentChild('selectedItems') selectedItems!: TemplateRef<any>;
@@ -50,6 +59,8 @@ export class MultiselectComponent implements OnInit, OnChanges {
 
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionLabel = '';
+  /** When set (e.g. second field name), uses 60px min row height like app-select — pairs with p-scroller autoSize for wrapping labels. */
+  @Input() optionLabel2 = '';
   @Input() optionValue = '';
   @Input() signalOptionValue = '';
   @Input() serviceName: ControlListServices = '';
@@ -78,13 +89,19 @@ export class MultiselectComponent implements OnInit, OnChanges {
   @Input() itemHeight = 41;
   @Input() enableVirtualScroll = true;
   @Input() appendTo: 'body' | 'self' = 'body';
+
+  get multiselectPanelStyle(): { width: string; minWidth: string } | null {
+    return this.appendTo === 'self' ? { width: '100%', minWidth: '100%' } : null;
+  }
   @Input() dark = false;
   @Input() optionFilter: (item: any) => boolean = () => true;
+  @Input() hideRemoveIcon = false;
+  @Input() selectedItemsSurfaceColor = '';
   selectEvent = output<any>();
   environment = environment;
 
   service: any;
-  // Local per-component signals for parameterized services
+  private inFlightLoadByKey = new Map<string, Promise<void>>();
   optionsSig: WritableSignal<any[]> = signal<any[]>([]);
   loadingSig: WritableSignal<boolean> = signal<boolean>(false);
 
@@ -225,14 +242,48 @@ export class MultiselectComponent implements OnInit, OnChanges {
     }
   }
 
+  virtualScrollEstimateSize(): number {
+    return this.optionLabel2 ? 60 : this.itemHeight;
+  }
+
+  trackSelectedOptionRow(index: number, row: unknown): string | number {
+    return this.optionRowTrackKeyFromRow(row) ?? index;
+  }
+
+  private optionRowTrackKeyFromRow(row: unknown): string | number | undefined {
+    if (!this.optionValue || row === null || row === undefined || typeof row !== 'object') return undefined;
+    const raw = (row as Record<string, unknown>)[this.optionValue];
+    if (raw === undefined || raw === null || raw === '') return undefined;
+    const t = typeof raw;
+    if (t === 'number' || t === 'string') return raw as number | string;
+    if (t === 'boolean') return raw ? 'true' : 'false';
+    if (t === 'bigint') return (raw as bigint).toString();
+    return undefined;
+  }
+
+  private loadKey(): string {
+    return `${String(this.serviceName)}::${JSON.stringify(this.serviceParams)}`;
+  }
+
   private async loadData() {
-    if (this.service && typeof this.service.main === 'function') {
-      try {
-        await this.service.main(this.serviceParams as any);
-      } catch {
-        // ignore
-      }
+    if (!this.service || typeof this.service.main !== 'function') {
+      return;
     }
+    const key = this.loadKey();
+    let run = this.inFlightLoadByKey.get(key);
+    if (!run) {
+      run = (async () => {
+        try {
+          await this.service.main(this.serviceParams as any);
+        } catch {
+          // ignore
+        } finally {
+          this.inFlightLoadByKey.delete(key);
+        }
+      })();
+      this.inFlightLoadByKey.set(key, run);
+    }
+    await run;
   }
 
   onFilter(event: any) {
@@ -251,24 +302,20 @@ export class MultiselectComponent implements OnInit, OnChanges {
     this.body.set({ value: event });
 
     this.signal.update((current: any) => {
-      const existingValues = this.objectArrayToIdArray(this.utils.getNestedProperty(current, this.signalOptionValue), this.optionValue);
+      const attr = this.optionValue;
+      const prevItems = this.utils.getNestedProperty(current, this.signalOptionValue) ?? [];
+      const eventIds = Array.isArray(event) ? event : [];
+      const optionsList = this.optionsSig() ?? [];
 
-      // Find new options to add
-      const newOption = this.optionsSig().find(
-        (option: any) => event?.includes(option[this.optionValue]) && !existingValues?.includes(option[this.optionValue])
-      );
+      const nextItems = eventIds.map((id: number) => {
+        const fromPrev = prevItems.find((item: any) => item[attr] == id);
+        const fromOptions = optionsList.find((option: any) => option[attr] == id);
+        const merged: Record<string, unknown> = { ...(fromPrev ?? {}), ...(fromOptions ?? {}) };
+        merged[attr] ??= id;
+        return merged as any;
+      });
 
-      if (newOption) {
-        /* istanbul ignore next */
-        const currentValues = this.utils.getNestedProperty(current, this.signalOptionValue) ?? [];
-        this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, [...currentValues, newOption]);
-      }
-
-      // Remove options that are no longer selected
-      const filteredOptions = this.utils
-        .getNestedProperty(current, this.signalOptionValue)
-        .filter((item: any) => event?.includes(item[this.optionValue]));
-      this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, filteredOptions);
+      this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, nextItems);
 
       this.selectEvent.emit(current);
       return { ...current };
@@ -294,8 +341,64 @@ export class MultiselectComponent implements OnInit, OnChanges {
       this.body.set({ value: this.objectArrayToIdArray(updatedOptions, this.optionValue) });
 
       this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, updatedOptions);
+      this.selectEvent.emit({ ...current });
       return { ...current };
     });
+  }
+
+  onMultiselectPanelShow(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    this.ngZone.runOutsideAngular(() => {
+      requestAnimationFrame(() => this.applyMultiselectPanelMaxWidth());
+    });
+  }
+
+  onMultiselectPanelHide(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    this.clearMultiselectPanelMaxWidth();
+  }
+
+  private applyMultiselectPanelMaxWidth(): void {
+    const overlay = this.primeMultiSelect?.overlayViewChild;
+    const root = overlay?.overlayEl;
+    if (!root) {
+      return;
+    }
+    const trigger = this.hostEl.nativeElement.querySelector('.p-multiselect');
+    if (!trigger) {
+      return;
+    }
+    const w = Math.max(0, Math.round(trigger.getBoundingClientRect().width));
+    if (w < 1) {
+      return;
+    }
+    const panel = root.querySelector('.p-multiselect-overlay') as HTMLElement | null;
+    root.style.maxWidth = `${w}px`;
+    root.style.boxSizing = 'border-box';
+    if (panel) {
+      panel.style.maxWidth = `${w}px`;
+      panel.style.boxSizing = 'border-box';
+    }
+    overlay.alignOverlay();
+  }
+
+  private clearMultiselectPanelMaxWidth(): void {
+    const overlay = this.primeMultiSelect?.overlayViewChild;
+    const root = overlay?.overlayEl;
+    if (!root) {
+      return;
+    }
+    const panel = root.querySelector('.p-multiselect-overlay') as HTMLElement | null;
+    root.style.removeProperty('max-width');
+    root.style.removeProperty('box-sizing');
+    if (panel) {
+      panel.style.removeProperty('max-width');
+      panel.style.removeProperty('box-sizing');
+    }
   }
 
   removeById(id: string | number) {

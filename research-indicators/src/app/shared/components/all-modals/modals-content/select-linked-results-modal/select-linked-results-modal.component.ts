@@ -1,6 +1,6 @@
 import { Component, OnDestroy, computed, effect, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Table, TableModule } from 'primeng/table';
+import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -53,7 +53,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   @ViewChild('dt2') dt2!: Table;
 
   selectedResults = signal<Result[]>([]);
-  searchInput = signal('');
   saving = signal(false);
   private modalWasOpen = false;
   private savedMyResultsFilterItem: import('primeng/api').MenuItem | undefined;
@@ -80,7 +79,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       const currentSelected = this.selectedResults();
       const syncedIds = syncedResults.map(r => r.result_id).sort((a, b) => a - b);
       const currentIds = currentSelected.map(r => r.result_id).sort((a, b) => a - b);
-      
+
       if (JSON.stringify(syncedIds) !== JSON.stringify(currentIds)) {
         this.selectedResults.set(syncedResults);
       }
@@ -88,23 +87,22 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     { allowSignalWrites: true }
   );
 
-  onSearchInputChange = effect(() => {
-    const searchValue = this.searchInput();
-    this.resultsCenterService.list();
-    if (this.dt2) {
-      this.dt2.first = 0;
-      this.dt2.filterGlobal(searchValue, 'contains');
-    }
-  });
-
   ngOnDestroy(): void {
     this.modalVisibilityWatcher.destroy();
-    this.onSearchInputChange.destroy();
     this.syncSelectedResultsWatcher.destroy();
   }
 
   setSearchInputFilter(query: string) {
-    this.searchInput.set(query);
+    this.resultsCenterService.resultsTablePaginatorFirst.set(0);
+    this.resultsCenterService.searchInput.set(query);
+    if (this.dt2) {
+      this.dt2.first = 0;
+    }
+    void this.resultsCenterService.main();
+  }
+
+  handleLinkedTableLazyLoad(event: TableLazyLoadEvent): void {
+    this.resultsCenterService.handleResultsTableLazyLoad(event);
   }
 
   getResultHref(result: Result, platformCode?: string): string {
@@ -199,7 +197,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   toggleSelection(result: Result) {
     const current = this.selectedResults();
     const index = current.findIndex(r => r.result_id === result.result_id);
-    
+
     if (index >= 0) {
       const updated = current.filter(r => r.result_id !== result.result_id);
       this.selectedResults.set(updated);
@@ -251,7 +249,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
       this.saving.set(false);
     }
   }
-  
 
   showFiltersSidebar() {
     this.resultsCenterService.showFiltersSidebar.set(true);
@@ -260,16 +257,17 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   clearFilters(): void {
     this.resultsCenterService.clearAllFiltersWithPreserve([...MODAL_INDICATOR_CODES]);
     this.applyModalIndicatorFilter({ resetIndicatorFilters: true });
-    this.searchInput.set('');
+    this.resultsCenterService.searchInput.set('');
     this.resetTableToFirstPage();
     void this.loadResultsForModal();
   }
 
-  getScrollHeight = computed(
-    () => `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + 400}px)`
-  );
+  getScrollHeight = computed(() => `calc(100vh - ${this.cacheService.headerHeight() + this.cacheService.navbarHeight() + 400}px)`);
 
   private async onModalOpened(): Promise<void> {
+    this.resultsCenterService.invalidateResultsListFetchCache();
+    this.resultsCenterService.resultsTablePaginatorFirst.set(0);
+    this.resultsCenterService.resultsTablePaginatorRows.set(10);
     this.savedMyResultsFilterItem = this.resultsCenterService.myResultsFilterItem();
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
 
@@ -298,6 +296,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
 
   private async loadResultsForModal(): Promise<void> {
     try {
+      this.resultsCenterService.invalidateResultsListFetchCache();
       this.resultsCenterService.list.set([]);
       this.resultsCenterService.loading.set(true);
 
@@ -325,7 +324,6 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   }
 
   private applyModalIndicatorFilter(options: { resetIndicatorFilters?: boolean; tabsOverride?: readonly number[] } = {}): void {
-
     const { resetIndicatorFilters = false } = options;
     const hasActiveIndicatorFilter =
       (this.resultsCenterService.tableFilters().indicators?.length ?? 0) > 0 ||
@@ -336,7 +334,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
     const setIndicators = (prev: ResultFilter) => ({
       ...prev,
       'indicator-codes-tabs': tabs,
-      'indicator-codes-filter': resetIndicatorFilters ? [] : prev['indicator-codes-filter'] ?? []
+      'indicator-codes-filter': resetIndicatorFilters ? [] : (prev['indicator-codes-filter'] ?? [])
     });
 
     this.resultsCenterService.resultsFilter.update(prev => setIndicators(prev));
@@ -346,7 +344,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   private resetModalFilters(): void {
     this.resultsCenterService.showFiltersSidebar.set(false);
     this.selectedResults.set([]);
-    this.searchInput.set('');
+    this.resultsCenterService.searchInput.set('');
 
     if (this.savedMyResultsFilterItem) {
       this.resultsCenterService.myResultsFilterItem.set(this.savedMyResultsFilterItem);
@@ -382,9 +380,9 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   }
 
   private resetTableToFirstPage(): void {
+    this.resultsCenterService.resultsTablePaginatorFirst.set(0);
     if (this.dt2) {
       this.dt2.first = 0;
     }
   }
 }
-

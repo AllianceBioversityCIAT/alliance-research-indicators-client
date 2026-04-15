@@ -1,15 +1,15 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '../api.service';
-import { LeverStrategicOutcome } from '@shared/interfaces/oicr-creation.interface';
+import { LeverSdgTargetApi, LeverSdgTargetOption } from '@shared/interfaces/lever-sdg-target.interface';
 
 @Injectable({ providedIn: 'root' })
-export class GetLeverStrategicOutcomesService {
+export class GetLeverSdgTargetsService {
   private readonly api = inject(ApiService);
   private readonly loadingStore = new Map<number, ReturnType<typeof signal<boolean>>>();
-  private readonly listStore = new Map<number, ReturnType<typeof signal<LeverStrategicOutcome[]>>>();
+  private readonly listStore = new Map<number, ReturnType<typeof signal<LeverSdgTargetOption[]>>>();
 
   loading = signal(false);
-  list = signal<LeverStrategicOutcome[]>([]);
+  list = signal<LeverSdgTargetOption[]>([]);
 
   isOpenSearch(): boolean {
     return false;
@@ -24,7 +24,7 @@ export class GetLeverStrategicOutcomesService {
   getList(lever_id?: number | string) {
     const id = this.coerceLeverId(lever_id);
     if (id === undefined) return this.list;
-    if (!this.listStore.has(id)) this.listStore.set(id, signal<LeverStrategicOutcome[]>([]));
+    if (!this.listStore.has(id)) this.listStore.set(id, signal<LeverSdgTargetOption[]>([]));
     return this.listStore.get(id)!;
   }
 
@@ -35,7 +35,14 @@ export class GetLeverStrategicOutcomesService {
     return this.loadingStore.get(id)!;
   }
 
-  /** Loads GET lever-strategic-outcome/by-lever/{lever_id} (see ApiService.GET_LeverStrategicOutcomes). */
+  private mapRows(data: LeverSdgTargetApi[]): LeverSdgTargetOption[] {
+    return (data ?? []).map(row => ({
+      ...row,
+      sdg_target_id: row.id,
+      select_label: [row.sdg_target_code, row.sdg_target].filter(Boolean).join(' — ')
+    }));
+  }
+
   async main(lever_id?: number | string) {
     const numericId = this.coerceLeverId(lever_id);
     if (numericId === undefined) {
@@ -51,8 +58,9 @@ export class GetLeverStrategicOutcomesService {
     const listSig = this.getList(numericId);
     loadingSig.set(true);
     try {
-      const res = await this.api.GET_LeverStrategicOutcomes(numericId);
-      listSig.set(Array.isArray(res?.data) ? res.data : []);
+      const res = await this.api.GET_LeverSdgTargets(numericId, true);
+      const rows = Array.isArray(res?.data) ? res.data : [];
+      listSig.set(this.mapRows(rows));
     } catch {
       listSig.set([]);
     } finally {
@@ -60,5 +68,3 @@ export class GetLeverStrategicOutcomesService {
     }
   }
 }
-
-
