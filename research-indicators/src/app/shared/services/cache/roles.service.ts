@@ -2,7 +2,7 @@ import { Injectable, computed, inject } from '@angular/core';
 import { CacheService } from './cache.service';
 import { CreateResultManagementService } from '../../components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 
-export const CAPACITY_BULK_UPLOAD_ROLE_IDS: ReadonlyArray<number> = [1, 9];
+export const CAPACITY_BULK_UPLOAD_ROLE_IDS: readonly number[] = [1, 9];
 
 @Injectable({
   providedIn: 'root'
