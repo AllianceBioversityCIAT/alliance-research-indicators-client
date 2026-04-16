@@ -610,12 +610,20 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('user/configuration/123?component=test', {});
     });
 
-    it('should call GET_DateFormatConfiguration', () => {
+    it('should call GET_ConfigurationByKey with encoded path segment', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
 
-      service.GET_DateFormatConfiguration();
+      service.GET_ConfigurationByKey('date-format');
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration/date-format', { noAuthInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration/date-format', {});
+    });
+
+    it('should call GET_ConfigurationByKey for dotted configuration key', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_ConfigurationByKey('BULK_UPLOAD.EMBED_INFO.URL');
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration/BULK_UPLOAD.EMBED_INFO.URL', {});
     });
 
     it('should call GET_UserStaff', () => {
