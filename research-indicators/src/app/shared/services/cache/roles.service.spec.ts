@@ -51,6 +51,18 @@ describe('RolesService', () => {
     expect(service.isAdmin()).toBe(false);
   });
 
+  it('canAccessCapacityBulkUpload should be true when user has role 1 or 9', () => {
+    userRoles = [{ role_id: 2 }, { role_id: 9 }];
+    expect(service.canAccessCapacityBulkUpload()).toBe(true);
+    userRoles = [{ role_id: 1 }];
+    expect(service.canAccessCapacityBulkUpload()).toBe(true);
+  });
+
+  it('canAccessCapacityBulkUpload should be false without allowed roles', () => {
+    userRoles = [{ role_id: 2 }, { role_id: 8 }];
+    expect(service.canAccessCapacityBulkUpload()).toBe(false);
+  });
+
   it('canEditOicr should be true when not editing (regardless of admin)', () => {
     // Not editing → always true
     editingOicr = false;
