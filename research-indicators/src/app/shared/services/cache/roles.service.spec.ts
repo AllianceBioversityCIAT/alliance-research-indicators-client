@@ -6,7 +6,7 @@ import { CreateResultManagementService } from '../../components/all-modals/modal
 describe('RolesService', () => {
   let service: RolesService;
 
-  let userRoles: Array<{ role_id: number }>;
+  let userRoles: Array<{ role_id: number; role?: { focus_id: number; sec_role_id: number } }>;
   let editingOicr: boolean;
   let statusId: number | null;
 
@@ -51,15 +51,23 @@ describe('RolesService', () => {
     expect(service.isAdmin()).toBe(false);
   });
 
-  it('canAccessCapacityBulkUpload should be true when user has role 1 or 9', () => {
-    userRoles = [{ role_id: 2 }, { role_id: 9 }];
-    expect(service.canAccessCapacityBulkUpload()).toBe(true);
+  it('canAccessCapacityBulkUpload should be true for super admin (1) or general/center admin (9/10) with focus and sec_role_id', () => {
     userRoles = [{ role_id: 1 }];
+    expect(service.canAccessCapacityBulkUpload()).toBe(true);
+    userRoles = [{ role_id: 9, role: { focus_id: 1, sec_role_id: 9 } }];
+    expect(service.canAccessCapacityBulkUpload()).toBe(true);
+    userRoles = [{ role_id: 10, role: { focus_id: 1, sec_role_id: 10 } }];
     expect(service.canAccessCapacityBulkUpload()).toBe(true);
   });
 
-  it('canAccessCapacityBulkUpload should be false without allowed roles', () => {
+  it('canAccessCapacityBulkUpload should be false without super admin or matching focus_id and sec_role_id', () => {
     userRoles = [{ role_id: 2 }, { role_id: 8 }];
+    expect(service.canAccessCapacityBulkUpload()).toBe(false);
+    userRoles = [{ role_id: 9, role: { focus_id: 2, sec_role_id: 9 } }];
+    expect(service.canAccessCapacityBulkUpload()).toBe(false);
+    userRoles = [{ role_id: 9, role: { focus_id: 1, sec_role_id: 8 } }];
+    expect(service.canAccessCapacityBulkUpload()).toBe(false);
+    userRoles = [{ role_id: 9 }];
     expect(service.canAccessCapacityBulkUpload()).toBe(false);
   });
 
