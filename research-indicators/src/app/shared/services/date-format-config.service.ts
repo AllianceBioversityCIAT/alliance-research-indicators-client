@@ -1,4 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { APPLICATION_CONFIGURATION_KEY } from '@shared/constants/application-configuration-keys';
 import { ApiService } from './api.service';
 import { DateFormatJsonValue } from '@shared/interfaces/date-format-config.interface';
 
@@ -28,7 +29,7 @@ export class DateFormatConfigService {
       return this.loadPromise;
     }
     this.loadPromise = this.api
-      .GET_DateFormatConfiguration()
+      .GET_ConfigurationByKey(APPLICATION_CONFIGURATION_KEY.DATE_FORMAT)
       .then(res => {
         const raw = res?.data?.json_value;
         const value = normalizeDateFormatConfig(raw);

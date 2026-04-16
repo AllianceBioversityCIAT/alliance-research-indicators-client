@@ -79,6 +79,7 @@ import { GetProjectIndicators } from '../interfaces/get-project-indicators.inter
 import { PostSyncContributor } from '../interfaces/post-sync-contributor.interface';
 import { GetIndicatorsProgress } from '../interfaces/get-indicators-progress.interface';
 import { DateFormatApiResponse } from '@shared/interfaces/date-format-config.interface';
+import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
@@ -224,8 +225,7 @@ export class ApiService {
       });
     }
 
-    const onlyOwnResults =
-      Array.isArray(resultFilter?.['create-user-codes']) && resultFilter['create-user-codes'].length > 0;
+    const onlyOwnResults = Array.isArray(resultFilter?.['create-user-codes']) && resultFilter['create-user-codes'].length > 0;
     pairs.push(['only-own-results', onlyOwnResults ? 'true' : 'false']);
 
     const qs = pairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
@@ -260,7 +260,7 @@ export class ApiService {
       ...raw,
       data: pagination ? { results, total, pagination } : { results, total }
     };
-  };
+  }
 
   GET_ValidateTitle = (title: string): Promise<MainResponse<{ isValid: boolean; result_official_code?: number; platform_code?: string }>> => {
     const queryString = title ? `?title=${title}` : '';
@@ -321,12 +321,11 @@ export class ApiService {
     return this.TP.patch(url(), body, {});
   };
 
-  GET_DateFormatConfiguration = (): Promise<MainResponse<DateFormatApiResponse>> => {
-    const url = () => `configuration/date-format`;
-    return this.TP.get(url(), { noAuthInterceptor: true });
+  GET_ConfigurationByKey = (key: string): Promise<MainResponse<ConfigurationByKeyResponse>> => {
+    const url = () => `configuration/${encodeURIComponent(key)}`;
+    return this.TP.get(url(), {});
   };
 
-  // create partner request
   POST_PartnerRequest = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `tools/clarisa/manager/partner-request/create`;
     return this.TP.post(url(), body, {});

@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { APPLICATION_CONFIGURATION_KEY } from '@shared/constants/application-configuration-keys';
 import { DateFormatConfigService } from './date-format-config.service';
 import { ApiService } from './api.service';
 import { DateFormatJsonValue } from '@shared/interfaces/date-format-config.interface';
@@ -25,12 +26,12 @@ const mockConfig: DateFormatJsonValue = {
 
 describe('DateFormatConfigService', () => {
   let service: DateFormatConfigService;
-  let mockApi: { GET_DateFormatConfiguration: jest.Mock };
+  let mockApi: { GET_ConfigurationByKey: jest.Mock };
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockApi = {
-      GET_DateFormatConfiguration: jest.fn()
+      GET_ConfigurationByKey: jest.fn()
     };
     TestBed.configureTestingModule({
       providers: [
@@ -51,19 +52,19 @@ describe('DateFormatConfigService', () => {
 
   describe('loadConfig', () => {
     it('should call API and set config when data.json_value is config object with timezone', async () => {
-      mockApi.GET_DateFormatConfiguration.mockResolvedValue({
+      mockApi.GET_ConfigurationByKey.mockResolvedValue({
         data: { json_value: mockConfig }
       });
 
       const result = await service.loadConfig();
 
-      expect(mockApi.GET_DateFormatConfiguration).toHaveBeenCalled();
+      expect(mockApi.GET_ConfigurationByKey).toHaveBeenCalledWith(APPLICATION_CONFIGURATION_KEY.DATE_FORMAT);
       expect(service.config()).toEqual(mockConfig);
       expect(result).toEqual(mockConfig);
     });
 
     it('should set config to null when response is undefined', async () => {
-      mockApi.GET_DateFormatConfiguration.mockResolvedValue(undefined);
+      mockApi.GET_ConfigurationByKey.mockResolvedValue(undefined);
 
       const result = await service.loadConfig();
 
@@ -72,7 +73,7 @@ describe('DateFormatConfigService', () => {
     });
 
     it('should set config to null when response.data is undefined', async () => {
-      mockApi.GET_DateFormatConfiguration.mockResolvedValue({ data: undefined });
+      mockApi.GET_ConfigurationByKey.mockResolvedValue({ data: undefined });
 
       const result = await service.loadConfig();
 
@@ -81,7 +82,7 @@ describe('DateFormatConfigService', () => {
     });
 
     it('should set config to null when response.data.json_value is null', async () => {
-      mockApi.GET_DateFormatConfiguration.mockResolvedValue({ data: { json_value: null } });
+      mockApi.GET_ConfigurationByKey.mockResolvedValue({ data: { json_value: null } });
 
       const result = await service.loadConfig();
 
@@ -90,7 +91,7 @@ describe('DateFormatConfigService', () => {
     });
 
     it('should set config to null when json_value is not an object (normalize returns null)', async () => {
-      mockApi.GET_DateFormatConfiguration.mockResolvedValue({
+      mockApi.GET_ConfigurationByKey.mockResolvedValue({
         data: { json_value: 'invalid' }
       });
 
@@ -102,7 +103,7 @@ describe('DateFormatConfigService', () => {
 
     it('should set config when json_value is nested object with json_value.timezone', async () => {
       const nested = { json_value: mockConfig };
-      mockApi.GET_DateFormatConfiguration.mockResolvedValue({
+      mockApi.GET_ConfigurationByKey.mockResolvedValue({
         data: { json_value: nested }
       });
 
@@ -113,7 +114,7 @@ describe('DateFormatConfigService', () => {
     });
 
     it('should set config when json_value is object with timezone at top level (no nested json_value)', async () => {
-      mockApi.GET_DateFormatConfiguration.mockResolvedValue({
+      mockApi.GET_ConfigurationByKey.mockResolvedValue({
         data: { json_value: { timezone: { iana: 'UTC', displayName: 'UTC', abbreviationMode: 'short' } } }
       });
 
@@ -126,7 +127,7 @@ describe('DateFormatConfigService', () => {
     });
 
     it('should set config to null when json_value is object without timezone', async () => {
-      mockApi.GET_DateFormatConfiguration.mockResolvedValue({
+      mockApi.GET_ConfigurationByKey.mockResolvedValue({
         data: { json_value: { foo: 'bar' } }
       });
 
@@ -137,7 +138,7 @@ describe('DateFormatConfigService', () => {
     });
 
     it('should return same promise on second loadConfig call (cache)', async () => {
-      mockApi.GET_DateFormatConfiguration.mockResolvedValue({
+      mockApi.GET_ConfigurationByKey.mockResolvedValue({
         data: { json_value: mockConfig }
       });
 
@@ -146,11 +147,11 @@ describe('DateFormatConfigService', () => {
 
       expect(p1).toBe(p2);
       await p1;
-      expect(mockApi.GET_DateFormatConfiguration).toHaveBeenCalledTimes(1);
+      expect(mockApi.GET_ConfigurationByKey).toHaveBeenCalledTimes(1);
     });
 
     it('should set config to null and return null on API rejection', async () => {
-      mockApi.GET_DateFormatConfiguration.mockRejectedValue(new Error('Network error'));
+      mockApi.GET_ConfigurationByKey.mockRejectedValue(new Error('Network error'));
 
       const result = await service.loadConfig();
 

@@ -1,10 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AllianceSidebarComponent } from './alliance-sidebar.component';
+import { AdministrationNavGroup } from '@interfaces/administration-nav.interface';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { CacheService } from '@services/cache/cache.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { RolesService } from '@services/cache/roles.service';
+import { ActionsService } from '@services/actions.service';
 import { fakeAsync, tick } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 describe('AllianceSidebarComponent', () => {
   let component: AllianceSidebarComponent;
@@ -19,9 +23,16 @@ describe('AllianceSidebarComponent', () => {
     const mockAllModalsService = {
       openModal: jest.fn()
     } as unknown as AllModalsService;
+    const mockRolesService = {
+      canAccessCenterAdmin: jest.fn().mockReturnValue(false)
+    } as unknown as RolesService;
+    const mockActionsService = {
+      logOut: jest.fn()
+    } as unknown as ActionsService;
     await TestBed.configureTestingModule({
       imports: [AllianceSidebarComponent],
       providers: [
+        provideRouter([]),
         {
           provide: ActivatedRoute,
           useValue: {
@@ -30,7 +41,9 @@ describe('AllianceSidebarComponent', () => {
           }
         },
         { provide: CacheService, useValue: mockCacheService },
-        { provide: AllModalsService, useValue: mockAllModalsService }
+        { provide: AllModalsService, useValue: mockAllModalsService },
+        { provide: RolesService, useValue: mockRolesService },
+        { provide: ActionsService, useValue: mockActionsService }
       ]
     }).compileComponents();
 
@@ -73,20 +86,57 @@ describe('AllianceSidebarComponent', () => {
     Object.defineProperty(window, 'innerWidth', { value: originalWidth, configurable: true });
   });
 
-  it('should open ask for help modal via options action', () => {
+  it('should open ask for help modal via account options action', () => {
     const modals = TestBed.inject(AllModalsService) as any;
-    const action = component.options.find(o => !!o.action)!.action as Function;
+    const action = component.accountOptions.find(o => !!o.action && o.label === 'Ask for Help')!.action as Function;
     action();
     expect(modals.openModal).toHaveBeenCalledWith('askForHelp');
   });
 
   it('should toggle sidebar and dispatch resize on toggleSidebarAndResize', fakeAsync(() => {
     const cache = TestBed.inject(CacheService) as any;
-    const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
+    const dispatchSpy = jest.spyOn(globalThis, 'dispatchEvent');
     component.toggleSidebarAndResize();
     expect(cache.toggleSidebar).toHaveBeenCalled();
     tick(150);
     expect(dispatchSpy).toHaveBeenCalledWith(expect.any(Event));
     dispatchSpy.mockRestore();
   }));
+
+  it('should call logOut when log out account action runs', () => {
+    const actions = TestBed.inject(ActionsService) as any;
+    const logOutOption = component.accountOptions.find(o => o.logout);
+    expect(logOutOption).toBeDefined();
+    (logOutOption!.action as () => void)();
+    expect(actions.logOut).toHaveBeenCalled();
+  });
+
+  it('should toggle administration group expansion state', () => {
+    expect(component.isAdministrationGroupExpanded('center-admin')).toBe(true);
+    component.toggleAdministrationGroup('center-admin');
+    expect(component.isAdministrationGroupExpanded('center-admin')).toBe(false);
+    component.toggleAdministrationGroup('center-admin');
+    expect(component.isAdministrationGroupExpanded('center-admin')).toBe(true);
+  });
+
+  it('should treat unknown group id as expanded until toggled', () => {
+    expect(component.isAdministrationGroupExpanded('unknown-id')).toBe(true);
+    component.toggleAdministrationGroup('unknown-id');
+    expect(component.isAdministrationGroupExpanded('unknown-id')).toBe(false);
+  });
+
+  it('should filter hidden children in visibleAdministrationChildren', () => {
+    const group: AdministrationNavGroup = {
+      id: 'g',
+      label: 'G',
+      icon: 'pi-test',
+      children: [
+        { label: 'Hidden', link: '/h', icon: 'pi-x', hide: true },
+        { label: 'Visible', link: '/v', icon: 'pi-check' }
+      ]
+    };
+    const visible = component.visibleAdministrationChildren(group);
+    expect(visible).toHaveLength(1);
+    expect(visible[0].label).toBe('Visible');
+  });
 });

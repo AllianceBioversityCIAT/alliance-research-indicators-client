@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { rolesGuard } from '@guards/roles.guard';
+import { centerAdminGuard } from '@guards/center-admin.guard';
 import { resultExistsResolver } from '@pages/platform/pages/result/resolvers/result-exists.resolver';
 import { mvpGuard } from '@guards/mvp.guard';
 
@@ -263,6 +264,18 @@ export const routes: Routes = [
         loadComponent: () => import('@platform/pages/profile/profile.component'),
         data: {
           title: 'Profile'
+        }
+      },
+      {
+        path: 'administration/center-admin/bulk-upload',
+        loadComponent: () =>
+          import('@platform/pages/administration/center-admin/capacity-bulk-upload/capacity-bulk-upload.component').then(
+            m => m.default
+          ),
+        canMatch: [centerAdminGuard],
+        data: {
+          title: 'Bulk upload',
+          isLoggedIn: true
         }
       }
     ]

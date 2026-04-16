@@ -1,10 +1,17 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CacheService } from '@services/cache/cache.service';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
+import { RolesService } from '@services/cache/roles.service';
+import { ActionsService } from '@services/actions.service';
+import {
+  AccountSidebarOption,
+  AdministrationNavChild,
+  AdministrationNavGroup
+} from '@interfaces/administration-nav.interface';
 
 @Component({
   selector: 'alliance-sidebar',
@@ -16,17 +23,49 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 export class AllianceSidebarComponent implements OnInit {
   cache = inject(CacheService);
   allModalsService = inject(AllModalsService);
-  options = [
+  rolesService = inject(RolesService);
+  actions = inject(ActionsService);
+
+  resourceOptions = [
     { icon: 'pi-file', label: 'About Indicators', link: '/about-indicators', disabled: false },
     { icon: 'pi-exclamation-circle transform scale-y-[-1]', label: 'About the Tool', link: '1', underConstruction: true, hide: false },
-    { icon: 'pi-external-link', label: 'Other Reporting Tools', link: '45', underConstruction: true, hide: false },
-    { icon: 'pi-comments', label: 'Ask for Help', underConstruction: false, hide: false, action: () => this.allModalsService.openModal('askForHelp') }
+    { icon: 'pi-external-link', label: 'Other Reporting Tools', link: '45', underConstruction: true, hide: false }
+  ];
+
+  administrationGroups: AdministrationNavGroup[] = [
+    {
+      id: 'center-admin',
+      label: 'Center admin',
+      icon: 'pi-id-card',
+      children: [{ label: 'Bulk upload', link: '/administration/center-admin/bulk-upload', s3Image: 'images/brain.png' }]
+    }
+  ];
+
+  administrationGroupExpanded = signal<Record<string, boolean>>({
+    'center-admin': true
+  });
+
+  accountOptions: AccountSidebarOption[] = [
+    {
+      icon: 'pi-comments',
+      label: 'Ask for Help',
+      underConstruction: false,
+      hide: false,
+      action: () => this.allModalsService.openModal('askForHelp')
+    },
+    {
+      icon: 'pi-sign-out',
+      label: 'Log out',
+      hide: false,
+      action: () => void this.actions.logOut(),
+      logout: true
+    }
   ];
 
   innerWidth = 0;
 
   ngOnInit() {
-    this.innerWidth = window.innerWidth;
+    this.innerWidth = globalThis.innerWidth;
 
     if ((this.innerWidth <= 1200 || this.cache.hasSmallScreen()) && !this.cache.isSidebarCollapsed()) {
       this.cache.toggleSidebar();
@@ -37,7 +76,22 @@ export class AllianceSidebarComponent implements OnInit {
     this.cache.toggleSidebar();
 
     setTimeout(() => {
-      window.dispatchEvent(new Event('resize'));
+      globalThis.dispatchEvent(new Event('resize'));
     }, 150);
+  }
+
+  toggleAdministrationGroup(groupId: string): void {
+    this.administrationGroupExpanded.update(prev => ({
+      ...prev,
+      [groupId]: !(prev[groupId] ?? true)
+    }));
+  }
+
+  isAdministrationGroupExpanded(groupId: string): boolean {
+    return this.administrationGroupExpanded()[groupId] !== false;
+  }
+
+  visibleAdministrationChildren(group: AdministrationNavGroup): AdministrationNavChild[] {
+    return group.children.filter(c => !c.hide);
   }
 }
