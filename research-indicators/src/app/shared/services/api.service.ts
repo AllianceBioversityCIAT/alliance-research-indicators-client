@@ -74,6 +74,7 @@ import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { DateFormatApiResponse } from '@shared/interfaces/date-format-config.interface';
+import { BulkUploadApiResponse } from '@shared/interfaces/bulk-upload-config.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
@@ -219,8 +220,7 @@ export class ApiService {
       });
     }
 
-    const onlyOwnResults =
-      Array.isArray(resultFilter?.['create-user-codes']) && resultFilter['create-user-codes'].length > 0;
+    const onlyOwnResults = Array.isArray(resultFilter?.['create-user-codes']) && resultFilter['create-user-codes'].length > 0;
     pairs.push(['only-own-results', onlyOwnResults ? 'true' : 'false']);
 
     const qs = pairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
@@ -255,7 +255,7 @@ export class ApiService {
       ...raw,
       data: pagination ? { results, total, pagination } : { results, total }
     };
-  };
+  }
 
   GET_ValidateTitle = (title: string): Promise<MainResponse<{ isValid: boolean; result_official_code?: number; platform_code?: string }>> => {
     const queryString = title ? `?title=${title}` : '';
@@ -318,7 +318,12 @@ export class ApiService {
 
   GET_DateFormatConfiguration = (): Promise<MainResponse<DateFormatApiResponse>> => {
     const url = () => `configuration/date-format`;
-    return this.TP.get(url(), { noAuthInterceptor: true });
+    return this.TP.get(url(), {});
+  };
+
+  GET_BulkUploadConfiguration = (): Promise<MainResponse<BulkUploadApiResponse>> => {
+    const url = () => `configuration/BULK_UPLOAD.EMBED_INFO.URL`;
+    return this.TP.get(url(), {});
   };
 
   // create partner request
