@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { rolesGuard } from '@guards/roles.guard';
+import { capacityBulkUploadGuard } from '@guards/capacity-bulk-upload.guard';
 import { resultExistsResolver } from '@pages/platform/pages/result/resolvers/result-exists.resolver';
 
 const createResultData = () => ({
@@ -199,6 +200,18 @@ export const routes: Routes = [
         loadComponent: () => import('@platform/pages/profile/profile.component'),
         data: {
           title: 'Profile'
+        }
+      },
+      {
+        path: 'administration/center-admin/bulk-upload',
+        loadComponent: () =>
+          import('@platform/pages/administration/center-admin/capacity-bulk-upload/capacity-bulk-upload.component').then(
+            m => m.default
+          ),
+        canMatch: [capacityBulkUploadGuard],
+        data: {
+          title: 'Bulk upload',
+          isLoggedIn: true
         }
       }
     ]

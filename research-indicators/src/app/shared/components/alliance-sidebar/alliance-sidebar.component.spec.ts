@@ -4,7 +4,10 @@ import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { CacheService } from '@services/cache/cache.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { RolesService } from '@services/cache/roles.service';
+import { ActionsService } from '@services/actions.service';
 import { fakeAsync, tick } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 describe('AllianceSidebarComponent', () => {
   let component: AllianceSidebarComponent;
@@ -19,9 +22,16 @@ describe('AllianceSidebarComponent', () => {
     const mockAllModalsService = {
       openModal: jest.fn()
     } as unknown as AllModalsService;
+    const mockRolesService = {
+      canAccessCapacityBulkUpload: jest.fn().mockReturnValue(false)
+    } as unknown as RolesService;
+    const mockActionsService = {
+      logOut: jest.fn()
+    } as unknown as ActionsService;
     await TestBed.configureTestingModule({
       imports: [AllianceSidebarComponent],
       providers: [
+        provideRouter([]),
         {
           provide: ActivatedRoute,
           useValue: {
@@ -30,7 +40,9 @@ describe('AllianceSidebarComponent', () => {
           }
         },
         { provide: CacheService, useValue: mockCacheService },
-        { provide: AllModalsService, useValue: mockAllModalsService }
+        { provide: AllModalsService, useValue: mockAllModalsService },
+        { provide: RolesService, useValue: mockRolesService },
+        { provide: ActionsService, useValue: mockActionsService }
       ]
     }).compileComponents();
 
@@ -73,9 +85,9 @@ describe('AllianceSidebarComponent', () => {
     Object.defineProperty(window, 'innerWidth', { value: originalWidth, configurable: true });
   });
 
-  it('should open ask for help modal via options action', () => {
+  it('should open ask for help modal via account options action', () => {
     const modals = TestBed.inject(AllModalsService) as any;
-    const action = component.options.find(o => !!o.action)!.action as Function;
+    const action = component.accountOptions.find(o => !!o.action && o.label === 'Ask for Help')!.action as Function;
     action();
     expect(modals.openModal).toHaveBeenCalledWith('askForHelp');
   });
