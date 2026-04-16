@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActionsService } from '@services/actions.service';
+import { APPLICATION_CONFIGURATION_KEY } from '@shared/constants/application-configuration-keys';
 import { ApiService } from '@shared/services/api.service';
 import {
   appendAccessTokenToEmbedUrl,
@@ -30,7 +31,7 @@ export default class CapacityBulkUploadComponent implements OnInit {
   private async loadEmbed(): Promise<void> {
     try {
       const [configRes] = await Promise.all([
-        this.api.GET_BulkUploadConfiguration(),
+        this.api.GET_ConfigurationByKey(APPLICATION_CONFIGURATION_KEY.BULK_UPLOAD_EMBED_URL),
         this.actions.isTokenExpired()
       ]);
 

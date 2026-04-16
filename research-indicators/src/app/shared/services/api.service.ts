@@ -73,8 +73,7 @@ import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
-import { DateFormatApiResponse } from '@shared/interfaces/date-format-config.interface';
-import { BulkUploadApiResponse } from '@shared/interfaces/bulk-upload-config.interface';
+import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
@@ -316,17 +315,11 @@ export class ApiService {
     return this.TP.patch(url(), body, {});
   };
 
-  GET_DateFormatConfiguration = (): Promise<MainResponse<DateFormatApiResponse>> => {
-    const url = () => `configuration/date-format`;
+  GET_ConfigurationByKey = (key: string): Promise<MainResponse<ConfigurationByKeyResponse>> => {
+    const url = () => `configuration/${encodeURIComponent(key)}`;
     return this.TP.get(url(), {});
   };
 
-  GET_BulkUploadConfiguration = (): Promise<MainResponse<BulkUploadApiResponse>> => {
-    const url = () => `configuration/BULK_UPLOAD.EMBED_INFO.URL`;
-    return this.TP.get(url(), {});
-  };
-
-  // create partner request
   POST_PartnerRequest = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `tools/clarisa/manager/partner-request/create`;
     return this.TP.post(url(), body, {});

@@ -1,16 +1,6 @@
-export interface BulkUploadApiResponse {
-  created_at?: string;
-  updated_at?: string;
-  is_active?: boolean;
-  key?: string;
-  description?: string;
-  category?: string;
-  subcategory?: string;
-  field?: string;
-  simple_value: string | null;
-}
+import { ConfigurationByKeyResponse } from './configuration-by-key.interface';
 
-export function getBulkUploadEmbedUrl(data: BulkUploadApiResponse | null | undefined): string | null {
+export function getBulkUploadEmbedUrl(data: ConfigurationByKeyResponse | null | undefined): string | null {
   const url = data?.simple_value;
   if (typeof url !== 'string') return null;
   const trimmed = url.trim();
