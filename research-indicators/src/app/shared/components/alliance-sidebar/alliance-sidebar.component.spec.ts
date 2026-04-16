@@ -24,7 +24,7 @@ describe('AllianceSidebarComponent', () => {
       openModal: jest.fn()
     } as unknown as AllModalsService;
     const mockRolesService = {
-      canAccessCapacityBulkUpload: jest.fn().mockReturnValue(false)
+      canAccessCenterAdmin: jest.fn().mockReturnValue(false)
     } as unknown as RolesService;
     const mockActionsService = {
       logOut: jest.fn()

@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { rolesGuard } from '@guards/roles.guard';
-import { capacityBulkUploadGuard } from '@guards/capacity-bulk-upload.guard';
+import { centerAdminGuard } from '@guards/center-admin.guard';
 import { resultExistsResolver } from '@pages/platform/pages/result/resolvers/result-exists.resolver';
 
 const createResultData = () => ({
@@ -208,7 +208,7 @@ export const routes: Routes = [
           import('@platform/pages/administration/center-admin/capacity-bulk-upload/capacity-bulk-upload.component').then(
             m => m.default
           ),
-        canMatch: [capacityBulkUploadGuard],
+        canMatch: [centerAdminGuard],
         data: {
           title: 'Bulk upload',
           isLoggedIn: true

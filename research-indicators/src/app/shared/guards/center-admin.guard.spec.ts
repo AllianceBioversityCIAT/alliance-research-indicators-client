@@ -1,15 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { capacityBulkUploadGuard } from './capacity-bulk-upload.guard';
+import { centerAdminGuard } from './center-admin.guard';
 import { RolesService } from '@services/cache/roles.service';
 
-describe('capacityBulkUploadGuard', () => {
-  let roles: jest.Mocked<Pick<RolesService, 'canAccessCapacityBulkUpload'>>;
+describe('centerAdminGuard', () => {
+  let roles: jest.Mocked<Pick<RolesService, 'canAccessCenterAdmin'>>;
   let router: Router;
 
   beforeEach(() => {
     roles = {
-      canAccessCapacityBulkUpload: jest.fn().mockReturnValue(true)
+      canAccessCenterAdmin: jest.fn().mockReturnValue(true)
     };
     TestBed.configureTestingModule({
       providers: [
@@ -23,15 +23,15 @@ describe('capacityBulkUploadGuard', () => {
     router = TestBed.inject(Router);
   });
 
-  it('allows match when canAccessCapacityBulkUpload is true', () => {
-    const result = TestBed.runInInjectionContext(() => capacityBulkUploadGuard({} as any, []));
+  it('allows match when canAccessCenterAdmin is true', () => {
+    const result = TestBed.runInInjectionContext(() => centerAdminGuard({} as any, []));
     expect(result).toBe(true);
     expect(router.createUrlTree).not.toHaveBeenCalled();
   });
 
-  it('redirects to home when user cannot access bulk upload', () => {
-    roles.canAccessCapacityBulkUpload.mockReturnValue(false);
-    TestBed.runInInjectionContext(() => capacityBulkUploadGuard({} as any, []));
+  it('redirects to home when user cannot access center admin', () => {
+    roles.canAccessCenterAdmin.mockReturnValue(false);
+    TestBed.runInInjectionContext(() => centerAdminGuard({} as any, []));
     expect(router.createUrlTree).toHaveBeenCalledTimes(1);
     expect(router.createUrlTree).toHaveBeenCalledWith(['/home']);
   });

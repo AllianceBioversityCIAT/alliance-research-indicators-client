@@ -51,24 +51,24 @@ describe('RolesService', () => {
     expect(service.isAdmin()).toBe(false);
   });
 
-  it('canAccessCapacityBulkUpload should be true for super admin (1) or general/center admin (9/10) with focus and sec_role_id', () => {
+  it('canAccessCenterAdmin should be true for super admin (1) or general/center admin (9/10) with focus and sec_role_id', () => {
     userRoles = [{ role_id: 1 }];
-    expect(service.canAccessCapacityBulkUpload()).toBe(true);
+    expect(service.canAccessCenterAdmin()).toBe(true);
     userRoles = [{ role_id: 9, role: { focus_id: 1, sec_role_id: 9 } }];
-    expect(service.canAccessCapacityBulkUpload()).toBe(true);
+    expect(service.canAccessCenterAdmin()).toBe(true);
     userRoles = [{ role_id: 10, role: { focus_id: 1, sec_role_id: 10 } }];
-    expect(service.canAccessCapacityBulkUpload()).toBe(true);
+    expect(service.canAccessCenterAdmin()).toBe(true);
   });
 
-  it('canAccessCapacityBulkUpload should be false without super admin or matching focus_id and sec_role_id', () => {
+  it('canAccessCenterAdmin should be false without super admin or matching focus_id and sec_role_id', () => {
     userRoles = [{ role_id: 2 }, { role_id: 8 }];
-    expect(service.canAccessCapacityBulkUpload()).toBe(false);
+    expect(service.canAccessCenterAdmin()).toBe(false);
     userRoles = [{ role_id: 9, role: { focus_id: 2, sec_role_id: 9 } }];
-    expect(service.canAccessCapacityBulkUpload()).toBe(false);
+    expect(service.canAccessCenterAdmin()).toBe(false);
     userRoles = [{ role_id: 9, role: { focus_id: 1, sec_role_id: 8 } }];
-    expect(service.canAccessCapacityBulkUpload()).toBe(false);
+    expect(service.canAccessCenterAdmin()).toBe(false);
     userRoles = [{ role_id: 9 }];
-    expect(service.canAccessCapacityBulkUpload()).toBe(false);
+    expect(service.canAccessCenterAdmin()).toBe(false);
   });
 
   it('canEditOicr should be true when not editing (regardless of admin)', () => {
