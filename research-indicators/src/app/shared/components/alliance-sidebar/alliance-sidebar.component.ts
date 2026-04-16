@@ -7,7 +7,11 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { RolesService } from '@services/cache/roles.service';
 import { ActionsService } from '@services/actions.service';
-import { AdministrationNavChild, AdministrationNavGroup } from '@interfaces/administration-nav.interface';
+import {
+  AccountSidebarOption,
+  AdministrationNavChild,
+  AdministrationNavGroup
+} from '@interfaces/administration-nav.interface';
 
 @Component({
   selector: 'alliance-sidebar',
@@ -41,7 +45,7 @@ export class AllianceSidebarComponent implements OnInit {
     'center-admin': true
   });
 
-  accountOptions = [
+  accountOptions: AccountSidebarOption[] = [
     {
       icon: 'pi-comments',
       label: 'Ask for Help',
@@ -49,7 +53,6 @@ export class AllianceSidebarComponent implements OnInit {
       hide: false,
       action: () => this.allModalsService.openModal('askForHelp')
     },
-    { icon: 'pi-cog', label: 'Settings', link: '/profile', hide: false },
     {
       icon: 'pi-sign-out',
       label: 'Log out',

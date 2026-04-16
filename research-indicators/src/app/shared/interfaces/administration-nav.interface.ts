@@ -12,3 +12,13 @@ export interface AdministrationNavGroup {
   icon: string;
   children: AdministrationNavChild[];
 }
+
+export interface AccountSidebarOption {
+  icon: string;
+  label: string;
+  hide: boolean;
+  link?: string;
+  underConstruction?: boolean;
+  action?: () => void;
+  logout?: boolean;
+}
