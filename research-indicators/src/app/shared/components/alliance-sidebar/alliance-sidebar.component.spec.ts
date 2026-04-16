@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AllianceSidebarComponent } from './alliance-sidebar.component';
+import { AllianceSidebarComponent, AdministrationNavGroup } from './alliance-sidebar.component';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { CacheService } from '@services/cache/cache.service';
@@ -94,11 +94,48 @@ describe('AllianceSidebarComponent', () => {
 
   it('should toggle sidebar and dispatch resize on toggleSidebarAndResize', fakeAsync(() => {
     const cache = TestBed.inject(CacheService) as any;
-    const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
+    const dispatchSpy = jest.spyOn(globalThis, 'dispatchEvent');
     component.toggleSidebarAndResize();
     expect(cache.toggleSidebar).toHaveBeenCalled();
     tick(150);
     expect(dispatchSpy).toHaveBeenCalledWith(expect.any(Event));
     dispatchSpy.mockRestore();
   }));
+
+  it('should call logOut when log out account action runs', () => {
+    const actions = TestBed.inject(ActionsService) as any;
+    const logOutOption = component.accountOptions.find(o => o.logout);
+    expect(logOutOption).toBeDefined();
+    (logOutOption!.action as () => void)();
+    expect(actions.logOut).toHaveBeenCalled();
+  });
+
+  it('should toggle administration group expansion state', () => {
+    expect(component.isAdministrationGroupExpanded('center-admin')).toBe(true);
+    component.toggleAdministrationGroup('center-admin');
+    expect(component.isAdministrationGroupExpanded('center-admin')).toBe(false);
+    component.toggleAdministrationGroup('center-admin');
+    expect(component.isAdministrationGroupExpanded('center-admin')).toBe(true);
+  });
+
+  it('should treat unknown group id as expanded until toggled', () => {
+    expect(component.isAdministrationGroupExpanded('unknown-id')).toBe(true);
+    component.toggleAdministrationGroup('unknown-id');
+    expect(component.isAdministrationGroupExpanded('unknown-id')).toBe(false);
+  });
+
+  it('should filter hidden children in visibleAdministrationChildren', () => {
+    const group: AdministrationNavGroup = {
+      id: 'g',
+      label: 'G',
+      icon: 'pi-test',
+      children: [
+        { label: 'Hidden', link: '/h', icon: 'pi-x', hide: true },
+        { label: 'Visible', link: '/v', icon: 'pi-check' }
+      ]
+    };
+    const visible = component.visibleAdministrationChildren(group);
+    expect(visible).toHaveLength(1);
+    expect(visible[0].label).toBe('Visible');
+  });
 });
