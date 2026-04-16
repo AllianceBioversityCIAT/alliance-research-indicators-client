@@ -78,7 +78,6 @@ import { PostIndicator } from '../interfaces/post-indicator.interface';
 import { GetProjectIndicators } from '../interfaces/get-project-indicators.interface';
 import { PostSyncContributor } from '../interfaces/post-sync-contributor.interface';
 import { GetIndicatorsProgress } from '../interfaces/get-indicators-progress.interface';
-import { DateFormatApiResponse } from '@shared/interfaces/date-format-config.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
