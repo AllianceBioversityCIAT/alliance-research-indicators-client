@@ -63,7 +63,11 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
         <span class="option-nested-inner flex min-w-0 items-center gap-[15px] pl-3">
+          @if (child.s3Image) {
+          <img [src]="child.s3Image | s3ImageUrl" alt="" class="h-[14px] w-[14px] shrink-0 object-contain" />
+          } @else {
           <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon"></i>
+          }
           <span class="sidebar-option-label body-2 text">{{ child.label }}</span>
         </span>
       </a>
@@ -78,7 +82,11 @@
     @for (child of visibleAdministrationChildren(group); track child.link) {
     <a class="option atc-primary-blue-400" [routerLink]="child.link" routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }" [pTooltip]="child.label" tooltipPosition="right" [positionLeft]="15">
+      @if (child.s3Image) {
+      <img [src]="child.s3Image | s3ImageUrl" alt="" class="h-[14px] w-[14px] shrink-0 object-contain" />
+      } @else {
       <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon"></i>
+      }
     </a>
     }
     }

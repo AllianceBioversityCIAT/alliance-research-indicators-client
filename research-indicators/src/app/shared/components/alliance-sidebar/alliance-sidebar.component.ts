@@ -7,20 +7,7 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { RolesService } from '@services/cache/roles.service';
 import { ActionsService } from '@services/actions.service';
-
-export interface AdministrationNavChild {
-  label: string;
-  link: string;
-  icon: string;
-  hide?: boolean;
-}
-
-export interface AdministrationNavGroup {
-  id: string;
-  label: string;
-  icon: string;
-  children: AdministrationNavChild[];
-}
+import { AdministrationNavChild, AdministrationNavGroup } from '@interfaces/administration-nav.interface';
 
 @Component({
   selector: 'alliance-sidebar',
@@ -46,7 +33,7 @@ export class AllianceSidebarComponent implements OnInit {
       id: 'center-admin',
       label: 'Center admin',
       icon: 'pi-id-card',
-      children: [{ label: 'Bulk upload', link: '/administration/center-admin/bulk-upload', icon: 'pi-upload' }]
+      children: [{ label: 'Bulk upload', link: '/administration/center-admin/bulk-upload', s3Image: 'images/brain.png' }]
     }
   ];
 
