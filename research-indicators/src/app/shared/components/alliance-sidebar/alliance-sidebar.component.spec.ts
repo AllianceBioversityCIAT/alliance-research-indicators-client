@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AllianceSidebarComponent, AdministrationNavGroup } from './alliance-sidebar.component';
+import { AllianceSidebarComponent } from './alliance-sidebar.component';
+import { AdministrationNavGroup } from '@interfaces/administration-nav.interface';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { CacheService } from '@services/cache/cache.service';

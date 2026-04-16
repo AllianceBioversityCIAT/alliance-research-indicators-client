@@ -108,7 +108,7 @@ describe('CapacityBulkUploadComponent', () => {
     const fixture = TestBed.createComponent(CapacityBulkUploadComponent);
     fixture.detectChanges();
     expect(fixture.componentInstance.loading()).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('Loading');
+    expect(fixture.nativeElement.querySelector('iframe')).toBeNull();
 
     resolveConfig!({ data: { simple_value: 'https://x.com/', json_value: null } });
     await fixture.whenStable();
