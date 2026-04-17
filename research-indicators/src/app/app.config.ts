@@ -14,6 +14,7 @@ import { providePrimeNG } from 'primeng/config';
 import { MyPreset } from './theme/roartheme';
 import { TrackingToolsService } from './shared/services/tracking-tools.service';
 import { resultInterceptor } from '@shared/interceptors/result.interceptor';
+import { CacheService } from '@services/cache/cache.service';
 import { ValidateCacheService } from '@shared/services/validate-cache.service';
 import { DateFormatConfigService } from '@shared/services/date-format-config.service';
 
@@ -37,8 +38,12 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       const trackingToolsService = inject(TrackingToolsService);
       trackingToolsService.init();
+      const cache = inject(CacheService);
+      if (!cache.dataCache().access_token) {
+        return Promise.resolve();
+      }
       const validateCacheService = inject(ValidateCacheService);
-      validateCacheService.validateVersions();
+      void validateCacheService.validateVersions();
       const dateFormatConfigService = inject(DateFormatConfigService);
       return dateFormatConfigService.loadConfig();
     }),

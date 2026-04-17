@@ -5,6 +5,8 @@ import { CacheService } from '@services/cache/cache.service';
 import { ApiService } from '@services/api.service';
 import { ActionsService } from '@services/actions.service';
 import { ClarityService } from './clarity.service';
+import { DateFormatConfigService } from './date-format-config.service';
+import { ValidateCacheService } from './validate-cache.service';
 import { environment } from '../../../environments/environment';
 import { DataCache } from '@interfaces/cache.interface';
 
@@ -44,6 +46,14 @@ const clarityMock = {
   updateUserInfo: jest.fn()
 };
 
+const dateFormatConfigMock = {
+  loadConfig: jest.fn().mockResolvedValue(null)
+};
+
+const validateCacheMock = {
+  validateVersions: jest.fn().mockResolvedValue(undefined)
+};
+
 describe('CognitoService', () => {
   let service: CognitoService;
   let activatedRoute: any;
@@ -62,7 +72,9 @@ describe('CognitoService', () => {
         { provide: CacheService, useValue: cacheMock },
         { provide: ApiService, useValue: apiMock },
         { provide: ActionsService, useValue: actionsMock },
-        { provide: ClarityService, useValue: clarityMock }
+        { provide: ClarityService, useValue: clarityMock },
+        { provide: DateFormatConfigService, useValue: dateFormatConfigMock },
+        { provide: ValidateCacheService, useValue: validateCacheMock }
       ]
     });
     service = TestBed.inject(CognitoService);
@@ -441,17 +453,21 @@ describe('CognitoService', () => {
 
   describe('updateCacheService', () => {
     it('should update cache with localStorage data when data exists', () => {
-      const originalGetItem = localStorage.getItem;
-      localStorage.getItem = jest.fn().mockReturnValue(JSON.stringify({ user: 'test', token: 'test-token' }));
+      const getItemSpy = jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(
+        JSON.stringify({ user: 'test', access_token: 'test-token' })
+      );
 
       service.updateCacheService();
 
       expect(cache.dataCache.set).toHaveBeenCalled();
+      expect(cache.dataCache.set.mock.calls[0][0].access_token).toBe('test-token');
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
+      expect(dateFormatConfigMock.loadConfig).toHaveBeenCalled();
+      expect(validateCacheMock.validateVersions).toHaveBeenCalled();
 
-      localStorage.getItem = originalGetItem;
+      getItemSpy.mockRestore();
     });
 
     it('should update cache with empty object when no localStorage data', () => {
@@ -464,6 +480,8 @@ describe('CognitoService', () => {
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
+      expect(dateFormatConfigMock.loadConfig).not.toHaveBeenCalled();
+      expect(validateCacheMock.validateVersions).not.toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
     });
@@ -478,6 +496,8 @@ describe('CognitoService', () => {
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
+      expect(dateFormatConfigMock.loadConfig).not.toHaveBeenCalled();
+      expect(validateCacheMock.validateVersions).not.toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
     });
@@ -492,6 +512,8 @@ describe('CognitoService', () => {
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
+      expect(dateFormatConfigMock.loadConfig).not.toHaveBeenCalled();
+      expect(validateCacheMock.validateVersions).not.toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
     });
@@ -511,6 +533,8 @@ describe('CognitoService', () => {
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
+      expect(dateFormatConfigMock.loadConfig).not.toHaveBeenCalled();
+      expect(validateCacheMock.validateVersions).not.toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
       JSON.parse = originalParse;
@@ -531,6 +555,8 @@ describe('CognitoService', () => {
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
+      expect(dateFormatConfigMock.loadConfig).not.toHaveBeenCalled();
+      expect(validateCacheMock.validateVersions).not.toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
     });
@@ -545,6 +571,8 @@ describe('CognitoService', () => {
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
+      expect(dateFormatConfigMock.loadConfig).not.toHaveBeenCalled();
+      expect(validateCacheMock.validateVersions).not.toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
     });
@@ -559,6 +587,8 @@ describe('CognitoService', () => {
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
+      expect(dateFormatConfigMock.loadConfig).not.toHaveBeenCalled();
+      expect(validateCacheMock.validateVersions).not.toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
     });
@@ -578,6 +608,8 @@ describe('CognitoService', () => {
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
+      expect(dateFormatConfigMock.loadConfig).not.toHaveBeenCalled();
+      expect(validateCacheMock.validateVersions).not.toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
     });
@@ -602,6 +634,8 @@ describe('CognitoService', () => {
       expect(cache.isLoggedIn.set).toHaveBeenCalledWith(true);
       expect(cache.isValidatingToken.set).toHaveBeenCalledWith(false);
       expect(clarity.updateUserInfo).toHaveBeenCalled();
+      expect(dateFormatConfigMock.loadConfig).not.toHaveBeenCalled();
+      expect(validateCacheMock.validateVersions).not.toHaveBeenCalled();
 
       localStorage.getItem = originalGetItem;
       JSON.parse = originalParse;

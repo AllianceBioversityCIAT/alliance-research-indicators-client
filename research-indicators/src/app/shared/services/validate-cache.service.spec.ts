@@ -1,5 +1,7 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SwUpdate } from '@angular/service-worker';
+import { CacheService } from '@services/cache/cache.service';
 import { ValidateCacheService } from './validate-cache.service';
 import { ToPromiseService } from './to-promise.service';
 import { environment } from '../../../environments/environment';
@@ -8,6 +10,7 @@ describe('ValidateCacheService', () => {
   let service: ValidateCacheService;
   let mockToPromiseService: jest.Mocked<Partial<ToPromiseService>>;
   let mockSwUpdate: jest.Mocked<Partial<SwUpdate>>;
+  let mockCache: { dataCache: ReturnType<typeof signal<{ access_token: string }>> };
 
   beforeEach(() => {
     const toPromiseServiceMock = {
@@ -20,8 +23,17 @@ describe('ValidateCacheService', () => {
       activateUpdate: jest.fn().mockResolvedValue(true)
     };
 
+    mockCache = {
+      dataCache: signal({ access_token: 'test-token' })
+    };
+
     TestBed.configureTestingModule({
-      providers: [ValidateCacheService, { provide: ToPromiseService, useValue: toPromiseServiceMock }, { provide: SwUpdate, useValue: swUpdateMock }]
+      providers: [
+        ValidateCacheService,
+        { provide: ToPromiseService, useValue: toPromiseServiceMock },
+        { provide: SwUpdate, useValue: swUpdateMock },
+        { provide: CacheService, useValue: mockCache }
+      ]
     });
 
     service = TestBed.inject(ValidateCacheService);
@@ -74,6 +86,16 @@ describe('ValidateCacheService', () => {
   });
 
   describe('validateVersions', () => {
+    it('should not call configuration when there is no access token', async () => {
+      mockCache.dataCache.set({ access_token: '' });
+
+      await service.validateVersions();
+
+      expect(mockToPromiseService.get).not.toHaveBeenCalled();
+
+      mockCache.dataCache.set({ access_token: 'test-token' });
+    });
+
     it('should return early when response or response.data is null', async () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: null });
       const requestUpdateSpy = jest.spyOn(service, 'requeestUpdateFrontVersion').mockResolvedValue(undefined);
