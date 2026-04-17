@@ -1,5 +1,7 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { APPLICATION_CONFIGURATION_KEY } from '@shared/constants/application-configuration-keys';
+import { CacheService } from '@services/cache/cache.service';
 import { DateFormatConfigService } from './date-format-config.service';
 import { ApiService } from './api.service';
 import { DateFormatJsonValue } from '@shared/interfaces/date-format-config.interface';
@@ -27,16 +29,21 @@ const mockConfig: DateFormatJsonValue = {
 describe('DateFormatConfigService', () => {
   let service: DateFormatConfigService;
   let mockApi: { GET_ConfigurationByKey: jest.Mock };
+  let mockCache: { dataCache: ReturnType<typeof signal<{ access_token: string }>> };
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockApi = {
       GET_ConfigurationByKey: jest.fn()
     };
+    mockCache = {
+      dataCache: signal({ access_token: 'test-token' })
+    };
     TestBed.configureTestingModule({
       providers: [
         DateFormatConfigService,
-        { provide: ApiService, useValue: mockApi }
+        { provide: ApiService, useValue: mockApi },
+        { provide: CacheService, useValue: mockCache }
       ]
     });
     service = TestBed.inject(DateFormatConfigService);
@@ -51,6 +58,18 @@ describe('DateFormatConfigService', () => {
   });
 
   describe('loadConfig', () => {
+    it('should not call API when there is no access token', async () => {
+      mockCache.dataCache.set({ access_token: '' });
+
+      const result = await service.loadConfig();
+
+      expect(mockApi.GET_ConfigurationByKey).not.toHaveBeenCalled();
+      expect(service.config()).toBeNull();
+      expect(result).toBeNull();
+
+      mockCache.dataCache.set({ access_token: 'test-token' });
+    });
+
     it('should call API and set config when data.json_value is config object with timezone', async () => {
       mockApi.GET_ConfigurationByKey.mockResolvedValue({
         data: { json_value: mockConfig }

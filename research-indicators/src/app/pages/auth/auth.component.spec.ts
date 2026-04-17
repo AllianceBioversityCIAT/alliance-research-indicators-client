@@ -3,6 +3,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { Socket } from 'ngx-socket-io';
+import { DateFormatConfigService } from '@shared/services/date-format-config.service';
+import { ValidateCacheService } from '@shared/services/validate-cache.service';
 import AuthComponent from './auth.component';
 
 describe('AuthComponent', () => {
@@ -31,7 +33,9 @@ describe('AuthComponent', () => {
             fromEvent: jest.fn().mockReturnValue(of({})),
             on: jest.fn()
           }
-        }
+        },
+        { provide: ValidateCacheService, useValue: { validateVersions: jest.fn().mockResolvedValue(undefined) } },
+        { provide: DateFormatConfigService, useValue: { loadConfig: jest.fn().mockResolvedValue(null) } }
       ]
     }).compileComponents();
 

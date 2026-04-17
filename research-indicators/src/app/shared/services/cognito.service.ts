@@ -4,6 +4,8 @@ import { CacheService } from '@services/cache/cache.service';
 import { ApiService } from '@services/api.service';
 import { ActionsService } from '@services/actions.service';
 import { ClarityService } from './clarity.service';
+import { DateFormatConfigService } from './date-format-config.service';
+import { ValidateCacheService } from './validate-cache.service';
 import { environment } from '../../../environments/environment';
 import { DataCache } from '@interfaces/cache.interface';
 
@@ -17,6 +19,8 @@ export class CognitoService {
   api = inject(ApiService);
   actions = inject(ActionsService);
   clarity = inject(ClarityService);
+  private readonly dateFormatConfig = inject(DateFormatConfigService);
+  private readonly validateCache = inject(ValidateCacheService);
 
   private readonly loginReturnUrlKey = 'loginReturnUrl';
 
@@ -84,5 +88,10 @@ export class CognitoService {
     this.cache.isLoggedIn.set(true);
     this.cache.isValidatingToken.set(false);
     this.clarity.updateUserInfo();
+
+    if (parsed.access_token) {
+      void this.dateFormatConfig.loadConfig();
+      void this.validateCache.validateVersions();
+    }
   }
 }
