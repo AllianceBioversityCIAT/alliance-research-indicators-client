@@ -5,6 +5,14 @@ import LoginComponent from './login.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
+import { DateFormatConfigService } from '@shared/services/date-format-config.service';
+import { ValidateCacheService } from '@shared/services/validate-cache.service';
+
+/** CognitoService depends on these; avoid constructing real ValidateCacheService (needs SwUpdate) in tests */
+const cognitoHelperServiceStubs = [
+  { provide: ValidateCacheService, useValue: { validateVersions: jest.fn().mockResolvedValue(undefined) } },
+  { provide: DateFormatConfigService, useValue: { loadConfig: jest.fn().mockResolvedValue(null) } }
+];
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -13,7 +21,8 @@ describe('LoginComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LoginComponent, RouterTestingModule, HttpClientTestingModule]
+      imports: [LoginComponent, RouterTestingModule, HttpClientTestingModule],
+      providers: [...cognitoHelperServiceStubs]
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
@@ -45,7 +54,10 @@ describe('LoginComponent', () => {
       TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
         imports: [LoginComponent, RouterTestingModule, HttpClientTestingModule],
-        providers: [{ provide: ActivatedRoute, useValue: { snapshot: { queryParams: { returnUrl: '/projects' } } } }]
+        providers: [
+          { provide: ActivatedRoute, useValue: { snapshot: { queryParams: { returnUrl: '/projects' } } } },
+          ...cognitoHelperServiceStubs
+        ]
       }).compileComponents();
       const f = TestBed.createComponent(LoginComponent);
       const comp = f.componentInstance;
@@ -60,7 +72,10 @@ describe('LoginComponent', () => {
       TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
         imports: [LoginComponent, RouterTestingModule, HttpClientTestingModule],
-        providers: [{ provide: ActivatedRoute, useValue: { snapshot: { queryParams: { returnUrl: 'http://other.com' } } } }]
+        providers: [
+          { provide: ActivatedRoute, useValue: { snapshot: { queryParams: { returnUrl: 'http://other.com' } } } },
+          ...cognitoHelperServiceStubs
+        ]
       }).compileComponents();
       const f = TestBed.createComponent(LoginComponent);
       const comp = f.componentInstance;
@@ -83,7 +98,10 @@ describe('LoginComponent', () => {
       TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
         imports: [LoginComponent, RouterTestingModule, HttpClientTestingModule],
-        providers: [{ provide: ActivatedRoute, useValue: { snapshot: { queryParams: { returnUrl: '/results-center' } } } }]
+        providers: [
+          { provide: ActivatedRoute, useValue: { snapshot: { queryParams: { returnUrl: '/results-center' } } } },
+          ...cognitoHelperServiceStubs
+        ]
       }).compileComponents();
       const f = TestBed.createComponent(LoginComponent);
       const comp = f.componentInstance;
