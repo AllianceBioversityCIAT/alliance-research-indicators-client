@@ -6,34 +6,41 @@ import { CreateResultManagementService } from '../../components/all-modals/modal
   providedIn: 'root'
 })
 export class RolesService {
-  /** Value `1`: super-admin `role_id` and center-admin `focus_id` in this domain. */
-  private readonly adminPrimaryNumericId = 1;
-  private readonly centerAdminSecRoleIds: readonly number[] = [9];
+  private readonly adminRoleId = 1;
+  private readonly centerAdminRoleId = 9;
+  private readonly melRegionalExpertRoleId = 10;
 
   createResultManagementService = inject(CreateResultManagementService);
   cache = inject(CacheService);
+
   isAdmin = computed(() =>
-    this.cache.dataCache().user.user_role_list.some(
-      role => role.role_id === this.adminPrimaryNumericId || this.centerAdminSecRoleIds.includes(role.role_id)
-    )
+    this.cache.dataCache().user.user_role_list.some(r => r.role_id === this.adminRoleId || r.role_id === this.centerAdminRoleId)
   );
 
-  canAccessCenterAdmin = computed(() => this.cache.dataCache().user.user_role_list.some(entry => this.userHasCenterAdminRole(entry)));
+  canAccessCenterAdmin = computed(() => this.cache.dataCache().user.user_role_list.some(e => this.userHasCenterAdminAccess(e)));
+
   canEditOicr = computed(() => {
     if (!this.createResultManagementService.editingOicr()) {
       return true;
     }
-    return this.isAdmin();
+    return this.cache
+      .dataCache()
+      .user.user_role_list.some(
+        r => r.role_id === this.adminRoleId || r.role_id === this.centerAdminRoleId || r.role_id === this.melRegionalExpertRoleId
+      );
   });
 
-  private userHasCenterAdminRole(entry: { role_id: number; role?: { focus_id?: number; sec_role_id?: number } | null }): boolean {
-    if (entry.role_id === this.adminPrimaryNumericId) {
+  private userHasCenterAdminAccess(entry: { role_id: number; role?: { focus_id?: number; sec_role_id?: number } | null }): boolean {
+    if (entry.role_id === this.adminRoleId) {
       return true;
     }
-    if (entry.role?.focus_id !== this.adminPrimaryNumericId) {
+    if (entry.role_id !== this.centerAdminRoleId) {
+      return false;
+    }
+    if (entry.role?.focus_id !== this.adminRoleId) {
       return false;
     }
     const secId = entry.role?.sec_role_id;
-    return secId != null && this.centerAdminSecRoleIds.includes(secId);
+    return secId != null && secId === this.centerAdminRoleId;
   }
 }
