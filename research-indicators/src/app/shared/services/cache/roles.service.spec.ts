@@ -58,13 +58,21 @@ describe('RolesService', () => {
     expect(service.isAdmin()).toBe(false);
   });
 
-  it('canAccessCenterAdmin should be true for super admin (1) or center admin with focus 1 and allowed sec_role_id', () => {
+  it('isAdmin should be false for MEL Regional Expert (10) alone', () => {
+    userRoleList.set([{ role_id: 10 }]);
+    expect(service.isAdmin()).toBe(false);
+  });
+
+  it('canAccessCenterAdmin should be true for super admin (1) or center admin (9) with focus 1 and sec_role_id 9', () => {
     userRoleList.set([{ role_id: 1 }]);
     expect(service.canAccessCenterAdmin()).toBe(true);
     userRoleList.set([{ role_id: 9, role: { focus_id: 1, sec_role_id: 9 } }]);
     expect(service.canAccessCenterAdmin()).toBe(true);
+  });
+
+  it('canAccessCenterAdmin should be false for MEL Regional Expert (10) even with center-admin-like focus/sec', () => {
     userRoleList.set([{ role_id: 10, role: { focus_id: 1, sec_role_id: 9 } }]);
-    expect(service.canAccessCenterAdmin()).toBe(true);
+    expect(service.canAccessCenterAdmin()).toBe(false);
   });
 
   it('canAccessCenterAdmin should be false without super admin or matching focus_id and sec_role_id', () => {
@@ -97,13 +105,17 @@ describe('RolesService', () => {
     expect(service.canEditOicr()).toBe(true);
   });
 
-  it('canEditOicr should be true when editing and user is admin', () => {
+  it('canEditOicr should be true when editing and user is admin, center admin, or MEL Regional Expert', () => {
     editingOicr = true;
+    userRoleList.set([{ role_id: 1 }]);
+    expect(service.canEditOicr()).toBe(true);
     userRoleList.set([{ role_id: 9 }]);
+    expect(service.canEditOicr()).toBe(true);
+    userRoleList.set([{ role_id: 10 }]);
     expect(service.canEditOicr()).toBe(true);
   });
 
-  it('canEditOicr should be false when editing and user is not admin', () => {
+  it('canEditOicr should be false when editing and user has no OICR edit role', () => {
     editingOicr = true;
     userRoleList.set([{ role_id: 2 }]);
     expect(service.canEditOicr()).toBe(false);
