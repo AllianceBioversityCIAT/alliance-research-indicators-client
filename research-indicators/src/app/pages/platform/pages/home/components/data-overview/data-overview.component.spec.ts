@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DataOverviewComponent } from './data-overview.component';
-import { ChartModule } from 'primeng/chart';
 import { apiServiceMock, mockResultsStatus, mockIndicatorsResults, cacheServiceMock, httpClientMock } from 'src/app/testing/mock-services.mock';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
@@ -17,7 +16,7 @@ describe('DataOverviewComponent', () => {
     mockApiService.GET_IndicatorsResultsAmount = jest.fn().mockResolvedValue(mockIndicatorsResults);
 
     await TestBed.configureTestingModule({
-      imports: [DataOverviewComponent, ChartModule],
+      imports: [DataOverviewComponent],
       providers: [
         { provide: ApiService, useValue: mockApiService },
         { provide: CacheService, useValue: cacheServiceMock },
@@ -85,22 +84,13 @@ describe('DataOverviewComponent', () => {
     expect(component.showIndicatorList()).toBe(false);
   });
 
-  it('should generate correct chart data', async () => {
-    await component.getData();
-
-    expect(component.data).toBeDefined();
-    expect(component.data.labels).toEqual(['Status 1', 'Status 2']);
-    expect(component.data.datasets[0].data).toEqual([5, 3]);
-    expect(component.data.datasets[0].backgroundColor).toHaveLength(2);
-  });
-
   it('should generate correct chart legend', async () => {
     await component.getData();
 
     const legend = component.chartLegend();
     expect(legend).toHaveLength(2);
     expect(legend[0]).toEqual({
-      color: mockResultsStatus.data[0].result_status?.config?.color?.text || '#1689CA',
+      color: '#173F6F',
       label: 'Status 1',
       value: 5
     });
@@ -114,22 +104,11 @@ describe('DataOverviewComponent', () => {
     await expect(component.getIndicatorData()).rejects.toThrow('API Error');
   });
 
-  it('should set correct chart options', async () => {
-    await component.getData();
-
-    expect(component.options).toBeDefined();
-    expect(component.options.cutout).toBe('40%');
-    expect(component.options.responsive).toBe(true);
-    expect(component.options.plugins.legend.display).toBe(false);
-    expect(component.options.plugins.datalabels.display).toBe(false);
-  });
-
   it('should use fallback color when result_status.config.color.text is not available', async () => {
     mockApiService.GET_ResultsStatus = jest.fn().mockResolvedValue({
       data: [{ name: 'Status X', amount_results: 2, result_status_id: 999, result_status: null }]
     });
     await component.getData();
-    expect(component.data.datasets[0].backgroundColor[0]).toBe('#1689CA');
     expect(component.chartLegend()[0].color).toBe('#1689CA');
   });
 });
