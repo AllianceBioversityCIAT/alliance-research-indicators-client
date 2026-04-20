@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { DataOverviewComponent } from './data-overview.component';
 import { apiServiceMock, mockResultsStatus, mockIndicatorsResults, cacheServiceMock, httpClientMock } from 'src/app/testing/mock-services.mock';
 import { ApiService } from '@shared/services/api.service';
@@ -18,6 +19,7 @@ describe('DataOverviewComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DataOverviewComponent],
       providers: [
+        provideRouter([]),
         { provide: ApiService, useValue: mockApiService },
         { provide: CacheService, useValue: cacheServiceMock },
         { provide: HttpClient, useValue: httpClientMock }
@@ -110,5 +112,61 @@ describe('DataOverviewComponent', () => {
     });
     await component.getData();
     expect(component.chartLegend()[0].color).toBe('#1689CA');
+  });
+
+  it('chartData treats non-array input as empty rows', () => {
+    component.chartData(null as any);
+    expect(component.chartLegend()).toEqual([]);
+  });
+
+  it('getData uses empty chart when API response has no data property', async () => {
+    mockApiService.GET_ResultsStatus = jest.fn().mockResolvedValue({});
+    await component.getData();
+    expect(component.chartLegend()).toEqual([]);
+    expect(component.showChart()).toBe(false);
+  });
+
+  it('getData uses empty array when response.data is null', async () => {
+    mockApiService.GET_ResultsStatus = jest.fn().mockResolvedValue({ data: null });
+    await component.getData();
+    expect(component.chartLegend()).toEqual([]);
+    expect(component.showChart()).toBe(false);
+  });
+
+  describe('statusBarsMax', () => {
+    it('returns 0 when chartLegend is empty', () => {
+      component.chartLegend.set([]);
+      expect(component.statusBarsMax()).toBe(0);
+    });
+
+    it('returns the maximum value among legend items', () => {
+      component.chartLegend.set([
+        { color: '#000', label: 'A', value: 3 },
+        { color: '#000', label: 'B', value: 12 }
+      ]);
+      expect(component.statusBarsMax()).toBe(12);
+    });
+  });
+
+  describe('barFillPercent', () => {
+    it('returns 0 when there is no positive max (empty legend)', () => {
+      component.chartLegend.set([]);
+      expect(component.statusBarsMax()).toBe(0);
+      expect(component.barFillPercent(10)).toBe(0);
+    });
+
+    it('returns proportional width capped at 100', () => {
+      component.chartLegend.set([{ color: '#000', label: 'A', value: 20 }]);
+      expect(component.barFillPercent(10)).toBe(50);
+      expect(component.barFillPercent(20)).toBe(100);
+    });
+
+    it('caps at 100 when value would exceed the scale', () => {
+      component.chartLegend.set([
+        { color: '#000', label: 'A', value: 5 },
+        { color: '#000', label: 'B', value: 10 }
+      ]);
+      expect(component.barFillPercent(25)).toBe(100);
+    });
   });
 });
