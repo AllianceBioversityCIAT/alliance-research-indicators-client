@@ -45,10 +45,10 @@
   min-height: 138px;
   text-decoration: none;
   color: inherit;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-  box-shadow: 0 3px 14px rgb(17 47 92 / 10%);
+  transition: box-shadow 0.2s ease;
+  box-shadow:
+    0 2px 8px rgb(17 47 92 / 8%),
+    0 6px 20px rgb(17 47 92 / 12%);
 
   &:focus-visible {
     outline: 2px solid #1689ca;
