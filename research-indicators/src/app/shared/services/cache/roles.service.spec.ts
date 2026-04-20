@@ -15,21 +15,18 @@ describe('RolesService', () => {
   }));
 
   let editingOicr: boolean;
-  let statusId: number | null;
 
   const mockCacheService: Partial<CacheService> = {
     dataCache: mockDataCache as unknown as CacheService['dataCache']
   };
 
   const mockCreateResultManagementService: Partial<CreateResultManagementService> = {
-    editingOicr: jest.fn(() => editingOicr) as unknown as CreateResultManagementService['editingOicr'],
-    statusId: jest.fn(() => statusId) as unknown as CreateResultManagementService['statusId']
+    editingOicr: jest.fn(() => editingOicr) as unknown as CreateResultManagementService['editingOicr']
   };
 
   beforeEach(() => {
     userRoleList.set([]);
     editingOicr = false;
-    statusId = null;
 
     TestBed.configureTestingModule({
       providers: [
@@ -61,13 +58,21 @@ describe('RolesService', () => {
     expect(service.isAdmin()).toBe(false);
   });
 
-  it('canAccessCenterAdmin should be true for super admin (1) or general/center admin (9/10) with focus and sec_role_id', () => {
+  it('isAdmin should be false for MEL Regional Expert (10) alone', () => {
+    userRoleList.set([{ role_id: 10 }]);
+    expect(service.isAdmin()).toBe(false);
+  });
+
+  it('canAccessCenterAdmin should be true for super admin (1) or center admin (9) with focus 1 and sec_role_id 9', () => {
     userRoleList.set([{ role_id: 1 }]);
     expect(service.canAccessCenterAdmin()).toBe(true);
     userRoleList.set([{ role_id: 9, role: { focus_id: 1, sec_role_id: 9 } }]);
     expect(service.canAccessCenterAdmin()).toBe(true);
-    userRoleList.set([{ role_id: 10, role: { focus_id: 1, sec_role_id: 10 } }]);
-    expect(service.canAccessCenterAdmin()).toBe(true);
+  });
+
+  it('canAccessCenterAdmin should be false for MEL Regional Expert (10) even with center-admin-like focus/sec', () => {
+    userRoleList.set([{ role_id: 10, role: { focus_id: 1, sec_role_id: 9 } }]);
+    expect(service.canAccessCenterAdmin()).toBe(false);
   });
 
   it('canAccessCenterAdmin should be false without super admin or matching focus_id and sec_role_id', () => {
@@ -100,37 +105,19 @@ describe('RolesService', () => {
     expect(service.canEditOicr()).toBe(true);
   });
 
-  it('canEditOicr should be true when editing and user is admin', () => {
+  it('canEditOicr should be true when editing and user is admin, center admin, or MEL Regional Expert', () => {
     editingOicr = true;
-    statusId = 4;
+    userRoleList.set([{ role_id: 1 }]);
+    expect(service.canEditOicr()).toBe(true);
     userRoleList.set([{ role_id: 9 }]);
+    expect(service.canEditOicr()).toBe(true);
+    userRoleList.set([{ role_id: 10 }]);
     expect(service.canEditOicr()).toBe(true);
   });
 
-  it('canEditOicr should be false when editing and user is not admin', () => {
+  it('canEditOicr should be false when editing and user has no OICR edit role', () => {
     editingOicr = true;
-    statusId = 4;
     userRoleList.set([{ role_id: 2 }]);
     expect(service.canEditOicr()).toBe(false);
   });
-
-  it.each([10, 12, 13, 14] as const)(
-    'canEditOicr should be true when editing, user is admin, and status is intermediate (%s)',
-    intermediateStatusId => {
-      editingOicr = true;
-      statusId = intermediateStatusId;
-      userRoleList.set([{ role_id: 9 }]);
-      expect(service.canEditOicr()).toBe(true);
-    }
-  );
-
-  it.each([10, 12, 13, 14] as const)(
-    'canEditOicr should be false when editing, user is not admin, and status is intermediate (%s)',
-    intermediateStatusId => {
-      editingOicr = true;
-      statusId = intermediateStatusId;
-      userRoleList.set([{ role_id: 2 }]);
-      expect(service.canEditOicr()).toBe(false);
-    }
-  );
 });

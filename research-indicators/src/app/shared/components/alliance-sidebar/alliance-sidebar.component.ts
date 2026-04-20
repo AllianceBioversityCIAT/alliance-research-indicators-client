@@ -41,9 +41,7 @@ export class AllianceSidebarComponent implements OnInit {
     }
   ];
 
-  administrationGroupExpanded = signal<Record<string, boolean>>({
-    'center-admin': true
-  });
+  administrationGroupExpanded = signal<Record<string, boolean>>({});
 
   accountOptions: AccountSidebarOption[] = [
     {
@@ -80,15 +78,23 @@ export class AllianceSidebarComponent implements OnInit {
     }, 150);
   }
 
+  /** Effective expansion when no explicit toggle exists: expanded when sidebar is open, collapsed when sidebar is narrow. */
+  private effectiveAdministrationGroupExpanded(groupId: string): boolean {
+    const v = this.administrationGroupExpanded()[groupId];
+    if (v !== undefined) return v;
+    return !this.cache.isSidebarCollapsed();
+  }
+
   toggleAdministrationGroup(groupId: string): void {
+    const next = !this.effectiveAdministrationGroupExpanded(groupId);
     this.administrationGroupExpanded.update(prev => ({
       ...prev,
-      [groupId]: !(prev[groupId] ?? true)
+      [groupId]: next
     }));
   }
 
   isAdministrationGroupExpanded(groupId: string): boolean {
-    return this.administrationGroupExpanded()[groupId] !== false;
+    return this.effectiveAdministrationGroupExpanded(groupId);
   }
 
   visibleAdministrationChildren(group: AdministrationNavGroup): AdministrationNavChild[] {

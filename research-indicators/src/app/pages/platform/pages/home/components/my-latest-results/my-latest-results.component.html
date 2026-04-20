@@ -1,13 +1,15 @@
 <div class="relative w-full [perspective:1000px]">
   @if (latestResultList().length) {
   <div class="header">
-    <div class="header-text">
-      <span class="title-text">MY LATEST RESULTS</span>
+    <div class="header-text ">
+      <span class="title-text">My latest results</span>
       <span class="description-text">View and track your most recent results.</span>
     </div>
     <div class="submmit-button">
-      <p-button severity="info" label="Create Result" size="small"
-        (onClick)="this.allModalsService.openModal('createResult')" />
+      <button type="button" class="create-result-btn !text-white" (click)="allModalsService.openModal('createResult')">
+        <span class="material-symbols-rounded create-result-btn__icon" aria-hidden="true">add_circle_outline</span>
+        <span class="create-result-btn__label">Create Result</span>
+      </button>
     </div>
   </div>
   <div class="card-container">
@@ -21,7 +23,7 @@
             </div>
             <label class="indicator-type" for="username">{{ result.indicator.name }}</label>
             <div class="more-vert">
-              <span class="material-symbols-rounded"> more_vert </span>
+              <span class="material-symbols-rounded more-vert__icon">more_vert</span>
             </div>
           </div>
           <div class="organization-identifier">
@@ -43,16 +45,9 @@
             </div>
           </div>
           <div class="progress-bar">
-            <app-custom-tag [statusId]="result.result_status.result_status_id" [statusName]="result.result_status.name"
-              [statusColor]="result.result_status.config.color?.text ?? ''"
-              [statusBackground]="result.result_status.config.color?.background ?? ''"
-              [statusBorder]="result.result_status.config.color?.border ?? ''" [icon]="true"
-              [iconName]="result.result_status.config.icon?.name ?? ''"
-              [iconColor]="result.result_status.config.icon?.color ?? ''"
-              [tooltip]="result.result_status.description ?? ''"></app-custom-tag>
+            <span class="progress-percent">{{ calculateProgressFor(result) }}%</span>
             <div class="progress-bar-content">
-              <div class="progress" [style.background-color]="result.result_status.config.color?.text ?? '#00B6FF'"
-                [style.width.%]="calculateProgressFor(result)"></div>
+              <div class="progress" [style.width.%]="calculateProgressFor(result)"></div>
             </div>
           </div>
           <label class="last-update" for="username"> Last update on {{ result.updated_at |
@@ -70,8 +65,10 @@
         and start building your own.</span>
     </div>
     <div class="submmit-button">
-      <p-button severity="info" label="Create Result" size="small"
-        (onClick)="this.allModalsService.openModal('createResult')" />
+      <button type="button" class="create-result-btn" (click)="allModalsService.openModal('createResult')">
+        <span class="material-symbols-rounded create-result-btn__icon" aria-hidden="true">add_circle_outline</span>
+        <span class="create-result-btn__label">Create Result</span>
+      </button>
     </div>
   </div>
   <div>

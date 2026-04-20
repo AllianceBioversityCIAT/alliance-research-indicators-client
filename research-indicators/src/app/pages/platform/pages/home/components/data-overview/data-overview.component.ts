@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ApiService } from '@shared/services/api.service';
-import { ChartModule } from 'primeng/chart';
-import { Chart } from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
 interface Indicator {
@@ -24,26 +22,24 @@ interface ChartLegendItem {
   value: number;
 }
 
-Chart.register(ChartDataLabels);
-Chart.defaults.set('plugins.datalabels', {
-  color: '#ffffff',
-  font: {
-    size: 15
-  }
-});
-
 @Component({
   selector: 'app-data-overview',
-  imports: [ChartModule, S3ImageUrlPipe],
+  imports: [S3ImageUrlPipe, RouterLink],
   templateUrl: './data-overview.component.html',
   styleUrl: './data-overview.component.scss'
 })
 export class DataOverviewComponent implements OnInit {
   api = inject(ApiService);
   results = true;
-  data: any;
-  options: any;
   chartLegend = signal<ChartLegendItem[]>([]);
+  statusBarsMax = computed(() => {
+    const items = this.chartLegend();
+    if (!items.length) {
+      return 0;
+    }
+    return Math.max(...items.map(i => i.value), 0);
+  });
+
   showChart = signal(false);
   showIndicatorList = signal(false);
   indicatorList: WritableSignal<Indicator[]> = signal([]);
@@ -53,60 +49,37 @@ export class DataOverviewComponent implements OnInit {
     this.getIndicatorData();
   }
 
+  barFillPercent(value: number): number {
+    const max = this.statusBarsMax();
+    if (max <= 0) {
+      return 0;
+    }
+    return Math.min(100, (value / max) * 100);
+  }
+
   async getIndicatorData() {
     const response = await this.api.GET_IndicatorsResultsAmount();
-    // Check if any item has amount_results greater than 0
     const hasResults = response.data.some((item: any) => item.amount_results > 0);
     this.showIndicatorList.set(hasResults);
     this.indicatorList.set(response.data);
   }
 
   chartData(data: any) {
-    const filteredData = data.filter((item: any) => item.amount_results > 0);
-  
-    const labels = filteredData.map((item: any) => item.name);
-    const amounts = filteredData.map((item: any) => item.amount_results);
-    const backgroundColors = filteredData.map((item: any) => {
-      return item.result_status?.config?.color?.text || '#1689CA';
-    });
-    
+    const rows = Array.isArray(data) ? data : [];
+    const filtered = rows.filter((item: any) => Number(item.amount_results) > 0);
+
     this.chartLegend.set(
-      filteredData.map((item: any, index: number) => ({
-        color: backgroundColors[index],
+      filtered.map((item: any) => ({
+        color: item.result_status?.config?.color?.text || '#1689CA',
         label: item.name,
-        value: item.amount_results
+        value: Number(item.amount_results)
       }))
     );
-  
-    this.data = {
-      labels,
-      datasets: [
-        {
-          data: amounts,
-          backgroundColor: backgroundColors,
-          hoverBackgroundColor: backgroundColors
-        }
-      ]
-    };
-  
-    this.options = {
-      cutout: '40%',
-      responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 1,
-      plugins: {
-        legend: { display: false },
-        datalabels: { display: false }
-      }
-    };
   }
-  
 
   async getData() {
     const response = await this.api.GET_ResultsStatus();
-    // Check if any item has amount_results greater than 0
-    const hasResults = response.data.some((item: any) => item.amount_results > 0);
-    this.showChart.set(hasResults);
-    this.chartData(response.data);
+    this.chartData(response.data ?? []);
+    this.showChart.set(this.chartLegend().length > 0);
   }
 }

@@ -119,10 +119,13 @@ describe('AllianceSidebarComponent', () => {
     expect(component.isAdministrationGroupExpanded('center-admin')).toBe(true);
   });
 
-  it('should treat unknown group id as expanded until toggled', () => {
+  it('should default administration groups expanded when sidebar is open, collapsed when sidebar is narrow', () => {
     expect(component.isAdministrationGroupExpanded('unknown-id')).toBe(true);
-    component.toggleAdministrationGroup('unknown-id');
+    const cache = TestBed.inject(CacheService) as any;
+    cache.isSidebarCollapsed.mockReturnValue(true);
     expect(component.isAdministrationGroupExpanded('unknown-id')).toBe(false);
+    component.toggleAdministrationGroup('unknown-id');
+    expect(component.isAdministrationGroupExpanded('unknown-id')).toBe(true);
   });
 
   it('should filter hidden children in visibleAdministrationChildren', () => {
