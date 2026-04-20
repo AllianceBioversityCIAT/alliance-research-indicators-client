@@ -12,10 +12,10 @@
     </button>
   </div>
 
-  <div class="options pb-[10px]">
+  <div class="options pb-[10px]" [class.options--resources-collapsed]="cache.isSidebarCollapsed()">
     @for (option of this.resourceOptions; track $index) {
     @if (!option.hide) {
-    <div class="option" [class]="{ disabled: option.underConstruction }" [routerLink]="option.link"
+    <div class="option atc-primary-blue-400" [class]="{ disabled: option.underConstruction }" [routerLink]="option.link"
       [routerLinkActive]="'active'" [pTooltip]="cache.isSidebarCollapsed() ? option.label : ''" tooltipPosition="right"
       [positionLeft]="15" placeholder="Right">
       @if (cache.isSidebarCollapsed() && option.underConstruction) {
@@ -48,7 +48,7 @@
     @for (group of this.administrationGroups; track group.id) {
     <div class="flex w-full min-w-0 flex-col gap-1">
       <button type="button"
-        class="admin-parent flex w-full cursor-pointer items-center gap-[15px] rounded-[3px] border-0 bg-transparent py-[7px] pl-0 pr-0 text-left atc-primary-blue-400"
+        class="admin-parent flex w-full cursor-pointer items-center gap-[15px] border-0 bg-transparent py-[7px] pl-0 pr-0 text-left atc-primary-blue-400"
         (click)="toggleAdministrationGroup(group.id)" (keydown.enter)="toggleAdministrationGroup(group.id)">
         <i class="sidebar-option-icon" [ngClass]="'pi ' + group.icon"></i>
         <span class="sidebar-option-label body-2 flex flex-1">{{ group.label }}</span>
@@ -58,9 +58,9 @@
       </button>
       @if (isAdministrationGroupExpanded(group.id)) {
       @for (child of visibleAdministrationChildren(group); track child.link) {
-      <a class="option option--nested atc-primary-blue-400 block w-full max-w-full" [routerLink]="child.link"
+      <a class="option option--nested atc-primary-blue-400 block" [routerLink]="child.link"
         routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        <span class="option-nested-inner flex min-w-0 items-center gap-[15px] pl-3">
+        <span class="option-nested-inner flex min-w-0 items-center gap-[12px] pl-2">
           @if (child.s3Image) {
           <img [src]="child.s3Image | s3ImageUrl" alt="" class="h-[14px] w-[14px] shrink-0 object-contain" />
           } @else {
@@ -75,30 +75,46 @@
     }
   </div>
   } @else {
-  <div class="options py-[15px]">
+  <hr class="divider divider--collapsed-tight" />
+  <div class="administration-block administration-block--collapsed flex w-full min-w-0 flex-col">
     @for (group of this.administrationGroups; track group.id) {
-    @for (child of visibleAdministrationChildren(group); track child.link) {
-    <a class="option atc-primary-blue-400" [routerLink]="child.link" routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }" [pTooltip]="child.label" tooltipPosition="right" [positionLeft]="15">
-      @if (child.s3Image) {
-      <img [src]="child.s3Image | s3ImageUrl" alt="" class="h-[14px] w-[14px] shrink-0 object-contain" />
-      } @else {
-      <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon"></i>
+    <div class="flex w-full min-w-0 flex-col gap-0">
+      <button type="button"
+        class="admin-parent admin-parent--collapsed flex w-full cursor-pointer items-center justify-center border-0 bg-transparent py-[7px] pl-0 pr-0 atc-primary-blue-400"
+        (click)="toggleAdministrationGroup(group.id)" (keydown.enter)="toggleAdministrationGroup(group.id)"
+        [attr.aria-expanded]="isAdministrationGroupExpanded(group.id)"
+        [attr.aria-label]="group.label"
+        [pTooltip]="group.label" tooltipPosition="right" [positionLeft]="15">
+        <i class="sidebar-option-icon shrink-0" [ngClass]="'pi ' + group.icon"></i>
+      </button>
+      @if (isAdministrationGroupExpanded(group.id)) {
+      <div class="admin-collapsed-submenu">
+        @for (child of visibleAdministrationChildren(group); track child.link) {
+        <a class="option option--nested option--nested-collapsed flex w-full max-w-full items-center justify-center"
+          [routerLink]="child.link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+          [pTooltip]="child.label" tooltipPosition="right" [positionLeft]="15">
+          <span class="admin-collapsed-nested-hit">
+            @if (child.s3Image) {
+            <img [src]="child.s3Image | s3ImageUrl" alt="" class="admin-collapsed-nested-img" />
+            } @else {
+            <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon"></i>
+            }
+          </span>
+        </a>
+        }
+      </div>
       }
-    </a>
-    }
+    </div>
     }
   </div>
   }
   }
 
-  @if (!cache.isSidebarCollapsed()) {
-  <hr class="divider" />
-  }
+  <hr class="divider" [class.divider--collapsed-tight]="cache.isSidebarCollapsed()" />
   <div class="sidebar-title text-[#8D9299] !text-[10.5px] uppercase font-[300] tracking-[4.5px] !font-[space_grotesk]"
     [class.hidden]="cache.isSidebarCollapsed()">ACCOUNT</div>
 
-  <div class="options py-[15px]" [class.mt-3]="cache.isSidebarCollapsed()">
+  <div class="options options--account py-[15px]" [class.options--account-collapsed]="cache.isSidebarCollapsed()">
     @for (option of this.accountOptions; track $index) {
     @if (!option.hide) {
     @if (option.link) {
