@@ -1,86 +1,81 @@
 @let hss = this.cache.hasSmallScreen();
 <div id="navbar" #navbar class="navbar bg-[#173F6F]">
-  <div class="logo flex items-center gap-1" routerLink="/">
-    <img [src]="'STAR.png' | s3ImageUrl" alt="" class="{{ hss ? 'h-[40px]' : 'h-[60px]' }}" />
+  <div class="logo flex min-w-0 shrink flex-wrap items-center gap-1 sm:gap-2" routerLink="/">
+    <img [src]="'STAR.png' | s3ImageUrl" alt="" class="flex-shrink-0 {{ hss ? 'h-[40px]' : 'h-[60px]' }}" />
     @if (!isProductionEnvironment) {
-      <div class="bg-[#CF0808] text-white px-3 py-2 mr-3 rounded-lg font-semibold xl:text-[14px] text-[12px] shadow-lg whitespace-nowrap">
-        Testing Environment
-      </div>
+    <div class="testing-env-badge bg-[#CF0808] text-white rounded-lg shadow-lg" aria-label="Testing Environment">
+      <span class="hidden xl:inline">Testing Environment</span>
+      <span class="hidden md:inline xl:hidden">Testing</span>
+      <span class="md:hidden">Test</span>
+    </div>
     }
   </div>
 
   <div class="options">
     @for (option of this.options; track $index) {
-      @if (!option.hide) {
-        <a
-          class="option atc-white-1 {{ hss ? 'py-[15px] px-[15px] xl:px-[10px]' : 'py-[25px] px-[15px] xl:px-[25px]' }} "
-          [routerLink]="option.disabled ? null : option.path"
-          routerLinkActive="active atc-light-blue-200-i"
-          [routerLinkActiveOptions]="option.path === '/projects' ? { exact: false } : { exact: true }"
-          [attr.data-route]="option.path"
-          [class.disabled]="option.disabled"
-          [attr.aria-disabled]="option.disabled ? true : null">
-          @if (option.path === '/projects') {
-            <span class="hidden" [routerLink]="'/project-detail'"></span>
-          }
-          {{ option.label }}
-          <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
-            {{ option.icon }}
-          </a>
-          @if (option.underConstruction) {
-            <img [src]="'construction.png' | s3ImageUrl" class="construction-icon-x1" alt="" />
-          }
-        </a>
+    @if (!option.hide) {
+    <a class="option atc-white-1 {{ hss ? 'py-[15px] px-[15px] xl:px-[10px]' : 'py-[25px] px-[15px] xl:px-[25px]' }} "
+      [routerLink]="option.disabled ? null : option.path" routerLinkActive="active atc-light-blue-200-i"
+      [routerLinkActiveOptions]="option.path === '/projects' ? { exact: false } : { exact: true }"
+      [attr.data-route]="option.path" [class.disabled]="option.disabled"
+      [attr.aria-disabled]="option.disabled ? true : null">
+      @if (option.path === '/projects') {
+      <span class="hidden" [routerLink]="'/project-detail'"></span>
       }
+      {{ option.label }}
+      <a class="option-icon material-symbols-rounded atc-white-1" routerLinkActive="active atc-light-blue-200-i">
+        {{ option.icon }}
+      </a>
+      @if (option.underConstruction) {
+      <img [src]="'construction.png' | s3ImageUrl" class="construction-icon-x1" alt="" />
+      }
+    </a>
+    }
     }
 
-    <p-button
-      label="Create Result"
-      severity="info"
-      size="small"
-      styleClass="!rounded-[15px] {{ hss ? '!h-7.5 !text-[13px]' : '!h-9 !text-[16px]' }}"
-      (onClick)="this.allModalsService.openModal('createResult')"
-      [style]="{ 'margin-left': '20px', 'min-width': '105px !important' }" />
+    <div class="create-result-nav-wrap">
+      <button type="button" class="create-result-btn !text-white"
+        (click)="this.allModalsService.openModal('createResult')">
+        <span class="material-symbols-rounded create-result-btn__icon" aria-hidden="true">add_circle_outline</span>
+        <span class="create-result-btn__label">Create Result</span>
+      </button>
+    </div>
     <div class="icons-container">
       <div class="search-box {{ hss ? '!w-60' : '' }} !w-60 xl:!w-75 ml-3">
-        <i class="pi pi-search !text-[12px] px-2"></i>
-        <input
-          id="search-result-input"
-          type="text"
-          placeholder="Search"
-          class="{{ hss ? '!h-7.5 !text-[13px]' : '!h-9 !text-[16px]' }}"
+        <i class="pi pi-search !text-[11px] px-2"></i>
+        <input id="search-result-input" type="text" placeholder="Search"
+          class="{{ hss ? '!h-7.5 !text-[13px]' : '!h-8 !text-[14px]' }}"
           (keyup.enter)="this.onSearchTextChange($event)" />
       </div>
-      <div dropdown-button (keydown.enter)="this.showDropdown = !this.showDropdown" (click)="this.showDropdown = !this.showDropdown">
-        <p-avatar [label]="this.actions.getInitials()" styleClass="!rounded-xl cursor-pointer font-[600] flex pb-[1px]"></p-avatar>
+      <div dropdown-button (keydown.enter)="this.showDropdown = !this.showDropdown"
+        (click)="this.showDropdown = !this.showDropdown">
+        <p-avatar [label]="this.actions.getInitials()"
+          styleClass="!rounded-xl cursor-pointer font-[600] flex pb-[1px]"></p-avatar>
       </div>
     </div>
   </div>
 </div>
 
 @if (this.showDropdown) {
-  <div #dropdownRef class="icons-container fixed top-11 right-14 p-3 z-[9999] bg-white shadow-lg rounded-[4px] w-[280px]">
-    <div dropdown-content>
-      <div class="profile">
-        <div class="account-container">
-          <div class="account-header">Account</div>
-          <div class="account-content">
-            <p-avatar [label]="this.actions.getInitials()" size="large"></p-avatar>
-            <div class="account-details">
-              <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{ this.cache.dataCache().user.last_name }}</span>
-              <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
-              <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
-            </div>
+<div #dropdownRef class="icons-container fixed top-11 right-14 p-3 z-[9999] bg-white shadow-lg rounded-[4px] w-[280px]">
+  <div dropdown-content>
+    <div class="profile">
+      <div class="account-container">
+        <div class="account-header">Account</div>
+        <div class="account-content">
+          <p-avatar [label]="this.actions.getInitials()" size="large"></p-avatar>
+          <div class="account-details">
+            <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{
+              this.cache.dataCache().user.last_name }}</span>
+            <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
+            <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
           </div>
         </div>
-
-        <p-button
-          size="small"
-          label="Log out"
-          icon="pi pi-sign-in"
-          [loading]="this.cache.isValidatingToken()"
-          (onClick)="this.actions.logOut()"></p-button>
       </div>
+
+      <p-button size="small" label="Log out" icon="pi pi-sign-in" [loading]="this.cache.isValidatingToken()"
+        (onClick)="this.actions.logOut()"></p-button>
     </div>
   </div>
+</div>
 }
