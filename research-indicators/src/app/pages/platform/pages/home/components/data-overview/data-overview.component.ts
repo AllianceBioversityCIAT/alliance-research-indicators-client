@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ApiService } from '@shared/services/api.service';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 
@@ -23,7 +24,7 @@ interface ChartLegendItem {
 
 @Component({
   selector: 'app-data-overview',
-  imports: [S3ImageUrlPipe],
+  imports: [S3ImageUrlPipe, RouterLink],
   templateUrl: './data-overview.component.html',
   styleUrl: './data-overview.component.scss'
 })
@@ -71,7 +72,7 @@ export class DataOverviewComponent implements OnInit {
       filtered.map((item: any) => ({
         color: item.result_status?.config?.color?.text || '#1689CA',
         label: item.name,
-        value: Number(item.amount_results) || 0
+        value: Number(item.amount_results)
       }))
     );
   }

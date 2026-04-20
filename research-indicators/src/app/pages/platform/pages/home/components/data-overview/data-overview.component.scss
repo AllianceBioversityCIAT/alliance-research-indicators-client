@@ -180,6 +180,9 @@
     border-radius: 8px;
     border: 0.4px solid #e8ebed;
     min-width: 0;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
 
     .indicator-head {
       display: flex;

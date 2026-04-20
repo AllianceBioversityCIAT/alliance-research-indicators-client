@@ -36,14 +36,19 @@
 
       @if (showIndicatorList()) {
       <div class="indicators">
-        @for (indicator of indicatorList(); track $index) {
-        <div class="indicator" [attr.data-index]="$index">
+        @for (indicator of indicatorList(); track indicator.indicator_id) {
+        <a
+          class="indicator"
+          [routerLink]="['/results-center']"
+          [queryParams]="{ indicatorTab: indicator.indicator_id }"
+          [attr.data-index]="$index"
+        >
           <div class="indicator-head">
             <i class="indicator-icon icon-color-{{ indicator.icon_src }} pi {{ indicator.icon_src }}"></i>
             <span class="indicator-type">{{ indicator.name }}</span>
           </div>
           <span class="indicator-number">{{ indicator.amount_results }}</span>
-        </div>
+        </a>
         }
       </div>
       } @else {
