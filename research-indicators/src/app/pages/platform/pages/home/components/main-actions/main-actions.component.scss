@@ -14,6 +14,7 @@
 
 .header {
   display: grid;
+  padding-bottom: 6px;
 
   .title-text {
     font-family: Inter, sans-serif;
@@ -38,7 +39,7 @@
 .main-action {
   position: relative;
   display: block;
-  border-radius: 13px;
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
   min-height: 138px;
@@ -48,11 +49,6 @@
     transform 0.2s ease,
     box-shadow 0.2s ease;
   box-shadow: 0 3px 14px rgb(17 47 92 / 10%);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgb(17 47 92 / 14%);
-  }
 
   &:focus-visible {
     outline: 2px solid #1689ca;
