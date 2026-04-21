@@ -1150,6 +1150,52 @@ describe('ResultsCenterService', () => {
       expect(appliedFilter['indicator-codes-tabs']).toEqual([2]);
       expect(mainSpy).toHaveBeenCalled();
     });
+
+    it('should not call main when skipMain is true', () => {
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.onSelectFilterTab(1, { skipMain: true });
+
+      expect(mainSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('applyStatusFilterFromHomeLink', () => {
+    it('sets status on tableFilters and results filters and calls main by default', () => {
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.applyStatusFilterFromHomeLink(5, 'Approved');
+
+      expect(service.tableFilters().statusCodes).toEqual([{ result_status_id: 5, name: 'Approved' }]);
+      expect(service.resultsFilter()['status-codes']).toEqual([5]);
+      expect(service.appliedFilters()['status-codes']).toEqual([5]);
+      expect(mainSpy).toHaveBeenCalled();
+    });
+
+    it('does not call main when skipMain is true', () => {
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.applyStatusFilterFromHomeLink(3, 'Draft', { skipMain: true });
+
+      expect(service.tableFilters().statusCodes[0]).toEqual({ result_status_id: 3, name: 'Draft' });
+      expect(mainSpy).not.toHaveBeenCalled();
+    });
+
+    it('uses display name Status when statusName is omitted', () => {
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.applyStatusFilterFromHomeLink(9);
+
+      expect(service.tableFilters().statusCodes[0].name).toBe('Status');
+    });
+
+    it('trims statusName', () => {
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.applyStatusFilterFromHomeLink(2, '  Submitted  ');
+
+      expect(service.tableFilters().statusCodes[0].name).toBe('Submitted');
+    });
   });
 
   describe('cleanFilters', () => {
