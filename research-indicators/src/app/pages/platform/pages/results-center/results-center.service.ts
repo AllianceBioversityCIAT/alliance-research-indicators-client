@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, effect, computed } from '@angular/core';
 import { GetResultsService } from '../../../../shared/services/control-list/get-results.service';
-import { Result, ResultConfig, ResultFilter } from '../../../../shared/interfaces/result/result.interface';
+import { GetResultsPaginationOptions, Result, ResultConfig, ResultFilter } from '../../../../shared/interfaces/result/result.interface';
 import { MenuItem } from 'primeng/api';
 import { tableSortPathToApiSortField } from './result-table-sort.util';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
@@ -380,9 +380,33 @@ export class ResultsCenterService {
     this.lastSuccessfulResultsFetchKey = null;
   }
 
-  /** Ensures the next `main()` runs a network request (e.g. linked-results modal vs. cached results-center fetch). */
   invalidateResultsListFetchCache(): void {
     this.invalidateResultsFetchDedupe();
+  }
+
+  getExportResultFilter(): ResultFilter {
+    const currentTab = this.myResultsFilterItem();
+    const baseFilter = { ...this.resultsFilter() };
+
+    if (currentTab?.id === 'my') {
+      const userId = this.cache.dataCache().user.sec_user_id.toString();
+      if (!baseFilter['create-user-codes'] || baseFilter['create-user-codes'].length === 0) {
+        baseFilter['create-user-codes'] = [userId];
+      }
+    } else if (baseFilter['create-user-codes'] && baseFilter['create-user-codes'].length > 0) {
+      baseFilter['create-user-codes'] = [];
+    }
+
+    const primaryContractId = this.primaryContractId();
+    return primaryContractId ? ({ ...baseFilter, 'contract-codes': [primaryContractId] } as ResultFilter) : baseFilter;
+  }
+
+  getExportPaginationOptions(): Pick<GetResultsPaginationOptions, 'sortField' | 'sortOrder' | 'search'> {
+    return {
+      sortField: tableSortPathToApiSortField(this.resultsTableSortField()),
+      sortOrder: this.resultsTableSortOrder() === 1 ? 'ASC' : 'DESC',
+      search: this.searchInput().trim()
+    };
   }
 
   async main() {
@@ -653,16 +677,7 @@ export class ResultsCenterService {
     }
   }
 
-  /**
-   * Deep link from home data-overview: My Results + filter by one status.
-   * Call after `loadMyResults()` so `create-user-codes` is set.
-   * Use `skipMain: true` when chaining with other filter updates, then call `main()` once.
-   */
-  applyStatusFilterFromHomeLink(
-    statusId: number,
-    statusName?: string,
-    options?: { skipMain?: boolean }
-  ) {
+  applyStatusFilterFromHomeLink(statusId: number, statusName?: string, options?: { skipMain?: boolean }) {
     this.invalidateResultsFetchDedupe();
     const displayName = statusName?.trim() ? statusName.trim() : 'Status';
     this.tableFilters.update(prev => ({
