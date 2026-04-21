@@ -2010,6 +2010,55 @@ describe('ResultsCenterService', () => {
     });
   });
 
+  describe('getExportResultFilter and getExportPaginationOptions', () => {
+    it('getExportPaginationOptions should mirror table sort and search', () => {
+      service.resultsTableSortField.set('title');
+      service.resultsTableSortOrder.set(1);
+      service.searchInput.set('  q  ');
+      expect(service.getExportPaginationOptions()).toEqual({
+        sortField: 'result-title',
+        sortOrder: 'ASC',
+        search: 'q'
+      });
+    });
+
+    it('getExportPaginationOptions should use DESC when sort order is not ascending', () => {
+      service.resultsTableSortField.set('result_official_code');
+      service.resultsTableSortOrder.set(-1);
+      service.searchInput.set('');
+      expect(service.getExportPaginationOptions()).toEqual({
+        sortField: 'code',
+        sortOrder: 'DESC',
+        search: ''
+      });
+    });
+
+    it('getExportResultFilter should add create-user-codes on My Results tab without mutating signals incorrectly', () => {
+      service.myResultsFilterItem.set({ id: 'my', label: 'My Results' });
+      service.resultsFilter.set({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
+      const f = service.getExportResultFilter();
+      expect(f['create-user-codes']).toEqual(['123']);
+    });
+
+    it('getExportResultFilter should include contract-codes when primary project is pinned', () => {
+      service.primaryContractId.set('C-99');
+      service.resultsFilter.set({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
+      expect(service.getExportResultFilter()['contract-codes']).toEqual(['C-99']);
+    });
+
+    it('getExportResultFilter should clear create-user-codes when tab is not My but filter still has user codes', () => {
+      service.myResultsFilterItem.set({ id: 'all', label: 'All Results' });
+      service.resultsFilter.set({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': ['123'] });
+      expect(service.getExportResultFilter()['create-user-codes']).toEqual([]);
+    });
+
+    it('getExportResultFilter should keep existing create-user-codes on My tab when already set', () => {
+      service.myResultsFilterItem.set({ id: 'my', label: 'My Results' });
+      service.resultsFilter.set({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': ['999'] });
+      expect(service.getExportResultFilter()['create-user-codes']).toEqual(['999']);
+    });
+  });
+
   describe('main', () => {
     it('should pass contract-codes when primaryContractId is set', async () => {
       service.primaryContractId.set('contract-123');
