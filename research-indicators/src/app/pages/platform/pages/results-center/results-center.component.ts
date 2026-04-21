@@ -76,7 +76,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
     this.resultsCenterService.showConfigurationsSidebar.set(false);
   }
 
-  private isValidIndicatorTabQueryParam(raw: string | null): raw is string {
+  private isValidNumericIdQueryParam(raw: string | null): raw is string {
     if (raw == null || raw === '') {
       return false;
     }
@@ -90,15 +90,32 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
     this.resultsCenterService.showConfigurationsSidebar.set(false);
 
     const indicatorTabParam = this.route.snapshot.queryParamMap.get('indicatorTab');
-    if (this.isValidIndicatorTabQueryParam(indicatorTabParam)) {
-      const indicatorId = Number(indicatorTabParam);
+    const statusTabParam = this.route.snapshot.queryParamMap.get('statusTab');
+    const statusLabelParam = this.route.snapshot.queryParamMap.get('statusLabel');
+
+    const hasIndicator = this.isValidNumericIdQueryParam(indicatorTabParam);
+    const hasStatus = this.isValidNumericIdQueryParam(statusTabParam);
+
+    if (hasIndicator || hasStatus) {
       this.resultsCenterService.activateStatePersistence(this.stateKey);
       await this.loadPinnedTabPreference();
-      this.loadMyResults();
-      this.resultsCenterService.onSelectFilterTab(indicatorId);
+      this.loadMyResults(true);
+      if (hasIndicator) {
+        this.resultsCenterService.onSelectFilterTab(Number(indicatorTabParam), { skipMain: true });
+      }
+      if (hasStatus) {
+        this.resultsCenterService.applyStatusFilterFromHomeLink(Number(statusTabParam), statusLabelParam ?? undefined, {
+          skipMain: true
+        });
+      }
+      void this.resultsCenterService.main();
       await this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { indicatorTab: null },
+        queryParams: {
+          indicatorTab: null,
+          statusTab: null,
+          statusLabel: null
+        },
         queryParamsHandling: 'merge',
         replaceUrl: true
       });
@@ -168,7 +185,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
     }
   };
 
-  loadMyResults() {
+  loadMyResults(skipMain = false) {
     const preserveIndicatorTabs = this.resultsCenterService.resultsFilter()['indicator-codes-tabs'] ?? [];
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
     this.resultsCenterService.resultsFilter.set({
@@ -191,7 +208,9 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       'indicator-codes-filter': [],
       'indicator-codes-tabs': preserveIndicatorTabs
     });
-    this.resultsCenterService.main();
+    if (!skipMain) {
+      void this.resultsCenterService.main();
+    }
   }
 
   loadAllResults() {

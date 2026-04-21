@@ -618,7 +618,7 @@ export class ResultsCenterService {
     this.main();
   };
 
-  onSelectFilterTab(indicatorId: number) {
+  onSelectFilterTab(indicatorId: number, options?: { skipMain?: boolean }) {
     this.invalidateResultsFetchDedupe();
     this.api.indicatorTabs.lazy().list.update(prev =>
       prev.map((item: GetAllIndicators) => ({
@@ -648,7 +648,39 @@ export class ResultsCenterService {
       ...prev,
       indicators: []
     }));
-    this.main();
+    if (!options?.skipMain) {
+      void this.main();
+    }
+  }
+
+  /**
+   * Deep link from home data-overview: My Results + filter by one status.
+   * Call after `loadMyResults()` so `create-user-codes` is set.
+   * Use `skipMain: true` when chaining with other filter updates, then call `main()` once.
+   */
+  applyStatusFilterFromHomeLink(
+    statusId: number,
+    statusName?: string,
+    options?: { skipMain?: boolean }
+  ) {
+    this.invalidateResultsFetchDedupe();
+    const displayName = statusName?.trim() ? statusName.trim() : 'Status';
+    this.tableFilters.update(prev => ({
+      ...prev,
+      statusCodes: [{ result_status_id: statusId, name: displayName }]
+    }));
+    this.resultsFilter.update(prev => ({
+      ...prev,
+      'status-codes': [statusId]
+    }));
+    this.appliedFilters.update(prev => ({
+      ...prev,
+      'status-codes': [statusId]
+    }));
+    this.resetResultsTablePaginatorToFirstPage();
+    if (!options?.skipMain) {
+      void this.main();
+    }
   }
 
   cleanFilters() {

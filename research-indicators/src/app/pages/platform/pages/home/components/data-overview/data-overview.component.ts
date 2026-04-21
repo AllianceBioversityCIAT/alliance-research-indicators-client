@@ -20,6 +20,7 @@ interface ChartLegendItem {
   color: string;
   label: string;
   value: number;
+  result_status_id: number;
 }
 
 @Component({
@@ -68,18 +69,26 @@ export class DataOverviewComponent implements OnInit {
     const rows = Array.isArray(data) ? data : [];
     const filtered = rows.filter((item: any) => Number(item.amount_results) > 0);
 
-    this.chartLegend.set(
-      filtered.map((item: any) => ({
-        color: item.result_status?.config?.color?.text || '#1689CA',
-        label: item.name,
-        value: Number(item.amount_results)
-      }))
-    );
+    const items = filtered.map((item: any) => ({
+      color: item.result_status?.config?.color?.text || '#1689CA',
+      label: item.name,
+      value: Number(item.amount_results),
+      result_status_id: Number(item.result_status_id)
+    }));
+    items.sort((a, b) => b.value - a.value);
+    this.chartLegend.set(items);
   }
 
   async getData() {
     const response = await this.api.GET_ResultsStatus();
     this.chartData(response.data ?? []);
     this.showChart.set(this.chartLegend().length > 0);
+  }
+
+  statusRowQueryParams(item: ChartLegendItem) {
+    return {
+      statusTab: item.result_status_id,
+      statusLabel: item.label
+    };
   }
 }

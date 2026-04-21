@@ -94,7 +94,8 @@ describe('DataOverviewComponent', () => {
     expect(legend[0]).toEqual({
       color: '#173F6F',
       label: 'Status 1',
-      value: 5
+      value: 5,
+      result_status_id: 1
     });
   });
 
@@ -141,10 +142,26 @@ describe('DataOverviewComponent', () => {
 
     it('returns the maximum value among legend items', () => {
       component.chartLegend.set([
-        { color: '#000', label: 'A', value: 3 },
-        { color: '#000', label: 'B', value: 12 }
+        { color: '#000', label: 'A', value: 3, result_status_id: 1 },
+        { color: '#000', label: 'B', value: 12, result_status_id: 2 }
       ]);
       expect(component.statusBarsMax()).toBe(12);
+    });
+  });
+
+  describe('statusRowQueryParams', () => {
+    it('returns statusTab and statusLabel for Results Center navigation', () => {
+      expect(
+        component.statusRowQueryParams({
+          color: '#173F6F',
+          label: 'Submitted',
+          value: 12,
+          result_status_id: 7
+        })
+      ).toEqual({
+        statusTab: 7,
+        statusLabel: 'Submitted'
+      });
     });
   });
 
@@ -156,15 +173,15 @@ describe('DataOverviewComponent', () => {
     });
 
     it('returns proportional width capped at 100', () => {
-      component.chartLegend.set([{ color: '#000', label: 'A', value: 20 }]);
+      component.chartLegend.set([{ color: '#000', label: 'A', value: 20, result_status_id: 1 }]);
       expect(component.barFillPercent(10)).toBe(50);
       expect(component.barFillPercent(20)).toBe(100);
     });
 
     it('caps at 100 when value would exceed the scale', () => {
       component.chartLegend.set([
-        { color: '#000', label: 'A', value: 5 },
-        { color: '#000', label: 'B', value: 10 }
+        { color: '#000', label: 'A', value: 5, result_status_id: 1 },
+        { color: '#000', label: 'B', value: 10, result_status_id: 2 }
       ]);
       expect(component.barFillPercent(25)).toBe(100);
     });
