@@ -20,7 +20,8 @@ describe('ApiService', () => {
       post: jest.fn(),
       patch: jest.fn(),
       delete: jest.fn(),
-      getWithParams: jest.fn()
+      getWithParams: jest.fn(),
+      getBlob: jest.fn()
     };
 
     mockCacheService = {
@@ -1535,6 +1536,57 @@ describe('ApiService', () => {
       expect(out.data?.results?.length).toBe(1);
       expect(out.data?.pagination?.total).toBe(3472);
       expect(out.data?.pagination?.hasNextPage).toBe(true);
+    });
+  });
+
+  describe('GET_ResultCenterXlsx', () => {
+    it('should call getBlob with reports path and params aligned with GET_Results (no page/limit)', async () => {
+      const blob = new Blob(['x']);
+      (mockToPromiseService.getBlob as jest.Mock).mockResolvedValue(blob);
+
+      const result = await service.GET_ResultCenterXlsx(
+        { 'indicator-codes-tabs': [101], 'status-codes': [1, 2] },
+        { sortField: 'result-title', sortOrder: 'ASC', search: 'hello' }
+      );
+
+      expect(result).toBe(blob);
+      expect(mockToPromiseService.getBlob).toHaveBeenCalledWith('reports/resultCenter/xlsx', {
+        params: expect.any(HttpParams)
+      });
+      const params = (mockToPromiseService.getBlob as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('sort-order')).toBe('ASC');
+      expect(params.get('sort-field')).toBe('result-title');
+      expect(params.get('search')).toBe('hello');
+      expect(params.get('indicators')).toBe('101');
+      expect(params.get('status-codes')).toBe('1,2');
+      expect(params.get('only-own-results')).toBe('false');
+    });
+
+    it('should send only-own-results true when create-user-codes is set', async () => {
+      (mockToPromiseService.getBlob as jest.Mock).mockResolvedValue(new Blob());
+
+      await service.GET_ResultCenterXlsx({ 'create-user-codes': ['356'] } as import('../interfaces/result/result.interface').ResultFilter, {});
+
+      const params = (mockToPromiseService.getBlob as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('only-own-results')).toBe('true');
+    });
+
+    it('should map indicators from indicator-codes-filter when tabs are absent', async () => {
+      (mockToPromiseService.getBlob as jest.Mock).mockResolvedValue(new Blob());
+
+      await service.GET_ResultCenterXlsx({ 'indicator-codes-filter': [55, 66] }, {});
+
+      const params = (mockToPromiseService.getBlob as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('indicators')).toBe('55,66');
+    });
+
+    it('should map indicators from indicator-codes when tabs and filter are absent', async () => {
+      (mockToPromiseService.getBlob as jest.Mock).mockResolvedValue(new Blob());
+
+      await service.GET_ResultCenterXlsx({ 'indicator-codes': [7, 8] }, {});
+
+      const params = (mockToPromiseService.getBlob as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('indicators')).toBe('7,8');
     });
   });
 
