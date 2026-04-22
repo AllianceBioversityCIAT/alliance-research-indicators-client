@@ -502,6 +502,12 @@ describe('ServiceLocatorService', () => {
       expect(result).toBe(serviceMock);
     });
 
+    it('returns clarisaSdgTargets service', () => {
+      const result = (service as any).getOtherServices('clarisaSdgTargets');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('returns sourceFilterOptions service', () => {
       const result = (service as any).getOtherServices('sourceFilterOptions');
       expect(injectorMock.get).toHaveBeenCalled();
