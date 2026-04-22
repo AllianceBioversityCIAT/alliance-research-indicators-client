@@ -2,6 +2,7 @@ export interface AdministrationNavChild {
   label: string;
   link: string;
   icon?: string;
+  iconSize?: string;
   s3Image?: string;
   hide?: boolean;
 }
