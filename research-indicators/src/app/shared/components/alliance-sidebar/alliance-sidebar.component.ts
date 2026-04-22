@@ -7,11 +7,7 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { RolesService } from '@services/cache/roles.service';
 import { ActionsService } from '@services/actions.service';
-import {
-  AccountSidebarOption,
-  AdministrationNavChild,
-  AdministrationNavGroup
-} from '@interfaces/administration-nav.interface';
+import { AccountSidebarOption, AdministrationNavChild, AdministrationNavGroup } from '@interfaces/administration-nav.interface';
 
 @Component({
   selector: 'alliance-sidebar',
@@ -37,7 +33,10 @@ export class AllianceSidebarComponent implements OnInit {
       id: 'center-admin',
       label: 'Center admin',
       icon: 'pi-id-card',
-      children: [{ label: 'Bulk upload', link: '/administration/center-admin/bulk-upload', s3Image: 'images/brain.png' }]
+      children: [
+        { label: 'Bulk upload', link: '/administration/center-admin/bulk-upload', s3Image: 'images/brain.png' },
+        { label: 'SDG Management', link: '/administration/center-admin/sdg-management', icon: 'pi-bullseye' }
+      ]
     }
   ];
 
@@ -78,7 +77,6 @@ export class AllianceSidebarComponent implements OnInit {
     }, 150);
   }
 
-  /** Effective expansion when no explicit toggle exists: expanded when sidebar is open, collapsed when sidebar is narrow. */
   private effectiveAdministrationGroupExpanded(groupId: string): boolean {
     const v = this.administrationGroupExpanded()[groupId];
     if (v !== undefined) return v;
