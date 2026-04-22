@@ -100,9 +100,9 @@ export function normalizeLeverSdgTargetMappingList(raw: unknown): LeverSdgTarget
 }
 
 export interface PatchLeverSdgTargetsRequest {
-  leverSdgTargetList: Array<{
+  leverSdgTargetList: {
     id: number;
     lever_id: number;
     sdg_target_id: number;
-  }>;
+  }[];
 }

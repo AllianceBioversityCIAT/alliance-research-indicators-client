@@ -12,10 +12,13 @@ export class GetClarisaSdgTargetsService {
     return false;
   }
 
+  /** Global Clarisa list; `leverId` matches ControlListServices — reserved for a future per-lever API. */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- contract with multiselect / control-list
   getList(_leverId?: number | string) {
     return this.list;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- contract with multiselect / control-list
   getLoading(_leverId?: number | string) {
     return this.loading;
   }
@@ -28,6 +31,7 @@ export class GetClarisaSdgTargetsService {
     }));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- same signature as other control-list `main` calls; global fetch for now
   async main(_leverId?: number | string) {
     this.loading.set(true);
     try {

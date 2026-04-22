@@ -11,10 +11,10 @@ import { MultiselectComponent } from '@shared/components/custom-fields/multisele
 import { ApiService } from '@shared/services/api.service';
 import { environment } from '@envs/environment';
 
-type SdgLeverSignalValue = {
+interface SdgLeverSignalValue {
   result_lever_sdgs: GetSdgs[];
   result_lever_sdg_targets: ResultLeverSdgTargetPayload[];
-};
+}
 
 @Component({
   selector: 'app-sdg-management',
@@ -119,8 +119,8 @@ export default class SdgManagementComponent implements OnInit {
     }
   }
 
-  private buildFullPatchList(): Array<{ id: number; lever_id: number; sdg_target_id: number }> {
-    const leverSdgTargetList: Array<{ id: number; lever_id: number; sdg_target_id: number }> = [];
+  private buildFullPatchList(): { id: number; lever_id: number; sdg_target_id: number }[] {
+    const leverSdgTargetList: { id: number; lever_id: number; sdg_target_id: number }[] = [];
     for (const lever of this.levers()) {
       const lid = this.leverNumericId(lever);
       const sig = this.leverSdgSignals.get(lid);
