@@ -134,6 +134,17 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     return String(code).padStart(3, '0');
   }
 
+  private buildResultsCenterExportFileName(date: Date): string {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const yyyymmdd = `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}`;
+    const hhmm = `${pad(date.getHours())}${pad(date.getMinutes())}`;
+    const user = this.cacheService.dataCache().user;
+    const firstInitial = user.first_name?.trim()?.charAt(0)?.toUpperCase() ?? '';
+    const lastInitial = user.last_name?.trim()?.charAt(0)?.toUpperCase() ?? '';
+    const initials = `${firstInitial}${lastInitial}` || 'UU';
+    return `STAR_results_metadata_${yyyymmdd}_${hhmm}_${initials}.xlsx`;
+  }
+
   async exportTable() {
     try {
       const blob = await this.apiService.GET_ResultCenterXlsx(
@@ -149,11 +160,7 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
       const url = globalThis.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      const now = new Date();
-      const formattedDate = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
-      const userData = this.cacheService.dataCache().user;
-      const userName = `${userData.first_name}_${userData.last_name}`.toLowerCase().replace(' ', '_');
-      link.download = `results_center_${userName}_${formattedDate}.xlsx`;
+      link.download = this.buildResultsCenterExportFileName(new Date());
       link.style.display = 'none';
       document.body.appendChild(link);
       link.click();
