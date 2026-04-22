@@ -35,7 +35,12 @@ export class AllianceSidebarComponent implements OnInit {
       icon: 'pi-id-card',
       children: [
         { label: 'Bulk upload', link: '/administration/center-admin/bulk-upload', s3Image: 'images/brain.png' },
-        { label: 'SDG Management', link: '/administration/center-admin/sdg-management', icon: 'pi-bullseye' }
+        {
+          label: 'SDG Management',
+          link: '/administration/center-admin/sdg-management',
+          icon: 'pi-bullseye',
+          iconSize: '13px'
+        }
       ]
     }
   ];
