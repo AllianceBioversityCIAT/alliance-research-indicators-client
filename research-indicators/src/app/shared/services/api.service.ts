@@ -82,7 +82,7 @@ import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
-import { LeverSdgTargetApi } from '@shared/interfaces/lever-sdg-target.interface';
+import { LeverSdgTargetApi, PatchLeverSdgTargetsRequest } from '@shared/interfaces/lever-sdg-target.interface';
 import { MaturityLevel } from '@shared/interfaces/maturity-level.interface';
 import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interaction.interface';
 import { ImpactArea } from '@shared/interfaces/impact-area.interface';
@@ -140,6 +140,11 @@ export class ApiService {
 
   GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
     const url = () => `tools/clarisa/levers`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ClarisaSdgTargets = (): Promise<MainResponse<LeverSdgTargetApi[]>> => {
+    const url = () => `tools/clarisa/sdg-targets`;
     return this.TP.get(url(), {});
   };
 
@@ -986,6 +991,21 @@ export class ApiService {
     const q = onlySdgTargets ? '?only_sdg_targets=true' : '';
     const url = () => `lever-sdg-targets/by-lever/${leverId}${q}`;
     return this.TP.get(url(), {});
+  };
+
+  /** All center-admin lever–SDG target mapping rows (flat or nested `lever` + `sdg_target`; normalize in UI). */
+  GET_LeverSdgTargetMappings = (): Promise<MainResponse<unknown[]>> => {
+    return this.TP.get('lever-sdg-targets', {});
+  };
+
+  /** Create or update lever–SDG target associations (batch). */
+  PATCH_LeverSdgTargets = (body: PatchLeverSdgTargetsRequest): Promise<MainResponse<unknown>> => {
+    return this.TP.patch('lever-sdg-targets', body, {});
+  };
+
+  /** Remove a single lever–SDG target mapping. */
+  DELETE_LeverSdgTargetMapping = (id: number): Promise<MainResponse<unknown>> => {
+    return this.TP.delete(`lever-sdg-targets/${id}`, {});
   };
 
   GET_AutorContact = (resultCode: number): Promise<MainResponse<ContactPersonResponse | ContactPersonResponse[]>> => {

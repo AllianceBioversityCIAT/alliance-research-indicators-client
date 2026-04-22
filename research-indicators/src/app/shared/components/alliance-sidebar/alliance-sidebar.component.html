@@ -64,7 +64,8 @@
           @if (child.s3Image) {
           <img [src]="child.s3Image | s3ImageUrl" alt="" class="h-[14px] w-[14px] shrink-0 object-contain" />
           } @else {
-          <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon"></i>
+          <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon"
+            [style.fontSize]="child.iconSize ?? null"></i>
           }
           <span class="sidebar-option-label body-2 text">{{ child.label }}</span>
         </span>
@@ -97,7 +98,8 @@
             @if (child.s3Image) {
             <img [src]="child.s3Image | s3ImageUrl" alt="" class="admin-collapsed-nested-img" />
             } @else {
-            <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon"></i>
+            <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon"
+              [style.fontSize]="child.iconSize ?? null"></i>
             }
           </span>
         </a>
