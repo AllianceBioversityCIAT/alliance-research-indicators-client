@@ -213,6 +213,16 @@ export const routes: Routes = [
           title: 'Bulk upload',
           isLoggedIn: true
         }
+      },
+      {
+        path: 'administration/center-admin/sdg-management',
+        loadComponent: () =>
+          import('@platform/pages/administration/center-admin/sdg-management/sdg-management.component').then(m => m.default),
+        canMatch: [centerAdminGuard],
+        data: {
+          title: 'SDG Management',
+          isLoggedIn: true
+        }
       }
     ]
   },
