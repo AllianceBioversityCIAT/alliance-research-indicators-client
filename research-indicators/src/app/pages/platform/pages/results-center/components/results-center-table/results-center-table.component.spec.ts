@@ -648,6 +648,18 @@ describe('ResultsCenterTableComponent', () => {
     consoleErrorSpy.mockRestore();
   });
 
+  it('buildResultsCenterExportFileName should use single-letter initials when only one name is present', () => {
+    mockCache.dataCache.set({ user: { first_name: 'Zoe', last_name: '', sec_user_id: 1 } });
+    const fixed = new Date(2025, 0, 1, 14, 5, 0);
+    expect((component as any).buildResultsCenterExportFileName(fixed)).toBe('STAR_results_metadata_20250101_1405_Z.xlsx');
+  });
+
+  it('buildResultsCenterExportFileName should treat missing name fields as empty initials toward UU', () => {
+    mockCache.dataCache.set({ user: { sec_user_id: 1 } as { sec_user_id: number; first_name?: string; last_name?: string } });
+    const fixed = new Date(2026, 2, 24, 8, 25, 0);
+    expect((component as any).buildResultsCenterExportFileName(fixed)).toBe('STAR_results_metadata_20260324_0825_UU.xlsx');
+  });
+
 
   it('processRowClick should return early when modal is open', () => {
     mockModals.isAnyModalOpen.mockReturnValue(true);
