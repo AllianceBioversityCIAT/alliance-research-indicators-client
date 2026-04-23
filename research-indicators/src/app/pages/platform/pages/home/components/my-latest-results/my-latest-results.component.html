@@ -57,22 +57,5 @@
     </div>
     }
   </div>
-  } @else {
-  <div class="header">
-    <div class="header-text">
-      <span class="title-text">LEARN ABOUT INDICATORS</span>
-      <span class="description-text">Since you don't have any created results, explore About Indicators to learn more
-        and start building your own.</span>
-    </div>
-    <div class="submmit-button">
-      <button type="button" class="create-result-btn" (click)="allModalsService.openModal('createResult')">
-        <span class="material-symbols-rounded create-result-btn__icon" aria-hidden="true">add_circle_outline</span>
-        <span class="create-result-btn__label">Create Result</span>
-      </button>
-    </div>
-  </div>
-  <div>
-    <app-about-indicators [summaryMode]="true"></app-about-indicators>
-  </div>
   }
 </div>
