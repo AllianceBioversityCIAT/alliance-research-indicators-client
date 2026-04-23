@@ -5,7 +5,7 @@
   </div>
 
   <div class="main-actions-row">
-    <a class="main-action" routerLink="/projects">
+    <a class="main-action" routerLink="/projects" [queryParams]="{ tab: 'my' }">
       <img class="main-action__bg" [src]="'images/home/main-action-1.png' | s3ImageUrl" alt="" />
       <div class="main-action__overlay" aria-hidden="true"></div>
       <div class="main-action__inner">
@@ -19,7 +19,7 @@
       </div>
     </a>
 
-    <a class="main-action" routerLink="/results-center">
+    <a class="main-action" routerLink="/results-center" [queryParams]="{ tab: 'my' }">
       <img class="main-action__bg" [src]="'images/home/main-action-3.png' | s3ImageUrl" alt="" />
       <div class="main-action__overlay" aria-hidden="true"></div>
       <div class="main-action__inner">

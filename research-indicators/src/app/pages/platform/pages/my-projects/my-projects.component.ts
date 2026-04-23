@@ -10,7 +10,7 @@ import {
   AfterViewInit,
   OnDestroy
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '@shared/services/api.service';
 import { FormsModule } from '@angular/forms';
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
@@ -81,6 +81,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   myProjectsService = inject(MyProjectsService);
   cache = inject(CacheService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   actions = inject(ActionsService);
   projectUtils = inject(ProjectUtilsService);
 
@@ -341,17 +342,36 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
     this.persistViewStateEnabled.set(true);
 
     const preferredTab = await this.loadPinnedTabPreference();
+    const forceMyTab = this.route.snapshot.queryParamMap.get('tab') === 'my';
 
     if (this.restoredState) {
-      const activeTab = this.myProjectsService.myProjectsFilterItem() ?? this.myProjectsFilterItems[0];
-      this.myProjectsFilterItem.set(activeTab);
-      this.selectedTab.set(activeTab.id === 'my' ? 'my' : 'all');
-      this.updatePendingScrollFromStoredTabScroll();
-      this.loadCurrentTabState();
-      return;
+      if (forceMyTab) {
+        this.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.myProjectsService.myProjectsFilterItem.set(this.myProjectsFilterItems[1]);
+        this.selectedTab.set('my');
+        this.updatePendingScrollFromStoredTabScroll();
+        this.loadCurrentTabState();
+      } else {
+        const activeTab = this.myProjectsService.myProjectsFilterItem() ?? this.myProjectsFilterItems[0];
+        this.myProjectsFilterItem.set(activeTab);
+        this.selectedTab.set(activeTab.id === 'my' ? 'my' : 'all');
+        this.updatePendingScrollFromStoredTabScroll();
+        this.loadCurrentTabState();
+      }
+    } else if (forceMyTab) {
+      this.applyPinnedTabDefault('my');
+    } else {
+      this.applyPinnedTabDefault(preferredTab);
     }
 
-    this.applyPinnedTabDefault(preferredTab);
+    if (forceMyTab) {
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { tab: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+    }
   }
 
   private async loadPinnedTabPreference(): Promise<'all' | 'my'> {

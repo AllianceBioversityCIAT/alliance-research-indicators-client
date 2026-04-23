@@ -122,11 +122,23 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const openMyFromQuery = this.route.snapshot.queryParamMap.get('tab') === 'my';
     const restoredState = this.resultsCenterService.restorePersistedState(this.stateKey);
     this.resultsCenterService.primaryContractId.set(null);
     this.resultsCenterService.activateStatePersistence(this.stateKey);
 
     const preferredTab = await this.loadPinnedTabPreference();
+    if (openMyFromQuery) {
+      this.loadMyResults();
+      await this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { tab: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+      return;
+    }
+
     if (restoredState) {
       await this.resultsCenterService.main();
       return;
