@@ -27,10 +27,9 @@
 
           <div class="flex w-full min-w-0 flex-col gap-4">
             @for (lever of levers(); track leverNumericId(lever)) {
-            <div
-              class="sdg-lever-card flex min-h-0 min-w-0 flex-col rounded-lg border border-[#E0E4E8] bg-[#E8EBED]">
+            <div class="sdg-lever-card flex min-h-0 min-w-0 flex-col rounded-lg border border-[#E0E4E8] bg-[#E8EBED]">
               <button type="button"
-                class="sdg-lever-header flex w-full min-w-0 items-center gap-2.5 bg-[#F7F8FA] px-4 py-2.5 text-left transition hover:bg-[#E8EBED]"
+                class="sdg-lever-header flex w-full min-w-0 items-center gap-2.5 bg-[#F7F8FA] px-4 py-2.5 text-left cursor-pointer"
                 [class.rounded-t-lg]="isExpanded(lever)" [class.rounded-lg]="!isExpanded(lever)"
                 (click)="toggleRow(lever)" [attr.aria-expanded]="isExpanded(lever)">
                 <i class="sdg-lever-chevron pi shrink-0 text-[#1e4a7a] {{ isExpanded(lever) ? 'pi-chevron-up' : 'pi-chevron-down' }}"
@@ -46,8 +45,7 @@
               </button>
 
               @if (isExpanded(lever)) {
-              <div
-                class="min-h-0 min-w-0 border-t border-[#EEF1F3] bg-white p-6 rounded-b-lg">
+              <div class="min-h-0 min-w-0 border-t border-[#EEF1F3] bg-white p-6 rounded-b-lg">
                 <app-multiselect class="block w-full min-w-0" label="SDG target(s)" [signal]="sdgSignalFor(lever)"
                   optionLabel="select_label" optionLabel2="sdg_target" optionValue="sdg_target_id"
                   signalOptionValue="result_lever_sdg_targets" [disabled]="false" [removeCondition]="allowRemoveSdg"
