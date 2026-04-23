@@ -1,15 +1,12 @@
-<div class="relative w-full [perspective:1000px]">
-  <div class="tilt-container">
-    <div class="tilt-box" #tiltBox>
-      <img [src]="'images/home/header-home.png' | s3ImageUrl" alt="header-home" class="header-image" />
-      <img [src]="'images/home/header-home-character.png' | s3ImageUrl" alt="header-character" class="character-image" />
-      <div class="logo">
-        <img [src]="'STAR-Hor.png' | s3ImageUrl" alt="star" class="star-logo" />
-      </div>
-      <div class="text-content">
-        <span class="title">{{ message()?.title }}</span>
-        <span class="description">{{ message()?.description }}</span>
-      </div>
-    </div>
+<section class="home-header">
+  <div class="home-header__illustration" aria-hidden="true">
+    <img [src]="'images/home/home.png' | s3ImageUrl" alt="" class="home-header__illustration-img" />
   </div>
-</div>
+  <div class="home-header__content pb-2">
+    <div class="home-header__logo-row -ml-3.5">
+      <img [src]="'STAR-Hor.png' | s3ImageUrl" alt="STAR" class="home-header__logo" />
+    </div>
+    <h1 class="home-header__heading title">{{ message()?.title }}</h1>
+    <p class="home-header__sub description">{{ message()?.description }}</p>
+  </div>
+</section>

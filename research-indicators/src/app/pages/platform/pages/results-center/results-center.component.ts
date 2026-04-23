@@ -1,4 +1,5 @@
 import { Component, inject, signal, OnInit, OnDestroy, computed } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IndicatorsTabFilterComponent } from './components/indicators-tab-filter/indicators-tab-filter.component';
 import { TableFiltersSidebarComponent } from './components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from './components/table-configuration/table-configuration.component';
@@ -26,6 +27,8 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 })
 export default class ResultsCenterComponent implements OnInit, OnDestroy {
   private readonly stateKey = 'results-center';
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   api = inject(ApiService);
   resultsCenterService = inject(ResultsCenterService);
   cache = inject(CacheService);
@@ -73,10 +76,51 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
     this.resultsCenterService.showConfigurationsSidebar.set(false);
   }
 
+  private isValidNumericIdQueryParam(raw: string | null): raw is string {
+    if (raw == null || raw === '') {
+      return false;
+    }
+    const id = Number(raw);
+    return Number.isFinite(id) && id >= 0;
+  }
+
   private async initializeState(): Promise<void> {
     this.resultsCenterService.primaryContractId.set(null);
     this.resultsCenterService.showFiltersSidebar.set(false);
     this.resultsCenterService.showConfigurationsSidebar.set(false);
+
+    const indicatorTabParam = this.route.snapshot.queryParamMap.get('indicatorTab');
+    const statusTabParam = this.route.snapshot.queryParamMap.get('statusTab');
+    const statusLabelParam = this.route.snapshot.queryParamMap.get('statusLabel');
+
+    const hasIndicator = this.isValidNumericIdQueryParam(indicatorTabParam);
+    const hasStatus = this.isValidNumericIdQueryParam(statusTabParam);
+
+    if (hasIndicator || hasStatus) {
+      this.resultsCenterService.activateStatePersistence(this.stateKey);
+      await this.loadPinnedTabPreference();
+      this.loadMyResults(true);
+      if (hasIndicator) {
+        this.resultsCenterService.onSelectFilterTab(Number(indicatorTabParam), { skipMain: true });
+      }
+      if (hasStatus) {
+        this.resultsCenterService.applyStatusFilterFromHomeLink(Number(statusTabParam), statusLabelParam ?? undefined, {
+          skipMain: true
+        });
+      }
+      void this.resultsCenterService.main();
+      await this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {
+          indicatorTab: null,
+          statusTab: null,
+          statusLabel: null
+        },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+      return;
+    }
 
     const restoredState = this.resultsCenterService.restorePersistedState(this.stateKey);
     this.resultsCenterService.primaryContractId.set(null);
@@ -141,7 +185,7 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
     }
   };
 
-  loadMyResults() {
+  loadMyResults(skipMain = false) {
     const preserveIndicatorTabs = this.resultsCenterService.resultsFilter()['indicator-codes-tabs'] ?? [];
     this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[1]);
     this.resultsCenterService.resultsFilter.set({
@@ -164,7 +208,9 @@ export default class ResultsCenterComponent implements OnInit, OnDestroy {
       'indicator-codes-filter': [],
       'indicator-codes-tabs': preserveIndicatorTabs
     });
-    this.resultsCenterService.main();
+    if (!skipMain) {
+      void this.resultsCenterService.main();
+    }
   }
 
   loadAllResults() {

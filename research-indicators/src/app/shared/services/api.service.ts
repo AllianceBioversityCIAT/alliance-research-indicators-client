@@ -73,7 +73,7 @@ import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
-import { DateFormatApiResponse } from '@shared/interfaces/date-format-config.interface';
+import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
@@ -187,12 +187,10 @@ export class ApiService {
 
     const page = Math.max(1, pagination?.page ?? 1);
     const limit = Math.min(10_000, Math.max(1, pagination?.limit ?? 10_000));
-    pairs.push(['page', String(page)]);
-    pairs.push(['limit', String(limit)]);
+    pairs.push(['page', String(page)], ['limit', String(limit)]);
 
     const sortOrder = pagination?.sortOrder === 'ASC' ? 'ASC' : 'DESC';
-    pairs.push(['sort-order', sortOrder]);
-    pairs.push(['sort-field', pagination?.sortField?.trim() || 'code']);
+    pairs.push(['sort-order', sortOrder], ['sort-field', pagination?.sortField?.trim() || 'code']);
 
     const search = pagination?.search?.trim();
     if (search) {
@@ -219,13 +217,57 @@ export class ApiService {
       });
     }
 
-    const onlyOwnResults =
-      Array.isArray(resultFilter?.['create-user-codes']) && resultFilter['create-user-codes'].length > 0;
+    const onlyOwnResults = Array.isArray(resultFilter?.['create-user-codes']) && resultFilter['create-user-codes'].length > 0;
     pairs.push(['only-own-results', onlyOwnResults ? 'true' : 'false']);
 
     const qs = pairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
     const raw = await this.TP.get(`v2/results?${qs}`, {});
     return this.unwrapV2ResultsResponse(raw);
+  };
+
+  GET_ResultCenterXlsx = async (
+    resultFilter: ResultFilter,
+    pagination?: Pick<GetResultsPaginationOptions, 'sortField' | 'sortOrder' | 'search'>
+  ): Promise<Blob> => {
+    const pairs: [string, string][] = [];
+
+    const sortOrder = pagination?.sortOrder === 'ASC' ? 'ASC' : 'DESC';
+    pairs.push(['sort-order', sortOrder], ['sort-field', pagination?.sortField?.trim() || 'code']);
+
+    const search = pagination?.search?.trim();
+    if (search) {
+      pairs.push(['search', search]);
+    }
+
+    const indicatorKeysHandled = new Set(['indicator-codes', 'indicator-codes-tabs', 'indicator-codes-filter']);
+
+    if (resultFilter['indicator-codes-tabs']?.length) {
+      pairs.push(['indicators', resultFilter['indicator-codes-tabs'].join(',')]);
+    } else if (resultFilter['indicator-codes-filter']?.length) {
+      pairs.push(['indicators', resultFilter['indicator-codes-filter'].join(',')]);
+    } else if (resultFilter['indicator-codes']?.length) {
+      pairs.push(['indicators', resultFilter['indicator-codes'].join(',')]);
+    }
+
+    if (resultFilter) {
+      Object.entries(resultFilter).forEach(([key, value]) => {
+        if (indicatorKeysHandled.has(key)) return;
+        if (key === 'create-user-codes') return;
+        if (Array.isArray(value) && value.length) {
+          pairs.push([key, value.join(',')]);
+        }
+      });
+    }
+
+    const onlyOwnResults = Array.isArray(resultFilter?.['create-user-codes']) && resultFilter['create-user-codes'].length > 0;
+    pairs.push(['only-own-results', onlyOwnResults ? 'true' : 'false']);
+
+    let params = new HttpParams();
+    for (const [k, v] of pairs) {
+      params = params.set(k, v);
+    }
+
+    return this.TP.getBlob('reports/resultCenter/xlsx', { params });
   };
 
   private unwrapV2ResultsResponse(raw: MainResponse<unknown>): MainResponse<GetResultsResponseData> {
@@ -255,7 +297,7 @@ export class ApiService {
       ...raw,
       data: pagination ? { results, total, pagination } : { results, total }
     };
-  };
+  }
 
   GET_ValidateTitle = (title: string): Promise<MainResponse<{ isValid: boolean; result_official_code?: number; platform_code?: string }>> => {
     const queryString = title ? `?title=${title}` : '';
@@ -316,12 +358,11 @@ export class ApiService {
     return this.TP.patch(url(), body, {});
   };
 
-  GET_DateFormatConfiguration = (): Promise<MainResponse<DateFormatApiResponse>> => {
-    const url = () => `configuration/date-format`;
-    return this.TP.get(url(), { noAuthInterceptor: true });
+  GET_ConfigurationByKey = (key: string): Promise<MainResponse<ConfigurationByKeyResponse>> => {
+    const url = () => `configuration/${encodeURIComponent(key)}`;
+    return this.TP.get(url(), {});
   };
 
-  // create partner request
   POST_PartnerRequest = <T>(body: T): Promise<MainResponse<Result>> => {
     const url = () => `tools/clarisa/manager/partner-request/create`;
     return this.TP.post(url(), body, {});

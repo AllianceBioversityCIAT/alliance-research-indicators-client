@@ -1,4 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { APPLICATION_CONFIGURATION_KEY } from '@shared/constants/application-configuration-keys';
+import { CacheService } from '@services/cache/cache.service';
 import { ApiService } from './api.service';
 import { DateFormatJsonValue } from '@shared/interfaces/date-format-config.interface';
 
@@ -18,17 +20,22 @@ function normalizeDateFormatConfig(raw: unknown): DateFormatJsonValue | null {
 })
 export class DateFormatConfigService {
   private readonly api = inject(ApiService);
+  private readonly cache = inject(CacheService);
 
   private loadPromise: Promise<DateFormatJsonValue | null> | null = null;
 
   readonly config = signal<DateFormatJsonValue | null>(null);
 
   loadConfig(): Promise<DateFormatJsonValue | null> {
+    if (!this.cache.dataCache().access_token) {
+      this.config.set(null);
+      return Promise.resolve(null);
+    }
     if (this.loadPromise != null) {
       return this.loadPromise;
     }
     this.loadPromise = this.api
-      .GET_DateFormatConfiguration()
+      .GET_ConfigurationByKey(APPLICATION_CONFIGURATION_KEY.DATE_FORMAT)
       .then(res => {
         const raw = res?.data?.json_value;
         const value = normalizeDateFormatConfig(raw);

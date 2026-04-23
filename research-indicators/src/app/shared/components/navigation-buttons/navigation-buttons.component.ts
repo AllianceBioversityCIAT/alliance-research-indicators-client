@@ -3,8 +3,8 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { ButtonModule } from 'primeng/button';
 
-const RESULT_SIDEBAR_WIDTH_PX = 322;
-const CONTENT_RIGHT_OFFSET_PX = 0;
+const RESULT_SIDEBAR_WIDTH_PX = 308;
+const CONTENT_RIGHT_OFFSET_PX = 16;
 
 @Component({
   selector: 'app-navigation-buttons',
@@ -29,7 +29,7 @@ export class NavigationButtonsComponent {
     if (hss) {
       paddingLeft = collapsed ? 64 : 250;
     } else {
-      paddingLeft = collapsed ? 75 : 250;
+      paddingLeft = collapsed ? 75 : 260;
     }
     return paddingLeft + RESULT_SIDEBAR_WIDTH_PX;
   });

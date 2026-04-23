@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router } from '@angular/router';
 import ResultsCenterComponent from './results-center.component';
 import { ResultsCenterService } from './results-center.service';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
@@ -14,6 +15,8 @@ describe('ResultsCenterComponent', () => {
   let mockCacheService: jest.Mocked<CacheService>;
   let mockApiService: jest.Mocked<ApiService>;
   let mockActionsService: jest.Mocked<ActionsService>;
+  let mockRouter: { navigate: jest.Mock };
+  let queryParamGet: jest.Mock;
 
   beforeEach(async () => {
     jest.useFakeTimers();
@@ -59,7 +62,8 @@ describe('ResultsCenterComponent', () => {
       pinnedTab: signal('all'),
       activateStatePersistence: jest.fn(),
       deactivateStatePersistence: jest.fn(),
-      restorePersistedState: jest.fn().mockReturnValue(false)
+      restorePersistedState: jest.fn().mockReturnValue(false),
+      applyStatusFilterFromHomeLink: jest.fn()
     } as any;
 
     mockCacheService = {
@@ -84,13 +88,25 @@ describe('ResultsCenterComponent', () => {
     } as any);
     sessionStorage.clear();
 
+    queryParamGet = jest.fn().mockReturnValue(null);
+    mockRouter = { navigate: jest.fn().mockResolvedValue(true) };
+
     await TestBed.configureTestingModule({
       imports: [ResultsCenterComponent],
       providers: [
         { provide: ResultsCenterService, useValue: mockResultsCenterService },
         { provide: CacheService, useValue: mockCacheService },
         { provide: ApiService, useValue: mockApiService },
-        { provide: ActionsService, useValue: mockActionsService }
+        { provide: ActionsService, useValue: mockActionsService },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParamMap: { get: (key: string) => queryParamGet(key) }
+            }
+          }
+        },
+        { provide: Router, useValue: mockRouter }
       ]
     })
       .overrideComponent(ResultsCenterComponent, {
@@ -167,6 +183,100 @@ describe('ResultsCenterComponent', () => {
       expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
       expect(loadAllResultsSpy).toHaveBeenCalled();
       expect(loadMyResultsSpy).not.toHaveBeenCalled();
+    });
+
+    it('should apply indicator tab from query param, skip restore, and clear URL', async () => {
+      queryParamGet.mockImplementation((key: string) => (key === 'indicatorTab' ? '42' : null));
+      mockResultsCenterService.restorePersistedState.mockReturnValue(false);
+      const loadPinnedTabPreferenceSpy = jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults');
+
+      await (component as any).initializeState();
+
+      expect(mockResultsCenterService.restorePersistedState).not.toHaveBeenCalled();
+      expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
+      expect(loadMyResultsSpy).toHaveBeenCalledWith(true);
+      expect(mockResultsCenterService.onSelectFilterTab).toHaveBeenCalledWith(42, { skipMain: true });
+      expect(mockResultsCenterService.main).toHaveBeenCalledTimes(1);
+      expect(mockResultsCenterService.activateStatePersistence).toHaveBeenCalledWith('results-center');
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { indicatorTab: null, statusTab: null, statusLabel: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        })
+      );
+    });
+
+    it('should apply status filter from query param, load My Results, and clear URL', async () => {
+      queryParamGet.mockImplementation((key: string) => {
+        if (key === 'statusTab') {
+          return '6';
+        }
+        if (key === 'statusLabel') {
+          return 'Submitted';
+        }
+        return null;
+      });
+      mockResultsCenterService.restorePersistedState.mockReturnValue(false);
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults');
+
+      await (component as any).initializeState();
+
+      expect(loadMyResultsSpy).toHaveBeenCalledWith(true);
+      expect(mockResultsCenterService.applyStatusFilterFromHomeLink).toHaveBeenCalledWith(6, 'Submitted', {
+        skipMain: true
+      });
+      expect(mockResultsCenterService.main).toHaveBeenCalledTimes(1);
+      expect(mockResultsCenterService.onSelectFilterTab).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { indicatorTab: null, statusTab: null, statusLabel: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        })
+      );
+    });
+
+    it('should pass undefined statusLabel when statusLabel query param is absent', async () => {
+      queryParamGet.mockImplementation((key: string) => (key === 'statusTab' ? '9' : null));
+      mockResultsCenterService.restorePersistedState.mockReturnValue(false);
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+
+      await (component as any).initializeState();
+
+      expect(mockResultsCenterService.applyStatusFilterFromHomeLink).toHaveBeenCalledWith(9, undefined, {
+        skipMain: true
+      });
+    });
+
+    it('should apply both indicator tab and status filter when both query params are present', async () => {
+      queryParamGet.mockImplementation((key: string) => {
+        if (key === 'indicatorTab') {
+          return '3';
+        }
+        if (key === 'statusTab') {
+          return '11';
+        }
+        if (key === 'statusLabel') {
+          return 'Postpone';
+        }
+        return null;
+      });
+      mockResultsCenterService.restorePersistedState.mockReturnValue(false);
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      jest.spyOn(component, 'loadMyResults');
+
+      await (component as any).initializeState();
+
+      expect(mockResultsCenterService.onSelectFilterTab).toHaveBeenCalledWith(3, { skipMain: true });
+      expect(mockResultsCenterService.applyStatusFilterFromHomeLink).toHaveBeenCalledWith(11, 'Postpone', {
+        skipMain: true
+      });
+      expect(mockResultsCenterService.main).toHaveBeenCalledTimes(1);
     });
   });
 

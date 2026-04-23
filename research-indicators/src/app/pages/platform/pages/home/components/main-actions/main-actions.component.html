@@ -1,44 +1,50 @@
-<div class="flex flex-col gap-4 h-full">
+<div class="flex flex-col gap-3 w-full">
   <div class="header">
-    <span class="title-text">MAIN ACTIONS</span>
+    <span class="title-text">Main actions</span>
     <span class="description-text">Effortlessly access your key actions and get started.</span>
   </div>
 
-  <div class="grid grid-cols-2 grid-rows-2 gap-4 h-full max-[1251px]:grid-cols-3 max-[1251px]:grid-rows-1 max-[1251px]:h-50">
-    <div class="main-action min-[1251px]:row-span-2" routerLink="/projects">
-      <img [src]="'images/home/main-action-1.png' | s3ImageUrl" alt="" />
-
-      <div class="text-content">
-        <div class="title-content">
-          <img [src]="'images/home/my-dashboard.png' | s3ImageUrl" alt="" />
-          <span class="title">Projects</span>
+  <div class="main-actions-row">
+    <a class="main-action" routerLink="/projects">
+      <img class="main-action__bg" [src]="'images/home/main-action-1.png' | s3ImageUrl" alt="" />
+      <div class="main-action__overlay" aria-hidden="true"></div>
+      <div class="main-action__inner">
+        <div class="main-action__icon-wrap">
+          <img [src]="'images/home/my-dashboard.png' | s3ImageUrl" alt="" class="main-action__icon" />
         </div>
-        <span class="description">Track, monitor, and manage your ongoing projects seamlessly.</span>
-      </div>
-    </div>
-
-    <div class="main-action" routerLink="/dashboard">
-      <img [src]="'images/home/main-action-2.png' | s3ImageUrl" alt="" />
-
-      <div class="text-content">
-        <div class="title-content">
-          <img [src]="'images/home/my-projects.png' | s3ImageUrl" alt="" />
-          <span class="title">My Dashboard</span>
+        <div class="main-action__copy">
+          <span class="main-action__title">My projects</span>
+          <p class="main-action__description">Monitor your ongoing projects seamlessly.</p>
         </div>
-        <span class="description">Manage results and track progress.</span>
       </div>
-    </div>
+    </a>
 
-    <div class="main-action" routerLink="/results-center">
-      <img [src]="'images/home/main-action-3.png' | s3ImageUrl" alt="" />
-
-      <div class="text-content">
-        <div class="title-content">
-          <img [src]="'images/home/my-results.png' | s3ImageUrl" alt="" />
-          <span class="title">Results Center</span>
+    <a class="main-action" routerLink="/results-center">
+      <img class="main-action__bg" [src]="'images/home/main-action-3.png' | s3ImageUrl" alt="" />
+      <div class="main-action__overlay" aria-hidden="true"></div>
+      <div class="main-action__inner">
+        <div class="main-action__icon-wrap">
+          <img [src]="'images/home/my-results.png' | s3ImageUrl" alt="" class="main-action__icon" />
         </div>
-        <span class="description">Review your saved results.</span>
+        <div class="main-action__copy">
+          <span class="main-action__title">My results</span>
+          <p class="main-action__description">Review and organize your saved results.</p>
+        </div>
       </div>
-    </div>
+    </a>
+
+    <a class="main-action" routerLink="/dashboard">
+      <img class="main-action__bg" [src]="'images/home/main-action-2.png' | s3ImageUrl" alt="" />
+      <div class="main-action__overlay" aria-hidden="true"></div>
+      <div class="main-action__inner">
+        <div class="main-action__icon-wrap">
+          <img [src]="'images/home/my-projects.png' | s3ImageUrl" alt="" class="main-action__icon" />
+        </div>
+        <div class="main-action__copy">
+          <span class="main-action__title">My dashboard</span>
+          <p class="main-action__description">Manage results and track your progress.</p>
+        </div>
+      </div>
+    </a>
   </div>
 </div>
