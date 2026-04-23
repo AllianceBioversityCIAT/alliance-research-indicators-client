@@ -185,6 +185,28 @@ describe('ResultsCenterComponent', () => {
       expect(loadMyResultsSpy).not.toHaveBeenCalled();
     });
 
+    it('should load my results and strip tab query when ?tab=my (e.g. from home main actions)', async () => {
+      queryParamGet.mockImplementation((key: string) => (key === 'tab' ? 'my' : null));
+      mockResultsCenterService.restorePersistedState.mockReturnValue(false);
+      const loadPinnedTabPreferenceSpy = jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const loadMyResultsSpy = jest.spyOn(component, 'loadMyResults').mockImplementation();
+      const loadAllResultsSpy = jest.spyOn(component, 'loadAllResults').mockImplementation();
+
+      await (component as any).initializeState();
+
+      expect(loadPinnedTabPreferenceSpy).toHaveBeenCalled();
+      expect(loadMyResultsSpy).toHaveBeenCalled();
+      expect(loadAllResultsSpy).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { tab: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        })
+      );
+    });
+
     it('should apply indicator tab from query param, skip restore, and clear URL', async () => {
       queryParamGet.mockImplementation((key: string) => (key === 'indicatorTab' ? '42' : null));
       mockResultsCenterService.restorePersistedState.mockReturnValue(false);

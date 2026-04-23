@@ -7,7 +7,9 @@ import { cacheServiceMock } from 'src/app/testing/mock-services.mock';
 const mockUrlTree = {} as UrlTree;
 const mockRouter = {
   url: '/projects',
-  createUrlTree: jest.fn().mockReturnValue(mockUrlTree)
+  createUrlTree: jest.fn().mockReturnValue(mockUrlTree),
+  getCurrentNavigation: jest.fn().mockReturnValue(null),
+  serializeUrl: jest.fn((t: { toString: () => string }) => (t ? t.toString() : '/'))
 };
 
 // Mock the entire @angular/core module
@@ -36,6 +38,10 @@ describe('rolesGuard', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    (mockRouter.getCurrentNavigation as jest.Mock).mockReturnValue(null);
+    (mockRouter.serializeUrl as jest.Mock).mockImplementation((t: { toString: () => string }) =>
+      t ? t.toString() : '/'
+    );
   });
 
   it('should be defined', () => {
@@ -57,10 +63,30 @@ describe('rolesGuard', () => {
 
     it('should return UrlTree to /login with returnUrl when user is not logged in', () => {
       mockCacheService.isLoggedIn.set(false);
+      (mockRouter.getCurrentNavigation as jest.Mock).mockReturnValue(null);
       const segments = [{ path: 'projects', parameters: {} }];
       const result = rolesGuard(mockRoute, segments);
       expect(result).toBe(mockUrlTree);
       expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/projects' } });
+    });
+
+    it('should return false when not logged in and in-flight target is app root (allow landing to match)', () => {
+      mockCacheService.isLoggedIn.set(false);
+      const extracted = {} as import('@angular/router').UrlTree;
+      (mockRouter.getCurrentNavigation as jest.Mock).mockReturnValue({ extractedUrl: extracted });
+      (mockRouter.serializeUrl as jest.Mock).mockReturnValue('/');
+      const result = rolesGuard(mockRoute, []);
+      expect(result).toBe(false);
+      expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
+    });
+
+    it('should return false when in-flight serialized path is empty (root)', () => {
+      mockCacheService.isLoggedIn.set(false);
+      (mockRouter.getCurrentNavigation as jest.Mock).mockReturnValue({ extractedUrl: {} });
+      (mockRouter.serializeUrl as jest.Mock).mockReturnValue('');
+      const result = rolesGuard(mockRoute, []);
+      expect(result).toBe(false);
+      expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
     });
 
     it('should use path from segments when non-empty and router.url when segments empty (cover lines 12-13)', () => {
