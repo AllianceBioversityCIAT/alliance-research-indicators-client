@@ -65,6 +65,48 @@
       box-sizing: border-box;
     }
 
+    button.admin-parent--collapsed.admin-parent--collapsed-open {
+      background-color: var(--sidebar-option-selected-bg) !important;
+    }
+
+    .admin-collapsed-popover-wrap {
+      position: relative;
+      overflow: visible;
+
+      &:has(.admin-center-admin-flyout) {
+        z-index: 10000;
+      }
+    }
+
+    .admin-flyout-row {
+      box-sizing: border-box;
+
+      .sidebar-option-icon {
+        color: #173f6f;
+      }
+
+      .admin-flyout-label {
+        flex: 1;
+        min-width: 0;
+        line-height: 1.35;
+        color: #173f6f !important;
+      }
+
+      &.admin-flyout-row--active {
+        background-color: var(--sidebar-option-selected-bg) !important;
+
+        .admin-flyout-label,
+        .sidebar-option-label {
+          font-weight: 500;
+          color: var(--ac-primary-blue-400) !important;
+        }
+
+        .sidebar-option-icon {
+          color: var(--ac-primary-blue-400) !important;
+        }
+      }
+    }
+
     .admin-collapsed-submenu {
       display: flex;
       flex-direction: column;
