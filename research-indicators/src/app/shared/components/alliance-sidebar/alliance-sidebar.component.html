@@ -58,14 +58,13 @@
       </button>
       @if (isAdministrationGroupExpanded(group.id)) {
       @for (child of visibleAdministrationChildren(group); track child.link) {
-      <a class="option option--nested atc-primary-blue-400 block" [routerLink]="child.link"
-        routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <a class="option option--nested atc-primary-blue-400 block" [routerLink]="child.link" routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }">
         <span class="option-nested-inner flex min-w-0 items-center gap-[12px] pl-2">
           @if (child.s3Image) {
           <img [src]="child.s3Image | s3ImageUrl" alt="" class="h-[14px] w-[14px] shrink-0 object-contain" />
           } @else {
-          <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon"
-            [style.fontSize]="child.iconSize ?? null"></i>
+          <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon" [style.fontSize]="child.iconSize ?? null"></i>
           }
           <span class="sidebar-option-label body-2 text">{{ child.label }}</span>
         </span>
@@ -79,29 +78,37 @@
   <hr class="divider divider--collapsed-tight" />
   <div class="administration-block administration-block--collapsed flex w-full min-w-0 flex-col">
     @for (group of this.administrationGroups; track group.id) {
-    <div class="flex w-full min-w-0 flex-col gap-0">
+    <div class="admin-collapsed-popover-wrap flex w-full min-w-0 flex-col gap-0">
       <button type="button"
         class="admin-parent admin-parent--collapsed flex w-full cursor-pointer items-center justify-center border-0 bg-transparent py-[7px] pl-0 pr-0 atc-primary-blue-400"
-        (click)="toggleAdministrationGroup(group.id)" (keydown.enter)="toggleAdministrationGroup(group.id)"
-        [attr.aria-expanded]="isAdministrationGroupExpanded(group.id)"
-        [attr.aria-label]="group.label"
-        [pTooltip]="group.label" tooltipPosition="right" [positionLeft]="15">
+        [class.admin-parent--collapsed-open]="administrationFlyoutGroupId() === group.id"
+        (click)="toggleAdministrationFlyout(group.id, $event)"
+        (keydown.enter)="toggleAdministrationFlyout(group.id, $event)"
+        (keydown.space)="$event.preventDefault(); toggleAdministrationFlyout(group.id, $event)"
+        [attr.aria-expanded]="administrationFlyoutGroupId() === group.id" [attr.aria-label]="group.label"
+        [pTooltip]="administrationFlyoutGroupId() === group.id ? '' : group.label" tooltipPosition="right"
+        [positionLeft]="15">
         <i class="sidebar-option-icon shrink-0" [ngClass]="'pi ' + group.icon"></i>
       </button>
-      @if (isAdministrationGroupExpanded(group.id)) {
-      <div class="admin-collapsed-submenu">
+      @if (administrationFlyoutGroupId() === group.id) {
+      <div
+        class="admin-center-admin-flyout absolute left-[calc(100%+10px)] top-0 z-[9999] min-w-[170px] rounded-lg border border-[#E8EBED] bg-white p-2 shadow-lg"
+        tabindex="-1" (click)="$event.stopPropagation()" (keydown.escape)="closeAdministrationFlyout()">
+        <div
+          class="admin-flyout-header px-2 py-1.5 !text-[12px] font-bold capitalize tracking-wide text-[#8d9299] !font-[space_grotesk]">
+          {{ group.label }}</div>
         @for (child of visibleAdministrationChildren(group); track child.link) {
-        <a class="option option--nested option--nested-collapsed flex w-full max-w-full items-center justify-center"
-          [routerLink]="child.link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-          [pTooltip]="child.label" tooltipPosition="right" [positionLeft]="15">
-          <span class="admin-collapsed-nested-hit">
-            @if (child.s3Image) {
-            <img [src]="child.s3Image | s3ImageUrl" alt="" class="admin-collapsed-nested-img" />
-            } @else {
-            <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon"
-              [style.fontSize]="child.iconSize ?? null"></i>
-            }
-          </span>
+        <a class="admin-flyout-row flex min-w-0 cursor-pointer items-center gap-3 rounded-md px-2 py-2 no-underline atc-primary-blue-400 hover:bg-[#F4F7F9]"
+          [routerLink]="child.link" routerLinkActive="admin-flyout-row--active"
+          [routerLinkActiveOptions]="{ exact: true }" (click)="closeAdministrationFlyout()">
+          @if (child.s3Image) {
+          <img [src]="child.s3Image | s3ImageUrl" alt="" class="h-[14px] w-[14px] shrink-0 object-contain" />
+          } @else {
+          <i class="sidebar-option-icon shrink-0 text-[#173f6f]" [ngClass]="'pi ' + child.icon"
+            [style.fontSize]="child.iconSize ?? null"></i>
+          }
+          <span class="admin-flyout-label sidebar-option-label body-2 !text-[12.5px] text-[#173f6f]">{{ child.label
+            }}</span>
         </a>
         }
       </div>
