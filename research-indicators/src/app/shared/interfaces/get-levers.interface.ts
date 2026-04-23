@@ -8,4 +8,6 @@ export interface GetLevers {
   short_name: string;
   full_name: string;
   other_names: string;
+  icon?: string;
+  lever_url?: string;
 }

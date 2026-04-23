@@ -140,6 +140,14 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/levers', {});
     });
 
+    it('should call GET_ClarisaSdgTargets', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_ClarisaSdgTargets();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/sdg-targets', {});
+    });
+
     it('should call GET_InstitutionsTypes', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
@@ -1676,6 +1684,25 @@ describe('ApiService', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
       service.GET_LeverSdgTargets(3, false);
       expect(mockToPromiseService.get).toHaveBeenCalledWith('lever-sdg-targets/by-lever/3', {});
+    });
+
+    it('should call GET_LeverSdgTargetMappings on lever-sdg-targets', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_LeverSdgTargetMappings();
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('lever-sdg-targets', {});
+    });
+
+    it('should call PATCH_LeverSdgTargets with list body', () => {
+      const body = { leverSdgTargetList: [{ id: 0, lever_id: 1, sdg_target_id: 2 }] };
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+      service.PATCH_LeverSdgTargets(body);
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('lever-sdg-targets', body, {});
+    });
+
+    it('should call DELETE_LeverSdgTargetMapping for id in path', () => {
+      (mockToPromiseService.delete as jest.Mock).mockResolvedValue({ data: {} });
+      service.DELETE_LeverSdgTargetMapping(42);
+      expect(mockToPromiseService.delete).toHaveBeenCalledWith('lever-sdg-targets/42', {});
     });
 
     it('should call GET_AutorContact with resultCode', () => {

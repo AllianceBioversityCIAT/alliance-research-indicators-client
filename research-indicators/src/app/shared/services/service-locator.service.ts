@@ -1,4 +1,4 @@
-import { Injectable, Injector } from '@angular/core';
+import { Injectable, Injector, type InjectOptions, type ProviderToken } from '@angular/core';
 import { GetContractsService } from './control-list/get-contracts.service';
 import { GetInstitutionsService } from './control-list/get-institutions.service';
 import { ControlListServices } from '../interfaces/services.interface';
@@ -60,12 +60,17 @@ import { GlobalTargetsService } from './short-control-list/global-targets.servic
 import { ImpactAreaScoresService } from './short-control-list/impact-area-scores.service';
 import { ImpactAreasService } from './short-control-list/impact-areas.service';
 import { SourceFilterOptionsService } from './short-control-list/source-filter-options.service';
+import { GetClarisaSdgTargetsService } from './control-list/get-clarisa-sdg-targets.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServiceLocatorService {
   constructor(private readonly injector: Injector) {}
+
+  private getFromInjector<T>(token: ProviderToken<T>): T {
+    return this.injector.get(token, undefined, { optional: false } satisfies InjectOptions);
+  }
 
   getService(serviceName: ControlListServices) {
     return (
@@ -92,32 +97,32 @@ export class ServiceLocatorService {
   private getPrimaryServices(serviceName: ControlListServices) {
     switch (serviceName) {
       case 'actorTypes':
-        return this.injector.get(GetActorTypesService);
+        return this.getFromInjector(GetActorTypesService);
       case 'institutionTypes':
-        return this.injector.get(GetInstitutionTypesService);
+        return this.getFromInjector(GetInstitutionTypesService);
       case 'anticipatedUsers':
-        return this.injector.get(GetAnticipatedUsersService);
+        return this.getFromInjector(GetAnticipatedUsersService);
       case 'innovationTypes':
-        return this.injector.get(GetInnovationTypesService);
+        return this.getFromInjector(GetInnovationTypesService);
       case 'innovationCharacteristics':
-        return this.injector.get(GetInnovationCharacteristicsService);
+        return this.getFromInjector(GetInnovationCharacteristicsService);
       case 'innovationReadinessLevels':
-        return this.injector.get(GetInnovationReadinessLevelsService);
+        return this.getFromInjector(GetInnovationReadinessLevelsService);
       case 'contracts':
-        return this.injector.get(GetContractsService);
+        return this.getFromInjector(GetContractsService);
       case 'institutions':
-        return this.injector.get(GetInstitutionsService);
+        return this.getFromInjector(GetInstitutionsService);
       case 'userStaff':
-        return this.injector.get(GetUserStaffService);
+        return this.getFromInjector(GetUserStaffService);
       case 'maturityLevels':
-        return this.injector.get(GetMaturityLevelsService);
+        return this.getFromInjector(GetMaturityLevelsService);
       case 'countriesWithSubnational': {
-        const svc = this.injector.get(GetCountriesService);
+        const svc = this.getFromInjector(GetCountriesService);
         svc.main(true);
         return svc;
       }
       case 'countriesWithoutSubnational': {
-        const svc = this.injector.get(GetCountriesService);
+        const svc = this.getFromInjector(GetCountriesService);
         svc.main(false);
         return svc;
       }
@@ -129,29 +134,29 @@ export class ServiceLocatorService {
   private getSecondaryServices(serviceName: ControlListServices) {
     switch (serviceName) {
       case 'countries':
-        return this.injector.get(GetCountriesService);
+        return this.getFromInjector(GetCountriesService);
       case 'languages':
-        return this.injector.get(GetClarisaLanguagesService);
+        return this.getFromInjector(GetClarisaLanguagesService);
       case 'capSharingGenders':
-        return this.injector.get(CapSharingGendersService);
+        return this.getFromInjector(CapSharingGendersService);
       case 'capSharingFormats':
-        return this.injector.get(CapSharingFormatsService);
+        return this.getFromInjector(CapSharingFormatsService);
       case 'capSharingTypes':
-        return this.injector.get(CapSharingTypesService);
+        return this.getFromInjector(CapSharingTypesService);
       case 'capSharingDegrees':
-        return this.injector.get(CapSharingDegreesService);
+        return this.getFromInjector(CapSharingDegreesService);
       case 'capSharingLengths':
-        return this.injector.get(CapSharingLengthsService);
+        return this.getFromInjector(CapSharingLengthsService);
       case 'disseminationQualifications':
-        return this.injector.get(DisseminationQualificationsService);
+        return this.getFromInjector(DisseminationQualificationsService);
       case 'toolFunctions':
-        return this.injector.get(ToolFunctionsService);
+        return this.getFromInjector(ToolFunctionsService);
       case 'initiatives':
-        return this.injector.get(GetInitiativesService);
+        return this.getFromInjector(GetInitiativesService);
       case 'tags':
-        return this.injector.get(GetTagsService);
+        return this.getFromInjector(GetTagsService);
       case 'oicrResults':
-        return this.injector.get(OicrResultsService);
+        return this.getFromInjector(OicrResultsService);
       default:
         return null;
     }
@@ -160,21 +165,21 @@ export class ServiceLocatorService {
   private getTertiaryServices(serviceName: ControlListServices) {
     switch (serviceName) {
       case 'capSharingDeliveryModalities':
-        return this.injector.get(CapSharingDeliveryModalitiesService);
+        return this.getFromInjector(CapSharingDeliveryModalitiesService);
       case 'capSharingSessionPurpose':
-        return this.injector.get(CapSharingSessionPurposeService);
+        return this.getFromInjector(CapSharingSessionPurposeService);
       case 'yesOrNo':
-        return this.injector.get(YesOrNotService);
+        return this.getFromInjector(YesOrNotService);
       case 'expansionPotential':
-        return this.injector.get(ExpansionPotentialService);
+        return this.getFromInjector(ExpansionPotentialService);
       case 'policyTypes':
-        return this.injector.get(PolicyTypesService);
+        return this.getFromInjector(PolicyTypesService);
       case 'policyStages':
-        return this.injector.get(PolicyStagesService);
+        return this.getFromInjector(PolicyStagesService);
       case 'geoFocus':
-        return this.injector.get(GetGeoFocusService);
+        return this.getFromInjector(GetGeoFocusService);
       case 'innResults':
-        return this.injector.get(InnResultsService);
+        return this.getFromInjector(InnResultsService);
       default:
         return null;
     }
@@ -183,72 +188,74 @@ export class ServiceLocatorService {
   private getQuaternaryServices(serviceName: ControlListServices) {
     switch (serviceName) {
       case 'regions':
-        return this.injector.get(GetRegionsService);
+        return this.getFromInjector(GetRegionsService);
       case 'geoScopeOpenSearch':
-        return this.injector.get(GetOsGeoScopeService);
+        return this.getFromInjector(GetOsGeoScopeService);
       case 'openSearchCountries':
-        return this.injector.get(GetOsCountriesService);
+        return this.getFromInjector(GetOsCountriesService);
       case 'openSearchResult':
-        return this.injector.get(GetOsResultService);
+        return this.getFromInjector(GetOsResultService);
       case 'innoDevOutput':
-        return this.injector.get(GetInnoDevOutputService);
+        return this.getFromInjector(GetInnoDevOutputService);
       case 'innoUseOutput':
-        return this.injector.get(GetInnoUseOutputService);
+        return this.getFromInjector(GetInnoUseOutputService);
       case 'notableReferenceTypes':
-        return this.injector.get(NotableReferenceTypesService);
-        case 'informativeRoles':
-          return this.injector.get(InformativeRolesService);
-        case 'globalTargets':
-          return this.injector.get(GlobalTargetsService);
-        case 'impactAreaScores':
-          return this.injector.get(ImpactAreaScoresService);
-        case 'impactAreas':
-          return this.injector.get(ImpactAreasService);
-        default:
-          return null;
+        return this.getFromInjector(NotableReferenceTypesService);
+      case 'informativeRoles':
+        return this.getFromInjector(InformativeRolesService);
+      case 'globalTargets':
+        return this.getFromInjector(GlobalTargetsService);
+      case 'impactAreaScores':
+        return this.getFromInjector(ImpactAreaScoresService);
+      case 'impactAreas':
+        return this.getFromInjector(ImpactAreasService);
+      default:
+        return null;
     }
   }
 
   private getOtherServices(serviceName: ControlListServices) {
     switch (serviceName) {
       case 'openSearchSubNationals':
-        return this.injector.get(GetOsSubnationalService);
+        return this.getFromInjector(GetOsSubnationalService);
       case 'getAllIndicators':
-        return this.injector.get(GetAllIndicatorsService);
+        return this.getFromInjector(GetAllIndicatorsService);
       case 'allResultStatus':
-        return this.injector.get(GetAllResultStatusService);
+        return this.getFromInjector(GetAllResultStatusService);
       case 'getYears':
-        return this.injector.get(GetYearsService);
+        return this.getFromInjector(GetYearsService);
       case 'getYearsByCode':
-        return this.injector.get(GetYearsByCodeService);
+        return this.getFromInjector(GetYearsByCodeService);
       case 'getAllYears':
-        return this.injector.get(GetAllYearsService);
+        return this.getFromInjector(GetAllYearsService);
       case 'ipOwners':
-        return this.injector.get(IpOwnerService);
+        return this.getFromInjector(IpOwnerService);
       case 'GetSubnationalByIsoAlpha':
-        return this.injector.get(GetSubnationalByIsoAlphaService);
+        return this.getFromInjector(GetSubnationalByIsoAlphaService);
       case 'clarisaInstitutionsTypes':
-        return this.injector.get(GetClarisaInstitutionsTypesService);
+        return this.getFromInjector(GetClarisaInstitutionsTypesService);
       case 'clarisaInstitutionsTypesChildless':
-        return this.injector.get(GetClarisaInstitutionsTypesChildlessService);
+        return this.getFromInjector(GetClarisaInstitutionsTypesChildlessService);
       case 'sdgs':
-        return this.injector.get(GetSdgsService);
+        return this.getFromInjector(GetSdgsService);
       case 'scaling':
-        return this.injector.get(ScalingService);
+        return this.getFromInjector(ScalingService);
       case 'applicationOptions':
-        return this.injector.get(ApplicationOptionsService);
+        return this.getFromInjector(ApplicationOptionsService);
       case 'levers':
-        return this.injector.get(GetLeversService);
+        return this.getFromInjector(GetLeversService);
       case 'leverStrategicOutcomes':
-        return this.injector.get(GetLeverStrategicOutcomesService);
+        return this.getFromInjector(GetLeverStrategicOutcomesService);
       case 'leverSdgTargets':
-        return this.injector.get(GetLeverSdgTargetsService);
+        return this.getFromInjector(GetLeverSdgTargetsService);
+      case 'clarisaSdgTargets':
+        return this.getFromInjector(GetClarisaSdgTargetsService);
       case 'projectStatus':
-        return this.injector.get(GetProjectStatusService);
+        return this.getFromInjector(GetProjectStatusService);
       case 'allianceStaffByGroup':
-        return this.injector.get(GetAllianceStaffByGroupService);
+        return this.getFromInjector(GetAllianceStaffByGroupService);
       case 'sourceFilterOptions':
-        return this.injector.get(SourceFilterOptionsService);
+        return this.getFromInjector(SourceFilterOptionsService);
       default:
         console.warn(`Service ${serviceName} not found`);
         return null;
