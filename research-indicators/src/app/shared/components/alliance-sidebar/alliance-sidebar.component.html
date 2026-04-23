@@ -94,8 +94,7 @@
       <div
         class="admin-center-admin-flyout absolute left-[calc(100%+10px)] top-0 z-[9999] min-w-[170px] rounded-lg border border-[#E8EBED] bg-white p-2 shadow-lg"
         tabindex="-1" (click)="$event.stopPropagation()" (keydown.escape)="closeAdministrationFlyout()">
-        <div
-          class="admin-flyout-header px-2 py-1.5 !text-[12px] font-bold capitalize tracking-wide text-[#8d9299] !font-[space_grotesk]">
+        <div class="admin-flyout-header px-2 py-1.5 !text-[12px] font-bold capitalize tracking-wide text-[#8d9299]">
           {{ group.label }}</div>
         @for (child of visibleAdministrationChildren(group); track child.link) {
         <a class="admin-flyout-row flex min-w-0 cursor-pointer items-center gap-3 rounded-md px-2 py-2 no-underline atc-primary-blue-400 hover:bg-[#F4F7F9]"
