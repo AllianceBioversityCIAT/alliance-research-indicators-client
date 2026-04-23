@@ -1150,6 +1150,52 @@ describe('ResultsCenterService', () => {
       expect(appliedFilter['indicator-codes-tabs']).toEqual([2]);
       expect(mainSpy).toHaveBeenCalled();
     });
+
+    it('should not call main when skipMain is true', () => {
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.onSelectFilterTab(1, { skipMain: true });
+
+      expect(mainSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('applyStatusFilterFromHomeLink', () => {
+    it('sets status on tableFilters and results filters and calls main by default', () => {
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.applyStatusFilterFromHomeLink(5, 'Approved');
+
+      expect(service.tableFilters().statusCodes).toEqual([{ result_status_id: 5, name: 'Approved' }]);
+      expect(service.resultsFilter()['status-codes']).toEqual([5]);
+      expect(service.appliedFilters()['status-codes']).toEqual([5]);
+      expect(mainSpy).toHaveBeenCalled();
+    });
+
+    it('does not call main when skipMain is true', () => {
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.applyStatusFilterFromHomeLink(3, 'Draft', { skipMain: true });
+
+      expect(service.tableFilters().statusCodes[0]).toEqual({ result_status_id: 3, name: 'Draft' });
+      expect(mainSpy).not.toHaveBeenCalled();
+    });
+
+    it('uses display name Status when statusName is omitted', () => {
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.applyStatusFilterFromHomeLink(9);
+
+      expect(service.tableFilters().statusCodes[0].name).toBe('Status');
+    });
+
+    it('trims statusName', () => {
+      jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.applyStatusFilterFromHomeLink(2, '  Submitted  ');
+
+      expect(service.tableFilters().statusCodes[0].name).toBe('Submitted');
+    });
   });
 
   describe('cleanFilters', () => {
@@ -1961,6 +2007,55 @@ describe('ResultsCenterService', () => {
       service.invalidateResultsListFetchCache();
       await service.main();
       expect(mockGetResultsService.fetchPaginated).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('getExportResultFilter and getExportPaginationOptions', () => {
+    it('getExportPaginationOptions should mirror table sort and search', () => {
+      service.resultsTableSortField.set('title');
+      service.resultsTableSortOrder.set(1);
+      service.searchInput.set('  q  ');
+      expect(service.getExportPaginationOptions()).toEqual({
+        sortField: 'result-title',
+        sortOrder: 'ASC',
+        search: 'q'
+      });
+    });
+
+    it('getExportPaginationOptions should use DESC when sort order is not ascending', () => {
+      service.resultsTableSortField.set('result_official_code');
+      service.resultsTableSortOrder.set(-1);
+      service.searchInput.set('');
+      expect(service.getExportPaginationOptions()).toEqual({
+        sortField: 'code',
+        sortOrder: 'DESC',
+        search: ''
+      });
+    });
+
+    it('getExportResultFilter should add create-user-codes on My Results tab without mutating signals incorrectly', () => {
+      service.myResultsFilterItem.set({ id: 'my', label: 'My Results' });
+      service.resultsFilter.set({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
+      const f = service.getExportResultFilter();
+      expect(f['create-user-codes']).toEqual(['123']);
+    });
+
+    it('getExportResultFilter should include contract-codes when primary project is pinned', () => {
+      service.primaryContractId.set('C-99');
+      service.resultsFilter.set({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] });
+      expect(service.getExportResultFilter()['contract-codes']).toEqual(['C-99']);
+    });
+
+    it('getExportResultFilter should clear create-user-codes when tab is not My but filter still has user codes', () => {
+      service.myResultsFilterItem.set({ id: 'all', label: 'All Results' });
+      service.resultsFilter.set({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': ['123'] });
+      expect(service.getExportResultFilter()['create-user-codes']).toEqual([]);
+    });
+
+    it('getExportResultFilter should keep existing create-user-codes on My tab when already set', () => {
+      service.myResultsFilterItem.set({ id: 'my', label: 'My Results' });
+      service.resultsFilter.set({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': ['999'] });
+      expect(service.getExportResultFilter()['create-user-codes']).toEqual(['999']);
     });
   });
 

@@ -1,8 +1,12 @@
 <div class="content">
-  <app-header class="w-full flex md:pt-5"></app-header>
-  <div class="items p-[10px]">
-    <app-main-actions class="item"></app-main-actions>
-    <app-data-overview class="item"></app-data-overview>
+  <div class="home-body">
+    <div class="home-main">
+      <app-header class="home-main-block w-full"></app-header>
+      <app-main-actions class="home-main-block"></app-main-actions>
+      <app-my-latest-results class="home-main-block"></app-my-latest-results>
+    </div>
+    <aside class="home-sidebar">
+      <app-data-overview></app-data-overview>
+    </aside>
   </div>
-  <app-my-latest-results class="p-[10px]"></app-my-latest-results>
 </div>

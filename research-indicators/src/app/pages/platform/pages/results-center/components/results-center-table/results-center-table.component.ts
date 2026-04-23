@@ -7,12 +7,10 @@ import { TagModule } from 'primeng/tag';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ResultsCenterService } from '../../results-center.service';
-import * as ExcelJS from 'exceljs';
 import { Router, RouterLink } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ApiService } from '@shared/services/api.service';
 import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
-import { GeneralReportItem } from '@shared/interfaces/get-general-report.interface';
 import { PopoverModule } from 'primeng/popover';
 import { Result } from '@shared/interfaces/result/result.interface';
 import { FiltersActionButtonsComponent } from '../../../../../../shared/components/filters-action-buttons/filters-action-buttons.component';
@@ -136,203 +134,33 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     return String(code).padStart(3, '0');
   }
 
-  private adjustColumnWidth(worksheet: ExcelJS.Worksheet, columnNumber: number, maxWidth = 70, minWidth = 15) {
-    const column = worksheet.getColumn(columnNumber);
-    if (column) {
-      let maxLength = column.header?.toString().length ?? 0;
-
-      column.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
-        if (rowNumber > 1) {
-          const cellText = cell.text ?? '';
-          const textLength = cellText.toString().length;
-          maxLength = Math.max(maxLength, textLength);
-        }
-      });
-
-      column.width = Math.min(Math.max(maxLength + 2, minWidth), maxWidth);
-    }
-  }
-
-  private styleHeaderColumns(worksheet: ExcelJS.Worksheet, totalColumns: number) {
-    worksheet.views = [
-      {
-        state: 'frozen',
-        ySplit: 1,
-        xSplit: 0,
-        rightToLeft: false,
-        showGridLines: true,
-        zoomScale: 100
-      }
-    ];
-
-    // Enable autoFilter for all columns
-    worksheet.autoFilter = {
-      from: { row: 1, column: 1 },
-      to: { row: 1, column: totalColumns }
-    };
-
-    // Style only the used columns
-    for (let i = 1; i <= totalColumns; i++) {
-      const cell = worksheet.getRow(1).getCell(i);
-      worksheet.getRow(1).height = 30;
-      cell.font = { bold: true };
-      cell.alignment = { vertical: 'middle', horizontal: 'center' };
-      cell.font = {
-        color: { argb: 'FFFFFF' },
-        size: 16,
-        bold: true
-      };
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '204887' }
-      };
-    }
-
-    // Hide all columns after our data
-    for (let i = totalColumns + 1; i <= worksheet.columnCount; i++) {
-      worksheet.getColumn(i).hidden = true;
-    }
+  private buildResultsCenterExportFileName(date: Date): string {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const yyyymmdd = `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}`;
+    const hhmm = `${pad(date.getHours())}${pad(date.getMinutes())}`;
+    const user = this.cacheService.dataCache().user;
+    const firstInitial = user.first_name?.trim()?.charAt(0)?.toUpperCase() ?? '';
+    const lastInitial = user.last_name?.trim()?.charAt(0)?.toUpperCase() ?? '';
+    const initials = `${firstInitial}${lastInitial}` || 'UU';
+    return `STAR_results_metadata_${yyyymmdd}_${hhmm}_${initials}.xlsx`;
   }
 
   async exportTable() {
     try {
-      const response = await this.apiService.GET_GeneralReport();
-      const exportData: GeneralReportItem[] = response?.data ?? [];
+      const blob = await this.apiService.GET_ResultCenterXlsx(
+        this.resultsCenterService.getExportResultFilter(),
+        this.resultsCenterService.getExportPaginationOptions()
+      );
 
-      if (exportData.length === 0) {
-        console.warn('No data to export');
+      if (!blob?.size) {
+        console.error('Downloaded file is empty or invalid');
         return;
       }
 
-      const cleanString = (str: string): string => {
-        let cleaned = '';
-        for (let i = 0; i < str.length; i++) {
-          const char = str[i];
-          const code = str.codePointAt(i) ?? 0;
-          if (code >= 32 || code === 9 || code === 10 || code === 13) {
-            cleaned += char;
-          }
-        }
-        return cleaned;
-      };
-
-      const sanitizeValue = (value: unknown): string | number => {
-        if (value === null || value === undefined || value === '') {
-          return '';
-        }
-        const valueType = typeof value;
-        if (valueType === 'number') {
-          const numValue = value as number;
-          return Number.isNaN(numValue) || !Number.isFinite(numValue) ? '' : numValue;
-        }
-        if (valueType === 'boolean') {
-          return (value as boolean) ? 'TRUE' : 'FALSE';
-        }
-        if (valueType === 'object') {
-          try {
-            const jsonStr = JSON.stringify(value);
-            return jsonStr.length > 32767 ? jsonStr.substring(0, 32764) + '...' : jsonStr;
-          } catch {
-            return '';
-          }
-        }
-        if (valueType === 'string') {
-          const strValue = value as string;
-          const trimmed = strValue.trim();
-          if (trimmed.length === 0) {
-            return '';
-          }
-          const cleaned = cleanString(trimmed);
-          return cleaned.length > 32767 ? cleaned.substring(0, 32764) + '...' : cleaned;
-        }
-        return '';
-      };
-
-      const workbook = new ExcelJS.Workbook();
-      workbook.creator = 'Research Indicators';
-      workbook.created = new Date();
-
-      const worksheet = workbook.addWorksheet('Results', {
-        views: [{ state: 'frozen', ySplit: 1 }],
-        properties: {
-          defaultRowHeight: 20,
-          showGridLines: false
-        }
-      });
-
-      const allKeys = new Set<string>();
-      exportData.forEach((row: GeneralReportItem) => {
-        if (row && typeof row === 'object') {
-          Object.keys(row).forEach(key => allKeys.add(key));
-        }
-      });
-      const headers = Array.from(allKeys);
-
-      if (headers.length === 0) {
-        console.warn('No headers found in data');
-        return;
-      }
-
-      worksheet.columns = headers.map(header => ({
-        header,
-        key: header,
-        width: 15,
-        hidden: false
-      }));
-
-      exportData.forEach((row: GeneralReportItem, rowIndex: number) => {
-        try {
-          const rowValues: (string | number)[] = [];
-          headers.forEach(header => {
-            try {
-              const value = (row as Record<string, unknown>)[header];
-              const sanitized = sanitizeValue(value);
-              rowValues.push(sanitized);
-            } catch (error) {
-              console.warn(`Error accessing property "${header}" in row ${rowIndex}:`, error);
-              rowValues.push('');
-            }
-          });
-          if (rowValues.length === headers.length) {
-            worksheet.addRow(rowValues);
-          } else {
-            console.warn(`Row ${rowIndex} has ${rowValues.length} values but expected ${headers.length}, skipping`);
-          }
-        } catch (error) {
-          console.warn(`Error processing row ${rowIndex}, skipping:`, error);
-        }
-      });
-
-      headers.forEach((header, index) => {
-        const column = worksheet.getColumn(index + 1);
-        if (header.includes('Title') || header.includes('Description')) {
-          column.width = 50;
-        } else if (header.includes('Project') || header.includes('Creator')) {
-          column.width = 30;
-        } else {
-          column.width = 20;
-        }
-      });
-
-      this.styleHeaderColumns(worksheet, headers.length);
-
-      const buffer = await workbook.xlsx.writeBuffer();
-
-      if (!buffer || buffer.byteLength === 0) {
-        console.error('Generated buffer is empty or invalid');
-        return;
-      }
-
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = globalThis.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      const now = new Date();
-      const formattedDate = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
-      const userData = this.cacheService.dataCache().user;
-      const userName = `${userData.first_name}_${userData.last_name}`.toLowerCase().replace(' ', '_');
-      link.download = `general_report_${userName}_${formattedDate}.xlsx`;
+      link.download = this.buildResultsCenterExportFileName(new Date());
       link.style.display = 'none';
       document.body.appendChild(link);
       link.click();

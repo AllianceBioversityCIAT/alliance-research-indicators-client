@@ -64,6 +64,13 @@
 }
 
 @media (min-width: 1280px) {
+  .selected-items.columns-xl:not(.selected-items--stack-gap) {
+    border-radius: 0;
+    overflow: visible;
+  }
+  .selected-items.columns-xl:not(.selected-items--stack-gap) .item {
+    border-radius: 6px;
+  }
   .selected-items.columns-xl {
     gap: 16px;
   }

@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { CacheService } from '@services/cache/cache.service';
 import { ApiService } from './api.service';
 import { SwUpdate } from '@angular/service-worker';
 import { ToPromiseService } from './to-promise.service';
@@ -9,6 +10,7 @@ import { environment } from '../../../environments/environment';
 })
 export class ValidateCacheService {
   api = inject(ApiService);
+  private readonly cache = inject(CacheService);
   swUpdate = inject(SwUpdate);
 
   tp = inject(ToPromiseService);
@@ -18,6 +20,9 @@ export class ValidateCacheService {
   };
 
   async validateVersions(): Promise<void> {
+    if (!this.cache.dataCache().access_token) {
+      return;
+    }
     const response = await this.getConfiguration();
     const currentVersion = response?.data?.simple_value;
     if (currentVersion == null) {

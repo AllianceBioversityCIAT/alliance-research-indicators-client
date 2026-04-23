@@ -51,6 +51,7 @@ export type ControlListServices =
   | 'levers'
   | 'leverStrategicOutcomes'
   | 'leverSdgTargets'
+  | 'clarisaSdgTargets'
   | 'projectStatus'
   | 'initiatives'
   | 'tags'

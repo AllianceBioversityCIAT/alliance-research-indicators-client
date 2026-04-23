@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { DataOverviewComponent } from './data-overview.component';
-import { ChartModule } from 'primeng/chart';
 import { apiServiceMock, mockResultsStatus, mockIndicatorsResults, cacheServiceMock, httpClientMock } from 'src/app/testing/mock-services.mock';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
@@ -17,8 +17,9 @@ describe('DataOverviewComponent', () => {
     mockApiService.GET_IndicatorsResultsAmount = jest.fn().mockResolvedValue(mockIndicatorsResults);
 
     await TestBed.configureTestingModule({
-      imports: [DataOverviewComponent, ChartModule],
+      imports: [DataOverviewComponent],
       providers: [
+        provideRouter([]),
         { provide: ApiService, useValue: mockApiService },
         { provide: CacheService, useValue: cacheServiceMock },
         { provide: HttpClient, useValue: httpClientMock }
@@ -85,24 +86,16 @@ describe('DataOverviewComponent', () => {
     expect(component.showIndicatorList()).toBe(false);
   });
 
-  it('should generate correct chart data', async () => {
-    await component.getData();
-
-    expect(component.data).toBeDefined();
-    expect(component.data.labels).toEqual(['Status 1', 'Status 2']);
-    expect(component.data.datasets[0].data).toEqual([5, 3]);
-    expect(component.data.datasets[0].backgroundColor).toHaveLength(2);
-  });
-
   it('should generate correct chart legend', async () => {
     await component.getData();
 
     const legend = component.chartLegend();
     expect(legend).toHaveLength(2);
     expect(legend[0]).toEqual({
-      color: mockResultsStatus.data[0].result_status?.config?.color?.text || '#1689CA',
+      color: '#173F6F',
       label: 'Status 1',
-      value: 5
+      value: 5,
+      result_status_id: 1
     });
   });
 
@@ -114,22 +107,83 @@ describe('DataOverviewComponent', () => {
     await expect(component.getIndicatorData()).rejects.toThrow('API Error');
   });
 
-  it('should set correct chart options', async () => {
-    await component.getData();
-
-    expect(component.options).toBeDefined();
-    expect(component.options.cutout).toBe('40%');
-    expect(component.options.responsive).toBe(true);
-    expect(component.options.plugins.legend.display).toBe(false);
-    expect(component.options.plugins.datalabels.display).toBe(false);
-  });
-
   it('should use fallback color when result_status.config.color.text is not available', async () => {
     mockApiService.GET_ResultsStatus = jest.fn().mockResolvedValue({
       data: [{ name: 'Status X', amount_results: 2, result_status_id: 999, result_status: null }]
     });
     await component.getData();
-    expect(component.data.datasets[0].backgroundColor[0]).toBe('#1689CA');
     expect(component.chartLegend()[0].color).toBe('#1689CA');
+  });
+
+  it('chartData treats non-array input as empty rows', () => {
+    component.chartData(null as any);
+    expect(component.chartLegend()).toEqual([]);
+  });
+
+  it('getData uses empty chart when API response has no data property', async () => {
+    mockApiService.GET_ResultsStatus = jest.fn().mockResolvedValue({});
+    await component.getData();
+    expect(component.chartLegend()).toEqual([]);
+    expect(component.showChart()).toBe(false);
+  });
+
+  it('getData uses empty array when response.data is null', async () => {
+    mockApiService.GET_ResultsStatus = jest.fn().mockResolvedValue({ data: null });
+    await component.getData();
+    expect(component.chartLegend()).toEqual([]);
+    expect(component.showChart()).toBe(false);
+  });
+
+  describe('statusBarsMax', () => {
+    it('returns 0 when chartLegend is empty', () => {
+      component.chartLegend.set([]);
+      expect(component.statusBarsMax()).toBe(0);
+    });
+
+    it('returns the maximum value among legend items', () => {
+      component.chartLegend.set([
+        { color: '#000', label: 'A', value: 3, result_status_id: 1 },
+        { color: '#000', label: 'B', value: 12, result_status_id: 2 }
+      ]);
+      expect(component.statusBarsMax()).toBe(12);
+    });
+  });
+
+  describe('statusRowQueryParams', () => {
+    it('returns statusTab and statusLabel for Results Center navigation', () => {
+      expect(
+        component.statusRowQueryParams({
+          color: '#173F6F',
+          label: 'Submitted',
+          value: 12,
+          result_status_id: 7
+        })
+      ).toEqual({
+        statusTab: 7,
+        statusLabel: 'Submitted'
+      });
+    });
+  });
+
+  describe('barFillPercent', () => {
+    it('returns 0 when there is no positive max (empty legend)', () => {
+      component.chartLegend.set([]);
+      expect(component.statusBarsMax()).toBe(0);
+      expect(component.barFillPercent(10)).toBe(0);
+    });
+
+    it('returns proportional width capped at 100', () => {
+      component.chartLegend.set([{ color: '#000', label: 'A', value: 20, result_status_id: 1 }]);
+      expect(component.barFillPercent(10)).toBe(50);
+      expect(component.barFillPercent(20)).toBe(100);
+    });
+
+    it('caps at 100 when value would exceed the scale', () => {
+      component.chartLegend.set([
+        { color: '#000', label: 'A', value: 5, result_status_id: 1 },
+        { color: '#000', label: 'B', value: 10, result_status_id: 2 }
+      ]);
+      expect(component.barFillPercent(25)).toBe(100);
+    });
   });
 });

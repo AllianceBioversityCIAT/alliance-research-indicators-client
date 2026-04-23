@@ -20,7 +20,8 @@ describe('ApiService', () => {
       post: jest.fn(),
       patch: jest.fn(),
       delete: jest.fn(),
-      getWithParams: jest.fn()
+      getWithParams: jest.fn(),
+      getBlob: jest.fn()
     };
 
     mockCacheService = {
@@ -137,6 +138,14 @@ describe('ApiService', () => {
       service.GET_Levers();
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/levers', {});
+    });
+
+    it('should call GET_ClarisaSdgTargets', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_ClarisaSdgTargets();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/sdg-targets', {});
     });
 
     it('should call GET_InstitutionsTypes', () => {
@@ -610,12 +619,20 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('user/configuration/123?component=test', {});
     });
 
-    it('should call GET_DateFormatConfiguration', () => {
+    it('should call GET_ConfigurationByKey with encoded path segment', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
 
-      service.GET_DateFormatConfiguration();
+      service.GET_ConfigurationByKey('date-format');
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration/date-format', { noAuthInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration/date-format', {});
+    });
+
+    it('should call GET_ConfigurationByKey for dotted configuration key', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_ConfigurationByKey('BULK_UPLOAD.EMBED_INFO.URL');
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration/BULK_UPLOAD.EMBED_INFO.URL', {});
     });
 
     it('should call GET_UserStaff', () => {
@@ -1530,6 +1547,57 @@ describe('ApiService', () => {
     });
   });
 
+  describe('GET_ResultCenterXlsx', () => {
+    it('should call getBlob with reports path and params aligned with GET_Results (no page/limit)', async () => {
+      const blob = new Blob(['x']);
+      (mockToPromiseService.getBlob as jest.Mock).mockResolvedValue(blob);
+
+      const result = await service.GET_ResultCenterXlsx(
+        { 'indicator-codes-tabs': [101], 'status-codes': [1, 2] },
+        { sortField: 'result-title', sortOrder: 'ASC', search: 'hello' }
+      );
+
+      expect(result).toBe(blob);
+      expect(mockToPromiseService.getBlob).toHaveBeenCalledWith('reports/resultCenter/xlsx', {
+        params: expect.any(HttpParams)
+      });
+      const params = (mockToPromiseService.getBlob as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('sort-order')).toBe('ASC');
+      expect(params.get('sort-field')).toBe('result-title');
+      expect(params.get('search')).toBe('hello');
+      expect(params.get('indicators')).toBe('101');
+      expect(params.get('status-codes')).toBe('1,2');
+      expect(params.get('only-own-results')).toBe('false');
+    });
+
+    it('should send only-own-results true when create-user-codes is set', async () => {
+      (mockToPromiseService.getBlob as jest.Mock).mockResolvedValue(new Blob());
+
+      await service.GET_ResultCenterXlsx({ 'create-user-codes': ['356'] } as import('../interfaces/result/result.interface').ResultFilter, {});
+
+      const params = (mockToPromiseService.getBlob as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('only-own-results')).toBe('true');
+    });
+
+    it('should map indicators from indicator-codes-filter when tabs are absent', async () => {
+      (mockToPromiseService.getBlob as jest.Mock).mockResolvedValue(new Blob());
+
+      await service.GET_ResultCenterXlsx({ 'indicator-codes-filter': [55, 66] }, {});
+
+      const params = (mockToPromiseService.getBlob as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('indicators')).toBe('55,66');
+    });
+
+    it('should map indicators from indicator-codes when tabs and filter are absent', async () => {
+      (mockToPromiseService.getBlob as jest.Mock).mockResolvedValue(new Blob());
+
+      await service.GET_ResultCenterXlsx({ 'indicator-codes': [7, 8] }, {});
+
+      const params = (mockToPromiseService.getBlob as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('indicators')).toBe('7,8');
+    });
+  });
+
   describe('Additional GET methods', () => {
     it('should call GET_InformativeRoles', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
@@ -1616,6 +1684,25 @@ describe('ApiService', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
       service.GET_LeverSdgTargets(3, false);
       expect(mockToPromiseService.get).toHaveBeenCalledWith('lever-sdg-targets/by-lever/3', {});
+    });
+
+    it('should call GET_LeverSdgTargetMappings on lever-sdg-targets', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_LeverSdgTargetMappings();
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('lever-sdg-targets', {});
+    });
+
+    it('should call PATCH_LeverSdgTargets with list body', () => {
+      const body = { leverSdgTargetList: [{ id: 0, lever_id: 1, sdg_target_id: 2 }] };
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+      service.PATCH_LeverSdgTargets(body);
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('lever-sdg-targets', body, {});
+    });
+
+    it('should call DELETE_LeverSdgTargetMapping for id in path', () => {
+      (mockToPromiseService.delete as jest.Mock).mockResolvedValue({ data: {} });
+      service.DELETE_LeverSdgTargetMapping(42);
+      expect(mockToPromiseService.delete).toHaveBeenCalledWith('lever-sdg-targets/42', {});
     });
 
     it('should call GET_AutorContact with resultCode', () => {

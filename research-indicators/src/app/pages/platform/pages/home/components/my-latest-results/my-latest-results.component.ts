@@ -1,10 +1,8 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
-import { ButtonModule } from 'primeng/button';
 import AboutIndicatorsComponent from '../../../about-indicators/about-indicators.component';
 import { RouterLink } from '@angular/router';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
-import { CustomTagComponent } from '../../../../../../shared/components/custom-tag/custom-tag.component';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { LatestResult } from '@shared/interfaces/latest-result.interface';
 import { FormatDatePipe } from '@shared/pipes/format-date.pipe';
@@ -12,7 +10,7 @@ import { DateFormatConfigService } from '@shared/services/date-format-config.ser
 
 @Component({
   selector: 'app-my-latest-results',
-  imports: [ButtonModule, AboutIndicatorsComponent, RouterLink, CustomTagComponent, FormatDatePipe],
+  imports: [AboutIndicatorsComponent, RouterLink, FormatDatePipe],
   templateUrl: './my-latest-results.component.html',
   styleUrl: './my-latest-results.component.scss'
 })

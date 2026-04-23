@@ -1,7 +1,8 @@
-import { Component, ElementRef, HostListener, inject, ViewChild, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { ApiService } from '@shared/services/api.service';
 import { GetAnnouncementSettingAvailable } from '../../../../../../shared/interfaces/get-announcement-setting-available.interface';
+
 @Component({
   selector: 'app-header',
   imports: [S3ImageUrlPipe],
@@ -10,43 +11,10 @@ import { GetAnnouncementSettingAvailable } from '../../../../../../shared/interf
 })
 export class HeaderComponent implements OnInit {
   api = inject(ApiService);
-  @ViewChild('tiltBox') tiltBox!: ElementRef;
   message = signal<GetAnnouncementSettingAvailable | null>(null);
 
-  private readonly maxTilt = 0; // Reduced from 10 to 3 degrees for subtler effect
-
-  @HostListener('mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    const element = this.tiltBox?.nativeElement;
-    if (!element) return;
-
-    const rect = element.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    // Calculate percentage position
-    const xPercent = (x / rect.width) * 100;
-    const yPercent = (y / rect.height) * 100;
-
-    // Calculate tilt angles - inverted the signs to reverse the effect
-    const tiltX = -((yPercent - 50) / 50) * this.maxTilt;
-    const tiltY = -((50 - xPercent) / 50) * this.maxTilt;
-
-    // Apply the transform
-    element.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
-  }
-
-  @HostListener('mouseleave')
-  onMouseLeave() {
-    const element = this.tiltBox?.nativeElement;
-    if (!element) return;
-
-    // Reset the transform when mouse leaves
-    element.style.transform = 'rotateX(0deg) rotateY(0deg)';
-  }
-
   ngOnInit() {
-    this.main();
+    void this.main();
   }
 
   async main() {

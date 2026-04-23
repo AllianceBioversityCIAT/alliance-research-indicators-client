@@ -2,83 +2,84 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  padding: 2rem;
+  padding: 0 2rem 2rem;
   max-width: 1600px;
   margin: 0 auto;
   width: 100%;
 
-  .items {
+  .home-body {
     display: grid;
-    grid-template-columns: 1fr 1.4fr;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
     gap: 2rem;
+    align-items: stretch;
     width: 100%;
+    padding-top: 34px;
+  }
 
-    .item {
-      width: 100%;
-    }
+  .home-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .home-sidebar {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
   }
 }
 
-// screens large (laptops and desktops)
 @media screen and (width >= 1440px) {
   .content {
-    padding: 2rem;
+    padding: 0 2rem 2rem;
 
-    .items {
+    .home-body {
       gap: 2rem;
     }
   }
 }
 
-// screens medium (small laptops)
 @media screen and (width <= 1280px) {
   .content {
-    padding: 1.5rem;
+    padding: 0 1.5rem 1.5rem;
     gap: 1.5rem;
 
-    .items {
+    .home-body {
       gap: 1.5rem;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
     }
   }
 }
 
 @media screen and (width <= 1250px) {
   .content {
-    .items {
-      gap: 1.5rem;
+    .home-body {
       grid-template-columns: 1fr;
+      gap: 1.5rem;
     }
   }
 }
 
-// screens small (tablets landscape and very small laptops)
 @media screen and (width <= 1024px) {
   .content {
-    padding: 1rem;
+    padding: 0 1rem 1rem;
     gap: 1rem;
 
-    .items {
+    .home-body {
       gap: 1rem;
     }
   }
 }
 
-// tablets portrait
-@media screen and (width <= 768px) {
-  .content {
-    .items {
-      grid-template-columns: 1fr;
-    }
-  }
-}
-
-// specific adjustment for small heights
 @media screen and (height <= 800px) {
   .content {
     gap: 1rem;
 
-    .items {
+    .home-body {
       gap: 1rem;
     }
   }

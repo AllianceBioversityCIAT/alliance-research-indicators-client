@@ -13,7 +13,7 @@ const config: Config = {
     '<rootDir>/src/app/shared/sockets/websocket.service.ts',
     '<rootDir>/src/app/shared/components/alert/alert.component.ts'
   ],
-  coverageReporters: ['text', 'cobertura', 'lcov'],
+  coverageReporters: ['text','text-summary','cobertura', 'lcov'],
   coverageThreshold: {
     global: {
       statements: 40,
