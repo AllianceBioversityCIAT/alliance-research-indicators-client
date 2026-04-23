@@ -20,6 +20,7 @@ describe('MyProjectsComponent', () => {
   let mockActionsService: jest.Mocked<ActionsService>;
   let mockProjectUtilsService: jest.Mocked<ProjectUtilsService>;
   let mockRouter: jest.Mocked<Router>;
+  let queryParamGet: jest.Mock;
 
   beforeEach(async () => {
     mockApiService = {
@@ -67,6 +68,7 @@ describe('MyProjectsComponent', () => {
 
     mockApiService.GET_Configuration.mockResolvedValue({ data: { all: '0', self: '0' } } as any);
     sessionStorage.clear();
+    queryParamGet = jest.fn().mockReturnValue(null);
 
     await TestBed.configureTestingModule({
       imports: [MyProjectsComponent, HttpClientTestingModule],
@@ -80,7 +82,10 @@ describe('MyProjectsComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { paramMap: new Map() },
+            snapshot: {
+              paramMap: new Map(),
+              queryParamMap: { get: (key: string) => queryParamGet(key) }
+            },
             params: of({})
           }
         }
@@ -328,6 +333,52 @@ describe('MyProjectsComponent', () => {
       expect(mockMyProjectsService.myProjectsFilterItem()?.id).toBe('my');
       expect(component.myProjectsFilterItem()?.id).toBe('my');
       expect(loadCurrentTabStateSpy).toHaveBeenCalled();
+    });
+
+    it('should force my tab when query has tab=my and persisted state was restored', async () => {
+      mockMyProjectsService.restorePersistedState.mockReturnValue(true);
+      mockMyProjectsService.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' } as any);
+      jest.spyOn(component as any, 'restoreViewState').mockReturnValue(false);
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const updatePendingSpy = jest.spyOn(component as any, 'updatePendingScrollFromStoredTabScroll').mockImplementation();
+      const loadCurrentTabStateSpy = jest.spyOn(component as any, 'loadCurrentTabState').mockImplementation();
+      queryParamGet.mockImplementation((k: string) => (k === 'tab' ? 'my' : null));
+
+      await (component as any).initializeState();
+
+      expect(component.myProjectsFilterItem()?.id).toBe('my');
+      expect(component.selectedTab()).toBe('my');
+      expect(mockMyProjectsService.myProjectsFilterItem()?.id).toBe('my');
+      expect(updatePendingSpy).toHaveBeenCalled();
+      expect(loadCurrentTabStateSpy).toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { tab: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        })
+      );
+    });
+
+    it('should call applyPinnedTabDefault(my) when query has tab=my and there is no restored state', async () => {
+      mockMyProjectsService.restorePersistedState.mockReturnValue(false);
+      jest.spyOn(component as any, 'restoreViewState').mockReturnValue(false);
+      jest.spyOn(component as any, 'loadPinnedTabPreference').mockResolvedValue('all');
+      const applyPinnedTabDefaultSpy = jest.spyOn(component as any, 'applyPinnedTabDefault').mockImplementation();
+      queryParamGet.mockImplementation((k: string) => (k === 'tab' ? 'my' : null));
+
+      await (component as any).initializeState();
+
+      expect(applyPinnedTabDefaultSpy).toHaveBeenCalledWith('my');
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { tab: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        })
+      );
     });
   });
 
