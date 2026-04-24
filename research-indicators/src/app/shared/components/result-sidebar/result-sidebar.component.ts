@@ -16,6 +16,7 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
+import { RESULT_ENTRY_SOURCE_QUERY, RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER } from '@shared/constants/result-entry-source';
 
 interface SubmissionAlertData {
   severity: 'success' | 'warning';
@@ -59,6 +60,16 @@ export class ResultSidebarComponent {
         greenCheck: Boolean(this.cache.greenChecks()[option.greenCheckKey as keyof GreenChecks])
       }));
   });
+
+  getResultChildQueryParams(): Record<string, string> {
+    const m = this.route.snapshot.queryParamMap;
+    const o: Record<string, string> = {};
+    const v = m.get('version');
+    const f = m.get('from');
+    if (v) o['version'] = v;
+    if (f === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER) o[RESULT_ENTRY_SOURCE_QUERY] = f;
+    return o;
+  }
 
   allOptions: WritableSignal<SidebarOption[]> = signal([
     {
@@ -226,10 +237,18 @@ export class ResultSidebarComponent {
     }
 
     const id = this.route.snapshot.paramMap.get('id');
-    const version = this.route.snapshot.queryParamMap.get('version');
+    const m = this.route.snapshot.queryParamMap;
+    const version = m.get('version');
+    const from = m.get('from');
     const commands = ['/result', id, option.path];
 
-    const queryParams = version ? { version } : {};
+    const queryParams: Record<string, string> = {};
+    if (version) {
+      queryParams['version'] = version;
+    }
+    if (from === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER) {
+      queryParams[RESULT_ENTRY_SOURCE_QUERY] = from;
+    }
 
     this.router.navigate(commands, {
       queryParams,
