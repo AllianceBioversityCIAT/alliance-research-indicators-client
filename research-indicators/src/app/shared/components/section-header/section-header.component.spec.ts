@@ -606,6 +606,18 @@ describe('SectionHeaderComponent', () => {
       expect(breadcrumb[2].tooltip).toBe('Test Result');
     });
 
+    it('should return Results Center → Result when result was opened from Results Center (from query)', () => {
+      component['contractId'].set('');
+      component['currentUrl'].set('/result/ROAR-7/general-information?from=results-center');
+      component['resultTitle'].set('OICR title');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb).toEqual([
+        { label: 'Results Center', route: '/results-center' },
+        { label: 'Result ROAR-7', tooltip: 'OICR title' }
+      ]);
+    });
+
     it('should handle result page without resultId in URL', () => {
       component['contractId'].set('123');
       component['currentProject'].set({ projectDescription: 'Test Project' });
