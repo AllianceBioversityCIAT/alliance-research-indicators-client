@@ -249,7 +249,14 @@ describe('VersionSelectorComponent', () => {
     const version = { result_id: 1, report_year_id: 2023 } as any;
     component.liveVersion.set({ result_id: 1 } as any);
     component.selectVersion(version);
-    expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: {} }));
+    expect(router.navigate).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: { version: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      })
+    );
   });
 
   it('should call router.navigate with version param if not selecting liveVersion', () => {
@@ -355,7 +362,11 @@ describe('VersionSelectorComponent', () => {
       liveData: { result_id: 10, result_status_id: 2, report_year_id: 2022, result_official_code: 1 } as any,
       versionsArray: []
     });
-    expect(router.navigate).toHaveBeenCalledWith(['/result', '1', 'general-information'], { replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['/result', '1', 'general-information'], {
+      queryParams: { version: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   });
 
   describe('editInPlatform', () => {

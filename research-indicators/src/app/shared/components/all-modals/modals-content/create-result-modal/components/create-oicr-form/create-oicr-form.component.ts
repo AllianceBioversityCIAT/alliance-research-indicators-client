@@ -454,10 +454,19 @@ export class CreateOicrFormComponent implements OnInit {
           label: 'Done',
           event: () => {
             // Modern Angular approach - Navigate with reload
-            const targetRoute =
-              this.createResultManagementService.createOicrBody().base_information.indicator_id === 5
-                ? ['project-detail/', this.createResultManagementService.createOicrBody()?.base_information?.contract_id]
-                : ['result', response.data.result_official_code];
+            const isOicr = this.createResultManagementService.createOicrBody().base_information.indicator_id === 5;
+            const fromResultsCenter = this.createResultManagementService.resultCreationEntryContext() === 'results-center';
+            let targetRoute: (string | number)[];
+            if (isOicr) {
+              targetRoute = fromResultsCenter
+                ? ['/results-center']
+                : [
+                    'project-detail/',
+                    this.createResultManagementService.createOicrBody()?.base_information?.contract_id ?? ''
+                  ];
+            } else {
+              targetRoute = ['result', response.data.result_official_code];
+            }
 
             // Navigate to results-center first to ensure component refresh
             const navigate = () => {
