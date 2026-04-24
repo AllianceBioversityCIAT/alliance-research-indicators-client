@@ -93,6 +93,7 @@ describe('ResultsCenterTableComponent', () => {
       closeModal: jest.fn(),
       closeAllModals: jest.fn(),
       isModalOpen: jest.fn(() => ({ isOpen: false })),
+      setResultInformationEntryContext: jest.fn(),
       // New helper used by processRowClick to avoid interfering when a modal is already open
       isAnyModalOpen: jest.fn(() => false)
     };
@@ -108,7 +109,8 @@ describe('ResultsCenterTableComponent', () => {
 
     mockCreateResultManagementService = {
       setContractId: jest.fn(),
-      setPresetFromProjectResultsTable: jest.fn()
+      setPresetFromProjectResultsTable: jest.fn(),
+      setResultCreationEntryContext: jest.fn()
     };
 
     await TestBed.configureTestingModule({
@@ -196,6 +198,7 @@ describe('ResultsCenterTableComponent', () => {
     const prms = { ...mockResult, platform_code: 'PRMS' };
     component.openResult(prms);
     expect(mockModals.selectedResultForInfo()).toEqual(prms);
+    expect(mockModals.setResultInformationEntryContext).toHaveBeenCalledWith(null);
     expect(mockModals.openModal).toHaveBeenCalledWith('resultInformation');
     expect(mockRouter.navigate).not.toHaveBeenCalled();
   });
@@ -205,6 +208,7 @@ describe('ResultsCenterTableComponent', () => {
     component.openCreateResultForProject();
     expect(mockCreateResultManagementService.setContractId).toHaveBeenCalledWith('CONTRACT-123');
     expect(mockCreateResultManagementService.setPresetFromProjectResultsTable).toHaveBeenCalledWith(true);
+    expect(mockCreateResultManagementService.setResultCreationEntryContext).toHaveBeenCalledWith('project');
     expect(mockModals.openModal).toHaveBeenCalledWith('createResult');
   });
 
@@ -220,10 +224,18 @@ describe('ResultsCenterTableComponent', () => {
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/result', 'ROAR-7', 'general-information'], { queryParams: { version: 2024 } });
   });
 
+  it('openResult from results center should add from query for STAR navigation', () => {
+    fixture.componentRef.setInput('resultEntryContext', 'results-center');
+    component.openResult(mockResult);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/result', 'ROAR-7', 'general-information'], {
+      queryParams: { version: 2024, from: 'results-center' }
+    });
+  });
+
   it('openResult should navigate without version when condition not met', () => {
     const r = { ...mockResult, result_status: { name: 'SUBMITTED', result_status_id: 1 }, snapshot_years: [] };
     component.openResult(r as any);
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/result', 'ROAR-7']);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/result', 'ROAR-7'], { queryParams: {} });
   });
 
   it('openResultByYear should no-op for PRMS, navigate otherwise', () => {
@@ -248,6 +260,7 @@ describe('ResultsCenterTableComponent', () => {
 
   it('getResultHref should return simple path when no snapshots/version', () => {
     const r = { ...mockResult, result_status: { name: 'SUBMITTED', result_status_id: 1 }, snapshot_years: [] };
+    mockRouter.createUrlTree.mockReturnValueOnce({ toString: () => '/result/ROAR-7' });
     const href = component.getResultHref(r as any);
     expect(href).toBe('/result/ROAR-7');
   });

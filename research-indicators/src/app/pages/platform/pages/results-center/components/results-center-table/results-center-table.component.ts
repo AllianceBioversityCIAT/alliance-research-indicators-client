@@ -1,4 +1,8 @@
 import { Component, inject, ViewChild, signal, AfterViewInit, OnDestroy, computed, HostListener, Input } from '@angular/core';
+import {
+  RESULT_ENTRY_SOURCE_QUERY,
+  RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
+} from '@shared/constants/result-entry-source';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -48,6 +52,8 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   private readonly apiService = inject(ApiService);
 
   @Input() showNewProjectResultButton = false;
+  /** Use `results-center` when this table is on the global Results Center page; `project` on project detail. */
+  @Input() resultEntryContext: 'results-center' | 'project' = 'project';
 
   private dt2Table: Table | undefined;
 
@@ -191,6 +197,9 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     }
     this.createResultManagementService.setContractId(contractId);
     this.createResultManagementService.setPresetFromProjectResultsTable(true);
+    this.createResultManagementService.setResultCreationEntryContext(
+      this.resultEntryContext === 'results-center' ? 'results-center' : 'project'
+    );
     this.allModalsService.openModal('createResult');
   }
 
@@ -210,6 +219,7 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
       result.platform_code === PLATFORM_CODES.AICCRA
     ) {
       this.allModalsService.selectedResultForInfo.set(result);
+      this.applyResultInformationModalContext();
       this.allModalsService.openModal('resultInformation');
       return;
     }
@@ -217,9 +227,11 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     const resultCode = `${result.platform_code}-${result.result_official_code}`;
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
-      this.router.navigate(['/result', resultCode, 'general-information'], { queryParams: { version: latestYear } });
+      this.router.navigate(['/result', resultCode, 'general-information'], {
+        queryParams: this.resultEntryQueryParamsForNavigation({ version: latestYear })
+      });
     } else {
-      this.router.navigate(['/result', resultCode]);
+      this.router.navigate(['/result', resultCode], { queryParams: this.resultEntryQueryParamsForNavigation() });
     }
   }
 
@@ -230,7 +242,7 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     this.closeResultInformationModal();
     const resultCode = `${platformCode}-${result}`;
     this.router.navigate(['/result', resultCode], {
-      queryParams: { version: year }
+      queryParams: this.resultEntryQueryParamsForNavigation({ version: year })
     });
   }
 
@@ -248,11 +260,11 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
       const latestYear = Math.max(...result.snapshot_years);
       return this.router
         .createUrlTree(['/result', resultCode, 'general-information'], {
-          queryParams: { version: latestYear }
+          queryParams: this.resultEntryQueryParamsForNavigation({ version: latestYear })
         })
         .toString();
     }
-    return `/result/${resultCode}`;
+    return this.router.createUrlTree(['/result', resultCode], { queryParams: this.resultEntryQueryParamsForNavigation() }).toString();
   }
 
   getResultRouteArray(result: Result): string | string[] {
@@ -276,12 +288,12 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     this.processRowClick(target, event);
   }
 
-  getResultQueryParams(result: Result): { version?: number } {
+  getResultQueryParams(result: Result): Record<string, string | number> {
     if (result.result_status?.result_status_id === 6 && Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
       const latestYear = Math.max(...result.snapshot_years);
-      return { version: latestYear };
+      return this.resultEntryQueryParamsForNavigation({ version: latestYear });
     }
-    return {};
+    return this.resultEntryQueryParamsForNavigation();
   }
 
   onResultLinkClick(result: Result): void {
@@ -291,6 +303,7 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
       result.platform_code === PLATFORM_CODES.AICCRA
     ) {
       this.allModalsService.selectedResultForInfo.set(result);
+      this.applyResultInformationModalContext();
       this.allModalsService.openModal('resultInformation');
     }
   }
@@ -404,13 +417,30 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
       this.allModalsService.selectedResultForInfo.set(result);
+      this.applyResultInformationModalContext();
       this.allModalsService.openModal('resultInformation');
     }
+  }
+
+  private resultEntryQueryParamsForNavigation(extra: Record<string, string | number> = {}): Record<string, string | number> {
+    const q: Record<string, string | number> = { ...extra };
+    if (this.resultEntryContext === 'results-center') {
+      q[RESULT_ENTRY_SOURCE_QUERY] = RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER;
+    }
+    return q;
+  }
+
+  private applyResultInformationModalContext(): void {
+    this.allModalsService.setResultInformationEntryContext(
+      this.resultEntryContext === 'results-center' ? 'results-center' : null
+    );
   }
 
   private closeResultInformationModal(): void {
     if (this.allModalsService.isModalOpen('resultInformation').isOpen) {
       this.allModalsService.closeModal('resultInformation');
+    } else {
+      this.allModalsService.setResultInformationEntryContext(null);
     }
     this.allModalsService.selectedResultForInfo.set(null);
   }
