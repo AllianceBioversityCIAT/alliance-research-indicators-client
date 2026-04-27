@@ -16,7 +16,11 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
-import { RESULT_ENTRY_SOURCE_QUERY, RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER } from '@shared/constants/result-entry-source';
+import {
+  isResultsCenterEntryFromUrl,
+  RESULT_ENTRY_SOURCE_QUERY,
+  RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
+} from '@shared/constants/result-entry-source';
 
 interface SubmissionAlertData {
   severity: 'success' | 'warning';
@@ -361,11 +365,13 @@ export class ResultSidebarComponent {
       const isDraft = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
       if (!isDraft || (isDraft && !this.roles.isAdmin())) {
         if (result_contract_id) {
-          this.router.navigate(['/project-detail', result_contract_id]);
-          if (!this.router.url.includes('/project-detail/')) {
-            this.cache.projectResultsSearchValue.set(result_title ?? '');
-          }
-          await this.currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
+          await this.openOicrEditModalAfterProjectOrResultsCenterNavigation(
+            String(result_contract_id),
+            result_title,
+            indicator_id ?? 0,
+            status_id ?? 0,
+            result_official_code ?? 0
+          );
           return;
         }
       }
@@ -395,12 +401,36 @@ export class ResultSidebarComponent {
       return;
     }
 
-    this.router.navigate(['/project-detail', result_contract_id]);
+    await this.openOicrEditModalAfterProjectOrResultsCenterNavigation(
+      String(result_contract_id),
+      result_title,
+      indicator_id ?? 0,
+      status_id ?? 0,
+      result_official_code ?? 0
+    );
+  }
 
-    if (!this.router.url.includes('/project-detail/')) {
-      this.cache.projectResultsSearchValue.set(result_title ?? '');
+  private async openOicrEditModalAfterProjectOrResultsCenterNavigation(
+    resultContractId: string,
+    resultTitle: string | undefined | null,
+    indicatorId: number,
+    statusId: number,
+    resultOfficialCode: number
+  ): Promise<void> {
+    const fromResultsCenter = isResultsCenterEntryFromUrl(this.router.url);
+    if (fromResultsCenter) {
+      await this.router.navigate(['/results-center']);
+    } else {
+      await this.router.navigate(['/project-detail', resultContractId]);
+      if (!this.router.url.includes('/project-detail/')) {
+        this.cache.projectResultsSearchValue.set(resultTitle ?? '');
+      }
     }
-
-    await this.currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
+    await this.currentResultService.openEditRequestdOicrsModal(
+      indicatorId,
+      statusId,
+      resultOfficialCode,
+      fromResultsCenter ? 'results-center' : 'project'
+    );
   }
 }

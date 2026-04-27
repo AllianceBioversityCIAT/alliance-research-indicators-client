@@ -54,6 +54,7 @@ import { RolesService } from '@shared/services/cache/roles.service';
 import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
 import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
+import { isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { AccordionModule } from 'primeng/accordion';
 import { SubmissionService } from '@shared/services/submission.service';
@@ -626,10 +627,12 @@ export class CreateOicrFormComponent implements OnInit {
     const currentMetadata = this.cache.currentMetadata();
     if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
       const resultCode = this.cache.getCurrentNumericResultId();
+      const fromResultsCenter = isResultsCenterEntryFromUrl(this.router.url);
       await this.currentResultService.openEditRequestdOicrsModal(
         currentMetadata.indicator_id,
         currentMetadata.status_id,
-        resultCode
+        resultCode,
+        fromResultsCenter ? 'results-center' : 'project'
       );
     }
   }
