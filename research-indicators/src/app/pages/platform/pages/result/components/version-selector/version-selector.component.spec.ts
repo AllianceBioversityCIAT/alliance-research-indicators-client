@@ -81,6 +81,30 @@ describe('VersionSelectorComponent', () => {
     expect(router.navigate).toHaveBeenCalled();
   });
 
+  it('selectVersion should merge from=results-center from route snapshot into queryParams', () => {
+    const route = TestBed.inject(ActivatedRoute);
+    const getSpy = jest.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation((key: string) => {
+      if (key === 'from') return 'results-center';
+      return null;
+    });
+    const router = TestBed.inject(Router);
+    (router.navigate as jest.Mock).mockClear();
+
+    const version = { result_id: 2, report_year_id: 2023 } as any;
+    component.liveVersion.set({ result_id: 1 } as any);
+    component.selectVersion(version);
+
+    expect(router.navigate).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: { version: '2023', from: 'results-center' },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      })
+    );
+    getSpy.mockRestore();
+  });
+
   it('should return true for isSelected if ids match', () => {
     const version = { result_id: 5 } as any;
     component.selectedResultId.set(5);

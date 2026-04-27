@@ -618,6 +618,14 @@ describe('SectionHeaderComponent', () => {
       ]);
     });
 
+    it('should return empty breadcrumb when Results Center entry has no result id segment', () => {
+      component['contractId'].set('');
+      component['currentUrl'].set('/result/?from=results-center');
+      component['resultTitle'].set('x');
+
+      expect(component.breadcrumb()).toEqual([]);
+    });
+
     it('should handle result page without resultId in URL', () => {
       component['contractId'].set('123');
       component['currentProject'].set({ projectDescription: 'Test Project' });
