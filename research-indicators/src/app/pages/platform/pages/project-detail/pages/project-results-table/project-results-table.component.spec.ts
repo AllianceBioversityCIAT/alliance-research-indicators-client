@@ -36,7 +36,8 @@ describe('ProjectResultsTableComponent', () => {
 
     createResultManagementService = {
       setContractId: jest.fn(),
-      setPresetFromProjectResultsTable: jest.fn()
+      setPresetFromProjectResultsTable: jest.fn(),
+      setResultCreationEntryContext: jest.fn()
     };
 
     projectResultsTableService = {
@@ -100,6 +101,7 @@ describe('ProjectResultsTableComponent', () => {
 
     expect(createResultManagementService.setContractId).toHaveBeenCalledWith('A123');
     expect(createResultManagementService.setPresetFromProjectResultsTable).toHaveBeenCalledWith(true);
+    expect(createResultManagementService.setResultCreationEntryContext).toHaveBeenCalledWith('project');
     expect(allModalsService.openModal).toHaveBeenCalledWith('createResult');
   });
 
@@ -108,6 +110,7 @@ describe('ProjectResultsTableComponent', () => {
 
     expect(createResultManagementService.setContractId).toHaveBeenCalledWith(null);
     expect(createResultManagementService.setPresetFromProjectResultsTable).toHaveBeenCalledWith(false);
+    expect(createResultManagementService.setResultCreationEntryContext).toHaveBeenCalledWith(null);
   });
 
   it('should return danger severity for EDITING status', () => {

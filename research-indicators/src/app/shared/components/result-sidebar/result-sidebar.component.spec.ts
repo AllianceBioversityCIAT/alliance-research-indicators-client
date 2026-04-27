@@ -436,6 +436,59 @@ describe('ResultSidebarComponent', () => {
         replaceUrl: false
       });
     });
+
+    it('should preserve from=results-center in queryParams when navigating sidebar', () => {
+      const getMock = route.snapshot.queryParamMap.get as jest.Mock;
+      getMock.mockImplementation((key: string) => {
+        if (key === 'version') return '2021';
+        if (key === 'from') return 'results-center';
+        return '123';
+      });
+
+      const mockEvent = { preventDefault: jest.fn() } as any;
+      const enabledOption = {
+        label: 'Section',
+        path: 'alignment',
+        disabled: false,
+        greenCheckKey: 'alignment'
+      };
+
+      component.navigateTo(enabledOption, mockEvent);
+
+      expect(router.navigate).toHaveBeenCalledWith(['/result', '123', 'alignment'], {
+        queryParams: { version: '2021', from: 'results-center' },
+        replaceUrl: false
+      });
+
+      getMock.mockReset();
+      getMock.mockReturnValue('123');
+    });
+  });
+
+  describe('getResultChildQueryParams', () => {
+    it('should include version and from when route has from=results-center', () => {
+      const getMock = route.snapshot.queryParamMap.get as jest.Mock;
+      getMock.mockImplementation((key: string) => {
+        if (key === 'version') return '2022';
+        if (key === 'from') return 'results-center';
+        return '123';
+      });
+      expect(component.getResultChildQueryParams()).toEqual({ version: '2022', from: 'results-center' });
+      getMock.mockReset();
+      getMock.mockReturnValue('123');
+    });
+
+    it('should omit from when query from is not results-center', () => {
+      const getMock = route.snapshot.queryParamMap.get as jest.Mock;
+      getMock.mockImplementation((key: string) => {
+        if (key === 'version') return '2022';
+        if (key === 'from') return 'projects';
+        return '123';
+      });
+      expect(component.getResultChildQueryParams()).toEqual({ version: '2022' });
+      getMock.mockReset();
+      getMock.mockReturnValue('123');
+    });
   });
 
   describe('getRouterLink', () => {
@@ -549,7 +602,7 @@ describe('ResultSidebarComponent', () => {
 
       expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 'CONTRACT-1']);
       expect(searchValueSignal()).toBe('My Result Title');
-      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 6, 999);
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 6, 999, 'project');
     });
 
     it('should not set projectResultsSearchValue when url already includes project-detail', async () => {
@@ -571,7 +624,29 @@ describe('ResultSidebarComponent', () => {
 
       expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 'CONTRACT-1']);
       expect(searchValueSignal()).toBe('');
-      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 6, 999);
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 6, 999, 'project');
+    });
+
+    it('should navigate to results-center and open OICR with results-center entry when url has from=results-center', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 6,
+        result_contract_id: 'CONTRACT-1',
+        result_title: 'My Result Title',
+        result_official_code: 999
+      });
+      const searchValueSignal = signal('');
+      (cacheService as any).projectResultsSearchValue = searchValueSignal;
+      (router as any).url = '/result/STAR-1?from=results-center';
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({ successfulRequest: true });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).updateResultStatus(6, '');
+
+      expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
+      expect(searchValueSignal()).toBe('');
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 6, 999, 'results-center');
     });
 
     it('should only show toast when validateOpenResult returns false', async () => {
@@ -742,7 +817,7 @@ describe('ResultSidebarComponent', () => {
 
       expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 'CONTRACT-1']);
       expect(searchValueSignal()).toBe('');
-      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 6, 999);
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 6, 999, 'project');
     });
 
     it('should call openEditRequestdOicrsModal with 0 for undefined indicator_id, status_id, result_official_code', async () => {
@@ -759,7 +834,7 @@ describe('ResultSidebarComponent', () => {
 
       await (component as any).updateResultStatus(6, '');
 
-      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0);
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0, 'project');
     });
   });
 
@@ -1222,7 +1297,7 @@ describe('ResultSidebarComponent', () => {
 
       await (component as any).handlePostponeOrRejectRedirect();
 
-      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 11, 12345);
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 11, 12345, 'project');
     });
 
     it('should handle handlePostponeOrRejectRedirect with undefined result_official_code', async () => {
@@ -1237,7 +1312,7 @@ describe('ResultSidebarComponent', () => {
 
       await (component as any).handlePostponeOrRejectRedirect();
 
-      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 11, 0);
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 11, 0, 'project');
     });
 
     it('should call openEditRequestdOicrsModal', async () => {
@@ -1252,7 +1327,7 @@ describe('ResultSidebarComponent', () => {
 
       await (component as any).handlePostponeOrRejectRedirect();
 
-      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 11, 12345);
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 11, 12345, 'project');
     });
   });
 });

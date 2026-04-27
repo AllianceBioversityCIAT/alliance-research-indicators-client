@@ -15,6 +15,7 @@ import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { DownloadOicrTemplateComponent } from '../download-oicr-template/download-oicr-template.component';
 import { RolesService } from '@shared/services/cache/roles.service';
+import { isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
 
 export interface BreadcrumbItem {
   label: string;
@@ -177,8 +178,19 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
   breadcrumb = computed(() => {
     const project = this.currentProject();
     const contractId = this.contractId();
-    const urlParts = this.currentUrl().split('/');
-    const agreementId = urlParts[2];
+    const fullUrl = this.currentUrl();
+
+    if (this.isResultPage() && isResultsCenterEntryFromUrl(fullUrl)) {
+      const pathOnly = fullUrl.split(/[?#]/)[0];
+      const segs = pathOnly.split('/').filter(Boolean);
+      const resultId = segs[0] === 'result' && segs.length >= 2 ? segs[1] : '';
+      if (resultId) {
+        return [
+          { label: 'Results Center', route: '/results-center' },
+          { label: `Result ${resultId}`, tooltip: this.resultTitle() }
+        ] as BreadcrumbItem[];
+      }
+    }
 
     if (!contractId) return [];
 
@@ -195,9 +207,9 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     ];
 
     if (this.isSetUpProjectPage()) {
-      if (agreementId) {
-        baseItems[1].route = `/project-detail/${agreementId}`;
-        baseItems[1].label = `Project ${agreementId}`;
+      if (contractId) {
+        baseItems[1].route = `/project-detail/${contractId}`;
+        baseItems[1].label = `Project ${contractId}`;
         baseItems = [
           ...baseItems,
           {
@@ -209,8 +221,9 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     }
 
     if (this.isResultPage()) {
-      const urlParts = this.currentUrl().split('/');
-      const resultId = urlParts[2]; // /result/2243/any-page -> 2243
+      const pathOnly = fullUrl.split(/[?#]/)[0];
+      const segs = pathOnly.split('/').filter(Boolean);
+      const resultId = segs[0] === 'result' && segs.length >= 2 ? segs[1] : '';
 
       if (resultId) {
         baseItems[1].route = `/project-detail/${contractId}`;

@@ -43,7 +43,7 @@
     @if (!option.hide) {
     <div class="options" [class.disabled]="option.disabled" (click)="navigateTo(option, $event)"
       (keydown.enter)="navigateTo(option, $event)" [routerLink]="option.disabled ? null : option.path"
-      routerLinkActive="active">
+      [queryParams]="getResultChildQueryParams()" queryParamsHandling="merge" routerLinkActive="active">
       <div class="w-4 h-4 rounded-full flex items-center justify-center greenCheckBorder {{ option.greenCheck && 'greenCheckActive' }} {{
               option.greenCheck ? 'bg-[#509c55]' : 'bg-[#A2A9AF]'
             }}">

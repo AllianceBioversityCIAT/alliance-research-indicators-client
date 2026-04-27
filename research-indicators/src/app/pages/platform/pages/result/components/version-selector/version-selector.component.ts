@@ -10,6 +10,10 @@ import { TooltipModule } from 'primeng/tooltip';
 import { filter, Subscription } from 'rxjs';
 import { environment } from '../../../../../../../environments/environment';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
+import {
+  RESULT_ENTRY_SOURCE_QUERY,
+  RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
+} from '@shared/constants/result-entry-source';
 
 @Component({
   selector: 'app-version-selector',
@@ -137,7 +141,11 @@ export class VersionSelectorComponent implements OnDestroy {
         this.selectedResultId.set(liveData.result_id);
       }
       if (currentChild === 'general-information') {
-        this.router.navigate(['/result', currentResultId, currentChild], { replaceUrl: true });
+        this.router.navigate(['/result', currentResultId, currentChild], {
+          queryParams: { ...this.entrySourceQueryParamRecord(), version: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        });
       }
       return;
     }
@@ -147,7 +155,8 @@ export class VersionSelectorComponent implements OnDestroy {
       this.selectedResultId.set(firstApproved.result_id);
       if (currentChild === 'general-information') {
         this.router.navigate(['/result', currentResultId, currentChild], {
-          queryParams: { version: firstApproved.report_year_id },
+          queryParams: { ...this.entrySourceQueryParamRecord(), version: firstApproved.report_year_id },
+          queryParamsHandling: 'merge',
           replaceUrl: true
         });
         this.hasAutoNavigated = true;
@@ -158,11 +167,12 @@ export class VersionSelectorComponent implements OnDestroy {
   selectVersion(version: TransformResultCodeResponse) {
     this.selectedResultId.set(version.result_id);
     const isLive = this.liveVersion()?.result_id === version.result_id;
-
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: isLive ? {} : { version: String(version.report_year_id) },
-      queryParamsHandling: '',
+      queryParams: isLive
+        ? { version: null, ...this.entrySourceQueryParamRecord() }
+        : { version: String(version.report_year_id), ...this.entrySourceQueryParamRecord() },
+      queryParamsHandling: 'merge',
       replaceUrl: true
     });
   }
@@ -209,7 +219,8 @@ export class VersionSelectorComponent implements OnDestroy {
               const currentPath = this.router.url.split('?')[0];
               this.router
                 .navigate([currentPath], {
-                  queryParams: {},
+                  queryParams: { version: null, ...this.entrySourceQueryParamRecord() },
+                  queryParamsHandling: 'merge',
                   replaceUrl: true
                 })
                 .then(() => {
@@ -254,5 +265,12 @@ export class VersionSelectorComponent implements OnDestroy {
   private isResultRouteActive(resultId: string | number): boolean {
     // Verify that the current URL contains /result/{id}
     return this.router.url.startsWith(`/result/${resultId}`);
+  }
+
+  private entrySourceQueryParamRecord(): { [RESULT_ENTRY_SOURCE_QUERY]?: string } {
+    const from = this.route.snapshot.queryParamMap.get(RESULT_ENTRY_SOURCE_QUERY);
+    return from === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
+      ? { [RESULT_ENTRY_SOURCE_QUERY]: from }
+      : {};
   }
 }
