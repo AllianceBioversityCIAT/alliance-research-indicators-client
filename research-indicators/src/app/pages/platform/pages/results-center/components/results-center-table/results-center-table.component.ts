@@ -1,8 +1,5 @@
 import { Component, inject, ViewChild, signal, AfterViewInit, OnDestroy, computed, HostListener, Input } from '@angular/core';
-import {
-  RESULT_ENTRY_SOURCE_QUERY,
-  RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
-} from '@shared/constants/result-entry-source';
+import { RESULT_ENTRY_SOURCE_QUERY, RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER } from '@shared/constants/result-entry-source';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -52,7 +49,6 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   private readonly apiService = inject(ApiService);
 
   @Input() showNewProjectResultButton = false;
-  /** Use `results-center` when this table is on the global Results Center page; `project` on project detail. */
   @Input() resultEntryContext: 'results-center' | 'project' = 'project';
 
   private dt2Table: Table | undefined;
@@ -197,9 +193,7 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     }
     this.createResultManagementService.setContractId(contractId);
     this.createResultManagementService.setPresetFromProjectResultsTable(true);
-    this.createResultManagementService.setResultCreationEntryContext(
-      this.resultEntryContext === 'results-center' ? 'results-center' : 'project'
-    );
+    this.createResultManagementService.setResultCreationEntryContext(this.resultEntryContext === 'results-center' ? 'results-center' : 'project');
     this.allModalsService.openModal('createResult');
   }
 
@@ -395,7 +389,9 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
       if (result.result_contracts?.contract_id) {
         event.preventDefault();
         event.stopPropagation();
-        this.router.navigate(['/project-detail', result.result_contracts.contract_id, 'project-results']);
+        this.router.navigate(['/project-detail', result.result_contracts.contract_id, 'project-results'], {
+          queryParams: this.resultEntryQueryParamsForNavigation()
+        });
       }
       return;
     }
@@ -422,7 +418,8 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private resultEntryQueryParamsForNavigation(extra: Record<string, string | number> = {}): Record<string, string | number> {
+  /** Used by the template for project-detail links when the table is embedded in Results Center vs project context. */
+  resultEntryQueryParamsForNavigation(extra: Record<string, string | number> = {}): Record<string, string | number> {
     const q: Record<string, string | number> = { ...extra };
     if (this.resultEntryContext === 'results-center') {
       q[RESULT_ENTRY_SOURCE_QUERY] = RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER;
@@ -431,9 +428,7 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   }
 
   private applyResultInformationModalContext(): void {
-    this.allModalsService.setResultInformationEntryContext(
-      this.resultEntryContext === 'results-center' ? 'results-center' : null
-    );
+    this.allModalsService.setResultInformationEntryContext(this.resultEntryContext === 'results-center' ? 'results-center' : null);
   }
 
   private closeResultInformationModal(): void {
