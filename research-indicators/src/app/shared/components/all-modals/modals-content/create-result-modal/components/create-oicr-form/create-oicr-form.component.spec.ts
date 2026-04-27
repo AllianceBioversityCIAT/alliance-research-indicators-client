@@ -157,7 +157,7 @@ describe('CreateOicrFormComponent', () => {
 
     const mockCurrentResultService = {
       currentResult: signal(null),
-      openEditRequestdOicrsModal: jest.fn()
+      openEditRequestdOicrsModal: jest.fn().mockResolvedValue(undefined)
     };
 
     await TestBed.configureTestingModule({
@@ -892,11 +892,14 @@ describe('CreateOicrFormComponent', () => {
   it('should handle handleSubmitBack method', async () => {
     // Mock the cache service methods
     const mockCacheService = TestBed.inject(CacheService);
+    const mockCurrentResultService = TestBed.inject(CurrentResultService) as any;
     mockCacheService.currentMetadata = jest.fn(() => ({ indicator_id: 1, status_id: 2 }));
     mockCacheService.getCurrentNumericResultId = jest.fn(() => 123);
-    
+    component.router.url = '/result/STAR-123';
+
     await component.handleSubmitBack();
-    
+
+    expect(mockCurrentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 123, 'project');
     expect(mockAllModalsService.setSubmitResultOrigin).toHaveBeenCalledWith(null);
     expect(mockAllModalsService.setSubmitHeader).toHaveBeenCalledWith(null);
     expect(mockAllModalsService.setSubmitBackStep).toHaveBeenCalledWith(null);
@@ -904,6 +907,18 @@ describe('CreateOicrFormComponent', () => {
     expect(mockAllModalsService.createResultManagementService.resetModal).toHaveBeenCalled();
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('submitResult');
     // This test covers the handleSubmitBack method logic
+  });
+
+  it('should pass results-center context on handleSubmitBack when URL has from=results-center', async () => {
+    const mockCacheService = TestBed.inject(CacheService);
+    const mockCurrentResultService = TestBed.inject(CurrentResultService) as any;
+    mockCacheService.currentMetadata = jest.fn(() => ({ indicator_id: 1, status_id: 2 }));
+    mockCacheService.getCurrentNumericResultId = jest.fn(() => 123);
+    component.router.url = '/result/STAR-123?from=results-center';
+
+    await component.handleSubmitBack();
+
+    expect(mockCurrentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 123, 'results-center');
   });
 
   it('should handle handleSubmitBack with no metadata', async () => {
@@ -1389,6 +1404,92 @@ describe('CreateOicrFormComponent', () => {
     // navigate() body should have run: closeModal, updateList, etc.
     expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('createResult');
     expect(mockGetResultsService.updateList).toHaveBeenCalled();
+  });
+
+  it('should navigate to results-center on Done when OICR success and entry context is results-center', async () => {
+    const mockResponse = {
+      status: 200,
+      data: { result_official_code: 'TEST-001' }
+    };
+    mockApiService.POST_CreateOicr = jest.fn().mockResolvedValue(mockResponse);
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      base_information: {
+        indicator_id: 5,
+        contract_id: '123',
+        title: 'Test Title'
+      }
+    });
+    mockCreateResultManagementService.resultCreationEntryContext.set('results-center');
+
+    const mockRouter = TestBed.inject(Router);
+    mockRouter.navigate = jest.fn().mockResolvedValue(true);
+    mockRouter.url = '/results-center';
+
+    const mockActionsService = TestBed.inject(ActionsService);
+    let capturedCallback: (() => void) | undefined;
+    mockActionsService.showGlobalAlert = jest.fn().mockImplementation(config => {
+      capturedCallback = config.confirmCallback?.event;
+    });
+
+    const mockGetResultsService = TestBed.inject(GetResultsService);
+    mockGetResultsService.updateList = jest.fn();
+
+    const mockCacheService = TestBed.inject(CacheService);
+    mockCacheService.projectResultsSearchValue = signal('');
+
+    await component.createResult();
+    expect(mockActionsService.showGlobalAlert).toHaveBeenCalled();
+    capturedCallback?.();
+
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/results-center'], {
+      replaceUrl: true,
+      onSameUrlNavigation: 'reload'
+    });
+    expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('createResult');
+    expect(mockGetResultsService.updateList).toHaveBeenCalled();
+
+    mockCreateResultManagementService.resultCreationEntryContext.set(null);
+  });
+
+  it('should navigate to project-detail/ with empty contract segment when contract_id is missing on OICR Done', async () => {
+    const mockResponse = {
+      status: 200,
+      data: { result_official_code: 'TEST-001' }
+    };
+    mockApiService.POST_CreateOicr = jest.fn().mockResolvedValue(mockResponse);
+    mockCreateResultManagementService.createOicrBody.set({
+      ...mockCreateResultManagementService.createOicrBody(),
+      base_information: {
+        indicator_id: 5,
+        title: 'Test Title'
+      } as any
+    });
+    mockCreateResultManagementService.resultCreationEntryContext.set(null);
+
+    const mockRouter = TestBed.inject(Router);
+    mockRouter.navigate = jest.fn().mockResolvedValue(true);
+    mockRouter.url = '/other-path';
+
+    const mockActionsService = TestBed.inject(ActionsService);
+    let capturedCallback: (() => void) | undefined;
+    mockActionsService.showGlobalAlert = jest.fn().mockImplementation(config => {
+      capturedCallback = config.confirmCallback?.event;
+    });
+
+    const mockGetResultsService = TestBed.inject(GetResultsService);
+    mockGetResultsService.updateList = jest.fn();
+
+    const mockCacheService = TestBed.inject(CacheService);
+    mockCacheService.projectResultsSearchValue = signal('');
+
+    await component.createResult();
+    capturedCallback?.();
+
+    expect(mockRouter.navigate).toHaveBeenCalledWith(
+      ['project-detail/', ''],
+      { replaceUrl: true, onSameUrlNavigation: 'reload' }
+    );
   });
 
   it('should handle createResult with success response and indicator_id not 5 - direct navigation', async () => {
