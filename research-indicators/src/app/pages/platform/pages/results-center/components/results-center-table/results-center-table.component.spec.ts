@@ -8,6 +8,23 @@ import { computed, signal } from '@angular/core';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { CreateResultManagementService } from '../../../../../../shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
+import { getResultEntrySourceFromSearch, isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
+
+describe('result-entry-source helpers', () => {
+  it('getResultEntrySourceFromSearch returns null for empty and parses query shapes', () => {
+    expect(getResultEntrySourceFromSearch('')).toBeNull();
+    expect(getResultEntrySourceFromSearch('?from=results-center')).toBe('results-center');
+    expect(getResultEntrySourceFromSearch('from=results-center')).toBe('results-center');
+    expect(getResultEntrySourceFromSearch('x=1&from=results-center')).toBe('results-center');
+    expect(getResultEntrySourceFromSearch('?from=other')).toBe('other');
+  });
+
+  it('isResultsCenterEntryFromUrl detects results-center entry from URL query', () => {
+    expect(isResultsCenterEntryFromUrl('/result/STAR-1')).toBe(false);
+    expect(isResultsCenterEntryFromUrl('/result/STAR-1?from=results-center')).toBe(true);
+    expect(isResultsCenterEntryFromUrl('/result/STAR-1?from=projects')).toBe(false);
+  });
+});
 
 describe('ResultsCenterTableComponent', () => {
   let component: ResultsCenterTableComponent;
@@ -48,6 +65,7 @@ describe('ResultsCenterTableComponent', () => {
   }
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const listSig = signal([mockResult]);
@@ -203,6 +221,14 @@ describe('ResultsCenterTableComponent', () => {
     expect(mockRouter.navigate).not.toHaveBeenCalled();
   });
 
+  it('openResult PRMS should set result information entry context to results-center when in results-center context', () => {
+    fixture.componentRef.setInput('resultEntryContext', 'results-center');
+    const prms = { ...mockResult, platform_code: 'PRMS' };
+    mockModals.setResultInformationEntryContext.mockClear();
+    component.openResult(prms);
+    expect(mockModals.setResultInformationEntryContext).toHaveBeenCalledWith('results-center');
+  });
+
   it('openCreateResultForProject should open create modal when primaryContractId is set', () => {
     (mockService.primaryContractId as jest.Mock).mockReturnValue('CONTRACT-123');
     component.openCreateResultForProject();
@@ -210,6 +236,13 @@ describe('ResultsCenterTableComponent', () => {
     expect(mockCreateResultManagementService.setPresetFromProjectResultsTable).toHaveBeenCalledWith(true);
     expect(mockCreateResultManagementService.setResultCreationEntryContext).toHaveBeenCalledWith('project');
     expect(mockModals.openModal).toHaveBeenCalledWith('createResult');
+  });
+
+  it('openCreateResultForProject should set results-center creation context when table is in results-center context', () => {
+    (mockService.primaryContractId as jest.Mock).mockReturnValue('CONTRACT-123');
+    fixture.componentRef.setInput('resultEntryContext', 'results-center');
+    component.openCreateResultForProject();
+    expect(mockCreateResultManagementService.setResultCreationEntryContext).toHaveBeenCalledWith('results-center');
   });
 
   it('openCreateResultForProject should do nothing when primaryContractId is null', () => {
@@ -288,6 +321,12 @@ describe('ResultsCenterTableComponent', () => {
   it('getResultQueryParams should return empty object when not approved-with-versions', () => {
     const r = { ...mockResult, result_status: { name: 'SUBMITTED', result_status_id: 1 }, snapshot_years: [] };
     expect(component.getResultQueryParams(r as any)).toEqual({});
+  });
+
+  it('getResultQueryParams should include from=results-center when entry context is results-center', () => {
+    fixture.componentRef.setInput('resultEntryContext', 'results-center');
+    const r = { ...mockResult, result_status: { name: 'SUBMITTED', result_status_id: 1 }, snapshot_years: [] };
+    expect(component.getResultQueryParams(r as any)).toEqual({ from: 'results-center' });
   });
 
   it.each([
@@ -392,6 +431,22 @@ describe('ResultsCenterTableComponent', () => {
     // call the remover
     (component as any).removeDocumentClickListener?.();
     expect(removeSpy).toHaveBeenCalledWith('click', expect.any(Function), { capture: true } as unknown as boolean);
+  });
+
+  it('ngOnDestroy should remove document click listener when registered', () => {
+    const removeSpy = jest.spyOn(document, 'removeEventListener');
+    component.ngAfterViewInit();
+    component.ngOnDestroy();
+    expect(removeSpy).toHaveBeenCalledWith('click', expect.any(Function), { capture: true } as unknown as boolean);
+    removeSpy.mockRestore();
+  });
+
+  it('dt2 setter should sync tableRef on ResultsCenterService', () => {
+    const fakeTable = { el: { nativeElement: document.createElement('div') } } as any;
+    component.dt2 = fakeTable;
+    expect(mockService.tableRef()).toBe(fakeTable);
+    component.dt2 = undefined;
+    expect(mockService.tableRef()).toBeUndefined();
   });
 
   it('onDocClickCapture should call processRowClick with target element', () => {
@@ -653,6 +708,12 @@ describe('ResultsCenterTableComponent', () => {
     expect(console.error).toHaveBeenCalled();
   });
 
+  it('exportTable should log rejection when error is not an Error instance', async () => {
+    mockApiService.GET_ResultCenterXlsx.mockRejectedValueOnce('network-fail');
+    await component.exportTable();
+    expect(console.error).toHaveBeenCalled();
+  });
+
   it('exportTable should log error when blob is empty', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockApiService.GET_ResultCenterXlsx.mockResolvedValueOnce(new Blob([]));
@@ -760,7 +821,30 @@ describe('ResultsCenterTableComponent', () => {
 
     expect(preventDefaultSpy).toHaveBeenCalled();
     expect(stopPropagationSpy).toHaveBeenCalled();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/project-detail', 'C-1', 'project-results']);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/project-detail', 'C-1', 'project-results'], { queryParams: {} });
+  });
+
+  it('processRowClick should navigate to project-detail with from query when resultEntryContext is results-center', () => {
+    fixture.componentRef.setInput('resultEntryContext', 'results-center');
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tableElement = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.className = 'project-cell';
+    row.appendChild(cell);
+    tbody.appendChild(row);
+    tableElement.appendChild(tbody);
+    (component as any).dt2 = {
+      el: { nativeElement: tableElement },
+      filteredValue: [{ ...mockResult, result_contracts: { contract_id: 'C-1' } }],
+      first: 0
+    };
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    (component as any).processRowClick(cell, event);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/project-detail', 'C-1', 'project-results'], {
+      queryParams: { from: 'results-center' }
+    });
   });
 
   it('processRowClick should return early for non-PRMS/TIP/AICCRA when clicking routerLink', () => {
@@ -819,5 +903,14 @@ describe('ResultsCenterTableComponent', () => {
     (component as any).closeResultInformationModal();
     expect(mockModals.closeModal).toHaveBeenCalledWith('resultInformation');
     expect(setSelectedSpy).toHaveBeenCalledWith(null);
+  });
+
+  it('closeResultInformationModal should clear entry context when modal is not open', () => {
+    mockModals.isModalOpen.mockReturnValue({ isOpen: false });
+    mockModals.closeModal.mockClear();
+    mockModals.setResultInformationEntryContext.mockClear();
+    (component as any).closeResultInformationModal();
+    expect(mockModals.setResultInformationEntryContext).toHaveBeenCalledWith(null);
+    expect(mockModals.closeModal).not.toHaveBeenCalled();
   });
 });
