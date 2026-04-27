@@ -74,6 +74,8 @@ describe('CreateOicrFormComponent', () => {
       oicrPrimaryOptionsDisabled: signal([]),
       resultTitle: signal(''),
       statusId: signal(9),
+      resultCreationEntryContext: signal<'results-center' | 'project' | null>(null),
+      setResultCreationEntryContext: jest.fn(),
       setModalTitle: jest.fn(),
       setStatusId: jest.fn(),
       clearOicrBody: jest.fn(),
