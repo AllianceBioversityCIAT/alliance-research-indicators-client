@@ -85,6 +85,20 @@ describe('AllModalsService', () => {
     });
   });
 
+  describe('setResultInformationEntryContext', () => {
+    it('should set results-center title when context is results-center', () => {
+      service.setResultInformationEntryContext('results-center');
+      expect(service.resultInformationEntryContext()).toBe('results-center');
+      expect(service.modalConfig().resultInformation.title).toBe('Result information (Results Center)');
+    });
+
+    it('should set default title when context is null', () => {
+      service.setResultInformationEntryContext(null);
+      expect(service.resultInformationEntryContext()).toBeNull();
+      expect(service.modalConfig().resultInformation.title).toBe('Result Information');
+    });
+  });
+
   describe('Signal setters', () => {
     it('should set partnerRequestSection', () => {
       service.setPartnerRequestSection('test-section');
@@ -300,6 +314,15 @@ describe('AllModalsService', () => {
       const config = service.modalConfig();
       expect(config.createResult.isOpen).toBe(false);
       expect(config.createResult.isWide).toBe(false);
+    });
+
+    it('should reset resultInformation title and entry context when closing resultInformation', () => {
+      service.setResultInformationEntryContext('results-center');
+      service.openModal('resultInformation');
+      service.closeModal('resultInformation');
+
+      expect(service.resultInformationEntryContext()).toBeNull();
+      expect(service.modalConfig().resultInformation.title).toBe('Result Information');
     });
 
     it('should handle submitResult modal close without cleanup', () => {

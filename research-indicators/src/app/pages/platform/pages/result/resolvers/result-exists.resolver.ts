@@ -1,10 +1,12 @@
 import { inject } from '@angular/core';
-import { ResolveFn, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, ResolveFn, Router } from '@angular/router';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { CurrentResultService } from '../../../../../shared/services/cache/current-result.service';
 import { CacheService } from '../../../../../shared/services/cache/cache.service';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { RolesService } from '@shared/services/cache/roles.service';
+import { RESULT_ENTRY_SOURCE_QUERY, RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER } from '@shared/constants/result-entry-source';
+import { OicrResolverMetadata } from '@shared/interfaces/oicr-resolver-metadata.interface';
 
 export const resultExistsResolver: ResolveFn<boolean> = async route => {
   const metadataService = inject(GetMetadataService);
@@ -35,16 +37,50 @@ export const resultExistsResolver: ResolveFn<boolean> = async route => {
     return false;
   }
 
-  if (currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
-    const isDraft =  (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
-    if (!isDraft || (isDraft && !rolesService.isAdmin())) {
-      router.navigate(['/project-detail', result_contract_id]);
-      if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');
-      currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0);
-      return false;
-    }
-    return true;
+  const oicrResolveOutcome = await tryOpenOicrEditorFromResolver(route, router, cacheService, currentResultService, rolesService, {
+    indicator_id,
+    status_id,
+    result_official_code,
+    result_contract_id,
+    result_title
+  });
+  if (oicrResolveOutcome !== undefined) {
+    return oicrResolveOutcome;
   }
 
   return true;
 };
+
+async function tryOpenOicrEditorFromResolver(
+  route: ActivatedRouteSnapshot,
+  router: Router,
+  cacheService: CacheService,
+  currentResultService: CurrentResultService,
+  rolesService: RolesService,
+  meta: OicrResolverMetadata
+): Promise<boolean | undefined> {
+  const { indicator_id, status_id, result_official_code, result_contract_id, result_title } = meta;
+
+  if (!currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
+    return undefined;
+  }
+
+  const isDraft = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
+  if (!isDraft || (isDraft && !rolesService.isAdmin())) {
+    const fromResultsCenter = route.queryParamMap.get(RESULT_ENTRY_SOURCE_QUERY) === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER;
+    if (fromResultsCenter) {
+      await router.navigate(['/results-center']);
+    } else {
+      await router.navigate(['/project-detail', result_contract_id]);
+      if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');
+    }
+    await currentResultService.openEditRequestdOicrsModal(
+      indicator_id ?? 0,
+      status_id ?? 0,
+      result_official_code ?? 0,
+      fromResultsCenter ? 'results-center' : 'project'
+    );
+    return false;
+  }
+  return true;
+}

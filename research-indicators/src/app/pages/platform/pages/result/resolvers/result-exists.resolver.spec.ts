@@ -24,19 +24,22 @@ describe('resultExistsResolver', () => {
     };
 
     const routerMock = {
-      navigate: jest.fn(),
+      navigate: jest.fn().mockResolvedValue(true),
       url: ''
     };
 
     const routeMock = {
       paramMap: {
         get: jest.fn()
+      },
+      queryParamMap: {
+        get: jest.fn().mockReturnValue(null)
       }
     };
 
     const currentResultServiceMock = {
       validateOpenResult: jest.fn().mockReturnValue(false),
-      openEditRequestdOicrsModal: jest.fn()
+      openEditRequestdOicrsModal: jest.fn().mockResolvedValue(undefined)
     };
 
     const cacheServiceMock = {
@@ -273,7 +276,30 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, 'project');
+    expect(result).toBe(false);
+  });
+
+  it('should navigate to results-center and open OICR with results-center entry when query has from=results-center', async () => {
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    route.queryParamMap.get = jest.fn((key: string) => (key === 'from' ? 'results-center' : null));
+    metadataService.update = jest.fn().mockResolvedValue({
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
+    expect(cacheService.projectResultsSearchValue.set).not.toHaveBeenCalled();
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, 'results-center');
     expect(result).toBe(false);
   });
 
@@ -300,7 +326,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).not.toHaveBeenCalled();
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, 'project');
     expect(result).toBe(false);
   });
 
@@ -401,7 +427,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', null]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, 'project');
     expect(result).toBe(false);
   });
 
@@ -428,7 +454,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', undefined]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, 'project');
     expect(result).toBe(false);
   });
 
@@ -455,7 +481,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, 'project');
     expect(result).toBe(false);
   });
 
@@ -482,7 +508,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, 'project');
     expect(result).toBe(false);
   });
 
@@ -509,7 +535,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 0);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 0, 'project');
     expect(result).toBe(false);
   });
 
@@ -536,7 +562,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 2);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 0);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 0, 'project');
     expect(result).toBe(false);
   });
 
@@ -563,7 +589,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(0, 0);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', null]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0, 'project');
     expect(result).toBe(false);
   });
 
@@ -590,7 +616,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(0, 0);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', undefined]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0, 'project');
     expect(result).toBe(false);
   });
 
@@ -617,7 +643,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 4);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 4, 3);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 4, 3, 'project');
     expect(result).toBe(false);
   });
 
@@ -649,7 +675,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 14);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 14, 3);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 14, 3, 'project');
     expect(result).toBe(false);
   });
 
@@ -677,7 +703,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 12);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 12, 3);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 12, 3, 'project');
     expect(result).toBe(false);
   });
 
@@ -705,7 +731,7 @@ describe('resultExistsResolver', () => {
     expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 13);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 13, 3);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 13, 3, 'project');
     expect(result).toBe(false);
   });
 

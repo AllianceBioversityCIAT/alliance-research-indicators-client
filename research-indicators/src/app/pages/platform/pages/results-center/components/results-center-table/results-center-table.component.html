@@ -138,7 +138,8 @@
           @if (primaryContractId) {
           <a (keydown.enter)="$event.stopPropagation()"
             class="project-link cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"
-            [routerLink]="['/project-detail', primaryContractId, 'project-results']" (click)="$event.stopPropagation()">
+            [routerLink]="['/project-detail', primaryContractId, 'project-results']"
+            [queryParams]="resultEntryQueryParamsForNavigation()" (click)="$event.stopPropagation()">
             {{ primaryContractId }}
           </a>
           } @else {

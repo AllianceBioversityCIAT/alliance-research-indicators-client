@@ -71,12 +71,14 @@ export class ProjectResultsTableComponent implements OnInit, OnDestroy {
   openCreateResultForProject() {
     this.createResultManagementService.setContractId(this.contractId);
     this.createResultManagementService.setPresetFromProjectResultsTable(true);
+    this.createResultManagementService.setResultCreationEntryContext('project');
     this.allModalsService.openModal('createResult');
   }
 
   ngOnDestroy() {
     this.createResultManagementService.setContractId(null);
     this.createResultManagementService.setPresetFromProjectResultsTable(false);
+    this.createResultManagementService.setResultCreationEntryContext(null);
   }
 
   getSeverity(status: string) {
