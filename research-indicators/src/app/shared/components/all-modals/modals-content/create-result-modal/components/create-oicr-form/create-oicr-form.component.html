@@ -65,6 +65,7 @@
   @if (currentContract()) {
   <app-oicr-header [data]="{
       title: createResultManagementService.resultTitle() || '',
+      result_official_code: createResultManagementService.currentRequestedResultCode() ?? cache.currentMetadata()?.result_official_code,
       agreement_id: currentContract()?.agreement_id,
       description: currentContract()?.description,
       project_lead_description: currentContract()?.project_lead_description,
