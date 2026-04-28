@@ -2,7 +2,7 @@
 
   @if (showExportButton) {
   <p-button icon="pi pi-file-excel !text-[12px]"
-    styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] !bg-white !text-[#035BA9] !border-[#035BA9]"
+    styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] !bg-white !text-[#035BA9] !border-[#035BA9] !hidden"
     (keydown.enter)="export.emit()" (click)="export.emit()" [label]="exportLabel" class="p-button-outlined"
     [outlined]="true"></p-button>
   }
