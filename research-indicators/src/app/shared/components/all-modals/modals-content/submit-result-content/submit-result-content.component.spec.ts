@@ -1268,6 +1268,20 @@ describe('SubmitResultContentComponent', () => {
     });
   });
 
+  it('should include result_official_code in headerData when latest origin has code in metadata', () => {
+    const baseHeader = { status_id: '6', indicator_id: 1 };
+    mockAllModalsService.submitResultOrigin.set('latest');
+    mockAllModalsService.submitHeader.set(baseHeader);
+    mockCacheService.currentMetadata.set({ status_id: 5, result_official_code: 12345 });
+
+    const result = component.headerData();
+
+    expect(result).toEqual({
+      ...baseHeader,
+      result_official_code: 12345
+    });
+  });
+
   it('should not select option when disabled', () => {
     const disabledOption = { statusId: 5, key: 'revise', disabled: true };
     const setSpy = jest.spyOn(mockSubmissionService.statusSelected, 'set');
