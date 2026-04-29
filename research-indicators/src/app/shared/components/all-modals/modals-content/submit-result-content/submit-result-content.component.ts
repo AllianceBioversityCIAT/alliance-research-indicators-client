@@ -50,14 +50,21 @@ export class SubmitResultContentComponent {
       const currentMetadata = this.cache.currentMetadata();
       const currentStatusId = currentMetadata?.status_id;
       const resultStatus = currentMetadata?.result_status;
+      const resultOfficialCode = currentMetadata?.result_official_code;
+      const headerWithCode =
+        resultOfficialCode !== null && resultOfficialCode !== undefined
+          ? { ...base, result_official_code: resultOfficialCode }
+          : base;
       
       if (currentStatusId != null && resultStatus) {
         return {
-          ...base,
+          ...headerWithCode,
           status_id: String(currentStatusId),
           status_config: resultStatus
         };
       }
+
+      return headerWithCode;
     }
 
     return base;

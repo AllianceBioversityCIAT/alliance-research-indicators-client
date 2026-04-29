@@ -54,6 +54,7 @@ import { RolesService } from '@shared/services/cache/roles.service';
 import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
 import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
+import { isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { AccordionModule } from 'primeng/accordion';
 import { SubmissionService } from '@shared/services/submission.service';
@@ -454,10 +455,19 @@ export class CreateOicrFormComponent implements OnInit {
           label: 'Done',
           event: () => {
             // Modern Angular approach - Navigate with reload
-            const targetRoute =
-              this.createResultManagementService.createOicrBody().base_information.indicator_id === 5
-                ? ['project-detail/', this.createResultManagementService.createOicrBody()?.base_information?.contract_id]
-                : ['result', response.data.result_official_code];
+            const isOicr = this.createResultManagementService.createOicrBody().base_information.indicator_id === 5;
+            const fromResultsCenter = this.createResultManagementService.resultCreationEntryContext() === 'results-center';
+            let targetRoute: (string | number)[];
+            if (isOicr) {
+              targetRoute = fromResultsCenter
+                ? ['/results-center']
+                : [
+                    'project-detail/',
+                    this.createResultManagementService.createOicrBody()?.base_information?.contract_id ?? ''
+                  ];
+            } else {
+              targetRoute = ['result', response.data.result_official_code];
+            }
 
             // Navigate to results-center first to ensure component refresh
             const navigate = () => {
@@ -617,10 +627,12 @@ export class CreateOicrFormComponent implements OnInit {
     const currentMetadata = this.cache.currentMetadata();
     if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
       const resultCode = this.cache.getCurrentNumericResultId();
+      const fromResultsCenter = isResultsCenterEntryFromUrl(this.router.url);
       await this.currentResultService.openEditRequestdOicrsModal(
         currentMetadata.indicator_id,
         currentMetadata.status_id,
-        resultCode
+        resultCode,
+        fromResultsCenter ? 'results-center' : 'project'
       );
     }
   }

@@ -27,6 +27,7 @@ interface ModalConfig {
 export class AllModalsService {
   partnerRequestSection = signal<string | null>(null);
   selectedResultForInfo = signal<Result | null>(null);
+  resultInformationEntryContext = signal<'results-center' | null>(null);
   submitResultOrigin = signal<'latest' | null>(null);
   submitHeader = signal<OicrHeaderData | null>(null);
   submitBackStep = signal<number | null>(null);
@@ -57,6 +58,17 @@ export class AllModalsService {
   refreshLinkedResults?: () => Promise<void> | void;
   setRefreshLinkedResults = (fn: (() => Promise<void> | void) | undefined) => (this.refreshLinkedResults = fn);
   syncSelectedResults = signal<Result[]>([]);
+
+  setResultInformationEntryContext(context: 'results-center' | null): void {
+    this.resultInformationEntryContext.set(context);
+    this.modalConfig.update(modals => ({
+      ...modals,
+      resultInformation: {
+        ...modals.resultInformation,
+        title: context === 'results-center' ? 'Result information (Results Center)' : 'Result Information'
+      }
+    }));
+  }
 
   setSubmitResultOrigin(origin: 'latest' | null): void {
     this.submitResultOrigin.set(origin);
@@ -190,17 +202,27 @@ export class AllModalsService {
   }
 
   closeModal(modalName: ModalName): void {
-    this.modalConfig.update(modals => ({
-      ...modals,
-      [modalName]: {
-        ...modals[modalName],
-        isOpen: false,
-        isWide: false
+    this.modalConfig.update(modals => {
+      const next = {
+        ...modals,
+        [modalName]: {
+          ...modals[modalName],
+          isOpen: false,
+          isWide: false
+        }
+      };
+      if (modalName === 'resultInformation') {
+        next.resultInformation = { ...next.resultInformation, title: 'Result Information' };
       }
-    }));
+      return next;
+    });
 
     if (modalName === 'createResult') {
       this.createResultManagementService.resetModal();
+    }
+
+    if (modalName === 'resultInformation') {
+      this.resultInformationEntryContext.set(null);
     }
   }
 
@@ -230,7 +252,7 @@ export class AllModalsService {
       requestPartner: { ...this.modalConfig().requestPartner, isOpen: false, isWide: false },
       createOicrResult: { ...this.modalConfig().createOicrResult, isOpen: false, isWide: false },
       askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false },
-      resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false },
+      resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false, title: 'Result Information' },
       addContactPerson: { ...this.modalConfig().addContactPerson, isOpen: false, isWide: false },
       selectLinkedResults: { ...this.modalConfig().selectLinkedResults, isOpen: false, isWide: false }
     });
@@ -238,6 +260,7 @@ export class AllModalsService {
     this.setSubmitResultOrigin(null);
     this.clearSubmissionData();
     this.refreshLinkedResults = undefined;
+    this.resultInformationEntryContext.set(null);
 
     this.createResultManagementService.resetModal();
   }

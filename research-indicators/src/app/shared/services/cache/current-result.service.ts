@@ -14,8 +14,16 @@ export class CurrentResultService {
   allModalsService = inject(AllModalsService);
   cache = inject(CacheService);
 
-  async openEditRequestdOicrsModal(indicatorId: number, resultStatusId: number, resultCode: number) {
+  async openEditRequestdOicrsModal(
+    indicatorId: number,
+    resultStatusId: number,
+    resultCode: number,
+    creationEntryContext?: 'results-center' | 'project' | null
+  ) {
     if (!this.validateOpenResult(indicatorId, resultStatusId)) return false;
+    if (creationEntryContext !== undefined) {
+      this.createResultManagementService.setResultCreationEntryContext(creationEntryContext);
+    }
     this.createResultManagementService.currentRequestedResultCode.set(resultCode);
     this.createResultManagementService.editingOicr.set(true);
     await this.api.GET_OICRModal(resultCode).then(response => {

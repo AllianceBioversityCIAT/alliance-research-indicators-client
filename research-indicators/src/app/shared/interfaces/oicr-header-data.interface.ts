@@ -10,6 +10,7 @@ export interface LeverData {
 
 export interface OicrHeaderData {
   title?: string;
+  result_official_code?: string | number;
   agreement_id?: string;
   description?: string;
   project_lead_description?: string;

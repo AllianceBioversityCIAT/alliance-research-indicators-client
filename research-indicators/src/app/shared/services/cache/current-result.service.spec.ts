@@ -37,7 +37,8 @@ describe('CurrentResultService', () => {
       modalTitle: signalMock() as any,
       contractId: signalMock() as any,
       resultTitle: signalMock() as any,
-      statusId: signalMock() as any
+      statusId: signalMock() as any,
+      setResultCreationEntryContext: jest.fn()
     } as any;
 
     TestBed.configureTestingModule({
@@ -106,6 +107,18 @@ describe('CurrentResultService', () => {
       
       expect(result).toBe(false);
       expect(mockApi.GET_OICRModal).not.toHaveBeenCalled();
+    });
+
+    it('should call setResultCreationEntryContext when a creation entry context is provided', async () => {
+      const responseData = {
+        step_three: { comment_geo_scope: 'x' },
+        base_information: { contract_id: 'C-1', title: 'T' }
+      };
+      mockApi.GET_OICRModal.mockResolvedValueOnce({ data: responseData });
+
+      await service.openEditRequestdOicrsModal(5, 1, 456, 'results-center');
+
+      expect(mockCreateResultManagement.setResultCreationEntryContext).toHaveBeenCalledWith('results-center');
     });
 
     it('should successfully open modal when indicatorId is 5', async () => {

@@ -144,6 +144,13 @@ describe('CreateResultManagementService', () => {
     expect(service.presetFromProjectResultsTable()).toBe(false);
   });
 
+  it('should set and clear result creation entry context', () => {
+    service.setResultCreationEntryContext('results-center');
+    expect(service.resultCreationEntryContext()).toBe('results-center');
+    service.resetModal();
+    expect(service.resultCreationEntryContext()).toBeNull();
+  });
+
   it('should set status ID', () => {
     service.setStatusId(5);
     expect(service.statusId()).toBe(5);
