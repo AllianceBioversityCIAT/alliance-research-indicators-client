@@ -1,8 +1,4 @@
-<div class="oicr-workflow-status flex items-center gap-2 pb-1">
-    <div class="flex items-center gap-1">
-        <i class="pi pi-chart-pie !text-[12px] text-[#F58220]"></i>
-        <span class="text-[11px] text-[#8D9299] font-[400] !font-[Space_Grotesk] pr-2">OICR</span>
-    </div>
+<div class="oicr-workflow-status flex items-center gap-2 ">
     @for (step of workflowSteps; track step.id; let isFirst = $first; let isLast = $last) {
     <div class="flex items-center gap-2">
         @if (!isFirst) {
