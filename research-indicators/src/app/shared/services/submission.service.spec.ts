@@ -11,6 +11,12 @@ const cacheMock = {
   getCurrentPlatformCode: jest.fn()
 };
 
+const rolesMock = {
+  isAdmin: jest.fn().mockReturnValue(false),
+  isMelRegionalExpert: jest.fn().mockReturnValue(false),
+  canEditAnyResult: jest.fn()
+};
+
 describe('SubmissionService', () => {
   let service: SubmissionService;
 
@@ -19,12 +25,16 @@ describe('SubmissionService', () => {
       providers: [
         SubmissionService,
         { provide: 'CacheService', useValue: cacheMock },
-        { provide: RolesService, useValue: { isAdmin: jest.fn().mockReturnValue(false) } }
+        { provide: RolesService, useValue: rolesMock }
       ]
     });
     service = TestBed.inject(SubmissionService);
     service.cache = cacheMock as any;
     jest.clearAllMocks();
+    rolesMock.isAdmin.mockReturnValue(false);
+    rolesMock.isMelRegionalExpert.mockReturnValue(false);
+    rolesMock.canEditAnyResult.mockImplementation(() => rolesMock.isAdmin() || rolesMock.isMelRegionalExpert());
+    cacheMock.isMyResult.mockReturnValue(true);
   });
 
   it('should be created', () => {
@@ -42,9 +52,10 @@ describe('SubmissionService', () => {
     expect(service.getStatusNameById(-1)).toBe('');
   });
 
-  it('isEditableStatus true for status_id 4 and STAR platform', () => {
+  it('isEditableStatus true for status_id 4 and STAR platform when user is creator (contributor path)', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 4 });
     cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    cacheMock.isMyResult.mockReturnValue(true);
     expect(service.isEditableStatus()).toBe(true);
   });
 
@@ -84,9 +95,10 @@ describe('SubmissionService', () => {
     expect(service.isEditableStatus()).toBe(false);
   });
 
-  it('isEditableStatus true for status_id 4 and empty platform code', () => {
+  it('isEditableStatus true for status_id 4 and empty platform code when user is creator', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 4 });
     cacheMock.getCurrentPlatformCode.mockReturnValue('');
+    cacheMock.isMyResult.mockReturnValue(true);
     expect(service.isEditableStatus()).toBe(true);
   });
 
@@ -259,6 +271,59 @@ describe('SubmissionService', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: -1 });
     cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
     expect(service.isEditableStatus()).toBe(false);
+  });
+
+  it('isEditableStatus false for STAR draft when user is not creator, has no grant, and no privileged role', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 4 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    cacheMock.isMyResult.mockReturnValue(false);
+    rolesMock.isAdmin.mockReturnValue(false);
+    rolesMock.isMelRegionalExpert.mockReturnValue(false);
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
+  it('isEditableStatus true for STAR draft when has_result_edit_grant is true', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 4, has_result_edit_grant: true });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    cacheMock.isMyResult.mockReturnValue(false);
+    expect(service.isEditableStatus()).toBe(true);
+  });
+
+  it('isEditableStatus false for STAR draft when has_result_edit_grant is false', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 4, has_result_edit_grant: false });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    cacheMock.isMyResult.mockReturnValue(true);
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
+  it('isEditableStatus true for STAR draft when user is System or Center Admin', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 4, has_result_edit_grant: false });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    cacheMock.isMyResult.mockReturnValue(false);
+    rolesMock.isAdmin.mockReturnValue(true);
+    expect(service.isEditableStatus()).toBe(true);
+  });
+
+  it('isEditableStatus true for STAR draft when user is MEL Regional Expert', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 12, has_result_edit_grant: false });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    cacheMock.isMyResult.mockReturnValue(false);
+    rolesMock.isMelRegionalExpert.mockReturnValue(true);
+    expect(service.isEditableStatus()).toBe(true);
+  });
+
+  it('isEditableStatus true for STAR draft via is_main_contact_person when grant omitted', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 13, is_main_contact_person: true });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    cacheMock.isMyResult.mockReturnValue(false);
+    expect(service.isEditableStatus()).toBe(true);
+  });
+
+  it('isEditableStatus true for STAR draft via is_principal_investigator when grant omitted', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 4, is_principal_investigator: true });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    cacheMock.isMyResult.mockReturnValue(false);
+    expect(service.isEditableStatus()).toBe(true);
   });
 
   it('isSubmitted handles status_id 0', () => {
