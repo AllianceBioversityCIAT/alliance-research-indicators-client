@@ -90,11 +90,12 @@
   .card {
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
     border-radius: 10px;
-    border: 0.8px solid #e8ebed;
-    background-color: #ffffff;
+    border: 0.4px solid #e8ebed;
+    background-color: #fff;
     padding: 15px;
-    box-shadow: 0px 1.49px 8.18px 0px rgba(0, 182, 255, 0.1);
+    overflow: hidden;
     cursor: pointer;
     min-width: 0;
 

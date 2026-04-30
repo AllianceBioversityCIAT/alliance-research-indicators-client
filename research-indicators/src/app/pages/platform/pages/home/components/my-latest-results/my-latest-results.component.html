@@ -1,4 +1,4 @@
-<div class="relative w-full [perspective:1000px]">
+<div class="relative w-full">
   @if (latestResultList().length) {
   <div class="header">
     <div class="header-text ">
@@ -14,7 +14,7 @@
   </div>
   <div class="card-container">
     @for (result of latestResultList(); track $index) {
-    <div class="card" [routerLink]="['/result', result.result_official_code]" style="cursor: pointer">
+    <div class="card" [routerLink]="['/result', result.result_official_code]">
       <div class="card-content">
         <div class="project-indicators">
           <div class="indicator">
