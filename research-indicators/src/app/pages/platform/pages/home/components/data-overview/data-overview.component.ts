@@ -67,7 +67,7 @@ export class DataOverviewComponent implements OnInit {
 
   chartData(data: any) {
     const rows = Array.isArray(data) ? data : [];
-    const filtered = rows.filter((item: any) => Number(item.amount_results) > 0);
+    const filtered = rows.filter((item: any) => Number(item.amount_results) >= 1);
 
     const items = filtered.map((item: any) => ({
       color: item.result_status?.config?.color?.text || '#1689CA',

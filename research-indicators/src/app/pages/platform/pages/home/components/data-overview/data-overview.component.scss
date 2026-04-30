@@ -1,14 +1,15 @@
 :host {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-height: 0;
   width: 100%;
+  --data-overview-below-status: 340px;
 }
 
 .local-container.data-overview--sidebar {
   width: 100%;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -17,21 +18,10 @@
 .sidebar-stack {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-height: 0;
   gap: 17px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 3px;
-  }
+  overflow: hidden;
 }
 
 .sidebar-card {
@@ -85,6 +75,44 @@
   box-sizing: border-box;
 }
 
+.sidebar-section--status {
+  flex: 0 0 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sidebar-section--indicators {
+  flex: 0 0 auto;
+  min-height: 0;
+
+  .indicators,
+  > .no-results-yet-2 {
+    height: 178px;
+    min-height: 178px;
+    max-height: 178px;
+    box-sizing: border-box;
+  }
+
+  .indicators {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 3px;
+    }
+  }
+
+  > .no-results-yet-2 {
+    overflow: hidden;
+    align-items: center;
+  }
+}
+
 .sidebar-section__title {
   margin: 0;
   padding: 0;
@@ -97,10 +125,25 @@
 }
 
 .chart-container {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 auto;
   width: 100%;
   min-width: 0;
   padding-bottom: 3px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-height: max(0px, calc(var(--home-sidebar-max-height, 10000px) - var(--data-overview-below-status)));
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
 
   .status-bars {
     display: flex;
