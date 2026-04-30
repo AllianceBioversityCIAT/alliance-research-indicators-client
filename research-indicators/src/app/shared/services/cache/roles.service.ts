@@ -17,17 +17,23 @@ export class RolesService {
     this.cache.dataCache().user.user_role_list.some(r => r.role_id === this.adminRoleId || r.role_id === this.centerAdminRoleId)
   );
 
+  isMelRegionalExpert = computed(() => this.cache.dataCache().user.user_role_list.some(r => r.role_id === this.melRegionalExpertRoleId));
+
+  canEditAnyResult = computed(() =>
+    this.cache
+      .dataCache()
+      .user.user_role_list.some(
+        r => r.role_id === this.adminRoleId || r.role_id === this.centerAdminRoleId || r.role_id === this.melRegionalExpertRoleId
+      )
+  );
+
   canAccessCenterAdmin = computed(() => this.cache.dataCache().user.user_role_list.some(e => this.userHasCenterAdminAccess(e)));
 
   canEditOicr = computed(() => {
     if (!this.createResultManagementService.editingOicr()) {
       return true;
     }
-    return this.cache
-      .dataCache()
-      .user.user_role_list.some(
-        r => r.role_id === this.adminRoleId || r.role_id === this.centerAdminRoleId || r.role_id === this.melRegionalExpertRoleId
-      );
+    return this.canEditAnyResult();
   });
 
   private userHasCenterAdminAccess(entry: { role_id: number; role?: { focus_id?: number; sec_role_id?: number } | null }): boolean {
