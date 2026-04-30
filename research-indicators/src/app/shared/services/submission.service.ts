@@ -1,7 +1,10 @@
 import { computed, Injectable, signal, inject } from '@angular/core';
 import { CacheService } from './cache/cache.service';
+import { GetMetadata } from '../interfaces/get-metadata.interface';
 import { ReviewOption } from '../interfaces/review-option.interface';
 import { RolesService } from './cache/roles.service';
+
+const STAR_DRAFT_RBAC_STATUS_IDS = new Set([4, 12, 13]);
 
 export interface SubmissionStatus {
   id: number;
@@ -49,11 +52,19 @@ export class SubmissionService {
 
   isEditableStatus = computed(() => {
     const editableStatuses = [4, 5, 12, 13, 10];
-    const hasEditableStatus = editableStatuses.includes(this.cache.currentMetadata().status_id ?? -1);
+    const meta = this.cache.currentMetadata();
+    const statusId = meta.status_id ?? -1;
+    const hasEditableStatus = editableStatuses.includes(statusId);
     const platformCode = this.cache.getCurrentPlatformCode();
     const isStarPlatform = platformCode === 'STAR';
     const hasNoPlatformCode = platformCode === '';
-    return hasEditableStatus && (isStarPlatform || hasNoPlatformCode);
+    if (!hasEditableStatus || (!isStarPlatform && !hasNoPlatformCode)) {
+      return false;
+    }
+    if (!STAR_DRAFT_RBAC_STATUS_IDS.has(statusId)) {
+      return true;
+    }
+    return this.canEditStarDraftResult(meta);
   });
 
   isSubmitted = computed(() => {
@@ -64,5 +75,18 @@ export class SubmissionService {
   getStatusNameById(id: number): string {
     const status = this.submissionStatuses().find(status => status.id === id);
     return status ? status.name : '';
+  }
+
+  private canEditStarDraftResult(meta: GetMetadata): boolean {
+    if (this.rolesService.canEditAnyResult()) {
+      return true;
+    }
+    if (meta.has_result_edit_grant === false) {
+      return false;
+    }
+    if (meta.has_result_edit_grant === true) {
+      return true;
+    }
+    return this.cache.isMyResult() || Boolean(meta.is_main_contact_person) || Boolean(meta.is_principal_investigator);
   }
 }
