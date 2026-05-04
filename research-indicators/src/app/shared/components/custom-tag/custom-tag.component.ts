@@ -18,6 +18,9 @@ export class CustomTagComponent {
   @Input() iconColor?: string;
   @Input() iconName?: string;
   @Input() tooltip?: string;
+  @Input() textSizePx?: number | null;
+  @Input() maxWidth?: string;
+  @Input() multiline = false;
 
   getColors() {
     const status = String(this.statusId);
