@@ -61,4 +61,25 @@ describe('CustomTagComponent', () => {
     const el = fixture.nativeElement.querySelector('div');
     expect(el.className).toContain('text-[12px]');
   });
+
+  it('should truncate label when maxWidth is set and multiline is false', () => {
+    component.maxWidth = '80px';
+    component.multiline = false;
+    component.statusName = 'Very long status name';
+    fixture.detectChanges();
+    const span = fixture.nativeElement.querySelector('span');
+    expect(span.className).toContain('truncate');
+    expect(span.className).not.toContain('whitespace-normal');
+  });
+
+  it('should wrap label when multiline is true', () => {
+    component.maxWidth = '80px';
+    component.multiline = true;
+    component.statusName = 'OICR REQUESTED';
+    fixture.detectChanges();
+    const span = fixture.nativeElement.querySelector('span');
+    expect(span.className).toContain('whitespace-normal');
+    expect(span.className).toContain('break-words');
+    expect(span.className).not.toContain('truncate');
+  });
 });
