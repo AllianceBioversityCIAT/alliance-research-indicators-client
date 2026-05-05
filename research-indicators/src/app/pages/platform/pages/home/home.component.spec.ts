@@ -20,8 +20,12 @@ describe('HomeComponent', () => {
       configurable: true,
       writable: true,
       value: class {
-        observe() { /* noop */ }
-        disconnect() { /* noop */ }
+        observe() {
+          /* noop */
+        }
+        disconnect() {
+          /* noop */
+        }
       }
     });
 
