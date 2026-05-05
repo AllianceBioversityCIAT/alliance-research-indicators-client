@@ -60,6 +60,23 @@ describe('MyLatestResultsComponent', () => {
       delete result.result_status.config;
       expect(component.getStatusProgressColor(result)).toBe(STATUS_COLOR_MAP['1'].text);
     });
+
+    it('should fall back to default STATUS_COLOR_MAP when status id is unknown', () => {
+      const result = {
+        ...mockLatestResults.data[0],
+        result_status: {
+          ...mockLatestResults.data[0].result_status,
+          result_status_id: 999
+        }
+      } as any;
+      delete result.result_status.config;
+      expect(component.getStatusProgressColor(result)).toBe(STATUS_COLOR_MAP[''].text);
+    });
+
+    it('should use default STATUS_COLOR_MAP when result_status is missing', () => {
+      const result = { ...mockLatestResults.data[0], result_status: undefined } as any;
+      expect(component.getStatusProgressColor(result)).toBe(STATUS_COLOR_MAP[''].text);
+    });
   });
 
   describe('calculateProgressFor', () => {
