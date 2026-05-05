@@ -268,9 +268,9 @@ describe('MyLatestResultsComponent', () => {
   describe('ngOnInit', () => {
     it('should call loadLatestResultsWithGreenChecks', async () => {
       const loadLatestResultsSpy = jest.spyOn(component, 'loadLatestResultsWithGreenChecks');
-      
+
       component.ngOnInit();
-      
+
       expect(loadLatestResultsSpy).toHaveBeenCalled();
     });
   });
@@ -287,7 +287,7 @@ describe('MyLatestResultsComponent', () => {
           }
         ]
       };
-      
+
       const mockGreenChecksResponse = {
         ...mockGreenChecks,
         data: {
@@ -328,7 +328,7 @@ describe('MyLatestResultsComponent', () => {
           }
         ]
       };
-      
+
       const mockGreenChecks1 = {
         ...mockGreenChecks,
         data: {
@@ -356,9 +356,7 @@ describe('MyLatestResultsComponent', () => {
       };
 
       apiServiceMock.GET_LatestResults.mockResolvedValueOnce(mockResults as any);
-      apiServiceMock.GET_GreenChecks
-        .mockResolvedValueOnce(mockGreenChecks1)
-        .mockResolvedValueOnce(mockGreenChecks2);
+      apiServiceMock.GET_GreenChecks.mockResolvedValueOnce(mockGreenChecks1).mockResolvedValueOnce(mockGreenChecks2);
 
       await component.loadLatestResultsWithGreenChecks();
 
@@ -373,7 +371,7 @@ describe('MyLatestResultsComponent', () => {
 
     it('should handle empty results', async () => {
       const mockResults = { ...mockLatestResults, data: [] };
-      
+
       apiServiceMock.GET_LatestResults.mockResolvedValueOnce(mockResults as any);
 
       await component.loadLatestResultsWithGreenChecks();
