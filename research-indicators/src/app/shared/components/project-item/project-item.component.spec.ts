@@ -281,6 +281,11 @@ describe('ProjectItemComponent', () => {
     expect(component.formatIndicatorLabel('Short')).toBe('Short');
   });
 
+  it('formatIndicatorLabel returns empty for undefined or empty string', () => {
+    expect(component.formatIndicatorLabel(undefined)).toBe('');
+    expect(component.formatIndicatorLabel('')).toBe('');
+  });
+
   it('formatIndicatorLabel ends with a single dot when truncated', () => {
     const long = 'A'.repeat(30);
     expect(component.formatIndicatorLabel(long)).toMatch(/\.$/);
