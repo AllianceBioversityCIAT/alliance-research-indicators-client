@@ -83,7 +83,7 @@
           @for (column of getVisibleColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
           @if (column.field === 'status') {
-          <td class="{{ column.minWidth }} {{ column.maxWidth }} align-top w-0 max-w-full">
+          <td class="{{ column.minWidth }} {{ column.maxWidth }} align-center w-0 max-w-full">
             @if (result.platform_code === 'TIP' && result.external_link) {
             <a target="_blank" (click)="$event.stopPropagation()" class="inline-block w-fit max-w-full"
               style="color: inherit; text-decoration: none">
@@ -94,14 +94,13 @@
                 [statusBorder]="result.result_status?.config?.color?.border ?? ''" [icon]="true"
                 [iconName]="result.result_status?.config?.icon?.name ?? ''"
                 [iconColor]="result.result_status?.config?.icon?.color ?? ''"
-                [tooltip]="result.result_status?.description ?? ''" [maxWidth]="statusTagMaxWidth"
-                [multiline]="true">
+                [tooltip]="result.result_status?.description ?? ''" [maxWidth]="statusTagMaxWidth" [multiline]="true">
               </app-custom-tag>
             </a>
             } @else {
             <a [routerLink]="getResultRouteArray(result)" [queryParams]="getResultQueryParams(result)"
               (click)="$event.stopPropagation()" class="inline-block w-fit max-w-full"
-              style="color: inherit; text-decoration: none">
+              style="color: inherit; text-decoration: none; display: table-caption;">
               <app-custom-tag [statusId]="result.result_status.result_status_id" [tiny]="true"
                 [statusName]="result.result_status?.name"
                 [statusColor]="result.result_status?.config?.color?.text ?? ''"
@@ -109,8 +108,7 @@
                 [statusBorder]="result.result_status?.config?.color?.border ?? ''" [icon]="true"
                 [iconName]="result.result_status?.config?.icon?.name ?? ''"
                 [iconColor]="result.result_status?.config?.icon?.color ?? ''"
-                [tooltip]="result.result_status?.description ?? ''" [maxWidth]="statusTagMaxWidth"
-                [multiline]="true">
+                [tooltip]="result.result_status?.description ?? ''" [maxWidth]="statusTagMaxWidth" [multiline]="true">
               </app-custom-tag>
             </a>
             }
