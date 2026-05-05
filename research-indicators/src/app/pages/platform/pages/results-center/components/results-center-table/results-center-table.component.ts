@@ -41,6 +41,8 @@ import { CreateResultManagementService } from '@shared/components/all-modals/mod
   styleUrl: './results-center-table.component.scss'
 })
 export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
+  readonly statusTagMaxWidth = '140px';
+
   resultsCenterService = inject(ResultsCenterService);
   private readonly router = inject(Router);
   private readonly cacheService = inject(CacheService);
