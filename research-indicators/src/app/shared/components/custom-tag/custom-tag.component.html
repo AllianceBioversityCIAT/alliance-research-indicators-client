@@ -1,7 +1,8 @@
 <div class="inline-flex items-center min-w-0 px-2.5 py-0.5 border-1 rounded-[16px] font-medium uppercase {{
-    textSizePx != null ? '' : (!tiny ? 'text-[12px]' : 'xl:text-[12px] text-[9px]')
+    (textSizePx !== null && textSizePx !== undefined) ? '' : (!tiny ? 'text-[12px]' : 'xl:text-[12px] text-[9px]')
   }}" [style.border-color]="statusBorder ?? getColors().border" [style.color]="statusColor ?? getColors().text"
-  [style.max-width]="maxWidth || null" [style.font-size.px]="textSizePx != null ? textSizePx : null">
+  [style.max-width]="maxWidth || null"
+  [style.font-size.px]="(textSizePx !== null && textSizePx !== undefined) ? textSizePx : null">
   @if (icon) {
   <i class="pi {{iconName ? iconName : 'pi-exclamation-circle'}} shrink-0 xl:!text-[12px] !text-[10px] pl-1.5 "
     [style.color]="iconColor ?? statusColor" [style.transform]="'rotate(180deg)'" [pTooltip]="tooltip"
