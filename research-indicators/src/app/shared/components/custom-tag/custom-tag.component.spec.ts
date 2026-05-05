@@ -80,6 +80,7 @@ describe('CustomTagComponent', () => {
     const span = fixture.nativeElement.querySelector('span');
     expect(span.className).toContain('whitespace-normal');
     expect(span.className).toContain('break-words');
+    expect(span.className).toContain('line-clamp-2');
     expect(span.className).not.toContain('truncate');
   });
 });
