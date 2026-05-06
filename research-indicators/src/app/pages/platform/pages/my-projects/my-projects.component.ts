@@ -1,15 +1,4 @@
-import {
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  signal,
-  ViewChild,
-  OnInit,
-  AfterViewInit,
-  OnDestroy
-} from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, signal, ViewChild, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '@shared/services/api.service';
 import { FormsModule } from '@angular/forms';
@@ -84,6 +73,8 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   private readonly route = inject(ActivatedRoute);
   actions = inject(ActionsService);
   projectUtils = inject(ProjectUtilsService);
+
+  readonly statusTagMaxWidth = '130px';
 
   first = signal(0);
   rows = signal(10);
@@ -271,9 +262,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
     const previousFirst = this.allProjectsFirst();
     const previousRows = this.allProjectsRows();
     const nextFirst =
-      previousRows === newRows
-        ? this.clampProjectsPaginatorFirst(event.first ?? 0, newRows)
-        : this.alignFirstAfterRowsChange(previousFirst, newRows);
+      previousRows === newRows ? this.clampProjectsPaginatorFirst(event.first ?? 0, newRows) : this.alignFirstAfterRowsChange(previousFirst, newRows);
     if (nextFirst === previousFirst && newRows === previousRows) {
       return;
     }
@@ -332,8 +321,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
     const restoredViewState = this.restoreViewState();
 
     if (restoredViewState && !restoredServiceState) {
-      const item =
-        this.selectedTab() === 'my' ? this.myProjectsFilterItems[1] : this.myProjectsFilterItems[0];
+      const item = this.selectedTab() === 'my' ? this.myProjectsFilterItems[1] : this.myProjectsFilterItems[0];
       this.myProjectsService.myProjectsFilterItem.set(item);
     }
 

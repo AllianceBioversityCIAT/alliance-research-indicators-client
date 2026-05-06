@@ -1,4 +1,4 @@
-<div class="relative w-full [perspective:1000px]">
+<div class="relative w-full">
   @if (latestResultList().length) {
   <div class="header">
     <div class="header-text ">
@@ -14,7 +14,7 @@
   </div>
   <div class="card-container">
     @for (result of latestResultList(); track $index) {
-    <div class="card" [routerLink]="['/result', result.result_official_code]" style="cursor: pointer">
+    <div class="card" [routerLink]="['/result', result.result_official_code]">
       <div class="card-content">
         <div class="project-indicators">
           <div class="indicator">
@@ -45,9 +45,20 @@
             </div>
           </div>
           <div class="progress-bar">
-            <span class="progress-percent">{{ calculateProgressFor(result) }}%</span>
+            @if (result.result_status) {
+            <app-custom-tag class="progress-status-tag" [statusId]="result.result_status.result_status_id"
+              [statusName]="result.result_status.name"
+              [statusColor]="result.result_status.config?.color?.text || undefined"
+              [statusBackground]="result.result_status.config?.color?.background ?? undefined"
+              [statusBorder]="result.result_status.config?.color?.border ?? undefined" [icon]="true"
+              [iconName]="result.result_status.config?.icon?.name || undefined"
+              [iconColor]="result.result_status.config?.icon?.color || undefined"
+              [tooltip]="result.result_status.description ?? ''" [textSizePx]="10" maxWidth="100px" [multiline]="false">
+            </app-custom-tag>
+            }
             <div class="progress-bar-content">
-              <div class="progress" [style.width.%]="calculateProgressFor(result)"></div>
+              <div class="progress" [style.width.%]="calculateProgressFor(result)"
+                [style.background-color]="getStatusProgressColor(result)"></div>
             </div>
           </div>
           <label class="last-update" for="username"> Last update on {{ result.updated_at |

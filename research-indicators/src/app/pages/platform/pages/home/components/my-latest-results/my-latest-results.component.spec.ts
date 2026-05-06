@@ -4,6 +4,7 @@ import { ApiService } from '@shared/services/api.service';
 import { mockLatestResults, mockGreenChecks, apiServiceMock } from '../../../../../../testing/mock-services.mock';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 
 describe('MyLatestResultsComponent', () => {
   let component: MyLatestResultsComponent;
@@ -40,6 +41,42 @@ describe('MyLatestResultsComponent', () => {
   it('should initialize with empty signals', () => {
     expect(component.latestResultList()).toEqual([]);
     expect(component.greenChecksByResult()).toEqual({});
+  });
+
+  describe('getStatusProgressColor', () => {
+    it('should use config text color when present', () => {
+      const result = {
+        ...mockLatestResults.data[0],
+        result_status: {
+          ...mockLatestResults.data[0].result_status,
+          config: { color: { text: '  #abc  ', border: '#000', background: null } }
+        }
+      } as any;
+      expect(component.getStatusProgressColor(result)).toBe('#abc');
+    });
+
+    it('should fall back to STATUS_COLOR_MAP when config text is missing', () => {
+      const result = { ...mockLatestResults.data[0], result_status: { ...mockLatestResults.data[0].result_status } } as any;
+      delete result.result_status.config;
+      expect(component.getStatusProgressColor(result)).toBe(STATUS_COLOR_MAP['1'].text);
+    });
+
+    it('should fall back to default STATUS_COLOR_MAP when status id is unknown', () => {
+      const result = {
+        ...mockLatestResults.data[0],
+        result_status: {
+          ...mockLatestResults.data[0].result_status,
+          result_status_id: 999
+        }
+      } as any;
+      delete result.result_status.config;
+      expect(component.getStatusProgressColor(result)).toBe(STATUS_COLOR_MAP[''].text);
+    });
+
+    it('should use default STATUS_COLOR_MAP when result_status is missing', () => {
+      const result = { ...mockLatestResults.data[0], result_status: undefined } as any;
+      expect(component.getStatusProgressColor(result)).toBe(STATUS_COLOR_MAP[''].text);
+    });
   });
 
   describe('calculateProgressFor', () => {
@@ -231,9 +268,9 @@ describe('MyLatestResultsComponent', () => {
   describe('ngOnInit', () => {
     it('should call loadLatestResultsWithGreenChecks', async () => {
       const loadLatestResultsSpy = jest.spyOn(component, 'loadLatestResultsWithGreenChecks');
-      
+
       component.ngOnInit();
-      
+
       expect(loadLatestResultsSpy).toHaveBeenCalled();
     });
   });
@@ -250,7 +287,7 @@ describe('MyLatestResultsComponent', () => {
           }
         ]
       };
-      
+
       const mockGreenChecksResponse = {
         ...mockGreenChecks,
         data: {
@@ -291,7 +328,7 @@ describe('MyLatestResultsComponent', () => {
           }
         ]
       };
-      
+
       const mockGreenChecks1 = {
         ...mockGreenChecks,
         data: {
@@ -319,9 +356,7 @@ describe('MyLatestResultsComponent', () => {
       };
 
       apiServiceMock.GET_LatestResults.mockResolvedValueOnce(mockResults as any);
-      apiServiceMock.GET_GreenChecks
-        .mockResolvedValueOnce(mockGreenChecks1)
-        .mockResolvedValueOnce(mockGreenChecks2);
+      apiServiceMock.GET_GreenChecks.mockResolvedValueOnce(mockGreenChecks1).mockResolvedValueOnce(mockGreenChecks2);
 
       await component.loadLatestResultsWithGreenChecks();
 
@@ -336,7 +371,7 @@ describe('MyLatestResultsComponent', () => {
 
     it('should handle empty results', async () => {
       const mockResults = { ...mockLatestResults, data: [] };
-      
+
       apiServiceMock.GET_LatestResults.mockResolvedValueOnce(mockResults as any);
 
       await component.loadLatestResultsWithGreenChecks();

@@ -63,6 +63,30 @@ describe('RolesService', () => {
     expect(service.isAdmin()).toBe(false);
   });
 
+  it('isMelRegionalExpert should be true when role_id 10 is present', () => {
+    userRoleList.set([{ role_id: 10 }]);
+    expect(service.isMelRegionalExpert()).toBe(true);
+  });
+
+  it('isMelRegionalExpert should be false without role_id 10', () => {
+    userRoleList.set([{ role_id: 1 }, { role_id: 9 }]);
+    expect(service.isMelRegionalExpert()).toBe(false);
+  });
+
+  it('canEditAnyResult should be true for System Admin (1), Center Admin (9), or MEL Regional Expert (10)', () => {
+    userRoleList.set([{ role_id: 1 }]);
+    expect(service.canEditAnyResult()).toBe(true);
+    userRoleList.set([{ role_id: 9 }]);
+    expect(service.canEditAnyResult()).toBe(true);
+    userRoleList.set([{ role_id: 10 }]);
+    expect(service.canEditAnyResult()).toBe(true);
+  });
+
+  it('canEditAnyResult should be false without roles 1, 9, or 10', () => {
+    userRoleList.set([{ role_id: 2 }, { role_id: 3 }]);
+    expect(service.canEditAnyResult()).toBe(false);
+  });
+
   it('canAccessCenterAdmin should be true for super admin (1) or center admin (9) with focus 1 and sec_role_id 9', () => {
     userRoleList.set([{ role_id: 1 }]);
     expect(service.canAccessCenterAdmin()).toBe(true);

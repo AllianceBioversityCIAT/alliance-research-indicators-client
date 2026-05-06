@@ -1,6 +1,6 @@
 <div class="content">
-  <div class="home-body">
-    <div class="home-main">
+  <div class="home-body" [style.--home-sidebar-max-height]="sidebarMaxHeightCss()">
+    <div class="home-main" #homeMain>
       <app-header class="home-main-block w-full"></app-header>
       <app-main-actions class="home-main-block"></app-main-actions>
       <app-my-latest-results class="home-main-block"></app-my-latest-results>

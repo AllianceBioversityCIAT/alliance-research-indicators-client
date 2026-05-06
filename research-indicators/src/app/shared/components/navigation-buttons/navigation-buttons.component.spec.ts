@@ -8,7 +8,7 @@ import { NavigationButtonsComponent } from './navigation-buttons.component';
 /** Mirrors RESULT_SIDEBAR_WIDTH_PX in navigation-buttons.component.ts */
 const RESULT_SIDEBAR_WIDTH_PX = 308;
 /** Mirrors CONTENT_RIGHT_OFFSET_PX in navigation-buttons.component.ts */
-const CONTENT_RIGHT_OFFSET_PX = 16;
+const CONTENT_RIGHT_OFFSET_PX = 10;
 
 describe('NavigationButtonsComponent', () => {
   let component: NavigationButtonsComponent;

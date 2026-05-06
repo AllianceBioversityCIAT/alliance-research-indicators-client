@@ -1,9 +1,9 @@
 <div class="local-container data-overview--sidebar">
   <div class="sidebar-stack">
-    <section class="sidebar-card sidebar-section">
+    <section class="sidebar-card sidebar-section sidebar-section--status">
       <h2 class="sidebar-section__title">My results by status</h2>
 
-      @if (this.showChart()) {
+      @if (showChart()) {
       <div class="chart-container">
         <ul class="status-bars">
           @for (item of chartLegend(); track item.result_status_id) {
@@ -33,7 +33,7 @@
       }
     </section>
 
-    <section class="sidebar-card sidebar-section">
+    <section class="sidebar-card sidebar-section sidebar-section--indicators">
       <h2 class="sidebar-section__title">My results by indicator</h2>
 
       @if (showIndicatorList()) {

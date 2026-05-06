@@ -7,10 +7,12 @@ import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { LatestResult } from '@shared/interfaces/latest-result.interface';
 import { FormatDatePipe } from '@shared/pipes/format-date.pipe';
 import { DateFormatConfigService } from '@shared/services/date-format-config.service';
+import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
+import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 
 @Component({
   selector: 'app-my-latest-results',
-  imports: [AboutIndicatorsComponent, RouterLink, FormatDatePipe],
+  imports: [AboutIndicatorsComponent, RouterLink, FormatDatePipe, CustomTagComponent],
   templateUrl: './my-latest-results.component.html',
   styleUrl: './my-latest-results.component.scss'
 })
@@ -38,6 +40,14 @@ export class MyLatestResultsComponent implements OnInit {
         [resultCode]: data
       }));
     }
+  }
+
+  /** Same effective text color as `app-custom-tag` uses for the status label (for progress bar fill). */
+  getStatusProgressColor(result: LatestResult): string {
+    const fromConfig = result.result_status?.config?.color?.text?.trim();
+    if (fromConfig) return fromConfig;
+    const id = String(result.result_status?.result_status_id ?? '');
+    return STATUS_COLOR_MAP[id]?.text ?? STATUS_COLOR_MAP[''].text;
   }
 
   calculateProgressFor(result: LatestResult): number {

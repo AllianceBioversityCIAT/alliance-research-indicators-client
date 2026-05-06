@@ -9,7 +9,7 @@ import { ResultsCenterService } from '@pages/platform/pages/results-center/resul
 
 @Component({
   selector: 'app-project-item',
-  imports: [ DatePipe, CustomTagComponent],
+  imports: [DatePipe, CustomTagComponent],
   templateUrl: './project-item.component.html',
   styleUrl: './project-item.component.scss'
 })
@@ -27,9 +27,7 @@ export class ProjectItemComponent implements OnInit, OnChanges {
     if (!this.resultsCenterService || !this.enableIndicatorFilter) {
       return new Set<number>();
     }
-    return new Set(
-      this.resultsCenterService.tableFilters().indicators.map(ind => ind.indicator_id)
-    );
+    return new Set(this.resultsCenterService.tableFilters().indicators.map(ind => ind.indicator_id));
   });
 
   // Local property for processed indicators
@@ -84,5 +82,13 @@ export class ProjectItemComponent implements OnInit, OnChanges {
     }
     const indicatorId = indicator.indicator_id || indicator.indicator?.indicator_id;
     return indicatorId ? this.filteredIndicatorIds().has(indicatorId) : false;
+  }
+
+  formatIndicatorLabel(name: string | undefined): string {
+    if (!name) return '';
+    const max = 15;
+    if (name.length <= max) return name;
+    const body = name.slice(0, max - 1).trimEnd();
+    return `${body}.`;
   }
 }
