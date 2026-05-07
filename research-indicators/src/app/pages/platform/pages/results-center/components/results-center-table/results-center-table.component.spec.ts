@@ -702,6 +702,15 @@ describe('ResultsCenterTableComponent', () => {
     globalThis.URL = originalURL;
   });
 
+  it('exportTable should return early when an export is already running', async () => {
+    component.isExporting.set(true);
+
+    await component.exportTable();
+
+    expect(mockApiService.GET_ResultCenterXlsx).not.toHaveBeenCalled();
+    expect(component.isExporting()).toBe(true);
+  });
+
   it('exportTable should log error when GET_ResultCenterXlsx rejects', async () => {
     mockApiService.GET_ResultCenterXlsx.mockRejectedValueOnce(new Error('network'));
     await component.exportTable();
