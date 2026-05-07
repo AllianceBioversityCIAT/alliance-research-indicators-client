@@ -42,6 +42,7 @@ import { CreateResultManagementService } from '@shared/components/all-modals/mod
 })
 export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   readonly statusTagMaxWidth = '140px';
+  readonly isExporting = signal(false);
 
   resultsCenterService = inject(ResultsCenterService);
   private readonly router = inject(Router);
@@ -150,6 +151,10 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   }
 
   async exportTable() {
+    if (this.isExporting()) {
+      return;
+    }
+    this.isExporting.set(true);
     try {
       const blob = await this.apiService.GET_ResultCenterXlsx(
         this.resultsCenterService.getExportResultFilter(),
@@ -177,6 +182,8 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
       if (error instanceof Error) {
         console.error('Error details:', error.message, error.stack);
       }
+    } finally {
+      this.isExporting.set(false);
     }
   }
 
@@ -349,7 +356,7 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     if (!rowEl) return;
 
     const tbody = rowEl.parentElement;
-    if (!tbody || tbody.tagName.toLowerCase() !== 'tbody') return;
+    if (tbody?.tagName.toLowerCase() !== 'tbody') return;
 
     const resultId = rowEl.dataset['resultId'];
     const platformCode = rowEl.dataset['platform'];

@@ -21,6 +21,7 @@
         }
 
         <app-filters-action-buttons [showExportButton]="true" [exportLabel]="'Export metadata results'"
+          [isExportLoading]="isExporting()"
           [showViewToggleButtons]="false" [showConfigButton]="true" (config)="showConfiguratiosnSidebar()"
           (export)="exportTable()">
         </app-filters-action-buttons>
