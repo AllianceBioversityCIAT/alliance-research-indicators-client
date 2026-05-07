@@ -2,9 +2,10 @@
 
   @if (showExportButton) {
   <p-button icon="pi pi-file-excel !text-[12px]"
-    styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] !bg-white !text-[#035BA9] !border-[#035BA9]"
-    (keydown.enter)="export.emit()" (click)="export.emit()" [label]="exportLabel" class="p-button-outlined"
-    [outlined]="true"></p-button>
+    styleClass="!rounded-[8px] !text-[12px] !py-1 !max-h-[27px] !min-w-[180px] !bg-white !text-[#035BA9] !border-[#035BA9]"
+    (keydown.enter)="!isExportLoading && export.emit()" (click)="!isExportLoading && export.emit()"
+    [label]="isExportLoading ? '' : exportLabel" class="p-button-outlined" [outlined]="true"
+    [disabled]="isExportLoading" [loading]="isExportLoading"></p-button>
   }
   @if (showViewToggleButtons) {
   <p-button styleClass="!rounded-[4px] !text-[12px] !p-0 !max-h-[27px] view-toggle-btn" icon="pi pi-bars" size="small"
