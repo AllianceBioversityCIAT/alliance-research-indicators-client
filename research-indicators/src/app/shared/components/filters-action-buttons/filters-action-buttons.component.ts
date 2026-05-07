@@ -11,7 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 })
 export class FiltersActionButtonsComponent {
   @Input() showExportButton = false;
-  @Input() exportLabel = 'Export Results';
+  @Input() exportLabel = 'Export metadata results';
   @Input() showViewToggleButtons = false;
   @Input() isTableView = false;
 
