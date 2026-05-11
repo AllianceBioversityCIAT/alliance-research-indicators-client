@@ -1,6 +1,19 @@
 import { StatusConfig } from '../result-config.interface';
 import { Result } from './result.interface';
 
+export function normalizeSnapshotYears(value: unknown): number[] {
+  if (Array.isArray(value)) {
+    return value.map(y => (typeof y === 'string' ? Number.parseInt(y.trim(), 10) : Number(y))).filter(n => Number.isFinite(n));
+  }
+  if (typeof value === 'string' && value.trim() !== '') {
+    return value
+      .split(',')
+      .map(s => Number.parseInt(s.trim(), 10))
+      .filter(n => Number.isFinite(n));
+  }
+  return [];
+}
+
 export interface V2ResultListItem {
   created_at?: string;
   updated_at?: string;
@@ -18,7 +31,7 @@ export interface V2ResultListItem {
   status_name?: string;
   status_config?: StatusConfig;
   status_description?: string;
-  snapshot_years?: number[] | null;
+  snapshot_years?: number[] | string | null;
   contract_id?: string | null;
   lever_name?: string | null;
   create_user_id?: number;
@@ -29,8 +42,7 @@ export interface V2ResultListItem {
 }
 
 export function mapV2ResultListItemToResult(row: V2ResultListItem): Result {
-  const snapshotYears = row.snapshot_years;
-  const normalizedSnapshots = Array.isArray(snapshotYears) ? snapshotYears : [];
+  const normalizedSnapshots = normalizeSnapshotYears(row.snapshot_years);
 
   const hasCreator =
     (row.create_user_first_name != null && String(row.create_user_first_name).trim() !== '') ||
