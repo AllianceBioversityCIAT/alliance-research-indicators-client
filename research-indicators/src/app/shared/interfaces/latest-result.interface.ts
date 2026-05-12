@@ -12,6 +12,10 @@ export interface LatestResult {
   result_status: ResultStatus;
   result_contracts: ResultContract;
   indicator: Indicator;
+  report_year_id?: number;
+  snapshot_years?: number[] | string;
+  external_link?: string | null;
+  public_link?: string | null;
 }
 
 export interface ResultStatus {
@@ -68,4 +72,3 @@ export interface AgressoContract {
   unit: null;
   office: null;
 }
-

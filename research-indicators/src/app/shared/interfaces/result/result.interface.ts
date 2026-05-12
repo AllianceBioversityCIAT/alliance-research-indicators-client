@@ -15,11 +15,14 @@ export interface Result {
   geo_scope_id: null;
   indicators?: { name: string; icon_src: string };
   result_status?: ResultStatus;
+  contract_id?: string | null;
+  contract_description?: string | null;
   result_contracts?: { contract_id: string; contract?: { description?: string }; is_primary?: number };
   result_levers?: { lever: { short_name: string } };
   report_year_id?: number;
   created_by_user?: { first_name: string; last_name: string };
   created_at?: string;
+  updated_at?: string;
   year?: string;
   snapshot_years?: number[];
 }
