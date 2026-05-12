@@ -16,6 +16,8 @@ describe('mapV2ResultListItemToResult', () => {
     expect(r.snapshot_years).toEqual([]);
     expect(r.result_status).toBeUndefined();
     expect(r.result_contracts).toBeUndefined();
+    expect(r.contract_id).toBeUndefined();
+    expect(r.contract_description).toBeUndefined();
     expect(r.created_by_user).toBeUndefined();
     expect(r.result_levers).toBeUndefined();
   });
@@ -64,7 +66,20 @@ describe('mapV2ResultListItemToResult', () => {
 
   it('maps contract when contract_id is set', () => {
     const r = mapV2ResultListItemToResult({ ...minimal, contract_id: 'C1' });
+    expect(r.contract_id).toBe('C1');
+    expect(r.contract_description).toBeUndefined();
     expect(r.result_contracts).toEqual({ contract_id: 'C1', is_primary: 1 });
+  });
+
+  it('maps flat contract_id and contract_description from v2 row', () => {
+    const r = mapV2ResultListItemToResult({
+      ...minimal,
+      contract_id: 'A1703',
+      contract_description: 'CGIAR Fund-SP06 - Climate Action'
+    });
+    expect(r.contract_id).toBe('A1703');
+    expect(r.contract_description).toBe('CGIAR Fund-SP06 - Climate Action');
+    expect(r.result_contracts).toEqual({ contract_id: 'A1703', is_primary: 1 });
   });
 
   it('maps created_by_user when first or last name is non-empty', () => {
@@ -106,6 +121,7 @@ describe('mapV2ResultListItemToResult', () => {
   it('does not map contract when contract_id is empty string', () => {
     const r = mapV2ResultListItemToResult({ ...minimal, contract_id: '' });
     expect(r.result_contracts).toBeUndefined();
+    expect(r.contract_id).toBe('');
   });
 
   it('does not add levers when lever_name is empty string', () => {
