@@ -13,15 +13,18 @@
     </div>
   </div>
   <div class="card-container">
-    @for (result of latestResultList(); track $index) {
-    <div class="card" [routerLink]="['/result', result.result_official_code]">
+    @for (result of latestResultList(); track result.result_id + '-' + result.platform_code) {
+    <div class="card cursor-pointer" role="link" tabindex="0" (click)="handleResultCardActivate(result, $event)"
+      (keydown.enter)="handleResultCardActivate(result, $event)">
       <div class="card-content">
         <div class="project-indicators">
           <div class="indicator">
             <div class="indicator-container">
-              <i class="pi {{ result.indicator.icon_src }}  icon-color-{{ result.indicator.icon_src }}"></i>
+              @if (result.indicators?.icon_src; as iconSrc) {
+              <i class="pi {{ iconSrc }} icon-color-{{ iconSrc }}"></i>
+              }
             </div>
-            <label class="indicator-type" for="username">{{ result.indicator.name }}</label>
+            <label class="indicator-type" for="username">{{ result.indicators?.name ?? '' }}</label>
             <div class="more-vert">
               <span class="material-symbols-rounded more-vert__icon">more_vert</span>
             </div>
@@ -35,25 +38,24 @@
             <div class="project-name">
               <span class="project-title">Project</span>
               <span class="material-symbols-rounded"> arrow_forward </span>
-              @if (result.result_contracts) {
-              @let agresso_contract = result.result_contracts.agresso_contract;
-              @if (agresso_contract) {
-              <label class="project" for="username"> {{ agresso_contract.agreement_id }} - {{
-                agresso_contract.description }}</label>
-              }
+              @if (result.contract_id) {
+              <label class="project" for="username">
+                {{ result.contract_id }}
+                @if (result.contract_description; as contractDesc) {
+                <span> - {{ contractDesc }}</span>
+                }
+              </label>
               }
             </div>
           </div>
           <div class="progress-bar">
-            @if (result.result_status) {
-            <app-custom-tag class="progress-status-tag" [statusId]="result.result_status.result_status_id"
-              [statusName]="result.result_status.name"
-              [statusColor]="result.result_status.config?.color?.text || undefined"
-              [statusBackground]="result.result_status.config?.color?.background ?? undefined"
-              [statusBorder]="result.result_status.config?.color?.border ?? undefined" [icon]="true"
-              [iconName]="result.result_status.config?.icon?.name || undefined"
-              [iconColor]="result.result_status.config?.icon?.color || undefined"
-              [tooltip]="result.result_status.description ?? ''" [textSizePx]="10" maxWidth="100px" [multiline]="false">
+            @if (result.result_status; as rs) {
+            <app-custom-tag class="progress-status-tag" [statusId]="rs.result_status_id ?? 0"
+              [statusName]="rs.name ?? ''" [statusColor]="rs.config?.color?.text || undefined"
+              [statusBackground]="rs.config?.color?.background ?? undefined"
+              [statusBorder]="rs.config?.color?.border ?? undefined" [icon]="true"
+              [iconName]="rs.config?.icon?.name || undefined" [iconColor]="rs.config?.icon?.color || undefined"
+              [tooltip]="rs.description ?? ''" [textSizePx]="10" maxWidth="100px" [multiline]="false">
             </app-custom-tag>
             }
             <div class="progress-bar-content">
@@ -61,8 +63,10 @@
                 [style.background-color]="getStatusProgressColor(result)"></div>
             </div>
           </div>
-          <label class="last-update" for="username"> Last update on {{ result.updated_at |
+          @if (lastUpdatedAt(result); as updated) {
+          <label class="last-update" for="username"> Last update on {{ updated |
             formatDate:dateFormatConfig.config() }} </label>
+          }
         </div>
       </div>
     </div>
