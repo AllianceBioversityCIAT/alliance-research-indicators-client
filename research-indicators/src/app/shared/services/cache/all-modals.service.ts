@@ -65,7 +65,7 @@ export class AllModalsService {
       ...modals,
       resultInformation: {
         ...modals.resultInformation,
-        title: context === 'results-center' ? 'Result information (Results Center)' : 'Result Information'
+        title: context === 'results-center' ? 'Result information' : 'Result Information'
       }
     }));
   }
