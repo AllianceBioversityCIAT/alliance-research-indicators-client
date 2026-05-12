@@ -17,8 +17,10 @@ import { RolesService } from '@shared/services/cache/roles.service';
 import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
 import {
+  isHomeEntryFromUrl,
   isResultsCenterEntryFromUrl,
   RESULT_ENTRY_SOURCE_QUERY,
+  RESULT_ENTRY_SOURCE_VALUE_HOME,
   RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
 } from '@shared/constants/result-entry-source';
 
@@ -71,7 +73,9 @@ export class ResultSidebarComponent {
     const v = m.get('version');
     const f = m.get('from');
     if (v) o['version'] = v;
-    if (f === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER) o[RESULT_ENTRY_SOURCE_QUERY] = f;
+    if (f === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER || f === RESULT_ENTRY_SOURCE_VALUE_HOME) {
+      o[RESULT_ENTRY_SOURCE_QUERY] = f;
+    }
     return o;
   }
 
@@ -250,7 +254,7 @@ export class ResultSidebarComponent {
     if (version) {
       queryParams['version'] = version;
     }
-    if (from === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER) {
+    if (from === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER || from === RESULT_ENTRY_SOURCE_VALUE_HOME) {
       queryParams[RESULT_ENTRY_SOURCE_QUERY] = from;
     }
 
@@ -418,19 +422,23 @@ export class ResultSidebarComponent {
     resultOfficialCode: number
   ): Promise<void> {
     const fromResultsCenter = isResultsCenterEntryFromUrl(this.router.url);
+    const fromHome = isHomeEntryFromUrl(this.router.url);
     if (fromResultsCenter) {
       await this.router.navigate(['/results-center']);
+    } else if (fromHome) {
+      await this.router.navigate(['/home']);
     } else {
       await this.router.navigate(['/project-detail', resultContractId]);
       if (!this.router.url.includes('/project-detail/')) {
         this.cache.projectResultsSearchValue.set(resultTitle ?? '');
       }
     }
-    await this.currentResultService.openEditRequestdOicrsModal(
-      indicatorId,
-      statusId,
-      resultOfficialCode,
-      fromResultsCenter ? 'results-center' : 'project'
-    );
+    let creationContext: 'results-center' | 'project' | undefined;
+    if (fromResultsCenter) {
+      creationContext = 'results-center';
+    } else if (!fromHome) {
+      creationContext = 'project';
+    }
+    await this.currentResultService.openEditRequestdOicrsModal(indicatorId, statusId, resultOfficialCode, creationContext);
   }
 }

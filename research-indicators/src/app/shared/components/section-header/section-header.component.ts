@@ -15,7 +15,7 @@ import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { DownloadOicrTemplateComponent } from '../download-oicr-template/download-oicr-template.component';
 import { RolesService } from '@shared/services/cache/roles.service';
-import { isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
+import { isHomeEntryFromUrl, isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
 
 export interface BreadcrumbItem {
   label: string;
@@ -171,6 +171,18 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     const project = this.currentProject();
     const contractId = this.contractId();
     const fullUrl = this.currentUrl();
+
+    if (this.isResultPage() && isHomeEntryFromUrl(fullUrl)) {
+      const pathOnly = fullUrl.split(/[?#]/)[0];
+      const segs = pathOnly.split('/').filter(Boolean);
+      const resultId = segs[0] === 'result' && segs.length >= 2 ? segs[1] : '';
+      if (resultId) {
+        return [
+          { label: 'Home', route: '/home' },
+          { label: `Result ${resultId}`, tooltip: this.resultTitle() }
+        ] as BreadcrumbItem[];
+      }
+    }
 
     if (this.isResultPage() && isResultsCenterEntryFromUrl(fullUrl)) {
       const pathOnly = fullUrl.split(/[?#]/)[0];
