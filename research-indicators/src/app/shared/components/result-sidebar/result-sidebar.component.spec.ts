@@ -648,6 +648,28 @@ describe('ResultSidebarComponent', () => {
       expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 6, 999, 'results-center');
     });
 
+    it('should navigate to home and open OICR without project/results-center context when url has from=home', async () => {
+      cacheService.currentMetadata?.set({
+        indicator_id: 1,
+        status_id: 6,
+        result_contract_id: 'CONTRACT-1',
+        result_title: 'My Result Title',
+        result_official_code: 999
+      });
+      const searchValueSignal = signal('');
+      (cacheService as any).projectResultsSearchValue = searchValueSignal;
+      (router as any).url = '/result/STAR-1/general-information?from=home';
+      (apiService.PATCH_SubmitResult as jest.Mock).mockResolvedValue({ successfulRequest: true });
+      (metadataService.update as jest.Mock).mockResolvedValue(undefined);
+      (currentResultService.validateOpenResult as jest.Mock).mockReturnValue(true);
+
+      await (component as any).updateResultStatus(6, '');
+
+      expect(router.navigate).toHaveBeenCalledWith(['/home']);
+      expect(searchValueSignal()).toBe('');
+      expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 6, 999, undefined);
+    });
+
     it('should only show toast when validateOpenResult returns false', async () => {
       cacheService.currentMetadata?.set({
         indicator_id: 1,
