@@ -45,6 +45,7 @@ export interface FindContracts {
   display_label?: string;
   is_active?: boolean;
   indicators?: GetProjectDetailIndicator[];
+  count_results?: number | null;
 }
 
 export interface FindContractsResponse {
