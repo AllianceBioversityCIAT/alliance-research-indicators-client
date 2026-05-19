@@ -468,7 +468,7 @@ describe('MyLatestResultsComponent', () => {
     });
   });
 
-  describe('handleResultCardActivate and navigation', () => {
+  describe('onResultCardClick and navigation', () => {
     beforeEach(() => {
       (routerMock.navigate as jest.Mock).mockClear();
       (allModalsServiceMock.openModal as jest.Mock).mockClear();
@@ -481,7 +481,7 @@ describe('MyLatestResultsComponent', () => {
       const ev = new Event('click', { cancelable: true });
       jest.spyOn(ev, 'preventDefault');
       const r = latestMockItemToResult(mockLatestResults.data[0], { platform_code: PLATFORM_CODES.PRMS });
-      component.handleResultCardActivate(r, ev);
+      component.onResultCardClick(r, ev);
       expect(ev.preventDefault).toHaveBeenCalled();
       expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
       expect(allModalsServiceMock.setResultInformationEntryContext).toHaveBeenCalledWith(null);
@@ -491,42 +491,40 @@ describe('MyLatestResultsComponent', () => {
     it('should open result information modal for TIP', () => {
       const ev = new Event('click', { cancelable: true });
       const r = latestMockItemToResult(mockLatestResults.data[0], { platform_code: PLATFORM_CODES.TIP });
-      component.handleResultCardActivate(r, ev);
+      component.onResultCardClick(r, ev);
       expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
     });
 
     it('should open result information modal for AICCRA', () => {
       const ev = new Event('click', { cancelable: true });
       const r = latestMockItemToResult(mockLatestResults.data[0], { platform_code: PLATFORM_CODES.AICCRA });
-      component.handleResultCardActivate(r, ev);
+      component.onResultCardClick(r, ev);
       expect(allModalsServiceMock.openModal).toHaveBeenCalledWith('resultInformation');
     });
 
-    it('should navigate to STAR result with from=home query', () => {
-      const ev = new Event('click');
+    it('should build STAR router link and from=home query params', () => {
       const r = latestMockItemToResult(mockLatestResults.data[0], {
         platform_code: PLATFORM_CODES.STAR,
         result_official_code: '101',
-        result_status: { ...mockLatestResults.data[0].result_status, result_status_id: 1 } as Result['result_status'],
         snapshot_years: []
       });
-      component.handleResultCardActivate(r, ev);
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/result', 'STAR-101'], {
-        queryParams: { [RESULT_ENTRY_SOURCE_QUERY]: RESULT_ENTRY_SOURCE_VALUE_HOME }
+      expect(component.getStarResultRouterLink(r)).toEqual(['/result', 'STAR-101']);
+      expect(component.getStarResultQueryParams(r)).toEqual({
+        [RESULT_ENTRY_SOURCE_QUERY]: RESULT_ENTRY_SOURCE_VALUE_HOME
       });
     });
 
-    it('should navigate to general-information with version when status is 6 and snapshot years exist', () => {
-      const ev = new Event('click');
+    it('should build general-information link with version when status is 6 and snapshot years exist', () => {
       const r = latestMockItemToResult(mockLatestResults.data[0], {
         platform_code: PLATFORM_CODES.STAR,
         result_official_code: '101',
         result_status: { ...mockLatestResults.data[0].result_status, result_status_id: 6 } as Result['result_status'],
         snapshot_years: [2024, 2025]
       });
-      component.handleResultCardActivate(r, ev);
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/result', 'STAR-101', 'general-information'], {
-        queryParams: { version: 2025, [RESULT_ENTRY_SOURCE_QUERY]: RESULT_ENTRY_SOURCE_VALUE_HOME }
+      expect(component.getStarResultRouterLink(r)).toEqual(['/result', 'STAR-101', 'general-information']);
+      expect(component.getStarResultQueryParams(r)).toEqual({
+        version: 2025,
+        [RESULT_ENTRY_SOURCE_QUERY]: RESULT_ENTRY_SOURCE_VALUE_HOME
       });
     });
 
@@ -540,7 +538,7 @@ describe('MyLatestResultsComponent', () => {
       Object.defineProperty(ev, 'target', { value: inner, enumerable: true });
 
       const r = latestMockItemToResult(mockLatestResults.data[0], { platform_code: PLATFORM_CODES.STAR });
-      component.handleResultCardActivate(r, ev);
+      component.onResultCardClick(r, ev);
 
       more.remove();
       expect(routerMock.navigate).not.toHaveBeenCalled();
@@ -553,10 +551,9 @@ describe('MyLatestResultsComponent', () => {
         platform_code: PLATFORM_CODES.STAR,
         result_official_code: '102'
       });
-      component.handleResultCardActivate(r, new Event('click'));
+      component.onResultCardClick(r, new Event('click'));
       expect(allModalsServiceMock.closeModal).toHaveBeenCalledWith('resultInformation');
       expect(allModalsServiceMock.selectedResultForInfo()).toBeNull();
-      expect(routerMock.navigate).toHaveBeenCalled();
     });
 
     it('should clear modal context when information modal was not open before STAR navigation', () => {
@@ -565,7 +562,7 @@ describe('MyLatestResultsComponent', () => {
         platform_code: PLATFORM_CODES.STAR,
         result_official_code: '103'
       });
-      component.handleResultCardActivate(r, new Event('click'));
+      component.onResultCardClick(r, new Event('click'));
       expect(allModalsServiceMock.setResultInformationEntryContext).toHaveBeenCalledWith(null);
       expect(allModalsServiceMock.selectedResultForInfo()).toBeNull();
     });

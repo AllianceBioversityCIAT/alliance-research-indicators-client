@@ -14,8 +14,11 @@
   </div>
   <div class="card-container">
     @for (result of latestResultList(); track result.result_id + '-' + result.platform_code) {
-    <div class="card cursor-pointer" role="link" tabindex="0" (click)="handleResultCardActivate(result, $event)"
-      (keydown.enter)="handleResultCardActivate(result, $event)">
+    <a class="card cursor-pointer"
+      [attr.href]="opensResultInformationModal(result) ? '#' : null"
+      [routerLink]="opensResultInformationModal(result) ? null : getStarResultRouterLink(result)"
+      [queryParams]="opensResultInformationModal(result) ? null : getStarResultQueryParams(result)"
+      (click)="onResultCardClick(result, $event)">
       <div class="card-content">
         <div class="project-indicators">
           <div class="indicator">
@@ -69,7 +72,7 @@
           }
         </div>
       </div>
-    </div>
+    </a>
     }
   </div>
   }
