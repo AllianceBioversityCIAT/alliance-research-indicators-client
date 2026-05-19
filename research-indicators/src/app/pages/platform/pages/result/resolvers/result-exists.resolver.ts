@@ -5,7 +5,11 @@ import { CurrentResultService } from '../../../../../shared/services/cache/curre
 import { CacheService } from '../../../../../shared/services/cache/cache.service';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { RolesService } from '@shared/services/cache/roles.service';
-import { RESULT_ENTRY_SOURCE_QUERY, RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER } from '@shared/constants/result-entry-source';
+import {
+  RESULT_ENTRY_SOURCE_QUERY,
+  RESULT_ENTRY_SOURCE_VALUE_HOME,
+  RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
+} from '@shared/constants/result-entry-source';
 import { OicrResolverMetadata } from '@shared/interfaces/oicr-resolver-metadata.interface';
 
 export const resultExistsResolver: ResolveFn<boolean> = async route => {
@@ -67,18 +71,28 @@ async function tryOpenOicrEditorFromResolver(
 
   const isDraft = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
   if (!isDraft || (isDraft && !rolesService.isAdmin())) {
-    const fromResultsCenter = route.queryParamMap.get(RESULT_ENTRY_SOURCE_QUERY) === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER;
+    const from = route.queryParamMap.get(RESULT_ENTRY_SOURCE_QUERY);
+    const fromResultsCenter = from === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER;
+    const fromHome = from === RESULT_ENTRY_SOURCE_VALUE_HOME;
     if (fromResultsCenter) {
       await router.navigate(['/results-center']);
+    } else if (fromHome) {
+      await router.navigate(['/home']);
     } else {
       await router.navigate(['/project-detail', result_contract_id]);
       if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');
+    }
+    let creationContext: 'results-center' | 'project' | undefined;
+    if (fromResultsCenter) {
+      creationContext = 'results-center';
+    } else if (!fromHome) {
+      creationContext = 'project';
     }
     await currentResultService.openEditRequestdOicrsModal(
       indicator_id ?? 0,
       status_id ?? 0,
       result_official_code ?? 0,
-      fromResultsCenter ? 'results-center' : 'project'
+      creationContext
     );
     return false;
   }

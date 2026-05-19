@@ -12,6 +12,7 @@ import { environment } from '../../../../../../../environments/environment';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import {
   RESULT_ENTRY_SOURCE_QUERY,
+  RESULT_ENTRY_SOURCE_VALUE_HOME,
   RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
 } from '@shared/constants/result-entry-source';
 
@@ -269,8 +270,9 @@ export class VersionSelectorComponent implements OnDestroy {
 
   private entrySourceQueryParamRecord(): { [RESULT_ENTRY_SOURCE_QUERY]?: string } {
     const from = this.route.snapshot.queryParamMap.get(RESULT_ENTRY_SOURCE_QUERY);
-    return from === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
-      ? { [RESULT_ENTRY_SOURCE_QUERY]: from }
-      : {};
+    if (from === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER || from === RESULT_ENTRY_SOURCE_VALUE_HOME) {
+      return { [RESULT_ENTRY_SOURCE_QUERY]: from };
+    }
+    return {};
   }
 }

@@ -1,4 +1,4 @@
-import { mapV2ResultListItemToResult, V2ResultListItem } from './map-v2-result-list-item';
+import { mapV2ResultListItemToResult, normalizeSnapshotYears, V2ResultListItem } from './map-v2-result-list-item';
 
 describe('mapV2ResultListItemToResult', () => {
   const minimal: V2ResultListItem = {
@@ -16,6 +16,8 @@ describe('mapV2ResultListItemToResult', () => {
     expect(r.snapshot_years).toEqual([]);
     expect(r.result_status).toBeUndefined();
     expect(r.result_contracts).toBeUndefined();
+    expect(r.contract_id).toBeUndefined();
+    expect(r.contract_description).toBeUndefined();
     expect(r.created_by_user).toBeUndefined();
     expect(r.result_levers).toBeUndefined();
   });
@@ -28,6 +30,11 @@ describe('mapV2ResultListItemToResult', () => {
   it('keeps snapshot_years when array', () => {
     const r = mapV2ResultListItemToResult({ ...minimal, snapshot_years: [2023, 2024] });
     expect(r.snapshot_years).toEqual([2023, 2024]);
+  });
+
+  it('parses snapshot_years when API sends comma-separated string', () => {
+    const r = mapV2ResultListItemToResult({ ...minimal, snapshot_years: '2026,2025' });
+    expect(r.snapshot_years).toEqual([2026, 2025]);
   });
 
   it('sets is_active true for boolean true or numeric 1', () => {
@@ -59,7 +66,20 @@ describe('mapV2ResultListItemToResult', () => {
 
   it('maps contract when contract_id is set', () => {
     const r = mapV2ResultListItemToResult({ ...minimal, contract_id: 'C1' });
+    expect(r.contract_id).toBe('C1');
+    expect(r.contract_description).toBeUndefined();
     expect(r.result_contracts).toEqual({ contract_id: 'C1', is_primary: 1 });
+  });
+
+  it('maps flat contract_id and contract_description from v2 row', () => {
+    const r = mapV2ResultListItemToResult({
+      ...minimal,
+      contract_id: 'A1703',
+      contract_description: 'CGIAR Fund-SP06 - Climate Action'
+    });
+    expect(r.contract_id).toBe('A1703');
+    expect(r.contract_description).toBe('CGIAR Fund-SP06 - Climate Action');
+    expect(r.result_contracts).toEqual({ contract_id: 'A1703', is_primary: 1 });
   });
 
   it('maps created_by_user when first or last name is non-empty', () => {
@@ -101,6 +121,7 @@ describe('mapV2ResultListItemToResult', () => {
   it('does not map contract when contract_id is empty string', () => {
     const r = mapV2ResultListItemToResult({ ...minimal, contract_id: '' });
     expect(r.result_contracts).toBeUndefined();
+    expect(r.contract_id).toBe('');
   });
 
   it('does not add levers when lever_name is empty string', () => {
@@ -127,5 +148,25 @@ describe('mapV2ResultListItemToResult', () => {
     const url = 'https://sharepoint.example.com/doc';
     const r = mapV2ResultListItemToResult({ ...minimal, public_link: url });
     expect(r.public_link).toBe(url);
+  });
+});
+
+describe('normalizeSnapshotYears', () => {
+  it('returns empty for null, undefined, non-array objects, and blank string', () => {
+    expect(normalizeSnapshotYears(null)).toEqual([]);
+    expect(normalizeSnapshotYears(undefined)).toEqual([]);
+    expect(normalizeSnapshotYears({})).toEqual([]);
+    expect(normalizeSnapshotYears('')).toEqual([]);
+    expect(normalizeSnapshotYears('   ')).toEqual([]);
+  });
+
+  it('parses comma-separated years string', () => {
+    expect(normalizeSnapshotYears('2026,2025')).toEqual([2026, 2025]);
+    expect(normalizeSnapshotYears(' 2024 , 2023 ')).toEqual([2024, 2023]);
+  });
+
+  it('normalizes numeric array and string elements', () => {
+    expect(normalizeSnapshotYears([2023, 2024])).toEqual([2023, 2024]);
+    expect(normalizeSnapshotYears(['2023', '2024'])).toEqual([2023, 2024]);
   });
 });

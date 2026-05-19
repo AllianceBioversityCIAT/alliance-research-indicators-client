@@ -8,7 +8,7 @@ import { computed, signal } from '@angular/core';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { CreateResultManagementService } from '../../../../../../shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
-import { getResultEntrySourceFromSearch, isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
+import { getResultEntrySourceFromSearch, isHomeEntryFromUrl, isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
 
 describe('result-entry-source helpers', () => {
   it('getResultEntrySourceFromSearch returns null for empty and parses query shapes', () => {
@@ -17,12 +17,19 @@ describe('result-entry-source helpers', () => {
     expect(getResultEntrySourceFromSearch('from=results-center')).toBe('results-center');
     expect(getResultEntrySourceFromSearch('x=1&from=results-center')).toBe('results-center');
     expect(getResultEntrySourceFromSearch('?from=other')).toBe('other');
+    expect(getResultEntrySourceFromSearch('?from=home')).toBe('home');
   });
 
   it('isResultsCenterEntryFromUrl detects results-center entry from URL query', () => {
     expect(isResultsCenterEntryFromUrl('/result/STAR-1')).toBe(false);
     expect(isResultsCenterEntryFromUrl('/result/STAR-1?from=results-center')).toBe(true);
     expect(isResultsCenterEntryFromUrl('/result/STAR-1?from=projects')).toBe(false);
+  });
+
+  it('isHomeEntryFromUrl detects home entry from URL query', () => {
+    expect(isHomeEntryFromUrl('/result/STAR-1')).toBe(false);
+    expect(isHomeEntryFromUrl('/result/STAR-11809/general-information?from=home')).toBe(true);
+    expect(isHomeEntryFromUrl('/result/STAR-1?from=results-center')).toBe(false);
   });
 });
 

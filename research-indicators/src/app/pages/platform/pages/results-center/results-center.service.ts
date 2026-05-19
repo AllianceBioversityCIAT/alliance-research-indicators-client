@@ -1,6 +1,7 @@
 import { inject, Injectable, signal, effect, computed } from '@angular/core';
 import { GetResultsService } from '../../../../shared/services/control-list/get-results.service';
 import { GetResultsPaginationOptions, Result, ResultConfig, ResultFilter } from '../../../../shared/interfaces/result/result.interface';
+import { normalizeSnapshotYears } from '../../../../shared/interfaces/result/map-v2-result-list-item';
 import { MenuItem } from 'primeng/api';
 import { tableSortPathToApiSortField } from './result-table-sort.util';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
@@ -141,7 +142,7 @@ export class ResultsCenterService {
       path: 'snapshot_years',
       maxWidth: 'max-w-[120px]',
       header: 'Approved Versions',
-      getValue: (result: Result) => (Array.isArray(result.snapshot_years) ? result.snapshot_years : [])
+      getValue: (result: Result) => normalizeSnapshotYears(result.snapshot_years)
     },
     {
       field: 'creator',
