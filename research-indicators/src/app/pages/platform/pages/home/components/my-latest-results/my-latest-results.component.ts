@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
 import AboutIndicatorsComponent from '../../../about-indicators/about-indicators.component';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { FormatDatePipe } from '@shared/pipes/format-date.pipe';
@@ -19,7 +19,7 @@ import { CacheService } from '@shared/services/cache/cache.service';
 
 @Component({
   selector: 'app-my-latest-results',
-  imports: [AboutIndicatorsComponent, FormatDatePipe, CustomTagComponent],
+  imports: [AboutIndicatorsComponent, FormatDatePipe, CustomTagComponent, RouterLink],
   templateUrl: './my-latest-results.component.html',
   styleUrl: './my-latest-results.component.scss'
 })
@@ -27,7 +27,6 @@ export class MyLatestResultsComponent implements OnInit {
   api = inject(ApiService);
   allModalsService = inject(AllModalsService);
   cache = inject(CacheService);
-  private readonly router = inject(Router);
   dateFormatConfig = inject(DateFormatConfigService);
   greenChecksByResult: WritableSignal<Record<string, GreenChecks>> = signal({});
 
@@ -131,25 +130,45 @@ export class MyLatestResultsComponent implements OnInit {
     return result.created_at?.trim() || undefined;
   }
 
-  /**
-   * PRMS / TIP / AICCRA: open result information modal (same as Results Center table).
-   * STAR: navigate to in-app result with `platform-officialCode` route.
-   */
-  handleResultCardActivate(latest: Result, event: Event): void {
-    if (this.isInteractionOnMoreMenu(event)) {
-      return;
-    }
-    const platform = latest.platform_code;
-    if (
+  /** PRMS / TIP / AICCRA open the result information modal instead of in-app routing. */
+  opensResultInformationModal(result: Result): boolean {
+    const platform = result.platform_code;
+    return (
       platform === PLATFORM_CODES.PRMS ||
       platform === PLATFORM_CODES.TIP ||
       platform === PLATFORM_CODES.AICCRA
-    ) {
+    );
+  }
+
+  getStarResultRouterLink(result: Result): string[] {
+    const resultCode = `${result.platform_code}-${result.result_official_code}`;
+    const snapshotYears = normalizeSnapshotYears(result.snapshot_years);
+    if (result.result_status?.result_status_id === 6 && snapshotYears.length > 0) {
+      return ['/result', resultCode, 'general-information'];
+    }
+    return ['/result', resultCode];
+  }
+
+  getStarResultQueryParams(result: Result): Record<string, string | number> {
+    const fromHome = { [RESULT_ENTRY_SOURCE_QUERY]: RESULT_ENTRY_SOURCE_VALUE_HOME };
+    const snapshotYears = normalizeSnapshotYears(result.snapshot_years);
+    if (result.result_status?.result_status_id === 6 && snapshotYears.length > 0) {
+      return { version: Math.max(...snapshotYears), ...fromHome };
+    }
+    return fromHome;
+  }
+
+  onResultCardClick(result: Result, event: Event): void {
+    if (this.isInteractionOnMoreMenu(event)) {
       event.preventDefault();
-      this.openResultInformationModal(latest);
       return;
     }
-    this.navigateToStarResult(latest);
+    if (this.opensResultInformationModal(result)) {
+      event.preventDefault();
+      this.openResultInformationModal(result);
+      return;
+    }
+    this.closeResultInformationModalIfOpen();
   }
 
   private isInteractionOnMoreMenu(event: Event): boolean {
@@ -176,18 +195,4 @@ export class MyLatestResultsComponent implements OnInit {
     this.allModalsService.selectedResultForInfo.set(null);
   }
 
-  private navigateToStarResult(latest: Result): void {
-    this.closeResultInformationModalIfOpen();
-    const resultCode = `${latest.platform_code}-${latest.result_official_code}`;
-    const fromHome = { [RESULT_ENTRY_SOURCE_QUERY]: RESULT_ENTRY_SOURCE_VALUE_HOME };
-    const snapshotYears = normalizeSnapshotYears(latest.snapshot_years);
-    if (latest.result_status?.result_status_id === 6 && snapshotYears.length > 0) {
-      const latestYear = Math.max(...snapshotYears);
-      void this.router.navigate(['/result', resultCode, 'general-information'], {
-        queryParams: { version: latestYear, ...fromHome }
-      });
-      return;
-    }
-    void this.router.navigate(['/result', resultCode], { queryParams: fromHome });
-  }
 }
