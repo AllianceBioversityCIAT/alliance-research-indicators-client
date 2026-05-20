@@ -220,4 +220,85 @@ describe('AgressoPoolFundingTagComponent', () => {
     component.onJustificationInput(long);
     expect(component.justification()).toHaveLength(component.justificationMaxLength);
   });
+
+  describe('DOM — user-visible surfaces', () => {
+    it('renders the lookup card with input + Look up button on initial render', () => {
+      fixture.detectChanges();
+
+      const input = fixture.nativeElement.querySelector('[data-testid="contract-code-input"]');
+      const button = fixture.nativeElement.querySelector('[data-testid="look-up-button"]');
+
+      expect(input).not.toBeNull();
+      expect(button).not.toBeNull();
+    });
+
+    it('does NOT render summary or override cards until a contract loads', () => {
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="summary-card"]')).toBeNull();
+      expect(fixture.nativeElement.querySelector('[data-testid="override-card"]')).toBeNull();
+    });
+
+    it('renders summary + override cards once a contract is loaded', () => {
+      currentContract.set(bilateralRow);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="summary-card"]')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('[data-testid="override-card"]')).not.toBeNull();
+    });
+
+    it('renders the inline error element with role="alert" and aria-live="polite" (AC-08.1)', async () => {
+      component.contractCode.set('');
+      await component.onLookup();
+      fixture.detectChanges();
+
+      const errorEl: HTMLElement | null = fixture.nativeElement.querySelector('[data-testid="inline-error"]');
+      expect(errorEl).not.toBeNull();
+      expect(errorEl!.getAttribute('role')).toBe('alert');
+      expect(errorEl!.getAttribute('aria-live')).toBe('polite');
+    });
+
+    it('renders the locked non-bilateral inline copy on save 400 (AC-08.2)', async () => {
+      currentContract.set(bilateralRow);
+      component.newValue.set(true);
+      mockBilateral.patchTag.mockResolvedValue({
+        ok: false,
+        status: 400,
+        description: 'This contract is not bilateral. Only bilateral contracts can carry the Pool Funding tag.'
+      });
+
+      await component.onSave();
+      fixture.detectChanges();
+
+      const errorEl: HTMLElement | null = fixture.nativeElement.querySelector('[data-testid="inline-error"]');
+      expect(errorEl).not.toBeNull();
+      expect(errorEl!.textContent).toContain(
+        'This contract is not bilateral. Only bilateral contracts can carry the Pool Funding tag.'
+      );
+    });
+
+    it('renders the non-bilateral hint when funding_type is not bilateral', () => {
+      currentContract.set({ ...bilateralRow, funding_type: 'Pool Funding' });
+      fixture.detectChanges();
+
+      const hint = fixture.nativeElement.querySelector('[data-testid="not-bilateral-hint"]');
+      expect(hint).not.toBeNull();
+    });
+
+    it('renders the success notice after a successful save (AC-07.6)', async () => {
+      currentContract.set(bilateralRow);
+      component.newValue.set(true);
+      mockBilateral.patchTag.mockResolvedValue({
+        ok: true,
+        data: { agreement_id: 'AC-1594', is_pool_funding_contributor: true }
+      });
+
+      await component.onSave();
+      fixture.detectChanges();
+
+      const success = fixture.nativeElement.querySelector('[data-testid="save-success"]');
+      expect(success).not.toBeNull();
+      expect(success!.textContent).toContain('Your changes have been saved');
+    });
+  });
 });
