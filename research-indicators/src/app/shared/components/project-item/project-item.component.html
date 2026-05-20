@@ -10,9 +10,13 @@
       </div>
     </div>
     <div class="project-info -mt-1">
-      <div class="principal-investigator">
+      <div class="principal-investigator flex items-center gap-2">
         <app-custom-tag [statusId]="getStatusDisplay().statusId" [statusName]="getStatusDisplay().statusName"
           [tiny]="true"> </app-custom-tag>
+        @if (isPoolFunding) {
+          <app-custom-tag statusId="pool-funding" statusName="Pool Funding" [tiny]="true"
+            data-testid="pool-funding-tag"></app-custom-tag>
+        }
       </div>
       @if (hasField('project_lead_description')) {
       <div class="principal-investigator">

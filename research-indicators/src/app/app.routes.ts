@@ -215,6 +215,18 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'administration/center-admin/agresso-pool-funding-tag',
+        loadComponent: () =>
+          import(
+            '@platform/pages/administration/center-admin/agresso-pool-funding-tag/agresso-pool-funding-tag.component'
+          ).then(m => m.default),
+        canMatch: [centerAdminGuard],
+        data: {
+          title: 'AGRESSO Pool Funding Tag',
+          isLoggedIn: true
+        }
+      },
+      {
         path: 'administration/center-admin/sdg-management',
         loadComponent: () =>
           import('@platform/pages/administration/center-admin/sdg-management/sdg-management.component').then(m => m.default),

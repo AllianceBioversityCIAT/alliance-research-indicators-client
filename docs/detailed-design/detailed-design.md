@@ -58,7 +58,7 @@ The Angular app is organized by **page domain** under `src/app/pages/` with cros
 | **Notifications** | `pages/platform/pages/notifications/` | Real-time feed |
 | **Profile** | `pages/platform/pages/profile/` | User settings, theme |
 | **About** | `pages/platform/pages/about/` | App info |
-| **Administration / Center Admin** | `pages/platform/pages/administration/center-admin/` | Bulk upload, SDG management |
+| **Administration / Center Admin** | `pages/platform/pages/administration/center-admin/` | Bulk upload, SDG management, AGRESSO Pool Funding tag override |
 | **Auth** | `pages/login/`, `pages/auth/` | Cognito entry & callback |
 | **Landing** | `pages/landing/` | Public surface |
 | **Real-time** | `pages/room/` | WebSocket collaboration |
@@ -144,6 +144,7 @@ The client should **never** parse a raw `T` — always go through `MainResponse<
 - `POST /results`, `PATCH /results/:id`, `PATCH /results/:id/submit`, `DELETE /results/:id/:field`
 - `GET /results-center`, `GET /dashboards`
 - `GET /projects`, `GET /contracts`, `GET /metadata`
+- `PATCH /agresso/contracts/:code/pool-funding-tag` — Center Admin / System Admin override of the bilateral Pool Funding tag (spec: [`../specs/bilateral-module/tag-visibility/`](../specs/bilateral-module/tag-visibility/)).
 
 ### 4.4 Client contract rules
 
@@ -198,7 +199,7 @@ The backend is authoritative; the client must mirror these rules so users don't 
 Three are registered (order matters):
 
 1. `jWtInterceptor` — attaches JWT, proactively refreshes near expiry, retries once on 401.
-2. `httpErrorInterceptor` — central error logging + toast/alert dispatch via `ActionsService`.
+2. `httpErrorInterceptor` — central error logging + toast/alert dispatch via `ActionsService`. URL-scoped toast exceptions exist for `refresh-token`, AI-formalize 502, and 400 on `/pool-funding-tag` (where the inline-error path owns the user message).
 3. `resultInterceptor` — result-domain transformations (e.g., version handling).
 
 ### 6.4 Real-time (WebSocket)

@@ -1,17 +1,27 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ResultsCenterTableComponent } from '../results-center/components/results-center-table/results-center-table.component';
 import { TableFiltersSidebarComponent } from '../results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from '../results-center/components/table-configuration/table-configuration.component';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
+import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 import { ApiService } from '../../../../shared/services/api.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 import { ResultsCenterService } from '../results-center/results-center.service';
+import { RolesService } from '@services/cache/roles.service';
 
 @Component({
   selector: 'app-project-detail',
-  imports: [ResultsCenterTableComponent, ProjectItemComponent, TableFiltersSidebarComponent, TableConfigurationComponent, SectionSidebarComponent],
+  imports: [
+    ResultsCenterTableComponent,
+    ProjectItemComponent,
+    TableFiltersSidebarComponent,
+    TableConfigurationComponent,
+    SectionSidebarComponent,
+    CustomTagComponent,
+    RouterLink
+  ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
@@ -19,8 +29,12 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);
   api = inject(ApiService);
   resultsCenterService = inject(ResultsCenterService);
+  rolesService = inject(RolesService);
   contractId = signal('');
   currentProject = signal<GetProjectDetail>({});
+
+  showPoolFundingBadge = computed(() => !!(this.currentProject() as { is_pool_funding_contributor?: boolean })?.is_pool_funding_contributor);
+  canEditPoolFundingTag = computed(() => this.rolesService.canAccessCenterAdmin());
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);

@@ -291,4 +291,31 @@ describe('ProjectItemComponent', () => {
     expect(component.formatIndicatorLabel(long)).toMatch(/\.$/);
     expect(component.formatIndicatorLabel(long)).not.toContain('..');
   });
+
+  describe('Pool Funding badge', () => {
+    it('defaults isPoolFunding to false and does not render the badge', () => {
+      expect(component.isPoolFunding).toBe(false);
+      const badge = fixture.nativeElement.querySelector('[data-testid="pool-funding-tag"]');
+      expect(badge).toBeNull();
+    });
+
+    it('renders the Pool Funding tag when isPoolFunding is true', () => {
+      component.isPoolFunding = true;
+      fixture.detectChanges();
+
+      const badge: HTMLElement | null = fixture.nativeElement.querySelector('[data-testid="pool-funding-tag"]');
+      expect(badge).not.toBeNull();
+      expect(badge!.textContent).toContain('Pool Funding');
+    });
+
+    it('toggles the badge off when isPoolFunding flips back to false', () => {
+      component.isPoolFunding = true;
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('[data-testid="pool-funding-tag"]')).not.toBeNull();
+
+      component.isPoolFunding = false;
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('[data-testid="pool-funding-tag"]')).toBeNull();
+    });
+  });
 });

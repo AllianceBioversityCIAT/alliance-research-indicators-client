@@ -465,6 +465,34 @@ describe('ApiService', () => {
 
       expect(mockToPromiseService.patch).toHaveBeenCalledWith('reporting-feedback/send', body);
     });
+
+    it('should call PATCH_PoolFundingTag with encoded code and useResultInterceptor option', () => {
+      const code = 'AC-1594';
+      const body = { is_pool_funding_contributor: true };
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_PoolFundingTag(code, body);
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith(
+        'agresso/contracts/AC-1594/pool-funding-tag',
+        body,
+        { useResultInterceptor: true }
+      );
+    });
+
+    it('should call PATCH_PoolFundingTag with a code that needs URL-encoding', () => {
+      const code = 'AC/1594 with space';
+      const body = { is_pool_funding_contributor: false };
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_PoolFundingTag(code, body);
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith(
+        `agresso/contracts/${encodeURIComponent(code)}/pool-funding-tag`,
+        body,
+        { useResultInterceptor: true }
+      );
+    });
   });
 
   describe('DELETE methods', () => {

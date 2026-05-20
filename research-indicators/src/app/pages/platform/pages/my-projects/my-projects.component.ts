@@ -11,6 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { CheckboxModule } from 'primeng/checkbox';
 import { PopoverModule } from 'primeng/popover';
 import { MenuModule } from 'primeng/menu';
 import { CacheService } from '../../../../shared/services/cache/cache.service';
@@ -41,6 +42,7 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
     ButtonModule,
     TableModule,
     TagModule,
+    CheckboxModule,
     RippleModule,
     PopoverModule,
     MenuModule,
@@ -655,9 +657,14 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       display_lever_name: 'lever',
       lead_center: 'lead-center',
       start_date: 'start-date',
-      end_date: 'end-date'
+      end_date: 'end-date',
+      is_pool_funding_contributor: 'pool-funding-contributor'
     };
     return fieldMapping[tableField] || tableField;
+  }
+
+  onPoolFundingOnlyChange(value: boolean): void {
+    this.myProjectsService.tableFilters.update(f => ({ ...f, poolFundingOnly: !!value }));
   }
 
   onSort(event: { field: string; order: number }): void {

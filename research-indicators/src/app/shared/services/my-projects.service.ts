@@ -14,6 +14,7 @@ export class MyProjectsFilters {
   statusCodes: { name: string; value: string }[] = [];
   startDate = '';
   endDate = '';
+  poolFundingOnly = false;
 }
 
 interface MyProjectsPersistedState {
@@ -52,7 +53,7 @@ export class MyProjectsService {
       filters.startDate,
       filters.endDate
     ];
-    return filterChecks.some(filter => this.isFilterActive(filter));
+    return filterChecks.some(filter => this.isFilterActive(filter)) || filters.poolFundingOnly === true;
   });
 
   myProjectsFilterItems: MenuItem[] = [
@@ -219,6 +220,10 @@ export class MyProjectsService {
       params['end-date'] = endDate.toISOString().slice(0, 23);
     }
 
+    if (filters.poolFundingOnly) {
+      params['pool-funding-contributor'] = true;
+    }
+
     const sortField = pagination?.sortField;
     params['order-field'] = sortField != null && String(sortField).trim() !== '' ? sortField : 'contract-code';
     params['direction'] = pagination?.sortOrder === 1 ? 'ASC' : 'DESC';
@@ -237,7 +242,8 @@ export class MyProjectsService {
       (f.levers?.length ?? 0) +
       (f.statusCodes?.length ?? 0) +
       (f.startDate ? 1 : 0) +
-      (f.endDate ? 1 : 0);
+      (f.endDate ? 1 : 0) +
+      (f.poolFundingOnly ? 1 : 0);
     return total > 0 ? total.toString() : undefined;
   });
 
@@ -268,6 +274,7 @@ export class MyProjectsService {
     }
     if (filters.startDate) items.push({ label: 'START DATE', value: formatDate(filters.startDate) });
     if (filters.endDate) items.push({ label: 'END DATE', value: formatDate(filters.endDate) });
+    if (filters.poolFundingOnly) items.push({ label: 'POOL FUNDING', value: 'Only Pool Funding' });
 
     return items;
   });
@@ -280,7 +287,8 @@ export class MyProjectsService {
       STATUS: 'statusCodes',
       LEVER: 'levers',
       'START DATE': 'startDate',
-      'END DATE': 'endDate'
+      'END DATE': 'endDate',
+      'POOL FUNDING': 'poolFundingOnly'
     };
     const key = mapping[label];
     if (!key) return;
@@ -316,6 +324,9 @@ export class MyProjectsService {
           break;
         case 'endDate':
           next.endDate = '';
+          break;
+        case 'poolFundingOnly':
+          next.poolFundingOnly = false;
           break;
       }
       return next;

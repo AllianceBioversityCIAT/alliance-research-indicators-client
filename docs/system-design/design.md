@@ -182,6 +182,7 @@ Tokens live in `src/styles/colors.scss`, `src/styles/font.scss`, `src/app/theme/
 | Red | `--ac-red-1` | Errors, destructive actions |
 | White | `--ac-white-1`, `--ac-white-2` | Surfaces |
 | Background | `--ac-background` | Page background (flips in dark mode) |
+| Pool Funding | `--ac-pool-funding-fg`, `--ac-pool-funding-border` | Bilateral module "Pool Funding" tag (see [`../specs/bilateral-module/tag-visibility/`](../specs/bilateral-module/tag-visibility/)) |
 
 Dark mode overrides the same token names under `:root[data-theme="dark"]`. PrimeNG Aura preset (`roartheme.ts`) flips via the `.dark-mode` body class.
 
@@ -282,6 +283,7 @@ Append new decisions here; do not silently change established patterns. Each ent
 - **2026-05-13 — Result Detail is the only tertiary-navigation surface.** *Rationale*: avoid navigation depth elsewhere; tabbed editors are a metadata-record pattern, not a general one.
 - **2026-05-13 — All overlays route through `all-modals` + `modal`.** *Rationale*: consistent escape-key, focus-trap, and dismiss behavior.
 - **2026-05-13 — Spacing/sizing via `rs-*` utilities, not inline styles.** *Rationale*: responsive breakpoint already encoded; ad-hoc CSS drifts.
+- **2026-05-20 — Bilateral / Pool Funding tag visibility shipped.** New tokens `--ac-pool-funding-fg` / `--ac-pool-funding-border` registered in `STATUS_COLOR_MAP` under key `'pool-funding'`; surfaces on `my-projects` (table column + sidebar filter + card view) and `project-detail` (clickable badge for Center Admins). New admin page `/administration/center-admin/agresso-pool-funding-tag` for manual tag override. Spec: [`../specs/bilateral-module/tag-visibility/`](../specs/bilateral-module/tag-visibility/). *Rationale*: bilateral module phase 1 — make Pool Funding contracts visible and Center-Admin-overridable before the alignment-section work lands.
 
 ---
 

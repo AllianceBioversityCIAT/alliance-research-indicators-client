@@ -2057,4 +2057,85 @@ describe('MyProjectsService', () => {
       expect(globalThis.sessionStorage?.getItem('my-projects-view-state:project-1')).toBeNull();
     });
   });
+
+  describe('poolFundingOnly filter', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('applyFilters with poolFundingOnly=true includes pool-funding-contributor=true in the request', () => {
+      service.tableFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: true });
+
+      service.applyFilters({ page: 1, limit: 10 });
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(expect.objectContaining({ 'pool-funding-contributor': true }));
+    });
+
+    it('applyFilters with poolFundingOnly=false omits the pool-funding-contributor key', () => {
+      service.tableFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: false });
+
+      service.applyFilters({ page: 1, limit: 10 });
+
+      const passed = mockApiService.GET_FindContracts.mock.calls[0][0] as Record<string, unknown>;
+      expect(passed).not.toHaveProperty('pool-funding-contributor');
+    });
+
+    it('getActiveFilters returns a single POOL FUNDING chip when enabled', () => {
+      service.appliedFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: true });
+
+      const chips = service.getActiveFilters();
+      const poolChips = chips.filter(c => c.label === 'POOL FUNDING');
+      expect(poolChips).toHaveLength(1);
+      expect(poolChips[0]).toEqual({ label: 'POOL FUNDING', value: 'Only Pool Funding' });
+    });
+
+    it('removeFilter("POOL FUNDING") resets poolFundingOnly to false', () => {
+      service.tableFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: true });
+
+      service.removeFilter('POOL FUNDING');
+
+      expect(service.tableFilters().poolFundingOnly).toBe(false);
+    });
+
+    it('resetFilters clears poolFundingOnly', () => {
+      service.tableFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: true });
+      service.appliedFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: true });
+
+      service.resetFilters();
+
+      expect(service.tableFilters().poolFundingOnly).toBe(false);
+      expect(service.appliedFilters().poolFundingOnly).toBe(false);
+    });
+
+    it('countFiltersSelected increments when poolFundingOnly is enabled', () => {
+      service.tableFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: true });
+      expect(service.countFiltersSelected()).toBe('1');
+
+      service.tableFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: true, contractCode: 'A001' });
+      expect(service.countFiltersSelected()).toBe('2');
+    });
+
+    it('hasFilters returns true when only poolFundingOnly is applied', () => {
+      service.appliedFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: true });
+      expect(service.hasFilters()).toBe(true);
+    });
+
+    it('restorePersistedState preserves poolFundingOnly through session round-trip', () => {
+      globalThis.sessionStorage?.setItem(
+        'my-projects-view-state:project-1',
+        JSON.stringify({
+          myProjectsFilterItemId: 'all',
+          tableFilters: { poolFundingOnly: true, contractCode: 'A001' },
+          appliedFilters: { poolFundingOnly: true },
+          searchInput: ''
+        })
+      );
+
+      const restored = service.restorePersistedState('project-1');
+
+      expect(restored).toBe(true);
+      expect(service.tableFilters().poolFundingOnly).toBe(true);
+      expect(service.appliedFilters().poolFundingOnly).toBe(true);
+    });
+  });
 });

@@ -57,12 +57,16 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         const isAiFormalizeError =
           error.status === 502 && req.url.includes('results/ai/formalize');
 
+        const isPoolFundingTagValidationError =
+          error.status === 400 && req.url.includes('/pool-funding-tag');
+
         if (
           cache.isLoggedIn() &&
           error.status !== 409 &&
           error.status !== 401 &&
           !req.url.includes('refresh-token') &&
-          !isAiFormalizeError
+          !isAiFormalizeError &&
+          !isPoolFundingTagValidationError
         ) {
           actions.showToast({ detail: error.error.errors, severity: 'error', summary: 'Error' });
         }

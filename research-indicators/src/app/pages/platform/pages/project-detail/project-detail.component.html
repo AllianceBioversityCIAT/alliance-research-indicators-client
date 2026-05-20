@@ -1,6 +1,22 @@
 <div class="w-full">
-  <app-project-item 
-    [project]="currentProject()" 
+  @if (showPoolFundingBadge()) {
+    <div class="px-[20px] pt-[16px]" data-testid="pool-funding-badge-wrapper">
+      @if (canEditPoolFundingTag()) {
+        <a [routerLink]="['/administration/center-admin/agresso-pool-funding-tag']"
+          [queryParams]="{ 'contract-code': contractId() }"
+          data-testid="pool-funding-tag-link"
+          style="text-decoration: none; display: inline-block;">
+          <app-custom-tag statusId="pool-funding" statusName="Pool Funding" [tiny]="true"
+            data-testid="pool-funding-tag"></app-custom-tag>
+        </a>
+      } @else {
+        <app-custom-tag statusId="pool-funding" statusName="Pool Funding" [tiny]="true"
+          data-testid="pool-funding-tag"></app-custom-tag>
+      }
+    </div>
+  }
+  <app-project-item
+    [project]="currentProject()"
     [isHeader]="true"
     [enableIndicatorFilter]="true"
     (indicatorClick)="onIndicatorClick($event)"></app-project-item>

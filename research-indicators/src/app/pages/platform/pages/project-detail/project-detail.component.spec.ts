@@ -4,7 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import ProjectDetailComponent from './project-detail.component';
 import { ApiService } from '@services/api.service';
-import { Component, Input } from '@angular/core';
+import { RolesService } from '@services/cache/roles.service';
+import { Component, Input, signal } from '@angular/core';
 
 @Component({ selector: 'app-project-item', template: '', standalone: false })
 class MockProjectItemComponent {
@@ -21,13 +22,19 @@ describe('ProjectComponent', () => {
   let component: ProjectDetailComponent;
   let fixture: ComponentFixture<ProjectDetailComponent>;
   let apiService: ApiService;
+  let canAccessCenterAdminSignal: ReturnType<typeof signal<boolean>>;
 
   beforeEach(async () => {
+    canAccessCenterAdminSignal = signal(false);
     await TestBed.configureTestingModule({
       imports: [ProjectDetailComponent, HttpClientTestingModule],
       declarations: [MockProjectItemComponent, MockProjectResultsTableComponent],
       providers: [
         ApiService,
+        {
+          provide: RolesService,
+          useValue: { canAccessCenterAdmin: canAccessCenterAdminSignal }
+        },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -95,6 +102,29 @@ describe('ProjectComponent', () => {
     jest.spyOn(apiService, 'GET_ResultsCount').mockResolvedValue({} as any);
     await component.getProjectDetail();
     expect(component.currentProject()).toBe(undefined);
+  });
+
+  describe('Pool Funding badge', () => {
+    it('showPoolFundingBadge is true when currentProject.is_pool_funding_contributor is true', () => {
+      component.currentProject.set({ is_pool_funding_contributor: true } as any);
+      expect(component.showPoolFundingBadge()).toBe(true);
+    });
+
+    it('showPoolFundingBadge is false when the flag is false or undefined', () => {
+      component.currentProject.set({ is_pool_funding_contributor: false } as any);
+      expect(component.showPoolFundingBadge()).toBe(false);
+
+      component.currentProject.set({} as any);
+      expect(component.showPoolFundingBadge()).toBe(false);
+    });
+
+    it('canEditPoolFundingTag mirrors RolesService.canAccessCenterAdmin', () => {
+      canAccessCenterAdminSignal.set(false);
+      expect(component.canEditPoolFundingTag()).toBe(false);
+
+      canAccessCenterAdminSignal.set(true);
+      expect(component.canEditPoolFundingTag()).toBe(true);
+    });
   });
 
   describe('onIndicatorClick', () => {

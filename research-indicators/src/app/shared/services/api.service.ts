@@ -71,6 +71,7 @@ import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContractsResponse } from '../interfaces/find-contracts.interface';
+import { PoolFundingTagPatchBody, PoolFundingTagPatchResponse } from '@interfaces/bilateral/agresso-contract.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
@@ -636,10 +637,19 @@ export class ApiService {
     project?: string;
     'exclude-pooled-funding'?: boolean;
     'with-indicators'?: boolean;
+    'pool-funding-contributor'?: boolean;
   }): Promise<MainResponse<FindContractsResponse>> => {
     const url = () => 'agresso/contracts/find-contracts';
     const params = this.buildFindContractsParams(filters);
     return this.TP.get(url(), { params });
+  };
+
+  PATCH_PoolFundingTag = (
+    code: string,
+    body: PoolFundingTagPatchBody
+  ): Promise<MainResponse<PoolFundingTagPatchResponse>> => {
+    const url = () => `agresso/contracts/${encodeURIComponent(code)}/pool-funding-tag`;
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
   GET_ResultsCount = (agreementId: string): Promise<MainResponse<GetProjectDetail>> => {

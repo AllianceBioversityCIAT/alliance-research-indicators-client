@@ -1331,6 +1331,51 @@ describe('MyProjectsComponent', () => {
       expect(call.query).toBeUndefined();
       expect(call.direction).toBe('DESC');
     });
+
+    it('should map is_pool_funding_contributor to pool-funding-contributor when sorting by the Pool Funding column', () => {
+      component.myProjectsFilterItem.set({ id: 'all', label: 'All Projects' });
+      mockMyProjectsService.searchInput.set('');
+
+      component.onSort({ field: 'is_pool_funding_contributor', order: 1 });
+
+      expect(mockMyProjectsService.main).toHaveBeenCalledWith(
+        expect.objectContaining({ 'order-field': 'pool-funding-contributor', direction: 'ASC' })
+      );
+    });
+  });
+
+  describe('onPoolFundingOnlyChange', () => {
+    it('updates tableFilters.poolFundingOnly when the sidebar checkbox toggles on', () => {
+      const initial = { poolFundingOnly: false, contractCode: 'A001' };
+      const tableFilters = signal<any>(initial);
+      mockMyProjectsService.tableFilters = tableFilters as any;
+
+      component.onPoolFundingOnlyChange(true);
+
+      expect(tableFilters().poolFundingOnly).toBe(true);
+      expect(tableFilters().contractCode).toBe('A001');
+    });
+
+    it('updates tableFilters.poolFundingOnly when the sidebar checkbox toggles off', () => {
+      const initial = { poolFundingOnly: true, levers: [] };
+      const tableFilters = signal<any>(initial);
+      mockMyProjectsService.tableFilters = tableFilters as any;
+
+      component.onPoolFundingOnlyChange(false);
+
+      expect(tableFilters().poolFundingOnly).toBe(false);
+    });
+
+    it('coerces non-boolean truthy/falsy values', () => {
+      const tableFilters = signal<any>({ poolFundingOnly: false });
+      mockMyProjectsService.tableFilters = tableFilters as any;
+
+      component.onPoolFundingOnlyChange('yes' as unknown as boolean);
+      expect(tableFilters().poolFundingOnly).toBe(true);
+
+      component.onPoolFundingOnlyChange(0 as unknown as boolean);
+      expect(tableFilters().poolFundingOnly).toBe(false);
+    });
   });
 
   describe('applyFilters', () => {

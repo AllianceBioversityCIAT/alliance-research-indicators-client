@@ -578,4 +578,64 @@ describe('httpErrorInterceptor', () => {
       }
     });
   });
+
+  it('should not show toast when 400 comes from /pool-funding-tag (bilateral inline-error path)', done => {
+    const poolFundingTagRequest = new HttpRequest(
+      'PATCH',
+      'http://test.com/api/v1/agresso/contracts/AC-1594/pool-funding-tag',
+      { is_pool_funding_contributor: true }
+    );
+    const errorResponse = new HttpErrorResponse({
+      error: { description: 'This contract is not bilateral. Only bilateral contracts can carry the Pool Funding tag.', errors: null },
+      status: 400,
+      statusText: 'Bad Request'
+    });
+
+    mockHandler = jest.fn().mockReturnValue(throwError(() => errorResponse));
+    mockCacheService.isLoggedIn.mockReturnValue(true);
+    mockApiService.saveErrors.mockResolvedValue(undefined);
+
+    interceptor(poolFundingTagRequest, mockHandler).subscribe({
+      next: () => done.fail('Should have thrown an error'),
+      error: error => {
+        expect(error).toBe(errorResponse);
+        expect(mockApiService.saveErrors).toHaveBeenCalled();
+        expect(mockActionsService.showToast).not.toHaveBeenCalled();
+        done();
+      }
+    });
+  });
+
+  it('should still show toast for non-400 errors from /pool-funding-tag', done => {
+    const poolFundingTagRequest = new HttpRequest(
+      'PATCH',
+      'http://test.com/api/v1/agresso/contracts/AC-1594/pool-funding-tag',
+      { is_pool_funding_contributor: true }
+    );
+    const errorResponse = new HttpErrorResponse({
+      error: { errors: 'Server exploded' },
+      status: 500,
+      statusText: 'Internal Server Error'
+    });
+
+    mockHandler = jest.fn().mockReturnValue(throwError(() => errorResponse));
+    mockCacheService.isLoggedIn.mockReturnValue(true);
+    mockCacheService.dataCache.mockReturnValue({
+      user: { sec_user_id: 1, first_name: 'X', last_name: 'Y', email: 'x@y.z' }
+    });
+    mockApiService.saveErrors.mockResolvedValue(undefined);
+
+    interceptor(poolFundingTagRequest, mockHandler).subscribe({
+      next: () => done.fail('Should have thrown an error'),
+      error: error => {
+        expect(error).toBe(errorResponse);
+        expect(mockActionsService.showToast).toHaveBeenCalledWith({
+          detail: 'Server exploded',
+          severity: 'error',
+          summary: 'Error'
+        });
+        done();
+      }
+    });
+  });
 });

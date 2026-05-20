@@ -91,6 +91,13 @@ The following variables are defined in the `:root` for both light and dark theme
 
 - `--ac-red-1`: `#cf0808`
 
+### Pool Funding
+
+Used by the bilateral-module "Pool Funding" tag (see `docs/specs/bilateral-module/tag-visibility/`).
+
+- `--ac-pool-funding-fg`: `#1b5e20`
+- `--ac-pool-funding-border`: `#2e7d32`
+
 ## Dark Mode Variables
 
 When the dark mode is active, the following variables will be applied:

@@ -17,6 +17,7 @@ export class ProjectItemComponent implements OnInit, OnChanges {
   @Input() isHeader = false;
   @Input() project: GetContractsByUser | GetProjectDetail | FindContracts = {};
   @Input() enableIndicatorFilter = false;
+  @Input() isPoolFunding = false;
 
   indicatorClick = output<{ indicator_id: number; name: string }>();
 
