@@ -1,0 +1,395 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { TestBed } from '@angular/core/testing';
+import { of, throwError } from 'rxjs';
+import { WhatsNewService } from './whats-new.service';
+import { ReleaseNotesApiService } from '@services/release-notes-api.service';
+import { WHATS_NEW_LAST_SEEN_KEY } from '../constants/whats-new.constants';
+import { NotionReleaseNotePage } from '@shared/interfaces/notion-release-note.interface';
+
+describe('WhatsNewService', () => {
+  let service: WhatsNewService;
+  let releaseNotesApi: {
+    queryReleaseNotes: jest.Mock;
+    getPage: jest.Mock;
+    getBlockChildren: jest.Mock;
+  };
+
+  const pageA: NotionReleaseNotePage = {
+    id: 'page-a',
+    created_time: '2026-05-06T00:00:00.000Z',
+    properties: {
+      Name: { title: [{ plain_text: 'Note A' }] },
+      'Released date': { date: { start: '2026-04-01' } }
+    }
+  };
+
+  const pageB: NotionReleaseNotePage = {
+    id: 'page-b',
+    created_time: '2026-04-01T00:00:00.000Z',
+    properties: {
+      Name: { title: [{ plain_text: 'Note B' }] }
+    }
+  };
+
+  beforeEach(() => {
+    localStorage.clear();
+    releaseNotesApi = {
+      queryReleaseNotes: jest.fn().mockReturnValue(of({ results: [pageB, pageA] })),
+      getPage: jest.fn(),
+      getBlockChildren: jest.fn()
+    };
+
+    TestBed.configureTestingModule({
+      providers: [WhatsNewService, { provide: ReleaseNotesApiService, useValue: releaseNotesApi }]
+    });
+    service = TestBed.inject(WhatsNewService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('getWhatsNewPages should sort by created_time descending', () => {
+    service.getWhatsNewPages();
+    expect(service.notionData()?.results?.[0]?.id).toBe('page-a');
+    expect(service.notionDataLoading()).toBe(false);
+  });
+
+  it('getWhatsNewPages should handle errors', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    releaseNotesApi.queryReleaseNotes.mockReturnValue(throwError(() => new Error('fail')));
+    service.getWhatsNewPages();
+    expect(service.notionDataLoading()).toBe(false);
+    consoleSpy.mockRestore();
+  });
+
+  it('markWhatsNewAsSeen should persist last seen', () => {
+    service.markWhatsNewAsSeen();
+    expect(localStorage.getItem(WHATS_NEW_LAST_SEEN_KEY)).toBeTruthy();
+    expect(service.lastSeenAt()).toBeTruthy();
+  });
+
+  it('hasUnreadReleaseNotes should be true when never seen', () => {
+    service.notionData.set({ results: [pageA] });
+    expect(service.hasUnreadReleaseNotes()).toBe(true);
+  });
+
+  it('hasUnreadReleaseNotes should compare against lastSeenAt', () => {
+    service.notionData.set({ results: [pageA] });
+    service.lastSeenAt.set('2026-05-07T00:00:00.000Z');
+    expect(service.hasUnreadReleaseNotes()).toBe(false);
+  });
+
+  it('isReleaseNoteNew should respect last seen', () => {
+    service.lastSeenAt.set('2026-05-07T00:00:00.000Z');
+    expect(service.isReleaseNoteNew(pageA)).toBe(false);
+    service.lastSeenAt.set(null);
+    expect(service.isReleaseNoteNew(pageA)).toBe(true);
+  });
+
+  it('getDisplayDate should prefer created_time then released date', () => {
+    expect(service.getDisplayDate(pageA)).toBe('2026-05-06T00:00:00.000Z');
+    expect(
+      service.getDisplayDate({
+        properties: { 'Released date': { date: { start: '2026-01-15' } } }
+      } as NotionReleaseNotePage)
+    ).toBe('2026-01-15');
+  });
+
+  it('getActiveDisplayDate should return null without header', () => {
+    expect(service.getActiveDisplayDate()).toBeNull();
+  });
+
+  it('getReleaseNoteTitle and findReleaseNoteById', () => {
+    service.notionData.set({ results: [pageA] });
+    expect(service.getReleaseNoteTitle(pageA)).toBe('Note A');
+    expect(service.getReleaseNoteTitle(null)).toBe('');
+    expect(service.findReleaseNoteById('page-a')?.id).toBe('page-a');
+  });
+
+  it('getActiveNotionPageUrl should prefer public_url', () => {
+    service.activeNotionPageData.set({
+      headerInfo: { public_url: 'https://public', url: 'https://private' }
+    });
+    expect(service.getActiveNotionPageUrl()).toBe('https://public');
+    service.activeNotionPageData.set({ headerInfo: { url: 'https://private' } });
+    expect(service.getActiveNotionPageUrl()).toBe('https://private');
+    service.activeNotionPageData.set(null);
+    expect(service.getActiveNotionPageUrl()).toBeNull();
+  });
+
+  it('getActiveReleaseNoteTitle should resolve from header or list', () => {
+    service.activeNotionPageData.set({
+      headerInfo: {
+        id: 'page-a',
+        properties: { Name: { title: [{ plain_text: 'From Header' }] } }
+      }
+    });
+    expect(service.getActiveReleaseNoteTitle()).toBe('From Header');
+
+    service.activeNotionPageData.set({ headerInfo: { id: 'page-a', properties: {} } });
+    service.notionData.set({ results: [pageA] });
+    expect(service.getActiveReleaseNoteTitle()).toBe('Note A');
+
+    service.activeNotionPageData.set({ headerInfo: { id: 'missing' } });
+    expect(service.getActiveReleaseNoteTitle()).toBe('');
+  });
+
+  it('getColor should map all notion colors', () => {
+    expect(service.getColor('default')).toBe('#313131');
+    expect(service.getColor('gray')).toBe('#414141');
+    expect(service.getColor('brown')).toBe('#674133');
+    expect(service.getColor('orange')).toBe('#7E4E29');
+    expect(service.getColor('yellow')).toBe('#97703D');
+    expect(service.getColor('green')).toBe('#2D6044');
+    expect(service.getColor('blue')).toBe('#2F5168');
+    expect(service.getColor('purple')).toBe('#53376C');
+    expect(service.getColor('pink')).toBe('#69334C');
+    expect(service.getColor('red')).toBe('#793C3B');
+    expect(service.getColor('unknown')).toBe('#313131');
+  });
+
+  it('getActiveDisplayDate should use header properties', () => {
+    service.activeNotionPageData.set({
+      headerInfo: {
+        properties: { 'Released date': { date: { start: '2026-01-10' } } }
+      }
+    });
+    expect(service.getActiveDisplayDate()).toBe('2026-01-10');
+  });
+
+  it('getNotionBlockChildren should handle page error response', () => {
+    releaseNotesApi.getPage.mockReturnValue(
+      of({ error: true, status: 404, message: 'Not found' } as any)
+    );
+    service.getNotionBlockChildren('page-x');
+    expect(service.notionDataError()?.status).toBe(404);
+    expect(service.notionDataLoading()).toBe(false);
+  });
+
+  it('getNotionBlockChildren should default error fields when missing', () => {
+    releaseNotesApi.getPage.mockReturnValue(of({ error: true } as any));
+    service.getNotionBlockChildren('page-x');
+    expect(service.notionDataError()).toEqual({
+      error: true,
+      status: 0,
+      message: 'Unknown error'
+    });
+  });
+
+  it('getActiveReleaseNoteTitle should return empty when list lookup fails', () => {
+    service.activeNotionPageData.set({ headerInfo: { id: 'missing-page', properties: {} } });
+    service.notionData.set({ results: [] });
+    expect(service.getActiveReleaseNoteTitle()).toBe('');
+  });
+
+  it('getActiveReleaseNoteTitle should resolve title from notionData by page id', () => {
+    service.activeNotionPageData.set({ headerInfo: { id: 'page-a', properties: {} } });
+    service.notionData.set({ results: [pageA] });
+    expect(service.getActiveReleaseNoteTitle()).toBe('Note A');
+  });
+
+  it('getActiveReleaseNoteTitle should return empty when header has no title or page id', () => {
+    service.activeNotionPageData.set({ headerInfo: { properties: {} } });
+    expect(service.getActiveReleaseNoteTitle()).toBe('');
+  });
+
+  it('hasUnreadReleaseNotes should be false when there are no results after last seen', () => {
+    service.notionData.set({ results: [] });
+    service.lastSeenAt.set('2020-01-01T00:00:00.000Z');
+    expect(service.hasUnreadReleaseNotes()).toBe(false);
+  });
+
+  it('hasUnreadReleaseNotes should handle missing notion data', () => {
+    service.notionData.set(null);
+    service.lastSeenAt.set(null);
+    expect(service.hasUnreadReleaseNotes()).toBe(false);
+
+    service.notionData.set({ results: undefined as any });
+    expect(service.hasUnreadReleaseNotes()).toBe(false);
+  });
+
+  it('getDisplayDate should return null when no dates exist', () => {
+    expect(service.getDisplayDate({ properties: {} } as NotionReleaseNotePage)).toBeNull();
+  });
+
+  it('getWhatsNewPages should keep undated notes at the end of the sort order', () => {
+    releaseNotesApi.queryReleaseNotes.mockReturnValue(
+      of({
+        results: [
+          { id: 'undated', properties: {} },
+          { id: 'dated', created_time: '2026-05-01T00:00:00.000Z', properties: {} }
+        ]
+      })
+    );
+    service.getWhatsNewPages();
+    expect(service.notionData()?.results?.map(page => page.id)).toEqual(['dated', 'undated']);
+  });
+
+  it('getWhatsNewPages should sort using released date when created_time is absent', () => {
+    releaseNotesApi.queryReleaseNotes.mockReturnValue(
+      of({
+        results: [
+          {
+            id: 'older',
+            properties: { 'Released date': { date: { start: '2026-01-01' } } }
+          },
+          {
+            id: 'newer',
+            properties: { 'Released date': { date: { start: '2026-06-01' } } }
+          }
+        ]
+      })
+    );
+    service.getWhatsNewPages();
+    expect(service.notionData()?.results?.[0]?.id).toBe('newer');
+  });
+
+  it('getNotionBlockChildren should attach nested children to parent blocks', () => {
+    releaseNotesApi.getPage.mockReturnValue(of({ id: 'page-x', properties: {} }));
+    releaseNotesApi.getBlockChildren
+      .mockReturnValueOnce(
+        of({
+          results: [{ id: 'parent', type: 'toggle', has_children: true }]
+        })
+      )
+      .mockReturnValueOnce(
+        of({
+          results: [{ id: 'child', type: 'paragraph', has_children: false, paragraph: { rich_text: [] } }]
+        })
+      );
+
+    service.getNotionBlockChildren('page-x');
+    const parent = service.activeNotionPageData()?.blocks?.[0];
+    expect(parent?.children?.[0]?.id).toBe('child');
+  });
+
+  it('getNotionBlockChildren should load blocks recursively', () => {
+    releaseNotesApi.getPage.mockReturnValue(
+      of({
+        id: 'page-x',
+        created_time: '2026-05-06',
+        properties: {},
+        url: 'https://notion',
+        public_url: 'https://public'
+      })
+    );
+    releaseNotesApi.getBlockChildren.mockReturnValue(
+      of({
+        results: [
+          { id: 'b1', type: 'paragraph', has_children: false },
+          {
+            id: 'b2',
+            type: 'toggle',
+            has_children: true,
+            children: []
+          }
+        ]
+      })
+    );
+
+    service.getNotionBlockChildren('page-x');
+    expect(service.activeNotionPageData()?.blocks?.length).toBe(2);
+    expect(service.notionDataLoading()).toBe(false);
+  });
+
+  it('getNotionBlockChildren should handle nested children and errors', () => {
+    releaseNotesApi.getPage.mockReturnValue(of({ id: 'p1', properties: {} }));
+    releaseNotesApi.getBlockChildren
+      .mockReturnValueOnce(
+        of({
+          results: [{ id: 'parent', type: 'callout', has_children: true }]
+        })
+      )
+      .mockReturnValueOnce(of({ results: [{ id: 'child', type: 'paragraph', has_children: false }] }))
+      .mockReturnValueOnce(throwError(() => new Error('child fail')));
+
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    service.getNotionBlockChildren('p1');
+    expect(releaseNotesApi.getBlockChildren).toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
+  it('getNotionBlockChildren should handle page and block fetch errors', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    releaseNotesApi.getPage.mockReturnValue(throwError(() => new Error('page fail')));
+    service.getNotionBlockChildren('p1');
+    expect(service.notionDataLoading()).toBe(false);
+
+    releaseNotesApi.getPage.mockReturnValue(of({ id: 'p1', properties: {} }));
+    releaseNotesApi.getBlockChildren.mockReturnValue(throwError(() => new Error('blocks fail')));
+    service.getNotionBlockChildren('p1');
+    consoleSpy.mockRestore();
+  });
+
+  it('processBlocksRecursively should stop at max depth', () => {
+    releaseNotesApi.getPage.mockReturnValue(of({ id: 'p1', properties: {} }));
+    const deepBlock = { id: 'd0', has_children: true, type: 'toggle' };
+    releaseNotesApi.getBlockChildren.mockImplementation(() =>
+      of({ results: [{ ...deepBlock, id: `d-${Math.random()}` }] })
+    );
+    service.getNotionBlockChildren('p1');
+    expect(service.notionDataLoading()).toBe(false);
+  });
+
+  it('getWhatsNewPages should handle null results in response', () => {
+    releaseNotesApi.queryReleaseNotes.mockReturnValue(of({ results: null } as any));
+    service.getWhatsNewPages();
+    expect(service.notionData()?.results).toEqual([]);
+  });
+
+  it('loadBlockChildren should handle processBlocksRecursively failure', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    releaseNotesApi.getPage.mockReturnValue(of({ id: 'p1', properties: {} }));
+    releaseNotesApi.getBlockChildren.mockReturnValue(of({ results: [{ id: 'b1', has_children: false }] }));
+    jest
+      .spyOn(service as any, 'processBlocksRecursively')
+      .mockReturnValue(throwError(() => new Error('process fail')));
+
+    service.getNotionBlockChildren('p1');
+    expect(service.notionDataLoading()).toBe(false);
+    consoleSpy.mockRestore();
+  });
+
+  it('processBlocksRecursively should return blocks at max depth', done => {
+    releaseNotesApi.getBlockChildren.mockReturnValue(of({ results: [] }));
+    (service as any).processBlocksRecursively([{ id: 'deep' }], 3).subscribe((blocks: unknown[]) => {
+      expect(blocks).toEqual([{ id: 'deep' }]);
+      done();
+    });
+  });
+
+  it('processBlocksRecursively should return empty array for missing blocks', done => {
+    (service as any).processBlocksRecursively(null as any, 0).subscribe((blocks: unknown[]) => {
+      expect(blocks).toEqual([]);
+      done();
+    });
+  });
+
+  it('processBlocksRecursively should catch child fetch errors', done => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    releaseNotesApi.getBlockChildren.mockReturnValue(throwError(() => new Error('child blocks fail')));
+    (service as any)
+      .processBlocksRecursively([{ id: 'parent', has_children: true }], 0)
+      .subscribe((blocks: any[]) => {
+        expect(blocks[0].id).toBe('parent');
+        consoleSpy.mockRestore();
+        done();
+      });
+  });
+
+  it('readLastSeen should return null when localStorage throws', () => {
+    const getItemSpy = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [WhatsNewService, { provide: ReleaseNotesApiService, useValue: releaseNotesApi }]
+    });
+    const fresh = TestBed.inject(WhatsNewService);
+    expect(fresh.lastSeenAt()).toBeNull();
+    getItemSpy.mockRestore();
+  });
+});
