@@ -1,0 +1,34 @@
+<div class="app-page-wrapper pt-3">
+  <div class="flex w-full flex-col gap-5">
+    <div class="content-section w-full">
+      <div class="flex w-full min-w-0 flex-col rounded-[10px] bg-[#fcfcfc] p-[30px] mb-10">
+        <div class="flex flex-col gap-1 px-2 pb-6">
+          <div class="mb-0 break-all font-['Inter'] text-[17px] font-bold leading-[18px] text-[#173f6f]">
+            Release Notes
+          </div>
+          <p class="mt-0.5 font-['Barlow'] text-[14px] font-light leading-[17px] text-[#777c83]">
+            Product updates and improvements for the STAR platform.
+          </p>
+        </div>
+
+        @if (whatsNewService.notionDataLoading()) {
+        <div class="grid w-full min-w-0 grid-cols-1 gap-3.5 px-2 pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          @for (item of [1, 2, 3, 4]; track item) {
+          <p-skeleton width="100%" height="280px" />
+          }
+        </div>
+        } @else if (!whatsNewService.notionData()?.results?.length) {
+        <p class="m-0 px-2 font-['Barlow'] text-[13px] font-light leading-[17px] text-[#777c83]">
+          No published release notes are available right now.
+        </p>
+        } @else {
+        <div class="grid w-full min-w-0 grid-cols-1 gap-3.5 px-2 pb-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          @for (item of whatsNewService.notionData()?.results; track item.id) {
+          <app-release-note-card [item]="item" />
+          }
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
