@@ -10,6 +10,7 @@ import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
 import { MenuItemCommandEvent } from 'primeng/api';
 import { RolesService } from '@shared/services/cache/roles.service';
+import { WhatsNewService } from '@platform/pages/whats-new/services/whats-new.service';
 
 // Mock ResizeObserver
 class ResizeObserverMock {
@@ -35,6 +36,11 @@ describe('SectionHeaderComponent', () => {
   let actionsService: Partial<ActionsService>;
   let apiService: Partial<ApiService>;
   let rolesService: Partial<RolesService>;
+  let whatsNewService: {
+    getActiveReleaseNoteTitle: jest.Mock;
+    getReleaseNoteTitle: jest.Mock;
+    findReleaseNoteById: jest.Mock;
+  };
 
   beforeEach(async () => {
     routerSpy = {
@@ -115,6 +121,12 @@ describe('SectionHeaderComponent', () => {
       GET_GeneralInformation: jest.fn()
     };
 
+    whatsNewService = {
+      getActiveReleaseNoteTitle: jest.fn().mockReturnValue(''),
+      getReleaseNoteTitle: jest.fn().mockReturnValue(''),
+      findReleaseNoteById: jest.fn().mockReturnValue(undefined)
+    };
+
     await TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, RouterTestingModule, SectionHeaderComponent],
       providers: [
@@ -150,6 +162,10 @@ describe('SectionHeaderComponent', () => {
         {
           provide: RolesService,
           useValue: rolesService
+        },
+        {
+          provide: WhatsNewService,
+          useValue: whatsNewService
         }
       ]
     }).compileComponents();
@@ -655,6 +671,49 @@ describe('SectionHeaderComponent', () => {
       expect(breadcrumb).toHaveLength(2);
       expect(breadcrumb[1].label).toBe('Project 123');
       expect(breadcrumb[1].route).toBeUndefined();
+    });
+
+    it('should return Release Notes breadcrumb for whats-new details with active title', () => {
+      component['contractId'].set('');
+      component['currentUrl'].set('/whats-new/details/page-abc');
+      whatsNewService.getActiveReleaseNoteTitle.mockReturnValue('Metadata export');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb).toEqual([
+        { label: 'Release Notes', route: '/whats-new/home' },
+        { label: 'Metadata export', tooltip: 'Metadata export' }
+      ]);
+    });
+
+    it('should resolve whats-new details title from list when active title is empty', () => {
+      component['contractId'].set('');
+      component['currentUrl'].set('/whats-new/details/page-abc');
+      whatsNewService.getActiveReleaseNoteTitle.mockReturnValue('');
+      whatsNewService.getReleaseNoteTitle.mockReturnValue('From catalog');
+      whatsNewService.findReleaseNoteById.mockReturnValue({ id: 'page-abc' } as any);
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb[1].label).toBe('From catalog');
+      expect(whatsNewService.findReleaseNoteById).toHaveBeenCalledWith('page-abc');
+    });
+
+    it('should not build whats-new breadcrumb for non-detail routes', () => {
+      component['contractId'].set('');
+      component['currentUrl'].set('/whats-new/home');
+      expect(component.breadcrumb()).toEqual([]);
+    });
+
+    it('should fallback whats-new details breadcrumb label when title is missing', () => {
+      component['contractId'].set('');
+      component['currentUrl'].set('/whats-new/details/page-abc');
+      whatsNewService.getActiveReleaseNoteTitle.mockReturnValue('');
+      whatsNewService.getReleaseNoteTitle.mockReturnValue('');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb).toEqual([
+        { label: 'Release Notes', route: '/whats-new/home' },
+        { label: 'Release note', tooltip: undefined }
+      ]);
     });
   });
 
