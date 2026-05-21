@@ -26,6 +26,24 @@ export class DynamicNotionBlockComponent {
     this.isExpanded.update(current => !current);
   }
 
+  getFileBlockUrl(block: any): string | null {
+    const fileData = block?.file;
+    return fileData?.file?.url ?? fileData?.external?.url ?? null;
+  }
+
+  getFileBlockName(block: any): string {
+    return block?.file?.name ?? 'Download file';
+  }
+
+  getImageBlockUrl(block: any): string | null {
+    const image = block?.image;
+    return image?.file?.url ?? image?.external?.url ?? null;
+  }
+
+  isImageFileName(name: string): boolean {
+    return /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name);
+  }
+
   joinText(text: any[]): string {
     if (!text?.length) {
       return '';
@@ -54,9 +72,9 @@ export class DynamicNotionBlockComponent {
 
       if (item.href) {
         if (item.mention) {
-          formattedText = `<a href="${item.href}" target="_blank" rel="noopener noreferrer" class="text-[#1689ca]">${item.href}</a>`;
+          formattedText = `<a href="${item.href}" target="_blank" rel="noopener noreferrer" class="font-medium text-[#1689ca] underline-offset-2 hover:underline">${item.href}</a>`;
         } else {
-          formattedText = `<a href="${item.href}" target="_blank" rel="noopener noreferrer" class="text-[#1689ca]">${formattedText}</a>`;
+          formattedText = `<a href="${item.href}" target="_blank" rel="noopener noreferrer" class="font-medium text-[#1689ca] underline-offset-2 hover:underline">${formattedText}</a>`;
         }
       }
 

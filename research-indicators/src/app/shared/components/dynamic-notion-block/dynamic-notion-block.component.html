@@ -15,7 +15,7 @@
         }
         @if (text) {
           <div class="flex items-center">
-            <p class="m-0 text-[15px]" [innerHTML]="text"></p>
+            <p class="m-0 text-[14px] font-light leading-[1.5] text-[#4C5158]" [innerHTML]="text"></p>
           </div>
         }
       </div>
@@ -34,7 +34,7 @@
     @let text = joinText(block?.heading_1?.rich_text);
     @if (text) {
       <h1
-        class="mb-2.5 m-0 font-['Inter'] text-[16px] font-bold leading-[18px] text-[#173f6f]"
+        class="mb-2.5 m-0 font-['Space_Grotesk'] text-[16px] font-bold leading-[18px] text-[#173f6f]"
         [innerHTML]="text"></h1>
     }
   }
@@ -43,7 +43,7 @@
     @let text = joinText(block?.heading_2?.rich_text);
     @if (text) {
       <h2
-        class="mb-2.5 m-0 font-['Barlow'] text-[15.5px] font-[450] leading-[1.25] text-[#112f5c]"
+        class="mb-2.5 m-0 font-['Space_Grotesk'] text-[15.5px] font-semibold leading-[1.25] text-[#173f6f]"
         [innerHTML]="text"></h2>
     }
   }
@@ -52,7 +52,7 @@
     @let text = joinText(block?.heading_3?.rich_text);
     @if (text) {
       <h3
-        class="mb-2.5 m-0 font-['Barlow'] text-[14px] font-[450] leading-[1.25] text-[#112f5c]"
+        class="mb-2.5 m-0 font-['Space_Grotesk'] text-[14px] font-semibold leading-[1.25] text-[#173f6f]"
         [innerHTML]="text"></h3>
     }
   }
@@ -62,7 +62,7 @@
     @let children = block?.children;
     @if (text) {
       <p
-        class="mb-2.5 m-0 font-['Barlow'] text-[14px] font-normal text-[#345b8f]"
+        class="mb-2.5 m-0 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]"
         [innerHTML]="text"></p>
     }
 
@@ -76,15 +76,88 @@
   }
 
   @case ('image') {
-    @let image = block?.image?.file?.url;
+    @let imageUrl = getImageBlockUrl(block);
     @let caption = joinText(block?.image?.caption);
 
-    @if (image) {
-      <img [src]="image" alt="Release note illustration" width="100%" class="mb-2.5 w-full" />
+    @if (imageUrl) {
+      <img
+        [src]="imageUrl"
+        alt="Release note illustration"
+        class="mb-2.5 w-full max-w-full rounded-[5px] border border-[#e8ebed] object-contain" />
     }
 
     @if (caption) {
       <p class="mb-2.5 m-0 text-[13px] text-[#8d9299]">{{ caption }}</p>
+    }
+  }
+
+  @case ('file') {
+    @let fileUrl = getFileBlockUrl(block);
+    @let fileName = getFileBlockName(block);
+    @let fileCaption = joinText(block?.file?.caption);
+
+    @if (fileUrl) {
+      @if (isImageFileName(fileName)) {
+        <img
+          [src]="fileUrl"
+          [alt]="fileName"
+          class="mb-2.5 w-full max-w-full rounded-[5px] border border-[#e8ebed] object-contain" />
+      } @else {
+        <a
+          [href]="fileUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          download
+          class="mb-2.5 inline-flex max-w-full items-center gap-2 rounded-[5px] border border-[#e8ebed] bg-[#f4f7f9] px-4 py-3 font-['Barlow'] text-[14px] font-medium text-[#173f6f] no-underline transition-colors hover:bg-[#e8ebed]">
+          <i class="pi pi-download shrink-0 text-[#1689ca]"></i>
+          <span class="truncate">{{ fileName }}</span>
+        </a>
+      }
+    }
+
+    @if (fileCaption) {
+      <p class="mb-2.5 m-0 text-[13px] text-[#8d9299]">{{ fileCaption }}</p>
+    }
+  }
+
+  @case ('pdf') {
+    @let pdf = block?.pdf;
+    @let pdfUrl = pdf?.file?.url ?? pdf?.external?.url;
+    @let pdfCaption = joinText(pdf?.caption);
+
+    @if (pdfUrl) {
+      <a
+        [href]="pdfUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mb-2.5 inline-flex items-center gap-2 rounded-[5px] border border-[#e8ebed] bg-[#f4f7f9] px-4 py-3 font-['Barlow'] text-[14px] font-medium text-[#173f6f] no-underline hover:bg-[#e8ebed]">
+        <i class="pi pi-file-pdf shrink-0 text-[#B00020]"></i>
+        <span>View PDF</span>
+      </a>
+    }
+
+    @if (pdfCaption) {
+      <p class="mb-2.5 m-0 text-[13px] text-[#8d9299]">{{ pdfCaption }}</p>
+    }
+  }
+
+  @case ('column_list') {
+    @if (block?.children?.length) {
+      <div class="mb-2.5 flex w-full flex-col gap-4 md:flex-row md:items-start">
+        @for (column of block.children; track column.id) {
+          <app-dynamic-notion-block [block]="column"></app-dynamic-notion-block>
+        }
+      </div>
+    }
+  }
+
+  @case ('column') {
+    @if (block?.children?.length) {
+      <div class="flex min-w-0 flex-1 flex-col gap-1">
+        @for (child of block.children; track child.id) {
+          <app-dynamic-notion-block [block]="child"></app-dynamic-notion-block>
+        }
+      </div>
     }
   }
 
@@ -120,7 +193,7 @@
 
     @if (text) {
       <ul class="m-0 ps-[30px]">
-        <li class="m-0 font-['Barlow'] text-[14px] font-normal leading-normal text-[#345b8f]">
+        <li class="m-0 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]">
           <p class="mb-2.5 m-0" [innerHTML]="text"></p>
 
           @if (children) {
@@ -138,7 +211,7 @@
     @let children = block?.children;
 
     @if (text) {
-      <li class="m-0 font-['Barlow'] text-[14px] font-normal leading-normal text-[#345b8f]">
+      <li class="m-0 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]">
         <p class="mb-2.5 m-0" [innerHTML]="text"></p>
 
         @if (children) {
@@ -160,7 +233,7 @@
       <div class="flex flex-col gap-1.5">
         <div class="mb-2.5 flex items-center gap-2.5">
           <p-checkbox [(ngModel)]="block.to_do.checked" [binary]="true" readonly="true" />
-          <p class="m-0 font-['Barlow'] text-[14px] font-normal leading-normal text-[#345b8f]" [innerHTML]="text"></p>
+          <p class="m-0 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]" [innerHTML]="text"></p>
         </div>
 
         @if (children) {
@@ -183,7 +256,7 @@
 
     @if (text) {
       <div
-        class="mb-2.5 flex min-h-[30px] items-center border-l-[3px] border-[#173f6f] pl-[15px]"
+        class="mb-2.5 flex min-h-[30px] items-center border-l-[3px] border-[#d5dbe0] pl-[15px] font-['Barlow'] text-[14px] font-light italic leading-[1.5] text-[#777c83]"
         [innerHTML]="text"></div>
     }
   }
@@ -196,7 +269,7 @@
         @for (row of tableRows; track row.id) {
           <tr>
             @for (cell of row.table_row.cells; track cell) {
-              <td class="border border-[#e8ebed] p-2 text-left font-['Barlow'] text-[14px] text-[#345b8f]" [innerHTML]="joinText(cell)"></td>
+              <td class="border border-[#e8ebed] p-2 text-left font-['Barlow'] text-[14px] font-light text-[#4C5158]" [innerHTML]="joinText(cell)"></td>
             }
           </tr>
         }
@@ -212,7 +285,7 @@
       <div class="mb-2.5">
         <div class="mb-2.5 flex cursor-pointer select-none items-center gap-2" (click)="toggleExpand()">
           <i class="pi" [ngClass]="{ 'pi-caret-right': !isExpanded(), 'pi-caret-down': isExpanded() }"></i>
-          <p class="m-0 font-['Barlow'] text-[14px] font-normal leading-normal text-[#345b8f]" [innerHTML]="text"></p>
+          <p class="m-0 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]" [innerHTML]="text"></p>
         </div>
 
         @if (children && isExpanded()) {
@@ -241,7 +314,7 @@
 
     @if (text) {
       <p
-        class="mb-2.5 m-0 w-fit cursor-pointer rounded-[5px] bg-[#f4f7f9] px-[15px] py-[5px] font-['Barlow'] text-[14px] font-normal leading-normal text-[#345b8f] hover:bg-[#e8ebed]"
+        class="mb-2.5 m-0 w-fit cursor-pointer rounded-[5px] bg-[#f4f7f9] px-[15px] py-[5px] font-['Space_Grotesk'] text-[14px] font-medium text-[#173f6f] hover:bg-[#e8ebed]"
         (click)="navigateToChildPage(block.id)">
         {{ text }}
       </p>
@@ -256,7 +329,7 @@
         [href]="url"
         target="_blank"
         rel="noopener noreferrer"
-        class="mb-2.5 block font-['Barlow'] text-[14px] font-normal leading-normal text-[#345b8f]">
+        class="mb-2.5 block font-['Barlow'] text-[14px] font-medium text-[#1689ca] underline-offset-2 hover:underline">
         {{ url }}
       </a>
     }
