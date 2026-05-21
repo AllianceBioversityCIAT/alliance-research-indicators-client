@@ -47,7 +47,8 @@
           class="{{ hss ? '!h-7.5 !text-[13px]' : '!h-8 !text-[14px]' }}"
           (keyup.enter)="this.onSearchTextChange($event)" />
       </div>
-      <a class="whats-new-nav-link" routerLink="/whats-new/home" routerLinkActive="whats-new-nav-link--active"
+      <a class="whats-new-nav-link" routerLink="/whats-new" routerLinkActive="whats-new-nav-link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
         pTooltip="What's New" tooltipPosition="bottom"
         [attr.aria-label]="whatsNewService.hasUnreadReleaseNotes() ? 'What\'s New, new release notes available' : 'What\'s New'">
         <span class="material-symbols-rounded whats-new-nav-link__icon" aria-hidden="true">rocket_launch</span>

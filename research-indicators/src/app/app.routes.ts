@@ -204,11 +204,6 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            redirectTo: 'home',
-            pathMatch: 'full'
-          },
-          {
-            path: 'home',
             loadComponent: () => import('@platform/pages/whats-new/pages/whats-new-home/whats-new-home.component'),
             data: {
               title: 'Release Notes'

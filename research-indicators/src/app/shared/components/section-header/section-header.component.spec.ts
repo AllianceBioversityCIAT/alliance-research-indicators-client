@@ -680,7 +680,7 @@ describe('SectionHeaderComponent', () => {
 
       const breadcrumb = component.breadcrumb();
       expect(breadcrumb).toEqual([
-        { label: 'Release Notes', route: '/whats-new/home' },
+        { label: 'Release Notes', route: '/whats-new' },
         { label: 'Metadata export', tooltip: 'Metadata export' }
       ]);
     });
@@ -699,7 +699,7 @@ describe('SectionHeaderComponent', () => {
 
     it('should not build whats-new breadcrumb for non-detail routes', () => {
       component['contractId'].set('');
-      component['currentUrl'].set('/whats-new/home');
+      component['currentUrl'].set('/whats-new');
       expect(component.breadcrumb()).toEqual([]);
     });
 
@@ -711,7 +711,7 @@ describe('SectionHeaderComponent', () => {
 
       const breadcrumb = component.breadcrumb();
       expect(breadcrumb).toEqual([
-        { label: 'Release Notes', route: '/whats-new/home' },
+        { label: 'Release Notes', route: '/whats-new' },
         { label: 'Release note', tooltip: undefined }
       ]);
     });

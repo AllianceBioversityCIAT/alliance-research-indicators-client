@@ -263,7 +263,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
       this.whatsNewService.getActiveReleaseNoteTitle() ||
       this.whatsNewService.getReleaseNoteTitle(this.whatsNewService.findReleaseNoteById(pageId));
     return [
-      { label: 'Release Notes', route: '/whats-new/home' },
+      { label: 'Release Notes', route: '/whats-new' },
       { label: title || 'Release note', tooltip: title || undefined }
     ];
   }
