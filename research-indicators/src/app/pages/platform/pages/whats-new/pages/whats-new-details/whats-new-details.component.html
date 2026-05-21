@@ -1,94 +1,159 @@
 <div class="app-page-wrapper pt-3">
   <div class="flex w-full flex-col gap-5">
     <div class="content-section w-full">
-      <div class="mx-auto flex w-full min-w-0 max-w-[970px] flex-col rounded-[10px] bg-[#fcfcfc] p-[30px] mb-10">
+      <div class="mx-auto mb-10 flex w-full min-w-0 max-w-[970px] flex-col rounded-[10px] bg-[#fcfcfc] p-[30px]">
         @if (whatsNewService.notionDataLoading()) {
-          <div class="flex w-full min-w-0 flex-col px-2">
-            <p-skeleton width="100%" height="200px" class="!mb-4" />
-            <p-skeleton width="80%" height="36px" class="!mb-4" />
-            <p-skeleton width="100%" height="240px" />
-          </div>
+        <div class="flex w-full min-w-0 flex-col px-2">
+          <p-skeleton width="100%" height="200px" class="!mb-4" />
+          <p-skeleton width="80%" height="36px" class="!mb-4" />
+          <p-skeleton width="100%" height="240px" />
+        </div>
         } @else if (whatsNewService.notionDataError()?.error) {
-          <p class="m-0 px-2 font-['Barlow'] text-[13px] font-light leading-[17px] text-[#B00020]">
-            Error: {{ whatsNewService.notionDataError()?.message }} ({{ whatsNewService.notionDataError()?.status }})
-          </p>
+        <p class="m-0 px-2 font-['Barlow'] text-[13px] font-light leading-[17px] text-[#B00020]">
+          Error: {{ whatsNewService.notionDataError()?.message }} ({{ whatsNewService.notionDataError()?.status }})
+        </p>
         } @else {
-          @let headerInfo = whatsNewService.activeNotionPageData()?.headerInfo;
-          @let developers = headerInfo?.properties['Developers']?.people;
+        @let headerInfo = whatsNewService.activeNotionPageData()?.headerInfo;
+        @let developers = headerInfo?.properties['Developers']?.people;
+        @let addedBy = headerInfo?.properties['Added by']?.created_by;
+        @let hasAuthors = (developers?.length ?? 0) > 0 || !!addedBy;
+        @let authorNames = getAuthorDisplayNames(headerInfo);
+        @let tag = headerInfo?.properties?.['Tags']?.select;
+        @let projects = headerInfo?.properties?.['Projects']?.multi_select ?? [];
 
-          <div class="flex w-full min-w-0 flex-col px-2">
-            <div class="flex flex-col gap-2.5">
-              <div class="h-[180px] w-full overflow-hidden rounded-[10px] border border-[#e8ebed] bg-[#f4f7f9]">
-                @let cover = headerInfo?.cover;
+        <div class="flex w-full min-w-0 flex-col gap-5 px-2">
+          <div class="flex w-full flex-col gap-4">
+            <div class="relative h-[200px] w-full overflow-hidden rounded-[10px] border border-[#e8ebed] bg-[#f4f7f9]">
+              @let cover = headerInfo?.cover;
 
-                @switch (cover?.type) {
-                  @case ('external') {
-                    <img [src]="cover?.external?.url" alt="" class="h-full w-full object-cover" />
-                  }
-                  @case ('file') {
-                    <img [src]="cover?.file?.url" alt="" class="h-full w-full object-cover" />
-                  }
-                  @default {
-                    <div
-                      class="flex h-full w-full items-center justify-center font-['Barlow'] text-[11px] font-light text-[#a2a9af]">
-                      No image
-                    </div>
-                  }
+              @switch (cover?.type) {
+              @case ('external') {
+              <img [src]="cover?.external?.url" alt="" class="h-full w-full object-cover" />
+              }
+              @case ('file') {
+              <img [src]="cover?.file?.url" alt="" class="h-full w-full object-cover" />
+              }
+              @default {
+              <div
+                class="flex h-full w-full items-center justify-center font-['Barlow'] text-[11px] font-light text-[#a2a9af]">
+                No image
+              </div>
+              }
+              }
+
+              <div
+                class="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[rgb(23_63_111/40%)] to-transparent"
+                aria-hidden="true"></div>
+
+              <div class="absolute bottom-3 left-3 z-[1] flex max-w-[calc(100%-24px)] flex-wrap items-center gap-1.5">
+                @if (tag?.name) {
+                <span
+                  class="rounded px-2 py-0.5 !font-['Space_Grotesk'] text-[10px] font-medium uppercase leading-[13px] text-white shadow-sm"
+                  [style.backgroundColor]="whatsNewService.getColor(tag.color)">
+                  {{ tag.name }}
+                </span>
+                }
+                @for (project of projects; track project.name) {
+                <span
+                  class="rounded px-2 py-0.5 !font-['Space_Grotesk'] text-[10px] font-medium uppercase leading-[13px] text-white shadow-sm"
+                  [style.backgroundColor]="whatsNewService.getColor(project.color)">
+                  {{ project.name }}
+                </span>
+                }
+                <time
+                  class="rounded bg-[#4C5158] px-2 py-0.5 !font-['Space_Grotesk'] text-[10px] font-medium uppercase leading-[13px] text-white shadow-sm">
+                  {{ whatsNewService.getActiveDisplayDate() | date: 'MMM d, yyyy' }}
+                </time>
+              </div>
+
+              @if (hasAuthors) {
+              <div class="absolute bottom-3 right-3 z-[1] -space-x-2 flex shrink-0" role="list"
+                aria-label="People who created this release note">
+                @if (developers?.length > 0) {
+                @for (person of developers; track person.id) {
+                <img [src]="person.avatar_url ? person.avatar_url : 'https://avatar.vercel.sh/' + person.id"
+                  [alt]="person.name" class="h-8 w-8 rounded-full object-cover ring-1 ring-[#f8fafb] shadow-sm"
+                  [pTooltip]="person.name" tooltipPosition="top" role="listitem" />
+                }
+                } @else if (addedBy) {
+                <img [src]="addedBy.avatar_url ? addedBy.avatar_url : 'https://avatar.vercel.sh/' + addedBy.id"
+                  [alt]="addedBy.name" class="h-8 w-8 rounded-full object-cover ring-1 ring-[#f8fafb] shadow-sm"
+                  [pTooltip]="addedBy.name" tooltipPosition="top" role="listitem" />
+                }
+              </div>
+              }
+            </div>
+
+            <span class="my-2 font-['Space_Grotesk'] text-[18px] font-bold leading-[18px] text-[#173f6f]">
+              {{ headerInfo?.properties?.['Name']?.title[0]?.plain_text ??
+              headerInfo?.properties?.['title']?.title[0]?.plain_text }}
+            </span>
+
+          </div>
+
+          <div class="flex flex-col gap-1 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]">
+            @for (item of whatsNewService.activeNotionPageData()?.blocks; track item.id; let index = $index) {
+            @if (item.type === 'numbered_list_item') {
+            @if (index === 0 || whatsNewService.activeNotionPageData()?.blocks[index - 1]?.type !==
+            'numbered_list_item') {
+            <ol class="m-0 ps-5">
+              @for (numberedItem of getConsecutiveNumberedItems(index); track numberedItem.id) {
+              <app-dynamic-notion-block [block]="numberedItem"></app-dynamic-notion-block>
+              }
+            </ol>
+            }
+            } @else {
+            <app-dynamic-notion-block [block]="item"></app-dynamic-notion-block>
+            }
+            }
+          </div>
+          <hr class="m-0 border-0 border-t border-[#e8ebed]" />
+
+          <div
+            class="flex w-full flex-col gap-4 rounded-[5px] border border-[#e8ebed] bg-[#f8fafb] p-4 sm:flex-row sm:items-center sm:justify-between">
+            @if (hasAuthors) {
+            <div class="flex min-w-0 flex-1 items-center gap-3">
+              <div class="-space-x-2 flex shrink-0" role="list" aria-label="People who created this release note">
+                @if (developers?.length > 0) {
+                @for (person of developers; track person.id) {
+                <img [src]="person.avatar_url ? person.avatar_url : 'https://avatar.vercel.sh/' + person.id"
+                  [alt]="person.name" class="h-9 w-9 rounded-full object-cover ring-2 ring-[#f8fafb]"
+                  [pTooltip]="person.name" tooltipPosition="top" role="listitem" />
+                }
+                } @else if (addedBy) {
+                <img [src]="addedBy.avatar_url ? addedBy.avatar_url : 'https://avatar.vercel.sh/' + addedBy.id"
+                  [alt]="addedBy.name" class="h-9 w-9 rounded-full object-cover ring-2 ring-[#f8fafb]"
+                  [pTooltip]="addedBy.name" tooltipPosition="top" role="listitem" />
                 }
               </div>
 
-              <h1 class="m-0 font-['Barlow'] text-[18px] font-[450] leading-[1.3] text-[#112f5c]">
-                {{ headerInfo?.properties?.['Name']?.title[0]?.plain_text ?? headerInfo?.properties?.['title']?.title[0]?.plain_text }}
-              </h1>
-
-              @if (developers?.length > 0 || headerInfo?.properties['Added by']?.created_by) {
-                <div class="flex items-center justify-between gap-4">
-                  <div class="flex items-center gap-2">
-                    @if (developers?.length > 0) {
-                      @for (person of developers; track person.id) {
-                        <img
-                          [src]="person.avatar_url ? person.avatar_url : 'https://avatar.vercel.sh/' + person.id"
-                          [alt]="person.name"
-                          class="h-6 w-6 rounded-full object-cover"
-                          [pTooltip]="person.name"
-                          tooltipPosition="top" />
-                      }
-                    } @else {
-                      @let authorItem = headerInfo?.properties['Added by']?.created_by;
-                      <img
-                        [src]="authorItem?.avatar_url ? authorItem.avatar_url : 'https://avatar.vercel.sh/' + authorItem?.id"
-                        [alt]="authorItem?.name"
-                        class="h-6 w-6 rounded-full object-cover"
-                        [pTooltip]="authorItem?.name"
-                        tooltipPosition="top" />
-                    }
-                  </div>
-
-                  <p class="m-0 whitespace-nowrap font-['Barlow'] text-[11px] font-light leading-[14px] text-[#a2a9af]">
-                    {{ whatsNewService.getActiveDisplayDate() | date: 'MMM d, yyyy' }}
-                  </p>
-                </div>
-              }
-            </div>
-
-            <hr class="my-4 mb-5 border-0 border-t border-[#e8ebed]" />
-
-            <div class="flex flex-col font-['Barlow'] text-[14px] leading-normal text-[#345b8f]">
-              @for (item of whatsNewService.activeNotionPageData()?.blocks; track item.id; let index = $index) {
-                @if (item.type === 'numbered_list_item') {
-                  @if (index === 0 || whatsNewService.activeNotionPageData()?.blocks[index - 1]?.type !== 'numbered_list_item') {
-                    <ol>
-                      @for (numberedItem of getConsecutiveNumberedItems(index); track numberedItem.id) {
-                        <app-dynamic-notion-block [block]="numberedItem"></app-dynamic-notion-block>
-                      }
-                    </ol>
-                  }
-                } @else {
-                  <app-dynamic-notion-block [block]="item"></app-dynamic-notion-block>
+              <div class="flex min-w-0 flex-col gap-0.5">
+                <span class=" text-[10px] font-bold uppercase tracking-wide text-[#173f6f]">
+                  Created by
+                </span>
+                @if (authorNames) {
+                <span class="truncate font-['Barlow'] text-[13px] font-light leading-[1.3] -mt-0.5 text-[#4C5158]">
+                  {{ authorNames }}
+                </span>
                 }
-              }
+              </div>
             </div>
+            } @else {
+            <div class="flex flex-1 items-center gap-2 font-['Barlow'] text-[13px] font-light text-[#777c83]">
+              <i class="pi pi-flag text-[#a2a9af]" aria-hidden="true"></i>
+              STAR platform update
+            </div>
+            }
+
+            @if (whatsNewService.getActiveNotionPageUrl(); as notionUrl) {
+            <a [href]="notionUrl" target="_blank" rel="noopener noreferrer"
+              class="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-[7px] border border-[#d5dbe0] bg-white px-4 py-2.5 !font-['Space_Grotesk'] text-[12px] font-medium text-[#173f6f] no-underline sm:self-center">
+              <i class="pi pi-external-link !text-[12px] text-[#173F6F]" aria-hidden="true"></i>
+              Go to Notion
+            </a>
+            }
           </div>
+        </div>
         }
       </div>
     </div>

@@ -37,6 +37,17 @@ export default class WhatsNewDetailsComponent implements OnInit, OnDestroy {
     this.paramsSubscription?.unsubscribe();
   }
 
+  getAuthorDisplayNames(headerInfo: any): string {
+    const developers = headerInfo?.properties?.['Developers']?.people ?? [];
+    if (developers.length) {
+      return developers
+        .map((person: { name?: string }) => person.name)
+        .filter(Boolean)
+        .join(' · ');
+    }
+    return headerInfo?.properties?.['Added by']?.created_by?.name ?? '';
+  }
+
   getConsecutiveNumberedItems(startIndex: number): any[] {
     const blocks = this.whatsNewService.activeNotionPageData()?.blocks || [];
     const consecutiveItems = [];
