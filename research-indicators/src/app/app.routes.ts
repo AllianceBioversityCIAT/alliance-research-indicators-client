@@ -196,6 +196,34 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'whats-new',
+        loadComponent: () => import('@platform/pages/whats-new/whats-new.component'),
+        data: {
+          title: 'Release Notes'
+        },
+        children: [
+          {
+            path: '',
+            redirectTo: 'home',
+            pathMatch: 'full'
+          },
+          {
+            path: 'home',
+            loadComponent: () => import('@platform/pages/whats-new/pages/whats-new-home/whats-new-home.component'),
+            data: {
+              title: 'Release Notes'
+            }
+          },
+          {
+            path: 'details/:id',
+            loadComponent: () => import('@platform/pages/whats-new/pages/whats-new-details/whats-new-details.component'),
+            data: {
+              title: 'Release Notes'
+            }
+          }
+        ]
+      },
+      {
         path: 'profile',
         loadComponent: () => import('@platform/pages/profile/profile.component'),
         data: {
