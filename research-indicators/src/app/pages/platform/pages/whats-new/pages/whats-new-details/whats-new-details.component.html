@@ -1,0 +1,96 @@
+<div class="app-page-wrapper pt-3">
+  <div class="flex w-full flex-col gap-5">
+    <div class="content-section w-full">
+      <div class="mx-auto flex w-full min-w-0 max-w-[970px] flex-col rounded-[10px] bg-[#fcfcfc] p-[30px] mb-10">
+        @if (whatsNewService.notionDataLoading()) {
+          <div class="flex w-full min-w-0 flex-col px-2">
+            <p-skeleton width="100%" height="200px" class="!mb-4" />
+            <p-skeleton width="80%" height="36px" class="!mb-4" />
+            <p-skeleton width="100%" height="240px" />
+          </div>
+        } @else if (whatsNewService.notionDataError()?.error) {
+          <p class="m-0 px-2 font-['Barlow'] text-[13px] font-light leading-[17px] text-[#B00020]">
+            Error: {{ whatsNewService.notionDataError()?.message }} ({{ whatsNewService.notionDataError()?.status }})
+          </p>
+        } @else {
+          @let headerInfo = whatsNewService.activeNotionPageData()?.headerInfo;
+          @let developers = headerInfo?.properties['Developers']?.people;
+
+          <div class="flex w-full min-w-0 flex-col px-2">
+            <div class="flex flex-col gap-2.5">
+              <div class="h-[180px] w-full overflow-hidden rounded-[10px] border border-[#e8ebed] bg-[#f4f7f9]">
+                @let cover = headerInfo?.cover;
+
+                @switch (cover?.type) {
+                  @case ('external') {
+                    <img [src]="cover?.external?.url" alt="" class="h-full w-full object-cover" />
+                  }
+                  @case ('file') {
+                    <img [src]="cover?.file?.url" alt="" class="h-full w-full object-cover" />
+                  }
+                  @default {
+                    <div
+                      class="flex h-full w-full items-center justify-center font-['Barlow'] text-[11px] font-light text-[#a2a9af]">
+                      No image
+                    </div>
+                  }
+                }
+              </div>
+
+              <h1 class="m-0 font-['Barlow'] text-[18px] font-[450] leading-[1.3] text-[#112f5c]">
+                {{ headerInfo?.properties?.['Name']?.title[0]?.plain_text ?? headerInfo?.properties?.['title']?.title[0]?.plain_text }}
+              </h1>
+
+              @if (developers?.length > 0 || headerInfo?.properties['Added by']?.created_by) {
+                <div class="flex items-center justify-between gap-4">
+                  <div class="flex items-center gap-2">
+                    @if (developers?.length > 0) {
+                      @for (person of developers; track person.id) {
+                        <img
+                          [src]="person.avatar_url ? person.avatar_url : 'https://avatar.vercel.sh/' + person.id"
+                          [alt]="person.name"
+                          class="h-6 w-6 rounded-full object-cover"
+                          [pTooltip]="person.name"
+                          tooltipPosition="top" />
+                      }
+                    } @else {
+                      @let authorItem = headerInfo?.properties['Added by']?.created_by;
+                      <img
+                        [src]="authorItem?.avatar_url ? authorItem.avatar_url : 'https://avatar.vercel.sh/' + authorItem?.id"
+                        [alt]="authorItem?.name"
+                        class="h-6 w-6 rounded-full object-cover"
+                        [pTooltip]="authorItem?.name"
+                        tooltipPosition="top" />
+                    }
+                  </div>
+
+                  <p class="m-0 whitespace-nowrap font-['Barlow'] text-[11px] font-light leading-[14px] text-[#a2a9af]">
+                    {{ whatsNewService.getActiveDisplayDate() | date: 'MMM d, yyyy' }}
+                  </p>
+                </div>
+              }
+            </div>
+
+            <hr class="my-4 mb-5 border-0 border-t border-[#e8ebed]" />
+
+            <div class="flex flex-col font-['Barlow'] text-[14px] leading-normal text-[#345b8f]">
+              @for (item of whatsNewService.activeNotionPageData()?.blocks; track item.id; let index = $index) {
+                @if (item.type === 'numbered_list_item') {
+                  @if (index === 0 || whatsNewService.activeNotionPageData()?.blocks[index - 1]?.type !== 'numbered_list_item') {
+                    <ol>
+                      @for (numberedItem of getConsecutiveNumberedItems(index); track numberedItem.id) {
+                        <app-dynamic-notion-block [block]="numberedItem"></app-dynamic-notion-block>
+                      }
+                    </ol>
+                  }
+                } @else {
+                  <app-dynamic-notion-block [block]="item"></app-dynamic-notion-block>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
