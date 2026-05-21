@@ -12,7 +12,6 @@ export default class WhatsNewComponent implements OnInit {
   private readonly whatsNewService = inject(WhatsNewService);
 
   ngOnInit(): void {
-    this.whatsNewService.getWhatsNewPages();
     this.whatsNewService.markWhatsNewAsSeen();
   }
 }

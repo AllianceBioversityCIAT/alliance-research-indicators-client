@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { NEVER, of, throwError } from 'rxjs';
 import { WhatsNewService } from './whats-new.service';
 import { ReleaseNotesApiService } from '@services/release-notes-api.service';
 import { WHATS_NEW_LAST_SEEN_KEY } from '../constants/whats-new.constants';
@@ -54,6 +54,28 @@ describe('WhatsNewService', () => {
     service.getWhatsNewPages();
     expect(service.notionData()?.results?.[0]?.id).toBe('page-a');
     expect(service.notionDataLoading()).toBe(false);
+  });
+
+  it('getWhatsNewPages should not call the API again while a request is in flight', () => {
+    releaseNotesApi.queryReleaseNotes.mockReturnValue(NEVER);
+    service.getWhatsNewPages();
+    service.getWhatsNewPages();
+    expect(releaseNotesApi.queryReleaseNotes).toHaveBeenCalledTimes(1);
+    expect(service.notionDataLoading()).toBe(true);
+  });
+
+  it('getWhatsNewPages should use cached list on subsequent calls without force', () => {
+    service.getWhatsNewPages();
+    releaseNotesApi.queryReleaseNotes.mockClear();
+    service.getWhatsNewPages();
+    expect(releaseNotesApi.queryReleaseNotes).not.toHaveBeenCalled();
+  });
+
+  it('getWhatsNewPages should refetch when force is true', () => {
+    service.getWhatsNewPages();
+    releaseNotesApi.queryReleaseNotes.mockClear();
+    service.getWhatsNewPages(true);
+    expect(releaseNotesApi.queryReleaseNotes).toHaveBeenCalledTimes(1);
   });
 
   it('getWhatsNewPages should handle errors', () => {

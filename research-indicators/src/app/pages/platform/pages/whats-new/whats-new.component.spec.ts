@@ -18,10 +18,10 @@ describe('WhatsNewComponent', () => {
     }).compileComponents();
   });
 
-  it('should call getWhatsNewPages and markWhatsNewAsSeen on init', () => {
+  it('should call markWhatsNewAsSeen on init without refetching release notes', () => {
     const fixture = TestBed.createComponent(WhatsNewComponent);
     fixture.detectChanges();
-    expect(whatsNewService.getWhatsNewPages).toHaveBeenCalled();
+    expect(whatsNewService.getWhatsNewPages).not.toHaveBeenCalled();
     expect(whatsNewService.markWhatsNewAsSeen).toHaveBeenCalled();
   });
 });

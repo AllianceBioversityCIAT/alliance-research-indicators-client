@@ -2,7 +2,7 @@
 
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ReleaseNotesApiService } from '@services/release-notes-api.service';
-import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, finalize, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { NotionDataError, NotionReleaseNotePage } from '@shared/interfaces/notion-release-note.interface';
 import { WHATS_NEW_LAST_SEEN_KEY } from '../constants/whats-new.constants';
 
@@ -12,6 +12,7 @@ import { WHATS_NEW_LAST_SEEN_KEY } from '../constants/whats-new.constants';
 export class WhatsNewService {
   private readonly releaseNotesApi = inject(ReleaseNotesApiService);
   private readonly maxRecursionDepth = 3;
+  private pagesListLoadInFlight = false;
 
   notionData = signal<{ results: NotionReleaseNotePage[] } | null>(null);
   notionDataLoading = signal(false);
@@ -29,19 +30,33 @@ export class WhatsNewService {
     return results.some(page => this.getSortDateTime(page) > lastSeenTime);
   });
 
-  getWhatsNewPages(): void {
+  getWhatsNewPages(force = false): void {
+    if (this.pagesListLoadInFlight) {
+      return;
+    }
+    if (!force && this.notionData() !== null) {
+      return;
+    }
+
+    this.pagesListLoadInFlight = true;
     this.notionDataLoading.set(true);
-    this.releaseNotesApi.queryReleaseNotes().subscribe({
-      next: res => {
-        const sorted = [...(res.results ?? [])].sort((a, b) => this.getSortDateTime(b) - this.getSortDateTime(a));
-        this.notionData.set({ results: sorted });
-        this.notionDataLoading.set(false);
-      },
-      error: err => {
-        this.notionDataLoading.set(false);
-        console.error('Error loading release notes', err);
-      }
-    });
+    this.releaseNotesApi
+      .queryReleaseNotes()
+      .pipe(
+        finalize(() => {
+          this.pagesListLoadInFlight = false;
+          this.notionDataLoading.set(false);
+        })
+      )
+      .subscribe({
+        next: res => {
+          const sorted = [...(res.results ?? [])].sort((a, b) => this.getSortDateTime(b) - this.getSortDateTime(a));
+          this.notionData.set({ results: sorted });
+        },
+        error: err => {
+          console.error('Error loading release notes', err);
+        }
+      });
   }
 
   markWhatsNewAsSeen(): void {
