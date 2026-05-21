@@ -22,6 +22,8 @@ export interface NotionCover {
 }
 
 export interface NotionPageResponse extends NotionReleaseNotePage {
+  url?: string;
+  public_url?: string;
   error?: boolean;
   status?: number;
   message?: string;

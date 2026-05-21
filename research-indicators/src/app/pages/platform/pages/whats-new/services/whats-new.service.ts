@@ -83,6 +83,11 @@ export class WhatsNewService {
     return page.properties['Name']?.title?.[0]?.plain_text ?? '';
   }
 
+  getActiveNotionPageUrl(): string | null {
+    const headerInfo = this.activeNotionPageData()?.headerInfo;
+    return headerInfo?.public_url ?? headerInfo?.url ?? null;
+  }
+
   getActiveReleaseNoteTitle(): string {
     const headerInfo = this.activeNotionPageData()?.headerInfo;
     const fromHeader = this.getReleaseNoteTitle({
@@ -124,7 +129,9 @@ export class WhatsNewService {
             id: pageRes.id,
             created_time: pageRes.created_time,
             cover: pageRes.cover,
-            properties: pageRes.properties
+            properties: pageRes.properties,
+            url: pageRes.url,
+            public_url: pageRes.public_url
           }
         });
 
