@@ -34,8 +34,8 @@ describe('ReleaseNotesApiService', () => {
 
     const req = httpMock.expectOne(r => r.url === queryUrl);
     expect(req.request.method).toBe('GET');
-    expect(req.request.params.get('projects')).toBe(environment.releaseNotesProjectsFilter);
-    expect(req.request.params.get('status')).toBe(environment.releaseNotesStatusFilter);
+    expect(req.request.params.get('projects')).toBe('STAR');
+    expect(req.request.params.get('status')).toBe('Published');
     expect(req.request.params.has('start_cursor')).toBe(false);
     req.flush({ results: [{ id: 'page-1' }], has_more: false });
 
