@@ -16,19 +16,16 @@ export class ReleaseNotesApiService {
   private readonly http = inject(HttpClient);
 
   queryReleaseNotes(): Observable<NotionQueryResponse> {
-    const baseParams = new HttpParams()
-      .set('projects', environment.releaseNotesProjectsFilter)
-      .set('status', environment.releaseNotesStatusFilter);
+    const baseParams = new HttpParams().set('projects', 'STAR').set('status', 'Published');
 
     const fetchPage = (cursor?: string) => {
       let params = baseParams;
       if (cursor) {
         params = params.set('start_cursor', cursor);
       }
-      return this.http.get<NotionQueryResponse>(
-        `${environment.releasesNotesApiUrl}/databases/${environment.releaseNotesDatabaseId}/query`,
-        { params }
-      );
+      return this.http.get<NotionQueryResponse>(`${environment.releasesNotesApiUrl}/databases/${environment.releaseNotesDatabaseId}/query`, {
+        params
+      });
     };
 
     return fetchPage().pipe(
