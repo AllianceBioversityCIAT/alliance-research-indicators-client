@@ -10,7 +10,7 @@ import { NotionReleaseNotePage } from '@shared/interfaces/notion-release-note.in
 describe('WhatsNewService', () => {
   let service: WhatsNewService;
   let releaseNotesApi: {
-    queryReleaseNotes: jest.Mock;
+    queryReleaseNotesPage: jest.Mock;
     getPage: jest.Mock;
     getBlockChildren: jest.Mock;
   };
@@ -35,7 +35,7 @@ describe('WhatsNewService', () => {
   beforeEach(() => {
     localStorage.clear();
     releaseNotesApi = {
-      queryReleaseNotes: jest.fn().mockReturnValue(of({ results: [pageB, pageA] })),
+      queryReleaseNotesPage: jest.fn().mockReturnValue(of({ results: [pageB, pageA], has_more: false })),
       getPage: jest.fn(),
       getBlockChildren: jest.fn()
     };
@@ -57,33 +57,70 @@ describe('WhatsNewService', () => {
   });
 
   it('getWhatsNewPages should not call the API again while a request is in flight', () => {
-    releaseNotesApi.queryReleaseNotes.mockReturnValue(NEVER);
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(NEVER);
     service.getWhatsNewPages();
     service.getWhatsNewPages();
-    expect(releaseNotesApi.queryReleaseNotes).toHaveBeenCalledTimes(1);
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledTimes(1);
     expect(service.notionDataLoading()).toBe(true);
   });
 
   it('getWhatsNewPages should use cached list on subsequent calls without force', () => {
     service.getWhatsNewPages();
-    releaseNotesApi.queryReleaseNotes.mockClear();
+    releaseNotesApi.queryReleaseNotesPage.mockClear();
     service.getWhatsNewPages();
-    expect(releaseNotesApi.queryReleaseNotes).not.toHaveBeenCalled();
+    expect(releaseNotesApi.queryReleaseNotesPage).not.toHaveBeenCalled();
   });
 
   it('getWhatsNewPages should refetch when force is true', () => {
     service.getWhatsNewPages();
-    releaseNotesApi.queryReleaseNotes.mockClear();
+    releaseNotesApi.queryReleaseNotesPage.mockClear();
     service.getWhatsNewPages(true);
-    expect(releaseNotesApi.queryReleaseNotes).toHaveBeenCalledTimes(1);
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledTimes(1);
   });
 
   it('getWhatsNewPages should handle errors', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    releaseNotesApi.queryReleaseNotes.mockReturnValue(throwError(() => new Error('fail')));
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(throwError(() => new Error('fail')));
     service.getWhatsNewPages();
     expect(service.notionDataLoading()).toBe(false);
     consoleSpy.mockRestore();
+  });
+
+  it('latestReleaseNotes should expose only the three newest items', () => {
+    const pages = Array.from({ length: 5 }, (_, index) => ({
+      id: `page-${index}`,
+      created_time: `2026-05-0${5 - index}T00:00:00.000Z`,
+      properties: {}
+    }));
+    service.notionData.set({ results: pages as any });
+    expect(service.latestReleaseNotes().map(page => page.id)).toEqual(['page-0', 'page-1', 'page-2']);
+    expect(service.archiveReleaseNotes().map(page => page.id)).toEqual(['page-3', 'page-4']);
+  });
+
+  it('should show two latest items and move the third into archive on compact layout', () => {
+    const pages = Array.from({ length: 5 }, (_, index) => ({
+      id: `page-${index}`,
+      created_time: `2026-05-0${5 - index}T00:00:00.000Z`,
+      properties: {}
+    }));
+    service.notionData.set({ results: pages as any });
+    service.setLatestVisibleCount(2);
+
+    expect(service.latestReleaseNotes().map(page => page.id)).toEqual(['page-0', 'page-1']);
+    expect(service.archiveReleaseNotes().map(page => page.id)).toEqual(['page-2', 'page-3', 'page-4']);
+  });
+
+  it('loadMoreArchive should reveal twenty more archive cards per click', () => {
+    const pages = Array.from({ length: 30 }, (_, index) => ({
+      id: `page-${index}`,
+      created_time: `2026-05-${String(30 - index).padStart(2, '0')}T00:00:00.000Z`,
+      properties: {}
+    }));
+    service.notionData.set({ results: pages as any });
+    expect(service.archiveReleaseNotes()).toHaveLength(20);
+    service.loadMoreArchive();
+    expect(service.archiveReleaseNotes()).toHaveLength(27);
+    expect(service.canLoadMoreArchive()).toBe(false);
   });
 
   it('markWhatsNewAsSeen should persist last seen', () => {
@@ -237,7 +274,7 @@ describe('WhatsNewService', () => {
   });
 
   it('getWhatsNewPages should keep undated notes at the end of the sort order', () => {
-    releaseNotesApi.queryReleaseNotes.mockReturnValue(
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(
       of({
         results: [
           { id: 'undated', properties: {} },
@@ -250,7 +287,7 @@ describe('WhatsNewService', () => {
   });
 
   it('getWhatsNewPages should sort using released date when created_time is absent', () => {
-    releaseNotesApi.queryReleaseNotes.mockReturnValue(
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(
       of({
         results: [
           {
@@ -356,7 +393,7 @@ describe('WhatsNewService', () => {
   });
 
   it('getWhatsNewPages should handle null results in response', () => {
-    releaseNotesApi.queryReleaseNotes.mockReturnValue(of({ results: null } as any));
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(of({ results: null } as any));
     service.getWhatsNewPages();
     expect(service.notionData()?.results).toEqual([]);
   });

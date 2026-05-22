@@ -26,6 +26,26 @@ describe('ReleaseNotesApiService', () => {
     expect(service).toBeTruthy();
   });
 
+  it('queryReleaseNotesPage should request a single page', () => {
+    let result: unknown;
+    service.queryReleaseNotesPage().subscribe(r => {
+      result = r;
+    });
+
+    const req = httpMock.expectOne(r => r.url === queryUrl);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('projects')).toBe('STAR');
+    expect(req.request.params.get('status')).toBe('Published');
+    expect(req.request.params.has('start_cursor')).toBe(false);
+    req.flush({ results: [{ id: 'page-1' }], has_more: true, next_cursor: 'cursor-abc' });
+
+    expect(result).toEqual({
+      results: [{ id: 'page-1' }],
+      has_more: true,
+      next_cursor: 'cursor-abc'
+    });
+  });
+
   it('queryReleaseNotes should aggregate a single page', () => {
     let result: unknown;
     service.queryReleaseNotes().subscribe(r => {
