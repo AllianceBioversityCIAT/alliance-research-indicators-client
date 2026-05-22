@@ -14,7 +14,12 @@ import { CommonModule } from '@angular/common';
 })
 export class DynamicNotionBlockComponent {
   @Input() block: any;
+  /** Optional 1-based index for numbered lists split across multiple `<ol>` elements. */
+  @Input() listStart?: number;
   isExpanded = signal(false);
+
+  /** Empty WebVTT placeholder when Notion does not provide caption/description files. */
+  readonly emptyVideoTrackSrc = 'data:text/vtt;charset=utf-8,WEBVTT';
 
   private readonly router = inject(Router);
 
@@ -42,6 +47,14 @@ export class DynamicNotionBlockComponent {
 
   isImageFileName(name: string): boolean {
     return /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name);
+  }
+
+  joinPlainText(text: any[]): string {
+    if (!text?.length) {
+      return '';
+    }
+
+    return text.map(item => item.plain_text ?? '').join('');
   }
 
   joinText(text: any[]): string {

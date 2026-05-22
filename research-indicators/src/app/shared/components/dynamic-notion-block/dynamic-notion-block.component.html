@@ -31,29 +31,32 @@
   }
 
   @case ('heading_1') {
-    @let text = joinText(block?.heading_1?.rich_text);
+    @let text = joinPlainText(block?.heading_1?.rich_text);
     @if (text) {
       <h1
-        class="mb-2.5 m-0 font-['Space_Grotesk'] text-[16px] font-bold leading-[18px] text-[#173f6f]"
-        [innerHTML]="text"></h1>
+        class="mb-2.5 m-0 font-['Space_Grotesk'] text-[16px] font-bold leading-[18px] text-[#173f6f]">
+        {{ text }}
+      </h1>
     }
   }
 
   @case ('heading_2') {
-    @let text = joinText(block?.heading_2?.rich_text);
+    @let text = joinPlainText(block?.heading_2?.rich_text);
     @if (text) {
       <h2
-        class="mb-2.5 m-0 font-['Space_Grotesk'] text-[15.5px] font-semibold leading-[1.25] text-[#173f6f]"
-        [innerHTML]="text"></h2>
+        class="mb-2.5 m-0 font-['Space_Grotesk'] text-[15.5px] font-semibold leading-[1.25] text-[#173f6f]">
+        {{ text }}
+      </h2>
     }
   }
 
   @case ('heading_3') {
-    @let text = joinText(block?.heading_3?.rich_text);
+    @let text = joinPlainText(block?.heading_3?.rich_text);
     @if (text) {
       <h3
-        class="mb-2.5 m-0 font-['Space_Grotesk'] text-[14px] font-semibold leading-[1.25] text-[#173f6f]"
-        [innerHTML]="text"></h3>
+        class="mb-2.5 m-0 font-['Space_Grotesk'] text-[14px] font-semibold leading-[1.25] text-[#173f6f]">
+        {{ text }}
+      </h3>
     }
   }
 
@@ -165,7 +168,17 @@
     @let video = block?.video;
 
     @if (video?.file?.url) {
-      <video [src]="video.file.url" width="100%" class="mb-2.5 w-full" controls muted loop></video>
+      <video
+        [src]="video.file.url"
+        width="100%"
+        class="mb-2.5 w-full"
+        controls
+        muted
+        loop
+        aria-label="Release note video">
+        <track kind="captions" [src]="emptyVideoTrackSrc" srclang="en" label="English captions" default />
+        <track kind="descriptions" [src]="emptyVideoTrackSrc" srclang="en" label="English descriptions" />
+      </video>
     }
 
     @if (video?.external?.url) {
@@ -192,7 +205,7 @@
     @let children = block?.children;
 
     @if (text) {
-      <ul class="m-0 ps-[30px]">
+      <ul class="m-0 list-disc ps-[30px]">
         <li class="m-0 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]">
           <p class="mb-2.5 m-0" [innerHTML]="text"></p>
 
@@ -211,17 +224,19 @@
     @let children = block?.children;
 
     @if (text) {
-      <li class="m-0 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]">
-        <p class="mb-2.5 m-0" [innerHTML]="text"></p>
+      <ol class="m-0 list-decimal ps-[30px]" [attr.start]="listStart ?? null">
+        <li class="m-0 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]">
+          <p class="mb-2.5 m-0" [innerHTML]="text"></p>
 
-        @if (children) {
-          <div class="ml-[30px] flex flex-col">
-            @for (child of children; track child.id) {
-              <app-dynamic-notion-block [block]="child"></app-dynamic-notion-block>
-            }
-          </div>
-        }
-      </li>
+          @if (children) {
+            <div class="ml-[30px] flex flex-col">
+              @for (child of children; track child.id) {
+                <app-dynamic-notion-block [block]="child"></app-dynamic-notion-block>
+              }
+            </div>
+          }
+        </li>
+      </ol>
     }
   }
 
@@ -262,17 +277,45 @@
   }
 
   @case ('table') {
-    @let tableRows = block?.children;
+    @let tableRows = block?.children ?? [];
+    @let hasColumnHeader = block?.table?.has_column_header === true;
+    @let hasRowHeader = block?.table?.has_row_header === true;
+    @let useFirstRowAsHeader = hasColumnHeader || (!hasColumnHeader && !hasRowHeader);
 
-    @if (tableRows) {
+    @if (tableRows.length) {
       <table class="mb-2.5 w-full border-collapse border border-[#e8ebed]">
-        @for (row of tableRows; track row.id) {
-          <tr>
-            @for (cell of row.table_row.cells; track cell) {
-              <td class="border border-[#e8ebed] p-2 text-left font-['Barlow'] text-[14px] font-light text-[#4C5158]" [innerHTML]="joinText(cell)"></td>
-            }
-          </tr>
+        @if (useFirstRowAsHeader) {
+          <thead>
+            <tr>
+              @for (cell of tableRows[0].table_row.cells; track $index) {
+                <th
+                  scope="col"
+                  class="border border-[#e8ebed] p-2 text-left font-['Barlow'] text-[14px] font-medium text-[#173f6f]"
+                  [innerHTML]="joinText(cell)"></th>
+              }
+            </tr>
+          </thead>
         }
+        <tbody>
+          @for (row of tableRows; track row.id; let rowIndex = $index) {
+            @if (!useFirstRowAsHeader || rowIndex > 0) {
+              <tr>
+                @for (cell of row.table_row.cells; track $index; let cellIndex = $index) {
+                  @if (hasRowHeader && cellIndex === 0) {
+                    <th
+                      scope="row"
+                      class="border border-[#e8ebed] p-2 text-left font-['Barlow'] text-[14px] font-medium text-[#173f6f]"
+                      [innerHTML]="joinText(cell)"></th>
+                  } @else {
+                    <td
+                      class="border border-[#e8ebed] p-2 text-left font-['Barlow'] text-[14px] font-light text-[#4C5158]"
+                      [innerHTML]="joinText(cell)"></td>
+                  }
+                }
+              </tr>
+            }
+          }
+        </tbody>
       </table>
     }
   }
@@ -283,10 +326,14 @@
 
     @if (text) {
       <div class="mb-2.5">
-        <div class="mb-2.5 flex cursor-pointer select-none items-center gap-2" (click)="toggleExpand()">
+        <button
+          type="button"
+          class="mb-2.5 flex w-full cursor-pointer select-none items-center gap-2 border-0 bg-transparent p-0 text-left"
+          (click)="toggleExpand()"
+          [attr.aria-expanded]="isExpanded()">
           <i class="pi" [ngClass]="{ 'pi-caret-right': !isExpanded(), 'pi-caret-down': isExpanded() }"></i>
-          <p class="m-0 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]" [innerHTML]="text"></p>
-        </div>
+          <span class="m-0 font-['Barlow'] text-[14px] font-light leading-[1.5] text-[#4C5158]" [innerHTML]="text"></span>
+        </button>
 
         @if (children && isExpanded()) {
           <div class="ml-[30px] flex flex-col">
@@ -313,11 +360,12 @@
     @let text = block?.child_page?.title;
 
     @if (text) {
-      <p
-        class="mb-2.5 m-0 w-fit cursor-pointer rounded-[5px] bg-[#f4f7f9] px-[15px] py-[5px] font-['Space_Grotesk'] text-[14px] font-medium text-[#173f6f] hover:bg-[#e8ebed]"
+      <button
+        type="button"
+        class="mb-2.5 m-0 w-fit cursor-pointer rounded-[5px] border-0 bg-[#f4f7f9] px-[15px] py-[5px] font-['Space_Grotesk'] text-[14px] font-medium text-[#173f6f] hover:bg-[#e8ebed]"
         (click)="navigateToChildPage(block.id)">
         {{ text }}
-      </p>
+      </button>
     }
   }
 

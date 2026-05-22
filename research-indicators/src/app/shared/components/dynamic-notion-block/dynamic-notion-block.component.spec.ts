@@ -60,6 +60,16 @@ describe('DynamicNotionBlockComponent', () => {
     expect(html).toContain('https://b.com');
   });
 
+  it('joinPlainText should return unformatted text', () => {
+    expect(
+      component.joinPlainText([
+        { plain_text: 'Hello ', annotations: { bold: true } },
+        { plain_text: 'world' }
+      ])
+    ).toBe('Hello world');
+    expect(component.joinPlainText([])).toBe('');
+  });
+
   it('getFileBlockUrl, getFileBlockName, getImageBlockUrl, isImageFileName', () => {
     expect(component.getFileBlockUrl({ file: { file: { url: 'f1' } } })).toBe('f1');
     expect(component.getFileBlockUrl({ file: { external: { url: 'f2' } } })).toBe('f2');
@@ -87,6 +97,11 @@ describe('DynamicNotionBlockComponent', () => {
   it('should render heading_1', () => {
     setBlock({ type: 'heading_1', heading_1: { rich_text: [rich('Title')] } });
     expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Title');
+  });
+
+  it('should not render empty heading_1', () => {
+    setBlock({ type: 'heading_1', heading_1: { rich_text: [] } });
+    expect(fixture.nativeElement.querySelector('h1')).toBeNull();
   });
 
   it('should render paragraph with children', () => {
@@ -170,7 +185,10 @@ describe('DynamicNotionBlockComponent', () => {
 
   it('should render video file', () => {
     setBlock({ type: 'video', video: { file: { url: 'https://vid.mp4' } } });
-    expect(fixture.nativeElement.querySelector('video')).toBeTruthy();
+    const video = fixture.nativeElement.querySelector('video');
+    expect(video).toBeTruthy();
+    expect(video?.querySelector('track[kind="captions"]')).toBeTruthy();
+    expect(video?.querySelector('track[kind="descriptions"]')).toBeTruthy();
   });
 
   it('should render external video', () => {
@@ -186,6 +204,19 @@ describe('DynamicNotionBlockComponent', () => {
     });
     expect(fixture.nativeElement.textContent).toContain('Bullet');
     expect(fixture.nativeElement.textContent).toContain('Num');
+    expect(fixture.nativeElement.querySelector('ol li')?.textContent).toContain('Num');
+  });
+
+  it('should render numbered list item with ol wrapper', () => {
+    setBlock({ type: 'numbered_list_item', numbered_list_item: { rich_text: [rich('Num')] } });
+    expect(fixture.nativeElement.querySelector('ol li')?.textContent).toContain('Num');
+  });
+
+  it('should apply listStart to numbered list item ol', () => {
+    component.listStart = 3;
+    setBlock({ type: 'numbered_list_item', numbered_list_item: { rich_text: [rich('Num')] } });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('ol')?.getAttribute('start')).toBe('3');
   });
 
   it('should render todo item', () => {
@@ -209,10 +240,30 @@ describe('DynamicNotionBlockComponent', () => {
         {
           id: 'row1',
           table_row: { cells: [[rich('A')], [rich('B')]] }
+        },
+        {
+          id: 'row2',
+          table_row: { cells: [[rich('C')], [rich('D')]] }
         }
       ]
     });
-    expect(fixture.nativeElement.querySelector('table td')?.textContent).toContain('A');
+    expect(fixture.nativeElement.querySelector('table th')?.textContent).toContain('A');
+    expect(fixture.nativeElement.querySelector('table td')?.textContent).toContain('C');
+  });
+
+  it('should render table block with row headers', () => {
+    setBlock({
+      type: 'table',
+      table: { has_column_header: false, has_row_header: true },
+      children: [
+        {
+          id: 'row1',
+          table_row: { cells: [[rich('Label')], [rich('Value')]] }
+        }
+      ]
+    });
+    expect(fixture.nativeElement.querySelector('table th[scope="row"]')?.textContent).toContain('Label');
+    expect(fixture.nativeElement.querySelector('table td')?.textContent).toContain('Value');
   });
 
   it('should render code block', () => {
@@ -222,7 +273,7 @@ describe('DynamicNotionBlockComponent', () => {
 
   it('should render child_page and navigate', () => {
     setBlock({ type: 'child_page', id: 'cp1', child_page: { title: 'Child page' } });
-    fixture.nativeElement.querySelector('p.cursor-pointer')?.click();
+    fixture.nativeElement.querySelector('button.cursor-pointer')?.click();
     expect(router.navigate).toHaveBeenCalledWith(['/whats-new/details', 'cp1']);
   });
 
