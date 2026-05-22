@@ -67,20 +67,24 @@
               </div>
 
               @if (hasAuthors) {
-              <div class="absolute bottom-3 right-3 z-[1] -space-x-2 flex shrink-0" role="list"
+              <ul class="absolute bottom-3 right-3 z-[1] -space-x-2 m-0 flex shrink-0 list-none p-0"
                 aria-label="People who created this release note">
                 @if (developers?.length > 0) {
                 @for (person of developers; track person.id) {
-                <img [src]="person.avatar_url ? person.avatar_url : 'https://avatar.vercel.sh/' + person.id"
-                  [alt]="person.name" class="h-8 w-8 rounded-full object-cover ring-1 ring-[#f8fafb] shadow-sm"
-                  [pTooltip]="person.name" tooltipPosition="top" role="listitem" />
+                <li>
+                  <img [src]="person.avatar_url ? person.avatar_url : 'https://avatar.vercel.sh/' + person.id"
+                    [alt]="person.name" class="h-8 w-8 rounded-full object-cover ring-1 ring-[#f8fafb] shadow-sm"
+                    [pTooltip]="person.name" tooltipPosition="top" />
+                </li>
                 }
                 } @else if (addedBy) {
-                <img [src]="addedBy.avatar_url ? addedBy.avatar_url : 'https://avatar.vercel.sh/' + addedBy.id"
-                  [alt]="addedBy.name" class="h-8 w-8 rounded-full object-cover ring-1 ring-[#f8fafb] shadow-sm"
-                  [pTooltip]="addedBy.name" tooltipPosition="top" role="listitem" />
+                <li>
+                  <img [src]="addedBy.avatar_url ? addedBy.avatar_url : 'https://avatar.vercel.sh/' + addedBy.id"
+                    [alt]="addedBy.name" class="h-8 w-8 rounded-full object-cover ring-1 ring-[#f8fafb] shadow-sm"
+                    [pTooltip]="addedBy.name" tooltipPosition="top" />
+                </li>
                 }
-              </div>
+              </ul>
               }
             </div>
 
@@ -96,11 +100,9 @@
             @if (item.type === 'numbered_list_item') {
             @if (index === 0 || whatsNewService.activeNotionPageData()?.blocks[index - 1]?.type !==
             'numbered_list_item') {
-            <ol class="m-0 ps-5">
-              @for (numberedItem of getConsecutiveNumberedItems(index); track numberedItem.id) {
-              <app-dynamic-notion-block [block]="numberedItem"></app-dynamic-notion-block>
+              @for (numberedItem of getConsecutiveNumberedItems(index); track numberedItem.id; let itemIndex = $index) {
+              <app-dynamic-notion-block [block]="numberedItem" [listStart]="itemIndex + 1"></app-dynamic-notion-block>
               }
-            </ol>
             }
             } @else {
             <app-dynamic-notion-block [block]="item"></app-dynamic-notion-block>
@@ -113,19 +115,23 @@
             class="flex w-full flex-col gap-4 rounded-[5px] border border-[#e8ebed] bg-[#f8fafb] p-4 sm:flex-row sm:items-center sm:justify-between">
             @if (hasAuthors) {
             <div class="flex min-w-0 flex-1 items-center gap-3">
-              <div class="-space-x-2 flex shrink-0" role="list" aria-label="People who created this release note">
+              <ul class="-space-x-2 m-0 flex shrink-0 list-none p-0" aria-label="People who created this release note">
                 @if (developers?.length > 0) {
                 @for (person of developers; track person.id) {
-                <img [src]="person.avatar_url ? person.avatar_url : 'https://avatar.vercel.sh/' + person.id"
-                  [alt]="person.name" class="h-9 w-9 rounded-full object-cover ring-2 ring-[#f8fafb]"
-                  [pTooltip]="person.name" tooltipPosition="top" role="listitem" />
+                <li>
+                  <img [src]="person.avatar_url ? person.avatar_url : 'https://avatar.vercel.sh/' + person.id"
+                    [alt]="person.name" class="h-9 w-9 rounded-full object-cover ring-2 ring-[#f8fafb]"
+                    [pTooltip]="person.name" tooltipPosition="top" />
+                </li>
                 }
                 } @else if (addedBy) {
-                <img [src]="addedBy.avatar_url ? addedBy.avatar_url : 'https://avatar.vercel.sh/' + addedBy.id"
-                  [alt]="addedBy.name" class="h-9 w-9 rounded-full object-cover ring-2 ring-[#f8fafb]"
-                  [pTooltip]="addedBy.name" tooltipPosition="top" role="listitem" />
+                <li>
+                  <img [src]="addedBy.avatar_url ? addedBy.avatar_url : 'https://avatar.vercel.sh/' + addedBy.id"
+                    [alt]="addedBy.name" class="h-9 w-9 rounded-full object-cover ring-2 ring-[#f8fafb]"
+                    [pTooltip]="addedBy.name" tooltipPosition="top" />
+                </li>
                 }
-              </div>
+              </ul>
 
               <div class="flex min-w-0 flex-col gap-0.5">
                 <span class=" text-[10px] font-bold uppercase tracking-wide text-[#173f6f]">
