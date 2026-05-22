@@ -58,4 +58,25 @@ describe('ReleaseNoteCardComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('No image');
   });
+
+  it('should render contributor avatars when Developers are present', () => {
+    fixture.componentRef.setInput('item', {
+      ...item,
+      properties: {
+        ...item.properties,
+        Developers: {
+          people: [
+            { id: 'dev-1', name: 'Alice', avatar_url: 'https://alice.png' },
+            { id: 'dev-2', name: 'Bob', avatar_url: 'https://bob.png' }
+          ]
+        }
+      }
+    });
+    fixture.detectChanges();
+
+    const images = fixture.nativeElement.querySelectorAll('img');
+    const avatarImages = Array.from(images).filter((img: HTMLImageElement) => img.className.includes('rounded-full'));
+    expect(avatarImages).toHaveLength(2);
+    expect((avatarImages[0] as HTMLImageElement).src).toContain('alice.png');
+  });
 });
