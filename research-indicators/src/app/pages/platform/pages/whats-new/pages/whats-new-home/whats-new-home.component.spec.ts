@@ -3,6 +3,10 @@ import { signal } from '@angular/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import WhatsNewHomeComponent from './whats-new-home.component';
 import { WhatsNewService } from '../../services/whats-new.service';
+import {
+  WHATS_NEW_LATEST_COMPACT_COUNT,
+  WHATS_NEW_LATEST_COUNT
+} from '../../constants/whats-new.constants';
 
 describe('WhatsNewHomeComponent', () => {
   const releaseNoteStub = (id: string) => ({
@@ -63,8 +67,51 @@ describe('WhatsNewHomeComponent', () => {
   it('should create, preload home data, and show empty state', () => {
     fixture.detectChanges();
     expect(whatsNewService.ensureHomeReleaseNotesLoaded).toHaveBeenCalled();
-    expect(whatsNewService.setLatestVisibleCount).toHaveBeenCalled();
+    expect(whatsNewService.setLatestVisibleCount).toHaveBeenCalledWith(WHATS_NEW_LATEST_COMPACT_COUNT);
     expect(fixture.nativeElement.textContent).toContain('No published release notes');
+  });
+
+  it('should use full latest count at 2xl breakpoint and react to media changes', () => {
+    const listeners: Record<string, () => void> = {};
+    Object.defineProperty(globalThis, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: jest.fn().mockReturnValue({
+        matches: true,
+        addEventListener: jest.fn((event: string, cb: () => void) => {
+          listeners[event] = cb;
+        }),
+        removeEventListener: jest.fn()
+      })
+    });
+
+    fixture = TestBed.createComponent(WhatsNewHomeComponent);
+    fixture.detectChanges();
+
+    expect(whatsNewService.setLatestVisibleCount).toHaveBeenCalledWith(WHATS_NEW_LATEST_COUNT);
+
+    whatsNewService.setLatestVisibleCount.mockClear();
+    listeners['change']?.();
+    expect(whatsNewService.setLatestVisibleCount).toHaveBeenCalledWith(WHATS_NEW_LATEST_COUNT);
+  });
+
+  it('should cleanup media query listener on destroy', () => {
+    const removeEventListener = jest.fn();
+    Object.defineProperty(globalThis, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: jest.fn().mockReturnValue({
+        matches: false,
+        addEventListener: jest.fn(),
+        removeEventListener
+      })
+    });
+
+    fixture = TestBed.createComponent(WhatsNewHomeComponent);
+    fixture.detectChanges();
+    fixture.destroy();
+
+    expect(removeEventListener).toHaveBeenCalledWith('change', expect.any(Function));
   });
 
   it('should show loading skeletons', () => {
