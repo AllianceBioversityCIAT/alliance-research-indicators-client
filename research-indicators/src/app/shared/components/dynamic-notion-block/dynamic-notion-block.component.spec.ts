@@ -68,6 +68,8 @@ describe('DynamicNotionBlockComponent', () => {
       ])
     ).toBe('Hello world');
     expect(component.joinPlainText([])).toBe('');
+    expect(component.joinPlainText(undefined as any)).toBe('');
+    expect(component.joinPlainText([{ annotations: {} }])).toBe('');
   });
 
   it('getFileBlockUrl, getFileBlockName, getImageBlockUrl, isImageFileName', () => {
