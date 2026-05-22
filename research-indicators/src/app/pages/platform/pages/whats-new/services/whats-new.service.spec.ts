@@ -1,10 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { TestBed } from '@angular/core/testing';
-import { NEVER, of, throwError } from 'rxjs';
+import { NEVER, of, Subject, throwError } from 'rxjs';
 import { WhatsNewService } from './whats-new.service';
 import { ReleaseNotesApiService } from '@services/release-notes-api.service';
-import { WHATS_NEW_LAST_SEEN_KEY } from '../constants/whats-new.constants';
+import {
+  WHATS_NEW_ARCHIVE_INITIAL_SIZE,
+  WHATS_NEW_LAST_SEEN_KEY,
+  WHATS_NEW_LATEST_COUNT
+} from '../constants/whats-new.constants';
 import { NotionReleaseNotePage } from '@shared/interfaces/notion-release-note.interface';
 
 describe('WhatsNewService', () => {
@@ -48,6 +52,253 @@ describe('WhatsNewService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  it('canLoadMoreArchive should handle null results and empty archive window', () => {
+    service.notionData.set({ results: null as any });
+    service.setLatestVisibleCount(WHATS_NEW_LATEST_COUNT);
+    (service as any).releaseNotesHasMore = false;
+    expect(service.canLoadMoreArchive()).toBe(false);
+
+    service.notionData.set({ results: [pageA] });
+    service.setLatestVisibleCount(10);
+    (service as any).releaseNotesHasMore = true;
+    expect(service.canLoadMoreArchive()).toBe(true);
+  });
+
+  it('finishReleaseNotesFetch should resume pending fetch when notion data is still null', () => {
+    (service as any).pendingMinimumCount = 2;
+    service.notionData.set(null);
+    (service as any).releaseNotesHasMore = true;
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(
+      of({ results: [pageA, pageB], has_more: false, next_cursor: null })
+    );
+
+    (service as any).finishReleaseNotesFetch(false);
+
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledWith(undefined);
+  });
+
+  it('latestReleaseNotes and archiveReleaseNotes should handle missing notion data', () => {
+    service.notionData.set(null);
+    expect(service.latestReleaseNotes()).toEqual([]);
+    expect(service.archiveReleaseNotes()).toEqual([]);
+
+    service.notionData.set({ results: undefined as any });
+    expect(service.latestReleaseNotes()).toEqual([]);
+    expect(service.archiveReleaseNotes()).toEqual([]);
+  });
+
+  it('canLoadMoreArchive should be true when hidden archive items remain loaded', () => {
+    const pages = Array.from({ length: 10 }, (_, index) => ({
+      id: `page-${index}`,
+      created_time: `2026-05-${String(10 - index).padStart(2, '0')}T00:00:00.000Z`,
+      properties: {}
+    }));
+    service.notionData.set({ results: pages as any });
+    service.setLatestVisibleCount(3);
+    service.archiveVisibleCount.set(3);
+    (service as any).releaseNotesHasMore = false;
+
+    expect(service.canLoadMoreArchive()).toBe(true);
+  });
+
+  it('canLoadMoreArchive should be false when all loaded archive items are visible and no more pages exist', () => {
+    const pages = Array.from({ length: WHATS_NEW_LATEST_COUNT + 4 }, (_, index) => ({
+      id: `page-${index}`,
+      created_time: `2026-05-${String(10 - index).padStart(2, '0')}T00:00:00.000Z`,
+      properties: {}
+    }));
+    service.notionData.set({ results: pages as any });
+    service.archiveVisibleCount.set(4);
+    (service as any).releaseNotesHasMore = false;
+
+    expect(service.canLoadMoreArchive()).toBe(false);
+  });
+
+  it('loadMoreArchive should handle missing results array when checking loaded count', () => {
+    service.notionData.set({ results: undefined as any });
+    (service as any).releaseNotesHasMore = true;
+    (service as any).releaseNotesNextCursor = 'cursor-1';
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(
+      of({ results: [pageA], has_more: false, next_cursor: null })
+    );
+
+    service.loadMoreArchive();
+
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledWith('cursor-1');
+  });
+
+  it('fetchNextReleaseNotesPage should request without cursor when next cursor is missing', () => {
+    service.notionData.set({ results: [pageA] });
+    (service as any).releaseNotesHasMore = true;
+    (service as any).releaseNotesNextCursor = null;
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(
+      of({ results: [pageB], has_more: false, next_cursor: null })
+    );
+
+    (service as any).fetchReleaseNotesUntil(5);
+
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledWith(undefined);
+  });
+
+  it('finishReleaseNotesFetch should handle pending minimum with missing results array', () => {
+    const firstPage$ = new Subject<any>();
+    releaseNotesApi.queryReleaseNotesPage
+      .mockReturnValueOnce(firstPage$.asObservable())
+      .mockReturnValueOnce(of({ results: [pageB], has_more: false, next_cursor: null }));
+
+    service.getWhatsNewPages();
+    service.ensureHomeReleaseNotesLoaded();
+
+    firstPage$.next({ results: undefined, has_more: true, next_cursor: 'next' });
+    firstPage$.complete();
+
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledTimes(2);
+  });
+
+  it('ensureHomeReleaseNotesLoaded should fetch the initial home page batch', () => {
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(of({ results: [pageA], has_more: false }));
+    service.ensureHomeReleaseNotesLoaded();
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledTimes(1);
+    expect(service.notionData()?.results).toEqual([pageA]);
+  });
+
+  it('loadMoreArchive should skip while a list request is already in flight', () => {
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(NEVER);
+    service.ensureHomeReleaseNotesLoaded();
+    const visibleBefore = service.archiveVisibleCount();
+
+    service.loadMoreArchive();
+
+    expect(service.archiveVisibleCount()).toBe(visibleBefore);
+  });
+
+  it('loadMoreArchive should skip while loading more is already true', () => {
+    service.notionDataLoadingMore.set(true);
+    const visibleBefore = service.archiveVisibleCount();
+
+    service.loadMoreArchive();
+
+    expect(service.archiveVisibleCount()).toBe(visibleBefore);
+    expect(releaseNotesApi.queryReleaseNotesPage).not.toHaveBeenCalled();
+  });
+
+  it('loadMoreArchive should fetch additional pages when visible archive exceeds loaded data', () => {
+    const pages = Array.from({ length: 10 }, (_, index) => ({
+      id: `page-${index}`,
+      created_time: `2026-05-${String(10 - index).padStart(2, '0')}T00:00:00.000Z`,
+      properties: {}
+    }));
+    service.notionData.set({ results: pages as any });
+    (service as any).releaseNotesHasMore = true;
+    (service as any).releaseNotesNextCursor = 'cursor-1';
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValue(
+      of({ results: [pageB], has_more: false, next_cursor: null })
+    );
+
+    service.loadMoreArchive();
+
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledWith('cursor-1');
+    expect(service.notionDataLoadingMore()).toBe(false);
+  });
+
+  it('should stop fetching when cached data exists but no more pages are available', () => {
+    service.notionData.set({ results: [pageA] });
+    (service as any).releaseNotesHasMore = false;
+    releaseNotesApi.queryReleaseNotesPage.mockClear();
+
+    service.ensureHomeReleaseNotesLoaded();
+
+    expect(releaseNotesApi.queryReleaseNotesPage).not.toHaveBeenCalled();
+  });
+
+  it('should fetch next page recursively until minimum count is met', () => {
+    releaseNotesApi.queryReleaseNotesPage
+      .mockReturnValueOnce(of({ results: [pageA], has_more: true, next_cursor: 'next' }))
+      .mockReturnValueOnce(of({ results: [pageB], has_more: false, next_cursor: null }));
+
+    (service as any).fetchReleaseNotesUntil(2);
+
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledTimes(2);
+    expect(service.notionData()?.results?.map(page => page.id)).toEqual(['page-a', 'page-b']);
+  });
+
+  it('should resume pending minimum fetch after an in-flight request completes', () => {
+    const firstPage$ = new Subject<any>();
+    releaseNotesApi.queryReleaseNotesPage
+      .mockReturnValueOnce(firstPage$.asObservable())
+      .mockReturnValueOnce(of({ results: [pageB], has_more: false, next_cursor: null }));
+
+    service.ensureHomeReleaseNotesLoaded();
+    service.ensureHomeReleaseNotesLoaded();
+
+    firstPage$.next({ results: [pageA], has_more: true, next_cursor: 'cursor-1' });
+    firstPage$.complete();
+
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledTimes(2);
+    expect(service.notionData()?.results?.map(page => page.id)).toEqual(['page-a', 'page-b']);
+  });
+
+  it('should clear pending minimum fetch when no more pages exist', () => {
+    const firstPage$ = new Subject<any>();
+    releaseNotesApi.queryReleaseNotesPage.mockReturnValueOnce(firstPage$.asObservable());
+
+    service.ensureHomeReleaseNotesLoaded();
+    service.ensureHomeReleaseNotesLoaded();
+
+    firstPage$.next({ results: [pageA], has_more: false, next_cursor: null });
+    firstPage$.complete();
+
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('canLoadMoreArchive should be true when API still has more pages', () => {
+    const pages = Array.from({ length: WHATS_NEW_LATEST_COUNT + WHATS_NEW_ARCHIVE_INITIAL_SIZE }, (_, index) => ({
+      id: `page-${index}`,
+      created_time: `2026-05-${String(30 - index).padStart(2, '0')}T00:00:00.000Z`,
+      properties: {}
+    }));
+    service.notionData.set({ results: pages as any });
+    (service as any).releaseNotesHasMore = true;
+
+    expect(service.canLoadMoreArchive()).toBe(true);
+  });
+
+  it('should resume pending minimum fetch when first response satisfied a smaller minimum', () => {
+    const firstPage$ = new Subject<any>();
+    releaseNotesApi.queryReleaseNotesPage
+      .mockReturnValueOnce(firstPage$.asObservable())
+      .mockReturnValueOnce(of({ results: [], has_more: false, next_cursor: null }));
+
+    service.getWhatsNewPages();
+    service.ensureHomeReleaseNotesLoaded();
+
+    const partialPages = Array.from({ length: 5 }, (_, index) => ({
+      id: `partial-${index}`,
+      created_time: `2026-05-0${5 - index}T00:00:00.000Z`,
+      properties: {}
+    }));
+
+    firstPage$.next({ results: partialPages, has_more: true, next_cursor: 'next' });
+    firstPage$.complete();
+
+    expect(releaseNotesApi.queryReleaseNotesPage).toHaveBeenCalledTimes(2);
+  });
+
+  it('hasUnreadReleaseNotes should be true when a release is newer than last seen', () => {
+    service.notionData.set({ results: [pageA] });
+    service.lastSeenAt.set('2020-01-01T00:00:00.000Z');
+    expect(service.hasUnreadReleaseNotes()).toBe(true);
+  });
+
+  it('processBlocksRecursively should return leaf blocks without fetching children', done => {
+    (service as any)
+      .processBlocksRecursively([{ id: 'leaf', has_children: false }], 0)
+      .subscribe((blocks: any[]) => {
+        expect(blocks).toEqual([{ id: 'leaf', has_children: false }]);
+        done();
+      });
   });
 
   it('getWhatsNewPages should sort by created_time descending', () => {
