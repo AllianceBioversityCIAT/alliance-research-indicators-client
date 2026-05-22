@@ -2,9 +2,15 @@
 
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ReleaseNotesApiService } from '@services/release-notes-api.service';
-import { catchError, finalize, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { NotionDataError, NotionReleaseNotePage } from '@shared/interfaces/notion-release-note.interface';
-import { WHATS_NEW_LAST_SEEN_KEY } from '../constants/whats-new.constants';
+import {
+  WHATS_NEW_ARCHIVE_INITIAL_SIZE,
+  WHATS_NEW_ARCHIVE_LOAD_MORE_SIZE,
+  WHATS_NEW_INITIAL_FETCH_COUNT,
+  WHATS_NEW_LAST_SEEN_KEY,
+  WHATS_NEW_LATEST_COUNT
+} from '../constants/whats-new.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +19,34 @@ export class WhatsNewService {
   private readonly releaseNotesApi = inject(ReleaseNotesApiService);
   private readonly maxRecursionDepth = 3;
   private pagesListLoadInFlight = false;
+  private pendingMinimumCount: number | null = null;
+  private releaseNotesNextCursor: string | null = null;
+  private releaseNotesHasMore = false;
 
   notionData = signal<{ results: NotionReleaseNotePage[] } | null>(null);
   notionDataLoading = signal(false);
+  notionDataLoadingMore = signal(false);
+  archiveVisibleCount = signal(WHATS_NEW_ARCHIVE_INITIAL_SIZE);
+  latestVisibleCount = signal(WHATS_NEW_LATEST_COUNT);
+
+  latestReleaseNotes = computed(() => (this.notionData()?.results ?? []).slice(0, this.latestVisibleCount()));
+
+  archiveReleaseNotes = computed(() => {
+    const results = this.notionData()?.results ?? [];
+    const start = this.latestVisibleCount();
+    return results.slice(start, start + this.archiveVisibleCount());
+  });
+
+  canLoadMoreArchive = computed(() => {
+    const results = this.notionData()?.results ?? [];
+    const start = this.latestVisibleCount();
+    const archiveLoaded = Math.max(0, results.length - start);
+    return this.archiveVisibleCount() < archiveLoaded || this.releaseNotesHasMore;
+  });
+
+  setLatestVisibleCount(count: number): void {
+    this.latestVisibleCount.set(count);
+  }
   notionDataError = signal<NotionDataError | null>(null);
   activeNotionPageData = signal<any>(null);
   lastSeenAt = signal<string | null>(this.readLastSeen());
@@ -31,32 +62,106 @@ export class WhatsNewService {
   });
 
   getWhatsNewPages(force = false): void {
-    if (this.pagesListLoadInFlight) {
-      return;
-    }
-    if (!force && this.notionData() !== null) {
+    this.fetchReleaseNotesUntil(1, force);
+  }
+
+  ensureHomeReleaseNotesLoaded(): void {
+    this.fetchReleaseNotesUntil(WHATS_NEW_INITIAL_FETCH_COUNT);
+  }
+
+  loadMoreArchive(): void {
+    if (this.notionDataLoadingMore() || this.pagesListLoadInFlight) {
       return;
     }
 
+    this.archiveVisibleCount.update(count => count + WHATS_NEW_ARCHIVE_LOAD_MORE_SIZE);
+    const requiredLoaded = WHATS_NEW_LATEST_COUNT + this.archiveVisibleCount();
+    const loadedCount = this.notionData()?.results?.length ?? 0;
+
+    if (loadedCount < requiredLoaded && this.releaseNotesHasMore) {
+      this.fetchReleaseNotesUntil(requiredLoaded, false, true);
+    }
+  }
+
+  private fetchReleaseNotesUntil(minimumCount: number, force = false, appendOnly = false): void {
+    const currentCount = this.notionData()?.results?.length ?? 0;
+
+    if (this.pagesListLoadInFlight) {
+      if (currentCount < minimumCount) {
+        this.pendingMinimumCount = Math.max(this.pendingMinimumCount ?? 0, minimumCount);
+      }
+      return;
+    }
+
+    if (!force && currentCount >= minimumCount) {
+      return;
+    }
+    if (!force && this.notionData() !== null && !this.releaseNotesHasMore) {
+      return;
+    }
+
+    if (force) {
+      this.notionData.set(null);
+      this.releaseNotesNextCursor = null;
+      this.releaseNotesHasMore = false;
+      this.archiveVisibleCount.set(WHATS_NEW_ARCHIVE_INITIAL_SIZE);
+      this.latestVisibleCount.set(WHATS_NEW_LATEST_COUNT);
+    }
+
+    const showPrimaryLoader = this.notionData() === null;
+    if (showPrimaryLoader) {
+      this.notionDataLoading.set(true);
+    } else if (appendOnly) {
+      this.notionDataLoadingMore.set(true);
+    }
+
     this.pagesListLoadInFlight = true;
-    this.notionDataLoading.set(true);
-    this.releaseNotesApi
-      .queryReleaseNotes()
-      .pipe(
-        finalize(() => {
-          this.pagesListLoadInFlight = false;
-          this.notionDataLoading.set(false);
-        })
-      )
-      .subscribe({
-        next: res => {
-          const sorted = [...(res.results ?? [])].sort((a, b) => this.getSortDateTime(b) - this.getSortDateTime(a));
-          this.notionData.set({ results: sorted });
-        },
-        error: err => {
-          console.error('Error loading release notes', err);
+    this.fetchNextReleaseNotesPage(minimumCount, showPrimaryLoader || appendOnly);
+  }
+
+  private fetchNextReleaseNotesPage(minimumCount: number, trackLoadingFlag: boolean): void {
+    const cursor = this.notionData() === null ? undefined : this.releaseNotesNextCursor ?? undefined;
+
+    this.releaseNotesApi.queryReleaseNotesPage(cursor).subscribe({
+      next: res => {
+        const merged = [...(this.notionData()?.results ?? []), ...(res.results ?? [])];
+        const sorted = merged.sort((a, b) => this.getSortDateTime(b) - this.getSortDateTime(a));
+        this.notionData.set({ results: sorted });
+        this.releaseNotesHasMore = Boolean(res.has_more);
+        this.releaseNotesNextCursor = res.next_cursor ?? null;
+
+        const loadedCount = sorted.length;
+        if (loadedCount < minimumCount && this.releaseNotesHasMore && this.releaseNotesNextCursor) {
+          this.fetchNextReleaseNotesPage(minimumCount, trackLoadingFlag);
+          return;
         }
-      });
+
+        this.finishReleaseNotesFetch(trackLoadingFlag);
+      },
+      error: err => {
+        console.error('Error loading release notes', err);
+        this.finishReleaseNotesFetch(trackLoadingFlag);
+      }
+    });
+  }
+
+  private finishReleaseNotesFetch(trackLoadingFlag: boolean): void {
+    this.pagesListLoadInFlight = false;
+    if (trackLoadingFlag) {
+      this.notionDataLoading.set(false);
+      this.notionDataLoadingMore.set(false);
+    }
+
+    const pendingMinimum = this.pendingMinimumCount;
+    this.pendingMinimumCount = null;
+    if (pendingMinimum === null) {
+      return;
+    }
+
+    const loadedCount = this.notionData()?.results?.length ?? 0;
+    if (loadedCount < pendingMinimum && this.releaseNotesHasMore) {
+      this.fetchReleaseNotesUntil(pendingMinimum);
+    }
   }
 
   markWhatsNewAsSeen(): void {
