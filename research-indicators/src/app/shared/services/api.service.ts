@@ -914,6 +914,7 @@ export class ApiService {
     project?: string;
     'exclude-pooled-funding'?: boolean;
     'with-indicators'?: boolean;
+    'pool-funding-contributor'?: boolean;
     'order-field'?: string;
     direction?: string;
   }): HttpParams {
@@ -934,6 +935,7 @@ export class ApiService {
       'project',
       'exclude-pooled-funding',
       'with-indicators',
+      'pool-funding-contributor',
       'order-field',
       'direction'
     ];

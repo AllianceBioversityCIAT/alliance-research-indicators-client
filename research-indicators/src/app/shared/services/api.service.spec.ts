@@ -681,6 +681,19 @@ describe('ApiService', () => {
       expect(result.get('exclude-pooled-funding')).toBe('false');
       expect(result.get('with-indicators')).toBe('false');
     });
+
+    it('should include pool-funding-contributor in the URL when set (regression — T-BIL-TV-04 allowlist)', () => {
+      const filters = {
+        'current-user': false,
+        'pool-funding-contributor': true,
+        page: 1,
+        limit: 50
+      };
+
+      const result = (service as any).buildFindContractsParams(filters);
+
+      expect(result.get('pool-funding-contributor')).toBe('true');
+    });
   });
 
   describe('Special methods', () => {
