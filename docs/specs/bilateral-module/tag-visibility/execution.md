@@ -502,3 +502,75 @@ Docs:
 - All 8 functional requirements (REQ-BIL-TV-01..08) discharged or explicitly deferred (REQ-03/-04 with rationale).
 - All 6 NF requirements discharged (NF-01 render-time and NF-03 bundle still carry manual-measurement obligations to the PR).
 - 5 design decisions recorded in `design.md` §11 (sub-feature split, BilateralService facade, result-list deferral, error copy lock, tokens decision) plus 3 execution-time decisions appended (token-count refinement, R-3 GET-by-code absence, interceptor audit resolution).
+
+---
+
+## Addendum — Post-ship audit & bug-fix arc (2026-05-23)
+
+The original 12-task execution closed with the "Capabilities shipped" section above. During the alignment-section remediation cycle that followed, three latent defects surfaced on tag-visibility surfaces and a re-audit was performed against the canonical mockup (`33486-134021` plus the project-detail header treatment implied by US1). This addendum records that arc so the per-task entries above remain the clean record of the original ship.
+
+### A.1 — Artifact verification (audit pass)
+
+Re-ran the artifact grep against every task's primary surface; all 11 completed tasks still have their code present, and T-BIL-TV-10 remains deferred as logged.
+
+| Task | Surface | Status |
+|---|---|---|
+| T-BIL-TV-01 | `AgressoContract` interface + `PATCH_PoolFundingTag` / `GET_FindContracts` on `ApiService` | ✅ present |
+| T-BIL-TV-02 | `BilateralService.{currentContract, getContract, patchTag, isBilateral}` | ✅ present |
+| T-BIL-TV-03 | `--ac-pool-funding-{fg,border,bg}` tokens + `'pool-funding'` `STATUS_COLOR_MAP` row | ✅ present |
+| T-BIL-TV-04 | `MyProjectsService.poolFundingOnly` filter (≥8 references) | ✅ present |
+| T-BIL-TV-05 | `is_pool_funding_contributor` column + `pool-funding-only-checkbox` in `my-projects.component.html` | ✅ present |
+| T-BIL-TV-06 | `project-item.component.html` Pool Funding branches (3 references) | ✅ present (extended below) |
+| T-BIL-TV-07 | `project-detail.component.ts/html` Pool Funding header gating | ✅ present (rewired below) |
+| T-BIL-TV-08 | `httpErrorInterceptor` 400 suppression on `/pool-funding-tag` | ✅ present |
+| T-BIL-TV-09 | `agresso-pool-funding-tag/` page + route entry | ✅ present |
+| T-BIL-TV-10 | Center-admin index entry | 🟡 deferred (no admin index page exists) |
+| T-BIL-TV-11 | Clarity telemetry call in override page | ✅ present |
+| T-BIL-TV-12 | Docs (`system-design` + `detailed-design` + README) | ✅ present |
+
+### A.2 — Mockup divergence audit
+
+Re-checked the only tag-visibility-scoped Figma fragment (`33486-134021` — `_table-td "Lever 2"` cell, 115×62, no Pool Funding semantics). The fragment is ambiguous (designer-review flag in its own mockup README, OQ-FIG-8 / OQ-33486-134021-A/B). Current `my-projects` Lever column renders plain `Lever <N>` text matching the cell content with the tree-toggler hidden, which matches the fragment. **No tag-visibility divergence found against `33486-134021`.**
+
+The two visual defects that did surface (pill wrap + project-detail header treatment) were caught against the general US1 mockup expectations, not against `33486-134021`.
+
+### A.3 — Bug-fix commits
+
+Three bug fixes landed against tag-visibility surfaces after the spec originally closed. Each is recorded here with the affected task, root cause, and verification status.
+
+#### A.3.1 — `e16ec195` (2026-05-23) — Project-detail header inline label
+
+- **Touches**: T-BIL-TV-06 (card-view badge) and T-BIL-TV-07 (project-detail header gating).
+- **Defect**: On the project-detail screen, the Pool Funding signal never rendered. `currentProject` is hydrated from `GET_ResultsCount`, which does not include `is_pool_funding_contributor`, so `showPoolFundingBadge` was silently `false`. Separately, the prior rendering used a green pill above the project-header row, but the Figma mockup `A1032` shows an inline `CONTRIBUTING TO POOL FUNDING` label adjacent to the project ID in the header itself.
+- **Fix**:
+  - `project-detail.component.ts` now injects `BilateralService` and calls `getContract(contractId)` on init; `showPoolFundingBadge` reads `bilateralService.currentContract()?.is_pool_funding_contributor` (the `FindContracts` response, which carries the flag).
+  - `project-item.component.html` was extended with an inline `CONTRIBUTING TO POOL FUNDING` label that renders when `isHeader && isPoolFunding`, matching the mockup layout.
+- **Verification**: project-detail manual smoke + existing `project-item.component.spec.ts` cases stay green.
+
+#### A.3.2 — `974e83c6` (2026-05-23) — Pool Funding filter URL parameter
+
+- **Touches**: T-BIL-TV-01 (`GET_FindContracts` URL builder) and T-BIL-TV-04 (`poolFundingOnly` filter wiring).
+- **Defect**: On the All Projects tab, the *Pool Funding only* filter appeared applied in the UI (chip + badge counter) but the resulting request URL omitted the parameter, so backend returned every record. Captured: `…&order-field=pool-funding-contributor&direction=ASC` with no `pool-funding-contributor=true`.
+- **Root cause**: `ApiService.buildFindContractsParams` (the actual URL builder reached after `MyProjectsService.applyFilters`) uses a hardcoded allowlist of filter keys. When T-BIL-TV-01 / T-BIL-TV-04 added `pool-funding-contributor` to the inline type on `GET_FindContracts` and to the `applyFilters` body, the allowlist was not updated, so the param was dropped before serialization.
+- **Fix**: Added `'pool-funding-contributor'` to the allowlist, plus a regression test in `api.service.spec.ts`. Also aligned the sidebar checkbox label color with adjacent filters.
+- **Verification**: regression test confirms `HttpParams` now includes `pool-funding-contributor=true` when the filter is active.
+
+#### A.3.3 — `0ac331b8` (2026-05-23) — `custom-tag` wrap default
+
+- **Touches**: T-BIL-TV-05 (table column rendering) and T-BIL-TV-06 (card-view badge) indirectly via the shared `<app-custom-tag>` consumer.
+- **Defect**: The `POOL FUNDING` pill rendered on two lines inside the narrow my-projects column.
+- **Root cause**: `custom-tag.component.html` only applied a `whitespace` rule on the `multiline=true` branch. On the default (`multiline=false`), browser-default `normal` wrapped the label at spaces, and the outer `width: min-content` made the words stack vertically.
+- **Fix**: Added `[class.whitespace-nowrap]="!multiline"`. Behavior change is opt-out only — `multiline=true` consumers and the `truncate-with-maxWidth` path are unaffected.
+- **Verification**: `custom-tag.component.spec.ts` (10/10) still green; manual check confirms the pill stays on one line in the my-projects column.
+
+### A.4 — Open items (rolled into existing OI list)
+
+- **OI-1 confirmed still open** — Result-list surfaces still lack `is_pool_funding_contributor` from backend; deferred as logged.
+- **OI-3 confirmed still moot** — No center-admin index page exists; T-BIL-TV-10 remains deferred.
+- **New OI-6** — `<app-custom-tag>` historically allowed wrap by default; consumers that depended on wrap will now need to set `[multiline]="true"` explicitly. None were found in-tree, but flagging for downstream consumers.
+
+### A.5 — Spec health after addendum
+
+- **Carry-forward to alignment-section**: the `<app-custom-tag>` `whitespace-nowrap` default and the inline-label header pattern are now both consumed by alignment-section's synced badge and section heading respectively.
+- **Carry-forward to indicator-mapping**: the `buildFindContractsParams` allowlist fix establishes that any new filter key for FindContracts needs both type extension AND allowlist registration — captured for the indicator-mapping HLO modal's contract picker reuse.
+- **Spec closure**: all 11 originally-completed tasks remain green; T-BIL-TV-10 remains deferred for the same documented reason; three post-ship defects fixed and tested. **Spec stays closed.**
