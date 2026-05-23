@@ -4,7 +4,13 @@
     <div class="content-section w-full">
       <div class="flex flex-col w-full bg-[#fcfcfc] rounded-[10px] p-[30px] mb-10">
         <div class="flex items-center justify-between">
-          <div class="section-title" data-testid="pf-alignment-title">SCIENCE PROGRAM CONTRIBUTION</div>
+          <div class="flex items-center gap-2">
+            <div class="section-title m-0" data-testid="pf-alignment-title">SCIENCE PROGRAM CONTRIBUTION</div>
+            <i class="pi pi-info-circle"
+               style="color: var(--ac-grey-500); font-size: 14px;"
+               aria-hidden="true"
+               data-testid="pf-alignment-title-info-icon"></i>
+          </div>
           @if (isReadOnly()) {
             <app-custom-tag
               statusId="pf-synced"
@@ -86,8 +92,8 @@
         @if (formData().has_contribution === true) {
           <section class="mb-6" data-testid="pf-alignment-levers-section">
             <app-multiselect
-              label="Select the Science Program(s) this is related to"
-              description="Select the Science Programs or Accelerators this result contributes to."
+              [label]="SP_PICKER_LABEL"
+              [isRequired]="true"
               [signal]="formData"
               signalOptionValue="lever_ids"
               optionLabel="short_name"
@@ -100,10 +106,6 @@
               <small role="alert" aria-live="polite" class="block mt-1 text-red-700"
                      data-testid="pf-alignment-error-lever_codes">{{ msg }}</small>
             }
-          </section>
-        } @else if (formData().has_contribution === false) {
-          <section class="mb-6 text-sm" data-testid="pf-alignment-no-contribution-message">
-            No Pool Funding contribution recorded.
           </section>
         }
 

@@ -67,6 +67,7 @@ export default class PoolFundingAlignmentComponent {
   readonly SYNCED_BADGE_ARIA_LABEL = 'Pool Funding Alignment is synced and read only';
   readonly INFO_BANNER = 'Select the High-Level Outputs (HLO) and related indicators this result contributes to.';
   readonly CONTRIBUTION_QUESTION = 'Does this result contribute to a Science Program or Accelerator?';
+  readonly SP_PICKER_LABEL = 'Select the Science Program(s) this is related to';
 
   readonly alignment = this.bilateralService.currentAlignment;
   readonly loading = this.bilateralService.loadingAlignment;
